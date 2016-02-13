@@ -60,3 +60,15 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# Project
+config.py
+db_create.py
+*.sqlite
+
+# virtualenv
+venv/
+
+# IntelliJ
+.idea/
+*.iml
