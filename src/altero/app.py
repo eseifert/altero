@@ -8,6 +8,8 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 from altero import API_VERSION, __version__
+from altero.api.errors import register_error_handlers
+from altero.api.routes import keys
 from altero.db import Database
 from altero.settings import Settings, get_settings
 
@@ -33,6 +35,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.database = database
+
+    register_error_handlers(app)
+    app.include_router(keys.router)
 
     @app.middleware("http")
     async def add_api_version_header(request: Request, call_next) -> Response:  # type: ignore[no-untyped-def]

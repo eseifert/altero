@@ -4,4 +4,15 @@ Every model must be re-exported here so that Alembic's autogenerate sees the
 complete metadata.
 """
 
-__all__: list[str] = []
+from altero.models.apikey import ApiKey, ApiKeyGroupAccess
+from altero.models.library import Group, GroupMember, Library, LibraryType, User
+
+__all__ = [
+    "ApiKey",
+    "ApiKeyGroupAccess",
+    "Group",
+    "GroupMember",
+    "Library",
+    "LibraryType",
+    "User",
+]

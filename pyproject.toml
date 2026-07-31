@@ -53,7 +53,9 @@ known-first-party = ["altero"]
 
 [tool.ty.environment]
 python-version = "3.14"
-root = ["src", "tests"]
+# The project root is a search path so that the `tests` package resolves the
+# same way it does under pytest.
+root = ["src", "."]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
