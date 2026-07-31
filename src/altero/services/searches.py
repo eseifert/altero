@@ -2,13 +2,13 @@
 
 from typing import Any
 
-from sqlalchemy import ColumnElement, Select, and_, func, select
+from sqlalchemy import ColumnElement, Select, and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import NotFoundError
 from altero.models import Library, SavedSearch
 from altero.query import Direction, ListQuery
-from altero.services.items import Page, paginate
+from altero.services.items import Page, count_matches, paginate
 
 _COLUMN_SORTS = {
     "title": SavedSearch.name,
@@ -46,7 +46,11 @@ async def list_searches(
         filters.append(SavedSearch.version > query.since)
 
     statement = select(SavedSearch).where(and_(*filters))
-    total = await session.scalar(select(func.count()).select_from(statement.subquery()))
     result = await session.scalars(paginate(_apply_sort(statement, query), query))
+    objects = list(result)
 
-    return Page(objects=list(result), total=total or 0, library_version=library.version)
+    return Page(
+        objects=objects,
+        total=await count_matches(session, statement, query, len(objects)),
+        library_version=library.version,
+    )

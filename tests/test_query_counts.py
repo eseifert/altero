@@ -116,3 +116,36 @@ class TestItemListings:
 
         assert parents["CCCC3333"] == "AAAA1111"
         assert parents["AAAA1111"] is None
+
+
+class TestUnpaginatedFormats:
+    async def test_the_keys_format_is_not_counted_twice(
+        self, app: FastAPI, client: httpx.AsyncClient, populated: Library
+    ) -> None:
+        """An unlimited page is the whole result set, so counting it is wasted work."""
+        with capture_sql(app) as statements:
+            response = await client.get("/users/1/items?format=keys", headers=AUTH)
+
+        assert response.headers["Total-Results"] == "10"
+        assert len(response.text.splitlines()) == 10
+        counts = [statement for statement in statements if "count(" in statement.lower()]
+        assert counts == [], f"the whole result set was counted as well as fetched: {counts}"
+
+    async def test_an_offset_is_still_reported_in_the_total(
+        self, client: httpx.AsyncClient, populated: Library
+    ) -> None:
+        """The total covers the objects the offset skipped, not just those returned."""
+        response = await client.get("/users/1/items?format=keys&start=4", headers=AUTH)
+
+        assert response.headers["Total-Results"] == "10"
+        assert len(response.text.splitlines()) == 6
+
+    async def test_the_versions_format_is_not_counted_twice(
+        self, app: FastAPI, client: httpx.AsyncClient, populated: Library
+    ) -> None:
+        with capture_sql(app) as statements:
+            response = await client.get("/users/1/items?format=versions", headers=AUTH)
+
+        assert response.headers["Total-Results"] == "10"
+        assert len(response.json()) == 10
+        assert [statement for statement in statements if "count(" in statement.lower()] == []

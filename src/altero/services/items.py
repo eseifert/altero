@@ -59,6 +59,26 @@ def paginate(statement: Select[Any], query: ListQuery) -> Select[Any]:
     return statement if query.limit == UNLIMITED else statement.limit(query.limit)
 
 
+async def count_matches(
+    session: AsyncSession,
+    statement: Select[Any],
+    query: ListQuery,
+    returned: int,
+) -> int:
+    """Return how many objects ``statement`` matches, for ``Total-Results``.
+
+    An unlimited page holds every match from ``start`` onwards, so the total is
+    already known and counting again would scan the library a second time. That
+    is the ``format=keys`` and ``format=versions`` case, which is what a syncing
+    client asks for most often.
+    """
+    if query.limit == UNLIMITED:
+        return query.start + returned
+
+    total = await session.scalar(select(func.count()).select_from(statement.subquery()))
+    return total or 0
+
+
 @dataclass(frozen=True, slots=True)
 class Page[T]:
     """One page of results, with the totals the response headers need."""
@@ -244,10 +264,14 @@ async def list_items(
     """Return one page of items, together with the total number of matches."""
     statement = await build_item_query(session, library, query, scope, key)
 
-    total = await session.scalar(select(func.count()).select_from(statement.subquery()))
     result = await session.scalars(paginate(_apply_sort(statement, query), query))
+    objects = list(result)
 
-    return Page(objects=list(result), total=total or 0, library_version=library.version)
+    return Page(
+        objects=objects,
+        total=await count_matches(session, statement, query, len(objects)),
+        library_version=library.version,
+    )
 
 
 async def get_item(session: AsyncSession, library: Library, key: str) -> Item:
