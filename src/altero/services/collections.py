@@ -1,5 +1,6 @@
 """Reading collections out of a library."""
 
+from collections.abc import Sequence
 from typing import Any
 
 from sqlalchemy import ColumnElement, Select, and_, func, select
@@ -75,34 +76,59 @@ async def list_collections(
     )
 
 
-async def count_subcollections(session: AsyncSession, collection: Collection) -> int:
-    """Return how many collections sit directly inside ``collection``."""
-    total = await session.scalar(
-        select(func.count())
-        .select_from(Collection)
-        .where(Collection.parent_id == collection.id, Collection.deleted.is_(False))
+async def count_subcollections(
+    session: AsyncSession, collections: Sequence[Collection]
+) -> dict[int, int]:
+    """Return how many collections sit directly inside each of ``collections``.
+
+    Keyed by collection id, with the empty ones absent, as the item helpers do.
+    """
+    if not collections:
+        return {}
+
+    result = await session.execute(
+        select(Collection.parent_id, func.count())
+        .where(
+            Collection.parent_id.in_([collection.id for collection in collections]),
+            Collection.deleted.is_(False),
+        )
+        .group_by(Collection.parent_id)
     )
-    return total or 0
+    return {parent_id: count for parent_id, count in result.all()}
 
 
-async def count_items(session: AsyncSession, collection: Collection) -> int:
-    """Return how many non-trashed top-level items ``collection`` holds."""
-    total = await session.scalar(
-        select(func.count())
-        .select_from(CollectionItem)
+async def count_items(session: AsyncSession, collections: Sequence[Collection]) -> dict[int, int]:
+    """Return how many non-trashed top-level items each of ``collections`` holds."""
+    if not collections:
+        return {}
+
+    result = await session.execute(
+        select(CollectionItem.collection_id, func.count())
         .join(Item, Item.id == CollectionItem.item_id)
         .where(
-            CollectionItem.collection_id == collection.id,
+            CollectionItem.collection_id.in_([collection.id for collection in collections]),
             Item.deleted.is_(False),
             Item.parent_id.is_(None),
         )
+        .group_by(CollectionItem.collection_id)
     )
-    return total or 0
+    return {collection_id: count for collection_id, count in result.all()}
 
 
-async def parent_key_of(session: AsyncSession, collection: Collection) -> str | None:
-    """Return the key of ``collection``'s parent, if it has one."""
-    if collection.parent_id is None:
-        return None
-    parent = await session.get(Collection, collection.parent_id)
-    return parent.key if parent else None
+async def parent_keys_for(
+    session: AsyncSession, collections: Sequence[Collection]
+) -> dict[int, str]:
+    """Return the key of every parent named by ``collections``, by parent id.
+
+    A page of top-level collections names none, and so costs no query.
+    """
+    parent_ids = {
+        collection.parent_id for collection in collections if collection.parent_id is not None
+    }
+    if not parent_ids:
+        return {}
+
+    result = await session.execute(
+        select(Collection.id, Collection.key).where(Collection.id.in_(parent_ids))
+    )
+    return {collection_id: key for collection_id, key in result.all()}

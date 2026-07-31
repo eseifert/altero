@@ -1,5 +1,6 @@
 """Collection endpoints."""
 
+from collections.abc import Sequence
 from typing import Any
 
 from fastapi import APIRouter
@@ -43,17 +44,37 @@ def collection_query(request: Request) -> ListQuery:
     )
 
 
+async def render_collections(
+    session: AsyncSession, collections: Sequence[Collection], library: Library, base_url: str
+) -> list[dict[str, Any]]:
+    """Serialize collections, gathering the counts their envelopes report.
+
+    Fetched once for the whole page rather than once per collection, for the
+    reason given in :func:`altero.api.routes.items.render_items`.
+    """
+    subcollections = await collections_service.count_subcollections(session, collections)
+    items = await collections_service.count_items(session, collections)
+    parent_keys = await collections_service.parent_keys_for(session, collections)
+
+    return [
+        serializers.collection(
+            collection,
+            library,
+            base_url,
+            num_collections=subcollections.get(collection.id, 0),
+            num_items=items.get(collection.id, 0),
+            parent_key=parent_keys.get(collection.parent_id) if collection.parent_id else None,
+        )
+        for collection in collections
+    ]
+
+
 async def render_collection(
     session: AsyncSession, collection: Collection, library: Library, base_url: str
 ) -> dict[str, Any]:
-    return serializers.collection(
-        collection,
-        library,
-        base_url,
-        num_collections=await collections_service.count_subcollections(session, collection),
-        num_items=await collections_service.count_items(session, collection),
-        parent_key=await collections_service.parent_key_of(session, collection),
-    )
+    """Serialize one collection."""
+    (rendered,) = await render_collections(session, [collection], library, base_url)
+    return rendered
 
 
 async def _render_page(
@@ -66,10 +87,7 @@ async def _render_page(
 ) -> Response:
     objects: list[Any] = []
     if query.response_format is Format.JSON:
-        objects = [
-            await render_collection(session, collection, library, base_url)
-            for collection in page.objects
-        ]
+        objects = await render_collections(session, page.objects, library, base_url)
 
     return listing_response(
         request,

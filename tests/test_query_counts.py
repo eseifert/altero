@@ -118,6 +118,54 @@ class TestItemListings:
         assert parents["AAAA1111"] is None
 
 
+class TestCollectionListings:
+    @pytest.fixture
+    async def shelves(self, session: AsyncSession, library: Library) -> Library:
+        """Ten collections, each holding an item and each nested under a parent."""
+        root = await make_collection(session, library, key="ROOT1111", name="Root")
+        for index in range(10):
+            item = await make_item(session, library, fields={"title": f"Item {index}"})
+            await make_collection(
+                session, library, name=f"Shelf {index}", parent=root, items=[item]
+            )
+        return library
+
+    async def test_a_larger_page_costs_no_more_queries(
+        self, app: FastAPI, client: httpx.AsyncClient, shelves: Library
+    ) -> None:
+        # Two rather than one, so that the small page also holds a nested
+        # collection: a page of only top-level collections names no parent and
+        # legitimately skips that query.
+        with capture_sql(app) as two_collections:
+            small = await client.get("/users/1/collections?limit=2", headers=AUTH)
+        with capture_sql(app) as ten_collections:
+            large = await client.get("/users/1/collections?limit=10", headers=AUTH)
+
+        assert len(small.json()) == 2
+        assert len(large.json()) == 10
+        assert len(ten_collections) == len(two_collections), (
+            f"a page of ten cost {len(ten_collections)} queries "
+            f"against {len(two_collections)} for a page of two"
+        )
+
+    async def test_the_counts_land_on_the_right_collection(
+        self, client: httpx.AsyncClient, shelves: Library
+    ) -> None:
+        body = (await client.get("/users/1/collections?limit=25", headers=AUTH)).json()
+        by_key = {entry["key"]: entry for entry in body}
+
+        root = by_key.pop("ROOT1111")
+        assert root["meta"]["numCollections"] == 10
+        assert root["meta"]["numItems"] == 0
+        assert root["data"]["parentCollection"] is False
+
+        assert len(by_key) == 10
+        for entry in by_key.values():
+            assert entry["meta"]["numCollections"] == 0
+            assert entry["meta"]["numItems"] == 1
+            assert entry["data"]["parentCollection"] == "ROOT1111"
+
+
 class TestUnpaginatedFormats:
     async def test_the_keys_format_is_not_counted_twice(
         self, app: FastAPI, client: httpx.AsyncClient, populated: Library
