@@ -1,0 +1,148 @@
+# Contributing to altero
+
+altero reimplements a protocol that other people's software already speaks. That
+shapes almost everything below: the question is rarely "is this good design" but
+"is this what the Zotero client expects".
+
+## Getting set up
+
+```sh
+uv sync
+uv run pre-commit install
+cp config.example.py config.py
+uv run alembic upgrade head
+uv run pytest
+```
+
+Python 3.14 or newer, and [uv](https://docs.astral.sh/uv/). `pre-commit install`
+is per-checkout and easy to forget; without it CI will fail on formatting you
+could have fixed locally.
+
+The concurrency tests need PostgreSQL, because SQLite has a single writer and so
+cannot exhibit the races they cover. They skip without it, which is why CI
+supplies one and fails if anything skipped:
+
+```sh
+docker run -d --name altero-pg -e POSTGRES_PASSWORD=altero \
+    -e POSTGRES_USER=altero -e POSTGRES_DB=altero -p 55432:5432 postgres:17-alpine
+export ALTERO_TEST_POSTGRES_URL=postgresql+asyncpg://altero:altero@localhost:55432/altero
+uv run pytest
+```
+
+## The one architectural rule
+
+`altero/api/` is the only package that may know about the web framework.
+Everything else — `services/`, `query.py`, `search.py`, `pagination.py`,
+`serializers.py`, `itemschema/` — takes a database session and plain values, and
+reports failure with the domain errors in `errors.py`, which carry no HTTP
+vocabulary. `api/errors.py` maps those onto status codes.
+
+The point is not purity. It is that the interesting logic can be tested and
+reasoned about without a request, and that replacing FastAPI would not mean
+rewriting the server.
+
+`tests/test_architecture.py` enforces this by walking the import graph. If you
+add a module that legitimately starts the server, add it to `FRAMEWORK_MODULES`
+there rather than loosening the check.
+
+## Deciding what the right behaviour is
+
+Three sources, in decreasing order of authority:
+
+1. **The running API** at `api.zotero.org`. Compare responses directly. This
+   settles most questions in one request.
+2. **The reference implementation**,
+   [zotero/dataserver](https://github.com/zotero/dataserver) — mainly
+   `model/API.inc.php`, `model/Items.inc.php`, `model/Tags.inc.php` and the
+   controllers.
+3. **The published documentation**, last, because it has been wrong more than
+   once. It describes per-alternative negation in search expressions; neither
+   the live API nor the implementation behaves that way.
+
+Where the sources disagree, **the dataserver wins, even when it looks like a
+bug** — the goal is a server the Zotero client works against, not a tidier API.
+Mirrored quirks are recorded in [docs/compatibility.md](docs/compatibility.md)
+with the source that settles them, and deliberate departures are recorded there
+too, with the reason.
+
+Read that file and [docs/schema.md](docs/schema.md) before "fixing" something
+that looks wrong.
+
+## Tests
+
+**Write the test first, and make sure it fails.** A test that has never failed
+is not evidence that anything works. When fixing a bug, revert the fix and watch
+the test go red before you commit. This is not ceremony: it caught a concurrency
+test on this project that passed just as happily with the bug present.
+
+**Test through the layer the behaviour belongs to.** Rules that are pure
+functions of their input — search syntax, pagination arithmetic, key
+validation — get unit tests with no database. Endpoint behaviour gets tested
+through an HTTP client against the app. Prefer the lower layer where there is a
+choice; it is faster and the failure is easier to read.
+
+**Do not stop at the test client.** Two real bugs on this project survived a
+green suite and only appeared when a real server was driven with `curl`: child
+items left pointing at a deleted parent, and an attachment template the server
+itself would not accept back. If a change touches the request path, run the
+server and use it.
+
+**Name the behaviour, not the function.** `test_negation_covers_every_alternative`
+survives a refactor; `test_parse_expression_2` does not.
+
+## Commits
+
+One change per commit, with a message that explains **why**. The diff already
+says what changed. What it cannot say is which of three plausible behaviours the
+API actually has, or that a limit exists because the desktop client would
+otherwise silently believe a library holds 25 objects.
+
+If you found the answer in the dataserver or by measuring against a live
+library, say so in the message. The next person will have the same doubt.
+
+## Adding an endpoint
+
+1. Check the shape against the live API before writing anything.
+2. Put the behaviour in `services/`, the routing in `api/routes/`.
+3. Add it to the inventory in `tests/test_routes.py`. That test fails both when
+   a route disappears and when an undeclared one appears — deliberately, because
+   restructuring has twice dropped an endpoint silently. Under PEP 649 a
+   dependency annotation that no longer resolves does not raise; FastAPI treats
+   it as a missing query parameter and answers 400.
+4. Update the status list in `README.md`.
+
+## Changing the database
+
+Models live in `altero/models/`, one module per area, all re-exported from
+`__init__.py` so that Alembic's autogenerate sees them.
+
+Nothing has been released yet, so there is a single initial revision that gets
+regenerated when models change. Once there is a release, add revisions instead.
+Autogenerate against a database already at `head`, or it will re-detect the
+existing tables:
+
+```sh
+uv run alembic upgrade head
+uv run alembic revision --autogenerate -m "describe the change"
+uv run alembic check          # what CI runs; passes only when they agree
+```
+
+Keep to portable constructs. SQLite is the default and PostgreSQL is the
+supported deployment, so nothing may depend on features of one alone.
+
+## Before opening a pull request
+
+```sh
+uv run ruff format .
+uv run ruff check --fix .
+uv run ty check
+uv run pytest
+```
+
+CI runs the same checks, plus PostgreSQL for the concurrency tests and
+`alembic check` for schema drift. It fails if any test skipped, so a green run
+locally without `ALTERO_TEST_POSTGRES_URL` set is weaker evidence than it looks.
+
+If you changed observable behaviour, say in the pull request how you established
+what the behaviour should be. "The documentation says so" is not sufficient on
+its own — see above.

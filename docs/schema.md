@@ -48,9 +48,14 @@ service functions if it ever matters.
 
 **Notes and attachments are not separate tables.** The dataserver keeps
 `itemNotes` (with a sanitized copy and an 80-character derived title) and
-`itemAttachments`. altero stores a note's content as an ordinary field row. This
-will need revisiting when the file protocol is implemented, since
-`itemAttachments` carries the storage columns.
+`itemAttachments`. altero stores both a note's content and an attachment's
+storage columns as ordinary field rows in `item_fields`. Those fields are not in
+the published schema, so the set each type accepts is declared in
+`UNLISTED_FIELDS` in `services/itemwrites.py` rather than derived.
+
+The upside is that one code path stores every field of every item type. The
+cost is that nothing at the database level constrains an attachment to have a
+`linkMode`, where a dedicated table would.
 
 **Relations are stored per item.** The dataserver has a library-scoped
 `relations(subject, predicate, object)` table plus `itemRelated` for
@@ -64,9 +69,19 @@ and joins `itemData` for date sorting. altero keeps `sort_title`, `sort_creator`
 and `sort_date` on `items`, untruncated, so every sort is a single-table index
 scan.
 
-**No sharding, full-text or storage tables.** `shards`, `shardHosts`,
-`itemFulltext`, `storageFiles` and the rest have no counterpart, because the
-corresponding features are not implemented.
+**No sharding.** `shards`, `shardHosts` and `shardLibraries` have no
+counterpart: the dataserver spreads libraries across MySQL servers, and altero
+uses one database.
+
+**Files are stored by digest, not tracked per library.** The dataserver has
+`storageFiles`, `storageFileItems`, `storageFileLibraries` and an upload queue,
+because it hands uploads to S3 and has to account for them. altero writes the
+bytes itself, under `<storage>/<first two characters of the digest>/<digest>`,
+so identical files are stored once and the only table needed is
+`storage_uploads` — one row per authorization, deleted once the upload is
+registered. Nothing counts how many items reference a given file, so removing an
+item leaves its bytes on disk; a collector that deletes unreferenced files is
+not written yet.
 
 **The item type schema is not in the database.** The dataserver stores item
 types, fields and their mappings in `master.sql` tables (`itemTypes`, `fields`,
@@ -74,6 +89,19 @@ types, fields and their mappings in `master.sql` tables (`itemTypes`, `fields`,
 instead, which keeps them in step with the published schema and out of
 migrations. Item types and field names are therefore stored as strings rather
 than as foreign keys to an ID table.
+
+## Tables with no direct counterpart
+
+`write_tokens` records a `Zotero-Write-Token` for as long as a client might
+retry with it, so a repeated request does not create the objects twice. The
+dataserver caches these outside the database.
+
+`item_fulltext` holds the text a client extracted from an attachment, matching
+the dataserver's table of the same purpose, without the reindexing bookkeeping
+that a hosted service needs.
+
+`settings` matches the dataserver's, except that the value is stored as JSON
+text: the server never interprets a setting, so there is nothing to model.
 
 ## Delete log
 

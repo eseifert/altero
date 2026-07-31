@@ -15,17 +15,26 @@ Implemented:
 - Reading items, collections, saved searches and tags, including `format=json`,
   `keys` and `versions`, pagination with the `Link` header, sorting, `since`,
   and `If-Modified-Since-Version`
+- Tag listings scoped to a library, a collection, one item, the top level or
+  the trash
 - Writing items, collections and saved searches, and deleting tags, with the
   multi-object response, version preconditions and `Zotero-Write-Token`
+- Items of every type, including notes, attachments and annotations, whose
+  fields the published schema does not list
+- Client-supplied `dateAdded` and `dateModified`, kept as sent
 - `/deleted?since=`, so a client that has been away can tell a deletion from an
   object it has not fetched
-- Library settings and attachment full-text content
-- The attachment file protocol, storing files under their digest
+- Library settings, and attachment full-text with `/fulltext?since=`
+- The attachment file protocol, storing files once per digest
 - Provisioning from the command line, CORS, and API version negotiation
 
 Not implemented yet: Atom, bibliography and citation rendering, the export
 formats, group creation through the API (the command line does it),
 `/publications`, and rate limiting.
+
+Writes to a library are serialized, so one request produces exactly one new
+version however many objects it touches. See
+[docs/schema.md](docs/schema.md#concurrency).
 
 ## Compatibility
 
@@ -84,42 +93,19 @@ Set `ALTERO_CONFIG` to load a configuration module from another path.
 
 ## Development
 
-Install the git hooks once per checkout, so formatting and linting happen before
-a commit rather than in review:
-
 ```sh
-uv run pre-commit install
-```
+uv sync
+uv run pre-commit install  # once per checkout
 
-```sh
 uv run pytest              # run the test suite
-uv run pytest --cov        # ... with a coverage report
 uv run ruff format         # format
 uv run ruff check --fix    # lint
 uv run ty check            # type-check
 ```
 
-The concurrency tests need PostgreSQL, since SQLite serializes writers and so
-cannot exhibit the races they cover. They are skipped unless a server is named:
-
-```sh
-docker run -d --name altero-pg -e POSTGRES_PASSWORD=altero \
-    -e POSTGRES_USER=altero -e POSTGRES_DB=altero -p 55432:5432 postgres:17-alpine
-ALTERO_TEST_POSTGRES_URL=postgresql+asyncpg://altero:altero@localhost:55432/altero \
-    uv run pytest tests/test_concurrency.py
-```
-
-Every push and pull request runs the same checks in GitHub Actions, with
-PostgreSQL available so the concurrency tests actually run rather than skipping.
-The workflow also fails when a model has been changed without a matching
-migration.
-
-Database migrations are managed with Alembic:
-
-```sh
-uv run alembic revision --autogenerate -m "describe the change"
-uv run alembic upgrade head
-```
+[CONTRIBUTING.md](CONTRIBUTING.md) covers the layering rule, how behaviour is
+checked against the reference implementation, and what a change is expected to
+come with.
 
 ## License
 

@@ -93,6 +93,30 @@ such as an unknown `sort` field, produce a 400.
 **Backward links omit a zero start.** `rel="first"` and `rel="prev"` are written
 as `?limit=2`, not `?limit=2&start=0`.
 
+## Fields the published schema does not list
+
+`https://api.zotero.org/schema` gives `attachment` only `title`, `accessDate`
+and `url`, and gives `note` and `annotation` no fields at all. All three carry
+more than that: an attachment has `linkMode`, `contentType`, `charset`,
+`filename`, `md5`, `mtime` and `path`, a note has `note`, and an annotation has
+the `annotation*` family. Validating strictly against the published schema
+rejects the server's own `/items/new` template.
+
+Those sets are therefore declared in `UNLISTED_FIELDS` in
+`services/itemwrites.py`. The attachment set was read off live responses, the
+annotation set from the client's data model. A field outside both the schema and
+that table is still rejected, so a storage field on a `book` is an error.
+
+If a write is refused with `Invalid field`, this is the first place to look.
+
+## Timestamps
+
+`dateAdded` and `dateModified` come from the client and round-trip unchanged, so
+uploading an existing library keeps its history instead of rewriting every item
+to the moment of upload. `serverDateModified` is always the server's own, which
+is what makes sorting by it trustworthy: a client cannot reorder another
+client's results by backdating its own timestamps.
+
 ## Item type schema
 
 These came out of comparing all 163 schema responses against the live API.
@@ -117,9 +141,34 @@ templates with `director`. Both behaviours are reproduced, so a template fetched
 from altero is interchangeable with one fetched from Zotero. See
 `TEMPLATE_CREATOR_TYPES` in `altero/itemschema/registry.py`.
 
+## The file protocol
+
+Uploading a file is three requests — authorize, send the bytes, register — and
+altero speaks the same exchange, including the `uploadKey` carried between the
+steps and the `{"exists": 1}` reply when the server already holds those bytes.
+
+The middle step differs of necessity. Upstream returns an S3 URL together with a
+`prefix` and `suffix` that the client wraps around the file to form a multipart
+POST. A self-hosted server has no S3, so the authorization step points back at
+altero and both are empty strings, meaning the client sends the file with
+nothing wrapped around it. A client that concatenates prefix, file and suffix as
+documented still produces exactly the file.
+
+Uploaded bytes are checked against the declared MD5 and length before being
+stored, and `If-Match` or `If-None-Match` is required, so a client working from
+stale information cannot overwrite a newer file.
+
+## API versions
+
+Only version 3 is served. A request naming another version through the
+`Zotero-API-Version` header or the `v` parameter is refused with `400` rather
+than answered, because a v1 or v2 client expects Atom, which is not implemented:
+returning v3 bodies under a v2 label would be worse than saying so. A header and
+a parameter that disagree are also refused, as upstream does.
+
 ## Deliberate differences
 
-Three places where altero does not copy upstream:
+Four places where altero does not copy upstream:
 
 - **`alternate` links are omitted.** Every upstream envelope carries a link to
   the corresponding page on zotero.org, and the `Link` header always ends with
@@ -129,6 +178,10 @@ Three places where altero does not copy upstream:
   single-page response has no `Link` header at all, where upstream still emits
   the `alternate` one.
 - **An unknown `locale` falls back to `en-US`.** The live API answers `500`.
+- **Rate limiting is absent.** Upstream throttles with `Backoff` and
+  `Retry-After`; a self-hosted server with a handful of clients has nothing to
+  protect itself from. The headers are named in the CORS configuration so that
+  adding them later needs no client change.
 - **Fields sharing a localized name may order differently.** Three fields are
   called "Format"; upstream breaks the tie on an internal identifier that the
   published schema does not contain, so their relative order is arbitrary here.
