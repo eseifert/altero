@@ -297,12 +297,29 @@ async def _delete_one(session: AsyncSession, library: Library, item: Item, versi
     for child in list(children):
         await _delete_one(session, library, child, version)
 
+    tag_ids = list(await session.scalars(select(ItemTag.tag_id).where(ItemTag.item_id == item.id)))
     await session.execute(delete(ItemTag).where(ItemTag.item_id == item.id))
     await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
     key = item.key
     await session.delete(item)
     await session.flush()
+
+    await _drop_unused_tags(session, tag_ids)
     await record_deletion(session, library, DeletedObjectType.ITEM, key, version)
+
+
+async def _drop_unused_tags(session: AsyncSession, tag_ids: list[int]) -> None:
+    """Remove tags that no item carries any more.
+
+    A tag exists only through its items, so one left with none is invisible over
+    the API; without this the row would linger.
+    """
+    for tag_id in tag_ids:
+        still_used = await session.scalar(
+            select(ItemTag.item_id).where(ItemTag.tag_id == tag_id).limit(1)
+        )
+        if still_used is None:
+            await session.execute(delete(Tag).where(Tag.id == tag_id))
 
 
 async def delete_items(

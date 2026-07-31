@@ -465,6 +465,41 @@ class TestDelete:
         body = (await client.get("/users/1/deleted?since=10", headers=AUTH)).json()
         assert sorted(body["items"]) == ["AAAA2345", "BBBB2345"]
 
+    async def test_a_tag_left_with_no_items_is_removed(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        from sqlalchemy import func, select
+
+        from altero.models import Tag
+
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "fiction")
+
+        await client.delete(
+            "/users/1/items/AAAA2345", headers=AUTH | {"If-Unmodified-Since-Version": "10"}
+        )
+
+        # The tag is already invisible over the API, which joins through items,
+        # but the row would otherwise accumulate.
+        remaining = await session.scalar(select(func.count()).select_from(Tag))
+        assert remaining == 0
+
+    async def test_a_tag_still_used_elsewhere_is_kept(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, one, "fiction")
+        await tag_item(session, library, two, "fiction")
+
+        await client.delete(
+            "/users/1/items/AAAA2345", headers=AUTH | {"If-Unmodified-Since-Version": "10"}
+        )
+
+        assert [t["tag"] for t in (await client.get("/users/1/tags", headers=AUTH)).json()] == [
+            "fiction"
+        ]
+
     async def test_deleting_an_item_removes_its_tag_links(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
