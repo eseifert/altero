@@ -60,7 +60,18 @@ NOTE_BEARING_TYPES = frozenset({"note", "attachment"})
 #: since the published schema names none of it.
 UNLISTED_FIELDS: dict[str, frozenset[str]] = {
     "attachment": frozenset(
-        {"linkMode", "contentType", "charset", "filename", "md5", "mtime", "path"}
+        {
+            "linkMode",
+            "contentType",
+            "charset",
+            "filename",
+            "md5",
+            "mtime",
+            "path",
+            # Added at schema version 42; the client uploads it on its own when
+            # a snapshot is opened.
+            "lastRead",
+        }
     ),
     "annotation": frozenset(
         {
@@ -141,8 +152,13 @@ def _validate_tags(tags: Any) -> list[tuple[str, int]]:
     return result
 
 
-def validate_item(payload: dict[str, Any]) -> dict[str, Any]:
+def validate_item(payload: dict[str, Any], existing: Item | None = None) -> dict[str, Any]:
     """Check an item's JSON against the schema and return its parts.
+
+    Args:
+        existing: The stored item, when the payload addresses one. An object
+            that names an existing item and omits ``itemType`` is a partial
+            update, and takes the type from that item.
 
     Raises:
         InvalidInputError: if the item type, a field or a creator type is not
@@ -150,7 +166,9 @@ def validate_item(payload: dict[str, Any]) -> dict[str, Any]:
     """
     item_type = payload.get("itemType")
     if not isinstance(item_type, str):
-        raise InvalidInputError("'itemType' property not provided")
+        if existing is None:
+            raise InvalidInputError("'itemType' property not provided")
+        item_type = existing.item_type
 
     schema = get_schema()
     type_ = schema.get_item_type(item_type)
@@ -343,19 +361,31 @@ async def save_item(
         replace: Whether omitted properties are cleared.
         require_version: Whether the payload must state the version it replaces.
     """
-    parsed = validate_item(payload)
-    target_key = key or parsed["key"]
+    # The item has to be resolved before validation, because an object naming an
+    # existing item may omit properties that a new one must carry.
+    target_key = key or (payload.get("key") if is_valid_key(str(payload.get("key", ""))) else None)
 
     item = None
     if target_key:
         item = await session.scalar(
-            select(Item).where(Item.library_id == library.id, Item.key == target_key)
+            select(Item).where(Item.library_id == library.id, Item.key == str(target_key))
         )
+
+    parsed = validate_item(payload, item)
+
+    # An object that addresses an existing item without restating its type is a
+    # diff against what the server already holds, so it must not clear the rest.
+    if item is not None and "itemType" not in payload:
+        replace = False
 
     if item is None:
         if require_version and parsed["version"]:
             raise NotFoundError("Not found")
-        item = Item(library_id=library.id, key=coerce_key(target_key), version=version)
+        item = Item(
+            library_id=library.id,
+            key=coerce_key(str(target_key) if target_key else None),
+            version=version,
+        )
         session.add(item)
     else:
         check_object_version(item.version, parsed["version"], required=require_version)

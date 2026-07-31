@@ -745,3 +745,132 @@ class TestClientTimestamps:
 
         body = (await client.get(f"/users/1/items/{key}", headers=AUTH)).json()
         assert body["data"]["dateAdded"] == "2019-01-01T10:00:00Z"
+
+
+class TestPartialUploads:
+    """The client uploads only what changed.
+
+    Having synced an item once, it keeps the server's version in a local cache
+    and later uploads a diff against it — `{key, version, ...changed fields}`
+    with no `itemType`. Upstream treats such an object as a partial update and
+    takes the item type from the stored item; requiring `itemType` rejects it
+    and the client stops with "Made no progress during upload".
+    """
+
+    async def test_a_partial_object_updates_the_stored_item(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", version=10, fields={"title": "Kept"})
+
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "accessDate": "2026-01-01T00:00:00Z"}],
+        )
+
+        assert response.status_code == 200
+        assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["itemType"] == "book"
+        assert data["title"] == "Kept"
+        assert data["accessDate"] == "2026-01-01T00:00:00Z"
+
+    async def test_the_exact_upload_the_client_sent(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Copied from a real sync: opening a snapshot updates lastRead only.
+        await make_item(session, library, key="IJ7GDYP9", version=12, item_type="attachment")
+
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[
+                {
+                    "key": "IJ7GDYP9",
+                    "version": 12,
+                    "lastRead": 1785524654,
+                    "dateModified": "2026-07-31T18:48:01Z",
+                }
+            ],
+        )
+
+        assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/IJ7GDYP9", headers=AUTH)).json()["data"]
+        assert data["lastRead"] == "1785524654"
+
+    async def test_a_new_item_still_needs_an_item_type(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        # Only an existing key makes an object partial.
+        body = (
+            await client.post(
+                "/users/1/items", headers=JSON, json=[{"key": "ZZZZ2345", "version": 0}]
+            )
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+        assert "itemType" in body["failed"]["0"]["message"]
+
+    async def test_an_object_with_no_key_at_all_needs_an_item_type(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (await client.post("/users/1/items", headers=JSON, json=[{}])).json()
+
+        assert body["failed"]["0"]["code"] == 400
+
+    async def test_a_partial_update_leaves_other_fields_alone(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            version=10,
+            fields={"title": "Moby-Dick", "publisher": "Harper"},
+            creators=[("author", "Herman", "Melville")],
+        )
+
+        await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "publisher": "Penguin"}],
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["title"] == "Moby-Dick"
+        assert data["publisher"] == "Penguin"
+        assert data["creators"][0]["lastName"] == "Melville"
+
+    async def test_a_stale_version_in_a_partial_object_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", version=10)
+
+        body = (
+            await client.post(
+                "/users/1/items", headers=JSON, json=[{"key": "AAAA2345", "version": 3}]
+            )
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 412
+
+    async def test_last_read_is_accepted_on_an_attachment(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[
+                    {
+                        "itemType": "attachment",
+                        "linkMode": "imported_url",
+                        "title": "Snapshot",
+                        "lastRead": 1785524654,
+                    }
+                ],
+            )
+        ).json()
+
+        assert body["failed"] == {}
+        assert body["successful"]["0"]["data"]["lastRead"] == "1785524654"

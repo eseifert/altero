@@ -224,6 +224,21 @@ is what the client sends back as `If-Match` next time.
 Upstream returns an S3 URL, so this only shows up on a server that hosts its own
 uploads.
 
+**Uploads are diffs, not whole objects.** Once an item has been synced, the
+client keeps the server's version of it in a local cache and later uploads only
+what changed — `{key, version, lastRead, dateModified}` and nothing else, with
+no `itemType`. Upstream calls this a partial update: `validateJSONItem` clears
+its required-property list and takes the item type from the stored item.
+
+An object in a `POST` batch is therefore treated as a partial update when it
+names an item that exists and omits `itemType`, leaving every property it does
+not mention alone. A new item still has to say what type it is. Requiring
+`itemType` unconditionally rejects the diff, and the client answers by giving up
+with "Made no progress during upload".
+
+`lastRead` is a real attachment field, added at schema version 42, which the
+client sets on its own when a snapshot is opened.
+
 ## API versions
 
 Only version 3 is served. A request naming another version through the
