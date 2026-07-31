@@ -248,3 +248,79 @@ class TestTags:
 
         assert body["data"]["tags"] == [{"tag": "auto", "type": 1}, {"tag": "fiction"}]
         assert body["data"]["collections"] == ["COLL2345"]
+
+
+class TestScopedTags:
+    """Tags can be listed against any of the item scopes."""
+
+    async def test_tags_of_a_collection_are_listed(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        inside = await make_item(session, library, key="AAAA2345")
+        outside = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, inside, "inside")
+        await tag_item(session, library, outside, "outside")
+        await make_collection(session, library, key="COLL2345", items=[inside])
+
+        body = (await client.get("/users/1/collections/COLL2345/tags", headers=AUTH)).json()
+
+        assert [t["tag"] for t in body] == ["inside"]
+
+    async def test_tags_of_a_collections_items_are_listed(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        inside = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, inside, "inside")
+        await make_collection(session, library, key="COLL2345", items=[inside])
+
+        body = (await client.get("/users/1/collections/COLL2345/items/tags", headers=AUTH)).json()
+
+        assert [t["tag"] for t in body] == ["inside"]
+
+    async def test_top_level_tags_exclude_child_items(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        parent = await make_item(session, library, key="AAAA2345")
+        child = await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
+        await tag_item(session, library, parent, "onparent")
+        await tag_item(session, library, child, "onchild")
+
+        top = (await client.get("/users/1/items/top/tags", headers=AUTH)).json()
+        every = (await client.get("/users/1/items/tags", headers=AUTH)).json()
+
+        assert [t["tag"] for t in top] == ["onparent"]
+        assert sorted(t["tag"] for t in every) == ["onchild", "onparent"]
+
+    async def test_trash_tags_cover_only_trashed_items(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        live = await make_item(session, library, key="AAAA2345")
+        trashed = await make_item(session, library, key="BBBB2345", deleted=True)
+        await tag_item(session, library, live, "live")
+        await tag_item(session, library, trashed, "gone")
+
+        body = (await client.get("/users/1/items/trash/tags", headers=AUTH)).json()
+
+        assert [t["tag"] for t in body] == ["gone"]
+
+    async def test_top_and_trash_are_not_read_as_item_keys(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        # `/items/top/tags` must not be routed as item key "top".
+        for scope in ("top", "trash"):
+            response = await client.get(f"/users/1/items/{scope}/tags", headers=AUTH)
+            assert response.status_code == 200, scope
+
+    async def test_a_scoped_listing_still_counts_across_the_library(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, one, "shared")
+        await tag_item(session, library, two, "shared")
+        await make_collection(session, library, key="COLL2345", items=[one])
+
+        body = (await client.get("/users/1/collections/COLL2345/tags", headers=AUTH)).json()
+
+        assert [t["tag"] for t in body] == ["shared"]
+        assert body[0]["meta"]["numItems"] == 1

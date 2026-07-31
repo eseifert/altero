@@ -13,7 +13,7 @@ from starlette.responses import FileResponse, JSONResponse, Response
 
 from altero.api.deps import ReadableLibraryDep, SessionDep, WritableLibraryDep
 from altero.api.responses import library_headers
-from altero.errors import InvalidInputError, RequestTooLargeError
+from altero.errors import RequestTooLargeError
 from altero.services import items as items_service
 from altero.services import storage, writes
 
@@ -124,10 +124,3 @@ async def view_file(
         content_type = f"{content_type}; charset={charset}"
 
     return FileResponse(path, media_type=content_type)
-
-
-@router.delete("/users/{user_id}/items/{item_key}/file")
-@router.delete("/groups/{group_id}/items/{item_key}/file")
-async def delete_file(item_key: str) -> Response:
-    """Not supported: a file goes away with the item that carries it."""
-    raise InvalidInputError("Delete the attachment item instead")

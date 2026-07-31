@@ -218,6 +218,22 @@ async def build_item_query(
     return select(Item).where(and_(*filters))
 
 
+async def item_ids_in_scope(
+    session: AsyncSession,
+    library: Library,
+    query: ListQuery,
+    scope: Scope = Scope.ALL,
+    key: str | None = None,
+) -> Select[Any]:
+    """Return a ``SELECT`` of the item ids matching ``scope``.
+
+    The tag endpoints count tags against a set of items, so they reuse the same
+    filtering the item endpoints do rather than repeating it.
+    """
+    statement = await build_item_query(session, library, query, scope, key)
+    return statement.with_only_columns(Item.id)
+
+
 async def list_items(
     session: AsyncSession,
     library: Library,
