@@ -2,7 +2,23 @@
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.models import ApiKey, Group, GroupMember, Library, LibraryType, User
+from altero.models import (
+    ApiKey,
+    Collection,
+    CollectionItem,
+    Group,
+    GroupMember,
+    Item,
+    ItemCreator,
+    ItemField,
+    ItemTag,
+    Library,
+    LibraryType,
+    SavedSearch,
+    SearchCondition,
+    Tag,
+    User,
+)
 
 
 async def make_user(
@@ -83,3 +99,124 @@ async def make_api_key(
     session.add(api_key)
     await session.commit()
     return api_key
+
+
+async def make_item(
+    session: AsyncSession,
+    library: Library,
+    *,
+    key: str | None = None,
+    item_type: str = "book",
+    version: int = 1,
+    fields: dict[str, str] | None = None,
+    creators: list[tuple[str, str, str]] | None = None,
+    parent: Item | None = None,
+    deleted: bool = False,
+) -> Item:
+    """Create an item with its fields, creators and derived sort keys.
+
+    Args:
+        creators: ``(creatorType, firstName, lastName)`` triples.
+    """
+    from altero.keys import generate_key
+    from altero.services.itemdata import derive_sort_creator, derive_sort_date, derive_sort_title
+
+    fields = fields or {}
+    item = Item(
+        library_id=library.id,
+        key=key or generate_key(),
+        version=version,
+        item_type=item_type,
+        parent_id=parent.id if parent else None,
+        deleted=deleted,
+    )
+    item.fields = [ItemField(field=name, value=value) for name, value in fields.items()]
+    item.creators = [
+        ItemCreator(position=index, creator_type=type_, first_name=first, last_name=last)
+        for index, (type_, first, last) in enumerate(creators or [])
+    ]
+    item.sort_title = derive_sort_title(item_type, fields)
+    item.sort_creator = derive_sort_creator(item.creators)
+    item.sort_date = derive_sort_date(item_type, fields)
+
+    session.add(item)
+    await session.commit()
+    await session.refresh(item)
+    return item
+
+
+async def make_collection(
+    session: AsyncSession,
+    library: Library,
+    *,
+    key: str | None = None,
+    name: str = "Collection",
+    version: int = 1,
+    parent: Collection | None = None,
+    items: list[Item] | None = None,
+) -> Collection:
+    from altero.keys import generate_key
+
+    collection = Collection(
+        library_id=library.id,
+        key=key or generate_key(),
+        name=name,
+        version=version,
+        parent_id=parent.id if parent else None,
+    )
+    session.add(collection)
+    await session.flush()
+
+    for item in items or []:
+        session.add(CollectionItem(collection_id=collection.id, item_id=item.id))
+
+    await session.commit()
+    await session.refresh(collection)
+    return collection
+
+
+async def make_search(
+    session: AsyncSession,
+    library: Library,
+    *,
+    key: str | None = None,
+    name: str = "Search",
+    version: int = 1,
+    conditions: list[tuple[str, str, str]] | None = None,
+) -> SavedSearch:
+    from altero.keys import generate_key
+
+    search = SavedSearch(
+        library_id=library.id, key=key or generate_key(), name=name, version=version
+    )
+    search.conditions = [
+        SearchCondition(position=index, condition=condition, operator=operator, value=value)
+        for index, (condition, operator, value) in enumerate(conditions or [])
+    ]
+    session.add(search)
+    await session.commit()
+    await session.refresh(search)
+    return search
+
+
+async def tag_item(
+    session: AsyncSession,
+    library: Library,
+    item: Item,
+    name: str,
+    *,
+    tag_type: int = 0,
+    version: int = 1,
+) -> Tag:
+    """Attach a tag to an item, creating the tag if needed."""
+    from sqlalchemy import select
+
+    tag = await session.scalar(select(Tag).where(Tag.library_id == library.id, Tag.name == name))
+    if tag is None:
+        tag = Tag(library_id=library.id, name=name, version=version)
+        session.add(tag)
+        await session.flush()
+
+    session.add(ItemTag(item_id=item.id, tag_id=tag.id, type=tag_type))
+    await session.commit()
+    return tag

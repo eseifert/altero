@@ -9,7 +9,7 @@ from starlette.responses import Response
 
 from altero import API_VERSION, __version__
 from altero.api.errors import register_error_handlers
-from altero.api.routes import itemschema, keys
+from altero.api.routes import collections, items, itemschema, keys, searches, tags
 from altero.db import Database
 from altero.settings import Settings, get_settings
 
@@ -37,8 +37,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.database = database
 
     register_error_handlers(app)
+    # The schema routes come first so that /items/new is not captured by the
+    # library-scoped /items/{item_key} pattern.
     app.include_router(itemschema.router)
     app.include_router(keys.router)
+    app.include_router(tags.router)
+    app.include_router(collections.router)
+    app.include_router(searches.router)
+    app.include_router(items.router)
 
     @app.middleware("http")
     async def add_api_version_header(request: Request, call_next) -> Response:  # type: ignore[no-untyped-def]
