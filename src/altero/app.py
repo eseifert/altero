@@ -9,7 +9,7 @@ from starlette.responses import Response
 
 from altero import API_VERSION, __version__
 from altero.api.errors import register_error_handlers
-from altero.api.routes import keys
+from altero.api.routes import itemschema, keys
 from altero.db import Database
 from altero.settings import Settings, get_settings
 
@@ -37,6 +37,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.database = database
 
     register_error_handlers(app)
+    app.include_router(itemschema.router)
     app.include_router(keys.router)
 
     @app.middleware("http")
