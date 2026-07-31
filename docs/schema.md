@@ -83,3 +83,28 @@ than as foreign keys to an ID table.
 `(libraryID, objectType, key)`, so deleting a key that was deleted before
 updates the existing row rather than adding a second one. altero mirrors this
 shape in `deleted_objects`.
+
+## Concurrency
+
+Writes to one library are serialized by taking a row lock on it before the
+version precondition is checked and holding it until commit, so a request is
+atomic with respect to its library. `SELECT ... FOR UPDATE` is emitted on
+PostgreSQL and dropped on SQLite, which has a single writer anyway. The version
+increment itself is computed by the database rather than in Python, so it stays
+correct even without the lock.
+
+Without that lock, ten simultaneous creates were measured all receiving version
+1, and nine of the ten items were lost — the surviving write overwrote the rest.
+`tests/test_concurrency.py` reproduces this against PostgreSQL.
+
+Two further get-or-create patterns — claiming a write token, and creating a tag
+named by more than one concurrent request — insert first and let the unique
+constraint decide, rather than looking and then inserting. With the library lock
+held these cannot interleave, so the behaviour is defence in depth: it keeps
+them correct independently of the locking strategy above.
+
+SQLite is configured with `foreign_keys=ON`, WAL and a busy timeout.
+`BEGIN IMMEDIATE` is deliberately not used: it would close the remaining
+lock-upgrade hole, but takes the write lock for read-only transactions too, so a
+single long read would block every writer. A deployment serving several clients
+at once should use PostgreSQL.

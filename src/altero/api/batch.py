@@ -30,11 +30,14 @@ async def batch_write(
     leaves the library version where it was.
     """
     payloads = writes.parse_object_list(await request.json())
+
+    # Lock first, so the version this request checks is the one it goes on to
+    # change.
+    library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=False)
 
-    token = request.headers.get("Zotero-Write-Token")
-    await writes.check_write_token(session, library, token)
+    await writes.claim_write_token(session, library, request.headers.get("Zotero-Write-Token"))
 
     results = writes.WriteResults()
     # Held as a plain int: after a rollback the ORM object is expired, and
@@ -56,7 +59,6 @@ async def batch_write(
             await savepoint.commit()
 
     if results.any_succeeded:
-        await writes.remember_write_token(session, library, token)
         await session.commit()
     else:
         await session.rollback()

@@ -9,11 +9,13 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import (
     InvalidInputError,
+    NotFoundError,
     PreconditionFailedError,
     PreconditionRequiredError,
     RequestTooLargeError,
@@ -71,15 +73,48 @@ class WriteResults:
         return bool(self.successful)
 
 
+async def lock_library(session: AsyncSession, library: Library) -> Library:
+    """Take a row lock on ``library`` for the rest of the transaction.
+
+    Writes to one library must not interleave: two requests that each read the
+    version, add one and store the result would hand out the same version twice
+    and lose one side's changes. Holding the lock from before the precondition
+    check until commit makes a write request atomic with respect to the library.
+
+    ``FOR UPDATE`` is emitted on backends that have it and dropped on SQLite,
+    which serializes writers anyway.
+    """
+    locked = await session.scalar(
+        select(Library)
+        .where(Library.id == library.id)
+        .with_for_update()
+        # Without this the identity map would hand back the cached row, so the
+        # lock would be held over a version read before it was taken.
+        .execution_options(populate_existing=True)
+    )
+    return locked if locked is not None else library
+
+
 async def bump_library_version(session: AsyncSession, library: Library) -> int:
     """Raise the library's version by one and return the new value.
 
     Every object written by the request is stamped with this, so one request
-    produces exactly one new version no matter how many objects it touches.
+    produces exactly one new version no matter how many objects it touches. The
+    increment is computed by the database rather than in Python, so it is right
+    even without the row lock above.
     """
-    library.version += 1
-    await session.flush()
-    return library.version
+    version = await session.scalar(
+        update(Library)
+        .where(Library.id == library.id)
+        .values(version=Library.version + 1)
+        .returning(Library.version)
+    )
+    if version is None:  # pragma: no cover - the library was just resolved
+        raise NotFoundError("Library not found")
+
+    # Keep the in-memory object in step with the row we just changed.
+    await session.refresh(library, ["version"])
+    return version
 
 
 def parse_object_list(payload: Any) -> list[dict[str, Any]]:
@@ -156,40 +191,37 @@ def check_object_version(
         )
 
 
-async def check_write_token(
+async def claim_write_token(
     session: AsyncSession,
     library: Library,
     token: str | None,
 ) -> None:
-    """Reject a replayed ``Zotero-Write-Token``.
+    """Claim a ``Zotero-Write-Token``, rejecting one already used.
 
-    Tokens let a client retry a request that may or may not have been applied
-    without creating the objects twice.
+    Tokens let a client retry a request whose outcome it never saw without the
+    objects being created twice. Claiming by insert rather than by looking first
+    and inserting later closes the window in which two copies of the same
+    request both find the token absent: the unique constraint decides, so the
+    outcome does not depend on timing.
+
+    The row is written inside this request's transaction, so a request that ends
+    in a rollback releases the token as well — which is what makes a retry of a
+    failed request work.
     """
     if token is None:
         return
     if len(token) != WRITE_TOKEN_LENGTH:
         raise InvalidInputError("Invalid Zotero-Write-Token value")
 
-    existing = await session.scalar(
-        select(WriteToken).where(WriteToken.library_id == library.id, WriteToken.token == token)
-    )
-    if existing is not None:
-        raise PreconditionFailedError("Write token already used")
-
-
-async def remember_write_token(
-    session: AsyncSession,
-    library: Library,
-    token: str | None,
-) -> None:
-    """Record a write token so that a repeat of the request is rejected."""
-    if token is None:
-        return
-    session.add(
-        WriteToken(
-            library_id=library.id,
-            token=token,
-            created=datetime.now(UTC).replace(tzinfo=None),
-        )
-    )
+    try:
+        async with session.begin_nested():
+            session.add(
+                WriteToken(
+                    library_id=library.id,
+                    token=token,
+                    created=datetime.now(UTC).replace(tzinfo=None),
+                )
+            )
+            await session.flush()
+    except IntegrityError:
+        raise PreconditionFailedError("Write token already used") from None

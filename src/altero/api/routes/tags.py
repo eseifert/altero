@@ -146,6 +146,7 @@ async def delete_tags(
     Alternatives are separated by ``||`` in the usual search syntax, so one
     parameter can name several tags.
     """
+    library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 

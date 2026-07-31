@@ -229,6 +229,7 @@ async def delete_item(
     library: WritableLibraryDep,
 ) -> Response:
     """Remove one item. Requires the version the client last saw."""
+    library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 
@@ -248,6 +249,7 @@ async def delete_items(
     library: WritableLibraryDep,
 ) -> Response:
     """Remove up to fifty items named by the ``itemKey`` parameter."""
+    library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 

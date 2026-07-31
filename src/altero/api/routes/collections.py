@@ -228,6 +228,7 @@ async def delete_collection(
     library: WritableLibraryDep,
 ) -> Response:
     """Remove one collection. Nested collections move up to its parent."""
+    library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 
@@ -247,6 +248,7 @@ async def delete_collections(
     library: WritableLibraryDep,
 ) -> Response:
     """Remove up to fifty collections named by ``collectionKey``."""
+    library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 

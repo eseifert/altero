@@ -109,6 +109,7 @@ async def delete_search(
     library: WritableLibraryDep,
 ) -> Response:
     """Remove one saved search."""
+    library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 
@@ -128,6 +129,7 @@ async def delete_searches(
     library: WritableLibraryDep,
 ) -> Response:
     """Remove up to fifty saved searches named by ``searchKey``."""
+    library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 

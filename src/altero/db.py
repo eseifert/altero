@@ -36,19 +36,34 @@ class Timestamped:
     )
 
 
-def _enforce_sqlite_foreign_keys(engine: AsyncEngine) -> None:
-    """Turn on foreign key checking for SQLite, which leaves it off by default.
+def _configure_sqlite(engine: AsyncEngine) -> None:
+    """Apply the settings SQLite needs to behave under concurrent writes.
 
-    Without this a dangling reference is stored silently, and the bug only
-    surfaces on a backend that does enforce them.
+    Three things are wrong with SQLite's defaults here:
+
+    - Foreign keys are not enforced, so a dangling reference is stored silently
+      and only surfaces on a backend that does check.
+    - The rollback journal blocks readers while a write is in progress. WAL lets
+      them run alongside it.
+    What is deliberately not done here is beginning every transaction with
+    ``BEGIN IMMEDIATE``. It would close the remaining hole — a transaction that
+    reads and then writes can fail outright when it upgrades its lock, which
+    ``busy_timeout`` does not cover — but it takes the write lock for read-only
+    transactions too, so a single long read blocks every writer. That is a worse
+    trade than the hole it fills. A deployment serving more than one client at a
+    time should use PostgreSQL, where the row lock in the write path does the
+    job properly.
     """
     if engine.dialect.name != "sqlite":
         return
 
     @event.listens_for(engine.sync_engine, "connect")
-    def _set_pragma(connection: Any, _record: Any) -> None:
+    def _set_pragmas(connection: Any, _record: Any) -> None:
         cursor = connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
+        # An in-memory database has no journal to switch.
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.execute("PRAGMA busy_timeout=5000")
         cursor.close()
 
 
@@ -60,7 +75,7 @@ class Database:
             settings.database_url,
             echo=settings.debug,
         )
-        _enforce_sqlite_foreign_keys(self.engine)
+        _configure_sqlite(self.engine)
         self.session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
             self.engine,
             expire_on_commit=False,

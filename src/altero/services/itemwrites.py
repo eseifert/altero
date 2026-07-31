@@ -3,6 +3,7 @@
 from typing import Any
 
 from sqlalchemy import delete, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import InvalidInputError, NotFoundError
@@ -156,14 +157,28 @@ def validate_item(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 async def _resolve_tag(session: AsyncSession, library: Library, name: str, type_: int) -> Tag:
-    """Return the tag with this name and type, creating it if needed."""
-    tag = await session.scalar(
-        select(Tag).where(Tag.library_id == library.id, Tag.name == name, Tag.type == type_)
-    )
-    if tag is None:
-        tag = Tag(library_id=library.id, key=coerce_key(None), name=name, type=type_)
-        session.add(tag)
-        await session.flush()
+    """Return the tag with this name and type, creating it if needed.
+
+    Two requests can reach this at once with the same new tag. Rather than
+    trusting the gap between looking and inserting, the unique constraint on
+    (library, name, type) decides: whoever loses the race reads back the row the
+    winner wrote.
+    """
+    lookup = select(Tag).where(Tag.library_id == library.id, Tag.name == name, Tag.type == type_)
+
+    tag = await session.scalar(lookup)
+    if tag is not None:
+        return tag
+
+    try:
+        async with session.begin_nested():
+            tag = Tag(library_id=library.id, key=coerce_key(None), name=name, type=type_)
+            session.add(tag)
+            await session.flush()
+    except IntegrityError:
+        tag = await session.scalar(lookup)
+        if tag is None:  # pragma: no cover - the constraint fired for another reason
+            raise
     return tag
 
 

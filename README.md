@@ -70,6 +70,16 @@ uv run ruff check --fix    # lint
 uv run ty check            # type-check
 ```
 
+The concurrency tests need PostgreSQL, since SQLite serializes writers and so
+cannot exhibit the races they cover. They are skipped unless a server is named:
+
+```sh
+docker run -d --name altero-pg -e POSTGRES_PASSWORD=altero \
+    -e POSTGRES_USER=altero -e POSTGRES_DB=altero -p 55432:5432 postgres:17-alpine
+ALTERO_TEST_POSTGRES_URL=postgresql+asyncpg://altero:altero@localhost:55432/altero \
+    uv run pytest tests/test_concurrency.py
+```
+
 Database migrations are managed with Alembic:
 
 ```sh
