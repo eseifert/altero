@@ -1,8 +1,8 @@
 """Create the initial schema
 
-Revision ID: 3f85f6c3dad4
+Revision ID: 25f84ec337f5
 Revises:
-Create Date: 2026-07-31 14:57:16.516996
+Create Date: 2026-07-31 15:00:03.821624
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "3f85f6c3dad4"
+revision: str = "25f84ec337f5"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -424,6 +424,35 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("item_id", "field"),
     )
     op.create_table(
+        "item_fulltext",
+        sa.Column("item_id", sa.Integer(), nullable=False),
+        sa.Column("library_id", sa.Integer(), nullable=False),
+        sa.Column("content", sa.Text(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
+        sa.Column("indexed_chars", sa.Integer(), nullable=True),
+        sa.Column("total_chars", sa.Integer(), nullable=True),
+        sa.Column("indexed_pages", sa.Integer(), nullable=True),
+        sa.Column("total_pages", sa.Integer(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["item_id"],
+            ["items.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["library_id"],
+            ["libraries.id"],
+        ),
+        sa.PrimaryKeyConstraint("item_id"),
+    )
+    with op.batch_alter_table("item_fulltext", schema=None) as batch_op:
+        batch_op.create_index(
+            batch_op.f("ix_item_fulltext_library_id"), ["library_id"], unique=False
+        )
+        batch_op.create_index(
+            "ix_item_fulltext_library_version", ["library_id", "version"], unique=False
+        )
+        batch_op.create_index(batch_op.f("ix_item_fulltext_version"), ["version"], unique=False)
+
+    op.create_table(
         "item_relations",
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("predicate", sa.String(length=64), nullable=False),
@@ -470,6 +499,12 @@ def downgrade() -> None:
     op.drop_table("search_conditions")
     op.drop_table("item_tags")
     op.drop_table("item_relations")
+    with op.batch_alter_table("item_fulltext", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix_item_fulltext_version"))
+        batch_op.drop_index("ix_item_fulltext_library_version")
+        batch_op.drop_index(batch_op.f("ix_item_fulltext_library_id"))
+
+    op.drop_table("item_fulltext")
     op.drop_table("item_fields")
     op.drop_table("item_creators")
     op.drop_table("collection_items")

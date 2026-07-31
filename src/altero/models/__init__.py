@@ -6,6 +6,7 @@ complete metadata.
 
 from altero.models.apikey import ApiKey, ApiKeyGroupAccess
 from altero.models.collection import Collection, CollectionItem
+from altero.models.fulltext import FullText
 from altero.models.item import Item, ItemCreator, ItemField, ItemRelation
 from altero.models.library import Group, GroupMember, Library, LibraryType, User
 from altero.models.search import SavedSearch, SearchCondition
@@ -20,6 +21,7 @@ __all__ = [
     "CollectionItem",
     "DeletedObject",
     "DeletedObjectType",
+    "FullText",
     "Group",
     "GroupMember",
     "Item",
