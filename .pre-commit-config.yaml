@@ -1,0 +1,26 @@
+# Formatting and the cheap correctness checks, run before each commit.
+#
+# Install once per checkout:
+#     uv run pre-commit install
+#
+# The ruff revision is pinned to the version in uv.lock so that the hook and
+# `uv run ruff` cannot disagree about what counts as formatted.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.1
+    hooks:
+      # Lint first: its fixes are formatted by the hook that follows.
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: mixed-line-ending

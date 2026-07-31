@@ -84,6 +84,13 @@ Set `ALTERO_CONFIG` to load a configuration module from another path.
 
 ## Development
 
+Install the git hooks once per checkout, so formatting and linting happen before
+a commit rather than in review:
+
+```sh
+uv run pre-commit install
+```
+
 ```sh
 uv run pytest              # run the test suite
 uv run pytest --cov        # ... with a coverage report
@@ -101,6 +108,11 @@ docker run -d --name altero-pg -e POSTGRES_PASSWORD=altero \
 ALTERO_TEST_POSTGRES_URL=postgresql+asyncpg://altero:altero@localhost:55432/altero \
     uv run pytest tests/test_concurrency.py
 ```
+
+Every push and pull request runs the same checks in GitHub Actions, with
+PostgreSQL available so the concurrency tests actually run rather than skipping.
+The workflow also fails when a model has been changed without a matching
+migration.
 
 Database migrations are managed with Alembic:
 

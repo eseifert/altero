@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+# A new push to a branch makes the run already in progress for it pointless.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # uv reads this and installs the interpreter itself, so the job does not
+  # depend on which Python the runner image happens to ship.
+  UV_PYTHON: "3.14"
+
+jobs:
+  lint:
+    name: Format, lint and types
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v9
+        with:
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --locked
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Type-check
+        run: uv run ty check
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    # The concurrency tests need a real PostgreSQL: SQLite serializes writers
+    # and so cannot exhibit the races they cover. Without this they skip, and a
+    # lost-update bug would reach master unnoticed.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: altero
+          POSTGRES_PASSWORD: altero
+          POSTGRES_DB: altero
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U altero"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      ALTERO_TEST_POSTGRES_URL: postgresql+asyncpg://altero:altero@localhost:5432/altero
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v9
+        with:
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --locked
+
+      - name: Test
+        # Every test must run here: a skip means PostgreSQL was not reachable and
+        # the concurrency coverage silently disappeared, which is exactly the
+        # thing this job exists to catch.
+        run: |
+          set -o pipefail
+          uv run pytest -q -rs --cov=altero --cov-report=term-missing | tee result.txt
+          if grep -qE "[0-9]+ skipped" result.txt; then
+            echo "::error::Tests were skipped; every test must run in CI."
+            grep -E "^SKIPPED" result.txt || true
+            exit 1
+          fi
+
+  migrations:
+    name: Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v9
+        with:
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --locked
+
+      - name: Apply to an empty database
+        env:
+          ALTERO_DATABASE_URL: sqlite+aiosqlite:///ci.sqlite
+        run: uv run alembic upgrade head
+
+      - name: Check the models match the migrations
+        # Fails when a model was changed without a matching revision, which would
+        # otherwise only surface as a broken deployment.
+        env:
+          ALTERO_DATABASE_URL: sqlite+aiosqlite:///ci.sqlite
+        run: uv run alembic check
