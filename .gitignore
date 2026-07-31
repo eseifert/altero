@@ -1,12 +1,20 @@
 # Byte-compiled files
-/__pycache__/
+__pycache__/
 
 # Project
 config.py
 *.sqlite
+/storage/
 
 # virtualenv
 /venv/
+/.venv/
+
+# Tool caches
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
 
 # IntelliJ
 .idea/
