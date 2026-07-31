@@ -1,5 +1,6 @@
 """Creating, updating and deleting items."""
 
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import delete, select
@@ -49,6 +50,45 @@ STRUCTURAL_KEYS = frozenset(
 
 #: Item types whose JSON carries a `note` property.
 NOTE_BEARING_TYPES = frozenset({"note", "attachment"})
+
+#: Fields an item type accepts that the published schema does not list.
+#:
+#: The schema gives `attachment` only title, accessDate and url, and `note` and
+#: `annotation` nothing at all, yet all three carry more than that in practice.
+#: The attachment set was read off live responses and off the server's own
+#: `/items/new` templates; the annotation set comes from the client's data model,
+#: since the published schema names none of it.
+UNLISTED_FIELDS: dict[str, frozenset[str]] = {
+    "attachment": frozenset(
+        {"linkMode", "contentType", "charset", "filename", "md5", "mtime", "path"}
+    ),
+    "annotation": frozenset(
+        {
+            "annotationType",
+            "annotationAuthorName",
+            "annotationText",
+            "annotationComment",
+            "annotationColor",
+            "annotationPageLabel",
+            "annotationSortIndex",
+            "annotationPosition",
+        }
+    ),
+}
+
+
+def _parse_timestamp(value: Any, name: str) -> datetime | None:
+    """Return a client-supplied timestamp, or ``None`` if it was not given.
+
+    Clients round-trip their own ``dateAdded`` and ``dateModified``; dropping
+    them would rewrite a library's history to the moment it was uploaded.
+    """
+    if value is None or value == "":
+        return None
+    try:
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00")).replace(tzinfo=None)
+    except ValueError:
+        raise InvalidInputError(f"Invalid '{name}' value '{value}'") from None
 
 
 def _validate_creators(item_type: str, creators: Any) -> list[dict[str, str]]:
@@ -118,9 +158,17 @@ def validate_item(payload: dict[str, Any]) -> dict[str, Any]:
     if (key := payload.get("key")) is not None and key != "" and not is_valid_key(str(key)):
         raise InvalidInputError(f"'{key}' is not a valid item key")
 
+    unlisted = UNLISTED_FIELDS.get(item_type, frozenset())
+
     fields: dict[str, str] = {}
     for name, value in payload.items():
         if name in STRUCTURAL_KEYS:
+            continue
+        if name in unlisted:
+            # `md5` and `mtime` are null in an empty template, and null means
+            # absent rather than the string "None".
+            if value is not None:
+                fields[name] = str(value)
             continue
         if name not in schema.all_field_names:
             raise InvalidInputError(f"Invalid field '{name}'")
@@ -153,6 +201,8 @@ def validate_item(payload: dict[str, Any]) -> dict[str, Any]:
         "collections": [str(key) for key in collections],
         "relations": relations,
         "deleted": bool(payload.get("deleted", False)),
+        "date_added": _parse_timestamp(payload.get("dateAdded"), "dateAdded"),
+        "date_modified": _parse_timestamp(payload.get("dateModified"), "dateModified"),
     }
 
 
@@ -200,6 +250,16 @@ async def _apply(
     item.item_type = parsed["item_type"]
     item.version = version
     item.deleted = parsed["deleted"]
+
+    # Client timestamps round-trip; the server's own is always now, which is what
+    # makes sorting by `serverDateModified` trustworthy.
+    now = datetime.now(UTC).replace(tzinfo=None, microsecond=0)
+    if parsed["date_added"] is not None:
+        item.date_added = parsed["date_added"]
+    elif item.date_added is None:
+        item.date_added = now
+    item.date_modified = parsed["date_modified"] or now
+    item.server_date_modified = now
 
     if replace:
         item.fields = [

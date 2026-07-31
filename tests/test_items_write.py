@@ -553,3 +553,195 @@ class TestWriteTokens:
         )
 
         assert response.status_code == 400
+
+
+class TestUnlistedFields:
+    """Attachments, notes and annotations carry data the schema does not list.
+
+    Their field sets were taken from live responses; the published schema gives
+    `attachment` only title, accessDate and url, and `note` and `annotation`
+    nothing at all.
+    """
+
+    async def test_the_servers_own_attachment_template_round_trips(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        # Whatever /items/new offers must be acceptable back.
+        for mode in ("imported_file", "imported_url", "linked_file", "linked_url"):
+            template = (await client.get(f"/items/new?itemType=attachment&linkMode={mode}")).json()
+
+            response = await client.post("/users/1/items", headers=JSON, json=[template])
+
+            assert response.json()["failed"] == {}, mode
+
+    async def test_attachment_storage_fields_are_stored(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[
+                    {
+                        "itemType": "attachment",
+                        "linkMode": "imported_url",
+                        "title": "Snapshot",
+                        "url": "https://example.org/",
+                        "contentType": "text/html",
+                        "charset": "utf-8",
+                        "filename": "page.html",
+                        "md5": "0" * 32,
+                        "mtime": "1700000000000",
+                    }
+                ],
+            )
+        ).json()
+
+        assert body["failed"] == {}
+        data = body["successful"]["0"]["data"]
+        assert data["linkMode"] == "imported_url"
+        assert data["contentType"] == "text/html"
+        assert data["filename"] == "page.html"
+
+    async def test_a_linked_file_keeps_its_path(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[
+                    {
+                        "itemType": "attachment",
+                        "linkMode": "linked_file",
+                        "title": "Local",
+                        "path": "attachments:paper.pdf",
+                    }
+                ],
+            )
+        ).json()
+
+        assert body["successful"]["0"]["data"]["path"] == "attachments:paper.pdf"
+
+    async def test_an_annotation_keeps_its_fields(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        parent = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"itemType": "attachment", "linkMode": "imported_file"}],
+            )
+        ).json()["successful"]["0"]["key"]
+
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[
+                    {
+                        "itemType": "annotation",
+                        "parentItem": parent,
+                        "annotationType": "highlight",
+                        "annotationText": "a passage",
+                        "annotationColor": "#ffd400",
+                        "annotationSortIndex": "00001|000000|00000",
+                    }
+                ],
+            )
+        ).json()
+
+        assert body["failed"] == {}
+        data = body["successful"]["0"]["data"]
+        assert data["annotationType"] == "highlight"
+        assert data["annotationText"] == "a passage"
+
+    async def test_a_storage_field_is_still_rejected_for_a_book(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"itemType": "book", "linkMode": "imported_file"}],
+            )
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+
+
+class TestClientTimestamps:
+    async def test_supplied_timestamps_round_trip(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        # A client uploading an existing library must not have its history
+        # rewritten to the moment of upload.
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[
+                    {
+                        "itemType": "book",
+                        "title": "Old",
+                        "dateAdded": "2019-01-01T10:00:00Z",
+                        "dateModified": "2019-06-02T11:30:00Z",
+                    }
+                ],
+            )
+        ).json()
+
+        data = body["successful"]["0"]["data"]
+        assert data["dateAdded"] == "2019-01-01T10:00:00Z"
+        assert data["dateModified"] == "2019-06-02T11:30:00Z"
+
+    async def test_missing_timestamps_default_to_now(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post("/users/1/items", headers=JSON, json=[{"itemType": "book"}])
+        ).json()
+
+        data = body["successful"]["0"]["data"]
+        assert data["dateAdded"].startswith("20")
+        assert data["dateAdded"].endswith("Z")
+
+    async def test_a_malformed_timestamp_is_rejected(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"itemType": "book", "dateAdded": "not a date"}],
+            )
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+
+    async def test_date_added_survives_an_update(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        created = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[
+                    {
+                        "itemType": "book",
+                        "title": "T",
+                        "dateAdded": "2019-01-01T10:00:00Z",
+                    }
+                ],
+            )
+        ).json()["successful"]["0"]
+        key, version = created["key"], created["version"]
+
+        await client.patch(
+            f"/users/1/items/{key}",
+            headers=JSON,
+            json={"itemType": "book", "title": "T2", "version": version},
+        )
+
+        body = (await client.get(f"/users/1/items/{key}", headers=AUTH)).json()
+        assert body["data"]["dateAdded"] == "2019-01-01T10:00:00Z"
