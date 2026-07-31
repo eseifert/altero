@@ -61,8 +61,9 @@ def test_a_middle_page_offers_links_in_both_directions() -> None:
     links = build_page_links("http://localhost/users/1/items", [], start=25, limit=25, total=100)
 
     assert list(links) == ["first", "prev", "next", "last"]
-    assert links["first"].endswith("?limit=25&start=0")
-    assert links["prev"].endswith("?limit=25&start=0")
+    # A zero start is left out entirely, as upstream writes it.
+    assert links["first"].endswith("?limit=25")
+    assert links["prev"].endswith("?limit=25")
     assert links["next"].endswith("?limit=25&start=50")
     assert links["last"].endswith("?limit=25&start=75")
 
@@ -98,7 +99,7 @@ def test_an_exactly_full_last_page_is_not_overshot() -> None:
 def test_prev_does_not_go_below_zero() -> None:
     links = build_page_links("http://localhost/x", [], start=10, limit=25, total=100)
 
-    assert links["prev"].endswith("start=0")
+    assert links["prev"].endswith("?limit=25")
 
 
 def test_other_query_parameters_are_preserved() -> None:

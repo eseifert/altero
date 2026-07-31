@@ -94,7 +94,7 @@ async def get_tag(session: AsyncSession, library: Library, name: str) -> TagSumm
     ).first()
 
     if row is None:
-        raise NotFoundError("Not found")
+        raise NotFoundError("Tag not found")
 
     tag_name, tag_type, num_items, version = row
     return TagSummary(name=tag_name, type=tag_type or 0, num_items=num_items, version=version)

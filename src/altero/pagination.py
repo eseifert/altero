@@ -49,7 +49,11 @@ def clamp_limit(
 def _page_url(base_url: str, query: Sequence[tuple[str, str]], start: int, limit: int) -> str:
     """Return ``base_url`` with ``start`` and ``limit`` replaced, other parameters kept."""
     preserved = [(name, value) for name, value in query if name not in {"start", "limit"}]
-    return f"{base_url}?{urlencode([*preserved, ('limit', limit), ('start', start)])}"
+    params: list[tuple[str, object]] = [*preserved, ("limit", limit)]
+    # Upstream writes `?limit=2` rather than `?limit=2&start=0` for the first page.
+    if start:
+        params.append(("start", start))
+    return f"{base_url}?{urlencode(params)}"
 
 
 def build_page_links(

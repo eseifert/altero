@@ -8,7 +8,8 @@ from typing import Any
 from sqlalchemy import ColumnElement, Select, and_, func, not_, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.errors import NotFoundError
+from altero.errors import InvalidInputError, NotFoundError
+from altero.itemschema import get_schema
 from altero.models import (
     Collection,
     CollectionItem,
@@ -165,7 +166,7 @@ async def _scope_filters(
             select(Collection).where(Collection.library_id == library.id, Collection.key == key)
         )
         if collection is None:
-            raise NotFoundError("Not found")
+            raise NotFoundError("Collection not found")
 
         member = (
             select(CollectionItem.item_id)
@@ -204,6 +205,10 @@ async def build_item_query(
     if query.since:
         filters.append(Item.version > query.since)
 
+    for expression in query.item_types:
+        for value in expression.values:
+            if not get_schema().is_valid_item_type(value):
+                raise InvalidInputError(f"Invalid itemType '{value}'")
     filters += _expression_filter(query.item_types, lambda value: Item.item_type == value)
     filters += _expression_filter(query.tags, _has_tag(library.id))
 
@@ -233,7 +238,7 @@ async def get_item(session: AsyncSession, library: Library, key: str) -> Item:
     """Return one item by key."""
     item = await session.scalar(select(Item).where(Item.library_id == library.id, Item.key == key))
     if item is None:
-        raise NotFoundError("Not found")
+        raise NotFoundError("Item does not exist")
     return item
 
 

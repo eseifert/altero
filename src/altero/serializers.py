@@ -6,7 +6,7 @@ supply the base URL and receive plain dictionaries.
 
 from datetime import datetime
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote_plus
 
 from altero.models import (
     ApiKey,
@@ -34,12 +34,17 @@ def json_link(href: str) -> dict[str, str]:
 
 
 def library_block(library: Library, base_url: str) -> dict[str, Any]:
-    """Return the ``library`` block embedded in every object response."""
+    """Return the ``library`` block embedded in every object response.
+
+    Upstream puts a single ``alternate`` link here, pointing at its web
+    interface. altero has none, so ``links`` stays empty rather than naming a
+    page that does not exist.
+    """
     return {
         "type": library.type.value,
         "id": library.owner_id,
         "name": library.name,
-        "links": {"self": json_link(f"{base_url}{library_prefix(library)}")},
+        "links": {},
     }
 
 
@@ -229,19 +234,17 @@ def saved_search(obj: SavedSearch, library: Library, base_url: str) -> dict[str,
 
 
 def tag(
-    name: str,
-    tag_type: int,
-    num_items: int,
-    library: Library,
-    base_url: str,
-    *,
-    version: int = 0,
+    name: str, tag_type: int, num_items: int, library: Library, base_url: str
 ) -> dict[str, Any]:
-    """Render a tag in the API's envelope."""
+    """Render a tag in the API's envelope.
+
+    A tag carries no version of its own here; clients read tag versions from
+    ``format=versions``. Spaces in the name become ``+`` in the link, as upstream
+    writes them.
+    """
     prefix = f"{base_url}{library_prefix(library)}/tags"
     return {
         "tag": name,
-        "links": {"self": json_link(f"{prefix}/{quote(name, safe='')}")},
+        "links": {"self": json_link(f"{prefix}/{quote_plus(name)}")},
         "meta": {"type": tag_type, "numItems": num_items},
-        "version": version,
     }

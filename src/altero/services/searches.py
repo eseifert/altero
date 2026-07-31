@@ -30,7 +30,7 @@ async def get_search(session: AsyncSession, library: Library, key: str) -> Saved
         select(SavedSearch).where(SavedSearch.library_id == library.id, SavedSearch.key == key)
     )
     if search is None:
-        raise NotFoundError("Not found")
+        raise NotFoundError("Search not found")
     return search
 
 

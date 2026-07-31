@@ -61,7 +61,6 @@ async def list_tags(
                 summary.num_items,
                 library,
                 base_url,
-                version=summary.version,
             )
             for summary in page.objects
         ]
@@ -93,7 +92,6 @@ async def get_tag(
             summary.num_items,
             library,
             base_url,
-            version=summary.version,
         ),
         library.version,
     )
@@ -121,7 +119,6 @@ async def list_item_tags(
             summary.num_items,
             library,
             base_url,
-            version=summary.version,
         )
         for summary in page.objects
     ]

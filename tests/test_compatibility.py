@@ -220,3 +220,129 @@ class TestFormatDefaults:
 
         assert default_limit(Format.JSON) == 25
         assert limit_maximum(Format.JSON) == 100
+
+
+class TestVerifiedAgainstALiveLibrary:
+    """Shapes confirmed by read-only requests against a real Zotero library.
+
+    These settle points that neither the documentation nor the dataserver source
+    made obvious, and replace what was previously guesswork.
+    """
+
+    async def test_a_tag_carries_no_top_level_version(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # The live envelope is {tag, links, meta} only. Tag versions reach a
+        # client through format=versions instead.
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "fiction")
+
+        (body,) = (await client.get("/users/1/tags", headers=AUTH)).json()
+
+        assert set(body) == {"tag", "links", "meta"}
+        assert set(body["meta"]) == {"type", "numItems"}
+
+    async def test_the_library_block_carries_no_self_link(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Upstream puts only an `alternate` link here, pointing at its web UI.
+        await make_item(session, library, key="AAAA2345")
+
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+
+        assert "self" not in body["library"]["links"]
+
+    async def test_an_unparseable_limit_falls_back_to_the_default(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # `limit=abc` answers 200 upstream, not 400: a non-numeric value is
+        # simply ignored.
+        for index in range(30):
+            await make_item(session, library, key=f"AAA{index:05d}")
+
+        response = await client.get("/users/1/items?limit=abc", headers=AUTH)
+
+        assert response.status_code == 200
+        assert len(response.json()) == 25
+
+    async def test_an_unparseable_start_is_ignored(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345")
+
+        response = await client.get("/users/1/items?start=abc", headers=AUTH)
+
+        assert response.status_code == 200
+
+    async def test_backward_links_omit_a_zero_start(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Upstream writes `?limit=2` rather than `?limit=2&start=0`.
+        for index in range(6):
+            await make_item(session, library, key=f"AAA{index:05d}")
+
+        link = (await client.get("/users/1/items?limit=2&start=2", headers=AUTH)).headers["Link"]
+        first = next(part for part in link.split(", ") if 'rel="first"' in part)
+
+        assert "start=" not in first
+
+    async def test_error_bodies_name_the_object(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        item = await client.get("/users/1/items/ZZZZ2345", headers=AUTH)
+        collection = await client.get("/users/1/collections/ZZZZ2345", headers=AUTH)
+        search = await client.get("/users/1/searches/ZZZZ2345", headers=AUTH)
+
+        assert item.text == "Item does not exist"
+        assert collection.text == "Collection not found"
+        assert search.text == "Search not found"
+
+    async def test_an_invalid_item_type_filter_names_the_parameter(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        response = await client.get("/users/1/items?itemType=bogus", headers=AUTH)
+
+        assert response.status_code == 400
+        assert response.text == "Invalid itemType 'bogus'"
+
+    async def test_creator_summaries_match_the_live_forms(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Confirmed live: one name alone, two joined by "and", three or more
+        # abbreviated with "et al.".
+        await make_item(session, library, key="AAAA2345", creators=[("author", "A", "Smith")])
+        await make_item(
+            session,
+            library,
+            key="BBBB2345",
+            creators=[("author", "A", "Smith"), ("author", "B", "Myers")],
+        )
+        await make_item(
+            session,
+            library,
+            key="CCCC2345",
+            creators=[
+                ("author", "A", "Ranganathan"),
+                ("author", "B", "Two"),
+                ("author", "C", "Three"),
+            ],
+        )
+
+        body = {
+            i["key"]: i["meta"].get("creatorSummary")
+            for i in (await client.get("/users/1/items", headers=AUTH)).json()
+        }
+
+        assert body["AAAA2345"] == "Smith"
+        assert body["BBBB2345"] == "Smith and Myers"
+        assert body["CCCC2345"] == "Ranganathan et al."
+
+    async def test_an_item_without_creators_omits_the_summary(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345")
+
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+
+        assert "creatorSummary" not in body["meta"]
+        assert body["meta"]["numChildren"] == 0

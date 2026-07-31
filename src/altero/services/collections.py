@@ -33,7 +33,7 @@ async def get_collection(session: AsyncSession, library: Library, key: str) -> C
         select(Collection).where(Collection.library_id == library.id, Collection.key == key)
     )
     if collection is None:
-        raise NotFoundError("Not found")
+        raise NotFoundError("Collection not found")
     return collection
 
 

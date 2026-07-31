@@ -5,11 +5,13 @@ documentation and the official [dataserver](https://github.com/zotero/dataserver
 disagree, the dataserver wins — even when its behaviour looks like a bug. Every
 such case is listed here, with the source that settles it.
 
-Two sources are used throughout:
+Three sources are used throughout:
 
 - the live API at `https://api.zotero.org`, compared response by response
 - the reference implementation, chiefly `model/API.inc.php`,
   `model/Tags.inc.php` and `model/Items.inc.php`
+- read-only requests against a real personal library, which settled the points
+  the first two left ambiguous
 
 ## Search syntax
 
@@ -22,6 +24,11 @@ value is split on `||`, so `itemType=-book || journalArticle` excludes items of
 *either* type. It does not mean "not a book, or a journal article". The
 documentation's wording suggests per-alternative negation; the implementation
 has none.
+
+This was confirmed by counting against a real library of 442 items: 122
+attachments, 12 notes, and `itemType=attachment || note` matching 134. The
+negated form `itemType=-attachment || note` returned 308, exactly
+`442 - 134`. Per-alternative negation would have returned more than 320.
 
 **`||` only separates when surrounded by whitespace.** The split is
 `preg_split("/\s+\|\|\s+/", $val)`. `tag=a||b` is therefore a single tag
@@ -59,6 +66,33 @@ For every other format the maximum stays 100 and the default 25.
 | `numItems` is a valid sort only for tag endpoints | `parseQueryParams`, `case 'sort'` |
 | `extra` and `serverDateModified` are valid item sort fields | same |
 
+## Response shapes
+
+Confirmed against a live library rather than inferred.
+
+**A tag carries no version.** The envelope is `{tag, links, meta}`, with `meta`
+holding `type` and `numItems`. Tag versions reach a client through
+`format=versions`, not through the object.
+
+**`meta` omits what does not apply.** `creatorSummary` is absent when an item
+has no creators, `parsedDate` when it has no date, and both are absent for a
+child attachment, whose `meta` is `{}`. `numChildren` is always present.
+Summaries are the bare name for one creator, `"Smith and Myers"` for two, and
+`"Ranganathan et al."` from three. `parsedDate` emits only the parts present:
+`2016`, `2018-05` or `2018-06-20`.
+
+**Error bodies name the object.** A missing item answers `Item does not exist`,
+a collection `Collection not found`, a search `Search not found`. An
+unrecognised filter value answers `Invalid itemType 'bogus'`, and an
+unrecognised sort `Invalid 'sort' value 'bogus'`.
+
+**An unreadable number is ignored, not rejected.** `limit=abc` answers 200 with
+the default page size. Only values the server understands and disagrees with,
+such as an unknown `sort` field, produce a 400.
+
+**Backward links omit a zero start.** `rel="first"` and `rel="prev"` are written
+as `?limit=2`, not `?limit=2&start=0`.
+
 ## Item type schema
 
 These came out of comparing all 163 schema responses against the live API.
@@ -85,18 +119,16 @@ from altero is interchangeable with one fetched from Zotero. See
 
 ## Deliberate differences
 
-Two places where altero does not copy upstream, both improvements rather than
-divergences a client can notice:
+Three places where altero does not copy upstream:
 
+- **`alternate` links are omitted.** Every upstream envelope carries a link to
+  the corresponding page on zotero.org, and the `Link` header always ends with
+  `rel="alternate"`. altero has no web interface, and pointing at zotero.org
+  would send clients to someone else's copy of the data, so `library.links` is
+  empty and object envelopes carry only `self` and `up`. A consequence is that a
+  single-page response has no `Link` header at all, where upstream still emits
+  the `alternate` one.
 - **An unknown `locale` falls back to `en-US`.** The live API answers `500`.
 - **Fields sharing a localized name may order differently.** Three fields are
   called "Format"; upstream breaks the tie on an internal identifier that the
   published schema does not contain, so their relative order is arbitrary here.
-
-## Unverified
-
-- The tag JSON envelope carries a top-level `version`. `Zotero_Tag::toJSON`
-  returns only `tag` and `type`, and the envelope is assembled elsewhere in the
-  controller; this has not been confirmed against a live response, since it
-  needs a readable library. Harmless if wrong — clients read tag versions from
-  `format=versions` — but worth checking.

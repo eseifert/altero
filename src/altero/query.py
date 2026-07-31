@@ -107,12 +107,17 @@ def _parse_enum[T: StrEnum](enum: type[T], value: str | None, default: T, name: 
 
 
 def _parse_int[T: int | None](value: str | None, default: T, name: str) -> int | T:
+    """Return ``value`` as an integer, or ``default`` if it is not one.
+
+    Upstream answers 200 for `limit=abc` rather than rejecting it, so an
+    unreadable number is ignored instead of failing the request.
+    """
     if value is None or value == "":
         return default
     try:
         return int(value)
     except ValueError:
-        raise InvalidInputError(f"Invalid '{name}' value '{value}'") from None
+        return default
 
 
 def _parse_qmode(value: str | None, *, tag_endpoint: bool) -> str:
