@@ -2,8 +2,9 @@
 
 from collections.abc import AsyncIterator
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, event, func
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -35,6 +36,22 @@ class Timestamped:
     )
 
 
+def _enforce_sqlite_foreign_keys(engine: AsyncEngine) -> None:
+    """Turn on foreign key checking for SQLite, which leaves it off by default.
+
+    Without this a dangling reference is stored silently, and the bug only
+    surfaces on a backend that does enforce them.
+    """
+    if engine.dialect.name != "sqlite":
+        return
+
+    @event.listens_for(engine.sync_engine, "connect")
+    def _set_pragma(connection: Any, _record: Any) -> None:
+        cursor = connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+
 class Database:
     """Owns the async engine and hands out sessions."""
 
@@ -43,6 +60,7 @@ class Database:
             settings.database_url,
             echo=settings.debug,
         )
+        _enforce_sqlite_foreign_keys(self.engine)
         self.session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
             self.engine,
             expire_on_commit=False,

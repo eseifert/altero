@@ -438,6 +438,33 @@ class TestDelete:
 
         assert response.status_code == 413
 
+    async def test_deleting_a_parent_deletes_its_children(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # A note whose parent is gone has nothing to attach to, and leaving it
+        # behind would point at a row that no longer exists.
+        parent = await make_item(session, library, key="AAAA2345")
+        await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
+
+        await client.delete(
+            "/users/1/items/AAAA2345", headers=AUTH | {"If-Unmodified-Since-Version": "10"}
+        )
+
+        assert (await client.get("/users/1/items", headers=AUTH)).json() == []
+
+    async def test_a_deleted_child_is_reported_in_the_delete_log(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        parent = await make_item(session, library, key="AAAA2345")
+        await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
+
+        await client.delete(
+            "/users/1/items/AAAA2345", headers=AUTH | {"If-Unmodified-Since-Version": "10"}
+        )
+
+        body = (await client.get("/users/1/deleted?since=10", headers=AUTH)).json()
+        assert sorted(body["items"]) == ["AAAA2345", "BBBB2345"]
+
     async def test_deleting_an_item_removes_its_tag_links(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:

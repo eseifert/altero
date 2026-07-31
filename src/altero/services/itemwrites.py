@@ -289,6 +289,22 @@ async def save_item(
     return item
 
 
+async def _delete_one(session: AsyncSession, library: Library, item: Item, version: int) -> None:
+    """Remove one item, its children, and the rows that point at it."""
+    # A note or attachment cannot outlive its parent: it has nothing left to
+    # attach to, and the row it points at would be gone.
+    children = await session.scalars(select(Item).where(Item.parent_id == item.id))
+    for child in list(children):
+        await _delete_one(session, library, child, version)
+
+    await session.execute(delete(ItemTag).where(ItemTag.item_id == item.id))
+    await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
+    key = item.key
+    await session.delete(item)
+    await session.flush()
+    await record_deletion(session, library, DeletedObjectType.ITEM, key, version)
+
+
 async def delete_items(
     session: AsyncSession,
     library: Library,
@@ -303,8 +319,4 @@ async def delete_items(
         if item is None:
             # Deleting something already gone is not an error.
             continue
-
-        await session.execute(delete(ItemTag).where(ItemTag.item_id == item.id))
-        await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
-        await session.delete(item)
-        await record_deletion(session, library, DeletedObjectType.ITEM, key, version)
+        await _delete_one(session, library, item, version)
