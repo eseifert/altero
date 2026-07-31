@@ -19,10 +19,13 @@ Implemented:
   multi-object response, version preconditions and `Zotero-Write-Token`
 - `/deleted?since=`, so a client that has been away can tell a deletion from an
   object it has not fetched
+- Library settings and attachment full-text content
+- The attachment file protocol, storing files under their digest
+- Provisioning from the command line, CORS, and API version negotiation
 
 Not implemented yet: Atom, bibliography and citation rendering, the export
-formats, file upload and download, full-text content, and group library
-management.
+formats, group creation through the API (the command line does it),
+`/publications`, and rate limiting.
 
 ## Compatibility
 

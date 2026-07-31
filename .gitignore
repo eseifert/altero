@@ -3,6 +3,7 @@ __pycache__/
 
 # Project
 config.py
+CLAUDE.md
 *.sqlite
 /storage/
 

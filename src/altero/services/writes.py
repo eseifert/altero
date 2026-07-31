@@ -6,10 +6,10 @@ request answers with.
 """
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -212,6 +212,12 @@ async def claim_write_token(
         return
     if len(token) != WRITE_TOKEN_LENGTH:
         raise InvalidInputError("Invalid Zotero-Write-Token value")
+
+    # Tokens are only worth remembering for as long as a client might retry.
+    # Clearing the expired ones here keeps the table bounded without a
+    # scheduled job.
+    cutoff = datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=WRITE_TOKEN_LIFETIME_HOURS)
+    await session.execute(delete(WriteToken).where(WriteToken.created < cutoff))
 
     try:
         async with session.begin_nested():
