@@ -15,10 +15,14 @@ Implemented:
 - Reading items, collections, saved searches and tags, including `format=json`,
   `keys` and `versions`, pagination with the `Link` header, sorting, `since`,
   and `If-Modified-Since-Version`
+- Writing items, collections and saved searches, and deleting tags, with the
+  multi-object response, version preconditions and `Zotero-Write-Token`
+- `/deleted?since=`, so a client that has been away can tell a deletion from an
+  object it has not fetched
 
-Not implemented yet: writes (`POST`/`PUT`/`PATCH`/`DELETE`), `/deleted`, Atom,
-bibliography and citation rendering, the export formats, file upload and
-download, and group library management.
+Not implemented yet: Atom, bibliography and citation rendering, the export
+formats, file upload and download, full-text content, and group library
+management.
 
 ## Compatibility
 

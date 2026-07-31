@@ -5,18 +5,18 @@ from typing import Any
 from fastapi import APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
+from starlette.responses import Response
 
 from altero import serializers
+from altero.api.batch import batch_write
 from altero.api.deps import BaseUrlDep, ReadableLibraryDep, SessionDep, WritableLibraryDep
-from altero.api.errors import status_for
 from altero.api.responses import (
     library_headers,
     listing_response,
     not_modified,
     object_response,
 )
-from altero.errors import AlteroError, InvalidInputError, RequestTooLargeError
+from altero.errors import InvalidInputError, RequestTooLargeError
 from altero.models import Item, Library
 from altero.query import ITEM_SORT_FIELDS, ListQuery, parse_list_query
 from altero.services import items as items_service
@@ -153,49 +153,16 @@ async def create_items(
     library: WritableLibraryDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    """Create or update a batch of items.
+    """Create or update a batch of items."""
 
-    Answers 200 with a per-object report even when some objects fail, which is
-    what the API does; the status code alone does not tell the client whether
-    its data was stored.
-    """
-    payloads = writes.parse_object_list(await request.json())
-    expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
-    writes.check_library_version(library, expected, required=False)
+    async def save(
+        session: AsyncSession, library: Library, payload: dict[str, Any], version: int
+    ) -> dict[str, Any]:
+        item = await item_writes.save_item(session, library, payload, version)
+        await session.flush()
+        return await render_item(session, item, library, base_url)
 
-    token = request.headers.get("Zotero-Write-Token")
-    await writes.check_write_token(session, library, token)
-
-    results = writes.WriteResults()
-    # Held as a plain int: after a rollback the ORM object is expired, and
-    # reading an attribute off it would trigger a lazy load with no session.
-    previous_version = library.version
-    version = await writes.bump_library_version(session, library)
-
-    # Children may name a parent created earlier in the same request, so the
-    # objects are applied in the order the client sent them.
-    for index, payload in enumerate(payloads):
-        key = str(payload.get("key") or "")
-        savepoint = await session.begin_nested()
-        try:
-            item = await item_writes.save_item(session, library, payload, version)
-            await session.flush()
-            results.add_successful(index, await render_item(session, item, library, base_url))
-        except AlteroError as error:
-            await savepoint.rollback()
-            results.add_failure(index, key, status_for(error), error.message)
-        else:
-            await savepoint.commit()
-
-    if results.any_succeeded:
-        await writes.remember_write_token(session, library, token)
-        await session.commit()
-    else:
-        # Nothing was stored, so the version must not move.
-        await session.rollback()
-        version = previous_version
-
-    return JSONResponse(results.report(), headers=library_headers(version))
+    return await batch_write(request, session, library, save)
 
 
 @router.put("/users/{user_id}/items/{item_key}")

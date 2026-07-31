@@ -1,0 +1,198 @@
+"""Creating, updating and deleting collections, saved searches and tags."""
+
+from typing import Any
+
+from sqlalchemy import delete, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from altero.errors import InvalidInputError
+from altero.keys import coerce_key, is_valid_key
+from altero.models import (
+    Collection,
+    CollectionItem,
+    DeletedObjectType,
+    ItemTag,
+    Library,
+    SavedSearch,
+    SearchCondition,
+    Tag,
+)
+from altero.services.collections import get_collection
+from altero.services.deletions import record_deletion
+from altero.services.writes import check_object_version
+
+
+def _check_key(payload: dict[str, Any], label: str) -> str | None:
+    key = payload.get("key")
+    if key is None or key == "":
+        return None
+    if not is_valid_key(str(key)):
+        raise InvalidInputError(f"'{key}' is not a valid {label} key")
+    return str(key)
+
+
+async def save_collection(
+    session: AsyncSession,
+    library: Library,
+    payload: dict[str, Any],
+    version: int,
+    *,
+    key: str | None = None,
+    require_version: bool = False,
+) -> Collection:
+    """Create or update one collection."""
+    name = payload.get("name")
+    if not isinstance(name, str) or not name:
+        raise InvalidInputError("'name' property not provided")
+
+    target_key = key or _check_key(payload, "collection")
+
+    collection = None
+    if target_key:
+        collection = await session.scalar(
+            select(Collection).where(
+                Collection.library_id == library.id, Collection.key == target_key
+            )
+        )
+
+    if collection is None:
+        collection = Collection(library_id=library.id, key=coerce_key(target_key), version=version)
+        session.add(collection)
+    else:
+        check_object_version(collection.version, payload.get("version"), required=require_version)
+
+    collection.name = name
+    collection.version = version
+
+    # `parentCollection` is false or absent for a top-level collection.
+    parent = payload.get("parentCollection")
+    if parent:
+        if str(parent) == collection.key:
+            raise InvalidInputError("Collection cannot be its own parent")
+        parent_collection = await get_collection(session, library, str(parent))
+        collection.parent_id = parent_collection.id
+    else:
+        collection.parent_id = None
+
+    await session.flush()
+    return collection
+
+
+async def delete_collections(
+    session: AsyncSession, library: Library, keys: list[str], version: int
+) -> None:
+    """Remove collections and record the deletions."""
+    for key in keys:
+        collection = await session.scalar(
+            select(Collection).where(Collection.library_id == library.id, Collection.key == key)
+        )
+        if collection is None:
+            continue
+
+        # Nested collections are promoted rather than removed with the parent,
+        # which is what the client expects when a collection is deleted.
+        children = await session.scalars(
+            select(Collection).where(Collection.parent_id == collection.id)
+        )
+        for child in children:
+            child.parent_id = collection.parent_id
+            child.version = version
+
+        await session.execute(
+            delete(CollectionItem).where(CollectionItem.collection_id == collection.id)
+        )
+        await session.delete(collection)
+        await record_deletion(session, library, DeletedObjectType.COLLECTION, key, version)
+
+
+async def save_search(
+    session: AsyncSession,
+    library: Library,
+    payload: dict[str, Any],
+    version: int,
+    *,
+    key: str | None = None,
+    require_version: bool = False,
+) -> SavedSearch:
+    """Create or update one saved search."""
+    name = payload.get("name")
+    if not isinstance(name, str) or not name:
+        raise InvalidInputError("'name' property not provided")
+
+    raw_conditions = payload.get("conditions", [])
+    if not isinstance(raw_conditions, list) or not raw_conditions:
+        raise InvalidInputError("'conditions' property not provided")
+
+    conditions: list[tuple[str, str, str]] = []
+    for condition in raw_conditions:
+        if not isinstance(condition, dict) or not condition.get("condition"):
+            raise InvalidInputError("Invalid search condition")
+        conditions.append(
+            (
+                str(condition["condition"]),
+                str(condition.get("operator", "")),
+                str(condition.get("value", "")),
+            )
+        )
+
+    target_key = key or _check_key(payload, "search")
+
+    search = None
+    if target_key:
+        search = await session.scalar(
+            select(SavedSearch).where(
+                SavedSearch.library_id == library.id, SavedSearch.key == target_key
+            )
+        )
+
+    if search is None:
+        search = SavedSearch(library_id=library.id, key=coerce_key(target_key), version=version)
+        session.add(search)
+    else:
+        check_object_version(search.version, payload.get("version"), required=require_version)
+
+    search.name = name
+    search.version = version
+    search.conditions = [
+        SearchCondition(position=index, condition=condition, operator=operator, value=value)
+        for index, (condition, operator, value) in enumerate(conditions)
+    ]
+
+    await session.flush()
+    return search
+
+
+async def delete_searches(
+    session: AsyncSession, library: Library, keys: list[str], version: int
+) -> None:
+    """Remove saved searches and record the deletions."""
+    for key in keys:
+        search = await session.scalar(
+            select(SavedSearch).where(SavedSearch.library_id == library.id, SavedSearch.key == key)
+        )
+        if search is None:
+            continue
+        await session.delete(search)
+        await record_deletion(session, library, DeletedObjectType.SEARCH, key, version)
+
+
+async def delete_tags(
+    session: AsyncSession, library: Library, names: list[str], version: int
+) -> None:
+    """Remove tags by name, detaching them from every item first.
+
+    A name may exist twice, once manual and once automatic, and deleting by name
+    removes both.
+    """
+    for name in names:
+        tags = await session.scalars(
+            select(Tag).where(Tag.library_id == library.id, Tag.name == name)
+        )
+        removed = False
+        for tag in tags:
+            await session.execute(delete(ItemTag).where(ItemTag.tag_id == tag.id))
+            await session.delete(tag)
+            removed = True
+
+        if removed:
+            await record_deletion(session, library, DeletedObjectType.TAG, name, version)
