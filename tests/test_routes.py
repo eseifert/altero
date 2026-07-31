@@ -13,6 +13,12 @@ from fastapi.routing import APIRoute, _IncludedRouter
 #: the /users prefix; each is also served under /groups.
 EXPECTED = [
     ("/keys/{key}", "GET"),
+    ("/keys/current", "GET"),
+    ("/keys/current", "DELETE"),
+    ("/keys/sessions", "POST"),
+    ("/keys/sessions/{token}", "GET"),
+    ("/keys/sessions/{token}", "DELETE"),
+    ("/keys/sessions/{token}/login", "GET"),
     ("/users/{user_id}/groups", "GET"),
     ("/itemTypes", "GET"),
     ("/itemFields", "GET"),

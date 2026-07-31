@@ -79,6 +79,32 @@ uv run altero group member <group-id> <username> [--role admin]
 uv run altero library list
 ```
 
+## Using it from the Zotero desktop app
+
+The client's API base URL is a hidden preference. In Zotero, open
+**Settings → Advanced → Config Editor**, accept the warning, and set:
+
+    extensions.zotero.api.url = http://localhost:8000/
+
+The trailing slash matters. Then restart Zotero and open
+**Settings → Sync → Link Account**.
+
+Zotero authenticates by opening a page in the browser and polling until it is
+approved. altero has no web interface and stores no passwords, so the page it
+serves tells you to approve the login on the server instead:
+
+```sh
+uv run altero login list
+uv run altero login approve <token> <username>
+```
+
+The client picks the key up on its next poll — usually within a few seconds —
+and syncing proceeds normally. `login approve` issues a key unless you point it
+at an existing one with `--key`.
+
+Point a test installation at altero, not one holding a library you care about:
+altero is not finished, and a sync sends the client's data to it.
+
 ## Configuration
 
 Copy `config.example.py` to `config.py` and edit it. Every setting can also be

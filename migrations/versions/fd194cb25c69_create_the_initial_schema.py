@@ -1,8 +1,8 @@
 """Create the initial schema
 
-Revision ID: 279b053288d6
+Revision ID: fd194cb25c69
 Revises:
-Create Date: 2026-07-31 15:04:30.070187
+Create Date: 2026-07-31 19:43:49.088732
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "279b053288d6"
+revision: str = "fd194cb25c69"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -478,6 +478,24 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("item_id", "tag_id"),
     )
     op.create_table(
+        "login_sessions",
+        sa.Column("token", sa.String(length=64), nullable=False),
+        sa.Column("status", sa.String(length=16), nullable=False),
+        sa.Column("requested_user_id", sa.Integer(), nullable=True),
+        sa.Column("api_key_id", sa.Integer(), nullable=True),
+        sa.Column(
+            "created", sa.DateTime(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False
+        ),
+        sa.ForeignKeyConstraint(
+            ["api_key_id"],
+            ["api_keys.id"],
+        ),
+        sa.PrimaryKeyConstraint("token"),
+    )
+    with op.batch_alter_table("login_sessions", schema=None) as batch_op:
+        batch_op.create_index(batch_op.f("ix_login_sessions_created"), ["created"], unique=False)
+
+    op.create_table(
         "search_conditions",
         sa.Column("search_id", sa.Integer(), nullable=False),
         sa.Column("position", sa.Integer(), nullable=False),
@@ -531,6 +549,10 @@ def downgrade() -> None:
 
     op.drop_table("storage_uploads")
     op.drop_table("search_conditions")
+    with op.batch_alter_table("login_sessions", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix_login_sessions_created"))
+
+    op.drop_table("login_sessions")
     op.drop_table("item_tags")
     op.drop_table("item_relations")
     with op.batch_alter_table("item_fulltext", schema=None) as batch_op:

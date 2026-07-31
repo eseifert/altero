@@ -149,6 +149,14 @@ async def get_user(session: AsyncSession, user_id: int) -> User:
     return user
 
 
+async def get_api_key_by_value(session: AsyncSession, key: str) -> ApiKey:
+    """Return the API key with this key string."""
+    api_key = await session.scalar(select(ApiKey).where(ApiKey.key == key))
+    if api_key is None:
+        raise NotFoundError("No such key")
+    return api_key
+
+
 async def list_group_overrides(
     session: AsyncSession,
     api_key: ApiKey,

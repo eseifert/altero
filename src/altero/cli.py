@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.db import Database
 from altero.errors import AlteroError
-from altero.services import admin
+from altero.services import admin, auth, login
 from altero.settings import Settings, get_settings
 
 
@@ -106,6 +106,27 @@ async def _group_member_add(session: AsyncSession, args: argparse.Namespace) -> 
     print(f"Added {args.username} to group {args.group} as {args.role}.")
 
 
+async def _login_list(session: AsyncSession, args: argparse.Namespace) -> None:
+    pending = await login.list_pending(session)
+    if not pending:
+        print("No logins waiting for approval.")
+        return
+    for entry in pending:
+        wanted = f" (expects user {entry.requested_user_id})" if entry.requested_user_id else ""
+        print(f"{entry.token}  started {entry.created:%Y-%m-%d %H:%M}{wanted}")
+
+
+async def _login_approve(session: AsyncSession, args: argparse.Namespace) -> None:
+    if args.key:
+        api_key = await auth.get_api_key_by_value(session, args.key)
+    else:
+        # Issuing a key here means the usual case is one command, not two.
+        api_key = await admin.create_api_key(session, username=args.username, name="Zotero client")
+
+    await login.approve_session(session, args.token, api_key)
+    print(f"Approved. The client will continue with key {api_key.key}.")
+
+
 async def _library_list(session: AsyncSession, args: argparse.Namespace) -> None:
     libraries = await admin.list_libraries(session)
     if not libraries:
@@ -156,6 +177,18 @@ def build_parser() -> argparse.ArgumentParser:
     member.add_argument("username")
     member.add_argument("--role", default="member", choices=["member", "admin"])
     member.set_defaults(handler=_group_member_add)
+
+    login_parser = commands.add_parser(
+        "login", help="approve a desktop client login"
+    ).add_subparsers(dest="subcommand")
+    login_parser.add_parser("list", help="show logins waiting for approval").set_defaults(
+        handler=_login_list
+    )
+    approve = login_parser.add_parser("approve", help="approve a waiting login")
+    approve.add_argument("token")
+    approve.add_argument("username", help="the account to log the client in as")
+    approve.add_argument("--key", help="use this existing key instead of issuing a new one")
+    approve.set_defaults(handler=_login_approve)
 
     library = commands.add_parser("library", help="inspect libraries").add_subparsers(
         dest="subcommand"

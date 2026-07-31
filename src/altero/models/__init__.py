@@ -9,6 +9,7 @@ from altero.models.collection import Collection, CollectionItem
 from altero.models.fulltext import FullText
 from altero.models.item import Item, ItemCreator, ItemField, ItemRelation
 from altero.models.library import Group, GroupMember, Library, LibraryType, User
+from altero.models.login import LoginSession
 from altero.models.search import SavedSearch, SearchCondition
 from altero.models.setting import Setting
 from altero.models.storage import StorageUpload
@@ -32,6 +33,7 @@ __all__ = [
     "ItemTag",
     "Library",
     "LibraryType",
+    "LoginSession",
     "SavedSearch",
     "SearchCondition",
     "Setting",

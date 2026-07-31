@@ -158,6 +158,23 @@ Uploaded bytes are checked against the declared MD5 and length before being
 stored, and `If-Match` or `If-None-Match` is required, so a client working from
 stale information cannot overwrite a newer file.
 
+## Obtaining a key
+
+The desktop client asks for `POST /keys/sessions`, opens the `loginURL` it gets
+back in a browser, and polls `GET /keys/sessions/<token>` until the response
+carries `apiKey`, `userID` and `username`. It refuses a completed session
+missing any of the three, and keeps polling while the status is `pending`.
+
+Upstream authenticates the user against zotero.org in that browser window.
+altero has no web interface and stores no passwords — accounts and keys are
+provisioned from the command line — so the page it serves at `loginURL` explains
+how to approve the login there instead, and `altero login approve` completes the
+session. The exchange the client sees is unchanged.
+
+`POST /keys`, which creates a key from a username and password, is not
+implemented. The client only reaches it when migrating a profile that still
+holds a pre-2016 sync password.
+
 ## API versions
 
 Only version 3 is served. A request naming another version through the
