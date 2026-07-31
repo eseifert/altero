@@ -29,6 +29,9 @@ class CollectionItem(Base):
     """Membership of an item in a collection."""
 
     __tablename__ = "collection_items"
+    # The primary key serves lookups by collection. Rendering an item asks which
+    # collections hold it, which reads the other column.
+    __table_args__ = (Index("ix_collection_items_item_id", "item_id"),)
 
     collection_id: Mapped[int] = mapped_column(ForeignKey("collections.id"), primary_key=True)
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), primary_key=True)

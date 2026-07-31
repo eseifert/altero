@@ -43,6 +43,9 @@ class ItemTag(Base):
     """Attachment of a tag to an item."""
 
     __tablename__ = "item_tags"
+    # The primary key serves lookups by item. Tag listings and tag deletion go
+    # the other way, and without this index each one scans the whole table.
+    __table_args__ = (Index("ix_item_tags_tag_id", "tag_id"),)
 
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), primary_key=True)
     tag_id: Mapped[int] = mapped_column(ForeignKey("tags.id"), primary_key=True)
