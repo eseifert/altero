@@ -1,20 +1,38 @@
 """Database engine, session factory and ORM base class."""
 
 from collections.abc import AsyncIterator
+from datetime import datetime
 
+from sqlalchemy import DateTime, func
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from altero.settings import Settings
 
 
 class Base(DeclarativeBase):
     """Declarative base shared by every ORM model."""
+
+
+class Timestamped:
+    """The three timestamps the dataserver keeps on every syncable object.
+
+    ``date_added`` and ``date_modified`` are supplied by the client and round-trip
+    through the API. ``server_date_modified`` is set by the server on every write
+    and is what the ``serverDateModified`` sort orders by, so a client cannot
+    reorder results by backdating its own timestamps.
+    """
+
+    date_added: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    date_modified: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    server_date_modified: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), index=True
+    )
 
 
 class Database:

@@ -3,10 +3,10 @@
 from sqlalchemy import ForeignKey, Index, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from altero.db import Base
+from altero.db import Base, Timestamped
 
 
-class SavedSearch(Base):
+class SavedSearch(Base, Timestamped):
     """A stored search definition."""
 
     __tablename__ = "searches"
@@ -18,7 +18,7 @@ class SavedSearch(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
     key: Mapped[str] = mapped_column(String(8))
-    version: Mapped[int] = mapped_column(default=0, index=True)
+    version: Mapped[int] = mapped_column(default=1, index=True)
     name: Mapped[str] = mapped_column(String(255), default="")
     deleted: Mapped[bool] = mapped_column(default=False, index=True)
 

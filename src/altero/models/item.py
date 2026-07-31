@@ -1,14 +1,12 @@
 """Items and everything hanging off them."""
 
-from datetime import datetime
-
-from sqlalchemy import DateTime, ForeignKey, Index, String, Text, UniqueConstraint, func
+from sqlalchemy import ForeignKey, Index, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from altero.db import Base
+from altero.db import Base, Timestamped
 
 
-class Item(Base):
+class Item(Base, Timestamped):
     """A bibliographic item, note or attachment."""
 
     __tablename__ = "items"
@@ -21,14 +19,12 @@ class Item(Base):
     library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
     key: Mapped[str] = mapped_column(String(8))
     #: Library version at which this item last changed; drives ``since``.
-    version: Mapped[int] = mapped_column(default=0, index=True)
+    version: Mapped[int] = mapped_column(default=1, index=True)
     item_type: Mapped[str] = mapped_column(String(32), index=True)
     #: Parent of a note or attachment, expressed as ``parentItem`` in JSON.
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("items.id"), index=True)
     #: Whether the item sits in the trash.
     deleted: Mapped[bool] = mapped_column(default=False, index=True)
-    date_added: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-    date_modified: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     # Sort keys derived from the item's data whenever it is written. Each item
     # type names its title, creator and date differently, so sorting straight

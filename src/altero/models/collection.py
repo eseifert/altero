@@ -3,10 +3,10 @@
 from sqlalchemy import ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from altero.db import Base
+from altero.db import Base, Timestamped
 
 
-class Collection(Base):
+class Collection(Base, Timestamped):
     """A collection, which may be nested inside another."""
 
     __tablename__ = "collections"
@@ -18,7 +18,7 @@ class Collection(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
     key: Mapped[str] = mapped_column(String(8))
-    version: Mapped[int] = mapped_column(default=0, index=True)
+    version: Mapped[int] = mapped_column(default=1, index=True)
     name: Mapped[str] = mapped_column(String(255), default="")
     #: ``parentCollection`` in JSON; null for a top-level collection.
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("collections.id"), index=True)

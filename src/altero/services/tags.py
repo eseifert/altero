@@ -66,10 +66,10 @@ async def list_tags(
 
     count = func.count(ItemTag.item_id).label("num_items")
     statement = (
-        select(Tag.name, func.min(ItemTag.type).label("tag_type"), count, Tag.version)
+        select(Tag.name, Tag.type, count, Tag.version)
         .join(ItemTag, ItemTag.tag_id == Tag.id)
         .where(and_(*join_filters))
-        .group_by(Tag.id, Tag.name, Tag.version)
+        .group_by(Tag.id, Tag.name, Tag.type, Tag.version)
     )
 
     total = await session.scalar(select(func.count()).select_from(statement.subquery()))
@@ -86,10 +86,10 @@ async def get_tag(session: AsyncSession, library: Library, name: str) -> TagSumm
     """Return one tag by name."""
     row = (
         await session.execute(
-            select(Tag.name, func.min(ItemTag.type), func.count(ItemTag.item_id), Tag.version)
+            select(Tag.name, Tag.type, func.count(ItemTag.item_id), Tag.version)
             .join(ItemTag, ItemTag.tag_id == Tag.id)
             .where(Tag.library_id == library.id, Tag.name == name)
-            .group_by(Tag.id, Tag.name, Tag.version)
+            .group_by(Tag.id, Tag.name, Tag.type, Tag.version)
         )
     ).first()
 

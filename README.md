@@ -25,7 +25,8 @@ download, and group library management.
 The target is the Zotero desktop application, so where the published
 documentation and the official [dataserver](https://github.com/zotero/dataserver)
 disagree, the dataserver wins — including its inconsistencies. Each one is
-recorded in [docs/compatibility.md](docs/compatibility.md).
+recorded in [docs/compatibility.md](docs/compatibility.md), and the database
+schema is compared against theirs in [docs/schema.md](docs/schema.md).
 
 ## Requirements
 

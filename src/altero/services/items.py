@@ -261,7 +261,7 @@ async def collection_keys_for(session: AsyncSession, item: Item) -> list[str]:
 async def tags_for(session: AsyncSession, item: Item) -> list[tuple[str, int]]:
     """Return ``(name, type)`` for each tag attached to ``item``."""
     result = await session.execute(
-        select(Tag.name, ItemTag.type)
+        select(Tag.name, Tag.type)
         .join(ItemTag, ItemTag.tag_id == Tag.id)
         .where(ItemTag.item_id == item.id)
         .order_by(Tag.name)

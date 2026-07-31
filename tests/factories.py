@@ -211,12 +211,22 @@ async def tag_item(
     """Attach a tag to an item, creating the tag if needed."""
     from sqlalchemy import select
 
-    tag = await session.scalar(select(Tag).where(Tag.library_id == library.id, Tag.name == name))
+    from altero.keys import generate_key
+
+    tag = await session.scalar(
+        select(Tag).where(Tag.library_id == library.id, Tag.name == name, Tag.type == tag_type)
+    )
     if tag is None:
-        tag = Tag(library_id=library.id, name=name, version=version)
+        tag = Tag(
+            library_id=library.id,
+            key=generate_key(),
+            name=name,
+            type=tag_type,
+            version=version,
+        )
         session.add(tag)
         await session.flush()
 
-    session.add(ItemTag(item_id=item.id, tag_id=tag.id, type=tag_type))
+    session.add(ItemTag(item_id=item.id, tag_id=tag.id))
     await session.commit()
     return tag
