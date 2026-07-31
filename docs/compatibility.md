@@ -239,6 +239,14 @@ with "Made no progress during upload".
 `lastRead` is a real attachment field, added at schema version 42, which the
 client sets on its own when a snapshot is opened.
 
+**Registering a finished file upload bumps the library version**, so the
+full-text upload that follows it can arrive with a stale
+`If-Unmodified-Since-Version` and be answered 412. The client notices, resyncs
+and repeats the upload successfully — one wasted round trip, not a failure.
+This is upstream's behaviour as well: `Zotero_Storage::updateFileItemInfo` calls
+`Zotero_Libraries::updateVersionAndTimestamp` before saving the item. Suppressing
+the bump to avoid the 412 would break `?since=` for anyone tracking file changes.
+
 ## API versions
 
 Only version 3 is served. A request naming another version through the
