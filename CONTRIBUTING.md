@@ -116,16 +116,25 @@ library, say so in the message. The next person will have the same doubt.
 Models live in `altero/models/`, one module per area, all re-exported from
 `__init__.py` so that Alembic's autogenerate sees them.
 
-Nothing has been released yet, so there is a single initial revision that gets
-regenerated when models change. Once there is a release, add revisions instead.
-Autogenerate against a database already at `head`, or it will re-detect the
-existing tables:
+**Add a revision; never rewrite an existing one.** There are databases holding
+real libraries now, and a database remembers the revision it was stamped with.
+Deleting that revision strands it: `alembic upgrade head` then fails with
+"Can't locate revision", and no upgrade path exists. That has already happened
+once on this project.
+
+Autogenerate against a database already at `head`, or it re-detects the existing
+tables:
 
 ```sh
 uv run alembic upgrade head
 uv run alembic revision --autogenerate -m "describe the change"
+uv run alembic upgrade head   # apply it
 uv run alembic check          # what CI runs; passes only when they agree
 ```
+
+Read the generated revision before committing it. Autogenerate misses some
+changes and guesses at others, and on SQLite it emits `batch_alter_table` blocks
+that are worth a look.
 
 Keep to portable constructs. SQLite is the default and PostgreSQL is the
 supported deployment, so nothing may depend on features of one alone.
