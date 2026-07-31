@@ -24,3 +24,15 @@ class ForbiddenError(AlteroError):
 
 class InvalidInputError(AlteroError):
     """The request data is malformed or violates the schema."""
+
+
+class PreconditionFailedError(AlteroError):
+    """The library changed since the version the client last saw."""
+
+
+class PreconditionRequiredError(AlteroError):
+    """The request needs a version precondition it did not supply."""
+
+
+class RequestTooLargeError(AlteroError):
+    """More objects were submitted than one request may carry."""

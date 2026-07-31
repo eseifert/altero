@@ -1,8 +1,8 @@
 """Create the initial schema
 
-Revision ID: e7ac4f074d09
+Revision ID: 33c8d9c1ca97
 Revises:
-Create Date: 2026-07-31 12:16:23.856713
+Create Date: 2026-07-31 12:25:25.681863
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "e7ac4f074d09"
+revision: str = "33c8d9c1ca97"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -120,6 +120,34 @@ def upgrade() -> None:
             unique=False,
         )
         batch_op.create_index(batch_op.f("ix_collections_version"), ["version"], unique=False)
+
+    op.create_table(
+        "deleted_objects",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("library_id", sa.Integer(), nullable=False),
+        sa.Column("object_type", sa.String(length=16), nullable=False),
+        sa.Column("key", sa.String(length=255), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
+        sa.Column(
+            "deleted", sa.DateTime(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False
+        ),
+        sa.ForeignKeyConstraint(
+            ["library_id"],
+            ["libraries.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint(
+            "library_id", "object_type", "key", name="uq_deleted_objects_library_type_key"
+        ),
+    )
+    with op.batch_alter_table("deleted_objects", schema=None) as batch_op:
+        batch_op.create_index(
+            batch_op.f("ix_deleted_objects_library_id"), ["library_id"], unique=False
+        )
+        batch_op.create_index(
+            "ix_deleted_objects_library_version", ["library_id", "version"], unique=False
+        )
+        batch_op.create_index(batch_op.f("ix_deleted_objects_version"), ["version"], unique=False)
 
     op.create_table(
         "group_members",
@@ -299,6 +327,27 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f("ix_tags_version"), ["version"], unique=False)
 
     op.create_table(
+        "write_tokens",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("library_id", sa.Integer(), nullable=False),
+        sa.Column("token", sa.String(length=32), nullable=False),
+        sa.Column(
+            "created", sa.DateTime(), server_default=sa.text("(CURRENT_TIMESTAMP)"), nullable=False
+        ),
+        sa.ForeignKeyConstraint(
+            ["library_id"],
+            ["libraries.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("library_id", "token", name="uq_write_tokens_library_token"),
+    )
+    with op.batch_alter_table("write_tokens", schema=None) as batch_op:
+        batch_op.create_index(batch_op.f("ix_write_tokens_created"), ["created"], unique=False)
+        batch_op.create_index(
+            batch_op.f("ix_write_tokens_library_id"), ["library_id"], unique=False
+        )
+
+    op.create_table(
         "api_key_group_access",
         sa.Column("api_key_id", sa.Integer(), nullable=False),
         sa.Column("library_id", sa.Integer(), nullable=False),
@@ -404,6 +453,11 @@ def downgrade() -> None:
     op.drop_table("item_creators")
     op.drop_table("collection_items")
     op.drop_table("api_key_group_access")
+    with op.batch_alter_table("write_tokens", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix_write_tokens_library_id"))
+        batch_op.drop_index(batch_op.f("ix_write_tokens_created"))
+
+    op.drop_table("write_tokens")
     with op.batch_alter_table("tags", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("ix_tags_version"))
         batch_op.drop_index(batch_op.f("ix_tags_server_date_modified"))
@@ -434,6 +488,12 @@ def downgrade() -> None:
     op.drop_table("items")
     op.drop_table("groups")
     op.drop_table("group_members")
+    with op.batch_alter_table("deleted_objects", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix_deleted_objects_version"))
+        batch_op.drop_index("ix_deleted_objects_library_version")
+        batch_op.drop_index(batch_op.f("ix_deleted_objects_library_id"))
+
+    op.drop_table("deleted_objects")
     with op.batch_alter_table("collections", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("ix_collections_version"))
         batch_op.drop_index(batch_op.f("ix_collections_server_date_modified"))
