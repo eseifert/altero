@@ -11,7 +11,12 @@ from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
-from altero.api.deps import ReadableLibraryDep, SessionDep, WritableLibraryDep
+from altero.api.deps import (
+    BaseUrlDep,
+    ReadableLibraryDep,
+    SessionDep,
+    WritableLibraryDep,
+)
 from altero.api.responses import library_headers
 from altero.errors import RequestTooLargeError
 from altero.services import items as items_service
@@ -34,6 +39,7 @@ async def upload_file(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    base_url: BaseUrlDep,
 ) -> Response:
     """Authorize an upload, or register one that has finished.
 
@@ -60,7 +66,9 @@ async def upload_file(
     if declared["filesize"] > MAX_UPLOAD_BYTES:
         raise RequestTooLargeError("File is too large")
 
-    result = await storage.authorize(session, library, item, declared, _storage_root(request))
+    result = await storage.authorize(
+        session, library, item, declared, _storage_root(request), base_url
+    )
 
     if "exists" in result:
         # Nothing to send, so the attachment is already up to date.

@@ -91,6 +91,13 @@ def parse_authorization(form: dict[str, str]) -> dict[str, Any]:
     if filesize < 0:
         raise InvalidInputError("Invalid filesize")
 
+    # A snapshot is uploaded as a ZIP. `md5` then describes the original file
+    # while the bytes on the wire are the archive, so the transfer has to be
+    # checked against `zipMD5`; `filesize` already refers to the archive.
+    zip_md5 = (form.get("zipMD5") or "").lower() or None
+    if zip_md5 and len(zip_md5) != 32:
+        raise InvalidInputError(f"Invalid zipMD5 '{zip_md5}'")
+
     return {
         "md5": md5.lower(),
         "filename": form["filename"],
@@ -98,6 +105,8 @@ def parse_authorization(form: dict[str, str]) -> dict[str, Any]:
         "mtime": mtime,
         "content_type": form.get("contentType", ""),
         "charset": form.get("charset", ""),
+        "zip_md5": zip_md5,
+        "zip_filename": form.get("zipFilename", ""),
     }
 
 
@@ -107,6 +116,7 @@ async def authorize(
     item: Item,
     declared: dict[str, Any],
     root: Path,
+    base_url: str = "",
 ) -> dict[str, Any]:
     """Authorize an upload, or report that the bytes are already held.
 
@@ -125,6 +135,7 @@ async def authorize(
         item_id=item.id,
         library_id=library.id,
         md5=declared["md5"],
+        zip_md5=declared.get("zip_md5"),
         filename=declared["filename"],
         filesize=declared["filesize"],
         mtime=declared["mtime"],
@@ -135,7 +146,9 @@ async def authorize(
     await session.flush()
 
     return {
-        "url": f"/storage/upload/{upload.key}",
+        # Absolute: the client hands this straight to XMLHttpRequest.open(),
+        # which rejects a bare path.
+        "url": f"{base_url}/storage/upload/{upload.key}",
         "contentType": declared["content_type"] or "application/octet-stream",
         # Upstream fills these with the S3 form envelope. There is none here, so
         # the client sends the file with nothing wrapped around it.
@@ -165,9 +178,12 @@ def store_bytes(root: Path, upload: StorageUpload, body: bytes) -> None:
             f"Uploaded file has wrong size (expected {upload.filesize}, got {len(body)})"
         )
 
+    # For a zipped upload the bytes are the archive, so they are checked
+    # against its digest; `md5` still identifies the original file.
+    expected = upload.zip_md5 or upload.md5
     digest = hashlib.md5(body, usedforsecurity=False).hexdigest()
-    if digest != upload.md5:
-        raise InvalidInputError(f"Uploaded file has wrong md5 (expected {upload.md5})")
+    if digest != expected:
+        raise InvalidInputError(f"Uploaded file has wrong md5 (expected {expected})")
 
     path = file_path(root, upload.md5)
     path.parent.mkdir(parents=True, exist_ok=True)

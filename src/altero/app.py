@@ -9,6 +9,7 @@ from starlette.requests import Request
 from starlette.responses import PlainTextResponse, Response
 
 from altero import API_VERSION, __version__
+from altero.api.compression import DecompressionMiddleware
 from altero.api.errors import register_error_handlers
 from altero.api.routes import (
     collections,
@@ -45,7 +46,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version=__version__,
         summary=f"Zotero Web API v{API_VERSION}",
         lifespan=lifespan,
-        debug=settings.debug,
+        # Never on: the client logs the whole response body, so a traceback
+        # would end up in the user's debug output and in bug reports.
+        debug=False,
     )
     app.state.settings = settings
     app.state.database = database
@@ -80,6 +83,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ],
         max_age=86400,
     )
+
+    # Outermost, so the body is already decompressed by the time anything else
+    # looks at it.
+    app.add_middleware(DecompressionMiddleware)
 
     register_error_handlers(app)
     # The schema routes come first so that /items/new is not captured by the

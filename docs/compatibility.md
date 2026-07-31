@@ -204,6 +204,26 @@ or `412` here, so rejecting the request aborts the sync. altero therefore
 answers `204` as well, and additionally understands `tags` with bare `||`
 separators should the client ever stop dropping it.
 
+**Uploads are compressed.** The client gzips the full-text batch and announces
+it with `Content-Encoding: gzip`. Nothing in the documented request format
+mentions this, and a server that reads the body as UTF-8 fails on the second
+byte of the gzip magic number. Bodies are therefore decompressed before anything
+else looks at them, and a body that does not decompress is a `400` rather than
+an unhandled failure.
+
+**A snapshot is uploaded as a ZIP, and the digests differ.** When the connector
+saves a page, the client zips the attachment directory and sends `zipMD5` and
+`zipFilename` alongside the usual parameters. In that case `md5` describes the
+*original* file while the bytes on the wire are the archive, and `filesize` is
+the archive's size. Validating the transfer against `md5` rejects every snapshot.
+altero checks against `zipMD5` when present and records `md5` on the item, which
+is what the client sends back as `If-Match` next time.
+
+**The upload URL must be absolute.** The client passes it straight to
+`XMLHttpRequest.open()`, which rejects a bare path with "is not a valid URL".
+Upstream returns an S3 URL, so this only shows up on a server that hosts its own
+uploads.
+
 ## API versions
 
 Only version 3 is served. A request naming another version through the

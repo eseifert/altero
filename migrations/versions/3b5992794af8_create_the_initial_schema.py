@@ -1,8 +1,8 @@
 """Create the initial schema
 
-Revision ID: fd194cb25c69
+Revision ID: 3b5992794af8
 Revises:
-Create Date: 2026-07-31 19:43:49.088732
+Create Date: 2026-07-31 20:52:25.355311
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "fd194cb25c69"
+revision: str = "3b5992794af8"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -514,6 +514,7 @@ def upgrade() -> None:
         sa.Column("item_id", sa.Integer(), nullable=False),
         sa.Column("library_id", sa.Integer(), nullable=False),
         sa.Column("md5", sa.String(length=32), nullable=False),
+        sa.Column("zip_md5", sa.String(length=32), nullable=True),
         sa.Column("filename", sa.String(length=255), nullable=False),
         sa.Column("filesize", sa.Integer(), nullable=False),
         sa.Column("mtime", sa.Integer(), nullable=False),

@@ -24,6 +24,9 @@ class StorageUpload(Base):
     library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
 
     md5: Mapped[str] = mapped_column(String(32))
+    #: Digest of the archive, when the client zipped the file before sending.
+    #: `md5` still describes the original file.
+    zip_md5: Mapped[str | None] = mapped_column(String(32))
     filename: Mapped[str] = mapped_column(String(255))
     filesize: Mapped[int] = mapped_column()
     mtime: Mapped[int] = mapped_column()
