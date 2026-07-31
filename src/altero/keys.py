@@ -8,6 +8,7 @@ in a single request, so keys must be validated as well as generated.
 
 import re
 import secrets
+import string
 
 #: Alphabet used by Zotero object keys, as documented for the v3 API. The digits
 #: 0 and 1 and the letter O are omitted; the remaining digits and uppercase
@@ -41,3 +42,16 @@ def coerce_key(key: str | None) -> str:
     if not is_valid_key(key):
         raise ValueError(f"'{key}' is not a valid object key")
     return key
+
+
+#: Alphabet used by API keys. Unlike object keys these are not read aloud, so
+#: the full alphanumeric range is used.
+API_KEY_ALPHABET = string.ascii_letters + string.digits
+
+#: Number of characters in an API key.
+API_KEY_LENGTH = 24
+
+
+def generate_api_key() -> str:
+    """Return a new random API key."""
+    return "".join(secrets.choice(API_KEY_ALPHABET) for _ in range(API_KEY_LENGTH))

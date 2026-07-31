@@ -21,7 +21,7 @@ dependencies = [
 Homepage = "https://github.com/eseifert/altero"
 
 [project.scripts]
-altero = "altero.__main__:main"
+altero = "altero.cli:main"
 
 [dependency-groups]
 dev = [

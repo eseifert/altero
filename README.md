@@ -43,10 +43,29 @@ schema is compared against theirs in [docs/schema.md](docs/schema.md).
 uv sync
 cp config.example.py config.py
 uv run alembic upgrade head
+uv run altero user add <username>
+uv run altero key add <username> --name laptop
 uv run altero
 ```
 
-The server listens on `http://127.0.0.1:8000` by default.
+The server listens on `http://127.0.0.1:8000` by default. `key add` prints the
+new key once and it cannot be shown again.
+
+## Administration
+
+The Web API cannot create accounts or issue credentials, so that is done from
+the command line:
+
+```sh
+uv run altero user add <username> [--display-name NAME] [--id N]
+uv run altero user list
+uv run altero key add <username> [--name LABEL] [--read-only] [--groups]
+uv run altero key list
+uv run altero key revoke <key>
+uv run altero group add <name> --owner <username> [--public]
+uv run altero group member <group-id> <username> [--role admin]
+uv run altero library list
+```
 
 ## Configuration
 

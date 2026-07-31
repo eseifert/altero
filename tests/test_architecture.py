@@ -18,8 +18,8 @@ SOURCE_ROOT = Path(altero.__file__).parent
 WEB_FRAMEWORK_PACKAGES = {"fastapi", "starlette", "uvicorn"}
 
 #: Modules allowed to reach for the web framework: the HTTP layer itself, the
-#: application factory that assembles it, and the server entry point.
-FRAMEWORK_MODULES = {"app.py", "__main__.py"}
+#: application factory that assembles it, and the entry points that start it.
+FRAMEWORK_MODULES = {"app.py", "__main__.py", "cli.py"}
 
 #: Modules that make up the framework-independent core.
 CORE_MODULES = sorted(
