@@ -18,6 +18,7 @@ from altero.models import (
     Library,
     Tag,
 )
+from altero.pagination import UNLIMITED
 from altero.query import Direction, ListQuery, QuickSearchMode
 from altero.search import SearchExpression
 
@@ -45,6 +46,16 @@ class Scope(StrEnum):
     CHILDREN = auto()
     COLLECTION = auto()
     COLLECTION_TOP = auto()
+
+
+def paginate(statement: Select[Any], query: ListQuery) -> Select[Any]:
+    """Apply ``start`` and ``limit``, omitting LIMIT when the page is unlimited.
+
+    ``format=keys`` and ``format=versions`` default to unlimited, so the whole
+    result set comes back in one response.
+    """
+    statement = statement.offset(query.start) if query.start else statement
+    return statement if query.limit == UNLIMITED else statement.limit(query.limit)
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,18 +96,14 @@ def _expression_filter(
 ) -> list[ColumnElement[bool]]:
     """Turn parsed search expressions into predicates.
 
-    Alternatives within one expression are OR-ed, negated terms are excluded,
-    and separate expressions are AND-ed by returning them as separate clauses.
+    Alternatives within one expression are OR-ed and the negation, if any,
+    applies to that whole group. Separate expressions are AND-ed by being
+    returned as separate clauses.
     """
     clauses: list[ColumnElement[bool]] = []
     for expression in expressions:
-        included = [build(term.value) for term in expression.terms if not term.negated]
-        excluded = [build(term.value) for term in expression.terms if term.negated]
-
-        if included:
-            clauses.append(or_(*included))
-        for clause in excluded:
-            clauses.append(not_(clause))
+        matched = or_(*(build(value) for value in expression.values))
+        clauses.append(not_(matched) if expression.negated else matched)
     return clauses
 
 
@@ -217,9 +224,7 @@ async def list_items(
     statement = await build_item_query(session, library, query, scope, key)
 
     total = await session.scalar(select(func.count()).select_from(statement.subquery()))
-    result = await session.scalars(
-        _apply_sort(statement, query).offset(query.start).limit(query.limit)
-    )
+    result = await session.scalars(paginate(_apply_sort(statement, query), query))
 
     return Page(objects=list(result), total=total or 0, library_version=library.version)
 

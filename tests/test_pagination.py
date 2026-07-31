@@ -5,6 +5,7 @@ import pytest
 from altero.pagination import (
     DEFAULT_LIMIT,
     MAX_LIMIT,
+    UNLIMITED,
     build_page_links,
     clamp_limit,
     format_link_header,
@@ -20,12 +21,32 @@ from altero.pagination import (
         (100, 100),
         (101, MAX_LIMIT),
         (1000, MAX_LIMIT),
-        (0, 1),
-        (-5, 1),
+        # Zero or less falls back to the default rather than to a single
+        # result, matching Zotero_API::parseQueryParams.
+        (0, DEFAULT_LIMIT),
+        (-5, DEFAULT_LIMIT),
     ],
 )
 def test_limit_is_clamped_to_the_documented_range(supplied: int | None, expected: int) -> None:
     assert clamp_limit(supplied) == expected
+
+
+def test_an_unlimited_maximum_does_not_clamp() -> None:
+    assert clamp_limit(5000, maximum=UNLIMITED, default=UNLIMITED) == 5000
+
+
+def test_an_unlimited_default_applies_when_nothing_is_supplied() -> None:
+    assert clamp_limit(None, maximum=UNLIMITED, default=UNLIMITED) == UNLIMITED
+
+
+def test_an_explicit_limit_still_wins_over_an_unlimited_default() -> None:
+    assert clamp_limit(10, maximum=UNLIMITED, default=UNLIMITED) == 10
+
+
+def test_an_unlimited_page_has_no_links() -> None:
+    links = build_page_links("http://localhost/x", [], start=0, limit=UNLIMITED, total=500)
+
+    assert links == {}
 
 
 def test_the_first_page_offers_only_forward_links() -> None:

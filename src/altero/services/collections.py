@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.errors import NotFoundError
 from altero.models import Collection, CollectionItem, Item, Library
 from altero.query import Direction, ListQuery
-from altero.services.items import Page
+from altero.services.items import Page, paginate
 
 #: Sort parameters that map straight onto a column of ``collections``.
 _COLUMN_SORTS = {
@@ -66,9 +66,7 @@ async def list_collections(
 
     statement = select(Collection).where(and_(*filters))
     total = await session.scalar(select(func.count()).select_from(statement.subquery()))
-    result = await session.scalars(
-        _apply_sort(statement, query).offset(query.start).limit(query.limit)
-    )
+    result = await session.scalars(paginate(_apply_sort(statement, query), query))
 
     return Page(objects=list(result), total=total or 0, library_version=library.version)
 

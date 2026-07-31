@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.errors import NotFoundError
 from altero.models import Item, ItemTag, Library, Tag
 from altero.query import Direction, ListQuery, TagSearchMode
-from altero.services.items import Page
+from altero.services.items import Page, paginate
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,9 +73,7 @@ async def list_tags(
     )
 
     total = await session.scalar(select(func.count()).select_from(statement.subquery()))
-    result = await session.execute(
-        _apply_sort(statement, query, count).offset(query.start).limit(query.limit)
-    )
+    result = await session.execute(paginate(_apply_sort(statement, query, count), query))
 
     summaries = [
         TagSummary(name=name, type=tag_type or 0, num_items=num_items, version=version)

@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 
 from altero.errors import InvalidInputError
-from altero.pagination import DEFAULT_LIMIT, clamp_limit
+from altero.pagination import DEFAULT_LIMIT, MAX_LIMIT, UNLIMITED, clamp_limit
 from altero.search import SearchExpression, parse_expressions
 
 
@@ -56,7 +56,9 @@ ITEM_SORT_FIELDS = frozenset(
         "libraryCatalog",
         "callNumber",
         "rights",
+        "extra",
         "addedBy",
+        "serverDateModified",
     }
 )
 
@@ -65,9 +67,6 @@ NAMED_SORT_FIELDS = frozenset({"dateAdded", "dateModified", "title", "name"})
 
 #: Sort fields accepted by the tag endpoints.
 TAG_SORT_FIELDS = frozenset({"title", "numItems"})
-
-#: Sort fields that count down by default, because the newest is most useful.
-DESCENDING_BY_DEFAULT = frozenset({"dateAdded", "dateModified", "date"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,7 +106,7 @@ def _parse_enum[T: StrEnum](enum: type[T], value: str | None, default: T, name: 
         raise InvalidInputError(f"Invalid '{name}' value '{value}'") from None
 
 
-def _parse_int(value: str | None, default: int, name: str) -> int:
+def _parse_int[T: int | None](value: str | None, default: T, name: str) -> int | T:
     if value is None or value == "":
         return default
     try:
@@ -116,9 +115,52 @@ def _parse_int(value: str | None, default: int, name: str) -> int:
         raise InvalidInputError(f"Invalid '{name}' value '{value}'") from None
 
 
+def _parse_qmode(value: str | None, *, tag_endpoint: bool) -> str:
+    """Return the validated ``qmode``.
+
+    The reference implementation compares lowercased, so ``startsWith`` and
+    ``startswith`` are both accepted. The canonical spelling is returned.
+    """
+    modes: tuple[str, ...] = (
+        (TagSearchMode.CONTAINS, TagSearchMode.STARTS_WITH)
+        if tag_endpoint
+        else (QuickSearchMode.TITLE_CREATOR_YEAR, QuickSearchMode.EVERYTHING)
+    )
+    if value is None or value == "":
+        return modes[0]
+
+    for mode in modes:
+        if value.lower() == mode.lower():
+            return str(mode)
+    raise InvalidInputError(f"Invalid 'qmode' value '{value}'")
+
+
 def default_direction(sort: str) -> Direction:
-    """Return the direction used when the client does not name one."""
-    return Direction.DESCENDING if sort in DESCENDING_BY_DEFAULT else Direction.ASCENDING
+    """Return the direction used when the client does not name one.
+
+    Any sort field whose name begins with ``date`` counts down, which is the
+    rule the reference implementation applies.
+    """
+    return Direction.DESCENDING if sort.startswith("date") else Direction.ASCENDING
+
+
+def limit_maximum(response_format: Format) -> int:
+    """Return the largest page size allowed for ``response_format``."""
+    if response_format in (Format.KEYS, Format.VERSIONS):
+        return UNLIMITED
+    return MAX_LIMIT
+
+
+def default_limit(response_format: Format) -> int:
+    """Return the page size used when the client asks for none.
+
+    ``keys`` and ``versions`` are unpaginated by default: clients use them to
+    discover everything that changed, so truncating them to 25 would silently
+    break syncing.
+    """
+    if response_format in (Format.KEYS, Format.VERSIONS):
+        return UNLIMITED
+    return DEFAULT_LIMIT
 
 
 def parse_list_query(
@@ -142,39 +184,43 @@ def parse_list_query(
     single = {name: value for name, value in params}
     repeated = [value for name, value in params if name == "tag"]
 
+    if len([name for name, _ in params if name == "itemType"]) > 1:
+        raise InvalidInputError("Cannot specify 'itemType' more than once")
+
+    response_format = _parse_enum(Format, single.get("format"), Format.JSON, "format")
+
+    # A direction supplied as `sort` is moved across and the default sort kept,
+    # which is what the reference implementation does.
     sort = single.get("sort") or default_sort
+    direction_override = single.get("direction")
+    if sort in (Direction.ASCENDING, Direction.DESCENDING):
+        direction_override = sort
+        sort = default_sort
     if sort not in sort_fields:
         raise InvalidInputError(f"Invalid 'sort' value '{sort}'")
 
-    direction = _parse_enum(
-        Direction, single.get("direction"), default_direction(sort), "direction"
-    )
+    direction = _parse_enum(Direction, direction_override, default_direction(sort), "direction")
 
     item_keys = tuple(key for key in (single.get("itemKey") or "").split(",") if key)
     if len(item_keys) > MAX_KEYS:
         raise InvalidInputError(f"Cannot request more than {MAX_KEYS} items at a time")
 
     return ListQuery(
-        response_format=_parse_enum(Format, single.get("format"), Format.JSON, "format"),
+        response_format=response_format,
         include=frozenset((single.get("include") or "data").split(",")),
         item_keys=item_keys,
         item_types=parse_expressions([single["itemType"]] if "itemType" in single else []),
         tags=parse_expressions(repeated),
         q=single.get("q") or None,
-        qmode=str(
-            _parse_enum(TagSearchMode, single.get("qmode"), TagSearchMode.CONTAINS, "qmode")
-            if tag_endpoint
-            else _parse_enum(
-                QuickSearchMode,
-                single.get("qmode"),
-                QuickSearchMode.TITLE_CREATOR_YEAR,
-                "qmode",
-            )
-        ),
+        qmode=_parse_qmode(single.get("qmode"), tag_endpoint=tag_endpoint),
         since=_parse_int(single.get("since"), 0, "since"),
         sort=sort,
         direction=direction,
-        limit=clamp_limit(_parse_int(single.get("limit"), DEFAULT_LIMIT, "limit")),
+        limit=clamp_limit(
+            _parse_int(single.get("limit"), None, "limit"),
+            maximum=limit_maximum(response_format),
+            default=default_limit(response_format),
+        ),
         start=max(0, _parse_int(single.get("start"), 0, "start")),
         include_trashed=single.get("includeTrashed") == "1",
         raw=tuple(params),

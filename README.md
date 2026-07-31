@@ -20,6 +20,13 @@ Not implemented yet: writes (`POST`/`PUT`/`PATCH`/`DELETE`), `/deleted`, Atom,
 bibliography and citation rendering, the export formats, file upload and
 download, and group library management.
 
+## Compatibility
+
+The target is the Zotero desktop application, so where the published
+documentation and the official [dataserver](https://github.com/zotero/dataserver)
+disagree, the dataserver wins — including its inconsistencies. Each one is
+recorded in [docs/compatibility.md](docs/compatibility.md).
+
 ## Requirements
 
 - Python 3.14 or newer
