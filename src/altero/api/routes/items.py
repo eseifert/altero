@@ -1,5 +1,6 @@
 """Item endpoints."""
 
+from collections.abc import Sequence
 from typing import Any
 
 from fastapi import APIRouter
@@ -31,24 +32,41 @@ def item_query(request: Request) -> ListQuery:
     return parse_list_query(list(request.query_params.multi_items()), sort_fields=ITEM_SORT_FIELDS)
 
 
+async def render_items(
+    session: AsyncSession, items: Sequence[Item], library: Library, base_url: str
+) -> list[dict[str, Any]]:
+    """Serialize items, gathering the related data their envelopes need.
+
+    The related data is fetched once for the whole page rather than once per
+    item: a page of a hundred items would otherwise cost hundreds of round
+    trips, which is invisible against a local SQLite file and dominates the
+    response against a networked database.
+    """
+    tags = await items_service.tags_for(session, items)
+    collections = await items_service.collection_keys_for(session, items)
+    children = await items_service.count_children(session, items)
+    parent_keys = await items_service.parent_keys_for(session, items)
+
+    return [
+        serializers.item(
+            item,
+            library,
+            base_url,
+            tags=tags.get(item.id, []),
+            collections=collections.get(item.id, []),
+            num_children=children.get(item.id, 0),
+            parent_key=parent_keys.get(item.parent_id) if item.parent_id else None,
+        )
+        for item in items
+    ]
+
+
 async def render_item(
     session: AsyncSession, item: Item, library: Library, base_url: str
 ) -> dict[str, Any]:
-    """Serialize one item, gathering the related data its envelope needs."""
-    parent_key = None
-    if item.parent_id is not None:
-        parent = await session.get(Item, item.parent_id)
-        parent_key = parent.key if parent else None
-
-    return serializers.item(
-        item,
-        library,
-        base_url,
-        tags=await items_service.tags_for(session, item),
-        collections=await items_service.collection_keys_for(session, item),
-        num_children=await items_service.count_children(session, item),
-        parent_key=parent_key,
-    )
+    """Serialize one item."""
+    (rendered,) = await render_items(session, [item], library, base_url)
+    return rendered
 
 
 async def render_page(
@@ -64,7 +82,7 @@ async def render_page(
 
     objects: list[Any] = []
     if query.response_format is Format.JSON:
-        objects = [await render_item(session, item, library, base_url) for item in page.objects]
+        objects = await render_items(session, page.objects, library, base_url)
 
     return listing_response(
         request,

@@ -258,33 +258,70 @@ async def get_item(session: AsyncSession, library: Library, key: str) -> Item:
     return item
 
 
-async def count_children(session: AsyncSession, item: Item) -> int:
-    """Return how many non-trashed children ``item`` has."""
-    total = await session.scalar(
-        select(func.count())
-        .select_from(Item)
-        .where(Item.parent_id == item.id, Item.deleted.is_(False))
+async def count_children(session: AsyncSession, items: Sequence[Item]) -> dict[int, int]:
+    """Return how many non-trashed children each of ``items`` has, by item id.
+
+    Items with no children are absent from the mapping, so callers read it with
+    a default of zero.
+    """
+    if not items:
+        return {}
+
+    result = await session.execute(
+        select(Item.parent_id, func.count())
+        .where(Item.parent_id.in_([item.id for item in items]), Item.deleted.is_(False))
+        .group_by(Item.parent_id)
     )
-    return total or 0
+    return {parent_id: count for parent_id, count in result.all()}
 
 
-async def collection_keys_for(session: AsyncSession, item: Item) -> list[str]:
-    """Return the keys of the collections ``item`` belongs to."""
-    result = await session.scalars(
-        select(Collection.key)
-        .join(CollectionItem, CollectionItem.collection_id == Collection.id)
-        .where(CollectionItem.item_id == item.id)
+async def collection_keys_for(session: AsyncSession, items: Sequence[Item]) -> dict[int, list[str]]:
+    """Return the keys of the collections each of ``items`` belongs to, by item id."""
+    if not items:
+        return {}
+
+    result = await session.execute(
+        select(CollectionItem.item_id, Collection.key)
+        .join(Collection, Collection.id == CollectionItem.collection_id)
+        .where(CollectionItem.item_id.in_([item.id for item in items]))
         .order_by(Collection.key)
     )
-    return list(result)
+
+    keys: dict[int, list[str]] = {}
+    for item_id, key in result.all():
+        keys.setdefault(item_id, []).append(key)
+    return keys
 
 
-async def tags_for(session: AsyncSession, item: Item) -> list[tuple[str, int]]:
-    """Return ``(name, type)`` for each tag attached to ``item``."""
+async def tags_for(
+    session: AsyncSession, items: Sequence[Item]
+) -> dict[int, list[tuple[str, int]]]:
+    """Return the ``(name, type)`` pairs attached to each of ``items``, by item id."""
+    if not items:
+        return {}
+
     result = await session.execute(
-        select(Tag.name, Tag.type)
-        .join(ItemTag, ItemTag.tag_id == Tag.id)
-        .where(ItemTag.item_id == item.id)
+        select(ItemTag.item_id, Tag.name, Tag.type)
+        .join(Tag, Tag.id == ItemTag.tag_id)
+        .where(ItemTag.item_id.in_([item.id for item in items]))
         .order_by(Tag.name)
     )
-    return [(name, type_) for name, type_ in result.all()]
+
+    tags: dict[int, list[tuple[str, int]]] = {}
+    for item_id, name, type_ in result.all():
+        tags.setdefault(item_id, []).append((name, type_))
+    return tags
+
+
+async def parent_keys_for(session: AsyncSession, items: Sequence[Item]) -> dict[int, str]:
+    """Return the key of every parent named by ``items``, by parent id.
+
+    Only the items that have a parent contribute, so a page of top-level items
+    costs no query at all.
+    """
+    parent_ids = {item.parent_id for item in items if item.parent_id is not None}
+    if not parent_ids:
+        return {}
+
+    result = await session.execute(select(Item.id, Item.key).where(Item.id.in_(parent_ids)))
+    return {item_id: key for item_id, key in result.all()}
