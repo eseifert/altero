@@ -1,8 +1,8 @@
 """Create the initial schema
 
-Revision ID: 52536c4d07d8
+Revision ID: 3f85f6c3dad4
 Revises:
-Create Date: 2026-07-31 12:30:35.880136
+Create Date: 2026-07-31 14:57:16.516996
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "52536c4d07d8"
+revision: str = "3f85f6c3dad4"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -285,6 +285,27 @@ def upgrade() -> None:
         batch_op.create_index(batch_op.f("ix_searches_version"), ["version"], unique=False)
 
     op.create_table(
+        "settings",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("library_id", sa.Integer(), nullable=False),
+        sa.Column("name", sa.String(length=60), nullable=False),
+        sa.Column("value", sa.Text(), nullable=False),
+        sa.Column("version", sa.Integer(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["library_id"],
+            ["libraries.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("library_id", "name", name="uq_settings_library_name"),
+    )
+    with op.batch_alter_table("settings", schema=None) as batch_op:
+        batch_op.create_index(batch_op.f("ix_settings_library_id"), ["library_id"], unique=False)
+        batch_op.create_index(
+            "ix_settings_library_version", ["library_id", "version"], unique=False
+        )
+        batch_op.create_index(batch_op.f("ix_settings_version"), ["version"], unique=False)
+
+    op.create_table(
         "tags",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("library_id", sa.Integer(), nullable=False),
@@ -465,6 +486,12 @@ def downgrade() -> None:
         batch_op.drop_index(batch_op.f("ix_tags_library_id"))
 
     op.drop_table("tags")
+    with op.batch_alter_table("settings", schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f("ix_settings_version"))
+        batch_op.drop_index("ix_settings_library_version")
+        batch_op.drop_index(batch_op.f("ix_settings_library_id"))
+
+    op.drop_table("settings")
     with op.batch_alter_table("searches", schema=None) as batch_op:
         batch_op.drop_index(batch_op.f("ix_searches_version"))
         batch_op.drop_index(batch_op.f("ix_searches_server_date_modified"))

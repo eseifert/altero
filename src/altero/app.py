@@ -18,6 +18,9 @@ from altero.api.routes import (
     searches,
     tags,
 )
+from altero.api.routes import (
+    settings as settings_routes,
+)
 from altero.db import Database
 from altero.settings import Settings, get_settings
 
@@ -50,6 +53,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(itemschema.router)
     app.include_router(keys.router)
     app.include_router(deleted.router)
+    app.include_router(settings_routes.router)
     app.include_router(tags.router)
     app.include_router(collections.router)
     app.include_router(searches.router)
