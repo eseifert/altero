@@ -12,6 +12,7 @@ from altero.api.errors import register_error_handlers
 from altero.api.routes import (
     collections,
     deleted,
+    files,
     fulltext,
     items,
     itemschema,
@@ -56,6 +57,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(deleted.router)
     app.include_router(settings_routes.router)
     app.include_router(fulltext.router)
+    app.include_router(files.router)
     app.include_router(tags.router)
     app.include_router(collections.router)
     app.include_router(searches.router)
