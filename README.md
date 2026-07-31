@@ -24,7 +24,8 @@ Implemented:
 - Client-supplied `dateAdded` and `dateModified`, kept as sent
 - `/deleted?since=`, so a client that has been away can tell a deletion from an
   object it has not fetched
-- Library settings, and attachment full-text with `/fulltext?since=`
+- Library settings, and attachment full-text, including the batch upload the
+  desktop client uses
 - The attachment file protocol, storing files once per digest
 - Provisioning from the command line, CORS, and API version negotiation
 

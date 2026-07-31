@@ -22,12 +22,19 @@ async def batch_write(
     session: AsyncSession,
     library: Library,
     save: Saver,
+    *,
+    require_version: bool = False,
 ) -> Response:
     """Apply a batch of objects and answer with the per-object report.
 
     Each object is applied inside a savepoint so that one rejection does not
     take the rest of the batch with it. A request in which nothing succeeded
     leaves the library version where it was.
+
+    Args:
+        require_version: Whether ``If-Unmodified-Since-Version`` must be
+            supplied. The full-text upload requires it; the object writes accept
+            a request without one.
     """
     payloads = writes.parse_object_list(await request.json())
 
@@ -35,7 +42,7 @@ async def batch_write(
     # change.
     library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
-    writes.check_library_version(library, expected, required=False)
+    writes.check_library_version(library, expected, required=require_version)
 
     await writes.claim_write_token(session, library, request.headers.get("Zotero-Write-Token"))
 

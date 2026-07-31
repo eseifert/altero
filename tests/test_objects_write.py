@@ -251,10 +251,36 @@ class TestTagWrites:
 
         assert (await client.get("/users/1/tags", headers=AUTH)).json() == []
 
-    async def test_deleting_without_a_tag_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+    async def test_deleting_without_a_tag_deletes_nothing(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
-        assert (await client.delete("/users/1/tags", headers=VERSIONED)).status_code == 400
+        # The desktop client sends its tag names as `tags`, which its own
+        # parameter filter then drops, so the request arrives bare. Upstream
+        # answers 204 having done nothing, and the client accepts only 204 or
+        # 412 here — a 400 aborts the sync.
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "fiction")
+
+        response = await client.delete("/users/1/tags", headers=VERSIONED)
+
+        assert response.status_code == 204
+        assert [t["tag"] for t in (await client.get("/users/1/tags", headers=AUTH)).json()] == [
+            "fiction"
+        ]
+
+    async def test_the_plural_parameter_is_also_accepted(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Should the client ever stop dropping it, `tags` means the same thing,
+        # and its values are joined with a bare `||` rather than a spaced one.
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "fiction")
+        await tag_item(session, library, item, "classic")
+
+        response = await client.delete("/users/1/tags?tags=fiction||classic", headers=VERSIONED)
+
+        assert response.status_code == 204
+        assert (await client.get("/users/1/tags", headers=AUTH)).json() == []
 
 
 class TestDeleteLog:

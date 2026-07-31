@@ -165,3 +165,158 @@ class TestVersionIndex:
         self, client: httpx.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/fulltext?since=abc", headers=AUTH)).status_code == 400
+
+
+class TestBatchUpload:
+    """`POST <prefix>/fulltext`, which the desktop client uses to upload.
+
+    The shape comes from `syncFullTextEngine.js` and `syncAPIClient.js`: an
+    array of {key, content, indexedChars, totalChars, indexedPages, totalPages},
+    answered with the multi-object report. The client reads
+    `results[state][index].key` for both `successful` and `unchanged`, so those
+    entries are objects rather than bare key strings.
+    """
+
+    async def test_a_batch_is_stored(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        await make_item(session, library, key="BBBB2345", item_type="attachment")
+
+        response = await client.post(
+            "/users/1/fulltext",
+            headers=JSON | {"If-Unmodified-Since-Version": "10"},
+            json=[
+                {"key": "AAAA2345", "content": "first", "indexedChars": 5, "totalChars": 5},
+                {"key": "BBBB2345", "content": "second", "indexedPages": 1, "totalPages": 2},
+            ],
+        )
+
+        assert response.status_code == 200
+        body = response.json()
+        assert body["failed"] == {}
+        assert body["successful"]["0"]["key"] == "AAAA2345"
+        assert body["successful"]["1"]["key"] == "BBBB2345"
+
+    async def test_the_content_is_readable_afterwards(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+
+        await client.post(
+            "/users/1/fulltext",
+            headers=JSON | {"If-Unmodified-Since-Version": "10"},
+            json=[{"key": "AAAA2345", "content": "Call me Ishmael.", "indexedChars": 16}],
+        )
+
+        body = (await client.get("/users/1/items/AAAA2345/fulltext", headers=AUTH)).json()
+        assert body["content"] == "Call me Ishmael."
+        assert body["indexedChars"] == 16
+
+    async def test_successful_entries_carry_a_key(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # The client does results[state][index].key; a bare string would leave
+        # it looking up an item by undefined.
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+
+        body = (
+            await client.post(
+                "/users/1/fulltext",
+                headers=JSON | {"If-Unmodified-Since-Version": "10"},
+                json=[{"key": "AAAA2345", "content": "t"}],
+            )
+        ).json()
+
+        assert set(body) == {"successful", "success", "unchanged", "failed"}
+        assert "key" in body["successful"]["0"]
+
+    async def test_an_unknown_item_fails_that_entry_only(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+
+        body = (
+            await client.post(
+                "/users/1/fulltext",
+                headers=JSON | {"If-Unmodified-Since-Version": "10"},
+                json=[
+                    {"key": "AAAA2345", "content": "fine"},
+                    {"key": "ZZZZ2345", "content": "no such item"},
+                ],
+            )
+        ).json()
+
+        assert set(body["successful"]) == {"0"}
+        assert body["failed"]["1"]["code"] == 404
+        assert body["failed"]["1"]["key"] == "ZZZZ2345"
+
+    async def test_an_entry_without_a_key_fails(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post(
+                "/users/1/fulltext",
+                headers=JSON | {"If-Unmodified-Since-Version": "10"},
+                json=[{"content": "orphan"}],
+            )
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+        assert "key" in body["failed"]["0"]["message"].lower()
+
+    async def test_the_version_advances_once_for_the_whole_batch(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        await make_item(session, library, key="BBBB2345", item_type="attachment")
+
+        response = await client.post(
+            "/users/1/fulltext",
+            headers=JSON | {"If-Unmodified-Since-Version": "10"},
+            json=[
+                {"key": "AAAA2345", "content": "a"},
+                {"key": "BBBB2345", "content": "b"},
+            ],
+        )
+
+        assert response.headers["Last-Modified-Version"] == "11"
+
+    async def test_a_missing_version_header_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+
+        response = await client.post(
+            "/users/1/fulltext", headers=JSON, json=[{"key": "AAAA2345", "content": "t"}]
+        )
+
+        assert response.status_code == 428
+
+    async def test_a_stale_version_header_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # The client expects 412 here and retries the whole sync.
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+
+        response = await client.post(
+            "/users/1/fulltext",
+            headers=JSON | {"If-Unmodified-Since-Version": "3"},
+            json=[{"key": "AAAA2345", "content": "t"}],
+        )
+
+        assert response.status_code == 412
+
+    async def test_uploading_requires_write_permission(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_user(session, user_id=2, username="reader")
+        await make_api_key(session, key="READONLY", user_id=2, library_write=False)
+
+        response = await client.post(
+            "/users/2/fulltext",
+            headers={"Zotero-API-Key": "READONLY", "If-Unmodified-Since-Version": "0"},
+            json=[],
+        )
+
+        assert response.status_code == 403

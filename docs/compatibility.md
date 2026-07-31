@@ -175,6 +175,35 @@ session. The exchange the client sees is unchanged.
 implemented. The client only reaches it when migrating a profile that still
 holds a pre-2016 sync password.
 
+## What the desktop client actually sends
+
+Two of these were found by running the real client, not by reading the
+documentation, and neither is described there.
+
+**Full text is uploaded in batches.** The documented endpoints are
+`GET`/`PUT` on `<prefix>/items/<key>/fulltext`, but the client uploads with
+`POST <prefix>/fulltext`, carrying an array of
+`{key, content, indexedChars, totalChars, indexedPages, totalPages}` and
+requiring `If-Unmodified-Since-Version`. The reply is the usual multi-object
+report. Every entry of `successful` and `unchanged` must be an object with a
+`key`, because the client reads `results[state][index].key`; a bare key string
+leaves it looking up an item by `undefined`.
+
+Upstream advances the library version once per item in this batch. altero keeps
+its one-version-per-request rule, which the client cannot tell apart: it uses
+only the final `Last-Modified-Version` as a watermark.
+
+**Tag deletions arrive with no tag named.** The client builds them as
+`tags=a||b` — plural, and joined with a bare `||` rather than the spaced form
+the search syntax uses. Its own parameter filter then drops the name, because
+`queryParamOptions` in `syncAPIClient.js` lists `tag` and not `tags`, so the
+request reaches the server as a bare `DELETE <prefix>/tags`.
+
+Upstream answers `204` having deleted nothing, and the client accepts only `204`
+or `412` here, so rejecting the request aborts the sync. altero therefore
+answers `204` as well, and additionally understands `tags` with bare `||`
+separators should the client ever stop dropping it.
+
 ## API versions
 
 Only version 3 is served. A request naming another version through the

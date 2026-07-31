@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import FullText, Item, Library
+from altero.services.items import get_item
 
 #: Counts the client may report alongside the content. Only those it sends are
 #: stored, and only those stored are returned.
@@ -66,6 +67,32 @@ async def save_content(
 
     await session.flush()
     return stored
+
+
+async def save_batch_entry(
+    session: AsyncSession,
+    library: Library,
+    payload: Any,
+    version: int,
+) -> dict[str, Any]:
+    """Store one entry of a batch upload and return its result object.
+
+    The entry names its own item by key rather than the URL doing it, so the
+    lookup and its failure belong here.
+    """
+    if not isinstance(payload, dict):
+        raise InvalidInputError("Invalid full-text object")
+
+    key = payload.get("key")
+    if not key:
+        raise InvalidInputError("Item key not provided")
+
+    item = await get_item(session, library, str(key))
+    await save_content(session, library, item, payload, version)
+
+    # The client reads `.key` off every successful and unchanged entry, so this
+    # is an object rather than a bare key.
+    return {"key": item.key}
 
 
 async def list_versions(session: AsyncSession, library: Library, since: int = 0) -> dict[str, int]:

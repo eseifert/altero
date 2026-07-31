@@ -20,7 +20,7 @@ from altero.api.responses import (
     not_modified,
     object_response,
 )
-from altero.errors import InvalidInputError, RequestTooLargeError
+from altero.errors import RequestTooLargeError
 from altero.models import Item, Library
 from altero.query import TAG_SORT_FIELDS, Format, ListQuery, parse_list_query
 from altero.search import parse_expressions
@@ -239,7 +239,15 @@ async def delete_tags(
     """Remove up to fifty tags named by the ``tag`` parameter.
 
     Alternatives are separated by ``||`` in the usual search syntax, so one
-    parameter can name several tags.
+    parameter can name several tags. ``tags`` is accepted as well, because the
+    desktop client builds its deletions with that name; it splits on a bare
+    ``||`` rather than a spaced one, matching how the client joins them.
+
+    A request naming no tag deletes nothing and still answers 204. That is what
+    upstream does, and it is the case that actually arrives: the client puts its
+    names in ``tags``, which its own parameter filter then drops, so the request
+    reaches the server bare. Answering 400 would abort the sync, since the client
+    accepts only 204 or 412 here.
     """
     library = await writes.lock_library(session, library)
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
@@ -250,8 +258,11 @@ async def delete_tags(
         for expression in parse_expressions(request.query_params.getlist("tag"))
         for value in expression.values
     ]
+    for value in request.query_params.getlist("tags"):
+        names.extend(name for name in value.split("||") if name)
+
     if not names:
-        raise InvalidInputError("'tag' parameter not provided")
+        return Response(status_code=204, headers=library_headers(library.version))
     if len(names) > writes.MAX_OBJECTS:
         raise RequestTooLargeError(f"Cannot delete more than {writes.MAX_OBJECTS} tags at a time")
 

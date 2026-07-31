@@ -4,13 +4,18 @@ The client extracts text from a PDF or web page and uploads it here so that
 searching works on every device rather than only the one holding the file.
 """
 
+from typing import Any
+
 from fastapi import APIRouter
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
+from altero.api.batch import batch_write
 from altero.api.deps import ReadableLibraryDep, SessionDep, WritableLibraryDep
 from altero.api.responses import library_headers
 from altero.errors import InvalidInputError
+from altero.models import Library
 from altero.services import fulltext as fulltext_service
 from altero.services import items as items_service
 from altero.services import writes
@@ -32,6 +37,27 @@ async def list_fulltext_versions(
 
     versions = await fulltext_service.list_versions(session, library, since)
     return JSONResponse(versions, headers=library_headers(library.version))
+
+
+@router.post("/users/{user_id}/fulltext")
+@router.post("/groups/{group_id}/fulltext")
+async def upload_fulltext(
+    request: Request, session: SessionDep, library: WritableLibraryDep
+) -> Response:
+    """Store full text for a batch of items.
+
+    This is how the desktop client uploads: one request carrying the text of
+    every attachment it has indexed since the last sync. Unlike the other batch
+    writes, the version header is required, so a client cannot upload against a
+    library that moved underneath it.
+    """
+
+    async def save(
+        session: AsyncSession, library: Library, payload: dict[str, Any], version: int
+    ) -> dict[str, Any]:
+        return await fulltext_service.save_batch_entry(session, library, payload, version)
+
+    return await batch_write(request, session, library, save, require_version=True)
 
 
 @router.get("/users/{user_id}/items/{item_key}/fulltext")

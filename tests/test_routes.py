@@ -80,6 +80,7 @@ LIBRARY_SCOPED = [
     ("/settings/{name}", "DELETE"),
     ("/deleted", "GET"),
     ("/fulltext", "GET"),
+    ("/fulltext", "POST"),
 ]
 
 
