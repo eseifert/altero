@@ -12,6 +12,7 @@ from fastapi.routing import APIRoute, _IncludedRouter
 #: Every endpoint, as (path, method). Library-scoped paths are listed once with
 #: the /users prefix; each is also served under /groups.
 EXPECTED = [
+    ("/health", "GET"),
     ("/keys/{key}", "GET"),
     ("/keys/current", "GET"),
     ("/keys/current", "DELETE"),

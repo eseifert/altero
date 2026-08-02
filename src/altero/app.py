@@ -16,6 +16,7 @@ from altero.api.routes import (
     deleted,
     files,
     fulltext,
+    health,
     items,
     itemschema,
     keys,
@@ -91,6 +92,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     register_error_handlers(app)
     # The schema routes come first so that /items/new is not captured by the
     # library-scoped /items/{item_key} pattern.
+    app.include_router(health.router)
     app.include_router(itemschema.router)
     app.include_router(keys.router)
     app.include_router(deleted.router)

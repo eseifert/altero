@@ -18,6 +18,13 @@ dependencies = [
     "python-multipart>=0.0.32",
 ]
 
+[project.optional-dependencies]
+# The driver a PostgreSQL deployment needs. An extra rather than a dependency,
+# so a single-user SQLite install does not carry it, and rather than a dev-only
+# package, so a built image can actually talk to PostgreSQL -- which is how the
+# container came to crash-loop the first time it was pointed at one.
+postgres = ["asyncpg>=0.31.0"]
+
 [project.urls]
 Homepage = "https://github.com/eseifert/altero"
 

@@ -1,0 +1,44 @@
+# A deployment that survives a reboot and can be upgraded without ceremony:
+#
+#     docker compose up -d
+#     docker compose exec altero altero user add <name>
+#     docker compose exec altero altero login list
+#
+# Point the Zotero client at http://<host>:8000/ and turn its streaming off --
+# see "Using it from the Zotero desktop app" in README.md.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: altero
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-altero}
+      POSTGRES_DB: altero
+    volumes:
+      - db:/var/lib/postgresql/data
+    # altero waits for this rather than crash-looping until the database is up.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U altero"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  altero:
+    build: .
+    # Migrations run on start, so this is also how an upgrade applies them.
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ALTERO_DATABASE_URL: postgresql+asyncpg://altero:${POSTGRES_PASSWORD:-altero}@db:5432/altero
+    volumes:
+      - storage:/data
+    # Bound to the loopback interface: put a TLS terminator in front rather
+    # than exposing the API to the network directly.
+    ports:
+      - "127.0.0.1:${ALTERO_PUBLISH_PORT:-8000}:8000"
+    restart: unless-stopped
+
+volumes:
+  db:
+  storage:

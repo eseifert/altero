@@ -81,6 +81,39 @@ uv run altero
 The server listens on `http://127.0.0.1:8000` by default. `key add` prints the
 new key once and it cannot be shown again.
 
+## Running it in a container
+
+```sh
+docker compose up -d
+docker compose exec altero altero user add <username>
+```
+
+That is PostgreSQL, altero and a volume for attachments. Migrations run on
+start, so an upgrade is `docker compose pull && docker compose up -d` with
+nothing to remember; a failed migration exits the container rather than serving
+against a schema it does not understand.
+
+The API is published on the loopback interface only — put a TLS terminator in
+front of it rather than exposing it directly. `ALTERO_PUBLISH_PORT` moves it,
+and `POSTGRES_PASSWORD` should be set to something other than its default before
+anything real goes in.
+
+`GET /health` is the readiness probe, and is what the container's own
+`HEALTHCHECK` polls:
+
+```json
+{"status": "ok", "version": "0.1.0", "apiVersion": 3, "schemaVersion": 42,
+ "revision": "c1b573deea88"}
+```
+
+`revision` is the migration the database is stamped with, which is the question
+worth asking during an upgrade. It answers `503` with nothing but
+`{"status": "error"}` when the database cannot be reached: the endpoint needs no
+credentials, so it says nothing about why.
+
+For PostgreSQL outside a container, install the driver with the `postgres`
+extra: `uv sync --extra postgres`.
+
 ## Administration
 
 The Web API cannot create accounts or issue credentials, so that is done from

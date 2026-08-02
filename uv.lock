@@ -40,6 +40,11 @@ dependencies = [
     { name = "uvicorn", extra = ["standard"] },
 ]
 
+[package.optional-dependencies]
+postgres = [
+    { name = "asyncpg" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "asyncpg" },
@@ -56,6 +61,7 @@ dev = [
 requires-dist = [
     { name = "aiosqlite", specifier = ">=0.21" },
     { name = "alembic", specifier = ">=1.16" },
+    { name = "asyncpg", marker = "extra == 'postgres'", specifier = ">=0.31.0" },
     { name = "fastapi", specifier = ">=0.118" },
     { name = "pydantic", specifier = ">=2.11" },
     { name = "pydantic-settings", specifier = ">=2.10" },
@@ -63,6 +69,7 @@ requires-dist = [
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.40" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.36" },
 ]
+provides-extras = ["postgres"]
 
 [package.metadata.requires-dev]
 dev = [
