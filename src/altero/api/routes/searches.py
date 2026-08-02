@@ -93,8 +93,12 @@ async def create_searches(
 
     async def save(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
-    ) -> dict[str, Any]:
-        search = await object_writes.save_search(session, library, payload, version)
+    ) -> dict[str, Any] | None:
+        search = await object_writes.save_search(
+            session, library, payload, version, detect_unchanged=True
+        )
+        if search is None:
+            return None
         return serializers.saved_search(search, library, base_url)
 
     return await batch_write(request, session, library, save)

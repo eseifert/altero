@@ -203,8 +203,12 @@ async def create_collections(
 
     async def save(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
-    ) -> dict[str, Any]:
-        collection = await object_writes.save_collection(session, library, payload, version)
+    ) -> dict[str, Any] | None:
+        collection = await object_writes.save_collection(
+            session, library, payload, version, detect_unchanged=True
+        )
+        if collection is None:
+            return None
         return await render_collection(session, collection, library, base_url)
 
     return await batch_write(request, session, library, save)

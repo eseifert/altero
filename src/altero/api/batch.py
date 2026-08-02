@@ -13,8 +13,9 @@ from altero.errors import AlteroError
 from altero.models import Library
 from altero.services import writes
 
-#: Saves one object and returns its serialized form.
-Saver = Callable[[AsyncSession, Library, dict[str, Any], int], Awaitable[dict[str, Any]]]
+#: Saves one object and returns its serialized form, or ``None`` if the object
+#: was already exactly what was sent.
+Saver = Callable[[AsyncSession, Library, dict[str, Any], int], Awaitable[dict[str, Any] | None]]
 
 
 async def batch_write(
@@ -58,12 +59,20 @@ async def batch_write(
         key = str(payload.get("key") or "")
         savepoint = await session.begin_nested()
         try:
-            results.add_successful(index, await save(session, library, payload, version))
+            rendered = await save(session, library, payload, version)
         except AlteroError as error:
             await savepoint.rollback()
             results.add_failure(index, key, status_for(error), error.message)
         else:
-            await savepoint.commit()
+            if rendered is None:
+                # Nothing differs, so nothing is written and the object keeps
+                # the version it has. Rolling the savepoint back is what undoes
+                # the version the save stamped on it on the way to finding out.
+                await savepoint.rollback()
+                results.add_unchanged(index, key)
+            else:
+                await savepoint.commit()
+                results.add_successful(index, rendered)
 
     if results.any_succeeded:
         await session.commit()

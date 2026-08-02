@@ -22,6 +22,21 @@ from altero.services.deletions import record_deletion
 from altero.services.writes import check_object_version
 
 
+def _collection_state(collection: Collection) -> tuple[Any, ...]:
+    """Everything about a collection that a client can change."""
+    return (collection.name, collection.parent_id)
+
+
+def _search_state(search: SavedSearch) -> tuple[Any, ...]:
+    return (
+        search.name,
+        tuple(
+            (condition.position, condition.condition, condition.operator, condition.value)
+            for condition in sorted(search.conditions, key=lambda c: c.position)
+        ),
+    )
+
+
 def _check_key(payload: dict[str, Any], label: str) -> str | None:
     key = payload.get("key")
     if key is None or key == "":
@@ -39,8 +54,15 @@ async def save_collection(
     *,
     key: str | None = None,
     require_version: bool = False,
-) -> Collection:
-    """Create or update one collection."""
+    detect_unchanged: bool = False,
+) -> Collection | None:
+    """Create or update one collection.
+
+    Args:
+        detect_unchanged: Return ``None`` instead of writing when the payload
+            describes what is already stored. Only the multi-object path asks
+            for this, because only its response has somewhere to report it.
+    """
     name = payload.get("name")
     if not isinstance(name, str) or not name:
         raise InvalidInputError("'name' property not provided")
@@ -55,11 +77,14 @@ async def save_collection(
             )
         )
 
+    before = None
     if collection is None:
         collection = Collection(library_id=library.id, key=coerce_key(target_key), version=version)
         session.add(collection)
     else:
         check_object_version(collection.version, payload.get("version"), required=require_version)
+        if detect_unchanged:
+            before = _collection_state(collection)
 
     collection.name = name
     collection.version = version
@@ -73,6 +98,9 @@ async def save_collection(
         collection.parent_id = parent_collection.id
     else:
         collection.parent_id = None
+
+    if before is not None and before == _collection_state(collection):
+        return None
 
     await session.flush()
     return collection
@@ -113,8 +141,14 @@ async def save_search(
     *,
     key: str | None = None,
     require_version: bool = False,
-) -> SavedSearch:
-    """Create or update one saved search."""
+    detect_unchanged: bool = False,
+) -> SavedSearch | None:
+    """Create or update one saved search.
+
+    Args:
+        detect_unchanged: Return ``None`` rather than writing when the payload
+            matches what is stored.
+    """
     name = payload.get("name")
     if not isinstance(name, str) or not name:
         raise InvalidInputError("'name' property not provided")
@@ -145,17 +179,29 @@ async def save_search(
             )
         )
 
+    before = None
     if search is None:
         search = SavedSearch(library_id=library.id, key=coerce_key(target_key), version=version)
         session.add(search)
     else:
         check_object_version(search.version, payload.get("version"), required=require_version)
+        if detect_unchanged:
+            before = _search_state(search)
+
+    desired = tuple(
+        (index, condition, operator, value)
+        for index, (condition, operator, value) in enumerate(conditions)
+    )
+    if before is not None and before == (name, desired):
+        # Compared before the conditions are replaced: assigning the list would
+        # delete and reinsert every row to arrive at what is already there.
+        return None
 
     search.name = name
     search.version = version
     search.conditions = [
         SearchCondition(position=index, condition=condition, operator=operator, value=value)
-        for index, (condition, operator, value) in enumerate(conditions)
+        for index, condition, operator, value in desired
     ]
 
     await session.flush()

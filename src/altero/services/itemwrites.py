@@ -250,6 +250,52 @@ async def _resolve_tag(session: AsyncSession, library: Library, name: str, type_
     return tag
 
 
+async def _state(session: AsyncSession, item: Item) -> tuple[Any, ...]:
+    """Everything about an item that a client can change.
+
+    Deliberately excludes the version and ``serverDateModified``, which the
+    server sets: comparing those would make every object look different. The
+    sort keys are excluded too, being derived from the fields.
+
+    The tags and collections come out of their link tables, so this has to be
+    taken before those rows are rewritten -- an item whose tags were replaced
+    but whose fields match is a change, and comparing only the scalars would
+    miss it.
+    """
+    tags = await session.execute(
+        select(Tag.name, Tag.type)
+        .join(ItemTag, ItemTag.tag_id == Tag.id)
+        .where(ItemTag.item_id == item.id)
+    )
+    collections = await session.execute(
+        select(Collection.key)
+        .join(CollectionItem, CollectionItem.collection_id == Collection.id)
+        .where(CollectionItem.item_id == item.id)
+    )
+
+    return (
+        item.item_type,
+        item.deleted,
+        item.date_added,
+        item.date_modified,
+        item.parent_id,
+        tuple(sorted((field.field, field.value) for field in item.fields)),
+        tuple(
+            (
+                creator.position,
+                creator.creator_type,
+                creator.first_name,
+                creator.last_name,
+                creator.name,
+            )
+            for creator in sorted(item.creators, key=lambda c: c.position)
+        ),
+        tuple(sorted((relation.predicate, relation.object) for relation in item.relations)),
+        tuple(sorted(tags.all())),
+        tuple(sorted(key for (key,) in collections.all())),
+    )
+
+
 async def _apply(
     session: AsyncSession,
     library: Library,
@@ -352,7 +398,8 @@ async def save_item(
     key: str | None = None,
     replace: bool = True,
     require_version: bool = False,
-) -> Item:
+    detect_unchanged: bool = False,
+) -> Item | None:
     """Create or update one item and return it.
 
     Args:
@@ -360,6 +407,9 @@ async def save_item(
         key: Key of the item being addressed, for key-based writes.
         replace: Whether omitted properties are cleared.
         require_version: Whether the payload must state the version it replaces.
+        detect_unchanged: Return ``None`` when the payload describes what is
+            already stored. The caller is expected to discard the work by
+            rolling back, since applying it stamped a version onto the item.
     """
     # The item has to be resolved before validation, because an object naming an
     # existing item may omit properties that a new one must carry.
@@ -378,6 +428,7 @@ async def save_item(
     if item is not None and "itemType" not in payload:
         replace = False
 
+    before = None
     if item is None:
         if require_version and parsed["version"]:
             raise NotFoundError("Not found")
@@ -389,8 +440,14 @@ async def save_item(
         session.add(item)
     else:
         check_object_version(item.version, parsed["version"], required=require_version)
+        if detect_unchanged:
+            before = await _state(session, item)
 
     await _apply(session, library, item, parsed, version, replace=replace)
+
+    if before is not None and before == await _state(session, item):
+        return None
+
     return item
 
 

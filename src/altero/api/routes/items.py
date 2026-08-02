@@ -175,8 +175,12 @@ async def create_items(
 
     async def save(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
-    ) -> dict[str, Any]:
-        item = await item_writes.save_item(session, library, payload, version)
+    ) -> dict[str, Any] | None:
+        item = await item_writes.save_item(
+            session, library, payload, version, detect_unchanged=True
+        )
+        if item is None:
+            return None
         await session.flush()
         return await render_item(session, item, library, base_url)
 

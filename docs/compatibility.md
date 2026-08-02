@@ -324,23 +324,31 @@ than answered, because a v1 or v2 client expects Atom, which is not implemented:
 returning v3 bodies under a v2 label would be worse than saying so. A header and
 a parameter that disagree are also refused, as upstream does.
 
-## Known gap: nothing is ever reported unchanged
+## Objects that were sent again without changing
 
-The multi-object report has four sections, and altero fills three. Upstream
-compares an incoming object with the stored one and, when they match, reports it
-under `unchanged` and leaves its version alone. altero writes it again and
-stamps a new version: `WriteResults.add_unchanged` exists because the response
-format requires the key, but it has no callers, so `unchanged` is always `{}`.
+An object identical to the stored one is reported under `unchanged` and keeps
+its version, as upstream does: `Zotero_DataObjects::updateMultipleFromJSON`
+calls `addUnchanged` when `updateFromJSON` reports no change. Writing it again
+would be visible library-wide — the library version advances, and every *other*
+client re-downloads an object that never changed.
 
-The cost is churn rather than breakage. A client that re-sends what it already
-holds is told the object was written, and the library version it gets back is
-new, so every *other* client re-downloads an object that did not change. The
-client this was found against uploads diffs, which keeps it rare -- but a
-retried batch, or any client that uploads whole objects, pays it every time.
+What counts as a change is everything a client can set: the item type, the
+fields, the creators in order, the relations, the parent, the trash flag, the
+client's own `dateAdded` and `dateModified`, and the tags and collections, which
+live in link tables and so are read before those rows are rewritten. The version
+and `serverDateModified` are excluded, being the server's own; the sort keys are
+excluded as well, since they are derived from the fields.
 
-`test_resending_an_identical_object_rewrites_it` in `tests/test_sync_cycle.py`
-pins the current behaviour so that implementing the comparison fails loudly and
-this section gets rewritten.
+Finding out costs applying the payload, which stamps a version on the way. The
+multi-object path already gives each object its own savepoint, so an unchanged
+object is discarded by rolling that back — the same mechanism a rejected object
+uses. A batch in which nothing changed leaves the library version where it was,
+because nothing succeeded and the whole request rolls back.
+
+Two places deliberately do not do this. A key-based `PUT` or `PATCH` has no
+report to put the answer in, and upstream's controller ignores the flag there
+too. The full-text batch is a different upstream code path (`Zotero_FullText`)
+and is left alone.
 
 ## Deliberate differences
 

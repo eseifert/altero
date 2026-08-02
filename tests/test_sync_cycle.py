@@ -287,25 +287,19 @@ class TestASyncCycleOverASocket:
         # climbs on a rejected batch makes every other client re-download.
         assert again.headers["Last-Modified-Version"] == "1"
 
-    async def test_resending_an_identical_object_rewrites_it(
+    async def test_resending_an_identical_object_costs_nothing(
         self, uploader: httpx.AsyncClient
     ) -> None:
-        """Known divergence: altero never reports an object as ``unchanged``.
+        """A client re-sending what it correctly holds is told nothing changed.
 
-        Upstream compares the incoming object with the stored one and reports a
-        match under ``unchanged``, leaving its version alone. altero writes it
-        again and stamps a new version, so a client that re-sends what it
-        already holds makes every *other* client re-download it. The report
-        carries an ``unchanged`` key because the format requires one, but
-        ``WriteResults.add_unchanged`` has no callers and it is always empty.
-
-        Pinned rather than endorsed: when the comparison is implemented this
-        test should fail, and `docs/compatibility.md` updated with it.
+        Both objects come back under ``unchanged`` and the library stays where
+        it was, so no other client is made to re-download anything. Writing them
+        again would be visible library-wide for no reason.
         """
         await upload_items(uploader, since=0)
 
         again = await upload_items(uploader, since=1, version=1)
 
-        assert again.json()["unchanged"] == {}
-        assert set(again.json()["successful"]) == {"0", "1"}
-        assert again.headers["Last-Modified-Version"] == "2"
+        assert again.json()["successful"] == {}
+        assert set(again.json()["unchanged"]) == {"0", "1"}
+        assert again.headers["Last-Modified-Version"] == "1"
