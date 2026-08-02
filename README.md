@@ -39,6 +39,13 @@ Not implemented yet: Atom, bibliography and citation rendering, the export
 formats, group creation through the API (the command line does it),
 `/publications`, and rate limiting.
 
+Two things the desktop client asks for are not part of the published data server
+either, so there is nothing to copy: `GET /retractions/list`, which it polls to
+flag retracted papers, and the streaming API it opens a WebSocket to. Neither
+appears anywhere in the dataserver source. altero answers the first with `404`
+rather than an empty list, which would assert that nothing in the library has
+been retracted; the client logs both failures and syncs normally.
+
 Writes to a library are serialized, so one request produces exactly one new
 version however many objects it touches. See
 [docs/schema.md](docs/schema.md#concurrency).

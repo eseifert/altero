@@ -276,6 +276,28 @@ Neither the precondition nor the response is changed to work around this: both
 are upstream's. See `TestAVersionAheadOfTheLibraryIsAccepted` in
 `tests/test_compatibility.py`.
 
+**The client asks for two things the data server does not provide.** Grepping
+the dataserver source for `retraction`, case-insensitively and across every PHP
+file, returns nothing, and there is no WebSocket route either. Both are served
+by something else behind `api.zotero.org`, so neither has a reference
+implementation to copy or a documented response shape.
+
+`GET /retractions/list` is polled to flag retracted papers. altero answers `404`.
+An empty list would be the easy way to silence the client's log entry, but it
+asserts that nothing in the library has been retracted, which altero has no
+basis to claim; `404` says the service is not here, which is true. The client
+logs the failure and syncs normally.
+
+The streaming API is opened as a WebSocket. The client reports
+`WebSocket connection closed: 4403 Invalid API key`, and 4403 is a code a Zotero
+streaming server sends — altero has no WebSocket route and would refuse the
+upgrade with `404`, which cannot produce it. **Unverified inference:** the client
+therefore appears to reach Zotero's own streaming host rather than the configured
+API base, which would mean an altero-issued key is being presented to
+zotero.org. That is worth confirming before the streaming API is implemented
+here, because implementing it would achieve nothing if the client never points
+at it, and because a key leaving the deployment matters on its own.
+
 ## API versions
 
 Only version 3 is served. A request naming another version through the
