@@ -130,9 +130,17 @@ can responsibly depend on.
 Points 1 and 2 are what the test suite and `docs/compatibility.md` work
 towards, and are partly reached — see the status list in `README.md`. The
 following are stated here as intentions, not as properties of the current code:
-a web interface, a packaged deployment unit, object storage, institutional
-single sign-on, audit and retention controls, event notifications, federation,
-and the export, restore and replication operations above. Today altero
-authenticates with API keys, is administered entirely from the command line,
-stores attachments on a local filesystem, is configured by a single file, and
-has no container image.
+a web interface, object storage, institutional single sign-on, audit and
+retention controls, event notifications, federation, replication to a standby,
+and automatic backup verification. Today altero authenticates with API keys, is
+administered entirely from the command line, stores attachments on a local
+filesystem, and is configured by a single file.
+
+Points 3, 4 and 5 have since been reached. A container image and a compose file
+install and upgrade an instance, with `GET /health` reporting the migration
+revision it is stamped with; `altero library export` and `import` move a whole
+library between instances, versions included, which is also what lets a user
+take their data elsewhere. Point 4 turned out to be sharper than it reads here:
+a restore that renumbers versions locks out every client that had synced with
+the original, in both directions, so exactness is the requirement rather than
+completeness.

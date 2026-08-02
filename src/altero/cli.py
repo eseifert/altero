@@ -7,6 +7,7 @@ deployment is set up from here.
 import argparse
 import asyncio
 from collections.abc import Awaitable, Callable
+from pathlib import Path
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.db import Database
 from altero.errors import AlteroError
 from altero.models import LibraryType
-from altero.services import admin, auth, login
+from altero.services import admin, auth, login, transfer
 from altero.settings import Settings, get_settings
 
 
@@ -151,6 +152,30 @@ async def _library_set_version(session: AsyncSession, args: argparse.Namespace) 
     print(f"{library.type.value}/{library.owner_id} is now at version {library.version}.")
 
 
+async def _library_export(session: AsyncSession, args: argparse.Namespace) -> None:
+    written = await transfer.export_library(
+        session,
+        library_type=LibraryType(args.type),
+        owner_id=args.owner,
+        storage_root=get_settings().storage_path,
+        destination=args.path,
+    )
+    print(f"Wrote {written}.")
+
+
+async def _library_import(session: AsyncSession, args: argparse.Namespace) -> None:
+    library = await transfer.import_library(
+        session,
+        archive=args.path,
+        storage_root=get_settings().storage_path,
+        replace=args.replace,
+    )
+    print(
+        f"Restored {library.type.value}/{library.owner_id} at version {library.version}. "
+        "Clients that synced with the original will pick up where they left off."
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="altero", description=__doc__)
     commands = parser.add_subparsers(dest="command")
@@ -214,6 +239,23 @@ def build_parser() -> argparse.ArgumentParser:
     set_version.add_argument("owner", type=int, metavar="id", help="the user or group id")
     set_version.add_argument("version", type=int)
     set_version.set_defaults(handler=_library_set_version)
+
+    export = library.add_parser("export", help="write a whole library to an archive")
+    export.add_argument("type", choices=[kind.value for kind in LibraryType])
+    export.add_argument("owner", type=int, metavar="id", help="the user or group id")
+    export.add_argument("path", type=Path, help="the archive to write")
+    export.set_defaults(handler=_library_export)
+
+    restore = library.add_parser(
+        "import", help="restore a library from an archive, versions and all"
+    )
+    restore.add_argument("path", type=Path, help="the archive to read")
+    restore.add_argument(
+        "--replace",
+        action="store_true",
+        help="discard what the target library already holds, rather than refusing",
+    )
+    restore.set_defaults(handler=_library_import)
 
     return parser
 

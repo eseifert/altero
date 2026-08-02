@@ -30,6 +30,11 @@ from altero.models import Item, ItemField, Library, StorageUpload
 FILE_FIELDS = ("filename", "md5", "mtime", "contentType", "charset")
 
 
+def file_digest(body: bytes) -> str:
+    """Return the digest a file is stored under."""
+    return hashlib.md5(body, usedforsecurity=False).hexdigest()
+
+
 def file_path(root: Path, md5: str) -> Path:
     """Return where the bytes with this digest live.
 

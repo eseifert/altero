@@ -129,7 +129,31 @@ uv run altero group add <name> --owner <username> [--public]
 uv run altero group member <group-id> <username> [--role admin]
 uv run altero library list
 uv run altero library set-version <user|group> <id> <version>
+uv run altero library export <user|group> <id> <archive.zip>
+uv run altero library import <archive.zip> [--replace]
 ```
+
+### Moving a library to another server
+
+```sh
+uv run altero library export user 1 library.zip
+# on the other instance, where the account must already exist
+uv run altero user add <username> --id 1
+uv run altero library import library.zip
+```
+
+The archive is a ZIP of JSON documents plus the attachment bytes, one copy per
+digest. It carries the library's version and every object's, along with the
+client timestamps and the deletion log, because a client that synced with the
+original remembers all of that: a restore that renumbered versions would look
+successful and lock every one of those clients out. `manifest.json` says what
+produced it and what it contains.
+
+Accounts and API keys are not in it. An archive is a library, not a user, so the
+owning user or group has to exist on the target first — which also means an
+archive cannot leak a credential by being copied around. Restoring into a
+library that already holds objects is refused rather than merged; `--replace`
+discards what is there.
 
 ### After recreating the database
 
