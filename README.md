@@ -40,11 +40,13 @@ formats, group creation through the API (the command line does it),
 `/publications`, and rate limiting.
 
 Two things the desktop client asks for are not part of the published data server
-either, so there is nothing to copy: `GET /retractions/list`, which it polls to
-flag retracted papers, and the streaming API it opens a WebSocket to. Neither
-appears anywhere in the dataserver source. altero answers the first with `404`
-rather than an empty list, which would assert that nothing in the library has
-been retracted; the client logs both failures and syncs normally.
+either: `GET /retractions/list`, which it polls to flag retracted papers, and
+the streaming API it opens a WebSocket to. Neither appears anywhere in the
+dataserver source. altero answers the first with `404` rather than an empty
+list, which would assert that nothing in the library has been retracted; the
+client logs both failures and syncs normally. The streaming API is documented,
+so it can be implemented — but it is reached at a fixed `wss://stream.zotero.org`
+unless a second preference is changed, which is why the setup below turns it off.
 
 Writes to a library are serialized, so one request produces exactly one new
 version however many objects it touches. See
@@ -129,7 +131,15 @@ The client's API base URL is a hidden preference. In Zotero, open
 
     extensions.zotero.api.url = http://localhost:8000/
 
-The trailing slash matters. Then restart Zotero and open
+The trailing slash matters. Set one more, in the same editor:
+
+    extensions.zotero.streaming.enabled = false
+
+`api.url` does not redirect the streaming API. The client resolves that
+separately, falling back to a compiled-in `wss://stream.zotero.org`, and sends
+your API key to it — a key that grants full access to your private library goes
+to zotero.org, which rejects it as unknown and may log it. See
+[docs/compatibility.md](docs/compatibility.md). Then restart Zotero and open
 **Settings → Sync → Link Account**.
 
 Zotero authenticates by opening a page in the browser and polling until it is

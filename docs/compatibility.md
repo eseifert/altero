@@ -288,15 +288,33 @@ asserts that nothing in the library has been retracted, which altero has no
 basis to claim; `404` says the service is not here, which is true. The client
 logs the failure and syncs normally.
 
-The streaming API is opened as a WebSocket. The client reports
-`WebSocket connection closed: 4403 Invalid API key`, and 4403 is a code a Zotero
-streaming server sends — altero has no WebSocket route and would refuse the
-upgrade with `404`, which cannot produce it. **Unverified inference:** the client
-therefore appears to reach Zotero's own streaming host rather than the configured
-API base, which would mean an altero-issued key is being presented to
-zotero.org. That is worth confirming before the streaming API is implemented
-here, because implementing it would achieve nothing if the client never points
-at it, and because a key leaving the deployment matters on its own.
+**The streaming API is not covered by `api.url`, and the key goes to
+zotero.org.** This one is a configuration hazard rather than a compatibility
+question, and it was found by chasing a stray log line:
+`WebSocket connection closed: 4403 Invalid API key`.
+
+The [documented][streaming] endpoint is `wss://stream.zotero.org` — a fixed
+host, not a path under the API base — and 4403 is its code for an invalid key.
+The client resolves the address as
+
+    let url = this.url || Zotero.Prefs.get('streaming.url') || ZOTERO_CONFIG.STREAMING_URL
+
+with `ZOTERO_CONFIG.STREAMING_URL` compiled in as `wss://stream.zotero.org`
+(both read out of `omni.ja` in a 9.0.6 installation). Redirecting `api.url`
+therefore does nothing here: unless `extensions.zotero.streaming.url` is also
+set, the client opens a socket to zotero.org and sends it an API key by
+`createSubscriptions`. The key is rejected as unknown, but it has been
+transmitted — a credential granting full access to a private library, handed to
+a third party, by a deployment whose purpose is that the data stays put.
+
+`extensions.zotero.streaming.enabled = false` stops it, and `README.md` now
+lists that alongside `api.url` as part of pointing a client at altero.
+
+The same finding makes streaming worth implementing eventually: because
+`streaming.url` exists, a client can be pointed at an altero socket rather than
+merely stopped from reaching zotero.org.
+
+[streaming]: https://www.zotero.org/support/dev/web_api/v3/streaming_api
 
 ## API versions
 
