@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.db import Database
 from altero.errors import AlteroError
+from altero.models import LibraryType
 from altero.services import admin, auth, login
 from altero.settings import Settings, get_settings
 
@@ -140,6 +141,16 @@ async def _library_list(session: AsyncSession, args: argparse.Namespace) -> None
         )
 
 
+async def _library_set_version(session: AsyncSession, args: argparse.Namespace) -> None:
+    library = await admin.set_library_version(
+        session,
+        library_type=LibraryType(args.type),
+        owner_id=args.owner,
+        version=args.version,
+    )
+    print(f"{library.type.value}/{library.owner_id} is now at version {library.version}.")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="altero", description=__doc__)
     commands = parser.add_subparsers(dest="command")
@@ -194,6 +205,15 @@ def build_parser() -> argparse.ArgumentParser:
         dest="subcommand"
     )
     library.add_parser("list", help="list libraries").set_defaults(handler=_library_list)
+    set_version = library.add_parser(
+        "set-version",
+        help="raise a library's version counter so clients that remember a "
+        "higher one can sync again",
+    )
+    set_version.add_argument("type", choices=[kind.value for kind in LibraryType])
+    set_version.add_argument("owner", type=int, metavar="id", help="the user or group id")
+    set_version.add_argument("version", type=int)
+    set_version.set_defaults(handler=_library_set_version)
 
     return parser
 

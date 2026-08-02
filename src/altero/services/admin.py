@@ -198,3 +198,42 @@ async def list_group_members(session: AsyncSession, library: Library) -> list[Gr
 
 async def list_libraries(session: AsyncSession) -> list[Library]:
     return list(await session.scalars(select(Library).order_by(Library.id)))
+
+
+async def set_library_version(
+    session: AsyncSession,
+    *,
+    library_type: LibraryType,
+    owner_id: int,
+    version: int,
+) -> Library:
+    """Raise a library's version counter to ``version``.
+
+    A library recreated from an empty database starts counting at zero again,
+    while clients that synced against the original still hold the version they
+    last saw. The desktop application refuses to move its stored version
+    backwards -- during an ordinary sync and during "restore to server" alike --
+    so it can neither upload nor be reset out of the state. Lifting the counter
+    back over what the clients remember is the only way to reach them again.
+
+    Which is also why the version may only ever go up: lowering one is how a
+    working deployment locks itself out.
+    """
+    if version < 0:
+        raise InvalidInputError("A library version cannot be negative")
+
+    library = await session.scalar(
+        select(Library).where(Library.type == library_type, Library.owner_id == owner_id)
+    )
+    if library is None:
+        raise NotFoundError(f"No {library_type.value} library with id {owner_id}")
+
+    if version < library.version:
+        raise InvalidInputError(
+            f"A library version cannot be lowered (it is {library.version}); "
+            "clients that have seen it would stop syncing"
+        )
+
+    library.version = version
+    await session.commit()
+    return library

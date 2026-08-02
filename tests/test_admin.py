@@ -97,6 +97,64 @@ class TestApiKeys:
             await admin.revoke_api_key(session, "nosuchkey")
 
 
+class TestLibraryVersion:
+    """Lifting a library's counter over what its clients already remember.
+
+    A client refuses to move its stored library version backwards, so a library
+    recreated from an empty database — or restored from an export — locks out
+    every client that synced against the original. Raising the counter past
+    theirs is the way back, and the reason the version may only ever go up.
+    """
+
+    async def test_the_version_can_be_raised(self, session: AsyncSession) -> None:
+        user = await admin.create_user(session, username="octocat")
+
+        library = await admin.set_library_version(
+            session, library_type=LibraryType.USER, owner_id=user.id, version=100
+        )
+
+        assert library.version == 100
+        assert (await get_library(session, LibraryType.USER, user.id)).version == 100
+
+    async def test_lowering_the_version_is_refused(self, session: AsyncSession) -> None:
+        user = await admin.create_user(session, username="octocat")
+        await admin.set_library_version(
+            session, library_type=LibraryType.USER, owner_id=user.id, version=100
+        )
+
+        with pytest.raises(InvalidInputError, match="cannot be lowered"):
+            await admin.set_library_version(
+                session, library_type=LibraryType.USER, owner_id=user.id, version=99
+            )
+
+        assert (await get_library(session, LibraryType.USER, user.id)).version == 100
+
+    async def test_the_current_version_is_accepted(self, session: AsyncSession) -> None:
+        user = await admin.create_user(session, username="octocat")
+
+        library = await admin.set_library_version(
+            session, library_type=LibraryType.USER, owner_id=user.id, version=0
+        )
+
+        assert library.version == 0
+
+    async def test_a_group_library_can_be_raised(self, session: AsyncSession) -> None:
+        await admin.create_user(session, username="octocat")
+        group = await admin.create_group(session, name="Research", owner_username="octocat")
+
+        library = await admin.set_library_version(
+            session, library_type=LibraryType.GROUP, owner_id=group.owner_id, version=42
+        )
+
+        assert library.version == 42
+
+    async def test_an_unknown_library_is_rejected(self, session: AsyncSession) -> None:
+        with pytest.raises(NotFoundError):
+            await admin.set_library_version(
+                session, library_type=LibraryType.USER, owner_id=999, version=1
+            )
+
+
 class TestGroups:
     async def test_a_group_library_is_created_with_its_owner_as_member(
         self, session: AsyncSession

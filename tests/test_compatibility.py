@@ -222,6 +222,53 @@ class TestFormatDefaults:
         assert limit_maximum(Format.JSON) == 100
 
 
+class TestAVersionAheadOfTheLibraryIsAccepted:
+    """A client may assert a version the library has never reached.
+
+    ``Zotero_Libraries::updateVersionAndTimestamp`` bumps the counter with
+    ``WHERE libraryID=? AND version <= ?`` and answers 412 only when that
+    matches no row. A precondition *ahead* of the library therefore passes, and
+    the write is stamped with a version lower than the one the client sent.
+
+    Upstream cannot reach this state: a shard's counter only moves forward for
+    the life of the database, so no client can hold a version the server never
+    issued. altero can — recreating the database restarts the counter at zero
+    while a client keeps its sync state. The desktop application then refuses
+    the response with "_libraryStorageVersion cannot decrease" and retries
+    forever, each attempt writing the same objects again.
+
+    The behaviour is upstream's and stays. ``altero library set-version`` exists
+    to lift a rebuilt library back over what its clients remember.
+    """
+
+    async def test_a_precondition_ahead_of_the_library_is_not_a_conflict(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        response = await client.post(
+            "/users/1/collections",
+            headers=AUTH | {"If-Unmodified-Since-Version": "99"},
+            json=[{"name": "Fiction"}],
+        )
+
+        assert response.status_code == 200
+        # Stamped from the library's own counter, not from what the client sent.
+        assert response.json()["successful"]["0"]["version"] == 11
+        assert response.headers["Last-Modified-Version"] == "11"
+
+    async def test_a_delete_ahead_of_the_library_is_not_a_conflict(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345")
+
+        response = await client.delete(
+            "/users/1/items/AAAA2345",
+            headers=AUTH | {"If-Unmodified-Since-Version": "99"},
+        )
+
+        assert response.status_code == 204
+        assert response.headers["Last-Modified-Version"] == "11"
+
+
 class TestVerifiedAgainstALiveLibrary:
     """Shapes confirmed by read-only requests against a real Zotero library.
 

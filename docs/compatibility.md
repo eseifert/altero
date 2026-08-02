@@ -247,6 +247,35 @@ This is upstream's behaviour as well: `Zotero_Storage::updateFileItemInfo` calls
 `Zotero_Libraries::updateVersionAndTimestamp` before saving the item. Suppressing
 the bump to avoid the 412 would break `?since=` for anyone tracking file changes.
 
+**The client's library version may only ever go up.** A precondition ahead of
+the library is not a conflict: `Zotero_Libraries::updateVersionAndTimestamp`
+bumps the counter with `WHERE libraryID=? AND version <= ?` and answers 412 only
+when that matches no row, so `If-Unmodified-Since-Version: 29` against a library
+at version 0 is accepted and the write is stamped 1. altero does the same, in
+`check_library_version`.
+
+Upstream can never reach that state, because a shard's counter moves forward for
+the life of the database. altero can: recreating the database restarts the
+counter at zero while a client keeps the version it last saw. What follows was
+observed, not inferred — the client rejects the response with
+`_libraryStorageVersion cannot decrease`, rolls back the transaction that would
+have marked the objects synced, and re-uploads the same objects on every
+subsequent sync, each attempt writing them again and advancing the server by one.
+
+**A client in that state cannot be reset out of it either.** "Restore to server"
+zeroes the local object versions, reads `format=versions` from the server, and
+then assigns the server's library version to its own — which is the same
+decrease, and fails in `_restoreToServer` with `_libraryVersion cannot decrease`.
+Both directions are therefore closed from the client side; the only way back is
+to raise the server's counter above what the client remembers, which is what
+`altero library set-version` is for. Objects the client believes it already
+synced are not re-uploaded afterwards, so a library restored this way can be
+missing everything written before the reset.
+
+Neither the precondition nor the response is changed to work around this: both
+are upstream's. See `TestAVersionAheadOfTheLibraryIsAccepted` in
+`tests/test_compatibility.py`.
+
 ## API versions
 
 Only version 3 is served. A request naming another version through the

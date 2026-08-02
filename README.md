@@ -84,7 +84,36 @@ uv run altero key revoke <key>
 uv run altero group add <name> --owner <username> [--public]
 uv run altero group member <group-id> <username> [--role admin]
 uv run altero library list
+uv run altero library set-version <user|group> <id> <version>
 ```
+
+### After recreating the database
+
+A library recreated from an empty database counts from zero again, while clients
+that synced against the original still hold the version they last saw. The
+desktop client refuses to move its stored version backwards, so it can neither
+upload — every sync fails with `_libraryStorageVersion cannot decrease` and
+retries forever — nor reset itself out of the state, since **Restore to Server**
+fails the same way.
+
+Raise the server past what the client remembers, then sync:
+
+```sh
+uv run altero library set-version user 1 100
+```
+
+The client's own number is in its database, if you want to be exact rather than
+generous:
+
+```sh
+sqlite3 ~/Zotero/zotero.sqlite \
+    'SELECT version, storageVersion FROM libraries WHERE libraryID=1'
+```
+
+A version can only be raised, because lowering one is how a working deployment
+locks its clients out. Note that objects the client already considers synced are
+not re-uploaded, so anything written before the database was recreated stays
+missing; use **Restore to Server** afterwards to force a full upload.
 
 ## Using it from the Zotero desktop app
 
