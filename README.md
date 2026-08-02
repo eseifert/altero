@@ -27,6 +27,8 @@ Implemented:
   multi-object response, version preconditions and `Zotero-Write-Token`
 - Recognising an object re-sent unchanged, so it keeps its version and the
   library's does not move
+- `inPublications`, the My Publications flag, with the refusals upstream
+  attaches to it
 - Items of every type, including notes, attachments and annotations, whose
   fields the published schema does not list
 - Client-supplied `dateAdded` and `dateModified`, kept as sent
@@ -39,7 +41,8 @@ Implemented:
 
 Not implemented yet: Atom, bibliography and citation rendering, the export
 formats, group creation through the API (the command line does it),
-`/publications`, and rate limiting.
+the `/publications` endpoints (the item property itself is supported), and rate
+limiting.
 
 Two things the desktop client asks for are not part of the published data server
 either: `GET /retractions/list`, which it polls to flag retracted papers, and

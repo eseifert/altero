@@ -324,6 +324,34 @@ than answered, because a v1 or v2 client expects Atom, which is not implemented:
 returning v3 bodies under a v2 label would be worse than saying so. A header and
 a parameter that disagree are also refused, as upstream does.
 
+## `inPublications`
+
+An ordinary item property upstream, and one altero used to reject outright with
+"Invalid field" — a per-item `400` for anything the user had put in My
+Publications, and a client answers that by sending the item again on every sync
+rather than giving up.
+
+`Zotero_Items::validateJSONItem` attaches three refusals to it, and only to a
+value that is true; a falsy one is accepted with no further questions, including
+in a group library.
+
+| Refused | Message |
+| --- | --- |
+| A group library | `Group items cannot be added to My Publications` |
+| A top-level note or attachment | `Top-level notes and attachments cannot be added to My Publications` |
+| A `linked_file` attachment | `Linked-file attachments cannot be added to My Publications` |
+
+A *child* note or attachment is allowed: that is what My Publications is for. A
+linked file is not, because the server does not hold its bytes and so could not
+publish them.
+
+It is emitted only when true, the way `deleted` is
+(`if ($this->getPublications()) $arr['inPublications'] = true;`), rather than
+put on every item in every library as `false`.
+
+The `/publications` endpoints — the public listing of those items — are still
+not implemented. The property is what the sync path needs.
+
 ## Objects that were sent again without changing
 
 An object identical to the stored one is reported under `unchanged` and keeps

@@ -128,6 +128,7 @@ async def export_library(
                 "itemType": item.item_type,
                 "parent": keys_by_id.get(item.parent_id) if item.parent_id else None,
                 "deleted": item.deleted,
+                "inPublications": item.in_publications,
                 "sortTitle": item.sort_title,
                 "sortCreator": item.sort_creator,
                 "sortDate": item.sort_date,
@@ -371,6 +372,8 @@ async def import_library(
                 version=record["version"],
                 item_type=record["itemType"],
                 deleted=record["deleted"],
+                # Older archives predate the flag, so absence means false.
+                in_publications=record.get("inPublications", False),
                 sort_title=record["sortTitle"],
                 sort_creator=record["sortCreator"],
                 sort_date=record["sortDate"],

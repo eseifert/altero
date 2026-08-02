@@ -20,6 +20,7 @@ from altero.models import (
     ItemRelation,
     ItemTag,
     Library,
+    LibraryType,
     Tag,
     TagType,
 )
@@ -42,6 +43,7 @@ STRUCTURAL_KEYS = frozenset(
         "dateAdded",
         "dateModified",
         "deleted",
+        "inPublications",
         # `note` is not in the schema's field list for any type, so it is
         # handled on its own below rather than as an ordinary field.
         "note",
@@ -152,13 +154,54 @@ def _validate_tags(tags: Any) -> list[tuple[str, int]]:
     return result
 
 
-def validate_item(payload: dict[str, Any], existing: Item | None = None) -> dict[str, Any]:
+def _validate_publications(
+    payload: dict[str, Any],
+    item_type: str,
+    library_type: LibraryType,
+    existing: Item | None,
+) -> bool:
+    """Return whether the item belongs to My Publications, refusing if it cannot.
+
+    The checks and their order are upstream's: a falsy value is accepted
+    without further question, and only a true one has to earn it.
+    """
+    if not payload.get("inPublications"):
+        return False
+
+    if library_type is not LibraryType.USER:
+        raise InvalidInputError(
+            f"{library_type.value.capitalize()} items cannot be added to My Publications"
+        )
+
+    is_child = bool(payload.get("parentItem")) or (existing is not None and existing.parent_id)
+    if not is_child and item_type in NOTE_BEARING_TYPES:
+        raise InvalidInputError(
+            "Top-level notes and attachments cannot be added to My Publications"
+        )
+
+    if item_type == "attachment":
+        link_mode = payload.get("linkMode")
+        if link_mode is None and existing is not None:
+            link_mode = existing.field_values().get("linkMode")
+        if str(link_mode).lower() == "linked_file":
+            raise InvalidInputError("Linked-file attachments cannot be added to My Publications")
+
+    return True
+
+
+def validate_item(
+    payload: dict[str, Any],
+    existing: Item | None = None,
+    library_type: LibraryType = LibraryType.USER,
+) -> dict[str, Any]:
     """Check an item's JSON against the schema and return its parts.
 
     Args:
         existing: The stored item, when the payload addresses one. An object
             that names an existing item and omits ``itemType`` is a partial
             update, and takes the type from that item.
+        library_type: Which kind of library is being written to. Only a
+            personal library has a My Publications.
 
     Raises:
         InvalidInputError: if the item type, a field or a creator type is not
@@ -219,6 +262,7 @@ def validate_item(payload: dict[str, Any], existing: Item | None = None) -> dict
         "collections": [str(key) for key in collections],
         "relations": relations,
         "deleted": bool(payload.get("deleted", False)),
+        "in_publications": _validate_publications(payload, item_type, library_type, existing),
         "date_added": _parse_timestamp(payload.get("dateAdded"), "dateAdded"),
         "date_modified": _parse_timestamp(payload.get("dateModified"), "dateModified"),
     }
@@ -276,6 +320,7 @@ async def _state(session: AsyncSession, item: Item) -> tuple[Any, ...]:
     return (
         item.item_type,
         item.deleted,
+        item.in_publications,
         item.date_added,
         item.date_modified,
         item.parent_id,
@@ -314,6 +359,9 @@ async def _apply(
     item.item_type = parsed["item_type"]
     item.version = version
     item.deleted = parsed["deleted"]
+    # A partial update leaves it alone; a replacing write means what it omits.
+    if replace or "in_publications" in parsed:
+        item.in_publications = parsed["in_publications"]
 
     # Client timestamps round-trip; the server's own is always now, which is what
     # makes sorting by `serverDateModified` trustworthy.
@@ -421,7 +469,7 @@ async def save_item(
             select(Item).where(Item.library_id == library.id, Item.key == str(target_key))
         )
 
-    parsed = validate_item(payload, item)
+    parsed = validate_item(payload, item, library.type)
 
     # An object that addresses an existing item without restating its type is a
     # diff against what the server already holds, so it must not clear the rest.

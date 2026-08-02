@@ -90,6 +90,7 @@ async def snapshot(session: AsyncSession, library: Library) -> dict[str, Any]:
                 "itemType": item.item_type,
                 "parent": by_id.get(item.parent_id) if item.parent_id else None,
                 "deleted": item.deleted,
+                "inPublications": item.in_publications,
                 "sort": [item.sort_title, item.sort_creator, item.sort_date],
                 "dateAdded": item.date_added.isoformat(),
                 "dateModified": item.date_modified.isoformat(),
@@ -166,6 +167,7 @@ async def populate(session: AsyncSession, library: Library, storage_root: Path) 
         key="Z2JFGHNV",
         item_type="webpage",
         version=11,
+        in_publications=True,
         fields={"title": "The Brutalist Report", "url": "https://brutalist.report/"},
         creators=[("author", "Erich", "Seifert")],
     )

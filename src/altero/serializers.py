@@ -158,6 +158,10 @@ def item(
     data["relations"] = {relation.predicate: relation.object for relation in obj.relations}
     if obj.deleted:
         data["deleted"] = 1
+    # Emitted only when true, as `deleted` is: otherwise every item in every
+    # library would carry a property that concerns almost none of them.
+    if obj.in_publications:
+        data["inPublications"] = True
     data["dateAdded"] = _timestamp(obj.date_added)
     data["dateModified"] = _timestamp(obj.date_modified)
 

@@ -112,6 +112,7 @@ async def make_item(
     creators: list[tuple[str, str, str]] | None = None,
     parent: Item | None = None,
     deleted: bool = False,
+    in_publications: bool = False,
 ) -> Item:
     """Create an item with its fields, creators and derived sort keys.
 
@@ -129,6 +130,7 @@ async def make_item(
         item_type=item_type,
         parent_id=parent.id if parent else None,
         deleted=deleted,
+        in_publications=in_publications,
     )
     item.fields = [ItemField(field=name, value=value) for name, value in fields.items()]
     item.creators = [

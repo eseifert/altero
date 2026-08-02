@@ -25,6 +25,9 @@ class Item(Base, Timestamped):
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("items.id"), index=True)
     #: Whether the item sits in the trash.
     deleted: Mapped[bool] = mapped_column(default=False, index=True)
+    #: Whether the item is in the owner's My Publications, which only a personal
+    #: library has. Indexed because the publications listing filters on it.
+    in_publications: Mapped[bool] = mapped_column(default=False, index=True)
 
     # Sort keys derived from the item's data whenever it is written. Each item
     # type names its title, creator and date differently, so sorting straight
