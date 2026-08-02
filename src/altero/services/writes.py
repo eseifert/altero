@@ -5,6 +5,7 @@ the version preconditions, and the per-object result report that a multi-object
 request answers with.
 """
 
+import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -30,6 +31,8 @@ WRITE_TOKEN_LIFETIME_HOURS = 12
 
 #: Length of a write token, which clients generate as 32 random characters.
 WRITE_TOKEN_LENGTH = 32
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
@@ -162,6 +165,24 @@ def check_library_version(library: Library, expected: int | None, *, required: b
         raise PreconditionFailedError(
             "Library has been modified since specified version "
             f"(expected {expected}, found {library.version})"
+        )
+
+    if expected > library.version:
+        # Upstream cannot produce this: its counter only moves forward for the
+        # life of the database, so no client can hold a version that was never
+        # issued. Here it means the library was recreated while a client kept
+        # its sync state, and the client is about to refuse the response it gets
+        # with "_libraryStorageVersion cannot decrease" and retry forever. The
+        # answer has to stay what upstream sends, so the diagnosis goes here.
+        logger.warning(
+            "Client claims version %d of library %s/%d, which is at %d. A version "
+            "this server never issued usually means the database was recreated; "
+            "the client cannot sync or reset itself out of this. See 'After "
+            "recreating the database' in README.md.",
+            expected,
+            library.type.value,
+            library.owner_id,
+            library.version,
         )
 
 

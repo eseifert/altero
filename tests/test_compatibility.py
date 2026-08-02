@@ -5,6 +5,8 @@ prose documentation either omits them or describes them differently. The Zotero
 desktop application depends on them, so they are mirrored deliberately.
 """
 
+import logging
+
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +18,7 @@ from tests.factories import make_api_key, make_item, make_user, tag_item
 
 KEY = "P9NiFoyLeZu2bZNvvuQPDWsd"
 AUTH = {"Zotero-API-Key": KEY}
+WRITES_LOGGER = "altero.services.writes"
 
 
 @pytest.fixture
@@ -267,6 +270,40 @@ class TestAVersionAheadOfTheLibraryIsAccepted:
 
         assert response.status_code == 204
         assert response.headers["Last-Modified-Version"] == "11"
+
+    async def test_the_impossible_claim_is_logged(
+        self,
+        client: httpx.AsyncClient,
+        library: Library,
+        caplog: pytest.LogCaptureFixture,
+    ) -> None:
+        # The response cannot say anything -- it has to stay what upstream
+        # sends -- so the diagnosis goes to the log the operator can read.
+        with caplog.at_level(logging.WARNING, logger=WRITES_LOGGER):
+            response = await client.post(
+                "/users/1/collections",
+                headers=AUTH | {"If-Unmodified-Since-Version": "99"},
+                json=[{"name": "Fiction"}],
+            )
+
+        assert response.status_code == 200
+        (record,) = caplog.records
+        assert "99" in record.message
+        assert "10" in record.message
+        assert "user/1" in record.message
+
+    async def test_an_ordinary_write_logs_nothing(
+        self, client: httpx.AsyncClient, library: Library, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        with caplog.at_level(logging.WARNING, logger=WRITES_LOGGER):
+            response = await client.post(
+                "/users/1/collections",
+                headers=AUTH | {"If-Unmodified-Since-Version": "10"},
+                json=[{"name": "Fiction"}],
+            )
+
+        assert response.status_code == 200
+        assert caplog.records == []
 
 
 class TestVerifiedAgainstALiveLibrary:
