@@ -3,6 +3,12 @@
 A Python implementation of the [Zotero data server](https://github.com/zotero/dataserver)
 supporting the version 3 of the [Zotero Web API](https://www.zotero.org/support/dev/web_api/start).
 
+Its purpose is to let a person or an institution run Zotero synchronisation on
+infrastructure they control, using unmodified Zotero clients.
+[docs/motivation.md](docs/motivation.md) sets out the reasoning and the goals,
+and says which of them are intentions rather than properties of the current
+code.
+
 ## Status
 
 Implemented:
