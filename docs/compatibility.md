@@ -324,6 +324,24 @@ than answered, because a v1 or v2 client expects Atom, which is not implemented:
 returning v3 bodies under a v2 label would be worse than saying so. A header and
 a parameter that disagree are also refused, as upstream does.
 
+## Known gap: nothing is ever reported unchanged
+
+The multi-object report has four sections, and altero fills three. Upstream
+compares an incoming object with the stored one and, when they match, reports it
+under `unchanged` and leaves its version alone. altero writes it again and
+stamps a new version: `WriteResults.add_unchanged` exists because the response
+format requires the key, but it has no callers, so `unchanged` is always `{}`.
+
+The cost is churn rather than breakage. A client that re-sends what it already
+holds is told the object was written, and the library version it gets back is
+new, so every *other* client re-downloads an object that did not change. The
+client this was found against uploads diffs, which keeps it rare -- but a
+retried batch, or any client that uploads whole objects, pays it every time.
+
+`test_resending_an_identical_object_rewrites_it` in `tests/test_sync_cycle.py`
+pins the current behaviour so that implementing the comparison fails loudly and
+this section gets rewritten.
+
 ## Deliberate differences
 
 Four places where altero does not copy upstream:

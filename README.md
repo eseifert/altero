@@ -37,7 +37,9 @@ Implemented:
 
 Not implemented yet: Atom, bibliography and citation rendering, the export
 formats, group creation through the API (the command line does it),
-`/publications`, and rate limiting.
+`/publications`, rate limiting, and the `unchanged` half of the write report —
+an object re-sent identical is written again rather than recognised, which costs
+a library version and makes other clients re-download it.
 
 Two things the desktop client asks for are not part of the published data server
 either: `GET /retractions/list`, which it polls to flag retracted papers, and
