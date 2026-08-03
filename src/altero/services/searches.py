@@ -40,7 +40,6 @@ async def list_searches(
     """Return one page of saved searches."""
     filters: list[ColumnElement[bool]] = [
         SavedSearch.library_id == library.id,
-        SavedSearch.deleted.is_(False),
     ]
     if query.since:
         filters.append(SavedSearch.version > query.since)

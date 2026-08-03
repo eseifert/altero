@@ -192,7 +192,13 @@ async def populate(session: AsyncSession, library: Library, storage_root: Path) 
         session, library, key="COLLECT1", name="Reading", version=14, items=[parent]
     )
     await make_collection(
-        session, library, key="COLLECT2", name="Nested", version=15, parent=collection
+        session,
+        library,
+        key="COLLECT2",
+        name="Nested",
+        version=15,
+        parent=collection,
+        deleted=True,
     )
     await make_search(
         session,
@@ -201,6 +207,7 @@ async def populate(session: AsyncSession, library: Library, storage_root: Path) 
         name="Recent",
         version=16,
         conditions=[("title", "contains", "Brutalist")],
+        deleted=True,
     )
     await tag_item(session, library, parent, "news", tag_type=0, version=17)
     await tag_item(session, library, trashed, "automatic", tag_type=1, version=18)

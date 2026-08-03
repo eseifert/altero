@@ -324,6 +324,35 @@ than answered, because a v1 or v2 client expects Atom, which is not implemented:
 returning v3 bodies under a v2 label would be worse than saying so. A header and
 a parameter that disagree are also refused, as upstream does.
 
+## Trashing a collection or a saved search
+
+Zotero trashes these by setting `deleted` on the object, not by deleting it, and
+syncs the flag like any other property —
+`if (isset($json->deleted) || !$partialUpdate) { $collection->deleted = ... }`
+in `Zotero_Collections::updateFromJSON`, and the same in `Searches`. altero
+could report the flag but never set it, so a collection the user moved to the
+trash stayed untrashed on the server and in every other client.
+
+**Trashed collections and searches stay in the listings**, carrying
+`deleted: 1`. Upstream has no trash filter in its collection or search queries,
+and the client has no `includeTrashed` parameter for either — it sends a bare
+`GET <prefix>/collections?format=versions`. A listing that hid them would
+therefore not say "trashed", it would say "gone".
+
+Their child counts follow upstream exactly, and the two differ:
+
+| Count | Upstream | Trashed children counted |
+| --- | --- | --- |
+| `numCollections` | `SELECT COUNT(*) FROM collections WHERE parentCollectionID=?` | yes |
+| `numItems` | joins `deletedItems` and requires `DI.itemID IS NULL` | no |
+
+Items are unaffected throughout. They are the one type with real trash
+semantics upstream — their own endpoint and an `includeTrashed` parameter — and
+`/items` still hides them.
+
+The value must be a boolean or the integers 0 or 1, as upstream requires;
+without that check a string `"false"` would read as trashed.
+
 ## `inPublications`
 
 An ordinary item property upstream, and one altero used to reject outright with

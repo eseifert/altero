@@ -156,6 +156,7 @@ async def make_collection(
     version: int = 1,
     parent: Collection | None = None,
     items: list[Item] | None = None,
+    deleted: bool = False,
 ) -> Collection:
     from altero.keys import generate_key
 
@@ -165,6 +166,7 @@ async def make_collection(
         name=name,
         version=version,
         parent_id=parent.id if parent else None,
+        deleted=deleted,
     )
     session.add(collection)
     await session.flush()
@@ -185,11 +187,16 @@ async def make_search(
     name: str = "Search",
     version: int = 1,
     conditions: list[tuple[str, str, str]] | None = None,
+    deleted: bool = False,
 ) -> SavedSearch:
     from altero.keys import generate_key
 
     search = SavedSearch(
-        library_id=library.id, key=key or generate_key(), name=name, version=version
+        library_id=library.id,
+        key=key or generate_key(),
+        name=name,
+        version=version,
+        deleted=deleted,
     )
     search.conditions = [
         SearchCondition(position=index, condition=condition, operator=operator, value=value)

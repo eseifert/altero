@@ -29,6 +29,8 @@ Implemented:
   library's does not move
 - `inPublications`, the My Publications flag, with the refusals upstream
   attaches to it
+- Trashing collections and saved searches, which sync as a `deleted` flag on
+  the object rather than as a deletion
 - Items of every type, including notes, attachments and annotations, whose
   fields the published schema does not list
 - Client-supplied `dateAdded` and `dateModified`, kept as sent

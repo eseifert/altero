@@ -22,14 +22,29 @@ from altero.services.deletions import record_deletion
 from altero.services.writes import check_object_version
 
 
+def parse_deleted(payload: dict[str, Any]) -> bool:
+    """Return the trash flag, rejecting anything that is not a boolean.
+
+    Zotero trashes a collection or a saved search by setting this rather than
+    by deleting the object, so it has to round-trip like any other property.
+    Upstream accepts ``true``/``false`` and the integers 0 and 1, and refuses
+    everything else -- a string "false" would otherwise be read as trashed.
+    """
+    value = payload.get("deleted", False)
+    if not isinstance(value, bool) and value not in (0, 1):
+        raise InvalidInputError("'deleted' must be a boolean")
+    return bool(value)
+
+
 def _collection_state(collection: Collection) -> tuple[Any, ...]:
     """Everything about a collection that a client can change."""
-    return (collection.name, collection.parent_id)
+    return (collection.name, collection.parent_id, collection.deleted)
 
 
 def _search_state(search: SavedSearch) -> tuple[Any, ...]:
     return (
         search.name,
+        search.deleted,
         tuple(
             (condition.position, condition.condition, condition.operator, condition.value)
             for condition in sorted(search.conditions, key=lambda c: c.position)
@@ -88,6 +103,7 @@ async def save_collection(
 
     collection.name = name
     collection.version = version
+    collection.deleted = parse_deleted(payload)
 
     # `parentCollection` is false or absent for a top-level collection.
     parent = payload.get("parentCollection")
@@ -192,13 +208,15 @@ async def save_search(
         (index, condition, operator, value)
         for index, (condition, operator, value) in enumerate(conditions)
     )
-    if before is not None and before == (name, desired):
+    deleted = parse_deleted(payload)
+    if before is not None and before == (name, deleted, desired):
         # Compared before the conditions are replaced: assigning the list would
         # delete and reinsert every row to arrive at what is already there.
         return None
 
     search.name = name
     search.version = version
+    search.deleted = deleted
     search.conditions = [
         SearchCondition(position=index, condition=condition, operator=operator, value=value)
         for index, condition, operator, value in desired

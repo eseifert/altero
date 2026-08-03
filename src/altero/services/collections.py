@@ -54,7 +54,6 @@ async def list_collections(
     """
     filters: list[ColumnElement[bool]] = [
         Collection.library_id == library.id,
-        Collection.deleted.is_(False),
     ]
 
     if top_only:
@@ -90,7 +89,6 @@ async def count_subcollections(
         select(Collection.parent_id, func.count())
         .where(
             Collection.parent_id.in_([collection.id for collection in collections]),
-            Collection.deleted.is_(False),
         )
         .group_by(Collection.parent_id)
     )

@@ -215,25 +215,30 @@ def collection(
 
 def saved_search(obj: SavedSearch, library: Library, base_url: str) -> dict[str, Any]:
     """Render a saved search in the API's envelope."""
+    data: dict[str, Any] = {
+        "key": obj.key,
+        "version": obj.version,
+        "name": obj.name,
+        "conditions": [
+            {
+                "condition": condition.condition,
+                "operator": condition.operator,
+                "value": condition.value,
+            }
+            for condition in obj.conditions
+        ],
+    }
+    # As for items and collections: present only when the search is trashed.
+    if obj.deleted:
+        data["deleted"] = 1
+
     return {
         "key": obj.key,
         "version": obj.version,
         "library": library_block(library, base_url),
         "links": _object_links(library, base_url, "searches", obj.key),
         "meta": {},
-        "data": {
-            "key": obj.key,
-            "version": obj.version,
-            "name": obj.name,
-            "conditions": [
-                {
-                    "condition": condition.condition,
-                    "operator": condition.operator,
-                    "value": condition.value,
-                }
-                for condition in obj.conditions
-            ],
-        },
+        "data": data,
     }
 
 
