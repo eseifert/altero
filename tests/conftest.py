@@ -61,3 +61,16 @@ def as_if_not_built(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     from altero.api import spa
 
     monkeypatch.setattr(spa, "STATIC_ROOT", tmp_path / "never-built")
+
+
+@pytest.fixture(autouse=True)
+def _forget_key_usage_throttle() -> None:
+    """Start every test with an empty key-usage throttle.
+
+    It is deliberately process-global in production, which means it would
+    otherwise leak between tests: a key id written in one test would suppress
+    the write for the same id in the next, whose database is new.
+    """
+    from altero.services import keyusage
+
+    keyusage.reset()

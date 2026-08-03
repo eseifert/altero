@@ -89,6 +89,9 @@ def _serialise_key(record: ApiKey) -> dict:
         "name": record.name,
         "suffix": record.key[-4:],
         "created": record.created.isoformat() + "Z" if record.created else None,
+        "lastUsed": record.last_used.isoformat() + "Z" if record.last_used else None,
+        "lastAddress": record.last_address,
+        "lastUserAgent": record.last_user_agent,
         "access": {
             "library": record.library_read,
             "write": record.library_write,

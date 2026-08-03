@@ -20,6 +20,9 @@ interface KeyEntry {
   name: string
   suffix: string
   created: string | null
+  lastUsed: string | null
+  lastAddress: string | null
+  lastUserAgent: string | null
   access: { write: boolean; groups: boolean }
 }
 
@@ -179,6 +182,22 @@ function describe(entry: KeyEntry): string {
   const scope = entry.access.write ? 'Read and write' : 'Read only'
   return `${scope}${entry.access.groups ? ', including groups' : ', personal library only'}`
 }
+
+/**
+ * What a key has been doing, in one line.
+ *
+ * "Never used" is said outright rather than left blank: a key that has never
+ * been used is the clearest candidate for revoking, and an empty cell reads as
+ * missing information instead of as an answer.
+ */
+function lastSeen(entry: KeyEntry): string {
+  if (!entry.lastUsed) {
+    return 'Never used'
+  }
+  const where = entry.lastAddress ? ` from ${entry.lastAddress}` : ''
+  const what = entry.lastUserAgent ? ` · ${entry.lastUserAgent}` : ''
+  return `Last used ${new Date(entry.lastUsed).toLocaleString()}${where}${what}`
+}
 </script>
 
 <template>
@@ -279,6 +298,7 @@ function describe(entry: KeyEntry): string {
               <code class="settings__suffix">…{{ entry.suffix }}</code>
             </p>
             <p class="settings__detail">{{ describe(entry) }} · created {{ when(entry.created) }}</p>
+            <p class="settings__detail settings__usage">{{ lastSeen(entry) }}</p>
           </div>
           <AppButton variant="text" @click="revokeKey(entry.id, entry.name)">Revoke</AppButton>
         </li>
@@ -421,6 +441,13 @@ function describe(entry: KeyEntry): string {
 
 .settings__session {
   margin: 0;
+}
+
+.settings__usage {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 26rem;
 }
 
 .settings__suffix {

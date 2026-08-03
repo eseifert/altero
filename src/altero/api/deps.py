@@ -13,7 +13,7 @@ from starlette.requests import Request
 
 from altero.errors import NotFoundError
 from altero.models import ApiKey, Library, LibraryType
-from altero.services import auth
+from altero.services import auth, keyusage
 
 #: Header carrying the API key, as documented for the v3 API.
 API_KEY_HEADER = "Zotero-API-Key"
@@ -46,7 +46,26 @@ def get_credential(request: Request) -> str | None:
 
 async def get_api_key(request: Request, session: SessionDep) -> ApiKey | None:
     """Return the authenticated API key, or ``None`` for an anonymous request."""
-    return await auth.authenticate(session, get_credential(request))
+    api_key = await auth.authenticate(session, get_credential(request))
+    if api_key is not None:
+        await _record_use(request, api_key)
+    return api_key
+
+
+async def _record_use(request: Request, api_key: ApiKey) -> None:
+    """Note when and where this key was used, for the key list to show.
+
+    In a session of its own. Sharing the request's would commit whatever it has
+    open, which on a write path is a transaction holding a row lock on the
+    library -- the one thing in this application that must not be broken up.
+    """
+    async with request.app.state.database.session_factory() as bookkeeping:
+        await keyusage.record(
+            bookkeeping,
+            api_key.id,
+            address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+        )
 
 
 ApiKeyDep = Annotated[ApiKey | None, Depends(get_api_key)]

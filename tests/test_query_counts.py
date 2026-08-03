@@ -24,6 +24,14 @@ KEY = "P9NiFoyLeZu2bZNvvuQPDWsd"
 AUTH = {"Zotero-API-Key": KEY}
 
 
+#: Recording when a key was last used is amortised -- at most one write per
+#: key per minute -- so it is not part of the per-request shape these guards
+#: are about, and counting it would make a measurement depend on whether the
+#: throttle happened to be warm. That it stays amortised is guarded where it
+#: belongs, in tests/test_keyusage.py.
+BOOKKEEPING = "UPDATE api_keys SET last_used"
+
+
 @contextmanager
 def capture_sql(app: FastAPI) -> Iterator[list[str]]:
     """Collect every statement the application executes inside the block."""
@@ -31,6 +39,8 @@ def capture_sql(app: FastAPI) -> Iterator[list[str]]:
     engine = app.state.database.engine.sync_engine
 
     def record(_connection: Any, _cursor: Any, statement: str, *_rest: Any) -> None:
+        if statement.strip().startswith(BOOKKEEPING):
+            return
         statements.append(statement)
 
     event.listen(engine, "before_cursor_execute", record)

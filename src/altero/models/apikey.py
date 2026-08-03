@@ -26,6 +26,15 @@ class ApiKey(Base):
     #: are left unknown rather than backfilled with the time of the migration,
     #: which would be a date that means nothing.
     created: Mapped[datetime | None] = mapped_column(DateTime, default=func.now())
+    #: When this key was last seen, and where from. Written at most once an
+    #: interval per key rather than on every request -- a syncing client makes
+    #: a great many, and this is a convenience for deciding what to revoke,
+    #: not an audit log.
+    last_used: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: The address the request came from. Behind a proxy this is the proxy
+    #: unless forwarded_allow_ips names it.
+    last_address: Mapped[str | None] = mapped_column(String(45), default=None)
+    last_user_agent: Mapped[str | None] = mapped_column(String(255), default=None)
 
     library_read: Mapped[bool] = mapped_column(default=True)
     library_write: Mapped[bool] = mapped_column(default=False)

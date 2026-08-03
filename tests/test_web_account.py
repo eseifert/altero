@@ -571,3 +571,34 @@ class TestManagingKeys:
 
     async def test_keys_need_a_session(self, client: httpx.AsyncClient) -> None:
         assert (await client.get("/web/account/keys")).status_code == 401
+
+    async def test_a_new_key_reports_never_used(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+        await client.post(
+            "/web/account/keys",
+            json={"name": "laptop", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        listed = (await client.get("/web/account/keys")).json()["keys"]
+
+        assert listed[0]["lastUsed"] is None
+        assert listed[0]["lastAddress"] is None
+
+    async def test_using_a_key_shows_up_in_the_list(self, client: httpx.AsyncClient) -> None:
+        """This is what makes the list answer "which can I revoke?"."""
+        await register(client)
+        created = await client.post(
+            "/web/account/keys",
+            json={"name": "laptop", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        await client.get(
+            "/users/1/items",
+            headers={"Zotero-API-Key": created.json()["key"], "User-Agent": "Zotero/7.0"},
+        )
+
+        listed = (await client.get("/web/account/keys")).json()["keys"]
+        assert listed[0]["lastUsed"] is not None
+        assert listed[0]["lastUserAgent"] == "Zotero/7.0"
