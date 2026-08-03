@@ -16,6 +16,7 @@ dependencies = [
     "aiosqlite>=0.21",
     "uvicorn[standard]>=0.36",
     "python-multipart>=0.0.32",
+    "argon2-cffi>=25.1.0",
 ]
 
 [project.optional-dependencies]
