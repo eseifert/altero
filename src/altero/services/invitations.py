@@ -15,7 +15,7 @@ import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
@@ -177,11 +177,21 @@ async def pending_for_user(session: AsyncSession, user: User) -> list[Invitation
 
     Matched on the address as well as the link, so one issued before they
     registered still reaches them.
+
+    An account with no address -- one made by `altero user add` -- is matched on
+    the link alone. The clause is left out rather than compared against an
+    impossible value: the first version of this used "\\0" as that value, which
+    SQLite accepts happily and PostgreSQL refuses outright, so every one of
+    those accounts got a 500 from the notifications panel on a real deployment.
     """
+    answerable = Invitation.user_id == user.id
+    if user.email:
+        answerable = or_(answerable, Invitation.email == user.email)
+
     result = await session.scalars(
         select(Invitation)
         .where(Invitation.status == PENDING, Invitation.expires >= _now())
-        .where((Invitation.user_id == user.id) | (Invitation.email == (user.email or "\0")))
+        .where(answerable)
         .order_by(Invitation.created.desc())
     )
     return list(result)
