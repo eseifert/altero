@@ -242,6 +242,15 @@ holds a pre-2016 sync password.
 Two of these were found by running the real client, not by reading the
 documentation, and neither is described there.
 
+**`mtime` is milliseconds, and needs 64 bits.** The client sends an
+attachment's modification time as milliseconds since the epoch, which has not
+fitted in a signed 32-bit integer since January 1970. In a column typed
+INTEGER, SQLite takes it — its INTEGER is 64-bit — and PostgreSQL refuses it
+with `value out of int32 range`. File uploads therefore worked in development
+and failed against every container deployment, with the whole suite green.
+`storage_uploads.mtime` is BIGINT, and `tests/test_web_on_postgres.py` covers
+it against the database the image actually uses.
+
 **Full text is uploaded in batches.** The documented endpoints are
 `GET`/`PUT` on `<prefix>/items/<key>/fulltext`, but the client uploads with
 `POST <prefix>/fulltext`, carrying an array of

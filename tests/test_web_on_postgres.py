@@ -230,3 +230,69 @@ class TestTheOrdinaryPathsAlsoWorkHere:
         assert accepted.status_code == 200
         assert (await client.get("/web/notifications")).json()["unread"] == 0
         assert len((await client.get("/web/libraries")).json()) == 2
+
+
+class TestTheFileProtocol:
+    """Uploads, which are where PostgreSQL's stricter integers bite.
+
+    Zotero sends `mtime` as milliseconds since the epoch. That has not fitted
+    in a 32-bit integer since January 1970, so a column typed INTEGER takes it
+    on SQLite -- whose INTEGER is 64-bit -- and refuses it on PostgreSQL with
+    "value out of int32 range". Every file upload against the container image
+    failed for that reason while the whole suite stayed green.
+    """
+
+    #: A real millisecond timestamp, as the desktop client sends. Well past
+    #: 2**31, which is the entire point of it.
+    MTIME = 1785793739415
+
+    async def test_authorising_an_upload_accepts_a_millisecond_mtime(
+        self, client: httpx.AsyncClient, database: Database
+    ) -> None:
+        await client.post(
+            "/web/auth/register",
+            json={"username": "ada", "password": PASSWORD, "email": "ada@example.org"},
+        )
+        async with database.session_factory() as session:
+            api_key = await admin.create_api_key(session, username="ada", name="client")
+            key = api_key.key
+
+        created = await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {"itemType": "book", "title": "Parent"},
+            ],
+        )
+        parent = created.json()["successful"]["0"]["key"]
+        attachment = await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {
+                    "itemType": "attachment",
+                    "parentItem": parent,
+                    "linkMode": "imported_url",
+                    "title": "PDF",
+                    "filename": "paper.pdf",
+                    "contentType": "application/pdf",
+                }
+            ],
+        )
+        attachment_key = attachment.json()["successful"]["0"]["key"]
+
+        response = await client.post(
+            f"/users/1/items/{attachment_key}/file",
+            headers={
+                "Zotero-API-Key": key,
+                "Content-Type": "application/x-www-form-urlencoded",
+                "If-None-Match": "*",
+            },
+            content=(
+                f"mtime={self.MTIME}&md5=82faf4c7774556f4877d8f258def124e"
+                "&filename=paper.pdf&filesize=2586902"
+            ),
+        )
+
+        assert response.status_code == 200, response.text
+        assert response.json()["uploadKey"]
