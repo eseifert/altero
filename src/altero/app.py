@@ -20,6 +20,7 @@ from altero.api.routes import (
     items,
     itemschema,
     keys,
+    publications,
     searches,
     tags,
 )
@@ -101,6 +102,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(files.router)
     app.include_router(tags.router)
     app.include_router(collections.router)
+    app.include_router(publications.router)
     app.include_router(searches.router)
     app.include_router(items.router)
 

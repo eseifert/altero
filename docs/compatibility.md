@@ -353,6 +353,28 @@ collections, so it accepts relations that api.zotero.org would refuse. That is
 the permissive direction, so no client is broken by it, but a library moved from
 altero to zotero.org could carry a relation that upstream rejects.
 
+## My Publications
+
+`/users/<id>/publications/items` is read **without a key** — upstream's own test
+file sets `API::useAPIKey("")` for every case in it and expects 200. Only items
+flagged `inPublications` are visible, through `items`, `items/top` and
+`items/<key>`; a key that is not published answers 404 rather than 403, since
+hiding an item from the listing is pointless if its key still fetches it.
+
+`publications/collections` and `publications/searches` answer 404 upstream, and
+do here. Writes are refused: items reach the list by being written to the
+library with `inPublications` set, not by being posted here.
+
+There is no group form. My Publications belongs to a person, which is the same
+reason `inPublications` is refused on a group item.
+
+Two of upstream's cases are deliberately not copied, both marked in its own
+suite as awaiting an "integrated My Publications upgrade": `publications/settings`
+answers 200 when the list is empty and **400** once it holds an item, and
+`publications/deleted` answers 200. Neither is a behaviour worth reproducing
+from a comment that says it is mid-migration; altero answers 404 for both, as it
+does for every other unimplemented path.
+
 ## Trashing a collection or a saved search
 
 Zotero trashes these by setting `deleted` on the object, not by deleting it, and

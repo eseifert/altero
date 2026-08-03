@@ -47,6 +47,9 @@ class Scope(StrEnum):
     CHILDREN = auto()
     COLLECTION = auto()
     COLLECTION_TOP = auto()
+    #: The owner's My Publications, which is a public view of one library.
+    PUBLICATIONS = auto()
+    PUBLICATIONS_TOP = auto()
 
 
 def paginate(statement: Select[Any], query: ListQuery) -> Select[Any]:
@@ -176,6 +179,12 @@ async def _scope_filters(
 
     if scope is Scope.TOP:
         return [Item.parent_id.is_(None)]
+
+    if scope in (Scope.PUBLICATIONS, Scope.PUBLICATIONS_TOP):
+        published: list[ColumnElement[bool]] = [Item.in_publications.is_(True)]
+        if scope is Scope.PUBLICATIONS_TOP:
+            published.append(Item.parent_id.is_(None))
+        return published
 
     if scope is Scope.CHILDREN:
         parent = await get_item(session, library, key or "")

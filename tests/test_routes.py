@@ -29,6 +29,13 @@ EXPECTED = [
     ("/items/new", "GET"),
     ("/schema", "GET"),
     ("/storage/upload/{upload_key}", "POST"),
+    # My Publications is a personal library only, so these have no /groups form.
+    ("/users/{user_id}/publications/items", "GET"),
+    ("/users/{user_id}/publications/items", "POST"),
+    ("/users/{user_id}/publications/items", "PUT"),
+    ("/users/{user_id}/publications/items", "DELETE"),
+    ("/users/{user_id}/publications/items/top", "GET"),
+    ("/users/{user_id}/publications/items/{item_key}", "GET"),
 ]
 
 #: Endpoints served under both /users/{user_id} and /groups/{group_id}.

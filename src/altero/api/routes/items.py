@@ -95,7 +95,7 @@ async def render_page(
     )
 
 
-async def _listing(
+async def render_listing(
     request: Request,
     session: AsyncSession,
     library: Library,
@@ -116,7 +116,7 @@ async def _listing(
 async def list_items(
     request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
 ) -> Response:
-    return await _listing(request, session, library, base_url, Scope.ALL)
+    return await render_listing(request, session, library, base_url, Scope.ALL)
 
 
 @router.get("/users/{user_id}/items/top")
@@ -124,7 +124,7 @@ async def list_items(
 async def list_top_items(
     request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
 ) -> Response:
-    return await _listing(request, session, library, base_url, Scope.TOP)
+    return await render_listing(request, session, library, base_url, Scope.TOP)
 
 
 @router.get("/users/{user_id}/items/trash")
@@ -132,7 +132,7 @@ async def list_top_items(
 async def list_trashed_items(
     request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
 ) -> Response:
-    return await _listing(request, session, library, base_url, Scope.TRASH)
+    return await render_listing(request, session, library, base_url, Scope.TRASH)
 
 
 @router.get("/users/{user_id}/items/{item_key}")
@@ -160,7 +160,7 @@ async def list_item_children(
     library: ReadableLibraryDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    return await _listing(request, session, library, base_url, Scope.CHILDREN, item_key)
+    return await render_listing(request, session, library, base_url, Scope.CHILDREN, item_key)
 
 
 @router.post("/users/{user_id}/items")
