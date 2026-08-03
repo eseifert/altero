@@ -30,6 +30,7 @@ from altero.api.routes import (
 from altero.api.routes import (
     settings as settings_routes,
 )
+from altero.api.spa import mount_web_interface
 from altero.db import Database
 from altero.services.ratelimit import RateLimiter
 from altero.settings import Settings, get_settings
@@ -117,6 +118,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(publications.router)
     app.include_router(searches.router)
     app.include_router(items.router)
+
+    # Last, so every API route is already registered and nothing under
+    # /app can capture one of them.
+    mount_web_interface(app)
 
     @app.middleware("http")
     async def negotiate_api_version(request: Request, call_next) -> Response:  # type: ignore[no-untyped-def]

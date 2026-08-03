@@ -24,3 +24,6 @@ htmlcov/
 
 # Frontend
 node_modules/
+# Built by `npm run build` in web/; produced by CI and by the Docker image,
+# never committed -- a stale bundle in the tree is worse than none.
+/src/altero/web/static/

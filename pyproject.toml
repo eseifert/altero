@@ -50,6 +50,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/altero"]
+# The built web interface is gitignored -- it is produced by `npm run build`,
+# not committed -- and hatchling honours VCS ignore rules, so without this the
+# wheel would quietly ship without the interface in it.
+artifacts = ["src/altero/web/static/**"]
 
 [tool.ruff]
 target-version = "py314"
