@@ -64,6 +64,20 @@ class Settings(BaseSettings):
         ),
     )
 
+    forwarded_allow_ips: str = Field(
+        default="",
+        description=(
+            "Addresses of proxies whose X-Forwarded-For and X-Forwarded-Proto "
+            "may be believed, comma separated, or '*' to believe any peer. "
+            "Empty, the default, trusts nothing and reports the address the "
+            "connection actually came from. Behind a TLS terminator that is "
+            "the terminator, so both the rate limiter and the record of where "
+            "a key was last used see one address for everybody until this is "
+            "set. Only ever name a proxy that strips the header it forwards; "
+            "anything else lets a caller choose the address attributed to it."
+        ),
+    )
+
     rate_limit: int = Field(
         default=0,
         ge=0,

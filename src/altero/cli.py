@@ -30,6 +30,12 @@ def _serve(settings: Settings) -> None:
         host=settings.host,
         port=settings.port,
         reload=settings.debug,
+        # Left to uvicorn rather than parsing the header here, so that one
+        # notion of "the caller's address" serves the rate limiter and the
+        # record of where a key was used. Nothing is believed unless a proxy
+        # is named; see the setting's description.
+        proxy_headers=bool(settings.forwarded_allow_ips),
+        forwarded_allow_ips=settings.forwarded_allow_ips or None,
     )
 
 
