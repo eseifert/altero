@@ -2,9 +2,13 @@
 
 The client starts a session, opens the returned URL for the user to
 authenticate, and polls until the session reports a key. Upstream authenticates
-in a browser against zotero.org; altero has no web interface and no passwords,
-so a session is approved from the command line against a key that was already
-provisioned there.
+in a browser against zotero.org; here a session is approved from the command
+line against a key that was already provisioned there.
+
+The web interface added passwords and browser sessions, but deliberately does
+not approve these: issuing a desktop client a full-access API key because
+somebody is signed in to a browser tab is a decision of its own, and it has not
+been taken.
 """
 
 import secrets

@@ -49,6 +49,10 @@ Not implemented yet: Atom, bibliography and citation rendering, the export
 formats, group creation through the API (the command line does it),
 `publications/settings` and `publications/deleted`, and rate limiting.
 
+The web interface (see below) covers registration, sign-in with a password, a
+one-time code from an authenticator app, and reading a library. Passkeys,
+OIDC, SAML and one-time codes by email are not built yet.
+
 Two things the desktop client asks for are not part of the published data server
 either: `GET /retractions/list`, which it polls to flag retracted papers, and
 the streaming API it opens a WebSocket to. Neither appears anywhere in the
@@ -61,6 +65,44 @@ unless a second preference is changed, which is why the setup below turns it off
 Writes to a library are serialized, so one request produces exactly one new
 version however many objects it touches. See
 [docs/schema.md](docs/schema.md#concurrency).
+
+## The web interface
+
+A Vue 3 single-page application, served at `/app/`. It signs in with a
+username and password, optionally behind a one-time code from an authenticator
+app, and shows the library. The Zotero desktop client is unaffected by any of
+it: the v3 API remains API-key only, and a session cookie is refused there on
+purpose.
+
+The first account can be registered from the browser. Registration is open
+only while the instance has no users at all, so a fresh container is reachable
+without shell access and closes itself the moment that account exists. After
+that, accounts are made with `altero user add` and given a password with
+`altero user password <username>`.
+
+Accounts that predate this interface keep working exactly as they did. They
+have no password until one is set, which means they can sync but cannot sign
+in to the browser.
+
+The design follows Material 3 with a teal accent, and light and dark follow the
+operating system unless the user picks one. Nothing is loaded from a third
+party -- no web fonts, no CDN.
+
+Built into the container image already. From a source checkout:
+
+```sh
+cd web
+npm install
+npm run build        # writes into src/altero/web/static
+npm test
+npm run dev          # localhost:5173, proxying the API to :8000
+```
+
+Without that build the server still runs and the API is fully usable; `/app/`
+answers 503 and says what to run.
+
+Still to come here: passkeys, single sign-on through OIDC and SAML, one-time
+codes by email, and editing rather than only reading.
 
 ## Compatibility
 
@@ -239,8 +281,10 @@ to zotero.org, which rejects it as unknown and may log it. See
 **Settings → Sync → Link Account**.
 
 Zotero authenticates by opening a page in the browser and polling until it is
-approved. altero has no web interface and stores no passwords, so the page it
-serves tells you to approve the login on the server instead:
+approved. That approval is still given on the server rather than in the browser
+— the web interface signs a person in to their own library, and handing a
+desktop client a full-access API key from that same session is a separate
+decision that has not been made yet:
 
 ```sh
 uv run altero login list

@@ -1,8 +1,14 @@
 """Login sessions.
 
 The desktop client obtains its API key by starting a session, sending the user
-to a page to authenticate, then polling until the session completes. altero has
-no web interface, so a session is approved from the command line instead.
+to a page to authenticate, then polling until the session completes. Upstream
+authenticates that page against zotero.org; here it is approved from the
+command line instead.
+
+Not to be confused with :class:`~altero.models.webauth.WebSession`, which is a
+person's browser session in the web interface. This one exists to hand an API
+key to a desktop client, and the two do not currently meet: signing in to the
+interface does not approve a pending client login.
 """
 
 from datetime import datetime

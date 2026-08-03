@@ -165,11 +165,17 @@ back in a browser, and polls `GET /keys/sessions/<token>` until the response
 carries `apiKey`, `userID` and `username`. It refuses a completed session
 missing any of the three, and keeps polling while the status is `pending`.
 
-Upstream authenticates the user against zotero.org in that browser window.
-altero has no web interface and stores no passwords — accounts and keys are
-provisioned from the command line — so the page it serves at `loginURL` explains
-how to approve the login there instead, and `altero login approve` completes the
-session. The exchange the client sees is unchanged.
+Upstream authenticates the user against zotero.org in that browser window. The
+page altero serves at `loginURL` explains how to approve the login from the
+command line instead, and `altero login approve` completes the session. The
+exchange the client sees is unchanged.
+
+altero does have a web interface now, and it does store passwords, so this
+could in principle become a browser flow. It has not, deliberately: approving a
+desktop client's full-access API key is a larger grant than signing in to read
+one's own library, and conflating the two would mean any signed-in tab could be
+made to issue a key. Whether the interface should offer that, and behind what
+confirmation, is an open question rather than an oversight.
 
 `POST /keys`, which creates a key from a username and password, is not
 implemented. The client only reaches it when migrating a profile that still
@@ -494,9 +500,10 @@ Five places where altero does not copy upstream:
 
 - **`alternate` links are omitted.** Every upstream envelope carries a link to
   the corresponding page on zotero.org, and the `Link` header always ends with
-  `rel="alternate"`. altero has no web interface, and pointing at zotero.org
-  would send clients to someone else's copy of the data, so `library.links` is
-  empty and object envelopes carry only `self` and `up`. A consequence is that a
+  `rel="alternate"`. Pointing at zotero.org would send clients to someone
+  else's copy of the data, and altero's own interface is not a per-object
+  permalink scheme, so `library.links` is empty and object envelopes carry only
+  `self` and `up`. A consequence is that a
   single-page response has no `Link` header at all, where upstream still emits
   the `alternate` one.
 - **An unknown `locale` falls back to `en-US`.** The live API answers `500`.

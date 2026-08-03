@@ -88,8 +88,7 @@ async def login_session_page(token: str, session: SessionDep) -> Response:
     await login_service.get_session(session, token)
 
     return PlainTextResponse(
-        "altero has no web interface, so approve this login from the command "
-        "line on the server:\n\n"
+        "Approve this login from the command line on the server:\n\n"
         f"    altero login approve {token} <username>\n\n"
         "The client is waiting and will continue once you have.\n"
     )
