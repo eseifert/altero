@@ -140,7 +140,16 @@ async def _login_approve(session: AsyncSession, args: argparse.Namespace) -> Non
         api_key = await auth.get_api_key_by_value(session, args.key)
     else:
         # Issuing a key here means the usual case is one command, not two.
-        api_key = await admin.create_api_key(session, username=args.username, name="Zotero client")
+        # Group access included: the desktop client syncs group libraries as
+        # well, and a key without them presents as a server that has lost
+        # them. The browser flow grants the same, so the two agree.
+        api_key = await admin.create_api_key(
+            session,
+            username=args.username,
+            name=login.KEY_NAME,
+            all_groups_read=True,
+            all_groups_write=True,
+        )
 
     await login.approve_session(session, args.token, api_key)
     print(f"Approved. The client will continue with key {api_key.key}.")

@@ -36,3 +36,28 @@ async def client(app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
+
+
+@pytest.fixture
+def as_if_built(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
+    """Make the web interface look built, whatever is on disk.
+
+    Otherwise a test about the built state passes or fails depending on
+    whether the developer has run `npm run build` -- and CI's test job does
+    not, so it would be red there and green locally.
+    """
+    from altero.api import spa
+
+    root = tmp_path / "static"
+    root.mkdir(parents=True)
+    (root / "index.html").write_text('<!doctype html><div id="app"></div>')
+    monkeypatch.setattr(spa, "STATIC_ROOT", root)
+    return root
+
+
+@pytest.fixture
+def as_if_not_built(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Make the web interface look unbuilt, whatever is on disk."""
+    from altero.api import spa
+
+    monkeypatch.setattr(spa, "STATIC_ROOT", tmp_path / "never-built")

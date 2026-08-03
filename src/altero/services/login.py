@@ -26,6 +26,10 @@ SESSION_LIFETIME_MINUTES = 30
 #: Length of a session token.
 TOKEN_LENGTH = 32
 
+#: What a key issued by either approval path is called, so it is
+#: recognisable in a list of keys.
+KEY_NAME = "Zotero client"
+
 PENDING = "pending"
 COMPLETED = "completed"
 CANCELLED = "cancelled"

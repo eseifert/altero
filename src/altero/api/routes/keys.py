@@ -5,10 +5,16 @@ from typing import Any
 from fastapi import APIRouter
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
-from starlette.responses import JSONResponse, PlainTextResponse, Response
+from starlette.responses import (
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+    Response,
+)
 
 from altero import serializers
 from altero.api.deps import ApiKeyDep, BaseUrlDep, SessionDep
+from altero.api.spa import MOUNT_PATH, is_built
 from altero.errors import ForbiddenError
 from altero.models import ApiKey, Library
 from altero.services import auth, groups
@@ -82,10 +88,19 @@ async def start_login_session(
     )
 
 
-@router.get("/keys/sessions/{token}/login", response_class=PlainTextResponse)
+@router.get("/keys/sessions/{token}/login")
 async def login_session_page(token: str, session: SessionDep) -> Response:
-    """Tell the user how to approve the login the client just started."""
+    """Send the user where the login can be approved.
+
+    The client opens this in a browser. With the web interface built that is
+    the confirmation screen; without it there is nowhere to send them, so the
+    command line instructions stand -- the API is fully usable in that state
+    and a redirect to a 503 would be worse than a sentence they can act on.
+    """
     await login_service.get_session(session, token)
+
+    if is_built():
+        return RedirectResponse(f"{MOUNT_PATH}/link?token={token}", status_code=303)
 
     return PlainTextResponse(
         "Approve this login from the command line on the server:\n\n"

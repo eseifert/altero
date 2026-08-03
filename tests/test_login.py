@@ -87,9 +87,25 @@ class TestLoginSession:
         assert body["userID"] == 1
         assert body["username"] == "octocat"
 
-    async def test_the_login_page_names_the_command_to_run(
-        self, client: httpx.AsyncClient, user: None
+    async def test_the_login_page_sends_a_browser_to_the_interface(
+        self, client: httpx.AsyncClient, user: None, as_if_built: object
     ) -> None:
+        """With the interface built, the client's browser window lands on it."""
+        token = (await client.post("/keys/sessions")).json()["sessionToken"]
+
+        response = await client.get(f"/keys/sessions/{token}/login")
+
+        assert response.status_code == 303
+        assert response.headers["location"] == f"/app/link?token={token}"
+
+    async def test_the_login_page_names_the_command_when_nothing_is_built(
+        self, client: httpx.AsyncClient, user: None, as_if_not_built: None
+    ) -> None:
+        """A checkout with no frontend build must still be able to link a client.
+
+        The API is entirely usable in that state, so sending the browser to a
+        503 would be worse than a sentence somebody can act on.
+        """
         token = (await client.post("/keys/sessions")).json()["sessionToken"]
 
         response = await client.get(f"/keys/sessions/{token}/login")
@@ -175,3 +191,29 @@ class TestLoginSession:
         token = (await client.post("/keys/sessions")).json()["sessionToken"]
 
         assert [entry.token for entry in await login.list_pending(session)] == [token]
+
+
+async def test_the_command_line_issues_a_key_that_covers_groups(session: AsyncSession) -> None:
+    """Both approval paths grant the same thing.
+
+    The desktop client syncs group libraries as well as the personal one, and a
+    key without them presents as a server that has lost them. Asserted through
+    the command line's own handler rather than by calling create_api_key with
+    the flags, which would only prove that arguments arrive where they are put.
+    """
+    import argparse
+
+    from altero import cli
+
+    await admin.create_user(session, username="ada")
+    started = await login.start_session(session)
+
+    await cli._login_approve(
+        session, argparse.Namespace(key=None, username="ada", token=started.token)
+    )
+
+    issued = (await admin.list_api_keys(session))[0]
+    assert issued.name == login.KEY_NAME
+    assert issued.all_groups_read is True
+    assert issued.all_groups_write is True
+    assert (await login.get_session(session, started.token)).status == login.COMPLETED

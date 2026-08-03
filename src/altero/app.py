@@ -27,6 +27,7 @@ from altero.api.routes import (
     web,
     webaccount,
     weblibrary,
+    weblink,
 )
 from altero.api.routes import (
     settings as settings_routes,
@@ -112,6 +113,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(web.router)
     app.include_router(weblibrary.router)
     app.include_router(webaccount.router)
+    app.include_router(weblink.router)
     app.include_router(health.router)
     app.include_router(itemschema.router)
     app.include_router(keys.router)
