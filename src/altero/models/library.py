@@ -1,8 +1,9 @@
 """Libraries and their owners."""
 
+from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import Enum, ForeignKey, String, UniqueConstraint
+from sqlalchemy import DateTime, Enum, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from altero.db import Base
@@ -24,6 +25,11 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
     username: Mapped[str] = mapped_column(String(255), unique=True)
     display_name: Mapped[str] = mapped_column(String(255), default="")
+    #: Argon2id, or ``None`` for an account provisioned by `altero user add`
+    #: that has never set one. Such an account works with an API key and cannot
+    #: sign in to the web interface -- see :mod:`altero.services.webauth`.
+    password_hash: Mapped[str | None] = mapped_column(String(255), default=None)
+    password_changed: Mapped[datetime | None] = mapped_column(DateTime, default=None)
 
 
 class Library(Base):

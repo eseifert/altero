@@ -6,6 +6,7 @@ deployment is set up from here.
 
 import argparse
 import asyncio
+import getpass
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 from typing import Any
@@ -13,9 +14,9 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.db import Database
-from altero.errors import AlteroError
+from altero.errors import AlteroError, InvalidInputError
 from altero.models import LibraryType
-from altero.services import admin, auth, login, transfer
+from altero.services import admin, auth, login, transfer, webauth
 from altero.settings import Settings, get_settings
 
 
@@ -51,6 +52,22 @@ async def _user_add(session: AsyncSession, args: argparse.Namespace) -> None:
         user_id=args.id,
     )
     print(f"Created user {user.username} with id {user.id} and a personal library.")
+
+
+async def _user_password(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Set a user's web-interface password.
+
+    Prompted for rather than taken as an argument: a password on the command
+    line ends up in the shell history and in the process list, where anyone on
+    the machine can read it.
+    """
+    user = await admin.get_user_by_name(session, args.username)
+    password = getpass.getpass(f"New password for {user.username}: ")
+    if password != getpass.getpass("Repeat: "):
+        raise InvalidInputError("The two passwords do not match")
+
+    await webauth.set_password(session, user, password)
+    print(f"Set the password for {user.username}. Their other sessions were signed out.")
 
 
 async def _user_list(session: AsyncSession, args: argparse.Namespace) -> None:
@@ -188,6 +205,9 @@ def build_parser() -> argparse.ArgumentParser:
     add.add_argument("--display-name", default="")
     add.add_argument("--id", type=int, help="assign a specific user id")
     add.set_defaults(handler=_user_add)
+    password = user.add_parser("password", help="set a user's web password")
+    password.add_argument("username")
+    password.set_defaults(handler=_user_password)
     user.add_parser("list", help="list users").set_defaults(handler=_user_list)
 
     key = commands.add_parser("key", help="manage API keys").add_subparsers(dest="subcommand")

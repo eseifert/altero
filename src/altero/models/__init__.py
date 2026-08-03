@@ -15,6 +15,7 @@ from altero.models.setting import Setting
 from altero.models.storage import StorageUpload
 from altero.models.sync import DeletedObject, DeletedObjectType, WriteToken
 from altero.models.tag import ItemTag, Tag, TagType
+from altero.models.webauth import TotpCredential, WebSession
 
 __all__ = [
     "ApiKey",
@@ -41,6 +42,8 @@ __all__ = [
     "StorageUpload",
     "Tag",
     "TagType",
+    "TotpCredential",
     "User",
+    "WebSession",
     "WriteToken",
 ]
