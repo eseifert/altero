@@ -13,6 +13,7 @@ const auth = useAuthStore()
 const router = useRouter()
 
 const username = ref('')
+const email = ref('')
 const displayName = ref('')
 const password = ref('')
 const repeated = ref('')
@@ -36,6 +37,7 @@ async function submit(): Promise<void> {
   try {
     await auth.register({
       username: username.value,
+      email: email.value,
       password: password.value,
       displayName: displayName.value,
     })
@@ -52,6 +54,14 @@ async function submit(): Promise<void> {
     <p class="auth-form__lead">This instance has no accounts yet, so this one will be yours.</p>
 
     <AppTextField v-model="username" label="Username" autocomplete="username" required autofocus />
+    <AppTextField
+      v-model="email"
+      label="Email address"
+      type="email"
+      autocomplete="email"
+      required
+      hint="Used for security notifications and invitations"
+    />
     <AppTextField v-model="displayName" label="Display name" autocomplete="name" hint="Optional" />
     <AppTextField
       v-model="password"

@@ -7,6 +7,8 @@ export interface User {
   id: number
   username: string
   displayName: string
+  email: string | null
+  emailVerified: boolean
 }
 
 interface AuthResponse {
@@ -24,6 +26,7 @@ interface ServerConfig {
 export interface RegistrationDetails {
   username: string
   password: string
+  email: string
   displayName?: string
 }
 
@@ -123,6 +126,28 @@ export const useAuthStore = defineStore('auth', () => {
     )
   }
 
+  /**
+   * Confirm an address from the token in a link.
+   *
+   * Needs no session: the link is opened in whichever browser happens to be
+   * to hand, often not the one that registered, and the token is the whole
+   * credential.
+   */
+  async function verifyEmail(token: string): Promise<void> {
+    const response = await attempt(() =>
+      request<{ user: User }>('/web/auth/verify', { method: 'POST', body: { token } }),
+    )
+    // Only adopt the user when one is already signed in; confirming from
+    // another browser must not appear to sign that browser in.
+    if (user.value) {
+      user.value = response.user
+    }
+  }
+
+  async function resendVerification(): Promise<void> {
+    await request('/web/auth/verify/resend', { method: 'POST' })
+  }
+
   async function logout(): Promise<void> {
     try {
       await request('/web/auth/logout', { method: 'POST' })
@@ -150,6 +175,8 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     submitFactor,
+    verifyEmail,
+    resendVerification,
     logout,
   }
 })

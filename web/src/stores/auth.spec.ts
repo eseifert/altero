@@ -12,7 +12,13 @@ vi.mock('@/api/client', async (importOriginal) => ({
   request: requestMock,
 }))
 
-const ADA = { id: 1, username: 'ada', displayName: 'Ada' }
+const ADA = {
+  id: 1,
+  username: 'ada',
+  displayName: 'Ada',
+  email: 'ada@example.org',
+  emailVerified: false,
+}
 
 describe('the auth store', () => {
   beforeEach(() => {
@@ -170,7 +176,11 @@ describe('the auth store', () => {
       requestMock.mockResolvedValue({ user: ADA, needsFactor: null })
       const auth = useAuthStore()
 
-      await auth.register({ username: 'ada', password: 'correct horse battery staple' })
+      await auth.register({
+        username: 'ada',
+        email: 'ada@example.org',
+        password: 'correct horse battery staple',
+      })
 
       expect(auth.isAuthenticated).toBe(true)
     })
@@ -181,7 +191,7 @@ describe('the auth store', () => {
       )
       const auth = useAuthStore()
 
-      await expect(auth.register({ username: 'ada', password: 'short' })).rejects.toThrow()
+      await expect(auth.register({ username: 'ada', email: 'ada@example.org', password: 'short' })).rejects.toThrow()
 
       expect(auth.error).toBe('A password must be at least 8 characters')
     })

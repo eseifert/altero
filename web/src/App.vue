@@ -16,6 +16,12 @@ const route = useRoute()
    full shell with a header. */
 const bare = computed(() => route.meta.requiresAuth !== true)
 
+/* Verification gates notifications and nothing else, so this is a reminder
+   rather than a wall. */
+const unconfirmed = computed(
+  () => auth.isAuthenticated && auth.user?.email !== null && !auth.user?.emailVerified,
+)
+
 onMounted(() => {
   theme.initialise()
   auth.loadConfig()
@@ -44,6 +50,14 @@ async function signOut(): Promise<void> {
         <AppButton v-if="auth.isAuthenticated" variant="text" @click="signOut">Sign out</AppButton>
       </div>
     </header>
+
+    <p v-if="unconfirmed" class="shell__notice">
+      <span>
+        Confirm <strong>{{ auth.user?.email }}</strong> to receive security
+        notifications and invitations. Your library works either way.
+      </span>
+      <AppButton variant="text" @click="auth.resendVerification()">Resend</AppButton>
+    </p>
 
     <main class="shell__main">
       <RouterView />
@@ -87,6 +101,18 @@ async function signOut(): Promise<void> {
   gap: var(--md-spacing-3);
 }
 
+.shell__notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--md-spacing-3);
+  margin: 0;
+  padding: var(--md-spacing-3) var(--md-spacing-5);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
 .shell__main {
   flex: 1;
   width: 100%;
@@ -96,7 +122,19 @@ async function signOut(): Promise<void> {
 }
 
 /* The auth screens centre their single column instead. */
-.shell--bare .shell__main {
+.shell--bare .shell__notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--md-spacing-3);
+  margin: 0;
+  padding: var(--md-spacing-3) var(--md-spacing-5);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.shell__main {
   display: flex;
   align-items: center;
   justify-content: center;

@@ -12,6 +12,11 @@ const routes = [
     component: () => import('@/views/SecondFactorView.vue'),
   },
   {
+    path: '/verify',
+    name: 'verify-email',
+    component: () => import('@/views/VerifyEmailView.vue'),
+  },
+  {
     path: '/library',
     name: 'library',
     component: () => import('@/views/LibraryView.vue'),
