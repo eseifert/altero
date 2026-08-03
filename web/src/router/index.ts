@@ -17,6 +17,13 @@ const routes = [
     component: () => import('@/views/VerifyEmailView.vue'),
   },
   {
+    // Where the desktop client's loginURL sends the browser.
+    path: '/link',
+    name: 'link-client',
+    component: () => import('@/views/LinkClientView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: () => import('@/views/SettingsView.vue'),
