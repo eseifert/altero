@@ -92,14 +92,16 @@ new key once and it cannot be shown again.
 ## Running it in a container
 
 ```sh
-docker compose up -d
-docker compose exec altero altero user add <username>
+docker compose -f docker/compose.yaml up -d
+docker compose -f docker/compose.yaml exec altero altero user add <username>
 ```
 
-That is PostgreSQL, altero and a volume for attachments. Migrations run on
-start, so an upgrade is `docker compose pull && docker compose up -d` with
-nothing to remember; a failed migration exits the container rather than serving
-against a schema it does not understand.
+That is PostgreSQL, altero and a volume for attachments. Everything the
+container needs lives in `docker/`; run the commands from the repository root,
+or `export COMPOSE_FILE=docker/compose.yaml` once and drop the `-f`. Migrations
+run on start, so an upgrade is `docker compose pull && docker compose up -d`
+with nothing to remember; a failed migration exits the container rather than
+serving against a schema it does not understand.
 
 The API is published on the loopback interface only — put a TLS terminator in
 front of it rather than exposing it directly. `ALTERO_PUBLISH_PORT` moves it,

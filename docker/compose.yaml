@@ -1,11 +1,20 @@
 # A deployment that survives a reboot and can be upgraded without ceremony:
 #
-#     docker compose up -d
-#     docker compose exec altero altero user add <name>
-#     docker compose exec altero altero login list
+#     docker compose -f docker/compose.yaml up -d
+#     docker compose -f docker/compose.yaml exec altero altero user add <name>
+#     docker compose -f docker/compose.yaml exec altero altero login list
+#
+# Run those from the repository root. `-f` is what the file living in docker/
+# costs; `export COMPOSE_FILE=docker/compose.yaml` buys it back for a shell.
 #
 # Point the Zotero client at http://<host>:8000/ and turn its streaming off --
 # see "Using it from the Zotero desktop app" in README.md.
+#
+# Named explicitly: the project name otherwise follows the directory the file
+# sits in, and renaming it to "docker" would leave an existing deployment's
+# volumes behind under the old prefix with its library in them.
+name: altero
+
 services:
   db:
     image: postgres:17-alpine
@@ -24,7 +33,11 @@ services:
     restart: unless-stopped
 
   altero:
-    build: .
+    # The context is the repository root: the image installs src/, migrations/
+    # and the lock file, none of which are in this directory.
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     # Migrations run on start, so this is also how an upgrade applies them.
     depends_on:
       db:

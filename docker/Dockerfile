@@ -1,5 +1,13 @@
 # One process, one database, one directory of attachments. Nothing here should
 # need explaining to whoever has to upgrade it at two in the morning.
+#
+# The build context is the repository root, not this directory:
+#
+#     docker build -f docker/Dockerfile .
+#
+# which is also what docker/compose.yaml asks for. The exclusions live in
+# Dockerfile.dockerignore beside this file -- a .dockerignore is read from the
+# context root, and the context root is one level up.
 FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim
 
 # Dependencies first, from the lock file alone, so editing the source does not
@@ -39,6 +47,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4).status == 200 else 1)"
 
-COPY docker-entrypoint.sh /usr/local/bin/
-ENTRYPOINT ["docker-entrypoint.sh"]
+COPY docker/entrypoint.sh /usr/local/bin/altero-entrypoint.sh
+ENTRYPOINT ["altero-entrypoint.sh"]
 CMD ["altero"]

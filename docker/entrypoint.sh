@@ -3,6 +3,8 @@
 # rather than as a step someone has to remember, is what makes an upgrade
 # `docker compose pull && docker compose up -d` and nothing else.
 #
+# Copied into the image as altero-entrypoint.sh; see docker/Dockerfile.
+#
 # Alembic is idempotent: on an unchanged database this is a no-op, and if it
 # fails the container exits instead of serving against a schema it does not
 # understand.
