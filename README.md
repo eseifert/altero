@@ -103,6 +103,14 @@ run on start, so an upgrade is `docker compose pull && docker compose up -d`
 with nothing to remember; a failed migration exits the container rather than
 serving against a schema it does not understand.
 
+That covers altero's own schema, not PostgreSQL's. The database is pinned to
+PostgreSQL 18, and moving a volume across a major version of PostgreSQL is a
+dump and restore — the image refuses to start on a data directory written by an
+older one, naming the version that wrote it, rather than adopting it. `pg_dump`
+against the old container and `psql` into the new one is the whole of it;
+`altero library export` moves a library between instances but not the users and
+keys that own it.
+
 The API is published on the loopback interface only — put a TLS terminator in
 front of it rather than exposing it directly. `ALTERO_PUBLISH_PORT` moves it,
 and `POSTGRES_PASSWORD` should be set to something other than its default before

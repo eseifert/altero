@@ -24,7 +24,7 @@ supplies one and fails if anything skipped:
 
 ```sh
 docker run -d --name altero-pg -e POSTGRES_PASSWORD=altero \
-    -e POSTGRES_USER=altero -e POSTGRES_DB=altero -p 55432:5432 postgres:17-alpine
+    -e POSTGRES_USER=altero -e POSTGRES_DB=altero -p 55432:5432 postgres:18-alpine
 export ALTERO_TEST_POSTGRES_URL=postgresql+asyncpg://altero:altero@localhost:55432/altero
 uv run pytest
 ```

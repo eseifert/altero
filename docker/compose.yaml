@@ -17,13 +17,19 @@ name: altero
 
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     environment:
       POSTGRES_USER: altero
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-altero}
       POSTGRES_DB: altero
+    # One mount at /var/lib/postgresql, not at .../data: 18 keeps its files in
+    # a major-version subdirectory, and mounting the parent is what the image
+    # asks for, so that a later pg_upgrade --link is not working across a mount
+    # boundary. A volume written by 17 stops the container here with an error
+    # naming the version that wrote it -- it is never adopted silently -- but
+    # that also means moving from 17 is a dump and restore, not a pull.
     volumes:
-      - db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql
     # altero waits for this rather than crash-looping until the database is up.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U altero"]

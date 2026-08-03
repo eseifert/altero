@@ -50,7 +50,7 @@ jobs:
     # lost-update bug would reach master unnoticed.
     services:
       postgres:
-        image: postgres:17-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: altero
           POSTGRES_PASSWORD: altero

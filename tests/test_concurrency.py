@@ -5,7 +5,7 @@ show the race they are about. They are skipped when no server is reachable; set
 ``ALTERO_TEST_POSTGRES_URL`` to point at one, for example::
 
     docker run -d -e POSTGRES_PASSWORD=altero -e POSTGRES_USER=altero \\
-        -e POSTGRES_DB=altero -p 55432:5432 postgres:17-alpine
+        -e POSTGRES_DB=altero -p 55432:5432 postgres:18-alpine
     ALTERO_TEST_POSTGRES_URL=postgresql+asyncpg://altero:altero@localhost:55432/altero
 """
 
