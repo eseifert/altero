@@ -42,6 +42,28 @@ class Settings(BaseSettings):
         description="Directory holding attachment files.",
     )
 
+    smtp_url: str = Field(
+        default="",
+        description=(
+            "Relay for outgoing mail, as smtp://[user:password@]host[:port] or "
+            "smtps://... Empty, the default, writes messages to the log "
+            "instead, which keeps a fresh instance self-serviceable."
+        ),
+    )
+    mail_from: str = Field(
+        default="altero@localhost",
+        description="From address on outgoing mail.",
+    )
+    public_url: str = Field(
+        default="",
+        description=(
+            "Absolute base URL this instance is reached at, used to build "
+            "links in email. Empty falls back to the address the request "
+            "arrived on, which is right for a single host and wrong behind a "
+            "proxy that rewrites it."
+        ),
+    )
+
     rate_limit: int = Field(
         default=0,
         ge=0,
