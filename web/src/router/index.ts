@@ -17,6 +17,18 @@ const routes = [
     component: () => import('@/views/VerifyEmailView.vue'),
   },
   {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('@/views/SettingsView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: () => import('@/views/NotificationsView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/library',
     name: 'library',
     component: () => import('@/views/LibraryView.vue'),

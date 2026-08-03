@@ -49,9 +49,10 @@ Not implemented yet: Atom, bibliography and citation rendering, the export
 formats, group creation through the API (the command line does it),
 `publications/settings` and `publications/deleted`, and rate limiting.
 
-The web interface (see below) covers registration, sign-in with a password, a
-one-time code from an authenticator app, and reading a library. Passkeys,
-OIDC, SAML and one-time codes by email are not built yet.
+The web interface (see below) covers registration, sign-in with a password or
+an email address, a one-time code from an authenticator app, account settings,
+in-app notifications, group invitations, and reading a library. Passkeys, OIDC,
+SAML and one-time codes by email are not built yet.
 
 Two things the desktop client asks for are not part of the published data server
 either: `GET /retractions/list`, which it polls to flag retracted papers, and
@@ -101,8 +102,33 @@ npm run dev          # localhost:5173, proxying the API to :8000
 Without that build the server still runs and the API is fully usable; `/app/`
 answers 503 and says what to run.
 
-Still to come here: passkeys, single sign-on through OIDC and SAML, one-time
-codes by email, and editing rather than only reading.
+### Account settings
+
+Display name, password, email address, an authenticator app, and the list of
+signed-in browsers, each of which can be signed out on its own. Anything that
+touches a credential asks for the current password again: a session cookie is
+what somebody who borrowed an unlocked laptop already has.
+
+Setting up an authenticator is two steps. The secret is stored but ignored
+until a code from the app proves it works, so an interrupted setup cannot lock
+the account.
+
+### Notifications and invitations
+
+An administrator of a group library can invite an email address to it. If that
+address belongs to an account here, the invitation appears in that person's
+notifications and can be accepted or declined in the interface; if it does not,
+the emailed link carries a token and whoever registers with that address can
+accept it afterwards.
+
+Both channels are used deliberately. Mail may be unconfigured, unconfirmed,
+filtered or simply lost, and an invitation that exists only in an inbox is one
+that frequently never arrives.
+
+### Still to come
+
+Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
+editing rather than only reading.
 
 ## Compatibility
 
