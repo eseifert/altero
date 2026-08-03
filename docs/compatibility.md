@@ -200,17 +200,38 @@ offers to reset the data directory and quits only when the *userID* differs; a
 changed username alone is absorbed with `setCurrentUsername(username)` and no
 prompt.
 
-Upstream authenticates the user against zotero.org in that browser window. The
-page altero serves at `loginURL` explains how to approve the login from the
-command line instead, and `altero login approve` completes the session. The
-exchange the client sees is unchanged.
+Upstream authenticates the user against zotero.org in that browser window.
+altero sends that window to its own interface: `loginURL` answers `303` to
+`/app/link?token=…`, which asks the signed-in user to confirm and then issues
+the key. The exchange the client sees is unchanged — it opens a URL and polls,
+exactly as before.
 
-altero does have a web interface now, and it does store passwords, so this
-could in principle become a browser flow. It has not, deliberately: approving a
-desktop client's full-access API key is a larger grant than signing in to read
-one's own library, and conflating the two would mean any signed-in tab could be
-made to issue a key. Whether the interface should offer that, and behind what
-confirmation, is an open question rather than an oversight.
+The concern that kept this at the command line for a while is answered rather
+than dropped. What is handed over is a full-access key that outlives the
+browser session, which is a larger grant than signing in to read one's own
+library, so it is not something a signed-in tab should be able to do merely by
+being pointed at a URL. Confirming therefore takes the password again, the way
+every other credential change in the account does; the CSRF token stops the
+form being submitted from another origin, and the password stops a prepared
+link being worth sending to somebody.
+
+The command line still works and is still the way in when the interface has not
+been built — `loginURL` then serves the `altero login approve` instructions as
+it always did, because the API is entirely usable in that state and redirecting
+to a 503 would be worse than a sentence somebody can act on.
+
+**A session that names an account is refused for any other.** The client sends
+`{"userID": …}` when it is re-authenticating, and handing it a key belonging to
+somebody else is not a cosmetic mismatch: `checkUser` sees a changed `userID`,
+warns, offers to reset the data directory and quits. The confirmation screen is
+told this before it offers a button, and the endpoint refuses it again if the
+request is made anyway.
+
+**The key it issues covers group libraries.** Upstream's
+`createAPIKeyFromCredentials` asks for `{library, notes, write, files}` on the
+user and full access to groups, and a client key without groups presents as a
+server that has lost them. `altero login approve` grants the same, so the two
+paths agree.
 
 `POST /keys`, which creates a key from a username and password, is not
 implemented. The client only reaches it when migrating a profile that still

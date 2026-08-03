@@ -307,10 +307,17 @@ to zotero.org, which rejects it as unknown and may log it. See
 **Settings → Sync → Link Account**.
 
 Zotero authenticates by opening a page in the browser and polling until it is
-approved. That approval is still given on the server rather than in the browser
-— the web interface signs a person in to their own library, and handing a
-desktop client a full-access API key from that same session is a separate
-decision that has not been made yet:
+approved. That page is this server's own web interface: sign in, confirm with
+your password, and the client picks up its key on the next poll. Nothing else
+is needed.
+
+Confirming asks for the password even though you are already signed in. The key
+it creates reads and writes every library the account can reach and keeps
+working until it is removed in Settings, so a link somebody sends you should not
+be enough on its own.
+
+Without the web interface built, that page serves the command-line instructions
+instead, and they still work:
 
 ```sh
 uv run altero login list
@@ -320,6 +327,9 @@ uv run altero login approve <token> <username>
 The client picks the key up on its next poll — usually within a few seconds —
 and syncing proceeds normally. `login approve` issues a key unless you point it
 at an existing one with `--key`.
+
+Either way the key covers group libraries as well as the personal one, which is
+what the client expects to sync.
 
 Point a test installation at altero, not one holding a library you care about:
 altero is not finished, and a sync sends the client's data to it.
