@@ -15,7 +15,13 @@ from altero.models.setting import Setting
 from altero.models.storage import StorageUpload
 from altero.models.sync import DeletedObject, DeletedObjectType, WriteToken
 from altero.models.tag import ItemTag, Tag, TagType
-from altero.models.webauth import EmailVerification, TotpCredential, WebSession
+from altero.models.webauth import (
+    EmailVerification,
+    Invitation,
+    Notification,
+    TotpCredential,
+    WebSession,
+)
 
 __all__ = [
     "ApiKey",
@@ -29,6 +35,7 @@ __all__ = [
     "FullText",
     "Group",
     "GroupMember",
+    "Invitation",
     "Item",
     "ItemCreator",
     "ItemField",
@@ -37,6 +44,7 @@ __all__ = [
     "Library",
     "LibraryType",
     "LoginSession",
+    "Notification",
     "SavedSearch",
     "SearchCondition",
     "Setting",

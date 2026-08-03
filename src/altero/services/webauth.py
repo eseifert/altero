@@ -225,9 +225,14 @@ async def login(
 
 
 async def _outstanding_factor(session: AsyncSession, user: User) -> str | None:
-    """Return the second factor ``user`` must still present, if any."""
+    """Return the second factor ``user`` must still present, if any.
+
+    Only a *confirmed* enrolment counts. A secret stored while somebody was
+    part-way through setting up an authenticator must not start being demanded,
+    or an interrupted setup is an account nobody can sign in to.
+    """
     enrolled = await session.get(TotpCredential, user.id)
-    return "totp" if enrolled is not None else None
+    return "totp" if enrolled is not None and enrolled.confirmed else None
 
 
 async def enrol_totp(
@@ -254,7 +259,10 @@ async def enrol_totp(
         await session.delete(existing)
         await session.flush()
 
-    session.add(TotpCredential(user_id=user.id, secret=secret))
+    # Confirmed outright: this path is the command line and the tests, where
+    # there is no second step to come. The interface uses
+    # altero.services.account, which stores it unconfirmed first.
+    session.add(TotpCredential(user_id=user.id, secret=secret, confirmed=True))
     await session.commit()
     return secret
 
