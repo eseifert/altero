@@ -1,0 +1,153 @@
+/*
+ * Material 3 design tokens, seeded from a medical teal.
+ *
+ * Every colour is declared once, as `light-dark(light, dark)`. The theme is
+ * then chosen purely by `color-scheme`: unset it follows the operating system,
+ * and the theme store stamps `data-theme` on the root to override that in
+ * either direction. Writing the dark palette out a second time under a media
+ * query is the usual way to do this and drifts the moment one of the two
+ * copies is edited.
+ *
+ * The light scheme is deliberately mostly white -- surface and background are
+ * pure white and the containers only step away from it far enough to separate
+ * -- with the teal reserved for what the user is meant to act on.
+ */
+
+:root {
+  /* Following the system is the default; the store overrides it below. */
+  color-scheme: light dark;
+
+  /* ---- Primary: the teal. Used for CTAs, selection and focus. ---- */
+  --md-sys-color-primary: light-dark(#006a6a, #4fdad8);
+  --md-sys-color-on-primary: light-dark(#ffffff, #003737);
+  --md-sys-color-primary-container: light-dark(#6ff7f5, #004f4f);
+  --md-sys-color-on-primary-container: light-dark(#002020, #6ff7f5);
+  --md-sys-color-inverse-primary: light-dark(#4fdad8, #006a6a);
+
+  /* ---- Secondary: muted teal-grey, for supporting surfaces. ---- */
+  --md-sys-color-secondary: light-dark(#4a6363, #b0cccb);
+  --md-sys-color-on-secondary: light-dark(#ffffff, #1b3534);
+  --md-sys-color-secondary-container: light-dark(#cce8e7, #324b4b);
+  --md-sys-color-on-secondary-container: light-dark(#051f1f, #cce8e7);
+
+  /* ---- Tertiary: a cool blue, for the occasional accent that is not a CTA. ---- */
+  --md-sys-color-tertiary: light-dark(#4b607c, #b3c8e8);
+  --md-sys-color-on-tertiary: light-dark(#ffffff, #1c314b);
+  --md-sys-color-tertiary-container: light-dark(#d3e4ff, #334863);
+  --md-sys-color-on-tertiary-container: light-dark(#031d35, #d3e4ff);
+
+  /* ---- Error ---- */
+  --md-sys-color-error: light-dark(#ba1a1a, #ffb4ab);
+  --md-sys-color-on-error: light-dark(#ffffff, #690005);
+  --md-sys-color-error-container: light-dark(#ffdad6, #93000a);
+  --md-sys-color-on-error-container: light-dark(#410002, #ffdad6);
+
+  /* ---- Surfaces ---- */
+  --md-sys-color-background: light-dark(#ffffff, #0e1414);
+  --md-sys-color-on-background: light-dark(#191c1c, #dde4e3);
+  --md-sys-color-surface: light-dark(#ffffff, #0e1414);
+  --md-sys-color-on-surface: light-dark(#191c1c, #dde4e3);
+  --md-sys-color-surface-variant: light-dark(#dae5e3, #3f4948);
+  --md-sys-color-on-surface-variant: light-dark(#3f4948, #bec9c8);
+
+  --md-sys-color-surface-container-lowest: light-dark(#ffffff, #090f0f);
+  --md-sys-color-surface-container-low: light-dark(#fafdfc, #191c1c);
+  --md-sys-color-surface-container: light-dark(#f2f5f4, #1d2020);
+  --md-sys-color-surface-container-high: light-dark(#ecefee, #272b2b);
+  --md-sys-color-surface-container-highest: light-dark(#e6e9e8, #323535);
+
+  --md-sys-color-outline: light-dark(#6f7979, #899393);
+  --md-sys-color-outline-variant: light-dark(#bec9c8, #3f4948);
+  --md-sys-color-inverse-surface: light-dark(#2d3131, #dde4e3);
+  --md-sys-color-inverse-on-surface: light-dark(#eff1f0, #2d3131);
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+
+  /*
+   * ---- Typography ----
+   *
+   * A sans-serif system stack: it is already on the machine, so there is no
+   * web font to block the first paint and nothing is fetched from a third
+   * party. No token here sets `text-transform`; see components.css.
+   */
+  --md-sys-typescale-font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    'Noto Sans', Arial, sans-serif;
+  --md-sys-typescale-font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo,
+    Consolas, monospace;
+
+  --md-sys-typescale-display-small-size: 2.25rem;
+  --md-sys-typescale-display-small-line: 2.75rem;
+  --md-sys-typescale-headline-large-size: 2rem;
+  --md-sys-typescale-headline-large-line: 2.5rem;
+  --md-sys-typescale-headline-medium-size: 1.75rem;
+  --md-sys-typescale-headline-medium-line: 2.25rem;
+  --md-sys-typescale-headline-small-size: 1.5rem;
+  --md-sys-typescale-headline-small-line: 2rem;
+  --md-sys-typescale-title-large-size: 1.375rem;
+  --md-sys-typescale-title-large-line: 1.75rem;
+  --md-sys-typescale-title-medium-size: 1rem;
+  --md-sys-typescale-title-medium-line: 1.5rem;
+  --md-sys-typescale-title-small-size: 0.875rem;
+  --md-sys-typescale-title-small-line: 1.25rem;
+  --md-sys-typescale-body-large-size: 1rem;
+  --md-sys-typescale-body-large-line: 1.5rem;
+  --md-sys-typescale-body-medium-size: 0.875rem;
+  --md-sys-typescale-body-medium-line: 1.25rem;
+  --md-sys-typescale-body-small-size: 0.75rem;
+  --md-sys-typescale-body-small-line: 1rem;
+  --md-sys-typescale-label-large-size: 0.875rem;
+  --md-sys-typescale-label-large-line: 1.25rem;
+  --md-sys-typescale-label-medium-size: 0.75rem;
+  --md-sys-typescale-label-medium-line: 1rem;
+
+  --md-sys-typescale-weight-regular: 400;
+  --md-sys-typescale-weight-medium: 500;
+
+  /* ---- Shape ---- */
+  --md-sys-shape-corner-none: 0;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  --md-sys-shape-corner-full: 9999px;
+
+  /* ---- Elevation. Restrained on purpose: the layout separates with space
+         and a hairline outline before it reaches for a shadow. ---- */
+  --md-sys-elevation-0: none;
+  --md-sys-elevation-1: 0 1px 2px 0 rgb(0 0 0 / 0.16), 0 1px 3px 1px rgb(0 0 0 / 0.08);
+  --md-sys-elevation-2: 0 1px 2px 0 rgb(0 0 0 / 0.18), 0 2px 6px 2px rgb(0 0 0 / 0.1);
+  --md-sys-elevation-3: 0 4px 8px 3px rgb(0 0 0 / 0.1), 0 1px 3px 0 rgb(0 0 0 / 0.18);
+
+  /* ---- State layers. M3 expresses hover and press as a translucent wash of
+         the foreground colour rather than as a different colour. ---- */
+  --md-sys-state-hover-opacity: 0.08;
+  --md-sys-state-focus-opacity: 0.1;
+  --md-sys-state-pressed-opacity: 0.1;
+
+  /* ---- Motion ---- */
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-duration-short: 150ms;
+  --md-sys-motion-duration-medium: 250ms;
+
+  /* ---- Spacing ---- */
+  --md-spacing-1: 4px;
+  --md-spacing-2: 8px;
+  --md-spacing-3: 12px;
+  --md-spacing-4: 16px;
+  --md-spacing-5: 24px;
+  --md-spacing-6: 32px;
+  --md-spacing-7: 48px;
+}
+
+/*
+ * The user's own choice, which has to win against the system in both
+ * directions -- someone who picks light on a dark desktop means it.
+ */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}

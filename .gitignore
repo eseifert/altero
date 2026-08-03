@@ -21,3 +21,6 @@ htmlcov/
 # IntelliJ
 .idea/
 *.iml
+
+# Frontend
+node_modules/
