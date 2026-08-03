@@ -17,9 +17,11 @@ subdomain, where SameSite does not help.
 
 import secrets
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -27,7 +29,8 @@ from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
 from altero.errors import ForbiddenError
 from altero.models import User, WebSession
-from altero.services import webauth, websessions
+from altero.services import emailverify, webauth, websessions
+from altero.services.mail import Message
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -47,6 +50,7 @@ class Credentials(BaseModel):
 
 
 class Registration(Credentials):
+    email: str
     display_name: str = Field(default="", alias="displayName")
 
 
@@ -54,9 +58,59 @@ class Code(BaseModel):
     code: str
 
 
+class Token(BaseModel):
+    token: str
+
+
 def _serialise(user: User) -> dict:
     """Return the user as the browser client consumes it."""
-    return {"id": user.id, "username": user.username, "displayName": user.display_name}
+    return {
+        "id": user.id,
+        "username": user.username,
+        "displayName": user.display_name,
+        "email": user.email,
+        "emailVerified": user.email_verified is not None,
+    }
+
+
+def _verification_link(request: Request, token: str) -> str:
+    """Return the absolute URL the confirmation mail points at.
+
+    Prefers the configured public URL, because the address a request arrived on
+    is the proxy's idea of it and behind one that rewrites the host the link
+    would point somewhere nobody can reach.
+    """
+    configured = request.app.state.settings.public_url.rstrip("/")
+    base = configured or str(request.base_url).rstrip("/")
+    return f"{base}/app/verify?token={quote(token)}"
+
+
+async def _send_verification(
+    request: Request, session: AsyncSession, user: User, address: str | None = None
+) -> None:
+    """Issue a confirmation for ``address`` and try to deliver it.
+
+    Failure to send is deliberately not failure to register. With no relay
+    configured the link is written to the log instead, which is how the owner
+    of a fresh container finishes signing up.
+    """
+    email = address or user.email or ""
+    token = await emailverify.issue(session, user, email)
+    link = _verification_link(request, token)
+    await request.app.state.mailer.send(
+        Message(
+            to=email,
+            subject="Confirm your email address for altero",
+            body=(
+                f"Hello {user.display_name or user.username},\n\n"
+                "Confirm this address to receive security notifications and "
+                "invitations from this altero server:\n\n"
+                f"    {link}\n\n"
+                f"The link is good for {emailverify.LIFETIME_HOURS} hours. "
+                "Your account already works without it.\n"
+            ),
+        )
+    )
 
 
 def _is_secure(request: Request) -> bool:
@@ -171,8 +225,10 @@ async def register(session: SessionDep, request: Request, body: Registration) ->
         session,
         username=body.username,
         password=body.password,
+        email=body.email,
         display_name=body.display_name,
     )
+    await _send_verification(request, session, user)
     token, _ = await websessions.create(
         session, user, user_agent=request.headers.get("user-agent", "")
     )
@@ -223,6 +279,37 @@ async def submit_totp(
     user = await session.get(User, record.user_id)
     assert user is not None
     return JSONResponse({"user": _serialise(user), "needsFactor": None})
+
+
+class AddressChange(BaseModel):
+    email: str
+
+
+@router.post("/auth/verify")
+async def verify_email(session: SessionDep, body: Annotated[Token, Body()]) -> Response:
+    """Confirm an address from the token in a link.
+
+    Deliberately needs no session and no CSRF token: the link is followed in
+    whatever browser happens to be open, frequently not the one that
+    registered, and the token in it is the whole credential.
+    """
+    user = await emailverify.confirm(session, body.token)
+    return JSONResponse({"user": _serialise(user)})
+
+
+@router.post("/auth/verify/resend", status_code=202)
+async def resend_verification(
+    request: Request, session: SessionDep, user: CurrentUserDep, _csrf: CsrfDep
+) -> Response:
+    """Send the confirmation again, to the address already on the account.
+
+    202 whether or not anything was sent. Reporting delivery would tell a
+    caller whether this address is already confirmed, and there is nothing the
+    user can do about a relay that is down anyway.
+    """
+    if user.email and user.email_verified is None:
+        await _send_verification(request, session, user)
+    return Response(status_code=202)
 
 
 @router.get("/auth/session")

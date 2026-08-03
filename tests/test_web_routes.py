@@ -22,7 +22,12 @@ CSRF_HEADER = "X-CSRF-Token"
 async def register(client: httpx.AsyncClient, username: str = "ada") -> httpx.Response:
     return await client.post(
         "/web/auth/register",
-        json={"username": username, "password": PASSWORD, "displayName": "Ada"},
+        json={
+            "username": username,
+            "password": PASSWORD,
+            "email": f"{username}@example.org",
+            "displayName": "Ada",
+        },
     )
 
 
@@ -74,7 +79,8 @@ class TestRegistration:
         self, client: httpx.AsyncClient
     ) -> None:
         response = await client.post(
-            "/web/auth/register", json={"username": "ada", "password": "short"}
+            "/web/auth/register",
+            json={"username": "ada", "password": "short", "email": "ada@example.org"},
         )
 
         assert response.status_code == 400

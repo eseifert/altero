@@ -32,13 +32,17 @@ class TestRegistration:
         Registration closes again the moment it succeeds, so this is a way in
         for the owner rather than a way in for everyone.
         """
-        user = await webauth.register(session, username="ada", password=PASSWORD)
+        user = await webauth.register(
+            session, username="ada", password=PASSWORD, email="ada@example.org"
+        )
 
         assert user.username == "ada"
         assert await webauth.registration_open(session) is False
 
     async def test_registration_creates_the_personal_library(self, session: AsyncSession) -> None:
-        user = await webauth.register(session, username="ada", password=PASSWORD)
+        user = await webauth.register(
+            session, username="ada", password=PASSWORD, email="ada@example.org"
+        )
 
         library = await session.scalar(
             select(Library).where(Library.type == LibraryType.USER, Library.owner_id == user.id)
@@ -48,7 +52,9 @@ class TestRegistration:
     async def test_the_password_is_stored_hashed_and_not_in_the_clear(
         self, session: AsyncSession
     ) -> None:
-        user = await webauth.register(session, username="ada", password=PASSWORD)
+        user = await webauth.register(
+            session, username="ada", password=PASSWORD, email="ada@example.org"
+        )
 
         assert user.password_hash is not None
         assert PASSWORD not in user.password_hash
@@ -57,41 +63,55 @@ class TestRegistration:
     async def test_a_second_account_is_refused_while_registration_is_closed(
         self, session: AsyncSession
     ) -> None:
-        await webauth.register(session, username="ada", password=PASSWORD)
+        await webauth.register(session, username="ada", password=PASSWORD, email="ada@example.org")
 
         with pytest.raises(ForbiddenError):
-            await webauth.register(session, username="grace", password=PASSWORD)
+            await webauth.register(
+                session, username="grace", password=PASSWORD, email="grace@example.org"
+            )
 
     async def test_a_second_account_is_allowed_when_registration_is_opened(
         self, session: AsyncSession
     ) -> None:
-        await webauth.register(session, username="ada", password=PASSWORD)
+        await webauth.register(session, username="ada", password=PASSWORD, email="ada@example.org")
 
         grace = await webauth.register(
-            session, username="grace", password=PASSWORD, allow_registration=True
+            session,
+            username="grace",
+            password=PASSWORD,
+            email="grace@example.org",
+            allow_registration=True,
         )
 
         assert grace.username == "grace"
 
     async def test_a_duplicate_username_is_refused(self, session: AsyncSession) -> None:
-        await webauth.register(session, username="ada", password=PASSWORD)
+        await webauth.register(session, username="ada", password=PASSWORD, email="ada@example.org")
 
         with pytest.raises(InvalidInputError):
             await webauth.register(
-                session, username="ada", password=PASSWORD, allow_registration=True
+                session,
+                username="ada",
+                password=PASSWORD,
+                email="ada@example.org",
+                allow_registration=True,
             )
 
     async def test_a_short_password_is_refused_before_a_user_is_created(
         self, session: AsyncSession
     ) -> None:
         with pytest.raises(InvalidInputError):
-            await webauth.register(session, username="ada", password="short")
+            await webauth.register(
+                session, username="ada", password="short", email="ada@example.org"
+            )
 
         assert await session.scalar(select(User).where(User.username == "ada")) is None
 
     async def test_a_blank_username_is_refused(self, session: AsyncSession) -> None:
         with pytest.raises(InvalidInputError):
-            await webauth.register(session, username="  ", password=PASSWORD)
+            await webauth.register(
+                session, username="  ", password=PASSWORD, email="blank@example.org"
+            )
 
 
 class TestLogin:

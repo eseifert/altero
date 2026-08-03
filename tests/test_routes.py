@@ -19,6 +19,8 @@ EXPECTED = [
     ("/web/auth/register", "POST"),
     ("/web/auth/login", "POST"),
     ("/web/auth/totp", "POST"),
+    ("/web/auth/verify", "POST"),
+    ("/web/auth/verify/resend", "POST"),
     ("/web/auth/session", "GET"),
     ("/web/auth/logout", "POST"),
     ("/web/libraries", "GET"),

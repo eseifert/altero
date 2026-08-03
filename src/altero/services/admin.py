@@ -41,6 +41,11 @@ async def create_user(
     """Create a user and the personal library that belongs to them."""
     if not username:
         raise InvalidInputError("A username is required")
+    if "@" in username:
+        # Sign-in reads an identifier containing "@" as an address, so a
+        # username holding one would be unreachable at best and would collide
+        # with somebody's real address at worst.
+        raise InvalidInputError("A username may not contain '@'")
 
     existing = await session.scalar(select(User).where(User.username == username))
     if existing is not None:

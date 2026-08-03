@@ -30,6 +30,13 @@ class User(Base):
     #: sign in to the web interface -- see :mod:`altero.services.webauth`.
     password_hash: Mapped[str | None] = mapped_column(String(255), default=None)
     password_changed: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: Stored folded to lower case, so one address cannot be held twice in
+    #: different case. Null for an account made by `altero user add`, which
+    #: needs no address to sync.
+    email: Mapped[str | None] = mapped_column(String(320), unique=True, default=None)
+    #: When the address was confirmed, or null. Gates security mail and
+    #: nothing else -- an unverified account signs in and syncs normally.
+    email_verified: Mapped[datetime | None] = mapped_column(DateTime, default=None)
 
 
 class Library(Base):

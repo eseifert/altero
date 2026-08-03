@@ -32,6 +32,7 @@ from altero.api.routes import (
 )
 from altero.api.spa import mount_web_interface
 from altero.db import Database
+from altero.services.mail import build_mailer
 from altero.services.ratelimit import RateLimiter
 from altero.settings import Settings, get_settings
 
@@ -59,6 +60,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.database = database
+    # Built once, at start-up, so a malformed smtp URL is a start-up
+    # failure rather than a surprise the first time someone registers.
+    app.state.mailer = build_mailer(settings)
 
     # A browser can only read a response header that is named here, and the
     # API's whole protocol lives in headers: without this a web client cannot
