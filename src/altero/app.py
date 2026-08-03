@@ -11,6 +11,7 @@ from starlette.responses import PlainTextResponse, Response
 from altero import API_VERSION, __version__
 from altero.api.compression import DecompressionMiddleware
 from altero.api.errors import register_error_handlers
+from altero.api.ratelimit import RateLimitMiddleware
 from altero.api.routes import (
     collections,
     deleted,
@@ -28,6 +29,7 @@ from altero.api.routes import (
     settings as settings_routes,
 )
 from altero.db import Database
+from altero.services.ratelimit import RateLimiter
 from altero.settings import Settings, get_settings
 
 
@@ -89,6 +91,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Outermost, so the body is already decompressed by the time anything else
     # looks at it.
     app.add_middleware(DecompressionMiddleware)
+
+    # Refuse before doing any work, including before decompressing a body.
+    limiter = RateLimiter(limit=settings.rate_limit, window=settings.rate_limit_window)
+    app.state.rate_limiter = limiter
+    app.middleware("http")(RateLimitMiddleware(app, limiter))
 
     register_error_handlers(app)
     # The schema routes come first so that /items/new is not captured by the

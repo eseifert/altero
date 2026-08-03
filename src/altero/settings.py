@@ -42,6 +42,21 @@ class Settings(BaseSettings):
         description="Directory holding attachment files.",
     )
 
+    rate_limit: int = Field(
+        default=0,
+        ge=0,
+        description=(
+            "Requests allowed per API key (or per address, unauthenticated) in "
+            "each window. Zero disables the limit, which is the default: a "
+            "personal instance has nothing to throttle."
+        ),
+    )
+    rate_limit_window: int = Field(
+        default=60,
+        gt=0,
+        description="Length of the rate-limit window, in seconds.",
+    )
+
 
 def _read_config_module(path: Path) -> dict[str, Any]:
     """Return the settings defined by the config module at ``path``.

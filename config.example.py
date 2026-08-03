@@ -20,3 +20,8 @@ DEBUG = False
 
 # Directory holding attachment files.
 STORAGE_PATH = "./storage"
+
+# Requests allowed per API key, or per address when unauthenticated, in each
+# window. Zero disables the limit. A caller over it gets 429 with Retry-After.
+RATE_LIMIT = 0
+RATE_LIMIT_WINDOW = 60

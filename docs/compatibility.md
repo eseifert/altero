@@ -353,6 +353,23 @@ collections, so it accepts relations that api.zotero.org would refuse. That is
 the permissive direction, so no client is broken by it, but a library moved from
 altero to zotero.org could carry a relation that upstream rejects.
 
+## Backoff and Retry-After
+
+Both headers must be **whole seconds** or the client discards them.
+`Zotero.Sync.APIClient._checkRetry` logs "Invalid Retry-After delay" and returns
+false unless `parseInt(retryAfter) == retryAfter`, and the `Backoff` handler
+guards the same way before calling `this.caller.pause(backoff * 1000)`. A value
+of `0` is as bad as a fractional one: it is a pause of no time at all, followed
+by the same refusal.
+
+`_check429` prefers `Retry-After` and falls back to its own increasing delays
+when the header is missing, so a bare 429 is understood too -- but it makes the
+client guess.
+
+altero refuses with 429 and a whole-second `Retry-After`, never below 1. It does
+not send `Backoff`: that header asks a client to slow down while the server is
+still answering, which needs a load signal this server does not have.
+
 ## My Publications
 
 `/users/<id>/publications/items` is read **without a key** — upstream's own test

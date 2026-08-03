@@ -34,6 +34,7 @@ Implemented:
 - `relations` on both items and collections, including a predicate that names
   several objects
 - `/users/<id>/publications/items`, readable without a key
+- Rate limiting, off unless configured, answering `429` with `Retry-After`
 - Items of every type, including notes, attachments and annotations, whose
   fields the published schema does not list
 - Client-supplied `dateAdded` and `dateModified`, kept as sent
@@ -120,6 +121,25 @@ credentials, so it says nothing about why.
 
 For PostgreSQL outside a container, install the driver with the `postgres`
 extra: `uv sync --extra postgres`.
+
+### Rate limiting
+
+Off by default, because a personal instance has nothing to throttle and a limit
+nobody asked for turns a working sync into a stuck one. To allow, say, 600
+requests a minute per API key:
+
+```sh
+ALTERO_RATE_LIMIT=600 ALTERO_RATE_LIMIT_WINDOW=60 uv run altero
+```
+
+A caller over its allowance gets `429` with `Retry-After` in whole seconds,
+which is what the client pauses on. Unauthenticated requests are counted per
+address, and `/health` is never limited.
+
+The count lives in the serving process, so behind several workers each keeps its
+own and the real allowance is that many times the configured one. It is there to
+stop a runaway client, not a determined one; that belongs in whatever terminates
+TLS in front of altero.
 
 ## Administration
 
