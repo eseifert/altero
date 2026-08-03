@@ -23,6 +23,7 @@ anything skipped.
 
 import os
 from collections.abc import AsyncIterator
+from pathlib import Path
 
 import httpx
 import pytest
@@ -51,9 +52,17 @@ async def database() -> AsyncIterator[Database]:
 
 
 @pytest.fixture
-async def client(database: Database) -> AsyncIterator[httpx.AsyncClient]:
+async def client(database: Database, tmp_path: Path) -> AsyncIterator[httpx.AsyncClient]:
+    """A client whose attachments land somewhere of this test's own.
+
+    The storage path matters more than it looks. Left at its default these
+    tests write into the repository's ./storage, and altero stores a file once
+    per digest -- so a test that uploads something passes the first time and,
+    on the next run, is told the file already exists and never gets an upload
+    key. Which is exactly how the snapshot test here failed after passing.
+    """
     assert POSTGRES_URL
-    app = create_app(Settings(database_url=POSTGRES_URL))
+    app = create_app(Settings(database_url=POSTGRES_URL, storage_path=tmp_path / "storage"))
     app.state.database = database
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
@@ -296,3 +305,87 @@ class TestTheFileProtocol:
 
         assert response.status_code == 200, response.text
         assert response.json()["uploadKey"]
+
+    async def test_a_zipped_snapshot_uploads_too(
+        self, client: httpx.AsyncClient, database: Database
+    ) -> None:
+        """The other upload shape, which carries an extra digest.
+
+        A snapshot goes up as a ZIP: `md5` describes the original file while
+        the bytes on the wire are the archive, checked against `zipMD5`. Worth
+        exercising here as well, because it is the path an HTML snapshot takes
+        and it writes the same row.
+        """
+        import hashlib
+        import io
+        import zipfile
+
+        await client.post(
+            "/web/auth/register",
+            json={"username": "ada", "password": PASSWORD, "email": "ada@example.org"},
+        )
+        async with database.session_factory() as session:
+            api_key = await admin.create_api_key(session, username="ada", name="client")
+            key = api_key.key
+
+        created = await client.post(
+            "/users/1/items", headers={"Zotero-API-Key": key}, json=[{"itemType": "webpage"}]
+        )
+        parent = created.json()["successful"]["0"]["key"]
+        attachment = await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {
+                    "itemType": "attachment",
+                    "parentItem": parent,
+                    "linkMode": "imported_url",
+                    "filename": "dev.html",
+                    "contentType": "text/html",
+                }
+            ],
+        )
+        attachment_key = attachment.json()["successful"]["0"]["key"]
+
+        page = b"<html><body>a snapshot</body></html>"
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, "w") as archive:
+            archive.writestr("dev.html", page)
+        archive_bytes = buffer.getvalue()
+
+        authorised = await client.post(
+            f"/users/1/items/{attachment_key}/file",
+            headers={
+                "Zotero-API-Key": key,
+                "Content-Type": "application/x-www-form-urlencoded",
+                "If-None-Match": "*",
+            },
+            content=(
+                f"mtime={self.MTIME}"
+                f"&md5={hashlib.md5(page).hexdigest()}"
+                f"&zipMD5={hashlib.md5(archive_bytes).hexdigest()}"
+                "&zipFilename=dev.zip&filename=dev.html"
+                f"&filesize={len(archive_bytes)}"
+            ),
+        )
+
+        assert authorised.status_code == 200, authorised.text
+        upload_key = authorised.json()["uploadKey"]
+
+        sent = await client.post(
+            f"/storage/upload/{upload_key}",
+            content=archive_bytes,
+            headers={"Content-Type": "application/octet-stream"},
+        )
+        assert sent.status_code == 201, sent.text
+
+        registered = await client.post(
+            f"/users/1/items/{attachment_key}/file",
+            headers={
+                "Zotero-API-Key": key,
+                "Content-Type": "application/x-www-form-urlencoded",
+                "If-None-Match": "*",
+            },
+            content=f"upload={upload_key}",
+        )
+        assert registered.status_code == 204, registered.text
