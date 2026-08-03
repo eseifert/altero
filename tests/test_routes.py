@@ -13,6 +13,14 @@ from fastapi.routing import APIRoute, _IncludedRouter
 #: the /users prefix; each is also served under /groups.
 EXPECTED = [
     ("/health", "GET"),
+    # The web interface. Cookie-authenticated and deliberately outside the v3
+    # API; see altero/api/routes/web.py.
+    ("/web/config", "GET"),
+    ("/web/auth/register", "POST"),
+    ("/web/auth/login", "POST"),
+    ("/web/auth/totp", "POST"),
+    ("/web/auth/session", "GET"),
+    ("/web/auth/logout", "POST"),
     ("/keys/{key}", "GET"),
     ("/keys/current", "GET"),
     ("/keys/current", "DELETE"),

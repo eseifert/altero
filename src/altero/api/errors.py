@@ -4,11 +4,13 @@ The Zotero API answers with a plain-text reason rather than a JSON body, so all
 handlers here render ``text/plain``.
 """
 
+from collections.abc import Mapping
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
-from starlette.responses import PlainTextResponse, Response
+from starlette.responses import JSONResponse, PlainTextResponse, Response
 
 from altero.errors import (
     AlteroError,
@@ -19,6 +21,11 @@ from altero.errors import (
     PreconditionRequiredError,
     RequestTooLargeError,
 )
+
+#: Path prefix served for the web interface. Everything under it answers JSON;
+#: everything outside it is the v3 API, which answers a plain-text reason and
+#: whose response shape is not ours to change.
+WEB_PREFIX = "/web"
 
 #: Status code used for each domain error. Subclasses fall back to 500.
 STATUS_CODES: dict[type[AlteroError], int] = {
@@ -43,14 +50,25 @@ def status_for(exc: AlteroError) -> int:
     )
 
 
+def _reply(
+    request: Request, message: str, status_code: int, headers: Mapping[str, str] | None = None
+) -> Response:
+    """Render ``message`` the way the addressed API reports failure."""
+    if request.url.path.startswith(WEB_PREFIX):
+        return JSONResponse(
+            {"message": message}, status_code=status_code, headers=dict(headers or {})
+        )
+    return PlainTextResponse(message, status_code=status_code, headers=dict(headers or {}))
+
+
 async def handle_domain_error(request: Request, exc: Exception) -> Response:
     assert isinstance(exc, AlteroError)
-    return PlainTextResponse(exc.message, status_code=status_for(exc))
+    return _reply(request, exc.message, status_for(exc))
 
 
 async def handle_http_exception(request: Request, exc: Exception) -> Response:
     assert isinstance(exc, HTTPException)
-    return PlainTextResponse(str(exc.detail), status_code=exc.status_code, headers=exc.headers)
+    return _reply(request, str(exc.detail), exc.status_code, exc.headers)
 
 
 async def handle_validation_error(request: Request, exc: Exception) -> Response:

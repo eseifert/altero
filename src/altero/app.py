@@ -24,6 +24,7 @@ from altero.api.routes import (
     publications,
     searches,
     tags,
+    web,
 )
 from altero.api.routes import (
     settings as settings_routes,
@@ -100,6 +101,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     register_error_handlers(app)
     # The schema routes come first so that /items/new is not captured by the
     # library-scoped /items/{item_key} pattern.
+    # The web interface's own namespace, before the library-scoped routes.
+    app.include_router(web.router)
     app.include_router(health.router)
     app.include_router(itemschema.router)
     app.include_router(keys.router)
