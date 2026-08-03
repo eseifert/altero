@@ -410,3 +410,164 @@ class TestTheV3ApiIsStillUntouched:
 
         assert response.status_code == 401
         assert account.TOTP_ISSUER == "altero"
+
+
+class TestManagingKeys:
+    async def test_a_new_account_has_none(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        assert (await client.get("/web/account/keys")).json() == {"keys": []}
+
+    async def test_creating_returns_the_key_once(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        response = await client.post(
+            "/web/account/keys",
+            json={"name": "laptop", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 201
+        assert len(response.json()["key"]) >= 20
+        assert response.json()["created"]["name"] == "laptop"
+
+    async def test_the_list_never_shows_the_key_again(self, client: httpx.AsyncClient) -> None:
+        """Otherwise a signed-in tab is a way to read back every credential."""
+        await register(client)
+        created = await client.post(
+            "/web/account/keys",
+            json={"name": "laptop", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+        key = created.json()["key"]
+
+        listed = (await client.get("/web/account/keys")).json()["keys"]
+
+        assert key not in str(listed)
+        assert listed[0]["suffix"] == key[-4:]
+
+    async def test_creating_needs_the_password(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        response = await client.post(
+            "/web/account/keys",
+            json={"name": "laptop", "currentPassword": "not it"},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 403
+        assert (await client.get("/web/account/keys")).json()["keys"] == []
+
+    async def test_creating_needs_the_csrf_token(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        response = await client.post(
+            "/web/account/keys", json={"name": "laptop", "currentPassword": PASSWORD}
+        )
+
+        assert response.status_code == 403
+
+    async def test_the_key_it_issues_works(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+        created = await client.post(
+            "/web/account/keys",
+            json={"name": "laptop", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        response = await client.get(
+            "/users/1/items", headers={"Zotero-API-Key": created.json()["key"]}
+        )
+
+        assert response.status_code == 200
+
+    async def test_a_read_only_key_cannot_write(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+        created = await client.post(
+            "/web/account/keys",
+            json={"name": "a script", "currentPassword": PASSWORD, "write": False},
+            headers=csrf_headers(client),
+        )
+        key = created.json()["key"]
+
+        assert (
+            await client.get("/users/1/items", headers={"Zotero-API-Key": key})
+        ).status_code == 200
+        assert (
+            await client.post(
+                "/users/1/items",
+                headers={"Zotero-API-Key": key},
+                json=[{"itemType": "book", "title": "Nope"}],
+            )
+        ).status_code == 403
+
+    async def test_revoking_stops_it_working(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+        created = await client.post(
+            "/web/account/keys",
+            json={"name": "laptop", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+        key = created.json()["key"]
+        key_id = created.json()["created"]["id"]
+
+        response = await client.delete(f"/web/account/keys/{key_id}", headers=csrf_headers(client))
+
+        assert response.status_code == 204
+        assert (
+            await client.get("/users/1/items", headers={"Zotero-API-Key": key})
+        ).status_code == 403
+
+    async def test_revoking_needs_no_password(self, client: httpx.AsyncClient) -> None:
+        """A key is revoked at the moment it has leaked; do not ask for more."""
+        await register(client)
+        created = await client.post(
+            "/web/account/keys",
+            json={"name": "laptop", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        response = await client.delete(
+            f"/web/account/keys/{created.json()['created']['id']}",
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 204
+
+    async def test_another_account_s_key_cannot_be_revoked(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await register(client)
+        await webauth.register(
+            session,
+            username="grace",
+            password=PASSWORD,
+            email="grace@example.org",
+            allow_registration=True,
+        )
+        theirs = await admin.create_api_key(session, username="grace", name="theirs")
+
+        response = await client.delete(
+            f"/web/account/keys/{theirs.id}", headers=csrf_headers(client)
+        )
+
+        assert response.status_code == 403
+
+    async def test_the_key_from_linking_a_client_shows_up_here(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """The two ways of getting a key end up in the same list."""
+        await register(client)
+        token = (await client.post("/keys/sessions", json={})).json()["sessionToken"]
+        await client.post(
+            f"/web/link/{token}/approve",
+            json={"currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        listed = (await client.get("/web/account/keys")).json()["keys"]
+
+        assert [entry["name"] for entry in listed] == ["Zotero client"]
+
+    async def test_keys_need_a_session(self, client: httpx.AsyncClient) -> None:
+        assert (await client.get("/web/account/keys")).status_code == 401

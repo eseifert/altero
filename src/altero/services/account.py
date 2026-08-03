@@ -18,9 +18,9 @@ from datetime import UTC, datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.errors import ForbiddenError, InvalidInputError
-from altero.models import TotpCredential, User, WebSession
-from altero.services import emailverify, passwords, totp, webauth, websessions
+from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
+from altero.models import ApiKey, TotpCredential, User, WebSession
+from altero.services import admin, emailverify, passwords, totp, webauth, websessions
 from altero.services.webauth import Notifier
 
 #: Issuer shown in an authenticator app.
@@ -217,3 +217,84 @@ async def revoke_session(
 async def revoke_other_sessions(session: AsyncSession, user: User, *, keep: WebSession) -> None:
     """Sign out everywhere except here."""
     await websessions.revoke_all(session, user, keep=keep)
+
+
+# --------------------------------------------------------------------------
+# API keys
+#
+# Creating one asks for the password; revoking one does not. Creating hands out
+# a new credential, and belongs with every other credential change here.
+# Revoking only takes access away, and the moment somebody reaches for it is
+# the moment a key has leaked -- making them find their password first is
+# friction in precisely the wrong place.
+# --------------------------------------------------------------------------
+
+#: Longest name accepted for a key.
+MAX_KEY_NAME = 255
+
+
+async def list_keys(session: AsyncSession, user: User) -> list[ApiKey]:
+    """Return this account's API keys, newest first.
+
+    Keys with no recorded date sort last: they predate the column and there is
+    nothing to order them by.
+    """
+    result = await session.scalars(
+        select(ApiKey)
+        .where(ApiKey.user_id == user.id)
+        .order_by(ApiKey.created.desc().nullslast(), ApiKey.id.desc())
+    )
+    return list(result)
+
+
+async def create_key(
+    session: AsyncSession,
+    user: User,
+    *,
+    name: str,
+    current_password: str,
+    write: bool = True,
+    groups: bool = True,
+) -> ApiKey:
+    """Issue a key for this account and return it, once.
+
+    The value is readable on the object that comes back and is not offered
+    again afterwards, which is the same promise `altero key add` makes.
+
+    Full access by default, because the overwhelmingly common reason to make
+    one here is to sync a Zotero client, and a key that cannot write or cannot
+    see groups presents to that client as a server which has lost things.
+    """
+    _require_password(user, current_password)
+
+    label = name.strip()
+    if not label:
+        # A list of unnamed keys is a list nobody can act on; if you cannot
+        # tell which is which you cannot safely revoke any of them.
+        raise InvalidInputError("A key needs a name, so you can tell it apart later")
+    if len(label) > MAX_KEY_NAME:
+        raise InvalidInputError("That name is too long")
+
+    return await admin.create_api_key(
+        session,
+        username=user.username,
+        name=label,
+        read=True,
+        write=write,
+        notes=True,
+        files=True,
+        all_groups_read=groups,
+        all_groups_write=groups and write,
+    )
+
+
+async def revoke_key(session: AsyncSession, user: User, key_id: int) -> None:
+    """Delete one of this account's keys, so it stops working immediately."""
+    record = await session.get(ApiKey, key_id)
+    if record is None:
+        raise NotFoundError("No such key")
+    if record.user_id != user.id:
+        raise ForbiddenError("That key is not yours")
+
+    await session.delete(record)
+    await session.commit()

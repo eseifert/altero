@@ -113,6 +113,16 @@ Setting up an authenticator is two steps. The secret is stored but ignored
 until a code from the app proves it works, so an interrupted setup cannot lock
 the account.
 
+### API keys
+
+Settings lists the keys on the account, what each may do and when it was made.
+
+Creating a key asks for the password, because it hands out a new credential.
+Revoking one does not: the moment somebody reaches for that is the moment a key
+has leaked, and a password prompt there is friction in the wrong place. A key
+is shown in full exactly once, when it is created, and as four characters
+afterwards.
+
 ### Notifications and invitations
 
 An administrator of a group library can invite an email address to it. If that

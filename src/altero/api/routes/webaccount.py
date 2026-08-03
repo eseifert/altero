@@ -23,7 +23,7 @@ from altero.api.routes.web import (
     _serialise,
 )
 from altero.errors import NotFoundError
-from altero.models import Invitation, Library, Notification, User
+from altero.models import ApiKey, Invitation, Library, Notification, User
 from altero.services import account, invitations, notifications
 
 router = APIRouter(prefix="/web", tags=["web"])
@@ -51,6 +51,13 @@ class PasswordOnly(BaseModel):
     current_password: str = Field(alias="currentPassword")
 
 
+class NewKey(BaseModel):
+    name: str
+    current_password: str = Field(alias="currentPassword")
+    write: bool = True
+    groups: bool = True
+
+
 class InviteRequest(BaseModel):
     email: str
     role: str = "member"
@@ -65,6 +72,31 @@ def _serialise_session(record, current_id: int) -> dict:  # type: ignore[no-unty
         # So the interface can say "this device" rather than inviting someone
         # to sign themselves out without realising.
         "current": record.id == current_id,
+    }
+
+
+def _serialise_key(record: ApiKey) -> dict:
+    """Render a key for the list, without the key.
+
+    Only the last four characters. altero stores keys as it receives them, so
+    the whole value could be shown -- which is exactly why it is not: doing so
+    would turn a signed-in browser tab into a way of reading back every
+    long-lived credential the account has, and the interface promises the same
+    thing `altero key add` does, that the value is shown once.
+    """
+    return {
+        "id": record.id,
+        "name": record.name,
+        "suffix": record.key[-4:],
+        "created": record.created.isoformat() + "Z" if record.created else None,
+        "access": {
+            "library": record.library_read,
+            "write": record.library_write,
+            "notes": record.notes_read,
+            "files": record.files_read,
+            "groups": record.all_groups_read,
+            "groupsWrite": record.all_groups_write,
+        },
     }
 
 
@@ -218,6 +250,43 @@ async def revoke_other_sessions(
     session: SessionDep, user: CurrentUserDep, record: AuthenticatedDep, _csrf: CsrfDep
 ) -> Response:
     await account.revoke_other_sessions(session, user, keep=record)
+    return Response(status_code=204)
+
+
+@router.get("/account/keys")
+async def list_keys(session: SessionDep, user: CurrentUserDep) -> Response:
+    """List this account's API keys, masked."""
+    return JSONResponse(
+        {"keys": [_serialise_key(entry) for entry in await account.list_keys(session, user)]}
+    )
+
+
+@router.post("/account/keys", status_code=201)
+async def create_key(
+    session: SessionDep, user: CurrentUserDep, body: NewKey, _csrf: CsrfDep
+) -> Response:
+    """Issue a key and return it in full, this once.
+
+    The only response that ever carries a whole key. Everything afterwards --
+    including the list above -- shows four characters.
+    """
+    created = await account.create_key(
+        session,
+        user,
+        name=body.name,
+        current_password=body.current_password,
+        write=body.write,
+        groups=body.groups,
+    )
+    return JSONResponse({"key": created.key, "created": _serialise_key(created)}, status_code=201)
+
+
+@router.delete("/account/keys/{key_id}", status_code=204)
+async def revoke_key(
+    session: SessionDep, user: CurrentUserDep, key_id: int, _csrf: CsrfDep
+) -> Response:
+    """Delete a key. No password: a leaked key has to be killable at once."""
+    await account.revoke_key(session, user, key_id)
     return Response(status_code=204)
 
 

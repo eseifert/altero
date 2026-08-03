@@ -15,6 +15,14 @@ interface SessionEntry {
   current: boolean
 }
 
+interface KeyEntry {
+  id: number
+  name: string
+  suffix: string
+  created: string | null
+  access: { write: boolean; groups: boolean }
+}
+
 interface AccountPayload {
   user: User
   totpEnabled: boolean
@@ -40,12 +48,21 @@ const enrolmentCode = ref('')
 
 const busy = ref(false)
 
+const keys = ref<KeyEntry[]>([])
+const newKeyName = ref('')
+const newKeyPassword = ref('')
+const newKeyWrite = ref(true)
+const newKeyGroups = ref(true)
+/** Held only until the page is left: the server will not show it again. */
+const issuedKey = ref<string | null>(null)
+
 onMounted(load)
 
 async function load(): Promise<void> {
   try {
     account.value = await request<AccountPayload>('/web/account')
     displayName.value = account.value.user.displayName
+    keys.value = (await request<{ keys: KeyEntry[] }>('/web/account/keys')).keys
   } catch (thrown) {
     failure.value = message(thrown)
   }
@@ -132,8 +149,35 @@ const revoke = (id: number) =>
     'That session was signed out.',
   )
 
-function when(iso: string): string {
-  return new Date(iso).toLocaleString()
+const createKey = () =>
+  attempt(async () => {
+    const response = await request<{ key: string }>('/web/account/keys', {
+      method: 'POST',
+      body: {
+        name: newKeyName.value,
+        currentPassword: newKeyPassword.value,
+        write: newKeyWrite.value,
+        groups: newKeyGroups.value,
+      },
+    })
+    issuedKey.value = response.key
+    newKeyName.value = ''
+    newKeyPassword.value = ''
+  }, 'Key created. Copy it now — it is not shown again.')
+
+const revokeKey = (id: number, name: string) =>
+  attempt(
+    () => request(`/web/account/keys/${id}`, { method: 'DELETE' }),
+    `“${name}” was revoked and stops working immediately.`,
+  )
+
+function when(iso: string | null): string {
+  return iso ? new Date(iso).toLocaleDateString() : 'date unknown'
+}
+
+function describe(entry: KeyEntry): string {
+  const scope = entry.access.write ? 'Read and write' : 'Read only'
+  return `${scope}${entry.access.groups ? ', including groups' : ', personal library only'}`
 }
 </script>
 
@@ -218,6 +262,57 @@ function when(iso: string): string {
           Set up an authenticator
         </AppButton>
       </template>
+    </section>
+
+    <section class="settings__card">
+      <h2>API keys</h2>
+      <p class="settings__detail">
+        What the Zotero app and any scripts use to sync. Linking Zotero from its own settings
+        creates one of these for you.
+      </p>
+
+      <ul v-if="keys.length" class="settings__sessions">
+        <li v-for="entry in keys" :key="entry.id">
+          <div>
+            <p class="settings__session">
+              {{ entry.name }}
+              <code class="settings__suffix">…{{ entry.suffix }}</code>
+            </p>
+            <p class="settings__detail">{{ describe(entry) }} · created {{ when(entry.created) }}</p>
+          </div>
+          <AppButton variant="text" @click="revokeKey(entry.id, entry.name)">Revoke</AppButton>
+        </li>
+      </ul>
+      <p v-else class="settings__detail">No keys yet.</p>
+
+      <!-- Shown once. The server masks every key after this response. -->
+      <div v-if="issuedKey" class="settings__issued">
+        <p class="settings__detail">Copy this now. It will not be shown again.</p>
+        <code class="settings__secret">{{ issuedKey }}</code>
+        <AppButton variant="text" @click="issuedKey = null">Done</AppButton>
+      </div>
+
+      <details class="settings__new-key">
+        <summary>Create a key</summary>
+        <div class="settings__new-key-body">
+          <AppTextField v-model="newKeyName" label="What is it for?" hint="For example, my laptop" />
+          <label class="settings__check">
+            <input v-model="newKeyWrite" type="checkbox" />
+            <span>Allow changes (Zotero needs this to sync)</span>
+          </label>
+          <label class="settings__check">
+            <input v-model="newKeyGroups" type="checkbox" />
+            <span>Include group libraries</span>
+          </label>
+          <AppTextField
+            v-model="newKeyPassword"
+            label="Current password"
+            type="password"
+            autocomplete="current-password"
+          />
+          <AppButton :loading="busy" @click="createKey">Create key</AppButton>
+        </div>
+      </details>
     </section>
 
     <section class="settings__card">
@@ -326,6 +421,52 @@ function when(iso: string): string {
 
 .settings__session {
   margin: 0;
+}
+
+.settings__suffix {
+  margin-left: var(--md-spacing-2);
+  padding: 1px 6px;
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: var(--md-sys-color-surface-container);
+  font-family: var(--md-sys-typescale-font-mono);
+  font-size: var(--md-sys-typescale-body-small-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.settings__issued {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-spacing-2);
+  padding: var(--md-spacing-4);
+  border: 1px solid var(--md-sys-color-primary);
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+.settings__new-key summary {
+  cursor: pointer;
+  color: var(--md-sys-color-primary);
+  font-size: var(--md-sys-typescale-label-large-size);
+}
+
+.settings__new-key-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-spacing-3);
+  padding-top: var(--md-spacing-3);
+}
+
+.settings__check {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-2);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.settings__check input {
+  accent-color: var(--md-sys-color-primary);
+  width: 18px;
+  height: 18px;
 }
 
 .settings__badge {

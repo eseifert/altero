@@ -1,6 +1,8 @@
 """API keys and the access they grant."""
 
-from sqlalchemy import ForeignKey, String
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from altero.db import Base
@@ -20,6 +22,10 @@ class ApiKey(Base):
     key: Mapped[str] = mapped_column(String(32), unique=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     name: Mapped[str] = mapped_column(String(255), default="")
+    #: When the key was issued. Null for keys that predate this column: they
+    #: are left unknown rather than backfilled with the time of the migration,
+    #: which would be a date that means nothing.
+    created: Mapped[datetime | None] = mapped_column(DateTime, default=func.now())
 
     library_read: Mapped[bool] = mapped_column(default=True)
     library_write: Mapped[bool] = mapped_column(default=False)
