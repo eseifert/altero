@@ -324,6 +324,35 @@ than answered, because a v1 or v2 client expects Atom, which is not implemented:
 returning v3 bodies under a v2 label would be worse than saying so. A header and
 a parameter that disagree are also refused, as upstream does.
 
+## The `relations` map
+
+`Zotero_DataObject::getRelations` builds the map from stored predicate-object
+pairs: the first object for a predicate is emitted as a **string**, and a second
+one turns the value into an **array**. Zotero relies on that — related items are
+`dc:relation` naming several other items — so the shape is not cosmetic.
+
+altero stored item relations correctly and then rendered them with a dict
+comprehension keyed on the predicate, which kept only the last object. An item
+related to three others came back related to one, and the client then held the
+truncated map as the truth. Both types now go through `render_relations`.
+
+**Collections have relations too**, and altero accepted and dropped them: the
+write path never read the property and the serializer returned `{}`
+unconditionally. They are stored now, in `collection_relations`, shaped like
+`item_relations` so that a predicate can name more than one collection.
+
+An empty *array* is accepted in place of an empty object, which upstream allows
+in as many words — "Allow an empty array, because it's annoying for some clients
+otherwise". Rejecting it would fail the whole object.
+
+Not copied: upstream restricts predicates to an allow-list
+(`Zotero_Relations::$allowedCollectionPredicates` is `owl:sameAs` and
+`mendeleyDB:remoteFolderUUID`; items get a longer one) and requires Zotero URIs
+as values for the non-external ones. altero enforces neither, for items or
+collections, so it accepts relations that api.zotero.org would refuse. That is
+the permissive direction, so no client is broken by it, but a library moved from
+altero to zotero.org could carry a relation that upstream rejects.
+
 ## Trashing a collection or a saved search
 
 Zotero trashes these by setting `deleted` on the object, not by deleting it, and

@@ -4,8 +4,9 @@ Like the service layer, this module is free of web-framework imports: callers
 supply the base URL and receive plain dictionaries.
 """
 
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Any
+from typing import Any, Protocol
 from urllib.parse import quote_plus
 
 from altero.models import (
@@ -120,6 +121,30 @@ def _object_links(
     return links
 
 
+class Relation(Protocol):
+    """A stored predicate-object pair, as items and collections both keep."""
+
+    predicate: str
+    object: str
+
+
+def render_relations(relations: Sequence[Relation]) -> dict[str, str | list[str]]:
+    """Render stored predicate-object pairs as the API's ``relations`` map.
+
+    One object for a predicate is a string and several are an array, which is
+    what ``Zotero_DataObject::getRelations`` builds. Keying a dict on the
+    predicate alone would keep only the last -- and an item related to three
+    others would come back related to one.
+    """
+    grouped: dict[str, list[str]] = {}
+    for relation in relations:
+        grouped.setdefault(relation.predicate, []).append(relation.object)
+    return {
+        predicate: objects[0] if len(objects) == 1 else objects
+        for predicate, objects in grouped.items()
+    }
+
+
 def item(
     obj: Item,
     library: Library,
@@ -155,7 +180,7 @@ def item(
         {"tag": name} if type_ == 0 else {"tag": name, "type": type_} for name, type_ in tags
     ]
     data["collections"] = collections
-    data["relations"] = {relation.predicate: relation.object for relation in obj.relations}
+    data["relations"] = render_relations(obj.relations)
     if obj.deleted:
         data["deleted"] = 1
     # Emitted only when true, as `deleted` is: otherwise every item in every
@@ -198,7 +223,7 @@ def collection(
         "name": obj.name,
         # A top-level collection reports `false` rather than omitting the key.
         "parentCollection": parent_key if parent_key else False,
-        "relations": {},
+        "relations": render_relations(obj.relations),
     }
     if obj.deleted:
         data["deleted"] = 1

@@ -27,6 +27,7 @@ from altero.models import (
 from altero.services import itemdata
 from altero.services.deletions import record_deletion
 from altero.services.items import get_item
+from altero.services.objectwrites import parse_relations
 from altero.services.writes import check_object_version
 
 #: Keys of the item JSON that are not field values.
@@ -247,9 +248,9 @@ def validate_item(
     if not isinstance(collections, list):
         raise InvalidInputError("'collections' must be an array")
 
-    relations = payload.get("relations", {})
-    if not isinstance(relations, dict):
-        raise InvalidInputError("'relations' must be an object")
+    # Shared with collections, so both accept the empty array upstream allows
+    # and both expand a predicate naming several objects.
+    relations = parse_relations(payload)
 
     return {
         "item_type": item_type,
@@ -399,9 +400,7 @@ async def _apply(
 
     if replace or parsed["relations"]:
         item.relations = [
-            ItemRelation(predicate=predicate, object=str(obj))
-            for predicate, objects in parsed["relations"].items()
-            for obj in (objects if isinstance(objects, list) else [objects])
+            ItemRelation(predicate=predicate, object=obj) for predicate, obj in parsed["relations"]
         ]
 
     if parsed["parent_item"] is not None:

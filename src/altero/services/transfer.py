@@ -28,6 +28,7 @@ from altero.errors import InvalidInputError, NotFoundError
 from altero.models import (
     Collection,
     CollectionItem,
+    CollectionRelation,
     DeletedObject,
     FullText,
     Item,
@@ -165,6 +166,9 @@ async def export_library(
                 "dateModified": _moment(collection.date_modified),
                 "serverDateModified": _moment(collection.server_date_modified),
                 "items": sorted(item for name, item in membership if name == collection.key),
+                "relations": [
+                    {"predicate": r.predicate, "object": r.object} for r in collection.relations
+                ],
             }
             for collection in collections
         ],
@@ -289,6 +293,9 @@ async def _clear(session: AsyncSession, library: Library) -> None:
     await session.execute(delete(ItemTag).where(ItemTag.item_id.in_(items)))
     await session.execute(
         delete(CollectionItem).where(CollectionItem.collection_id.in_(collections))
+    )
+    await session.execute(
+        delete(CollectionRelation).where(CollectionRelation.collection_id.in_(collections))
     )
     await session.execute(delete(FullText).where(FullText.library_id == library.id))
     await session.execute(delete(ItemField).where(ItemField.item_id.in_(items)))
@@ -418,6 +425,11 @@ async def import_library(
                 date_modified=_parse(record["dateModified"]),
                 server_date_modified=_parse(record["serverDateModified"]),
             )
+            # Older archives predate collection relations.
+            collection.relations = [
+                CollectionRelation(predicate=r["predicate"], object=r["object"])
+                for r in record.get("relations", [])
+            ]
             session.add(collection)
             await session.flush()
             collection_ids[collection.key] = collection.id

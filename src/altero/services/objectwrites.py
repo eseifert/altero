@@ -10,6 +10,7 @@ from altero.keys import coerce_key, is_valid_key
 from altero.models import (
     Collection,
     CollectionItem,
+    CollectionRelation,
     DeletedObjectType,
     ItemTag,
     Library,
@@ -20,6 +21,27 @@ from altero.models import (
 from altero.services.collections import get_collection
 from altero.services.deletions import record_deletion
 from altero.services.writes import check_object_version
+
+
+def parse_relations(payload: dict[str, Any]) -> list[tuple[str, str]]:
+    """Return a ``relations`` map as predicate-object pairs.
+
+    A predicate may name one object or several, so a string and a list both
+    arrive here and leave as pairs. An empty array is accepted in place of an
+    empty object, which upstream allows explicitly "because it's annoying for
+    some clients otherwise".
+    """
+    relations = payload.get("relations", {})
+    if isinstance(relations, list) and not relations:
+        return []
+    if not isinstance(relations, dict):
+        raise InvalidInputError("'relations' property must be an object")
+
+    pairs: list[tuple[str, str]] = []
+    for predicate, objects in relations.items():
+        for obj in objects if isinstance(objects, list) else [objects]:
+            pairs.append((str(predicate), str(obj)))
+    return pairs
 
 
 def parse_deleted(payload: dict[str, Any]) -> bool:
@@ -38,7 +60,12 @@ def parse_deleted(payload: dict[str, Any]) -> bool:
 
 def _collection_state(collection: Collection) -> tuple[Any, ...]:
     """Everything about a collection that a client can change."""
-    return (collection.name, collection.parent_id, collection.deleted)
+    return (
+        collection.name,
+        collection.parent_id,
+        collection.deleted,
+        tuple(sorted((r.predicate, r.object) for r in collection.relations)),
+    )
 
 
 def _search_state(search: SavedSearch) -> tuple[Any, ...]:
@@ -104,6 +131,10 @@ async def save_collection(
     collection.name = name
     collection.version = version
     collection.deleted = parse_deleted(payload)
+    collection.relations = [
+        CollectionRelation(predicate=predicate, object=obj)
+        for predicate, obj in parse_relations(payload)
+    ]
 
     # `parentCollection` is false or absent for a top-level collection.
     parent = payload.get("parentCollection")

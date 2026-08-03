@@ -31,6 +31,8 @@ Implemented:
   attaches to it
 - Trashing collections and saved searches, which sync as a `deleted` flag on
   the object rather than as a deletion
+- `relations` on both items and collections, including a predicate that names
+  several objects
 - Items of every type, including notes, attachments and annotations, whose
   fields the published schema does not list
 - Client-supplied `dateAdded` and `dateModified`, kept as sent

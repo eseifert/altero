@@ -24,6 +24,7 @@ from altero.errors import InvalidInputError, NotFoundError
 from altero.models import (
     Collection,
     CollectionItem,
+    CollectionRelation,
     DeletedObject,
     FullText,
     Item,
@@ -113,6 +114,7 @@ async def snapshot(session: AsyncSession, library: Library) -> dict[str, Any]:
                 if collection.parent_id
                 else None,
                 "deleted": collection.deleted,
+                "relations": sorted((r.predicate, r.object) for r in collection.relations),
             }
             for collection in collections
         ],
@@ -191,6 +193,11 @@ async def populate(session: AsyncSession, library: Library, storage_root: Path) 
     collection = await make_collection(
         session, library, key="COLLECT1", name="Reading", version=14, items=[parent]
     )
+    collection.relations = [
+        CollectionRelation(
+            predicate="owl:sameAs", object="http://zotero.org/users/9/collections/AAAA2345"
+        )
+    ]
     await make_collection(
         session,
         library,

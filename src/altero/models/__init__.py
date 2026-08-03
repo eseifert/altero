@@ -5,7 +5,7 @@ complete metadata.
 """
 
 from altero.models.apikey import ApiKey, ApiKeyGroupAccess
-from altero.models.collection import Collection, CollectionItem
+from altero.models.collection import Collection, CollectionItem, CollectionRelation
 from altero.models.fulltext import FullText
 from altero.models.item import Item, ItemCreator, ItemField, ItemRelation
 from altero.models.library import Group, GroupMember, Library, LibraryType, User
@@ -21,6 +21,7 @@ __all__ = [
     "ApiKeyGroupAccess",
     "Collection",
     "CollectionItem",
+    "CollectionRelation",
     "DeletedObject",
     "DeletedObjectType",
     "FullText",
