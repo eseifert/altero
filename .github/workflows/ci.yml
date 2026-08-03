@@ -41,6 +41,42 @@ jobs:
       - name: Type-check
         run: uv run ty check
 
+  web:
+    name: Web interface
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          # Matches web/.nvmrc. Vite 8 needs ^20.19 || >=22.12, so the runner's
+          # default is not something to rely on.
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      # `ci` rather than `install`: it fails when the lock file and
+      # package.json have drifted apart instead of quietly resolving something
+      # nobody committed.
+      - name: Install
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      # The build is what the Docker image runs, and it type-checks the
+      # templates as well; a component that only fails to compile would
+      # otherwise reach master with the unit tests green.
+      - name: Build
+        run: npm run build
+
   test:
     name: Tests
     runs-on: ubuntu-latest

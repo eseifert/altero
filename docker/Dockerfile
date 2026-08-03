@@ -8,6 +8,19 @@
 # which is also what docker/compose.yaml asks for. The exclusions live in
 # Dockerfile.dockerignore beside this file -- a .dockerignore is read from the
 # context root, and the context root is one level up.
+
+# The web interface is built first, in its own stage, so that node and its
+# 200-odd packages never reach the served image.
+FROM node:24-bookworm-slim AS web
+WORKDIR /build
+COPY web/package.json web/package-lock.json ./web/
+# `npm ci` rather than install: it installs the lock file exactly, and fails
+# if the lock file and package.json disagree.
+RUN cd web && npm ci
+COPY web/ ./web/
+# Writes to /build/src/altero/web/static, which the stage below copies in.
+RUN cd web && npm run build
+
 FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim
 
 # Dependencies first, from the lock file alone, so editing the source does not
@@ -22,6 +35,9 @@ RUN uv sync --frozen --no-install-project --no-dev --extra postgres
 COPY alembic.ini README.md ./
 COPY migrations ./migrations
 COPY src ./src
+# Before the sync that builds the project, so the interface ends up inside the
+# installed package rather than beside it.
+COPY --from=web /build/src/altero/web/static ./src/altero/web/static
 RUN uv sync --frozen --no-dev --extra postgres
 
 # Attachments and, for a single-user SQLite deployment, the database itself.

@@ -10,3 +10,7 @@ __pycache__
 config.py
 tests
 docs
+
+# The frontend build runs inside the image; its inputs are copied explicitly.
+web/node_modules
+src/altero/web/static
