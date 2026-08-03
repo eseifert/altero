@@ -477,7 +477,20 @@ and is left alone.
 
 ## Deliberate differences
 
-Four places where altero does not copy upstream:
+Five places where altero does not copy upstream:
+
+- **Group creation and membership stay on the command line.** Upstream serves
+  `POST /groups` and `POST /groups/<id>/users`, but neither is part of the API a
+  client uses: both require `$this->permissions->isSuper()`, which
+  `ApiController` grants only to an operator authenticating out of band rather
+  than with an API key, and both take an **XML** body parsed with
+  `new SimpleXMLElement($this->body)`. It is zotero.org's own administrative
+  back door.
+
+  Reproducing it would mean inventing a superuser credential altero does not
+  have and exposing a privileged write path on a self-hosted server, to offer
+  something `altero group add` and `altero group member` already do at the same
+  trust level without listening on a socket. The Zotero client never calls it.
 
 - **`alternate` links are omitted.** Every upstream envelope carries a link to
   the corresponding page on zotero.org, and the `Link` header always ends with
