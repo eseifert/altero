@@ -102,6 +102,12 @@ def api_key(key: ApiKey, user: User, groups: dict[int, dict[str, bool]]) -> dict
         "userID": user.id,
         "username": user.username,
         "displayName": user.display_name,
+        # The desktop client reads this -- preferences_account.jsx calls
+        # displayFields(keyInfo.username, { emails: keyInfo.emails }) -- even
+        # though the published documentation never mentions it. A list,
+        # because upstream accounts may hold several; altero holds one, and
+        # only offers it once it has been confirmed.
+        "emails": [user.email] if user.email and user.email_verified else [],
         "access": access,
     }
 

@@ -162,8 +162,43 @@ stale information cannot overwrite a newer file.
 
 The desktop client asks for `POST /keys/sessions`, opens the `loginURL` it gets
 back in a browser, and polls `GET /keys/sessions/<token>` until the response
-carries `apiKey`, `userID` and `username`. It refuses a completed session
-missing any of the three, and keeps polling while the status is `pending`.
+carries `apiKey`, `userID` and `username`. It keeps polling while the status is
+`pending`.
+
+An earlier version of this note claimed the client *refuses* a completed
+session missing any of those three. That is unverified and probably too strong.
+Reading `syncAPIClient.js`, `checkLoginSession` inspects only the HTTP status,
+and the caller in `preferences_account.jsx` branches only on `result.status`.
+What the caller then does is
+
+    checkUser(window, result.userID, result.username, result.displayName, result.emails)
+
+so a missing field would surface inside `checkUser` rather than as an explicit
+refusal. altero sends all of them regardless, so the distinction does not
+affect it — but the claim should not be read as established.
+
+That call is also where two omissions were found. The client passes
+`displayName` and `emails` on to `checkUser`, and altero was sending neither;
+`/keys/current` likewise carries `emails`, which
+`displayFields(keyInfo.username, { emails: keyInfo.emails })` reads. Both are
+now sent. Neither appears anywhere in the published documentation — only in the
+client source — which is the same pattern as the rest of this file.
+
+**Usernames and email addresses are separate, as they are upstream.** The
+client's own model has one username, one display name and a *list* of
+addresses, so altero keeps a username and adds an address beside it rather than
+using the address as the identifier. A username may not contain `@`: sign-in
+accepts either, and picks which column to search from the shape of what was
+typed, so a username holding an `@` could otherwise name somebody else's
+address and leave one of the two accounts unreachable. altero holds at most one
+address per account and only reports it once it has been confirmed, so `emails`
+is either empty or a single entry.
+
+Changing a username is safe for a linked client, which is worth recording
+because it is not obvious: identity is the numeric `userID`. `checkUser` warns,
+offers to reset the data directory and quits only when the *userID* differs; a
+changed username alone is absorbed with `setCurrentUsername(username)` and no
+prompt.
 
 Upstream authenticates the user against zotero.org in that browser window. The
 page altero serves at `loginURL` explains how to approve the login from the

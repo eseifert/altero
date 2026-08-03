@@ -127,4 +127,9 @@ async def render(session: AsyncSession, login: LoginSession) -> dict[str, object
         "apiKey": api_key.key,
         "userID": api_key.user_id,
         "username": user.username if user else "",
+        # Both of these are passed straight into the client's checkUser() --
+        # see Zotero.Sync.Data.Local.checkUser, called with (userID, username,
+        # displayName, emails) -- and altero was sending neither.
+        "displayName": user.display_name if user else "",
+        "emails": [user.email] if user and user.email and user.email_verified else [],
     }
