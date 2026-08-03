@@ -21,6 +21,8 @@ EXPECTED = [
     ("/web/auth/totp", "POST"),
     ("/web/auth/session", "GET"),
     ("/web/auth/logout", "POST"),
+    ("/web/libraries", "GET"),
+    ("/web/libraries/{library_id}/items", "GET"),
     ("/keys/{key}", "GET"),
     ("/keys/current", "GET"),
     ("/keys/current", "DELETE"),
