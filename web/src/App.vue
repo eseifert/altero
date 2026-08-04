@@ -182,10 +182,11 @@ async function signOut(): Promise<void> {
  * desktop hides the dark mark rather than merely showing the light one over
  * it.
  */
+/* Level with the icons across the bar, which are drawn at 20px. */
 .shell__logo {
   display: block;
   width: auto;
-  height: 1.1rem;
+  height: 1.25rem;
 }
 
 .shell__logo--dark {
