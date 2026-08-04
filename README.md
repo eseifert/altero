@@ -55,8 +55,10 @@ creation through the API (the command line does it), and
 
 The web interface (see below) covers registration, sign-in with a password or
 an email address, a one-time code from an authenticator app, account settings,
-in-app notifications, group invitations, and reading a library. Passkeys, OIDC,
-SAML and one-time codes by email are not built yet.
+in-app notifications, group invitations, and browsing a library — collections,
+tags, search, sorting, an item's details, its attachments and a citation in any
+published style. Editing, passkeys, OIDC, SAML and one-time codes by email are
+not built yet.
 
 Two things the desktop client asks for are not part of the published data server
 either: `GET /retractions/list`, which it polls to flag retracted papers, and
@@ -137,6 +139,30 @@ Behind a reverse proxy the address recorded is the proxy's until
 `ALTERO_FORWARDED_ALLOW_IPS` names it — the same setting decides what the rate
 limiter counts. Only name a proxy that overwrites the header it forwards, or a
 caller can choose which address is attributed to it.
+
+### Browsing a library
+
+Three panes, as the desktop client has: what to show on the left, the items in
+the middle, the selected item on the right.
+
+The left holds every library the account can open — the personal one and any
+group — with the collection tree beneath, nested and expandable, plus the trash
+and a view that includes child notes and attachments. Under that is the tag
+list; picking tags narrows the middle pane, and picking several requires all of
+them.
+
+The middle pane searches title, creator, year and every field, sorts by title,
+creator or date in either direction, and pages fifty at a time. The search is
+the API's own, so it finds what the desktop client's quick search finds.
+
+The right pane shows an item's fields under the names the schema gives them,
+its creators, tags and notes, and its attachments — which can be opened in the
+browser or downloaded. A citation can be rendered there in Chicago, APA, MLA,
+IEEE or Nature; the server renders it with the same CSL processor that answers
+`format=bib`, rather than a second implementation in the browser.
+
+Reading only, for now. Nothing in the interface writes to a library, which is
+also why no request from it can lose a sync conflict.
 
 ### Notifications and invitations
 

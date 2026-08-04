@@ -71,11 +71,9 @@ def date_parts(raw: str) -> tuple[int, ...] | None:
 
     try:
         parsed = _parser().get_date_data(value)
-    except Exception:
+    except ValueError, TypeError, RecursionError, OverflowError:
         # dateparser raises on some malformed input rather than reporting it as
-        # unparseable, and its failure modes are not documented. A bad date in
-        # one field must not fail the request, so anything at all is treated as
-        # "not a date".
+        # unparseable, and a bad date in one field must not fail the request.
         return None
 
     date = parsed["date_obj"]

@@ -100,3 +100,238 @@ class TestItems:
         await client.post("/web/auth/logout", headers=csrf_headers(client))
 
         assert (await client.get("/web/libraries")).status_code == 401
+
+
+class TestBrowsing:
+    """The reads the interface needs beyond a flat list of items."""
+
+    async def _seed(self, client: httpx.AsyncClient, session: AsyncSession) -> tuple[int, str]:
+        """Register, then fill a library through the v3 API. Returns the library and key."""
+        await register(client)
+        key = await admin.create_api_key(session, username="ada", name="seed")
+        library_id = (await client.get("/web/libraries")).json()[0]["id"]
+        return library_id, key.key
+
+    async def test_collections_come_back_as_a_whole_tree(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        auth = {"Zotero-API-Key": key}
+        created = (
+            await client.post("/users/1/collections", headers=auth, json=[{"name": "Papers"}])
+        ).json()["successful"]["0"]
+        await client.post(
+            "/users/1/collections",
+            headers=auth,
+            json=[{"name": "Drafts", "parentCollection": created["key"]}],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/collections")).json()
+
+        assert body["total"] == 2
+        names = {entry["data"]["name"]: entry for entry in body["collections"]}
+        assert names["Papers"]["meta"]["numCollections"] == 1
+        assert names["Drafts"]["data"]["parentCollection"] == created["key"]
+
+    async def test_items_can_be_narrowed_to_a_collection(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        auth = {"Zotero-API-Key": key}
+        collection = (
+            await client.post("/users/1/collections", headers=auth, json=[{"name": "Papers"}])
+        ).json()["successful"]["0"]
+        await client.post(
+            "/users/1/items",
+            headers=auth,
+            json=[
+                {"itemType": "book", "title": "In it", "collections": [collection["key"]]},
+                {"itemType": "book", "title": "Not in it"},
+            ],
+        )
+
+        body = (
+            await client.get(f"/web/libraries/{library_id}/items?collection={collection['key']}")
+        ).json()
+
+        assert [entry["data"]["title"] for entry in body["items"]] == ["In it"]
+
+    async def test_the_trash_is_its_own_scope(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        auth = {"Zotero-API-Key": key}
+        await client.post(
+            "/users/1/items",
+            headers=auth,
+            json=[
+                {"itemType": "book", "title": "Discarded", "deleted": 1},
+                {"itemType": "book", "title": "Kept"},
+            ],
+        )
+
+        listed = (await client.get(f"/web/libraries/{library_id}/items")).json()
+        trashed = (await client.get(f"/web/libraries/{library_id}/items?scope=trash")).json()
+
+        assert [entry["data"]["title"] for entry in listed["items"]] == ["Kept"]
+        assert [entry["data"]["title"] for entry in trashed["items"]] == ["Discarded"]
+
+    async def test_a_search_matches_more_than_the_title(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {"itemType": "book", "title": "Whales", "publisher": "Nantucket Press"},
+                {"itemType": "book", "title": "Squid"},
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?q=Nantucket")).json()
+
+        assert [entry["data"]["title"] for entry in body["items"]] == ["Whales"]
+
+    async def test_items_can_be_filtered_by_tag(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {"itemType": "book", "title": "Tagged", "tags": [{"tag": "toread"}]},
+                {"itemType": "book", "title": "Untagged"},
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?tag=toread")).json()
+
+        assert [entry["data"]["title"] for entry in body["items"]] == ["Tagged"]
+
+    async def test_tags_are_listed_with_their_counts(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {"itemType": "book", "title": "One", "tags": [{"tag": "toread"}]},
+                {"itemType": "book", "title": "Two", "tags": [{"tag": "toread"}]},
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/tags")).json()
+
+        assert body["tags"] == [{"tag": "toread", "type": 0, "numItems": 2}]
+
+    async def test_one_item_is_readable_on_its_own(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        created = (
+            await client.post(
+                "/users/1/items",
+                headers={"Zotero-API-Key": key},
+                json=[{"itemType": "book", "title": "Alone"}],
+            )
+        ).json()["successful"]["0"]
+
+        body = (await client.get(f"/web/libraries/{library_id}/items/{created['key']}")).json()
+
+        assert body["data"]["title"] == "Alone"
+
+    async def test_child_notes_and_attachments_are_listed(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        auth = {"Zotero-API-Key": key}
+        parent = (
+            await client.post(
+                "/users/1/items", headers=auth, json=[{"itemType": "book", "title": "Parent"}]
+            )
+        ).json()["successful"]["0"]
+        await client.post(
+            "/users/1/items",
+            headers=auth,
+            json=[{"itemType": "note", "note": "<p>A thought</p>", "parentItem": parent["key"]}],
+        )
+
+        body = (
+            await client.get(f"/web/libraries/{library_id}/items/{parent['key']}/children")
+        ).json()
+
+        assert body["total"] == 1
+        assert body["items"][0]["data"]["note"] == "<p>A thought</p>"
+
+    async def test_an_unknown_sort_field_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The parameter reaches a SQL ORDER BY, so it is checked against the
+        same list the v3 API accepts rather than passed through."""
+        library_id, _ = await self._seed(client, session)
+
+        response = await client.get(f"/web/libraries/{library_id}/items?sort=nonsense")
+
+        assert response.status_code == 400
+
+    async def test_reading_a_file_needs_the_session(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        created = (
+            await client.post(
+                "/users/1/items",
+                headers={"Zotero-API-Key": key},
+                json=[{"itemType": "attachment", "linkMode": "imported_file", "title": "PDF"}],
+            )
+        ).json()["successful"]["0"]
+        await client.post("/web/auth/logout", headers=csrf_headers(client))
+
+        response = await client.get(f"/web/libraries/{library_id}/items/{created['key']}/file")
+
+        assert response.status_code == 401
+
+
+class TestFiles:
+    """Attachment bytes reach the browser without an API key."""
+
+    async def test_a_stored_file_is_served_to_the_session(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        from tests.test_files import CONTENT, authorization
+
+        await register(client)
+        key = (await admin.create_api_key(session, username="ada", name="seed")).key
+        auth = {"Zotero-API-Key": key}
+        library_id = (await client.get("/web/libraries")).json()[0]["id"]
+
+        created = (
+            await client.post(
+                "/users/1/items",
+                headers=auth,
+                json=[{"itemType": "attachment", "linkMode": "imported_file", "title": "Moby"}],
+            )
+        ).json()["successful"]["0"]
+
+        authorized = (
+            await client.post(
+                f"/users/1/items/{created['key']}/file",
+                headers=auth | {"If-None-Match": "*"},
+                data=authorization(),
+            )
+        ).json()
+        await client.post(authorized["url"], content=CONTENT)
+        await client.post(
+            f"/users/1/items/{created['key']}/file",
+            headers=auth | {"If-None-Match": "*"},
+            data={"upload": authorized["uploadKey"]},
+        )
+
+        response = await client.get(f"/web/libraries/{library_id}/items/{created['key']}/file")
+
+        assert response.status_code == 200
+        assert response.content == CONTENT
+        assert response.headers["content-type"].startswith("text/plain")

@@ -333,6 +333,19 @@ class Schema:
             entries.insert(0, {"creatorType": primary, "localized": names.get(primary, primary)})
         return entries
 
+    def display_names(self, locale: str | None = None) -> dict[str, dict[str, str]]:
+        """Return every item type, field and creator type with its display name.
+
+        The v3 schema endpoints answer one question each, which suits a client
+        that asks about one item type. An interface that renders whole items
+        needs the lot at once, so this is the whole translation table for a
+        locale rather than a slice of it.
+        """
+        return {
+            kind: dict(self._translations(kind, locale))
+            for kind in ("itemTypes", "fields", "creatorTypes")
+        }
+
     def localized_creator_fields(self, locale: str | None = None) -> list[dict[str, str]]:
         """Return the creator name fields."""
         return [{"field": name, "localized": label} for name, label in CREATOR_FIELDS]

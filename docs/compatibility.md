@@ -172,6 +172,14 @@ Four places where the rendered output is not upstream's:
   every name would otherwise read `Doe, J..`. Only text outside tags is touched,
   and three periods are left alone.
 
+One limitation is worth knowing about. citeproc-py's support for the most
+intricate styles is not complete, and the in-text citation of
+`chicago-shortened-notes-bibliography` — which is what the API's default style
+name now resolves to — renders a stray `edition` term for an item that has no
+locator. Its bibliography is correct, as are the citations of every other style
+tried (APA, MLA, IEEE, Nature, AMA, the other Chicago variants). The bibliography
+is the path both the API and the interface lead with.
+
 One correction is applied to citeproc-py itself, in `altero/cite/compat.py`:
 `citation-number` is excluded there from what counts as calling a variable, so a
 numeric style whose citation groups the number with a locator macro — IEEE —

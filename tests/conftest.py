@@ -14,7 +14,16 @@ from altero.settings import Settings
 
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
-    return Settings(database_url=f"sqlite+aiosqlite:///{tmp_path / 'test.sqlite'}")
+    """Settings pointing at a database and a file store of this test's own.
+
+    The storage path matters as much as the database one: a test that uploads
+    an attachment writes real bytes, and without this it writes them into the
+    checkout.
+    """
+    return Settings(
+        database_url=f"sqlite+aiosqlite:///{tmp_path / 'test.sqlite'}",
+        storage_path=tmp_path / "storage",
+    )
 
 
 @pytest.fixture
