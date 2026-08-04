@@ -51,6 +51,8 @@ async function signOut(): Promise<void> {
 
 <template>
   <div class="shell" :class="{ 'shell--bare': bare, 'shell--wide': wide }">
+    <a class="skip-link" href="#content">Skip to content</a>
+
     <header class="shell__bar">
       <RouterLink class="shell__brand" :to="{ name: 'library' }">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -98,7 +100,7 @@ async function signOut(): Promise<void> {
       </div>
     </header>
 
-    <p v-if="unconfirmed" class="shell__notice">
+    <p v-if="unconfirmed" class="shell__notice" role="status">
       <span>
         Confirm <strong>{{ auth.user?.email }}</strong> to receive security
         notifications and invitations. Your library works either way.
@@ -106,7 +108,9 @@ async function signOut(): Promise<void> {
       <AppButton variant="text" @click="auth.resendVerification()">Resend</AppButton>
     </p>
 
-    <main class="shell__main">
+    <!-- `tabindex="-1"` so the skip link can put focus here; without it the
+         browser scrolls to the landmark and leaves focus in the header. -->
+    <main id="content" class="shell__main" tabindex="-1">
       <RouterView />
     </main>
   </div>
@@ -144,6 +148,10 @@ async function signOut(): Promise<void> {
   position: static;
   border-bottom: none;
   background: none;
+}
+
+.shell__main:focus {
+  outline: none;
 }
 
 .shell__brand {

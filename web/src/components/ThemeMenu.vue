@@ -187,7 +187,7 @@ onBeforeUnmount(() => {
   min-width: 10rem;
   margin: var(--md-spacing-2) 0 0;
   padding: var(--md-spacing-2);
-  border: 1px solid var(--md-sys-color-outline-variant);
+  border: 1px solid var(--md-sys-color-outline);
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-high);
   box-shadow: 0 6px 16px rgb(0 0 0 / 18%);

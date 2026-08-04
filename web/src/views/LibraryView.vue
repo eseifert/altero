@@ -72,6 +72,13 @@ function sortIndicator(field: string): string {
   if (library.sort !== field) return ''
   return library.direction === 'asc' ? '↑' : '↓'
 }
+
+/* The arrow is decoration; this is what the control is called. */
+function sortLabel(column: { field: string; label: string }): string {
+  if (library.sort !== column.field) return `Sort by ${column.label.toLowerCase()}`
+  const direction = library.direction === 'asc' ? 'ascending' : 'descending'
+  return `Sort by ${column.label.toLowerCase()}, currently ${direction}`
+}
 </script>
 
 <template>
@@ -83,6 +90,7 @@ function sortIndicator(field: string): string {
           :key="entry.id"
           type="button"
           :class="['library__library', { 'library__library--current': entry.id === library.libraryId }]"
+          :aria-current="entry.id === library.libraryId ? 'true' : undefined"
           @click="library.openLibrary(entry.id)"
         >
           <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
@@ -96,6 +104,7 @@ function sortIndicator(field: string): string {
         <button
           type="button"
           :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'top' }]"
+          :aria-current="!library.collectionKey && library.scope === 'top' ? 'true' : undefined"
           @click="library.selectScope('top')"
         >
           <SidebarIcon name="library" />
@@ -104,6 +113,7 @@ function sortIndicator(field: string): string {
         <button
           type="button"
           :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'all' }]"
+          :aria-current="!library.collectionKey && library.scope === 'all' ? 'true' : undefined"
           @click="library.selectScope('all')"
         >
           <SidebarIcon name="everything" />
@@ -112,6 +122,7 @@ function sortIndicator(field: string): string {
         <button
           type="button"
           :class="['library__scope', { 'library__scope--current': library.scope === 'trash' }]"
+          :aria-current="library.scope === 'trash' ? 'true' : undefined"
           @click="library.selectScope('trash')"
         >
           <SidebarIcon name="trash" />
@@ -181,48 +192,60 @@ function sortIndicator(field: string): string {
         {{ library.failure }}
       </p>
 
-      <div v-else class="library__table" role="table">
-        <div class="library__row library__row--head" role="row">
-          <span class="library__cell library__cell--icon" role="columnheader"></span>
+      <!--
+        A list of buttons rather than a table of rows. The columns are how the
+        items are laid out, not what they are: a `role="row"` that is a button
+        promises cell-by-cell navigation that nothing here implements, and the
+        header cells are sort controls rather than headers.
+      -->
+      <div v-else class="library__table">
+        <div class="library__row library__row--head">
+          <span class="library__cell library__cell--icon"></span>
           <button
             v-for="column in COLUMNS"
             :key="column.field"
             type="button"
             class="library__cell library__cell--head"
-            role="columnheader"
-            :aria-sort="
-              library.sort === column.field
-                ? library.direction === 'asc'
-                  ? 'ascending'
-                  : 'descending'
-                : 'none'
-            "
+            :aria-label="sortLabel(column)"
             @click="library.sortBy(column.field)"
           >
-            {{ column.label }} <span aria-hidden="true">{{ sortIndicator(column.field) }}</span>
+            <span aria-hidden="true">
+              {{ column.label }} {{ sortIndicator(column.field) }}
+            </span>
           </button>
         </div>
 
-        <p v-if="library.loading && !library.items.length" class="library__state">Loading…</p>
-        <p v-else-if="!library.items.length" class="library__state">
+        <p
+          v-if="library.loading && !library.items.length"
+          class="library__state"
+          role="status"
+        >
+          Loading…
+        </p>
+        <p v-else-if="!library.items.length" class="library__state" role="status">
           Nothing here yet. Point the Zotero desktop app at this server and sync.
         </p>
 
-        <button
-          v-for="item in library.items"
-          :key="item.key"
-          type="button"
-          :class="['library__row', { 'library__row--selected': library.selected?.key === item.key }]"
-          role="row"
-          @click="library.select(item)"
-        >
-          <span class="library__cell library__cell--icon" role="cell">
-            <ItemTypeIcon :item-type="item.data.itemType" />
-          </span>
-          <span class="library__cell library__cell--title" role="cell">{{ titleOf(item) }}</span>
-          <span class="library__cell" role="cell">{{ item.meta?.creatorSummary ?? '' }}</span>
-          <span class="library__cell" role="cell">{{ item.meta?.parsedDate ?? '' }}</span>
-        </button>
+        <ul v-else class="library__items" :aria-label="`Items in ${heading}`">
+          <li v-for="item in library.items" :key="item.key">
+            <button
+              type="button"
+              :class="[
+                'library__row',
+                { 'library__row--selected': library.selected?.key === item.key },
+              ]"
+              :aria-pressed="library.selected?.key === item.key"
+              @click="library.select(item)"
+            >
+              <span class="library__cell library__cell--icon">
+                <ItemTypeIcon :item-type="item.data.itemType" />
+              </span>
+              <span class="library__cell library__cell--title">{{ titleOf(item) }}</span>
+              <span class="library__cell">{{ item.meta?.creatorSummary ?? '' }}</span>
+              <span class="library__cell">{{ item.meta?.parsedDate ?? '' }}</span>
+            </button>
+          </li>
+        </ul>
       </div>
 
       <footer class="library__footer">
@@ -403,7 +426,8 @@ function sortIndicator(field: string): string {
   gap: var(--md-spacing-2);
   width: min(18rem, 50%);
   padding: 0.3rem 0.6rem;
-  border: 1px solid var(--md-sys-color-outline-variant);
+  /* A control's own border has to be discernible: `outline`, not the divider. */
+  border: 1px solid var(--md-sys-color-outline);
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface);
 }
@@ -458,6 +482,12 @@ function sortIndicator(field: string): string {
   border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-corner-medium);
   overflow: hidden;
+}
+
+.library__items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .library__row {
@@ -545,7 +575,7 @@ function sortIndicator(field: string): string {
 
 .library__more {
   padding: 0.3rem 0.8rem;
-  border: 1px solid var(--md-sys-color-outline-variant);
+  border: 1px solid var(--md-sys-color-outline);
   border-radius: 999px;
   background: none;
   color: inherit;

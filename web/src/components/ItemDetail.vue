@@ -369,7 +369,8 @@ function childTitle(child: ItemEnvelope): string {
 .detail__select,
 .detail__button {
   padding: 0.3rem 0.6rem;
-  border: 1px solid var(--md-sys-color-outline-variant);
+  /* Both are controls, so their borders take `outline`. */
+  border: 1px solid var(--md-sys-color-outline);
   border-radius: var(--md-sys-shape-corner-small);
   background: var(--md-sys-color-surface);
   color: inherit;
