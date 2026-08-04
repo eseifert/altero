@@ -6,19 +6,25 @@ import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
-import { loadLabels } from '@/items/labels'
+import { fieldLabel, loadLabels } from '@/items/labels'
 import { useLibraryStore, type ItemEnvelope } from '@/stores/library'
+import { useLocaleStore } from '@/stores/locale'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 
 const library = useLibraryStore()
+const locales = useLocaleStore()
 
-/** Columns the list offers, with the sort field each one asks the server for. */
-const COLUMNS = [
-  { field: 'title', label: 'Title' },
-  { field: 'creator', label: 'Creator' },
-  { field: 'date', label: 'Date' },
-]
+/** Columns the list offers, named by the field each one asks the server to sort by. */
+const COLUMN_FIELDS = ['title', 'creator', 'date']
+
+/* The schema names the columns, so a heading is the word the detail pane and
+   Zotero itself use for the same thing, in whatever language is in force.
+   `creator` is a creator type rather than a field, which is what the column
+   holds: one item's authors, editors or directors under one heading. */
+const columns = computed(() =>
+  COLUMN_FIELDS.map((field) => ({ field, label: fieldLabel(field) })),
+)
 
 const searchText = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -35,8 +41,17 @@ const heading = computed(() => {
   return library.library?.name ?? t('Library')
 })
 
+/* The display names are per language, and the account can change its language
+   while the library is open, so they follow the interface rather than the
+   browser. The formatting tag is the one with a region on it, and the schema
+   distinguishes `pt-BR` from `pt-PT`. */
+watch(
+  () => locales.formatting,
+  (tag) => void loadLabels(tag),
+  { immediate: true },
+)
+
 onMounted(async () => {
-  loadLabels(navigator.language)
   try {
     await library.loadLibraries()
   } catch (thrown) {
@@ -76,9 +91,11 @@ function sortIndicator(field: string): string {
   return library.direction === 'asc' ? '↑' : '↓'
 }
 
-/* The arrow is decoration; this is what the control is called. */
+/* The arrow is decoration; this is what the control is called. The label goes
+   in as the schema wrote it, since lowercasing a heading is right in English
+   and wrong in German, where every one of these is a noun. */
 function sortLabel(column: { field: string; label: string }): string {
-  const name = t(column.label).toLocaleLowerCase(locale.value)
+  const name = column.label
   if (library.sort !== column.field) return t('Sort by {column}', { column: name })
   return library.direction === 'asc'
     ? t('Sort by {column}, currently ascending', { column: name })
@@ -207,7 +224,7 @@ function sortLabel(column: { field: string; label: string }): string {
         <div class="library__row library__row--head">
           <span class="library__cell library__cell--icon"></span>
           <button
-            v-for="column in COLUMNS"
+            v-for="column in columns"
             :key="column.field"
             type="button"
             class="library__cell library__cell--head"

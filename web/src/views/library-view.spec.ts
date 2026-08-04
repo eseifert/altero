@@ -2,7 +2,10 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { i18n } from '@/i18n'
+import { resetLabels } from '@/items/labels'
 import { useLibraryStore } from '@/stores/library'
+import { useLocaleStore } from '@/stores/locale'
 
 import LibraryView from './LibraryView.vue'
 
@@ -22,8 +25,18 @@ const ITEM = {
   meta: {},
 }
 
+const GERMAN_NAMES = {
+  itemTypes: {},
+  fields: { title: 'Titel', date: 'Datum' },
+  creatorTypes: { creator: 'Ersteller' },
+}
+
 beforeEach(() => {
   setActivePinia(createPinia())
+  // The display names and the language in force outlive a component, so a test
+  // that changes either would otherwise decide what the next one starts from.
+  resetLabels()
+  i18n.global.locale.value = 'en'
   requestMock.mockReset()
   requestMock.mockImplementation((path: string) => {
     if (path === '/web/libraries') return Promise.resolve(LIBRARIES)
@@ -37,10 +50,15 @@ beforeEach(() => {
   })
 })
 
-async function open() {
-  const wrapper = mount(LibraryView)
+/** Let the requests in flight answer, and the answers reach the screen. */
+async function settle(wrapper: ReturnType<typeof mount>) {
   await new Promise((resolve) => setTimeout(resolve, 0))
   await wrapper.vm.$nextTick()
+}
+
+async function open() {
+  const wrapper = mount(LibraryView)
+  await settle(wrapper)
   return wrapper
 }
 
@@ -82,6 +100,47 @@ describe('the item list', () => {
     const wrapper = await open()
 
     expect(wrapper.get('.library__cell--title').text()).toBe('Structure and Interpretation')
+  })
+})
+
+describe('the column headings', () => {
+  function headings(wrapper: ReturnType<typeof mount>): string[] {
+    return wrapper.findAll('.library__cell--head').map((cell) => cell.text())
+  }
+
+  /** Answer the schema request with the German names, everything else as usual. */
+  function speakGerman(): void {
+    const usual = requestMock.getMockImplementation()!
+    requestMock.mockImplementation((path: string) =>
+      path.startsWith('/web/schema') ? Promise.resolve(GERMAN_NAMES) : usual(path),
+    )
+  }
+
+  it('are the schema’s own names, so a column reads as the field it holds', async () => {
+    /* `creator` is the one that is not a field: the schema names it as a
+       creator type, which is what the column shows. */
+    useLocaleStore().adopt({ language: 'de', timeZone: null })
+    speakGerman()
+
+    const wrapper = await open()
+
+    expect(requestMock).toHaveBeenCalledWith('/web/schema?locale=de')
+    expect(headings(wrapper).map((text) => text.split(' ')[0])).toEqual([
+      'Titel',
+      'Ersteller',
+      'Datum',
+    ])
+  })
+
+  it('follow a change of language without the page being reloaded', async () => {
+    const wrapper = await open()
+    expect(headings(wrapper)[0]).toContain('Title')
+
+    speakGerman()
+    useLocaleStore().adopt({ language: 'de', timeZone: null })
+    await settle(wrapper)
+
+    expect(headings(wrapper)[0]).toContain('Titel')
   })
 })
 

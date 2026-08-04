@@ -157,6 +157,13 @@ server records — when an item was added, when a key was last used — are stor
 as UTC and shown in your zone, so an item added at 22:30 UTC is the third of the
 month in Berlin and the fourth in Tokyo.
 
+What an item type, a field or a creator type is called is not translated here at
+all: those names come from the schema, which carries Zotero's own translations
+in 48 locales, and they follow the account's language — the item list's column
+headings included. Where the interface's own messages name something Zotero also
+names, they use Zotero's word for it, so the two applications read as one
+vocabulary.
+
 The translations beyond English are mine rather than a native speaker's, and are
 worth reviewing before an institution relies on them. Adding a seventh language
 is one file in `web/src/locales`, plus its tag in `services/locales.py`;
