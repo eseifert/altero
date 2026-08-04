@@ -194,13 +194,17 @@ Four places where the rendered output is not upstream's:
   every name would otherwise read `Doe, J..`. Only text outside tags is touched,
   and three periods are left alone.
 
-One limitation is worth knowing about. citeproc-py's support for the most
-intricate styles is not complete, and the in-text citation of
-`chicago-shortened-notes-bibliography` — which is what the API's default style
-name now resolves to — renders a stray `edition` term for an item that has no
-locator. Its bibliography is correct, as are the citations of every other style
-tried (APA, MLA, IEEE, Nature, AMA, the other Chicago variants). The bibliography
-is the path both the API and the interface lead with.
+One limitation is worth knowing about, and it is upstream's. citeproc-py's
+`cs:label` renders its term whether or not the variable it labels has a value,
+where CSL 1.0.2 says "the term is only rendered if the selected variable is
+non-empty". Any style that labels a variable an item happens not to have gains a
+stray word; the visible case here is the in-text citation of
+`chicago-shortened-notes-bibliography` — what the API's default style name now
+resolves to — which reads `Doe, “A Study of Things”, edition.` for an item with
+no edition. Bibliographies in that style are unaffected, as are the citations of
+every other style tried (APA, MLA, IEEE, Nature, AMA, the other Chicago
+variants), and the bibliography is the path both the API and the interface lead
+with. Reported upstream, with a patch.
 
 One correction is applied to citeproc-py itself, in `altero/cite/compat.py`:
 `citation-number` is excluded there from what counts as calling a variable, so a
