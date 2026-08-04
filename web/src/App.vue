@@ -62,13 +62,17 @@ async function signOut(): Promise<void> {
     <a class="skip-link" href="#content">{{ t('Skip to content') }}</a>
 
     <header class="shell__bar">
-      <RouterLink class="shell__brand" :to="{ name: 'library' }">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M5 3.75h11.5a2 2 0 012 2v14.5H7a2 2 0 01-2-2z" />
-          <path d="M7 20.25a2 2 0 010-4h11.5" />
-        </svg>
-        <span>altero</span>
+      <!--
+        Two files, one for each scheme, because the mark is drawn in the teal
+        of the palette it sits in. Which one shows is decided in CSS rather
+        than here: the theme store only stamps the root once Vue has mounted,
+        and a logo chosen in script would be the light one for a frame on a
+        dark screen. The link is named once, on itself, so it reads as one
+        thing however many images CSS is showing.
+      -->
+      <RouterLink class="shell__brand" :to="{ name: 'library' }" aria-label="altero">
+        <img class="shell__logo shell__logo--light" src="@/assets/logo-light.svg" alt="" />
+        <img class="shell__logo shell__logo--dark" src="@/assets/logo-dark.svg" alt="" />
       </RouterLink>
 
       <div class="shell__actions">
@@ -166,15 +170,46 @@ async function signOut(): Promise<void> {
 .shell__brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--md-spacing-2);
-  color: var(--md-sys-color-on-surface);
-  font-size: var(--md-sys-typescale-body-large-size);
-  font-weight: var(--md-sys-typescale-weight-medium);
   text-decoration: none;
 }
 
-.shell__brand svg {
-  color: var(--md-sys-color-primary);
+/*
+ * The logo, in whichever scheme is on screen.
+ *
+ * The same order the tokens use: the system's preference decides it, and
+ * `data-theme` from the theme store overrides that in either direction. Both
+ * halves are written out for each theme, so an explicit light choice on a dark
+ * desktop hides the dark mark rather than merely showing the light one over
+ * it.
+ */
+.shell__logo {
+  display: block;
+  width: auto;
+  height: 1.1rem;
+}
+
+.shell__logo--dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .shell__logo--light {
+    display: none;
+  }
+
+  .shell__logo--dark {
+    display: block;
+  }
+}
+
+:root[data-theme='light'] .shell__logo--light,
+:root[data-theme='dark'] .shell__logo--dark {
+  display: block;
+}
+
+:root[data-theme='light'] .shell__logo--dark,
+:root[data-theme='dark'] .shell__logo--light {
+  display: none;
 }
 
 .shell__icon {
