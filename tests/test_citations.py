@@ -4,7 +4,7 @@ import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.cite import bibliography, citation, csl_date, csl_item
+from altero.cite import bibliography, bibtex, citation, csl_date, csl_item
 from altero.models import Item, Library, LibraryType
 from altero.services.auth import get_library
 from tests.factories import make_api_key, make_item, make_user
@@ -360,3 +360,131 @@ class TestInclude:
 
         assert body["csljson"]["title"] == "A study of things"
         assert "data" not in body
+
+
+class TestExportFormats:
+    """BibTeX, BibLaTeX and RIS, written from the same CSL JSON."""
+
+    async def test_bibtex_writes_an_entry_per_item(
+        self, client: httpx.AsyncClient, library: Library, article: Item
+    ) -> None:
+        response = await client.get("/users/1/items?format=bibtex", headers=AUTH)
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("application/x-bibtex")
+        assert "@article{" in response.text
+        assert "author = {Doe, Jane}" in response.text
+        assert "journal = {Journal of Things}" in response.text
+        assert "pages = {12--30}" in response.text
+
+    async def test_a_citation_key_is_one_a_person_would_type(
+        self, client: httpx.AsyncClient, library: Library, article: Item
+    ) -> None:
+        body = (await client.get("/users/1/items?format=bibtex", headers=AUTH)).text
+
+        assert "@article{doe2019study," in body
+
+    def test_keys_are_made_unique_within_one_export(self) -> None:
+        """Two papers by the same author in the same year, with titles starting
+        the same way, would otherwise collide and one would be unusable."""
+        entry = {
+            "id": "1/AAAA2345",
+            "type": "article-journal",
+            "title": "Study of things",
+            "author": [{"family": "Doe", "given": "Jane"}],
+            "issued": {"date-parts": [[2019]]},
+        }
+
+        written = bibtex([entry, {**entry, "id": "1/BBBB2345"}])
+
+        assert "@article{doe2019study," in written
+        assert "@article{doe2019studya," in written
+
+    def test_a_key_never_begins_with_a_digit(self) -> None:
+        """Legal in BibTeX, and refused by enough tools downstream to matter."""
+        written = bibtex(
+            [
+                {
+                    "id": "1/AAAA2345",
+                    "type": "webpage",
+                    "title": "A page",
+                    "issued": {"date-parts": [[2020]]},
+                }
+            ]
+        )
+
+        assert "@misc{page2020," in written
+
+    async def test_biblatex_uses_its_own_entry_types(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(
+            session,
+            library,
+            item_type="webpage",
+            fields={"title": "A page", "url": "https://example.org"},
+        )
+
+        bibtex_body = (await client.get("/users/1/items?format=bibtex", headers=AUTH)).text
+        biblatex_body = (await client.get("/users/1/items?format=biblatex", headers=AUTH)).text
+
+        assert "@misc{" in bibtex_body
+        assert "@online{" in biblatex_body
+
+    async def test_ris_writes_tagged_lines(
+        self, client: httpx.AsyncClient, library: Library, article: Item
+    ) -> None:
+        response = await client.get("/users/1/items?format=ris", headers=AUTH)
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("application/x-research-info-systems")
+        assert "TY  - JOUR" in response.text
+        assert "AU  - Doe, Jane" in response.text
+        assert "ER  -" in response.text
+
+    async def test_ris_carries_no_record_numbers(
+        self, client: httpx.AsyncClient, library: Library, article: Item
+    ) -> None:
+        """The library writes `1.` above each record; RIS files do not have it,
+        and a reader that is strict about the first line chokes."""
+        body = (await client.get("/users/1/items?format=ris", headers=AUTH)).text
+
+        assert body.lstrip().startswith("TY  - ")
+
+    async def test_tags_are_exported_as_keywords(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library, article: Item
+    ) -> None:
+        """Tags are not part of CSL, so they have to be carried separately --
+        and a library exported without them has lost what somebody typed."""
+        from tests.factories import tag_item
+
+        await tag_item(session, library, article, "toread")
+
+        bibtex_body = (await client.get("/users/1/items?format=bibtex", headers=AUTH)).text
+        ris_body = (await client.get("/users/1/items?format=ris", headers=AUTH)).text
+
+        assert "keywords = {toread}" in bibtex_body
+        assert "KW  - toread" in ris_body
+
+    async def test_one_item_can_be_exported_on_its_own(
+        self, client: httpx.AsyncClient, library: Library, article: Item
+    ) -> None:
+        response = await client.get("/users/1/items/AAAA2345?format=ris", headers=AUTH)
+
+        assert response.status_code == 200
+        assert "TY  - JOUR" in response.text
+
+    async def test_an_export_can_be_included_beside_the_data(
+        self, client: httpx.AsyncClient, library: Library, article: Item
+    ) -> None:
+        (body,) = (await client.get("/users/1/items?include=data,bibtex", headers=AUTH)).json()
+
+        assert body["data"]["title"] == "A study of things"
+        assert body["bibtex"].startswith("@article{")
+
+    async def test_the_export_formats_are_only_for_items(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        response = await client.get("/users/1/collections?format=ris", headers=AUTH)
+
+        assert response.status_code == 400

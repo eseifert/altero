@@ -147,11 +147,33 @@ header, and rejects `sort`, `direction`, `start`, `limit` and `order` with a
 size are both 150 (`Zotero_API::MAX_BIBLIOGRAPHY_ITEMS`).
 
 **`include` is validated rather than ignored.** `data`, `bib`, `citation`,
-`csljson` and `none` are accepted; `include=none` may not be combined with
-anything; `include` outside `format=json` is a 400, as is an unknown value.
-altero does not implement upstream's `html` or its export formats, so those are
-refused here rather than accepted — a client that asked for one and silently
-received `data` would have no way to notice.
+`csljson`, `bibtex`, `biblatex`, `ris` and `none` are accepted; `include=none`
+may not be combined with anything; `include` outside `format=json` is a 400, as
+is an unknown value. Upstream additionally accepts `html`, which needs Atom, and
+eleven more export formats; those are refused here rather than accepted — a
+client that asked for one and silently received `data` would have no way to
+notice.
+
+**Three export formats are written, not fourteen.** Upstream produces them by
+handing the item JSON to a translation server running Zotero's own JavaScript
+translators. altero has no such thing, so `bibtex`, `biblatex` and `ris` are
+mapped from the CSL JSON an item already renders as, with
+[bibtexparser](https://github.com/sciunto-org/python-bibtexparser) and
+[rispy](https://github.com/MrTango/rispy) doing the writing. Consequences worth
+knowing:
+
+- CSL is a superset of what these formats carry, so the mapping loses nothing
+  they can hold — but a type CSL renders as `document` becomes `@misc` or `GEN`,
+  where a translator might have known better.
+- Citation keys are generated as `surname` + `year` + first significant title
+  word, disambiguated with a letter within one response. Upstream's translator
+  has its own scheme; neither is stable across servers, which is why a
+  `citationKey` field in the item wins over both.
+- Tags become `keywords`. They are not part of CSL, so they are carried
+  alongside it rather than through it.
+- `bookmarks`, `coins`, `csv`, `endnote_xml`, `evernote`, `mods`, `refer`,
+  `refworks_tagged`, `rdf_*`, `tei` and `wikipedia` are not implemented, and are
+  refused rather than silently answered as JSON.
 
 Four places where the rendered output is not upstream's:
 

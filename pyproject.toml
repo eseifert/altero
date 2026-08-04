@@ -20,6 +20,8 @@ dependencies = [
     "citeproc-py>=0.10.3",
     "citeproc-py-styles>=0.1.6",
     "dateparser>=1.4.1",
+    "bibtexparser>=1.4.4",
+    "rispy>=0.10.0",
 ]
 
 [project.optional-dependencies]

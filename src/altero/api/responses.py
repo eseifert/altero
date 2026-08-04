@@ -18,6 +18,9 @@ from altero.query import Format, ListQuery
 CONTENT_TYPES: dict[Format, str] = {
     Format.BIB: "text/html; charset=UTF-8",
     Format.CSLJSON: "application/vnd.citationstyles.csl+json",
+    Format.BIBTEX: "application/x-bibtex",
+    Format.BIBLATEX: "application/x-bibtex",
+    Format.RIS: "application/x-research-info-systems",
 }
 
 
@@ -60,6 +63,7 @@ def listing_response(
     versions: dict[str, int],
     csljson: list[Any] | None = None,
     bibliography: str | None = None,
+    exported: str | None = None,
 ) -> Response:
     """Render a page of results in the format the client asked for.
 
@@ -69,6 +73,7 @@ def listing_response(
         versions: Key-to-version mapping, used by ``format=versions``.
         csljson: CSL JSON objects, used by ``format=csljson``.
         bibliography: Rendered HTML, used by ``format=bib``.
+        exported: A written file, used by the export formats.
     """
     headers = library_headers(version, total)
 
@@ -97,6 +102,9 @@ def listing_response(
     if query.response_format is Format.BIB:
         return HTMLResponse(bibliography or "", headers=headers)
 
+    if content_type := CONTENT_TYPES.get(query.response_format):
+        return PlainTextResponse(exported or "", headers=headers, media_type=content_type)
+
     return JSONResponse(objects, headers=headers)
 
 
@@ -112,4 +120,6 @@ def object_response(payload: Any, version: int, response_format: Format = Format
         )
     if response_format is Format.BIB:
         return HTMLResponse(str(payload), headers=headers)
+    if content_type := CONTENT_TYPES.get(response_format):
+        return PlainTextResponse(str(payload), headers=headers, media_type=content_type)
     return JSONResponse(payload, headers=headers)

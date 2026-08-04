@@ -39,6 +39,8 @@ Implemented:
   `include=bib,citation,csljson`, in any of the styles published by the
   [CSL project](https://github.com/citation-style-language/styles), with
   `style`, `locale` and `linkwrap`. Nothing is fetched at request time
+- Export as `format=bibtex`, `biblatex` or `ris`, and the matching `include`
+  values, with tags carried across as keywords
 - Items of every type, including notes, attachments and annotations, whose
   fields the published schema does not list
 - Client-supplied `dateAdded` and `dateModified`, kept as sent
@@ -49,8 +51,8 @@ Implemented:
 - The attachment file protocol, storing files once per digest
 - Provisioning from the command line, CORS, and API version negotiation
 
-Not implemented yet: Atom, the export formats (BibTeX, RIS and the rest), and
-group creation through the API (the command line does it).
+Not implemented yet: Atom, the eleven export formats beyond BibTeX, BibLaTeX
+and RIS, and group creation through the API (the command line does it).
 
 The web interface (see below) covers registration, sign-in with a password or
 an email address, a one-time code from an authenticator app, account settings,

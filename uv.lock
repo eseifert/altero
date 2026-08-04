@@ -33,6 +33,7 @@ dependencies = [
     { name = "aiosqlite" },
     { name = "alembic" },
     { name = "argon2-cffi" },
+    { name = "bibtexparser" },
     { name = "citeproc-py" },
     { name = "citeproc-py-styles" },
     { name = "dateparser" },
@@ -40,6 +41,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "python-multipart" },
+    { name = "rispy" },
     { name = "sqlalchemy", extra = ["asyncio"] },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -67,6 +69,7 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.16" },
     { name = "argon2-cffi", specifier = ">=25.1.0" },
     { name = "asyncpg", marker = "extra == 'postgres'", specifier = ">=0.31.0" },
+    { name = "bibtexparser", specifier = ">=1.4.4" },
     { name = "citeproc-py", specifier = ">=0.10.3" },
     { name = "citeproc-py-styles", specifier = ">=0.1.6" },
     { name = "dateparser", specifier = ">=1.4.1" },
@@ -74,6 +77,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.11" },
     { name = "pydantic-settings", specifier = ">=2.10" },
     { name = "python-multipart", specifier = ">=0.0.32" },
+    { name = "rispy", specifier = ">=0.10.0" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.40" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.36" },
 ]
@@ -187,6 +191,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/13/d5/71437c5f6ae5f307828710efbe62163974e71237d5d46ebd2869ea052d10/asyncpg-0.31.0-cp314-cp314t-win32.whl", hash = "sha256:1b41f1afb1033f2b44f3234993b15096ddc9cd71b21a42dbd87fc6a57b43d65d", size = 614495, upload-time = "2025-11-24T23:26:42.659Z" },
     { url = "https://files.pythonhosted.org/packages/3c/d7/8fb3044eaef08a310acfe23dae9a8e2e07d305edc29a53497e52bc76eca7/asyncpg-0.31.0-cp314-cp314t-win_amd64.whl", hash = "sha256:bd4107bb7cdd0e9e65fae66a62afd3a249663b844fa34d479f6d5b3bef9c04c3", size = 706062, upload-time = "2025-11-24T23:26:44.086Z" },
 ]
+
+[[package]]
+name = "bibtexparser"
+version = "1.4.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyparsing" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/44/1c/577d3ce406e88f370e80a6ebf76ae52a2866521e0b585e8ec612759894f1/bibtexparser-1.4.4.tar.gz", hash = "sha256:093b6c824f7a71d3a748867c4057b71f77c55b8dbc07efc993b781771520d8fb", size = 55594, upload-time = "2026-01-29T18:58:01.366Z" }
 
 [[package]]
 name = "certifi"
@@ -759,6 +772,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pyparsing"
+version = "3.3.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f3/91/9c6ee907786a473bf81c5f53cf703ba0957b23ab84c264080fb5a450416f/pyparsing-3.3.2.tar.gz", hash = "sha256:c777f4d763f140633dcb6d8a3eda953bf7a214dc4eff598413c070bcdc117cbc", size = 6851574, upload-time = "2026-01-21T03:57:59.36Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/10/bd/c038d7cc38edc1aa5bf91ab8068b63d4308c66c4c8bb3cbba7dfbc049f9c/pyparsing-3.3.2-py3-none-any.whl", hash = "sha256:850ba148bd908d7e2411587e247a1e4f0327839c40e2e5e6d05a007ecc69911d", size = 122781, upload-time = "2026-01-21T03:57:55.912Z" },
+]
+
+[[package]]
 name = "pytest"
 version = "9.1.1"
 source = { registry = "https://pypi.org/simple" }
@@ -916,6 +938,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/d7/01d31d5bdb09bc026fab77f59a371fdf8f9b292e4810546c56182ca70498/regex-2026.7.19-cp314-cp314t-win32.whl", hash = "sha256:2c4e61e2e1be56f63ec3cc618aa9e0de81ef6f43d177205451840022e24f5b78", size = 274526, upload-time = "2026-07-19T00:19:42.398Z" },
     { url = "https://files.pythonhosted.org/packages/52/0e/cea4ce73bc0a8247a0748228ae6669984c7e1f8134b6fa66e59c0572e0ea/regex-2026.7.19-cp314-cp314t-win_amd64.whl", hash = "sha256:c639ea314df70a7b2811e8020448c75af8c9445f5a60f8a4ced81c306a9380c2", size = 283763, upload-time = "2026-07-19T00:19:44.644Z" },
     { url = "https://files.pythonhosted.org/packages/6f/b6/26e41975febae63b7a6e3e02f32cff6cff2e4f10d19c929082f56aebf7c6/regex-2026.7.19-cp314-cp314t-win_arm64.whl", hash = "sha256:9a15e785f244f3e07847b984ce8773fc3da10a9f3c131cc49a4c5b4d672b4547", size = 283451, upload-time = "2026-07-19T00:19:46.639Z" },
+]
+
+[[package]]
+name = "rispy"
+version = "0.10.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/21/80/79150d1fabf30a863e2ec5e8d289731863efe2a7762ff5072d9e97b8bfbc/rispy-0.10.0.tar.gz", hash = "sha256:0b815b668fcc993e4f540670fd37090576ecfbc58a57e2daae67774241e91c84", size = 16703, upload-time = "2025-05-23T17:00:39.479Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/14/25/efdcd3dadf3f2aabbdb64d028db1dca1b1467a08d84b5117bffc3b1a599b/rispy-0.10.0-py3-none-any.whl", hash = "sha256:acc8b941ab5e7b65b5365e468af2e00f0cb031a9e5c5a6b06538d856151e61be", size = 15260, upload-time = "2025-05-23T17:00:37.796Z" },
 ]
 
 [[package]]

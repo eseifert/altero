@@ -21,7 +21,15 @@ class Format(StrEnum):
     VERSIONS = "versions"
     CSLJSON = "csljson"
     BIB = "bib"
+    BIBTEX = "bibtex"
+    BIBLATEX = "biblatex"
+    RIS = "ris"
 
+
+#: Formats written from an item rather than describing one: a file to hand to
+#: another program. Upstream produces these through a translation server and
+#: offers more of them; these three are the ones altero writes.
+EXPORT_FORMATS = frozenset({Format.BIBTEX, Format.BIBLATEX, Format.RIS})
 
 #: Formats the item endpoints answer in.
 ITEM_FORMATS = frozenset(Format)
@@ -34,12 +42,14 @@ OBJECT_FORMATS = frozenset({Format.JSON, Format.KEYS, Format.VERSIONS})
 
 #: Formats a request for one object may ask for. `keys` and `versions` describe
 #: a set and say nothing useful about a single object.
-SINGLE_OBJECT_FORMATS = frozenset({Format.JSON, Format.CSLJSON, Format.BIB})
+SINGLE_OBJECT_FORMATS = frozenset({Format.JSON, Format.CSLJSON, Format.BIB}) | EXPORT_FORMATS
 
-#: Values `include` accepts. `data` is the item itself; the other three are
-#: rendered from it. Upstream also accepts `html` and the export formats, which
-#: are not implemented here -- see docs/compatibility.md.
-INCLUDE_VALUES = frozenset({"data", "bib", "citation", "csljson", "none"})
+#: Values `include` accepts. `data` is the item itself; the rest are rendered
+#: from it. Upstream also accepts `html`, which needs Atom, and the export
+#: formats altero does not write -- see docs/compatibility.md.
+INCLUDE_VALUES = frozenset({"data", "bib", "citation", "csljson", "none"}) | {
+    str(name) for name in EXPORT_FORMATS
+}
 
 #: Parameters that describe a page of results and so cannot apply to a
 #: bibliography, which is one rendered document.

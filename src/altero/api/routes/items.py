@@ -20,6 +20,7 @@ from altero.api.responses import (
 from altero.errors import InvalidInputError, RequestTooLargeError
 from altero.models import Item, Library
 from altero.query import (
+    EXPORT_FORMATS,
     ITEM_FORMATS,
     ITEM_SORT_FIELDS,
     SINGLE_OBJECT_FORMATS,
@@ -48,6 +49,7 @@ def _with_included(
     items: Sequence[Item],
     library: Library,
     query: ListQuery,
+    tags: dict[int, list[tuple[str, int]]],
 ) -> list[dict[str, Any]]:
     """Apply ``include`` to a page of serialized items.
 
@@ -76,6 +78,14 @@ def _with_included(
                 envelope["bib"] = cite.bibliography(
                     [csl], style=query.style, locale=query.locale, linkwrap=query.linkwrap
                 )
+        for name in query.include & {str(entry) for entry in EXPORT_FORMATS}:
+            keywords = [[tag for tag, _ in tags.get(item.id, [])]]
+            csl_item = [cite.csl_item(item, library)]
+            envelope[name] = (
+                cite.ris(csl_item, keywords=keywords)
+                if name == Format.RIS
+                else cite.bibtex(csl_item, keywords=keywords, biblatex=name == Format.BIBLATEX)
+            )
     return envelopes
 
 
@@ -112,7 +122,7 @@ async def render_items(
     ]
     if query is None:
         return envelopes
-    return _with_included(envelopes, items, library, query)
+    return _with_included(envelopes, items, library, query, tags)
 
 
 async def render_item(
@@ -139,6 +149,7 @@ async def render_page(
     objects: list[Any] = []
     csljson: list[Any] | None = None
     bibliography: str | None = None
+    exported: str | None = None
 
     if query.response_format is Format.JSON:
         objects = await render_items(session, page.objects, library, base_url, query)
@@ -151,6 +162,8 @@ async def render_page(
             locale=query.locale,
             linkwrap=query.linkwrap,
         )
+    elif query.response_format in EXPORT_FORMATS:
+        exported = await export_items(session, list(page.objects), library, query.response_format)
 
     return listing_response(
         request,
@@ -162,7 +175,27 @@ async def render_page(
         versions={item.key: item.version for item in page.objects},
         csljson=csljson,
         bibliography=bibliography,
+        exported=exported,
     )
+
+
+async def export_items(
+    session: AsyncSession, items: Sequence[Item], library: Library, response_format: Format
+) -> str:
+    """Write items in one of the export formats.
+
+    Tags are fetched separately because they are not part of CSL and so are not
+    in what :func:`altero.cite.csl_items` produces -- but both BibTeX and RIS
+    carry keywords, and a library exported without its tags has lost something
+    the person put there.
+    """
+    csl = cite.csl_items(list(items), library)
+    stored = await items_service.tags_for(session, items)
+    keywords = [[name for name, _ in stored.get(item.id, [])] for item in items]
+
+    if response_format is Format.RIS:
+        return cite.ris(csl, keywords=keywords)
+    return cite.bibtex(csl, keywords=keywords, biblatex=response_format is Format.BIBLATEX)
 
 
 async def render_listing(
@@ -229,6 +262,8 @@ async def get_item(
             locale=query.locale,
             linkwrap=query.linkwrap,
         )
+    elif query.response_format in EXPORT_FORMATS:
+        payload = await export_items(session, [item], library, query.response_format)
     else:
         payload = await render_item(session, item, library, base_url, query)
 
