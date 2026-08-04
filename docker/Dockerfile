@@ -13,7 +13,9 @@
 # 200-odd packages never reach the served image.
 FROM node:24-bookworm-slim AS web
 WORKDIR /build
-COPY web/package.json web/package-lock.json ./web/
+# .npmrc comes along: it is what keeps a dependency's install hook -- the font
+# packages' telemetry -- from running while the image is built.
+COPY web/package.json web/package-lock.json web/.npmrc ./web/
 # `npm ci` rather than install: it installs the lock file exactly, and fails
 # if the lock file and package.json disagree.
 RUN cd web && npm ci

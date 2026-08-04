@@ -94,8 +94,14 @@ have no password until one is set, which means they can sync but cannot sign
 in to the browser.
 
 The design follows Material 3 with a teal accent, and light and dark follow the
-operating system unless the user picks one. Nothing is loaded from a third
-party -- no web fonts, no CDN.
+operating system unless the user picks one. It is set in IBM Plex Sans, with
+IBM Plex Sans JP behind it for Japanese, and both are served by this
+application: nothing is loaded from a third party, no CDN, no request that
+tells anyone else who is reading. The faces are split by `unicode-range`, so a
+page fetches only the subsets its text needs -- some 60 kB for a European
+language, about 1 MB the first time somebody reads Japanese -- and the system
+stack shows the words while that happens. Fingerprinted assets are cached for
+good, so the second visit fetches none of it.
 
 Built into the container image already. From a source checkout:
 

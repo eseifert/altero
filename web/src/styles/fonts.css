@@ -1,0 +1,31 @@
+/*
+ * IBM Plex Sans, served by this application and by nobody else.
+ *
+ * The faces come from the `@ibm/plex-sans` and `@ibm/plex-sans-jp` packages,
+ * whose stylesheets are imported as they are: they carry the `unicode-range`
+ * of every subset, and a hand-kept copy of 250 of those ranges would be wrong
+ * within one release. The build rewrites each `url()` to an asset of ours, so
+ * a browser only ever asks this server for a font -- there is no CDN in the
+ * path, nothing to be blocked by, and nothing that learns who is reading.
+ *
+ * Split rather than complete files, so a page fetches the few subsets its text
+ * actually needs: a German library pulls two Latin subsets of some 40 kB, and
+ * the 3 MB of Japanese is fetched a hundredth at a time by whoever reads
+ * Japanese. `font-display: swap` is added to every face at build time
+ * (`vite.config.ts`), so text is on screen in the fallback while it loads.
+ *
+ * Latin carries the weights the interface uses -- 400 and 500 -- plus bold and
+ * italic, which are not ours to choose: a note or a rendered citation is HTML
+ * from elsewhere and arrives with `<b>` and `<i>` in it. Japanese has 400 and
+ * 500; a Japanese `<b>` is emboldened by the browser rather than costing
+ * another 3 MB for a weight that only note text would reach.
+ */
+
+@import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-Regular.css';
+@import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-Italic.css';
+@import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-Medium.css';
+@import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-Bold.css';
+@import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-BoldItalic.css';
+
+@import '@ibm/plex-sans-jp/fonts/split/woff2/hinted/IBMPlexSansJP-Regular.css';
+@import '@ibm/plex-sans-jp/fonts/split/woff2/hinted/IBMPlexSansJP-Medium.css';

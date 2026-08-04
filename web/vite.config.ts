@@ -1,12 +1,34 @@
 import { fileURLToPath, URL } from 'node:url'
 
 import vue from '@vitejs/plugin-vue'
+import type { AtRule, Plugin as PostcssPlugin } from 'postcss'
 // From vitest/config rather than vite: it is the same function widened to
 // accept the `test` block below, which vite's own types do not describe.
 import { defineConfig } from 'vitest/config'
 
+/**
+ * Give every `@font-face` a `font-display: swap`.
+ *
+ * The Plex stylesheets are IBM's own and say nothing about display, which
+ * leaves the default: a browser hides the text for as long as three seconds
+ * while it fetches the face. The words matter more than which shapes they
+ * arrive in, so they are painted in the fallback and swapped when Plex lands.
+ * Done here rather than by copying 250 `@font-face` rules into this repo to
+ * edit one line in each.
+ */
+export const swapFontDisplay: PostcssPlugin = {
+  postcssPlugin: 'altero-font-display-swap',
+  AtRule: {
+    'font-face': (rule: AtRule) => {
+      const declared = rule.some((node) => node.type === 'decl' && node.prop === 'font-display')
+      if (!declared) rule.append({ prop: 'font-display', value: 'swap' })
+    },
+  },
+}
+
 export default defineConfig({
   plugins: [vue()],
+  css: { postcss: { plugins: [swapFontDisplay] } },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
