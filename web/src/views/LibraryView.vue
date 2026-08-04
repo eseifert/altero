@@ -19,6 +19,11 @@ const COLUMNS = [
 const searchText = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
 
+/* The detail pane exists only when there is something in it. An empty third
+   column would take a fifth of the width to say nothing, and the item list is
+   what the width is for. */
+const showDetail = computed(() => library.selected !== null && library.libraryId !== null)
+
 const heading = computed(() => {
   if (library.collectionName) return library.collectionName
   if (library.scope === 'trash') return 'Trash'
@@ -57,7 +62,7 @@ function sortIndicator(field: string): string {
 </script>
 
 <template>
-  <div class="library">
+  <div class="library" :class="{ 'library--detail': showDetail }">
     <aside class="library__sidebar">
       <nav v-if="library.libraries.length > 1" class="library__libraries" aria-label="Libraries">
         <button
@@ -195,16 +200,15 @@ function sortIndicator(field: string): string {
       </footer>
     </section>
 
-    <aside class="library__detail">
+    <aside v-if="showDetail && library.selected && library.libraryId !== null" class="library__detail">
       <ItemDetail
-        v-if="library.selected && library.libraryId !== null"
         :item="library.selected"
         :children="library.children"
         :library-id="library.libraryId"
         :file-url="library.fileUrl"
         @open="library.select($event)"
+        @close="library.select(null)"
       />
-      <p v-else class="library__state">Select an item to see its details.</p>
     </aside>
   </div>
 </template>
@@ -212,9 +216,13 @@ function sortIndicator(field: string): string {
 <style scoped>
 .library {
   display: grid;
-  grid-template-columns: minmax(12rem, 15rem) minmax(0, 1fr) minmax(16rem, 22rem);
+  grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr);
   gap: var(--md-spacing-4);
   align-items: start;
+}
+
+.library--detail {
+  grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr) minmax(18rem, 24rem);
 }
 
 .library__sidebar {
@@ -333,7 +341,7 @@ function sortIndicator(field: string): string {
 
 .library__row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) minmax(0, 12rem) 6rem;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 14rem) 7rem;
   align-items: center;
   gap: var(--md-spacing-3);
   width: 100%;

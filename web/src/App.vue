@@ -18,6 +18,11 @@ const route = useRoute()
    full shell with a header. */
 const bare = computed(() => route.meta.requiresAuth !== true)
 
+/* Reading text wants a narrow measure; browsing a library wants room. The
+   library is three panes side by side, and at the reading width the middle one
+   is left with a few characters of title. */
+const wide = computed(() => route.name === 'library')
+
 /* Verification gates notifications and nothing else, so this is a reminder
    rather than a wall. */
 const unconfirmed = computed(
@@ -45,7 +50,7 @@ async function signOut(): Promise<void> {
 </script>
 
 <template>
-  <div class="shell" :class="{ 'shell--bare': bare }">
+  <div class="shell" :class="{ 'shell--bare': bare, 'shell--wide': wide }">
     <header class="shell__bar">
       <RouterLink class="shell__brand" :to="{ name: 'library' }">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -190,6 +195,12 @@ async function signOut(): Promise<void> {
   max-width: 64rem;
   margin: 0 auto;
   padding: var(--md-spacing-6) var(--md-spacing-5);
+}
+
+/* Still bounded: a table stretched across an ultrawide display is no easier to
+   read than a cramped one. */
+.shell--wide .shell__main {
+  max-width: 110rem;
 }
 
 /* The auth screens centre their single column instead. */

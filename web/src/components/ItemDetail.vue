@@ -13,7 +13,7 @@ const props = defineProps<{
   fileUrl: (key: string, options?: { download?: boolean }) => string
 }>()
 
-const emit = defineEmits<{ open: [item: ItemEnvelope] }>()
+const emit = defineEmits<{ open: [item: ItemEnvelope]; close: [] }>()
 
 /** Properties shown elsewhere in the pane, or of no interest to a reader. */
 const HIDDEN = new Set([
@@ -116,10 +116,16 @@ function childTitle(child: ItemEnvelope): string {
   <article class="detail">
     <header class="detail__header">
       <ItemTypeIcon :item-type="item.data.itemType" :size="22" />
-      <div>
+      <div class="detail__headings">
         <h2 class="detail__title">{{ title }}</h2>
         <p class="detail__type">{{ itemTypeLabel(item.data.itemType) }}</p>
       </div>
+      <button class="detail__close" type="button" aria-label="Close details" @click="emit('close')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
     </header>
 
     <div v-if="isNote" class="detail__note" v-html="item.data.note"></div>
@@ -206,6 +212,29 @@ function childTitle(child: ItemEnvelope): string {
   display: flex;
   align-items: flex-start;
   gap: var(--md-spacing-3);
+}
+
+.detail__headings {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail__close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+}
+
+.detail__close:hover {
+  background: var(--md-sys-color-surface-container-high);
 }
 
 .detail__title {
