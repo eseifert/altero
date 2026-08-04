@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+import SidebarIcon from '@/components/SidebarIcon.vue'
 import type { CollectionNode } from '@/stores/library'
 
 /**
@@ -53,11 +54,7 @@ function toggle(key: string): void {
           :aria-current="selected === node.key ? 'true' : undefined"
           @click="emit('select', node.key)"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M3.75 6.75A1.5 1.5 0 015.25 5.25h3.9l1.8 2.25h7.8a1.5 1.5 0 011.5 1.5v8.25a1.5
-                     1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5z" />
-          </svg>
+          <SidebarIcon name="collection" />
           <span class="tree__label">{{ node.data.name }}</span>
           <span v-if="node.meta.numItems" class="tree__count">{{ node.meta.numItems }}</span>
         </button>

@@ -2,10 +2,12 @@ import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fieldLabel, humanize, itemTypeLabel, loadLabels, resetLabels } from '@/items/labels'
+import { sidebarIcon } from '@/items/sidebaricons'
 import type { CollectionNode, ItemEnvelope } from '@/stores/library'
 
 import CollectionTree from './CollectionTree.vue'
 import ItemDetail from './ItemDetail.vue'
+import SidebarIcon from './SidebarIcon.vue'
 
 const { requestMock } = vi.hoisted(() => ({ requestMock: vi.fn() }))
 
@@ -246,5 +248,43 @@ describe('labels', () => {
     await loadLabels()
 
     expect(fieldLabel('numPages')).toBe('Num Pages')
+  })
+})
+
+describe('sidebar icons', () => {
+  it('gives each kind of row its own glyph', () => {
+    const drawn = new Set(
+      ['library', 'group', 'everything', 'collection', 'trash', 'tag'].map((name) =>
+        sidebarIcon(name).paths.join(' '),
+      ),
+    )
+
+    expect(drawn.size).toBe(6)
+  })
+
+  it('falls back to the folder for a row it does not know', () => {
+    expect(sidebarIcon('nonesuch')).toBe(sidebarIcon('collection'))
+  })
+
+  it('is decorative, because the row says the same thing in words', () => {
+    const wrapper = mount(SidebarIcon, { props: { name: 'trash' } })
+
+    expect(wrapper.attributes('aria-hidden')).toBe('true')
+    expect(wrapper.find('title').exists()).toBe(false)
+  })
+
+  it('can be labelled where there is no text beside it', () => {
+    const wrapper = mount(SidebarIcon, { props: { name: 'trash', labelled: true } })
+
+    expect(wrapper.attributes('aria-label')).toBe('Trash')
+    expect(wrapper.get('title').text()).toBe('Trash')
+  })
+
+  it('draws the collection rows of the tree', () => {
+    const wrapper = mount(CollectionTree, {
+      props: { nodes: [node('AAAA2345', 'Papers')], selected: null },
+    })
+
+    expect(wrapper.findComponent(SidebarIcon).props('name')).toBe('collection')
   })
 })

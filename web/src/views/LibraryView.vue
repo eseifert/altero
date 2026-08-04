@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
+import SidebarIcon from '@/components/SidebarIcon.vue'
 import { loadLabels } from '@/items/labels'
 import { useLibraryStore, type ItemEnvelope } from '@/stores/library'
 
@@ -72,7 +73,10 @@ function sortIndicator(field: string): string {
           :class="['library__library', { 'library__library--current': entry.id === library.libraryId }]"
           @click="library.openLibrary(entry.id)"
         >
-          {{ entry.name || (entry.type === 'user' ? 'My Library' : `Group ${entry.ownerId}`) }}
+          <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
+          <span class="library__label">
+            {{ entry.name || (entry.type === 'user' ? 'My Library' : `Group ${entry.ownerId}`) }}
+          </span>
         </button>
       </nav>
 
@@ -82,21 +86,24 @@ function sortIndicator(field: string): string {
           :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'top' }]"
           @click="library.selectScope('top')"
         >
-          My library
+          <SidebarIcon name="library" />
+          <span class="library__label">My library</span>
         </button>
         <button
           type="button"
           :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'all' }]"
           @click="library.selectScope('all')"
         >
-          Everything
+          <SidebarIcon name="everything" />
+          <span class="library__label">Everything</span>
         </button>
         <button
           type="button"
           :class="['library__scope', { 'library__scope--current': library.scope === 'trash' }]"
           @click="library.selectScope('trash')"
         >
-          Trash
+          <SidebarIcon name="trash" />
+          <span class="library__label">Trash</span>
         </button>
       </nav>
 
@@ -119,7 +126,8 @@ function sortIndicator(field: string): string {
               :aria-pressed="library.selectedTags.includes(tag.tag)"
               @click="library.toggleTag(tag.tag)"
             >
-              {{ tag.tag }}
+              <SidebarIcon name="tag" :size="13" />
+              <span class="library__label">{{ tag.tag }}</span>
             </button>
           </li>
         </ul>
@@ -243,6 +251,10 @@ function sortIndicator(field: string): string {
 .library__library,
 .library__scope,
 .library__tag {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-2);
+  min-width: 0;
   padding: 0.35rem 0.6rem;
   border: none;
   border-radius: var(--md-sys-shape-corner-small);
@@ -268,6 +280,12 @@ function sortIndicator(field: string): string {
 
 .library__library {
   font-weight: 500;
+}
+
+.library__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .library__panel {
