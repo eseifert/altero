@@ -12,6 +12,16 @@ body,
   height: 100%;
 }
 
+/*
+ * Reserve the scrollbar's width whether or not one is showing. Without it, a
+ * page that grows past the viewport -- opening the detail pane, loading another
+ * page of items -- takes the scrollbar's width off the content and shifts
+ * everything sideways as it appears.
+ */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   background: var(--md-sys-color-background);

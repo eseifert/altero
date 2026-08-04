@@ -203,7 +203,7 @@ async function signOut(): Promise<void> {
   max-width: 110rem;
 }
 
-/* The auth screens centre their single column instead. */
+/* The auth screens hold a single narrow column, centred across the page. */
 .shell--bare .shell__notice {
   display: flex;
   align-items: center;
@@ -216,9 +216,16 @@ async function signOut(): Promise<void> {
   font-size: var(--md-sys-typescale-body-medium-size);
 }
 
-.shell__main {
+/*
+ * Centred across, never down the page. This rule lost its `.shell--bare`
+ * prefix at some point and so applied everywhere, which made the main area a
+ * flex container that shrank to its contents and re-centred them: selecting a
+ * library or opening the detail pane moved every row and button under the
+ * pointer. Vertical centring did the same on any page whose height changed.
+ */
+.shell--bare .shell__main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding-top: var(--md-spacing-7);
 }
