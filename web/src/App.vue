@@ -119,27 +119,45 @@ async function signOut(): Promise<void> {
   min-height: 100%;
 }
 
+/*
+ * A bar set slightly back from the page, the way GitHub's is: a tinted surface
+ * and a hairline underneath, rather than the page colour running edge to edge
+ * with only a rule to say where the chrome stops. It stays put when the library
+ * scrolls, since that is where sign-out and settings live.
+ */
 .shell__bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--md-spacing-4);
-  padding: var(--md-spacing-3) var(--md-spacing-5);
+  padding: var(--md-spacing-2) var(--md-spacing-5);
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container-low);
 }
 
+/* The sign-in screens are one card on an empty page; a bar of chrome above it
+   would be furniture around nothing. */
 .shell--bare .shell__bar {
+  position: static;
   border-bottom: none;
+  background: none;
 }
 
 .shell__brand {
   display: inline-flex;
   align-items: center;
   gap: var(--md-spacing-2);
-  color: var(--md-sys-color-primary);
-  font-size: var(--md-sys-typescale-title-medium-size);
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--md-sys-typescale-body-large-size);
   font-weight: var(--md-sys-typescale-weight-medium);
   text-decoration: none;
+}
+
+.shell__brand svg {
+  color: var(--md-sys-color-primary);
 }
 
 .shell__icon {
@@ -147,8 +165,8 @@ async function signOut(): Promise<void> {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--md-sys-shape-corner-full);
   color: var(--md-sys-color-on-surface-variant);
 }
@@ -174,7 +192,7 @@ async function signOut(): Promise<void> {
 .shell__actions {
   display: flex;
   align-items: center;
-  gap: var(--md-spacing-3);
+  gap: var(--md-spacing-1);
 }
 
 .shell__notice {
