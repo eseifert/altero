@@ -17,6 +17,9 @@ dependencies = [
     "uvicorn[standard]>=0.36",
     "python-multipart>=0.0.32",
     "argon2-cffi>=25.1.0",
+    "citeproc-py>=0.10.3",
+    "citeproc-py-styles>=0.1.6",
+    "dateparser>=1.4.1",
 ]
 
 [project.optional-dependencies]

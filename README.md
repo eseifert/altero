@@ -35,6 +35,10 @@ Implemented:
   several objects
 - `/users/<id>/publications/items`, readable without a key
 - Rate limiting, off unless configured, answering `429` with `Retry-After`
+- Citations and bibliographies: `format=bib`, `format=csljson` and
+  `include=bib,citation,csljson`, in any of the styles published by the
+  [CSL project](https://github.com/citation-style-language/styles), with
+  `style`, `locale` and `linkwrap`. Nothing is fetched at request time
 - Items of every type, including notes, attachments and annotations, whose
   fields the published schema does not list
 - Client-supplied `dateAdded` and `dateModified`, kept as sent
@@ -45,9 +49,9 @@ Implemented:
 - The attachment file protocol, storing files once per digest
 - Provisioning from the command line, CORS, and API version negotiation
 
-Not implemented yet: Atom, bibliography and citation rendering, the export
-formats, group creation through the API (the command line does it),
-`publications/settings` and `publications/deleted`, and rate limiting.
+Not implemented yet: Atom, the export formats (BibTeX, RIS and the rest), group
+creation through the API (the command line does it), and
+`publications/settings` and `publications/deleted`.
 
 The web interface (see below) covers registration, sign-in with a password or
 an email address, a one-time code from an authenticator app, account settings,

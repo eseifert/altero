@@ -2,7 +2,7 @@
 
 import json
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -152,6 +152,70 @@ class Schema:
             for entry in raw["itemTypes"]
         }
         self._locales: dict[str, dict[str, dict[str, str]]] = raw["locales"]
+
+    # -- CSL mappings ----------------------------------------------------
+    #
+    # The schema carries the mapping Zotero itself uses to turn an item into a
+    # CSL variable set. It is read from there rather than restated here, so a
+    # schema update moves the citation output with it.
+
+    @cached_property
+    def csl_types(self) -> dict[str, str]:
+        """Map each item type onto its CSL type.
+
+        The schema keys this the other way round -- one CSL type to the several
+        item types that render as it -- so it is inverted once here.
+        """
+        return {
+            item_type: csl_type
+            for csl_type, item_types in self.raw["csl"]["types"].items()
+            for item_type in item_types
+        }
+
+    @cached_property
+    def csl_text_fields(self) -> tuple[tuple[str, tuple[str, ...]], ...]:
+        """CSL text variables, each with the item fields that may supply it.
+
+        The first field carrying a value wins, which is why the order the schema
+        lists them in is preserved.
+        """
+        return tuple(
+            (variable, tuple(fields))
+            for variable, fields in self.raw["csl"]["fields"]["text"].items()
+        )
+
+    @cached_property
+    def csl_date_fields(self) -> tuple[tuple[str, str], ...]:
+        """CSL date variables and the item field each takes its value from."""
+        return tuple(self.raw["csl"]["fields"]["date"].items())
+
+    @cached_property
+    def csl_names(self) -> dict[str, str]:
+        """Map each creator type onto the CSL name variable it belongs in."""
+        return dict(self.raw["csl"]["names"])
+
+    @cached_property
+    def _base_field_targets(self) -> dict[str, dict[str, str]]:
+        """Per item type, the field that stands in for each base field."""
+        return {
+            name: {field.base_field: field.name for field in type_.fields if field.base_field}
+            for name, type_ in self.item_types.items()
+        }
+
+    def field_for(self, item_type: str, field: str) -> str | None:
+        """Return the field of ``item_type`` that ``field`` names, if any.
+
+        A base field resolves to the type-specific field mapped onto it, so
+        asking a ``bookSection`` for ``publicationTitle`` finds its
+        ``bookTitle``. Used wherever a caller knows a base name and the item
+        stores the specific one.
+        """
+        type_ = self.item_types.get(item_type)
+        if type_ is None:
+            return None
+        if field in type_.field_names:
+            return field
+        return self._base_field_targets[item_type].get(field)
 
     # -- locales ---------------------------------------------------------
 

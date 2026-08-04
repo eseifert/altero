@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import Response
 
-from altero import serializers
+from altero import cite, serializers
 from altero.api.batch import batch_write
 from altero.api.deps import BaseUrlDep, ReadableLibraryDep, SessionDep, WritableLibraryDep
 from altero.api.responses import (
@@ -19,7 +19,14 @@ from altero.api.responses import (
 )
 from altero.errors import InvalidInputError, RequestTooLargeError
 from altero.models import Item, Library
-from altero.query import ITEM_SORT_FIELDS, ListQuery, parse_list_query
+from altero.query import (
+    ITEM_FORMATS,
+    ITEM_SORT_FIELDS,
+    SINGLE_OBJECT_FORMATS,
+    Format,
+    ListQuery,
+    parse_list_query,
+)
 from altero.services import items as items_service
 from altero.services import itemwrites as item_writes
 from altero.services import writes
@@ -28,12 +35,56 @@ from altero.services.items import Page, Scope
 router = APIRouter(tags=["items"])
 
 
-def item_query(request: Request) -> ListQuery:
-    return parse_list_query(list(request.query_params.multi_items()), sort_fields=ITEM_SORT_FIELDS)
+def item_query(request: Request, formats: frozenset[Format] = ITEM_FORMATS) -> ListQuery:
+    return parse_list_query(
+        list(request.query_params.multi_items()),
+        sort_fields=ITEM_SORT_FIELDS,
+        formats=formats,
+    )
+
+
+def _with_included(
+    envelopes: list[dict[str, Any]],
+    items: Sequence[Item],
+    library: Library,
+    query: ListQuery,
+) -> list[dict[str, Any]]:
+    """Apply ``include`` to a page of serialized items.
+
+    ``data`` is one of several things that may be asked for rather than the
+    thing itself, so a request naming only ``bib`` gets an envelope with no
+    ``data`` in it. Each rendered form is produced per item, because that is
+    what a client asking for ``include=bib`` on a listing wants: one
+    bibliography entry beside each item, not one document for the page.
+    """
+    if query.include == frozenset({"data"}):
+        return envelopes
+
+    for envelope, item in zip(envelopes, items, strict=True):
+        data = envelope.pop("data")
+        if "data" in query.include:
+            envelope["data"] = data
+        if query.include & {"bib", "citation", "csljson"}:
+            csl = cite.csl_item(item, library)
+            if "csljson" in query.include:
+                envelope["csljson"] = csl
+            if "citation" in query.include:
+                envelope["citation"] = cite.citation(
+                    csl, style=query.style, locale=query.locale, linkwrap=query.linkwrap
+                )
+            if "bib" in query.include:
+                envelope["bib"] = cite.bibliography(
+                    [csl], style=query.style, locale=query.locale, linkwrap=query.linkwrap
+                )
+    return envelopes
 
 
 async def render_items(
-    session: AsyncSession, items: Sequence[Item], library: Library, base_url: str
+    session: AsyncSession,
+    items: Sequence[Item],
+    library: Library,
+    base_url: str,
+    query: ListQuery | None = None,
 ) -> list[dict[str, Any]]:
     """Serialize items, gathering the related data their envelopes need.
 
@@ -47,7 +98,7 @@ async def render_items(
     children = await items_service.count_children(session, items)
     parent_keys = await items_service.parent_keys_for(session, items)
 
-    return [
+    envelopes = [
         serializers.item(
             item,
             library,
@@ -59,13 +110,20 @@ async def render_items(
         )
         for item in items
     ]
+    if query is None:
+        return envelopes
+    return _with_included(envelopes, items, library, query)
 
 
 async def render_item(
-    session: AsyncSession, item: Item, library: Library, base_url: str
+    session: AsyncSession,
+    item: Item,
+    library: Library,
+    base_url: str,
+    query: ListQuery | None = None,
 ) -> dict[str, Any]:
     """Serialize one item."""
-    (rendered,) = await render_items(session, [item], library, base_url)
+    (rendered,) = await render_items(session, [item], library, base_url, query)
     return rendered
 
 
@@ -78,11 +136,21 @@ async def render_page(
     query: ListQuery,
 ) -> Response:
     """Render a page of items in the requested format."""
-    from altero.query import Format
-
     objects: list[Any] = []
+    csljson: list[Any] | None = None
+    bibliography: str | None = None
+
     if query.response_format is Format.JSON:
-        objects = await render_items(session, page.objects, library, base_url)
+        objects = await render_items(session, page.objects, library, base_url, query)
+    elif query.response_format is Format.CSLJSON:
+        csljson = cite.csl_items(list(page.objects), library)
+    elif query.response_format is Format.BIB:
+        bibliography = cite.bibliography(
+            cite.csl_items(list(page.objects), library),
+            style=query.style,
+            locale=query.locale,
+            linkwrap=query.linkwrap,
+        )
 
     return listing_response(
         request,
@@ -92,6 +160,8 @@ async def render_page(
         objects=objects,
         keys=[item.key for item in page.objects],
         versions={item.key: item.version for item in page.objects},
+        csljson=csljson,
+        bibliography=bibliography,
     )
 
 
@@ -144,11 +214,25 @@ async def get_item(
     library: ReadableLibraryDep,
     base_url: BaseUrlDep,
 ) -> Response:
+    query = item_query(request, SINGLE_OBJECT_FORMATS)
     if (response := not_modified(request, library.version)) is not None:
         return response
 
     item = await items_service.get_item(session, library, item_key)
-    return object_response(await render_item(session, item, library, base_url), library.version)
+
+    if query.response_format is Format.CSLJSON:
+        payload: Any = cite.csl_item(item, library)
+    elif query.response_format is Format.BIB:
+        payload = cite.bibliography(
+            [cite.csl_item(item, library)],
+            style=query.style,
+            locale=query.locale,
+            linkwrap=query.linkwrap,
+        )
+    else:
+        payload = await render_item(session, item, library, base_url, query)
+
+    return object_response(payload, library.version, query.response_format)
 
 
 @router.get("/users/{user_id}/items/{item_key}/children")

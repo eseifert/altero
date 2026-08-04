@@ -117,6 +117,68 @@ to the moment of upload. `serverDateModified` is always the server's own, which
 is what makes sorting by it trustworthy: a client cannot reorder another
 client's results by backdating its own timestamps.
 
+## Citations and bibliographies
+
+Upstream has no citation code of its own: `Zotero_Cite` posts CSL JSON to a
+citation server running citeproc-js and re-styles the HTML that comes back
+(`model/Cite.inc.php`). altero does the same two steps in process, with
+[citeproc-py](https://github.com/brechtm/citeproc-py) as the processor and
+[citeproc-py-styles](https://github.com/inveniosoftware/citeproc-py-styles) — a
+packaged copy of the Citation Style Language repository — as the style source.
+Nothing is fetched at request time, so an instance with no outbound network
+renders in any published style.
+
+**The CSL mapping is the schema's, not ours.** `https://api.zotero.org/schema`
+carries the `csl` tables Zotero itself maps with: item type to CSL type,
+CSL variable to the item fields that may supply it, creator type to CSL name
+variable. `altero/cite/csljson.py` applies them in the order
+`Zotero_Cite::retrieveItem` does — first field with a value wins, the item
+type's primary creator becomes `author` whatever it is called, enclosing quotes
+are stripped — so a schema update moves the output with it.
+
+**`format=csljson` wraps one item the same way it wraps many.** A single item
+comes back as `{"items": [ ... ]}` rather than as the object itself. Upstream's
+`ItemsController` carries a commented-out line saying it would return the bare
+object in a later API version; until it does, the wrapper is what clients parse.
+
+**`format=bib` is one document.** It carries `Total-Results` but no `Link`
+header, and rejects `sort`, `direction`, `start`, `limit` and `order` with a
+400 — a bibliography is not a page of results. Its maximum and default page
+size are both 150 (`Zotero_API::MAX_BIBLIOGRAPHY_ITEMS`).
+
+**`include` is validated rather than ignored.** `data`, `bib`, `citation`,
+`csljson` and `none` are accepted; `include=none` may not be combined with
+anything; `include` outside `format=json` is a 400, as is an unknown value.
+altero does not implement upstream's `html` or its export formats, so those are
+refused here rather than accepted — a client that asked for one and silently
+received `data` would have no way to notice.
+
+Four places where the rendered output is not upstream's:
+
+- **Style names are resolved through the CSL project's own
+  `renamed-styles.json`.** The API's default, `chicago-note-bibliography`, was
+  renamed years ago; the alias file maps it, and 609 others, onto what the
+  repository ships now. An unknown style answers `404 Style not found`.
+- **A style given as a URL is refused with `400 Invalid style`.** Upstream's
+  citation server fetches it. Fetching arbitrary URLs would make the server a
+  proxy for whoever holds an API key.
+- **The wrapper markup is reproduced, not the layout arithmetic.** Line height,
+  hanging indent and entry spacing are read from the style and written as inline
+  CSS exactly as the client's `makeFormattedBibliography` does. The
+  `second-field-align` handling, which needs citeproc-js's `maxoffset`, is not:
+  citeproc-py does not emit the `csl-left-margin` structure it applies to.
+- **A doubled full stop is collapsed.** An initialled name ends in a period and
+  the style adds its own; citeproc-js drops one, citeproc-py emits both, and
+  every name would otherwise read `Doe, J..`. Only text outside tags is touched,
+  and three periods are left alone.
+
+One correction is applied to citeproc-py itself, in `altero/cite/compat.py`:
+`citation-number` is excluded there from what counts as calling a variable, so a
+numeric style whose citation groups the number with a locator macro — IEEE —
+renders an empty citation. CSL 1.0.1 counts it as a number variable.
+`tests/test_citations.py` covers it, so a release that fixes it upstream shows
+up as a failing test.
+
 ## Item type schema
 
 These came out of comparing all 163 schema responses against the live API.
@@ -572,10 +634,10 @@ Five places where altero does not copy upstream:
   single-page response has no `Link` header at all, where upstream still emits
   the `alternate` one.
 - **An unknown `locale` falls back to `en-US`.** The live API answers `500`.
-- **Rate limiting is absent.** Upstream throttles with `Backoff` and
-  `Retry-After`; a self-hosted server with a handful of clients has nothing to
-  protect itself from. The headers are named in the CORS configuration so that
-  adding them later needs no client change.
+- **Rate limiting is off unless configured.** Upstream always throttles with
+  `Backoff` and `Retry-After`; a self-hosted server with a handful of clients
+  has nothing to protect itself from, so the limiter is present but disabled
+  until `ALTERO_RATE_LIMIT` names an allowance.
 - **Fields sharing a localized name may order differently.** Three fields are
   called "Format"; upstream breaks the tie on an internal identifier that the
   published schema does not contain, so their relative order is arbitrary here.
