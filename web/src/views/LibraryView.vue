@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
@@ -47,6 +47,18 @@ watch(searchText, (value) => {
   clearTimeout(searchTimer)
   searchTimer = setTimeout(() => library.setSearch(value), 250)
 })
+
+const searchField = useTemplateRef<HTMLInputElement>('searchField')
+
+/* Clearing is a decision, not a keystroke, so it does not wait out the pause
+   the way typing does. Focus stays in the field: emptying it is usually the
+   start of another search rather than the end of searching. */
+function clearSearch(): void {
+  clearTimeout(searchTimer)
+  searchText.value = ''
+  library.setSearch('')
+  searchField.value?.focus()
+}
 
 function titleOf(item: ItemEnvelope): string {
   if (item.data.itemType === 'note') {
@@ -137,13 +149,32 @@ function sortIndicator(field: string): string {
     <section class="library__list">
       <header class="library__header">
         <h1 class="library__heading">{{ heading }}</h1>
-        <input
-          v-model="searchText"
-          class="library__search"
-          type="search"
-          placeholder="Search"
-          aria-label="Search this library"
-        />
+        <div class="library__search">
+          <svg class="library__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+            <path d="M10.75 4.75a6 6 0 100 12 6 6 0 000-12z M15.25 15.25l4 4" />
+          </svg>
+          <input
+            ref="searchField"
+            v-model="searchText"
+            class="library__search-field"
+            type="search"
+            placeholder="Search"
+            aria-label="Search this library"
+          />
+          <button
+            v-if="searchText"
+            class="library__search-clear"
+            type="button"
+            aria-label="Clear search"
+            @click="clearSearch"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
       </header>
 
       <p v-if="library.failure" class="library__state library__state--error" role="alert">
@@ -367,13 +398,58 @@ function sortIndicator(field: string): string {
 }
 
 .library__search {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-2);
   width: min(18rem, 50%);
-  padding: 0.35rem 0.7rem;
+  padding: 0.3rem 0.6rem;
   border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: 999px;
+  border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface);
+}
+
+.library__search:focus-within {
+  border-color: var(--md-sys-color-primary);
+}
+
+.library__search-icon {
+  flex: none;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.library__search-field {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
   color: inherit;
   font: inherit;
+  outline: none;
+}
+
+/* WebKit draws a cancel button of its own inside a search field; two of them
+   side by side is one too many. */
+.library__search-field::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.library__search-clear {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+}
+
+.library__search-clear:hover {
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
 }
 
 .library__table {

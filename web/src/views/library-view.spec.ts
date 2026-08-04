@@ -84,3 +84,52 @@ describe('the item list', () => {
     expect(wrapper.get('.library__cell--title').text()).toBe('Structure and Interpretation')
   })
 })
+
+describe('the search field', () => {
+  it('offers nothing to clear while it is empty', async () => {
+    const wrapper = await open()
+
+    expect(wrapper.find('.library__search-clear').exists()).toBe(false)
+  })
+
+  it('offers a clear once something has been typed', async () => {
+    const wrapper = await open()
+
+    await wrapper.get('.library__search-field').setValue('whales')
+
+    expect(wrapper.find('.library__search-clear').exists()).toBe(true)
+  })
+
+  it('empties the field and the query when it is used', async () => {
+    const wrapper = await open()
+    await wrapper.get('.library__search-field').setValue('whales')
+
+    await wrapper.get('.library__search-clear').trigger('click')
+
+    expect((wrapper.get('.library__search-field').element as HTMLInputElement).value).toBe('')
+    expect(useLibraryStore().search).toBe('')
+  })
+
+  it('clears at once rather than waiting out the typing pause', async () => {
+    /* The pause exists so that typing is one query per phrase. Pressing a
+       button is not typing, and a list that keeps its old results for another
+       quarter of a second reads as a click that did not register. */
+    const wrapper = await open()
+    const store = useLibraryStore()
+
+    vi.useFakeTimers()
+    try {
+      // Typed under fake timers, so the pause it starts is ours to advance.
+      await wrapper.get('.library__search-field').setValue('whales')
+      await vi.advanceTimersByTimeAsync(300)
+      expect(store.search).toBe('whales')
+
+      await wrapper.get('.library__search-clear').trigger('click')
+
+      // Asserted without letting any timer run: the query is already gone.
+      expect(store.search).toBe('')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
