@@ -222,7 +222,30 @@ async def replace_collection(
     session: SessionDep,
     library: WritableLibraryDep,
 ) -> Response:
-    """Replace one collection."""
+    """Replace one collection. Properties left out are cleared."""
+    return await _write_single(collection_key, request, session, library, replace=True)
+
+
+@router.patch("/users/{user_id}/collections/{collection_key}")
+@router.patch("/groups/{group_id}/collections/{collection_key}")
+async def update_collection(
+    collection_key: str,
+    request: Request,
+    session: SessionDep,
+    library: WritableLibraryDep,
+) -> Response:
+    """Update one collection in place. Properties left out are untouched."""
+    return await _write_single(collection_key, request, session, library, replace=False)
+
+
+async def _write_single(
+    collection_key: str,
+    request: Request,
+    session: AsyncSession,
+    library: Library,
+    *,
+    replace: bool,
+) -> Response:
     payload = await request.json()
     if not isinstance(payload, dict):
         raise InvalidInputError("Uploaded data must be a JSON object")
@@ -234,7 +257,13 @@ async def replace_collection(
     await collections_service.get_collection(session, library, collection_key)
     version = await writes.bump_library_version(session, library)
     await object_writes.save_collection(
-        session, library, payload, version, key=collection_key, require_version=True
+        session,
+        library,
+        payload,
+        version,
+        key=collection_key,
+        replace=replace,
+        require_version=True,
     )
     await session.commit()
 

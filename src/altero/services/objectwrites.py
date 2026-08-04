@@ -44,6 +44,16 @@ def parse_relations(payload: dict[str, Any]) -> list[tuple[str, str]]:
     return pairs
 
 
+def keeps(payload: dict[str, Any], name: str, *, partial: bool) -> bool:
+    """Whether a property the payload does not mention keeps its stored value.
+
+    ``PATCH`` leaves out what it does not change, so an absent property means
+    "as before"; every other write path reads an absent property as a request to
+    clear it.
+    """
+    return partial and name not in payload
+
+
 def parse_deleted(payload: dict[str, Any]) -> bool:
     """Return the trash flag, rejecting anything that is not a boolean.
 
@@ -97,6 +107,7 @@ async def save_collection(
     key: str | None = None,
     require_version: bool = False,
     detect_unchanged: bool = False,
+    replace: bool = True,
 ) -> Collection | None:
     """Create or update one collection.
 
@@ -104,11 +115,9 @@ async def save_collection(
         detect_unchanged: Return ``None`` instead of writing when the payload
             describes what is already stored. Only the multi-object path asks
             for this, because only its response has somewhere to report it.
+        replace: Whether properties the payload leaves out are cleared. ``PATCH``
+            passes ``False``, so an absent property keeps what is stored.
     """
-    name = payload.get("name")
-    if not isinstance(name, str) or not name:
-        raise InvalidInputError("'name' property not provided")
-
     target_key = key or _check_key(payload, "collection")
 
     collection = None
@@ -120,6 +129,7 @@ async def save_collection(
         )
 
     before = None
+    partial = not replace and collection is not None
     if collection is None:
         collection = Collection(library_id=library.id, key=coerce_key(target_key), version=version)
         session.add(collection)
@@ -128,23 +138,31 @@ async def save_collection(
         if detect_unchanged:
             before = _collection_state(collection)
 
-    collection.name = name
-    collection.version = version
-    collection.deleted = parse_deleted(payload)
-    collection.relations = [
-        CollectionRelation(predicate=predicate, object=obj)
-        for predicate, obj in parse_relations(payload)
-    ]
+    if not keeps(payload, "name", partial=partial):
+        name = payload.get("name")
+        if not isinstance(name, str) or not name:
+            raise InvalidInputError("'name' property not provided")
+        collection.name = name
 
-    # `parentCollection` is false or absent for a top-level collection.
-    parent = payload.get("parentCollection")
-    if parent:
-        if str(parent) == collection.key:
-            raise InvalidInputError("Collection cannot be its own parent")
-        parent_collection = await get_collection(session, library, str(parent))
-        collection.parent_id = parent_collection.id
-    else:
-        collection.parent_id = None
+    collection.version = version
+    if not keeps(payload, "deleted", partial=partial):
+        collection.deleted = parse_deleted(payload)
+    if not keeps(payload, "relations", partial=partial):
+        collection.relations = [
+            CollectionRelation(predicate=predicate, object=obj)
+            for predicate, obj in parse_relations(payload)
+        ]
+
+    if not keeps(payload, "parentCollection", partial=partial):
+        # `parentCollection` is false or absent for a top-level collection.
+        parent = payload.get("parentCollection")
+        if parent:
+            if str(parent) == collection.key:
+                raise InvalidInputError("Collection cannot be its own parent")
+            parent_collection = await get_collection(session, library, str(parent))
+            collection.parent_id = parent_collection.id
+        else:
+            collection.parent_id = None
 
     if before is not None and before == _collection_state(collection):
         return None
@@ -189,33 +207,16 @@ async def save_search(
     key: str | None = None,
     require_version: bool = False,
     detect_unchanged: bool = False,
+    replace: bool = True,
 ) -> SavedSearch | None:
     """Create or update one saved search.
 
     Args:
         detect_unchanged: Return ``None`` rather than writing when the payload
             matches what is stored.
+        replace: Whether properties the payload leaves out are cleared. ``PATCH``
+            passes ``False``.
     """
-    name = payload.get("name")
-    if not isinstance(name, str) or not name:
-        raise InvalidInputError("'name' property not provided")
-
-    raw_conditions = payload.get("conditions", [])
-    if not isinstance(raw_conditions, list) or not raw_conditions:
-        raise InvalidInputError("'conditions' property not provided")
-
-    conditions: list[tuple[str, str, str]] = []
-    for condition in raw_conditions:
-        if not isinstance(condition, dict) or not condition.get("condition"):
-            raise InvalidInputError("Invalid search condition")
-        conditions.append(
-            (
-                str(condition["condition"]),
-                str(condition.get("operator", "")),
-                str(condition.get("value", "")),
-            )
-        )
-
     target_key = key or _check_key(payload, "search")
 
     search = None
@@ -227,6 +228,7 @@ async def save_search(
         )
 
     before = None
+    partial = not replace and search is not None
     if search is None:
         search = SavedSearch(library_id=library.id, key=coerce_key(target_key), version=version)
         session.add(search)
@@ -235,11 +237,42 @@ async def save_search(
         if detect_unchanged:
             before = _search_state(search)
 
-    desired = tuple(
-        (index, condition, operator, value)
-        for index, (condition, operator, value) in enumerate(conditions)
+    if keeps(payload, "name", partial=partial):
+        name = search.name
+    else:
+        name = payload.get("name")
+        if not isinstance(name, str) or not name:
+            raise InvalidInputError("'name' property not provided")
+
+    if keeps(payload, "conditions", partial=partial):
+        desired = tuple(
+            (condition.position, condition.condition, condition.operator, condition.value)
+            for condition in sorted(search.conditions, key=lambda c: c.position)
+        )
+    else:
+        raw_conditions = payload.get("conditions", [])
+        if not isinstance(raw_conditions, list) or not raw_conditions:
+            raise InvalidInputError("'conditions' property not provided")
+
+        conditions: list[tuple[str, str, str]] = []
+        for condition in raw_conditions:
+            if not isinstance(condition, dict) or not condition.get("condition"):
+                raise InvalidInputError("Invalid search condition")
+            conditions.append(
+                (
+                    str(condition["condition"]),
+                    str(condition.get("operator", "")),
+                    str(condition.get("value", "")),
+                )
+            )
+        desired = tuple(
+            (index, condition, operator, value)
+            for index, (condition, operator, value) in enumerate(conditions)
+        )
+
+    deleted = (
+        search.deleted if keeps(payload, "deleted", partial=partial) else parse_deleted(payload)
     )
-    deleted = parse_deleted(payload)
     if before is not None and before == (name, deleted, desired):
         # Compared before the conditions are replaced: assigning the list would
         # delete and reinsert every row to arrive at what is already there.

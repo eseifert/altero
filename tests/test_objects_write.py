@@ -180,6 +180,101 @@ class TestSearchWrites:
 
         assert body["failed"]["0"]["code"] == 400
 
+    async def test_a_search_is_replaced(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_search(
+            session,
+            library,
+            key="AAAA2345",
+            name="Old",
+            version=10,
+            conditions=[("title", "contains", "whale")],
+        )
+
+        response = await client.put(
+            "/users/1/searches/AAAA2345",
+            headers=JSON,
+            json={
+                "name": "New",
+                "version": 10,
+                "conditions": [{"condition": "title", "operator": "contains", "value": "squid"}],
+            },
+        )
+
+        assert response.status_code == 204
+        body = (await client.get("/users/1/searches/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["name"] == "New"
+        assert body["data"]["conditions"][0]["value"] == "squid"
+
+    async def test_patching_a_search_leaves_what_it_does_not_mention(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_search(
+            session,
+            library,
+            key="AAAA2345",
+            name="Old",
+            version=10,
+            conditions=[("title", "contains", "whale")],
+        )
+
+        response = await client.patch(
+            "/users/1/searches/AAAA2345", headers=JSON, json={"name": "New", "version": 10}
+        )
+
+        assert response.status_code == 204
+        body = (await client.get("/users/1/searches/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["name"] == "New"
+        assert body["data"]["conditions"][0]["value"] == "whale"
+
+    async def test_replacing_a_search_needs_its_conditions(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """A `PUT` clears what it leaves out, and a saved search with no
+        conditions is not a saved search."""
+        await make_search(
+            session, library, key="AAAA2345", version=10, conditions=[("title", "is", "x")]
+        )
+
+        response = await client.put(
+            "/users/1/searches/AAAA2345", headers=JSON, json={"name": "New", "version": 10}
+        )
+
+        assert response.status_code == 400
+
+    async def test_patching_a_collection_leaves_what_it_does_not_mention(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        parent = await make_collection(session, library, key="PPPP2345", name="Parent", version=10)
+        await make_collection(
+            session, library, key="AAAA2345", name="Old", version=10, parent=parent
+        )
+
+        response = await client.patch(
+            "/users/1/collections/AAAA2345", headers=JSON, json={"name": "New", "version": 10}
+        )
+
+        assert response.status_code == 204
+        body = (await client.get("/users/1/collections/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["name"] == "New"
+        assert body["data"]["parentCollection"] == "PPPP2345"
+
+    async def test_replacing_a_collection_clears_its_parent(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        parent = await make_collection(session, library, key="PPPP2345", name="Parent", version=10)
+        await make_collection(
+            session, library, key="AAAA2345", name="Old", version=10, parent=parent
+        )
+
+        await client.put(
+            "/users/1/collections/AAAA2345", headers=JSON, json={"name": "New", "version": 10}
+        )
+
+        body = (await client.get("/users/1/collections/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["parentCollection"] is False
+
     async def test_a_search_is_deleted(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:

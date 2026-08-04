@@ -13,9 +13,10 @@ from starlette.responses import (
 )
 
 from altero import serializers
-from altero.api.deps import ApiKeyDep, BaseUrlDep, SessionDep
+from altero.api.deps import ApiKeyDep, BaseUrlDep, LibraryDep, SessionDep
+from altero.api.responses import object_response
 from altero.api.spa import MOUNT_PATH, is_built
-from altero.errors import ForbiddenError
+from altero.errors import ForbiddenError, NotFoundError
 from altero.models import ApiKey, Library
 from altero.services import auth, groups
 from altero.services import login as login_service
@@ -138,6 +139,29 @@ async def get_key(key: str, session: SessionDep, api_key: ApiKeyDep) -> dict[str
         raise ForbiddenError("Forbidden")
 
     return await _key_payload(session, api_key)
+
+
+@router.get("/groups/{group_id}")
+async def get_group(
+    session: SessionDep,
+    library: LibraryDep,
+    api_key: ApiKeyDep,
+    base_url: BaseUrlDep,
+) -> Response:
+    """Return one group's metadata.
+
+    Readable by anyone who may read the library, which for a public group is
+    anyone at all. A group the caller may not read answers 404 rather than 403,
+    which is what upstream's `canAccess` check does: a stranger learns nothing
+    about which private groups exist.
+    """
+    try:
+        await auth.require_read(session, library, api_key)
+    except ForbiddenError:
+        raise NotFoundError("Group not found") from None
+
+    group = await groups.get_group(session, library)
+    return object_response(serializers.group(library, group, base_url), library.version)
 
 
 @router.get("/users/{user_id}/groups")

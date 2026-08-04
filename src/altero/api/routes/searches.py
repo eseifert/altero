@@ -104,6 +104,61 @@ async def create_searches(
     return await batch_write(request, session, library, save)
 
 
+@router.put("/users/{user_id}/searches/{search_key}")
+@router.put("/groups/{group_id}/searches/{search_key}")
+async def replace_search(
+    search_key: str,
+    request: Request,
+    session: SessionDep,
+    library: WritableLibraryDep,
+) -> Response:
+    """Replace one saved search. Properties left out are cleared."""
+    return await _write_single(search_key, request, session, library, replace=True)
+
+
+@router.patch("/users/{user_id}/searches/{search_key}")
+@router.patch("/groups/{group_id}/searches/{search_key}")
+async def update_search(
+    search_key: str,
+    request: Request,
+    session: SessionDep,
+    library: WritableLibraryDep,
+) -> Response:
+    """Update one saved search in place. Properties left out are untouched."""
+    return await _write_single(search_key, request, session, library, replace=False)
+
+
+async def _write_single(
+    search_key: str,
+    request: Request,
+    session: AsyncSession,
+    library: Library,
+    *,
+    replace: bool,
+) -> Response:
+    payload = await request.json()
+    if not isinstance(payload, dict):
+        raise InvalidInputError("Uploaded data must be a JSON object")
+
+    header_version = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
+    if header_version is not None:
+        payload = {"version": header_version, **payload}
+
+    version = await writes.bump_library_version(session, library)
+    await object_writes.save_search(
+        session,
+        library,
+        payload,
+        version,
+        key=search_key,
+        replace=replace,
+        require_version=True,
+    )
+    await session.commit()
+
+    return Response(status_code=204, headers=library_headers(version))
+
+
 @router.delete("/users/{user_id}/searches/{search_key}")
 @router.delete("/groups/{group_id}/searches/{search_key}")
 async def delete_search(

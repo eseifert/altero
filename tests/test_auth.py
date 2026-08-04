@@ -118,6 +118,49 @@ async def test_groups_are_listed_for_their_member(
     assert group["links"]["self"]["href"].endswith("/groups/100")
 
 
+async def test_one_group_is_readable_by_a_key_that_covers_it(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await make_user(session, user_id=1, username="octocat", display_name="Mona Lisa")
+    await make_api_key(session, key=KEY, user_id=1, all_groups_read=True)
+    await make_group(session, group_id=100, owner_id=1, name="Research")
+
+    response = await client.get("/groups/100", headers={"Zotero-API-Key": KEY})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["id"] == 100
+    assert body["data"]["name"] == "Research"
+    assert response.headers["Last-Modified-Version"] == "0"
+
+
+async def test_a_public_group_is_readable_without_a_key(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await _setup(session)
+    await make_group(session, group_id=100, owner_id=1, name="Open", public=True)
+
+    response = await client.get("/groups/100")
+
+    assert response.status_code == 200
+    assert response.json()["data"]["name"] == "Open"
+
+
+async def test_a_group_the_caller_cannot_read_is_not_confirmed_to_exist(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    """403 would tell a stranger which private groups exist. Upstream's own
+    check answers 404, and so does this. A key that does not cover groups is
+    such a stranger even to its owner's own groups."""
+    await _setup(session)
+    await make_user(session, user_id=2, username="other")
+    await make_group(session, group_id=100, owner_id=2, name="Theirs")
+
+    response = await client.get("/groups/100", headers={"Zotero-API-Key": KEY})
+
+    assert response.status_code == 404
+
+
 async def test_groups_of_other_users_are_not_listed(
     client: httpx.AsyncClient, session: AsyncSession
 ) -> None:
