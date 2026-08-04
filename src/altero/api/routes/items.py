@@ -1,6 +1,7 @@
 """Item endpoints."""
 
 from collections.abc import Sequence
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter
@@ -8,10 +9,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import Response
 
-from altero import cite, serializers
+from altero import atom, cite, serializers
 from altero.api.batch import batch_write
 from altero.api.deps import BaseUrlDep, ReadableLibraryDep, SessionDep, WritableLibraryDep
 from altero.api.responses import (
+    AtomFeed,
+    entry_response,
     library_headers,
     listing_response,
     not_modified,
@@ -28,12 +31,50 @@ from altero.query import (
     ListQuery,
     parse_list_query,
 )
+from altero.services import collections as collections_service
 from altero.services import items as items_service
 from altero.services import itemwrites as item_writes
 from altero.services import writes
 from altero.services.items import Page, Scope
 
 router = APIRouter(tags=["items"])
+
+#: What an Atom feed says it covers, per scope, in the words the live API uses.
+#: ``{name}`` is the collection or the parent item the scope is taken from. The
+#: curly quotes are upstream's, character for character, which is why the
+#: ambiguous-character rule is waived rather than the punctuation changed.
+FEED_DESCRIPTIONS: dict[Scope, str] = {
+    Scope.ALL: "Items",
+    Scope.TOP: "Top-Level Items",
+    Scope.TRASH: "Deleted Items",
+    Scope.CHILDREN: "Child Items of ‘{name}’",  # noqa: RUF001
+    Scope.COLLECTION: "Items in Collection ‘{name}’",  # noqa: RUF001
+    Scope.COLLECTION_TOP: "Top-Level Items in Collection ‘{name}’",  # noqa: RUF001
+    # My Publications is a view of the library, and upstream titles its feed
+    # exactly as it titles the library's own.
+    Scope.PUBLICATIONS: "Items",
+    Scope.PUBLICATIONS_TOP: "Top-Level Items",
+}
+
+
+async def feed_description(
+    session: AsyncSession, library: Library, scope: Scope, key: str | None
+) -> str:
+    """Return what an Atom feed of ``scope`` says it covers.
+
+    The collection or parent item is fetched only when the title names one, so
+    a JSON listing never pays for it.
+    """
+    template = FEED_DESCRIPTIONS[scope]
+    if "{name}" not in template or key is None:
+        return template
+
+    if scope is Scope.CHILDREN:
+        parent = await items_service.get_item(session, library, key)
+        name = parent.field_values().get("title", "")
+    else:
+        name = (await collections_service.get_collection(session, library, key)).name
+    return template.format(name=name)
 
 
 def item_query(request: Request, formats: frozenset[Format] = ITEM_FORMATS) -> ListQuery:
@@ -144,15 +185,27 @@ async def render_page(
     library: Library,
     base_url: str,
     query: ListQuery,
+    describes: str = "Items",
 ) -> Response:
     """Render a page of items in the requested format."""
     objects: list[Any] = []
     csljson: list[Any] | None = None
     bibliography: str | None = None
     exported: str | None = None
+    feed: AtomFeed | None = None
 
     if query.response_format is Format.JSON:
         objects = await render_items(session, page.objects, library, base_url, query)
+    elif query.response_format is Format.ATOM:
+        # The same envelopes JSON is built from, so an item has one definition
+        # whichever format asked for it.
+        envelopes = await render_items(session, page.objects, library, base_url, query)
+        feed = AtomFeed(
+            describes=describes,
+            author=atom.author_for(library, base_url),
+            entries=tuple(atom.item_entry(envelope, query.content) for envelope in envelopes),
+            empty_updated=serializers.timestamp(datetime.now(UTC).replace(tzinfo=None)),
+        )
     elif query.response_format is Format.CSLJSON:
         csljson = cite.csl_items(list(page.objects), library)
     elif query.response_format is Format.BIB:
@@ -176,6 +229,7 @@ async def render_page(
         csljson=csljson,
         bibliography=bibliography,
         exported=exported,
+        feed=feed,
     )
 
 
@@ -210,8 +264,13 @@ async def render_listing(
     if (response := not_modified(request, library.version)) is not None:
         return response
 
+    describes = (
+        await feed_description(session, library, scope, key)
+        if query.response_format is Format.ATOM
+        else ""
+    )
     page = await items_service.list_items(session, library, query, scope, key)
-    return await render_page(request, session, page, library, base_url, query)
+    return await render_page(request, session, page, library, base_url, query, describes)
 
 
 @router.get("/users/{user_id}/items")
@@ -252,6 +311,14 @@ async def get_item(
         return response
 
     item = await items_service.get_item(session, library, item_key)
+
+    if query.response_format is Format.ATOM:
+        envelope = await render_item(session, item, library, base_url, query)
+        return entry_response(
+            atom.item_entry(envelope, query.content),
+            atom.author_for(library, base_url),
+            library.version,
+        )
 
     if query.response_format is Format.CSLJSON:
         payload: Any = cite.csl_item(item, library)

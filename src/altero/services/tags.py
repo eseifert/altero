@@ -5,6 +5,7 @@ Tags are counted and filtered against a set of items, so the same code serves
 """
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import ColumnElement, Select, and_, func, select
@@ -24,6 +25,10 @@ class TagSummary:
     type: int
     num_items: int
     version: int
+    #: When an item carrying this tag last changed, which is the only sense in
+    #: which a tag has a modification time of its own. Atom entries need one;
+    #: the JSON shape of a tag does not carry it.
+    last_modified: datetime | None = None
 
 
 def _name_filter(query: ListQuery) -> ColumnElement[bool] | None:
@@ -66,8 +71,9 @@ async def list_tags(
 
     count = func.count(ItemTag.item_id).label("num_items")
     statement = (
-        select(Tag.name, Tag.type, count, Tag.version)
+        select(Tag.name, Tag.type, count, Tag.version, func.max(Item.server_date_modified))
         .join(ItemTag, ItemTag.tag_id == Tag.id)
+        .join(Item, Item.id == ItemTag.item_id)
         .where(and_(*join_filters))
         .group_by(Tag.id, Tag.name, Tag.type, Tag.version)
     )
@@ -75,8 +81,14 @@ async def list_tags(
     result = await session.execute(paginate(_apply_sort(statement, query, count), query))
 
     summaries = [
-        TagSummary(name=name, type=tag_type or 0, num_items=num_items, version=version)
-        for name, tag_type, num_items, version in result.all()
+        TagSummary(
+            name=name,
+            type=tag_type or 0,
+            num_items=num_items,
+            version=version,
+            last_modified=modified,
+        )
+        for name, tag_type, num_items, version, modified in result.all()
     ]
     return Page(
         objects=summaries,
@@ -89,8 +101,15 @@ async def get_tag(session: AsyncSession, library: Library, name: str) -> TagSumm
     """Return one tag by name."""
     row = (
         await session.execute(
-            select(Tag.name, Tag.type, func.count(ItemTag.item_id), Tag.version)
+            select(
+                Tag.name,
+                Tag.type,
+                func.count(ItemTag.item_id),
+                Tag.version,
+                func.max(Item.server_date_modified),
+            )
             .join(ItemTag, ItemTag.tag_id == Tag.id)
+            .join(Item, Item.id == ItemTag.item_id)
             .where(Tag.library_id == library.id, Tag.name == name)
             .group_by(Tag.id, Tag.name, Tag.type, Tag.version)
         )
@@ -99,8 +118,14 @@ async def get_tag(session: AsyncSession, library: Library, name: str) -> TagSumm
     if row is None:
         raise NotFoundError("Tag not found")
 
-    tag_name, tag_type, num_items, version = row
-    return TagSummary(name=tag_name, type=tag_type or 0, num_items=num_items, version=version)
+    tag_name, tag_type, num_items, version, modified = row
+    return TagSummary(
+        name=tag_name,
+        type=tag_type or 0,
+        num_items=num_items,
+        version=version,
+        last_modified=modified,
+    )
 
 
 def items_in_library(library: Library) -> Select[Any]:

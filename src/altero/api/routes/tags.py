@@ -1,5 +1,6 @@
 """Tag endpoints."""
 
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter
@@ -7,7 +8,7 @@ from sqlalchemy import select
 from starlette.requests import Request
 from starlette.responses import Response
 
-from altero import serializers
+from altero import atom, serializers
 from altero.api.deps import (
     BaseUrlDep,
     ReadableLibraryDep,
@@ -15,6 +16,8 @@ from altero.api.deps import (
     WritableLibraryDep,
 )
 from altero.api.responses import (
+    AtomFeed,
+    entry_response,
     library_headers,
     listing_response,
     not_modified,
@@ -22,7 +25,14 @@ from altero.api.responses import (
 )
 from altero.errors import RequestTooLargeError
 from altero.models import Item, Library
-from altero.query import TAG_SORT_FIELDS, Format, ListQuery, parse_list_query
+from altero.query import (
+    OBJECT_FORMATS,
+    SINGLE_NAMED_FORMATS,
+    TAG_SORT_FIELDS,
+    Format,
+    ListQuery,
+    parse_list_query,
+)
 from altero.search import parse_expressions
 from altero.services import items as items_service
 from altero.services import objectwrites as object_writes
@@ -34,6 +44,35 @@ from altero.services.tags import TagSummary
 router = APIRouter(tags=["tags"])
 
 
+def _updated(summary: TagSummary) -> str:
+    """Return the ``updated`` an Atom entry for ``summary`` carries.
+
+    A tag has no timestamp of its own, so this is the newest change to an item
+    that carries it. Falls back to now for the case that cannot happen through
+    the API -- a tag attached to nothing is deleted rather than kept.
+    """
+    when = summary.last_modified or datetime.now(UTC).replace(tzinfo=None)
+    return serializers.timestamp(when)
+
+
+def _tag_feed(
+    query: ListQuery,
+    envelopes: list[dict[str, Any]],
+    page: Page[TagSummary],
+    library: Library,
+    base_url: str,
+) -> AtomFeed:
+    return AtomFeed(
+        describes="Tags",
+        author=atom.author_for(library, base_url),
+        entries=tuple(
+            atom.tag_entry(envelope, query.content, updated=_updated(summary))
+            for envelope, summary in zip(envelopes, page.objects, strict=True)
+        ),
+        empty_updated=serializers.timestamp(datetime.now(UTC).replace(tzinfo=None)),
+    )
+
+
 def _render_tags(
     request: Request,
     query: ListQuery,
@@ -43,10 +82,16 @@ def _render_tags(
 ) -> Response:
     """Render a page of tags in the requested format."""
     objects: list[Any] = []
-    if query.response_format is Format.JSON:
-        objects = [
+    feed: AtomFeed | None = None
+
+    if query.response_format in (Format.JSON, Format.ATOM):
+        envelopes = [
             serializers.tag(s.name, s.type, s.num_items, library, base_url) for s in page.objects
         ]
+        if query.response_format is Format.JSON:
+            objects = envelopes
+        else:
+            feed = _tag_feed(query, envelopes, page, library, base_url)
 
     return listing_response(
         request,
@@ -56,15 +101,17 @@ def _render_tags(
         objects=objects,
         keys=[s.name for s in page.objects],
         versions={s.name: s.version for s in page.objects},
+        feed=feed,
     )
 
 
-def tag_query(request: Request) -> ListQuery:
+def tag_query(request: Request, formats: frozenset[Format] = OBJECT_FORMATS) -> ListQuery:
     return parse_list_query(
         list(request.query_params.multi_items()),
         sort_fields=TAG_SORT_FIELDS,
         default_sort="title",
         tag_endpoint=True,
+        formats=formats,
     )
 
 
@@ -78,50 +125,30 @@ async def list_tags(
         return response
 
     page = await tags_service.list_tags(session, library, query)
-
-    objects: list[Any] = []
-    if query.response_format is Format.JSON:
-        objects = [
-            serializers.tag(
-                summary.name,
-                summary.type,
-                summary.num_items,
-                library,
-                base_url,
-            )
-            for summary in page.objects
-        ]
-
-    return listing_response(
-        request,
-        query,
-        version=page.library_version,
-        total=page.total,
-        objects=objects,
-        keys=[summary.name for summary in page.objects],
-        versions={summary.name: summary.version for summary in page.objects},
-    )
+    return _render_tags(request, query, page, library, base_url)
 
 
 @router.get("/users/{user_id}/tags/{tag_name}")
 @router.get("/groups/{group_id}/tags/{tag_name}")
 async def get_tag(
     tag_name: str,
+    request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
     base_url: BaseUrlDep,
 ) -> Response:
+    query = tag_query(request, SINGLE_NAMED_FORMATS)
     summary = await tags_service.get_tag(session, library, tag_name)
-    return object_response(
-        serializers.tag(
-            summary.name,
-            summary.type,
-            summary.num_items,
-            library,
-            base_url,
-        ),
-        library.version,
-    )
+    envelope = serializers.tag(summary.name, summary.type, summary.num_items, library, base_url)
+
+    if query.response_format is Format.ATOM:
+        return entry_response(
+            atom.tag_entry(envelope, query.content, updated=_updated(summary)),
+            atom.author_for(library, base_url),
+            library.version,
+        )
+
+    return object_response(envelope, library.version)
 
 
 async def _scoped_tags(

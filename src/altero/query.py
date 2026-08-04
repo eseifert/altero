@@ -7,6 +7,13 @@ without a request, and so a different HTTP layer only has to hand over strings.
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from altero.atom import (
+    CONTENT_INCLUDES,
+    ITEM_CONTENT_VALUES,
+    NAMED_CONTENT_VALUES,
+    TAG_CONTENT_VALUES,
+    parse_content,
+)
 from altero.cite.styles import DEFAULT_LOCALE, DEFAULT_STYLE
 from altero.errors import InvalidInputError
 from altero.pagination import DEFAULT_LIMIT, MAX_LIMIT, UNLIMITED, clamp_limit
@@ -17,6 +24,7 @@ class Format(StrEnum):
     """Response formats supported for listing endpoints."""
 
     JSON = "json"
+    ATOM = "atom"
     KEYS = "keys"
     VERSIONS = "versions"
     CSLJSON = "csljson"
@@ -38,15 +46,22 @@ ITEM_FORMATS = frozenset(Format)
 #: tags have no citation form: upstream rejects `format=bib` on them rather than
 #: ignoring it, and a client that asked would otherwise get JSON it did not ask
 #: for.
-OBJECT_FORMATS = frozenset({Format.JSON, Format.KEYS, Format.VERSIONS})
+OBJECT_FORMATS = frozenset({Format.JSON, Format.ATOM, Format.KEYS, Format.VERSIONS})
 
 #: Formats a request for one object may ask for. `keys` and `versions` describe
 #: a set and say nothing useful about a single object.
-SINGLE_OBJECT_FORMATS = frozenset({Format.JSON, Format.CSLJSON, Format.BIB}) | EXPORT_FORMATS
+SINGLE_OBJECT_FORMATS = (
+    frozenset({Format.JSON, Format.ATOM, Format.CSLJSON, Format.BIB}) | EXPORT_FORMATS
+)
+
+#: Formats that answer with an Atom entry rather than a JSON envelope for a
+#: single object. Collections, searches and tags have no citation form, so this
+#: is the only non-JSON format they serve one object in.
+SINGLE_NAMED_FORMATS = frozenset({Format.JSON, Format.ATOM})
 
 #: Values `include` accepts. `data` is the item itself; the rest are rendered
-#: from it. Upstream also accepts `html`, which needs Atom, and the export
-#: formats altero does not write -- see docs/compatibility.md.
+#: from it. Upstream also accepts `html`, which is Atom's own and is asked for
+#: through `content` instead -- see :mod:`altero.atom`.
 INCLUDE_VALUES = frozenset({"data", "bib", "citation", "csljson", "none"}) | {
     str(name) for name in EXPORT_FORMATS
 }
@@ -111,6 +126,9 @@ class ListQuery:
 
     response_format: Format = Format.JSON
     include: frozenset[str] = frozenset({"data"})
+    #: What ``format=atom`` puts in each entry's ``content``, in the order the
+    #: entry emits it. Empty for every other format.
+    content: tuple[str, ...] = ()
     item_keys: tuple[str, ...] = ()
     item_types: tuple[SearchExpression, ...] = ()
     tags: tuple[SearchExpression, ...] = ()
@@ -217,12 +235,25 @@ def default_limit(response_format: Format) -> int:
     return DEFAULT_LIMIT
 
 
+def _includes_for_content(content: tuple[str, ...]) -> frozenset[str]:
+    """Return the ``include`` set an Atom ``content`` needs rendered.
+
+    ``data`` is always in it, whatever was asked for: an entry's title, item
+    type and creator summary come from the item's own properties, so the
+    envelope has to carry them even when the body is a bibliography or nothing
+    at all.
+    """
+    named = {CONTENT_INCLUDES[value] for value in content}
+    return frozenset({"data"}) | {value for value in named if value is not None}
+
+
 def _parse_include(value: str | None, response_format: Format) -> frozenset[str]:
     """Return the validated ``include`` set.
 
     Only ``format=json`` carries anything to include in, so asking for it
     elsewhere is rejected rather than ignored: a client that asked for a
-    citation and received plain data would have no way to tell.
+    citation and received plain data would have no way to tell. Atom asks the
+    same question through ``content``.
     """
     if value is None:
         return frozenset({"data"})
@@ -246,6 +277,7 @@ def parse_list_query(
     default_sort: str = "dateModified",
     tag_endpoint: bool = False,
     formats: frozenset[Format] = OBJECT_FORMATS,
+    content_values: frozenset[str] | None = None,
 ) -> ListQuery:
     """Build a :class:`ListQuery` from a request's query parameters.
 
@@ -258,7 +290,20 @@ def parse_list_query(
         tag_endpoint: Whether ``qmode`` should be read as a tag search mode
             rather than an item quick-search mode.
         formats: Response formats this endpoint can produce.
+        content_values: Atom ``content`` values this endpoint can render.
+            Defaults to the item set when every format is on offer and to the
+            reduced one otherwise.
     """
+    if content_values is None:
+        # An endpoint that can render a bibliography is an item endpoint, and
+        # only those have every content value to offer.
+        content_values = (
+            ITEM_CONTENT_VALUES
+            if Format.BIB in formats
+            else TAG_CONTENT_VALUES
+            if tag_endpoint
+            else NAMED_CONTENT_VALUES
+        )
     single = {name: value for name, value in params}
     repeated = [value for name, value in params if name == "tag"]
 
@@ -290,9 +335,22 @@ def parse_list_query(
     if len(item_keys) > MAX_KEYS:
         raise InvalidInputError(f"Cannot request more than {MAX_KEYS} items at a time")
 
+    # `content` is Atom's `include`, and is refused elsewhere for the reason
+    # `include` is refused outside JSON: a client that asked for a citation and
+    # got something else back has no way to notice.
+    if response_format is Format.ATOM:
+        content = parse_content(single.get("content"), content_values)
+        include = _includes_for_content(content)
+    else:
+        content = ()
+        include = _parse_include(single.get("include"), response_format)
+        if "content" in single:
+            raise InvalidInputError("'content' is valid only for format=atom")
+
     return ListQuery(
         response_format=response_format,
-        include=_parse_include(single.get("include"), response_format),
+        include=include,
+        content=content,
         item_keys=item_keys,
         item_types=parse_expressions([single["itemType"]] if "itemType" in single else []),
         tags=parse_expressions(repeated),

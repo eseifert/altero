@@ -1,5 +1,6 @@
 """Saved search endpoints."""
 
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter
@@ -7,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import Response
 
-from altero import serializers
+from altero import atom, serializers
 from altero.api.batch import batch_write
 from altero.api.deps import (
     BaseUrlDep,
@@ -16,14 +17,23 @@ from altero.api.deps import (
     WritableLibraryDep,
 )
 from altero.api.responses import (
+    AtomFeed,
+    entry_response,
     library_headers,
     listing_response,
     not_modified,
     object_response,
 )
 from altero.errors import InvalidInputError, RequestTooLargeError
-from altero.models import Library
-from altero.query import NAMED_SORT_FIELDS, Format, ListQuery, parse_list_query
+from altero.models import Library, SavedSearch
+from altero.query import (
+    NAMED_SORT_FIELDS,
+    OBJECT_FORMATS,
+    SINGLE_NAMED_FORMATS,
+    Format,
+    ListQuery,
+    parse_list_query,
+)
 from altero.services import objectwrites as object_writes
 from altero.services import searches as searches_service
 from altero.services import writes
@@ -31,12 +41,22 @@ from altero.services import writes
 router = APIRouter(tags=["searches"])
 
 
-def search_query(request: Request) -> ListQuery:
+def search_query(request: Request, formats: frozenset[Format] = OBJECT_FORMATS) -> ListQuery:
     return parse_list_query(
         list(request.query_params.multi_items()),
         sort_fields=NAMED_SORT_FIELDS,
         default_sort="title",
+        formats=formats,
     )
+
+
+def _timestamps(obj: SavedSearch) -> tuple[str, str]:
+    """Return a saved search's ``published`` and ``updated``.
+
+    Off the stored row, because the JSON envelope of a saved search carries no
+    timestamps -- the same reason the collection routes read theirs there.
+    """
+    return serializers.timestamp(obj.date_added), serializers.timestamp(obj.date_modified)
 
 
 @router.get("/users/{user_id}/searches")
@@ -50,9 +70,22 @@ async def list_searches(
 
     page = await searches_service.list_searches(session, library, query)
 
+    envelopes = [serializers.saved_search(search, library, base_url) for search in page.objects]
     objects: list[Any] = []
+    feed: AtomFeed | None = None
+
     if query.response_format is Format.JSON:
-        objects = [serializers.saved_search(search, library, base_url) for search in page.objects]
+        objects = envelopes
+    elif query.response_format is Format.ATOM:
+        feed = AtomFeed(
+            describes="Searches",
+            author=atom.author_for(library, base_url),
+            entries=tuple(
+                atom.search_entry(envelope, query.content, timestamps=_timestamps(search))
+                for envelope, search in zip(envelopes, page.objects, strict=True)
+            ),
+            empty_updated=serializers.timestamp(datetime.now(UTC).replace(tzinfo=None)),
+        )
 
     return listing_response(
         request,
@@ -62,6 +95,7 @@ async def list_searches(
         objects=objects,
         keys=[search.key for search in page.objects],
         versions={search.key: search.version for search in page.objects},
+        feed=feed,
     )
 
 
@@ -74,11 +108,21 @@ async def get_search(
     library: ReadableLibraryDep,
     base_url: BaseUrlDep,
 ) -> Response:
+    query = search_query(request, SINGLE_NAMED_FORMATS)
     if (response := not_modified(request, library.version)) is not None:
         return response
 
     search = await searches_service.get_search(session, library, search_key)
-    return object_response(serializers.saved_search(search, library, base_url), library.version)
+    envelope = serializers.saved_search(search, library, base_url)
+
+    if query.response_format is Format.ATOM:
+        return entry_response(
+            atom.search_entry(envelope, query.content, timestamps=_timestamps(search)),
+            atom.author_for(library, base_url),
+            library.version,
+        )
+
+    return object_response(envelope, library.version)
 
 
 @router.post("/users/{user_id}/searches")

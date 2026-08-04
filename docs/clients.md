@@ -14,13 +14,21 @@ The client's API base URL is a hidden preference. In Zotero, open
 
 The trailing slash matters. Set one more, in the same editor:
 
-    extensions.zotero.streaming.enabled = false
+    extensions.zotero.streaming.url = ws://localhost:8000/stream
 
 `api.url` does not redirect the streaming API. The client resolves that
 separately, falling back to a compiled-in `wss://stream.zotero.org`, and sends
 your API key to it — a key that grants full access to your private library
 would go to zotero.org, which rejects it as unknown and may log it. See
 [compatibility.md](compatibility.md).
+
+altero serves that socket itself, at `/stream`, so pointing the preference at
+it is both the safe answer and the useful one: the client is told the moment a
+library changes instead of waiting for its next poll. Over TLS the scheme is
+`wss://`. If you would rather not use it at all, turn it off instead — what
+must not be left is the compiled-in default:
+
+    extensions.zotero.streaming.enabled = false
 
 Then restart Zotero and open **Settings → Sync → Link Account**.
 

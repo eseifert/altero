@@ -465,6 +465,9 @@ asserts that nothing in the library has been retracted, which altero has no
 basis to claim; `404` says the service is not here, which is true. The client
 logs the failure and syncs normally.
 
+The streaming API **is** served, at `/stream`, built from the published
+protocol rather than from a reference implementation — see below.
+
 **The streaming API is not covered by `api.url`, and the key goes to
 zotero.org.** This one is a configuration hazard rather than a compatibility
 question, and it was found by chasing a stray log line:
@@ -484,22 +487,106 @@ set, the client opens a socket to zotero.org and sends it an API key by
 transmitted — a credential granting full access to a private library, handed to
 a third party, by a deployment whose purpose is that the data stays put.
 
-`extensions.zotero.streaming.enabled = false` stops it, and `clients.md` now
-lists that alongside `api.url` as part of pointing a client at altero.
-
-The same finding makes streaming worth implementing eventually: because
-`streaming.url` exists, a client can be pointed at an altero socket rather than
-merely stopped from reaching zotero.org.
+`extensions.zotero.streaming.enabled = false` stops it. Because `streaming.url`
+exists, the better answer is to point it at altero's own socket, which is what
+`clients.md` now says: the credential stays put *and* the client stops waiting
+for its next poll to hear about a change.
 
 [streaming]: https://www.zotero.org/support/dev/web_api/v3/streaming_api
+
+## The streaming API
+
+Served at `/stream`. Upstream's is the root of a host of its own; altero is one
+application, so it gets a path under it, and the client is pointed at it with
+`extensions.zotero.streaming.url`.
+
+What is on the wire is the [published protocol][streaming] and nothing beyond
+it. Both modes work: a key in the handshake, which subscribes the connection to
+everything that key can reach and lists it on the `connected` event; and
+`createSubscriptions`, which is what the Zotero client sends — one subscription
+naming its key and **no** topics, meaning "everything, and keep it current".
+
+**What is inferred rather than copied.** There is no dataserver source for any
+of this, so three things are altero's:
+
+- **Close code 4400** for a message that is not JSON or names an action this
+  server has not got. The documentation gives 4403, 4409 and 4413 and stops
+  there; 4400 continues the series.
+- **A per-connection subscription limit of 50.** The documented 4413 says a
+  limit exists but not what it is. The Zotero client holds one subscription.
+- **`topicAdded` and `topicRemoved`** are sent only to a subscription that
+  named no topics. A client that listed its own chose them, and adding one it
+  did not ask for would be this server deciding what it watches.
+
+**One version per event, as one version per request.** The announcement is made
+from the same place the version counter moves, and on commit rather than at the
+point of change: a write that rolls back announces nothing, because a client
+told about a version that was never issued would ask for it and be told the
+library is older — indistinguishable, from the client's side, from a server
+that had gone backwards.
+
+**One process.** The broker is in memory. A deployment running several workers
+delivers an event only to the clients attached to the worker that served the
+write; the others hear nothing and fall back on polling, which is what they did
+before. Streaming across workers needs a shared bus, which this is not.
+
+## Atom
+
+`format=atom` is served by the item, collection, saved search and tag
+endpoints, for listings and for single objects, with `content` choosing the
+body — `html` by default, and `json`, `bib`, `citation`, `csljson`, the three
+export formats, `none`, or several at once as `zapi:subcontent` elements. The
+shapes were read off `api.zotero.org`; the prose describes Atom only in
+outline.
+
+Five differences, four of them consequences of decisions recorded elsewhere in
+this file:
+
+- **No `rel="alternate"`, anywhere.** Upstream's names a page on zotero.org.
+  See "Deliberate differences" below.
+- **`<id>` is built on the address the request arrived on.** Upstream writes
+  `http://zotero.org/users/<id>/items/<key>`, which is an identifier rather
+  than a link but still names somebody else's service. An Atom id is meant to
+  be stable, and altero has no fixed host to make one from, so the request's
+  own is used.
+- **The feed title reads `altero / <library> / <what>`** where upstream writes
+  `Zotero`. The rest of the title — "Top-Level Items", "Items in Collection
+  ‘x’" — is upstream's wording.
+- **No `rel="first"` on the first page.** altero builds the feed's paging links
+  and the `Link` header from one place, so the two cannot disagree about what
+  pages exist; upstream emits `first` in the feed pointing at the page being
+  read.
+- **The XHTML table's rows are in the item's own field order.** Upstream orders
+  them by an internal field identifier the published schema does not carry —
+  the same limitation recorded under "Item type schema" for fields that share a
+  localized name. The labels for fields outside the schema (`linkMode`,
+  `contentType`, `charset`) are upstream's; the rest are altero's, there being
+  nothing to copy.
+
+Two smaller choices. A `<content>` carries **both** `zapi:type` and a media
+`type`: upstream writes `type="application/json"` for a collection and
+`zapi:type="json"` for an item, with neither carrying the other's attribute, so
+emitting both means a consumer reading either finds it. And a bibliography or
+citation is embedded with the XHTML namespace declared on it — citeproc
+produces plain HTML, and `type="xhtml"` without the declaration would be a
+claim the document does not keep. A fragment that will not parse as XML is
+escaped and labelled `type="html"` instead, so one bad entry cannot make the
+whole feed unreadable.
+
+`content` is refused outside `format=atom`, and a citation form is refused on a
+collection, saved search or tag, for the reason `include` is refused outside
+`format=json`: a caller that asked for a citation and got an empty body has no
+way to tell that from an object that has none.
 
 ## API versions
 
 Only version 3 is served. A request naming another version through the
 `Zotero-API-Version` header or the `v` parameter is refused with `400` rather
-than answered, because a v1 or v2 client expects Atom, which is not implemented:
-returning v3 bodies under a v2 label would be worse than saying so. A header and
-a parameter that disagree are also refused, as upstream does.
+than answered. Atom is implemented now, but a v1 or v2 client expects more than
+a format: different envelopes, different parameter names and different
+pagination, none of which altero serves. Returning v3 bodies under a v2 label
+would be worse than saying so. A header and a parameter that disagree are also
+refused, as upstream does.
 
 ## The `relations` map
 

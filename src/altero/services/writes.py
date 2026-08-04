@@ -22,6 +22,7 @@ from altero.errors import (
     RequestTooLargeError,
 )
 from altero.models import Library, WriteToken
+from altero.services import streaming
 
 #: Largest number of objects one write request may carry.
 MAX_OBJECTS = 50
@@ -117,6 +118,10 @@ async def bump_library_version(session: AsyncSession, library: Library) -> int:
 
     # Keep the in-memory object in step with the row we just changed.
     await session.refresh(library, ["version"])
+
+    # Noted rather than sent: the streaming API announces it once the
+    # transaction commits, so a write that rolls back announces nothing.
+    streaming.note_change(session.sync_session, library, version)
     return version
 
 

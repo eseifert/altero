@@ -20,6 +20,18 @@ async def get_group(session: AsyncSession, library: Library) -> Group:
     return group
 
 
+async def list_public_libraries(session: AsyncSession) -> list[Library]:
+    """Return every library readable without a credential.
+
+    What an anonymous streaming connection may watch, which is exactly what an
+    anonymous request may read.
+    """
+    result = await session.scalars(
+        select(Library).where(Library.public.is_(True)).order_by(Library.id)
+    )
+    return list(result)
+
+
 async def list_groups_for_user(
     session: AsyncSession,
     user_id: int,

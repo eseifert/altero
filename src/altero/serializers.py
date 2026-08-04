@@ -112,8 +112,12 @@ def api_key(key: ApiKey, user: User, groups: dict[int, dict[str, bool]]) -> dict
     }
 
 
-def _timestamp(value: datetime) -> str:
-    """Render a stored timestamp as the UTC form the API uses."""
+def timestamp(value: datetime) -> str:
+    """Render a stored timestamp as the UTC form the API uses.
+
+    Public because the Atom entries need the same rendering for the timestamps
+    the JSON envelope of a collection or a saved search does not carry.
+    """
     return value.replace(microsecond=0).isoformat() + "Z"
 
 
@@ -193,8 +197,8 @@ def item(
     # library would carry a property that concerns almost none of them.
     if obj.in_publications:
         data["inPublications"] = True
-    data["dateAdded"] = _timestamp(obj.date_added)
-    data["dateModified"] = _timestamp(obj.date_modified)
+    data["dateAdded"] = timestamp(obj.date_added)
+    data["dateModified"] = timestamp(obj.date_modified)
 
     meta: dict[str, Any] = {}
     if summary := creator_summary(obj.creators):

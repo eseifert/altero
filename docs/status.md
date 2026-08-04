@@ -11,8 +11,10 @@ things the desktop client asks for that no data server documents.
 - The schema endpoints (`/itemTypes`, `/itemFields`, `/itemTypeFields`,
   `/itemTypeCreatorTypes`, `/creatorFields`, `/items/new`, `/schema`)
 - Reading items, collections, saved searches and tags, including `format=json`,
-  `keys` and `versions`, pagination with the `Link` header, sorting, `since`,
-  and `If-Modified-Since-Version`
+  `atom`, `keys` and `versions`, pagination with the `Link` header, sorting,
+  `since`, and `If-Modified-Since-Version`
+- Atom feeds and entries, with `content` choosing the body: `html`, `json`,
+  `bib`, `citation`, `csljson`, the export formats, `none`, or several at once
 - Tag listings scoped to a library, a collection, one item, the top level or
   the trash
 - Writing items, collections and saved searches, and deleting tags, with the
@@ -42,11 +44,14 @@ things the desktop client asks for that no data server documents.
 - Library settings, and attachment full-text, including the batch upload the
   desktop client uses
 - The attachment file protocol, storing files once per digest
+- The streaming API, at `/stream`: a client pointed at it with
+  `extensions.zotero.streaming.url` is told the moment a library changes
+  instead of waiting for its next poll
 - Provisioning from the command line, CORS, and API version negotiation
 
 ## Not implemented
 
-- Atom, and the eleven export formats beyond BibTeX, BibLaTeX and RIS
+- The eleven export formats beyond BibTeX, BibLaTeX and RIS
 - Group creation through the API — [the command line does
   it](administration.md)
 - Full-text **search**. The text a client uploads is stored, versioned and
@@ -63,14 +68,15 @@ papers, and the streaming API it opens a WebSocket to, appear nowhere in the
 dataserver source. There is no reference implementation to copy for either.
 
 altero answers the first with `404` rather than an empty list, which would
-assert that nothing in the library has been retracted. The client logs both
-failures and syncs normally.
+assert that nothing in the library has been retracted. The client logs the
+failure and syncs normally.
 
-The streaming API is documented, so it can be implemented. It is reached at a
-compiled-in `wss://stream.zotero.org` unless `extensions.zotero.streaming.url`
-is also set, which is why [connecting a client](clients.md) turns streaming off
-rather than leaving a key to travel to zotero.org. See
-[compatibility.md](compatibility.md) for what was found in the client source.
+The streaming API *is* documented, so it is implemented — from the published
+protocol, with the handful of inferred details marked as such in
+[compatibility.md](compatibility.md). It is reached at a compiled-in
+`wss://stream.zotero.org` unless `extensions.zotero.streaming.url` is set,
+which is why [connecting a client](clients.md) now sets that preference: left
+alone, the client hands an API key to zotero.org.
 
 ## One version per request
 

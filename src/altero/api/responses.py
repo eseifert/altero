@@ -4,11 +4,13 @@ Every listing endpoint answers with the same headers and supports the same three
 formats, so the logic lives here rather than in each route.
 """
 
+from dataclasses import dataclass
 from typing import Any
 
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
 
+from altero import atom
 from altero.pagination import build_page_links, format_link_header
 from altero.query import Format, ListQuery
 
@@ -16,12 +18,34 @@ from altero.query import Format, ListQuery
 #: to display; CSL JSON has a media type of its own that citation tooling looks
 #: for.
 CONTENT_TYPES: dict[Format, str] = {
+    Format.ATOM: atom.CONTENT_TYPE,
     Format.BIB: "text/html; charset=UTF-8",
     Format.CSLJSON: "application/vnd.citationstyles.csl+json",
     Format.BIBTEX: "application/x-bibtex",
     Format.BIBLATEX: "application/x-bibtex",
     Format.RIS: "application/x-research-info-systems",
 }
+
+
+@dataclass(frozen=True, slots=True)
+class AtomFeed:
+    """What a feed needs beyond the entries themselves.
+
+    Built by the route, because only the route knows what it is listing: the
+    feed title names the collection or the parent item where there is one.
+    """
+
+    #: What this listing covers, such as "Top-Level Items". The library's name
+    #: and the application's are prefixed here.
+    describes: str
+    author: atom.Author
+    entries: tuple[atom.Entry, ...]
+    #: ``<updated>`` for a feed with no entries, which Atom still requires.
+    empty_updated: str
+
+    @property
+    def title(self) -> str:
+        return f"altero / {self.author.name} / {self.describes}"
 
 
 def library_headers(version: int, total: int | None = None) -> dict[str, str]:
@@ -64,6 +88,7 @@ def listing_response(
     csljson: list[Any] | None = None,
     bibliography: str | None = None,
     exported: str | None = None,
+    feed: AtomFeed | None = None,
 ) -> Response:
     """Render a page of results in the format the client asked for.
 
@@ -74,8 +99,10 @@ def listing_response(
         csljson: CSL JSON objects, used by ``format=csljson``.
         bibliography: Rendered HTML, used by ``format=bib``.
         exported: A written file, used by the export formats.
+        feed: Entries and feed metadata, used by ``format=atom``.
     """
     headers = library_headers(version, total)
+    links: dict[str, str] = {}
 
     # A bibliography is one document rather than a page of results, so it
     # carries no paging links. Upstream leaves them off for the same reason.
@@ -84,6 +111,23 @@ def listing_response(
         links = build_page_links(base_url, list(query.raw), query.start, query.limit, total)
         if link_header := format_link_header(links):
             headers["Link"] = link_header
+
+    if query.response_format is Format.ATOM:
+        assert feed is not None, "an Atom listing must be given its entries"
+        url = str(request.url)
+        return Response(
+            atom.feed(
+                title=feed.title,
+                feed_id=atom.feed_id(url.split("?")[0], query.raw),
+                self_url=url,
+                links=links,
+                entries=feed.entries,
+                author=feed.author,
+                updated=atom.newest(feed.entries, feed.empty_updated),
+            ),
+            headers=headers,
+            media_type=atom.CONTENT_TYPE,
+        )
 
     if query.response_format is Format.KEYS:
         # One key per line, which is what the API returns for this format.
@@ -106,6 +150,15 @@ def listing_response(
         return PlainTextResponse(exported or "", headers=headers, media_type=content_type)
 
     return JSONResponse(objects, headers=headers)
+
+
+def entry_response(entry: atom.Entry, author: atom.Author, version: int) -> Response:
+    """Render one object as a standalone Atom entry."""
+    return Response(
+        atom.entry_document(entry, author),
+        headers=library_headers(version),
+        media_type=atom.CONTENT_TYPE,
+    )
 
 
 def object_response(payload: Any, version: int, response_format: Format = Format.JSON) -> Response:
