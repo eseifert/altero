@@ -15,8 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.db import Database
 from altero.errors import AlteroError, InvalidInputError
-from altero.models import LibraryType
-from altero.services import admin, auth, login, transfer, webauth
+from altero.models import Library, LibraryType
+from altero.services import admin, auth, groups, login, transfer, webauth
 from altero.settings import Settings, get_settings
 
 
@@ -121,14 +121,57 @@ async def _group_add(session: AsyncSession, args: argparse.Namespace) -> None:
     print(f"Created group '{library.name}' with id {library.owner_id}.")
 
 
-async def _group_member_add(session: AsyncSession, args: argparse.Namespace) -> None:
+async def _group_library(session: AsyncSession, group_id: int) -> Library:
     libraries = await admin.list_libraries(session)
-    library = next((lib for lib in libraries if lib.owner_id == args.group), None)
+    library = next(
+        (lib for lib in libraries if lib.type is LibraryType.GROUP and lib.owner_id == group_id),
+        None,
+    )
     if library is None:
-        raise AlteroError(f"No group with id {args.group}")
+        raise AlteroError(f"No group with id {group_id}")
+    return library
 
+
+async def _group_member_add(session: AsyncSession, args: argparse.Namespace) -> None:
+    library = await _group_library(session, args.group)
     await admin.add_group_member(session, library, username=args.username, role=args.role)
     print(f"Added {args.username} to group {args.group} as {args.role}.")
+
+
+async def _group_member_role(session: AsyncSession, args: argparse.Namespace) -> None:
+    library = await _group_library(session, args.group)
+    await admin.set_group_member_role(session, library, username=args.username, role=args.role)
+    print(f"{args.username} is now {args.role} of group {args.group}.")
+
+
+async def _group_member_remove(session: AsyncSession, args: argparse.Namespace) -> None:
+    library = await _group_library(session, args.group)
+    await admin.remove_group_member(session, library, username=args.username)
+    print(f"Removed {args.username} from group {args.group}.")
+
+
+async def _group_member_list(session: AsyncSession, args: argparse.Namespace) -> None:
+    library = await _group_library(session, args.group)
+    for user, member in await groups.list_members(session, library):
+        print(f"{user.id}\t{user.username}\t{member.role}")
+
+
+async def _group_delete(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Delete a group and everything in it.
+
+    Asks first unless told not to. Every other destructive thing here removes a
+    credential or a row; this one removes a library, and there is no trash
+    around a library to take it back out of.
+    """
+    library = await _group_library(session, args.group)
+    if not args.yes:
+        answer = input(f"Delete group '{library.name}' and everything in it? [y/N] ")
+        if answer.strip().lower() not in ("y", "yes"):
+            print("Left alone.")
+            return
+
+    await admin.delete_group(session, library)
+    print(f"Deleted group {args.group}.")
 
 
 async def _login_list(session: AsyncSession, args: argparse.Namespace) -> None:
@@ -248,6 +291,22 @@ def build_parser() -> argparse.ArgumentParser:
     member.add_argument("username")
     member.add_argument("--role", default="member", choices=["member", "admin"])
     member.set_defaults(handler=_group_member_add)
+    members = group.add_parser("members", help="list the members of a group")
+    members.add_argument("group", type=int)
+    members.set_defaults(handler=_group_member_list)
+    role = group.add_parser("role", help="change what a member may do")
+    role.add_argument("group", type=int)
+    role.add_argument("username")
+    role.add_argument("role", choices=["member", "admin"])
+    role.set_defaults(handler=_group_member_role)
+    remove = group.add_parser("remove", help="take a member out of a group")
+    remove.add_argument("group", type=int)
+    remove.add_argument("username")
+    remove.set_defaults(handler=_group_member_remove)
+    drop = group.add_parser("delete", help="delete a group and everything in it")
+    drop.add_argument("group", type=int)
+    drop.add_argument("--yes", action="store_true", help="do not ask first")
+    drop.set_defaults(handler=_group_delete)
 
     login_parser = commands.add_parser(
         "login", help="approve a desktop client login"

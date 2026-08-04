@@ -13,9 +13,9 @@ from starlette.responses import FileResponse, JSONResponse, Response
 
 from altero.api.deps import (
     BaseUrlDep,
+    FileWritableLibraryDep,
     ReadableLibraryDep,
     SessionDep,
-    WritableLibraryDep,
 )
 from altero.api.responses import library_headers
 from altero.errors import RequestTooLargeError
@@ -38,7 +38,7 @@ async def upload_file(
     item_key: str,
     request: Request,
     session: SessionDep,
-    library: WritableLibraryDep,
+    library: FileWritableLibraryDep,
     base_url: BaseUrlDep,
 ) -> Response:
     """Authorize an upload, or register one that has finished.

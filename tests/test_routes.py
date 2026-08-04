@@ -65,6 +65,16 @@ EXPECTED = [
     ("/keys/sessions/{token}/login", "GET"),
     ("/users/{user_id}/groups", "GET"),
     ("/groups/{group_id}", "GET"),
+    # Group administration. Upstream's paths, with an API key and a JSON body
+    # where it wants a superuser and XML -- see docs/compatibility.md.
+    ("/groups", "POST"),
+    ("/groups/{group_id}", "PUT"),
+    ("/groups/{group_id}", "PATCH"),
+    ("/groups/{group_id}", "DELETE"),
+    ("/groups/{group_id}/users", "GET"),
+    ("/groups/{group_id}/users", "POST"),
+    ("/groups/{group_id}/users/{member_id}", "PUT"),
+    ("/groups/{group_id}/users/{member_id}", "DELETE"),
     ("/itemTypes", "GET"),
     ("/itemFields", "GET"),
     ("/itemTypeFields", "GET"),

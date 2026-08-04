@@ -8,6 +8,11 @@ things the desktop client asks for that no data server documents.
 - Authentication by `Zotero-API-Key` header, bearer token or `key` parameter,
   with per-library and per-group permissions
 - `/keys/<key>` and `/users/<userID>/groups`
+- Group administration: creating a group, changing its metadata, deleting it,
+  and adding, promoting, demoting and removing members — with an API key and a
+  JSON body where upstream wants a superuser and XML
+- The group policies `libraryReading`, `libraryEditing` and `fileEditing`,
+  enforced rather than merely stored, with membership a ceiling over all three
 - The schema endpoints (`/itemTypes`, `/itemFields`, `/itemTypeFields`,
   `/itemTypeCreatorTypes`, `/creatorFields`, `/items/new`, `/schema`)
 - Reading items, collections, saved searches and tags, including `format=json`,
@@ -52,8 +57,6 @@ things the desktop client asks for that no data server documents.
 ## Not implemented
 
 - The eleven export formats beyond BibTeX, BibLaTeX and RIS
-- Group creation through the API — [the command line does
-  it](administration.md)
 - Full-text **search**. The text a client uploads is stored, versioned and
   served back, but `q` with `qmode=everything` covers an item's own fields, so
   text from an attachment cannot be found through it

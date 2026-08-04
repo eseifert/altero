@@ -746,22 +746,65 @@ report to put the answer in, and upstream's controller ignores the flag there
 too. The full-text batch is a different upstream code path (`Zotero_FullText`)
 and is left alone.
 
+## Groups
+
+Upstream serves `POST /groups`, `PUT /groups/<id>`, `DELETE /groups/<id>` and
+`POST /groups/<id>/users`, and none of them is part of the API a client uses:
+all require `$this->permissions->isSuper()`, which `ApiController` grants only
+to an operator authenticating out of band rather than with an API key, and all
+take an **XML** body parsed with `new SimpleXMLElement($this->body)`. Asking
+`GET /groups/<id>/users` with an ordinary key answers `403 Forbidden`. It is
+zotero.org's own administrative back door, and the Zotero client never calls
+it.
+
+altero serves the same paths with the credential and the body format the rest
+of the v3 API uses: an **API key**, and **JSON** in the shape
+`GET /groups/<id>` already returns, so what was read can be sent straight back
+— the `data` envelope is accepted as well as a bare object. Inventing a
+superuser credential was the alternative, and it would have meant a second
+class of credential on a server whose whole permission model is per library.
+
+`PUT` replaces and `PATCH` updates in place, as they do for items: a `PUT`
+without a `type` resets the group to `Private`, which is the safe direction for
+the one property that decides who may read it. `POST /groups/<id>/users` names
+somebody by `userID` or by `username`. `GET /groups/<id>/users` answers a shape
+of altero's own, since upstream answers 403 to anything an API key can present.
+
+Who may do what:
+
+| | Requires |
+| --- | --- |
+| Create a group | a key that may write to its owner's own library |
+| Read one | membership, or a public group |
+| Write items to one | membership, plus `libraryEditing` |
+| Upload files to one | membership, plus `fileEditing` |
+| Change the metadata, add or remove members | administrator of the group |
+| Leave | nobody's permission but your own |
+| Hand it on, delete it | the owner |
+
+Two of those are new rules rather than copied ones. A key must be **allowed to
+write** to a group *and* its owner must **administer** it, because putting
+items in a library and deciding who else may are separate things; and only the
+owner can transfer or delete, because both end the group as its members know
+it.
+
+**Membership is a ceiling, and it did not used to be.** `access_for` read a
+key's "all groups" grant as *every group on the server* rather than every group
+its owner belongs to, so anybody holding such a key could read — and write —
+every private group library on the instance. This surfaced the first time the
+new endpoints were driven with curl: a second account read a private group it
+had never been added to. It is fixed here, with `access_for` taking the
+caller's membership and the group's own policy alongside the key's grants.
+
+The version counter moves for a metadata write and for a membership change
+alike. Upstream keeps a group version apart from the library's; altero reports
+the library's as both, so a role change costs connected clients one sync poll
+that finds nothing new. That is the cheaper mistake: a client that has not
+noticed it was demoted is one that still believes it may write.
+
 ## Deliberate differences
 
-Five places where altero does not copy upstream:
-
-- **Group creation and membership stay on the command line.** Upstream serves
-  `POST /groups` and `POST /groups/<id>/users`, but neither is part of the API a
-  client uses: both require `$this->permissions->isSuper()`, which
-  `ApiController` grants only to an operator authenticating out of band rather
-  than with an API key, and both take an **XML** body parsed with
-  `new SimpleXMLElement($this->body)`. It is zotero.org's own administrative
-  back door.
-
-  Reproducing it would mean inventing a superuser credential altero does not
-  have and exposing a privileged write path on a self-hosted server, to offer
-  something `altero group add` and `altero group member` already do at the same
-  trust level without listening on a socket. The Zotero client never calls it.
+Four places where altero does not copy upstream:
 
 - **`alternate` links are omitted.** Every upstream envelope carries a link to
   the corresponding page on zotero.org, and the `Link` header always ends with

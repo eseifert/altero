@@ -10,7 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.keys import generate_api_key
-from altero.models import ApiKey, Group, GroupMember, Library, LibraryType, User
+from altero.models import ApiKey, GroupMember, Library, LibraryType, User
+from altero.services import groups
 
 
 async def _next_user_id(session: AsyncSession) -> int:
@@ -123,13 +124,6 @@ async def revoke_api_key(session: AsyncSession, key: str) -> None:
     await session.commit()
 
 
-async def _next_group_id(session: AsyncSession) -> int:
-    highest = await session.scalar(
-        select(func.max(Library.owner_id)).where(Library.type == LibraryType.GROUP)
-    )
-    return (highest or 0) + 1
-
-
 async def create_group(
     session: AsyncSession,
     *,
@@ -138,31 +132,21 @@ async def create_group(
     group_id: int | None = None,
     public: bool = False,
 ) -> Library:
-    """Create a group library owned by a user, who becomes its first admin."""
-    if not name:
-        raise InvalidInputError("A group name is required")
+    """Create a group library owned by a user, who becomes its first admin.
 
+    Through :mod:`altero.services.groups`, which is also what the API's
+    ``POST /groups`` goes through, so the command line and the endpoint cannot
+    disagree about what a new group is.
+    """
     owner = await get_user_by_name(session, owner_username)
+    payload: dict[str, str] = {"name": name}
+    if public:
+        # Public as a page and public as a library are separate settings, and
+        # `--public` on the command line means both -- there being no third
+        # thing it could reasonably mean.
+        payload |= {"type": "PublicOpen", "libraryReading": "all"}
 
-    library = Library(
-        type=LibraryType.GROUP,
-        owner_id=group_id if group_id is not None else await _next_group_id(session),
-        name=name,
-        version=0,
-        public=public,
-    )
-    session.add(library)
-    await session.flush()
-
-    session.add(
-        Group(
-            library_id=library.id,
-            owner_id=owner.id,
-            name=name,
-            type="PublicOpen" if public else "Private",
-        )
-    )
-    session.add(GroupMember(library_id=library.id, user_id=owner.id, role="admin"))
+    library, _ = await groups.create_group(session, owner=owner, payload=payload, group_id=group_id)
     await session.commit()
     return library
 
@@ -176,19 +160,32 @@ async def add_group_member(
 ) -> GroupMember:
     """Add a user to a group library."""
     user = await get_user_by_name(session, username)
-
-    existing = await session.scalar(
-        select(GroupMember).where(
-            GroupMember.library_id == library.id, GroupMember.user_id == user.id
-        )
-    )
-    if existing is not None:
-        raise InvalidInputError(f"'{username}' is already a member")
-
-    member = GroupMember(library_id=library.id, user_id=user.id, role=role)
-    session.add(member)
+    member = await groups.add_member(session, library, user, role)
     await session.commit()
     return member
+
+
+async def set_group_member_role(
+    session: AsyncSession, library: Library, *, username: str, role: str
+) -> GroupMember:
+    """Change what a member of a group library may do."""
+    user = await get_user_by_name(session, username)
+    member = await groups.set_role(session, library, user, role)
+    await session.commit()
+    return member
+
+
+async def remove_group_member(session: AsyncSession, library: Library, *, username: str) -> None:
+    """Take a user out of a group library."""
+    user = await get_user_by_name(session, username)
+    await groups.remove_member(session, library, user)
+    await session.commit()
+
+
+async def delete_group(session: AsyncSession, library: Library) -> None:
+    """Delete a group library and everything in it."""
+    await groups.delete_group(session, library)
+    await session.commit()
 
 
 async def list_group_members(session: AsyncSession, library: Library) -> list[GroupMember]:

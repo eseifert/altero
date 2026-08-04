@@ -1,8 +1,10 @@
 # Administration
 
-The Web API cannot create accounts or issue credentials, and the [web
-interface](web-interface.md) can only administer the account you are signed in
-as. Everything about somebody else is a command-line operation.
+The Web API cannot create accounts or issue credentials. It can now administer
+a **group** — creating one, changing it, and deciding who belongs to it, all
+with an ordinary API key; see [compatibility.md](compatibility.md#groups).
+Accounts, credentials and anything else about another person are still
+command-line operations.
 
 ```sh
 uv run altero user add <username> [--display-name NAME] [--id N]
@@ -13,6 +15,10 @@ uv run altero key list
 uv run altero key revoke <key>
 uv run altero group add <name> --owner <username> [--public]
 uv run altero group member <group-id> <username> [--role admin]
+uv run altero group members <group-id>
+uv run altero group role <group-id> <username> <member|admin>
+uv run altero group remove <group-id> <username>
+uv run altero group delete <group-id> [--yes]
 uv run altero library list
 uv run altero library set-version <user|group> <id> <version>
 uv run altero library export <user|group> <id> <archive.zip>
@@ -24,6 +30,11 @@ uv run altero login approve <token> <username> [--key KEY]
 Registration in the browser is open only while the instance has no users at
 all, so a fresh container is reachable without shell access and closes itself
 the moment that account exists. Every account after the first is made here.
+
+The group commands go through the same service the API's group endpoints do, so
+the shell and an API key cannot disagree about what a group is or what a role
+means. The shell is not a superuser path either: `group delete` removes a
+library and everything in it, and asks before it does unless told `--yes`.
 
 ## Moving a library to another server
 
@@ -74,6 +85,25 @@ A version can only be raised, because lowering one is how a working deployment
 locks its clients out. Note that objects the client already considers synced
 are not re-uploaded, so anything written before the database was recreated
 stays missing; use **Restore to Server** afterwards to force a full upload.
+
+## Group policy
+
+A group carries three settings that decide what its members may do, and all
+three are now enforced rather than merely stored:
+
+| Setting | Values | Effect |
+| --- | --- | --- |
+| `libraryReading` | `members`, `all` | `all`, on a public group, makes the library readable without a credential |
+| `libraryEditing` | `members`, `admins` | who may write items, collections and searches |
+| `fileEditing` | `none`, `members`, `admins` | who may upload attachment files, which is where the disk goes |
+
+`type` is `Private`, `PublicOpen` or `PublicClosed`. A group is only readable
+without a key when it is public **and** `libraryReading` is `all`: public as a
+page is not public as a library, and it is the library this server serves.
+
+Membership is a ceiling over all of it. A key granting "all groups" means every
+group its owner belongs to, and a group nobody has added you to is not readable
+whatever your key says.
 
 ## What has no home yet
 

@@ -285,8 +285,12 @@ async def _is_empty(session: AsyncSession, library: Library) -> bool:
     return True
 
 
-async def _clear(session: AsyncSession, library: Library) -> None:
-    """Remove everything belonging to a library, link tables first."""
+async def clear_library(session: AsyncSession, library: Library) -> None:
+    """Remove everything belonging to a library, link tables first.
+
+    Public because deleting a group needs exactly this, plus the rows that only
+    a group has -- see :func:`altero.services.groups.delete_group`.
+    """
     items = select(Item.id).where(Item.library_id == library.id)
     collections = select(Collection.id).where(Collection.library_id == library.id)
 
@@ -367,7 +371,7 @@ async def import_library(
                     f"Library {described['type']}/{described['id']} is not empty; "
                     "restoring would merge two libraries rather than replace one"
                 )
-            await _clear(session, library)
+            await clear_library(session, library)
 
         # Items first and parents second: a child cannot name a row that does
         # not exist yet, and the archive stores parents by key.

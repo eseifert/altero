@@ -139,9 +139,10 @@ maintenance, or that anyone publishes their deployment configuration.
 **Room for capabilities the hosted service does not prioritise.** Institutional
 identity integration, more flexible group policies, local full-text search,
 custom retention and backup rules, event notifications, administrative import
-and export, integration with repositories and research-information systems, and
-Zotero's own streaming API for clients that want changes pushed rather than
-polled. All of this is secondary: compatibility and dependable sync come first,
+and export, and integration with repositories and research-information systems.
+Zotero's own streaming API was on that list and is now served, so a client
+pointed at it hears about a change rather than waiting to ask.
+All of this is secondary: compatibility and dependable sync come first,
 and a feature that breaks a client is a regression however useful it is on its
 own.
 
@@ -188,11 +189,12 @@ library has been synced between two installed clients and then watched for
 divergence. That is a stronger claim than a replay can make, and it has not
 been made.
 
-Point 2 has two known holes. Creating a group is a command-line operation and
-not an API one. And full-text content is stored, versioned and served back, but
-never searched: `q` with `qmode=everything` covers an item's own fields, so text
-uploaded from an attachment cannot be found through it, and a child note matches
-as itself rather than surfacing its parent.
+Point 2 has one known hole left. Full-text content is stored, versioned and
+served back, but never searched: `q` with `qmode=everything` covers an item's
+own fields, so text uploaded from an attachment cannot be found through it, and
+a child note matches as itself rather than surfacing its parent. The other hole
+— that creating a group was a command-line operation and not an API one — is
+closed; see [administration.md](administration.md).
 
 A web interface is no longer among the intentions below; it exists, and what it
 does and does not cover is set out above. The following are still stated here as

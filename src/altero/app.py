@@ -17,6 +17,7 @@ from altero.api.routes import (
     deleted,
     files,
     fulltext,
+    groups,
     health,
     items,
     itemschema,
@@ -119,6 +120,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(streaming.router)
     app.include_router(itemschema.router)
     app.include_router(keys.router)
+    app.include_router(groups.router)
     app.include_router(deleted.router)
     app.include_router(settings_routes.router)
     app.include_router(fulltext.router)

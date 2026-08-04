@@ -109,6 +109,21 @@ async def get_writable_library(
 WritableLibraryDep = Annotated[Library, Depends(get_writable_library)]
 
 
+async def get_file_writable_library(
+    library: LibraryDep, api_key: ApiKeyDep, session: SessionDep
+) -> Library:
+    """Return the addressed library, requiring the right to put files in it.
+
+    Separate from write access because a group says separately who may upload
+    -- see :func:`altero.services.auth.require_file_write`.
+    """
+    await auth.require_file_write(session, library, api_key)
+    return library
+
+
+FileWritableLibraryDep = Annotated[Library, Depends(get_file_writable_library)]
+
+
 def get_base_url(request: Request) -> str:
     """Return the scheme and authority the request arrived on, without a trailing slash."""
     return str(request.base_url).rstrip("/")
