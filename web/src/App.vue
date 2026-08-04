@@ -182,11 +182,13 @@ async function signOut(): Promise<void> {
  * desktop hides the dark mark rather than merely showing the light one over
  * it.
  */
-/* Level with the icons across the bar, which are drawn at 20px. */
+/* A little above the icons across the bar, which are drawn at 20px: the mark
+   is the one thing in the header that is not a control, and it carries the
+   name. */
 .shell__logo {
   display: block;
   width: auto;
-  height: 1.25rem;
+  height: 1.5rem;
 }
 
 .shell__logo--dark {
