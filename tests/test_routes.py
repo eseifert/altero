@@ -25,6 +25,8 @@ EXPECTED = [
     ("/web/auth/logout", "POST"),
     ("/web/account", "GET"),
     ("/web/account", "PATCH"),
+    ("/web/account/locale", "PUT"),
+    ("/web/account/locales", "GET"),
     ("/web/account/password", "POST"),
     ("/web/account/email", "POST"),
     ("/web/account/totp", "POST"),

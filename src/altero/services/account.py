@@ -20,7 +20,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.models import ApiKey, TotpCredential, User, WebSession
-from altero.services import admin, emailverify, passwords, totp, webauth, websessions
+from altero.services import (
+    admin,
+    emailverify,
+    locales,
+    passwords,
+    totp,
+    webauth,
+    websessions,
+)
 from altero.services.webauth import Notifier
 
 #: Issuer shown in an authenticator app.
@@ -51,6 +59,25 @@ async def set_display_name(session: AsyncSession, user: User, display_name: str)
     if len(name) > 255:
         raise InvalidInputError("That display name is too long")
     user.display_name = name
+    await session.commit()
+    return user
+
+
+async def set_locale(
+    session: AsyncSession,
+    user: User,
+    *,
+    language: str | None,
+    time_zone: str | None,
+) -> User:
+    """Set the interface language and time zone, or clear either to follow the browser.
+
+    No password, for the same reason the display name needs none: neither is a
+    credential, and getting the language wrong is a nuisance rather than a
+    compromise.
+    """
+    user.language = locales.normalise_language(language)
+    user.time_zone = locales.normalise_time_zone(time_zone)
     await session.commit()
     return user
 

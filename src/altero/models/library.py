@@ -37,6 +37,15 @@ class User(Base):
     #: When the address was confirmed, or null. Gates security mail and
     #: nothing else -- an unverified account signs in and syncs normally.
     email_verified: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: Interface language as a BCP 47 tag, or null to follow the browser. Null
+    #: is the setting rather than the absence of one: storing the language the
+    #: browser happened to ask for would freeze it against a person who travels
+    #: between machines with different ones.
+    language: Mapped[str | None] = mapped_column(String(35), default=None)
+    #: IANA time zone, or null to follow the browser for the same reason. Not a
+    #: UTC offset: an offset is wrong for half the year everywhere that keeps
+    #: summer time.
+    time_zone: Mapped[str | None] = mapped_column(String(64), default=None)
 
 
 class Library(Base):

@@ -602,3 +602,125 @@ class TestManagingKeys:
         listed = (await client.get("/web/account/keys")).json()["keys"]
         assert listed[0]["lastUsed"] is not None
         assert listed[0]["lastUserAgent"] == "Zotero/7.0"
+
+
+class TestLanguageAndTimeZone:
+    """Both are account settings, so they follow the person between browsers."""
+
+    async def test_a_new_account_follows_the_browser(self, client: httpx.AsyncClient) -> None:
+        """Null is the setting, not the absence of one."""
+        await register(client)
+
+        body = (await client.get("/web/account")).json()
+
+        assert body["user"]["language"] is None
+        assert body["user"]["timeZone"] is None
+
+    async def test_both_are_set_together(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        response = await client.put(
+            "/web/account/locale",
+            headers=csrf_headers(client),
+            json={"language": "de", "timeZone": "Europe/Berlin"},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["user"]["language"] == "de"
+        assert response.json()["user"]["timeZone"] == "Europe/Berlin"
+
+    async def test_the_setting_outlives_the_session(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+        await client.put(
+            "/web/account/locale",
+            headers=csrf_headers(client),
+            json={"language": "ja", "timeZone": "Asia/Tokyo"},
+        )
+
+        body = (await client.get("/web/account")).json()
+
+        assert body["user"]["language"] == "ja"
+        assert body["user"]["timeZone"] == "Asia/Tokyo"
+
+    async def test_either_can_go_back_to_following_the_browser(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        await register(client)
+        await client.put(
+            "/web/account/locale",
+            headers=csrf_headers(client),
+            json={"language": "fr", "timeZone": "Europe/Paris"},
+        )
+
+        await client.put(
+            "/web/account/locale",
+            headers=csrf_headers(client),
+            json={"language": None, "timeZone": None},
+        )
+
+        body = (await client.get("/web/account")).json()
+        assert body["user"]["language"] is None
+        assert body["user"]["timeZone"] is None
+
+    async def test_a_region_narrows_to_the_language_it_has_a_catalogue_for(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """`pt-BR` is Portuguese as far as the interface strings go. The region
+        still reaches date formatting, which the browser supplies separately."""
+        await register(client)
+
+        response = await client.put(
+            "/web/account/locale",
+            headers=csrf_headers(client),
+            json={"language": "pt-BR", "timeZone": "America/Sao_Paulo"},
+        )
+
+        assert response.json()["user"]["language"] == "pt"
+
+    async def test_a_language_with_no_catalogue_is_refused(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        response = await client.put(
+            "/web/account/locale", headers=csrf_headers(client), json={"language": "kl"}
+        )
+
+        assert response.status_code == 400
+
+    async def test_a_time_zone_the_server_does_not_know_is_refused(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """Offered from the server's own database, so anything else is a typo
+        or a client inventing zones."""
+        await register(client)
+
+        response = await client.put(
+            "/web/account/locale", headers=csrf_headers(client), json={"timeZone": "Mars/Olympus"}
+        )
+
+        assert response.status_code == 400
+
+    async def test_a_utc_offset_is_not_a_time_zone(self, client: httpx.AsyncClient) -> None:
+        """An offset is wrong for half the year anywhere that keeps summer time."""
+        await register(client)
+
+        response = await client.put(
+            "/web/account/locale", headers=csrf_headers(client), json={"timeZone": "+02:00"}
+        )
+
+        assert response.status_code == 400
+
+    async def test_setting_it_needs_the_csrf_token(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        response = await client.put("/web/account/locale", json={"language": "de"})
+
+        assert response.status_code == 403
+
+    async def test_the_choices_come_from_the_server(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        body = (await client.get("/web/account/locales")).json()
+
+        assert {entry["tag"] for entry in body["languages"]} == {"en", "de", "fr", "es", "pt", "ja"}
+        assert "Europe/Berlin" in body["timeZones"]
+        assert len(body["timeZones"]) > 100

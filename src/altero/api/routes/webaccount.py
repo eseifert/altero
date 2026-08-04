@@ -7,6 +7,7 @@ that touches a credential takes the current password as well -- see
 """
 
 from typing import Annotated
+from zoneinfo import available_timezones
 
 from fastapi import APIRouter, Body, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -24,13 +25,20 @@ from altero.api.routes.web import (
 )
 from altero.errors import NotFoundError
 from altero.models import ApiKey, Invitation, Library, Notification, User
-from altero.services import account, invitations, notifications
+from altero.services import account, invitations, locales, notifications
 
 router = APIRouter(prefix="/web", tags=["web"])
 
 
 class DisplayName(BaseModel):
     display_name: str = Field(alias="displayName")
+
+
+class Locale(BaseModel):
+    """Both settings, either of which may be null to follow the browser."""
+
+    language: str | None = None
+    time_zone: str | None = Field(default=None, alias="timeZone")
 
 
 class PasswordChange(BaseModel):
@@ -158,6 +166,36 @@ async def update_account(
 ) -> Response:
     await account.set_display_name(session, user, body.display_name)
     return JSONResponse({"user": _serialise(user)})
+
+
+@router.put("/account/locale")
+async def set_locale(
+    session: SessionDep, user: CurrentUserDep, body: Locale, _csrf: CsrfDep
+) -> Response:
+    """Set the interface language and time zone.
+
+    A `PUT` of both together rather than a patch of either: they are one
+    decision about where the person is, and sending only one of them would
+    leave the other's absence ambiguous between "unchanged" and "follow the
+    browser".
+    """
+    await account.set_locale(session, user, language=body.language, time_zone=body.time_zone)
+    return JSONResponse({"user": _serialise(user)})
+
+
+@router.get("/account/locales")
+async def list_locales() -> Response:
+    """Return the languages on offer and the time zones accepted.
+
+    The zone list comes from the server's own database so the settings screen
+    cannot offer one the server would then refuse.
+    """
+    return JSONResponse(
+        {
+            "languages": [{"tag": tag, "name": name} for tag, name in locales.LANGUAGES.items()],
+            "timeZones": sorted(available_timezones()),
+        }
+    )
 
 
 @router.post("/account/password", status_code=204)

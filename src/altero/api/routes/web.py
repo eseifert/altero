@@ -70,6 +70,10 @@ def _serialise(user: User) -> dict:
         "displayName": user.display_name,
         "email": user.email,
         "emailVerified": user.email_verified is not None,
+        # Null means "follow the browser" rather than "unset", so it is sent as
+        # null rather than filled in with a default the account did not choose.
+        "language": user.language,
+        "timeZone": user.time_zone,
     }
 
 
