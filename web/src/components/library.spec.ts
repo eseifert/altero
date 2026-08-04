@@ -124,6 +124,24 @@ describe('ItemDetail', () => {
     expect(wrapper.text()).toContain('Doe')
   })
 
+  it('takes up the schema’s field names as soon as they arrive', async () => {
+    /* The names are fetched once, and every pane on screen was rendered before
+       the answer came back. Without that answer reaching them, a detail pane
+       shows the split camel case until the item is changed. */
+    let answer: (payload: unknown) => void = () => {}
+    requestMock.mockReturnValue(new Promise((resolve) => (answer = resolve)))
+    const loading = loadLabels('de')
+    const wrapper = detail()
+    expect(wrapper.text()).toContain('Publication Title')
+
+    answer({ itemTypes: {}, fields: { publicationTitle: 'Publikation' }, creatorTypes: {} })
+    await loading
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Publikation')
+    expect(wrapper.text()).not.toContain('Publication Title')
+  })
+
   it('links a DOI to where it resolves', () => {
     const link = detail()
       .findAll('a')
@@ -237,9 +255,41 @@ describe('labels', () => {
   it('asks the server once however many labels are wanted', async () => {
     requestMock.mockResolvedValue({ itemTypes: {}, fields: {}, creatorTypes: {} })
 
-    await Promise.all([loadLabels(), loadLabels(), loadLabels()])
+    await Promise.all([loadLabels('de'), loadLabels('de'), loadLabels('de')])
 
     expect(requestMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('asks again when the language changes, since the names are per language', async () => {
+    requestMock.mockResolvedValue({ itemTypes: {}, fields: {}, creatorTypes: {} })
+
+    await loadLabels('en-GB')
+    await loadLabels('de')
+
+    expect(requestMock).toHaveBeenCalledTimes(2)
+    expect(requestMock).toHaveBeenLastCalledWith('/web/schema?locale=de')
+  })
+
+  it('keeps the newest language when an older request answers after it', async () => {
+    /* Switching twice in quick succession leaves two requests in flight, and
+       the one that answers last is not necessarily the one that was asked
+       last. Whoever wins, the screen has to end up in the current language. */
+    const answers: Record<string, (payload: unknown) => void> = {}
+    requestMock.mockImplementation(
+      (path: string) => new Promise((resolve) => (answers[path] = resolve)),
+    )
+
+    const first = loadLabels('en-GB')
+    const second = loadLabels('de')
+    answers['/web/schema?locale=de']({ itemTypes: {}, fields: { title: 'Titel' }, creatorTypes: {} })
+    answers['/web/schema?locale=en-GB']({
+      itemTypes: {},
+      fields: { title: 'Title' },
+      creatorTypes: {},
+    })
+    await Promise.all([first, second])
+
+    expect(fieldLabel('title')).toBe('Titel')
   })
 
   it('falls back rather than failing when the request does', async () => {
