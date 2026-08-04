@@ -334,12 +334,16 @@ function childTitle(child: ItemEnvelope): string {
   list-style: none;
 }
 
+/* The same pill the sidebar draws. Outlined rather than filled, because
+   nothing here is selected: these say what the item is tagged with, and the
+   filled ones over there say what the list is being narrowed by. */
 .detail__tag {
-  padding: 0.15rem 0.55rem;
-  border-radius: 999px;
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
+  line-height: 1.35;
 }
 
 .detail__children {

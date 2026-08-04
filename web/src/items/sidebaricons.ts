@@ -54,15 +54,6 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
       'M10.5 10.75v6 M13.5 10.75v6',
     ],
   },
-
-  /** A luggage-tag shape with its eyelet, for the tag list. */
-  tag: {
-    label: 'Tag',
-    paths: [
-      'M11.3 3.75H5.25A1.5 1.5 0 003.75 5.25v6.05a1.5 1.5 0 00.44 1.06l7.45 7.45a1.5 1.5 0 002.12 0l6.05-6.05a1.5 1.5 0 000-2.12l-7.45-7.45a1.5 1.5 0 00-1.06-.44z',
-      'M7.75 8.25a.5.5 0 100-1 .5.5 0 000 1z',
-    ],
-  },
 }
 
 export const FALLBACK_SIDEBAR_ICON = 'collection'

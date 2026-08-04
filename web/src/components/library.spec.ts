@@ -303,13 +303,14 @@ describe('labels', () => {
 
 describe('sidebar icons', () => {
   it('gives each kind of row its own glyph', () => {
+    /* A tag has no glyph: it is drawn as a pill, which is what says it is one. */
     const drawn = new Set(
-      ['library', 'group', 'everything', 'collection', 'trash', 'tag'].map((name) =>
+      ['library', 'group', 'everything', 'collection', 'trash'].map((name) =>
         sidebarIcon(name).paths.join(' '),
       ),
     )
 
-    expect(drawn.size).toBe(6)
+    expect(drawn.size).toBe(5)
   })
 
   it('falls back to the folder for a row it does not know', () => {

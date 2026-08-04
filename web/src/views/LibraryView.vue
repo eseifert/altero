@@ -171,7 +171,6 @@ function sortLabel(column: { field: string; label: string }): string {
               :aria-pressed="library.selectedTags.includes(tag.tag)"
               @click="library.toggleTag(tag.tag)"
             >
-              <SidebarIcon name="tag" :size="13" />
               <span class="library__label">{{ tag.tag }}</span>
             </button>
           </li>
@@ -329,8 +328,7 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__library,
-.library__scope,
-.library__tag {
+.library__scope {
   display: flex;
   align-items: center;
   gap: var(--md-spacing-2);
@@ -346,14 +344,12 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__library:hover,
-.library__scope:hover,
-.library__tag:hover {
+.library__scope:hover {
   background: var(--md-sys-color-surface-container-high);
 }
 
 .library__library--current,
-.library__scope--current,
-.library__tag--on {
+.library__scope--current {
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
 }
@@ -407,24 +403,51 @@ function sortLabel(column: { field: string; label: string }): string {
   max-width: 100%;
 }
 
+/*
+ * A tag is a pill, here and in the item, and the two look the same: the same
+ * outline, the same corner, the same size of type. What differs is only what
+ * this one can do -- these narrow the list, so one that is doing so is filled.
+ *
+ * The fill brings its own border colour rather than dropping the border, so
+ * that picking a tag does not move the ones after it by two pixels.
+ */
 .library__tag {
-  align-items: flex-start;
+  display: block;
   max-width: 100%;
-  padding: 0.15rem 0.55rem;
+  min-width: 0;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--md-sys-color-outline);
+  /* A fixed corner rather than a full one: a tag long enough to wrap should be
+     a rounded rectangle, and a radius that follows the height turns it into a
+     lozenge with the words rattling around in the middle. On one line it is
+     round enough to read as a pill anyway. */
   border-radius: var(--md-sys-shape-corner-medium);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  font: inherit;
   font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
+  /* The body line height is set for paragraphs. Two lines of it inside a chip
+     leave a gap the chip then has to grow to hold. */
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+}
+
+.library__tag:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.library__tag--on,
+.library__tag--on:hover {
+  border-color: var(--md-sys-color-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
 }
 
 .library__tag .library__label {
   overflow: visible;
   overflow-wrap: anywhere;
   white-space: normal;
-}
-
-/* The glyph sits on the first line of a wrapped name rather than in the middle
-   of the chip. */
-.library__tag .sidebar-icon {
-  margin-top: 0.15rem;
 }
 
 .library__list {
