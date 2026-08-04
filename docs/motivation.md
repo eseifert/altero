@@ -16,7 +16,9 @@ This is not opposition to zotero.org. Hosting funds Zotero's development and is
 the right choice for most users. The published API and the AGPL licence of the
 reference implementation are what make a compatible server legitimate rather
 than adversarial. What a second implementation adds is a credible exit and the
-option of keeping data in-house.
+option of keeping data in-house. Legitimate is not the same as supported, and
+Zotero has been consistent that this is not supported; the precondition below
+says what that costs.
 
 ## The precondition everything else rests on
 
@@ -31,12 +33,36 @@ Where that stands:
   implements the browser-based key approval the client expects and serves that
   page itself; `altero login approve` does the same from the command line where
   the interface has not been built. See the README.
-- **Mobile: unverified.** Whether the iOS and Android clients expose an
-  equivalent setting has not been tested. Until it is, "sync across desktop and
-  mobile without Zotero's infrastructure" is a hope, not a claim.
-- **A standing risk.** The desktop preference is hidden and undocumented. It is
-  not a supported integration point and can change or disappear in any release.
-  Nothing in altero can prevent that.
+- **Mobile: closed.** Both mobile clients compile the host in. Android reads
+  `BuildConfig.BASE_API_URL`, a `buildConfigField` set to
+  `https://api.zotero.org` in `app/build.gradle.kts`, passed to Retrofit in
+  `api/module/ZoteroApiModule.kt`; iOS holds it as
+  `baseUrlString = "https://api.zotero.org/"` in
+  `Controllers/API/ZoteroApiClient.swift`. Neither has a preference, a debug
+  screen or any other runtime override — read from both sources on 2026-08-04,
+  after installing the Android app and finding nothing in it. Not in the debug
+  build either: the `dev` and `internal` product flavours change the app name
+  and the signing suffix and leave the host alone. Pointing a phone at altero
+  therefore means building a patched client, which is a non-goal below. "Sync
+  across desktop and mobile without Zotero's infrastructure" is not a hope any
+  more, it is out of reach: the honest scope of this project is the desktop.
+- **Asking upstream is not the missing step.** Zotero does not take feature
+  requests on GitHub — both mobile repositories say so in `CONTRIBUTING.md` and
+  point at the forums — and on the forums self-hosting has been raised since
+  2012 and declined every time. The clearest statement is Dan Stillman's, on
+  2022-08-08 in <https://forums.zotero.org/discussion/98918>: the dataserver
+  "just isn't designed as an installable package, and we don't provide any
+  support for running it that way". The reason given is not licensing or
+  principle but support — a server Zotero cannot help you with is one they
+  would rather you did not run — and that reason applies to a configurable host
+  in a mobile client exactly as it does to the server itself. So this is an
+  asked and answered question rather than an unasked one, and altero should
+  plan around the answer rather than wait for it to change.
+- **A standing risk.** The desktop preference is the only door, it is hidden
+  and undocumented, and by the above it belongs to a use its maintainers have
+  declined to support for over a decade. It can change or disappear in any
+  release, there is no second client to fall back on, and nothing in altero can
+  prevent that.
 
 ## What running your own server would give users
 
@@ -51,7 +77,9 @@ leaves the machine.
 **A complete private Zotero environment.** Not an API for programs to talk to,
 but the ordinary client experience — collections, tags, groups, sync — served
 privately. Useful to research groups, laboratories, companies, departments and
-families alike.
+families alike. Complete on the desktop, and only there: anybody evaluating
+altero for a group should know before they start that the phones stay pointed
+at zotero.org, for the reasons above.
 
 **Infrastructure an administrator can hold in their head.** One server process,
 one database and one directory of attachments — no caching tier, no search
@@ -127,7 +155,13 @@ can responsibly depend on.
 
 - Replacing zotero.org, or competing with it on convenience.
 - Forking or patching the Zotero clients. If a change to a client is required,
-  the approach is wrong.
+  the approach is wrong. This is the expensive one, because a patched build is
+  the only way a phone reaches another server, so holding to it is what puts
+  mobile out of reach above. It holds anyway: a fork would have to be rebuilt
+  and redistributed for every Zotero release, outside the app stores, and
+  somebody who installed it would be trusting this project with their library
+  and not merely with their server. That is a much larger thing to ask, and it
+  is the opposite of a credible exit.
 - Extending the API where compatibility and a better design conflict.
   Compatibility wins.
 

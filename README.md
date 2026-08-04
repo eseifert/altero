@@ -429,6 +429,13 @@ what the client expects to sync.
 Point a test installation at altero, not one holding a library you care about:
 altero is not finished, and a sync sends the client's data to it.
 
+The desktop application is the only client this works with. Zotero for iOS and
+for Android compile `https://api.zotero.org` into the build — a
+`buildConfigField` on Android, a constant on iOS — with no preference and no
+runtime override, so a phone cannot be pointed at another server without
+building a patched client, which this project will not do. See
+[docs/motivation.md](docs/motivation.md).
+
 ## Configuration
 
 Copy `config.example.py` to `config.py` and edit it. Every setting can also be
