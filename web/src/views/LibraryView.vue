@@ -294,13 +294,19 @@ function sortIndicator(field: string): string {
   gap: var(--md-spacing-2);
 }
 
+/*
+ * Sentence case, as base.css says headings are here: an uppercased string is
+ * read letter by letter by some screen readers, and Material 3 stopped
+ * shouting labels. A hairline under the word does the separating that the caps
+ * were doing.
+ */
 .library__panel-title {
   margin: 0;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
   color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-body-small-size, 0.8rem);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  font-weight: var(--md-sys-typescale-weight-medium);
 }
 
 .library__tags {

@@ -243,14 +243,22 @@ function childTitle(child: ItemEnvelope): string {
   line-height: 1.35;
 }
 
-.detail__type,
-.detail__heading {
+/* Sentence case here too, for the reason given in base.css. The item type is
+   a caption under the title; a section heading is a heading, so it carries the
+   same hairline the sidebar's panels do. */
+.detail__type {
   margin: 0.15rem 0 0;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-body-small-size, 0.8rem);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.detail__heading {
+  margin: 0;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  font-weight: var(--md-sys-typescale-weight-medium);
 }
 
 .detail__fields {
