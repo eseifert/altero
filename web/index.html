@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Both, so the browser paints its own chrome to match before Vue runs. -->
     <meta name="color-scheme" content="light dark" />
+    <!--
+      The mark for a light tab, which is also the pre-script default: the theme
+      store swaps this for the dark one as soon as it knows which theme is in
+      force. A `media` query here would decide it by the operating system and
+      ignore an explicit choice, and not every browser honours it anyway.
+    -->
+    <link rel="icon" type="image/svg+xml" href="/src/assets/favicon-light.svg" />
     <title>altero</title>
   </head>
   <body>

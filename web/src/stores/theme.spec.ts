@@ -1,7 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { THEME_STORAGE_KEY, useThemeStore } from './theme'
+import { ICONS, THEME_STORAGE_KEY, useThemeStore } from './theme'
 
 /** Stand in for the OS setting, which jsdom does not model. */
 function systemPrefersDark(dark: boolean): void {
@@ -20,8 +20,16 @@ describe('the theme store', () => {
     setActivePinia(createPinia())
     localStorage.clear()
     document.documentElement.removeAttribute('data-theme')
+    document.querySelectorAll('link[rel~="icon"]').forEach((link) => link.remove())
     systemPrefersDark(false)
   })
+
+  /** The one icon link on the page, which is what a browser will show. */
+  function icon(): HTMLLinkElement | null {
+    const links = document.querySelectorAll<HTMLLinkElement>('link[rel~="icon"]')
+    expect(links).toHaveLength(1)
+    return links[0]
+  }
 
   it('follows the system by default, because that is what most people expect', () => {
     const theme = useThemeStore()
@@ -63,6 +71,43 @@ describe('the theme store', () => {
     theme.setPreference('dark')
 
     expect(document.documentElement.dataset.theme).toBe('dark')
+  })
+
+  it('gives the tab the mark for the theme on screen', () => {
+    systemPrefersDark(true)
+    const theme = useThemeStore()
+
+    theme.initialise()
+
+    expect(icon()?.getAttribute('href')).toBe(ICONS.dark)
+  })
+
+  it('changes the tab icon with the theme, not only the page', () => {
+    const theme = useThemeStore()
+    theme.initialise()
+    expect(icon()?.getAttribute('href')).toBe(ICONS.light)
+
+    theme.setPreference('dark')
+
+    expect(icon()?.getAttribute('href')).toBe(ICONS.dark)
+  })
+
+  it('leaves one icon behind, whichever the page was served with', () => {
+    /* index.html carries a light mark for the moment before this runs. A
+       browser that takes the last icon it is given would keep showing it. */
+    for (const href of ['/light.svg', '/dark.svg']) {
+      const link = document.createElement('link')
+      link.rel = 'icon'
+      link.href = href
+      link.media = '(prefers-color-scheme: dark)'
+      document.head.appendChild(link)
+    }
+    const theme = useThemeStore()
+
+    theme.setPreference('dark')
+
+    expect(icon()?.getAttribute('href')).toBe(ICONS.dark)
+    expect(icon()?.hasAttribute('media')).toBe(false)
   })
 
   it('remembers an explicit choice across a reload', () => {
