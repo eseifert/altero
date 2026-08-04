@@ -224,6 +224,9 @@ function childTitle(child: ItemEnvelope): string {
   flex-direction: column;
   gap: var(--md-spacing-4);
   padding: var(--md-spacing-4);
+  /* Measured by the pane rather than the window: what a label and its value
+     have to fit into is this column, and the column is not the screen. */
+  container-type: inline-size;
 }
 
 .detail__header {
@@ -294,6 +297,26 @@ function childTitle(child: ItemEnvelope): string {
 .detail__fields dd {
   margin: 0;
   overflow-wrap: anywhere;
+}
+
+/*
+ * In a narrow pane the label column is a third of the width, and an abstract
+ * is left reading twenty characters to the line. Below that the label goes
+ * above its value instead, which costs a line and buys the whole width.
+ */
+@container (max-width: 26rem) {
+  .detail__fields {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .detail__fields dt {
+    font-size: var(--md-sys-typescale-body-small-size);
+  }
+
+  .detail__fields dd:not(:last-child) {
+    margin-bottom: 0.5rem;
+  }
 }
 
 .detail__section {

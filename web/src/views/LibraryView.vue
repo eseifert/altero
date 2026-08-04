@@ -305,8 +305,12 @@ function sortLabel(column: { field: string; label: string }): string {
   align-items: start;
 }
 
+/* The list and the item get the same width. An abstract is prose, often several
+   hundred words of it, and in a column narrow enough to be a sidebar it is a
+   ribbon of text nobody reads. Below 60rem the whole thing stacks anyway, so
+   an even split never comes at the list's expense. */
 .library--detail {
-  grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr) minmax(18rem, 24rem);
+  grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .library__sidebar {
@@ -512,9 +516,13 @@ function sortLabel(column: { field: string; label: string }): string {
   list-style: none;
 }
 
+/* The title is what the row is for, so it is the last thing to give way: two
+   shares against the creator's one, and a floor under it. Creator and date can
+   be read from the item once it is open; a row whose title has been squeezed to
+   two letters cannot be read at all. */
 .library__row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) minmax(0, 14rem) 7rem;
+  grid-template-columns: auto minmax(7rem, 2fr) minmax(0, 1fr) minmax(0, 7rem);
   align-items: center;
   gap: var(--md-spacing-3);
   width: 100%;
