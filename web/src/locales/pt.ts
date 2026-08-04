@@ -138,7 +138,7 @@ export default {
     'Isto cria uma chave que continua a funcionar até a remover nas definições, mesmo depois de terminar sessão aqui.',
   'This instance has no accounts yet, so this one will be yours.':
     'Esta instância ainda não tem contas, por isso esta será a sua.',
-  Trash: 'Reciclagem',
+  Trash: 'Lixo',
   'Turn on': 'Ativar',
   'Unknown browser': 'Navegador desconhecido',
   Unread: 'Por ler',

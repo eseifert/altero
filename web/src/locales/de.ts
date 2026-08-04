@@ -129,7 +129,7 @@ export default {
   'Sort by {column}': 'Nach {column} sortieren',
   'Sort by {column}, currently ascending': 'Nach {column} sortieren, derzeit aufsteigend',
   'Sort by {column}, currently descending': 'Nach {column} sortieren, derzeit absteigend',
-  Tags: 'Schlagwörter',
+  Tags: 'Tags',
   'That confirmation link is not valid or has expired.':
     'Dieser Bestätigungslink ist ungültig oder abgelaufen.',
   'That session was signed out.': 'Diese Sitzung wurde abgemeldet.',
