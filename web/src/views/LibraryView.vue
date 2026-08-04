@@ -314,10 +314,31 @@ function sortIndicator(field: string): string {
   list-style: none;
 }
 
+/* A tag is as long as somebody made it, and the column is narrow. Wrapping
+   inside the chip keeps the whole name readable; the alternative was a
+   sideways scrollbar for the sake of one long tag. */
+.library__tags li {
+  max-width: 100%;
+}
+
 .library__tag {
+  align-items: flex-start;
+  max-width: 100%;
   padding: 0.15rem 0.55rem;
-  border-radius: 999px;
+  border-radius: var(--md-sys-shape-corner-medium);
   font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
+}
+
+.library__tag .library__label {
+  overflow: visible;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* The glyph sits on the first line of a wrapped name rather than in the middle
+   of the chip. */
+.library__tag .sidebar-icon {
+  margin-top: 0.15rem;
 }
 
 .library__list {
