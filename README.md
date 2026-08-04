@@ -47,7 +47,8 @@ Implemented:
 - `/deleted?since=`, so a client that has been away can tell a deletion from an
   object it has not fetched
 - Library settings, and attachment full-text, including the batch upload the
-  desktop client uses
+  desktop client uses. The stored text is served back and versioned, but not
+  searched: `qmode=everything` covers an item's own fields
 - The attachment file protocol, storing files once per digest
 - Provisioning from the command line, CORS, and API version negotiation
 
@@ -216,6 +217,13 @@ that frequently never arrives.
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
 editing rather than only reading.
+
+Administering anybody other than yourself is still a shell operation. Creating
+an account, creating a group and changing who belongs to one are
+`altero user add`, `altero group add` and `altero group member`. So is an
+operator's view of the instance — versions, storage use, backups — which has
+nowhere to live yet, because permissions are per library and there is no
+instance administrator to show it to.
 
 ## Compatibility
 

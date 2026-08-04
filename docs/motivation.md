@@ -28,8 +28,9 @@ Where that stands:
 
 - **Desktop: settled.** `extensions.zotero.api.url` in the Config Editor points
   the client at another server. No custom build, no patched binary. altero
-  implements the browser-based key approval the client expects, approved from
-  the command line (`altero login approve`). See the README.
+  implements the browser-based key approval the client expects and serves that
+  page itself; `altero login approve` does the same from the command line where
+  the interface has not been built. See the README.
 - **Mobile: unverified.** Whether the iOS and Android clients expose an
   equivalent setting has not been tested. Until it is, "sync across desktop and
   mobile without Zotero's infrastructure" is a hope, not a claim.
@@ -62,15 +63,30 @@ whole thing fits on a small virtual machine or beside the services an
 institution already runs. This is the argument for a new implementation, and it
 is about what has to be operated, not what it is written in.
 
-**Administration without shell access.** Today every account, key, group and
-login approval is issued from the command line, which means anyone who
-administers a library needs a login on the server. A web interface is a goal:
-account and key management, group membership, approving a client's login, and
-the operational view — versions, storage use, backups — that an operator
-otherwise has to infer. It is what makes an instance something a librarian or a
-research-group lead can run, rather than only a systems administrator. It stays
-strictly an administrative surface: clients remain the way libraries are read
-and written, and no browsing interface will compete with them for that.
+**Administration without shell access.** Anybody who administers a library
+should not need a login on the server. The web interface reaches about half of
+that. It covers a person administering themselves — password, email address, an
+authenticator app, the signed-in browsers, their own API keys — and approving a
+Zotero client's login, which was the operation that most often sent somebody to
+a shell. What still needs one is everything concerning somebody else: creating
+an account, creating a group, changing who belongs to it. Registration in the
+browser opens only while an instance has no users at all, so the second account
+is a command-line account. Missing too is the operational view — versions,
+storage use, backups — that an operator otherwise has to infer, and with it any
+notion of an instance administrator to show it to: permissions today are per
+library and stop there. Until those exist, an instance is still something a
+systems administrator runs rather than a librarian or a research-group lead.
+
+This goal came with a constraint — that the interface stay strictly
+administrative, and that no browsing interface compete with the clients — and
+that constraint has been dropped rather than met. The interface reads a library
+too: collections, tags, search, an item with its attachments, a citation. What
+survives is the part that was load-bearing, and it is enforced rather than
+promised: the v3 API is reachable by API key and by nothing else, a session
+cookie is refused there, and `tests/test_web_routes.py` fails in both directions
+if that ever stops being true. Reading is all the interface does today; editing
+is intended, and when it arrives it will go through the same services and the
+same version preconditions as a client's write, not around them.
 
 **Institutional independence.** A university could run Zotero sync as internal
 infrastructure the way it runs GitLab, Nextcloud or Matrix — with institutional
@@ -128,13 +144,30 @@ can responsibly depend on.
 ## Status of the claims above
 
 Points 1 and 2 are what the test suite and `docs/compatibility.md` work
-towards, and are partly reached — see the status list in `README.md`. The
-following are stated here as intentions, not as properties of the current code:
-a web interface, object storage, institutional single sign-on, audit and
-retention controls, event notifications, federation, replication to a standby,
-and automatic backup verification. Today altero authenticates with API keys, is
-administered entirely from the command line, stores attachments on a local
-filesystem, and is configured by a single file.
+towards, and are partly reached — see the status list in `README.md`.
+
+Point 1 is not yet evidenced by the thing it describes.
+`tests/test_sync_cycle.py` drives a real server over a real socket with the
+request sequence, headers and encodings taken from the client's debug log, and
+checks that a second client downloads what the first uploaded; but no real
+library has been synced between two installed clients and then watched for
+divergence. That is a stronger claim than a replay can make, and it has not
+been made.
+
+Point 2 has two known holes. Creating a group is a command-line operation and
+not an API one. And full-text content is stored, versioned and served back, but
+never searched: `q` with `qmode=everything` covers an item's own fields, so text
+uploaded from an attachment cannot be found through it, and a child note matches
+as itself rather than surfacing its parent.
+
+A web interface is no longer among the intentions below; it exists, and what it
+does and does not cover is set out above. The following are still stated here as
+intentions rather than properties of the current code: object storage,
+institutional single sign-on, audit and retention controls, event notifications,
+federation, replication to a standby, and automatic backup verification. Today
+altero stores attachments on a local filesystem and is configured by a single
+file. It authenticates the API with API keys and the browser with a session
+cookie, and keeps those two apart on purpose.
 
 Points 3, 4 and 5 have since been reached. A container image and a compose file
 install and upgrade an instance, with `GET /health` reporting the migration
