@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import ThemeMenu from '@/components/ThemeMenu.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notifications'
+import { useLocaleStore } from '@/stores/locale'
 import { useThemeStore } from '@/stores/theme'
+
+const { t } = useI18n()
 
 const auth = useAuthStore()
 const theme = useThemeStore()
+const locale = useLocaleStore()
 const notifications = useNotificationStore()
 const router = useRouter()
 const route = useRoute()
@@ -31,6 +36,9 @@ const unconfirmed = computed(
 
 onMounted(() => {
   theme.initialise()
+  // Before anything is drawn: the browser's language and zone are what every
+  // screen falls back to until the account says otherwise.
+  locale.initialise()
   auth.loadConfig()
 })
 
@@ -51,7 +59,7 @@ async function signOut(): Promise<void> {
 
 <template>
   <div class="shell" :class="{ 'shell--bare': bare, 'shell--wide': wide }">
-    <a class="skip-link" href="#content">Skip to content</a>
+    <a class="skip-link" href="#content">{{ t('Skip to content') }}</a>
 
     <header class="shell__bar">
       <RouterLink class="shell__brand" :to="{ name: 'library' }">
@@ -70,8 +78,8 @@ async function signOut(): Promise<void> {
           :to="{ name: 'notifications' }"
           :aria-label="
             notifications.unread
-              ? `Notifications, ${notifications.unread} unread`
-              : 'Notifications'
+              ? t('Notifications, {count} unread', { count: notifications.unread })
+              : t('Notifications')
           "
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -87,7 +95,7 @@ async function signOut(): Promise<void> {
           v-if="auth.isAuthenticated"
           class="shell__icon"
           :to="{ name: 'settings' }"
-          aria-label="Settings"
+          :aria-label="t('Settings')"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -96,16 +104,17 @@ async function signOut(): Promise<void> {
           </svg>
         </RouterLink>
         <ThemeMenu />
-        <AppButton v-if="auth.isAuthenticated" variant="text" @click="signOut">Sign out</AppButton>
+        <AppButton v-if="auth.isAuthenticated" variant="text" @click="signOut">{{ t('Sign out') }}</AppButton>
       </div>
     </header>
 
     <p v-if="unconfirmed" class="shell__notice" role="status">
       <span>
-        Confirm <strong>{{ auth.user?.email }}</strong> to receive security
-        notifications and invitations. Your library works either way.
+        <i18n-t keypath="Confirm {address} to receive security notifications and invitations. Your library works either way.">
+          <template #address><strong>{{ auth.user?.email }}</strong></template>
+        </i18n-t>
       </span>
-      <AppButton variant="text" @click="auth.resendVerification()">Resend</AppButton>
+      <AppButton variant="text" @click="auth.resendVerification()">{{ t('Resend') }}</AppButton>
     </p>
 
     <!-- `tabindex="-1"` so the skip link can put focus here; without it the

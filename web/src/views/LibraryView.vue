@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
@@ -7,6 +8,8 @@ import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import { loadLabels } from '@/items/labels'
 import { useLibraryStore, type ItemEnvelope } from '@/stores/library'
+
+const { t, locale } = useI18n()
 
 const library = useLibraryStore()
 
@@ -27,9 +30,9 @@ const showDetail = computed(() => library.selected !== null && library.libraryId
 
 const heading = computed(() => {
   if (library.collectionName) return library.collectionName
-  if (library.scope === 'trash') return 'Trash'
-  if (library.scope === 'all') return 'All items'
-  return library.library?.name ?? 'Library'
+  if (library.scope === 'trash') return t('Trash')
+  if (library.scope === 'all') return t('All items')
+  return library.library?.name ?? t('Library')
 })
 
 onMounted(async () => {
@@ -63,9 +66,9 @@ function clearSearch(): void {
 function titleOf(item: ItemEnvelope): string {
   if (item.data.itemType === 'note') {
     const text = (item.data.note ?? '').replace(/<[^>]+>/g, ' ').trim()
-    return text.slice(0, 120) || 'Note'
+    return text.slice(0, 120) || t('Note')
   }
-  return (item.data.title as string) || '(untitled)'
+  return (item.data.title as string) || t('(untitled)')
 }
 
 function sortIndicator(field: string): string {
@@ -75,16 +78,18 @@ function sortIndicator(field: string): string {
 
 /* The arrow is decoration; this is what the control is called. */
 function sortLabel(column: { field: string; label: string }): string {
-  if (library.sort !== column.field) return `Sort by ${column.label.toLowerCase()}`
-  const direction = library.direction === 'asc' ? 'ascending' : 'descending'
-  return `Sort by ${column.label.toLowerCase()}, currently ${direction}`
+  const name = t(column.label).toLocaleLowerCase(locale.value)
+  if (library.sort !== column.field) return t('Sort by {column}', { column: name })
+  return library.direction === 'asc'
+    ? t('Sort by {column}, currently ascending', { column: name })
+    : t('Sort by {column}, currently descending', { column: name })
 }
 </script>
 
 <template>
   <div class="library" :class="{ 'library--detail': showDetail }">
     <aside class="library__sidebar">
-      <nav v-if="library.libraries.length > 1" class="library__libraries" aria-label="Libraries">
+      <nav v-if="library.libraries.length > 1" class="library__libraries" :aria-label="t('Libraries')">
         <button
           v-for="entry in library.libraries"
           :key="entry.id"
@@ -95,12 +100,12 @@ function sortLabel(column: { field: string; label: string }): string {
         >
           <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
           <span class="library__label">
-            {{ entry.name || (entry.type === 'user' ? 'My Library' : `Group ${entry.ownerId}`) }}
+            {{ entry.name || (entry.type === 'user' ? t('My Library') : t('Group {id}', { id: entry.ownerId })) }}
           </span>
         </button>
       </nav>
 
-      <nav class="library__scopes" aria-label="Views">
+      <nav class="library__scopes" :aria-label="t('Views')">
         <button
           type="button"
           :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'top' }]"
@@ -108,7 +113,7 @@ function sortLabel(column: { field: string; label: string }): string {
           @click="library.selectScope('top')"
         >
           <SidebarIcon name="library" />
-          <span class="library__label">My library</span>
+          <span class="library__label">{{ t('My library') }}</span>
         </button>
         <button
           type="button"
@@ -117,7 +122,7 @@ function sortLabel(column: { field: string; label: string }): string {
           @click="library.selectScope('all')"
         >
           <SidebarIcon name="everything" />
-          <span class="library__label">Everything</span>
+          <span class="library__label">{{ t('Everything') }}</span>
         </button>
         <button
           type="button"
@@ -126,12 +131,12 @@ function sortLabel(column: { field: string; label: string }): string {
           @click="library.selectScope('trash')"
         >
           <SidebarIcon name="trash" />
-          <span class="library__label">Trash</span>
+          <span class="library__label">{{ t('Trash') }}</span>
         </button>
       </nav>
 
       <section v-if="library.collections.length" class="library__panel">
-        <h2 class="library__panel-title">Collections</h2>
+        <h2 class="library__panel-title">{{ t('Collections') }}</h2>
         <CollectionTree
           :nodes="library.collections"
           :selected="library.collectionKey"
@@ -140,7 +145,7 @@ function sortLabel(column: { field: string; label: string }): string {
       </section>
 
       <section v-if="library.tags.length" class="library__panel">
-        <h2 class="library__panel-title">Tags</h2>
+        <h2 class="library__panel-title">{{ t('Tags') }}</h2>
         <ul class="library__tags">
           <li v-for="tag in library.tags" :key="tag.tag">
             <button
@@ -170,14 +175,14 @@ function sortLabel(column: { field: string; label: string }): string {
             v-model="searchText"
             class="library__search-field"
             type="search"
-            placeholder="Search"
-            aria-label="Search this library"
+            :placeholder="t('Search')"
+            :aria-label="t('Search this library')"
           />
           <button
             v-if="searchText"
             class="library__search-clear"
             type="button"
-            aria-label="Clear search"
+            :aria-label="t('Clear search')"
             @click="clearSearch"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -220,13 +225,13 @@ function sortLabel(column: { field: string; label: string }): string {
           class="library__state"
           role="status"
         >
-          Loading…
+          {{ t('Loading…') }}
         </p>
         <p v-else-if="!library.items.length" class="library__state" role="status">
-          Nothing here yet. Point the Zotero desktop app at this server and sync.
+          {{ t('Nothing here yet. Point the Zotero desktop app at this server and sync.') }}
         </p>
 
-        <ul v-else class="library__items" :aria-label="`Items in ${heading}`">
+        <ul v-else class="library__items" :aria-label="t('Items in {name}', { name: heading })">
           <li v-for="item in library.items" :key="item.key">
             <button
               type="button"
@@ -249,7 +254,7 @@ function sortLabel(column: { field: string; label: string }): string {
       </div>
 
       <footer class="library__footer">
-        <span>{{ library.total }} {{ library.total === 1 ? 'item' : 'items' }}</span>
+        <span>{{ t('{count} item | {count} items', library.total) }}</span>
         <button
           v-if="library.hasMore"
           class="library__more"
@@ -257,7 +262,7 @@ function sortLabel(column: { field: string; label: string }): string {
           :disabled="library.loading"
           @click="library.loadMore()"
         >
-          {{ library.loading ? 'Loading…' : 'Show more' }}
+          {{ library.loading ? t('Loading…') : t('Show more') }}
         </button>
       </footer>
     </section>

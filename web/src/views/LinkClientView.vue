@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import { ApiError, request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { useAuthStore } from '@/stores/auth'
+
+const { t } = useI18n()
 
 interface LinkRequest {
   status: string
@@ -80,14 +83,13 @@ async function decline(): Promise<void> {
 
 <template>
   <section class="auth-form">
-    <h1>Connect Zotero</h1>
+    <h1>{{ t('Connect Zotero') }}</h1>
 
-    <p v-if="state === 'loading'" class="auth-form__lead">Checking the request…</p>
+    <p v-if="state === 'loading'" class="auth-form__lead">{{ t('Checking the request…') }}</p>
 
     <template v-else-if="state === 'approved'">
       <p class="auth-form__lead">
-        Done. Zotero is picking up the connection now — you can close this page and go back to
-        it.
+        {{ t('Done. Zotero is picking up the connection now — you can close this page and go back to it.') }}
       </p>
       <AppButton full-width @click="$router.push({ name: 'library' })">
         Go to your library
@@ -95,7 +97,7 @@ async function decline(): Promise<void> {
     </template>
 
     <template v-else-if="state === 'declined'">
-      <p class="auth-form__lead">Refused. Zotero has been told to stop waiting.</p>
+      <p class="auth-form__lead">{{ t('Refused. Zotero has been told to stop waiting.') }}</p>
       <AppButton variant="text" full-width @click="$router.push({ name: 'library' })">
         Go to your library
       </AppButton>
@@ -114,7 +116,7 @@ async function decline(): Promise<void> {
 
     <template v-else>
       <p class="auth-form__lead">
-        A Zotero client is asking to connect to
+        {{ t('A Zotero client is asking to connect to') }}
         <strong>{{ auth.user?.username }}</strong
         >.
       </p>
@@ -122,18 +124,19 @@ async function decline(): Promise<void> {
       <!-- Said plainly, because it is a bigger grant than it looks: the key
            outlives this browser session and cannot be scoped down later. -->
       <ul class="link__grants">
-        <li>Read and change everything in your library</li>
-        <li>Read and change any group library you belong to</li>
-        <li>Download and upload attachments</li>
+        <li>{{ t('Read and change everything in your library') }}</li>
+        <li>{{ t('Read and change any group library you belong to') }}</li>
+        <li>{{ t('Download and upload attachments') }}</li>
       </ul>
       <p class="link__note">
-        This creates a key that keeps working until you remove it in Settings, even after you
-        sign out here.
+        {{
+          t('This creates a key that keeps working until you remove it in Settings, even after you sign out here.')
+        }}
       </p>
 
       <AppTextField
         v-model="password"
-        label="Confirm your password"
+        :label="t('Confirm your password')"
         type="password"
         autocomplete="current-password"
         required
@@ -142,9 +145,9 @@ async function decline(): Promise<void> {
 
       <p v-if="failure" class="auth-form__error" role="alert">{{ failure }}</p>
 
-      <AppButton type="button" full-width :loading="busy" @click="approve">Connect</AppButton>
+      <AppButton type="button" full-width :loading="busy" @click="approve">{{ t('Connect') }}</AppButton>
       <AppButton variant="text" full-width :disabled="busy" @click="decline">
-        Not now
+        {{ t('Not now') }}
       </AppButton>
     </template>
   </section>

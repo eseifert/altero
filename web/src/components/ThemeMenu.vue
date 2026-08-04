@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { useThemeStore, type ThemePreference } from '@/stores/theme'
+
+const { t } = useI18n()
 
 /**
  * The colour theme setting, as one icon that opens a menu.
@@ -117,7 +120,7 @@ onBeforeUnmount(() => {
       ref="trigger"
       type="button"
       class="theme-menu__trigger"
-      :aria-label="`Colour theme: ${current.label}`"
+      :aria-label="t('Colour theme: {name}', { name: t(current.label) })"
       aria-haspopup="menu"
       :aria-expanded="open"
       @click="toggle"
@@ -128,7 +131,7 @@ onBeforeUnmount(() => {
       </svg>
     </button>
 
-    <ul v-if="open" class="theme-menu__list" role="menu" aria-label="Colour theme">
+    <ul v-if="open" class="theme-menu__list" role="menu" :aria-label="t('Colour theme')">
       <li v-for="(option, index) in OPTIONS" :key="option.value" role="none">
         <button
           :ref="(element) => collect(element, index)"
@@ -143,7 +146,7 @@ onBeforeUnmount(() => {
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path :d="option.path" />
           </svg>
-          <span class="theme-menu__label">{{ option.label }}</span>
+          <span class="theme-menu__label">{{ t(option.label) }}</span>
           <svg
             v-if="theme.preference === option.value"
             class="theme-menu__check"

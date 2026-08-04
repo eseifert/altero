@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import type { CollectionNode } from '@/stores/library'
+
+const { t } = useI18n()
 
 /**
  * One level of the collection tree, recursing into itself.
@@ -36,7 +39,7 @@ function toggle(key: string): void {
           v-if="node.children.length"
           class="tree__twisty"
           type="button"
-          :aria-label="expanded.has(node.key) ? 'Collapse' : 'Expand'"
+          :aria-label="expanded.has(node.key) ? t('Collapse') : t('Expand')"
           :aria-expanded="expanded.has(node.key)"
           @click="toggle(node.key)"
         >

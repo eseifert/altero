@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/AppButton.vue'
 import { useNotificationStore } from '@/stores/notifications'
+import { formatDateTime } from '@/formats'
+
+const { t } = useI18n()
 
 const store = useNotificationStore()
 const answering = ref<number | null>(null)
@@ -21,31 +25,34 @@ async function answer(id: number, decision: 'accept' | 'decline'): Promise<void>
 }
 
 function when(iso: string): string {
-  return new Date(iso).toLocaleString()
+  return formatDateTime(iso)
 }
 </script>
 
 <template>
   <section class="notifications">
     <header class="notifications__header">
-      <h1>Notifications</h1>
+      <h1>{{ t('Notifications') }}</h1>
       <AppButton v-if="store.hasUnread" variant="text" @click="store.markAllRead()">
-        Mark all read
+        {{ t('Mark all read') }}
       </AppButton>
     </header>
 
     <p v-if="store.error" class="notifications__error" role="alert">{{ store.error }}</p>
 
     <section v-if="store.invitations.length" class="notifications__group">
-      <h2>Invitations</h2>
+      <h2>{{ t('Invitations') }}</h2>
       <ul class="notifications__list">
         <li v-for="invitation in store.invitations" :key="invitation.id" class="invitation">
           <div>
             <p class="invitation__title">{{ invitation.libraryName }}</p>
             <p class="invitation__detail">
-              {{ invitation.invitedBy }} invited you as
-              {{ invitation.role === 'admin' ? 'an administrator' : 'a member' }}.
-              Expires {{ when(invitation.expires) }}.
+              {{
+                invitation.role === 'admin'
+                  ? t('{who} invited you as an administrator.', { who: invitation.invitedBy })
+                  : t('{who} invited you as a member.', { who: invitation.invitedBy })
+              }}
+              {{ t('Expires {when}.', { when: when(invitation.expires) }) }}
             </p>
           </div>
           <div class="invitation__actions">
@@ -54,13 +61,13 @@ function when(iso: string): string {
               :disabled="answering === invitation.id"
               @click="answer(invitation.id, 'decline')"
             >
-              Decline
+              {{ t('Decline') }}
             </AppButton>
             <AppButton
               :loading="answering === invitation.id"
               @click="answer(invitation.id, 'accept')"
             >
-              Accept
+              {{ t('Accept') }}
             </AppButton>
           </div>
         </li>
@@ -68,9 +75,9 @@ function when(iso: string): string {
     </section>
 
     <section class="notifications__group">
-      <h2 v-if="store.invitations.length">Everything else</h2>
+      <h2 v-if="store.invitations.length">{{ t('Everything else') }}</h2>
       <p v-if="!store.notifications.length && !store.busy" class="notifications__empty">
-        Nothing to show.
+        {{ t('Nothing to show.') }}
       </p>
       <ul v-else class="notifications__list">
         <li
@@ -81,7 +88,7 @@ function when(iso: string): string {
           @click="!entry.read && store.markRead(entry.id)"
         >
           <span class="notice__dot" :aria-hidden="entry.read">
-            <span class="visually-hidden" v-if="!entry.read">Unread</span>
+            <span v-if="!entry.read" class="visually-hidden">{{ t('Unread') }}</span>
           </span>
           <div>
             <p class="notice__subject">{{ entry.subject }}</p>

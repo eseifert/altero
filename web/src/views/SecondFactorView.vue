@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { useAuthStore } from '@/stores/auth'
+
+const { t } = useI18n()
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -24,12 +27,12 @@ async function submit(): Promise<void> {
 
 <template>
   <form class="auth-form" @submit.prevent="submit">
-    <h1>One more step</h1>
-    <p class="auth-form__lead">Enter the six-digit code from your authenticator app.</p>
+    <h1>{{ t('One more step') }}</h1>
+    <p class="auth-form__lead">{{ t('Enter the six-digit code from your authenticator app.') }}</p>
 
     <AppTextField
       v-model="code"
-      label="Code"
+      :label="t('Code')"
       inputmode="numeric"
       autocomplete="one-time-code"
       required
@@ -38,7 +41,7 @@ async function submit(): Promise<void> {
 
     <p v-if="auth.error" class="auth-form__error" role="alert">{{ auth.error }}</p>
 
-    <AppButton type="submit" full-width :loading="auth.busy">Verify</AppButton>
+    <AppButton type="submit" full-width :loading="auth.busy">{{ t('Verify') }}</AppButton>
   </form>
 </template>
 

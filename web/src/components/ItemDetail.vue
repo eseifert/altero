@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
+import { formatDateTime } from '@/formats'
 import { fieldLabel, itemTypeLabel } from '@/items/labels'
 import type { ItemEnvelope } from '@/stores/library'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   item: ItemEnvelope
@@ -39,16 +43,30 @@ interface Creator {
   name?: string
 }
 
-const title = computed(() => (props.item.data.title as string) || '(untitled)')
+const title = computed(() => (props.item.data.title as string) || t('(untitled)'))
 
 const creators = computed<Creator[]>(() =>
   Array.isArray(props.item.data.creators) ? (props.item.data.creators as Creator[]) : [],
 )
 
+/**
+ * Fields the server stamps, as opposed to fields somebody typed.
+ *
+ * These three are ISO instants in UTC and are shown in the reader's own zone
+ * and format. Everything else -- `date`, `accessDate` as the client wrote it --
+ * is text from the item and is shown as it was entered: reformatting a
+ * citation's date would be rewriting the data.
+ */
+const TIMESTAMPS = new Set(['dateAdded', 'dateModified'])
+
 const fields = computed(() =>
   Object.entries(props.item.data)
     .filter(([name, value]) => !HIDDEN.has(name) && typeof value === 'string' && value !== '')
-    .map(([name, value]) => ({ name, label: fieldLabel(name), value: value as string })),
+    .map(([name, value]) => ({
+      name,
+      label: fieldLabel(name),
+      value: TIMESTAMPS.has(name) ? formatDateTime(value as string) : (value as string),
+    })),
 )
 
 const tags = computed(() => props.item.data.tags ?? [])
@@ -106,7 +124,7 @@ watch(
 function childTitle(child: ItemEnvelope): string {
   if (child.data.itemType === 'note') {
     const text = (child.data.note ?? '').replace(/<[^>]+>/g, ' ').trim()
-    return text.slice(0, 120) || 'Note'
+    return text.slice(0, 120) || t('Note')
   }
   return (child.data.title as string) || (child.data.filename as string) || child.key
 }
@@ -120,7 +138,7 @@ function childTitle(child: ItemEnvelope): string {
         <h2 class="detail__title">{{ title }}</h2>
         <p class="detail__type">{{ itemTypeLabel(item.data.itemType) }}</p>
       </div>
-      <button class="detail__close" type="button" aria-label="Close details" @click="emit('close')">
+      <button class="detail__close" type="button" :aria-label="t('Close details')" @click="emit('close')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
           <path d="M6 6l12 12M18 6L6 18" />
@@ -153,19 +171,19 @@ function childTitle(child: ItemEnvelope): string {
     </dl>
 
     <p v-if="isAttachment" class="detail__actions">
-      <a class="detail__link" :href="fileUrl(item.key)" target="_blank" rel="noopener">Open file</a>
-      <a class="detail__link" :href="fileUrl(item.key, { download: true })">Download</a>
+      <a class="detail__link" :href="fileUrl(item.key)" target="_blank" rel="noopener">{{ t('Open file') }}</a>
+      <a class="detail__link" :href="fileUrl(item.key, { download: true })">{{ t('Download') }}</a>
     </p>
 
     <section v-if="tags.length" class="detail__section">
-      <h3 class="detail__heading">Tags</h3>
+      <h3 class="detail__heading">{{ t('Tags') }}</h3>
       <ul class="detail__tags">
         <li v-for="tag in tags" :key="tag.tag" class="detail__tag">{{ tag.tag }}</li>
       </ul>
     </section>
 
     <section v-if="children.length" class="detail__section">
-      <h3 class="detail__heading">Attachments and notes</h3>
+      <h3 class="detail__heading">{{ t('Attachments and notes') }}</h3>
       <ul class="detail__children">
         <li v-for="child in children" :key="child.key">
           <button class="detail__child" type="button" @click="emit('open', child)">
@@ -178,19 +196,19 @@ function childTitle(child: ItemEnvelope): string {
             :href="fileUrl(child.key)"
             target="_blank"
             rel="noopener"
-          >open</a>
+          >{{ t('open') }}</a>
         </li>
       </ul>
     </section>
 
     <section v-if="!isNote" class="detail__section">
-      <h3 class="detail__heading">Citation</h3>
+      <h3 class="detail__heading">{{ t('Citation') }}</h3>
       <div class="detail__cite">
-        <select v-model="style" class="detail__select" aria-label="Citation style">
+        <select v-model="style" class="detail__select" :aria-label="t('Citation style')">
           <option v-for="entry in STYLES" :key="entry.id" :value="entry.id">{{ entry.name }}</option>
         </select>
         <button class="detail__button" type="button" :disabled="citing" @click="cite">
-          {{ citing ? 'Rendering…' : 'Render' }}
+          {{ citing ? t('Rendering…') : t('Render') }}
         </button>
       </div>
       <p v-if="citationError" class="detail__error" role="alert">{{ citationError }}</p>

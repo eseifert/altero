@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import { ApiError, request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useLocaleStore } from '@/stores/locale'
 import type { User } from '@/stores/auth'
+import { formatDate, formatDateTime } from '@/formats'
+
+const { t } = useI18n()
 
 interface SessionEntry {
   id: number
@@ -65,7 +70,10 @@ async function load(): Promise<void> {
   try {
     account.value = await request<AccountPayload>('/web/account')
     displayName.value = account.value.user.displayName
+    chosenLanguage.value = account.value.user.language ?? ''
+    chosenTimeZone.value = account.value.user.timeZone ?? ''
     keys.value = (await request<{ keys: KeyEntry[] }>('/web/account/keys')).keys
+    await loadChoices()
   } catch (thrown) {
     failure.value = message(thrown)
   }
@@ -119,7 +127,7 @@ const saveEmail = () =>
 const startEnrolment = () =>
   attempt(async () => {
     enrolment.value = await request('/web/account/totp', { method: 'POST' })
-  }, 'Scan the code below, then enter a code from the app.')
+  }, t('Scan the code below, then enter a code from the app.'))
 
 const confirmEnrolment = () =>
   attempt(async () => {
@@ -129,7 +137,7 @@ const confirmEnrolment = () =>
     })
     enrolment.value = null
     enrolmentCode.value = ''
-  }, 'Authenticator enabled.')
+  }, t('Authenticator enabled.'))
 
 const disableTotp = () =>
   attempt(async () => {
@@ -138,19 +146,52 @@ const disableTotp = () =>
       body: { currentPassword: disablePassword.value },
     })
     disablePassword.value = ''
-  }, 'Authenticator removed.')
+  }, t('Authenticator removed.'))
 
 const revokeOthers = () =>
   attempt(
     () => request('/web/account/sessions/revoke-others', { method: 'POST' }),
-    'Signed out everywhere else.',
+    t('Signed out everywhere else.'),
   )
 
 const revoke = (id: number) =>
   attempt(
     () => request(`/web/account/sessions/${id}`, { method: 'DELETE' }),
-    'That session was signed out.',
+    t('That session was signed out.'),
   )
+
+/* ---- Language and time zone ---- */
+
+const locale = useLocaleStore()
+const choices = ref<{ languages: { tag: string; name: string }[]; timeZones: string[] }>({
+  languages: [],
+  timeZones: [],
+})
+/* '' is the "follow this device" option: a select cannot hold null, and the
+   server reads an empty string as null for exactly this reason. */
+const chosenLanguage = ref('')
+/** What "follow this device" resolves to here, so the option can say so. */
+const automaticLanguage = computed(
+  () =>
+    choices.value.languages.find((entry) => entry.tag === locale.active)?.name ?? locale.active,
+)
+const chosenTimeZone = ref('')
+
+async function loadChoices(): Promise<void> {
+  choices.value = await request('/web/account/locales')
+}
+
+const saveLocale = () =>
+  attempt(async () => {
+    await request('/web/account/locale', {
+      method: 'PUT',
+      body: { language: chosenLanguage.value || null, timeZone: chosenTimeZone.value || null },
+    })
+    locale.adopt({
+      language: chosenLanguage.value || null,
+      timeZone: chosenTimeZone.value || null,
+    })
+  }, t('Language and time zone saved.'))
 
 const createKey = () =>
   attempt(async () => {
@@ -166,21 +207,23 @@ const createKey = () =>
     issuedKey.value = response.key
     newKeyName.value = ''
     newKeyPassword.value = ''
-  }, 'Key created. Copy it now — it is not shown again.')
+  }, t('Key created. Copy it now — it is not shown again.'))
 
 const revokeKey = (id: number, name: string) =>
   attempt(
     () => request(`/web/account/keys/${id}`, { method: 'DELETE' }),
-    `“${name}” was revoked and stops working immediately.`,
+    t('“{name}” was revoked and stops working immediately.', { name }),
   )
 
 function when(iso: string | null): string {
-  return iso ? new Date(iso).toLocaleDateString() : 'date unknown'
+  return iso ? formatDate(iso) : t('date unknown')
 }
 
 function describe(entry: KeyEntry): string {
-  const scope = entry.access.write ? 'Read and write' : 'Read only'
-  return `${scope}${entry.access.groups ? ', including groups' : ', personal library only'}`
+  const scope = entry.access.write ? t('Read and write') : t('Read only')
+  return entry.access.groups
+    ? t('{scope}, including groups', { scope })
+    : t('{scope}, personal library only', { scope })
 }
 
 /**
@@ -192,102 +235,151 @@ function describe(entry: KeyEntry): string {
  */
 function lastSeen(entry: KeyEntry): string {
   if (!entry.lastUsed) {
-    return 'Never used'
+    return t('Never used')
   }
-  const where = entry.lastAddress ? ` from ${entry.lastAddress}` : ''
+  const when = t('Last used {when}', { when: formatDateTime(entry.lastUsed) })
+  const where = entry.lastAddress ? t(' from {address}', { address: entry.lastAddress }) : ''
   const what = entry.lastUserAgent ? ` · ${entry.lastUserAgent}` : ''
-  return `Last used ${new Date(entry.lastUsed).toLocaleString()}${where}${what}`
+  return `${when}${where}${what}`
 }
 </script>
 
 <template>
   <section class="settings">
-    <h1>Settings</h1>
+    <h1>{{ t('Settings') }}</h1>
 
     <p v-if="notice" class="settings__notice">{{ notice }}</p>
     <p v-if="failure" class="settings__failure" role="alert">{{ failure }}</p>
 
     <section class="settings__card">
-      <h2>Profile</h2>
-      <p class="settings__detail">Signed in as {{ account?.user.username }}.</p>
-      <AppTextField v-model="displayName" label="Display name" />
-      <AppButton :loading="busy" @click="saveName">Save</AppButton>
+      <h2>{{ t('Profile') }}</h2>
+      <p class="settings__detail">
+        {{ t('Signed in as {username}.', { username: account?.user.username ?? '' }) }}
+      </p>
+      <AppTextField v-model="displayName" :label="t('Display name')" />
+      <AppButton :loading="busy" @click="saveName">{{ t('Save') }}</AppButton>
     </section>
 
     <section class="settings__card">
-      <h2>Email address</h2>
+      <h2>{{ t('Email address') }}</h2>
       <p class="settings__detail">
         {{ account?.user.email }}
-        <span v-if="account?.user.emailVerified"> — confirmed</span>
-        <span v-else> — not confirmed yet</span>
+        <span v-if="account?.user.emailVerified"> — {{ t('confirmed') }}</span>
+        <span v-else> — {{ t('not confirmed yet') }}</span>
       </p>
-      <AppTextField v-model="newEmail" label="New address" type="email" autocomplete="email" />
+      <AppTextField
+        v-model="newEmail"
+        :label="t('New address')"
+        type="email"
+        autocomplete="email"
+      />
       <AppTextField
         v-model="emailPassword"
-        label="Current password"
+        :label="t('Current password')"
         type="password"
         autocomplete="current-password"
       />
-      <AppButton :loading="busy" @click="saveEmail">Send confirmation</AppButton>
+      <AppButton :loading="busy" @click="saveEmail">{{ t('Send confirmation') }}</AppButton>
     </section>
 
     <section class="settings__card">
-      <h2>Password</h2>
+      <h2>{{ t('Password') }}</h2>
       <AppTextField
         v-model="currentPassword"
-        label="Current password"
+        :label="t('Current password')"
         type="password"
         autocomplete="current-password"
       />
       <AppTextField
         v-model="newPassword"
-        label="New password"
+        :label="t('New password')"
         type="password"
         autocomplete="new-password"
-        hint="At least 8 characters"
+        :hint="t('At least {count} characters', { count: 8 })"
       />
-      <AppButton :loading="busy" @click="savePassword">Change password</AppButton>
+      <AppButton :loading="busy" @click="savePassword">{{ t('Change password') }}</AppButton>
     </section>
 
     <section class="settings__card">
-      <h2>Authenticator app</h2>
+      <h2>{{ t('Authenticator app') }}</h2>
 
       <template v-if="account?.totpEnabled">
-        <p class="settings__detail">Signing in asks for a code.</p>
+        <p class="settings__detail">{{ t('Signing in asks for a code.') }}</p>
         <AppTextField
           v-model="disablePassword"
-          label="Current password"
+          :label="t('Current password')"
           type="password"
           autocomplete="current-password"
         />
         <AppButton variant="outlined" :loading="busy" @click="disableTotp">
-          Remove authenticator
+          {{ t('Remove authenticator') }}
         </AppButton>
       </template>
 
       <template v-else-if="enrolment">
         <p class="settings__detail">
-          Add this secret to your authenticator app, then enter the code it shows. Nothing
-          changes until you do.
+          {{
+            t('Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.')
+          }}
         </p>
         <code class="settings__secret">{{ enrolment.secret }}</code>
-        <AppTextField v-model="enrolmentCode" label="Code from the app" inputmode="numeric" />
-        <AppButton :loading="busy" @click="confirmEnrolment">Turn on</AppButton>
+        <AppTextField
+          v-model="enrolmentCode"
+          :label="t('Code from the app')"
+          inputmode="numeric"
+        />
+        <AppButton :loading="busy" @click="confirmEnrolment">{{ t('Turn on') }}</AppButton>
       </template>
 
       <template v-else>
-        <p class="settings__detail">Not enabled.</p>
+        <p class="settings__detail">{{ t('Not enabled.') }}</p>
         <AppButton variant="tonal" :loading="busy" @click="startEnrolment">
-          Set up an authenticator
+          {{ t('Set up an authenticator') }}
         </AppButton>
       </template>
     </section>
 
     <section class="settings__card">
-      <h2>API keys</h2>
+      <h2>{{ t('Language and time zone') }}</h2>
       <p class="settings__detail">
-        What the Zotero app and any scripts use to sync. Linking Zotero from its own settings
-        creates one of these for you.
+        {{ t('Both follow this device unless you choose otherwise, and travel with your account.') }}
+      </p>
+
+      <label class="settings__field">
+        <span class="settings__field-label">{{ t('Language') }}</span>
+        <select v-model="chosenLanguage" class="settings__select">
+          <option value="">
+            {{ t('Follow this device ({name})', { name: automaticLanguage }) }}
+          </option>
+          <option v-for="entry in choices.languages" :key="entry.tag" :value="entry.tag">
+            {{ entry.name }}
+          </option>
+        </select>
+      </label>
+
+      <label class="settings__field">
+        <span class="settings__field-label">{{ t('Time zone') }}</span>
+        <select v-model="chosenTimeZone" class="settings__select">
+          <option value="">
+            {{ t('Follow this device ({name})', { name: locale.browserTimeZone }) }}
+          </option>
+          <option v-for="zone in choices.timeZones" :key="zone" :value="zone">{{ zone }}</option>
+        </select>
+      </label>
+
+      <p class="settings__detail">
+        {{ t('Dates look like this: {example}', { example: formatDateTime(new Date()) }) }}
+      </p>
+
+      <AppButton :loading="busy" @click="saveLocale">{{ t('Save') }}</AppButton>
+    </section>
+
+    <section class="settings__card">
+      <h2>{{ t('API keys') }}</h2>
+      <p class="settings__detail">
+        {{
+          t('What the Zotero app and any scripts use to sync. Linking Zotero from its own settings creates one of these for you.')
+        }}
       </p>
 
       <ul v-if="keys.length" class="settings__sessions">
@@ -297,57 +389,63 @@ function lastSeen(entry: KeyEntry): string {
               {{ entry.name }}
               <code class="settings__suffix">…{{ entry.suffix }}</code>
             </p>
-            <p class="settings__detail">{{ describe(entry) }} · created {{ when(entry.created) }}</p>
+            <p class="settings__detail">{{ t('{what} · created {when}', { what: describe(entry), when: when(entry.created) }) }}</p>
             <p class="settings__detail settings__usage">{{ lastSeen(entry) }}</p>
           </div>
-          <AppButton variant="text" @click="revokeKey(entry.id, entry.name)">Revoke</AppButton>
+          <AppButton variant="text" @click="revokeKey(entry.id, entry.name)">{{ t('Revoke') }}</AppButton>
         </li>
       </ul>
-      <p v-else class="settings__detail">No keys yet.</p>
+      <p v-else class="settings__detail">{{ t('No keys yet.') }}</p>
 
       <!-- Shown once. The server masks every key after this response. -->
       <div v-if="issuedKey" class="settings__issued">
-        <p class="settings__detail">Copy this now. It will not be shown again.</p>
+        <p class="settings__detail">{{ t('Copy this now. It will not be shown again.') }}</p>
         <code class="settings__secret">{{ issuedKey }}</code>
-        <AppButton variant="text" @click="issuedKey = null">Done</AppButton>
+        <AppButton variant="text" @click="issuedKey = null">{{ t('Done') }}</AppButton>
       </div>
 
       <details class="settings__new-key">
-        <summary>Create a key</summary>
+        <summary>{{ t('Create a key') }}</summary>
         <div class="settings__new-key-body">
-          <AppTextField v-model="newKeyName" label="What is it for?" hint="For example, my laptop" />
+          <AppTextField
+            v-model="newKeyName"
+            :label="t('What is it for?')"
+            :hint="t('For example, my laptop')"
+          />
           <label class="settings__check">
             <input v-model="newKeyWrite" type="checkbox" />
-            <span>Allow changes (Zotero needs this to sync)</span>
+            <span>{{ t('Allow changes (Zotero needs this to sync)') }}</span>
           </label>
           <label class="settings__check">
             <input v-model="newKeyGroups" type="checkbox" />
-            <span>Include group libraries</span>
+            <span>{{ t('Include group libraries') }}</span>
           </label>
           <AppTextField
             v-model="newKeyPassword"
-            label="Current password"
+            :label="t('Current password')"
             type="password"
             autocomplete="current-password"
           />
-          <AppButton :loading="busy" @click="createKey">Create key</AppButton>
+          <AppButton :loading="busy" @click="createKey">{{ t('Create key') }}</AppButton>
         </div>
       </details>
     </section>
 
     <section class="settings__card">
-      <h2>Signed-in browsers</h2>
+      <h2>{{ t('Signed-in browsers') }}</h2>
       <ul class="settings__sessions">
         <li v-for="entry in account?.sessions ?? []" :key="entry.id">
           <div>
             <p class="settings__session">
-              {{ entry.userAgent || 'Unknown browser' }}
-              <span v-if="entry.current" class="settings__badge">this one</span>
+              {{ entry.userAgent || t('Unknown browser') }}
+              <span v-if="entry.current" class="settings__badge">{{ t('this one') }}</span>
             </p>
-            <p class="settings__detail">Last used {{ when(entry.lastSeen) }}</p>
+            <p class="settings__detail">
+              {{ t('Last used {when}', { when: when(entry.lastSeen) }) }}
+            </p>
           </div>
           <AppButton v-if="!entry.current" variant="text" @click="revoke(entry.id)">
-            Sign out
+            {{ t('Sign out') }}
           </AppButton>
         </li>
       </ul>
@@ -357,7 +455,7 @@ function lastSeen(entry: KeyEntry): string {
         :loading="busy"
         @click="revokeOthers"
       >
-        Sign out everywhere else
+        {{ t('Sign out everywhere else') }}
       </AppButton>
     </section>
   </section>
@@ -369,6 +467,26 @@ function lastSeen(entry: KeyEntry): string {
   flex-direction: column;
   gap: var(--md-spacing-4);
   max-width: 34rem;
+}
+
+.settings__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.settings__field-label {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.settings__select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface);
+  color: inherit;
+  font: inherit;
 }
 
 .settings__card {

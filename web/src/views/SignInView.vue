@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { useAuthStore } from '@/stores/auth'
+
+const { t } = useI18n()
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -32,19 +35,19 @@ async function submit(): Promise<void> {
 
 <template>
   <form class="auth-form" @submit.prevent="submit">
-    <h1>Sign in</h1>
-    <p class="auth-form__lead">to your altero library</p>
+    <h1>{{ t('Sign in') }}</h1>
+    <p class="auth-form__lead">{{ t('to your altero library') }}</p>
 
     <AppTextField
       v-model="username"
-      label="Username"
+      :label="t('Username')"
       autocomplete="username"
       required
       autofocus
     />
     <AppTextField
       v-model="password"
-      label="Password"
+      :label="t('Password')"
       type="password"
       autocomplete="current-password"
       required
@@ -52,11 +55,11 @@ async function submit(): Promise<void> {
 
     <p v-if="auth.error" class="auth-form__error" role="alert">{{ auth.error }}</p>
 
-    <AppButton type="submit" full-width :loading="auth.busy">Sign in</AppButton>
+    <AppButton type="submit" full-width :loading="auth.busy">{{ t('Sign in') }}</AppButton>
 
     <p v-if="auth.registrationOpen" class="auth-form__aside">
-      No account yet?
-      <RouterLink :to="{ name: 'register' }">Create one</RouterLink>
+      {{ t('No account yet?') }}
+      <RouterLink :to="{ name: 'register' }">{{ t('Create one') }}</RouterLink>
     </p>
   </form>
 </template>

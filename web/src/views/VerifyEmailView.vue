@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import { useAuthStore } from '@/stores/auth'
+
+const { t } = useI18n()
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -27,30 +30,30 @@ onMounted(async () => {
 
 <template>
   <section class="auth-form">
-    <h1>Email address</h1>
+    <h1>{{ t('Email address') }}</h1>
 
-    <p v-if="state === 'working'" class="auth-form__lead">Confirming…</p>
+    <p v-if="state === 'working'" class="auth-form__lead">{{ t('Confirming…') }}</p>
 
     <template v-else-if="state === 'done'">
       <p class="auth-form__lead">
-        Confirmed. This address will now receive security notifications and invitations.
+        {{ t('Confirmed. This address will now receive security notifications and invitations.') }}
       </p>
       <AppButton full-width @click="$router.push({ name: 'library' })">
-        Go to your library
+        {{ t('Go to your library') }}
       </AppButton>
     </template>
 
     <template v-else>
       <p class="auth-form__error" role="alert">
-        {{ auth.error ?? 'That confirmation link is not valid or has expired.' }}
+        {{ auth.error ?? t('That confirmation link is not valid or has expired.') }}
       </p>
       <!-- Resending needs a session; someone who followed a stale link in
            another browser has to sign in first. -->
       <AppButton v-if="auth.isAuthenticated" full-width @click="auth.resendVerification()">
-        Send a new link
+        {{ t('Send a new link') }}
       </AppButton>
       <AppButton v-else variant="text" full-width @click="$router.push({ name: 'sign-in' })">
-        Sign in
+        {{ t('Sign in') }}
       </AppButton>
     </template>
   </section>

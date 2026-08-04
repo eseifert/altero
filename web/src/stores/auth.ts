@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 import { ApiError, request } from '@/api/client'
+import { useLocaleStore } from '@/stores/locale'
 
 export interface User {
   id: number
@@ -9,6 +10,10 @@ export interface User {
   displayName: string
   email: string | null
   emailVerified: boolean
+  /** BCP 47 tag, or null to follow the browser. */
+  language: string | null
+  /** IANA zone, or null to follow the browser. */
+  timeZone: string | null
 }
 
 interface AuthResponse {
@@ -41,6 +46,15 @@ export interface RegistrationDetails {
  */
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
+  const locale = useLocaleStore()
+
+  /* The account's language and time zone travel with the user, so every path
+     that sets one hands them over. Signing out drops back to the browser's,
+     rather than leaving the next person on this machine in a stranger's
+     language. */
+  function adoptLocale(account: User | null): void {
+    locale.adopt({ language: account?.language ?? null, timeZone: account?.timeZone ?? null })
+  }
   const needsFactor = ref<string | null>(null)
   const error = ref<string | null>(null)
   const busy = ref(false)
@@ -52,6 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   function adopt(response: AuthResponse): void {
     user.value = response.user
+    adoptLocale(response.user)
     needsFactor.value = response.needsFactor
     error.value = null
   }
@@ -74,9 +89,11 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await request<{ user: User }>('/web/auth/session')
       user.value = response.user
+      adoptLocale(response.user)
       needsFactor.value = null
     } catch (thrown) {
       user.value = null
+      adoptLocale(null)
       // A 401 here is the ordinary case -- nobody is signed in yet -- and must
       // not be shown as a failure. Anything else is worth reporting, in
       // particular status 0, which means the server never answered at all.
@@ -141,6 +158,7 @@ export const useAuthStore = defineStore('auth', () => {
     // another browser must not appear to sign that browser in.
     if (user.value) {
       user.value = response.user
+      adoptLocale(response.user)
     }
   }
 
@@ -157,6 +175,7 @@ export const useAuthStore = defineStore('auth', () => {
       // request failed would leave someone's library on screen.
     } finally {
       user.value = null
+      adoptLocale(null)
       needsFactor.value = null
       error.value = null
     }

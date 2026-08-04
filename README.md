@@ -58,8 +58,9 @@ The web interface (see below) covers registration, sign-in with a password or
 an email address, a one-time code from an authenticator app, account settings,
 in-app notifications, group invitations, and browsing a library — collections,
 tags, search, sorting, an item's details, its attachments and a citation in any
-published style. Editing, passkeys, OIDC, SAML and one-time codes by email are
-not built yet.
+published style. It is available in six languages and formats dates in the
+reader's own locale and time zone. Editing, passkeys, OIDC, SAML and one-time
+codes by email are not built yet.
 
 Two things the desktop client asks for are not part of the published data server
 either: `GET /retractions/list`, which it polls to flag retracted papers, and
@@ -140,6 +141,27 @@ Behind a reverse proxy the address recorded is the proxy's until
 `ALTERO_FORWARDED_ALLOW_IPS` names it — the same setting decides what the rate
 limiter counts. Only name a proxy that overwrites the header it forwards, or a
 caller can choose which address is attributed to it.
+
+### Language and time zone
+
+The interface speaks English, German, French, Spanish, Portuguese and Japanese.
+Both settings live on the account rather than in the browser, so signing in from
+another machine gives you your own language rather than that machine's, and both
+default to following the browser — which is a setting in itself, not an unset
+value.
+
+Dates and times are formatted from those two together. Choosing a language does
+not move your date format to another country: with German chosen on a machine
+set to `de-AT`, the words are German and the dates Austrian. Timestamps the
+server records — when an item was added, when a key was last used — are stored
+as UTC and shown in your zone, so an item added at 22:30 UTC is the third of the
+month in Berlin and the fourth in Tokyo.
+
+The translations beyond English are mine rather than a native speaker's, and are
+worth reviewing before an institution relies on them. Adding a seventh language
+is one file in `web/src/locales`, plus its tag in `services/locales.py`;
+`tests/test_locales.py` and `web/src/locales/locales.node.spec.ts` fail if those
+two ever disagree, or if a catalogue drifts from the English one.
 
 ### Browsing a library
 
