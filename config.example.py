@@ -25,3 +25,9 @@ STORAGE_PATH = "./storage"
 # window. Zero disables the limit. A caller over it gets 429 with Retry-After.
 RATE_LIMIT = 0
 RATE_LIMIT_WINDOW = 60
+
+# Whether anybody may register an account from the browser. The first account
+# is always allowed, so a fresh instance is reachable without shell access, and
+# so is anyone holding an unanswered invitation to a group. Everything else is
+# `altero user add`.
+OPEN_REGISTRATION = False

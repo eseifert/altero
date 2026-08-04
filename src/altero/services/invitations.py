@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.models import GroupMember, Invitation, Library, LibraryType, User
-from altero.services import emailverify, notifications
+from altero.services import emailverify, groups, notifications
 
 PENDING = "pending"
 ACCEPTED = "accepted"
@@ -45,13 +45,30 @@ def hash_token(token: str) -> str:
 
 
 async def require_admin(session: AsyncSession, library: Library, user: User) -> None:
-    membership = await session.scalar(
-        select(GroupMember).where(
-            GroupMember.library_id == library.id, GroupMember.user_id == user.id
+    """Raise unless ``user`` administers ``library``.
+
+    Delegated, so that "who may hand membership out" has one definition however
+    it is reached -- the API's group endpoints ask the same question.
+    """
+    await groups.require_admin(session, library, user.id)
+
+
+async def pending_for_email(session: AsyncSession, email: str) -> bool:
+    """Return whether ``email`` has an invitation still waiting to be answered.
+
+    Asked during registration: an address somebody invited is allowed to make
+    an account even where registration is otherwise closed, which is what makes
+    inviting a person who is not here yet work.
+    """
+    address = emailverify.normalise(email)
+    found = await session.scalar(
+        select(Invitation).where(
+            Invitation.email == address,
+            Invitation.status == PENDING,
+            Invitation.expires >= _now(),
         )
     )
-    if membership is None or membership.role != "admin":
-        raise ForbiddenError("Only an administrator of this group can do that")
+    return found is not None
 
 
 async def invite_with_token(

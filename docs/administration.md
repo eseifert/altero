@@ -1,10 +1,11 @@
 # Administration
 
-The Web API cannot create accounts or issue credentials. It can now administer
-a **group** — creating one, changing it, and deciding who belongs to it, all
-with an ordinary API key; see [compatibility.md](compatibility.md#groups).
-Accounts, credentials and anything else about another person are still
-command-line operations.
+The Web API cannot create accounts or issue credentials. It can administer a
+**group** — creating one, changing it, and deciding who belongs to it — with an
+ordinary API key, and so can the [web interface](web-interface.md#groups); see
+[compatibility.md](compatibility.md#groups) for what that copies from upstream
+and what it does not. Accounts, credentials and anything else about another
+person are still command-line operations.
 
 ```sh
 uv run altero user add <username> [--display-name NAME] [--id N]
@@ -27,9 +28,10 @@ uv run altero login list
 uv run altero login approve <token> <username> [--key KEY]
 ```
 
-Registration in the browser is open only while the instance has no users at
-all, so a fresh container is reachable without shell access and closes itself
-the moment that account exists. Every account after the first is made here.
+Registration in the browser opens for three cases: the first account, an
+instance whose `ALTERO_OPEN_REGISTRATION` says so, and an address somebody has
+invited to a group. Every other account is made here. See
+[web-interface.md](web-interface.md#accounts).
 
 The group commands go through the same service the API's group endpoints do, so
 the shell and an API key cannot disagree about what a group is or what a role

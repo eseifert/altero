@@ -6,10 +6,11 @@ the v3 API's key-based path is untouched by anything here -- a sync client's
 credential must go on working exactly as it did, since that compatibility is
 the reason this project exists.
 
-Registration is closed by default and opens for exactly one case: an instance
-with no users at all. A fresh container has to be reachable by its owner
-without shell access, and the moment that first account exists the door shuts
-again. Opening it deliberately is a setting.
+Registration is closed by default and opens for three cases: the deployment
+said so (``ALTERO_OPEN_REGISTRATION``), the instance has no users at all, or
+the address being registered has an invitation waiting. The second is what
+makes a fresh container reachable by its owner without shell access; the third
+is what makes inviting somebody who is not here yet work at all.
 """
 
 import logging
@@ -22,7 +23,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import TotpCredential, User, WebSession
-from altero.services import admin, emailverify, passwords, totp, websessions
+from altero.services import admin, emailverify, invitations, passwords, totp, websessions
 from altero.services.mail import Message
 
 logger = logging.getLogger("altero.webauth")
@@ -67,16 +68,34 @@ def validate_username(username: str) -> str:
     return candidate
 
 
-async def registration_open(session: AsyncSession, *, allow: bool = False) -> bool:
+async def no_accounts_yet(session: AsyncSession) -> bool:
+    """Return whether this instance has no users at all."""
+    return (await session.scalar(select(func.count()).select_from(User))) == 0
+
+
+async def registration_open(
+    session: AsyncSession, *, allow: bool = False, email: str | None = None
+) -> bool:
     """Return whether an account may be registered right now.
 
-    ``allow`` is the deployment's own setting. Regardless of it, the very first
-    account is always permitted, because otherwise a fresh instance can only be
-    set up from a shell.
+    Three ways in, in the order they are checked:
+
+    - ``allow``, the deployment's own setting.
+    - The very first account, always, because otherwise a fresh instance can
+      only be set up from a shell.
+    - An unanswered invitation to ``email``. Inviting an address that has no
+      account here is the documented way to bring somebody into a group, and
+      without this the link they receive lands on a registration form that
+      refuses them -- which made the whole path unreachable on any instance
+      that had not opened registration outright.
     """
     if allow:
         return True
-    return (await session.scalar(select(func.count()).select_from(User))) == 0
+    if await no_accounts_yet(session):
+        return True
+    if email:
+        return await invitations.pending_for_email(session, email)
+    return False
 
 
 async def register(
@@ -94,15 +113,17 @@ async def register(
     step, and one that gates only whether security mail is sent -- see
     :mod:`altero.services.emailverify`.
     """
-    if not await registration_open(session, allow=allow_registration):
-        raise ForbiddenError("Registration is closed on this server")
-
     username = validate_username(username)
 
     # Everything is validated before the user is created, so a refused
     # password or a mistyped address does not leave a half-made account behind.
     address = emailverify.normalise(email)
     passwords.validate_password(password)
+
+    # Checked with the address in hand, because an invitation to it is one of
+    # the three things that opens the door.
+    if not await registration_open(session, allow=allow_registration, email=address):
+        raise ForbiddenError("Registration is closed on this server")
 
     taken = await session.scalar(select(User).where(func.lower(User.email) == address))
     if taken is not None:

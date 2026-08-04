@@ -30,9 +30,23 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    // Where an emailed invitation lands. Deliberately not guarded: somebody
+    // with no account here has to be able to read what they were asked to
+    // join before deciding to make one.
+    path: '/invitations',
+    name: 'invitation',
+    component: () => import('@/views/InvitationView.vue'),
+  },
+  {
     path: '/notifications',
     name: 'notifications',
     component: () => import('@/views/NotificationsView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/groups',
+    name: 'groups',
+    component: () => import('@/views/GroupsView.vue'),
     meta: { requiresAuth: true },
   },
   {
@@ -72,7 +86,10 @@ router.beforeEach(async (to: RouteLocationNormalized) => {
   }
 
   if ((to.name === 'sign-in' || to.name === 'register') && auth.isAuthenticated) {
-    return { name: 'library' }
+    // Keeping `next` matters for the invitation link: somebody already signed
+    // in who follows one would otherwise be dropped at the library with the
+    // thing they came to answer nowhere in sight.
+    return (to.query.next as string) || { name: 'library' }
   }
 
   return true

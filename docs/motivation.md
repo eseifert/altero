@@ -92,18 +92,20 @@ institution already runs. This is the argument for a new implementation, and it
 is about what has to be operated, not what it is written in.
 
 **Administration without shell access.** Anybody who administers a library
-should not need a login on the server. The web interface reaches about half of
-that. It covers a person administering themselves — password, email address, an
-authenticator app, the signed-in browsers, their own API keys — and approving a
+should not need a login on the server. The web interface reaches most of that
+now. It covers a person administering themselves — password, email address, an
+authenticator app, the signed-in browsers, their own API keys — approving a
 Zotero client's login, which was the operation that most often sent somebody to
-a shell. What still needs one is everything concerning somebody else: creating
-an account, creating a group, changing who belongs to it. Registration in the
-browser opens only while an instance has no users at all, so the second account
-is a command-line account. Missing too is the operational view — versions,
-storage use, backups — that an operator otherwise has to infer, and with it any
-notion of an instance administrator to show it to: permissions today are per
-library and stop there. Until those exist, an instance is still something a
-systems administrator runs rather than a librarian or a research-group lead.
+a shell, and everything to do with a group: creating one, deciding who may read
+it, edit it and upload to it, inviting people who have no account here yet, and
+handing it on or deleting it. Registration opens for the first account, for an
+instance that says so, and for an address somebody invited; every other account
+is still `altero user add`, as are resetting somebody's password and revoking
+their credentials. Missing too is the operational view — versions, storage
+use, backups — that an operator otherwise has to infer, and with it any notion
+of an instance administrator to show it to: permissions today are per library
+and stop there. Until those exist, an instance is still something a systems
+administrator runs rather than a librarian or a research-group lead.
 
 This goal came with a constraint — that the interface stay strictly
 administrative, and that no browsing interface compete with the clients — and

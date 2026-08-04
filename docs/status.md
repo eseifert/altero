@@ -61,7 +61,8 @@ things the desktop client asks for that no data server documents.
   served back, but `q` with `qmode=everything` covers an item's own fields, so
   text from an attachment cannot be found through it
 
-The web interface has its own list of what is and is not built; see
+Group administration, registration and the invitation flow are also in the web
+interface; it has its own list of what is and is not built, see
 [web-interface.md](web-interface.md).
 
 ## Two things the client asks for that no data server documents

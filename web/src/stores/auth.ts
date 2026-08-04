@@ -25,6 +25,7 @@ interface ServerConfig {
   version: string
   apiVersion: number
   registrationOpen: boolean
+  firstAccount: boolean
   secondFactors: string[]
 }
 
@@ -61,6 +62,8 @@ export const useAuthStore = defineStore('auth', () => {
   /** False until the first session check has finished. */
   const ready = ref(false)
   const registrationOpen = ref(false)
+  /** True while the instance has no users, which is a different sentence. */
+  const firstAccount = ref(false)
 
   const isAuthenticated = computed(() => user.value !== null)
 
@@ -109,10 +112,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const config = await request<ServerConfig>('/web/config')
       registrationOpen.value = config.registrationOpen
+      firstAccount.value = config.firstAccount
     } catch {
       // Offering a register link that the server will refuse is worse than
       // not offering one, so an unanswered question means closed.
       registrationOpen.value = false
+      firstAccount.value = false
     }
   }
 
@@ -188,6 +193,7 @@ export const useAuthStore = defineStore('auth', () => {
     busy,
     ready,
     registrationOpen,
+    firstAccount,
     isAuthenticated,
     restore,
     loadConfig,

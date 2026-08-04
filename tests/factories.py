@@ -72,6 +72,20 @@ async def make_group(
     return library
 
 
+async def add_group_member(
+    session: AsyncSession,
+    *,
+    library_id: int,
+    user_id: int,
+    role: str = "member",
+) -> GroupMember:
+    """Put an existing user into an existing group library."""
+    member = GroupMember(library_id=library_id, user_id=user_id, role=role)
+    session.add(member)
+    await session.commit()
+    return member
+
+
 async def make_api_key(
     session: AsyncSession,
     *,

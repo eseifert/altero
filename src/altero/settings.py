@@ -42,6 +42,20 @@ class Settings(BaseSettings):
         description="Directory holding attachment files.",
     )
 
+    open_registration: bool = Field(
+        default=False,
+        description=(
+            "Whether anybody may register an account from the browser. Off by "
+            "default: an instance is somebody's own server rather than a "
+            "service, and an open form on one reachable from the internet is "
+            "an invitation to strangers. The very first account is always "
+            "allowed regardless, so a fresh container is reachable without "
+            "shell access, and so is anyone holding an unanswered invitation "
+            "to a group -- which is what makes inviting an address that has no "
+            "account here work at all."
+        ),
+    )
+
     smtp_url: str = Field(
         default="",
         description=(

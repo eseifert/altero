@@ -25,10 +25,25 @@ answers 503 and says what to run.
 
 ## Accounts
 
-The first account can be registered from the browser. Registration is open only
-while the instance has no users at all, so a fresh container is reachable
-without shell access and closes itself the moment that account exists. After
-that, accounts are made with `altero user add` and given a password with
+Registration in the browser opens for three cases, and for nothing else:
+
+- **The first account.** Always, so a fresh container is reachable by its owner
+  without shell access. It closes again the moment that account exists.
+- **`ALTERO_OPEN_REGISTRATION`**, if the deployment sets it. Off by default: an
+  instance is somebody's own server rather than a service, and an open form on
+  one reachable from the internet is an invitation to strangers.
+- **An address somebody invited.** Whoever holds an unanswered invitation to a
+  group may make an account with the address it was sent to, and nobody else
+  may. Without this the emailed link landed on a form that refused it, which
+  made inviting a person who is not here yet unreachable on any instance that
+  had not opened registration outright.
+
+The sign-in page offers a register link only for the first two: an invitation
+opens the door for one address, and advertising the instance as open would
+promise a form that refuses almost everybody. The link in the invitation goes
+straight to the form.
+
+Every other account is made with `altero user add` and given a password with
 `altero user password <username>` — see [administration.md](administration.md).
 
 Accounts that predate this interface keep working exactly as they did. They
@@ -117,6 +132,36 @@ IEEE or Nature; the server renders it with the same CSL processor that answers
 Reading only, for now. Nothing in the interface writes to a library, which is
 also why no request from it can lose a sync conflict.
 
+## Groups
+
+A screen of its own, reached from the header. It lists the groups the account
+belongs to with how many people and items are in each and what this account may
+do there, and it creates one — which is open to anybody signed in, a group
+being a library of your own rather than something to be granted.
+
+Opening a group shows its members and, to an administrator, the settings that
+decide what everybody may do: whether the group is private or public, who may
+read the library, who may add and change items, and who may upload files. Those
+last three are Zotero's own `libraryReading`, `libraryEditing` and
+`fileEditing`, enforced by the server rather than merely recorded — see
+[administration.md](administration.md#group-policy).
+
+What a screen offers follows the role the *server* resolved and sends back with
+the group. Deciding it in the browser would mean a second implementation of the
+permission rules, drifting against the one that actually refuses the request,
+and a control that will be refused is a promise the interface cannot keep. So a
+plain member sees no policy controls and no delete button at all.
+
+Three things need more than a click. Handing a group on and deleting one are
+the owner's alone, and deleting asks first, because everything in the group
+goes with it and there is no trash around a library. Leaving is nobody's
+permission but your own: a member who had to ask would be in a group they
+cannot get out of.
+
+The same operations are available to an API key and to the command line;
+`services/groups.py` is the one place that decides any of it, so a role means
+the same thing whichever door set it.
+
 ## Notifications and invitations
 
 An administrator of a group library can invite an email address to it. If that
@@ -128,6 +173,14 @@ accept it afterwards.
 Both channels are used deliberately. Mail may be unconfigured, unconfirmed,
 filtered or simply lost, and an invitation that exists only in an inbox is one
 that frequently never arrives.
+
+The emailed link lands on a screen that reads the invitation **without a
+session**: somebody with no account here has to be able to see what they were
+asked to join before deciding to make one. Answering it still needs one, and
+the server still checks the address it was sent to — holding the link is not
+the same as being the person it was offered to. Signing in or registering from
+that screen comes back to it, so the thing they came to answer is the next
+thing they see.
 
 ## Design
 
@@ -145,8 +198,10 @@ are cached for good, so the second visit fetches none of it.
 ## Not built yet
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
-editing rather than only reading.
+editing a library rather than only reading it.
 
-Administering anybody other than yourself is still a shell operation, as is an
-operator's view of the instance. [administration.md](administration.md) says
-what that covers and [motivation.md](motivation.md) why it matters.
+Making an account for somebody else, resetting their password and revoking
+their credentials are still shell operations, as is an operator's view of the
+instance. Groups are no longer among them.
+[administration.md](administration.md) says what that covers and
+[motivation.md](motivation.md) why it matters.

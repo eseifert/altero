@@ -6,6 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/AppButton.vue'
 import ThemeMenu from '@/components/ThemeMenu.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useGroupStore } from '@/stores/groups'
 import { useNotificationStore } from '@/stores/notifications'
 import { useLocaleStore } from '@/stores/locale'
 import { useThemeStore } from '@/stores/theme'
@@ -16,6 +17,7 @@ const auth = useAuthStore()
 const theme = useThemeStore()
 const locale = useLocaleStore()
 const notifications = useNotificationStore()
+const groups = useGroupStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -46,13 +48,23 @@ onMounted(() => {
    from the previous account would be both wrong and a small disclosure. */
 watch(
   () => auth.isAuthenticated,
-  (signedIn) => (signedIn ? notifications.load() : notifications.reset()),
+  (signedIn) => {
+    if (signedIn) {
+      notifications.load()
+    } else {
+      notifications.reset()
+      groups.reset()
+    }
+  },
   { immediate: true },
 )
 
 async function signOut(): Promise<void> {
   await auth.logout()
   notifications.reset()
+  // A list of somebody else's groups left on screen is both wrong and a small
+  // disclosure, exactly as a stale notification badge would be.
+  groups.reset()
   await router.push({ name: 'sign-in' })
 }
 </script>
@@ -94,6 +106,20 @@ async function signOut(): Promise<void> {
           <span v-if="notifications.hasUnread" class="shell__badge">
             {{ notifications.unread > 9 ? '9+' : notifications.unread }}
           </span>
+        </RouterLink>
+        <RouterLink
+          v-if="auth.isAuthenticated"
+          class="shell__icon"
+          :to="{ name: 'groups' }"
+          :aria-label="t('Groups')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 19v-1.5a3 3 0 00-3-3H6a3 3 0 00-3 3V19" />
+            <circle cx="9.5" cy="7.5" r="3" />
+            <path d="M21 19v-1.5a3 3 0 00-2.25-2.9" />
+            <path d="M15.5 4.6a3 3 0 010 5.8" />
+          </svg>
         </RouterLink>
         <RouterLink
           v-if="auth.isAuthenticated"

@@ -205,18 +205,26 @@ CsrfDep = Annotated[None, Depends(require_csrf)]
 
 
 @router.get("/config")
-async def read_config(session: SessionDep) -> Response:
+async def read_config(request: Request, session: SessionDep) -> Response:
     """Public facts the sign-in page needs before anyone has signed in.
 
     Whether registration is open decides if the page offers a register link at
     all; getting this wrong either hides the only way in to a fresh instance or
-    advertises one that will be refused.
+    advertises one that will be refused. It reports the general case: somebody
+    holding an invitation may register on an instance that answers ``false``
+    here, and reaches the form through the link in it rather than through this.
     """
     return JSONResponse(
         {
             "version": __version__,
             "apiVersion": API_VERSION,
-            "registrationOpen": await webauth.registration_open(session),
+            "registrationOpen": await webauth.registration_open(
+                session, allow=request.app.state.settings.open_registration
+            ),
+            # Whether the form the visitor is about to see is the one that
+            # claims the instance. The two are different sentences, and the
+            # page cannot tell them apart from `registrationOpen` alone.
+            "firstAccount": await webauth.no_accounts_yet(session),
             "secondFactors": ["totp"],
         }
     )
@@ -231,6 +239,7 @@ async def register(session: SessionDep, request: Request, body: Registration) ->
         password=body.password,
         email=body.email,
         display_name=body.display_name,
+        allow_registration=request.app.state.settings.open_registration,
     )
     await _send_verification(request, session, user)
     token, _ = await websessions.create(

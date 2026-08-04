@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
@@ -14,6 +14,24 @@ const MINIMUM_PASSWORD_LENGTH = 8
 
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
+
+/* Where to go once the account exists. Ordinarily the library; when an emailed
+   invitation sent them here, back to it, so the thing they came to answer is
+   the next thing they see rather than something to find again in an inbox. */
+const next = computed(() => (route.query.next as string) || { name: 'library' })
+
+/* Three ways to be looking at this form, and they are three different
+   sentences: an invitation brought you, the instance has nobody in it yet, or
+   the deployment leaves registration open. */
+const lead = computed(() => {
+  if (route.query.next) {
+    return t('Use the address the invitation was sent to, and you will be able to answer it.')
+  }
+  return auth.firstAccount
+    ? t('This instance has no accounts yet, so this one will be yours.')
+    : t('Registration is open on this server.')
+})
 
 const username = ref('')
 const email = ref('')
@@ -47,7 +65,7 @@ async function submit(): Promise<void> {
   } catch {
     return
   }
-  await router.push({ name: 'library' })
+  await router.push(next.value)
 }
 </script>
 
@@ -55,7 +73,7 @@ async function submit(): Promise<void> {
   <form class="auth-form" @submit.prevent="submit">
     <h1>{{ t('Create your account') }}</h1>
     <p class="auth-form__lead">
-      {{ t('This instance has no accounts yet, so this one will be yours.') }}
+      {{ lead }}
     </p>
 
     <AppTextField
@@ -105,7 +123,7 @@ async function submit(): Promise<void> {
 
     <p class="auth-form__aside">
       {{ t('Already have an account?') }}
-      <RouterLink :to="{ name: 'sign-in' }">{{ t('Sign in') }}</RouterLink>
+      <RouterLink :to="{ name: 'sign-in', query: route.query }">{{ t('Sign in') }}</RouterLink>
     </p>
   </form>
 </template>
