@@ -30,6 +30,11 @@ def is_built(root: Path | None = None) -> bool:
     return ((root or STATIC_ROOT) / "index.html").is_file()
 
 
+#: How long a fingerprinted asset may be kept. Its name changes when its
+#: contents do, so there is nothing to come back and check for.
+ASSET_CACHE = "public, max-age=31536000, immutable"
+
+
 class SinglePageApp(StaticFiles):
     """Static files, falling back to ``index.html`` for unknown paths.
 
@@ -40,13 +45,22 @@ class SinglePageApp(StaticFiles):
 
     async def get_response(self, path: str, scope) -> Response:  # type: ignore[no-untyped-def]
         try:
-            return await super().get_response(path, scope)
+            response = await super().get_response(path, scope)
         except HTTPException as missing:
             # StaticFiles raises rather than returning the 404, so this has to
             # be caught: checking the returned status never fires.
             if missing.status_code != 404 or "." in Path(path).name:
                 raise
             return await super().get_response("index.html", scope)
+
+        # Everything under assets/ carries a hash of its contents in its name,
+        # so it can be kept for good. Reading a Japanese library pulls some
+        # thirty font subsets; without this each one is asked about again on
+        # every page load, only to be told it has not changed. index.html is
+        # deliberately not in here: it is what names the current assets.
+        if path.startswith("assets/") and response.status_code == 200:
+            response.headers["cache-control"] = ASSET_CACHE
+        return response
 
 
 def mount_web_interface(app: FastAPI, root: Path | None = None) -> bool:

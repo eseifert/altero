@@ -67,6 +67,22 @@ class TestWhenBuilt:
         assert response.status_code == 200
         assert "altero" in response.text
 
+    async def test_a_fingerprinted_asset_may_be_kept(self, built_client: httpx.AsyncClient) -> None:
+        """Its name changes when its contents do, so there is nothing to recheck.
+
+        This is what makes the interface's fonts cost one download rather than
+        one conditional request per subset per page load.
+        """
+        response = await built_client.get("/app/assets/index-abc123.js")
+
+        assert response.headers["cache-control"] == spa.ASSET_CACHE
+
+    async def test_the_index_is_never_kept(self, built_client: httpx.AsyncClient) -> None:
+        """It is the file that names the current assets; a stale one pins the lot."""
+        response = await built_client.get("/app/")
+
+        assert "immutable" not in response.headers.get("cache-control", "")
+
     async def test_a_client_side_route_falls_back_to_the_index(
         self, built_client: httpx.AsyncClient
     ) -> None:
