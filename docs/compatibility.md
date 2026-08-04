@@ -484,7 +484,7 @@ set, the client opens a socket to zotero.org and sends it an API key by
 transmitted — a credential granting full access to a private library, handed to
 a third party, by a deployment whose purpose is that the data stays put.
 
-`extensions.zotero.streaming.enabled = false` stops it, and `README.md` now
+`extensions.zotero.streaming.enabled = false` stops it, and `clients.md` now
 lists that alongside `api.url` as part of pointing a client at altero.
 
 The same finding makes streaming worth implementing eventually: because

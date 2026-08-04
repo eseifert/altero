@@ -32,7 +32,7 @@ Where that stands:
   the client at another server. No custom build, no patched binary. altero
   implements the browser-based key approval the client expects and serves that
   page itself; `altero login approve` does the same from the command line where
-  the interface has not been built. See the README.
+  the interface has not been built. See `clients.md`.
 - **Mobile: closed.** Both mobile clients compile the host in. Android reads
   `BuildConfig.BASE_API_URL`, a `buildConfigField` set to
   `https://api.zotero.org` in `app/build.gradle.kts`, passed to Retrofit in
@@ -178,7 +178,7 @@ can responsibly depend on.
 ## Status of the claims above
 
 Points 1 and 2 are what the test suite and `docs/compatibility.md` work
-towards, and are partly reached — see the status list in `README.md`.
+towards, and are partly reached — see the status list in `status.md`.
 
 Point 1 is not yet evidenced by the thing it describes.
 `tests/test_sync_cycle.py` drives a real server over a real socket with the

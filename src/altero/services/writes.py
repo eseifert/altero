@@ -178,7 +178,7 @@ def check_library_version(library: Library, expected: int | None, *, required: b
             "Client claims version %d of library %s/%d, which is at %d. A version "
             "this server never issued usually means the database was recreated; "
             "the client cannot sync or reset itself out of this. See 'After "
-            "recreating the database' in README.md.",
+            "recreating the database' in docs/administration.md.",
             expected,
             library.type.value,
             library.owner_id,

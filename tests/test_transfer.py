@@ -3,8 +3,8 @@
 The assertion that matters is equality: everything a client can observe has to
 survive the round trip, versions included. A restore that renumbers versions
 looks successful and locks out every client that had synced against the
-original -- see "After recreating the database" in README.md, which exists
-because that failure was seen against a real client.
+original -- see "After recreating the database" in docs/administration.md,
+which exists because that failure was seen against a real client.
 
 So rather than checking a handful of fields, these tests dump both libraries in
 full and compare. A table added to the schema and forgotten here shows up as a

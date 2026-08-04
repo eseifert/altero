@@ -109,7 +109,7 @@ library, say so in the message. The next person will have the same doubt.
    restructuring has twice dropped an endpoint silently. Under PEP 649 a
    dependency annotation that no longer resolves does not raise; FastAPI treats
    it as a missing query parameter and answers 400.
-4. Update the status list in `README.md`.
+4. Update the status list in `docs/status.md`.
 
 ## Changing the database
 

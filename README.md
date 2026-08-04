@@ -1,452 +1,136 @@
 # altero
 
-A Python implementation of the [Zotero data server](https://github.com/zotero/dataserver)
-supporting the version 3 of the [Zotero Web API](https://www.zotero.org/support/dev/web_api/start).
+[![CI](https://github.com/eseifert/altero/actions/workflows/ci.yml/badge.svg)](https://github.com/eseifert/altero/actions/workflows/ci.yml)
 
-Its purpose is to let a person or an institution run Zotero synchronisation on
-infrastructure they control, using unmodified Zotero clients.
-[docs/motivation.md](docs/motivation.md) sets out the reasoning and the goals,
-and says which of them are intentions rather than properties of the current
-code.
+**Run Zotero synchronisation on infrastructure you control.**
 
-## Status
+altero is a Python implementation of the [Zotero data
+server](https://github.com/zotero/dataserver), serving version 3 of the [Zotero
+Web API](https://www.zotero.org/support/dev/web_api/start). Point an unmodified
+Zotero desktop client at it and it syncs the way it syncs against zotero.org —
+items, collections, tags, groups, notes, annotations, attachments and full-text
+— with the data on a machine you run.
 
-Implemented:
+It is one server process, one database and one directory of attachments: no
+caching tier, no search cluster, no queue workers, no object store to provision
+before the first request. SQLite for one person, PostgreSQL where concurrency
+matters. A backup is a database dump and a directory.
 
-- Authentication by `Zotero-API-Key` header, bearer token or `key` parameter,
-  with per-library and per-group permissions
-- `/keys/<key>` and `/users/<userID>/groups`
-- The schema endpoints (`/itemTypes`, `/itemFields`, `/itemTypeFields`,
-  `/itemTypeCreatorTypes`, `/creatorFields`, `/items/new`, `/schema`)
-- Reading items, collections, saved searches and tags, including `format=json`,
-  `keys` and `versions`, pagination with the `Link` header, sorting, `since`,
-  and `If-Modified-Since-Version`
-- Tag listings scoped to a library, a collection, one item, the top level or
-  the trash
-- Writing items, collections and saved searches, and deleting tags, with the
-  multi-object response, version preconditions and `Zotero-Write-Token`
-- Recognising an object re-sent unchanged, so it keeps its version and the
-  library's does not move
-- `inPublications`, the My Publications flag, with the refusals upstream
-  attaches to it
-- Trashing collections and saved searches, which sync as a `deleted` flag on
-  the object rather than as a deletion
-- `relations` on both items and collections, including a predicate that names
-  several objects
-- `/users/<id>/publications/items`, `settings` and `deleted`, readable without a key
-- Rate limiting, off unless configured, answering `429` with `Retry-After`
-- Citations and bibliographies: `format=bib`, `format=csljson` and
-  `include=bib,citation,csljson`, in any of the styles published by the
-  [CSL project](https://github.com/citation-style-language/styles), with
-  `style`, `locale` and `linkwrap`. Nothing is fetched at request time
-- Export as `format=bibtex`, `biblatex` or `ris`, and the matching `include`
-  values, with tags carried across as keywords
-- Items of every type, including notes, attachments and annotations, whose
-  fields the published schema does not list
-- Client-supplied `dateAdded` and `dateModified`, kept as sent
-- `/deleted?since=`, so a client that has been away can tell a deletion from an
-  object it has not fetched
-- Library settings, and attachment full-text, including the batch upload the
-  desktop client uses. The stored text is served back and versioned, but not
-  searched: `qmode=everything` covers an item's own fields
-- The attachment file protocol, storing files once per digest
-- Provisioning from the command line, CORS, and API version negotiation
+## Before you start
 
-Not implemented yet: Atom, the eleven export formats beyond BibTeX, BibLaTeX
-and RIS, and group creation through the API (the command line does it).
+- **The Zotero desktop application is the only client.** iOS and Android
+  compile the server address into the build, so a phone cannot be pointed
+  anywhere else. [Why, and why that will not
+  change.](docs/motivation.md#the-precondition-everything-else-rests-on)
+- **altero is not finished.** Point a test installation at it, not one holding
+  a library you care about — a sync sends the client's data to it.
+- **Zotero does not support this.** The preference that redirects the client is
+  hidden and undocumented, and self-hosting has been declined upstream since
+  2012. Nothing here can prevent that preference disappearing in a release.
 
-The web interface (see below) covers registration, sign-in with a password or
-an email address, a one-time code from an authenticator app, account settings,
-in-app notifications, group invitations, and browsing a library — collections,
-tags, search, sorting, an item's details, its attachments and a citation in any
-published style. It is available in six languages and formats dates in the
-reader's own locale and time zone. Editing, passkeys, OIDC, SAML and one-time
-codes by email are not built yet.
+## Quick start
 
-Two things the desktop client asks for are not part of the published data server
-either: `GET /retractions/list`, which it polls to flag retracted papers, and
-the streaming API it opens a WebSocket to. Neither appears anywhere in the
-dataserver source. altero answers the first with `404` rather than an empty
-list, which would assert that nothing in the library has been retracted; the
-client logs both failures and syncs normally. The streaming API is documented,
-so it can be implemented — but it is reached at a fixed `wss://stream.zotero.org`
-unless a second preference is changed, which is why the setup below turns it off.
-
-Writes to a library are serialized, so one request produces exactly one new
-version however many objects it touches. See
-[docs/schema.md](docs/schema.md#concurrency).
-
-## The web interface
-
-A Vue 3 single-page application, served at `/app/`. It signs in with a
-username and password, optionally behind a one-time code from an authenticator
-app, and shows the library. The Zotero desktop client is unaffected by any of
-it: the v3 API remains API-key only, and a session cookie is refused there on
-purpose.
-
-The first account can be registered from the browser. Registration is open
-only while the instance has no users at all, so a fresh container is reachable
-without shell access and closes itself the moment that account exists. After
-that, accounts are made with `altero user add` and given a password with
-`altero user password <username>`.
-
-Accounts that predate this interface keep working exactly as they did. They
-have no password until one is set, which means they can sync but cannot sign
-in to the browser.
-
-The design follows Material 3 with a teal accent, and light and dark follow the
-operating system unless the user picks one. It is set in IBM Plex Sans, with
-IBM Plex Sans JP behind it for Japanese, and both are served by this
-application: nothing is loaded from a third party, no CDN, no request that
-tells anyone else who is reading. The faces are split by `unicode-range`, so a
-page fetches only the subsets its text needs -- some 60 kB for a European
-language, about 1 MB the first time somebody reads Japanese -- and the system
-stack shows the words while that happens. Fingerprinted assets are cached for
-good, so the second visit fetches none of it.
-
-Built into the container image already. From a source checkout:
-
-```sh
-cd web
-npm install
-npm run build        # writes into src/altero/web/static
-npm test
-npm run dev          # localhost:5173, proxying the API to :8000
-```
-
-Without that build the server still runs and the API is fully usable; `/app/`
-answers 503 and says what to run.
-
-### Account settings
-
-Display name, password, email address, an authenticator app, and the list of
-signed-in browsers, each of which can be signed out on its own. Anything that
-touches a credential asks for the current password again: a session cookie is
-what somebody who borrowed an unlocked laptop already has.
-
-Setting up an authenticator is two steps. The secret is stored but ignored
-until a code from the app proves it works, so an interrupted setup cannot lock
-the account.
-
-### API keys
-
-Settings lists the keys on the account: what each may do, when it was made, and
-when and from where it was last used. That last part is what makes the list
-worth having — a key never used, or last seen from an address nobody
-recognises, is one to remove.
-
-Creating a key asks for the password, because it hands out a new credential.
-Revoking one does not: the moment somebody reaches for that is the moment a key
-has leaked, and a password prompt there is friction in the wrong place. A key
-is shown in full exactly once, when it is created, and as four characters
-afterwards.
-
-Use is recorded at most once a minute per key, and immediately when the address
-changes. It is a convenience for deciding what to revoke, not an audit log.
-
-Behind a reverse proxy the address recorded is the proxy's until
-`ALTERO_FORWARDED_ALLOW_IPS` names it — the same setting decides what the rate
-limiter counts. Only name a proxy that overwrites the header it forwards, or a
-caller can choose which address is attributed to it.
-
-### Language and time zone
-
-The interface speaks English, German, French, Spanish, Portuguese and Japanese.
-Both settings live on the account rather than in the browser, so signing in from
-another machine gives you your own language rather than that machine's, and both
-default to following the browser — which is a setting in itself, not an unset
-value.
-
-Dates and times are formatted from those two together. Choosing a language does
-not move your date format to another country: with German chosen on a machine
-set to `de-AT`, the words are German and the dates Austrian. Timestamps the
-server records — when an item was added, when a key was last used — are stored
-as UTC and shown in your zone, so an item added at 22:30 UTC is the third of the
-month in Berlin and the fourth in Tokyo.
-
-What an item type, a field or a creator type is called is not translated here at
-all: those names come from the schema, which carries Zotero's own translations
-in 48 locales, and they follow the account's language — the item list's column
-headings included. Where the interface's own messages name something Zotero also
-names, they use Zotero's word for it, so the two applications read as one
-vocabulary.
-
-The translations beyond English are mine rather than a native speaker's, and are
-worth reviewing before an institution relies on them. Adding a seventh language
-is one file in `web/src/locales`, plus its tag in `services/locales.py`;
-`tests/test_locales.py` and `web/src/locales/locales.node.spec.ts` fail if those
-two ever disagree, or if a catalogue drifts from the English one.
-
-### Browsing a library
-
-Three panes, as the desktop client has: what to show on the left, the items in
-the middle, the selected item on the right.
-
-The left holds every library the account can open — the personal one and any
-group — with the collection tree beneath, nested and expandable, plus the trash
-and a view that includes child notes and attachments. Under that is the tag
-list; picking tags narrows the middle pane, and picking several requires all of
-them.
-
-The middle pane searches title, creator, year and every field, sorts by title,
-creator or date in either direction, and pages fifty at a time. The search is
-the API's own, so it finds what the desktop client's quick search finds.
-
-The right pane shows an item's fields under the names the schema gives them,
-its creators, tags and notes, and its attachments — which can be opened in the
-browser or downloaded. A citation can be rendered there in Chicago, APA, MLA,
-IEEE or Nature; the server renders it with the same CSL processor that answers
-`format=bib`, rather than a second implementation in the browser.
-
-Reading only, for now. Nothing in the interface writes to a library, which is
-also why no request from it can lose a sync conflict.
-
-### Notifications and invitations
-
-An administrator of a group library can invite an email address to it. If that
-address belongs to an account here, the invitation appears in that person's
-notifications and can be accepted or declined in the interface; if it does not,
-the emailed link carries a token and whoever registers with that address can
-accept it afterwards.
-
-Both channels are used deliberately. Mail may be unconfigured, unconfirmed,
-filtered or simply lost, and an invitation that exists only in an inbox is one
-that frequently never arrives.
-
-### Still to come
-
-Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
-editing rather than only reading.
-
-Administering anybody other than yourself is still a shell operation. Creating
-an account, creating a group and changing who belongs to one are
-`altero user add`, `altero group add` and `altero group member`. So is an
-operator's view of the instance — versions, storage use, backups — which has
-nowhere to live yet, because permissions are per library and there is no
-instance administrator to show it to.
-
-## Compatibility
-
-The target is the Zotero desktop application, so where the published
-documentation and the official [dataserver](https://github.com/zotero/dataserver)
-disagree, the dataserver wins — including its inconsistencies. Each one is
-recorded in [docs/compatibility.md](docs/compatibility.md), and the database
-schema is compared against theirs in [docs/schema.md](docs/schema.md).
-
-## Requirements
-
-- Python 3.14 or newer
-- [uv](https://docs.astral.sh/uv/)
-
-## Getting started
+Python 3.14 or newer and [uv](https://docs.astral.sh/uv/); or Docker, further
+down.
 
 ```sh
 uv sync
 cp config.example.py config.py
 uv run alembic upgrade head
 uv run altero user add <username>
-uv run altero key add <username> --name laptop
 uv run altero
 ```
 
-The server listens on `http://127.0.0.1:8000` by default. `key add` prints the
-new key once and it cannot be shown again.
+The server listens on `http://127.0.0.1:8000`. Now point Zotero at it: open
+**Settings → Advanced → Config Editor**, accept the warning, and set
 
-## Running it in a container
+    extensions.zotero.api.url = http://localhost:8000/
+    extensions.zotero.streaming.enabled = false
+
+then restart Zotero and open **Settings → Sync → Link Account**. Zotero opens a
+browser page and waits for the key to be approved. Approve it from the shell:
+
+```sh
+uv run altero login list                       # shows the pending token
+uv run altero login approve <token> <username>
+```
+
+Syncing starts on the client's next poll. If the [web
+interface](docs/web-interface.md) has been built — it is, in the container
+image — that page is a sign-in form instead and approves the key itself, with
+no shell involved. [docs/clients.md](docs/clients.md) explains each step,
+including why streaming has to be turned off.
+
+In a container instead, which is PostgreSQL, altero and a volume for
+attachments:
 
 ```sh
 docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 ```
 
-That is PostgreSQL, altero and a volume for attachments. Everything the
-container needs lives in `docker/`; run the commands from the repository root,
-or `export COMPOSE_FILE=docker/compose.yaml` once and drop the `-f`. Migrations
-run on start, so an upgrade is `docker compose pull && docker compose up -d`
-with nothing to remember; a failed migration exits the container rather than
-serving against a schema it does not understand.
+Migrations run on start, so an upgrade is `docker compose pull && docker
+compose up -d`. [docs/deployment.md](docs/deployment.md) covers configuration,
+health checks, rate limiting, reverse proxies and upgrading PostgreSQL itself.
 
-That covers altero's own schema, not PostgreSQL's. The database is pinned to
-PostgreSQL 18, and moving a volume across a major version of PostgreSQL is a
-dump and restore — the image refuses to start on a data directory written by an
-older one, naming the version that wrote it, rather than adopting it. `pg_dump`
-against the old container and `psql` into the new one is the whole of it;
-`altero library export` moves a library between instances but not the users and
-keys that own it.
+## What works
 
-The API is published on the loopback interface only — put a TLS terminator in
-front of it rather than exposing it directly. `ALTERO_PUBLISH_PORT` moves it,
-and `POSTGRES_PASSWORD` should be set to something other than its default before
-anything real goes in.
+Reading and writing items, collections, saved searches and tags, with version
+preconditions, write tokens and the multi-object response; every item type,
+including the notes, attachments and annotations whose fields the published
+schema does not list; the attachment file protocol and full-text upload;
+groups, permissions and My Publications; citations and bibliographies in any
+published CSL style, and export as BibTeX, BibLaTeX or RIS.
 
-`GET /health` is the readiness probe, and is what the container's own
-`HEALTHCHECK` polls:
+Not yet: Atom, the other export formats, group creation through the API, and
+full-text *search* — uploaded text is stored and served back but is not
+reachable from a query. [docs/status.md](docs/status.md) is the endpoint-level
+list, and says what the desktop client asks for that no data server documents.
 
-```json
-{"status": "ok", "version": "0.1.0", "apiVersion": 3, "schemaVersion": 42,
- "revision": "c1b573deea88"}
-```
+## The web interface
 
-`revision` is the migration the database is stamped with, which is the question
-worth asking during an upgrade. It answers `503` with nothing but
-`{"status": "error"}` when the database cannot be reached: the endpoint needs no
-credentials, so it says nothing about why.
+A Vue 3 application at `/app/`, in six languages, covering registration,
+sign-in with an optional authenticator code, account settings, API keys,
+notifications, group invitations, and browsing a library — collections, tags,
+search, an item's details, its attachments and a citation. It reads; it does
+not write.
 
-For PostgreSQL outside a container, install the driver with the `postgres`
-extra: `uv sync --extra postgres`.
-
-### Rate limiting
-
-Off by default, because a personal instance has nothing to throttle and a limit
-nobody asked for turns a working sync into a stuck one. To allow, say, 600
-requests a minute per API key:
-
-```sh
-ALTERO_RATE_LIMIT=600 ALTERO_RATE_LIMIT_WINDOW=60 uv run altero
-```
-
-A caller over its allowance gets `429` with `Retry-After` in whole seconds,
-which is what the client pauses on. Unauthenticated requests are counted per
-address, and `/health` is never limited.
-
-The count lives in the serving process, so behind several workers each keeps its
-own and the real allowance is that many times the configured one. It is there to
-stop a runaway client, not a determined one; that belongs in whatever terminates
-TLS in front of altero.
+The v3 API stays API-key only and refuses a session cookie, so none of it
+reaches the sync protocol — see
+[docs/web-interface.md](docs/web-interface.md).
 
 ## Administration
 
-The Web API cannot create accounts or issue credentials, so that is done from
-the command line:
+Accounts, keys, groups and library transfer are command-line operations:
 
 ```sh
-uv run altero user add <username> [--display-name NAME] [--id N]
-uv run altero user list
-uv run altero key add <username> [--name LABEL] [--read-only] [--groups]
-uv run altero key list
-uv run altero key revoke <key>
-uv run altero group add <name> --owner <username> [--public]
-uv run altero group member <group-id> <username> [--role admin]
-uv run altero library list
-uv run altero library set-version <user|group> <id> <version>
-uv run altero library export <user|group> <id> <archive.zip>
-uv run altero library import <archive.zip> [--replace]
-```
-
-### Moving a library to another server
-
-```sh
+uv run altero user add <username>
+uv run altero key add <username> --name laptop
 uv run altero library export user 1 library.zip
-# on the other instance, where the account must already exist
-uv run altero user add <username> --id 1
 uv run altero library import library.zip
 ```
 
-The archive is a ZIP of JSON documents plus the attachment bytes, one copy per
-digest. It carries the library's version and every object's, along with the
-client timestamps and the deletion log, because a client that synced with the
-original remembers all of that: a restore that renumbered versions would look
-successful and lock every one of those clients out. `manifest.json` says what
-produced it and what it contains.
+[docs/administration.md](docs/administration.md) is the full list, and covers
+moving a library between instances and recovering after the database has been
+recreated — the case where clients lock themselves out.
 
-Accounts and API keys are not in it. An archive is a library, not a user, so the
-owning user or group has to exist on the target first — which also means an
-archive cannot leak a credential by being copied around. Restoring into a
-library that already holds objects is refused rather than merged; `--replace`
-discards what is there.
+## Documentation
 
-### After recreating the database
+- [motivation.md](docs/motivation.md) — why this exists, the goals, and which
+  of them are intentions rather than properties of the current code
+- [status.md](docs/status.md) — what the API serves and what it does not
+- [clients.md](docs/clients.md) — connecting a Zotero client
+- [deployment.md](docs/deployment.md) — running, configuring and upgrading it
+- [administration.md](docs/administration.md) — accounts, keys, groups,
+  libraries
+- [web-interface.md](docs/web-interface.md) — the browser application
+- [compatibility.md](docs/compatibility.md) — every deliberate divergence from,
+  and copied quirk of, the reference implementation
+- [schema.md](docs/schema.md) — the database schema against the dataserver's
 
-A library recreated from an empty database counts from zero again, while clients
-that synced against the original still hold the version they last saw. The
-desktop client refuses to move its stored version backwards, so it can neither
-upload — every sync fails with `_libraryStorageVersion cannot decrease` and
-retries forever — nor reset itself out of the state, since **Restore to Server**
-fails the same way.
-
-Raise the server past what the client remembers, then sync:
-
-```sh
-uv run altero library set-version user 1 100
-```
-
-The client's own number is in its database, if you want to be exact rather than
-generous:
-
-```sh
-sqlite3 ~/Zotero/zotero.sqlite \
-    'SELECT version, storageVersion FROM libraries WHERE libraryID=1'
-```
-
-A version can only be raised, because lowering one is how a working deployment
-locks its clients out. Note that objects the client already considers synced are
-not re-uploaded, so anything written before the database was recreated stays
-missing; use **Restore to Server** afterwards to force a full upload.
-
-## Using it from the Zotero desktop app
-
-The client's API base URL is a hidden preference. In Zotero, open
-**Settings → Advanced → Config Editor**, accept the warning, and set:
-
-    extensions.zotero.api.url = http://localhost:8000/
-
-The trailing slash matters. Set one more, in the same editor:
-
-    extensions.zotero.streaming.enabled = false
-
-`api.url` does not redirect the streaming API. The client resolves that
-separately, falling back to a compiled-in `wss://stream.zotero.org`, and sends
-your API key to it — a key that grants full access to your private library goes
-to zotero.org, which rejects it as unknown and may log it. See
-[docs/compatibility.md](docs/compatibility.md). Then restart Zotero and open
-**Settings → Sync → Link Account**.
-
-Zotero authenticates by opening a page in the browser and polling until it is
-approved. That page is this server's own web interface: sign in, confirm with
-your password, and the client picks up its key on the next poll. Nothing else
-is needed.
-
-Confirming asks for the password even though you are already signed in. The key
-it creates reads and writes every library the account can reach and keeps
-working until it is removed in Settings, so a link somebody sends you should not
-be enough on its own.
-
-Without the web interface built, that page serves the command-line instructions
-instead, and they still work:
-
-```sh
-uv run altero login list
-uv run altero login approve <token> <username>
-```
-
-The client picks the key up on its next poll — usually within a few seconds —
-and syncing proceeds normally. `login approve` issues a key unless you point it
-at an existing one with `--key`.
-
-Either way the key covers group libraries as well as the personal one, which is
-what the client expects to sync.
-
-Point a test installation at altero, not one holding a library you care about:
-altero is not finished, and a sync sends the client's data to it.
-
-The desktop application is the only client this works with. Zotero for iOS and
-for Android compile `https://api.zotero.org` into the build — a
-`buildConfigField` on Android, a constant on iOS — with no preference and no
-runtime override, so a phone cannot be pointed at another server without
-building a patched client, which this project will not do. See
-[docs/motivation.md](docs/motivation.md).
-
-## Configuration
-
-Copy `config.example.py` to `config.py` and edit it. Every setting can also be
-supplied as an `ALTERO_`-prefixed environment variable, which takes precedence
-over the file:
-
-```sh
-ALTERO_PORT=9000 ALTERO_DEBUG=true uv run altero
-```
-
-Set `ALTERO_CONFIG` to load a configuration module from another path.
+The target is the Zotero desktop application, so where the published
+documentation and the official dataserver disagree, the dataserver wins —
+including its inconsistencies.
 
 ## Development
 
