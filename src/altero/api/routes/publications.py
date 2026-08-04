@@ -11,10 +11,10 @@ There is no group form. My Publications belongs to a person, which is also why
 
 from fastapi import APIRouter
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import BaseUrlDep, LibraryDep, SessionDep
-from altero.api.responses import not_modified, object_response
+from altero.api.responses import library_headers, not_modified, object_response
 from altero.api.routes.items import render_item, render_listing
 from altero.errors import ForbiddenError, NotFoundError
 from altero.services import items as items_service
@@ -59,6 +59,29 @@ async def get_published_item(
         raise NotFoundError("Item does not exist")
 
     return object_response(await render_item(session, item, library, base_url), library.version)
+
+
+@router.get("/users/{user_id}/publications/settings")
+async def list_published_settings(library: LibraryDep) -> Response:
+    """Answer the settings poll a My Publications sync makes.
+
+    Always empty. Upstream serves an empty array here too: settings belong to a
+    library, and My Publications is a view of one rather than a library of its
+    own. The client asks anyway, as part of the same cycle it runs for a real
+    library, and treats anything but a 200 as a failed sync.
+    """
+    return JSONResponse([], headers=library_headers(library.version, total=0))
+
+
+@router.get("/users/{user_id}/publications/deleted")
+async def list_published_deletions(library: LibraryDep) -> Response:
+    """Answer the deletion poll, which is likewise always empty.
+
+    An object leaves My Publications by having ``inPublications`` cleared, which
+    the client sees as a change to the item. Nothing is ever deleted *from* the
+    view, so there is nothing to report.
+    """
+    return JSONResponse({}, headers=library_headers(library.version))
 
 
 @router.post("/users/{user_id}/publications/items")

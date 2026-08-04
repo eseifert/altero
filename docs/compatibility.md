@@ -307,6 +307,16 @@ paths agree.
 implemented. The client only reaches it when migrating a profile that still
 holds a pre-2016 sync password.
 
+**Key management is not missing from the v3 API; it was never in it.**
+`/users/<id>/keys` looks like an API for listing, creating and revoking keys,
+but `KeysController` gates all of it on
+`$isWebsite = $isSuper || ($this->apiVersion >= 3 && $this->cookieAuth && …)`:
+an API key alone gets a 403, and the paths exist for zotero.org's own signed-in
+pages. altero has the same thing under `/web/account/keys`, reached with the
+same kind of credential — a session cookie — plus `altero key add` and
+`altero key revoke` for an operator. What an API key can do to itself is what
+upstream lets it do: read `/keys/current` and delete it.
+
 ## What the desktop client actually sends
 
 Two of these were found by running the real client, not by reading the
@@ -526,12 +536,19 @@ library with `inPublications` set, not by being posted here.
 There is no group form. My Publications belongs to a person, which is the same
 reason `inPublications` is refused on a group item.
 
-Two of upstream's cases are deliberately not copied, both marked in its own
-suite as awaiting an "integrated My Publications upgrade": `publications/settings`
-answers 200 when the list is empty and **400** once it holds an item, and
-`publications/deleted` answers 200. Neither is a behaviour worth reproducing
-from a comment that says it is mid-migration; altero answers 404 for both, as it
-does for every other unimplemented path.
+`publications/settings` and `publications/deleted` are served, because the
+client polls both as part of the same cycle it runs for any library and treats
+anything but a 200 as a failed sync. Both are empty: settings answers `[]` with
+`Total-Results: 0`, deletions answer `{}`, each carrying the library's version.
+That is what upstream's `ApiController` returns for them.
+
+Its one further branch is not copied. `publications/settings` answers **400**
+there — "Please upgrade to the latest Zotero 5.0 beta" — as soon as the user
+has any published item, under a comment reading `TEMP: Remove after integrated
+publications upgrade`. It exists to stop an old client syncing a *legacy*
+publications library, a separate library that altero has never had and cannot
+create. Reproducing it would mean refusing every modern client that has
+published anything, with advice it has already followed.
 
 ## Trashing a collection or a saved search
 

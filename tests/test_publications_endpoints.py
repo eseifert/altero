@@ -116,6 +116,36 @@ class TestReadingWithoutAKey:
         assert set(versions.json()) == {published["public"], published["child"]}
 
 
+class TestTheRestOfTheSyncCycle:
+    """The client polls these alongside the items, and stops on anything but a 200."""
+
+    async def test_settings_are_empty_but_present(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        response = await client.get("/users/1/publications/settings")
+
+        assert response.status_code == 200
+        assert response.json() == []
+        assert response.headers["Total-Results"] == "0"
+        assert response.headers["Last-Modified-Version"] == str(library.version)
+
+    async def test_deletions_are_an_empty_object(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """An object, not an array: the shape a `/deleted` response has."""
+        response = await client.get("/users/1/publications/deleted")
+
+        assert response.status_code == 200
+        assert response.json() == {}
+        assert response.headers["Last-Modified-Version"] == str(library.version)
+
+    async def test_both_are_readable_without_a_key(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        for path in ("settings", "deleted"):
+            assert (await client.get(f"/users/1/publications/{path}")).status_code == 200
+
+
 class TestWhatIsNotThere:
     @pytest.mark.parametrize("path", ["collections", "searches"])
     async def test_only_items_exist(

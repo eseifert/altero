@@ -78,6 +78,8 @@ EXPECTED = [
     ("/users/{user_id}/publications/items", "DELETE"),
     ("/users/{user_id}/publications/items/top", "GET"),
     ("/users/{user_id}/publications/items/{item_key}", "GET"),
+    ("/users/{user_id}/publications/settings", "GET"),
+    ("/users/{user_id}/publications/deleted", "GET"),
 ]
 
 #: Endpoints served under both /users/{user_id} and /groups/{group_id}.

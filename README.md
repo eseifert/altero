@@ -33,7 +33,7 @@ Implemented:
   the object rather than as a deletion
 - `relations` on both items and collections, including a predicate that names
   several objects
-- `/users/<id>/publications/items`, readable without a key
+- `/users/<id>/publications/items`, `settings` and `deleted`, readable without a key
 - Rate limiting, off unless configured, answering `429` with `Retry-After`
 - Citations and bibliographies: `format=bib`, `format=csljson` and
   `include=bib,citation,csljson`, in any of the styles published by the
@@ -49,9 +49,8 @@ Implemented:
 - The attachment file protocol, storing files once per digest
 - Provisioning from the command line, CORS, and API version negotiation
 
-Not implemented yet: Atom, the export formats (BibTeX, RIS and the rest), group
-creation through the API (the command line does it), and
-`publications/settings` and `publications/deleted`.
+Not implemented yet: Atom, the export formats (BibTeX, RIS and the rest), and
+group creation through the API (the command line does it).
 
 The web interface (see below) covers registration, sign-in with a password or
 an email address, a one-time code from an authenticator app, account settings,
