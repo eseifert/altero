@@ -21,6 +21,17 @@ export interface PendingInvitation {
   expires: string
 }
 
+/** What a group can tell a member about, and whether it does. */
+export interface GroupNotifications {
+  itemsChanged: boolean
+  itemsDeleted: boolean
+  membersChanged: boolean
+  collectionsChanged: boolean
+}
+
+/** One of the four kinds, for addressing a single toggle. */
+export type NotificationKind = keyof GroupNotifications
+
 export interface Group {
   /** Internal library id, which is what every /web endpoint is addressed by. */
   id: number
@@ -41,6 +52,9 @@ export interface Group {
   numItems: number
   members?: GroupMember[]
   invitations?: PendingInvitation[]
+  /** What this account asked to hear about here. Absent until a group has
+   * been read on its own; the listing does not carry it. */
+  notifications?: GroupNotifications
 }
 
 export interface GroupDraft {
@@ -191,6 +205,38 @@ export const useGroupStore = defineStore('groups', () => {
     )
   }
 
+  /**
+   * Turn one kind of notification on or off for this account in one group.
+   *
+   * Sends only the toggle that moved. The server treats an omitted kind as
+   * unchanged, so two tabs open on the same group cannot undo each other's
+   * choices, and a stale panel cannot revert a setting it never showed.
+   */
+  async function setNotification(
+    id: number,
+    kind: NotificationKind,
+    wanted: boolean,
+    success?: string,
+  ): Promise<void> {
+    const outcome = await attempt(
+      () =>
+        request<GroupNotifications>(`/web/groups/${id}/notifications`, {
+          method: 'PUT',
+          body: { [kind]: wanted },
+        }),
+      success,
+    )
+    if (!outcome.ok) {
+      return
+    }
+    // The server's answer rather than what was asked for: it is the whole set,
+    // so a toggle changed elsewhere shows up here too.
+    const group = groups.value.find((held) => held.id === id)
+    if (group) {
+      group.notifications = outcome.value
+    }
+  }
+
   async function revokeInvitation(invitationId: number): Promise<void> {
     await attempt(() => request(`/web/invitations/${invitationId}`, { method: 'DELETE' }))
   }
@@ -217,6 +263,7 @@ export const useGroupStore = defineStore('groups', () => {
     transfer,
     invite,
     revokeInvitation,
+    setNotification,
     reset,
   }
 })

@@ -47,6 +47,7 @@ export default {
   'Code from the app': "Code de l'application",
   Collapse: 'Réduire',
   Collections: 'Collections',
+  'Collections added or changed': 'Collections ajoutées ou modifiées',
   'Colour theme': 'Thème de couleurs',
   'Colour theme: {name}': 'Thème de couleurs : {name}',
   'Confirm your password': 'Confirmez votre mot de passe',
@@ -106,6 +107,8 @@ export default {
   'Invitation sent.': 'Invitation envoyée.',
   Invitations: 'Invitations',
   Invite: 'Inviter',
+  'Items added or changed': 'Documents ajoutés ou modifiés',
+  'Items deleted': 'Documents supprimés',
   'Items in {name}': 'Documents dans {name}',
   'Key created. Copy it now — it is not shown again.':
     'Clé créée. Copiez-la maintenant — elle ne sera plus affichée.',
@@ -159,6 +162,7 @@ export default {
   Private: 'Privé',
   Profile: 'Profil',
   Public: 'Public',
+  'People joining or leaving': 'Arrivées et départs',
   'Public, invitation only': 'Public, sur invitation',
   'Read and change any group library you belong to':
     'Lire et modifier toute bibliothèque de groupe dont vous êtes membre',
@@ -184,6 +188,7 @@ export default {
   Revoke: 'Révoquer',
   Role: 'Rôle',
   Save: 'Enregistrer',
+  'Saved.': 'Enregistré.',
   'Scan the code below, then enter a code from the app.':
     "Scannez le code ci-dessous, puis saisissez un code de l'application.",
   Search: 'Rechercher',
@@ -191,9 +196,11 @@ export default {
   'Send a new link': 'Envoyer un nouveau lien',
   'Send confirmation': 'Envoyer la confirmation',
   'Sent to {address}.': 'Envoyée à {address}.',
+  'Sent to {email}, once a group has been quiet for a while.': 'Envoyé à {email}, une fois le groupe calme depuis un moment.',
   'Set up an authenticator': "Configurer une application d'authentification",
   Settings: 'Paramètres',
   'Show more': 'Afficher plus',
+  'Shown in your notifications. Add an email address to receive them as mail too.': 'Affiché dans vos notifications. Ajoutez une adresse e-mail pour les recevoir aussi par courrier.',
   'Sign in': 'Se connecter',
   'Sign in to answer it.': 'Connectez-vous pour y répondre.',
   'Sign out': 'Se déconnecter',
@@ -210,6 +217,7 @@ export default {
   'Sync clients see this as group {id}.':
     'Les clients de synchronisation voient ceci comme le groupe {id}.',
   Tags: 'Marqueurs',
+  'Tell me about': 'Me notifier de',
   'That confirmation link is not valid or has expired.':
     "Ce lien de confirmation n'est pas valide ou a expiré.",
   'That invitation has already been answered.': 'Cette invitation a déjà reçu une réponse.',

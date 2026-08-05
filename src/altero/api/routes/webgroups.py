@@ -22,8 +22,17 @@ from starlette.responses import JSONResponse, Response
 from altero.api.deps import SessionDep
 from altero.api.routes.web import CsrfDep, CurrentUserDep
 from altero.errors import InvalidInputError, NotFoundError
-from altero.models import Group, GroupMember, Invitation, Item, Library, LibraryType, User
-from altero.services import groups, invitations, writes
+from altero.models import (
+    ActivityKind,
+    Group,
+    GroupMember,
+    Invitation,
+    Item,
+    Library,
+    LibraryType,
+    User,
+)
+from altero.services import groupprefs, groups, invitations, writes
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -101,6 +110,46 @@ async def _serialise(
     }
 
 
+#: The name each activity kind carries in the browser's JSON. The wire names
+#: are camelCase like the rest of ``/web``; the stored ones are the enum's.
+_NOTIFICATION_NAMES: dict[ActivityKind, str] = {
+    ActivityKind.ITEMS_CHANGED: "itemsChanged",
+    ActivityKind.ITEMS_DELETED: "itemsDeleted",
+    ActivityKind.MEMBERS_CHANGED: "membersChanged",
+    ActivityKind.COLLECTIONS_CHANGED: "collectionsChanged",
+}
+
+
+class NotificationWrite(BaseModel):
+    """Which kinds to change. Omitting one leaves it as it was.
+
+    A partial write on purpose: the panel sends the toggle that moved rather
+    than all four, so two open tabs cannot undo each other's choices.
+    """
+
+    items_changed: bool | None = Field(default=None, alias="itemsChanged")
+    items_deleted: bool | None = Field(default=None, alias="itemsDeleted")
+    members_changed: bool | None = Field(default=None, alias="membersChanged")
+    collections_changed: bool | None = Field(default=None, alias="collectionsChanged")
+
+    def wanted(self) -> dict[ActivityKind, bool]:
+        """Return only the kinds this request named."""
+        named = {
+            ActivityKind.ITEMS_CHANGED: self.items_changed,
+            ActivityKind.ITEMS_DELETED: self.items_deleted,
+            ActivityKind.MEMBERS_CHANGED: self.members_changed,
+            ActivityKind.COLLECTIONS_CHANGED: self.collections_changed,
+        }
+        return {kind: value for kind, value in named.items() if value is not None}
+
+
+async def _notification_payload(
+    session: AsyncSession, library: Library, user_id: int
+) -> dict[str, bool]:
+    held = await groupprefs.get(session, library, user_id=user_id)
+    return {_NOTIFICATION_NAMES[kind]: value for kind, value in held.items()}
+
+
 def _member_payload(user: User, member: GroupMember, owner_id: int) -> dict[str, Any]:
     return {
         "id": user.id,
@@ -170,7 +219,45 @@ async def read_group(session: SessionDep, user: CurrentUserDep, library_id: int)
         if member.role == "admin"
         else []
     )
+    # Carried here as well as on its own endpoint, so the settings panel draws
+    # in one request rather than two.
+    payload["notifications"] = await _notification_payload(session, library, user.id)
     return JSONResponse(payload)
+
+
+@router.get("/groups/{library_id}/notifications")
+async def read_notifications(
+    session: SessionDep, user: CurrentUserDep, library_id: int
+) -> Response:
+    """Return what this account has asked to be told about in this group."""
+    library, _ = await _group(session, library_id)
+    await _member_of(session, library, user)
+
+    return JSONResponse(await _notification_payload(session, library, user.id))
+
+
+@router.put("/groups/{library_id}/notifications")
+async def set_notifications(
+    session: SessionDep,
+    user: CurrentUserDep,
+    library_id: int,
+    body: Annotated[NotificationWrite, Body()],
+    _csrf: CsrfDep,
+) -> Response:
+    """Change what this account is told about in this group.
+
+    Your own only. There is no address to point somebody else's notifications
+    at, and a group's administrator deciding what its members are mailed about
+    is not a power anyone asked for.
+    """
+    library, _ = await _group(session, library_id)
+    await _member_of(session, library, user)
+
+    for kind, wanted in body.wanted().items():
+        await groupprefs.set_kind(session, library, user_id=user.id, kind=kind, wanted=wanted)
+    await session.commit()
+
+    return JSONResponse(await _notification_payload(session, library, user.id))
 
 
 @router.patch("/groups/{library_id}")

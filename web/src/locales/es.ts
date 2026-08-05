@@ -47,6 +47,7 @@ export default {
   'Code from the app': 'Código de la aplicación',
   Collapse: 'Contraer',
   Collections: 'Colecciones',
+  'Collections added or changed': 'Colecciones añadidas o modificadas',
   'Colour theme': 'Tema de color',
   'Colour theme: {name}': 'Tema de color: {name}',
   'Confirm your password': 'Confirma tu contraseña',
@@ -106,6 +107,8 @@ export default {
   'Invitation sent.': 'Invitación enviada.',
   Invitations: 'Invitaciones',
   Invite: 'Invitar',
+  'Items added or changed': 'Elementos añadidos o modificados',
+  'Items deleted': 'Elementos eliminados',
   'Items in {name}': 'Elementos en {name}',
   'Key created. Copy it now — it is not shown again.':
     'Clave creada. Cópiala ahora: no se mostrará de nuevo.',
@@ -158,6 +161,7 @@ export default {
   Private: 'Privado',
   Profile: 'Perfil',
   Public: 'Público',
+  'People joining or leaving': 'Altas y bajas de personas',
   'Public, invitation only': 'Público, solo por invitación',
   'Read and change any group library you belong to':
     'Leer y modificar cualquier biblioteca de grupo a la que pertenezcas',
@@ -182,6 +186,7 @@ export default {
   Revoke: 'Revocar',
   Role: 'Rol',
   Save: 'Guardar',
+  'Saved.': 'Guardado.',
   'Scan the code below, then enter a code from the app.':
     'Escanea el código de abajo y escribe después un código de la aplicación.',
   Search: 'Buscar',
@@ -189,9 +194,11 @@ export default {
   'Send a new link': 'Enviar un enlace nuevo',
   'Send confirmation': 'Enviar la confirmación',
   'Sent to {address}.': 'Enviada a {address}.',
+  'Sent to {email}, once a group has been quiet for a while.': 'Se envía a {email} cuando el grupo lleva un rato tranquilo.',
   'Set up an authenticator': 'Configurar una aplicación de autenticación',
   Settings: 'Ajustes',
   'Show more': 'Mostrar más',
+  'Shown in your notifications. Add an email address to receive them as mail too.': 'Aparece en tus notificaciones. Añade una dirección de correo para recibirlas también por correo.',
   'Sign in': 'Iniciar sesión',
   'Sign in to answer it.': 'Inicie sesión para responderla.',
   'Sign out': 'Cerrar sesión',
@@ -208,6 +215,7 @@ export default {
   'Sync clients see this as group {id}.':
     'Los clientes de sincronización ven esto como el grupo {id}.',
   Tags: 'Etiquetas',
+  'Tell me about': 'Avisarme de',
   'That confirmation link is not valid or has expired.':
     'Ese enlace de confirmación no es válido o ha caducado.',
   'That invitation has already been answered.': 'Esa invitación ya ha sido respondida.',

@@ -51,6 +51,7 @@ export default {
   'Code from the app': 'アプリのコード',
   Collapse: '折りたたむ',
   Collections: 'コレクション',
+  'Collections added or changed': '追加または変更されたコレクション',
   'Colour theme': '配色テーマ',
   'Colour theme: {name}': '配色テーマ: {name}',
   'Confirm your password': 'パスワードを確認',
@@ -110,6 +111,8 @@ export default {
   'Invitation sent.': '招待を送信しました。',
   Invitations: '招待',
   Invite: '招待する',
+  'Items added or changed': '追加または変更されたアイテム',
+  'Items deleted': '削除されたアイテム',
   'Items in {name}': '{name} の項目',
   'Key created. Copy it now — it is not shown again.':
     'キーを作成しました。今コピーしてください。再表示はされません。',
@@ -160,6 +163,7 @@ export default {
   Private: '非公開',
   Profile: 'プロフィール',
   Public: '公開',
+  'People joining or leaving': 'メンバーの参加と脱退',
   'Public, invitation only': '公開（招待制）',
   'Read and change any group library you belong to':
     '参加しているすべてのグループのライブラリの閲覧と変更',
@@ -184,6 +188,7 @@ export default {
   Revoke: '失効',
   Role: '役割',
   Save: '保存',
+  'Saved.': '保存しました。',
   'Scan the code below, then enter a code from the app.':
     '下のコードを読み取り、アプリのコードを入力してください。',
   Search: '検索',
@@ -191,9 +196,11 @@ export default {
   'Send a new link': '新しいリンクを送信',
   'Send confirmation': '確認メールを送信',
   'Sent to {address}.': '{address} 宛に送信されました。',
+  'Sent to {email}, once a group has been quiet for a while.': 'グループがしばらく静かになったら {email} に送信されます。',
   'Set up an authenticator': '認証アプリを設定',
   Settings: '設定',
   'Show more': 'さらに表示',
+  'Shown in your notifications. Add an email address to receive them as mail too.': '通知に表示されます。メールでも受け取るにはメールアドレスを追加してください。',
   'Sign in': 'サインイン',
   'Sign in to answer it.': 'サインインすると返答できます。',
   'Sign out': 'サインアウト',
@@ -209,6 +216,7 @@ export default {
   'Sort by {column}, currently descending': '{column} で並べ替え（現在は降順）',
   'Sync clients see this as group {id}.': '同期クライアントからはグループ {id} として見えます。',
   Tags: 'タグ',
+  'Tell me about': '通知を受け取る対象',
   'That confirmation link is not valid or has expired.':
     'この確認リンクは無効か、有効期限が切れています。',
   'That invitation has already been answered.': 'この招待にはすでに返答済みです。',

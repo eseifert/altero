@@ -47,6 +47,7 @@ export default {
   'Code from the app': 'Code aus der App',
   Collapse: 'Zuklappen',
   Collections: 'Sammlungen',
+  'Collections added or changed': 'Hinzugefügte oder geänderte Sammlungen',
   'Colour theme': 'Farbschema',
   'Colour theme: {name}': 'Farbschema: {name}',
   'Confirm your password': 'Passwort bestätigen',
@@ -107,6 +108,8 @@ export default {
   'Invitation sent.': 'Einladung gesendet.',
   Invitations: 'Einladungen',
   Invite: 'Einladen',
+  'Items added or changed': 'Hinzugefügte oder geänderte Einträge',
+  'Items deleted': 'Gelöschte Einträge',
   'Items in {name}': 'Einträge in {name}',
   'Key created. Copy it now — it is not shown again.':
     'Schlüssel erstellt. Kopiere ihn jetzt – er wird nicht noch einmal angezeigt.',
@@ -160,6 +163,7 @@ export default {
   Private: 'Privat',
   Profile: 'Profil',
   Public: 'Öffentlich',
+  'People joining or leaving': 'Beitritte und Austritte',
   'Public, invitation only': 'Öffentlich, nur mit Einladung',
   'Read and change any group library you belong to':
     'Jede Gruppenbibliothek lesen und ändern, in der du Mitglied bist',
@@ -184,6 +188,7 @@ export default {
   Revoke: 'Widerrufen',
   Role: 'Rolle',
   Save: 'Speichern',
+  'Saved.': 'Gespeichert.',
   'Scan the code below, then enter a code from the app.':
     'Scanne den Code unten und gib dann einen Code aus der App ein.',
   Search: 'Suchen',
@@ -191,9 +196,11 @@ export default {
   'Send a new link': 'Neuen Link senden',
   'Send confirmation': 'Bestätigung senden',
   'Sent to {address}.': 'Gesendet an {address}.',
+  'Sent to {email}, once a group has been quiet for a while.': 'Geht an {email}, sobald in der Gruppe eine Weile Ruhe war.',
   'Set up an authenticator': 'Authenticator einrichten',
   Settings: 'Einstellungen',
   'Show more': 'Mehr anzeigen',
+  'Shown in your notifications. Add an email address to receive them as mail too.': 'Erscheint in deinen Benachrichtigungen. Mit einer E-Mail-Adresse kommt es zusätzlich per Mail.',
   'Sign in': 'Anmelden',
   'Sign in to answer it.': 'Melde dich an, um darauf zu antworten.',
   'Sign out': 'Abmelden',
@@ -209,6 +216,7 @@ export default {
   'Sort by {column}, currently descending': 'Nach {column} sortieren, derzeit absteigend',
   'Sync clients see this as group {id}.': 'Sync-Clients sehen dies als Gruppe {id}.',
   Tags: 'Tags',
+  'Tell me about': 'Benachrichtige mich über',
   'That confirmation link is not valid or has expired.':
     'Dieser Bestätigungslink ist ungültig oder abgelaufen.',
   'That invitation has already been answered.': 'Diese Einladung wurde bereits beantwortet.',

@@ -55,6 +55,12 @@ function detail(overrides: Partial<Group> = {}) {
       GRACE,
     ],
     invitations: [{ id: 9, email: 'hopper@example.org', role: 'member', expires: '2026-09-01T00:00:00Z' }],
+    notifications: {
+      itemsChanged: false,
+      itemsDeleted: false,
+      membersChanged: false,
+      collectionsChanged: false,
+    },
   }
 }
 
@@ -169,5 +175,49 @@ describe('the groups screen', () => {
       method: 'POST',
       body: { name: 'Difference Engine', description: '' },
     })
+  })
+
+  it('offers a notification toggle for each kind of change', async () => {
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    expect(wrapper.text()).toContain('Tell me about')
+    expect(wrapper.findAll('.notify input[type="checkbox"]')).toHaveLength(4)
+  })
+
+  it('starts with every toggle off, because nothing is subscribed by default', async () => {
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    const boxes = wrapper.findAll('.notify input[type="checkbox"]')
+    expect(boxes.every((box) => !(box.element as HTMLInputElement).checked)).toBe(true)
+  })
+
+  it('sends only the toggle that was changed', async () => {
+    const wrapper = await screen()
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    requestMock.mockClear()
+    await wrapper.find('.notify input[type="checkbox"]').setValue(true)
+    await flush()
+
+    expect(requestMock).toHaveBeenCalledWith('/web/groups/2/notifications', {
+      method: 'PUT',
+      body: { itemsChanged: true },
+    })
+  })
+
+  it('says where the notifications go', async () => {
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    expect(wrapper.text()).toContain('ada@example.org')
   })
 })

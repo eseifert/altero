@@ -138,6 +138,53 @@ describe('the group store', () => {
     ])
   })
 
+  it('sends only the toggle that moved', async () => {
+    requestMock.mockResolvedValue({
+      itemsChanged: true,
+      itemsDeleted: false,
+      membersChanged: false,
+      collectionsChanged: false,
+    })
+    const store = useGroupStore()
+
+    await store.setNotification(2, 'itemsChanged', true)
+
+    expect(requestMock.mock.calls[0]).toEqual([
+      '/web/groups/2/notifications',
+      { method: 'PUT', body: { itemsChanged: true } },
+    ])
+  })
+
+  it('keeps the answered preferences on the group it holds', async () => {
+    requestMock.mockResolvedValueOnce(payload())
+    const store = useGroupStore()
+    await store.load()
+
+    requestMock.mockResolvedValueOnce({
+      itemsChanged: true,
+      itemsDeleted: false,
+      membersChanged: false,
+      collectionsChanged: false,
+    })
+    await store.setNotification(2, 'itemsChanged', true)
+
+    expect(store.groups[0].notifications).toEqual({
+      itemsChanged: true,
+      itemsDeleted: false,
+      membersChanged: false,
+      collectionsChanged: false,
+    })
+  })
+
+  it('reports a refusal rather than pretending the toggle moved', async () => {
+    requestMock.mockRejectedValue(new ApiError('Forbidden', 403))
+    const store = useGroupStore()
+
+    await store.setNotification(2, 'itemsChanged', true)
+
+    expect(store.error).toBeTruthy()
+  })
+
   it('forgets everything on sign-out', async () => {
     requestMock.mockResolvedValue(payload())
     const store = useGroupStore()

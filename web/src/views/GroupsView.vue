@@ -5,7 +5,12 @@ import { useI18n } from 'vue-i18n'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { useAuthStore } from '@/stores/auth'
-import { useGroupStore, type Group, type Role } from '@/stores/groups'
+import {
+  useGroupStore,
+  type Group,
+  type NotificationKind,
+  type Role,
+} from '@/stores/groups'
 import { formatDate } from '@/formats'
 
 const { t } = useI18n()
@@ -29,6 +34,36 @@ const confirming = ref<'delete' | 'leave' | null>(null)
 onMounted(() => store.load())
 
 const canAdminister = computed(() => open.value?.role === 'admin')
+
+/**
+ * The four kinds, in the order the digest itself lists them, so the panel and
+ * the message a person receives read the same way round.
+ *
+ * The labels are functions rather than strings so they are translated when the
+ * list is rendered, not once when this module is first evaluated -- which
+ * would freeze them in whatever language happened to be active then.
+ */
+const NOTIFICATION_KINDS: { name: NotificationKind; label: () => string }[] = [
+  { name: 'itemsChanged', label: () => t('Items added or changed') },
+  { name: 'itemsDeleted', label: () => t('Items deleted') },
+  { name: 'membersChanged', label: () => t('People joining or leaving') },
+  { name: 'collectionsChanged', label: () => t('Collections added or changed') },
+]
+
+async function setNotification(kind: NotificationKind, wanted: boolean): Promise<void> {
+  if (!open.value) {
+    return
+  }
+  const id = open.value.id
+  await store.setNotification(id, kind, wanted, t('Saved.'))
+  // The store holds the server's answer for the whole set; mirror it onto the
+  // open panel, which is a copy fetched separately and would otherwise show
+  // the old value until the group is reopened.
+  const held = store.groups.find((group) => group.id === id)?.notifications
+  if (held && open.value) {
+    open.value.notifications = held
+  }
+}
 
 async function show(group: Group): Promise<void> {
   open.value = (await store.read(group.id)) ?? null
@@ -241,6 +276,31 @@ const editedDescription = computed({
           </select>
         </label>
       </template>
+
+      <h3>{{ t('Tell me about') }}</h3>
+      <p class="notify__note">
+        {{
+          auth.user?.email
+            ? t('Sent to {email}, once a group has been quiet for a while.', {
+                email: auth.user.email,
+              })
+            : t('Shown in your notifications. Add an email address to receive them as mail too.')
+        }}
+      </p>
+      <ul class="notify">
+        <li v-for="kind in NOTIFICATION_KINDS" :key="kind.name">
+          <label>
+            <input
+              type="checkbox"
+              :checked="open.notifications?.[kind.name] ?? false"
+              @change="
+                setNotification(kind.name, ($event.target as HTMLInputElement).checked)
+              "
+            />
+            <span>{{ kind.label() }}</span>
+          </label>
+        </li>
+      </ul>
 
       <h3>{{ t('Members') }}</h3>
       <ul class="members">
