@@ -10,6 +10,10 @@ export interface LibrarySummary {
   name: string
   version: number
   prefix: string
+  /** Whether this account may change the library. Resolved by the server: a
+   *  group can reserve editing for its administrators, and deciding that here
+   *  would be a second implementation of a rule that already exists. */
+  writable: boolean
 }
 
 export interface ItemEnvelope {
@@ -126,17 +130,34 @@ export const useLibraryStore = defineStore('library', () => {
     () => libraries.value.find((entry) => entry.id === libraryId.value) ?? null,
   )
   const hasMore = computed(() => start.value + items.value.length < total.value)
-  const collectionName = computed(() => {
-    const find = (nodes: CollectionNode[]): string | null => {
+  const writable = computed(() => library.value?.writable === true)
+  /**
+   * The collections from the top of the tree down to ``key``, ``key`` last.
+   *
+   * Empty for a key the tree does not hold, which is a collection that was
+   * filtered out or has just gone: a caller that shows a path gets a shorter
+   * one rather than a wrong one.
+   */
+  function pathTo(key: string | null): CollectionNode[] {
+    if (!key) return []
+
+    const walk = (nodes: CollectionNode[], trail: CollectionNode[]): CollectionNode[] | null => {
       for (const node of nodes) {
-        if (node.key === collectionKey.value) return node.data.name
-        const found = find(node.children)
+        const here = [...trail, node]
+        if (node.key === key) return here
+        const found = walk(node.children, here)
         if (found) return found
       }
       return null
     }
-    return collectionKey.value ? find(collections.value) : null
-  })
+    return walk(collections.value, []) ?? []
+  }
+
+  /** The collection the sidebar has selected, if it has one. */
+  const selectedCollection = computed<CollectionNode | null>(
+    () => pathTo(collectionKey.value).at(-1) ?? null,
+  )
+  const collectionName = computed(() => selectedCollection.value?.data.name ?? null)
 
   function itemsUrl(): string {
     const params = new URLSearchParams({
@@ -181,6 +202,43 @@ export const useLibraryStore = defineStore('library', () => {
       `/web/libraries/${libraryId.value}/collections`,
     )
     collections.value = tree(payload.collections)
+  }
+
+  /**
+   * Make a collection, and open it.
+   *
+   * The tree is fetched again rather than patched: a new subcollection changes
+   * how many its parent reports, and a count that disagrees with the tree under
+   * it is worse than one extra request. Opening it afterwards is what the
+   * desktop client does, and is almost always what was wanted next.
+   *
+   * Always in the library being browsed: the sidebar shows one library's
+   * collections at a time, so the row this was reached from is in that library
+   * and there is nowhere else for it to go.
+   */
+  async function createCollection(name: string, parentCollection?: string | null): Promise<void> {
+    if (libraryId.value === null) return
+
+    const created = await request<CollectionEnvelope>(
+      `/web/libraries/${libraryId.value}/collections`,
+      { method: 'POST', body: parentCollection ? { name, parentCollection } : { name } },
+    )
+    await loadCollections()
+    await selectCollection(created.key)
+  }
+
+  /**
+   * Remove a collection. Its subcollections move up; its items stay.
+   *
+   * If it was the one being shown, the view falls back to the whole library —
+   * leaving the selection on a key the server no longer knows would list
+   * nothing and say the collection was empty.
+   */
+  async function deleteCollection(key: string): Promise<void> {
+    if (libraryId.value === null) return
+    await request(`/web/libraries/${libraryId.value}/collections/${key}`, { method: 'DELETE' })
+    await loadCollections()
+    if (collectionKey.value === key) await selectCollection(null)
   }
 
   async function loadTags(): Promise<void> {
@@ -314,6 +372,8 @@ export const useLibraryStore = defineStore('library', () => {
     collections,
     collectionKey,
     collectionName,
+    selectedCollection,
+    pathTo,
     tags,
     selectedTags,
     items,
@@ -327,9 +387,12 @@ export const useLibraryStore = defineStore('library', () => {
     loading,
     failure,
     hasMore,
+    writable,
     loadLibraries,
     openLibrary,
     loadCollections,
+    createCollection,
+    deleteCollection,
     loadTags,
     loadItems,
     loadMore,

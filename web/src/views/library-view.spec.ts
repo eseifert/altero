@@ -16,8 +16,26 @@ vi.mock('@/api/client', async (importOriginal) => ({
   request: requestMock,
 }))
 
-const PERSONAL = { id: 1, type: 'user', ownerId: 1, name: 'Ada', version: 4, prefix: '/users/1' }
-const GROUP = { id: 7, type: 'group', ownerId: 7, name: 'Whale Watchers', version: 2, prefix: '/groups/7' }
+const PERSONAL = {
+  id: 1,
+  type: 'user',
+  ownerId: 1,
+  name: 'Ada',
+  version: 4,
+  prefix: '/users/1',
+  writable: true,
+}
+const GROUP = {
+  id: 7,
+  type: 'group',
+  ownerId: 7,
+  name: 'Whale Watchers',
+  version: 2,
+  prefix: '/groups/7',
+  // A group that reserves editing for its administrators, which is what makes
+  // it the interesting one: the controls must not be offered here.
+  writable: false,
+}
 
 /** What `/web/libraries` answers. A test that needs a group to switch to widens it. */
 let libraries: unknown[] = [PERSONAL]
@@ -36,6 +54,20 @@ const COLLECTION = {
   key: 'CCCC2345',
   version: 1,
   data: { key: 'CCCC2345', name: 'Whales', parentCollection: false },
+  meta: { numCollections: 0, numItems: 0 },
+}
+
+const NESTED = {
+  key: 'DDDD2345',
+  version: 1,
+  data: { key: 'DDDD2345', name: 'Humpbacks', parentCollection: 'CCCC2345' },
+  meta: { numCollections: 0, numItems: 0 },
+}
+
+const OTHER = {
+  key: 'EEEE2345',
+  version: 1,
+  data: { key: 'EEEE2345', name: 'Dolphins', parentCollection: false },
   meta: { numCollections: 0, numItems: 0 },
 }
 
@@ -270,18 +302,21 @@ function viewsBelongTo(wrapper: ReturnType<typeof mount>): string | null {
   const scopes = wrapper.find('.library__scopes--nested')
   if (!scopes.exists()) return null
   const above = scopes.element.previousElementSibling
-  if (!above?.classList.contains('library__library--current')) return null
-  return (above.textContent ?? '').replace(/\s+/g, ' ').trim()
+  const current = above?.querySelector('.library__library--current')
+  if (!current) return null
+  return (current.textContent ?? '').replace(/\s+/g, ' ').trim()
 }
 
 describe('the library nav', () => {
-  it('names no library when there is only one, and leaves the views flush', async () => {
-    /* The row would say "My Library" directly above "My library", and there is
-       no hierarchy to draw when nothing else can be picked. */
+  it('names the library even when it is the only one', async () => {
+    /* It used to be left out here, on the grounds that one library needs no
+       hierarchy. A personal library carries the account's own name, so the row
+       reads "Ada" rather than "My Library" over "My library" -- and it is the
+       row the collections hang from, and the row a collection is added on. */
     const wrapper = await open()
 
-    expect(sidebar(wrapper)).toEqual(['My library', 'Everything', 'Trash'])
-    expect(viewsBelongTo(wrapper)).toBeNull()
+    expect(sidebar(wrapper)).toEqual(['Ada', 'My library', 'Everything', 'Trash'])
+    expect(viewsBelongTo(wrapper)).toBe('Ada')
   })
 
   it('draws the views inside the library they act on', async () => {
@@ -365,5 +400,290 @@ describe('the search field', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+})
+
+describe('making and removing collections', () => {
+  /** Answer the tree with `collections`, and let a write succeed. */
+  function withCollections(collections: unknown[], write?: (path: string) => Promise<unknown>) {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method && options.method !== 'GET') {
+        return write ? write(path) : Promise.resolve(COLLECTION)
+      }
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+  }
+
+  /**
+   * Click the sidebar row for `name`.
+   *
+   * Driven through the interface rather than by reaching for the store: the
+   * component holds a store of its own, and a test that calls `useStore()`
+   * halfway through can be handed a different one -- an earlier test's Pinia
+   * can still be the active one when a leftover request of its own resolves.
+   * Clicking the row is what a reader does anyway.
+   */
+  function openCollection(wrapper: ReturnType<typeof mount>, name: string) {
+    const row = wrapper.findAll('.tree__name').find((entry) => entry.text().includes(name))
+    if (!row) throw new Error(`No collection row for ${name}`)
+    return row.trigger('click')
+  }
+
+  /** The library's own plus, on the row that stands for its top level. */
+  function libraryAction(wrapper: ReturnType<typeof mount>) {
+    return wrapper.get('.library__action')
+  }
+
+  /** The plus or the cross on the row for `name`. */
+  function rowAction(
+    wrapper: ReturnType<typeof mount>,
+    name: string,
+    action: 'add' | 'remove',
+  ) {
+    const label = action === 'add' ? `New subcollection inside “${name}”` : `Delete “${name}”`
+    return wrapper.get(`[aria-label="${label}"]`)
+  }
+
+  /** The calls that changed something. */
+  function writes() {
+    return requestMock.mock.calls.filter(
+      ([, options]) => options && options.method && options.method !== 'GET',
+    )
+  }
+
+  it('offers to make one in a library with none, which is where it is needed most', async () => {
+    const wrapper = await open()
+
+    expect(wrapper.find('.library__action').exists()).toBe(true)
+    expect(wrapper.find('.tree').exists()).toBe(false)
+  })
+
+  it('puts the plus on the row naming the library, not on a view below it', async () => {
+    /* That row is what the collections hang from, so it is the row a
+       collection is added on. */
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    const row = libraryAction(wrapper).element.closest('.library__nav-row')
+    expect(row?.querySelector('.library__library')?.textContent).toContain('Ada')
+  })
+
+  it('offers it only on the library being read', async () => {
+    /* The tree below belongs to that one; a plus on another library would
+       write to something nothing on screen is showing. */
+    libraries = [PERSONAL, { ...GROUP, writable: true }]
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    expect(wrapper.findAll('.library__action')).toHaveLength(1)
+    const row = wrapper.get('.library__action').element.closest('.library__nav-row')
+    expect(row?.querySelector('.library__library')?.textContent).toContain('Ada')
+  })
+
+  it('puts the library’s plus where a collection’s is, and calls it the same', async () => {
+    /* Two controls that do the same thing at two levels of one list. */
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    expect(libraryAction(wrapper).attributes('aria-label')).toBe('New collection')
+    expect(rowAction(wrapper, 'Whales', 'add').attributes('aria-label')).toBe(
+      'New subcollection inside “Whales”',
+    )
+  })
+
+  it('offers nothing of the sort in a library that may only be read', async () => {
+    /* Whether this account may write is the server's answer, and a control the
+       server will refuse is a control not to draw. */
+    libraries = [PERSONAL, GROUP]
+    withCollections([COLLECTION])
+    const wrapper = await open()
+    await wrapper.findAll('.library__library')[1].trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('.library__action').exists()).toBe(false)
+    expect(wrapper.findAll('.tree__action')).toHaveLength(0)
+  })
+
+  it('lists the collections with the views, as one hierarchy under the library', async () => {
+    /* A collection is another thing the library can be narrowed to, not a
+       separate kind of place, and there is no heading saying otherwise. */
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    const rows = wrapper.get('.library__scopes').findAll('.library__label, .tree__label')
+    expect(rows.map((row) => row.text())).toEqual(['My library', 'Everything', 'Trash', 'Whales'])
+  })
+
+  it('opens a dialog rather than a field on its own', async () => {
+    /* Where it goes is half of what making one takes, and a field alone says
+       nothing about that. */
+    withCollections([])
+    const wrapper = await open()
+
+    await libraryAction(wrapper).trigger('click')
+
+    expect(wrapper.get('dialog').element.open).toBe(true)
+    expect(wrapper.get('.dialog__where').text()).toContain('Created in')
+  })
+
+  it('names the library it will be made in', async () => {
+    withCollections([])
+    const wrapper = await open()
+
+    await libraryAction(wrapper).trigger('click')
+
+    expect(wrapper.get('.dialog__path').text()).toContain('Ada')
+  })
+
+  it('shows the path down to the row the plus was pressed on', async () => {
+    /* This is the whole point of the dialog: "here" is a place in a tree, and
+       the tree is where it has to be shown. */
+    withCollections([COLLECTION, NESTED])
+    const wrapper = await open()
+    await wrapper.get('.tree__twisty').trigger('click')
+
+    await rowAction(wrapper, 'Humpbacks', 'add').trigger('click')
+
+    const steps = wrapper.findAll('.dialog__step-name').map((step) => step.text())
+    expect(steps).toEqual(['Ada', 'Whales', 'Humpbacks'])
+  })
+
+  it('sends the name that was typed', async () => {
+    withCollections([])
+    const wrapper = await open()
+
+    await libraryAction(wrapper).trigger('click')
+    await wrapper.get('.dialog__field').setValue('Papers')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/collections', { method: 'POST', body: { name: 'Papers' } }],
+    ])
+  })
+
+  it('makes one at the top level whatever is open, because the row says so', async () => {
+    /* The plus belongs to the library's row, so it means that row -- not
+       wherever the reader happens to have clicked. */
+    withCollections([COLLECTION])
+    const wrapper = await open()
+    await openCollection(wrapper, 'Whales')
+    await settle(wrapper)
+
+    await libraryAction(wrapper).trigger('click')
+    await wrapper.get('.dialog__field').setValue('Papers')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()[0][1]).toEqual({ method: 'POST', body: { name: 'Papers' } })
+  })
+
+  it('sends the parent when the row asked for a subcollection', async () => {
+    /* The plus on a row acts on that row, whether or not it is the selected
+       one -- otherwise it would be the same control twice. */
+    withCollections([COLLECTION, OTHER])
+    const wrapper = await open()
+    await openCollection(wrapper, 'Dolphins')
+    await settle(wrapper)
+
+    await rowAction(wrapper, 'Whales', 'add').trigger('click')
+    await wrapper.get('.dialog__field').setValue('Drafts')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()[0][1]).toEqual({
+      method: 'POST',
+      body: { name: 'Drafts', parentCollection: 'CCCC2345' },
+    })
+  })
+
+  it('says which collection it is about to make one inside', async () => {
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    await rowAction(wrapper, 'Whales', 'add').trigger('click')
+
+    expect(wrapper.get('.dialog__path').text()).toContain('Whales')
+  })
+
+  it('closes without writing when the dialog is dismissed', async () => {
+    withCollections([])
+    const wrapper = await open()
+    await libraryAction(wrapper).trigger('click')
+
+    await wrapper.findAll('.dialog__actions button')[0].trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(writes()).toEqual([])
+  })
+
+  it('refuses an empty name without asking the server', async () => {
+    withCollections([])
+    const wrapper = await open()
+
+    await libraryAction(wrapper).trigger('click')
+    await wrapper.get('.dialog__field').setValue('   ')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([])
+    expect(wrapper.get('.dialog__error').text()).toContain('A collection needs a name.')
+  })
+
+  it('asks before removing one, and does nothing until answered', async () => {
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    await rowAction(wrapper, 'Whales', 'remove').trigger('click')
+
+    expect(wrapper.get('.collections__confirm').text()).toContain('Whales')
+    expect(writes()).toEqual([])
+  })
+
+  it('removes it once that is confirmed', async () => {
+    withCollections([COLLECTION], () => Promise.resolve(null))
+    const wrapper = await open()
+    await rowAction(wrapper, 'Whales', 'remove').trigger('click')
+
+    await wrapper.findAll('.collections__confirm button')[1].trigger('click')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/collections/CCCC2345', { method: 'DELETE' }],
+    ])
+  })
+
+  it('leaves it alone when the question is dismissed', async () => {
+    withCollections([COLLECTION])
+    const wrapper = await open()
+    await rowAction(wrapper, 'Whales', 'remove').trigger('click')
+
+    await wrapper.findAll('.collections__confirm button')[0].trigger('click')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([])
+    expect(wrapper.find('.collections__confirm').exists()).toBe(false)
+  })
+
+  it('reports a refusal in the dialog, which stays open with the name in it', async () => {
+    withCollections([], () => Promise.reject(new Error('You cannot change this library')))
+    const wrapper = await open()
+
+    await libraryAction(wrapper).trigger('click')
+    await wrapper.get('.dialog__field').setValue('Papers')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(wrapper.get('.dialog__error').text()).toContain('You cannot change this library')
+    expect((wrapper.get('.dialog__field').element as HTMLInputElement).value).toBe('Papers')
+    expect(wrapper.find('.library__state--error').exists()).toBe(false)
   })
 })

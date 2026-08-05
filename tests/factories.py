@@ -59,13 +59,16 @@ async def make_group(
     name: str = "Test Group",
     public: bool = False,
     members: dict[int, str] | None = None,
+    library_editing: str = "members",
 ) -> Library:
     """Create a group library with its metadata and membership rows."""
     library = Library(type=LibraryType.GROUP, owner_id=group_id, name=name, public=public)
     session.add(library)
     await session.flush()
 
-    session.add(Group(library_id=library.id, owner_id=owner_id, name=name))
+    session.add(
+        Group(library_id=library.id, owner_id=owner_id, name=name, library_editing=library_editing)
+    )
     session.add(GroupMember(library_id=library.id, user_id=owner_id, role="admin"))
     for user_id, role in (members or {}).items():
         session.add(GroupMember(library_id=library.id, user_id=user_id, role=role))

@@ -2,12 +2,14 @@
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import AppButton from '@/components/AppButton.vue'
+import CollectionDialog from '@/components/CollectionDialog.vue'
 import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import { fieldLabel, loadLabels } from '@/items/labels'
-import { useLibraryStore, type ItemEnvelope } from '@/stores/library'
+import { useLibraryStore, type CollectionNode, type ItemEnvelope } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 
 const { t } = useI18n()
@@ -25,9 +27,6 @@ const COLUMN_FIELDS = ['title', 'creator', 'date']
 const columns = computed(() =>
   COLUMN_FIELDS.map((field) => ({ field, label: fieldLabel(field) })),
 )
-
-/* One library is the common case and needs no list to choose from. */
-const showLibraries = computed(() => library.libraries.length > 1)
 
 const searchText = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
@@ -115,6 +114,99 @@ function titleOf(item: ItemEnvelope): string {
   return (item.data.title as string) || t('(untitled)')
 }
 
+/*
+ * Making and removing a collection.
+ *
+ * One pending action at a time, held here rather than in the tree: the tree
+ * recurses into itself, so state kept in it would be per level, and there is
+ * only ever one of these on screen.
+ *
+ * Making one opens a dialog, because it takes two answers -- where, and what to
+ * call it -- and the first of those is a place in a tree that the dialog has to
+ * show. Removing one asks in place, as everything else here does, because it
+ * takes no answer beyond yes.
+ */
+type Pending =
+  | { kind: 'create'; parent: CollectionNode | null }
+  | { kind: 'delete'; target: CollectionNode }
+
+const pending = ref<Pending | null>(null)
+const busy = ref(false)
+const collectionError = ref<string | null>(null)
+
+/* What the sidebar calls a library, so the dialog's path starts with the row
+   the reader can see rather than with a second name for the same thing. */
+function libraryLabel(entry: { type: string; name: string; ownerId: number }): string {
+  if (entry.name) return entry.name
+  return entry.type === 'user' ? t('My Library') : t('Group {id}', { id: entry.ownerId })
+}
+
+/*
+ * Where the collection about to be made will go: the library, then every
+ * collection down to the one it will sit inside.
+ *
+ * Every row that can hold collections offers the same plus, and each one acts
+ * on itself -- the library's makes one at its top level, a collection's makes
+ * one inside that collection. Nothing depends on what is selected, so the row
+ * you press is the answer to where it goes.
+ */
+const creatingIn = computed(() => (pending.value?.kind === 'create' ? pending.value.parent : null))
+
+const creatingPath = computed(() => {
+  const here = library.library ? [libraryLabel(library.library)] : [t('Library')]
+  const parent = creatingIn.value
+  return parent ? [...here, ...library.pathTo(parent.key).map((node) => node.data.name)] : here
+})
+
+function startNew(parent: CollectionNode | null): void {
+  pending.value = { kind: 'create', parent }
+  collectionError.value = null
+}
+
+function startDelete(target: CollectionNode): void {
+  pending.value = { kind: 'delete', target }
+  collectionError.value = null
+}
+
+function cancel(): void {
+  pending.value = null
+  collectionError.value = null
+}
+
+/* Whatever the failure was, it is shown where the action was taken rather than
+   in the item list, which is about something else entirely. */
+async function run(action: () => Promise<void>): Promise<void> {
+  busy.value = true
+  collectionError.value = null
+  try {
+    await action()
+    cancel()
+  } catch (thrown) {
+    collectionError.value = thrown instanceof Error ? thrown.message : String(thrown)
+  } finally {
+    busy.value = false
+  }
+}
+
+async function submitCollection(name: string): Promise<void> {
+  const current = pending.value
+  if (current?.kind !== 'create') return
+
+  if (!name) {
+    /* Said here rather than sent to be refused: the server would say the same
+       thing after a round trip. */
+    collectionError.value = t('A collection needs a name.')
+    return
+  }
+  await run(() => library.createCollection(name, current.parent?.key ?? null))
+}
+
+async function confirmDelete(): Promise<void> {
+  const current = pending.value
+  if (current?.kind !== 'delete') return
+  await run(() => library.deleteCollection(current.target.key))
+}
+
 function sortIndicator(field: string): string {
   if (library.sort !== field) return ''
   return library.direction === 'asc' ? '↑' : '↓'
@@ -142,70 +234,135 @@ function sortLabel(column: { field: string; label: string }): string {
         group is that group's trash, and a column that showed one Trash over a
         list of libraries invited the reading that there is only the one.
 
-        With a single library there is no hierarchy to show, and the row would
-        name it twice over -- "My Library" above "My library" -- so the views
-        stand alone and unindented, exactly as they did before.
+        The library is named even when it is the only one. It used to be left
+        out there, on the grounds that a single library needs no hierarchy and
+        the row would name it twice over -- but a personal library carries the
+        account's own name, so the row above "My library" reads "Ada", and it
+        is the row everything under it hangs from. It is also where a
+        collection is added, which needs somewhere to be.
       -->
-      <nav class="library__libraries" :aria-label="showLibraries ? t('Libraries') : t('Views')">
+      <nav class="library__libraries" :aria-label="t('Libraries')">
         <template v-for="entry in library.libraries" :key="entry.id">
-          <button
-            v-if="showLibraries"
-            type="button"
-            :class="['library__library', { 'library__library--current': entry.id === library.libraryId }]"
-            :aria-current="entry.id === library.libraryId ? 'true' : undefined"
-            @click="library.openLibrary(entry.id)"
-          >
-            <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
-            <span class="library__label">
-              {{ entry.name || (entry.type === 'user' ? t('My Library') : t('Group {id}', { id: entry.ownerId })) }}
-            </span>
-          </button>
+          <div class="library__nav-row">
+            <button
+              type="button"
+              :class="['library__library', { 'library__library--current': entry.id === library.libraryId }]"
+              :aria-current="entry.id === library.libraryId ? 'true' : undefined"
+              @click="library.openLibrary(entry.id)"
+            >
+              <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
+              <span class="library__label">{{ libraryLabel(entry) }}</span>
+            </button>
 
+            <!--
+              The library's own plus, beside the name the collections hang
+              from, and the same control a collection row carries: this row is
+              the top level, so its plus makes a collection there. Only on the
+              library being read -- the tree below belongs to that one, and a
+              plus on another would be a write to a library nothing on screen
+              is showing.
+            -->
+            <span
+              v-if="entry.id === library.libraryId && library.writable"
+              class="library__actions"
+            >
+              <button
+                class="library__action"
+                type="button"
+                :aria-label="t('New collection')"
+                :title="t('New collection')"
+                @click="startNew(null)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </button>
+            </span>
+          </div>
+
+          <!--
+            The views and the collections are one list, because they are one
+            thing: everything this library can be narrowed to. A heading over
+            the collections would have said they were a separate kind of place
+            to be, and they are not -- the desktop client puts them in the same
+            column for the same reason. The rows share a twisty column so that
+            "Trash" and a collection line up rather than sitting a step apart.
+          -->
           <div
             v-if="entry.id === library.libraryId"
-            :class="['library__scopes', { 'library__scopes--nested': showLibraries }]"
+            class="library__scopes library__scopes--nested"
             role="group"
-            :aria-label="showLibraries ? t('Views') : undefined"
+            :aria-label="libraryLabel(entry)"
           >
-            <button
-              type="button"
-              :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'top' }]"
-              :aria-current="!library.collectionKey && library.scope === 'top' ? 'true' : undefined"
-              @click="library.selectScope('top')"
-            >
-              <SidebarIcon name="library" />
-              <span class="library__label">{{ t('My library') }}</span>
-            </button>
-            <button
-              type="button"
-              :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'all' }]"
-              :aria-current="!library.collectionKey && library.scope === 'all' ? 'true' : undefined"
-              @click="library.selectScope('all')"
-            >
-              <SidebarIcon name="everything" />
-              <span class="library__label">{{ t('Everything') }}</span>
-            </button>
-            <button
-              type="button"
-              :class="['library__scope', { 'library__scope--current': library.scope === 'trash' }]"
-              :aria-current="library.scope === 'trash' ? 'true' : undefined"
-              @click="library.selectScope('trash')"
-            >
-              <SidebarIcon name="trash" />
-              <span class="library__label">{{ t('Trash') }}</span>
-            </button>
+            <div class="library__scope-row">
+              <span class="library__twisty" aria-hidden="true"></span>
+              <button
+                type="button"
+                :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'top' }]"
+                :aria-current="!library.collectionKey && library.scope === 'top' ? 'true' : undefined"
+                @click="library.selectScope('top')"
+              >
+                <SidebarIcon name="library" />
+                <span class="library__label">{{ t('My library') }}</span>
+              </button>
+            </div>
+            <div class="library__scope-row">
+              <span class="library__twisty" aria-hidden="true"></span>
+              <button
+                type="button"
+                :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'all' }]"
+                :aria-current="!library.collectionKey && library.scope === 'all' ? 'true' : undefined"
+                @click="library.selectScope('all')"
+              >
+                <SidebarIcon name="everything" />
+                <span class="library__label">{{ t('Everything') }}</span>
+              </button>
+            </div>
+            <div class="library__scope-row">
+              <span class="library__twisty" aria-hidden="true"></span>
+              <button
+                type="button"
+                :class="['library__scope', { 'library__scope--current': library.scope === 'trash' }]"
+                :aria-current="library.scope === 'trash' ? 'true' : undefined"
+                @click="library.selectScope('trash')"
+              >
+                <SidebarIcon name="trash" />
+                <span class="library__label">{{ t('Trash') }}</span>
+              </button>
+            </div>
+
+            <CollectionTree
+              v-if="library.collections.length"
+              :nodes="library.collections"
+              :selected="library.collectionKey"
+              :editable="library.writable"
+              @select="library.selectCollection($event)"
+              @add="startNew($event)"
+              @remove="startDelete($event)"
+            />
           </div>
+
+          <template v-if="entry.id === library.libraryId">
+            <!-- Below the list rather than over it, so the tree does not move
+                 down while the question is being read. -->
+            <p v-if="pending?.kind === 'delete'" class="collections__confirm" role="alert">
+              <span>
+                {{ t('Delete “{name}”?', { name: pending.target.data.name }) }}
+                {{ t('The items in it stay in the library.') }}
+              </span>
+              <span v-if="collectionError" class="collections__error">{{ collectionError }}</span>
+              <span class="collections__actions">
+                <AppButton variant="text" :disabled="busy" @click="cancel">
+                  {{ t('Cancel') }}
+                </AppButton>
+                <AppButton :loading="busy" @click="confirmDelete">{{ t('Delete') }}</AppButton>
+              </span>
+            </p>
+
+          </template>
         </template>
       </nav>
-
-      <section v-if="library.collections.length" class="library__panel">
-        <h2 class="library__panel-title">{{ t('Collections') }}</h2>
-        <CollectionTree
-          :nodes="library.collections"
-          :selected="library.collectionKey"
-          @select="library.selectCollection($event)"
-        />
-      </section>
 
       <section v-if="library.tags.length" class="library__panel">
         <h2 class="library__panel-title">{{ t('Tags') }}</h2>
@@ -339,6 +496,17 @@ function sortLabel(column: { field: string; label: string }): string {
         @close="library.select(null)"
       />
     </aside>
+
+    <!-- Mounted only while it is open, so it opens focused on its field and
+         starts empty every time rather than holding the last thing typed. -->
+    <CollectionDialog
+      v-if="pending?.kind === 'create'"
+      :path="creatingPath"
+      :busy="busy"
+      :error="collectionError"
+      @submit="submitCollection"
+      @cancel="cancel"
+    />
   </div>
 </template>
 
@@ -373,14 +541,39 @@ function sortLabel(column: { field: string; label: string }): string {
   gap: 0.15rem;
 }
 
-/* Margin and padding come to 0.9rem, the step the collection tree takes per
-   level, so the two indents in this column agree about what one level in is
-   worth. The rule down the left is the thread back up to the library these
-   views act on, and it is the same hairline the panel headings use. */
+/*
+ * One step in from the library the views and collections belong to, and no
+ * more: the twisty column each of those rows carries is already most of an
+ * indent, and adding a level's worth on top of it pushed the whole list into
+ * the middle of a column that is only fourteen characters wide.
+ *
+ * The rule down the left is the thread back up to the library they act on, and
+ * it is the same hairline the tag panel's heading uses.
+ */
 .library__scopes--nested {
-  margin-left: 1.05rem;
-  padding-left: 0.45rem;
+  margin-left: 0.3rem;
+  padding-left: 0.35rem;
   border-left: 1px solid var(--md-sys-color-outline-variant);
+}
+
+/* Every row in this column is something to click and the controls that act on
+   it, and the views and collections carry a twisty column besides, so a view
+   and a collection put their icon in the same place. Only a collection with
+   children draws anything in that first column; the rest hold it open. */
+.library__nav-row,
+.library__scope-row {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.library__scope-row {
+  padding-left: 0.15rem;
+}
+
+.library__twisty {
+  flex: none;
+  width: 1rem;
 }
 
 .library__library,
@@ -397,6 +590,17 @@ function sortLabel(column: { field: string; label: string }): string {
   font: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+/* The row is the flex parent now, so the button takes what is left of it and
+   matches the padding a collection's name button uses. */
+.library__scope {
+  flex: 1;
+  padding: 0.3rem 0.4rem;
+}
+
+.library__library {
+  flex: 1;
 }
 
 .library__library:hover,
@@ -439,6 +643,79 @@ function sortLabel(column: { field: string; label: string }): string {
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-medium-size);
   font-weight: var(--md-sys-typescale-weight-medium);
+}
+
+/* The same hover-revealed pair the collection rows carry, so the library's
+   plus and a collection's plus look and behave alike. Transparent rather than
+   absent, so arriving with the pointer does not move the label. */
+.library__actions {
+  display: flex;
+  flex: none;
+  gap: 0.1rem;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.library__nav-row:hover .library__actions,
+.library__nav-row:focus-within .library__actions {
+  opacity: 1;
+}
+
+.library__action {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+}
+
+.library__action:hover {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* A pointer that cannot hover cannot reveal anything, and a phone showing the
+   sidebar is showing all of it. */
+@media (hover: none) {
+  .library__actions {
+    opacity: 1;
+  }
+}
+
+.collections__confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-spacing-2);
+  margin: 0;
+  padding: var(--md-spacing-3);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.collections__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--md-spacing-2);
+}
+
+.collections__error {
+  margin: 0;
+  color: var(--md-sys-color-error);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.collections__empty {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-medium-size);
 }
 
 .library__tags {

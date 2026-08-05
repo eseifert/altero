@@ -124,11 +124,14 @@ catalogue drifts from the English one.
 Three panes, as the desktop client has: what to show on the left, the items in
 the middle, the selected item on the right.
 
-The left holds every library the account can open — the personal one and any
-group — with the collection tree beneath, nested and expandable, plus the trash
-and a view that includes child notes and attachments. Under that is the tag
-list; picking tags narrows the middle pane, and picking several requires all of
-them.
+The left holds every library the account can open — the personal one, which
+carries the account's own name, and any group — and under the one being read,
+everything it can be narrowed to as a single list: the library's top level, a
+view that includes child notes and attachments, the trash, and then the
+collections, nested and expandable. They are one list rather than a list and a
+headed section beneath it, because they are one kind of thing, which is how the
+desktop client has them too. Under that is the tag list; picking tags narrows
+the middle pane, and picking several requires all of them.
 
 The middle pane searches title, creator, year and every field, sorts by title,
 creator or date in either direction, and pages fifty at a time. The search is
@@ -140,10 +143,53 @@ browser or downloaded. A citation can be rendered there in Chicago, APA, MLA,
 IEEE or Nature; the server renders it with the same CSL processor that answers
 `format=bib`, rather than a second implementation in the browser.
 
-Reading only, for now. No item, collection or tag is edited here, which is also
-why no request from the interface can lose a sync conflict. The single
-exception is restoring a whole library from an archive, below — which is not
-editing so much as replacing, and is fenced accordingly.
+## Collections
+
+Collections can be made and removed here. Everything else in a library is still
+read-only: no item, note, tag or saved search is edited in the browser.
+
+**Where a collection goes is half of making one**, so it is settled before the
+name is — and it is settled by which row you press. Every row that can hold
+collections carries a plus, drawn when the pointer or the keyboard reaches it:
+the row naming the library or the group makes one at its top level, since that
+is the row the collections hang from, and a collection's makes one inside that
+collection. Nothing depends on what happens to be selected, so there is no rule
+to remember about where a new collection lands.
+
+A dialog then opens, and it leads with where — the library, then every
+collection down to the one this will sit in — before the field for the name.
+That path is stated rather than offered as a choice: the sidebar lists one
+library's collections under that library, so the row you pressed has already
+said which library and which collection, and a picker here would be a second
+way to say it that can disagree with the first. A new collection is selected
+once it is made, and the branch it went into opens to show it, so it is where
+you can see it rather than somewhere you have to go and find.
+
+Removing one is the cross on its row, beside the plus, and asks in place rather
+than in a dialog: it takes no answer beyond yes.
+
+The controls appear only where the server says this account may write to the
+library — a group that keeps editing to its administrators shows a member the
+tree and nothing else.
+
+**Removing a collection does not remove what is in it.** The items stay in the
+library, the subcollections move up to where their parent was, and only the
+collection itself goes. That is what the v3 `DELETE` does, so a collection
+removed in the browser is a collection removed exactly as a syncing client
+would have removed it, down to the entry in the deletion log that tells every
+other client it went. Zotero also offers deleting a collection *with* its
+items; that is a write to items, which the browser does not do.
+
+There is no undo, because there is no trash around a collection here — the
+question is asked before the collection goes instead. The desktop client's own
+trash for collections is a client-side state that only it and the sync protocol
+maintain.
+
+Behind it is `services/objectwrites.py`, which is what the v3 endpoints write
+through as well: the same key format, the same validation, and one new library
+version per request, whichever door it came in by. A collection made in the
+browser appears in the desktop client at the next sync, in the right place in
+the tree.
 
 ## Import and export
 
@@ -303,8 +349,9 @@ are cached for good, so the second visit fetches none of it.
 ## Not built yet
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
-editing a library rather than only reading it — a whole library can be restored
-from an archive, but no item can be changed.
+editing a library beyond its collections — those can be made and removed, and a
+whole library can be restored from an archive, but no item can be changed, and
+a collection cannot be renamed or moved to another parent.
 
 Making an account for somebody else, resetting their password and revoking
 their credentials are still shell operations, as is an operator's view of the

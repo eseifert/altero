@@ -24,7 +24,7 @@ from altero import cite, serializers
 from altero.api.deps import BaseUrlDep, SessionDep
 from altero.api.routes.web import CurrentUserDep
 from altero.itemschema import get_schema
-from altero.models import Item, Library, LibraryType, User
+from altero.models import Item, Library, LibraryType
 from altero.query import (
     ITEM_SORT_FIELDS,
     Direction,
@@ -75,25 +75,9 @@ async def _readable_library(session: SessionDep, user: CurrentUserDep, library_i
     if library is None:
         raise HTTPException(status_code=404, detail="No such library")
 
-    access = await auth.get_access(session, library, None)
-    if library.type is LibraryType.USER and library.owner_id == user.id:
-        return library
-    if not access.read and not await _is_group_member(session, library, user):
+    if not (await auth.user_access(session, library, user.id)).read:
         raise HTTPException(status_code=403, detail="You cannot read this library")
     return library
-
-
-async def _is_group_member(session: SessionDep, library: Library, user: User) -> bool:
-    from altero.models import GroupMember
-
-    if library.type is not LibraryType.GROUP:
-        return False
-    member = await session.scalar(
-        select(GroupMember).where(
-            GroupMember.library_id == library.id, GroupMember.user_id == user.id
-        )
-    )
-    return member is not None
 
 
 @router.get("/libraries")
@@ -122,6 +106,12 @@ async def list_libraries(
                 "name": library.name,
                 "version": library.version,
                 "prefix": serializers.library_prefix(library),
+                # Whether this account may change the library, resolved here
+                # rather than guessed in the browser. A group can reserve
+                # editing for its administrators, and a screen that offered the
+                # controls anyway would be a second implementation of that rule
+                # drifting against the one that actually refuses the request.
+                "writable": (await auth.user_access(session, library, user.id)).write,
             }
             for library in visible
         ]

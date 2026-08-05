@@ -115,7 +115,8 @@ A Vue 3 application at `/app/`, in six languages, covering registration,
 sign-in with an optional authenticator code, account settings, API keys,
 notifications, group invitations, a group's activity log and what it tells you
 about, and browsing a library — collections, tags, search, an item's details,
-its attachments and a citation. It reads; it does not write.
+its attachments and a citation. Collections can be made and removed there;
+everything else in a library it reads rather than writes.
 
 The v3 API stays API-key only and refuses a session cookie, so none of it
 reaches the sync protocol — see

@@ -5,6 +5,7 @@ import { fieldLabel, humanize, itemTypeLabel, loadLabels, resetLabels } from '@/
 import { sidebarIcon } from '@/items/sidebaricons'
 import type { CollectionNode, ItemEnvelope } from '@/stores/library'
 
+import CollectionDialog from './CollectionDialog.vue'
 import CollectionTree from './CollectionTree.vue'
 import ItemDetail from './ItemDetail.vue'
 import SidebarIcon from './SidebarIcon.vue'
@@ -112,6 +113,110 @@ describe('CollectionTree', () => {
     await wrapper.findAll('.tree__name')[1].trigger('click')
 
     expect(wrapper.emitted('select')).toEqual([['BBBB2345']])
+  })
+
+  it('opens the branch the selection is inside, however it got selected', async () => {
+    /* Making a collection inside a collapsed parent selects the new one. A
+       selection nobody can see is worse than none. */
+    const wrapper = mount(CollectionTree, {
+      props: {
+        nodes: [node('AAAA2345', 'Papers', [node('BBBB2345', 'Drafts')])],
+        selected: null,
+      },
+    })
+    expect(wrapper.text()).not.toContain('Drafts')
+
+    await wrapper.setProps({ selected: 'BBBB2345' })
+
+    expect(wrapper.text()).toContain('Drafts')
+  })
+
+  it('opens every level down to it, not only the first', async () => {
+    const wrapper = mount(CollectionTree, {
+      props: {
+        nodes: [node('AAAA2345', 'Papers', [node('BBBB2345', 'Drafts', [node('CCCC2345', 'Old')])])],
+        selected: null,
+      },
+    })
+
+    await wrapper.setProps({ selected: 'CCCC2345' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Old')
+  })
+
+  it('lets a branch it opened be closed again', async () => {
+    const wrapper = mount(CollectionTree, {
+      props: {
+        nodes: [node('AAAA2345', 'Papers', [node('BBBB2345', 'Drafts')])],
+        selected: 'BBBB2345',
+      },
+    })
+    expect(wrapper.text()).toContain('Drafts')
+
+    await wrapper.get('.tree__twisty').trigger('click')
+
+    expect(wrapper.text()).not.toContain('Drafts')
+  })
+
+  it('offers no way to change a library that may only be read', () => {
+    const wrapper = mount(CollectionTree, {
+      props: { nodes: [node('AAAA2345', 'Papers')], selected: null },
+    })
+
+    expect(wrapper.findAll('.tree__action')).toHaveLength(0)
+  })
+
+  it('asks for a subcollection of the row it was used on', async () => {
+    const papers = node('AAAA2345', 'Papers')
+    const wrapper = mount(CollectionTree, {
+      props: { nodes: [papers, node('BBBB2345', 'Books')], selected: null, editable: true },
+    })
+
+    await wrapper.findAll('.tree__action')[0].trigger('click')
+
+    expect(wrapper.emitted('add')).toEqual([[papers]])
+  })
+
+  it('asks to remove the row it was used on', async () => {
+    const books = node('BBBB2345', 'Books')
+    const wrapper = mount(CollectionTree, {
+      props: { nodes: [node('AAAA2345', 'Papers'), books], selected: null, editable: true },
+    })
+
+    await wrapper.findAll('.tree__action')[3].trigger('click')
+
+    expect(wrapper.emitted('remove')).toEqual([[books]])
+  })
+
+  it('names the collection in each control, for a reader who cannot see the row', () => {
+    /* Six identical "Delete" buttons down a sidebar say nothing about which
+       collection each one is under. */
+    const wrapper = mount(CollectionTree, {
+      props: { nodes: [node('AAAA2345', 'Papers')], selected: null, editable: true },
+    })
+
+    const labels = wrapper.findAll('.tree__action').map((b) => b.attributes('aria-label'))
+    expect(labels).toEqual([
+      'New subcollection inside \u201CPapers\u201D',
+      'Delete \u201CPapers\u201D',
+    ])
+  })
+
+  it('carries the controls into nested levels too', async () => {
+    const drafts = node('BBBB2345', 'Drafts')
+    const wrapper = mount(CollectionTree, {
+      props: {
+        nodes: [node('AAAA2345', 'Papers', [drafts])],
+        selected: null,
+        editable: true,
+      },
+    })
+    await wrapper.get('.tree__twisty').trigger('click')
+
+    await wrapper.findAll('.tree__action')[3].trigger('click')
+
+    expect(wrapper.emitted('remove')).toEqual([[drafts]])
   })
 })
 
@@ -337,5 +442,92 @@ describe('sidebar icons', () => {
     })
 
     expect(wrapper.findComponent(SidebarIcon).props('name')).toBe('collection')
+  })
+})
+
+describe('CollectionDialog', () => {
+  function dialog(path = ['Ada', 'Whales'], props = {}) {
+    return mount(CollectionDialog, { props: { path, ...props }, attachTo: document.body })
+  }
+
+  it('opens as a modal, so nothing behind it can be reached', () => {
+    const wrapper = dialog()
+
+    expect(wrapper.get('dialog').element.open).toBe(true)
+  })
+
+  it('shows where the collection will go, library first', () => {
+    /* The desktop client lets you say where; this says where, before the name
+       is typed rather than after it is wrong. */
+    const wrapper = dialog(['Ada', 'Whales', 'Humpbacks'])
+
+    expect(wrapper.findAll('.dialog__step-name').map((step) => step.text())).toEqual([
+      'Ada',
+      'Whales',
+      'Humpbacks',
+    ])
+  })
+
+  it('shows the library on its own for a collection at the top level', () => {
+    const wrapper = dialog(['Ada'])
+
+    expect(wrapper.findAll('.dialog__step-name').map((step) => step.text())).toEqual(['Ada'])
+  })
+
+  it('states where without offering to change it', () => {
+    /* The sidebar lists one library's collections under that library, so the
+       row the plus was pressed on has already said where. */
+    const wrapper = dialog()
+
+    expect(wrapper.find('select').exists()).toBe(false)
+  })
+
+  it('starts in the field, which is the one thing it is for', () => {
+    const wrapper = dialog()
+
+    expect(document.activeElement).toBe(wrapper.get('.dialog__field').element)
+  })
+
+  it('emits the trimmed name', async () => {
+    const wrapper = dialog()
+
+    await wrapper.get('.dialog__field').setValue('  Papers  ')
+    await wrapper.get('form').trigger('submit')
+
+    expect(wrapper.emitted('submit')).toEqual([['Papers']])
+  })
+
+  it('asks to be closed on Escape rather than closing behind the caller’s back', async () => {
+    /* The dialog does not own whether it exists; the view does. */
+    const wrapper = dialog()
+
+    await wrapper.get('dialog').trigger('cancel')
+
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+  })
+
+  it('treats a click on the backdrop as a dismissal', async () => {
+    const wrapper = dialog()
+
+    await wrapper.get('dialog').trigger('click')
+
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+  })
+
+  it('does not dismiss when the click was inside it', async () => {
+    const wrapper = dialog()
+
+    await wrapper.get('.dialog__body').trigger('click')
+
+    expect(wrapper.emitted('cancel')).toBeUndefined()
+  })
+
+  it('shows a refusal against the field it belongs to', () => {
+    const wrapper = dialog(['Ada'], { error: 'A collection needs a name.' })
+
+    expect(wrapper.get('.dialog__error').text()).toBe('A collection needs a name.')
+    expect(wrapper.get('.dialog__field').attributes('aria-describedby')).toBe(
+      wrapper.get('.dialog__error').attributes('id'),
+    )
   })
 })

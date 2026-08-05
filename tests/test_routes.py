@@ -70,8 +70,12 @@ EXPECTED = [
     ("/web/libraries/{library_id}/collections", "GET"),
     ("/web/libraries/{library_id}/tags", "GET"),
     ("/web/libraries/{library_id}/items/{item_key}/citation", "GET"),
-    # A whole library out and a whole library back: the only endpoint under
-    # /web that writes to one. See altero/api/routes/webtransfer.py.
+    # One collection made and one removed. The browser's only writes to the
+    # contents of a library. See altero/api/routes/webcollections.py.
+    ("/web/libraries/{library_id}/collections", "POST"),
+    ("/web/libraries/{library_id}/collections/{collection_key}", "DELETE"),
+    # A whole library out and a whole library back, which is a replacement
+    # rather than an edit. See altero/api/routes/webtransfer.py.
     ("/web/libraries/{library_id}/archive", "GET"),
     ("/web/libraries/{library_id}/archive", "POST"),
     ("/web/schema", "GET"),

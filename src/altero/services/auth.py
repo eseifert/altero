@@ -227,6 +227,51 @@ async def require_file_write(
         raise ForbiddenError("Only an administrator of this group can upload files")
 
 
+async def user_access(session: AsyncSession, library: Library, user_id: int) -> Access:
+    """Return the access the person ``user_id`` has to ``library``.
+
+    The counterpart to :func:`access_for` for a credential that is a signed-in
+    person rather than an API key. A key is a ceiling on what its owner may do,
+    and there is no key here to lower it, so what remains is the library: its
+    owner may do anything to their own, a member does what the group's policy
+    allows, and a public library is readable by anyone.
+
+    This is not a second set of rules. It is the same three questions with the
+    key's grants taken out, which is why it lives beside them rather than in
+    whatever endpoint happened to need it first.
+    """
+    if library.type is LibraryType.USER:
+        if library.owner_id == user_id:
+            return Access(read=True, write=True)
+        return Access(read=library.public, write=False)
+
+    row = (
+        await session.execute(
+            select(GroupMember, Group)
+            .select_from(Group)
+            .outerjoin(
+                GroupMember,
+                and_(
+                    GroupMember.library_id == Group.library_id,
+                    GroupMember.user_id == user_id,
+                ),
+            )
+            .where(Group.library_id == library.id)
+        )
+    ).first()
+    membership, group = (row[0], row[1]) if row is not None else (None, None)
+
+    if membership is None:
+        # A stranger to the group. A public one is still readable, and still
+        # not writable, exactly as it is for a key.
+        return Access(read=library.public, write=False)
+
+    write = not (
+        group is not None and group.library_editing == "admins" and membership.role != "admin"
+    )
+    return Access(read=True, write=write)
+
+
 async def get_user(session: AsyncSession, user_id: int) -> User:
     """Return the user with ``user_id``."""
     user = await session.get(User, user_id)
