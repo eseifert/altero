@@ -48,7 +48,9 @@ things the desktop client asks for that no data server documents.
 - `/deleted?since=`, so a client that has been away can tell a deletion from an
   object it has not fetched
 - Library settings, and attachment full-text, including the batch upload the
-  desktop client uses
+  desktop client uses, and searching it: `q` with `qmode=everything` reaches the
+  stored text, and a `/top` listing answers with the item the matching
+  attachment or note hangs under
 - The attachment file protocol, storing files once per digest
 - The streaming API, at `/stream`: a client pointed at it with
   `extensions.zotero.streaming.url` is told the moment a library changes
@@ -58,9 +60,6 @@ things the desktop client asks for that no data server documents.
 ## Not implemented
 
 - The eleven export formats beyond BibTeX, BibLaTeX and RIS
-- Full-text **search**. The text a client uploads is stored, versioned and
-  served back, but `q` with `qmode=everything` covers an item's own fields, so
-  text from an attachment cannot be found through it
 
 Group administration, registration and the invitation flow are also in the web
 interface; it has its own list of what is and is not built, see

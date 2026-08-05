@@ -143,7 +143,9 @@ identity integration, more flexible group policies, local full-text search,
 custom retention and backup rules, event notifications, administrative import
 and export, and integration with repositories and research-information systems.
 Zotero's own streaming API was on that list and is now served, so a client
-pointed at it hears about a change rather than waiting to ask.
+pointed at it hears about a change rather than waiting to ask. Local full-text
+search was on it too, and is now answered by the database the server already
+has, rather than by the search cluster the operational shape here rules out.
 All of this is secondary: compatibility and dependable sync come first,
 and a feature that breaks a client is a regression however useful it is on its
 own.
@@ -191,12 +193,15 @@ library has been synced between two installed clients and then watched for
 divergence. That is a stronger claim than a replay can make, and it has not
 been made.
 
-Point 2 has one known hole left. Full-text content is stored, versioned and
-served back, but never searched: `q` with `qmode=everything` covers an item's
-own fields, so text uploaded from an attachment cannot be found through it, and
-a child note matches as itself rather than surfacing its parent. The other hole
-— that creating a group was a command-line operation and not an API one — is
-closed; see [administration.md](administration.md).
+Point 2 is reached as far as the test suite can show. The two holes recorded
+here are both closed: creating a group is an API operation and not only a
+command-line one, see [administration.md](administration.md); and full-text
+content is now searched rather than merely stored, so `q` with
+`qmode=everything` reaches an attachment's text and a `/top` listing answers
+with the item a matching attachment or child note hangs under. Upstream searches
+that text through Elasticsearch and altero through the database it already has,
+which is a deliberate difference with consequences — see the quick-search
+section of [compatibility.md](compatibility.md).
 
 A web interface is no longer among the intentions below; it exists, and what it
 does and does not cover is set out above. The following are still stated here as

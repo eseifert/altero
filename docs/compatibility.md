@@ -39,6 +39,98 @@ uses the spaced form, so clients are unaffected.
 A leading hyphen is escaped as `\-`, and only the whole value is stripped —
 once, before parsing — so inner spacing in `tag=foo bar || bar` survives.
 
+## Quick search and full-text search
+
+`q` is a different parameter from the two above and parses by different rules:
+`Zotero_Utilities::parseSearchString` splits it, and `Zotero_Items::search`
+(`model/Items.inc.php`) turns the parts into SQL.
+
+**The parts are AND-ed, the fields OR-ed.** Upstream emits one `AND (...)` per
+part, and inside it ORs the title, the note title, the creator names and the
+year together. `q=call me` therefore wants both words and not the phrase. A
+double-quoted phrase stays one part, so `q="call me"` does want the phrase.
+Single quotes are stripped where they touch whitespace or an end of the string,
+which means they never group.
+
+**`q=0` matches everything.** The parser drops any part PHP considers falsy —
+`if (!$part) continue` — and the test runs on the token before its quotes come
+off. An unquoted `0` is falsy, so it contributes no part; a query of nothing but
+`0` leaves no clause at all and the listing is unfiltered. `q="0"` is quoted,
+truthy, and searches for it. Copied rather than corrected.
+
+**`qmode=everything` adds the attachments' text.** For each part, upstream asks
+Elasticsearch for the item keys whose stored content matches
+(`Zotero_FullText::searchInLibrary`) and ORs `I.key IN (...)` into that part's
+clause. The keys are the attachments' own, so in `/items` the attachment is what
+matches, not the item it hangs under.
+
+altero has no Elasticsearch and will not acquire one — a search cluster is
+exactly the operational dependency `motivation.md` rules out — so it matches the
+stored text with `LIKE` instead. Three differences follow, and only the first is
+a narrowing:
+
+- **Characters rather than tokens.** The index maps `content` as a plain `text`
+  field (`misc/elasticsearch/item_fulltext/mapping.json`), so it gets the
+  standard analyser: tokenised and lowercased, but *not* stemmed and not accent-
+  folded. `match_phrase_prefix` then matches whole tokens with the last one as a
+  prefix. altero matches the characters instead, which cuts both ways. It finds
+  what upstream would not — `q=equod` reaches *Pequod* — and misses a phrase
+  upstream would join across punctuation, since `q="Pequod sailed"` is looking
+  for exactly that and the text reads `Pequod, sailed`. Neither implementation
+  stems, so `q=sailing` reaches *sailed* in neither.
+
+  **Accents are not folded, and CJK matches as a phrase.** `q=cafe` does not
+  reach *café*, on either backend. Neither does upstream's: the mapping carries
+  no `asciifolding` filter, so the standard analyser lowercases and stops there.
+  Zotero 9 made the *client's* search accent-insensitive, but that is the copy
+  it holds locally; the same query against api.zotero.org is as accent-sensitive
+  as this one, so the mismatch a user sees is the ecosystem's rather than
+  altero's. CJK needs nothing: matching characters means `量子計算` requires
+  those four adjacent and `計算量子` does not match, which is the phrase
+  behaviour the client had to be fixed to produce. Both are pinned in
+  `test_fulltext.py::TestSearching`. The analyser's composition is read from
+  Elasticsearch's documented default rather than observed — no instance was run.
+
+  Case-insensitivity comes from `ILIKE` on PostgreSQL and from
+  `lower(content) LIKE lower(?)` on SQLite, which SQLAlchemy emits because
+  SQLite has no `ILIKE`. Whether that folds non-ASCII text therefore depends on
+  how the SQLite in use was built: `lower()` is ASCII-only unless it was
+  compiled with ICU. Verified on SQLite 3.53.1 here, where `Übung` does match
+  `übung`; a build without ICU would not, and altero does nothing to make the
+  two agree.
+- **No 300-result cap.** Upstream asks Elasticsearch for `'size' => 300` and
+  silently drops the rest, so a library where 400 PDFs mention a word answers
+  for 300 of them and gives no sign of it. altero has no cap. This is a
+  deliberate divergence: the number is an artefact of how upstream fetches its
+  hits rather than a rule about what the API means, and copying it would mean
+  discarding matches on purpose.
+- **`qmode=everything` also searches the item's other fields.** Upstream reaches
+  the title, creators and year and then only the attachment text, so a match on
+  `publisher` is altero's alone. This predates full-text search here, where it
+  stood in for it; it is a superset, so nothing a client does breaks on it.
+
+**`/top` answers with the parent of whatever matched.** A search that can be
+satisfied by a child item — `q`, `tag`, `itemKey` or `itemType` — makes upstream
+join its `itemTopLevel` table and select `COALESCE(ITL.topLevelItemID, I.itemID)`
+distinctly, so a hit in an attachment's text or a child note's title surfaces
+the item it hangs under. Without this the feature would be invisible in the
+scope clients actually list items in, since an attachment is never top-level.
+altero climbs the same way, through one self-join: item → attachment →
+annotation is as deep as Zotero goes.
+
+Two consequences worth stating, both upstream's:
+
+- Every part is applied to the same row. A word in the parent's title and a word
+  in the child's text do not add up to a match, even though either alone would
+  have answered with that parent.
+- `since` is deliberately not in that list. It is what a syncing client sends,
+  and answering it with parents would report objects whose own version had not
+  moved.
+
+The matched item must be untrashed, and so must the parent it resolves to:
+upstream joins `deletedItems` a second time on the top-level item for exactly
+this, so a hit inside a trashed item's PDF does not resurrect it.
+
 ## Pagination of the sync formats
 
 `Zotero_API::getLimitMax` returns `0` for `format=keys` and `format=versions`,

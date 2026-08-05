@@ -5,14 +5,16 @@ from dataclasses import dataclass
 from enum import StrEnum, auto
 from typing import Any
 
-from sqlalchemy import ColumnElement, Select, and_, func, not_, or_, select
+from sqlalchemy import ColumnElement, Select, and_, distinct, func, not_, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
 from altero.models import (
     Collection,
     CollectionItem,
+    FullText,
     Item,
     ItemField,
     ItemTag,
@@ -21,7 +23,7 @@ from altero.models import (
 )
 from altero.pagination import UNLIMITED
 from altero.query import Direction, ListQuery, QuickSearchMode
-from altero.search import SearchExpression
+from altero.search import SearchExpression, parse_search_string
 
 #: Fields consulted by a ``titleCreatorYear`` quick search, via the sort keys
 #: that already hold each item type's title, creator and date.
@@ -150,21 +152,38 @@ def _has_tag(library_id: int) -> Any:
 def _quick_search(query: ListQuery) -> ColumnElement[bool]:
     """Return the predicate for the ``q`` parameter.
 
+    The query is split into parts, each of which must match something: upstream
+    emits one `AND (...)` per part and ORs the fields together inside it, so
+    ``q=quantum computing`` wants both words and not the phrase.
+
     ``LIKE`` is used rather than a full-text index so the same query works on
     SQLite and PostgreSQL; a dialect-specific backend can replace this without
     the callers noticing.
     """
-    pattern = f"%{query.q}%"
+    clauses: list[ColumnElement[bool]] = []
+    for part in parse_search_string(query.q or ""):
+        pattern = f"%{part}%"
+        alternatives: list[ColumnElement[bool]] = [
+            column.ilike(pattern) for column in _QUICK_SEARCH_COLUMNS
+        ]
 
-    if query.qmode == QuickSearchMode.EVERYTHING:
-        in_any_field = (
-            select(ItemField.item_id)
-            .where(ItemField.item_id == Item.id, ItemField.value.ilike(pattern))
-            .exists()
-        )
-        return or_(in_any_field, *(column.ilike(pattern) for column in _QUICK_SEARCH_COLUMNS))
+        if query.qmode == QuickSearchMode.EVERYTHING:
+            alternatives.append(
+                select(ItemField.item_id)
+                .where(ItemField.item_id == Item.id, ItemField.value.ilike(pattern))
+                .exists()
+            )
+            alternatives.append(
+                select(FullText.item_id)
+                .where(FullText.item_id == Item.id, FullText.content.ilike(pattern))
+                .exists()
+            )
 
-    return or_(*(column.ilike(pattern) for column in _QUICK_SEARCH_COLUMNS))
+        clauses.append(or_(*alternatives))
+
+    # Every part can drop out -- `q=0` is upstream's case -- and a search with
+    # nothing left to ask for restricts nothing.
+    return and_(*clauses) if clauses else true()
 
 
 async def _scope_filters(
@@ -172,17 +191,23 @@ async def _scope_filters(
     library: Library,
     scope: Scope,
     key: str | None,
+    to_parents: bool,
 ) -> list[ColumnElement[bool]]:
-    """Return the predicates that restrict a listing to ``scope``."""
+    """Return the predicates that restrict a listing to ``scope``.
+
+    ``to_parents`` says the caller will map matches onto their top-level items
+    afterwards, so a ``/top`` scope must not exclude child items here: they are
+    how their parents are found.
+    """
     if scope is Scope.TRASH:
         return [Item.deleted.is_(True)]
 
     if scope is Scope.TOP:
-        return [Item.parent_id.is_(None)]
+        return [] if to_parents else [Item.parent_id.is_(None)]
 
     if scope in (Scope.PUBLICATIONS, Scope.PUBLICATIONS_TOP):
         published: list[ColumnElement[bool]] = [Item.in_publications.is_(True)]
-        if scope is Scope.PUBLICATIONS_TOP:
+        if scope is Scope.PUBLICATIONS_TOP and not to_parents:
             published.append(Item.parent_id.is_(None))
         return published
 
@@ -206,11 +231,30 @@ async def _scope_filters(
             .exists()
         )
         filters: list[ColumnElement[bool]] = [member]
-        if scope is Scope.COLLECTION_TOP:
+        if scope is Scope.COLLECTION_TOP and not to_parents:
             filters.append(Item.parent_id.is_(None))
         return filters
 
     return []
+
+
+#: Scopes that answer with top-level items, and so have parents to map onto.
+_TOP_SCOPES = frozenset({Scope.TOP, Scope.COLLECTION_TOP, Scope.PUBLICATIONS_TOP})
+
+
+def _matches_child_items(query: ListQuery) -> bool:
+    """Whether ``query`` can be satisfied by a child item.
+
+    These are the four parameters upstream keeps its parent-items table for. A
+    quick search reaches an attachment's full text and a child note's title, a
+    tag or a key may name a child, and `itemType=annotation` asks for children
+    only -- so in a ``/top`` listing each of them describes a parent indirectly.
+
+    `since` is deliberately absent, as it is upstream: it is what a syncing
+    client sends, and answering it with parents would report objects whose own
+    version had not moved.
+    """
+    return bool(query.q or query.tags or query.item_keys or query.item_types)
 
 
 async def build_item_query(
@@ -221,8 +265,10 @@ async def build_item_query(
     key: str | None = None,
 ) -> Select[Any]:
     """Return the ``SELECT`` matching ``query`` within ``scope``, unordered."""
+    to_parents = scope in _TOP_SCOPES and _matches_child_items(query)
+
     filters: list[ColumnElement[bool]] = [Item.library_id == library.id]
-    filters += await _scope_filters(session, library, scope, key)
+    filters += await _scope_filters(session, library, scope, key, to_parents)
 
     # The trash is excluded everywhere except in the trash itself.
     if scope is not Scope.TRASH and not query.include_trashed:
@@ -244,7 +290,27 @@ async def build_item_query(
     if query.q:
         filters.append(_quick_search(query))
 
-    return select(Item).where(and_(*filters))
+    if not to_parents:
+        return select(Item).where(and_(*filters))
+
+    # A child matched, so answer with the item it hangs under. An annotation
+    # hangs under an attachment which hangs under the item, and that is as deep
+    # as Zotero goes, so one join reaches the top from anywhere.
+    parent = aliased(Item)
+    top_level_id = func.coalesce(parent.parent_id, Item.parent_id, Item.id)
+    matched = (
+        select(distinct(top_level_id))
+        .select_from(Item)
+        .outerjoin(parent, parent.id == Item.parent_id)
+        .where(and_(*filters))
+    )
+
+    statement = select(Item).where(Item.id.in_(matched))
+    if not query.include_trashed:
+        # The match itself was untrashed, but its parent may not be, and a
+        # listing that is not the trash should not surface it.
+        statement = statement.where(Item.deleted.is_(False))
+    return statement
 
 
 async def item_ids_in_scope(

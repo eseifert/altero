@@ -6,7 +6,12 @@ negation applies to the whole parameter value rather than to one alternative,
 and ``||`` only separates alternatives when it has whitespace on both sides.
 """
 
-from altero.search import SearchExpression, parse_expression, parse_expressions
+from altero.search import (
+    SearchExpression,
+    parse_expression,
+    parse_expressions,
+    parse_search_string,
+)
 
 
 def test_a_single_value_becomes_one_alternative() -> None:
@@ -92,3 +97,52 @@ def test_empty_parameters_are_dropped_when_combining() -> None:
 
 def test_no_parameters_yields_no_expressions() -> None:
     assert parse_expressions([]) == ()
+
+
+class TestSplittingTheQuickSearch:
+    """``q``, which follows ``Zotero_Utilities::parseSearchString``.
+
+    The parts are AND-ed by the caller, so how the string divides decides
+    whether a two-word query wants a phrase or two separate matches.
+    """
+
+    def test_a_single_word_is_one_part(self) -> None:
+        assert parse_search_string("Ishmael") == ("Ishmael",)
+
+    def test_words_are_separated(self) -> None:
+        assert parse_search_string("Ishmael Pequod") == ("Ishmael", "Pequod")
+
+    def test_runs_of_whitespace_collapse(self) -> None:
+        assert parse_search_string("  Ishmael \t Pequod\n") == ("Ishmael", "Pequod")
+
+    def test_a_quoted_phrase_survives_as_one_part(self) -> None:
+        assert parse_search_string('"call me Ishmael"') == ("call me Ishmael",)
+
+    def test_a_phrase_can_sit_beside_a_word(self) -> None:
+        assert parse_search_string('whale "call me"') == ("whale", "call me")
+
+    def test_boundary_single_quotes_are_stripped_without_grouping(self) -> None:
+        # The reference implementation splits on a single quote only where it
+        # touches whitespace or an end of the string, so it never groups.
+        assert parse_search_string("'call me'") == ("call", "me")
+
+    def test_an_inner_apostrophe_is_kept(self) -> None:
+        assert parse_search_string("don't") == ("don't",)
+
+    def test_an_empty_query_yields_no_parts(self) -> None:
+        assert parse_search_string("") == ()
+
+    def test_a_bare_zero_is_dropped(self) -> None:
+        # `if (!$part) continue` in PHP drops "0" along with the empty string,
+        # so `q=0` leaves no clause and matches everything rather than nothing.
+        assert parse_search_string("0") == ()
+
+    def test_a_zero_among_words_is_dropped(self) -> None:
+        assert parse_search_string("volume 0 whale") == ("volume", "whale")
+
+    def test_a_quoted_zero_is_kept(self) -> None:
+        # The token is tested before its quotes come off, and `"0"` is truthy.
+        assert parse_search_string('"0"') == ("0",)
+
+    def test_a_zero_that_is_part_of_a_word_is_kept(self) -> None:
+        assert parse_search_string("h2o 007") == ("h2o", "007")

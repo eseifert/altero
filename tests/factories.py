@@ -6,6 +6,7 @@ from altero.models import (
     ApiKey,
     Collection,
     CollectionItem,
+    FullText,
     Group,
     GroupMember,
     Item,
@@ -253,3 +254,23 @@ async def tag_item(
     session.add(ItemTag(item_id=item.id, tag_id=tag.id))
     await session.commit()
     return tag
+
+
+async def index_fulltext(
+    session: AsyncSession,
+    library: Library,
+    item: Item,
+    content: str,
+    *,
+    version: int = 1,
+) -> FullText:
+    """Store the extracted text of an attachment, as an upload would."""
+    stored = FullText(
+        item_id=item.id,
+        library_id=library.id,
+        content=content,
+        version=version,
+    )
+    session.add(stored)
+    await session.commit()
+    return stored
