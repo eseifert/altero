@@ -98,8 +98,9 @@ Two things exist here that zotero.org has never offered, both asked for on its
 forums for years. A member of a group library can ask to be told when it
 changes, and hears about it once the library has been quiet — a digest rather
 than one message per batch of a sync, off for everybody until they turn it on.
-And a group keeps an activity log: who changed what, and when, readable by
-every member rather than only its administrators.
+And a group keeps an activity log: who changed what, and when, naming the items
+and collections each change touched as they were called at the time — readable
+by every member rather than only its administrators.
 
 An item in a group also says who added it and who last changed it, which
 upstream has served for years and altero had not.

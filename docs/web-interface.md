@@ -238,12 +238,26 @@ Every member sees it. It was asked for as a way of keeping up with a shared
 library, and restricting it to the people who run the group would make it a
 supervision tool instead.
 
-An entry is one write request — the same unit as a library version — so it says
-"4 items added or changed" rather than naming them. The wording matches the
-digest that arrives by mail, so one change reads the same way whichever way
-somebody hears about it. A change nobody can be attributed to reads
-"Somebody": a write can reach a group library with a key that names no person,
-and that is still something that happened.
+An entry is one write request — the same unit as a library version — and it
+names what the request touched: "4 items added or changed", then the titles.
+The first three are shown and the rest summarised, because a request may carry
+fifty objects and fifty titles under one line would bury the log rather than
+fill it in.
+
+The names are **what things were called at the time**, stored with the entry
+rather than looked up when it is read. An item renamed next week must not
+rewrite what it was called last week, and a deleted item has nothing left to
+look up at all — which is the entry most worth being able to read.
+
+The wording matches the digest that arrives by mail, so one change reads the
+same way whichever way somebody hears about it. A change nobody can be
+attributed to reads "Somebody": a write can reach a group library with a key
+that names no person, and that is still something that happened.
+
+What an entry does not say is what *about* an object changed. Recording that a
+title went from one string to another means storing both, for every field of
+every write; that is a different feature with a very different cost, and it is
+not built.
 
 This is the read side of the record the notification digest already keeps, so
 it costs no extra writing. Upstream has wanted the same thing since

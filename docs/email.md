@@ -276,10 +276,15 @@ who caused a change is excluded from the digest about it — per change, so when
 two people have been working each hears what the other did and neither is told
 about their own afternoon.
 
-**It does not say what changed.** The counts are counts: twelve items, not
-which twelve. Naming them would mean a message that leaks the contents of a
+**The message does not say what changed.** The counts are counts: twelve items,
+not which twelve. Naming them would mean a message that leaks the contents of a
 library into an inbox and a mail server's logs, and the library is one click
 away for anybody who received the message.
+
+The *activity log* in the browser does name them — see
+[web-interface.md](web-interface.md#what-has-happened-in-a-group). The
+difference is deliberate and is about where each one is read: the log sits
+behind a session on the instance, and mail does not.
 
 **It is not a queue.** This is still true of the whole module: nothing is
 retried. A relay that refuses a digest produces a line in the log and the
