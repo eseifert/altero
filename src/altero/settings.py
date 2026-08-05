@@ -107,6 +107,27 @@ class Settings(BaseSettings):
         description="Length of the rate-limit window, in seconds.",
     )
 
+    group_digest_quiet_period: int = Field(
+        default=900,
+        ge=0,
+        description=(
+            "How long a group library must be quiet, in seconds, before what "
+            "happened in it is sent to the members who asked. A client syncs "
+            "in batches, so this is what turns one sync into one message "
+            "rather than ten. Members are subscribed to nothing by default, "
+            "so this changes nothing until somebody opts in."
+        ),
+    )
+    group_digest_interval: int = Field(
+        default=60,
+        ge=0,
+        description=(
+            "How often, in seconds, to look for group activity that has "
+            "settled. Zero turns group notifications off outright: nothing is "
+            "sent and nothing is shown, though activity is still recorded."
+        ),
+    )
+
 
 def _read_config_module(path: Path) -> dict[str, Any]:
     """Return the settings defined by the config module at ``path``.

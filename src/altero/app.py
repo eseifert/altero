@@ -2,6 +2,7 @@
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import timedelta
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,6 +39,8 @@ from altero.api.routes import (
 )
 from altero.api.spa import mount_web_interface
 from altero.db import Database
+from altero.services import groupdigest
+from altero.services.groupsweeper import Sweeper
 from altero.services.mail import build_mailer
 from altero.services.ratelimit import RateLimiter
 from altero.settings import Settings, get_settings
@@ -48,10 +51,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = get_settings() if settings is None else settings
     database = Database(settings)
 
+    async def sweep_digests() -> int:
+        """Deliver whatever group activity has settled since the last look."""
+        async with database.session_factory() as session:
+            return await groupdigest.sweep(
+                session,
+                app.state.mailer.send,
+                quiet_period=timedelta(seconds=settings.group_digest_quiet_period),
+            )
+
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         try:
-            yield
+            # Inside the dispose, so that leaving this block stops the sweeper
+            # -- and waits for a sweep in flight -- while the database it is
+            # working against is still there.
+            async with Sweeper(
+                sweep_digests, interval=timedelta(seconds=settings.group_digest_interval)
+            ):
+                yield
         finally:
             await database.dispose()
 
