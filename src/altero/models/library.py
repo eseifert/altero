@@ -89,3 +89,17 @@ class GroupMember(Base):
     library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     role: Mapped[str] = mapped_column(String(16), default="member")
+
+    #: What this member has asked to be told about, one flag per
+    #: :class:`~altero.models.activity.ActivityKind`. Held here rather than on
+    #: the account because "tell me about this library" is what people want:
+    #: somebody in five groups usually cares about one, and an account-wide
+    #: switch would make them choose between silence and all five.
+    #:
+    #: All off. altero sends nothing that is not a direct consequence of a
+    #: request, and an upgrade that began mailing every member of every group
+    #: would be exactly that.
+    notify_items_changed: Mapped[bool] = mapped_column(default=False)
+    notify_items_deleted: Mapped[bool] = mapped_column(default=False)
+    notify_members_changed: Mapped[bool] = mapped_column(default=False)
+    notify_collections_changed: Mapped[bool] = mapped_column(default=False)
