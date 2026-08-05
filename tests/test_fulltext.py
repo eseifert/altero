@@ -466,13 +466,13 @@ class TestSearching:
         assert [item["key"] for item in phrase.json()] == ["CHILD2345"]
         assert reversed_phrase.json() == []
 
-    async def test_case_is_ignored_but_accents_are_not(
+    async def test_case_is_ignored(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
-        # Upstream's index carries no `asciifolding` filter, so its search is
-        # accent-sensitive too and `cafe` does not reach `café`. The Zotero 9
-        # client folds accents when it searches its own copy, which the server
-        # has never done -- against api.zotero.org just as much as here.
+        # ASCII only, deliberately. Whether `CAFÉ` reaches `café` depends on
+        # whether the SQLite in use was built with ICU -- `lower()` is
+        # ASCII-only without it -- so it is not a property altero has and not
+        # one to pin. See the quick-search section of `docs/compatibility.md`.
         item = await make_item(session, library, key="ACCENT234", item_type="attachment")
         await index_fulltext(session, library, item, "Le café était fermé.")
 
@@ -480,7 +480,27 @@ class TestSearching:
             response = await client.get(f"/users/1/items?q={term}&qmode=everything", headers=AUTH)
             return [found["key"] for found in response.json()]
 
-        assert await search("CAFÉ") == ["ACCENT234"]
+        assert await search("FERM") == ["ACCENT234"]
+        assert await search("ferm") == ["ACCENT234"]
+
+    async def test_accents_are_not_folded(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Upstream's index carries no `asciifolding` filter, so its search is
+        # accent-sensitive too and `cafe` does not reach `café`. The Zotero 9
+        # client folds accents when it searches its own copy, which the server
+        # has never done -- against api.zotero.org just as much as here.
+        #
+        # Unlike case folding above, this holds on every backend and every
+        # build: nothing in `LIKE` or `ILIKE` strips a diacritic.
+        item = await make_item(session, library, key="ACCENT234", item_type="attachment")
+        await index_fulltext(session, library, item, "Le café était fermé.")
+
+        async def search(term: str) -> list[str]:
+            response = await client.get(f"/users/1/items?q={term}&qmode=everything", headers=AUTH)
+            return [found["key"] for found in response.json()]
+
+        assert await search("café") == ["ACCENT234"]
         assert await search("cafe") == []
 
     async def test_cjk_text_matches_as_a_phrase(

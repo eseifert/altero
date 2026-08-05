@@ -93,11 +93,13 @@ a narrowing:
 
   Case-insensitivity comes from `ILIKE` on PostgreSQL and from
   `lower(content) LIKE lower(?)` on SQLite, which SQLAlchemy emits because
-  SQLite has no `ILIKE`. Whether that folds non-ASCII text therefore depends on
-  how the SQLite in use was built: `lower()` is ASCII-only unless it was
-  compiled with ICU. Verified on SQLite 3.53.1 here, where `Übung` does match
-  `übung`; a build without ICU would not, and altero does nothing to make the
-  two agree.
+  SQLite has no `ILIKE`. **Case folding outside ASCII is therefore not a
+  property altero has.** It depends on how the SQLite in use was built:
+  `lower()` is ASCII-only unless compiled with ICU. `Übung` matches `übung` on
+  a Gentoo build of SQLite 3.53.1 with ICU and does not on the SQLite that
+  GitHub Actions runs, which is where a test asserting it failed. altero does
+  nothing to make the two agree, so nothing should be built on either answer;
+  `test_fulltext.py` pins only ASCII case folding, which holds everywhere.
 - **No 300-result cap.** Upstream asks Elasticsearch for `'size' => 300` and
   silently drops the rest, so a library where 400 PDFs mention a word answers
   for 300 of them and gives no sign of it. altero has no cap. This is a

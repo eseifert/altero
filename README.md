@@ -87,8 +87,20 @@ bibliographies in any published CSL style, and export as BibTeX, BibLaTeX or
 RIS. The streaming API is served too, at `/stream`, so a client pointed at it
 learns of a change the moment it happens instead of waiting for its next poll.
 
-Not yet: the other export formats, and full-text *search* — uploaded text is
-stored and served back but is not reachable from a query.
+Searching reaches an attachment's text: `q` with `qmode=everything` looks
+inside what a client uploaded, and a `/top` listing answers with the item a
+matching PDF or child note hangs under. Upstream does this through
+Elasticsearch; altero does it in the database it already has, which keeps the
+deployment one process and one database — see
+[docs/compatibility.md](docs/compatibility.md) for what that costs.
+
+Two things exist here that zotero.org has never offered. A member of a group
+library can ask to be told when it changes, and hears about it once the library
+has been quiet — a digest rather than one message per batch of a sync, off for
+everybody until they turn it on. Alongside it, an item in a group says who
+added it and who last changed it.
+
+Not yet: the other export formats.
 [docs/status.md](docs/status.md) is the endpoint-level list, and says what the
 desktop client asks for that no data server documents.
 
@@ -96,9 +108,9 @@ desktop client asks for that no data server documents.
 
 A Vue 3 application at `/app/`, in six languages, covering registration,
 sign-in with an optional authenticator code, account settings, API keys,
-notifications, group invitations, and browsing a library — collections, tags,
-search, an item's details, its attachments and a citation. It reads; it does
-not write.
+notifications, group invitations, choosing what a group tells you about, and
+browsing a library — collections, tags, search, an item's details, its
+attachments and a citation. It reads; it does not write.
 
 The v3 API stays API-key only and refuses a session cookie, so none of it
 reaches the sync protocol — see
