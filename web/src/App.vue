@@ -127,10 +127,18 @@ async function signOut(): Promise<void> {
           :to="{ name: 'settings' }"
           :aria-label="t('Settings')"
         >
+          <!--
+            Six teeth of radius 1.7 on a circle of radius 7.6 about (12, 12),
+            joined by fillets of radius 2.7 that dip to 6.1. Every arc is a
+            reflection of another in both axes, so the gear is symmetric
+            whichever way you fold it. The outline reaches 9.3 and the valleys
+            stop at 6.1, which puts the same white between valley and hub as
+            the bell and the group icon leave between their strokes.
+          -->
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M14.5 12a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-            <path d="M19.4 14a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-1.87-.34 1.7 1.7 0 00-1 1.56V20a2 2 0 11-4 0v-.09a1.7 1.7 0 00-1.1-1.56 1.7 1.7 0 00-1.87.34l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.7 1.7 0 00.34-1.87 1.7 1.7 0 00-1.56-1H4a2 2 0 110-4h.09a1.7 1.7 0 001.56-1.1 1.7 1.7 0 00-.34-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06a1.7 1.7 0 001.87.34H10a1.7 1.7 0 001-1.56V4a2 2 0 114 0v.09a1.7 1.7 0 001 1.56 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 00-.34 1.87V10a1.7 1.7 0 001.56 1H20a2 2 0 110 4h-.09a1.7 1.7 0 00-1.56 1z" />
+            <path d="M19.61 10.3A2.7 2.7 0 0 1 17.28 6.26A1.7 1.7 0 0 0 14.33 4.56A2.7 2.7 0 0 1 9.67 4.56A1.7 1.7 0 0 0 6.72 6.26A2.7 2.7 0 0 1 4.39 10.3A1.7 1.7 0 0 0 4.39 13.7A2.7 2.7 0 0 1 6.72 17.74A1.7 1.7 0 0 0 9.67 19.44A2.7 2.7 0 0 1 14.33 19.44A1.7 1.7 0 0 0 17.28 17.74A2.7 2.7 0 0 1 19.61 13.7A1.7 1.7 0 0 0 19.61 10.3Z" />
+            <circle cx="12" cy="12" r="2.5" />
           </svg>
         </RouterLink>
         <ThemeMenu />
