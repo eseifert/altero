@@ -274,6 +274,9 @@ async def read_activity(
                     "count": entry.count,
                     "when": serializers.timestamp(entry.when),
                     "actor": serializers.user_block(entry.actor) if entry.actor else None,
+                    "objects": [
+                        {"key": touched.key, "name": touched.name} for touched in entry.objects
+                    ],
                 }
                 for entry in page.entries
             ],

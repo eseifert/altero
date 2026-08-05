@@ -72,6 +72,7 @@ const activity = {
       count: 1,
       when: '2026-08-05T10:00:00Z',
       actor: { id: 2, username: 'grace', name: 'Grace' },
+      objects: [{ key: 'AAAA2345', name: 'Moby-Dick' }],
     },
     {
       id: 1,
@@ -79,6 +80,12 @@ const activity = {
       count: 4,
       when: '2026-08-05T09:00:00Z',
       actor: null,
+      objects: [
+        { key: 'BBBB2345', name: 'Omoo' },
+        { key: 'CCCC2345', name: 'Typee' },
+        { key: 'DDDD2345', name: '' },
+        { key: 'EEEE2345', name: 'Redburn' },
+      ],
     },
   ],
   total: 2,
@@ -249,7 +256,7 @@ describe('the groups screen', () => {
     await flush()
 
     expect(wrapper.text()).toContain('Recent activity')
-    expect(wrapper.findAll('.activity li')).toHaveLength(2)
+    expect(wrapper.findAll('.activity__entry')).toHaveLength(2)
   })
 
   it('names who did it, and says so when nobody can be named', async () => {
@@ -258,7 +265,7 @@ describe('the groups screen', () => {
     await wrapper.find('.card').trigger('click')
     await flush()
 
-    const entries = wrapper.findAll('.activity li')
+    const entries = wrapper.findAll('.activity__entry')
     expect(entries[0].text()).toContain('Grace')
     expect(entries[1].text()).toContain('Somebody')
   })
@@ -269,7 +276,7 @@ describe('the groups screen', () => {
     await wrapper.find('.card').trigger('click')
     await flush()
 
-    const entries = wrapper.findAll('.activity li')
+    const entries = wrapper.findAll('.activity__entry')
     expect(entries[0].text()).toContain('1 item')
     expect(entries[1].text()).toContain('4 items')
   })
@@ -291,5 +298,38 @@ describe('the groups screen', () => {
     await flush()
 
     expect(wrapper.text()).toContain('Nothing has happened here yet.')
+  })
+
+  it('names what each change touched', async () => {
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    expect(wrapper.text()).toContain('Moby-Dick')
+    expect(wrapper.text()).toContain('Omoo')
+  })
+
+  it('falls back to a placeholder for something that had no name', async () => {
+    // A note saved empty, or an item whose title field was never filled in.
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    expect(wrapper.text()).toContain('(untitled)')
+  })
+
+  it('does not list every object in a large change', async () => {
+    // Fifty titles under one line would bury the log. The count already says
+    // how many; the names are there to recognise a change, not to enumerate it.
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    const second = wrapper.findAll('.activity__entry')[1]
+    expect(second.findAll('.activity__object')).toHaveLength(3)
+    expect(second.text()).toContain('1 more')
   })
 })

@@ -469,6 +469,10 @@ async def delete_item(
 
     await items_service.get_item(session, library, item_key)
     version = await writes.bump_library_version(session, library)
+    # Named first: after the delete there is nothing left to read a name from,
+    # and an entry saying only that something was deleted is the one the log
+    # exists to improve on.
+    named = await groupactivity.name_items(session, library, [item_key])
     await item_writes.delete_items(session, library, [item_key], version)
     await groupactivity.record(
         session,
@@ -476,6 +480,7 @@ async def delete_item(
         actor_id=api_key.user_id if api_key else None,
         kind=ActivityKind.ITEMS_DELETED,
         count=1,
+        objects=named,
     )
     await session.commit()
 
@@ -502,6 +507,7 @@ async def delete_items(
         raise RequestTooLargeError(f"Cannot delete more than {writes.MAX_OBJECTS} items at a time")
 
     version = await writes.bump_library_version(session, library)
+    named = await groupactivity.name_items(session, library, keys)
     await item_writes.delete_items(session, library, keys, version)
     await groupactivity.record(
         session,
@@ -509,6 +515,7 @@ async def delete_items(
         actor_id=api_key.user_id if api_key else None,
         kind=ActivityKind.ITEMS_DELETED,
         count=len(keys),
+        objects=named,
     )
     await session.commit()
 

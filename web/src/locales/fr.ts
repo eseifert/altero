@@ -273,6 +273,7 @@ export default {
   '{count} item | {count} items': '{count} document | {count} documents',
   '{count} member | {count} members': '{count} membre | {count} membres',
   '{count} membership changed | {count} memberships changed': '{count} adhésion modifiée | {count} adhésions modifiées',
+  '{count} more | {count} more': '{count} de plus | {count} de plus',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} documents, {collections} collections et {files} fichiers, depuis une archive de {source}.',
   '{scope}, including groups': '{scope}, groupes compris',

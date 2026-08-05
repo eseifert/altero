@@ -16,6 +16,7 @@ happened here lately", which the counts answer.
 
 import httpx
 import pytest
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.settings import Settings
@@ -97,6 +98,44 @@ class TestReading:
         assert entry["count"] == 4
         assert entry["actor"]["username"] == "ada"
         assert entry["when"].endswith("Z")
+
+    async def test_an_entry_names_the_objects_it_touched(
+        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+    ) -> None:
+        # The point of dataserver#89: "what was modified", not merely how much.
+        from altero.models import GroupActivity, GroupActivityObject
+
+        await record(session, group, count=2)
+        activity = (await session.scalars(select(GroupActivity))).one()
+        session.add_all(
+            [
+                GroupActivityObject(
+                    activity_id=activity.id, object_key="AAAA2345", name="Moby-Dick"
+                ),
+                GroupActivityObject(activity_id=activity.id, object_key="BBBB2345", name="Omoo"),
+            ]
+        )
+        await session.commit()
+
+        body = (await ada.get(f"/web/groups/{group}/activity")).json()
+
+        assert body["activity"][0]["objects"] == [
+            {"key": "AAAA2345", "name": "Moby-Dick"},
+            {"key": "BBBB2345", "name": "Omoo"},
+        ]
+
+    async def test_an_entry_with_no_objects_recorded_carries_an_empty_list(
+        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+    ) -> None:
+        # Everything written before this existed, which is what an upgraded
+        # instance is full of. It has a count and no names, and the interface
+        # has to cope rather than break.
+        await record(session, group, count=3)
+
+        body = (await ada.get(f"/web/groups/{group}/activity")).json()
+
+        assert body["activity"][0]["objects"] == []
+        assert body["activity"][0]["count"] == 3
 
     async def test_the_newest_comes_first(
         self, ada: httpx.AsyncClient, session: AsyncSession, group: int

@@ -246,6 +246,7 @@ export default {
   '{count} item | {count} items': '{count} item | {count} items',
   '{count} member | {count} members': '{count} member | {count} members',
   '{count} membership changed | {count} memberships changed': '{count} membership changed | {count} memberships changed',
+  '{count} more | {count} more': '{count} more | {count} more',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.': '{items} items, {collections} collections and {files} files, from an archive of {source}.',
   '{scope}, including groups': '{scope}, including groups',
   '{scope}, personal library only': '{scope}, personal library only',

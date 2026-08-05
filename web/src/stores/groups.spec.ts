@@ -188,13 +188,21 @@ describe('the group store', () => {
   it('reads the activity log newest first', async () => {
     requestMock.mockResolvedValue({
       activity: [
-        { id: 2, kind: 'items_deleted', count: 1, when: '2026-08-05T10:00:00Z', actor: null },
+        {
+          id: 2,
+          kind: 'items_deleted',
+          count: 1,
+          when: '2026-08-05T10:00:00Z',
+          actor: null,
+          objects: [{ key: 'AAAA2345', name: 'Moby-Dick' }],
+        },
         {
           id: 1,
           kind: 'items_changed',
           count: 4,
           when: '2026-08-05T09:00:00Z',
           actor: { id: 1, username: 'ada', name: 'Ada' },
+          objects: [],
         },
       ],
       total: 2,
@@ -206,6 +214,7 @@ describe('the group store', () => {
     expect(requestMock.mock.calls[0][0]).toBe('/web/groups/2/activity')
     expect(page?.activity.map((entry) => entry.kind)).toEqual(['items_deleted', 'items_changed'])
     expect(page?.total).toBe(2)
+    expect(page?.activity[0].objects).toEqual([{ key: 'AAAA2345', name: 'Moby-Dick' }])
   })
 
   it('reports a refusal to read the log rather than showing an empty one', async () => {

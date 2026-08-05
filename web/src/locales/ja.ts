@@ -270,6 +270,7 @@ export default {
   '{count} item | {count} items': '{count} 件の項目 | {count} 件の項目',
   '{count} member | {count} members': 'メンバー {count} 人 | メンバー {count} 人',
   '{count} membership changed | {count} memberships changed': '{count} 件のメンバーシップを変更 | {count} 件のメンバーシップを変更',
+  '{count} more | {count} more': '他 {count} 件 | 他 {count} 件',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} 件の項目、{collections} 件のコレクション、{files} 件のファイルを、{source} のアーカイブから読み込みました。',
   '{scope}, including groups': '{scope}（グループを含む）',

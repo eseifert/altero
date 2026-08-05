@@ -45,6 +45,13 @@ export interface ActivityActor {
  * A write request rather than an object: `count` says how many items or
  * collections it touched, and there is deliberately no list of which.
  */
+export interface TouchedObject {
+  /** The object's key. It may no longer exist -- that is the deletion case. */
+  key: string
+  /** What it was called when the change happened, not what it is called now. */
+  name: string
+}
+
 export interface ActivityEntry {
   id: number
   kind: NotificationKindName
@@ -52,6 +59,8 @@ export interface ActivityEntry {
   /** ISO 8601, UTC. Render it with `formatDate`, never `toLocaleString`. */
   when: string
   actor: ActivityActor | null
+  /** What was touched. Empty for anything recorded before names were kept. */
+  objects: TouchedObject[]
 }
 
 /** The kinds as the log names them, which is the server's spelling. */

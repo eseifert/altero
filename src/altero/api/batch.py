@@ -18,16 +18,22 @@ from altero.services import groupactivity, writes
 Saver = Callable[[AsyncSession, Library, dict[str, Any], int], Awaitable[dict[str, Any] | None]]
 
 
-def _count_deleted(results: writes.WriteResults) -> int:
-    """How many of the written objects were trashed rather than changed.
+def _partition(results: writes.WriteResults) -> tuple[list[str], list[str]]:
+    """Split the written objects into the changed and the trashed, by key.
 
     Trashing is a field change on the wire, but it is what a person means by
     deleting and it is the event a member subscribes to separately, so the two
     are told apart here by what was actually written.
     """
-    return sum(
-        1 for rendered in results.successful.values() if (rendered.get("data") or {}).get("deleted")
-    )
+    changed: list[str] = []
+    trashed: list[str] = []
+    for rendered in results.successful.values():
+        data = rendered.get("data") or {}
+        key = str(rendered.get("key") or "")
+        if not key:
+            continue
+        (trashed if data.get("deleted") else changed).append(key)
+    return changed, trashed
 
 
 async def batch_write(
@@ -96,20 +102,36 @@ async def batch_write(
         if kind is not None:
             # Recorded before the commit so it belongs to the same transaction:
             # a write that fails to land records no activity for it.
-            deleted = _count_deleted(results) if kind is ActivityKind.ITEMS_CHANGED else 0
+            changed, trashed = _partition(results)
+            if kind is not ActivityKind.ITEMS_CHANGED:
+                # Only items carry a trash flag; for anything else every
+                # success is a change.
+                changed, trashed = changed + trashed, []
+
+            name = (
+                groupactivity.name_collections
+                if kind is ActivityKind.COLLECTIONS_CHANGED
+                else groupactivity.name_items
+            )
             await groupactivity.record(
                 session,
                 library,
                 actor_id=actor_id,
                 kind=kind,
-                count=len(results.successful) - deleted,
+                count=len(changed),
+                objects=await name(session, library, changed),
             )
             await groupactivity.record(
                 session,
                 library,
                 actor_id=actor_id,
                 kind=ActivityKind.ITEMS_DELETED,
-                count=deleted,
+                count=len(trashed),
+                # Named while they are still there: trashed is a flag rather
+                # than a removal, so this one could be joined -- but it is read
+                # back beside deletions that cannot be, and one of them
+                # changing under the reader would be worse than neither.
+                objects=await name(session, library, trashed),
             )
         await session.commit()
     else:

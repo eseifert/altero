@@ -4,7 +4,7 @@ Every model must be re-exported here so that Alembic's autogenerate sees the
 complete metadata.
 """
 
-from altero.models.activity import ActivityKind, GroupActivity
+from altero.models.activity import ActivityKind, GroupActivity, GroupActivityObject
 from altero.models.apikey import ApiKey, ApiKeyGroupAccess
 from altero.models.collection import Collection, CollectionItem, CollectionRelation
 from altero.models.fulltext import FullText
@@ -37,6 +37,7 @@ __all__ = [
     "FullText",
     "Group",
     "GroupActivity",
+    "GroupActivityObject",
     "GroupMember",
     "Invitation",
     "Item",

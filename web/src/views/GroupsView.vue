@@ -70,6 +70,16 @@ async function setNotification(kind: NotificationKind, wanted: boolean): Promise
 const log = ref<ActivityEntry[]>([])
 
 /**
+ * How many of a change's objects to name before summarising the rest.
+ *
+ * A write request may carry fifty objects, and fifty titles under one line
+ * would bury the log rather than fill it in. The count on the line already
+ * says how many; the names are here so a change can be recognised, which the
+ * first few do.
+ */
+const NAMES_SHOWN = 3
+
+/**
  * One line per entry, pluralised on the count.
  *
  * The wording matches the digest a member receives by mail, so the same change
@@ -311,13 +321,31 @@ const editedDescription = computed({
         {{ t('Nothing has happened here yet.') }}
       </p>
       <ul v-else class="activity">
-        <li v-for="entry in log" :key="entry.id">
+        <li v-for="entry in log" :key="entry.id" class="activity__entry">
           <span class="activity__what">{{ describe(entry) }}</span>
           <span class="activity__who">
             {{ entry.actor ? entry.actor.name || entry.actor.username : t('Somebody') }}
             ·
             {{ formatDate(entry.when) }}
           </span>
+          <ul v-if="entry.objects.length" class="activity__objects">
+            <li
+              v-for="touched in entry.objects.slice(0, NAMES_SHOWN)"
+              :key="touched.key"
+              class="activity__object"
+            >
+              {{ touched.name || t('(untitled)') }}
+            </li>
+            <li v-if="entry.objects.length > NAMES_SHOWN" class="activity__more">
+              {{
+                t(
+                  '{count} more | {count} more',
+                  { count: entry.objects.length - NAMES_SHOWN },
+                  entry.objects.length - NAMES_SHOWN,
+                )
+              }}
+            </li>
+          </ul>
         </li>
       </ul>
 

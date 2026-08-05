@@ -270,6 +270,7 @@ export default {
   '{count} item | {count} items': '{count} Eintrag | {count} Einträge',
   '{count} member | {count} members': '{count} Mitglied | {count} Mitglieder',
   '{count} membership changed | {count} memberships changed': '{count} Mitgliedschaft geändert | {count} Mitgliedschaften geändert',
+  '{count} more | {count} more': '{count} weiterer | {count} weitere',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} Einträge, {collections} Sammlungen und {files} Dateien, aus einem Archiv von {source}.',
   '{scope}, including groups': '{scope}, inklusive Gruppen',

@@ -5,10 +5,18 @@ The rows are the ones :mod:`altero.services.groupactivity` writes and
 answers two questions: what to tell people, and what happened. Nothing here
 writes.
 
-What it is not is a per-object history. A row is one write request, which is
-one library version, and it says who and how many -- not which items. Recording
-which would mean a row per object per change, for a question people mostly do
-not ask; what they ask is whether anything has happened lately, and by whom.
+An entry is one write request -- which is one library version -- so it says who
+changed how many objects, and names them: `dataserver#89` asks for "what was
+modified", and a count alone does not answer that.
+
+The names are snapshots taken when the change happened, not joins onto the
+objects now. An item renamed afterwards must not rewrite the history of what it
+used to be called, and a deleted one has nothing left to join to at all --
+which is the entry most worth being able to read.
+
+What an entry does not carry is what *about* an object changed. Knowing that a
+title went from one string to another would mean storing both, for every field
+of every write, which is a different feature with a very different cost.
 """
 
 from dataclasses import dataclass
@@ -16,6 +24,7 @@ from datetime import datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from altero.models import GroupActivity, Library, User
 
@@ -27,6 +36,14 @@ MAX_LIMIT = 200
 
 
 @dataclass(frozen=True, slots=True)
+class Touched:
+    """One object a change touched, named as it was at the time."""
+
+    key: str
+    name: str
+
+
+@dataclass(frozen=True, slots=True)
 class Entry:
     """One thing that happened, with the account behind it if there was one."""
 
@@ -35,6 +52,10 @@ class Entry:
     count: int
     when: datetime
     actor: User | None
+    #: What was touched. Empty for anything recorded before objects were kept,
+    #: which is everything in an instance that upgraded into this -- ``count``
+    #: still says how much, so the entry stays meaningful.
+    objects: list[Touched]
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,6 +90,9 @@ async def read(
     rows = list(
         await session.scalars(
             select(GroupActivity)
+            # Asked for explicitly: the relationship does not load itself, so
+            # the sweep that never reads it never pays for it.
+            .options(selectinload(GroupActivity.objects))
             .where(GroupActivity.library_id == library.id)
             # The id breaks ties: several rows of one request share a timestamp
             # to the second, and without it a page boundary could repeat or
@@ -88,6 +112,12 @@ async def read(
                 count=row.count,
                 when=row.created,
                 actor=actors.get(row.actor_id) if row.actor_id else None,
+                # Loaded with the row, so a page costs one further query and
+                # not one per entry.
+                objects=[
+                    Touched(key=touched.object_key, name=touched.name)
+                    for touched in sorted(row.objects, key=lambda touched: touched.id)
+                ],
             )
             for row in rows
         ],
