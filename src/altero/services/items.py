@@ -7,7 +7,7 @@ from typing import Any
 
 from sqlalchemy import ColumnElement, Select, and_, distinct, func, not_, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import InstrumentedAttribute, aliased
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
@@ -103,18 +103,68 @@ def _field_sort(name: str) -> ColumnElement[Any]:
     )
 
 
-def _apply_sort(statement: Select[Any], query: ListQuery) -> Select[Any]:
-    column = _COLUMN_SORTS.get(query.sort)
-    if column is None:
+#: Sorts that order by a person rather than by a value on the item, with the
+#: column each reads. ``editedBy`` is not upstream's; see the authorship section
+#: of ``docs/compatibility.md``.
+_AUTHOR_SORTS: dict[str, InstrumentedAttribute[int | None]] = {
+    "addedBy": Item.created_by_user_id,
+    "editedBy": Item.last_modified_by_user_id,
+}
+
+
+def _author_name_sort(column: InstrumentedAttribute[int | None]) -> ColumnElement[Any]:
+    """Return a sort expression for the name behind ``column``.
+
+    The name is the display name or the username, which is what
+    ``Zotero_Users::getName`` returns and therefore what upstream sorts on --
+    not the username alone, and not the id.
+    """
+    return (
+        select(func.coalesce(func.nullif(User.display_name, ""), User.username))
+        .where(User.id == column)
+        .scalar_subquery()
+    )
+
+
+def _apply_sort(statement: Select[Any], query: ListQuery, *, by_author: bool = True) -> Select[Any]:
+    """Order a listing.
+
+    Args:
+        by_author: Whether ``addedBy`` and ``editedBy`` have anything to sort
+            by. When they do not -- a personal library, or a group whose items
+            all predate authorship being recorded -- upstream quietly sorts by
+            ``dateAdded`` instead, which is what ``False`` produces.
+    """
+    author_column = _AUTHOR_SORTS.get(query.sort)
+    if author_column is not None:
+        column = _author_name_sort(author_column) if by_author else Item.date_added
+    elif (mapped := _COLUMN_SORTS.get(query.sort)) is not None:
+        column = mapped
+    else:
         # Everything else names an ordinary field, e.g. publisher or language.
-        # `addedBy` is only meaningful in group libraries and is not tracked
-        # yet, so it falls through to an empty sort key rather than failing.
         column = _field_sort(query.sort)
 
     ordering = column.desc() if query.direction is Direction.DESCENDING else column.asc()
     # Key order alone is not a total order, so the item key breaks ties and
     # keeps pagination stable across requests.
     return statement.order_by(ordering, Item.key.asc())
+
+
+async def _has_authorship(session: AsyncSession, library: Library, sort: str) -> bool:
+    """Whether anything in ``library`` records the author ``sort`` reads.
+
+    Asked once per request rather than assumed, because upstream's fallback
+    depends on the answer: it runs the same check with a `SELECT DISTINCT
+    createdByUserID` before deciding what to order by.
+    """
+    column = _AUTHOR_SORTS.get(sort)
+    if column is None:
+        return False
+
+    found = await session.scalar(
+        select(Item.id).where(Item.library_id == library.id, column.is_not(None)).limit(1)
+    )
+    return found is not None
 
 
 def _expression_filter(
@@ -340,7 +390,10 @@ async def list_items(
     """Return one page of items, together with the total number of matches."""
     statement = await build_item_query(session, library, query, scope, key)
 
-    result = await session.scalars(paginate(_apply_sort(statement, query), query))
+    by_author = await _has_authorship(session, library, query.sort)
+    result = await session.scalars(
+        paginate(_apply_sort(statement, query, by_author=by_author), query)
+    )
     objects = list(result)
 
     return Page(

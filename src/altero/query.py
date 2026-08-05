@@ -109,6 +109,12 @@ ITEM_SORT_FIELDS = frozenset(
         "rights",
         "extra",
         "addedBy",
+        # Not upstream's. `dataserver#153` asks for a way to sort a group
+        # library by who last touched each item and has been open since 2023;
+        # altero records that anyway for `meta.lastModifiedByUser`, so the sort
+        # costs nothing beyond accepting the name. Recorded as a divergence in
+        # `docs/compatibility.md`.
+        "editedBy",
         "serverDateModified",
     }
 )

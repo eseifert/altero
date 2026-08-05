@@ -207,6 +207,105 @@ class TestWhoLastChanged:
         assert "lastModifiedByUser" not in body["meta"]
 
 
+class TestSorting:
+    """`sort=addedBy`, and `editedBy` which upstream has not built.
+
+    `addedBy` is upstream's and carries a quirk worth copying: it sorts by the
+    author's *name*, and where there is no authorship to sort by -- a personal
+    library, or a group where nothing has been written since this existed -- it
+    silently falls back to `dateAdded` rather than erroring or ordering
+    arbitrarily. `Zotero_Items::search` does that with an `if ($isGroup &&
+    $createdByUserIDs)`.
+    """
+
+    @pytest.fixture
+    async def three(self, client: httpx.AsyncClient, group: Library) -> None:
+        """Three items whose key order is the reverse of their author order.
+
+        Deliberate: the sort this replaces fell through to an empty key and so
+        ordered by item key, and with generated keys these assertions would
+        have passed against it a third of the time. Bob's item sorts first by
+        key and last by name, so the two orders cannot be confused.
+        """
+        await create(client, AS_BOB, key="AAAA2345", title="Bob's")
+        await create(client, AS_ALICE, key="BBBB2345", title="Alice's first")
+        await create(client, AS_ALICE, key="CCCC2345", title="Alice's second")
+
+    async def test_added_by_orders_by_the_authors_name(
+        self, client: httpx.AsyncClient, three: None
+    ) -> None:
+        listing = (await client.get("/groups/100/items?sort=addedBy", headers=AS_ALICE)).json()
+
+        who = [item["meta"]["createdByUser"]["name"] for item in listing]
+        assert who == ["Alice", "Alice", "Bob"]
+
+    async def test_it_can_be_reversed(self, client: httpx.AsyncClient, three: None) -> None:
+        listing = (
+            await client.get("/groups/100/items?sort=addedBy&direction=desc", headers=AS_ALICE)
+        ).json()
+
+        who = [item["meta"]["createdByUser"]["name"] for item in listing]
+        assert who == ["Bob", "Alice", "Alice"]
+
+    async def test_edited_by_orders_by_whoever_last_touched_it(
+        self, client: httpx.AsyncClient, group: Library
+    ) -> None:
+        # Not upstream's: dataserver#153 asks for this and it has never been
+        # built. Recorded as a divergence in docs/compatibility.md.
+        alices = await create(client, AS_ALICE, title="Alice's")
+        bobs = await create(client, AS_ALICE, title="To be Bob's")
+        await client.post(
+            "/groups/100/items", headers=AS_BOB | JSON, json=[{**bobs["data"], "title": "Bob's"}]
+        )
+
+        listing = (await client.get("/groups/100/items?sort=editedBy", headers=AS_ALICE)).json()
+
+        assert [item["key"] for item in listing] == [alices["key"], bobs["key"]]
+
+    async def test_a_personal_library_falls_back_to_date_added(
+        self, client: httpx.AsyncClient, group: Library
+    ) -> None:
+        # Upstream's fallback, and the reason it exists: nothing in a personal
+        # library has an author to sort by, so the parameter has to mean
+        # something rather than fail.
+        #
+        # Compared against `direction=asc` rather than a bare `dateAdded`,
+        # because the default direction is decided by the name of the sort and
+        # not by what it falls back to: anything beginning with `date` counts
+        # down and everything else counts up, so `addedBy` ascends even when it
+        # is ordering by `dateAdded` underneath. That asymmetry is upstream's,
+        # in `getDefaultDirection`.
+        for title in ("One", "Two"):
+            await client.post(
+                "/users/1/items",
+                headers=AS_ALICE | JSON,
+                json=[{"itemType": "book", "title": title}],
+            )
+
+        by_author = await client.get("/users/1/items?sort=addedBy", headers=AS_ALICE)
+        by_date = await client.get("/users/1/items?sort=dateAdded&direction=asc", headers=AS_ALICE)
+
+        assert by_author.status_code == 200
+        assert [item["key"] for item in by_author.json()] == [
+            item["key"] for item in by_date.json()
+        ]
+
+    async def test_a_group_with_no_authorship_recorded_falls_back_too(
+        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+    ) -> None:
+        # Items that predate the columns, which is every item in every library
+        # that upgraded into this.
+        from tests.factories import make_item
+
+        await make_item(session, group, key="OLDER2345", fields={"title": "Older"})
+        await make_item(session, group, key="OLDEST234", fields={"title": "Oldest"})
+
+        response = await client.get("/groups/100/items?sort=addedBy", headers=AS_ALICE)
+
+        assert response.status_code == 200
+        assert len(response.json()) == 2
+
+
 class TestNames:
     async def test_a_display_name_is_preferred(
         self, client: httpx.AsyncClient, group: Library
