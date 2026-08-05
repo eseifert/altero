@@ -10,12 +10,24 @@ from starlette.responses import JSONResponse, Response
 from altero.api.errors import status_for
 from altero.api.responses import library_headers
 from altero.errors import AlteroError
-from altero.models import Library
-from altero.services import writes
+from altero.models import ActivityKind, Library
+from altero.services import groupactivity, writes
 
 #: Saves one object and returns its serialized form, or ``None`` if the object
 #: was already exactly what was sent.
 Saver = Callable[[AsyncSession, Library, dict[str, Any], int], Awaitable[dict[str, Any] | None]]
+
+
+def _count_deleted(results: writes.WriteResults) -> int:
+    """How many of the written objects were trashed rather than changed.
+
+    Trashing is a field change on the wire, but it is what a person means by
+    deleting and it is the event a member subscribes to separately, so the two
+    are told apart here by what was actually written.
+    """
+    return sum(
+        1 for rendered in results.successful.values() if (rendered.get("data") or {}).get("deleted")
+    )
 
 
 async def batch_write(
@@ -25,6 +37,8 @@ async def batch_write(
     save: Saver,
     *,
     require_version: bool = False,
+    kind: ActivityKind | None = None,
+    actor_id: int | None = None,
 ) -> Response:
     """Apply a batch of objects and answer with the per-object report.
 
@@ -36,6 +50,10 @@ async def batch_write(
         require_version: Whether ``If-Unmodified-Since-Version`` must be
             supplied. The full-text upload requires it; the object writes accept
             a request without one.
+        kind: What a member subscribing to this library would call what was
+            written. ``None`` records nothing, which is right for a write that
+            nobody would want a notification about.
+        actor_id: Who is writing, for the digest to name.
     """
     payloads = writes.parse_object_list(await request.json())
 
@@ -75,6 +93,24 @@ async def batch_write(
                 results.add_successful(index, rendered)
 
     if results.any_succeeded:
+        if kind is not None:
+            # Recorded before the commit so it belongs to the same transaction:
+            # a write that fails to land records no activity for it.
+            deleted = _count_deleted(results) if kind is ActivityKind.ITEMS_CHANGED else 0
+            await groupactivity.record(
+                session,
+                library,
+                actor_id=actor_id,
+                kind=kind,
+                count=len(results.successful) - deleted,
+            )
+            await groupactivity.record(
+                session,
+                library,
+                actor_id=actor_id,
+                kind=ActivityKind.ITEMS_DELETED,
+                count=deleted,
+            )
         await session.commit()
     else:
         await session.rollback()

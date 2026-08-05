@@ -11,7 +11,13 @@ from starlette.responses import Response
 
 from altero import atom, cite, serializers
 from altero.api.batch import batch_write
-from altero.api.deps import BaseUrlDep, ReadableLibraryDep, SessionDep, WritableLibraryDep
+from altero.api.deps import (
+    ApiKeyDep,
+    BaseUrlDep,
+    ReadableLibraryDep,
+    SessionDep,
+    WritableLibraryDep,
+)
 from altero.api.responses import (
     AtomFeed,
     entry_response,
@@ -21,7 +27,7 @@ from altero.api.responses import (
     object_response,
 )
 from altero.errors import InvalidInputError, RequestTooLargeError
-from altero.models import Item, Library
+from altero.models import ActivityKind, Item, Library
 from altero.query import (
     EXPORT_FORMATS,
     ITEM_FORMATS,
@@ -32,9 +38,9 @@ from altero.query import (
     parse_list_query,
 )
 from altero.services import collections as collections_service
+from altero.services import groupactivity, writes
 from altero.services import items as items_service
 from altero.services import itemwrites as item_writes
-from altero.services import writes
 from altero.services.items import Page, Scope
 
 router = APIRouter(tags=["items"])
@@ -356,6 +362,7 @@ async def create_items(
     session: SessionDep,
     library: WritableLibraryDep,
     base_url: BaseUrlDep,
+    api_key: ApiKeyDep,
 ) -> Response:
     """Create or update a batch of items."""
 
@@ -370,7 +377,14 @@ async def create_items(
         await session.flush()
         return await render_item(session, item, library, base_url)
 
-    return await batch_write(request, session, library, save)
+    return await batch_write(
+        request,
+        session,
+        library,
+        save,
+        kind=ActivityKind.ITEMS_CHANGED,
+        actor_id=api_key.user_id if api_key else None,
+    )
 
 
 @router.put("/users/{user_id}/items/{item_key}")
@@ -435,6 +449,7 @@ async def delete_item(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    api_key: ApiKeyDep,
 ) -> Response:
     """Remove one item. Requires the version the client last saw."""
     library = await writes.lock_library(session, library)
@@ -444,6 +459,13 @@ async def delete_item(
     await items_service.get_item(session, library, item_key)
     version = await writes.bump_library_version(session, library)
     await item_writes.delete_items(session, library, [item_key], version)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=api_key.user_id if api_key else None,
+        kind=ActivityKind.ITEMS_DELETED,
+        count=1,
+    )
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))
@@ -455,6 +477,7 @@ async def delete_items(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    api_key: ApiKeyDep,
 ) -> Response:
     """Remove up to fifty items named by the ``itemKey`` parameter."""
     library = await writes.lock_library(session, library)
@@ -469,6 +492,13 @@ async def delete_items(
 
     version = await writes.bump_library_version(session, library)
     await item_writes.delete_items(session, library, keys, version)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=api_key.user_id if api_key else None,
+        kind=ActivityKind.ITEMS_DELETED,
+        count=len(keys),
+    )
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))

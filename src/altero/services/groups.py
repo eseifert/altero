@@ -22,6 +22,7 @@ from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.models import (
     ApiKeyGroupAccess,
     Group,
+    GroupActivity,
     GroupMember,
     Invitation,
     Library,
@@ -416,10 +417,13 @@ async def delete_group(session: AsyncSession, library: Library) -> None:
     """Delete a group library and everything in it.
 
     Everything: the items, their files' bookkeeping, the tags, the settings,
-    the record of what was deleted, the invitations that were never answered
-    and the per-key access somebody had been granted. A row left pointing at a
-    library that no longer exists is a foreign key that fails on the next
-    backend that checks.
+    the record of what was deleted, the invitations that were never answered,
+    the per-key access somebody had been granted, and the activity nobody has
+    been told about yet. A row left pointing at a library that no longer exists
+    is a foreign key that fails on the next backend that checks.
+
+    Undelivered activity goes with it rather than being flushed first. A digest
+    is an invitation to go and look, and there would be nothing to look at.
 
     The stored attachment bytes are not touched. They are shared between
     libraries by digest, so removing them here would take files out from under
@@ -435,6 +439,7 @@ async def delete_group(session: AsyncSession, library: Library) -> None:
         delete(ApiKeyGroupAccess).where(ApiKeyGroupAccess.library_id == library.id)
     )
     await session.execute(delete(Invitation).where(Invitation.library_id == library.id))
+    await session.execute(delete(GroupActivity).where(GroupActivity.library_id == library.id))
 
     members = [member.user_id for _, member in await list_members(session, library)]
     await session.execute(delete(GroupMember).where(GroupMember.library_id == library.id))

@@ -12,6 +12,7 @@ from starlette.responses import Response
 from altero import atom, serializers
 from altero.api.batch import batch_write
 from altero.api.deps import (
+    ApiKeyDep,
     BaseUrlDep,
     ReadableLibraryDep,
     SessionDep,
@@ -27,7 +28,7 @@ from altero.api.responses import (
 )
 from altero.api.routes.items import FEED_DESCRIPTIONS, render_page
 from altero.errors import InvalidInputError, RequestTooLargeError
-from altero.models import Collection, Library
+from altero.models import ActivityKind, Collection, Library
 from altero.query import (
     NAMED_SORT_FIELDS,
     OBJECT_FORMATS,
@@ -279,6 +280,7 @@ async def create_collections(
     session: SessionDep,
     library: WritableLibraryDep,
     base_url: BaseUrlDep,
+    api_key: ApiKeyDep,
 ) -> Response:
     """Create or update a batch of collections."""
 
@@ -292,7 +294,14 @@ async def create_collections(
             return None
         return await render_collection(session, collection, library, base_url)
 
-    return await batch_write(request, session, library, save)
+    return await batch_write(
+        request,
+        session,
+        library,
+        save,
+        kind=ActivityKind.COLLECTIONS_CHANGED,
+        actor_id=api_key.user_id if api_key else None,
+    )
 
 
 @router.put("/users/{user_id}/collections/{collection_key}")
