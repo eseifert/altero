@@ -46,8 +46,13 @@ export async function request<T = unknown>(
   path: string,
   { method = 'GET', body, signal }: RequestOptions = {},
 ): Promise<T> {
+  // A form is sent as it is: it carries a file, and the browser has to write
+  // the Content-Type itself because only it knows the multipart boundary.
+  // Setting the header here would produce a body the server cannot parse.
+  const form = body instanceof FormData
+
   const headers = new Headers()
-  if (body !== undefined) {
+  if (body !== undefined && !form) {
     headers.set('Content-Type', 'application/json')
   }
   if (!SAFE_METHODS.has(method.toUpperCase())) {
@@ -66,7 +71,7 @@ export async function request<T = unknown>(
       // The cookie is the credential. Same-origin rather than include: the
       // interface is served by the same application it talks to.
       credentials: 'same-origin',
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : form ? (body as FormData) : JSON.stringify(body),
     })
   } catch (cause) {
     // A dropped connection or a stopped server. Status 0 marks "never got an

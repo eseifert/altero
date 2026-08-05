@@ -103,3 +103,14 @@
   color: var(--md-sys-color-on-secondary-container);
   font-size: var(--md-sys-typescale-label-medium-size);
 }
+
+/* What cannot be undone says so before it is done, not after: the same
+   container the error messages use, in a card that is otherwise calm. */
+.settings__warning {
+  margin: 0;
+  padding: var(--md-spacing-3) var(--md-spacing-4);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}

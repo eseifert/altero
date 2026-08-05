@@ -30,14 +30,25 @@ const ACCOUNT = {
   ],
 }
 
+const MINE = { id: 1, type: 'user', ownerId: 1, name: 'Ada', version: 4, prefix: '/users/1' }
+/** A group this account is in. What it may do there is set per test. */
+const GROUP = { id: 2, type: 'group', ownerId: 7, name: 'Engine', version: 9, prefix: '/groups/7' }
+
+let groups: { id: number; role: string; owner: boolean }[] = []
+let libraries: unknown[] = [MINE]
+
 beforeEach(() => {
   setActivePinia(createPinia())
   i18n.global.locale.value = 'en'
+  groups = []
+  libraries = [MINE]
   requestMock.mockReset()
   requestMock.mockImplementation((path: string) => {
     if (path === '/web/account') return Promise.resolve(ACCOUNT)
     if (path === '/web/account/keys') return Promise.resolve({ keys: [] })
     if (path === '/web/account/locales') return Promise.resolve({ languages: [], timeZones: [] })
+    if (path === '/web/libraries') return Promise.resolve(libraries)
+    if (path === '/web/groups') return Promise.resolve({ groups })
     return Promise.resolve({})
   })
 })
@@ -68,7 +79,8 @@ describe('the settings panel', () => {
   it('lists every section', async () => {
     const { wrapper } = await open()
 
-    expect(wrapper.findAll('.settings__section')).toHaveLength(4)
+    expect(wrapper.findAll('.settings__section')).toHaveLength(5)
+    expect(wrapper.text()).toContain('Import and export')
   })
 
   it('shows one section at a time, not the whole of settings', async () => {
@@ -116,5 +128,91 @@ describe('the settings panel', () => {
     await settle(wrapper)
 
     expect(requestMock).toHaveBeenCalledWith('/web/account/keys')
+  })
+})
+
+describe('import and export', () => {
+  it('offers the personal library for export', async () => {
+    const { wrapper } = await open('import-export')
+
+    const download = wrapper.get('.settings__download')
+    expect(download.attributes('href')).toBe('/web/libraries/1/archive')
+    expect(download.attributes('download')).toBeDefined()
+  })
+
+  it('offers a group to an administrator', async () => {
+    libraries = [MINE, GROUP]
+    groups = [{ id: 2, role: 'admin', owner: false }]
+
+    const { wrapper } = await open('import-export')
+
+    const links = wrapper.findAll('.settings__download').map((a) => a.attributes('href'))
+    expect(links).toEqual(['/web/libraries/1/archive', '/web/libraries/2/archive'])
+  })
+
+  it('offers a group to a plain member for neither', async () => {
+    /* The server refuses either way, and a control that will be refused is a
+       promise the screen cannot keep. */
+    libraries = [MINE, GROUP]
+    groups = [{ id: 2, role: 'member', owner: false }]
+
+    const { wrapper } = await open('import-export')
+
+    const links = wrapper.findAll('.settings__download').map((a) => a.attributes('href'))
+    expect(links).toEqual(['/web/libraries/1/archive'])
+    const targets = wrapper.get('select').findAll('option').map((option) => option.text())
+    expect(targets).toEqual(['Ada'])
+  })
+
+  it('lets only the owner of a group restore over it', async () => {
+    libraries = [MINE, GROUP]
+    groups = [{ id: 2, role: 'admin', owner: true }]
+
+    const { wrapper } = await open('import-export')
+
+    const targets = wrapper.get('select').findAll('option').map((option) => option.text())
+    expect(targets).toEqual(['Ada', 'Engine'])
+  })
+
+  it('will not restore until an archive has been chosen', async () => {
+    const { wrapper } = await open('import-export')
+
+    const restore = wrapper.findAll('button').find((button) => button.text() === 'Restore')
+    expect(restore?.attributes('disabled')).toBeDefined()
+  })
+
+  it('sends the archive, the password and the replace flag together', async () => {
+    const { wrapper } = await open('import-export')
+    const file = new File(['PK'], 'library.zip', { type: 'application/zip' })
+    // jsdom will not let a file input be filled from script, so the handler is
+    // driven the way the browser drives it.
+    wrapper.get('input[type="file"]').element.dispatchEvent(new Event('change'))
+    const section = wrapper.getComponent({ name: 'TransferSection' })
+    ;(section.vm as unknown as { file: File | null }).file = file
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    await wrapper.get('input[type="password"]').setValue('correct horse')
+    await settle(wrapper)
+
+    const restore = wrapper.findAll('button').find((button) => button.text() === 'Restore')
+    await restore?.trigger('click')
+    await settle(wrapper)
+
+    const [path, options] = requestMock.mock.calls.find(
+      ([, options]) => options?.method === 'POST',
+    ) as [string, { body: FormData }]
+    expect(path).toBe('/web/libraries/1/archive')
+    expect(options.body.get('archive')).toBe(file)
+    expect(options.body.get('currentPassword')).toBe('correct horse')
+    expect(options.body.get('replace')).toBe('true')
+  })
+
+  it('says what replacing costs, before it is done rather than after', async () => {
+    const { wrapper } = await open('import-export')
+
+    expect(wrapper.find('.settings__warning').exists()).toBe(false)
+
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+
+    expect(wrapper.get('.settings__warning').text()).toContain('Everything in Ada is deleted first')
   })
 })

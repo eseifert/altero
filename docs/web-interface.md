@@ -140,8 +140,46 @@ browser or downloaded. A citation can be rendered there in Chicago, APA, MLA,
 IEEE or Nature; the server renders it with the same CSL processor that answers
 `format=bib`, rather than a second implementation in the browser.
 
-Reading only, for now. Nothing in the interface writes to a library, which is
-also why no request from it can lose a sync conflict.
+Reading only, for now. No item, collection or tag is edited here, which is also
+why no request from the interface can lose a sync conflict. The single
+exception is restoring a whole library from an archive, below — which is not
+editing so much as replacing, and is fenced accordingly.
+
+## Import and export
+
+Settings offers the archive `altero library export` writes, and reads one back.
+It is a backup or a move between servers, not an export for another
+application: every object at the version clients remember, the deletion log,
+and the attachment bytes. What an item list offers — BibTeX, RIS, CSL JSON — is
+the other thing, and lives with the items.
+
+Exporting is a link rather than a fetch, so the browser streams it to disk and
+shows its own progress; an archive is as large as the library it came from.
+
+Restoring is the one place the browser writes to a library, and it writes all of
+it, so it is fenced three ways:
+
+- **The session picks the target, not the file.** The library is the one chosen
+  on the screen. An archive names a library in its manifest and that name is
+  ignored here — an uploaded file naming `user/2` would otherwise be restored
+  over user 2's library.
+- **Who may.** A personal library is its owner's. For a group, an administrator
+  may take a copy, and only the owner may restore over one: that ends the
+  library as its members knew it, which is what deleting the group does and is
+  held to the same person.
+- **The password again, and an explicit replace.** A library that already holds
+  anything is left alone rather than merged into, unless "replace what this
+  library already holds" is ticked — and then the screen says, before the
+  button is pressed, that everything in that library goes, files included.
+
+Both ends are the same `services/transfer.py` the command line uses, so an
+archive from either can be read by either.
+
+One thing to know before restoring a *different* library's archive over your
+own: the version counter comes from the archive, so it can move backwards, and
+a client that synced past that point will not notice what changed underneath
+it. `altero library set-version` is the way out; see
+[administration.md](administration.md#after-recreating-the-database).
 
 ## Groups
 
@@ -209,10 +247,12 @@ are cached for good, so the second visit fetches none of it.
 ## Not built yet
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
-editing a library rather than only reading it.
+editing a library rather than only reading it — a whole library can be restored
+from an archive, but no item can be changed.
 
 Making an account for somebody else, resetting their password and revoking
 their credentials are still shell operations, as is an operator's view of the
-instance. Groups are no longer among them.
+instance. Groups are no longer among them, and neither is taking a backup of a
+library.
 [administration.md](administration.md) says what that covers and
 [motivation.md](motivation.md) why it matters.

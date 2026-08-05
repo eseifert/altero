@@ -20,10 +20,13 @@ export default {
   'Allow changes (Zotero needs this to sync)':
     'Autoriser les modifications (Zotero en a besoin pour synchroniser)',
   'Already have an account?': 'Vous avez déjà un compte ?',
+  'An archive holds everything in the library — items, collections, tags, saved searches and attached files — at the versions your Zotero clients know. Keep it as a backup, or restore it on another altero server.':
+    'Une archive contient tout ce que renferme la bibliothèque – documents, collections, marqueurs, recherches enregistrées et fichiers joints – aux versions que connaissent vos clients Zotero. Conservez-la comme sauvegarde, ou restaurez-la sur un autre serveur altero.',
   'An invitation': 'Une invitation',
   'An invitation reaches an address rather than an account, so somebody without one here can still be asked.':
     'Une invitation s’adresse à une adresse et non à un compte : quelqu’un qui n’en a pas ici peut donc être invité.',
   Anyone: 'Tout le monde',
+  Archive: 'Archive',
   'At least {count} characters': 'Au moins {count} caractères',
   'Attachments and notes': 'Pièces jointes et notes',
   'Authenticator app': "Application d'authentification",
@@ -35,6 +38,7 @@ export default {
   Cancel: 'Annuler',
   'Change password': 'Changer le mot de passe',
   'Checking the request…': 'Vérification de la demande…',
+  'Choose a library and an archive first.': 'Choisissez d’abord une bibliothèque et une archive.',
   Citation: 'Citation',
   'Citation style': 'Style de citation',
   'Clear search': 'Effacer la recherche',
@@ -82,8 +86,11 @@ export default {
   'Everything else': 'Le reste',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
     'Tout ce qu’il contient disparaît avec lui : documents, collections, marqueurs et pièces jointes. Il n’y a pas de corbeille autour d’une bibliothèque.',
+  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+    'Tout ce que contient {name} est d’abord supprimé, fichiers compris, et il n’y a pas de corbeille autour d’une bibliothèque.',
   Expand: 'Développer',
   'Expires {when}.': 'Expire le {when}.',
+  'Export a library': 'Exporter une bibliothèque',
   'Follow this device ({name})': 'Suivre cet appareil ({name})',
   'For example, my laptop': 'Par exemple : mon ordinateur portable',
   'Go to your library': 'Aller à votre bibliothèque',
@@ -93,6 +100,7 @@ export default {
   'Group {id}': 'Groupe {id}',
   Groups: 'Groupes',
   'Hand over the group': 'Céder le groupe',
+  'Import and export': 'Import et export',
   'Include group libraries': 'Inclure les bibliothèques de groupe',
   'Invitation declined.': 'Invitation refusée.',
   'Invitation sent.': 'Invitation envoyée.',
@@ -128,6 +136,10 @@ export default {
   'New password': 'Nouveau mot de passe',
   'No account yet?': 'Pas encore de compte ?',
   'No keys yet.': 'Aucune clé pour le moment.',
+  'No library here is yours to export.':
+    'Aucune bibliothèque ici ne vous appartient pour être exportée.',
+  'No library here is yours to restore into.':
+    'Aucune bibliothèque ici ne vous appartient pour y restaurer une archive.',
   Nobody: 'Personne',
   'Not enabled.': 'Non activée.',
   'Not now': 'Pas maintenant',
@@ -154,6 +166,8 @@ export default {
     'Lire et modifier tout ce qui se trouve dans votre bibliothèque',
   'Read and write': 'Lecture et écriture',
   'Read only': 'Lecture seule',
+  'Reads an archive back into a library of yours. The library is restored to the state the archive holds, versions included, so a Zotero client that synced with it carries on where it left off.':
+    'Relit une archive dans l’une de vos bibliothèques. La bibliothèque est ramenée à l’état que contient l’archive, versions comprises, de sorte qu’un client Zotero qui s’était synchronisé avec elle reprenne là où il s’était arrêté.',
   'Refused. Zotero has been told to stop waiting.':
     "Refusé. Zotero a été informé qu'il peut cesser d'attendre.",
   'Registration is open on this server.': 'L’inscription est ouverte sur ce serveur.',
@@ -162,7 +176,11 @@ export default {
   Render: 'Générer',
   'Rendering…': 'Génération…',
   'Repeat password': 'Répétez le mot de passe',
+  'Replace what this library already holds': 'Remplacer ce que cette bibliothèque contient déjà',
   Resend: 'Renvoyer',
+  Restore: 'Restaurer',
+  'Restore a library': 'Restaurer une bibliothèque',
+  'Restore into': 'Restaurer dans',
   Revoke: 'Révoquer',
   Role: 'Rôle',
   Save: 'Enregistrer',
@@ -198,6 +216,9 @@ export default {
   'That link is missing its token.': 'Il manque son jeton à ce lien.',
   'That session was signed out.': 'Cette session a été déconnectée.',
   'The group has a new owner.': 'Le groupe a un nouveau propriétaire.',
+  'The library is now at version {version}.':
+    'La bibliothèque est maintenant à la version {version}.',
+  'The library was restored.': 'La bibliothèque a été restaurée.',
   'The two passwords do not match': 'Les deux mots de passe ne correspondent pas',
   'This creates a key that keeps working until you remove it in Settings, even after you sign out here.':
     "Cela crée une clé qui reste valable jusqu'à ce que vous la supprimiez dans les paramètres, même après votre déconnexion ici.",
@@ -214,6 +235,7 @@ export default {
     'Utilisée pour les alertes de sécurité et les invitations',
   Username: "Nom d'utilisateur",
   Verify: 'Vérifier',
+  'Version {version}': 'Version {version}',
   Views: 'Vues',
   Visibility: 'Visibilité',
   'What is it for?': 'À quoi sert-elle ?',
@@ -224,6 +246,8 @@ export default {
   'Who may read the library': 'Qui peut lire la bibliothèque',
   'Who may upload files': 'Qui peut téléverser des fichiers',
   Withdraw: 'Retirer',
+  'Without this, a library that already holds anything is left alone rather than merged into.':
+    'Sans cela, une bibliothèque qui contient déjà quelque chose est laissée intacte plutôt que fusionnée.',
   'You are not in any groups yet.': 'Vous n’êtes encore dans aucun groupe.',
   'You have joined the group.': 'Vous avez rejoint le groupe.',
   confirmed: 'confirmée',
@@ -234,6 +258,8 @@ export default {
   'to your altero library': 'à votre bibliothèque altero',
   '{count} item | {count} items': '{count} document | {count} documents',
   '{count} member | {count} members': '{count} membre | {count} membres',
+  '{items} items, {collections} collections and {files} files, from an archive of {source}.':
+    '{items} documents, {collections} collections et {files} fichiers, depuis une archive de {source}.',
   '{scope}, including groups': '{scope}, groupes compris',
   '{scope}, personal library only': '{scope}, bibliothèque personnelle uniquement',
   '{what} · created {when}': '{what} · créée le {when}',

@@ -20,6 +20,7 @@ import KeysSection from './settings/KeysSection.vue'
 import LanguageSection from './settings/LanguageSection.vue'
 import ProfileSection from './settings/ProfileSection.vue'
 import SecuritySection from './settings/SecuritySection.vue'
+import TransferSection from './settings/TransferSection.vue'
 import { providePanel } from './settings/panel'
 
 const { t } = useI18n()
@@ -49,6 +50,12 @@ const SECTIONS: { slug: string; icon: string; label: () => string; component: Co
     component: LanguageSection,
   },
   { slug: 'keys', icon: 'keys', label: () => t('API keys'), component: KeysSection },
+  {
+    slug: 'import-export',
+    icon: 'archive',
+    label: () => t('Import and export'),
+    component: TransferSection,
+  },
 ]
 
 /* An unknown slug falls back to the first section rather than showing an empty

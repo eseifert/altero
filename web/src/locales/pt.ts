@@ -20,10 +20,13 @@ export default {
   'Allow changes (Zotero needs this to sync)':
     'Permitir alterações (o Zotero precisa disto para sincronizar)',
   'Already have an account?': 'Já tem uma conta?',
+  'An archive holds everything in the library — items, collections, tags, saved searches and attached files — at the versions your Zotero clients know. Keep it as a backup, or restore it on another altero server.':
+    'Um arquivo contém tudo o que está na biblioteca — itens, coleções, etiquetas, pesquisas guardadas e ficheiros anexados — nas versões que os seus clientes Zotero conhecem. Guarde-o como cópia de segurança, ou restaure-o noutro servidor altero.',
   'An invitation': 'Um convite',
   'An invitation reaches an address rather than an account, so somebody without one here can still be asked.':
     'Um convite chega a um endereço e não a uma conta, por isso também se pode convidar quem ainda não tenha conta aqui.',
   Anyone: 'Qualquer pessoa',
+  Archive: 'Arquivo',
   'At least {count} characters': 'Pelo menos {count} caracteres',
   'Attachments and notes': 'Anexos e notas',
   'Authenticator app': 'Aplicação de autenticação',
@@ -35,6 +38,7 @@ export default {
   Cancel: 'Cancelar',
   'Change password': 'Alterar a palavra-passe',
   'Checking the request…': 'A verificar o pedido…',
+  'Choose a library and an archive first.': 'Escolha primeiro uma biblioteca e um arquivo.',
   Citation: 'Citação',
   'Citation style': 'Estilo de citação',
   'Clear search': 'Limpar a pesquisa',
@@ -82,8 +86,11 @@ export default {
   'Everything else': 'O resto',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
     'Tudo o que contém vai com ele: itens, coleções, etiquetas e anexos. Não há lixo à volta de uma biblioteca.',
+  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+    'Tudo o que está em {name} é eliminado primeiro, ficheiros incluídos, e não há lixo à volta de uma biblioteca.',
   Expand: 'Expandir',
   'Expires {when}.': 'Expira a {when}.',
+  'Export a library': 'Exportar uma biblioteca',
   'Follow this device ({name})': 'Seguir este dispositivo ({name})',
   'For example, my laptop': 'Por exemplo: o meu portátil',
   'Go to your library': 'Ir para a sua biblioteca',
@@ -93,6 +100,7 @@ export default {
   'Group {id}': 'Grupo {id}',
   Groups: 'Grupos',
   'Hand over the group': 'Ceder o grupo',
+  'Import and export': 'Importar e exportar',
   'Include group libraries': 'Incluir bibliotecas de grupo',
   'Invitation declined.': 'Convite recusado.',
   'Invitation sent.': 'Convite enviado.',
@@ -128,6 +136,8 @@ export default {
   'New password': 'Nova palavra-passe',
   'No account yet?': 'Ainda não tem conta?',
   'No keys yet.': 'Ainda não há chaves.',
+  'No library here is yours to export.': 'Aqui não há nenhuma biblioteca sua para exportar.',
+  'No library here is yours to restore into.': 'Aqui não há nenhuma biblioteca sua onde restaurar.',
   Nobody: 'Ninguém',
   'Not enabled.': 'Não ativada.',
   'Not now': 'Agora não',
@@ -153,6 +163,8 @@ export default {
   'Read and change everything in your library': 'Ler e alterar tudo o que está na sua biblioteca',
   'Read and write': 'Leitura e escrita',
   'Read only': 'Apenas leitura',
+  'Reads an archive back into a library of yours. The library is restored to the state the archive holds, versions included, so a Zotero client that synced with it carries on where it left off.':
+    'Lê um arquivo de volta para uma biblioteca sua. A biblioteca fica no estado que o arquivo contém, versões incluídas, para que um cliente Zotero que tenha sincronizado com ela continue de onde ficou.',
   'Refused. Zotero has been told to stop waiting.':
     'Recusado. O Zotero foi informado de que pode deixar de esperar.',
   'Registration is open on this server.': 'O registo está aberto neste servidor.',
@@ -161,7 +173,11 @@ export default {
   Render: 'Gerar',
   'Rendering…': 'A gerar…',
   'Repeat password': 'Repita a palavra-passe',
+  'Replace what this library already holds': 'Substituir o que esta biblioteca já contém',
   Resend: 'Reenviar',
+  Restore: 'Restaurar',
+  'Restore a library': 'Restaurar uma biblioteca',
+  'Restore into': 'Restaurar em',
   Revoke: 'Revogar',
   Role: 'Função',
   Save: 'Guardar',
@@ -197,6 +213,8 @@ export default {
   'That link is missing its token.': 'Falta o token a essa ligação.',
   'That session was signed out.': 'Essa sessão foi terminada.',
   'The group has a new owner.': 'O grupo tem um novo proprietário.',
+  'The library is now at version {version}.': 'A biblioteca está agora na versão {version}.',
+  'The library was restored.': 'A biblioteca foi restaurada.',
   'The two passwords do not match': 'As duas palavras-passe não coincidem',
   'This creates a key that keeps working until you remove it in Settings, even after you sign out here.':
     'Isto cria uma chave que continua a funcionar até a remover nas definições, mesmo depois de terminar sessão aqui.',
@@ -212,6 +230,7 @@ export default {
   'Used for security notifications and invitations': 'Usado para avisos de segurança e convites',
   Username: 'Nome de utilizador',
   Verify: 'Verificar',
+  'Version {version}': 'Versão {version}',
   Views: 'Vistas',
   Visibility: 'Visibilidade',
   'What is it for?': 'Para que serve?',
@@ -222,6 +241,8 @@ export default {
   'Who may read the library': 'Quem pode ler a biblioteca',
   'Who may upload files': 'Quem pode carregar ficheiros',
   Withdraw: 'Retirar',
+  'Without this, a library that already holds anything is left alone rather than merged into.':
+    'Sem isto, uma biblioteca que já contém alguma coisa é deixada em paz em vez de fundida.',
   'You are not in any groups yet.': 'Ainda não pertence a nenhum grupo.',
   'You have joined the group.': 'Juntou-se ao grupo.',
   confirmed: 'confirmado',
@@ -232,6 +253,8 @@ export default {
   'to your altero library': 'à sua biblioteca altero',
   '{count} item | {count} items': '{count} item | {count} itens',
   '{count} member | {count} members': '{count} membro | {count} membros',
+  '{items} items, {collections} collections and {files} files, from an archive of {source}.':
+    '{items} itens, {collections} coleções e {files} ficheiros, de um arquivo de {source}.',
   '{scope}, including groups': '{scope}, incluindo grupos',
   '{scope}, personal library only': '{scope}, apenas a biblioteca pessoal',
   '{what} · created {when}': '{what} · criada a {when}',
