@@ -32,6 +32,40 @@ export interface GroupNotifications {
 /** One of the four kinds, for addressing a single toggle. */
 export type NotificationKind = keyof GroupNotifications
 
+/** Who made a change, when the change can be attributed to anybody. */
+export interface ActivityActor {
+  id: number
+  username: string
+  name: string
+}
+
+/**
+ * One thing that happened in a group library.
+ *
+ * A write request rather than an object: `count` says how many items or
+ * collections it touched, and there is deliberately no list of which.
+ */
+export interface ActivityEntry {
+  id: number
+  kind: NotificationKindName
+  count: number
+  /** ISO 8601, UTC. Render it with `formatDate`, never `toLocaleString`. */
+  when: string
+  actor: ActivityActor | null
+}
+
+/** The kinds as the log names them, which is the server's spelling. */
+export type NotificationKindName =
+  | 'items_changed'
+  | 'items_deleted'
+  | 'members_changed'
+  | 'collections_changed'
+
+export interface ActivityPage {
+  activity: ActivityEntry[]
+  total: number
+}
+
 export interface Group {
   /** Internal library id, which is what every /web endpoint is addressed by. */
   id: number
@@ -237,6 +271,28 @@ export const useGroupStore = defineStore('groups', () => {
     }
   }
 
+  /**
+   * Read a page of what has happened in one group, newest first.
+   *
+   * Not held in the store: it is a screen's worth of history rather than
+   * state anything else reads, and keeping it would mean deciding when it goes
+   * stale against a library that changes constantly.
+   */
+  async function readActivity(
+    id: number,
+    { limit, start }: { limit?: number; start?: number } = {},
+  ): Promise<ActivityPage | null> {
+    const query = new URLSearchParams()
+    if (limit !== undefined) query.set('limit', String(limit))
+    if (start !== undefined) query.set('start', String(start))
+    const suffix = query.size ? `?${query}` : ''
+
+    const outcome = await attempt(() =>
+      request<ActivityPage>(`/web/groups/${id}/activity${suffix}`),
+    )
+    return outcome.ok ? outcome.value : null
+  }
+
   async function revokeInvitation(invitationId: number): Promise<void> {
     await attempt(() => request(`/web/invitations/${invitationId}`, { method: 'DELETE' }))
   }
@@ -264,6 +320,7 @@ export const useGroupStore = defineStore('groups', () => {
     invite,
     revokeInvitation,
     setNotification,
+    readActivity,
     reset,
   }
 })

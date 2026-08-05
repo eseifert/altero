@@ -145,6 +145,7 @@ export default {
   'Not enabled.': 'Não ativada.',
   'Not now': 'Agora não',
   Note: 'Nota',
+  'Nothing has happened here yet.': 'Ainda não aconteceu nada aqui.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'Ainda não há nada aqui. Aponte a aplicação Zotero para este servidor e sincronize.',
   'Nothing to show.': 'Nada a mostrar.',
@@ -169,6 +170,7 @@ export default {
   'Read only': 'Apenas leitura',
   'Reads an archive back into a library of yours. The library is restored to the state the archive holds, versions included, so a Zotero client that synced with it carries on where it left off.':
     'Lê um arquivo de volta para uma biblioteca sua. A biblioteca fica no estado que o arquivo contém, versões incluídas, para que um cliente Zotero que tenha sincronizado com ela continue de onde ficou.',
+  'Recent activity': 'Atividade recente',
   'Refused. Zotero has been told to stop waiting.':
     'Recusado. O Zotero foi informado de que pode deixar de esperar.',
   'Registration is open on this server.': 'O registo está aberto neste servidor.',
@@ -208,6 +210,7 @@ export default {
   'Signed-in browsers': 'Navegadores com sessão iniciada',
   'Signing in asks for a code.': 'Ao iniciar sessão é pedido um código.',
   'Skip to content': 'Saltar para o conteúdo',
+  'Somebody': 'Alguém',
   'Sort by {column}': 'Ordenar por {column}',
   'Sort by {column}, currently ascending': 'Ordenar por {column}, atualmente ascendente',
   'Sort by {column}, currently descending': 'Ordenar por {column}, atualmente descendente',
@@ -259,8 +262,12 @@ export default {
   open: 'abrir',
   'this one': 'este',
   'to your altero library': 'à sua biblioteca altero',
+  '{count} collection added or changed | {count} collections added or changed': '{count} coleção adicionada ou alterada | {count} coleções adicionadas ou alteradas',
+  '{count} item added or changed | {count} items added or changed': '{count} item adicionado ou alterado | {count} itens adicionados ou alterados',
+  '{count} item deleted | {count} items deleted': '{count} item eliminado | {count} itens eliminados',
   '{count} item | {count} items': '{count} item | {count} itens',
   '{count} member | {count} members': '{count} membro | {count} membros',
+  '{count} membership changed | {count} memberships changed': '{count} adesão alterada | {count} adesões alteradas',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} itens, {collections} coleções e {files} ficheiros, de um arquivo de {source}.',
   '{scope}, including groups': '{scope}, incluindo grupos',

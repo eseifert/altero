@@ -19,6 +19,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse, Response
 
+from altero import serializers
 from altero.api.deps import SessionDep
 from altero.api.routes.web import CsrfDep, CurrentUserDep
 from altero.errors import InvalidInputError, NotFoundError
@@ -32,7 +33,7 @@ from altero.models import (
     LibraryType,
     User,
 )
-from altero.services import groupprefs, groups, invitations, writes
+from altero.services import grouplog, groupprefs, groups, invitations, writes
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -223,6 +224,62 @@ async def read_group(session: SessionDep, user: CurrentUserDep, library_id: int)
     # in one request rather than two.
     payload["notifications"] = await _notification_payload(session, library, user.id)
     return JSONResponse(payload)
+
+
+def _as_int(value: str | None, default: int) -> int:
+    """Return ``value`` as an integer, or ``default`` if it is not one."""
+    if value is None or value == "":
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        return default
+
+
+@router.get("/groups/{library_id}/activity")
+async def read_activity(
+    session: SessionDep,
+    user: CurrentUserDep,
+    library_id: int,
+    limit: str | None = None,
+    start: str | None = None,
+) -> Response:
+    """Return what has happened in this group, newest first.
+
+    Every member sees it, not only administrators. It was asked for as a way of
+    keeping up with a shared library; restricting it to the people who run the
+    group would make it a supervision tool instead.
+
+    ``limit`` and ``start`` are taken as strings and parsed leniently, because
+    an unreadable number is ignored everywhere else this server takes one --
+    see the parameter-handling section of ``docs/compatibility.md``. Declaring
+    them as integers would make FastAPI answer ``422`` and put one corner of
+    the interface out of step with the rest of the server.
+    """
+    library, _ = await _group(session, library_id)
+    await _member_of(session, library, user)
+
+    page = await grouplog.read(
+        session,
+        library,
+        limit=_as_int(limit, grouplog.DEFAULT_LIMIT),
+        start=_as_int(start, 0),
+    )
+    return JSONResponse(
+        {
+            "activity": [
+                {
+                    "id": entry.id,
+                    "kind": entry.kind,
+                    "count": entry.count,
+                    "when": serializers.timestamp(entry.when),
+                    "actor": serializers.user_block(entry.actor) if entry.actor else None,
+                }
+                for entry in page.entries
+            ],
+            "total": page.total,
+        }
+    )
 
 
 @router.get("/groups/{library_id}/notifications")

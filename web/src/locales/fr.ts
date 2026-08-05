@@ -147,6 +147,7 @@ export default {
   'Not enabled.': 'Non activée.',
   'Not now': 'Pas maintenant',
   Note: 'Note',
+  'Nothing has happened here yet.': 'Rien ne s\'est encore passé ici.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     "Rien ici pour l'instant. Pointez l'application Zotero vers ce serveur et synchronisez.",
   'Nothing to show.': 'Rien à afficher.',
@@ -172,6 +173,7 @@ export default {
   'Read only': 'Lecture seule',
   'Reads an archive back into a library of yours. The library is restored to the state the archive holds, versions included, so a Zotero client that synced with it carries on where it left off.':
     'Relit une archive dans l’une de vos bibliothèques. La bibliothèque est ramenée à l’état que contient l’archive, versions comprises, de sorte qu’un client Zotero qui s’était synchronisé avec elle reprenne là où il s’était arrêté.',
+  'Recent activity': 'Activité récente',
   'Refused. Zotero has been told to stop waiting.':
     "Refusé. Zotero a été informé qu'il peut cesser d'attendre.",
   'Registration is open on this server.': 'L’inscription est ouverte sur ce serveur.',
@@ -211,6 +213,7 @@ export default {
   'Signed-in browsers': 'Navigateurs connectés',
   'Signing in asks for a code.': 'La connexion demande un code.',
   'Skip to content': 'Aller au contenu',
+  'Somebody': 'Quelqu\'un',
   'Sort by {column}': 'Trier par {column}',
   'Sort by {column}, currently ascending': 'Trier par {column}, actuellement croissant',
   'Sort by {column}, currently descending': 'Trier par {column}, actuellement décroissant',
@@ -264,8 +267,12 @@ export default {
   open: 'ouvrir',
   'this one': 'celui-ci',
   'to your altero library': 'à votre bibliothèque altero',
+  '{count} collection added or changed | {count} collections added or changed': '{count} collection ajoutée ou modifiée | {count} collections ajoutées ou modifiées',
+  '{count} item added or changed | {count} items added or changed': '{count} document ajouté ou modifié | {count} documents ajoutés ou modifiés',
+  '{count} item deleted | {count} items deleted': '{count} document supprimé | {count} documents supprimés',
   '{count} item | {count} items': '{count} document | {count} documents',
   '{count} member | {count} members': '{count} membre | {count} membres',
+  '{count} membership changed | {count} memberships changed': '{count} adhésion modifiée | {count} adhésions modifiées',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} documents, {collections} collections et {files} fichiers, depuis une archive de {source}.',
   '{scope}, including groups': '{scope}, groupes compris',

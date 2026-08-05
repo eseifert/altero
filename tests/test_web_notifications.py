@@ -179,15 +179,21 @@ class TestTheV3ApiIsUntouched:
     ) -> None:
         # The line the whole interface is built around: a cookie drives /web
         # and an API key drives v3, and neither reaches the other.
+        #
+        # Signing out first is load-bearing. `ada` is the same client object,
+        # so with the session still open this would be refused for want of a
+        # CSRF token and pass without the key ever being looked at. A GET is
+        # used for the same reason: no CSRF check stands in front of it, so the
+        # refusal can only be about the credential.
         from tests.factories import make_api_key
 
         await make_api_key(
             session, key="KeyKeyKeyKeyKeyKeyKeyKey", user_id=1, all_groups_write=True
         )
+        await ada.post("/web/auth/logout", headers=csrf(ada))
 
-        response = await client.put(
+        response = await client.get(
             f"/web/groups/{group}/notifications",
-            json={"itemsChanged": True},
             headers={"Zotero-API-Key": "KeyKeyKeyKeyKeyKeyKeyKey"},
         )
 

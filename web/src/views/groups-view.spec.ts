@@ -64,10 +64,31 @@ function detail(overrides: Partial<Group> = {}) {
   }
 }
 
+const activity = {
+  activity: [
+    {
+      id: 2,
+      kind: 'items_deleted',
+      count: 1,
+      when: '2026-08-05T10:00:00Z',
+      actor: { id: 2, username: 'grace', name: 'Grace' },
+    },
+    {
+      id: 1,
+      kind: 'items_changed',
+      count: 4,
+      when: '2026-08-05T09:00:00Z',
+      actor: null,
+    },
+  ],
+  total: 2,
+}
+
 /** Mount the screen with `who` signed in and `list` as their groups. */
 async function screen(list: Group[] = [group()], who = ADA) {
   requestMock.mockImplementation((path: string) => {
     if (path === '/web/groups') return Promise.resolve({ groups: list })
+    if (path.includes('/activity')) return Promise.resolve(activity)
     if (path.startsWith('/web/groups/')) return Promise.resolve(detail(list[0]))
     return Promise.resolve({})
   })
@@ -219,5 +240,56 @@ describe('the groups screen', () => {
     await flush()
 
     expect(wrapper.text()).toContain('ada@example.org')
+  })
+
+  it('shows what has happened in the group', async () => {
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    expect(wrapper.text()).toContain('Recent activity')
+    expect(wrapper.findAll('.activity li')).toHaveLength(2)
+  })
+
+  it('names who did it, and says so when nobody can be named', async () => {
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    const entries = wrapper.findAll('.activity li')
+    expect(entries[0].text()).toContain('Grace')
+    expect(entries[1].text()).toContain('Somebody')
+  })
+
+  it('counts what each change touched', async () => {
+    const wrapper = await screen()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    const entries = wrapper.findAll('.activity li')
+    expect(entries[0].text()).toContain('1 item')
+    expect(entries[1].text()).toContain('4 items')
+  })
+
+  it('says so when nothing has happened', async () => {
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/groups') return Promise.resolve({ groups: [group()] })
+      if (path.includes('/activity')) return Promise.resolve({ activity: [], total: 0 })
+      if (path.startsWith('/web/groups/')) return Promise.resolve(detail(group()))
+      return Promise.resolve({})
+    })
+    const wrapper = mount(GroupsView, {
+      global: { plugins: [i18n], stubs: { RouterLink: true } },
+    })
+    useAuthStore().user = ADA
+    await flush()
+
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    expect(wrapper.text()).toContain('Nothing has happened here yet.')
   })
 })

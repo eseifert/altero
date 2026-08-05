@@ -185,6 +185,39 @@ describe('the group store', () => {
     expect(store.error).toBeTruthy()
   })
 
+  it('reads the activity log newest first', async () => {
+    requestMock.mockResolvedValue({
+      activity: [
+        { id: 2, kind: 'items_deleted', count: 1, when: '2026-08-05T10:00:00Z', actor: null },
+        {
+          id: 1,
+          kind: 'items_changed',
+          count: 4,
+          when: '2026-08-05T09:00:00Z',
+          actor: { id: 1, username: 'ada', name: 'Ada' },
+        },
+      ],
+      total: 2,
+    })
+    const store = useGroupStore()
+
+    const page = await store.readActivity(2)
+
+    expect(requestMock.mock.calls[0][0]).toBe('/web/groups/2/activity')
+    expect(page?.activity.map((entry) => entry.kind)).toEqual(['items_deleted', 'items_changed'])
+    expect(page?.total).toBe(2)
+  })
+
+  it('reports a refusal to read the log rather than showing an empty one', async () => {
+    requestMock.mockRejectedValue(new ApiError('No such group', 404))
+    const store = useGroupStore()
+
+    const page = await store.readActivity(2)
+
+    expect(page).toBeNull()
+    expect(store.error).toBeTruthy()
+  })
+
   it('forgets everything on sign-out', async () => {
     requestMock.mockResolvedValue(payload())
     const store = useGroupStore()

@@ -7,6 +7,7 @@ import AppTextField from '@/components/AppTextField.vue'
 import { useAuthStore } from '@/stores/auth'
 import {
   useGroupStore,
+  type ActivityEntry,
   type Group,
   type NotificationKind,
   type Role,
@@ -65,9 +66,37 @@ async function setNotification(kind: NotificationKind, wanted: boolean): Promise
   }
 }
 
+/** What has happened in the open group, newest first. */
+const log = ref<ActivityEntry[]>([])
+
+/**
+ * One line per entry, pluralised on the count.
+ *
+ * The wording matches the digest a member receives by mail, so the same change
+ * reads the same way whichever way somebody hears about it.
+ */
+function describe(entry: ActivityEntry): string {
+  const count = entry.count
+  switch (entry.kind) {
+    case 'items_deleted':
+      return t('{count} item deleted | {count} items deleted', { count }, count)
+    case 'members_changed':
+      return t('{count} membership changed | {count} memberships changed', { count }, count)
+    case 'collections_changed':
+      return t(
+        '{count} collection added or changed | {count} collections added or changed',
+        { count },
+        count,
+      )
+    default:
+      return t('{count} item added or changed | {count} items added or changed', { count }, count)
+  }
+}
+
 async function show(group: Group): Promise<void> {
   open.value = (await store.read(group.id)) ?? null
   confirming.value = null
+  log.value = open.value ? ((await store.readActivity(open.value.id))?.activity ?? []) : []
 }
 
 function close(): void {
@@ -276,6 +305,21 @@ const editedDescription = computed({
           </select>
         </label>
       </template>
+
+      <h3>{{ t('Recent activity') }}</h3>
+      <p v-if="!log.length" class="activity__empty">
+        {{ t('Nothing has happened here yet.') }}
+      </p>
+      <ul v-else class="activity">
+        <li v-for="entry in log" :key="entry.id">
+          <span class="activity__what">{{ describe(entry) }}</span>
+          <span class="activity__who">
+            {{ entry.actor ? entry.actor.name || entry.actor.username : t('Somebody') }}
+            ·
+            {{ formatDate(entry.when) }}
+          </span>
+        </li>
+      </ul>
 
       <h3>{{ t('Tell me about') }}</h3>
       <p class="notify__note">

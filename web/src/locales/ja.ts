@@ -149,6 +149,7 @@ export default {
   'Not enabled.': '無効です。',
   'Not now': '今はしない',
   Note: 'メモ',
+  'Nothing has happened here yet.': 'まだ何も起きていません。',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'まだ何もありません。Zotero デスクトップアプリをこのサーバーに向けて同期してください。',
   'Nothing to show.': '表示するものはありません。',
@@ -172,6 +173,7 @@ export default {
   'Read only': '読み取り専用',
   'Reads an archive back into a library of yours. The library is restored to the state the archive holds, versions included, so a Zotero client that synced with it carries on where it left off.':
     'アーカイブをご自身のライブラリーに読み戻します。ライブラリーはアーカイブの状態にバージョンごと戻るので、同期していた Zotero クライアントは中断したところから続けられます。',
+  'Recent activity': '最近のアクティビティ',
   'Refused. Zotero has been told to stop waiting.':
     '拒否しました。Zotero に待機の終了を伝えました。',
   'Registration is open on this server.': 'このサーバーでは登録が開放されています。',
@@ -211,6 +213,7 @@ export default {
   'Signed-in browsers': 'サインイン中のブラウザー',
   'Signing in asks for a code.': 'サインイン時にコードが必要です。',
   'Skip to content': '本文へスキップ',
+  'Somebody': '誰か',
   'Sort by {column}': '{column} で並べ替え',
   'Sort by {column}, currently ascending': '{column} で並べ替え（現在は昇順）',
   'Sort by {column}, currently descending': '{column} で並べ替え（現在は降順）',
@@ -261,8 +264,12 @@ export default {
   open: '開く',
   'this one': 'このブラウザー',
   'to your altero library': 'altero ライブラリへ',
+  '{count} collection added or changed | {count} collections added or changed': '{count} 件のコレクションを追加または変更 | {count} 件のコレクションを追加または変更',
+  '{count} item added or changed | {count} items added or changed': '{count} 件のアイテムを追加または変更 | {count} 件のアイテムを追加または変更',
+  '{count} item deleted | {count} items deleted': '{count} 件のアイテムを削除 | {count} 件のアイテムを削除',
   '{count} item | {count} items': '{count} 件の項目 | {count} 件の項目',
   '{count} member | {count} members': 'メンバー {count} 人 | メンバー {count} 人',
+  '{count} membership changed | {count} memberships changed': '{count} 件のメンバーシップを変更 | {count} 件のメンバーシップを変更',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} 件の項目、{collections} 件のコレクション、{files} 件のファイルを、{source} のアーカイブから読み込みました。',
   '{scope}, including groups': '{scope}（グループを含む）',
