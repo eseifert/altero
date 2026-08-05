@@ -27,9 +27,10 @@ async def make_user(
     user_id: int = 1,
     username: str = "octocat",
     display_name: str = "Mona Lisa",
+    email: str | None = None,
 ) -> User:
     """Create a user together with their personal library."""
-    user = User(id=user_id, username=username, display_name=display_name)
+    user = User(id=user_id, username=username, display_name=display_name, email=email)
     session.add(user)
     session.add(Library(type=LibraryType.USER, owner_id=user_id, name=display_name or username))
     await session.commit()

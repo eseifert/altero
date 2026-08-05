@@ -192,3 +192,60 @@ async def test_the_same_new_tag_is_created_once(
     body = (await client.get("/users/1/tags", headers=AUTH)).json()
     assert [t["tag"] for t in body] == ["shared"]
     assert body[0]["meta"]["numItems"] == 8
+
+
+async def test_two_sweeps_at_once_send_one_digest(database: Database) -> None:
+    """The claim is what stops a member being mailed twice about one burst.
+
+    Two sweeps overlap whenever an instance runs more than one worker, or when
+    one sweep runs long enough that the next tick starts beside it. Both would
+    otherwise match ``flushed IS NULL``, render the same rows and send the same
+    digest to the same people.
+    """
+    from datetime import UTC, datetime, timedelta
+
+    from altero.models import ActivityKind, Group, GroupActivity, GroupMember, Notification
+    from altero.services import groupdigest
+    from altero.services.mail import Message
+
+    async with database.session_factory() as session:
+        session.add(User(id=2, username="bob", email="bob@example.org"))
+        await session.flush()
+        session.add(Library(type=LibraryType.USER, owner_id=2, version=0))
+        library = Library(type=LibraryType.GROUP, owner_id=100, name="Kollaps", version=1)
+        session.add(library)
+        await session.flush()
+        session.add(Group(library_id=library.id, owner_id=1, name="Kollaps"))
+        session.add(GroupMember(library_id=library.id, user_id=1, role="admin"))
+        session.add(
+            GroupMember(library_id=library.id, user_id=2, role="member", notify_items_changed=True)
+        )
+        # Already settled, so both sweeps consider it due.
+        session.add(
+            GroupActivity(
+                library_id=library.id,
+                actor_id=1,
+                kind=ActivityKind.ITEMS_CHANGED,
+                count=4,
+                created=datetime.now(UTC).replace(tzinfo=None) - timedelta(hours=1),
+            )
+        )
+        await session.commit()
+
+    sent: list[Message] = []
+
+    async def notify(message: Message) -> bool:
+        sent.append(message)
+        return True
+
+    async def sweep() -> int:
+        async with database.session_factory() as session:
+            return await groupdigest.sweep(session, notify, quiet_period=timedelta(minutes=15))
+
+    results = await asyncio.gather(sweep(), sweep(), sweep())
+
+    assert sum(results) == 1
+    assert len(sent) == 1
+    async with database.session_factory() as session:
+        notices = list(await session.scalars(select(Notification)))
+    assert len(notices) == 1
