@@ -55,6 +55,8 @@ EXPECTED = [
     ("/web/groups/{library_id}", "GET"),
     ("/web/groups/{library_id}", "PATCH"),
     ("/web/groups/{library_id}", "DELETE"),
+    ("/web/groups/{library_id}/notifications", "GET"),
+    ("/web/groups/{library_id}/notifications", "PUT"),
     ("/web/groups/{library_id}/members", "GET"),
     ("/web/groups/{library_id}/members/{member_id}", "PUT"),
     ("/web/groups/{library_id}/members/{member_id}", "DELETE"),

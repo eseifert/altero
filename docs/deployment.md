@@ -115,6 +115,29 @@ are written to the log instead, which is deliberate — it is how the owner of a
 fresh container reads the confirmation link and finishes registering. See
 [email.md](email.md).
 
+## Group notifications
+
+A member of a group library can ask to be told when it changes. Nobody is
+subscribed by default, so on most instances there is nothing to configure and
+nothing is sent.
+
+Two settings decide the pacing, and a sweep runs inside the server process to
+apply them:
+
+```sh
+ALTERO_GROUP_DIGEST_QUIET_PERIOD=900   # wait this long after the last change
+ALTERO_GROUP_DIGEST_INTERVAL=60        # look this often; 0 disables entirely
+```
+
+`ALTERO_GROUP_DIGEST_INTERVAL=0` turns the feature off outright: nothing is
+sent and nothing is shown, though activity is still recorded, so turning it
+back on later delivers what accumulated rather than losing it.
+
+Unlike the streaming API, this is safe behind several workers. The sweep claims
+what it is about to send in the database, so one digest goes out however many
+processes are running. See
+[email.md](email.md#group-notifications).
+
 ## Behind a reverse proxy
 
 The address altero records and counts is the proxy's until

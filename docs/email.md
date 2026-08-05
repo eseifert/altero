@@ -7,8 +7,8 @@ variables exist.
 
 ## What is sent, and when
 
-Four kinds of message, all plain text, all triggered by something a person just
-did:
+Five kinds of message, all plain text. Four are triggered by something a person
+just did:
 
 - **Confirm your email address**, on registration, when the address on an
   account is changed, and on request from the account settings. The link is
@@ -26,11 +26,18 @@ about a password change is exactly the message not to send to a stranger. So an
 account whose address is unconfirmed silently gets no security mail — which is
 the other reason the confirmation message matters.
 
+The fifth is the exception, and the only message not caused by the person
+receiving it:
+
+- **New activity in a group library**, to members who asked for it, once the
+  library has been quiet for a while. Off for everybody until they turn it on.
+  See [Group notifications](#group-notifications) below.
+
 Nothing else is sent. There is no password reset by email: an account locked out
 of the browser is recovered from the command line with `altero user password
 <username>`, which is what the "if this was not you" notice tells the owner to
-ask for. There is no digest, no marketing, and no message that is not a direct
-consequence of a request.
+ask for. There is no marketing, and nothing goes to somebody who did not either
+cause it or ask for it.
 
 ## Without a relay
 
@@ -210,6 +217,85 @@ docker compose -f docker/compose.yaml logs altero | grep -A8 'was not sent'
 ```
 
 That is how the owner of a fresh container reads their own confirmation link.
+
+## Group notifications
+
+A shared library that nobody watches is one where a paper somebody added sits
+unread for a month. This is the answer to that, and it is the one thing altero
+sends that the recipient did not personally cause.
+
+**Nobody is subscribed to anything.** Every member of every group starts with
+all four switches off, including on an upgrade of an instance that already has
+groups. Turning one on is done in the browser, in the group's own panel, and it
+is per group and per kind:
+
+| Switch | What counts |
+| --- | --- |
+| Items added or changed | Anything written to an item, including a title fixed |
+| Items deleted | Trashed as well as removed outright — trashing is what people mean |
+| People joining or leaving | Membership changes |
+| Collections added or changed | The library's structure |
+
+It is your own subscription and nobody else's. A group's administrator decides
+who may read and write, not what anybody is mailed about.
+
+### Why it waits
+
+A syncing client uploads in batches of fifty. Sending on each write would mail
+every member ten times for one sync of a five-hundred-item library, which is
+how a notification becomes something people filter away.
+
+So activity is recorded as it happens and delivered only once the library has
+stopped changing. A background sweep looks for group libraries whose newest
+unsent activity is older than the quiet period, and renders everything waiting
+as one message:
+
+```
+Subject: New activity in “Kollaps”
+
+Since you were last told, in the group library “Kollaps”:
+
+12 items were added or changed
+1 item was deleted
+```
+
+Two settings control it, and both may be left alone:
+
+| Setting | Environment variable | Default | What it does |
+| --- | --- | --- | --- |
+| `GROUP_DIGEST_QUIET_PERIOD` | `ALTERO_GROUP_DIGEST_QUIET_PERIOD` | `900` | Seconds a library must be quiet before what happened in it is sent |
+| `GROUP_DIGEST_INTERVAL` | `ALTERO_GROUP_DIGEST_INTERVAL` | `60` | Seconds between sweeps. **`0` turns group notifications off entirely** |
+
+Raising the quiet period makes messages rarer and later. Lowering it toward
+zero approaches one message per write, which is the thing it exists to prevent.
+
+### What it does not do
+
+**It does not tell you what you did.** Activity is attributed, and the person
+who caused a change is excluded from the digest about it — per change, so when
+two people have been working each hears what the other did and neither is told
+about their own afternoon.
+
+**It does not say what changed.** The counts are counts: twelve items, not
+which twelve. Naming them would mean a message that leaks the contents of a
+library into an inbox and a mail server's logs, and the library is one click
+away for anybody who received the message.
+
+**It is not a queue.** This is still true of the whole module: nothing is
+retried. A relay that refuses a digest produces a line in the log and the
+activity is marked delivered anyway, because the alternative is sending the
+same digest to everybody again on the next sweep. The in-app notification is
+raised whether or not the mail goes, so nothing is lost that mattered.
+
+**It does not need one process.** Unlike the streaming API, whose broker is in
+memory, this survives being run several times over: the sweep claims what it is
+about to send in the database, so two workers cannot mail the same digest
+twice. `test_concurrency.py` runs three sweeps at once against PostgreSQL and
+asserts that exactly one message goes.
+
+**A member with no address still hears about it.** The notification appears in
+the interface regardless; the mail is the copy. That is the same reasoning as
+everywhere else here — an instance may have no relay at all.
 
 ## Checking that it works
 

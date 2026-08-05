@@ -41,6 +41,17 @@ MAIL_FROM = "altero@localhost"
 # for a single host and wrong behind a proxy that rewrites it.
 PUBLIC_URL = ""
 
+# Group notifications. A member of a group library can ask to be told when it
+# changes; nobody is subscribed until they do, so an instance where nobody has
+# asked sends nothing regardless of these.
+#
+# The quiet period is how long a library must stop changing before what
+# happened in it goes out, which is what turns one sync into one message rather
+# than one per batch of fifty. The interval is how often to look; zero turns
+# group notifications off entirely, though activity is still recorded.
+GROUP_DIGEST_QUIET_PERIOD = 900
+GROUP_DIGEST_INTERVAL = 60
+
 # Whether anybody may register an account from the browser. The first account
 # is always allowed, so a fresh instance is reachable without shell access, and
 # so is anyone holding an unanswered invitation to a group. Everything else is

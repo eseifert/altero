@@ -231,6 +231,25 @@ the same as being the person it was offered to. Signing in or registering from
 that screen comes back to it, so the thing they came to answer is the next
 thing they see.
 
+### Hearing about a group
+
+The same panel carries four switches for what the group should tell you about:
+items added or changed, items deleted, people joining or leaving, and
+collections. All off until somebody turns one on, per group rather than per
+account — being in five groups and caring about one is the ordinary case, and
+one switch for all of them would make that a choice between silence and five
+groups' worth of noise.
+
+This is the one thing in the group panel a plain member can change. It is your
+own subscription: there is no address to point somebody else's notifications
+at, and an administrator deciding what the members are mailed about is not a
+power anybody asked for.
+
+What arrives is a digest rather than a running commentary, and what decides
+when it arrives is in [email.md](email.md#group-notifications). The interface
+shows the same thing in the notifications panel whether or not mail is
+configured.
+
 ## Design
 
 The design follows Material 3 with a teal accent, and light and dark follow the

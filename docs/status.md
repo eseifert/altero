@@ -55,6 +55,11 @@ things the desktop client asks for that no data server documents.
 - The streaming API, at `/stream`: a client pointed at it with
   `extensions.zotero.streaming.url` is told the moment a library changes
   instead of waiting for its next poll
+- Group notifications: a member can ask to be told when a shared library gains
+  items, loses them, changes hands or is reorganised, and hears about it once
+  the library has been quiet — in the interface, and by mail where there is an
+  address. Off for everybody until they turn it on. Upstream has never had
+  this; the request goes back to 2019 in the dataserver's own tracker
 - Provisioning from the command line, CORS, and API version negotiation
 
 ## Not implemented
