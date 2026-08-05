@@ -45,7 +45,7 @@ The server listens on `http://127.0.0.1:8000`. Now point Zotero at it: open
 **Settings → Advanced → Config Editor**, accept the warning, and set
 
     extensions.zotero.api.url = http://localhost:8000/
-    extensions.zotero.streaming.enabled = false
+    extensions.zotero.streaming.url = ws://localhost:8000/stream
 
 then restart Zotero and open **Settings → Sync → Link Account**. Zotero opens a
 browser page and waits for the key to be approved. Approve it from the shell:
@@ -59,7 +59,9 @@ Syncing starts on the client's next poll. If the [web
 interface](docs/web-interface.md) has been built — it is, in the container
 image — that page is a sign-in form instead and approves the key itself, with
 no shell involved. [docs/clients.md](docs/clients.md) explains each step,
-including why streaming has to be turned off.
+including why the streaming address needs a preference of its own: `api.url`
+does not redirect it, and a client left at its compiled-in default hands your
+API key to zotero.org.
 
 In a container instead, which is PostgreSQL, altero and a volume for
 attachments:
@@ -79,13 +81,15 @@ Reading and writing items, collections, saved searches and tags, with version
 preconditions, write tokens and the multi-object response; every item type,
 including the notes, attachments and annotations whose fields the published
 schema does not list; the attachment file protocol and full-text upload;
-groups, permissions and My Publications; citations and bibliographies in any
-published CSL style, and export as BibTeX, BibLaTeX or RIS.
+groups, permissions and My Publications; Atom feeds; citations and
+bibliographies in any published CSL style, and export as BibTeX, BibLaTeX or
+RIS. The streaming API is served too, at `/stream`, so a client pointed at it
+learns of a change the moment it happens instead of waiting for its next poll.
 
-Not yet: Atom, the other export formats, group creation through the API, and
-full-text *search* — uploaded text is stored and served back but is not
-reachable from a query. [docs/status.md](docs/status.md) is the endpoint-level
-list, and says what the desktop client asks for that no data server documents.
+Not yet: the other export formats, and full-text *search* — uploaded text is
+stored and served back but is not reachable from a query.
+[docs/status.md](docs/status.md) is the endpoint-level list, and says what the
+desktop client asks for that no data server documents.
 
 ## The web interface
 
