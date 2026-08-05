@@ -20,6 +20,7 @@ from altero.models import (
     ItemTag,
     Library,
     Tag,
+    User,
 )
 from altero.pagination import UNLIMITED
 from altero.query import Direction, ListQuery, QuickSearchMode
@@ -410,6 +411,27 @@ async def tags_for(
     for item_id, name, type_ in result.all():
         tags.setdefault(item_id, []).append((name, type_))
     return tags
+
+
+async def authors_for(session: AsyncSession, items: Sequence[Item]) -> dict[int, User]:
+    """Return the accounts ``items`` name as their author, by user id.
+
+    One query for a whole page rather than two per item. An id with no account
+    behind it simply does not appear: somebody may have left, and the
+    serialiser renders nothing for a name it cannot resolve, which is what
+    upstream does when its own lookup fails.
+    """
+    wanted = {
+        user_id
+        for item in items
+        for user_id in (item.created_by_user_id, item.last_modified_by_user_id)
+        if user_id is not None
+    }
+    if not wanted:
+        return {}
+
+    found = await session.scalars(select(User).where(User.id.in_(wanted)))
+    return {user.id: user for user in found}
 
 
 async def parent_keys_for(session: AsyncSession, items: Sequence[Item]) -> dict[int, str]:

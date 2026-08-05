@@ -29,6 +29,21 @@ class Item(Base, Timestamped):
     #: library has. Indexed because the publications listing filters on it.
     in_publications: Mapped[bool] = mapped_column(default=False, index=True)
 
+    # Who wrote this, in a group library. Both are null in a personal library:
+    # it has one author, and upstream keeps these in a `groupItems` table that
+    # only group libraries have rows in.
+    #
+    # Nulled rather than cascaded when an account goes, because the item stays
+    # and "added by somebody who has since left" is true and worth keeping. It
+    # is also what upstream's serialiser expects: it swallows the lookup and
+    # emits nothing when the user no longer exists.
+    created_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), default=None, index=True
+    )
+    last_modified_by_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), default=None
+    )
+
     # Sort keys derived from the item's data whenever it is written. Each item
     # type names its title, creator and date differently, so sorting straight
     # off `item_fields` would need a per-type join; these keep it to a column.

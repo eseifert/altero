@@ -27,7 +27,7 @@ from altero.api.responses import (
     object_response,
 )
 from altero.errors import InvalidInputError, RequestTooLargeError
-from altero.models import ActivityKind, Item, Library
+from altero.models import ActivityKind, ApiKey, Item, Library
 from altero.query import (
     EXPORT_FORMATS,
     ITEM_FORMATS,
@@ -154,6 +154,7 @@ async def render_items(
     collections = await items_service.collection_keys_for(session, items)
     children = await items_service.count_children(session, items)
     parent_keys = await items_service.parent_keys_for(session, items)
+    authors = await items_service.authors_for(session, items)
 
     envelopes = [
         serializers.item(
@@ -164,6 +165,7 @@ async def render_items(
             collections=collections.get(item.id, []),
             num_children=children.get(item.id, 0),
             parent_key=parent_keys.get(item.parent_id) if item.parent_id else None,
+            authors=authors,
         )
         for item in items
     ]
@@ -370,7 +372,12 @@ async def create_items(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
     ) -> dict[str, Any] | None:
         item = await item_writes.save_item(
-            session, library, payload, version, detect_unchanged=True
+            session,
+            library,
+            payload,
+            version,
+            detect_unchanged=True,
+            actor_id=api_key.user_id if api_key else None,
         )
         if item is None:
             return None
@@ -394,9 +401,10 @@ async def replace_item(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    api_key: ApiKeyDep,
 ) -> Response:
     """Replace an item outright. Properties left out are cleared."""
-    return await _write_single(item_key, request, session, library, replace=True)
+    return await _write_single(item_key, request, session, library, api_key, replace=True)
 
 
 @router.patch("/users/{user_id}/items/{item_key}")
@@ -406,9 +414,10 @@ async def update_item(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    api_key: ApiKeyDep,
 ) -> Response:
     """Update an item in place. Properties left out are untouched."""
-    return await _write_single(item_key, request, session, library, replace=False)
+    return await _write_single(item_key, request, session, library, api_key, replace=False)
 
 
 async def _write_single(
@@ -416,6 +425,7 @@ async def _write_single(
     request: Request,
     session: AsyncSession,
     library: Library,
+    api_key: ApiKey | None,
     *,
     replace: bool,
 ) -> Response:
@@ -436,6 +446,7 @@ async def _write_single(
         key=item_key,
         replace=replace,
         require_version=True,
+        actor_id=api_key.user_id if api_key else None,
     )
     await session.commit()
 

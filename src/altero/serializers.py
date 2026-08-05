@@ -4,7 +4,7 @@ Like the service layer, this module is free of web-framework imports: callers
 supply the base URL and receive plain dictionaries.
 """
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Any, Protocol
 from urllib.parse import quote_plus
@@ -155,6 +155,48 @@ def render_relations(relations: Sequence[Relation]) -> dict[str, str | list[str]
     }
 
 
+def user_block(user: User) -> dict[str, Any]:
+    """Render an account as the API names one.
+
+    ``name`` follows ``Zotero_Users::getName``: the real name, or the username
+    when there is none.
+
+    Upstream also carries a ``links.alternate`` pointing at the person's
+    profile on zotero.org. That is omitted here for the reason every other
+    ``alternate`` link is -- see ``docs/compatibility.md``.
+    """
+    return {
+        "id": user.id,
+        "username": user.username,
+        "name": user.display_name or user.username,
+    }
+
+
+def _authorship(obj: Item, library: Library, authors: Mapping[int, User]) -> dict[str, Any]:
+    """Render who added the item and who last changed it.
+
+    Group libraries only, and ``lastModifiedByUser`` is dropped when it is the
+    same person as ``createdByUser``. Both rules are upstream's, in
+    ``Zotero_Item::toResponseJSON``: a personal library has one author, and
+    somebody adding an item and then fixing its title should read as one name
+    rather than the same name twice.
+    """
+    if library.type is not LibraryType.GROUP:
+        return {}
+
+    rendered: dict[str, Any] = {}
+    created_by = authors.get(obj.created_by_user_id) if obj.created_by_user_id else None
+    if created_by is not None:
+        rendered["createdByUser"] = user_block(created_by)
+
+    if obj.last_modified_by_user_id and obj.last_modified_by_user_id != obj.created_by_user_id:
+        modified_by = authors.get(obj.last_modified_by_user_id)
+        if modified_by is not None:
+            rendered["lastModifiedByUser"] = user_block(modified_by)
+
+    return rendered
+
+
 def item(
     obj: Item,
     library: Library,
@@ -164,8 +206,16 @@ def item(
     collections: list[str],
     num_children: int,
     parent_key: str | None = None,
+    authors: Mapping[int, User] | None = None,
 ) -> dict[str, Any]:
-    """Render an item in the API's envelope."""
+    """Render an item in the API's envelope.
+
+    Args:
+        authors: The accounts this item's authorship points at, keyed by id.
+            Passed in rather than looked up here, so a page of a hundred items
+            costs one query instead of two hundred. Missing ids are simply not
+            rendered, which is what upstream does for an account that has gone.
+    """
     fields = obj.field_values()
 
     data: dict[str, Any] = {"key": obj.key, "version": obj.version, "itemType": obj.item_type}
@@ -206,6 +256,7 @@ def item(
     if parsed := parsed_date(obj.sort_date):
         meta["parsedDate"] = parsed
     meta["numChildren"] = num_children
+    meta.update(_authorship(obj, library, authors or {}))
 
     return {
         "key": obj.key,

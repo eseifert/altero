@@ -446,6 +446,7 @@ async def save_item(
     replace: bool = True,
     require_version: bool = False,
     detect_unchanged: bool = False,
+    actor_id: int | None = None,
 ) -> Item | None:
     """Create or update one item and return it.
 
@@ -457,6 +458,8 @@ async def save_item(
         detect_unchanged: Return ``None`` when the payload describes what is
             already stored. The caller is expected to discard the work by
             rolling back, since applying it stamped a version onto the item.
+        actor_id: Who is writing. Recorded in a group library so the item can
+            say who added it and who last changed it.
     """
     # The item has to be resolved before validation, because an object naming an
     # existing item may omit properties that a new one must carry.
@@ -476,6 +479,7 @@ async def save_item(
         replace = False
 
     before = None
+    creating = item is None
     if item is None:
         if require_version and parsed["version"]:
             raise NotFoundError("Not found")
@@ -494,6 +498,17 @@ async def save_item(
 
     if before is not None and before == await _state(session, item):
         return None
+
+    # After the unchanged check, so re-sending an item exactly as stored does
+    # not rewrite who last touched it. Upstream reaches the same place from the
+    # other direction: nothing is written, so its `groupItems` update never
+    # runs.
+    if library.type is LibraryType.GROUP and actor_id is not None:
+        if creating:
+            # Upstream inserts both columns on create, and its serialiser then
+            # collapses them because they are equal.
+            item.created_by_user_id = actor_id
+        item.last_modified_by_user_id = actor_id
 
     return item
 
