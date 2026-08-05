@@ -142,6 +142,9 @@ export default {
   'New group': '新しいグループ',
   'New password': '新しいパスワード',
   'No account yet?': 'アカウントをお持ちでないですか？',
+  'No items carry the selected tags.': '選択したタグが付いたアイテムはありません。',
+  'No items match this search and the selected tags.': 'この検索と選択したタグに一致するアイテムはありません。',
+  'No items match this search.': 'この検索に一致するアイテムはありません。',
   'No keys yet.': 'キーはまだありません。',
   'No library here is yours to export.': 'エクスポートできるご自身のライブラリーはここにはありません。',
   'No library here is yours to restore into.': '復元先にできるご自身のライブラリーはここにはありません。',
@@ -149,6 +152,7 @@ export default {
   'Not enabled.': '無効です。',
   'Not now': '今はしない',
   Note: 'メモ',
+  'Nothing has been added to this group yet.': 'このグループにはまだ何も追加されていません。',
   'Nothing has happened here yet.': 'まだ何も起きていません。',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'まだ何もありません。Zotero デスクトップアプリをこのサーバーに向けて同期してください。',
@@ -228,7 +232,9 @@ export default {
   'The group has a new owner.': 'グループのオーナーが変わりました。',
   'The library is now at version {version}.': 'ライブラリーはバージョン {version} になりました。',
   'The library was restored.': 'ライブラリーを復元しました。',
+  'The trash is empty.': 'ごみ箱は空です。',
   'The two passwords do not match': 'パスワードが一致しません',
+  'This collection is empty.': 'このコレクションは空です。',
   'This creates a key that keeps working until you remove it in Settings, even after you sign out here.':
     'ここで作成したキーは、設定で削除するまで有効です。ここからサインアウトしても失効しません。',
   'This instance has no accounts yet, so this one will be yours.':

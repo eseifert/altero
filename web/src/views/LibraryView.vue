@@ -37,6 +37,32 @@ let searchTimer: ReturnType<typeof setTimeout> | undefined
    what the width is for. */
 const showDetail = computed(() => library.selected !== null && library.libraryId !== null)
 
+/*
+ * A list can be empty for half a dozen reasons and only one of them is "this
+ * server has not been synced to". Telling somebody who has just searched, or
+ * opened an empty collection, to go and point Zotero at this server reads as
+ * though their sync had failed, so the advice is kept for the one case it
+ * answers: a library nothing has ever been put into.
+ *
+ * The filters come first because they are the reader's own doing and the
+ * quickest thing to undo, and both are named when both are on -- clearing
+ * either one alone may well leave the list just as empty.
+ */
+const emptyMessage = computed(() => {
+  const searching = library.search.trim().length > 0
+  const tagged = library.selectedTags.length > 0
+  if (searching && tagged) return t('No items match this search and the selected tags.')
+  if (searching) return t('No items match this search.')
+  if (tagged) return t('No items carry the selected tags.')
+
+  if (library.scope === 'trash') return t('The trash is empty.')
+  if (library.collectionKey) return t('This collection is empty.')
+  /* A group fills up when a member syncs into it, and that member need not be
+     whoever is reading this -- nor, in a read-only group, can it be. */
+  if (library.library?.type === 'group') return t('Nothing has been added to this group yet.')
+  return t('Nothing here yet. Point the Zotero desktop app at this server and sync.')
+})
+
 const heading = computed(() => {
   if (library.collectionName) return library.collectionName
   if (library.scope === 'trash') return t('Trash')
@@ -264,7 +290,7 @@ function sortLabel(column: { field: string; label: string }): string {
           {{ t('Loading…') }}
         </p>
         <p v-else-if="!library.items.length" class="library__state" role="status">
-          {{ t('Nothing here yet. Point the Zotero desktop app at this server and sync.') }}
+          {{ emptyMessage }}
         </p>
 
         <ul v-else class="library__items" :aria-label="t('Items in {name}', { name: heading })">

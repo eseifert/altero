@@ -29,6 +29,16 @@ const ITEM = {
   meta: {},
 }
 
+/** What the item request answers. A test about the empty list empties it. */
+let contents: unknown[] = [ITEM]
+
+const COLLECTION = {
+  key: 'CCCC2345',
+  version: 1,
+  data: { key: 'CCCC2345', name: 'Whales', parentCollection: false },
+  meta: { numCollections: 0, numItems: 0 },
+}
+
 const GERMAN_NAMES = {
   itemTypes: {},
   fields: { title: 'Titel', date: 'Datum' },
@@ -42,6 +52,7 @@ beforeEach(() => {
   resetLabels()
   i18n.global.locale.value = 'en'
   libraries = [PERSONAL]
+  contents = [ITEM]
   requestMock.mockReset()
   requestMock.mockImplementation((path: string) => {
     if (path === '/web/libraries') return Promise.resolve(libraries)
@@ -51,7 +62,7 @@ beforeEach(() => {
     if (path.includes('/collections')) return Promise.resolve({ collections: [] })
     if (path.includes('/tags')) return Promise.resolve({ tags: [] })
     if (path.includes('/children')) return Promise.resolve({ items: [] })
-    return Promise.resolve({ total: 1, items: [ITEM] })
+    return Promise.resolve({ total: contents.length, items: contents })
   })
 })
 
@@ -105,6 +116,101 @@ describe('the item list', () => {
     const wrapper = await open()
 
     expect(wrapper.get('.library__cell--title').text()).toBe('Structure and Interpretation')
+  })
+})
+
+/**
+ * What the list says when it has nothing to show.
+ *
+ * The empty state is the one place the interface volunteers advice, and the
+ * advice is only right for one of the several reasons a list can be empty.
+ */
+describe('an empty list', () => {
+  const SYNC = 'Nothing here yet. Point the Zotero desktop app at this server and sync.'
+
+  function state(wrapper: ReturnType<typeof mount>): string {
+    return wrapper.get('.library__state').text()
+  }
+
+  it('tells an untouched library how to get something into it', async () => {
+    contents = []
+
+    const wrapper = await open()
+
+    expect(state(wrapper)).toBe(SYNC)
+  })
+
+  it('does not tell somebody whose search found nothing to go and sync', async () => {
+    /* The library has been synced -- that is why there is something to search
+       -- so the advice reads as though the sync had not worked. */
+    const wrapper = await open()
+    contents = []
+
+    await useLibraryStore().setSearch('narwhal')
+    await settle(wrapper)
+
+    expect(state(wrapper)).toBe('No items match this search.')
+  })
+
+  it('blames the tags when the tags are what emptied it', async () => {
+    const wrapper = await open()
+    contents = []
+
+    await useLibraryStore().toggleTag('cetacea')
+    await settle(wrapper)
+
+    expect(state(wrapper)).toBe('No items carry the selected tags.')
+  })
+
+  it('names both when a search and a tag are in force', async () => {
+    /* Clearing either one on its own may still leave the list empty, so a
+       message naming only one of them sends the reader the wrong way. */
+    const wrapper = await open()
+    contents = []
+    const store = useLibraryStore()
+
+    await store.setSearch('narwhal')
+    await store.toggleTag('cetacea')
+    await settle(wrapper)
+
+    expect(state(wrapper)).toBe('No items match this search and the selected tags.')
+  })
+
+  it('says an empty collection is empty', async () => {
+    const usual = requestMock.getMockImplementation()!
+    requestMock.mockImplementation((path: string) =>
+      path.includes('/collections') ? Promise.resolve({ collections: [COLLECTION] }) : usual(path),
+    )
+    const wrapper = await open()
+    contents = []
+
+    await wrapper.get('.tree__name').trigger('click')
+    await settle(wrapper)
+
+    expect(state(wrapper)).toBe('This collection is empty.')
+  })
+
+  it('says the trash is empty', async () => {
+    const wrapper = await open()
+    contents = []
+
+    await useLibraryStore().selectScope('trash')
+    await settle(wrapper)
+
+    expect(state(wrapper)).toBe('The trash is empty.')
+  })
+
+  it('does not send a group’s members off to sync their own libraries', async () => {
+    /* A group fills up when a member syncs into it, which may well be somebody
+       other than whoever is reading this, and may be nobody who can. */
+    libraries = [PERSONAL, GROUP]
+    contents = []
+    const wrapper = await open()
+
+    await wrapper.findAll('.library__library')[1].trigger('click')
+    await settle(wrapper)
+
+    expect(state(wrapper)).toBe('Nothing has been added to this group yet.')
   })
 })
 

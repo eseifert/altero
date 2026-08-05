@@ -138,6 +138,10 @@ export default {
   'New group': 'Nuevo grupo',
   'New password': 'Nueva contraseña',
   'No account yet?': '¿Aún no tienes cuenta?',
+  'No items carry the selected tags.': 'Ningún elemento lleva las etiquetas seleccionadas.',
+  'No items match this search and the selected tags.':
+    'Ningún elemento coincide con esta búsqueda y las etiquetas seleccionadas.',
+  'No items match this search.': 'Ningún elemento coincide con esta búsqueda.',
   'No keys yet.': 'Todavía no hay claves.',
   'No library here is yours to export.': 'Aquí no hay ninguna biblioteca tuya que puedas exportar.',
   'No library here is yours to restore into.':
@@ -146,6 +150,7 @@ export default {
   'Not enabled.': 'No activada.',
   'Not now': 'Ahora no',
   Note: 'Nota',
+  'Nothing has been added to this group yet.': 'Todavía no se ha añadido nada a este grupo.',
   'Nothing has happened here yet.': 'Aquí todavía no ha pasado nada.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'Aquí no hay nada todavía. Apunta la aplicación Zotero a este servidor y sincroniza.',
@@ -227,7 +232,9 @@ export default {
   'The group has a new owner.': 'El grupo tiene un nuevo propietario.',
   'The library is now at version {version}.': 'La biblioteca está ahora en la versión {version}.',
   'The library was restored.': 'La biblioteca se restauró.',
+  'The trash is empty.': 'La papelera está vacía.',
   'The two passwords do not match': 'Las dos contraseñas no coinciden',
+  'This collection is empty.': 'Esta colección está vacía.',
   'This creates a key that keeps working until you remove it in Settings, even after you sign out here.':
     'Esto crea una clave que sigue funcionando hasta que la elimines en los ajustes, incluso después de cerrar sesión aquí.',
   'This instance has no accounts yet, so this one will be yours.':

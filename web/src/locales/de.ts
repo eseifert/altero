@@ -139,6 +139,10 @@ export default {
   'New group': 'Neue Gruppe',
   'New password': 'Neues Passwort',
   'No account yet?': 'Noch kein Konto?',
+  'No items carry the selected tags.': 'Keine Einträge tragen die ausgewählten Tags.',
+  'No items match this search and the selected tags.':
+    'Keine Einträge passen zu dieser Suche und den ausgewählten Tags.',
+  'No items match this search.': 'Keine Einträge passen zu dieser Suche.',
   'No keys yet.': 'Noch keine Schlüssel.',
   'No library here is yours to export.':
     'Hier gehört dir keine Bibliothek, die du exportieren könntest.',
@@ -148,6 +152,7 @@ export default {
   'Not enabled.': 'Nicht aktiviert.',
   'Not now': 'Jetzt nicht',
   Note: 'Notiz',
+  'Nothing has been added to this group yet.': 'Zu dieser Gruppe wurde noch nichts hinzugefügt.',
   'Nothing has happened here yet.': 'Hier ist noch nichts passiert.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'Hier ist noch nichts. Richte die Zotero-App auf diesen Server und synchronisiere.',
@@ -228,7 +233,9 @@ export default {
   'The group has a new owner.': 'Die Gruppe hat einen neuen Eigentümer.',
   'The library is now at version {version}.': 'Die Bibliothek steht jetzt bei Version {version}.',
   'The library was restored.': 'Die Bibliothek wurde zurückgespielt.',
+  'The trash is empty.': 'Der Papierkorb ist leer.',
   'The two passwords do not match': 'Die beiden Passwörter stimmen nicht überein',
+  'This collection is empty.': 'Diese Sammlung ist leer.',
   'This creates a key that keeps working until you remove it in Settings, even after you sign out here.':
     'Dabei entsteht ein Schlüssel, der weiter gilt, bis du ihn in den Einstellungen entfernst – auch wenn du dich hier abmeldest.',
   'This instance has no accounts yet, so this one will be yours.':
