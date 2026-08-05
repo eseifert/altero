@@ -15,6 +15,7 @@ and it cannot leak an API key by being copied around.
 """
 
 import json
+import re
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -50,6 +51,13 @@ FORMAT_VERSION = 1
 
 MANIFEST = "manifest.json"
 FILE_PREFIX = "files/"
+
+#: An archived file is named by its digest, and that name is joined onto the
+#: file store's root to decide where it lands. Anything that is not a digest is
+#: refused: ``files/../../..`` in a hand-made archive would otherwise write
+#: wherever the server can. It matters more now than it did when only an
+#: administrator at a shell could restore one -- the browser can too.
+_DIGEST = re.compile(r"[0-9a-fA-F]{32}")
 
 
 def _moment(value: datetime) -> str:
@@ -278,6 +286,39 @@ async def export_library(
     return destination
 
 
+def read_manifest(archive: Path) -> dict[str, Any]:
+    """Return what an archive says it holds, without restoring any of it.
+
+    Separate from the restore so a caller can say what is about to happen --
+    which library, how many items, how many files -- before anything is
+    written. The checks live here too, so an archive this altero cannot read is
+    refused by the reading rather than partway through the writing.
+    """
+    if not archive.is_file():
+        raise NotFoundError(f"No archive at {archive}")
+
+    try:
+        with zipfile.ZipFile(archive) as bundle:
+            manifest: dict[str, Any] = json.loads(bundle.read(MANIFEST))
+            names = bundle.namelist()
+    except (zipfile.BadZipFile, KeyError, UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise InvalidInputError("That file is not an altero library archive") from error
+
+    if manifest.get("format") != FORMAT_VERSION:
+        raise InvalidInputError(
+            f"Unsupported archive format {manifest.get('format')}; "
+            f"this altero reads {FORMAT_VERSION}"
+        )
+    if not isinstance(manifest.get("library"), dict):
+        raise InvalidInputError("That archive does not say which library it holds")
+
+    for entry in names:
+        if entry.startswith(FILE_PREFIX) and not _DIGEST.fullmatch(entry[len(FILE_PREFIX) :]):
+            raise InvalidInputError(f"That archive holds a file with an impossible name: {entry}")
+
+    return manifest
+
+
 async def _is_empty(session: AsyncSession, library: Library) -> bool:
     for model in (Item, Collection, SavedSearch, Tag, Setting, DeletedObject):
         if await session.scalar(select(model).where(model.library_id == library.id).limit(1)):
@@ -336,19 +377,25 @@ async def import_library(
     archive: Path,
     storage_root: Path,
     replace: bool = False,
+    into: Library | None = None,
 ) -> Library:
-    """Restore an archive into the library it names, and return it."""
-    if not archive.is_file():
-        raise NotFoundError(f"No archive at {archive}")
+    """Restore an archive into the library it names, and return it.
+
+    ``into`` overrides that: the archive is restored into the library the
+    caller chose, whatever the manifest says. Keys and versions are per library,
+    so nothing in the contents depends on which one it lands in -- and the
+    browser needs it, because there the target is decided by who is signed in
+    rather than by the file they uploaded. Without it, an archive naming
+    somebody else's library would be restored over *that* library.
+
+    The version counter comes from the archive either way. Restoring over a
+    library that has since gone further therefore moves it backwards, and a
+    client that synced past that point will not notice what changed underneath
+    it; see "After recreating the database" in docs/administration.md.
+    """
+    manifest = read_manifest(archive)
 
     with zipfile.ZipFile(archive) as bundle:
-        manifest = json.loads(bundle.read(MANIFEST))
-        if manifest.get("format") != FORMAT_VERSION:
-            raise InvalidInputError(
-                f"Unsupported archive format {manifest.get('format')}; "
-                f"this altero reads {FORMAT_VERSION}"
-            )
-
         documents: dict[str, Any] = {
             name: json.loads(bundle.read(name))
             for name in (
@@ -363,12 +410,16 @@ async def import_library(
         }
 
         described = manifest["library"]
-        library = await _resolve(session, LibraryType(described["type"]), described["id"])
+        library = (
+            into
+            if into is not None
+            else await _resolve(session, LibraryType(described["type"]), described["id"])
+        )
 
         if not await _is_empty(session, library):
             if not replace:
                 raise InvalidInputError(
-                    f"Library {described['type']}/{described['id']} is not empty; "
+                    f"Library {library.type.value}/{library.owner_id} is not empty; "
                     "restoring would merge two libraries rather than replace one"
                 )
             await clear_library(session, library)
@@ -522,11 +573,19 @@ async def import_library(
 
         # Last, and the point of the exercise: the version clients remember.
         library.version = described["version"]
-        library.name = manifest.get("name", library.name)
+        # The name belongs to the library rather than to what is in it. Taking
+        # the archive's is right when a library is restored over itself, since
+        # that is its own name coming back, and wrong when the caller chose the
+        # target: a group's name also lives on its `Group` row, which no archive
+        # carries, so adopting one would leave the two disagreeing.
+        if into is None:
+            library.name = manifest.get("name", library.name)
 
         for entry in bundle.namelist():
             if not entry.startswith(FILE_PREFIX):
                 continue
+            # A digest, and nothing that could climb out of the store: checked
+            # by read_manifest before a single row was written.
             digest = entry[len(FILE_PREFIX) :]
             path = storage.file_path(storage_root, digest)
             path.parent.mkdir(parents=True, exist_ok=True)

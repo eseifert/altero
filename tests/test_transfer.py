@@ -462,3 +462,130 @@ class TestArchive:
 
         with pytest.raises(InvalidInputError, match="format"):
             await transfer.import_library(session, archive=archive, storage_root=tmp_path)
+
+    async def test_something_that_is_not_a_zip_is_refused_as_such(self, tmp_path: Path) -> None:
+        """A readable refusal rather than a traceback: the browser can upload
+        whatever a file picker gave it."""
+        archive = tmp_path / "holiday.jpg"
+        archive.write_bytes(b"\xff\xd8\xff\xe0 not a zip")
+
+        with pytest.raises(InvalidInputError, match="not an altero library archive"):
+            transfer.read_manifest(archive)
+
+    async def test_a_file_named_anything_but_a_digest_is_refused(
+        self, session: AsyncSession, tmp_path: Path
+    ) -> None:
+        """A stored file's name is joined onto the file store's root, so an
+        archive that names one `../../…` would write outside it. Refused
+        before a single row is written, not while the files are unpacked."""
+        import json
+        import zipfile
+
+        await make_user(session, user_id=1, username="octocat")
+        archive = tmp_path / "hostile.zip"
+        with zipfile.ZipFile(archive, "w") as bundle:
+            bundle.writestr(
+                "manifest.json",
+                json.dumps(
+                    {
+                        "format": transfer.FORMAT_VERSION,
+                        "library": {"type": "user", "id": 1, "version": 1},
+                    }
+                ),
+            )
+            bundle.writestr("files/../../../../etc/altero-was-here", b"owned")
+
+        with pytest.raises(InvalidInputError, match="impossible name"):
+            await transfer.import_library(
+                session, archive=archive, storage_root=tmp_path / "storage"
+            )
+
+        assert not (tmp_path / "storage").exists()
+
+
+class TestRestoringIntoAChosenLibrary:
+    """``into`` is what the browser restores through.
+
+    There the target is decided by who is signed in, so the library named in
+    the manifest must not be the one that gets written to -- otherwise an
+    uploaded file could name somebody else's library and be restored over it.
+    """
+
+    async def test_the_contents_land_in_the_library_the_caller_chose(
+        self, session: AsyncSession, tmp_path: Path
+    ) -> None:
+        await make_user(session, user_id=1, username="octocat")
+        await make_user(session, user_id=2, username="grace", display_name="Grace")
+        source = await get_library(session, LibraryType.USER, 1)
+        await populate(session, source, tmp_path / "storage")
+        expected = await snapshot(session, source)
+
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "storage",
+            destination=tmp_path / "library.zip",
+        )
+        target = await get_library(session, LibraryType.USER, 2)
+        restored = await transfer.import_library(
+            session, archive=archive, storage_root=tmp_path / "storage", into=target
+        )
+
+        assert restored.id == target.id
+        # Everything the archive carried, at the versions it carried them. The
+        # name is the one thing that stays the target library's own, and has a
+        # test of its own below.
+        actual = await snapshot(session, restored)
+        assert actual["library"]["version"] == expected["library"]["version"]
+        assert {name: rows for name, rows in actual.items() if name != "library"} == {
+            name: rows for name, rows in expected.items() if name != "library"
+        }
+
+    async def test_the_library_named_in_the_archive_is_left_alone(
+        self, session: AsyncSession, tmp_path: Path
+    ) -> None:
+        await make_user(session, user_id=1, username="octocat")
+        await make_user(session, user_id=2, username="grace", display_name="Grace")
+        source = await get_library(session, LibraryType.USER, 1)
+        await populate(session, source, tmp_path / "storage")
+        before = await snapshot(session, source)
+
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "storage",
+            destination=tmp_path / "library.zip",
+        )
+        target = await get_library(session, LibraryType.USER, 2)
+        await transfer.import_library(
+            session, archive=archive, storage_root=tmp_path / "storage", into=target
+        )
+
+        assert await snapshot(session, source) == before
+
+    async def test_the_chosen_library_keeps_its_own_name(
+        self, session: AsyncSession, tmp_path: Path
+    ) -> None:
+        """A name belongs to the library, not to what is in it -- and a group's
+        also lives on its `Group` row, which no archive carries."""
+        await make_user(session, user_id=1, username="octocat")
+        await make_user(session, user_id=2, username="grace", display_name="Grace")
+        source = await get_library(session, LibraryType.USER, 1)
+        source.name = "Mona Lisa"
+        await populate(session, source, tmp_path / "storage")
+
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "storage",
+            destination=tmp_path / "library.zip",
+        )
+        target = await get_library(session, LibraryType.USER, 2)
+        restored = await transfer.import_library(
+            session, archive=archive, storage_root=tmp_path / "storage", into=target
+        )
+
+        assert restored.name == "Grace"
