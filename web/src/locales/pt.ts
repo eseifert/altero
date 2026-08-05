@@ -48,6 +48,8 @@ export default {
   'Confirm your password': 'Confirme a sua palavra-passe',
   'Confirm {address} to receive security notifications and invitations. Your library works either way.':
     'Confirme {address} para receber avisos de segurança e convites. A sua biblioteca funciona de qualquer forma.',
+  'Confirmation sent to {address}. The address changes when you follow the link.':
+    'Confirmação enviada para {address}. O endereço muda quando seguir a ligação.',
   'Confirmed. This address will now receive security notifications and invitations.':
     'Confirmado. Este endereço passa a receber avisos de segurança e convites.',
   'Confirming…': 'A confirmar…',
@@ -119,6 +121,7 @@ export default {
   'My Library': 'A minha biblioteca',
   'My library': 'A minha biblioteca',
   Name: 'Nome',
+  'Name saved.': 'Nome guardado.',
   'Never used': 'Nunca utilizada',
   'New address': 'Novo endereço',
   'New group': 'Novo grupo',
@@ -139,6 +142,8 @@ export default {
   Optional: 'Opcional',
   Owner: 'Proprietário',
   Password: 'Palavra-passe',
+  'Password changed. Every other browser was signed out.':
+    'Palavra-passe alterada. A sessão foi terminada em todos os outros navegadores.',
   Private: 'Privado',
   Profile: 'Perfil',
   Public: 'Público',
@@ -174,6 +179,7 @@ export default {
   'Sign in to answer it.': 'Inicie sessão para lhe responder.',
   'Sign out': 'Terminar sessão',
   'Sign out everywhere else': 'Terminar sessão em todo o lado',
+  'Sign-in and security': 'Início de sessão e segurança',
   'Signed in as {username}.': 'Sessão iniciada como {username}.',
   'Signed out everywhere else.': 'Sessão terminada em todo o lado.',
   'Signed-in browsers': 'Navegadores com sessão iniciada',

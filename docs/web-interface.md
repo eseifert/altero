@@ -52,6 +52,17 @@ to the browser.
 
 ## Account settings
 
+Five sections behind a side panel — profile, sign-in and security, language and
+time zone, API keys, import and export — rather than one page of cards. It was
+one page until the cards outgrew a screen, and reaching the time zone meant
+scrolling past the authenticator and every key on the account.
+
+The panel is the library's: the same rows, the same fill on the current one, so
+the two screens read as one application. Which section is showing is in the
+path (`/app/settings/keys`) rather than in component state, so a section can be
+linked to and the back button walks them. The slugs are not translated; an
+unknown one falls back to the first section rather than to an empty page.
+
 Display name, password, email address, an authenticator app, and the list of
 signed-in browsers, each of which can be signed out on its own. Anything that
 touches a credential asks for the current password again: a session cookie is

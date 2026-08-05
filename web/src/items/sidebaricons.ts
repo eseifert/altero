@@ -1,11 +1,14 @@
 /**
- * Icons for the rows of the library sidebar.
+ * Icons for the rows of a sidebar — the library's, and settings'.
  *
- * Drawn to read like the Zotero desktop application's sidebar: a stack of books
- * for a library, two figures for a group, a folder for a collection, a bin for
- * the trash. As with the item type icons, they are redrawn as single-weight line
- * glyphs on the same 24-unit grid rather than copied — Zotero's own assets are
- * the client's and carry its licence.
+ * The library's are drawn to read like the Zotero desktop application's
+ * sidebar: a stack of books for a library, two figures for a group, a folder
+ * for a collection, a bin for the trash. As with the item type icons, they are
+ * redrawn as single-weight line glyphs on the same 24-unit grid rather than
+ * copied — Zotero's own assets are the client's and carry its licence.
+ *
+ * Settings has no counterpart in the client, so those glyphs are only drawn to
+ * the same rules: one weight, one grid, no fill.
  *
  * `sidebarIcon` falls back to the folder, so a row this build has no glyph for
  * still lines up with the rest instead of jumping to the left.
@@ -52,6 +55,56 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
       'M9.5 7.25V5.5a1.25 1.25 0 011.25-1.25h2.5A1.25 1.25 0 0114.5 5.5v1.75',
       'M6.75 7.25l.9 11.4a1.5 1.5 0 001.5 1.35h5.7a1.5 1.5 0 001.5-1.35l.9-11.4',
       'M10.5 10.75v6 M13.5 10.75v6',
+    ],
+  },
+
+  /* ---- The settings sidebar ---- */
+
+  /** A head and shoulders: the account itself. */
+  account: {
+    label: 'Profile',
+    paths: [
+      'M12 12.25a3.25 3.25 0 100-6.5 3.25 3.25 0 000 6.5z',
+      'M5.75 19.25c0-3.15 2.8-5.5 6.25-5.5s6.25 2.35 6.25 5.5',
+    ],
+  },
+
+  /** A padlock, shackle closed. */
+  security: {
+    label: 'Sign-in and security',
+    paths: [
+      'M6.75 10.75h10.5a1.25 1.25 0 011.25 1.25v6a1.25 1.25 0 01-1.25 1.25H6.75A1.25 1.25 0 015.5 18v-6a1.25 1.25 0 011.25-1.25z',
+      'M8.75 10.75V8.25a3.25 3.25 0 016.5 0v2.5',
+    ],
+  },
+
+  /** A globe with a meridian, for the language and the zone alike. */
+  language: {
+    label: 'Language and time zone',
+    paths: [
+      'M12 20.25a8.25 8.25 0 100-16.5 8.25 8.25 0 000 16.5z',
+      'M3.75 12h16.5',
+      'M12 3.75c2.1 2.2 3.25 5.15 3.25 8.25S14.1 18.05 12 20.25c-2.1-2.2-3.25-5.15-3.25-8.25S9.9 5.95 12 3.75z',
+    ],
+  },
+
+  /** A key: the bow on the left, two teeth at the tip. */
+  keys: {
+    label: 'API keys',
+    paths: [
+      'M9.25 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z',
+      'M12.9 11.35l6.35-.85',
+      'M16.15 10.9l.3 2.2 M18.6 10.55l.3 2.2',
+    ],
+  },
+
+  /** A box with its lid: a library packed up to be carried somewhere. */
+  archive: {
+    label: 'Import and export',
+    paths: [
+      'M4.75 6.75h14.5v3H4.75z',
+      'M6.25 9.75v8a1.5 1.5 0 001.5 1.5h8.5a1.5 1.5 0 001.5-1.5v-8',
+      'M10 13.25h4',
     ],
   },
 }

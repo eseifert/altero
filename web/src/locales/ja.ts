@@ -52,6 +52,8 @@ export default {
   'Confirm your password': 'パスワードを確認',
   'Confirm {address} to receive security notifications and invitations. Your library works either way.':
     'セキュリティ通知と招待を受け取るには {address} を確認してください。ライブラリはどちらの場合も使えます。',
+  'Confirmation sent to {address}. The address changes when you follow the link.':
+    '{address} に確認メールを送信しました。リンクを開くとアドレスが変わります。',
   'Confirmed. This address will now receive security notifications and invitations.':
     '確認しました。このアドレスにセキュリティ通知と招待が届きます。',
   'Confirming…': '確認しています…',
@@ -123,6 +125,7 @@ export default {
   'My Library': 'マイライブラリ',
   'My library': 'マイライブラリ',
   Name: '名前',
+  'Name saved.': '名前を保存しました。',
   'Never used': '未使用',
   'New address': '新しいアドレス',
   'New group': '新しいグループ',
@@ -143,6 +146,7 @@ export default {
   Optional: '任意',
   Owner: 'オーナー',
   Password: 'パスワード',
+  'Password changed. Every other browser was signed out.': 'パスワードを変更しました。他のすべてのブラウザーはサインアウトされました。',
   Private: '非公開',
   Profile: 'プロフィール',
   Public: '公開',
@@ -178,6 +182,7 @@ export default {
   'Sign in to answer it.': 'サインインすると返答できます。',
   'Sign out': 'サインアウト',
   'Sign out everywhere else': '他のすべてからサインアウト',
+  'Sign-in and security': 'サインインとセキュリティ',
   'Signed in as {username}.': '{username} としてサインインしています。',
   'Signed out everywhere else.': '他のすべてからサインアウトしました。',
   'Signed-in browsers': 'サインイン中のブラウザー',

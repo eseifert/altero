@@ -24,7 +24,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/settings',
+    // The section is in the path rather than in component state, so that a
+    // link can point at one -- "your keys are in settings" is a sentence that
+    // wants a URL -- and so the browser's back button walks the sections the
+    // way it walks everything else. Optional: `{ name: 'settings' }` from the
+    // header still resolves, and the view falls back to the first section.
+    path: '/settings/:section?',
     name: 'settings',
     component: () => import('@/views/SettingsView.vue'),
     meta: { requiresAuth: true },
