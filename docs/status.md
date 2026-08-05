@@ -7,7 +7,8 @@ things the desktop client asks for that no data server documents.
 
 - Authentication by `Zotero-API-Key` header, bearer token or `key` parameter,
   with per-library and per-group permissions
-- `/keys/<key>` and `/users/<userID>/groups`
+- `/keys/<key>` and `/users/<userID>/groups`, the latter also as
+  `format=versions`, which is how the client asks which groups it has
 - Group administration: creating a group, changing its metadata, deleting it,
   and adding, promoting, demoting and removing members — with an API key and a
   JSON body where upstream wants a superuser and XML

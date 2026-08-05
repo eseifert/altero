@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.models import Library, LibraryType
 from altero.services.auth import get_library
 from altero.settings import Settings
-from tests.factories import make_api_key, make_item, make_user
+from tests.factories import make_api_key, make_group, make_item, make_user
 
 KEY = "P9NiFoyLeZu2bZNvvuQPDWsd"
 AUTH = {"Zotero-API-Key": KEY}
@@ -34,7 +34,9 @@ def settings(tmp_path: Path) -> Settings:
 @pytest.fixture
 async def library(session: AsyncSession) -> Library:
     await make_user(session, user_id=1)
-    await make_api_key(session, key=KEY, user_id=1)
+    # The client's own key reaches groups, which is what makes the group sync
+    # in `TestGroupVersions` the one the client actually performs.
+    await make_api_key(session, key=KEY, user_id=1, all_groups_read=True, all_groups_write=True)
     library = await get_library(session, LibraryType.USER, 1)
     library.version = 10
     await session.commit()
@@ -244,6 +246,58 @@ class TestZippedUploads:
         response = await client.post(authorized["url"], content=self.ZIPPED)
 
         assert response.status_code == 400
+
+
+class TestGroupVersions:
+    """The client asks for its groups by version, every sync.
+
+    `GET /users/<id>/groups?format=versions` is the first thing
+    `Sync.Runner.checkLibraries` does with groups, and it iterates the answer
+    with `for (groupID in ...)`. Answering with the JSON array the default
+    format returns hands it array indices instead of group ids: with one group
+    it read `0`, called `getGroup(0)`, and the sync died on "Group ID not
+    provided" before any library was synced. An empty library hid it -- an
+    empty array iterates to nothing.
+    """
+
+    @pytest.fixture
+    async def group(self, session: AsyncSession, library: Library) -> Library:
+        group = await make_group(session, group_id=42, owner_id=1, name="Kollaps")
+        group.version = 7
+        await session.commit()
+        return group
+
+    async def test_the_versions_format_is_keyed_by_group_id(
+        self, client: httpx.AsyncClient, group: Library
+    ) -> None:
+        response = await client.get("/users/1/groups?format=versions", headers=AUTH)
+
+        assert response.status_code == 200
+        assert response.json() == {"42": 7}
+
+    async def test_a_user_with_no_groups_answers_an_empty_object(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        response = await client.get("/users/1/groups?format=versions", headers=AUTH)
+
+        assert response.json() == {}
+
+    async def test_the_version_is_the_one_the_group_itself_reports(
+        self, client: httpx.AsyncClient, group: Library
+    ) -> None:
+        # The client compares the two to decide whether to re-download the
+        # group, so a mismatch is either a download every sync or none ever.
+        versions = (await client.get("/users/1/groups?format=versions", headers=AUTH)).json()
+        rendered = (await client.get("/groups/42", headers=AUTH)).json()
+
+        assert versions["42"] == rendered["version"]
+
+    async def test_the_default_format_is_still_the_group_listing(
+        self, client: httpx.AsyncClient, group: Library
+    ) -> None:
+        response = await client.get("/users/1/groups", headers=AUTH)
+
+        assert [rendered["id"] for rendered in response.json()] == [42]
 
 
 class TestErrorBodies:

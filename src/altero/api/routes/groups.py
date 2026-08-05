@@ -32,6 +32,7 @@ from altero.api.deps import ApiKeyDep, BaseUrlDep, LibraryDep, SessionDep
 from altero.api.responses import library_headers, object_response
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.models import ApiKey, Group, GroupMember, Library, LibraryType, User
+from altero.query import Format
 from altero.services import auth, groups, writes
 
 router = APIRouter(tags=["groups"])
@@ -114,13 +115,21 @@ async def get_group(
 @router.get("/users/{user_id}/groups")
 async def list_user_groups(
     user_id: int,
+    request: Request,
     session: SessionDep,
     api_key: ApiKeyDep,
     base_url: BaseUrlDep,
-) -> list[dict[str, Any]]:
+) -> Response:
     """Return the groups a user belongs to.
 
     Only the user themselves may list their groups.
+
+    ``format=versions`` answers with group id to version rather than the
+    listing, because that is the first thing the client asks for every sync and
+    it iterates the answer by key. Handed the JSON array instead, it reads
+    array indices as group ids and the sync stops at group ``0``. The version is
+    the library's, which is the one ``GET /groups/<id>`` reports, so the client
+    compares like with like when deciding whether to fetch the group again.
     """
     if api_key is None or api_key.user_id != user_id:
         raise ForbiddenError("Forbidden")
@@ -128,7 +137,12 @@ async def list_user_groups(
     await auth.get_user(session, user_id)
     memberships = await groups.list_groups_for_user(session, user_id)
 
-    return [serializers.group(library, group, base_url) for library, group in memberships]
+    if request.query_params.get("format") == Format.VERSIONS:
+        return JSONResponse({str(library.owner_id): library.version for library, _ in memberships})
+
+    return JSONResponse(
+        [serializers.group(library, group, base_url) for library, group in memberships]
+    )
 
 
 @router.post("/groups", status_code=201)
