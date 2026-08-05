@@ -60,6 +60,13 @@ things the desktop client asks for that no data server documents.
   the library has been quiet — in the interface, and by mail where there is an
   address. Off for everybody until they turn it on. Upstream has never had
   this; the request goes back to 2019 in the dataserver's own tracker
+- The activity log behind it, readable in the browser: who changed what in a
+  group and when, for every member rather than only administrators. This is
+  `dataserver#89`, open since 2019
+- `meta.createdByUser` and `meta.lastModifiedByUser` on an item in a group,
+  which upstream has served for years, with `sort=addedBy` finally doing
+  something and `sort=editedBy` added — the latter is `dataserver#153`, which
+  upstream has open and has not built
 - Provisioning from the command line, CORS, and API version negotiation
 
 ## Not implemented

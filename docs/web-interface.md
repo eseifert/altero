@@ -231,6 +231,29 @@ the same as being the person it was offered to. Signing in or registering from
 that screen comes back to it, so the thing they came to answer is the next
 thing they see.
 
+### What has happened in a group
+
+The group's panel opens with its recent activity: who changed what, and when.
+Every member sees it. It was asked for as a way of keeping up with a shared
+library, and restricting it to the people who run the group would make it a
+supervision tool instead.
+
+An entry is one write request — the same unit as a library version — so it says
+"4 items added or changed" rather than naming them. The wording matches the
+digest that arrives by mail, so one change reads the same way whichever way
+somebody hears about it. A change nobody can be attributed to reads
+"Somebody": a write can reach a group library with a key that names no person,
+and that is still something that happened.
+
+This is the read side of the record the notification digest already keeps, so
+it costs no extra writing. Upstream has wanted the same thing since
+[dataserver#89](https://github.com/zotero/dataserver/issues/89) in 2019 and
+offers a group RSS feed instead, which shows neither what was modified nor what
+was deleted.
+
+Alongside it, an item in a group library carries who added it and who last
+changed it — that part *is* upstream's, and altero had not served it until now.
+
 ### Hearing about a group
 
 The same panel carries four switches for what the group should tell you about:

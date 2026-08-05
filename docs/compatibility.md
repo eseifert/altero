@@ -133,6 +133,61 @@ The matched item must be untrashed, and so must the parent it resolves to:
 upstream joins `deletedItems` a second time on the top-level item for exactly
 this, so a hit inside a trashed item's PDF does not resurrect it.
 
+## Who added an item, and who last changed it
+
+`Zotero_Item::toResponseJSON` puts two blocks in an item's `meta` for a group
+library, and `Zotero_Items::search` sorts on them. Both are copied, including
+the parts that look like oversights.
+
+**Group libraries only.** `createdByUser` and `lastModifiedByUser` are emitted
+for a group and never for a personal library, where there is one author and
+saying so on every item is noise. Upstream keeps the columns in a `groupItems`
+table that only group libraries have rows in; altero keeps them on `items` and
+leaves them null outside a group, which is the same thing said differently.
+
+**`lastModifiedByUser` is dropped when it equals `createdByUser`.** The test is
+`$lastModifiedByUserID != $createdByUserID`, and it means the ordinary case —
+somebody adding an item and then fixing its title — carries one name rather
+than the same name twice. Upstream writes both columns on create and collapses
+them on the way out; altero does the same, so the stored row can still answer
+"who last touched this" for sorting while the response stays what a client
+expects.
+
+**The name is `Zotero_Users::getName`:** the real name, or the username when
+there is none.
+
+**No `alternate` link.** Upstream's `Zotero_Users::toJSON` attaches one
+pointing at the person's profile on zotero.org. altero omits it for the reason
+it omits every `alternate` link — see [Deliberate differences](#deliberate-differences).
+
+**An account that has gone breaks nothing.** Upstream swallows the lookup
+failure and emits no block; altero resolves a page's accounts in one query and
+renders nothing for an id it cannot find, which arrives at the same place.
+
+### Sorting by a person
+
+**`sort=addedBy` orders by the author's name**, not the username and not the
+id, because that is what upstream's temp table is filled from.
+
+**And it falls back to `dateAdded` where there is nothing to sort by.** The
+condition is `if ($isGroup && $createdByUserIDs)`; without authorship the sort
+becomes `dateAdded` rather than erroring. That covers a personal library, and
+every group library that upgraded into this, whose items were all written
+before anybody was recorded. altero asks the same question with an `EXISTS`.
+
+Worth knowing, because it surprises: the *direction* still comes from the name
+of the sort. Anything beginning with `date` counts down and everything else
+counts up, so `sort=addedBy` ascends even while it is ordering by `dateAdded`
+underneath, and a bare `sort=dateAdded` descends. Both are `getDefaultDirection`
+behaving as documented; they simply do not agree.
+
+**`sort=editedBy` is altero's, not upstream's.** `dataserver#153` has asked for
+it since 2023 and it has not been built. The column is recorded anyway for
+`meta.lastModifiedByUser`, so the sort costs nothing beyond accepting the name.
+A client that sends it here and to api.zotero.org will get an answer here and
+`Invalid 'sort' value` there; nothing altero can do about that, and no client
+sends it today because upstream never offered it.
+
 ## Pagination of the sync formats
 
 `Zotero_API::getLimitMax` returns `0` for `format=keys` and `format=versions`,

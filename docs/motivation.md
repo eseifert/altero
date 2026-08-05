@@ -148,9 +148,9 @@ search was on it too, and is now answered by the database the server already
 has, rather than by the search cluster the operational shape here rules out.
 Event notifications have followed: a member of a group library can ask to hear
 when it changes, and does, once the library has been quiet long enough that one
-sync is one message. Upstream has wanted an activity log since 2019 and has
-not built one; this is the delivery half of it, and the record it reads from
-is kept rather than discarded, which is what the other half would be built on.
+sync is one message. The activity log upstream has wanted since 2019 and never
+built is served alongside it, out of the same record — who changed what in a
+group and when, readable by every member.
 All of this is secondary: compatibility and dependable sync come first,
 and a feature that breaks a client is a regression however useful it is on its
 own.

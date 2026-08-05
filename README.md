@@ -94,11 +94,15 @@ Elasticsearch; altero does it in the database it already has, which keeps the
 deployment one process and one database — see
 [docs/compatibility.md](docs/compatibility.md) for what that costs.
 
-Two things exist here that zotero.org has never offered. A member of a group
-library can ask to be told when it changes, and hears about it once the library
-has been quiet — a digest rather than one message per batch of a sync, off for
-everybody until they turn it on. Alongside it, an item in a group says who
-added it and who last changed it.
+Two things exist here that zotero.org has never offered, both asked for on its
+forums for years. A member of a group library can ask to be told when it
+changes, and hears about it once the library has been quiet — a digest rather
+than one message per batch of a sync, off for everybody until they turn it on.
+And a group keeps an activity log: who changed what, and when, readable by
+every member rather than only its administrators.
+
+An item in a group also says who added it and who last changed it, which
+upstream has served for years and altero had not.
 
 Not yet: the other export formats.
 [docs/status.md](docs/status.md) is the endpoint-level list, and says what the
@@ -108,9 +112,9 @@ desktop client asks for that no data server documents.
 
 A Vue 3 application at `/app/`, in six languages, covering registration,
 sign-in with an optional authenticator code, account settings, API keys,
-notifications, group invitations, choosing what a group tells you about, and
-browsing a library — collections, tags, search, an item's details, its
-attachments and a citation. It reads; it does not write.
+notifications, group invitations, a group's activity log and what it tells you
+about, and browsing a library — collections, tags, search, an item's details,
+its attachments and a citation. It reads; it does not write.
 
 The v3 API stays API-key only and refuses a session cookie, so none of it
 reaches the sync protocol — see
