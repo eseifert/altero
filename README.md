@@ -127,6 +127,8 @@ recreated — the case where clients lock themselves out.
 - [deployment.md](docs/deployment.md) — running, configuring and upgrading it
 - [administration.md](docs/administration.md) — accounts, keys, groups,
   libraries
+- [email.md](docs/email.md) — what altero sends, and setting up a relay to send
+  it
 - [web-interface.md](docs/web-interface.md) — the browser application
 - [compatibility.md](docs/compatibility.md) — every deliberate divergence from,
   and copied quirk of, the reference implementation

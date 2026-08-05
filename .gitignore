@@ -4,6 +4,9 @@ __pycache__/
 # Project
 config.py
 CLAUDE.md
+# Where the container deployment keeps its passwords: the database's, and the
+# relay's inside ALTERO_SMTP_URL.
+.env
 *.sqlite
 *.sqlite-*
 /storage/

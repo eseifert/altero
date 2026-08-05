@@ -43,6 +43,13 @@ front of it rather than exposing it directly. `ALTERO_PUBLISH_PORT` moves it,
 and `POSTGRES_PASSWORD` should be set to something other than its default
 before anything real goes in.
 
+Settings for the container go in **`docker/.env`**, beside the compose file
+rather than at the repository root — that is where Compose looks, whichever
+directory the command was run from, and `.env` is ignored by git so a password
+in it stays local. `docker compose -f docker/compose.yaml config` prints what
+the settled values actually are, which is the quick way to see that one
+arrived. Outgoing mail is configured the same way; see [email.md](email.md).
+
 ### Upgrading PostgreSQL itself
 
 Migrations on start cover altero's own schema, not PostgreSQL's. The database
@@ -81,6 +88,14 @@ ALTERO_PORT=9000 ALTERO_DEBUG=true uv run altero
 ```
 
 Set `ALTERO_CONFIG` to load a configuration module from another path.
+
+## Outgoing mail
+
+Confirmations, invitations and security notices need a relay:
+`ALTERO_SMTP_URL`, `ALTERO_MAIL_FROM` and `ALTERO_PUBLIC_URL`. Without one they
+are written to the log instead, which is deliberate — it is how the owner of a
+fresh container reads the confirmation link and finishes registering. See
+[email.md](email.md).
 
 ## Behind a reverse proxy
 

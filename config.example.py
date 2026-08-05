@@ -26,6 +26,21 @@ STORAGE_PATH = "./storage"
 RATE_LIMIT = 0
 RATE_LIMIT_WINDOW = 60
 
+# Relay for outgoing mail — confirmations, group invitations and security
+# notices — as smtp://[user:password@]host[:port] or smtps://... Credentials
+# are percent-encoded, so an address as the username is `ada%40example.org`.
+# Empty writes the messages to the log instead, which is how a fresh instance
+# with no relay stays self-serviceable. See docs/email.md.
+SMTP_URL = ""
+
+# From address on outgoing mail. Set it to something the relay will send as.
+MAIL_FROM = "altero@localhost"
+
+# Absolute base URL this instance is reached at, used to build the links in
+# email. Empty falls back to the address the request arrived on, which is right
+# for a single host and wrong behind a proxy that rewrites it.
+PUBLIC_URL = ""
+
 # Whether anybody may register an account from the browser. The first account
 # is always allowed, so a fresh instance is reachable without shell access, and
 # so is anyone holding an unanswered invitation to a group. Everything else is

@@ -50,6 +50,19 @@ services:
         condition: service_healthy
     environment:
       ALTERO_DATABASE_URL: postgresql+asyncpg://altero:${POSTGRES_PASSWORD:-altero}@db:5432/altero
+      # Outgoing mail. Named here with empty defaults so that configuring it is
+      # a docker/.env nobody has to merge, rather than an edit to this file
+      # that conflicts on the next pull. Empty is the working default: the
+      # messages go to the log, which is where the first account reads its own
+      # confirmation link. See docs/email.md.
+      ALTERO_SMTP_URL: ${ALTERO_SMTP_URL:-}
+      ALTERO_MAIL_FROM: ${ALTERO_MAIL_FROM:-altero@localhost}
+      ALTERO_PUBLIC_URL: ${ALTERO_PUBLIC_URL:-}
+    # So that a relay running on the host is reachable as
+    # host.docker.internal: inside the container `localhost` is the container,
+    # and a submission port on the host is not on it.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - storage:/data
     # Bound to the loopback interface: put a TLS terminator in front rather
