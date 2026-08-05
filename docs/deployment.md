@@ -34,9 +34,27 @@ That is PostgreSQL, altero and a volume for attachments. Everything the
 container needs lives in `docker/`; run the commands from the repository root,
 or `export COMPOSE_FILE=docker/compose.yaml` once and drop the `-f`.
 
-Migrations run on start, so an upgrade is `docker compose pull && docker
-compose up -d` with nothing to remember; a failed migration exits the container
-rather than serving against a schema it does not understand.
+The image is built from the checkout — nothing publishes one — so an upgrade is
+a `git pull` and a rebuild:
+
+```sh
+git pull
+docker compose -f docker/compose.yaml up -d --build
+```
+
+`--build` is the part that matters. Without it `up -d` finds the image it
+already built and starts that, so the new code never runs; and `docker compose
+pull` does not stand in for it, because there is no altero image to fetch. It
+says so — `altero Skipped - No image to be pulled` — and then exits 0, having
+updated PostgreSQL's image and nothing else. Use it when that is what you mean:
+
+```sh
+docker compose -f docker/compose.yaml pull db
+```
+
+Migrations run on start, so there is nothing else to remember; a failed
+migration exits the container rather than serving against a schema it does not
+understand.
 
 The API is published on the loopback interface only — put a TLS terminator in
 front of it rather than exposing it directly. `ALTERO_PUBLISH_PORT` moves it,

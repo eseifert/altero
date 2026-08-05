@@ -1,7 +1,7 @@
 #!/bin/sh
 # Bring the database up to date before serving. Running this on every start,
 # rather than as a step someone has to remember, is what makes an upgrade
-# `docker compose pull && docker compose up -d` and nothing else.
+# `git pull && docker compose up -d --build` and nothing else.
 #
 # Copied into the image as altero-entrypoint.sh; see docker/Dockerfile.
 #

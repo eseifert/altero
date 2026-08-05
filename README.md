@@ -71,8 +71,9 @@ docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 ```
 
-Migrations run on start, so an upgrade is `docker compose pull && docker
-compose up -d`. [docs/deployment.md](docs/deployment.md) covers configuration,
+The image is built from the checkout, and migrations run on start, so an
+upgrade is `git pull && docker compose up -d --build`.
+[docs/deployment.md](docs/deployment.md) covers configuration,
 health checks, rate limiting, reverse proxies and upgrading PostgreSQL itself.
 
 ## What works
