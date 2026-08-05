@@ -67,6 +67,10 @@ EXPECTED = [
     ("/web/libraries/{library_id}/collections", "GET"),
     ("/web/libraries/{library_id}/tags", "GET"),
     ("/web/libraries/{library_id}/items/{item_key}/citation", "GET"),
+    # A whole library out and a whole library back: the only endpoint under
+    # /web that writes to one. See altero/api/routes/webtransfer.py.
+    ("/web/libraries/{library_id}/archive", "GET"),
+    ("/web/libraries/{library_id}/archive", "POST"),
     ("/web/schema", "GET"),
     ("/keys/{key}", "GET"),
     ("/keys/current", "GET"),

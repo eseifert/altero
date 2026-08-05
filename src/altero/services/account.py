@@ -43,8 +43,14 @@ class TotpEnrolment:
     uri: str
 
 
-def _require_password(user: User, password: str) -> None:
-    """Raise unless ``password`` is this user's current one."""
+def require_password(user: User, password: str) -> None:
+    """Raise unless ``password`` is this user's current one.
+
+    Public because it is not only credentials that want it: restoring a library
+    over an existing one is as irreversible as changing a password, and the
+    transfer endpoints ask for the same proof. One implementation, so "the
+    current password" means the same thing wherever it is demanded.
+    """
     if not passwords.verify_password(user.password_hash, password):
         raise ForbiddenError("That password is not correct")
 
@@ -92,7 +98,7 @@ async def change_password(
     notify: Notifier | None = None,
 ) -> None:
     """Replace the password, keeping only the session that did it."""
-    _require_password(user, current_password)
+    require_password(user, current_password)
     if new_password == current_password:
         raise InvalidInputError("The new password is the same as the old one")
     await webauth.set_password(session, user, new_password, keep=keep, notify=notify)
@@ -112,7 +118,7 @@ async def request_email_change(
     attacker -- from becoming the account's contact address and taking the
     security notices with it.
     """
-    _require_password(user, current_password)
+    require_password(user, current_password)
     address = emailverify.normalise(new_email)
 
     if address == (user.email or ""):
@@ -188,7 +194,7 @@ async def disable_totp(
     notify: Notifier | None = None,
 ) -> None:
     """Remove the second factor. Needs the password, since it weakens the account."""
-    _require_password(user, current_password)
+    require_password(user, current_password)
 
     credential = await session.get(TotpCredential, user.id)
     if credential is None:
@@ -292,7 +298,7 @@ async def create_key(
     one here is to sync a Zotero client, and a key that cannot write or cannot
     see groups presents to that client as a server which has lost things.
     """
-    _require_password(user, current_password)
+    require_password(user, current_password)
 
     label = name.strip()
     if not label:

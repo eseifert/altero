@@ -60,6 +60,16 @@ archive cannot leak a credential by being copied around. Restoring into a
 library that already holds objects is refused rather than merged; `--replace`
 discards what is there.
 
+The same two operations are in the browser, under **Settings → Import and
+export**, which is what makes a backup something the owner of a library can
+take without shell access — see
+[web-interface.md](web-interface.md#import-and-export). One difference matters:
+the command line restores into the library the manifest names, while the
+browser restores into the library you picked there, whatever the file says. A
+downloaded archive is an ordinary file that anybody could hand you, and taking
+its word for the target would mean an upload could choose somebody else's
+library.
+
 ## After recreating the database
 
 A library recreated from an empty database counts from zero again, while
