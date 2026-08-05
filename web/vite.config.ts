@@ -42,7 +42,7 @@ export default defineConfig({
   build: {
     outDir: fileURLToPath(new URL('../src/altero/web/static', import.meta.url)),
     emptyOutDir: true,
-    // The favicons stay files rather than being inlined at their 600 bytes: a
+    // The favicons stay files rather than being inlined at their 750 bytes: a
     // tab icon is a URL the browser fetches, and index.html has to be able to
     // name one. Everything else, the header logos included, keeps the default
     // threshold and travels in the bundle.

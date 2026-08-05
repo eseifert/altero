@@ -193,10 +193,21 @@ async function signOut(): Promise<void> {
   outline: none;
 }
 
+/*
+ * The mark rides above the line the rest of the bar is centred on.
+ *
+ * Only the lower half of the artwork is the name; the upper half is the A's
+ * ascender, which reads as air rather than as ink. Centring the file would put
+ * the word "altero" a quarter of its height below every control beside it, so
+ * the whole link is lifted by that quarter -- 0.5rem at the 2rem the mark is
+ * drawn -- which lands the word's own centre on the bar's. The lift is on the
+ * link rather than on the image so that what is clickable is what is visible.
+ */
 .shell__brand {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
+  transform: translateY(-0.5rem);
 }
 
 /*
@@ -208,13 +219,14 @@ async function signOut(): Promise<void> {
  * desktop hides the dark mark rather than merely showing the light one over
  * it.
  */
-/* A little above the icons across the bar, which are drawn at 20px: the mark
-   is the one thing in the header that is not a control, and it carries the
-   name. */
+/* Sized so that the name inside it is a little above the icons across the bar,
+   which are drawn at 20px: the mark is the one thing in the header that is not
+   a control, and it carries the name. Half of the 2rem is the ascender, which
+   leaves the word itself at 1rem. */
 .shell__logo {
   display: block;
   width: auto;
-  height: 1.5rem;
+  height: 2rem;
 }
 
 .shell__logo--dark {

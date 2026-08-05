@@ -14,8 +14,8 @@ export type ResolvedTheme = 'light' | 'dark'
  * The tab icon, per theme.
  *
  * The initial alone rather than the wordmark the header carries: a tab is
- * sixteen pixels square, and a mark three and a half times wider than it is
- * tall arrives there as a smear.
+ * sixteen pixels square, and a mark two and a half times wider than it is tall
+ * arrives there as a smear.
  */
 export const ICONS: Record<ResolvedTheme, string> = { light: iconLight, dark: iconDark }
 
