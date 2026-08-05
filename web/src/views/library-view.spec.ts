@@ -16,7 +16,11 @@ vi.mock('@/api/client', async (importOriginal) => ({
   request: requestMock,
 }))
 
-const LIBRARIES = [{ id: 1, type: 'user', ownerId: 1, name: 'Ada', version: 4, prefix: '/users/1' }]
+const PERSONAL = { id: 1, type: 'user', ownerId: 1, name: 'Ada', version: 4, prefix: '/users/1' }
+const GROUP = { id: 7, type: 'group', ownerId: 7, name: 'Whale Watchers', version: 2, prefix: '/groups/7' }
+
+/** What `/web/libraries` answers. A test that needs a group to switch to widens it. */
+let libraries: unknown[] = [PERSONAL]
 
 const ITEM = {
   key: 'AAAA2345',
@@ -37,9 +41,10 @@ beforeEach(() => {
   // that changes either would otherwise decide what the next one starts from.
   resetLabels()
   i18n.global.locale.value = 'en'
+  libraries = [PERSONAL]
   requestMock.mockReset()
   requestMock.mockImplementation((path: string) => {
-    if (path === '/web/libraries') return Promise.resolve(LIBRARIES)
+    if (path === '/web/libraries') return Promise.resolve(libraries)
     if (path.startsWith('/web/schema')) {
       return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
     }
@@ -141,6 +146,70 @@ describe('the column headings', () => {
     await settle(wrapper)
 
     expect(headings(wrapper)[0]).toContain('Titel')
+  })
+})
+
+/** Every row of the library nav, in the order the column shows them. */
+function sidebar(wrapper: ReturnType<typeof mount>) {
+  return wrapper.findAll('.library__library, .library__scope').map((row) => row.text())
+}
+
+/**
+ * The library the views are drawn inside, by name, or null if they stand on
+ * their own. Order alone cannot tell the two arrangements apart -- a flat list
+ * ending in the views looks the same as the views nested under the last
+ * library -- so this asks the DOM which row they hang from.
+ */
+function viewsBelongTo(wrapper: ReturnType<typeof mount>): string | null {
+  const scopes = wrapper.find('.library__scopes--nested')
+  if (!scopes.exists()) return null
+  const above = scopes.element.previousElementSibling
+  if (!above?.classList.contains('library__library--current')) return null
+  return (above.textContent ?? '').replace(/\s+/g, ' ').trim()
+}
+
+describe('the library nav', () => {
+  it('names no library when there is only one, and leaves the views flush', async () => {
+    /* The row would say "My Library" directly above "My library", and there is
+       no hierarchy to draw when nothing else can be picked. */
+    const wrapper = await open()
+
+    expect(sidebar(wrapper)).toEqual(['My library', 'Everything', 'Trash'])
+    expect(viewsBelongTo(wrapper)).toBeNull()
+  })
+
+  it('draws the views inside the library they act on', async () => {
+    libraries = [PERSONAL, GROUP]
+
+    const wrapper = await open()
+
+    expect(sidebar(wrapper)).toEqual([
+      'Ada',
+      'My library',
+      'Everything',
+      'Trash',
+      'Whale Watchers',
+    ])
+    expect(viewsBelongTo(wrapper)).toBe('Ada')
+  })
+
+  it('takes them along when another library is opened', async () => {
+    /* This is what the nesting is for: "Trash" under a group is that group's
+       trash, and one Trash above a list of libraries said otherwise. */
+    libraries = [PERSONAL, GROUP]
+    const wrapper = await open()
+
+    await wrapper.findAll('.library__library')[1].trigger('click')
+    await settle(wrapper)
+
+    expect(sidebar(wrapper)).toEqual([
+      'Ada',
+      'Whale Watchers',
+      'My library',
+      'Everything',
+      'Trash',
+    ])
+    expect(viewsBelongTo(wrapper)).toBe('Whale Watchers')
   })
 })
 

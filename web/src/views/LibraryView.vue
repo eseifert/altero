@@ -26,6 +26,9 @@ const columns = computed(() =>
   COLUMN_FIELDS.map((field) => ({ field, label: fieldLabel(field) })),
 )
 
+/* One library is the common case and needs no list to choose from. */
+const showLibraries = computed(() => library.libraries.length > 1)
+
 const searchText = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -106,50 +109,67 @@ function sortLabel(column: { field: string; label: string }): string {
 <template>
   <div class="library" :class="{ 'library--detail': showDetail }">
     <aside class="library__sidebar">
-      <nav v-if="library.libraries.length > 1" class="library__libraries" :aria-label="t('Libraries')">
-        <button
-          v-for="entry in library.libraries"
-          :key="entry.id"
-          type="button"
-          :class="['library__library', { 'library__library--current': entry.id === library.libraryId }]"
-          :aria-current="entry.id === library.libraryId ? 'true' : undefined"
-          @click="library.openLibrary(entry.id)"
-        >
-          <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
-          <span class="library__label">
-            {{ entry.name || (entry.type === 'user' ? t('My Library') : t('Group {id}', { id: entry.ownerId })) }}
-          </span>
-        </button>
-      </nav>
+      <!--
+        The views belong to a library, so they are drawn inside the one they
+        act on rather than in a list of their own above every library. Moving
+        to a group takes them with it, which is the point: "Trash" under a
+        group is that group's trash, and a column that showed one Trash over a
+        list of libraries invited the reading that there is only the one.
 
-      <nav class="library__scopes" :aria-label="t('Views')">
-        <button
-          type="button"
-          :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'top' }]"
-          :aria-current="!library.collectionKey && library.scope === 'top' ? 'true' : undefined"
-          @click="library.selectScope('top')"
-        >
-          <SidebarIcon name="library" />
-          <span class="library__label">{{ t('My library') }}</span>
-        </button>
-        <button
-          type="button"
-          :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'all' }]"
-          :aria-current="!library.collectionKey && library.scope === 'all' ? 'true' : undefined"
-          @click="library.selectScope('all')"
-        >
-          <SidebarIcon name="everything" />
-          <span class="library__label">{{ t('Everything') }}</span>
-        </button>
-        <button
-          type="button"
-          :class="['library__scope', { 'library__scope--current': library.scope === 'trash' }]"
-          :aria-current="library.scope === 'trash' ? 'true' : undefined"
-          @click="library.selectScope('trash')"
-        >
-          <SidebarIcon name="trash" />
-          <span class="library__label">{{ t('Trash') }}</span>
-        </button>
+        With a single library there is no hierarchy to show, and the row would
+        name it twice over -- "My Library" above "My library" -- so the views
+        stand alone and unindented, exactly as they did before.
+      -->
+      <nav class="library__libraries" :aria-label="showLibraries ? t('Libraries') : t('Views')">
+        <template v-for="entry in library.libraries" :key="entry.id">
+          <button
+            v-if="showLibraries"
+            type="button"
+            :class="['library__library', { 'library__library--current': entry.id === library.libraryId }]"
+            :aria-current="entry.id === library.libraryId ? 'true' : undefined"
+            @click="library.openLibrary(entry.id)"
+          >
+            <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
+            <span class="library__label">
+              {{ entry.name || (entry.type === 'user' ? t('My Library') : t('Group {id}', { id: entry.ownerId })) }}
+            </span>
+          </button>
+
+          <div
+            v-if="entry.id === library.libraryId"
+            :class="['library__scopes', { 'library__scopes--nested': showLibraries }]"
+            role="group"
+            :aria-label="showLibraries ? t('Views') : undefined"
+          >
+            <button
+              type="button"
+              :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'top' }]"
+              :aria-current="!library.collectionKey && library.scope === 'top' ? 'true' : undefined"
+              @click="library.selectScope('top')"
+            >
+              <SidebarIcon name="library" />
+              <span class="library__label">{{ t('My library') }}</span>
+            </button>
+            <button
+              type="button"
+              :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'all' }]"
+              :aria-current="!library.collectionKey && library.scope === 'all' ? 'true' : undefined"
+              @click="library.selectScope('all')"
+            >
+              <SidebarIcon name="everything" />
+              <span class="library__label">{{ t('Everything') }}</span>
+            </button>
+            <button
+              type="button"
+              :class="['library__scope', { 'library__scope--current': library.scope === 'trash' }]"
+              :aria-current="library.scope === 'trash' ? 'true' : undefined"
+              @click="library.selectScope('trash')"
+            >
+              <SidebarIcon name="trash" />
+              <span class="library__label">{{ t('Trash') }}</span>
+            </button>
+          </div>
+        </template>
       </nav>
 
       <section v-if="library.collections.length" class="library__panel">
@@ -325,6 +345,16 @@ function sortLabel(column: { field: string; label: string }): string {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+}
+
+/* Margin and padding come to 0.9rem, the step the collection tree takes per
+   level, so the two indents in this column agree about what one level in is
+   worth. The rule down the left is the thread back up to the library these
+   views act on, and it is the same hairline the panel headings use. */
+.library__scopes--nested {
+  margin-left: 1.05rem;
+  padding-left: 0.45rem;
+  border-left: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .library__library,
