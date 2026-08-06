@@ -37,6 +37,11 @@ STARTUP_TIMEOUT = 15.0
 
 SNAPSHOT = b"<html><body>The Brutalist Report</body></html>"
 
+#: Modification time the uploading client declares for the snapshot, in
+#: milliseconds. The download has to hand this back unchanged: the client
+#: compares it with the local file to decide whether to fetch the bytes at all.
+MTIME = 1785701798544
+
 
 @pytest.fixture
 def settings(tmp_path: Path) -> Settings:
@@ -190,7 +195,7 @@ class TestASyncCycleOverASocket:
                 "md5": digest,
                 "filename": "brutalist.report.html",
                 "filesize": len(SNAPSHOT),
-                "mtime": 1785701798544,
+                "mtime": MTIME,
                 "contentType": "text/html",
                 "charset": "utf-8",
             },
@@ -252,7 +257,16 @@ class TestASyncCycleOverASocket:
         parent = (await downloader.get("/users/1/items/Z2JFGHNV", headers=AUTH)).json()
         assert parent["meta"]["numChildren"] == 1
 
-        downloaded = await downloader.get("/users/1/items/BG92XXQJ/file", headers=AUTH)
+        # The download is a redirect carrying the file's metadata, which is the
+        # only place the client reads it from. Serving the bytes with a 200
+        # instead left every attachment failing with "'data.mtime' not set".
+        redirect = await downloader.get("/users/1/items/BG92XXQJ/file", headers=AUTH)
+        assert redirect.status_code == 302
+        assert redirect.headers["Zotero-File-MD5"] == digest
+        assert redirect.headers["Zotero-File-Modification-Time"] == str(MTIME)
+        assert redirect.headers["Zotero-File-Compressed"] == "No"
+
+        downloaded = await downloader.get(redirect.headers["Location"], headers=AUTH)
         assert downloaded.status_code == 200
         assert downloaded.content == SNAPSHOT
 

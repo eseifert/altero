@@ -442,6 +442,50 @@ Uploaded bytes are checked against the declared MD5 and length before being
 stored, and `If-Match` or `If-None-Match` is required, so a client working from
 stale information cannot overwrite a newer file.
 
+### Downloading is a redirect, and has to be
+
+`GET <prefix>/items/<key>/file` answers **302**, carrying three headers:
+
+| Header | What it says |
+| --- | --- |
+| `Zotero-File-Modification-Time` | the `mtime` the uploading client declared |
+| `Zotero-File-MD5` | the digest the item claims, not the digest of the bytes |
+| `Zotero-File-Compressed` | `Yes` when the bytes are an archive around that file |
+
+Upstream sends these on the redirect to S3, and the client reads them there and
+nowhere else: `zfs.js` fills its `requestData` inside `asyncOnChannelRedirect`,
+so a 200 carrying the bytes — however it is labelled — reaches
+`Zotero.Sync.Storage.Local.processDownload` with nothing set and throws
+`'data.mtime' not set`. altero answered 200 and every attachment in the library
+failed to download, on every sync, with "A file sync error occurred".
+
+The client needs the redirect for a second reason. It compares
+`Zotero-File-Modification-Time` with the local file and, when they match,
+*aborts* the redirect rather than fetching bytes it already has. Metadata hung
+on the response that carries the file would arrive too late to save the
+transfer.
+
+Having no S3, altero redirects to itself: `<prefix>/items/<key>/file/content`,
+an ordinary API route behind the same key. Nothing is signed into the URL
+because nothing needs to be — the client resends its headers when it follows a
+redirect within one host.
+
+### Telling an archive from a file
+
+The client zips a snapshot before uploading it, and sends `zipMD5` for the
+archive while `md5` keeps describing the file inside. A snapshot migrated out of
+zotero.org arrives the same way. Told `Zotero-File-Compressed: No`, the
+client writes the archive itself to disk under the attachment's name, which
+loses the snapshot quietly.
+
+altero records no flag for this and does not need one. The store is addressed by
+the digest the item claims, so an archive is exactly a stored file whose own
+digest is not the name it is stored under. The ZIP magic number is checked
+first, so only archives are ever hashed, and the digest then separates a wrapper
+from an attachment that is itself a ZIP — a .docx or .epub hashes to what its
+item claims. Digests are cached per file identity, so a library syncing
+repeatedly hashes each archive once.
+
 ## Obtaining a key
 
 The desktop client asks for `POST /keys/sessions`, opens the `loginURL` it gets

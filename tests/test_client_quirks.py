@@ -300,6 +300,122 @@ class TestGroupVersions:
         assert [rendered["id"] for rendered in response.json()] == [42]
 
 
+class TestFileDownloads:
+    """The client reads a download's metadata off a redirect, and only there.
+
+    `zfs.js` populates `requestData` inside `asyncOnChannelRedirect`, from
+    `Zotero-File-Modification-Time`, `Zotero-File-MD5` and
+    `Zotero-File-Compressed` on the 302. Answering the download with the bytes
+    and a 200 means that handler never runs, so `processDownload` is reached
+    with nothing set and throws "'data.mtime' not set" -- which is a file sync
+    error for every attachment in the library, on every sync.
+    """
+
+    CONTENT = b"%PDF-1.4 a paper"
+    ZIPPED = b"PK\x03\x04 pretend this is a zip"
+
+    async def _upload(
+        self,
+        client: httpx.AsyncClient,
+        key: str,
+        body: bytes,
+        *,
+        filename: str = "paper.pdf",
+        zipped: bool = False,
+    ) -> str:
+        """Upload ``body`` for item ``key``, returning the recorded digest."""
+        digest = hashlib.md5(self.CONTENT if zipped else body, usedforsecurity=False).hexdigest()
+        form = {
+            "md5": digest,
+            "filename": filename,
+            "filesize": str(len(body)),
+            "mtime": "1700000000000",
+        }
+        if zipped:
+            form |= {
+                "zipMD5": hashlib.md5(body, usedforsecurity=False).hexdigest(),
+                "zipFilename": f"{key}.zip",
+            }
+
+        authorized = (
+            await client.post(
+                f"/users/1/items/{key}/file",
+                headers=AUTH | {"If-None-Match": "*"},
+                data=form,
+            )
+        ).json()
+        await client.post(authorized["url"], content=body)
+        await client.post(
+            f"/users/1/items/{key}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data={"upload": authorized["uploadKey"]},
+        )
+        return digest
+
+    async def test_the_download_redirects_and_carries_the_file_headers(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        digest = await self._upload(client, "AAAA2345", self.CONTENT)
+
+        response = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
+
+        assert response.status_code == 302
+        assert response.headers["Zotero-File-Modification-Time"] == "1700000000000"
+        assert response.headers["Zotero-File-MD5"] == digest
+        assert response.headers["Zotero-File-Compressed"] == "No"
+        assert response.headers["Location"]
+
+    async def test_the_redirect_leads_to_the_bytes(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        await self._upload(client, "AAAA2345", self.CONTENT)
+
+        response = await client.get(
+            "/users/1/items/AAAA2345/file", headers=AUTH, follow_redirects=True
+        )
+
+        assert response.status_code == 200
+        assert response.content == self.CONTENT
+
+    async def test_a_zipped_upload_is_announced_as_compressed(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # The stored bytes are the archive; the item's `md5` describes the file
+        # inside it. Saying `No` here would have the client write the ZIP itself
+        # to disk under the attachment's name.
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        await self._upload(client, "AAAA2345", self.ZIPPED, filename="page.html", zipped=True)
+
+        response = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
+
+        assert response.headers["Zotero-File-Compressed"] == "Yes"
+
+    async def test_an_attachment_that_is_itself_a_zip_is_not_compressed(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # A .docx or .epub is a ZIP too. What distinguishes the wrapper is that
+        # its bytes hash to something other than the digest the item claims.
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        await self._upload(client, "AAAA2345", self.ZIPPED, filename="thesis.docx")
+
+        response = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
+
+        assert response.headers["Zotero-File-Compressed"] == "No"
+
+    async def test_a_missing_file_is_still_a_404(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # The client treats 404 as "nothing to download" and marks the
+        # attachment in sync, so it must not become a redirect to nowhere.
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+
+        response = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
+
+        assert response.status_code == 404
+
+
 #: An attachment's fields in an order no client would send them in, which is
 #: what a field table with no order of its own can hand back.
 SCRAMBLED = {

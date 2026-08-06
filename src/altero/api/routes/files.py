@@ -107,9 +107,53 @@ async def receive_upload(upload_key: str, request: Request, session: SessionDep)
 async def download_file(
     item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
 ) -> Response:
-    """Return the file attached to an item."""
+    """Redirect to the file attached to an item, describing it in the headers.
+
+    Upstream answers with a 302 to S3 and hangs the file's metadata on that
+    redirect. The client reads it there and nowhere else: `zfs.js` fills its
+    `requestData` inside `asyncOnChannelRedirect`, so a 200 with the bytes --
+    however it is labelled -- reaches `processDownload` with nothing set and
+    fails with "'data.mtime' not set". altero has no S3, so the redirect points
+    back at itself; what matters is that it is a redirect.
+
+    The client also uses the three headers to decide it need not download at
+    all: a local file whose modification time matches aborts the redirect, which
+    is why they are on the 302 rather than on the response carrying the bytes.
+    """
     item = await items_service.get_item(session, library, item_key)
     path, fields = await storage.stored_file(item, _storage_root(request))
+
+    compressed = storage.is_compressed(path, fields["md5"])
+    return Response(
+        status_code=302,
+        headers={
+            "Location": f"{request.url.path}/content",
+            "Zotero-File-Modification-Time": fields.get("mtime") or "0",
+            "Zotero-File-MD5": fields["md5"],
+            "Zotero-File-Compressed": "Yes" if compressed else "No",
+        },
+    )
+
+
+@router.get("/users/{user_id}/items/{item_key}/file/content")
+@router.get("/groups/{group_id}/items/{item_key}/file/content")
+async def download_file_content(
+    item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
+) -> Response:
+    """Return the bytes of the file attached to an item.
+
+    Where the upstream redirect lands on a signed S3 URL, altero's lands here.
+    It is an ordinary API route, authorized by the same key as the redirect that
+    named it: the client resends its headers when it follows a redirect within
+    the same host, so nothing has to be signed into the URL.
+    """
+    item = await items_service.get_item(session, library, item_key)
+    path, fields = await storage.stored_file(item, _storage_root(request))
+
+    if storage.is_compressed(path, fields["md5"]):
+        # Describing the archive as the file it holds would be a lie in the one
+        # header a browser acts on.
+        return FileResponse(path, media_type="application/zip", filename=f"{item.key}.zip")
 
     return FileResponse(
         path,

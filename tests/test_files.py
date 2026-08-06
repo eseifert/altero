@@ -145,7 +145,9 @@ class TestAuthorization:
         )
 
         assert response.json() == {"exists": 1}
-        assert (await client.get("/users/1/items/BBBB2345/file", headers=AUTH)).content == CONTENT
+        assert (
+            await client.get("/users/1/items/BBBB2345/file", headers=AUTH, follow_redirects=True)
+        ).content == CONTENT
 
     async def test_a_malformed_digest_is_rejected(
         self, client: httpx.AsyncClient, attachment: str
@@ -206,7 +208,11 @@ class TestUploadAndRegistration:
     async def test_a_file_round_trips(self, client: httpx.AsyncClient, attachment: str) -> None:
         await upload(client, attachment)
 
-        response = await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)
+        # A download is a redirect to the bytes, as it is upstream: see
+        # `TestFileDownloads` in tests/test_client_quirks.py.
+        response = await client.get(
+            f"/users/1/items/{attachment}/file", headers=AUTH, follow_redirects=True
+        )
 
         assert response.status_code == 200
         assert response.content == CONTENT

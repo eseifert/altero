@@ -143,6 +143,7 @@ LIBRARY_SCOPED = [
     ("/items/{item_key}/tags", "GET"),
     ("/items/{item_key}/file", "GET"),
     ("/items/{item_key}/file", "POST"),
+    ("/items/{item_key}/file/content", "GET"),
     ("/items/{item_key}/file/view", "GET"),
     ("/items/{item_key}/fulltext", "GET"),
     ("/items/{item_key}/fulltext", "PUT"),

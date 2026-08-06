@@ -11,6 +11,7 @@ told the upload is unnecessary.
 """
 
 import hashlib
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -254,6 +255,49 @@ async def stored_file(item: Item, root: Path) -> tuple[Path, dict[str, str]]:
         # The row says there is a file but the bytes are gone.
         raise NotFoundError("Not found")
     return path, fields
+
+
+#: What every ZIP archive starts with.
+_ZIP_MAGIC = b"PK\x03\x04"
+
+
+@lru_cache(maxsize=1024)
+def _digest_of(path: Path, size: int, modified: int) -> str:
+    """Return the digest of the bytes at ``path``.
+
+    ``size`` and ``modified`` are not read: they are part of the cache key, so
+    that a file replaced on disk is hashed again rather than answered from a
+    stale entry.
+    """
+    digest = hashlib.md5(usedforsecurity=False)
+    with path.open("rb") as handle:
+        while chunk := handle.read(1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def is_compressed(path: Path, md5: str) -> bool:
+    """Whether the stored bytes are an archive wrapping the file the item names.
+
+    The client zips a snapshot before uploading it, and a snapshot migrated out
+    of zotero.org arrives the same way. ``md5`` then describes the
+    file *inside* the archive rather than the bytes on the wire, and the client
+    has to be told so on download: given ``Zotero-File-Compressed: No`` it
+    writes the archive itself to disk under the attachment's name.
+
+    Nothing records which of the two a stored file is. It does not have to: the
+    store is addressed by the digest the item claims, so a wrapper is exactly a
+    file whose own digest is not the name it is stored under. The magic number
+    is checked first, so only archives are ever hashed -- a .docx or .epub
+    attachment is one too, and is told apart from a wrapper by hashing to the
+    digest the item claims.
+    """
+    with path.open("rb") as handle:
+        if handle.read(len(_ZIP_MAGIC)) != _ZIP_MAGIC:
+            return False
+
+    stat = path.stat()
+    return _digest_of(path, stat.st_size, stat.st_mtime_ns) != md5
 
 
 async def purge_stale_uploads(session: AsyncSession, before: Any) -> int:
