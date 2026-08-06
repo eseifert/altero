@@ -11,6 +11,7 @@ export default {
     'Ein Passwort muss mindestens {count} Zeichen lang sein',
   'A private group stays private whatever this says. Make it public as well to share it.':
     'Eine private Gruppe bleibt privat, egal was hier steht. Mache sie auch öffentlich, um sie zu teilen.',
+  'A tag needs a name.': 'Ein Tag braucht einen Namen.',
   'API keys': 'API-Schlüssel',
   Accept: 'Annehmen',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
@@ -194,6 +195,9 @@ export default {
   'Rendering…': 'Wird erzeugt …',
   'Repeat password': 'Passwort wiederholen',
   'Replace what this library already holds': 'Ersetzen, was diese Bibliothek bereits enthält',
+  Rename: 'Umbenennen',
+  'Rename tag': 'Tag umbenennen',
+  'Rename “{name}”': '„{name}“ umbenennen',
   Resend: 'Erneut senden',
   Restore: 'Zurückspielen',
   'Restore a library': 'Bibliothek zurückspielen',
@@ -240,6 +244,7 @@ export default {
   'The items in it stay in the library.': 'Die Einträge darin bleiben in der Bibliothek.',
   'The library is now at version {version}.': 'Die Bibliothek steht jetzt bei Version {version}.',
   'The library was restored.': 'Die Bibliothek wurde zurückgespielt.',
+  'The tag will be changed in all associated items.': 'Das Tag wird in allen zugehörigen Einträgen geändert werden.',
   'The trash is empty.': 'Der Papierkorb ist leer.',
   'The two passwords do not match': 'Die beiden Passwörter stimmen nicht überein',
   'This collection is empty.': 'Diese Sammlung ist leer.',
@@ -279,6 +284,7 @@ export default {
   'to your altero library': 'zu deiner altero-Bibliothek',
   '{count} collection added or changed | {count} collections added or changed': '{count} Sammlung hinzugefügt oder geändert | {count} Sammlungen hinzugefügt oder geändert',
   '{count} item added or changed | {count} items added or changed': '{count} Eintrag hinzugefügt oder geändert | {count} Einträge hinzugefügt oder geändert',
+  '{count} item carries it. | {count} items carry it.': '{count} Eintrag hat dieses Tag. | {count} Einträge haben dieses Tag.',
   '{count} item deleted | {count} items deleted': '{count} Eintrag gelöscht | {count} Einträge gelöscht',
   '{count} item | {count} items': '{count} Eintrag | {count} Einträge',
   '{count} member | {count} members': '{count} Mitglied | {count} Mitglieder',

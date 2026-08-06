@@ -11,6 +11,7 @@ export default {
     'La contraseña debe tener al menos {count} caracteres',
   'A private group stays private whatever this says. Make it public as well to share it.':
     'Un grupo privado sigue siendo privado diga lo que diga esto. Hágalo también público para compartirlo.',
+  'A tag needs a name.': 'Una etiqueta necesita un nombre.',
   'API keys': 'Claves de API',
   Accept: 'Aceptar',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
@@ -192,6 +193,9 @@ export default {
   'Rendering…': 'Generando…',
   'Repeat password': 'Repite la contraseña',
   'Replace what this library already holds': 'Sustituir lo que esta biblioteca ya contiene',
+  Rename: 'Renombrar',
+  'Rename tag': 'Renombrar etiqueta',
+  'Rename “{name}”': 'Renombrar «{name}»',
   Resend: 'Reenviar',
   Restore: 'Restaurar',
   'Restore a library': 'Restaurar una biblioteca',
@@ -239,6 +243,7 @@ export default {
   'The items in it stay in the library.': 'Los elementos que contiene permanecen en la biblioteca.',
   'The library is now at version {version}.': 'La biblioteca está ahora en la versión {version}.',
   'The library was restored.': 'La biblioteca se restauró.',
+  'The tag will be changed in all associated items.': 'La etiqueta se cambiará en todos los elementos asociados.',
   'The trash is empty.': 'La papelera está vacía.',
   'The two passwords do not match': 'Las dos contraseñas no coinciden',
   'This collection is empty.': 'Esta colección está vacía.',
@@ -279,6 +284,7 @@ export default {
   'to your altero library': 'a tu biblioteca de altero',
   '{count} collection added or changed | {count} collections added or changed': '{count} colección añadida o modificada | {count} colecciones añadidas o modificadas',
   '{count} item added or changed | {count} items added or changed': '{count} elemento añadido o modificado | {count} elementos añadidos o modificados',
+  '{count} item carries it. | {count} items carry it.': '{count} elemento tiene esta etiqueta. | {count} elementos tienen esta etiqueta.',
   '{count} item deleted | {count} items deleted': '{count} elemento eliminado | {count} elementos eliminados',
   '{count} item | {count} items': '{count} elemento | {count} elementos',
   '{count} member | {count} members': '{count} miembro | {count} miembros',

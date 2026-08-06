@@ -191,6 +191,42 @@ version per request, whichever door it came in by. A collection made in the
 browser appears in the desktop client at the next sync, in the right place in
 the tree.
 
+## Tags
+
+A tag can be renamed here. It is the one thing the browser does that reaches
+items, and it reaches them the only way a tag can be changed at all: a tag has
+no existence apart from the items carrying it, so renaming one rewrites every
+one of them. Nothing here chooses *which* items, adds a tag or removes one —
+that is editing items, which the browser does not do.
+
+It is the pencil on the tag, beside its name in the panel, dimmed until the
+pointer or the keyboard reaches it. A dialog opens holding the name the tag
+has, selected: a rename is nearly always a correction to what is there — a
+misspelling, a capital, a stray space — rather than a different word, and
+starting from the old name saves retyping it. The dialog says what will happen,
+in Zotero's own words, and counts the items it will happen to. There is no undo.
+
+**Renaming onto a name already in use merges the two.** The items carrying
+either one end up carrying the survivor, and the panel is left with one tag
+where it showed two. That is what the desktop client does, and it is usually
+the point: `whales` and `Whales` are two tags until somebody says they are not.
+
+The merge takes in every tag of the new name, not only the one that looks like
+the tag being renamed. A name can be two tags here — one added by hand and one
+by a translator — and a rename that absorbed only one of them would leave the
+panel listing the new name twice, with two chips that filter the list
+identically. An automatic tag also becomes a manual one when it is renamed or
+absorbed, which is again the client's own behaviour.
+
+Behind it is `services/objectwrites.rename_tag`, the same call the v3
+`PATCH <prefix>/tags/<name>` makes, so a tag renamed in the browser is renamed
+exactly as a syncing client would have renamed it: one new library version, a
+new version on every item that carried it, and the old name in the deletion log
+for every other client to pick up. The controls appear only where the server
+says this account may write to the library.
+[compatibility.md](compatibility.md#renaming-a-tag) has the endpoint and why
+it is not upstream's.
+
 ## Import and export
 
 Settings offers the archive `altero library export` writes, and reads one back.
@@ -349,9 +385,10 @@ are cached for good, so the second visit fetches none of it.
 ## Not built yet
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
-editing a library beyond its collections — those can be made and removed, and a
-whole library can be restored from an archive, but no item can be changed, and
-a collection cannot be renamed or moved to another parent.
+editing a library beyond its collections and its tag names — collections can be
+made and removed, a tag can be renamed, and a whole library can be restored from
+an archive, but no item can be changed, a tag cannot be deleted or put on
+something, and a collection cannot be renamed or moved to another parent.
 
 Making an account for somebody else, resetting their password and revoking
 their credentials are still shell operations, as is an operator's view of the

@@ -951,9 +951,64 @@ the library's as both, so a role change costs connected clients one sync poll
 that finds nothing new. That is the cheaper mistake: a client that has not
 noticed it was demoted is one that still believes it may write.
 
+## Renaming a tag
+
+`PATCH <prefix>/tags/<name>`, taking `{"tag": "<new name>"}` and answering
+`204` with the new `Last-Modified-Version`. Nothing upstream serves this.
+`TagsController::tags` allows `HEAD`, `GET` and `DELETE`, and a named tag only
+`GET`, so a rename has to be done by the client, item by item —
+[zotero/dataserver#108](https://github.com/zotero/dataserver/issues/108) has
+asked for it since 2016 and is still open, with no discussion of a shape to
+copy. The endpoint is therefore altero's own, and the behaviour behind it is
+copied from the one implementation that does exist: `Zotero.Tags.rename` in
+the desktop client.
+
+That is what settles the questions the operation raises:
+
+- **A name may be two tags**, one added by hand and one by a translator, since
+  the type belongs to the tag rather than to its attachment to an item. Both
+  are renamed, as `DELETE <prefix>/tags?tag=` removes both.
+- **What is left is exactly one tag under the new name**, carrying every item
+  that was under either name. That includes absorbing an *automatic* tag
+  already called that: skipping it would leave the library with two tags of
+  one name, and `/tags` would list the name twice. The client cannot produce
+  that — its `tags` table is unique on the name alone, with the type on the
+  item's link — so neither may this.
+- **What survives is manual.** The client's rename sets `type=0` on every link
+  it moves (`UPDATE OR REPLACE itemTags SET tagID=?, type=0`), and
+  `Zotero.Item.replaceTag` does the same for one item. Renaming is how an
+  automatic tag stops being one.
+- **An item that was already under the new name is left alone**, since nothing
+  about it is different afterwards. A tag is attached to an item at most once,
+  so an item that carried both ends up carrying it once.
+- **Every item under a tag that went gets the new library version** and a new
+  `serverDateModified` — it gains the new name, loses a duplicate of it, or
+  stops being automatic. This is the part that matters for syncing: a tag's own
+  `since` listing tells a client only about tags, while the item JSON is where
+  the name actually lives. The client's rename marks the same items unsynced.
+  Their `dateModified` is left alone — the client did not do this, and client
+  timestamps round-trip.
+- **The old name goes into the delete log**, exactly as deleting it would put
+  it there, and any entry for the *new* name is cleared. Upstream clears the
+  same row whenever a tag is saved under a name that had been deleted
+  (`Zotero_Tag::save`); without it one sync can tell a client both "remove this
+  tag" and "here are items carrying it", and which it applied last would decide
+  whether the tag survived.
+
+`If-Unmodified-Since-Version` is required, as it is for `DELETE
+<prefix>/tags`. Renaming to the name the tag already has changes nothing and
+does not move the library version; an unknown tag is a `404`; a name that is
+empty after trimming, or longer than the 255 characters the column holds, is a
+`400`.
+
+The browser reaches the same service through `PATCH
+/web/libraries/<id>/tags/<name>`, which takes a cookie and a CSRF token instead
+of a key and no version header. See
+[web-interface.md](web-interface.md#tags).
+
 ## Deliberate differences
 
-Four places where altero does not copy upstream:
+Five places where altero does not copy upstream:
 
 - **`alternate` links are omitted.** Every upstream envelope carries a link to
   the corresponding page on zotero.org, and the `Link` header always ends with
@@ -971,3 +1026,8 @@ Four places where altero does not copy upstream:
 - **Fields sharing a localized name may order differently.** Three fields are
   called "Format"; upstream breaks the tie on an internal identifier that the
   published schema does not contain, so their relative order is arbitrary here.
+- **A tag can be renamed over the API.** Upstream has no endpoint for it and
+  leaves the work to the client; altero serves `PATCH <prefix>/tags/<name>`,
+  described above. An addition rather than a divergence — nothing that reads
+  tags behaves differently for it — but it is a route the reference server does
+  not have.

@@ -378,6 +378,318 @@ class TestTagWrites:
         assert (await client.get("/users/1/tags", headers=AUTH)).json() == []
 
 
+class TestRenamingATag:
+    """`PATCH <prefix>/tags/<name>`, which upstream does not serve.
+
+    The behaviour copied is the desktop client's `Zotero.Tags.rename`: both
+    types of the name are renamed, what they become is manual, and renaming
+    onto a name already in use merges into it.
+    """
+
+    async def test_the_tag_is_renamed(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        response = await client.patch(
+            "/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"}
+        )
+
+        assert response.status_code == 204
+        assert [t["tag"] for t in (await client.get("/users/1/tags", headers=AUTH)).json()] == [
+            "fiction"
+        ]
+
+    async def test_the_items_carry_the_new_name(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["tags"] == [{"tag": "fiction"}]
+
+    async def test_every_item_that_carried_it_is_a_new_version(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """The only thing that tells a syncing client its items changed."""
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        untouched = await make_item(session, library, key="CCCC2345")
+        await tag_item(session, library, one, "ficton")
+        await tag_item(session, library, two, "ficton")
+        before = (await client.get("/users/1/items/CCCC2345", headers=AUTH)).json()["version"]
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        assert untouched is not None
+        changed = (await client.get("/users/1/items?since=10", headers=AUTH)).json()
+        assert sorted(entry["key"] for entry in changed) == ["AAAA2345", "BBBB2345"]
+        assert (await client.get("/users/1/items/CCCC2345", headers=AUTH)).json()[
+            "version"
+        ] == before
+
+    async def test_the_client_s_own_timestamp_is_left_alone(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """The client did not do this, so `dateModified` is not the client's."""
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+        before = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        after = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+        assert after["data"]["dateModified"] == before["data"]["dateModified"]
+
+    async def test_both_types_of_the_name_are_renamed(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, one, "ficton", tag_type=0)
+        await tag_item(session, library, two, "ficton", tag_type=1)
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        assert [t["tag"] for t in (await client.get("/users/1/tags", headers=AUTH)).json()] == [
+            "fiction"
+        ]
+
+    async def test_what_it_becomes_is_manual(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """`Zotero.Tags.rename` sets `type=0` on every link it moves."""
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton", tag_type=1)
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["tags"] == [{"tag": "fiction"}]
+
+    async def test_renaming_onto_an_existing_name_merges(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, one, "ficton")
+        await tag_item(session, library, one, "fiction")
+        await tag_item(session, library, two, "ficton")
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        tags = (await client.get("/users/1/tags", headers=AUTH)).json()
+        assert [t["tag"] for t in tags] == ["fiction"]
+        assert tags[0]["meta"]["numItems"] == 2
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["tags"] == [{"tag": "fiction"}]
+
+    async def test_it_merges_with_an_automatic_tag_of_that_name_too(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """The new name must end up naming one tag, whatever type it was.
+
+        A name can be two tags here, because the type is on the tag rather than
+        on its attachment to an item. The client has it the other way round --
+        one row per name, the type on the link -- so its rename cannot leave a
+        second tag with the same name, and neither can this.
+        """
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, one, "ficton", tag_type=0)
+        await tag_item(session, library, two, "fiction", tag_type=1)
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        tags = (await client.get("/users/1/tags", headers=AUTH)).json()
+        assert [(t["tag"], t["meta"]["type"]) for t in tags] == [("fiction", 0)]
+        assert tags[0]["meta"]["numItems"] == 2
+
+    async def test_an_absorbed_automatic_tag_leaves_its_items_manual(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """And their JSON changed, so they are a new version like the rest."""
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, one, "ficton", tag_type=0)
+        await tag_item(session, library, two, "fiction", tag_type=1)
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        body = (await client.get("/users/1/items/BBBB2345", headers=AUTH)).json()
+        assert body["data"]["tags"] == [{"tag": "fiction"}]
+        assert body["version"] == 11
+
+    async def test_four_tags_of_two_names_become_one(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        for index, (key, name, tag_type) in enumerate(
+            [
+                ("AAAA2345", "ficton", 0),
+                ("BBBB2345", "ficton", 1),
+                ("CCCC2345", "fiction", 0),
+                ("DDDD2345", "fiction", 1),
+            ]
+        ):
+            assert index >= 0
+            item = await make_item(session, library, key=key)
+            await tag_item(session, library, item, name, tag_type=tag_type)
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        tags = (await client.get("/users/1/tags", headers=AUTH)).json()
+        assert [(t["tag"], t["meta"]["type"], t["meta"]["numItems"]) for t in tags] == [
+            ("fiction", 0, 4)
+        ]
+
+    async def test_an_item_already_under_the_new_name_is_left_where_it_is(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Nothing changed for it, so it is not a new version."""
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, one, "ficton")
+        await tag_item(session, library, two, "fiction")
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        untouched = (await client.get("/users/1/items/BBBB2345", headers=AUTH)).json()
+        assert untouched["version"] == 1
+        assert untouched["data"]["tags"] == [{"tag": "fiction"}]
+
+    async def test_the_old_name_is_reported_as_deleted(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+
+        body = (await client.get("/users/1/deleted?since=10", headers=AUTH)).json()
+        assert body["tags"] == ["ficton"]
+
+    async def test_a_name_that_comes_back_stops_being_deleted(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Otherwise one sync says "remove this tag" and "here it is" at once."""
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"})
+        version = int(
+            (await client.get("/users/1/tags", headers=AUTH)).headers["Last-Modified-Version"]
+        )
+        await client.patch(
+            "/users/1/tags/fiction",
+            headers=AUTH | {"If-Unmodified-Since-Version": str(version)},
+            json={"tag": "ficton"},
+        )
+
+        body = (await client.get("/users/1/deleted?since=10", headers=AUTH)).json()
+        assert body["tags"] == ["fiction"]
+
+    async def test_one_request_is_one_new_version(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        one = await make_item(session, library, key="AAAA2345")
+        two = await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, one, "ficton")
+        await tag_item(session, library, two, "ficton")
+
+        response = await client.patch(
+            "/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"}
+        )
+
+        assert response.headers["Last-Modified-Version"] == "11"
+
+    async def test_the_name_it_already_has_changes_nothing(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "fiction")
+
+        response = await client.patch(
+            "/users/1/tags/fiction", headers=VERSIONED, json={"tag": " fiction "}
+        )
+
+        assert response.status_code == 204
+        assert response.headers["Last-Modified-Version"] == "10"
+
+    async def test_an_unknown_tag_is_not_found(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        response = await client.patch(
+            "/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"}
+        )
+
+        assert response.status_code == 404
+
+    async def test_an_empty_name_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        response = await client.patch(
+            "/users/1/tags/ficton", headers=VERSIONED, json={"tag": "   "}
+        )
+
+        assert response.status_code == 400
+
+    async def test_an_absurd_name_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        response = await client.patch(
+            "/users/1/tags/ficton", headers=VERSIONED, json={"tag": "x" * 256}
+        )
+
+        assert response.status_code == 400
+
+    async def test_a_body_without_a_name_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        response = await client.patch("/users/1/tags/ficton", headers=VERSIONED, json={})
+
+        assert response.status_code == 400
+
+    async def test_the_version_header_is_required(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        response = await client.patch("/users/1/tags/ficton", headers=JSON, json={"tag": "fiction"})
+
+        assert response.status_code == 428
+
+    async def test_a_stale_version_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345")
+        await tag_item(session, library, item, "ficton")
+
+        response = await client.patch(
+            "/users/1/tags/ficton",
+            headers=AUTH | {"If-Unmodified-Since-Version": "9"},
+            json={"tag": "fiction"},
+        )
+
+        assert response.status_code == 412
+        assert [t["tag"] for t in (await client.get("/users/1/tags", headers=AUTH)).json()] == [
+            "ficton"
+        ]
+
+
 class TestDeleteLog:
     async def test_since_is_required(self, client: httpx.AsyncClient, library: Library) -> None:
         assert (await client.get("/users/1/deleted", headers=AUTH)).status_code == 400

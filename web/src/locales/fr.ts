@@ -11,6 +11,7 @@ export default {
     'Un mot de passe doit compter au moins {count} caractères',
   'A private group stays private whatever this says. Make it public as well to share it.':
     'Un groupe privé le reste quoi qu’indique ce réglage. Rendez-le également public pour le partager.',
+  'A tag needs a name.': 'Un marqueur a besoin d’un nom.',
   'API keys': 'Clés API',
   Accept: 'Accepter',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
@@ -194,6 +195,9 @@ export default {
   'Rendering…': 'Génération…',
   'Repeat password': 'Répétez le mot de passe',
   'Replace what this library already holds': 'Remplacer ce que cette bibliothèque contient déjà',
+  Rename: 'Renommer',
+  'Rename tag': 'Renommer le marqueur',
+  'Rename “{name}”': 'Renommer « {name} »',
   Resend: 'Renvoyer',
   Restore: 'Restaurer',
   'Restore a library': 'Restaurer une bibliothèque',
@@ -242,6 +246,7 @@ export default {
   'The library is now at version {version}.':
     'La bibliothèque est maintenant à la version {version}.',
   'The library was restored.': 'La bibliothèque a été restaurée.',
+  'The tag will be changed in all associated items.': 'Le marqueur sera modifié dans tous les documents associés.',
   'The trash is empty.': 'La corbeille est vide.',
   'The two passwords do not match': 'Les deux mots de passe ne correspondent pas',
   'This collection is empty.': 'Cette collection est vide.',
@@ -282,6 +287,7 @@ export default {
   'to your altero library': 'à votre bibliothèque altero',
   '{count} collection added or changed | {count} collections added or changed': '{count} collection ajoutée ou modifiée | {count} collections ajoutées ou modifiées',
   '{count} item added or changed | {count} items added or changed': '{count} document ajouté ou modifié | {count} documents ajoutés ou modifiés',
+  '{count} item carries it. | {count} items carry it.': '{count} document porte ce marqueur. | {count} documents portent ce marqueur.',
   '{count} item deleted | {count} items deleted': '{count} document supprimé | {count} documents supprimés',
   '{count} item | {count} items': '{count} document | {count} documents',
   '{count} member | {count} members': '{count} membre | {count} membres',

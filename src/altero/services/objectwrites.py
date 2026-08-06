@@ -1,25 +1,29 @@
 """Creating, updating and deleting collections, saved searches and tags."""
 
+from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.errors import InvalidInputError
+from altero.errors import InvalidInputError, NotFoundError
 from altero.keys import coerce_key, is_valid_key
 from altero.models import (
     Collection,
     CollectionItem,
     CollectionRelation,
     DeletedObjectType,
+    Item,
     ItemTag,
     Library,
     SavedSearch,
     SearchCondition,
     Tag,
+    TagType,
 )
 from altero.services.collections import get_collection
-from altero.services.deletions import record_deletion
+from altero.services.deletions import forget_deletion, record_deletion
 from altero.services.writes import check_object_version
 
 
@@ -302,6 +306,143 @@ async def delete_searches(
             continue
         await session.delete(search)
         await record_deletion(session, library, DeletedObjectType.SEARCH, key, version)
+
+
+#: Longest a tag name may be, which is the width of the column the dataserver
+#: gives it. The desktop client has a repair step of its own for tags that
+#: outgrew it, so the limit is one it already knows about.
+MAX_TAG_LENGTH = 255
+
+
+def clean_tag_name(name: str) -> str:
+    """Return a tag name fit to store, or refuse it.
+
+    Trimmed, because the client trims both names before comparing them, and a
+    tag differing from another only by a leading space is one nobody can tell
+    apart in a list.
+    """
+    cleaned = name.strip()
+    if not cleaned:
+        raise InvalidInputError("Tag cannot be empty")
+    if len(cleaned) > MAX_TAG_LENGTH:
+        raise InvalidInputError(f"Tag cannot be longer than {MAX_TAG_LENGTH} characters")
+    return cleaned
+
+
+async def resolve_tag(session: AsyncSession, library: Library, name: str, type_: int) -> Tag:
+    """Return the tag with this name and type, creating it if needed.
+
+    Two requests can reach this at once with the same new tag. Rather than
+    trusting the gap between looking and inserting, the unique constraint on
+    (library, name, type) decides: whoever loses the race reads back the row the
+    winner wrote.
+    """
+    lookup = select(Tag).where(Tag.library_id == library.id, Tag.name == name, Tag.type == type_)
+
+    tag = await session.scalar(lookup)
+    if tag is not None:
+        return tag
+
+    try:
+        async with session.begin_nested():
+            tag = Tag(library_id=library.id, key=coerce_key(None), name=name, type=type_)
+            session.add(tag)
+            await session.flush()
+    except IntegrityError:
+        tag = await session.scalar(lookup)
+        if tag is None:  # pragma: no cover - the constraint fired for another reason
+            raise
+
+    # The name exists again, so the delete log must stop saying it went.
+    await forget_deletion(session, library, DeletedObjectType.TAG, name)
+    return tag
+
+
+async def rename_tag(
+    session: AsyncSession, library: Library, old_name: str, new_name: str, version: int
+) -> list[int]:
+    """Rename every tag called ``old_name`` and return the items that changed.
+
+    A tag has no existence apart from the items carrying it, so renaming one is
+    a write to those items and to nothing else: each gets ``version`` and a new
+    ``serverDateModified``, which is what tells a syncing client to fetch it and
+    find the new name in its ``tags``. The client's own ``dateModified`` is left
+    alone, because the client did not do this.
+
+    What it leaves is **one tag under the new name**, carrying every item that
+    was under either name. That is the whole of the operation, and it is what
+    the desktop client's ``Zotero.Tags.rename`` leaves too, though it gets
+    there for free: its ``tags`` table is unique on the name alone and puts the
+    type on the item's link, so moving the links to the row for the new name
+    cannot produce a second row called that. Here the type is on the tag, and a
+    name can be two of them -- one added by hand, one by a translator -- so
+    every one of those has to be collected up by hand:
+
+    - Both tags of ``old_name`` are renamed, as ``DELETE ?tag=`` removes both.
+    - Both tags of ``new_name`` are absorbed. Skipping the automatic one would
+      leave the library with two tags called ``new_name``, which is the one
+      outcome a rename must not have: the API would list the name twice and so
+      would every tag selector reading it.
+    - What survives is *manual*. The client sets ``type=0`` on every link it
+      moves (``UPDATE OR REPLACE itemTags SET tagID=?, type=0``), so renaming
+      is how an automatic tag stops being one.
+
+    Every item under an absorbed tag changes -- it gains the new name, or loses
+    a duplicate of it, or stops being automatic -- and so is returned and given
+    ``version``. An item already under the surviving tag is untouched and is
+    not: nothing about it is different afterwards.
+
+    ``old_name`` must differ from ``new_name`` and must name a tag: the caller
+    settles both before a version is spent, so that a request changing nothing
+    does not move the library on.
+    """
+    named = select(Tag).where(Tag.library_id == library.id, Tag.name.in_([old_name, new_name]))
+    tags = list(await session.scalars(named))
+    if not any(tag.name == old_name for tag in tags):
+        raise NotFoundError("Tag not found")
+
+    # Resolved after the query above, so a tag this call creates is not read
+    # back as one to absorb.
+    target = await resolve_tag(session, library, new_name, int(TagType.MANUAL))
+    target.version = version
+    absorbed = [tag for tag in tags if tag.id != target.id]
+
+    item_ids = sorted(
+        set(
+            await session.scalars(
+                select(ItemTag.item_id).where(ItemTag.tag_id.in_([tag.id for tag in absorbed]))
+            )
+        )
+    )
+    already = set(await session.scalars(select(ItemTag.item_id).where(ItemTag.tag_id == target.id)))
+
+    for tag in absorbed:
+        await session.execute(delete(ItemTag).where(ItemTag.tag_id == tag.id))
+        await session.delete(tag)
+    await session.flush()
+
+    for item_id in item_ids:
+        if item_id not in already:
+            session.add(ItemTag(item_id=item_id, tag_id=target.id))
+
+    if item_ids:
+        now = datetime.now(UTC).replace(tzinfo=None, microsecond=0)
+        await session.execute(
+            update(Item)
+            .where(Item.id.in_(item_ids))
+            .values(version=version, server_date_modified=now)
+        )
+    await session.flush()
+
+    # The old name is gone from the library, and a client that syncs by asking
+    # what was deleted has to hear about it exactly as it would for `DELETE
+    # /tags?tag=`. The new name is not recorded however many tags went into it,
+    # because it is still there -- and any entry saying otherwise is cleared,
+    # here rather than only in `resolve_tag`, so that this holds whether or not
+    # the surviving tag is one this call created.
+    await forget_deletion(session, library, DeletedObjectType.TAG, new_name)
+    await record_deletion(session, library, DeletedObjectType.TAG, old_name, version)
+    return item_ids
 
 
 async def delete_tags(

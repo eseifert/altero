@@ -1,6 +1,6 @@
 """The delete log behind ``/deleted?since=``."""
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import DeletedObject, DeletedObjectType, Library
@@ -36,6 +36,31 @@ async def record_deletion(
             object_type=str(object_type),
             key=key,
             version=version,
+        )
+    )
+
+
+async def forget_deletion(
+    session: AsyncSession,
+    library: Library,
+    object_type: DeletedObjectType,
+    key: str,
+) -> None:
+    """Drop any record that ``key`` was removed, because it exists again.
+
+    A tag is its name, so a name that comes back -- typed onto an item again,
+    or arrived at by renaming another tag -- is the deleted tag returning. The
+    entry has to go with it: a client that reads ``/deleted?since=`` after both
+    changes would otherwise be told to remove the very tag the items it fetched
+    in the same sync are carrying, and which of the two it applied last would
+    decide whether the tag survived. The dataserver clears the same row for the
+    same reason, in ``Zotero_Tag::save``.
+    """
+    await session.execute(
+        delete(DeletedObject).where(
+            DeletedObject.library_id == library.id,
+            DeletedObject.object_type == object_type,
+            DeletedObject.key == key,
         )
     )
 

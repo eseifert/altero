@@ -25,6 +25,8 @@ things the desktop client asks for that no data server documents.
   the trash
 - Writing items, collections and saved searches, and deleting tags, with the
   multi-object response, version preconditions and `Zotero-Write-Token`
+- Renaming a tag with `PATCH <prefix>/tags/<name>`, which upstream does not
+  serve at all — see [compatibility.md](compatibility.md#renaming-a-tag)
 - Recognising an object re-sent unchanged, so it keeps its version and the
   library's does not move
 - `inPublications`, the My Publications flag, with the refusals upstream

@@ -11,6 +11,7 @@ export default {
     'A palavra-passe tem de ter pelo menos {count} caracteres',
   'A private group stays private whatever this says. Make it public as well to share it.':
     'Um grupo privado continua privado, diga isto o que disser. Torne-o também público para o partilhar.',
+  'A tag needs a name.': 'Uma etiqueta precisa de um nome.',
   'API keys': 'Chaves de API',
   Accept: 'Aceitar',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
@@ -191,6 +192,9 @@ export default {
   'Rendering…': 'A gerar…',
   'Repeat password': 'Repita a palavra-passe',
   'Replace what this library already holds': 'Substituir o que esta biblioteca já contém',
+  Rename: 'Alterar nome',
+  'Rename tag': 'Alterar nome de etiqueta',
+  'Rename “{name}”': 'Alterar nome de «{name}»',
   Resend: 'Reenviar',
   Restore: 'Restaurar',
   'Restore a library': 'Restaurar uma biblioteca',
@@ -238,6 +242,7 @@ export default {
   'The items in it stay in the library.': 'Os itens que contém permanecem na biblioteca.',
   'The library is now at version {version}.': 'A biblioteca está agora na versão {version}.',
   'The library was restored.': 'A biblioteca foi restaurada.',
+  'The tag will be changed in all associated items.': 'A etiqueta será alterada em todos os itens associados.',
   'The trash is empty.': 'O lixo está vazio.',
   'The two passwords do not match': 'As duas palavras-passe não coincidem',
   'This collection is empty.': 'Esta coleção está vazia.',
@@ -277,6 +282,7 @@ export default {
   'to your altero library': 'à sua biblioteca altero',
   '{count} collection added or changed | {count} collections added or changed': '{count} coleção adicionada ou alterada | {count} coleções adicionadas ou alteradas',
   '{count} item added or changed | {count} items added or changed': '{count} item adicionado ou alterado | {count} itens adicionados ou alterados',
+  '{count} item carries it. | {count} items carry it.': '{count} item tem esta etiqueta. | {count} itens têm esta etiqueta.',
   '{count} item deleted | {count} items deleted': '{count} item eliminado | {count} itens eliminados',
   '{count} item | {count} items': '{count} item | {count} itens',
   '{count} member | {count} members': '{count} membro | {count} membros',

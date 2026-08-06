@@ -435,6 +435,112 @@ describe('collections', () => {
   })
 })
 
+describe('renaming a tag', () => {
+  const TAGS = [
+    { tag: 'ficton', type: 0, numItems: 2 },
+    { tag: 'whales', type: 0, numItems: 1 },
+  ]
+
+  /** Answer the rename with `renamed`, and every list with what it is given. */
+  function renames(renamed: Record<string, unknown>, tags = TAGS) {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method === 'PATCH') return Promise.resolve(renamed)
+      if (path === '/web/libraries') return Promise.resolve(LIBRARIES)
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      if (path.includes('/items/')) return Promise.resolve(item('AAAA2345', 'Moby-Dick'))
+      return Promise.resolve({ total: 1, items: [item('AAAA2345', 'Moby-Dick')] })
+    })
+  }
+
+  it('patches the tag by name, escaped for the path', async () => {
+    renames({ tag: 'a/b', type: 0, numItems: 2, itemsChanged: 2 })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    await store.renameTag('a b', 'a/b')
+
+    const patch = requestMock.mock.calls.find(([, options]) => options?.method === 'PATCH')
+    expect(patch?.[0]).toBe('/web/libraries/1/tags/a%20b')
+    expect(patch?.[1].body).toEqual({ tag: 'a/b' })
+  })
+
+  it('reads the panel again, because a merge changes every count', async () => {
+    renames({ tag: 'fiction', type: 0, numItems: 3, itemsChanged: 2 }, [
+      { tag: 'fiction', type: 0, numItems: 3 },
+    ])
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    const changed = await store.renameTag('ficton', 'fiction')
+
+    expect(changed).toBe(2)
+    expect(store.tags).toEqual([{ tag: 'fiction', type: 0, numItems: 3 }])
+  })
+
+  it('keeps a tag that was narrowing the list selected under its new name', async () => {
+    renames({ tag: 'fiction', type: 0, numItems: 2, itemsChanged: 2 })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    await store.toggleTag('ficton')
+
+    await store.renameTag('ficton', 'fiction')
+
+    expect(store.selectedTags).toEqual(['fiction'])
+    expect(itemRequests().at(-1)).toContain('tag=fiction')
+  })
+
+  it('does not select it twice when it was merged into another selected tag', async () => {
+    renames({ tag: 'whales', type: 0, numItems: 3, itemsChanged: 2 })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    await store.toggleTag('ficton')
+    await store.toggleTag('whales')
+
+    await store.renameTag('ficton', 'whales')
+
+    expect(store.selectedTags).toEqual(['whales'])
+  })
+
+  it('leaves the list alone when the tag was not filtering it', async () => {
+    renames({ tag: 'fiction', type: 0, numItems: 2, itemsChanged: 2 })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    const before = itemRequests().length
+
+    await store.renameTag('ficton', 'fiction')
+
+    expect(itemRequests()).toHaveLength(before)
+  })
+
+  it('reads the open item again, since the pane prints its tags', async () => {
+    renames({ tag: 'fiction', type: 0, numItems: 2, itemsChanged: 2 })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    await store.select(item('AAAA2345', 'Moby-Dick'))
+
+    await store.renameTag('ficton', 'fiction')
+
+    const paths = requestMock.mock.calls.map(([path]) => path as string)
+    expect(paths.filter((path) => path === '/web/libraries/1/items/AAAA2345')).toHaveLength(1)
+  })
+
+  it('lets a failure through rather than swallowing it', async () => {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method === 'PATCH') return Promise.reject(new Error('The server answered 403'))
+      if (path === '/web/libraries') return Promise.resolve(LIBRARIES)
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: TAGS })
+      return Promise.resolve({ total: 0, items: [] })
+    })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    await expect(store.renameTag('ficton', 'fiction')).rejects.toThrow('The server answered 403')
+  })
+})
+
 describe('where a collection is', () => {
   const TREE = [
     collection('CCCC2345', 'Whales'),

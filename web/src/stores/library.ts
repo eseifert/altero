@@ -247,6 +247,61 @@ export const useLibraryStore = defineStore('library', () => {
     tags.value = payload.tags
   }
 
+  /**
+   * Rename a tag throughout the library, and return how many items changed.
+   *
+   * The panel is always read again: a rename onto a name already in use leaves
+   * one tag where there were two, and every count on it can have moved, which
+   * no amount of editing the list in place arrives at.
+   *
+   * A tag that was narrowing the list keeps its selection under the new name,
+   * and the list is re-run because the filter has changed. The alternative is a
+   * list filtered by a tag that no longer exists, which shows nothing and says
+   * the library is empty. Otherwise the middle pane is untouched — it lists
+   * titles, creators and dates, and none of those is a tag — and only the open
+   * item, which does print its tags, is fetched again.
+   */
+  async function renameTag(oldName: string, newName: string): Promise<number> {
+    if (libraryId.value === null) return 0
+
+    const renamed = await request<TagEntry & { itemsChanged: number }>(
+      `/web/libraries/${libraryId.value}/tags/${encodeURIComponent(oldName)}`,
+      { method: 'PATCH', body: { tag: newName } },
+    )
+
+    const filtering = selectedTags.value.includes(oldName)
+    if (filtering) {
+      const kept = selectedTags.value.filter((entry) => entry !== oldName)
+      selectedTags.value = kept.includes(renamed.tag) ? kept : [...kept, renamed.tag]
+    }
+
+    await loadTags()
+    if (filtering) {
+      await refresh()
+    } else {
+      await reloadSelected()
+    }
+    return renamed.itemsChanged
+  }
+
+  /** Read the open item again, so a pane showing the old name stops. */
+  async function reloadSelected(): Promise<void> {
+    const key = selected.value?.key
+    if (!key || libraryId.value === null) return
+
+    try {
+      const fresh = await request<ItemEnvelope>(
+        `/web/libraries/${libraryId.value}/items/${key}`,
+      )
+      selected.value = fresh
+      const index = items.value.findIndex((entry) => entry.key === key)
+      if (index >= 0) items.value[index] = fresh
+    } catch {
+      // The pane keeps what it has. It is one stale line in a list of fields,
+      // against a failure the reader can do nothing about.
+    }
+  }
+
   async function loadItems({ append = false } = {}): Promise<void> {
     if (libraryId.value === null) return
 
@@ -394,6 +449,7 @@ export const useLibraryStore = defineStore('library', () => {
     createCollection,
     deleteCollection,
     loadTags,
+    renameTag,
     loadItems,
     loadMore,
     refresh,

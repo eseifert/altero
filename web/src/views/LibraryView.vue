@@ -8,8 +8,14 @@ import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
+import TagDialog from '@/components/TagDialog.vue'
 import { fieldLabel, loadLabels } from '@/items/labels'
-import { useLibraryStore, type CollectionNode, type ItemEnvelope } from '@/stores/library'
+import {
+  useLibraryStore,
+  type CollectionNode,
+  type ItemEnvelope,
+  type TagEntry,
+} from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 
 const { t } = useI18n()
@@ -207,6 +213,49 @@ async function confirmDelete(): Promise<void> {
   await run(() => library.deleteCollection(current.target.key))
 }
 
+/*
+ * Renaming a tag.
+ *
+ * Its own state rather than another `Pending`: this one is not about the
+ * collection tree, and it survives a failure differently — the dialog stays up
+ * with what was typed still in it, so a name the server refused can be
+ * corrected rather than typed again.
+ */
+const renaming = ref<TagEntry | null>(null)
+const tagBusy = ref(false)
+const tagError = ref<string | null>(null)
+
+function startRename(tag: TagEntry): void {
+  renaming.value = tag
+  tagError.value = null
+}
+
+function cancelRename(): void {
+  renaming.value = null
+  tagError.value = null
+}
+
+async function submitRename(name: string): Promise<void> {
+  const current = renaming.value
+  if (!current) return
+
+  if (!name) {
+    tagError.value = t('A tag needs a name.')
+    return
+  }
+
+  tagBusy.value = true
+  tagError.value = null
+  try {
+    await library.renameTag(current.tag, name)
+    cancelRename()
+  } catch (thrown) {
+    tagError.value = thrown instanceof Error ? thrown.message : String(thrown)
+  } finally {
+    tagBusy.value = false
+  }
+}
+
 function sortIndicator(field: string): string {
   if (library.sort !== field) return ''
   return library.direction === 'asc' ? '↑' : '↓'
@@ -366,15 +415,38 @@ function sortLabel(column: { field: string; label: string }): string {
 
       <section v-if="library.tags.length" class="library__panel">
         <h2 class="library__panel-title">{{ t('Tags') }}</h2>
+        <!--
+          The pill is the list item rather than the button inside it, because a
+          writable library puts two controls in it: the name, which narrows the
+          list, and a pencil, which renames the tag everywhere. They share one
+          outline so the pair still reads as one tag.
+        -->
         <ul class="library__tags">
-          <li v-for="tag in library.tags" :key="tag.tag">
+          <li
+            v-for="tag in library.tags"
+            :key="tag.tag"
+            :class="['library__tag', { 'library__tag--on': library.selectedTags.includes(tag.tag) }]"
+          >
             <button
               type="button"
-              :class="['library__tag', { 'library__tag--on': library.selectedTags.includes(tag.tag) }]"
+              class="library__tag-name"
               :aria-pressed="library.selectedTags.includes(tag.tag)"
               @click="library.toggleTag(tag.tag)"
             >
               <span class="library__label">{{ tag.tag }}</span>
+            </button>
+            <button
+              v-if="library.writable"
+              class="library__tag-action"
+              type="button"
+              :aria-label="t('Rename “{name}”', { name: tag.tag })"
+              :title="t('Rename tag')"
+              @click="startRename(tag)"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z" />
+              </svg>
             </button>
           </li>
         </ul>
@@ -506,6 +578,16 @@ function sortLabel(column: { field: string; label: string }): string {
       :error="collectionError"
       @submit="submitCollection"
       @cancel="cancel"
+    />
+
+    <TagDialog
+      v-if="renaming"
+      :name="renaming.tag"
+      :num-items="renaming.numItems"
+      :busy="tagBusy"
+      :error="tagError"
+      @submit="submitRename"
+      @cancel="cancelRename"
     />
   </div>
 </template>
@@ -729,13 +811,6 @@ function sortLabel(column: { field: string; label: string }): string {
   list-style: none;
 }
 
-/* A tag is as long as somebody made it, and the column is narrow. Wrapping
-   inside the chip keeps the whole name readable; the alternative was a
-   sideways scrollbar for the sake of one long tag. */
-.library__tags li {
-  max-width: 100%;
-}
-
 /*
  * A tag is a pill, here and in the item, and the two look the same: the same
  * outline, the same corner, the same size of type. What differs is only what
@@ -743,9 +818,16 @@ function sortLabel(column: { field: string; label: string }): string {
  *
  * The fill brings its own border colour rather than dropping the border, so
  * that picking a tag does not move the ones after it by two pixels.
+ *
+ * The pill is the list item, and holds the name and, where the library can be
+ * written to, the pencil that renames it. A tag is as long as somebody made it
+ * and the column is narrow, so it wraps inside the pill; the alternative was a
+ * sideways scrollbar for the sake of one long tag.
  */
 .library__tag {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
   max-width: 100%;
   min-width: 0;
   padding: 0.2rem 0.55rem;
@@ -755,15 +837,11 @@ function sortLabel(column: { field: string; label: string }): string {
      lozenge with the words rattling around in the middle. On one line it is
      round enough to read as a pill anyway. */
   border-radius: var(--md-sys-shape-corner-medium);
-  background: none;
   color: var(--md-sys-color-on-surface-variant);
-  font: inherit;
   font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
   /* The body line height is set for paragraphs. Two lines of it inside a chip
      leave a gap the chip then has to grow to hold. */
   line-height: 1.35;
-  text-align: left;
-  cursor: pointer;
 }
 
 .library__tag:hover {
@@ -775,6 +853,52 @@ function sortLabel(column: { field: string; label: string }): string {
   border-color: var(--md-sys-color-secondary-container);
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
+}
+
+.library__tag-name {
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/*
+ * Dimmed rather than hidden until the pointer arrives. The rows above reveal
+ * their controls on hover and hold the space open meanwhile; here the space is
+ * inside a pill in a wrapping list, so a pencil that appeared from nothing
+ * would reflow the whole panel under the pointer.
+ */
+.library__tag-action {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: none;
+  color: inherit;
+  opacity: 0.45;
+  transition: opacity 120ms ease;
+  cursor: pointer;
+}
+
+.library__tag:hover .library__tag-action,
+.library__tag-action:focus-visible {
+  opacity: 1;
+}
+
+.library__tag-action:hover {
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+  opacity: 1;
 }
 
 .library__tag .library__label {

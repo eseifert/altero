@@ -687,3 +687,131 @@ describe('making and removing collections', () => {
     expect(wrapper.find('.library__state--error').exists()).toBe(false)
   })
 })
+
+describe('renaming a tag', () => {
+  const TAGS = [
+    { tag: 'ficton', type: 0, numItems: 2 },
+    { tag: 'whales', type: 0, numItems: 1 },
+  ]
+
+  /** Answer the tag panel with `tags`, and let the rename do `write`. */
+  function withTags(tags: unknown[], write?: (path: string) => Promise<unknown>) {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method && options.method !== 'GET') {
+        return write
+          ? write(path)
+          : Promise.resolve({ tag: 'fiction', type: 0, numItems: 2, itemsChanged: 2 })
+      }
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+  }
+
+  /** The pencil on the pill for `name`. */
+  function pencil(wrapper: ReturnType<typeof mount>, name: string) {
+    return wrapper.get(`[aria-label="Rename “${name}”"]`)
+  }
+
+  /** The calls that changed something. */
+  function writes() {
+    return requestMock.mock.calls.filter(
+      ([, options]) => options && options.method && options.method !== 'GET',
+    )
+  }
+
+  it('offers a rename on every tag', async () => {
+    withTags(TAGS)
+    const wrapper = await open()
+
+    expect(wrapper.findAll('.library__tag-action')).toHaveLength(2)
+  })
+
+  it('offers nothing of the sort in a library that may only be read', async () => {
+    libraries = [GROUP]
+    withTags(TAGS)
+    const wrapper = await open()
+
+    expect(wrapper.findAll('.library__tag')).toHaveLength(2)
+    expect(wrapper.find('.library__tag-action').exists()).toBe(false)
+  })
+
+  it('opens a dialog holding the name the tag has', async () => {
+    withTags(TAGS)
+    const wrapper = await open()
+
+    await pencil(wrapper, 'ficton').trigger('click')
+
+    expect((wrapper.get('.dialog__field').element as HTMLInputElement).value).toBe('ficton')
+    expect(writes()).toEqual([])
+  })
+
+  it('says what renaming will do, and to how many items', async () => {
+    withTags(TAGS)
+    const wrapper = await open()
+
+    await pencil(wrapper, 'ficton').trigger('click')
+
+    expect(wrapper.get('.dialog__note').text()).toContain('all associated items')
+    expect(wrapper.get('.dialog__note').text()).toContain('2 items')
+  })
+
+  it('sends the name that was typed', async () => {
+    withTags(TAGS)
+    const wrapper = await open()
+    await pencil(wrapper, 'ficton').trigger('click')
+
+    await wrapper.get('.dialog__field').setValue('fiction')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/tags/ficton', { method: 'PATCH', body: { tag: 'fiction' } }],
+    ])
+    expect(wrapper.find('dialog').exists()).toBe(false)
+  })
+
+  it('refuses an empty name without asking the server', async () => {
+    withTags(TAGS)
+    const wrapper = await open()
+    await pencil(wrapper, 'ficton').trigger('click')
+
+    await wrapper.get('.dialog__field').setValue('   ')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([])
+    expect(wrapper.get('.dialog__error').text()).toContain('A tag needs a name.')
+  })
+
+  it('closes without writing when the dialog is dismissed', async () => {
+    withTags(TAGS)
+    const wrapper = await open()
+    await pencil(wrapper, 'ficton').trigger('click')
+
+    await wrapper.findAll('.dialog__actions button')[0].trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(writes()).toEqual([])
+  })
+
+  it('reports a refusal in the dialog, which stays open with the name in it', async () => {
+    withTags(TAGS, () => Promise.reject(new Error('You cannot change this library')))
+    const wrapper = await open()
+    await pencil(wrapper, 'ficton').trigger('click')
+
+    await wrapper.get('.dialog__field').setValue('fiction')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(wrapper.get('.dialog__error').text()).toContain('You cannot change this library')
+    expect((wrapper.get('.dialog__field').element as HTMLInputElement).value).toBe('fiction')
+    expect(wrapper.find('.library__state--error').exists()).toBe(false)
+  })
+})

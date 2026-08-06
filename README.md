@@ -105,6 +105,14 @@ by every member rather than only its administrators.
 An item in a group also says who added it and who last changed it, which
 upstream has served for years and altero had not.
 
+A tag can also be renamed over the API, with
+`PATCH <prefix>/tags/<name>`. The reference server has no endpoint for it —
+[zotero/dataserver#108](https://github.com/zotero/dataserver/issues/108) has
+been open since 2016 — and leaves a client to rewrite every item itself. The
+behaviour is copied from the desktop client's own rename, down to merging into
+a name already in use; [docs/compatibility.md](docs/compatibility.md) says
+exactly what it does.
+
 Not yet: the other export formats.
 [docs/status.md](docs/status.md) is the endpoint-level list, and says what the
 desktop client asks for that no data server documents.
@@ -115,8 +123,9 @@ A Vue 3 application at `/app/`, in six languages, covering registration,
 sign-in with an optional authenticator code, account settings, API keys,
 notifications, group invitations, a group's activity log and what it tells you
 about, and browsing a library — collections, tags, search, an item's details,
-its attachments and a citation. Collections can be made and removed there;
-everything else in a library it reads rather than writes.
+its attachments and a citation. Collections can be made and removed there, and
+a tag renamed throughout the library; everything else in a library it reads
+rather than writes.
 
 The v3 API stays API-key only and refuses a session cookie, so none of it
 reaches the sync protocol — see

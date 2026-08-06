@@ -74,6 +74,9 @@ EXPECTED = [
     # contents of a library. See altero/api/routes/webcollections.py.
     ("/web/libraries/{library_id}/collections", "POST"),
     ("/web/libraries/{library_id}/collections/{collection_key}", "DELETE"),
+    # One tag renamed, which is a write to every item carrying it and to
+    # nothing else. See altero/api/routes/webtags.py.
+    ("/web/libraries/{library_id}/tags/{tag_name}", "PATCH"),
     # A whole library out and a whole library back, which is a replacement
     # rather than an edit. See altero/api/routes/webtransfer.py.
     ("/web/libraries/{library_id}/archive", "GET"),
@@ -162,6 +165,8 @@ LIBRARY_SCOPED = [
     ("/tags", "GET"),
     ("/tags", "DELETE"),
     ("/tags/{tag_name}", "GET"),
+    # Not upstream's; see docs/compatibility.md.
+    ("/tags/{tag_name}", "PATCH"),
     ("/settings", "GET"),
     ("/settings", "POST"),
     ("/settings", "DELETE"),

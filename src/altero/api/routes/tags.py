@@ -23,7 +23,7 @@ from altero.api.responses import (
     not_modified,
     object_response,
 )
-from altero.errors import RequestTooLargeError
+from altero.errors import InvalidInputError, RequestTooLargeError
 from altero.models import Item, Library
 from altero.query import (
     OBJECT_FORMATS,
@@ -149,6 +149,56 @@ async def get_tag(
         )
 
     return object_response(envelope, library.version)
+
+
+@router.patch("/users/{user_id}/tags/{tag_name}")
+@router.patch("/groups/{group_id}/tags/{tag_name}")
+async def rename_tag(
+    tag_name: str,
+    request: Request,
+    session: SessionDep,
+    library: WritableLibraryDep,
+) -> Response:
+    """Rename one tag, taking ``{"tag": "<new name>"}``.
+
+    Not upstream's. The dataserver serves ``GET`` and ``DELETE`` here and
+    nothing else, and renaming has been asked of it since 2016
+    (zotero/dataserver#108) without an answer, so there is no reference to
+    copy and this endpoint is altero's own -- see ``docs/compatibility.md``.
+    It is modelled on the one place the operation does exist: the desktop
+    client's ``Zotero.Tags.rename``, whose behaviour
+    :func:`altero.services.objectwrites.rename_tag` follows.
+
+    ``PATCH`` rather than ``PUT`` because a tag is more than its name to the
+    API -- the envelope carries a type and a count, and neither is given here.
+    The answer is ``204``, as the tag's own URL has moved and there is nothing
+    at the old one to return.
+
+    ``If-Unmodified-Since-Version`` is required, as it is for ``DELETE
+    <prefix>/tags``: this rewrites every item carrying the tag, and a client
+    that has not seen the library's current state cannot know what that is.
+    """
+    payload = await request.json()
+    if not isinstance(payload, dict) or "tag" not in payload:
+        raise InvalidInputError("'tag' property not provided")
+    new_name = object_writes.clean_tag_name(str(payload["tag"]))
+
+    library = await writes.lock_library(session, library)
+    expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
+    writes.check_library_version(library, expected, required=True)
+
+    # Both before a version is spent: a tag that is not there is a 404 whatever
+    # the body says, and a rename to the name it already has changes nothing, so
+    # it must not move the library on. The client returns early on the same two.
+    summary = await tags_service.get_tag(session, library, tag_name)
+    if new_name == summary.name:
+        return Response(status_code=204, headers=library_headers(library.version))
+
+    version = await writes.bump_library_version(session, library)
+    await object_writes.rename_tag(session, library, tag_name, new_name, version)
+    await session.commit()
+
+    return Response(status_code=204, headers=library_headers(version))
 
 
 async def _scoped_tags(

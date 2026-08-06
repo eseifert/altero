@@ -16,6 +16,7 @@ export default {
   'A password must be at least {count} characters': 'パスワードは {count} 文字以上必要です',
   'A private group stays private whatever this says. Make it public as well to share it.':
     '非公開グループはこの設定にかかわらず非公開のままです。共有するにはグループも公開してください。',
+  'A tag needs a name.': 'タグには名前が必要です。',
   'API keys': 'API キー',
   Accept: '承認',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
@@ -193,6 +194,9 @@ export default {
   'Rendering…': '生成しています…',
   'Repeat password': 'パスワードを再入力',
   'Replace what this library already holds': 'このライブラリーの現在の内容を置き換える',
+  Rename: '名称変更',
+  'Rename tag': 'タグ名の変更',
+  'Rename “{name}”': '「{name}」の名称を変更',
   Resend: '再送信',
   Restore: '復元',
   'Restore a library': 'ライブラリーを復元',
@@ -239,6 +243,7 @@ export default {
   'The items in it stay in the library.': '中のアイテムはライブラリーに残ります。',
   'The library is now at version {version}.': 'ライブラリーはバージョン {version} になりました。',
   'The library was restored.': 'ライブラリーを復元しました。',
+  'The tag will be changed in all associated items.': 'タグの変更がすべての関連項目に適用されます。',
   'The trash is empty.': 'ごみ箱は空です。',
   'The two passwords do not match': 'パスワードが一致しません',
   'This collection is empty.': 'このコレクションは空です。',
@@ -278,6 +283,7 @@ export default {
   'to your altero library': 'altero ライブラリへ',
   '{count} collection added or changed | {count} collections added or changed': '{count} 件のコレクションを追加または変更 | {count} 件のコレクションを追加または変更',
   '{count} item added or changed | {count} items added or changed': '{count} 件のアイテムを追加または変更 | {count} 件のアイテムを追加または変更',
+  '{count} item carries it. | {count} items carry it.': '{count} 件の項目にこのタグが付いています。 | {count} 件の項目にこのタグが付いています。',
   '{count} item deleted | {count} items deleted': '{count} 件のアイテムを削除 | {count} 件のアイテムを削除',
   '{count} item | {count} items': '{count} 件の項目 | {count} 件の項目',
   '{count} member | {count} members': 'メンバー {count} 人 | メンバー {count} 人',
