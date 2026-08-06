@@ -43,6 +43,8 @@ async def list_searches(
     ]
     if query.since:
         filters.append(SavedSearch.version > query.since)
+    if query.search_keys:
+        filters.append(SavedSearch.key.in_(query.search_keys))
 
     statement = select(SavedSearch).where(and_(*filters))
     result = await session.scalars(paginate(_apply_sort(statement, query), query))

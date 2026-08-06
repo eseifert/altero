@@ -324,3 +324,68 @@ class TestScopedTags:
 
         assert [t["tag"] for t in body] == ["shared"]
         assert body[0]["meta"]["numItems"] == 1
+
+
+class TestDownloadingByKey:
+    """`collectionKey` and `searchKey` filter, as `itemKey` does.
+
+    `Zotero_Collections::search` and `Zotero_Searches::search` both add
+    `AND key IN (...)` for them. altero parsed neither on a read, so a client
+    asking for the three collections it needed was answered with a page of
+    whatever the library held -- which looks right until the library holds more
+    than one page.
+    """
+
+    async def test_collections_are_filtered_by_key(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_collection(session, library, key="AAAA2345", name="One")
+        await make_collection(session, library, key="BBBB2345", name="Two")
+        await make_collection(session, library, key="CCCC2345", name="Three")
+        await session.commit()
+
+        body = (
+            await client.get("/users/1/collections?collectionKey=AAAA2345,CCCC2345", headers=AUTH)
+        ).json()
+
+        assert sorted(entry["key"] for entry in body) == ["AAAA2345", "CCCC2345"]
+
+    async def test_searches_are_filtered_by_key(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        for key in ("AAAA2345", "BBBB2345", "CCCC2345"):
+            await make_search(
+                session, library, key=key, name=key, conditions=[("title", "contains", "x")]
+            )
+        await session.commit()
+
+        body = (await client.get("/users/1/searches?searchKey=BBBB2345", headers=AUTH)).json()
+
+        assert [entry["key"] for entry in body] == ["BBBB2345"]
+
+    async def test_a_batch_of_collections_is_not_cut_to_a_page(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        alphabet = "23456789ABCDEFGHIJKLMNPQRSTUVWXYZ"
+        keys = [f"CCCC{alphabet[n // 33]}{alphabet[n % 33]}ZZ" for n in range(40)]
+        for key in keys:
+            await make_collection(session, library, key=key, name=key)
+        await session.commit()
+
+        body = (
+            await client.get(f"/users/1/collections?collectionKey={','.join(keys)}", headers=AUTH)
+        ).json()
+
+        assert len(body) == 40
+
+    async def test_an_unknown_key_simply_matches_nothing(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_collection(session, library, key="AAAA2345", name="One")
+        await session.commit()
+
+        body = (
+            await client.get("/users/1/collections?collectionKey=AAAA2345,ZZZZ2345", headers=AUTH)
+        ).json()
+
+        assert [entry["key"] for entry in body] == ["AAAA2345"]

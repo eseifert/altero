@@ -194,14 +194,32 @@ class TestFiltering:
 
         assert sorted(i["key"] for i in body) == ["AAAA2345", "CCCC2345"]
 
-    async def test_more_than_fifty_keys_are_rejected(
+    async def test_a_long_list_of_keys_is_not_rejected(
         self, client: httpx.AsyncClient, library: Library
     ) -> None:
-        keys = ",".join(f"AAAA{n:04d}" for n in range(51))
+        """Upstream never counts them.
+
+        `Zotero_API::parseQueryParams` splits the value, drops the malformed
+        keys with a log line, and pages whatever is left. altero used to refuse
+        anything over fifty, which is half of what the desktop client sends.
+        """
+        keys = ",".join(f"AAAA{n:02d}ZZ" for n in range(51))
 
         response = await client.get(f"/users/1/items?itemKey={keys}", headers=AUTH)
 
-        assert response.status_code == 400
+        assert response.status_code == 200
+
+    async def test_a_malformed_key_matches_nothing_rather_than_failing(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """`array_filter` with a log line, not an error: a key that cannot name
+        an object here would not have matched one anyway."""
+        await make_item(session, library, key="AAAA2345")
+
+        response = await client.get("/users/1/items?itemKey=AAAA2345,not-a-key,,", headers=AUTH)
+
+        assert response.status_code == 200
+        assert [entry["key"] for entry in response.json()] == ["AAAA2345"]
 
     async def test_item_type_filters(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
@@ -444,3 +462,89 @@ class TestCollectionScopedItems:
         response = await client.get("/users/1/collections/ZZZZ2345/items", headers=AUTH)
 
         assert response.status_code == 404
+
+
+class TestDownloadingByKey:
+    """The client's download path, and the shape it needs.
+
+    Having asked what changed, the client fetches the objects themselves by
+    key: `Zotero.Sync.APIClient.downloadObjects` splits the list into batches
+    of `MAX_OBJECTS_PER_REQUEST` — **100** — and asks for each batch in one
+    request. Two things follow, and altero had neither.
+
+    Upstream accepts any number of keys: `Zotero_API::parseQueryParams` filters
+    out invalid ones, logs them, and never counts them. And it *forces* the page
+    size for such a request — `$finalParams['limit'] = self::MAX_OBJECT_KEYS`,
+    which is 100 — so a client that named a hundred keys is answered with a
+    hundred objects rather than the first twenty-five of them.
+
+    A library where fewer than 25 objects have changed hides both. This was
+    reported from one where 309 had.
+    """
+
+    async def _fill(self, session: AsyncSession, library: Library, count: int) -> list[str]:
+        alphabet = "23456789ABCDEFGHIJKLMNPQRSTUVWXYZ"
+        keys = [f"AAAA{alphabet[n // 33]}{alphabet[n % 33]}ZZ" for n in range(count)]
+        for key in keys:
+            await make_item(session, library, key=key, fields={"title": key})
+        await session.commit()
+        return keys
+
+    async def test_a_hundred_keys_are_accepted(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """What the client sends. altero refused anything over fifty."""
+        keys = await self._fill(session, library, 100)
+
+        response = await client.get(f"/users/1/items?itemKey={','.join(keys)}", headers=AUTH)
+
+        assert response.status_code == 200
+        assert len(response.json()) == 100
+
+    async def test_more_than_a_hundred_are_not_refused_either(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Upstream never counts them; it pages. So this answers a full page."""
+        keys = await self._fill(session, library, 120)
+
+        response = await client.get(f"/users/1/items?itemKey={','.join(keys)}", headers=AUTH)
+
+        assert response.status_code == 200
+        assert len(response.json()) == 100
+        assert response.headers["Total-Results"] == "120"
+
+    async def test_a_batch_is_not_cut_to_the_default_page_size(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """The quieter half of the bug: 30 keys answered with 25 objects."""
+        keys = await self._fill(session, library, 30)
+
+        body = (await client.get(f"/users/1/items?itemKey={','.join(keys)}", headers=AUTH)).json()
+
+        assert len(body) == 30
+
+    async def test_an_explicit_limit_does_not_shrink_the_batch(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Upstream assigns the forced limit last, over whatever was asked."""
+        keys = await self._fill(session, library, 30)
+
+        body = (
+            await client.get(f"/users/1/items?itemKey={','.join(keys)}&limit=5", headers=AUTH)
+        ).json()
+
+        assert len(body) == 30
+
+    async def test_the_unpaginated_formats_still_answer_with_everything(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """`versions` has no limit, and forcing one on it would truncate."""
+        keys = await self._fill(session, library, 120)
+
+        body = (
+            await client.get(
+                f"/users/1/items?itemKey={','.join(keys)}&format=versions", headers=AUTH
+            )
+        ).json()
+
+        assert len(body) == 120

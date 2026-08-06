@@ -136,6 +136,10 @@ class ListQuery:
     #: entry emits it. Empty for every other format.
     content: tuple[str, ...] = ()
     item_keys: tuple[str, ...] = ()
+    #: The same for a collection or a saved search listing. Each object type
+    #: names its own parameter and reads only that one, as upstream does.
+    collection_keys: tuple[str, ...] = ()
+    search_keys: tuple[str, ...] = ()
     item_types: tuple[SearchExpression, ...] = ()
     tags: tuple[SearchExpression, ...] = ()
     q: str | None = None
@@ -157,8 +161,15 @@ class ListQuery:
     raw: tuple[tuple[str, str], ...] = field(default=())
 
 
-#: Largest number of keys accepted in a single ``itemKey`` parameter.
-MAX_KEYS = 50
+#: The page size a request naming explicit object keys is given, whatever it
+#: asked for -- `Zotero_API::MAX_OBJECT_KEYS`, assigned as
+#: ``$finalParams['limit']`` the moment ``itemKey``, ``collectionKey`` or
+#: ``searchKey`` is seen. It is not a cap on how many keys may be named:
+#: upstream never counts them, it filters out the malformed ones and pages the
+#: rest. The number matters because it is also the client's own batch size
+#: (``Zotero.Sync.APIClient.MAX_OBJECTS_PER_REQUEST``), so a client asking for
+#: a hundred objects by name is answered with a hundred rather than a page.
+MAX_OBJECT_KEYS = 100
 
 #: Entries a single bibliography may hold. It is both the maximum and the
 #: default page size for ``format=bib``: a bibliography is one document, so a
@@ -337,9 +348,12 @@ def parse_list_query(
 
     direction = _parse_enum(Direction, direction_override, default_direction(sort), "direction")
 
+    # Leading, trailing and doubled commas are all tolerated, which is
+    # `trim($value, ",")` followed by upstream's filter. Nothing counts them:
+    # a client that names more objects than a page holds is paged, not refused.
     item_keys = tuple(key for key in (single.get("itemKey") or "").split(",") if key)
-    if len(item_keys) > MAX_KEYS:
-        raise InvalidInputError(f"Cannot request more than {MAX_KEYS} items at a time")
+    collection_keys = tuple(key for key in (single.get("collectionKey") or "").split(",") if key)
+    search_keys = tuple(key for key in (single.get("searchKey") or "").split(",") if key)
 
     # `content` is Atom's `include`, and is refused elsewhere for the reason
     # `include` is refused outside JSON: a client that asked for a citation and
@@ -353,11 +367,30 @@ def parse_list_query(
         if "content" in single:
             raise InvalidInputError("'content' is valid only for format=atom")
 
+    limit = clamp_limit(
+        _parse_int(single.get("limit"), None, "limit"),
+        maximum=limit_maximum(response_format),
+        default=default_limit(response_format),
+    )
+    # Naming objects sets the page size, over whatever was asked for: upstream
+    # assigns it inside the parameter's own case, so it is the last word. What
+    # a client that named a hundred keys wants is those hundred, not the first
+    # page of them -- and it is the sync's download step that does this, so a
+    # short answer there is a library that never finishes coming down.
+    #
+    # The unpaginated formats keep their own rule. `keys` and `versions` answer
+    # with everything by design, and holding them to a hundred would turn a
+    # complete answer into a truncated one.
+    if (item_keys or collection_keys or search_keys) and limit != UNLIMITED:
+        limit = MAX_OBJECT_KEYS
+
     return ListQuery(
         response_format=response_format,
         include=include,
         content=content,
         item_keys=item_keys,
+        collection_keys=collection_keys,
+        search_keys=search_keys,
         item_types=parse_expressions([single["itemType"]] if "itemType" in single else []),
         tags=parse_expressions(repeated),
         q=single.get("q") or None,
@@ -365,11 +398,7 @@ def parse_list_query(
         since=_parse_int(single.get("since"), 0, "since"),
         sort=sort,
         direction=direction,
-        limit=clamp_limit(
-            _parse_int(single.get("limit"), None, "limit"),
-            maximum=limit_maximum(response_format),
-            default=default_limit(response_format),
-        ),
+        limit=limit,
         start=max(0, _parse_int(single.get("start"), 0, "start")),
         include_trashed=single.get("includeTrashed") == "1",
         style=single.get("style") or DEFAULT_STYLE,

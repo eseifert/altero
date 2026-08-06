@@ -63,6 +63,10 @@ async def list_collections(
         filters.append(Collection.parent_id == parent.id)
     if query.since:
         filters.append(Collection.version > query.since)
+    if query.collection_keys:
+        # How the client fetches the collections it has just been told changed.
+        # `Zotero_Collections::search` adds the same `key IN (...)`.
+        filters.append(Collection.key.in_(query.collection_keys))
 
     statement = select(Collection).where(and_(*filters))
     result = await session.scalars(paginate(_apply_sort(statement, query), query))

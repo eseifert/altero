@@ -202,6 +202,33 @@ and is not capped at 100.
 
 For every other format the maximum stays 100 and the default 25.
 
+## Naming objects by key
+
+`itemKey`, `collectionKey` and `searchKey` are one case in
+`Zotero_API::parseQueryParams`, and it does three things worth copying exactly.
+
+**It does not count the keys.** Leading and trailing commas are trimmed, each
+key is checked, and a malformed one is *dropped with a log line* rather than
+failing the request — it could not have matched an object anyway. However many
+are left, the response is paged like any other.
+
+**It forces the page size**, to `MAX_OBJECT_KEYS`, which is **100**:
+`$finalParams['limit'] = self::MAX_OBJECT_KEYS` is assigned inside that case,
+so it overrides whatever `limit` the client sent. altero applies it the same
+way, and leaves `keys` and `versions` alone — those answer with everything, and
+holding them to a hundred would turn a complete answer into a truncated one.
+
+**Each object type filters on its own parameter.** `Zotero_Collections::search`
+and `Zotero_Searches::search` both add `AND key IN (...)`, as
+`Zotero_Items::search` does for `itemKey`.
+
+All three matter because this is the sync's *download* step. Having asked what
+changed, the client fetches the objects themselves by key, in batches of
+`Zotero.Sync.APIClient.MAX_OBJECTS_PER_REQUEST` — also 100. altero refused more
+than 50 outright, answered a smaller batch with a 25-object page, and ignored
+`collectionKey` and `searchKey` altogether. A library with fewer than 25
+changed objects hides all three; one with 309 does not.
+
 ## Parameter handling
 
 | Behaviour | Source |
