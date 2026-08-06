@@ -269,6 +269,18 @@ such as an unknown `sort` field, produce a 400.
 **Backward links omit a zero start.** `rel="first"` and `rel="prev"` are written
 as `?limit=2`, not `?limit=2&start=0`.
 
+**The order of `data` decides whether an attachment saves.** `Zotero.Item.fromJSON` walks the object
+with `for (let field in json)` and, on reaching `filename`, sets the attachment
+path — which throws "Link mode must be set before setting attachment path"
+unless `linkMode` has already gone by. An attachment served the other way round
+is never saved: it lands in the client's `syncQueue` and fails there on every
+later sync. Field values are rows with no order of their own, so their stored
+order is whatever the database returns — insertion order under SQLite, nothing
+in particular under PostgreSQL — and altero puts them back into the schema's
+order before emitting them, which for an attachment reads `linkMode`, `title`,
+`accessDate`, `url`, `contentType`, `charset`, `filename`, `md5`, `mtime`,
+`note`. That is the order zotero.org serves, read off a migrated library.
+
 ## Fields the published schema does not list
 
 `https://api.zotero.org/schema` gives `attachment` only `title`, `accessDate`

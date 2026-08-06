@@ -60,32 +60,31 @@ NOTE_BEARING_TYPES = frozenset({"note", "attachment"})
 #: The attachment set was read off live responses and off the server's own
 #: `/items/new` templates; the annotation set comes from the client's data model,
 #: since the published schema names none of it.
-UNLISTED_FIELDS: dict[str, frozenset[str]] = {
-    "attachment": frozenset(
-        {
-            "linkMode",
-            "contentType",
-            "charset",
-            "filename",
-            "md5",
-            "mtime",
-            "path",
-            # Added at schema version 42; the client uploads it on its own when
-            # a snapshot is opened.
-            "lastRead",
-        }
+#:
+#: Ordered rather than sets, because the order is the one the API emits these in
+#: and the client depends on it: see :func:`altero.serializers.ordered_fields`.
+UNLISTED_FIELDS: dict[str, tuple[str, ...]] = {
+    "attachment": (
+        "linkMode",
+        "contentType",
+        "charset",
+        "filename",
+        "md5",
+        "mtime",
+        "path",
+        # Added at schema version 42; the client uploads it on its own when
+        # a snapshot is opened.
+        "lastRead",
     ),
-    "annotation": frozenset(
-        {
-            "annotationType",
-            "annotationAuthorName",
-            "annotationText",
-            "annotationComment",
-            "annotationColor",
-            "annotationPageLabel",
-            "annotationSortIndex",
-            "annotationPosition",
-        }
+    "annotation": (
+        "annotationType",
+        "annotationAuthorName",
+        "annotationText",
+        "annotationComment",
+        "annotationColor",
+        "annotationPageLabel",
+        "annotationSortIndex",
+        "annotationPosition",
     ),
 }
 
@@ -219,7 +218,7 @@ def validate_item(
     if (key := payload.get("key")) is not None and key != "" and not is_valid_key(str(key)):
         raise InvalidInputError(f"'{key}' is not a valid item key")
 
-    unlisted = UNLISTED_FIELDS.get(item_type, frozenset())
+    unlisted = UNLISTED_FIELDS.get(item_type, ())
 
     fields: dict[str, str] = {}
     for name, value in payload.items():

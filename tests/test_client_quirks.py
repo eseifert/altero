@@ -300,6 +300,87 @@ class TestGroupVersions:
         assert [rendered["id"] for rendered in response.json()] == [42]
 
 
+#: An attachment's fields in an order no client would send them in, which is
+#: what a field table with no order of its own can hand back.
+SCRAMBLED = {
+    "url": "https://example.invalid/paper.pdf",
+    "contentType": "application/pdf",
+    "filename": "paper.pdf",
+    "linkMode": "imported_url",
+    "title": "Volltext",
+}
+
+
+class TestAttachmentFieldOrder:
+    """`linkMode` has to be emitted before `filename`.
+
+    `Zotero.Item.fromJSON` walks the object with `for (let field in json)` and
+    sets the attachment path when it reaches `filename`, which throws "Link mode
+    must be set before setting attachment path" if `linkMode` has not been seen
+    yet. The item is then queued in `syncQueue` and retried forever.
+
+    Field rows carry no order of their own, so the order they were written in is
+    whatever the database hands back -- insertion order under SQLite, nothing in
+    particular under PostgreSQL.
+    """
+
+    async def test_link_mode_precedes_filename(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment", fields=SCRAMBLED)
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        keys = list(data)
+
+        assert keys.index("linkMode") < keys.index("filename")
+
+    async def test_the_order_is_the_one_upstream_emits(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Read off an imported_url attachment as zotero.org serves it.
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            item_type="attachment",
+            fields=SCRAMBLED
+            | {"charset": "utf-8", "md5": "0" * 32, "mtime": "1700000000000", "note": ""},
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        emitted = [
+            key for key in data if key in SCRAMBLED or key in {"charset", "md5", "mtime", "note"}
+        ]
+
+        assert emitted == [
+            "linkMode",
+            "title",
+            "url",
+            "contentType",
+            "charset",
+            "filename",
+            "md5",
+            "mtime",
+            "note",
+        ]
+
+    async def test_a_normal_item_follows_the_schema(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(
+            session,
+            library,
+            key="BBBB2345",
+            item_type="journalArticle",
+            fields={"date": "2020", "title": "A paper", "DOI": "10.0/x"},
+        )
+
+        data = (await client.get("/users/1/items/BBBB2345", headers=AUTH)).json()["data"]
+        emitted = [key for key in data if key in {"title", "date", "DOI"}]
+
+        assert emitted == ["title", "date", "DOI"]
+
+
 class TestErrorBodies:
     async def test_an_unexpected_failure_does_not_leak_a_traceback(
         self, client: httpx.AsyncClient, library: Library

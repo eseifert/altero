@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import Any, Protocol
 from urllib.parse import quote_plus
 
+from altero.itemschema import get_schema
 from altero.models import (
     ApiKey,
     Collection,
@@ -20,6 +21,7 @@ from altero.models import (
     User,
 )
 from altero.services.itemdata import creator_summary, parsed_date
+from altero.services.itemwrites import UNLISTED_FIELDS
 
 #: Path segment used in URLs for each library type.
 _PREFIX = {LibraryType.USER: "users", LibraryType.GROUP: "groups"}
@@ -197,6 +199,34 @@ def _authorship(obj: Item, library: Library, authors: Mapping[int, User]) -> dic
     return rendered
 
 
+def ordered_fields(item_type: str, fields: Mapping[str, str]) -> dict[str, str]:
+    """Return an item's fields in the order the API emits them.
+
+    The order is not cosmetic. ``Zotero.Item.fromJSON``
+    walks the object with ``for (let field in json)`` and, on reaching
+    ``filename``, sets the attachment path -- which throws "Link mode must be
+    set before setting attachment path" unless ``linkMode`` came first. An
+    attachment that arrives the other way round is never saved: it goes into the
+    client's ``syncQueue`` and is retried, and fails, on every sync.
+
+    Field values are rows with no order of their own, so their stored order is
+    whatever the database returns: insertion order under SQLite, unspecified
+    under PostgreSQL. This puts them back into the schema's order, which is the
+    one upstream emits and the one the client is written against.
+    """
+    order = list(UNLISTED_FIELDS.get(item_type, ())[:1])  # `linkMode`, for an attachment.
+    order += [field.name for field in get_schema().get_item_type(item_type).fields]
+    order += UNLISTED_FIELDS.get(item_type, ())[1:]
+    # A note's content is not in the schema's field list for any type, and comes
+    # last on the types that carry it.
+    order.append("note")
+
+    ordered = {name: fields[name] for name in order if name in fields}
+    # Anything unrecognised keeps its stored position rather than being dropped.
+    ordered.update(fields)
+    return ordered
+
+
 def item(
     obj: Item,
     library: Library,
@@ -216,7 +246,7 @@ def item(
             costs one query instead of two hundred. Missing ids are simply not
             rendered, which is what upstream does for an account that has gone.
     """
-    fields = obj.field_values()
+    fields = ordered_fields(obj.item_type, obj.field_values())
 
     data: dict[str, Any] = {"key": obj.key, "version": obj.version, "itemType": obj.item_type}
     if parent_key:
