@@ -1006,9 +1006,57 @@ The browser reaches the same service through `PATCH
 of a key and no version header. See
 [web-interface.md](web-interface.md#tags).
 
+## Reading a library out of zotero.org
+
+Everywhere else in this document altero is answering requests. This is the one
+place it makes them: `services/zoteroapi.py` reads a personal library from
+api.zotero.org so it can be copied here, and `services/zoteroimport.py` turns
+what comes back into the archive `altero library export` writes. The restore is
+then the existing one, so nothing about writing a library is implemented twice.
+
+**Only an API key will do.** api.zotero.org documents exactly three ways to
+authenticate — a `Zotero-API-Key` header, `Authorization: Bearer`, and a `key`
+query parameter — and tells third-party software to use OAuth 1.0a. There is no
+password sign-in to drive, and OAuth would need every altero instance to
+register a client with Zotero. So the key is pasted in, used, and dropped.
+
+**Three things the API does not serve**, and what altero puts in their place:
+
+| Missing | Instead |
+| --- | --- |
+| `serverDateModified` | The client's own `dateModified`, which is the same instant for anything the client last wrote |
+| Timestamps for collections, searches and tags | The moment of the migration. Neither server exposes them over the API |
+| Versions in `/deleted` | The library's current version, so a client asking what went since any earlier point is told about all of it |
+
+**Object URIs are rewritten by user id, and only by user id.** Relations —
+`dc:relation` between related items, `owl:sameAs`, the merge tracker's
+`dc:replaces` — are identifiers of the form
+`http://zotero.org/users/<id>/items/<key>`. The `<id>` is the source account's
+and becomes the target account's, or every related-items link would name a user
+this server has never heard of. The **host is left alone**, because it is a
+namespace rather than an address: `Zotero.URI.defaultPrefix` in the client is a
+hard-coded `http://zotero.org/` and its parser is anchored to that literal, so
+a URI naming this server instead would simply stop matching and take related
+items, merged-item tracking and `owl:sameAs` with it. A relation pointing into
+a *group* is left as it is: groups are not migrated, so aiming it at a local
+group would be worse than leaving it where it came from.
+
+**Throttling is obeyed as the client obeys altero's.** `Backoff` pauses before
+the *next* request rather than after the one that carried it, so a page that
+arrived is used; `429` waits out `Retry-After` and repeats the request, and
+doubles its own delay from one second when the header is missing. Both headers
+must be whole seconds and are ignored otherwise, which is the rule
+`Zotero.Sync.APIClient._checkRetry` applies in the other direction. Requests go
+one at a time, under the four Zotero asks for.
+
+**Pages are walked with `start`, not the `Link` header.** The header names
+api.zotero.org absolutely, so following it would send a fetch pointed anywhere
+else — a test, a proxy, another altero — back to the real thing halfway
+through.
+
 ## Deliberate differences
 
-Five places where altero does not copy upstream:
+Six places where altero does not copy upstream:
 
 - **`alternate` links are omitted.** Every upstream envelope carries a link to
   the corresponding page on zotero.org, and the `Link` header always ends with
@@ -1031,3 +1079,6 @@ Five places where altero does not copy upstream:
   described above. An addition rather than a divergence — nothing that reads
   tags behaves differently for it — but it is a route the reference server does
   not have.
+- **altero makes requests of its own.** Only one: reading a library out of
+  api.zotero.org when somebody moves one in, described above. The reference
+  server is answered, never asked.

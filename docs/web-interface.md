@@ -227,6 +227,60 @@ says this account may write to the library.
 [compatibility.md](compatibility.md#renaming-a-tag) has the endpoint and why
 it is not upstream's.
 
+## Moving in from zotero.org
+
+Settings offers to copy your personal library out of zotero.org and put it
+here: items, collections, tags, saved searches, notes, the trash, the deletion
+log and the attachment bytes, at **the versions your clients already know**.
+It is not an export and re-import — nothing is renumbered, so the copy is the
+library rather than a new library with the same contents in it.
+
+**It takes an API key, not your zotero.org password.** zotero.org has no
+password sign-in for other programs; its API accepts a key and nothing else.
+So the screen asks you to make one at zotero.org → Settings → Security →
+Applications, allow it to read your personal library, and paste it in. The key
+is used for that one copy and is never stored, logged or written to the
+database.
+
+**It replaces rather than merges.** A library here with anything in it is
+refused unless you tick the box, exactly as restoring an archive is: two
+libraries sharing one set of keys is not something a client could make sense
+of. There is no trash around what it discards.
+
+**Your desktop client will want to reset itself afterwards**, and should be
+allowed to. Zotero refuses to sync a library it last synced under a different
+account number without erasing its local copy first — `checkUser` in the
+client's own sync code — and unless your account here happens to have the same
+number as your zotero.org one, that is what it sees. Everything it needs is on
+the server by then, so it re-downloads rather than losing anything. An
+administrator who wants to avoid even that can create the account with
+`altero user add <name> --id <zotero.org user id>` before migrating.
+
+It takes minutes, not moments — thousands of items at a hundred a request, one
+download per attachment, at whatever pace zotero.org allows — so the page
+starts the work and then reports on it: the stage, the count within it, and at
+the end what came across. **The record of a running migration lives in the
+server process**, so an instance behind several workers can start one on
+one worker and be told "nothing running" by another, and a restart forgets
+that a migration happened. What it *did* is in the library either way.
+
+What it cannot bring: group libraries (only the personal one), and files
+zotero.org has no copy of — a linked file was never uploaded, and a stored one
+is only there if the account had the storage. Those attachments arrive as
+items without their bytes, and are counted and named at the end rather than
+passed over quietly. The same is true of anything this server cannot store: an
+item is left behind and named, rather than stopping the rest of the library
+getting through.
+
+The command line does the same thing, with the archive left on disk:
+
+```sh
+uv run altero migrate zotero <username>
+```
+
+[compatibility.md](compatibility.md#reading-a-library-out-of-zoteroorg) covers
+what the API cannot serve and what altero does instead.
+
 ## Import and export
 
 Settings offers the archive `altero library export` writes, and reads one back.
@@ -386,9 +440,11 @@ are cached for good, so the second visit fetches none of it.
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
 editing a library beyond its collections and its tag names — collections can be
-made and removed, a tag can be renamed, and a whole library can be restored from
-an archive, but no item can be changed, a tag cannot be deleted or put on
-something, and a collection cannot be renamed or moved to another parent.
+made and removed, a tag can be renamed, and a whole library can be restored
+from an archive or copied in from zotero.org, but no item can be changed, a tag
+cannot be deleted or put on something, and a collection cannot be renamed or
+moved to another parent. Moving in from zotero.org brings the personal library
+only; a group has to be made here and its members invited.
 
 Making an account for somebody else, resetting their password and revoking
 their credentials are still shell operations, as is an operator's view of the

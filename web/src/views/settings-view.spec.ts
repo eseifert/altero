@@ -79,8 +79,9 @@ describe('the settings panel', () => {
   it('lists every section', async () => {
     const { wrapper } = await open()
 
-    expect(wrapper.findAll('.settings__section')).toHaveLength(5)
+    expect(wrapper.findAll('.settings__section')).toHaveLength(6)
     expect(wrapper.text()).toContain('Import and export')
+    expect(wrapper.text()).toContain('Move from zotero.org')
   })
 
   it('shows one section at a time, not the whole of settings', async () => {
@@ -214,5 +215,154 @@ describe('import and export', () => {
     await wrapper.get('input[type="checkbox"]').setValue(true)
 
     expect(wrapper.get('.settings__warning').text()).toContain('Everything in Ada is deleted first')
+  })
+})
+
+describe('moving a library in from zotero.org', () => {
+  /** Answer the status endpoint with `states`, one per poll. */
+  function polling(states: unknown[], onStart?: (body: unknown) => unknown) {
+    const remaining = [...states]
+    requestMock.mockImplementation((path: string, options?: { method?: string; body?: unknown }) => {
+      if (path === '/web/migrate/zotero' && options?.method === 'POST') {
+        return Promise.resolve(onStart ? onStart(options.body) : remaining[0])
+      }
+      if (path === '/web/migrate/zotero') {
+        return Promise.resolve(remaining.length > 1 ? remaining.shift() : remaining[0])
+      }
+      if (path === '/web/account') return Promise.resolve(ACCOUNT)
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path === '/web/groups') return Promise.resolve({ groups })
+      return Promise.resolve({})
+    })
+  }
+
+  const IDLE = null
+  const FINISHED = {
+    running: false,
+    stage: 'done',
+    done: 3,
+    total: 3,
+    detail: '',
+    error: null,
+    summary: {
+      userID: 4711,
+      username: 'ada',
+      libraryVersion: 12,
+      items: 3,
+      collections: 1,
+      searches: 0,
+      tags: 2,
+      files: 1,
+      filesMissing: [],
+      skipped: [],
+      rewritten: 0,
+      complete: true,
+    },
+  }
+
+  it('says a key is needed rather than a zotero.org password', async () => {
+    polling([IDLE])
+    const { wrapper } = await open('migrate')
+
+    expect(wrapper.text()).toContain('no password sign-in for other programs')
+    expect(wrapper.text()).toContain('create a new private key')
+  })
+
+  it('will not start without a key', async () => {
+    polling([IDLE])
+    const { wrapper } = await open('migrate')
+
+    const button = wrapper.findAll('button').find((entry) => entry.text().includes('Copy my library'))
+    expect(button?.attributes('disabled')).toBeDefined()
+  })
+
+  it('sends the key, the password and the choice to replace', async () => {
+    let sent: unknown = null
+    polling([FINISHED], (body) => {
+      sent = body
+      return FINISHED
+    })
+    const { wrapper } = await open('migrate')
+
+    const fields = wrapper.findAll('input')
+    await fields[0].setValue('KEYFROMZOTERO')
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+    await wrapper.get('input[type="password"]').setValue('correct horse')
+    await wrapper
+      .findAll('button')
+      .find((entry) => entry.text().includes('Copy my library'))!
+      .trigger('click')
+    await settle(wrapper)
+
+    expect(sent).toEqual({
+      apiKey: 'KEYFROMZOTERO',
+      currentPassword: 'correct horse',
+      replace: true,
+    })
+  })
+
+  it('says what replacing costs, before it is done rather than after', async () => {
+    polling([IDLE])
+    const { wrapper } = await open('migrate')
+
+    expect(wrapper.find('.settings__warning').exists()).toBe(false)
+
+    await wrapper.get('input[type="checkbox"]').setValue(true)
+
+    expect(wrapper.get('.settings__warning').text()).toContain('deleted first')
+  })
+
+  it('shows what a finished migration brought across', async () => {
+    polling([FINISHED])
+    const { wrapper } = await open('migrate')
+
+    expect(wrapper.text()).toContain('Finished.')
+    expect(wrapper.text()).toContain('3 items, 1 collections, 2 tags and 1 files')
+    expect(wrapper.text()).toContain('ada')
+  })
+
+  it('reports one that stopped, rather than looking finished', async () => {
+    polling([
+      {
+        running: false,
+        stage: 'failed',
+        done: 0,
+        total: null,
+        detail: '',
+        error: 'zotero.org refused that key.',
+      },
+    ])
+    const { wrapper } = await open('migrate')
+
+    expect(wrapper.get('.settings__warning[role="alert"]').text()).toContain('refused that key')
+  })
+
+  it('names what did not come across, rather than reporting a clean run', async () => {
+    polling([
+      {
+        ...FINISHED,
+        summary: {
+          ...FINISHED.summary,
+          filesMissing: ['AAAA2345', 'BBBB2345'],
+          skipped: [{ key: 'CCCC2345', reason: 'Invalid field' }],
+          complete: false,
+        },
+      },
+    ])
+    const { wrapper } = await open('migrate')
+
+    expect(wrapper.text()).toContain('2 attachments had no file stored at zotero.org')
+    expect(wrapper.text()).toContain('CCCC2345')
+  })
+
+  it('hides the form while one is running, so a second cannot be started', async () => {
+    polling([{ running: true, stage: 'items', done: 120, total: null, detail: '', error: null }])
+    const { wrapper } = await open('migrate')
+
+    expect(wrapper.text()).toContain('Reading items…')
+    expect(wrapper.text()).toContain('120')
+    expect(wrapper.findAll('button').some((entry) => entry.text().includes('Copy my library'))).toBe(
+      false,
+    )
   })
 })

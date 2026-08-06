@@ -77,6 +77,11 @@ EXPECTED = [
     # One tag renamed, which is a write to every item carrying it and to
     # nothing else. See altero/api/routes/webtags.py.
     ("/web/libraries/{library_id}/tags/{tag_name}", "PATCH"),
+    # A library read out of zotero.org and restored over this one. The only
+    # endpoint whose work outlives its request. See
+    # altero/api/routes/webmigrate.py.
+    ("/web/migrate/zotero", "GET"),
+    ("/web/migrate/zotero", "POST"),
     # A whole library out and a whole library back, which is a replacement
     # rather than an edit. See altero/api/routes/webtransfer.py.
     ("/web/libraries/{library_id}/archive", "GET"),

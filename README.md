@@ -20,6 +20,26 @@ It is meant to be small to look after:
 - SQLite for one person; PostgreSQL when several people use it at once.
 - A backup is a database dump and a folder.
 
+## Bringing your library with you
+
+Settings → **Move from zotero.org** copies your personal library across: items,
+collections, tags, saved searches, notes, the trash and your attachments, at
+the versions your Zotero clients already know.
+
+- It takes an API key you make at zotero.org, not your zotero.org password —
+  their API has no password sign-in for other programs. The key is used once
+  and never stored.
+- It replaces what is here rather than merging into it, and says so before it
+  does.
+- Your desktop client will offer to reset itself afterwards, and should be let
+  to; everything it needs is on the server by then. Creating the account with
+  `--id <your zotero.org user id>` avoids even that.
+- Personal library only for now. Groups stay where they are.
+
+`uv run altero migrate zotero <username>` does the same from the command line.
+[docs/web-interface.md](docs/web-interface.md#moving-in-from-zoteroorg) has the
+detail.
+
 ## Before you start
 
 - **The Zotero desktop application is the only client.** The phone apps have
@@ -110,7 +130,7 @@ Finding things, and getting them out again:
 
 ### Things zotero.org does not offer
 
-Three things people have asked it for over the years and not got:
+Four things people have asked it for over the years and not got:
 
 - **Tell me when a group changes.** A member can ask to hear about it, and
   hears once the library has been quiet for a while — a digest rather than a
@@ -121,6 +141,9 @@ Three things people have asked it for over the years and not got:
 - **Renaming a tag in one go.** zotero.org has no way to do this at all, so a
   client has to rewrite every item carrying the tag itself. [Asked for since
   2016.](https://github.com/zotero/dataserver/issues/108)
+- **Taking your library with you.** altero reads one out of zotero.org and
+  keeps every key and version, so a client that had synced there carries on
+  where it left off. See above.
 
 ### Not yet
 
@@ -134,6 +157,7 @@ A browser application at `/app/`, in six languages. It covers:
 
 - Registration, sign-in with an optional authenticator code, account settings
   and API keys.
+- Copying your library in from zotero.org, and taking a backup of it out.
 - Notifications, group invitations, and a group's activity log.
 - Browsing a library: collections, tags, search, an item's details, its
   attachments, and a citation in a style you pick.
@@ -167,7 +191,7 @@ been recreated — the case where clients lock themselves out.
 - [clients.md](docs/clients.md) — connecting a Zotero client
 - [deployment.md](docs/deployment.md) — running, configuring and upgrading it
 - [administration.md](docs/administration.md) — accounts, keys, groups,
-  libraries
+  libraries, moving one in from zotero.org
 - [email.md](docs/email.md) — what altero sends, and how to let it send
 - [web-interface.md](docs/web-interface.md) — the browser application
 - [compatibility.md](docs/compatibility.md) — every place altero deliberately

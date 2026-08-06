@@ -18,6 +18,7 @@ import { useRoute } from 'vue-router'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import KeysSection from './settings/KeysSection.vue'
 import LanguageSection from './settings/LanguageSection.vue'
+import MigrateSection from './settings/MigrateSection.vue'
 import ProfileSection from './settings/ProfileSection.vue'
 import SecuritySection from './settings/SecuritySection.vue'
 import TransferSection from './settings/TransferSection.vue'
@@ -55,6 +56,12 @@ const SECTIONS: { slug: string; icon: string; label: () => string; component: Co
     icon: 'archive',
     label: () => t('Import and export'),
     component: TransferSection,
+  },
+  {
+    slug: 'migrate',
+    icon: 'archive',
+    label: () => t('Move from zotero.org'),
+    component: MigrateSection,
   },
 ]
 

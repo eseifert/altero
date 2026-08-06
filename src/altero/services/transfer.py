@@ -319,7 +319,7 @@ def read_manifest(archive: Path) -> dict[str, Any]:
     return manifest
 
 
-async def _is_empty(session: AsyncSession, library: Library) -> bool:
+async def is_empty(session: AsyncSession, library: Library) -> bool:
     for model in (Item, Collection, SavedSearch, Tag, Setting, DeletedObject):
         if await session.scalar(select(model).where(model.library_id == library.id).limit(1)):
             return False
@@ -416,7 +416,7 @@ async def import_library(
             else await _resolve(session, LibraryType(described["type"]), described["id"])
         )
 
-        if not await _is_empty(session, library):
+        if not await is_empty(session, library):
             if not replace:
                 raise InvalidInputError(
                     f"Library {library.type.value}/{library.owner_id} is not empty; "

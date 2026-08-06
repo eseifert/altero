@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.db import Database
 from altero.errors import AlteroError, InvalidInputError
 from altero.models import Library, LibraryType
-from altero.services import admin, auth, groups, login, transfer, webauth
+from altero.services import admin, auth, groups, login, transfer, webauth, zoteroapi, zoteroimport
 from altero.settings import Settings, get_settings
 
 
@@ -251,6 +251,74 @@ async def _library_import(session: AsyncSession, args: argparse.Namespace) -> No
     )
 
 
+def _print_progress(progress: zoteroimport.Progress) -> None:
+    """Print one line per stage, overwriting the count as it climbs."""
+    counted = f" {progress.done}" if progress.done else ""
+    if progress.total:
+        counted = f" {progress.done}/{progress.total}"
+    print(f"\r{progress.stage}{counted}          ", end="", flush=True)
+    if progress.stage == "done":
+        print()
+
+
+async def _migrate_zotero(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Copy a personal library out of zotero.org and restore it here."""
+    import httpx
+
+    user = await admin.get_user_by_name(session, args.username)
+    library = await auth.get_library(session, LibraryType.USER, user.id)
+
+    key = args.key or getpass.getpass("zotero.org API key: ")
+    if not key.strip():
+        raise InvalidInputError("An API key is required")
+
+    archive = args.archive or Path(f"zotero-{user.username}.zip")
+    settings = get_settings()
+
+    async with httpx.AsyncClient(timeout=httpx.Timeout(60.0, read=300.0)) as client:
+        api = zoteroapi.ZoteroApi(key=key.strip(), client=client, base_url=args.server)
+        summary = await zoteroimport.fetch_archive(
+            api,
+            destination=archive,
+            target_user_id=user.id,
+            report=None if args.quiet else _print_progress,
+        )
+
+    print(
+        f"Read {summary.items} items, {summary.collections} collections, "
+        f"{summary.searches} saved searches, {summary.tags} tags and {summary.files} files "
+        f"from {summary.username or summary.user_id} at version {summary.library_version}."
+    )
+    if summary.user_id != user.id:
+        print(
+            f"zotero.org knows that account as user {summary.user_id} and this server as "
+            f"{user.id}. {summary.rewritten} object references were pointed at the new number, "
+            "and the desktop client will ask to reset its local data the first time it syncs."
+        )
+    for item_key, reason in summary.skipped:
+        print(f"skipped item {item_key}: {reason}")
+    if summary.files_missing:
+        print(
+            f"{len(summary.files_missing)} attachments had no file on zotero.org: "
+            f"{', '.join(summary.files_missing[:10])}"
+            f"{' …' if len(summary.files_missing) > 10 else ''}"
+        )
+
+    print(f"Wrote {archive}.")
+    if args.archive_only:
+        return
+
+    restored = await transfer.import_library(
+        session,
+        archive=archive,
+        storage_root=settings.storage_path,
+        replace=args.replace,
+        into=library,
+    )
+    await session.commit()
+    print(f"Restored into {restored.type.value}/{restored.owner_id} at version {restored.version}.")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="altero", description=__doc__)
     commands = parser.add_subparsers(dest="command")
@@ -333,6 +401,39 @@ def build_parser() -> argparse.ArgumentParser:
     set_version.add_argument("owner", type=int, metavar="id", help="the user or group id")
     set_version.add_argument("version", type=int)
     set_version.set_defaults(handler=_library_set_version)
+
+    migrate = commands.add_parser(
+        "migrate", help="copy a library in from another server"
+    ).add_subparsers(dest="subcommand")
+    zotero = migrate.add_parser(
+        "zotero", help="copy a personal library from zotero.org into this account"
+    )
+    zotero.add_argument("username", help="the account here to copy it into")
+    zotero.add_argument(
+        "--key",
+        help="the zotero.org API key. Prompted for when left out, which keeps it "
+        "out of the shell's history",
+    )
+    zotero.add_argument(
+        "--server",
+        default=zoteroapi.DEFAULT_BASE_URL,
+        help="where to read from (default: %(default)s)",
+    )
+    zotero.add_argument(
+        "--archive", type=Path, help="where to write the copy (default: zotero-<username>.zip)"
+    )
+    zotero.add_argument(
+        "--replace",
+        action="store_true",
+        help="discard what this library already holds. Required unless it is empty",
+    )
+    zotero.add_argument(
+        "--archive-only",
+        action="store_true",
+        help="write the archive and stop, restoring nothing",
+    )
+    zotero.add_argument("--quiet", action="store_true", help="do not print progress")
+    zotero.set_defaults(handler=_migrate_zotero)
 
     export = library.add_parser("export", help="write a whole library to an archive")
     export.add_argument("type", choices=[kind.value for kind in LibraryType])

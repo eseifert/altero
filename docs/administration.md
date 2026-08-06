@@ -70,6 +70,41 @@ downloaded archive is an ordinary file that anybody could hand you, and taking
 its word for the target would mean an upload could choose somebody else's
 library.
 
+## Moving a library in from zotero.org
+
+```sh
+# Ideally give the account the number zotero.org knows it by, which is what
+# stops the desktop client offering to reset itself afterwards.
+uv run altero user add <username> --id <zotero.org user id>
+uv run altero migrate zotero <username> --replace
+```
+
+It asks for a zotero.org API key — made by its owner at zotero.org → Settings →
+Security → Applications, allowed to read the personal library — and prompts for
+it rather than taking it as an argument, so it stays out of the shell's history
+and the process list. `--server` points it somewhere else, which is how one
+altero is read into another; `--archive-only` writes the copy and restores
+nothing.
+
+What it does is a download and then the restore above: it writes the same
+archive `library export` writes, then hands it to the same import. Keys,
+versions and the deletion log come across unchanged, so this is a *move* rather
+than a re-entry — a client that had synced with zotero.org is in step with what
+lands here.
+
+The account number matters. Zotero refuses to sync a library it last synced
+under a different account without erasing its local copy first, so an account
+created with `--id` matching the zotero.org one keeps every client working
+untouched; without it, each client offers to reset and re-download, which loses
+nothing but takes a while. Relations between items are rewritten to the new
+number either way.
+
+Only the personal library, and only what zotero.org will serve: an attachment
+whose bytes it has no copy of arrives without them, and is counted and named at
+the end. The browser has the same thing under **Settings → Move from
+zotero.org**; see
+[web-interface.md](web-interface.md#moving-in-from-zoteroorg).
+
 ## After recreating the database
 
 A library recreated from an empty database counts from zero again, while

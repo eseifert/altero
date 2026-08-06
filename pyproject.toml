@@ -22,6 +22,9 @@ dependencies = [
     "dateparser>=1.4.1",
     "bibtexparser>=1.4.4",
     "rispy>=0.10.0",
+    # The one outbound conversation this server has: reading a library out of
+    # api.zotero.org when somebody migrates one in. See services/zoteroapi.py.
+    "httpx>=0.28",
 ]
 
 [project.optional-dependencies]

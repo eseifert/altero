@@ -27,6 +27,9 @@ things the desktop client asks for that no data server documents.
   multi-object response, version preconditions and `Zotero-Write-Token`
 - Renaming a tag with `PATCH <prefix>/tags/<name>`, which upstream does not
   serve at all — see [compatibility.md](compatibility.md#renaming-a-tag)
+- Copying a personal library in from zotero.org, from the browser or with
+  `altero migrate zotero`, keeping every key and version — see
+  [compatibility.md](compatibility.md#reading-a-library-out-of-zoteroorg)
 - Recognising an object re-sent unchanged, so it keeps its version and the
   library's does not move
 - `inPublications`, the My Publications flag, with the refusals upstream
