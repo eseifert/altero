@@ -788,3 +788,119 @@ class TestALibraryThisServerCannotFullyStore:
         assert summary.items == 1
         assert [key for key, _ in summary.skipped] == ["AAAA2345"]
         assert not summary.complete
+
+
+class TestWhatZoteroOrgWillNotServe:
+    """One endpoint refusing must not throw away the whole library.
+
+    `GET /users/<id>/tags?format=versions` answers **500 on api.zotero.org**,
+    for any limit and for every library tried, including Zotero's own
+    documented example account — while `/items`, `/collections` and
+    `/searches` answer the same format perfectly. altero implements it and
+    answers it, which is why reading from another altero could not show this
+    up, and why a real migration died on it after reading everything else.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _no_waiting(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Skip the backoff. A refusal is repeated five times before it counts,
+        which is right against a real server and pointless against this one."""
+
+        async def instantly(seconds: float) -> None:
+            return None
+
+        monkeypatch.setattr("altero.services.zoteroapi.asyncio.sleep", instantly)
+
+    def _server(self, broken: set[str]) -> httpx.MockTransport:
+        """A library that answers everything except the paths in `broken`."""
+
+        def handle(request: httpx.Request) -> httpx.Response:
+            path = request.url.path
+            if path in broken:
+                return httpx.Response(500, text="An error occurred")
+            if path == "/keys/current":
+                return httpx.Response(
+                    200,
+                    json={"userID": 7, "username": "ada", "access": {"user": {"library": True}}},
+                )
+            if path == "/users/7/items":
+                if request.url.params.get("start", "0") != "0":
+                    return httpx.Response(200, json=[], headers={"Total-Results": "1"})
+                return httpx.Response(
+                    200,
+                    headers={"Total-Results": "1", "Last-Modified-Version": "413"},
+                    json=[
+                        {
+                            "key": "AAAA2345",
+                            "version": 400,
+                            "data": {
+                                "key": "AAAA2345",
+                                "version": 400,
+                                "itemType": "book",
+                                "title": "Moby-Dick",
+                                "tags": [{"tag": "fiction"}],
+                            },
+                        }
+                    ],
+                )
+            if path in ("/users/7/settings", "/users/7/fulltext", "/users/7/deleted"):
+                return httpx.Response(200, json={})
+            if path == "/users/7/tags":
+                return httpx.Response(200, json={})
+            return httpx.Response(200, json=[], headers={"Total-Results": "0"})
+
+        return httpx.MockTransport(handle)
+
+    async def _read(self, broken: set[str], tmp_path: Path):
+        async with httpx.AsyncClient(transport=self._server(broken)) as client:
+            return await fetch_archive(
+                ZoteroApi(key="k", client=client, base_url="http://zotero.test"),
+                destination=tmp_path / "out.zip",
+                target_user_id=7,
+            )
+
+    async def test_the_library_still_comes_across(self, tmp_path: Path) -> None:
+        summary = await self._read({"/users/7/tags"}, tmp_path)
+
+        assert summary.items == 1
+        assert summary.tags == 1
+
+    async def test_the_tags_fall_back_to_the_library_version(self, tmp_path: Path) -> None:
+        """Safe in the one direction that matters: a client asking what changed
+        since any earlier point is told about them."""
+        await self._read({"/users/7/tags"}, tmp_path)
+
+        tags = documents(tmp_path / "out.zip")["tags.json"]
+        assert [entry["version"] for entry in tags] == [413]
+
+    async def test_what_would_not_come_is_named(self, tmp_path: Path) -> None:
+        summary = await self._read({"/users/7/tags"}, tmp_path)
+
+        assert summary.unavailable == ["the tags' versions"]
+        assert not summary.complete
+
+    @pytest.mark.parametrize(
+        ("path", "named"),
+        [
+            ("/users/7/settings", "the settings"),
+            ("/users/7/fulltext", "the full-text index"),
+            ("/users/7/deleted", "the deletion log"),
+        ],
+    )
+    async def test_the_other_extras_are_survivable_too(
+        self, path: str, named: str, tmp_path: Path
+    ) -> None:
+        summary = await self._read({path}, tmp_path)
+
+        assert summary.items == 1
+        assert summary.unavailable == [named]
+
+    @pytest.mark.parametrize(
+        "path", ["/users/7/items", "/users/7/collections", "/users/7/searches"]
+    )
+    async def test_the_library_itself_is_not_survivable(self, path: str, tmp_path: Path) -> None:
+        """Items, collections and searches *are* the library. Half of one is
+        not a copy, and pretending otherwise would replace somebody's library
+        with the part that happened to download."""
+        with pytest.raises(ZoteroApiError):
+            await self._read({path}, tmp_path)

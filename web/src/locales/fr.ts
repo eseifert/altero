@@ -310,6 +310,7 @@ export default {
   'to your altero library': 'à votre bibliothèque altero',
   'zotero.org API key': 'Clé d’API zotero.org',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.': 'zotero.org ne propose pas de connexion par mot de passe aux autres programmes ; c’est pourquoi il faut ici une clé et non votre mot de passe zotero.org.',
+  'zotero.org would not serve everything asked of it. The copy is missing {parts} and is otherwise whole.': 'zotero.org n’a pas fourni tout ce qui lui a été demandé. Il manque {parts} à la copie, qui est complète par ailleurs.',
   '{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.': '{count} pièce jointe n’avait aucun fichier stocké chez zotero.org et est arrivée sans lui. | {count} pièces jointes n’avaient aucun fichier stocké chez zotero.org et sont arrivées sans lui.',
   '{count} collection added or changed | {count} collections added or changed': '{count} collection ajoutée ou modifiée | {count} collections ajoutées ou modifiées',
   '{count} item added or changed | {count} items added or changed': '{count} document ajouté ou modifié | {count} documents ajoutés ou modifiés',

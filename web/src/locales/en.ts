@@ -283,6 +283,7 @@ export default {
   'to your altero library': 'to your altero library',
   'zotero.org API key': 'zotero.org API key',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.': 'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.',
+  'zotero.org would not serve everything asked of it. The copy is missing {parts} and is otherwise whole.': 'zotero.org would not serve everything asked of it. The copy is missing {parts} and is otherwise whole.',
   '{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.': '{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.',
   '{count} collection added or changed | {count} collections added or changed': '{count} collection added or changed | {count} collections added or changed',
   '{count} item added or changed | {count} items added or changed': '{count} item added or changed | {count} items added or changed',

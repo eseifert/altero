@@ -44,6 +44,7 @@ interface Status {
     files: number
     filesMissing: string[]
     skipped: { key: string; reason: string }[]
+    unavailable: string[]
     rewritten: number
     complete: boolean
   }
@@ -229,6 +230,9 @@ async function begin(): Promise<void> {
         </p>
         <p v-if="summary.rewritten" class="settings__detail">
           {{ t('{count} link between items was pointed at your account here. | {count} links between items were pointed at your account here.', summary.rewritten) }}
+        </p>
+        <p v-if="summary.unavailable?.length" class="settings__warning">
+          {{ t('zotero.org would not serve everything asked of it. The copy is missing {parts} and is otherwise whole.', { parts: summary.unavailable.join(', ') }) }}
         </p>
         <p v-if="summary.filesMissing.length" class="settings__warning">
           {{ t('{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.', summary.filesMissing.length) }}

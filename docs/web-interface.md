@@ -264,6 +264,13 @@ server process**, so an instance behind several workers can start one on
 one worker and be told "nothing running" by another, and a restart forgets
 that a migration happened. What it *did* is in the library either way.
 
+If zotero.org refuses part of the library, the copy goes on without it and
+says which part at the end. Its `/tags?format=versions` currently answers 500
+for every library, so the tags arrive with the library's version rather than
+their own — which nothing you can see depends on. Items, collections and saved
+searches are the exception: those *are* the library, and a copy missing them
+would not be one, so a failure there stops the migration with nothing written.
+
 What it cannot bring: group libraries (only the personal one), and files
 zotero.org has no copy of — a linked file was never uploaded, and a stored one
 is only there if the account had the storage. Those attachments arrive as

@@ -87,6 +87,7 @@ class Migration:
                 "filesMissing": self.summary.files_missing,
                 "skipped": [{"key": key, "reason": reason} for key, reason in self.summary.skipped],
                 "rewritten": self.summary.rewritten,
+                "unavailable": self.summary.unavailable,
                 "complete": self.summary.complete,
             }
         return body

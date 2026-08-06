@@ -1085,6 +1085,21 @@ must be whole seconds and are ignored otherwise, which is the rule
 `Zotero.Sync.APIClient._checkRetry` applies in the other direction. Requests go
 one at a time, under the four Zotero asks for.
 
+**`/tags?format=versions` answers 500 on api.zotero.org.** For any limit, for
+every library tried, including Zotero's own documented example account —
+while `/items`, `/collections` and `/searches` answer the same format
+perfectly. altero implements the endpoint and answers it, so reading one
+altero into another cannot show this up; a real migration died on it after
+reading everything else.
+
+So the migration divides what it reads in two. **Items, collections and saved
+searches are the library**, and a request for one of those that will not answer
+stops it: what would be left is not a copy. **The tags' versions, the settings,
+the full text, the deletion log and each attachment's bytes** are read if they
+can be and named in the report if they cannot. A tag whose version did not come
+takes the library's, which errs in the safe direction — a client asking what
+changed since any earlier point is told about it.
+
 **Pages are walked with `start`, not the `Link` header.** The header names
 api.zotero.org absolutely, so following it would send a fetch pointed anywhere
 else — a test, a proxy, another altero — back to the real thing halfway

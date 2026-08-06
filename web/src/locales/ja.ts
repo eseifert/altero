@@ -306,6 +306,7 @@ export default {
   'to your altero library': 'altero ライブラリへ',
   'zotero.org API key': 'zotero.org の API キー',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.': 'zotero.org は他のプログラム向けのパスワードによるサインインを提供していません。そのため、ここでは zotero.org のパスワードではなくキーが必要です。',
+  'zotero.org would not serve everything asked of it. The copy is missing {parts} and is otherwise whole.': 'zotero.org は要求されたすべてを返しませんでした。このコピーには {parts} がありませんが、それ以外は完全です。',
   '{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.': '{count} 件の添付ファイルは zotero.org にファイルが保存されておらず、ファイルなしで取り込まれました。 | {count} 件の添付ファイルは zotero.org にファイルが保存されておらず、ファイルなしで取り込まれました。',
   '{count} collection added or changed | {count} collections added or changed': '{count} 件のコレクションを追加または変更 | {count} 件のコレクションを追加または変更',
   '{count} item added or changed | {count} items added or changed': '{count} 件のアイテムを追加または変更 | {count} 件のアイテムを追加または変更',

@@ -53,11 +53,13 @@ import json
 import logging
 import re
 import zipfile
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+import httpx
 
 from altero import __version__
 from altero.errors import InvalidInputError
@@ -67,7 +69,7 @@ from altero.services import itemdata
 from altero.services.itemwrites import validate_item
 from altero.services.storage import file_digest
 from altero.services.transfer import FILE_PREFIX, FORMAT_VERSION, MANIFEST
-from altero.services.zoteroapi import ZoteroApi
+from altero.services.zoteroapi import ZoteroApi, ZoteroApiError
 
 logger = logging.getLogger("altero.zoteroimport")
 
@@ -115,10 +117,13 @@ class Summary:
     skipped: list[tuple[str, str]] = field(default_factory=list)
     #: Relation URIs pointed at the new account's number.
     rewritten: int = 0
+    #: Parts of the library zotero.org would not serve, named in English. The
+    #: copy is missing them and is otherwise whole.
+    unavailable: list[str] = field(default_factory=list)
 
     @property
     def complete(self) -> bool:
-        return not self.skipped and not self.files_missing
+        return not self.skipped and not self.files_missing and not self.unavailable
 
 
 def _now() -> str:
@@ -239,6 +244,22 @@ async def fetch_archive(
 ) -> Summary:
     """Copy the key owner's personal library into an archive, and describe it.
 
+    The library is the items, the collections and the saved searches; a request
+    for one of those that will not answer stops the migration, because what
+    would be left is not the library. Everything else -- the tags' versions, the
+    settings, the full text, the deletion log, and each attachment's bytes --
+    is read if it can be and noted in ``unavailable`` if it cannot. Somebody
+    moving house does not want the van turned back for a missing lampshade,
+    and losing twenty minutes of downloading to one endpoint having a bad day
+    is what "as complete as possible" is against.
+
+    It is not hypothetical. ``GET /users/<id>/tags?format=versions`` answers
+    **500 on api.zotero.org**, for any limit and for any library, including
+    Zotero's own documented example account -- while `/items`, `/collections`
+    and `/searches` answer it perfectly. altero implements the same endpoint
+    and answers it, which is exactly why reading from another altero did not
+    show this up.
+
     Args:
         destination: Where to write the archive.
         target_user_id: The altero account it is destined for, which decides
@@ -264,6 +285,20 @@ async def fetch_archive(
     summary = assembler.summary
     summary.user_id = source_id
     summary.username = str(owner.get("username") or "")
+
+    async def optional(part: str, request: Awaitable[Any]) -> Any:
+        """Read something the copy can do without, or note that it would not.
+
+        A refused *credential* still stops everything: that is not one endpoint
+        having a bad day, it is the whole migration having no way in.
+        """
+        try:
+            return await request
+        except (ZoteroApiError, httpx.HTTPError) as thrown:
+            logger.warning("could not read %s from %s: %s", part, api.base_url, thrown)
+            if part not in summary.unavailable:
+                summary.unavailable.append(part)
+            return None
 
     # Read before the contents rather than after, so a library somebody is
     # still syncing into is recorded at a version no later than what was read.
@@ -337,7 +372,9 @@ async def fetch_archive(
     # which is upstream's own answer -- its `/tags?format=versions` is keyed by
     # name too.
     say("tags")
-    tag_versions = await api.json(f"{prefix}/tags", format="versions", limit=0)
+    tag_versions = (
+        await optional("the tags' versions", api.json(f"{prefix}/tags", format="versions"))
+    ) or {}
     tags = [
         {
             "key": generate_key(),
@@ -354,7 +391,7 @@ async def fetch_archive(
     summary.tags = len(tags)
 
     say("settings")
-    stored = await api.json(f"{prefix}/settings")
+    stored = await optional("the settings", api.json(f"{prefix}/settings")) or {}
     settings = [
         {
             "name": name,
@@ -367,13 +404,17 @@ async def fetch_archive(
     summary.settings = len(settings)
 
     say("full text")
-    indexed = await api.json(f"{prefix}/fulltext", since=0)
+    indexed = await optional("the full-text index", api.json(f"{prefix}/fulltext", since=0)) or {}
     fulltext: list[dict[str, Any]] = []
     known = {entry["key"] for entry in assembler.items}
     for position, (item_key, version) in enumerate(sorted((indexed or {}).items()), start=1):
         if item_key not in known:
             continue
-        body = await api.json(f"{prefix}/items/{item_key}/fulltext")
+        body = await optional(
+            "some attachments' text", api.json(f"{prefix}/items/{item_key}/fulltext")
+        )
+        if body is None:
+            continue
         fulltext.append(
             {
                 "item": item_key,
@@ -389,7 +430,7 @@ async def fetch_archive(
     summary.fulltext = len(fulltext)
 
     say("deleted")
-    removed = await api.json(f"{prefix}/deleted", since=0)
+    removed = await optional("the deletion log", api.json(f"{prefix}/deleted", since=0)) or {}
     plural = {
         "collections": "collection",
         "items": "item",

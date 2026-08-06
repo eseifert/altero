@@ -295,6 +295,11 @@ async def _migrate_zotero(session: AsyncSession, args: argparse.Namespace) -> No
             f"{user.id}. {summary.rewritten} object references were pointed at the new number, "
             "and the desktop client will ask to reset its local data the first time it syncs."
         )
+    if summary.unavailable:
+        print(
+            f"{args.server} would not serve {', '.join(summary.unavailable)}; "
+            "the copy is missing that and is otherwise whole."
+        )
     for item_key, reason in summary.skipped:
         print(f"skipped item {item_key}: {reason}")
     if summary.files_missing:
