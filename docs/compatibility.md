@@ -869,6 +869,42 @@ put on every item in every library as `false`.
 The `/publications` endpoints — the public listing of those items — are still
 not implemented. The property is what the sync path needs.
 
+## A POSTed batch is a batch of patches
+
+`Zotero_DataObjects::updateMultipleFromJSON` passes `$partialUpdate = true` for
+every object in the batch, and each type's validator is then called with
+`$partialUpdate && $exists`. So in a `POST` to `/items`, `/collections` or
+`/searches`:
+
+- an object naming one that **exists** may leave out anything it is not
+  changing, and what it leaves out is left alone;
+- an object that is **new** must still carry what a new object needs — a
+  collection its name, a search its conditions, an item its type.
+
+`PUT` is the replacing write and stays one: what it omits, it clears.
+
+This is not a corner of the protocol, it is the normal upload. The client keeps
+the last synced copy of each object in its `syncCache` and passes it to
+`Zotero.DataObjectUtilities.patch` as a base, so what goes up is the
+difference. Two shapes matter:
+
+| The user did | What the client uploads |
+| --- | --- |
+| Sent a collection to the trash | `{key, version, deleted: true}` |
+| Changed an item's type | `{key, version, itemType}` |
+
+altero read both as replacements. The first was refused with `400 'name'
+property not provided`, and since the client stops on a rejection —
+"Made no progress during upload" — one trashed collection wedged the whole
+library's sync, in both directions. The second was worse: it succeeded, and
+emptied the item of every field, creator, tag and collection the patch did not
+mention.
+
+**A property that is absent means "as before"; clearing one is done by
+sending it empty.** The client already does exactly that — `patch()` writes
+`deleted: false` rather than dropping the key, and sends `relations: {}` rather
+than omitting the map — so nothing depends on omission meaning erasure.
+
 ## Objects that were sent again without changing
 
 An object identical to the stored one is reported under `unchanged` and keeps

@@ -133,13 +133,19 @@ async def create_searches(
     library: WritableLibraryDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    """Create or update a batch of saved searches."""
+    """Create or update a batch of saved searches.
+
+    Each object is a diff against what is stored, for the reason the collection
+    batch gives: the client uploads only what it changed, so a search sent to
+    the trash arrives as ``{key, version, deleted}``. A new search still has to
+    carry its name and its conditions.
+    """
 
     async def save(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
     ) -> dict[str, Any] | None:
         search = await object_writes.save_search(
-            session, library, payload, version, detect_unchanged=True
+            session, library, payload, version, detect_unchanged=True, replace=False
         )
         if search is None:
             return None

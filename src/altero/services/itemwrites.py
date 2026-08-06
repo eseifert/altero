@@ -450,6 +450,16 @@ async def save_item(
     # diff against what the server already holds, so it must not clear the rest.
     if item is not None and "itemType" not in payload:
         replace = False
+    # A new item has nothing to preserve, so writing it as a diff and writing it
+    # as a replacement describe the same result. It is written as a replacement
+    # because that assigns the field, creator and relation collections rather
+    # than reading them, and reading an unloaded collection off a row that has
+    # just been flushed is a lazy load -- which under async SQLAlchemy is a
+    # `MissingGreenlet` rather than a query. `save_collection` and `save_search`
+    # reach the same place by treating an object as partial only when it names
+    # one that exists.
+    if item is None:
+        replace = True
 
     before = None
     creating = item is None

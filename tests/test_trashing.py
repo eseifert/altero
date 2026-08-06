@@ -95,12 +95,50 @@ class TestTrashingACollection:
     async def test_it_can_be_taken_out_of_the_trash(
         self, client: httpx.AsyncClient, library: Library
     ) -> None:
+        """Taken out the way the client takes one out: `deleted: false`.
+
+        Not by leaving the property off. A POST batch is a batch of patches --
+        an omitted property means "as before" -- and the client knows it:
+        `DataObjectUtilities.patch` writes `deleted: false` explicitly when the
+        flag goes away, rather than dropping the key.
+        """
+        stored = await make_one(client, "/users/1/collections", {"name": "Fiction"})
+        trashed = await post(client, "/users/1/collections", [{**stored, "deleted": 1}])
+        current = trashed.json()["successful"]["0"]["data"]
+
+        await post(client, "/users/1/collections", [{**current, "deleted": False}])
+
+        fetched = await client.get(f"/users/1/collections/{stored['key']}", headers=AUTH)
+        assert "deleted" not in fetched.json()["data"]
+
+    async def test_leaving_the_flag_off_a_patch_leaves_it_trashed(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """`isset($json->deleted) || !$partialUpdate` -- upstream's own rule."""
         stored = await make_one(client, "/users/1/collections", {"name": "Fiction"})
         trashed = await post(client, "/users/1/collections", [{**stored, "deleted": 1}])
         current = trashed.json()["successful"]["0"]["data"]
         del current["deleted"]
 
         await post(client, "/users/1/collections", [current])
+
+        fetched = await client.get(f"/users/1/collections/{stored['key']}", headers=AUTH)
+        assert fetched.json()["data"]["deleted"] == 1
+
+    async def test_a_replacing_put_still_takes_it_out(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """`PUT` replaces, so what it leaves out it clears. Upstream too."""
+        stored = await make_one(client, "/users/1/collections", {"name": "Fiction"})
+        trashed = await post(client, "/users/1/collections", [{**stored, "deleted": 1}])
+        current = trashed.json()["successful"]["0"]["data"]
+        del current["deleted"]
+
+        await client.put(
+            f"/users/1/collections/{stored['key']}",
+            headers=JSON,
+            json={**current, "version": trashed.json()["successful"]["0"]["version"]},
+        )
 
         fetched = await client.get(f"/users/1/collections/{stored['key']}", headers=AUTH)
         assert "deleted" not in fetched.json()["data"]
@@ -180,9 +218,8 @@ class TestTrashingASearch:
         stored = await make_one(client, "/users/1/searches", SEARCH)
         trashed = await post(client, "/users/1/searches", [{**stored, "deleted": 1}])
         current = trashed.json()["successful"]["0"]["data"]
-        del current["deleted"]
 
-        await post(client, "/users/1/searches", [current])
+        await post(client, "/users/1/searches", [{**current, "deleted": False}])
 
         fetched = await client.get(f"/users/1/searches/{stored['key']}", headers=AUTH)
         assert "deleted" not in fetched.json()["data"]

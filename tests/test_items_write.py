@@ -874,3 +874,63 @@ class TestPartialUploads:
 
         assert body["failed"] == {}
         assert body["successful"]["0"]["data"]["lastRead"] == "1785524654"
+
+    async def test_a_patch_that_changes_the_type_keeps_the_rest(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """The one patch that carries `itemType`, and the one that lost data.
+
+        `DataObjectUtilities.patch` drops every property equal to the cached
+        copy, so a type change uploads as `{key, version, itemType}` and
+        nothing else. Read as a replacement that emptied the item: title,
+        publisher, creators, tags and collection membership all went. Upstream
+        passes `$partialUpdate = true` for every object in a POST batch, so it
+        sets what is there and leaves out what is not.
+        """
+        item = await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            version=10,
+            fields={"title": "Moby-Dick", "publisher": "Harper"},
+            creators=[("author", "Herman", "Melville")],
+        )
+        await tag_item(session, library, item, "fiction")
+        await make_collection(session, library, key="CCCC2345", name="Whales", items=[item])
+
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "itemType": "journalArticle"}],
+        )
+
+        assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["itemType"] == "journalArticle"
+        assert data["title"] == "Moby-Dick"
+        assert data["publisher"] == "Harper"
+        assert data["creators"][0]["lastName"] == "Melville"
+        assert data["tags"] == [{"tag": "fiction"}]
+        assert data["collections"] == ["CCCC2345"]
+
+    async def test_a_replacing_put_still_clears_what_it_leaves_out(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """`PUT` is the replacing write, and stays one."""
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            version=10,
+            fields={"title": "Moby-Dick", "publisher": "Harper"},
+        )
+
+        await client.put(
+            "/users/1/items/AAAA2345",
+            headers=JSON,
+            json={"itemType": "book", "version": 10, "title": "Moby-Dick"},
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["title"] == "Moby-Dick"
+        assert "publisher" not in data

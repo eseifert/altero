@@ -282,13 +282,23 @@ async def create_collections(
     base_url: BaseUrlDep,
     api_key: ApiKeyDep,
 ) -> Response:
-    """Create or update a batch of collections."""
+    """Create or update a batch of collections.
+
+    Each object is a *diff* against what is stored, which is what
+    ``updateMultipleFromJSON`` means by passing ``$partialUpdate = true`` for
+    the whole batch. The desktop client relies on it: with the previous version
+    in its ``syncCache`` it uploads only what changed, so a collection sent to
+    the trash arrives as ``{key, version, deleted}`` and nothing else. A new
+    collection is still a new collection and must carry a name --
+    ``save_collection`` reads an object as partial only when it names one that
+    exists, which is upstream's ``$partialUpdate && $exists``.
+    """
 
     async def save(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
     ) -> dict[str, Any] | None:
         collection = await object_writes.save_collection(
-            session, library, payload, version, detect_unchanged=True
+            session, library, payload, version, detect_unchanged=True, replace=False
         )
         if collection is None:
             return None

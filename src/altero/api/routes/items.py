@@ -366,7 +366,19 @@ async def create_items(
     base_url: BaseUrlDep,
     api_key: ApiKeyDep,
 ) -> Response:
-    """Create or update a batch of items."""
+    """Create or update a batch of items.
+
+    Each object is a diff against what is stored -- ``$partialUpdate = true``
+    for the whole batch in ``updateMultipleFromJSON`` -- so an object naming an
+    item that exists sets what it carries and leaves out what it does not. The
+    client uploads exactly that: it keeps the last synced copy and sends only
+    the difference, which for a change of item type is
+    ``{key, version, itemType}`` and nothing else. Read as a replacement, that
+    emptied the item.
+
+    A new item is still a new item and must carry its type; ``save_item``
+    reads an object as partial only when it names one that exists.
+    """
 
     async def save(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
@@ -377,6 +389,7 @@ async def create_items(
             payload,
             version,
             detect_unchanged=True,
+            replace=False,
             actor_id=api_key.user_id if api_key else None,
         )
         if item is None:

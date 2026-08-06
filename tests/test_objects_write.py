@@ -31,6 +31,119 @@ async def library(session: AsyncSession) -> Library:
     return library
 
 
+class TestAPostedBatchIsPatches:
+    """An object in a POST batch that names an existing one is a diff.
+
+    `Zotero_DataObjects::updateMultipleFromJSON` passes `$partialUpdate = true`
+    for every object in the batch, and validation is relaxed with
+    `$partialUpdate && $exists`, so an object that names one already stored may
+    leave out anything it is not changing.
+
+    This is not a corner of the protocol. The desktop client uploads a *patch*
+    whenever it has the previous version cached -- `syncEngine.js` reads
+    `syncCache` and passes it as `patchBase` -- so a collection sent to the
+    trash arrives as `{key, version, deleted}` and nothing else. Refusing that
+    stops the upload, and the client answers "made no progress" and gives up on
+    the whole library.
+    """
+
+    async def test_trashing_a_collection_needs_no_name(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_collection(session, library, key="AAAA2345", name="more", version=10)
+
+        response = await client.post(
+            "/users/1/collections",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "deleted": True}],
+        )
+
+        assert response.json()["failed"] == {}
+        body = (await client.get("/users/1/collections/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["deleted"] == 1
+        assert body["data"]["name"] == "more"
+
+    async def test_trashing_a_search_needs_no_name(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_search(
+            session,
+            library,
+            key="AAAA2345",
+            name="Whales",
+            version=10,
+            conditions=[("title", "contains", "whale")],
+        )
+
+        response = await client.post(
+            "/users/1/searches",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "deleted": True}],
+        )
+
+        assert response.json()["failed"] == {}
+        body = (await client.get("/users/1/searches/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["deleted"] == 1
+        assert body["data"]["name"] == "Whales"
+        assert body["data"]["conditions"][0]["value"] == "whale"
+
+    async def test_a_patch_leaves_the_parent_where_it_was(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        parent = await make_collection(session, library, key="AAAA2345", name="Whales")
+        await make_collection(session, library, key="BBBB2345", name="more", parent=parent)
+
+        await client.post(
+            "/users/1/collections",
+            headers=JSON,
+            json=[{"key": "BBBB2345", "version": 1, "deleted": True}],
+        )
+
+        body = (await client.get("/users/1/collections/BBBB2345", headers=AUTH)).json()
+        assert body["data"]["parentCollection"] == "AAAA2345"
+
+    async def test_a_new_collection_still_needs_a_name(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """Only an object that exists may leave things out."""
+        body = (
+            await client.post("/users/1/collections", headers=JSON, json=[{"key": "AAAA2345"}])
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+
+    async def test_a_new_search_still_needs_its_conditions(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post("/users/1/searches", headers=JSON, json=[{"name": "Whales"}])
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+
+    async def test_a_patch_that_renames_leaves_the_rest_alone(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_search(
+            session,
+            library,
+            key="AAAA2345",
+            name="Whales",
+            version=10,
+            conditions=[("title", "contains", "whale")],
+        )
+
+        await client.post(
+            "/users/1/searches",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "name": "Cetaceans"}],
+        )
+
+        body = (await client.get("/users/1/searches/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["name"] == "Cetaceans"
+        assert body["data"]["conditions"][0]["value"] == "whale"
+
+
 class TestCollectionWrites:
     async def test_a_collection_is_created(
         self, client: httpx.AsyncClient, library: Library

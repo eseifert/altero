@@ -171,7 +171,27 @@ class TestCollectionRelations:
 
         assert stored["relations"] == {}
 
-    async def test_a_replacing_write_clears_them(
+    async def test_an_empty_map_clears_them(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """How a client clears them: it sends the empty map.
+
+        Not by leaving the property out. `toJSON` always emits `relations`, so
+        `DataObjectUtilities.patch` compares two maps and sends `{}` when the
+        last one went -- and a POST batch reads an absent property as "as
+        before", which is `isset($json->relations)` upstream.
+        """
+        stored = await post(
+            client,
+            "/users/1/collections",
+            [{"name": "Fiction", "relations": {"owl:sameAs": A_COLLECTION}}],
+        )
+
+        again = await post(client, "/users/1/collections", [{**stored, "relations": {}}])
+
+        assert again["relations"] == {}
+
+    async def test_leaving_the_map_out_of_a_patch_leaves_them_alone(
         self, client: httpx.AsyncClient, library: Library
     ) -> None:
         stored = await post(
@@ -181,9 +201,10 @@ class TestCollectionRelations:
         )
         del stored["relations"]
 
-        again = await post(client, "/users/1/collections", [stored])
+        await client.post("/users/1/collections", headers=JSON, json=[{**stored, "name": "Novels"}])
 
-        assert again["relations"] == {}
+        fetched = await client.get(f"/users/1/collections/{stored['key']}", headers=AUTH)
+        assert fetched.json()["data"]["relations"] == {"owl:sameAs": A_COLLECTION}
 
     async def test_changing_them_is_not_an_unchanged_write(
         self, client: httpx.AsyncClient, library: Library
