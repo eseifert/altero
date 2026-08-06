@@ -4,34 +4,40 @@
 
 **Run Zotero synchronisation on infrastructure you control.**
 
-altero is a Python implementation of the [Zotero data
-server](https://github.com/zotero/dataserver), serving version 3 of the [Zotero
-Web API](https://www.zotero.org/support/dev/web_api/start). Point an unmodified
-Zotero desktop client at it and it syncs the way it syncs against zotero.org —
-items, collections, tags, groups, notes, annotations, attachments and full-text
-— with the data on a machine you run.
+altero is a self-hosted stand-in for the
+[server](https://github.com/zotero/dataserver) behind zotero.org's syncing,
+written in Python and speaking the same [web
+API](https://www.zotero.org/support/dev/web_api/start) the Zotero client does.
+Point an unmodified Zotero desktop application at it and it syncs the way it
+always has — items, collections, tags, groups, notes, annotations, attachments
+and full text — with your library on a machine you run.
 
-It is one server process, one database and one directory of attachments: no
-caching tier, no search cluster, no queue workers, no object store to provision
-before the first request. SQLite for one person, PostgreSQL where concurrency
-matters. A backup is a database dump and a directory.
+It is meant to be small to look after:
+
+- One server process, one database, one folder of attachments.
+- Nothing to provision first: no cache, no search cluster, no queue, no object
+  storage.
+- SQLite for one person; PostgreSQL when several people use it at once.
+- A backup is a database dump and a folder.
 
 ## Before you start
 
-- **The Zotero desktop application is the only client.** iOS and Android
-  compile the server address into the build, so a phone cannot be pointed
-  anywhere else. [Why, and why that will not
+- **The Zotero desktop application is the only client.** The phone apps have
+  the server address built in, so they cannot be pointed anywhere else.
+  [Why, and why that will not
   change.](docs/motivation.md#the-precondition-everything-else-rests-on)
-- **altero is not finished.** Point a test installation at it, not one holding
-  a library you care about — a sync sends the client's data to it.
-- **Zotero does not support this.** The preference that redirects the client is
+- **altero is not finished.** Use a test installation, not one holding a
+  library you care about — syncing sends the client's data to it.
+- **Zotero does not support this.** The setting that redirects the client is
   hidden and undocumented, and self-hosting has been declined upstream since
-  2012. Nothing here can prevent that preference disappearing in a release.
+  2012. Nothing here can stop that setting disappearing in a future release.
 
 ## Quick start
 
-Python 3.14 or newer and [uv](https://docs.astral.sh/uv/); or Docker, further
-down.
+You need Python 3.14 or newer and [uv](https://docs.astral.sh/uv/) — or
+[Docker](#with-docker) instead.
+
+**1. Start the server.** It listens on `http://127.0.0.1:8000`.
 
 ```sh
 uv sync
@@ -41,99 +47,106 @@ uv run altero user add <username>
 uv run altero
 ```
 
-The server listens on `http://127.0.0.1:8000`. Now point Zotero at it: open
-**Settings → Advanced → Config Editor**, accept the warning, and set
+**2. Point Zotero at it.** Open **Settings → Advanced → Config Editor**, accept
+the warning, and set:
 
     extensions.zotero.api.url = http://localhost:8000/
     extensions.zotero.streaming.url = ws://localhost:8000/stream
 
-then restart Zotero and open **Settings → Sync → Link Account**. Zotero opens a
-browser page and waits for the key to be approved. Approve it from the shell:
+Both matter: the second address is not redirected by the first, and a client
+left at its default would hand your API key to zotero.org.
 
-```sh
-uv run altero login list                       # shows the pending token
-uv run altero login approve <token> <username>
-```
+**3. Link the account.** Restart Zotero and open **Settings → Sync → Link
+Account**. Zotero opens a browser page and waits for approval.
 
-Syncing starts on the client's next poll. If the [web
-interface](docs/web-interface.md) has been built — it is, in the container
-image — that page is a sign-in form instead and approves the key itself, with
-no shell involved. [docs/clients.md](docs/clients.md) explains each step,
-including why the streaming address needs a preference of its own: `api.url`
-does not redirect it, and a client left at its compiled-in default hands your
-API key to zotero.org.
+- If the [web interface](docs/web-interface.md) has been built — it is in the
+  container image — that page is a sign-in form and approves the key itself.
+- Otherwise, approve it from the shell:
 
-In a container instead, which is PostgreSQL, altero and a volume for
-attachments:
+  ```sh
+  uv run altero login list                       # shows the pending request
+  uv run altero login approve <token> <username>
+  ```
+
+Syncing starts the next time the client checks in.
+[docs/clients.md](docs/clients.md) explains each step in more detail.
+
+### With Docker
+
+This brings up PostgreSQL, altero and a volume for attachments:
 
 ```sh
 docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 ```
 
-The image is built from the checkout, and migrations run on start, so an
-upgrade is `git pull && docker compose up -d --build`.
-[docs/deployment.md](docs/deployment.md) covers configuration,
-health checks, rate limiting, reverse proxies and upgrading PostgreSQL itself.
+- The image is built from the checkout and database updates run on start, so
+  upgrading is `git pull && docker compose up -d --build`.
+- [docs/deployment.md](docs/deployment.md) covers settings, health checks, rate
+  limiting, reverse proxies and upgrading PostgreSQL itself.
 
 ## What works
 
-Reading and writing items, collections, saved searches and tags, with version
-preconditions, write tokens and the multi-object response; every item type,
-including the notes, attachments and annotations whose fields the published
-schema does not list; the attachment file protocol and full-text upload;
-groups, permissions and My Publications; Atom feeds; citations and
-bibliographies in any published CSL style, and export as BibTeX, BibLaTeX or
-RIS. The streaming API is served too, at `/stream`, so a client pointed at it
-learns of a change the moment it happens instead of waiting for its next poll.
+Everyday syncing, in both directions:
 
-Searching reaches an attachment's text: `q` with `qmode=everything` looks
-inside what a client uploaded, and a `/top` listing answers with the item a
-matching PDF or child note hangs under. Upstream does this through
-Elasticsearch; altero does it in the database it already has, which keeps the
-deployment one process and one database — see
-[docs/compatibility.md](docs/compatibility.md) for what that costs.
+- Items, collections, tags and saved searches, with the safeguards that stop
+  two clients overwriting each other.
+- Every kind of item Zotero has, including notes, attachments and annotations.
+- Attached files, uploaded and downloaded, with their text searchable.
+- Group libraries, with the permissions that go with them, and My Publications.
+- Who added an item to a group, and who last changed it.
+- Live updates, so a change reaches a connected client at once instead of at
+  its next check.
 
-Two things exist here that zotero.org has never offered, both asked for on its
-forums for years. A member of a group library can ask to be told when it
-changes, and hears about it once the library has been quiet — a digest rather
-than one message per batch of a sync, off for everybody until they turn it on.
-And a group keeps an activity log: who changed what, and when, naming the items
-and collections each change touched as they were called at the time — readable
-by every member rather than only its administrators.
+Finding things, and getting them out again:
 
-An item in a group also says who added it and who last changed it, which
-upstream has served for years and altero had not.
+- Search that looks inside attached PDFs and child notes, and answers with the
+  item they belong to. It runs in the database rather than needing a search
+  cluster alongside — [what that
+  costs](docs/compatibility.md#quick-search-and-full-text-search).
+- Citations and bibliographies in any published citation style.
+- Export as BibTeX, BibLaTeX or RIS.
+- Atom feeds of a library.
 
-A tag can also be renamed over the API, with
-`PATCH <prefix>/tags/<name>`. The reference server has no endpoint for it —
-[zotero/dataserver#108](https://github.com/zotero/dataserver/issues/108) has
-been open since 2016 — and leaves a client to rewrite every item itself. The
-behaviour is copied from the desktop client's own rename, down to merging into
-a name already in use; [docs/compatibility.md](docs/compatibility.md) says
-exactly what it does.
+### Things zotero.org does not offer
 
-Not yet: the other export formats.
-[docs/status.md](docs/status.md) is the endpoint-level list, and says what the
-desktop client asks for that no data server documents.
+Three things people have asked it for over the years and not got:
+
+- **Tell me when a group changes.** A member can ask to hear about it, and
+  hears once the library has been quiet for a while — a digest rather than a
+  message per batch of a sync. Off until somebody turns it on.
+- **What happened in this group.** A log of who changed what and when, naming
+  the items and collections involved as they were called at the time, readable
+  by every member rather than only administrators.
+- **Renaming a tag in one go.** zotero.org has no way to do this at all, so a
+  client has to rewrite every item carrying the tag itself. [Asked for since
+  2016.](https://github.com/zotero/dataserver/issues/108)
+
+### Not yet
+
+- Export formats other than BibTeX, BibLaTeX and RIS.
+
+[docs/status.md](docs/status.md) has the detailed list, feature by feature.
 
 ## The web interface
 
-A Vue 3 application at `/app/`, in six languages, covering registration,
-sign-in with an optional authenticator code, account settings, API keys,
-notifications, group invitations, a group's activity log and what it tells you
-about, and browsing a library — collections, tags, search, an item's details,
-its attachments and a citation. Collections can be made and removed there, and
-a tag renamed throughout the library; everything else in a library it reads
-rather than writes.
+A browser application at `/app/`, in six languages. It covers:
 
-The v3 API stays API-key only and refuses a session cookie, so none of it
-reaches the sync protocol — see
+- Registration, sign-in with an optional authenticator code, account settings
+  and API keys.
+- Notifications, group invitations, and a group's activity log.
+- Browsing a library: collections, tags, search, an item's details, its
+  attachments, and a citation in a style you pick.
+- Making and removing collections, and renaming a tag throughout the library.
+
+Everything else in a library it reads rather than changes. The sync API accepts
+only an API key and refuses a browser session, so nothing the interface does
+can reach the sync protocol — see
 [docs/web-interface.md](docs/web-interface.md).
 
 ## Administration
 
-Accounts, keys, groups and library transfer are command-line operations:
+Accounts, keys, groups and moving libraries are command-line operations:
 
 ```sh
 uv run altero user add <username>
@@ -142,29 +155,28 @@ uv run altero library export user 1 library.zip
 uv run altero library import library.zip
 ```
 
-[docs/administration.md](docs/administration.md) is the full list, and covers
-moving a library between instances and recovering after the database has been
-recreated — the case where clients lock themselves out.
+[docs/administration.md](docs/administration.md) is the full list. It also
+covers moving a library between servers, and what to do after a database has
+been recreated — the case where clients lock themselves out.
 
 ## Documentation
 
-- [motivation.md](docs/motivation.md) — why this exists, the goals, and which
-  of them are intentions rather than properties of the current code
-- [status.md](docs/status.md) — what the API serves and what it does not
+- [motivation.md](docs/motivation.md) — why this exists, and which of its goals
+  are intentions rather than things the code already does
+- [status.md](docs/status.md) — what works and what does not
 - [clients.md](docs/clients.md) — connecting a Zotero client
 - [deployment.md](docs/deployment.md) — running, configuring and upgrading it
 - [administration.md](docs/administration.md) — accounts, keys, groups,
   libraries
-- [email.md](docs/email.md) — what altero sends, and setting up a relay to send
-  it
+- [email.md](docs/email.md) — what altero sends, and how to let it send
 - [web-interface.md](docs/web-interface.md) — the browser application
-- [compatibility.md](docs/compatibility.md) — every deliberate divergence from,
-  and copied quirk of, the reference implementation
-- [schema.md](docs/schema.md) — the database schema against the dataserver's
+- [compatibility.md](docs/compatibility.md) — every place altero deliberately
+  differs from the original, and every quirk it copies on purpose
+- [schema.md](docs/schema.md) — the database, against the original's
 
-The target is the Zotero desktop application, so where the published
-documentation and the official dataserver disagree, the dataserver wins —
-including its inconsistencies.
+The target is the Zotero desktop application, so where zotero.org's published
+documentation and its actual server disagree, the server wins — including its
+inconsistencies.
 
 ## Development
 
@@ -178,9 +190,9 @@ uv run ruff check --fix    # lint
 uv run ty check            # type-check
 ```
 
-[CONTRIBUTING.md](CONTRIBUTING.md) covers the layering rule, how behaviour is
-checked against the reference implementation, and what a change is expected to
-come with.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers how the code is laid out, how
+behaviour is checked against the original server, and what a change is expected
+to come with.
 
 ## License
 
