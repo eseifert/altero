@@ -81,16 +81,28 @@ export const useThemeStore = defineStore('theme', () => {
 
   function setPreference(next: ThemePreference): void {
     preference.value = next
-    if (next === 'system') {
-      localStorage.removeItem(THEME_STORAGE_KEY)
-    } else {
-      localStorage.setItem(THEME_STORAGE_KEY, next)
+    /* Wrapped because a browser can have a `localStorage` that throws on
+       every write -- Safari in private browsing does. The choice then lasts
+       the session rather than taking the page down with it. */
+    try {
+      if (next === 'system') {
+        localStorage.removeItem(THEME_STORAGE_KEY)
+      } else {
+        localStorage.setItem(THEME_STORAGE_KEY, next)
+      }
+    } catch {
+      // Not remembered, still applied.
     }
     apply()
   }
 
   function initialise(): void {
-    const stored = localStorage.getItem(THEME_STORAGE_KEY)
+    let stored: string | null = null
+    try {
+      stored = localStorage.getItem(THEME_STORAGE_KEY)
+    } catch {
+      // As above: no stored preference is the same as none chosen.
+    }
     preference.value = isPreference(stored) && stored !== 'system' ? stored : 'system'
 
     const query = window.matchMedia(DARK_QUERY)

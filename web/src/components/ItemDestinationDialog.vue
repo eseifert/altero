@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { Place } from '@/collectionplaces'
 import AppButton from '@/components/AppButton.vue'
+import { useModal } from '@/modal'
 
 /**
  * Where an item should go: a collection here, or another library.
@@ -54,8 +55,11 @@ const staying = computed(() => destination.value.startsWith('place:'))
 const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 const field = useTemplateRef<HTMLSelectElement>('field')
 
+/* Escape is the browser's to handle where it has a modal of its own, and
+   `useModal`'s where it has not. Either way it is a cancel. */
+useModal(dialog, () => emit('cancel'))
+
 onMounted(() => {
-  dialog.value?.showModal()
   field.value?.focus()
 })
 
@@ -122,79 +126,3 @@ function submit(): void {
     </form>
   </dialog>
 </template>
-
-<style scoped>
-.dialog {
-  width: min(26rem, calc(100vw - 2rem));
-  padding: 0;
-  border: none;
-  border-radius: var(--md-sys-shape-corner-large, 1rem);
-  background: var(--md-sys-color-surface-container-high);
-  color: var(--md-sys-color-on-surface);
-}
-
-.dialog::backdrop {
-  background: rgb(0 0 0 / 45%);
-}
-
-.dialog__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--md-spacing-3);
-  padding: var(--md-spacing-5, 1.5rem);
-}
-
-.dialog__title {
-  margin: 0;
-  font-size: var(--md-sys-typescale-title-large-size, 1.35rem);
-}
-
-/* The item's own title, so a dialog reached from a list of fifty rows says
-   which of them it is about. */
-.dialog__what {
-  margin: 0;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-body-medium-size);
-  overflow-wrap: anywhere;
-}
-
-.dialog__label {
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-body-medium-size);
-}
-
-.dialog__field {
-  width: 100%;
-  padding: 0.45rem 0.6rem;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-small);
-  background: var(--md-sys-color-surface);
-  color: var(--md-sys-color-on-surface);
-  font: inherit;
-}
-
-.dialog__field:focus {
-  border-color: var(--md-sys-color-primary);
-  outline: none;
-}
-
-.dialog__check {
-  display: flex;
-  align-items: center;
-  gap: var(--md-spacing-2);
-  font-size: var(--md-sys-typescale-body-medium-size);
-}
-
-.dialog__error {
-  margin: 0;
-  color: var(--md-sys-color-error);
-  font-size: var(--md-sys-typescale-body-medium-size);
-}
-
-.dialog__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--md-spacing-2);
-  margin-top: var(--md-spacing-2);
-}
-</style>

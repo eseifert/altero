@@ -1,0 +1,146 @@
+/*
+ * What a dialog looks like, in one place.
+ *
+ * Four of them ask for one thing each — a name, a new name, a collection's
+ * settings, where an item should go — and they looked identical because they
+ * were the same 60 lines copied four times. They are global class names rather
+ * than scoped ones for the same reason `base.css` is global: this is what a
+ * dialog *is* here, not what one component decided.
+ *
+ * The fallback below is the other reason. A browser without `<dialog>` (Safari
+ * before 15.4, which is what an iPhone SE on iOS 14.6 has) draws the element as
+ * an ordinary block in the flow of the page, so the top layer and the backdrop
+ * have to be drawn here; `modal.ts` marks the element and does the rest.
+ */
+
+.dialog {
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-large, 1rem);
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+.dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-spacing-3);
+  padding: var(--md-spacing-5, 1.5rem);
+}
+
+.dialog__title {
+  margin: 0;
+  font-size: var(--md-sys-typescale-title-large-size, 1.35rem);
+}
+
+/* What the dialog is about, or what it is about to do: a line of explanation
+   under the heading, in the quieter colour. */
+.dialog__note,
+.dialog__what,
+.dialog__label {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.dialog__what {
+  /* A title can be one long word, and a dialog must not grow sideways for it.
+     `word-break` first, for browsers that do not know the other. */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.dialog__field {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  /* Inherited, and so 16px: anything smaller and iOS zooms the page in when
+     the field takes focus, and leaves it zoomed. */
+  font: inherit;
+}
+
+.dialog__field:focus {
+  border-color: var(--md-sys-color-primary);
+  outline: none;
+}
+
+.dialog__check {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-2);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.dialog__error {
+  margin: 0;
+  color: var(--md-sys-color-error);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--md-spacing-2);
+  margin-top: var(--md-spacing-2);
+}
+
+/* Pushes whatever follows it to the other end of the row -- Delete on the left,
+   Cancel and Save on the right. */
+.dialog__spacer {
+  flex: 1;
+}
+
+.dialog__danger {
+  color: var(--md-sys-color-error);
+}
+
+/*
+ * ---- Where the browser has no modal of its own ----
+ *
+ * The dialog element becomes the backdrop and the centring, and the form
+ * inside it becomes the panel. That keeps the click handler each dialog
+ * already has honest: a click on the dialog element is a click on the
+ * backdrop, in both worlds.
+ */
+dialog:not([open]) {
+  display: none;
+}
+
+.dialog[data-modal-fallback] {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: var(--md-spacing-3);
+  overflow: auto;
+  background: rgb(0 0 0 / 45%);
+  color: var(--md-sys-color-on-surface);
+}
+
+.dialog[data-modal-fallback] > * {
+  width: min(26rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  border-radius: var(--md-sys-shape-corner-large, 1rem);
+  background: var(--md-sys-color-surface-container-high);
+}

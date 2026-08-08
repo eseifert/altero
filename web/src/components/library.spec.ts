@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fieldLabel, humanize, itemTypeLabel, loadLabels, resetLabels } from '@/items/labels'
 import { sidebarIcon } from '@/items/sidebaricons'
@@ -217,6 +217,68 @@ describe('CollectionTree', () => {
     await wrapper.findAll('.tree__action')[3].trigger('click')
 
     expect(wrapper.emitted('settings')).toEqual([[drafts]])
+  })
+})
+
+/**
+ * A dialog where the browser has no modal of its own.
+ *
+ * `showModal` arrived in Safari 15.4, and an iPhone SE stopped at iOS 14.6:
+ * there `<dialog>` is an unknown element drawn in the flow of the page, and
+ * calling `showModal` on it throws. The element stays a `<dialog>` and
+ * `modal.ts` does the four things the top layer would have done.
+ */
+describe('a dialog without <dialog>', () => {
+  let showModal: (() => void) | undefined
+
+  beforeEach(() => {
+    showModal = HTMLDialogElement.prototype.showModal
+    // @ts-expect-error -- exactly what an older Safari has: no such method.
+    delete HTMLDialogElement.prototype.showModal
+  })
+
+  afterEach(() => {
+    if (showModal) HTMLDialogElement.prototype.showModal = showModal
+  })
+
+  it('opens anyway, and says it is a modal', () => {
+    const wrapper = mount(CollectionDialog, { props: { path: ['Ada'] }, attachTo: document.body })
+
+    const dialog = wrapper.get('dialog')
+    expect(dialog.attributes('open')).toBeDefined()
+    expect(dialog.attributes('data-modal-fallback')).toBeDefined()
+    expect(dialog.attributes('aria-modal')).toBe('true')
+    wrapper.unmount()
+  })
+
+  it('closes on Escape, which the browser would have done', () => {
+    const wrapper = mount(CollectionDialog, { props: { path: ['Ada'] }, attachTo: document.body })
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+
+    expect(wrapper.emitted('cancel')).toHaveLength(1)
+    wrapper.unmount()
+  })
+
+  it('stops the page behind it from scrolling, and lets it again after', () => {
+    const wrapper = mount(CollectionDialog, { props: { path: ['Ada'] }, attachTo: document.body })
+
+    expect(document.body.style.overflow).toBe('hidden')
+
+    wrapper.unmount()
+    expect(document.body.style.overflow).toBe('')
+  })
+
+  it('keeps the focus inside, which is the whole of what a modal is', () => {
+    const wrapper = mount(CollectionDialog, { props: { path: ['Ada'] }, attachTo: document.body })
+    const inside = wrapper.findAll('input, button')
+    const last = inside[inside.length - 1].element as HTMLElement
+    last.focus()
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true }))
+
+    expect(document.activeElement).toBe(inside[0].element)
+    wrapper.unmount()
   })
 })
 

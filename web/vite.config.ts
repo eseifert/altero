@@ -42,6 +42,17 @@ export default defineConfig({
   build: {
     outDir: fileURLToPath(new URL('../src/altero/web/static', import.meta.url)),
     emptyOutDir: true,
+    /*
+     * The oldest browser this interface is meant to work in.
+     *
+     * An iPhone SE that stopped at iOS 14.6 is a phone somebody still reads
+     * on, and Vite's own default target assumes a browser three years newer:
+     * the bundle would parse there and then fail on syntax Safari 14 does not
+     * know. What this cannot do is polyfill *methods* -- `Array.prototype.at`
+     * and the rest are avoided in the source instead -- or add a `<dialog>`,
+     * which `modal.ts` answers for.
+     */
+    target: ['es2020', 'safari14', 'chrome87', 'firefox78', 'edge88'],
     // The favicons stay files rather than being inlined at their 750 bytes: a
     // tab icon is a URL the browser fetches, and index.html has to be able to
     // name one. Everything else, the header logos included, keeps the default

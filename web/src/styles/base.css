@@ -75,12 +75,6 @@ a {
   text-underline-offset: 2px;
 }
 
-/* Visible only for keyboard users, but unmistakable when it is. */
-:focus-visible {
-  outline: 2px solid var(--md-sys-color-primary);
-  outline-offset: 2px;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -99,7 +93,23 @@ a {
  * on (see contrast.spec.ts). `:focus-visible` rather than `:focus` so a mouse
  * click does not leave a ring behind, and an offset so the ring is not confused
  * with the control's own border.
+ *
+ * Written as three rules rather than one for Safari before 15.4, which does
+ * not know `:focus-visible` at all. There the ring lands on plain `:focus`,
+ * the rule that would take it off a mouse click is thrown away as unknown, and
+ * a click leaves a ring behind. That is the harmless direction to fail in: a
+ * ring too often beats a keyboard with no ring at all, which is what a single
+ * `:focus-visible` rule would have left an iPhone SE with.
  */
+:focus {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 :focus-visible {
   outline: 2px solid var(--md-sys-color-primary);
   outline-offset: 2px;

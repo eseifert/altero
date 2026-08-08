@@ -153,13 +153,22 @@ function onKeydown(event: KeyboardEvent): void {
 }
 
 .splitter:hover::before,
-.splitter:focus-visible::before,
 .splitter--dragging::before {
   opacity: 1;
 }
 
-.splitter:focus-visible::before,
+/* Split from the rule above rather than listed with it: `:focus-visible`
+   arrived in Safari 15.4, and a browser that does not know a selector throws
+   away the whole rule it appears in — hover included. */
+.splitter:focus-visible::before {
+  opacity: 1;
+}
+
 .splitter--dragging::before {
+  background: var(--md-sys-color-primary);
+}
+
+.splitter:focus-visible::before {
   background: var(--md-sys-color-primary);
 }
 

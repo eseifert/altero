@@ -7,5 +7,6 @@ import { router } from './router'
 import './styles/fonts.css'
 import './styles/tokens.css'
 import './styles/base.css'
+import './styles/dialog.css'
 
 createApp(App).use(createPinia()).use(i18n).use(router).mount('#app')

@@ -378,6 +378,7 @@ function childTitle(child: ItemEnvelope): string {
 
 .detail__fields dd {
   margin: 0;
+  word-break: break-word;
   overflow-wrap: anywhere;
 }
 
@@ -385,7 +386,28 @@ function childTitle(child: ItemEnvelope): string {
  * In a narrow pane the label column is a third of the width, and an abstract
  * is left reading twenty characters to the line. Below that the label goes
  * above its value instead, which costs a line and buys the whole width.
+ *
+ * Twice over, because the two questions are not the same one. The media query
+ * is the phone: a narrow *window*, where the panes are stacked and the pane is
+ * as wide as the screen. The container query is a narrow *pane* in a wide
+ * window, which is what dragging the grip to the right produces — and which
+ * Safari only understood from 16, so the phone cannot be left to it.
  */
+@media (max-width: 32rem) {
+  .detail__fields {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .detail__fields dt {
+    font-size: var(--md-sys-typescale-body-small-size);
+  }
+
+  .detail__fields dd:not(:last-child) {
+    margin-bottom: 0.5rem;
+  }
+}
+
 @container (max-width: 26rem) {
   .detail__fields {
     grid-template-columns: 1fr;
@@ -485,6 +507,7 @@ function childTitle(child: ItemEnvelope): string {
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-low);
   font-size: var(--md-sys-typescale-body-medium-size);
+  word-break: break-word;
   overflow-wrap: anywhere;
 }
 
@@ -513,6 +536,7 @@ function childTitle(child: ItemEnvelope): string {
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-surface-container-low);
   font-size: var(--md-sys-typescale-body-medium-size);
+  word-break: break-word;
   overflow-wrap: anywhere;
 }
 

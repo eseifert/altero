@@ -76,11 +76,26 @@ export function clampWidth(pane: PaneWidth, width: number): number {
  * measured in something else -- must not stop the library from being drawn.
  */
 export function readWidth(pane: PaneWidth): number {
-  const stored = Number(localStorage.getItem(pane.key))
+  const stored = Number(readStored(pane.key))
   return Number.isFinite(stored) && stored > 0 ? clampWidth(pane, stored) : pane.preferred
 }
 
 /** Remember ``width`` for the next visit. */
 export function storeWidth(pane: PaneWidth, width: number): void {
-  localStorage.setItem(pane.key, String(clampWidth(pane, width)))
+  try {
+    localStorage.setItem(pane.key, String(clampWidth(pane, width)))
+  } catch {
+    /* Safari in private browsing has a `localStorage` that throws on every
+       write, and older versions of it throw on the first one. A width that
+       cannot be remembered is a width that lasts the session; it is not a
+       reason to stop drawing the library. */
+  }
+}
+
+function readStored(key: string): string | null {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
 }

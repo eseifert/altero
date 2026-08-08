@@ -154,9 +154,12 @@ export const useLibraryStore = defineStore('library', () => {
   }
 
   /** The collection the sidebar has selected, if it has one. */
-  const selectedCollection = computed<CollectionNode | null>(
-    () => pathTo(collectionKey.value).at(-1) ?? null,
-  )
+  const selectedCollection = computed<CollectionNode | null>(() => {
+    /* Indexed rather than `.at(-1)`, which Safari learnt in 15.4 and the
+       oldest browser this interface supports has not. */
+    const trail = pathTo(collectionKey.value)
+    return trail.length ? trail[trail.length - 1] : null
+  })
   const collectionName = computed(() => selectedCollection.value?.data.name ?? null)
 
   function itemsUrl(): string {

@@ -1481,7 +1481,13 @@ function sortLabel(column: { field: string; label: string }): string {
   cursor: pointer;
 }
 
-.library__tag:hover .library__tag-action,
+.library__tag:hover .library__tag-action {
+  opacity: 1;
+}
+
+/* Split from the rule above rather than listed with it: `:focus-visible`
+   arrived in Safari 15.4, and a browser that does not know a selector throws
+   away the whole rule it appears in — hover included. */
 .library__tag-action:focus-visible {
   opacity: 1;
 }
@@ -1494,6 +1500,7 @@ function sortLabel(column: { field: string; label: string }): string {
 
 .library__tag .library__label {
   overflow: visible;
+  word-break: break-word;
   overflow-wrap: anywhere;
   white-space: normal;
 }

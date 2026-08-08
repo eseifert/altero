@@ -213,7 +213,14 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
-.theme-menu__option:hover,
+.theme-menu__option:hover {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/* Split from the rule above rather than listed with it: `:focus-visible`
+   arrived in Safari 15.4, and a browser that does not know a selector throws
+   away the whole rule it appears in — hover included. */
 .theme-menu__option:focus-visible {
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
