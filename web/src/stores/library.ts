@@ -58,7 +58,14 @@ export interface CollectionNode extends CollectionEnvelope {
  * sidebar has no row for it -- neither does Zotero's own web library -- but the
  * server takes it, and the store is the shape of what the server takes.
  */
-export type Scope = 'top' | 'all' | 'trash' | 'publications'
+export type Scope =
+  | 'top'
+  | 'all'
+  | 'trash'
+  | 'publications'
+  | 'unfiled'
+  | 'duplicates'
+  | 'recentlyread'
 
 /** How many items one page holds. */
 export const PAGE_SIZE = 50

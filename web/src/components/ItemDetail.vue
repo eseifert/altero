@@ -179,8 +179,12 @@ function childTitle(child: ItemEnvelope): string {
         {{ t('Move to trash') }}
       </button>
       <template v-else>
+        <!-- Zotero's own words for this, and a key of its own: "Restore"
+             alone is also what the settings page calls putting an archive
+             back, and one message for the two had German telling somebody
+             their item was about to be replayed from a backup. -->
         <button class="detail__tool" type="button" @click="emit('restore')">
-          {{ t('Restore') }}
+          {{ t('Restore to Library') }}
         </button>
         <button class="detail__tool detail__tool--danger" type="button" @click="emit('remove')">
           {{ t('Delete') }}

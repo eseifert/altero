@@ -97,11 +97,13 @@ export default {
   'Downloading attachments…': 'Descargando adjuntos…',
   'Drag to move this divide. Double-click to put it back.':
     'Arrastre para mover esta división. Haga doble clic para restablecerla.',
+  'Duplicate Items': 'Elementos duplicados',
   'Email address': 'Dirección de correo',
   'Empty the trash': 'Vaciar la papelera',
   'Enter the six-digit code from your authenticator app.':
     'Escribe el código de seis dígitos de tu aplicación de autenticación.',
   'Everything else': 'Lo demás',
+  'Everything here is filed in a collection.': 'Todo lo que hay aquí está en una colección.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
     'Todo lo que contiene se va con él: ítems, colecciones, etiquetas y adjuntos. No hay papelera alrededor de una biblioteca.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.': 'Todo lo que hay en tu biblioteca aquí se elimina primero, archivos incluidos, y no hay papelera que lo recoja.',
@@ -174,11 +176,13 @@ export default {
   'No library here is yours to export.': 'Aquí no hay ninguna biblioteca tuya que puedas exportar.',
   'No library here is yours to restore into.':
     'Aquí no hay ninguna biblioteca tuya en la que puedas restaurar.',
+  'No two items here look like the same work.': 'No hay dos elementos que parezcan la misma obra.',
   Nobody: 'Nadie',
   'Not enabled.': 'No activada.',
   'Not now': 'Ahora no',
   Note: 'Nota',
   'Nothing has been added to this group yet.': 'Todavía no se ha añadido nada a este grupo.',
+  'Nothing has been read here lately.': 'No se ha leído nada aquí últimamente.',
   'Nothing has happened here yet.': 'Aquí todavía no ha pasado nada.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'Aquí no hay nada todavía. Apunta la aplicación Zotero a este servidor y sincroniza.',
@@ -218,6 +222,7 @@ export default {
     'Vuelve a leer un archivo en una biblioteca tuya. La biblioteca queda en el estado que contiene el archivo, versiones incluidas, de modo que un cliente de Zotero que se había sincronizado con ella continúa donde lo dejó.',
   'Reads your personal library from zotero.org — items, collections, tags, saved searches, notes and attached files — and puts it here, keeping the versions your Zotero clients know.': 'Lee tu biblioteca personal desde zotero.org — elementos, colecciones, etiquetas, búsquedas guardadas, notas y archivos adjuntos — y la coloca aquí, conservando las versiones que conocen tus clientes de Zotero.',
   'Recent activity': 'Actividad reciente',
+  'Recently Read': 'Leído recientemente',
   'Refused. Zotero has been told to stop waiting.':
     'Rechazado. Se ha avisado a Zotero de que deje de esperar.',
   'Registration is open on this server.': 'El registro está abierto en este servidor.',
@@ -235,6 +240,7 @@ export default {
   Restore: 'Restaurar',
   'Restore a library': 'Restaurar una biblioteca',
   'Restore into': 'Restaurar en',
+  'Restore to Library': 'Restaurar a la biblioteca',
   Revoke: 'Revocar',
   Role: 'Rol',
   Save: 'Guardar',
@@ -295,6 +301,7 @@ export default {
   'Time zone': 'Zona horaria',
   Trash: 'Papelera',
   'Turn on': 'Activar',
+  'Unfiled Items': 'Elementos sin archivar',
   'Unknown browser': 'Navegador desconocido',
   Unread: 'Sin leer',
   'Use the address the invitation was sent to, and you will be able to answer it.':

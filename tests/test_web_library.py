@@ -210,6 +210,198 @@ class TestBrowsing:
 
         assert response.status_code == 400
 
+    async def test_unfiled_items_are_the_ones_in_no_collection(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        auth = {"Zotero-API-Key": key}
+        collection = (
+            await client.post(
+                f"/web/libraries/{library_id}/collections",
+                json={"name": "Papers"},
+                headers=csrf_headers(client),
+            )
+        ).json()
+        await client.post(
+            "/users/1/items",
+            headers=auth,
+            json=[
+                {"itemType": "book", "title": "Filed", "collections": [collection["key"]]},
+                {"itemType": "book", "title": "Loose"},
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?scope=unfiled")).json()
+
+        assert [entry["data"]["title"] for entry in body["items"]] == ["Loose"]
+
+    async def test_the_trash_is_not_unfiled(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Something thrown away is not something waiting to be filed."""
+        library_id, key = await self._seed(client, session)
+        await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[{"itemType": "book", "title": "Discarded", "deleted": 1}],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?scope=unfiled")).json()
+
+        assert body["items"] == []
+
+    async def test_duplicates_are_found_by_identifier(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Two records with one DOI are the same work, whatever else differs."""
+        library_id, key = await self._seed(client, session)
+        await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {"itemType": "journalArticle", "title": "A study", "DOI": "10.1000/xyz"},
+                {
+                    "itemType": "journalArticle",
+                    "title": "A study of things",
+                    "DOI": "https://doi.org/10.1000/XYZ",
+                },
+                {"itemType": "book", "title": "Alone"},
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?scope=duplicates")).json()
+
+        assert sorted(entry["data"]["title"] for entry in body["items"]) == [
+            "A study",
+            "A study of things",
+        ]
+
+    async def test_duplicates_need_more_than_a_shared_title(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """ "Introduction" is a title many works have; a creator or a year has
+        to stand behind it."""
+        library_id, key = await self._seed(client, session)
+        await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {
+                    "itemType": "book",
+                    "title": "Introduction",
+                    "date": "1999",
+                    "creators": [{"creatorType": "author", "firstName": "A", "lastName": "Zhao"}],
+                },
+                {
+                    "itemType": "book",
+                    "title": "Introduction",
+                    "date": "2020",
+                    "creators": [{"creatorType": "author", "firstName": "B", "lastName": "Lee"}],
+                },
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?scope=duplicates")).json()
+
+        assert body["items"] == []
+
+    async def test_a_title_and_a_creator_are_enough(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self._seed(client, session)
+        await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {
+                    "itemType": "book",
+                    "title": "The Art of Computer Programming",
+                    "creators": [{"creatorType": "author", "firstName": "D", "lastName": "Knuth"}],
+                },
+                {
+                    "itemType": "bookSection",
+                    "title": "the art of computer programming.",
+                    "creators": [
+                        {"creatorType": "author", "firstName": "Donald", "lastName": "knuth"}
+                    ],
+                },
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?scope=duplicates")).json()
+
+        assert len(body["items"]) == 2
+
+    async def test_recently_read_follows_the_attachments(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """`lastRead` is what the client writes when it closes a reader, and
+        the row lists the item that was read rather than the file."""
+        import time
+
+        library_id, key = await self._seed(client, session)
+        auth = {"Zotero-API-Key": key}
+        made = (
+            await client.post(
+                "/users/1/items",
+                headers=auth,
+                json=[
+                    {"itemType": "book", "title": "Read lately"},
+                    {"itemType": "book", "title": "Not opened"},
+                ],
+            )
+        ).json()
+        parent = made["successful"]["0"]["key"]
+        await client.post(
+            "/users/1/items",
+            headers=auth,
+            json=[
+                {
+                    "itemType": "attachment",
+                    "linkMode": "linked_url",
+                    "title": "The PDF",
+                    "url": "http://example.org/a.pdf",
+                    "parentItem": parent,
+                    "lastRead": str(int(time.time()) - 3600),
+                }
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?scope=recentlyread")).json()
+
+        assert [entry["data"]["title"] for entry in body["items"]] == ["Read lately"]
+
+    async def test_recently_read_forgets_what_was_read_long_ago(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        import time
+
+        library_id, key = await self._seed(client, session)
+        auth = {"Zotero-API-Key": key}
+        parent = (
+            await client.post(
+                "/users/1/items", headers=auth, json=[{"itemType": "book", "title": "Last year"}]
+            )
+        ).json()["successful"]["0"]["key"]
+        await client.post(
+            "/users/1/items",
+            headers=auth,
+            json=[
+                {
+                    "itemType": "attachment",
+                    "linkMode": "linked_url",
+                    "title": "The PDF",
+                    "url": "http://example.org/a.pdf",
+                    "parentItem": parent,
+                    "lastRead": str(int(time.time()) - 400 * 24 * 3600),
+                }
+            ],
+        )
+
+        body = (await client.get(f"/web/libraries/{library_id}/items?scope=recentlyread")).json()
+
+        assert body["items"] == []
+
     async def test_a_search_matches_more_than_the_title(
         self, client: httpx.AsyncClient, session: AsyncSession
     ) -> None:

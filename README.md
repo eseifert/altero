@@ -167,6 +167,9 @@ A browser application at `/app/`, in six languages. It covers:
   trash, and copying an item into another library — by dragging, from the
   keyboard, or with a finger.
 - Resizable, remembered sidebar and detail columns.
+- The sidebar the Zotero applications have: My Library and its collections,
+  Recently Read, My Publications, Duplicate Items, Unfiled Items and the trash,
+  with group libraries under their own heading.
 
 Editing an item's fields is still the desktop client's job; everything else in
 a library the interface reads rather than changes. The sync API accepts

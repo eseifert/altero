@@ -101,6 +101,9 @@ const emptyMessage = computed(() => {
   if (library.scope === 'trash') return t('The trash is empty.')
   if (library.scope === 'publications')
     return t('Nothing in this library has been published yet.')
+  if (library.scope === 'recentlyread') return t('Nothing has been read here lately.')
+  if (library.scope === 'duplicates') return t('No two items here look like the same work.')
+  if (library.scope === 'unfiled') return t('Everything here is filed in a collection.')
   if (library.collectionKey) return t('This collection is empty.')
   /* A group fills up when a member syncs into it, and that member need not be
      whoever is reading this -- nor, in a read-only group, can it be. */
@@ -108,11 +111,30 @@ const emptyMessage = computed(() => {
   return t('Nothing here yet. Point the Zotero desktop app at this server and sync.')
 })
 
+/* What the middle pane is headed with: the row the sidebar has selected, in
+   the same words the sidebar used for it. It named the account before the
+   sidebar started calling the personal library "My Library", so the two
+   disagreed about what was being shown. */
 const heading = computed(() => {
   if (library.collectionName) return library.collectionName
-  if (library.scope === 'trash') return t('Trash')
-  if (library.scope === 'all') return t('All items')
-  return library.library?.name ?? t('Library')
+  /* Spelt out rather than looked up in a map: the catalogue is built by
+     reading the translation calls out of the source, and a key that arrives in
+     a variable is a key `locales.node.spec.ts` cannot see. */
+  switch (library.scope) {
+    case 'trash':
+      return t('Trash')
+    case 'all':
+      return t('All items')
+    case 'publications':
+      return t('My Publications')
+    case 'recentlyread':
+      return t('Recently Read')
+    case 'duplicates':
+      return t('Duplicate Items')
+    case 'unfiled':
+      return t('Unfiled Items')
+  }
+  return library.library ? libraryLabel(library.library) : t('Library')
 })
 
 /* The display names are per language, and the account can change its language
@@ -738,10 +760,10 @@ function sortLabel(column: { field: string; label: string }): string {
           </div>
 
           <!--
-            The collections first, because they are what the library is sorted
-            into and what somebody is usually looking for; then the two rows
-            that are views of the whole of it. They share the collections'
-            twisty column, so a view and a collection line up.
+            The desktop client's order, which is not quite the web library's:
+            what has been read lately sits above the collections, and the
+            views of the whole library sit below them. Every row shares the
+            collections' twisty column, so a view and a collection line up.
           -->
           <div
             v-if="entry.id === library.libraryId"
@@ -749,6 +771,19 @@ function sortLabel(column: { field: string; label: string }): string {
             role="group"
             :aria-label="libraryLabel(entry)"
           >
+            <div class="library__scope-row">
+              <span class="library__twisty" aria-hidden="true"></span>
+              <button
+                type="button"
+                :class="['library__scope', { 'library__scope--current': library.scope === 'recentlyread' }]"
+                :aria-current="library.scope === 'recentlyread' ? 'true' : undefined"
+                @click="library.selectScope('recentlyread')"
+              >
+                <SidebarIcon name="recent" />
+                <span class="library__label">{{ t('Recently Read') }}</span>
+              </button>
+            </div>
+
             <CollectionTree
               v-if="library.collections.length"
               :nodes="library.collections"
@@ -775,6 +810,32 @@ function sortLabel(column: { field: string; label: string }): string {
               >
                 <SidebarIcon name="publications" />
                 <span class="library__label">{{ t('My Publications') }}</span>
+              </button>
+            </div>
+
+            <div class="library__scope-row">
+              <span class="library__twisty" aria-hidden="true"></span>
+              <button
+                type="button"
+                :class="['library__scope', { 'library__scope--current': library.scope === 'duplicates' }]"
+                :aria-current="library.scope === 'duplicates' ? 'true' : undefined"
+                @click="library.selectScope('duplicates')"
+              >
+                <SidebarIcon name="duplicates" />
+                <span class="library__label">{{ t('Duplicate Items') }}</span>
+              </button>
+            </div>
+
+            <div class="library__scope-row">
+              <span class="library__twisty" aria-hidden="true"></span>
+              <button
+                type="button"
+                :class="['library__scope', { 'library__scope--current': library.scope === 'unfiled' }]"
+                :aria-current="library.scope === 'unfiled' ? 'true' : undefined"
+                @click="library.selectScope('unfiled')"
+              >
+                <SidebarIcon name="unfiled" />
+                <span class="library__label">{{ t('Unfiled Items') }}</span>
               </button>
             </div>
 
@@ -1223,13 +1284,6 @@ function sortLabel(column: { field: string; label: string }): string {
   transform: rotate(90deg);
 }
 
-@media (pointer: coarse) {
-  .library__twisty-button {
-    width: 2rem;
-    height: 2.25rem;
-  }
-}
-
 /* Every row in this column is something to click and the controls that act on
    it, and the views and collections carry a twisty column besides, so a view
    and a collection put their icon in the same place. Only a collection with
@@ -1248,6 +1302,22 @@ function sortLabel(column: { field: string; label: string }): string {
 .library__twisty {
   flex: none;
   width: 1rem;
+}
+
+/* After the two rules above rather than beside the other coarse-pointer block,
+   because a media query adds no specificity: the plain `width` would win on
+   whichever of them came last. The tree's twisty grows for a fingertip, so the
+   column the views hold open has to grow with it or the collections stand a
+   finger's width to the right of every other row. */
+@media (pointer: coarse) {
+  .library__twisty-button,
+  .library__twisty {
+    width: 2.25rem;
+  }
+
+  .library__twisty-button {
+    height: 2.25rem;
+  }
 }
 
 .library__library,

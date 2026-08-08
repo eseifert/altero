@@ -331,7 +331,14 @@ describe('the library nav', () => {
        menu at the top of the page, where Zotero puts it too. */
     const wrapper = await open()
 
-    expect(sidebar(wrapper)).toEqual(['My Library', 'My Publications', 'Trash'])
+    expect(sidebar(wrapper)).toEqual([
+      'My Library',
+      'Recently Read',
+      'My Publications',
+      'Duplicate Items',
+      'Unfiled Items',
+      'Trash',
+    ])
     expect(viewsBelongTo(wrapper)).toBe('My Library')
   })
 
@@ -344,7 +351,7 @@ describe('the library nav', () => {
     expect(sidebar(wrapper).join(' ')).not.toContain('Everything')
   })
 
-  it('puts the collections above the two views, as Zotero does', async () => {
+  it('puts the collections where the desktop client puts them', async () => {
     const collections = [COLLECTION, OTHER]
     requestMock.mockImplementation((path: string) => {
       if (path === '/web/libraries') return Promise.resolve(libraries)
@@ -362,7 +369,18 @@ describe('the library nav', () => {
     const rows = wrapper
       .findAll('.library__library, .tree__name, .library__scope')
       .map((row) => row.text())
-    expect(rows).toEqual(['My Library', 'Dolphins', 'Whales', 'My Publications', 'Trash'])
+    /* Recently Read above the collections, and the views of the whole library
+       below them: the order the desktop client's sidebar has. */
+    expect(rows).toEqual([
+      'My Library',
+      'Recently Read',
+      'Dolphins',
+      'Whales',
+      'My Publications',
+      'Duplicate Items',
+      'Unfiled Items',
+      'Trash',
+    ])
   })
 
   it('heads the groups, and only when there is one', async () => {
@@ -383,8 +401,31 @@ describe('the library nav', () => {
     await wrapper.findAll('.library__library')[1].trigger('click')
     await settle(wrapper)
 
-    expect(sidebar(wrapper)).toEqual(['My Library', 'Whale Watchers', 'Trash'])
+    expect(sidebar(wrapper)).toEqual([
+      'My Library',
+      'Whale Watchers',
+      'Recently Read',
+      'Duplicate Items',
+      'Unfiled Items',
+      'Trash',
+    ])
     expect(viewsBelongTo(wrapper)).toBe('Whale Watchers')
+  })
+
+  it('asks the server for each of the views the client offers', async () => {
+    const wrapper = await open()
+
+    for (const [row, scope] of [
+      ['Recently Read', 'recentlyread'],
+      ['Duplicate Items', 'duplicates'],
+      ['Unfiled Items', 'unfiled'],
+    ]) {
+      requestMock.mockClear()
+      await wrapper.findAll('.library__scope').find((e) => e.text() === row)!.trigger('click')
+      await settle(wrapper)
+      const asked = requestMock.mock.calls.map(([path]) => String(path))
+      expect(asked.some((path) => path.includes(`scope=${scope}`))).toBe(true)
+    }
   })
 
   it('asks the server for the publications of the library', async () => {
@@ -597,7 +638,14 @@ describe('making and removing collections', () => {
     const wrapper = await open()
 
     const rows = wrapper.get('.library__scopes').findAll('.library__label, .tree__label')
-    expect(rows.map((row) => row.text())).toEqual(['Whales', 'My Publications', 'Trash'])
+    expect(rows.map((row) => row.text())).toEqual([
+      'Recently Read',
+      'Whales',
+      'My Publications',
+      'Duplicate Items',
+      'Unfiled Items',
+      'Trash',
+    ])
   })
 
   it('opens a dialog rather than a field on its own', async () => {

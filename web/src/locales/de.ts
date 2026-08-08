@@ -98,11 +98,13 @@ export default {
   'Downloading attachments…': 'Anhänge werden geladen…',
   'Drag to move this divide. Double-click to put it back.':
     'Ziehen, um diese Trennlinie zu verschieben. Doppelklick setzt sie zurück.',
+  'Duplicate Items': 'Eintragsdubletten',
   'Email address': 'E-Mail-Adresse',
   'Empty the trash': 'Papierkorb leeren',
   'Enter the six-digit code from your authenticator app.':
     'Gib den sechsstelligen Code aus deiner Authenticator-App ein.',
   'Everything else': 'Alles Übrige',
+  'Everything here is filed in a collection.': 'Alles hier liegt in einer Sammlung.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
     'Alles darin geht mit: Einträge, Sammlungen, Schlagwörter und Anhänge. Um eine Bibliothek herum gibt es keinen Papierkorb.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.': 'Alles in deiner Bibliothek hier wird zuerst gelöscht, Dateien eingeschlossen, und es gibt keinen Papierkorb darum.',
@@ -115,7 +117,7 @@ export default {
   'Follow this device ({name})': 'Diesem Gerät folgen ({name})',
   'For example, my laptop': 'Zum Beispiel: mein Laptop',
   'Go to your library': 'Zur Bibliothek',
-  'Group Libraries': 'Gruppenbibliotheken',
+  'Group Libraries': 'Gruppen-Bibliotheken',
   'Group created.': 'Gruppe erstellt.',
   'Group deleted.': 'Gruppe gelöscht.',
   'Group saved.': 'Gruppe gespeichert.',
@@ -155,9 +157,9 @@ export default {
   'Move or copy': 'Verschieben oder kopieren',
   'Move or copy “{name}”': '„{name}“ verschieben oder kopieren',
   'Move or copy…': 'Verschieben oder kopieren…',
-  'Move to trash': 'In den Papierkorb verschieben',
+  'Move to trash': 'In Papierkorb verschieben',
   'My Library': 'Meine Bibliothek',
-  'My Publications': 'Meine Veröffentlichungen',
+  'My Publications': 'Meine Publikationen',
   Name: 'Name',
   'Name saved.': 'Name gespeichert.',
   'Never used': 'Nie benutzt',
@@ -176,11 +178,14 @@ export default {
     'Hier gehört dir keine Bibliothek, die du exportieren könntest.',
   'No library here is yours to restore into.':
     'Hier gehört dir keine Bibliothek, in die du zurückspielen könntest.',
+  'No two items here look like the same work.':
+    'Keine zwei Einträge hier sehen nach demselben Werk aus.',
   Nobody: 'Niemand',
   'Not enabled.': 'Nicht aktiviert.',
   'Not now': 'Jetzt nicht',
   Note: 'Notiz',
   'Nothing has been added to this group yet.': 'Zu dieser Gruppe wurde noch nichts hinzugefügt.',
+  'Nothing has been read here lately.': 'Hier wurde in letzter Zeit nichts gelesen.',
   'Nothing has happened here yet.': 'Hier ist noch nichts passiert.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'Hier ist noch nichts. Richte die Zotero-App auf diesen Server und synchronisiere.',
@@ -220,6 +225,7 @@ export default {
     'Liest ein Archiv in eine deiner Bibliotheken zurück. Die Bibliothek wird auf den Stand des Archivs gebracht, Versionen eingeschlossen, sodass ein Zotero-Client, der mit ihr synchronisiert hat, dort weitermacht, wo er aufgehört hat.',
   'Reads your personal library from zotero.org — items, collections, tags, saved searches, notes and attached files — and puts it here, keeping the versions your Zotero clients know.': 'Liest deine persönliche Bibliothek von zotero.org — Einträge, Sammlungen, Tags, gespeicherte Suchen, Notizen und angehängte Dateien — und legt sie hier ab, mit den Versionen, die deine Zotero-Clients kennen.',
   'Recent activity': 'Letzte Aktivität',
+  'Recently Read': 'Kürzlich Gelesene',
   'Refused. Zotero has been told to stop waiting.':
     'Abgelehnt. Zotero wurde mitgeteilt, nicht weiter zu warten.',
   'Registration is open on this server.': 'Auf diesem Server ist die Registrierung offen.',
@@ -237,6 +243,7 @@ export default {
   Restore: 'Zurückspielen',
   'Restore a library': 'Bibliothek zurückspielen',
   'Restore into': 'Zurückspielen in',
+  'Restore to Library': 'In der Bibliothek wiederherstellen',
   Revoke: 'Widerrufen',
   Role: 'Rolle',
   Save: 'Speichern',
@@ -296,6 +303,7 @@ export default {
   'Time zone': 'Zeitzone',
   Trash: 'Papierkorb',
   'Turn on': 'Aktivieren',
+  'Unfiled Items': 'Einträge ohne Sammlung',
   'Unknown browser': 'Unbekannter Browser',
   Unread: 'Ungelesen',
   'Use the address the invitation was sent to, and you will be able to answer it.':

@@ -56,6 +56,11 @@ class Scope(StrEnum):
     TRASH = "trash"
     #: My Publications, which a personal library has and a group does not.
     PUBLICATIONS = "publications"
+    #: The three the desktop client works out for itself. None is in the v3
+    #: API; see `docs/compatibility.md` for what altero decided each one means.
+    UNFILED = "unfiled"
+    DUPLICATES = "duplicates"
+    RECENTLY_READ = "recentlyread"
 
 
 #: The service-level scope each of those means outside a collection.
@@ -64,6 +69,9 @@ _SCOPES = {
     Scope.ALL: items.Scope.ALL,
     Scope.TRASH: items.Scope.TRASH,
     Scope.PUBLICATIONS: items.Scope.PUBLICATIONS_TOP,
+    Scope.UNFILED: items.Scope.UNFILED,
+    Scope.DUPLICATES: items.Scope.DUPLICATES,
+    Scope.RECENTLY_READ: items.Scope.RECENTLY_READ,
 }
 
 
@@ -169,9 +177,11 @@ async def list_library_items(
     """Return one page of items, in the v3 API's own item shape.
 
     The scope is what the sidebar selects: the top level, everything including
-    child notes and attachments, the trash, or My Publications. A collection
-    narrows it to that collection's own top-level items, which is what the
-    desktop client shows when you click one.
+    child notes and attachments, the trash, My Publications, or one of the
+    three views the desktop client offers beside the collections — unfiled
+    items, duplicates, and what has been read lately. A collection narrows it
+    to that collection's own top-level items, which is what the desktop client
+    shows when you click one.
     """
     library = await _readable_library(session, user, library_id)
 

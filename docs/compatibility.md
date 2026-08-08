@@ -1125,6 +1125,42 @@ The browser reaches the same service through `PATCH
 of a key and no version header. See
 [web-interface.md](web-interface.md#tags).
 
+## The desktop client's three extra views
+
+The client's sidebar holds three rows that are not collections and not scopes
+the v3 API has: **Recently Read**, **Duplicate Items** and **Unfiled Items**.
+The client answers all three from the copy of the library it keeps locally, and
+the dataserver has no endpoint for any of them — grepping `controllers/` and
+`model/` for either name finds nothing. There is nothing to copy, so what
+altero serves at `scope=recentlyread`, `scope=duplicates` and `scope=unfiled`
+under `/web/libraries/{id}/items` is its own, and is only offered to the
+browser: the v3 API is unchanged, because a syncing client works these out for
+itself and would not thank a server for a second opinion.
+
+**Unfiled Items** is the one that needs no guessing: a top-level item in no
+collection, not in the trash. That is what the name says and what the client
+shows.
+
+**Duplicate Items** is a judgement, and `services/duplicates.py` states which
+one. Two items are the same work if they share a DOI or an ISBN — compared with
+the punctuation, casing and any `https://doi.org/` prefix taken off — or if
+they share a title, compared with punctuation and casing removed, *and* have a
+creator surname in common or the same year. A shared title alone is not enough,
+because "Introduction" and "Annual Report" are titles many works have; where
+neither item states a creator or a year, the title stands alone. Item types are
+deliberately not compared, so a book and a book section of one work are shown
+as the pair somebody is looking for. Notes, attachments and annotations are
+never compared at all.
+
+**Recently Read** is the guess. Zotero 7 writes `lastRead` onto an attachment
+when its reader closes, and syncs the field like any other, so the data is
+here — but which items the client's own row lists, and over what window, is not
+documented anywhere altero can read. It lists the item whose attachment was
+read in the last 90 days, most recently read first where the sort allows it,
+and the attachment itself where it has no parent. **The 90 days is a guess**:
+without it the row would grow into "everything ever opened", which is not what
+a row called Recently Read is for.
+
 ## Reading a library out of zotero.org
 
 Everywhere else in this document altero is answering requests. This is the one

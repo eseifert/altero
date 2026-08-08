@@ -58,6 +58,30 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
     ],
   },
 
+  /** A clock, for what has been opened lately. */
+  recent: {
+    label: 'Recently Read',
+    paths: ['M12 20.25a8.25 8.25 0 100-16.5 8.25 8.25 0 000 16.5z', 'M12 7.25V12l3 2'],
+  },
+
+  /** Two pages, one behind the other: the same thing twice. */
+  duplicates: {
+    label: 'Duplicate Items',
+    paths: [
+      'M9.75 3.75h5L18.25 7v9.25H9.75z M14.75 3.75V7h3.5',
+      'M6.75 7.5v12.75h9',
+    ],
+  },
+
+  /** An open folder with nothing in it: filed nowhere. */
+  unfiled: {
+    label: 'Unfiled Items',
+    paths: [
+      'M3.75 6.75A1.5 1.5 0 015.25 5.25h3.9l1.8 2.25h7.8a1.5 1.5 0 011.5 1.5v1.25H3.75z',
+      'M3.75 10.25l1.6 7.7a1.5 1.5 0 001.47 1.3h10.36a1.5 1.5 0 001.47-1.3l1.6-7.7',
+    ],
+  },
+
   collection: { label: 'Collection', paths: [FOLDER] },
 
   /** A bin with its lid and two staves. */

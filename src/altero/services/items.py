@@ -2,6 +2,7 @@
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum, auto
 from typing import Any
 
@@ -25,6 +26,7 @@ from altero.models import (
 from altero.pagination import UNLIMITED
 from altero.query import Direction, ListQuery, QuickSearchMode
 from altero.search import SearchExpression, parse_search_string
+from altero.services import duplicates
 
 #: Fields consulted by a ``titleCreatorYear`` quick search, via the sort keys
 #: that already hold each item type's title, creator and date.
@@ -53,6 +55,13 @@ class Scope(StrEnum):
     #: The owner's My Publications, which is a public view of one library.
     PUBLICATIONS = auto()
     PUBLICATIONS_TOP = auto()
+    #: The three views the desktop client offers beside the collections. None
+    #: of them is in the v3 API: the client works each one out in the copy of
+    #: the library it holds, so altero has to answer them from the library
+    #: itself. See `docs/compatibility.md`.
+    UNFILED = auto()
+    DUPLICATES = auto()
+    RECENTLY_READ = auto()
 
 
 def paginate(statement: Select[Any], query: ListQuery) -> Select[Any]:
@@ -266,6 +275,24 @@ async def _scope_filters(
         parent = await get_item(session, library, key or "")
         return [Item.parent_id == parent.id]
 
+    if scope is Scope.UNFILED:
+        # Filed nowhere: exactly what the client's Unfiled Items shows, and the
+        # only one of the three that is a plain question about the rows.
+        filed = select(CollectionItem.item_id).where(CollectionItem.item_id == Item.id).exists()
+        unfiled: list[ColumnElement[bool]] = [~filed, Item.deleted.is_(False)]
+        if not to_parents:
+            unfiled.append(Item.parent_id.is_(None))
+        return unfiled
+
+    if scope is Scope.DUPLICATES:
+        found = await duplicates.duplicate_item_ids(session, library)
+        # `in_(())` is a valid empty predicate, so a library with no duplicates
+        # answers with an empty page rather than with everything.
+        return [Item.id.in_(found)]
+
+    if scope is Scope.RECENTLY_READ:
+        return [Item.id.in_(await _recently_read_ids(session, library))]
+
     if scope in (Scope.COLLECTION, Scope.COLLECTION_TOP):
         collection = await session.scalar(
             select(Collection).where(Collection.library_id == library.id, Collection.key == key)
@@ -289,8 +316,58 @@ async def _scope_filters(
     return []
 
 
+#: How far back "recently" reaches. A guess: the client keeps this view as a
+#: saved search whose terms altero cannot see, and a window is the reading of it
+#: that cannot quietly grow into "everything ever opened". Recorded as a guess
+#: in `docs/compatibility.md`.
+RECENTLY_READ_DAYS = 90
+
+
+async def _recently_read_ids(session: AsyncSession, library: Library) -> set[int]:
+    """Return the items whose attachments were read in the last three months.
+
+    Read off `lastRead`, which Zotero 7 writes onto an attachment when its
+    reader is closed and syncs like any other field. The item that comes back
+    is the one the sidebar lists -- an attachment's parent where it has one,
+    and the attachment itself where it is top-level.
+    """
+    since = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=RECENTLY_READ_DAYS)
+    cutoff = since.timestamp()
+
+    rows = await session.execute(
+        select(Item.id, Item.parent_id, ItemField.value)
+        .join(ItemField, ItemField.item_id == Item.id)
+        .where(
+            Item.library_id == library.id,
+            Item.deleted.is_(False),
+            ItemField.field == "lastRead",
+        )
+    )
+
+    read: set[int] = set()
+    for item_id, parent_id, value in rows.all():
+        try:
+            # Seconds since the epoch, as the client writes it. Anything else
+            # is a field altero did not write and does not have to understand.
+            when = float(value)
+        except TypeError, ValueError:
+            continue
+        if when >= cutoff:
+            read.add(parent_id or item_id)
+    return read
+
+
 #: Scopes that answer with top-level items, and so have parents to map onto.
-_TOP_SCOPES = frozenset({Scope.TOP, Scope.COLLECTION_TOP, Scope.PUBLICATIONS_TOP})
+_TOP_SCOPES = frozenset(
+    {
+        Scope.TOP,
+        Scope.COLLECTION_TOP,
+        Scope.PUBLICATIONS_TOP,
+        Scope.UNFILED,
+        Scope.DUPLICATES,
+        Scope.RECENTLY_READ,
+    }
+)
 
 
 def _matches_child_items(query: ListQuery) -> bool:

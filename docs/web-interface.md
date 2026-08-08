@@ -112,6 +112,21 @@ list's column headings included. Where the interface's own messages name
 something Zotero also names, they use Zotero's word for it, so the two
 applications read as one vocabulary.
 
+Where a row names something Zotero also names, the words are Zotero's own,
+taken from `chrome/locale/<lang>/zotero/zotero.properties` and `zotero.ftl` in
+the client rather than translated again here: `pane.collections.library`,
+`.groupLibraries`, `.publications`, `.duplicate`, `.unfiled` and `.trash` for
+the sidebar, `recently-read` and `menu-restoreToLibrary` for the two the client
+keeps in Fluent. So the German sidebar says *Eintragsdubletten* and *Einträge
+ohne Sammlung*, which are not the phrases anybody would arrive at unprompted —
+and are what the desktop client next to it says. The one gap is Japanese
+*Recently Read*, which Zotero itself has not translated; altero uses
+最近読んだ項目 rather than leaving English in a Japanese sidebar.
+
+That vocabulary rule is also why "Restore to Library" has a message of its own:
+"Restore" alone is what the settings page calls putting an archive back, and
+one message for both had German offering to replay an item from a backup.
+
 The translations beyond English are mine rather than a native speaker's, and
 are worth reviewing before an institution relies on them. Adding a seventh
 language is one file in `web/src/locales`, plus its tag in
@@ -132,6 +147,15 @@ nested and expandable, then **My Publications**, then the **Trash**. Group
 libraries follow under a heading of their own, and a group has no My
 Publications, because publishing is something an account does with its own
 library.
+
+Beside those are the three rows the desktop client has and the web library does
+not: **Recently Read** above the collections, **Duplicate Items** and **Unfiled
+Items** below them, in the client's own order. None of the three is a scope the
+v3 API has — the client works each of them out in the copy of the library it
+holds — so altero answers them from the library itself, for the browser only,
+and [compatibility.md](compatibility.md#the-desktop-clients-three-extra-views)
+says what each one was taken to mean. The window Recently Read covers is a
+guess, and is marked as one there.
 
 The library's row *is* the whole library: pressing it shows everything at the
 top level, which is also how to get back out of a collection. altero used to
