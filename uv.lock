@@ -282,14 +282,14 @@ wheels = [
 
 [[package]]
 name = "citeproc-py"
-version = "0.10.3"
+version = "0.10.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lxml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f8/40/126e56b23178b05aae4d880bb86bfcdcb608b28d7715ecdc1ee7cac84e83/citeproc_py-0.10.3.tar.gz", hash = "sha256:2dc70697095eee1ba221b2cfe50767ff30e214ab40d3c918228b2abccd3a45c1", size = 268235, upload-time = "2026-07-24T18:21:37.699Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/22/88/28fedf9948261653143a6ab4fa28e33675598abd83f0bad79bc57e6a54c1/citeproc_py-0.10.4.tar.gz", hash = "sha256:da66ca7228a18d23aacb5994320683c52e49f0d9fc5e2644ad7cca774247404e", size = 275298, upload-time = "2026-08-05T15:34:57.763Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5c/59/dfc210abef16afcdd20a14dcb3f6d1f03b06da8f9a86fb609765418d01e3/citeproc_py-0.10.3-py3-none-any.whl", hash = "sha256:cb6df79e1ea63a38d6ac8b6a960efc75d1982b3afc26a8f523573c1fed7eb808", size = 356898, upload-time = "2026-07-24T18:21:36.045Z" },
+    { url = "https://files.pythonhosted.org/packages/45/81/81d5d815ab3ed07cd6fff2aed538b5e72ad5abd5fe848cb53cb338671e71/citeproc_py-0.10.4-py3-none-any.whl", hash = "sha256:b170c87940e89b5732ec9e8771a6124ca681b531be071c2c031cf9a25308a075", size = 386508, upload-time = "2026-08-05T15:34:56.311Z" },
 ]
 
 [[package]]
