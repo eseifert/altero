@@ -300,6 +300,17 @@ function childTitle(child: ItemEnvelope): string {
   background: var(--md-sys-color-surface-container-high);
 }
 
+@media (pointer: coarse) {
+  .detail__close {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .detail__tool {
+    padding: 0.55rem 1rem;
+  }
+}
+
 /* A row of words rather than icons: these are consequential enough to be worth
    naming, and there is no icon for "move or copy" that anybody reads correctly
    the first time. */

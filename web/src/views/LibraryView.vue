@@ -13,6 +13,7 @@ import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import PaneSplitter from '@/components/PaneSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
+import { useCarry } from '@/dragging'
 import { fieldLabel, loadLabels } from '@/items/labels'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
 import {
@@ -333,59 +334,78 @@ async function submitRename(name: string): Promise<void> {
 }
 
 /*
- * What can be done to an item, and the two ways of asking for it.
+ * What can be done to an item and to a collection, and the two ways of asking.
  *
- * Dragging is the quick way and the one the desktop client teaches: a row onto
- * a collection files it there, onto the library takes it out of the collection
- * being shown, onto the trash throws it away, and onto another library copies
- * it. Every one of those is also a button or a key, because a control only a
+ * Carrying a row somewhere is the quick way and the one the desktop client
+ * teaches: an item onto a collection files it there, onto the library takes it
+ * out of the collection being shown, onto the trash throws it away, and onto
+ * another library copies it. A collection can be carried too — onto another
+ * collection to sit inside it, onto the library to come back to the top level,
+ * onto the trash to be asked about deleting it.
+ *
+ * Every one of those is also a button or a key, because a control only a
  * pointer can reach is a control some readers do not have -- `Delete` on a row
- * trashes it, and the detail pane names the same errands in words.
+ * trashes it, the detail pane names the same errands in words, and a
+ * collection's settings dialog moves it by naming where it goes.
  *
- * Nothing here decides a permission for itself: the sidebar offers a drop only
- * where `writable` says the server would accept the write.
+ * Nothing here decides a permission for itself: a row is only carried where
+ * `writable` says the server would accept the write.
  */
-const dragged = ref<ItemEnvelope | null>(null)
+type Cargo =
+  | { kind: 'item'; item: ItemEnvelope }
+  | { kind: 'collection'; node: CollectionNode }
 
-/** The row a drag is currently over, so exactly one can be lit. */
-const over = ref<string | null>(null)
+const carry = useCarry<Cargo>()
 
 const itemError = ref<string | null>(null)
 
-function startDrag(item: ItemEnvelope, event: DragEvent): void {
-  dragged.value = item
-  over.value = null
-  /* The key goes on the drag as text as well, so that dropping it in a text
-     field somewhere produces something meaningful rather than nothing. */
-  event.dataTransfer?.setData('text/plain', item.key)
-  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copyMove'
-}
+/** The key of the row being carried, so it can be shown leaving. */
+const carriedKey = computed(() => {
+  const cargo = carry.carrying.value?.data
+  if (!cargo) return null
+  return cargo.kind === 'item' ? cargo.item.key : cargo.node.key
+})
 
-function endDrag(): void {
-  dragged.value = null
-  over.value = null
-}
-
-/** Whether ``target`` is the row the drag is over, and so the one to light. */
+/** Whether ``target`` is the row underneath the carry, and so the one to light. */
 function lit(target: string): boolean {
-  return dragged.value !== null && over.value === target
+  return carry.carrying.value !== null && carry.target.value === target
 }
 
-function dragOver(target: string, event: DragEvent): void {
-  if (!dragged.value || !library.writable) return
-  event.preventDefault()
-  if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = event.shiftKey ? 'move' : 'copy'
+/** Whether ``node`` is ``key`` or holds it, however deep. */
+function holds(node: CollectionNode, key: string): boolean {
+  return node.key === key || node.children.some((child) => holds(child, key))
+}
+
+/**
+ * Whether a row will take what is being carried.
+ *
+ * A row that would refuse the drop does not light up, which is the whole of
+ * what this is for: it is easier to say no by never offering than to explain a
+ * refusal after the fact. A collection cannot go inside itself or inside
+ * anything under it -- that is a branch nothing can reach afterwards -- and it
+ * cannot cross into another library at all, which would be a copy of a
+ * collection and everything filed in it.
+ */
+function accepts(target: string): boolean {
+  const cargo = carry.carrying.value?.data
+  if (!cargo || !library.writable) return false
+
+  const [kind, value] = [target.slice(0, target.indexOf(':')), target.slice(target.indexOf(':') + 1)]
+
+  if (cargo.kind === 'item') {
+    if (kind === 'library') return Number(value) !== library.libraryId || Boolean(library.collectionKey)
+    return kind === 'collection' || kind === 'trash'
   }
-  over.value = target
-}
 
-function dragLeave(target: string): void {
-  if (over.value === target) over.value = null
+  if (kind === 'library') {
+    return Number(value) === library.libraryId && cargo.node.data.parentCollection !== false
+  }
+  if (kind === 'trash') return true
+  return kind === 'collection' && !holds(cargo.node, value)
 }
 
 /* Whatever the failure was, it is shown above the list rather than swallowed:
-   a drag that quietly did nothing is indistinguishable from a bug. */
+   a carry that quietly did nothing is indistinguishable from a bug. */
 async function runOnItem(action: () => Promise<void>): Promise<void> {
   itemError.value = null
   try {
@@ -395,53 +415,75 @@ async function runOnItem(action: () => Promise<void>): Promise<void> {
   }
 }
 
-/**
- * Drop onto a collection: file it there.
+/*
+ * Begin carrying something.
  *
- * Adding rather than moving, which is Zotero's rule -- a collection is not a
- * folder and an item can be in several. Holding Shift moves it, which means
- * taking it out of the collection the list is showing; from the library's top
- * level or the trash there is nothing to take it out of, so Shift does nothing
- * and the item is simply filed.
+ * What is being carried is closed over rather than read back when it lands:
+ * the carry is cleared as the pointer is released, which is a moment before
+ * the drop is worked out.
  */
-async function dropOnCollection(node: CollectionNode, event: DragEvent): Promise<void> {
-  const item = dragged.value
-  endDrag()
-  if (!item || !library.writable) return
-
-  const from = library.collectionKey
-  const remove = event.shiftKey && from && from !== node.key ? [from] : []
-  await runOnItem(() => library.fileItem(item.key, { add: [node.key], remove }))
+function startCarry(cargo: Cargo, label: string, event: PointerEvent): void {
+  if (!library.writable) return
+  carry.begin(event, { label, data: cargo }, {
+    accepts,
+    onDrop: (target, { modified }) => void drop(cargo, target, { modified }),
+  })
 }
 
-/** Drop onto the trash: throw it away, reversibly. */
-async function dropOnTrash(): Promise<void> {
-  const item = dragged.value
-  endDrag()
-  if (!item || !library.writable) return
-  await runOnItem(() => library.trashItem(item.key))
+function carryItem(item: ItemEnvelope, event: PointerEvent): void {
+  startCarry({ kind: 'item', item }, titleOf(item), event)
+}
+
+function carryCollection(node: CollectionNode, event: PointerEvent): void {
+  startCarry({ kind: 'collection', node }, node.data.name, event)
 }
 
 /**
- * Drop onto a library row.
+ * What a drop means, once the row it landed on is known.
  *
- * The library being read means "out of the collection being shown", which is
- * where an item goes when it belongs to no collection. Another library means a
- * copy into it -- the original stays, because a move would be a deletion
- * nobody asked for at the end of a drag that can start by accident.
+ * Kept apart from the gesture so that the dialogs can call the same code: what
+ * "file this here" does must not depend on how it was asked for.
  */
-async function dropOnLibrary(entry: { id: number; writable: boolean }): Promise<void> {
-  const item = dragged.value
-  endDrag()
-  if (!item || !entry.writable) return
+async function drop(cargo: Cargo, target: string, { modified = false } = {}): Promise<void> {
+  const kind = target.slice(0, target.indexOf(':'))
+  const value = target.slice(target.indexOf(':') + 1)
 
-  if (entry.id !== library.libraryId) {
-    await runOnItem(() => library.copyItem(item.key, entry.id))
+  if (cargo.kind === 'item') {
+    const item = cargo.item
+    if (kind === 'trash') {
+      await runOnItem(() => library.trashItem(item.key))
+      return
+    }
+    if (kind === 'collection') {
+      /* Adding rather than moving, which is Zotero's rule: a collection is not
+         a folder and an item can be in several. Shift is how a mouse says
+         otherwise; a finger says it in the dialog instead. */
+      const from = library.collectionKey
+      const remove = modified && from && from !== value ? [from] : []
+      await runOnItem(() => library.fileItem(item.key, { add: [value], remove }))
+      return
+    }
+    if (Number(value) !== library.libraryId) {
+      await runOnItem(() => library.copyItem(item.key, Number(value)))
+      return
+    }
+    const from = library.collectionKey
+    if (from) await runOnItem(() => library.fileItem(item.key, { remove: [from] }))
     return
   }
-  const from = library.collectionKey
-  if (!from) return
-  await runOnItem(() => library.fileItem(item.key, { remove: [from] }))
+
+  const node = cargo.node
+  if (kind === 'trash') {
+    /* Asked rather than done: a collection carries subcollections, and a
+       finger that landed on the wrong row should not be able to remove one. */
+    startDelete(node)
+    return
+  }
+  if (kind === 'collection') {
+    await runOnItem(() => library.updateCollection(node.key, { parentCollection: value }))
+    return
+  }
+  await runOnItem(() => library.updateCollection(node.key, { parentCollection: null }))
 }
 
 /*
@@ -597,9 +639,7 @@ function sortLabel(column: { field: string; label: string }): string {
           <div
             class="library__nav-row"
             :class="{ 'library__nav-row--over': lit(`library:${entry.id}`) }"
-            @dragover="dragOver(`library:${entry.id}`, $event)"
-            @dragleave="dragLeave(`library:${entry.id}`)"
-            @drop.prevent="dropOnLibrary(entry)"
+            :data-drop="`library:${entry.id}`"
           >
             <button
               type="button"
@@ -678,10 +718,8 @@ function sortLabel(column: { field: string; label: string }): string {
             </div>
             <div
               class="library__scope-row"
-              :class="{ 'library__scope-row--over': lit('trash') }"
-              @dragover="dragOver('trash', $event)"
-              @dragleave="dragLeave('trash')"
-              @drop.prevent="dropOnTrash()"
+              :class="{ 'library__scope-row--over': lit('trash:') }"
+              data-drop="trash:"
             >
               <span class="library__twisty" aria-hidden="true"></span>
               <button
@@ -700,15 +738,13 @@ function sortLabel(column: { field: string; label: string }): string {
               :nodes="library.collections"
               :selected="library.collectionKey"
               :editable="library.writable"
-              :dragging="dragged !== null && library.writable"
-              :over="over"
+              :carrying="carry.carrying.value !== null"
+              :over="carry.target.value"
               @select="library.selectCollection($event)"
               @add="startNew($event)"
               @settings="startSettings($event)"
               @remove="startDelete($event)"
-              @over="dragOver($event.target, $event.event)"
-              @leave="dragLeave($event)"
-              @drop="dropOnCollection($event.node, $event.event)"
+              @carry="carryCollection($event.node, $event.event)"
             />
           </div>
 
@@ -895,10 +931,10 @@ function sortLabel(column: { field: string; label: string }): string {
         <ul v-else class="library__items" :aria-label="t('Items in {name}', { name: heading })">
           <li v-for="item in library.items" :key="item.key">
             <!--
-              Draggable only where the library can be written to: a drag that
-              can only ever be refused is a promise the interface should not
-              make. `Delete` does what dropping on the trash does, so the
-              keyboard is not the poor relation.
+              Carried only where the library can be written to: a drag that can
+              only ever be refused is a promise the interface should not make.
+              `Delete` does what dropping on the trash does, so the keyboard is
+              not the poor relation.
             -->
             <button
               type="button"
@@ -906,14 +942,12 @@ function sortLabel(column: { field: string; label: string }): string {
                 'library__row',
                 {
                   'library__row--selected': library.selected?.key === item.key,
-                  'library__row--dragging': dragged?.key === item.key,
+                  'library__row--carried': carriedKey === item.key,
                 },
               ]"
               :aria-pressed="library.selected?.key === item.key"
-              :draggable="library.writable"
               @click="library.select(item)"
-              @dragstart="startDrag(item, $event)"
-              @dragend="endDrag()"
+              @pointerdown="carryItem(item, $event)"
               @keydown.delete.prevent="removeKey(item)"
             >
               <span class="library__cell library__cell--icon">
@@ -995,6 +1029,20 @@ function sortLabel(column: { field: string; label: string }): string {
       @remove="startDelete(editing)"
       @cancel="cancel"
     />
+
+    <!--
+      What is being carried, drawn under the pointer. The browser used to do
+      this from the element itself; a carry made of pointer events has to say
+      what it holds, or a finger is dragging nothing anybody can see.
+    -->
+    <div
+      v-if="carry.carrying.value"
+      class="library__cargo"
+      :style="{ left: `${carry.position.value.x}px`, top: `${carry.position.value.y}px` }"
+      aria-hidden="true"
+    >
+      {{ carry.carrying.value.label }}
+    </div>
 
     <!-- Dropping a row on a sidebar row, said in words: the collections of
          this library and the other libraries it could be copied to. -->
@@ -1193,10 +1241,34 @@ function sortLabel(column: { field: string; label: string }): string {
   outline-offset: -1px;
 }
 
-/* The row being dragged, dimmed so that the pointer is carrying something
-   visibly out of the list rather than duplicating it in place. */
-.library__row--dragging {
+/* The row being carried, dimmed so that the pointer is visibly taking
+   something out of the list rather than duplicating it in place. */
+.library__row--carried {
   opacity: 0.5;
+}
+
+/*
+ * What is being carried, following the pointer.
+ *
+ * Offset down and to the right so that a fingertip is not covering the thing
+ * it is holding, and `pointer-events: none` so it never becomes what is under
+ * the pointer -- which is how the drop target is found.
+ */
+.library__cargo {
+  position: fixed;
+  z-index: 10;
+  max-width: 16rem;
+  margin: 0.75rem 0 0 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 25%);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }
 
 /* The same hover-revealed pair the collection rows carry, so the library's
@@ -1239,6 +1311,53 @@ function sortLabel(column: { field: string; label: string }): string {
   .library__actions {
     opacity: 1;
   }
+
+  /* Same reason: the pencil on a tag is dimmed until the pointer arrives, and
+     a finger has no way of arriving without pressing. */
+  .library__tag-action {
+    opacity: 1;
+  }
+}
+
+/*
+ * What a fingertip needs, which is roughly a centimetre in each direction.
+ * The rows and the controls grow; the type and the icons in them do not.
+ */
+@media (pointer: coarse) {
+  .library__action,
+  .library__search-clear {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .library__tag-action {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+
+  .library__library,
+  .library__scope {
+    padding: 0.6rem 0.5rem;
+  }
+
+  .library__tag {
+    padding: 0.4rem 0.7rem;
+  }
+
+  .library__row:not(.library__row--head) {
+    padding: var(--md-spacing-4);
+  }
+
+  .library__more {
+    padding: 0.55rem 1rem;
+  }
+}
+
+/* A press held on a row is a carry, so the browser's own answer to a held
+   press must not land on top of it. */
+.library__row {
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .collections__confirm {

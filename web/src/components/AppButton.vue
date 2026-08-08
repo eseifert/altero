@@ -38,6 +38,14 @@ withDefaults(
 </template>
 
 <style scoped>
+/* A fingertip needs about a centimetre; a pointer does not, and a taller
+   button everywhere would leave the settings forms looking like a kiosk. */
+@media (pointer: coarse) {
+  .app-button {
+    min-height: 2.75rem;
+  }
+}
+
 .app-button {
   position: relative;
   display: inline-flex;

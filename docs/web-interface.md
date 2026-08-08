@@ -238,6 +238,14 @@ one library version. Dropping on the library's own row takes it out of the
 collection currently shown without trashing it, and dropping on the trash
 trashes it.
 
+**A collection can be carried too**: onto another collection to sit inside it,
+onto the library's row to come back to the top level, onto the trash to be
+*asked* about deleting it — a collection carries subcollections, and a finger
+that landed on the wrong row should not be able to remove one. A row that would
+refuse a drop never lights up: a collection cannot go inside itself or anything
+under it, and it cannot cross into another library, which would be a copy of
+the collection and everything filed in it.
+
 **Dragging onto another library copies it**, with its notes and attachments and
 tags. The original stays: a move would be a deletion nobody asked for on the
 far side of a drag that can be started by accident. The copy is a new item in
@@ -266,6 +274,34 @@ before it goes ahead, and is the one place the interface deletes more than one
 thing at once — which is also the one place where that is the errand. Trashed
 collections are left where they are — the browser never trashes one, so
 anything in there came from the desktop and is not shown here at all.
+
+## By touch
+
+Dragging is not the browser's own drag and drop, and could not be: that API is
+a mouse API, and a touch never produces a `dragstart` at all. Carrying a row is
+built on pointer events instead, one code path for both — at the cost of doing
+what the browser used to do, which is deciding when a press has become a drag,
+finding what is underneath, and drawing what is being carried.
+
+The two gestures differ in one place, and they have to. A mouse starts carrying
+as soon as it has moved a few pixels with the button down, because a mouse has
+nothing else it could be doing. A finger that moves is usually scrolling, so a
+touch starts carrying only after it has stayed put for a third of a second —
+and moving before that cancels the carry and leaves the scroll alone. Once a
+carry has begun the page stops scrolling under it, and starts scrolling *for*
+it when the carry nears the top or bottom of the window, so a tree taller than
+a phone can still be dropped into. The click a browser fires after the gesture
+is swallowed, or every drag would also select the row it started from.
+
+`Shift` to move rather than file has no equivalent on a touch screen, which is
+one of the reasons the dialog exists: “Move or copy…” carries a “take it out
+of” checkbox that says the same thing.
+
+Everything a fingertip has to hit is sized for one — the controls on a sidebar
+row, the row itself, the buttons in a dialog and the two grips between the
+panes all grow where the browser reports a coarse pointer. Nothing anywhere is
+revealed by hovering alone, since a finger cannot hover: the controls that fade
+in under a pointer are simply drawn.
 
 ## Tags
 

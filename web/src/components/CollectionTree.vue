@@ -21,9 +21,9 @@ const props = defineProps<{
   /** Whether to offer the controls that change the tree. Off for a library
    *  this account may only read, which the server decides. */
   editable?: boolean
-  /** Whether an item is being dragged, and could be dropped on a row here. */
-  dragging?: boolean
-  /** The row a drag is over, as the view names it, so one row lights up. */
+  /** Whether something is being carried, and could be dropped on a row here. */
+  carrying?: boolean
+  /** The row a carry is over, as the view names it, so one row lights up. */
   over?: string | null
 }>()
 
@@ -33,9 +33,8 @@ const emit = defineEmits<{
   settings: [node: CollectionNode]
   /** `Delete` on a row, which asks the same question the dialog's Delete does. */
   remove: [node: CollectionNode]
-  over: [move: { target: string; event: DragEvent }]
-  leave: [target: string]
-  drop: [dropped: { node: CollectionNode; event: DragEvent }]
+  /** A press that may become a carry. The view decides whether it does. */
+  carry: [held: { node: CollectionNode; event: PointerEvent }]
 }>()
 
 /** How the view names this row while something is being dragged over it. */
@@ -88,17 +87,15 @@ function toggle(key: string): void {
   <ul class="tree" role="group">
     <li v-for="node in nodes" :key="node.key">
       <!--
-        Dropping an item here files it in this collection. Adding rather than
-        moving, which is Zotero's rule; holding Shift while dropping takes it
-        out of the collection being shown, which is what makes it a move.
+        Dropping an item here files it in this collection: adding rather than
+        moving, which is Zotero's rule, unless Shift is held. Dropping a
+        collection here puts that collection inside this one.
       -->
       <div
         class="tree__row"
-        :class="{ 'tree__row--over': dragging && over === target(node) }"
+        :class="{ 'tree__row--over': carrying && over === target(node) }"
         :style="{ paddingLeft: `${(depth ?? 0) * 0.9 + 0.15}rem` }"
-        @dragover="emit('over', { target: target(node), event: $event })"
-        @dragleave="emit('leave', target(node))"
-        @drop.prevent="emit('drop', { node, event: $event })"
+        :data-drop="target(node)"
       >
         <button
           v-if="node.children.length"
@@ -122,6 +119,7 @@ function toggle(key: string): void {
           :aria-current="selected === node.key ? 'true' : undefined"
           @click="emit('select', node.key)"
           @keydown.delete.prevent="editable && emit('remove', node)"
+          @pointerdown="emit('carry', { node, event: $event })"
         >
           <SidebarIcon name="collection" />
           <span class="tree__label">{{ node.data.name }}</span>
@@ -174,15 +172,13 @@ function toggle(key: string): void {
         :selected="selected"
         :depth="(depth ?? 0) + 1"
         :editable="editable"
-        :dragging="dragging"
+        :carrying="carrying"
         :over="over"
         @select="emit('select', $event)"
         @add="emit('add', $event)"
         @settings="emit('settings', $event)"
         @remove="emit('remove', $event)"
-        @over="emit('over', $event)"
-        @leave="emit('leave', $event)"
-        @drop="emit('drop', $event)"
+        @carry="emit('carry', $event)"
       />
     </li>
   </ul>
@@ -310,5 +306,30 @@ function toggle(key: string): void {
   .tree__actions {
     opacity: 1;
   }
+}
+
+/*
+ * A fingertip covers about ten times what a pointer tip does, so the controls
+ * grow to something it can hit and the rows grow to something it can aim at.
+ * The icons inside them do not: this is about the area that answers, not about
+ * making the sidebar shout.
+ */
+@media (pointer: coarse) {
+  .tree__action,
+  .tree__twisty {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .tree__name {
+    padding: 0.55rem 0.4rem;
+  }
+}
+
+/* A press held on a row is a carry, and a browser's own answer to a held
+   press -- select the word, offer to copy the link -- would land on top of it. */
+.tree__name {
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 </style>

@@ -164,8 +164,9 @@ A browser application at `/app/`, in six languages. It covers:
 - Making, renaming, moving and removing collections, and renaming a tag
   throughout the library.
 - Filing items into collections, trashing and restoring them, emptying the
-  trash, and copying an item into another library — by drag and drop, or from
-  the keyboard.
+  trash, and copying an item into another library — by dragging, from the
+  keyboard, or with a finger.
+- Resizable, remembered sidebar and detail columns.
 
 Editing an item's fields is still the desktop client's job; everything else in
 a library the interface reads rather than changes. The sync API accepts

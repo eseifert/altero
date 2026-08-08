@@ -1009,24 +1009,49 @@ describe('filing, trashing and copying items', () => {
     return found
   }
 
-  /* Dispatched rather than triggered, because `shiftKey` cannot be assigned to
-     an event after it has been constructed. jsdom has no `DragEvent`, and a
-     `MouseEvent` carries everything the handlers read. */
-  function fire(element: Element, type: string, options: MouseEventInit = {}): void {
-    element.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, ...options }))
+  /*
+   * Carrying a row onto another one.
+   *
+   * Pointer events rather than the browser's drag and drop, which is what the
+   * interface itself uses -- a touch never produces `dragstart`. What is under
+   * the pointer is `elementFromPoint`, which jsdom does not implement, so the
+   * answer is stated: the row being aimed at.
+   */
+  function fire(element: EventTarget, type: string, options: PointerEventInit = {}): void {
+    element.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerType: 'mouse',
+        clientX: 10,
+        clientY: 10,
+        ...options,
+      }),
+    )
   }
 
-  /** Drag the row for `title` onto `target`, holding Shift if asked. */
+  async function carry(
+    wrapper: ReturnType<typeof mount>,
+    from: Element,
+    target: Element | null,
+    { shift = false, touch = false } = {},
+  ) {
+    document.elementFromPoint = () => target
+    fire(from, 'pointerdown', { pointerType: touch ? 'touch' : 'mouse' })
+    if (touch) await new Promise((resolve) => setTimeout(resolve, 400))
+    fire(window, 'pointermove', { clientX: 200, clientY: 200 })
+    await wrapper.vm.$nextTick()
+    fire(window, 'pointerup', { clientX: 200, clientY: 200, shiftKey: shift })
+    await settle(wrapper)
+  }
+
+  /** Carry the item row for `title` onto `target`. */
   async function drag(
     wrapper: ReturnType<typeof mount>,
-    target: Element,
+    target: Element | null,
     { shift = false, title = 'Structure and Interpretation' } = {},
   ) {
-    fire(row(wrapper, title).element, 'dragstart')
-    await wrapper.vm.$nextTick()
-    fire(target, 'dragover', { shiftKey: shift })
-    fire(target, 'drop', { shiftKey: shift })
-    await settle(wrapper)
+    await carry(wrapper, row(wrapper, title).element, target, { shift })
   }
 
   /** The sidebar row for a collection, which is what a drop lands on. */
@@ -1151,15 +1176,79 @@ describe('filing, trashing and copying items', () => {
     ])
   })
 
-  it('offers no drag at all in a library this account may only read', async () => {
+  it('carries nothing at all in a library this account may only read', async () => {
     libraries = [GROUP]
     withLibrary([COLLECTION])
     const wrapper = await open()
 
-    expect(row(wrapper).attributes('draggable')).toBe('false')
-
     await drag(wrapper, collectionRow(wrapper, 'Whales'))
+
+    expect(wrapper.find('.library__cargo').exists()).toBe(false)
     expect(writes()).toEqual([])
+  })
+
+  it('shows what is being carried, since the browser no longer does', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+
+    document.elementFromPoint = () => collectionRow(wrapper, 'Whales')
+    fire(row(wrapper).element, 'pointerdown')
+    fire(window, 'pointermove', { clientX: 200, clientY: 200 })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('.library__cargo').text()).toBe('Structure and Interpretation')
+    fire(window, 'pointerup', { clientX: 200, clientY: 200 })
+    await settle(wrapper)
+    expect(wrapper.find('.library__cargo').exists()).toBe(false)
+  })
+
+  it('does not also select the row it was carried from', async () => {
+    /* The carry ends on the row it began on as far as the browser is
+       concerned, so a click follows it. */
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+
+    const from = row(wrapper).element
+    document.elementFromPoint = () => collectionRow(wrapper, 'Whales')
+    fire(from, 'pointerdown')
+    fire(window, 'pointermove', { clientX: 200, clientY: 200 })
+    await wrapper.vm.$nextTick()
+    fire(window, 'pointerup', { clientX: 200, clientY: 200 })
+    /* Dispatched where the browser dispatches it: straight after the pointer
+       is released, in the same turn. */
+    from.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    await settle(wrapper)
+
+    expect(wrapper.find('.library__detail').exists()).toBe(false)
+  })
+
+  it('waits for a finger to stay put, so a scroll is not a drag', async () => {
+    /* A mouse has nothing else it could be doing; a finger that moves is
+       usually scrolling the list it is touching. */
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+
+    document.elementFromPoint = () => collectionRow(wrapper, 'Whales')
+    fire(row(wrapper).element, 'pointerdown', { pointerType: 'touch' })
+    fire(window, 'pointermove', { clientX: 10, clientY: 120, pointerType: 'touch' })
+    fire(window, 'pointerup', { clientX: 10, clientY: 120, pointerType: 'touch' })
+    await settle(wrapper)
+
+    expect(writes()).toEqual([])
+  })
+
+  it('carries from a finger that holds still first', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+
+    await carry(wrapper, row(wrapper).element, collectionRow(wrapper, 'Whales'), { touch: true })
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/items/AAAA2345',
+        { method: 'PATCH', body: { addCollections: ['CCCC2345'] } },
+      ],
+    ])
   })
 
   it('trashes with the Delete key, so a pointer is not the only way', async () => {
@@ -1310,6 +1399,192 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
 
     expect(wrapper.find('.detail__tool').exists()).toBe(false)
+  })
+})
+
+/**
+ * Carrying a collection rather than an item.
+ *
+ * The same gesture and the same rows, so the sidebar means one thing: what you
+ * drop onto a collection goes inside it. What differs is what a drop cannot
+ * do — a collection cannot go inside itself or anything under it, and it
+ * cannot cross into another library, which would be a copy of everything filed
+ * in it.
+ */
+describe('carrying a collection', () => {
+  const DEEP = {
+    key: 'FFFF2345',
+    version: 1,
+    data: { key: 'FFFF2345', name: 'Fins', parentCollection: 'DDDD2345' },
+    meta: { numCollections: 0, numItems: 0 },
+  }
+
+  function withCollections(collections: unknown[], write?: () => Promise<unknown>) {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method && options.method !== 'GET') {
+        return write ? write() : Promise.resolve(COLLECTION)
+      }
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+  }
+
+  function writes() {
+    return requestMock.mock.calls.filter(
+      ([, options]) => options && options.method && options.method !== 'GET',
+    )
+  }
+
+  function fire(element: EventTarget, type: string, options: PointerEventInit = {}): void {
+    element.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerType: 'mouse',
+        clientX: 10,
+        clientY: 10,
+        ...options,
+      }),
+    )
+  }
+
+  async function carry(
+    wrapper: ReturnType<typeof mount>,
+    from: Element,
+    target: Element | null,
+  ) {
+    document.elementFromPoint = () => target
+    fire(from, 'pointerdown')
+    fire(window, 'pointermove', { clientX: 200, clientY: 200 })
+    await wrapper.vm.$nextTick()
+    fire(window, 'pointerup', { clientX: 200, clientY: 200 })
+    await settle(wrapper)
+  }
+
+  function name(wrapper: ReturnType<typeof mount>, label: string) {
+    const found = wrapper.findAll('.tree__name').find((entry) => entry.text().includes(label))
+    if (!found) throw new Error(`No collection row for ${label}`)
+    return found.element
+  }
+
+  function row(wrapper: ReturnType<typeof mount>, label: string) {
+    const found = wrapper.findAll('.tree__row').find((entry) => entry.text().includes(label))
+    if (!found) throw new Error(`No collection row for ${label}`)
+    return found.element
+  }
+
+  function libraryRow(wrapper: ReturnType<typeof mount>, label: string) {
+    const found = wrapper.findAll('.library__nav-row').find((e) => e.text().includes(label))
+    if (!found) throw new Error(`No library row for ${label}`)
+    return found.element
+  }
+
+  function trashRow(wrapper: ReturnType<typeof mount>) {
+    const found = wrapper.findAll('.library__scope-row').find((e) => e.text().includes('Trash'))
+    if (!found) throw new Error('No trash row')
+    return found.element
+  }
+
+  /** Open every branch, so a nested row can be aimed at. */
+  async function expand(wrapper: ReturnType<typeof mount>) {
+    for (let level = 0; level < 4; level += 1) {
+      const shut = wrapper
+        .findAll('button.tree__twisty')
+        .filter((twisty) => twisty.attributes('aria-expanded') === 'false')
+      if (!shut.length) return
+      for (const twisty of shut) await twisty.trigger('click')
+      await wrapper.vm.$nextTick()
+    }
+  }
+
+  it('moves a collection inside the one it was dropped on', async () => {
+    withCollections([COLLECTION, OTHER])
+    const wrapper = await open()
+
+    await carry(wrapper, name(wrapper, 'Dolphins'), row(wrapper, 'Whales'))
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/collections/EEEE2345',
+        { method: 'PATCH', body: { parentCollection: 'CCCC2345' } },
+      ],
+    ])
+  })
+
+  it('brings it back to the top level on the library row', async () => {
+    withCollections([COLLECTION, NESTED])
+    const wrapper = await open()
+    await expand(wrapper)
+
+    await carry(wrapper, name(wrapper, 'Humpbacks'), libraryRow(wrapper, 'Ada'))
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/collections/DDDD2345',
+        { method: 'PATCH', body: { parentCollection: null } },
+      ],
+    ])
+  })
+
+  it('refuses to put a collection inside itself', async () => {
+    withCollections([COLLECTION, OTHER])
+    const wrapper = await open()
+
+    await carry(wrapper, name(wrapper, 'Whales'), row(wrapper, 'Whales'))
+
+    expect(writes()).toEqual([])
+  })
+
+  it('refuses to put one inside its own descendant', async () => {
+    /* The loop that takes a branch out of the tree: it still exists and
+       nothing reaches it. The server refuses it too. */
+    withCollections([COLLECTION, NESTED, DEEP])
+    const wrapper = await open()
+    await expand(wrapper)
+
+    await carry(wrapper, name(wrapper, 'Whales'), row(wrapper, 'Fins'))
+
+    expect(writes()).toEqual([])
+  })
+
+  it('asks before deleting one dropped on the trash', async () => {
+    /* A collection carries subcollections, and a finger that landed on the
+       wrong row should not be able to remove one. */
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    await carry(wrapper, name(wrapper, 'Whales'), trashRow(wrapper))
+
+    expect(wrapper.get('.collections__confirm').text()).toContain('Whales')
+    expect(writes()).toEqual([])
+  })
+
+  it('does not carry a collection into another library', async () => {
+    /* Which would be a copy of the collection and everything filed in it, on
+       the far side of a gesture that can start by accident. */
+    libraries = [PERSONAL, { ...GROUP, writable: true }]
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    await carry(wrapper, name(wrapper, 'Whales'), libraryRow(wrapper, 'Whale Watchers'))
+
+    expect(writes()).toEqual([])
+  })
+
+  it('carries nothing in a library this account may only read', async () => {
+    libraries = [GROUP]
+    withCollections([COLLECTION, OTHER])
+    const wrapper = await open()
+
+    await carry(wrapper, name(wrapper, 'Dolphins'), row(wrapper, 'Whales'))
+
+    expect(writes()).toEqual([])
   })
 })
 
