@@ -101,7 +101,6 @@ export default {
   'Empty the trash': 'Vaciar la papelera',
   'Enter the six-digit code from your authenticator app.':
     'Escribe el código de seis dígitos de tu aplicación de autenticación.',
-  Everything: 'Todo',
   'Everything else': 'Lo demás',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
     'Todo lo que contiene se va con él: ítems, colecciones, etiquetas y adjuntos. No hay papelera alrededor de una biblioteca.',
@@ -115,6 +114,7 @@ export default {
   'Follow this device ({name})': 'Seguir este dispositivo ({name})',
   'For example, my laptop': 'Por ejemplo: mi portátil',
   'Go to your library': 'Ir a tu biblioteca',
+  'Group Libraries': 'Bibliotecas de grupo',
   'Group created.': 'Grupo creado.',
   'Group deleted.': 'Grupo eliminado.',
   'Group saved.': 'Grupo guardado.',
@@ -156,7 +156,7 @@ export default {
   'Move or copy…': 'Mover o copiar…',
   'Move to trash': 'Mover a la papelera',
   'My Library': 'Mi biblioteca',
-  'My library': 'Mi biblioteca',
+  'My Publications': 'Mis publicaciones',
   Name: 'Nombre',
   'Name saved.': 'Nombre guardado.',
   'Never used': 'Nunca usada',
@@ -182,6 +182,8 @@ export default {
   'Nothing has happened here yet.': 'Aquí todavía no ha pasado nada.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'Aquí no hay nada todavía. Apunta la aplicación Zotero a este servidor y sincroniza.',
+  'Nothing in this library has been published yet.':
+    'Todavía no se ha publicado nada de esta biblioteca.',
   'Nothing to show.': 'Nada que mostrar.',
   Notifications: 'Notificaciones',
   'Notifications, {count} unread': 'Notificaciones, {count} sin leer',

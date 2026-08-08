@@ -124,14 +124,23 @@ catalogue drifts from the English one.
 Three panes, as the desktop client has: what to show on the left, the items in
 the middle, the selected item on the right.
 
-The left holds every library the account can open — the personal one, which
-carries the account's own name, and any group — and under the one being read,
-everything it can be narrowed to as a single list: the library's top level, a
-view that includes child notes and attachments, the trash, and then the
-collections, nested and expandable. They are one list rather than a list and a
-headed section beneath it, because they are one kind of thing, which is how the
-desktop client has them too. Under that is the tag list; picking tags narrows
-the middle pane, and picking several requires all of them.
+The left is arranged as Zotero's own web library is, because somebody arriving
+from zotero.org should not have to learn a second arrangement of the same
+library. The personal library is **My Library** whatever the account is called
+— the row is the library, not its owner — and under it hang its collections,
+nested and expandable, then **My Publications**, then the **Trash**. Group
+libraries follow under a heading of their own, and a group has no My
+Publications, because publishing is something an account does with its own
+library.
+
+The library's row *is* the whole library: pressing it shows everything at the
+top level, which is also how to get back out of a collection. altero used to
+draw a second row under the library for that, and a third called "Everything"
+that included child notes and attachments; neither the desktop client nor the
+web library has either, and the row they duplicated was already there.
+
+Under all of it is the tag list; picking tags narrows the middle pane, and
+picking several requires all of them.
 
 How wide the outer two columns are is the reader's to decide. Both divides can
 be dragged, and moved with the arrow keys once one has the focus — `Home` and

@@ -317,50 +317,110 @@ function viewsBelongTo(wrapper: ReturnType<typeof mount>): string | null {
   return (current.textContent ?? '').replace(/\s+/g, ' ').trim()
 }
 
+/**
+ * The shape of the sidebar, which is the Zotero web library's shape.
+ *
+ * Somebody arriving from zotero.org should not have to learn a second
+ * arrangement of the same library: "My Library" whatever the account is
+ * called, its collections under it, then My Publications and the trash, and
+ * the groups under a heading of their own.
+ */
 describe('the library nav', () => {
-  it('names the library even when it is the only one', async () => {
-    /* It used to be left out here, on the grounds that one library needs no
-       hierarchy. A personal library carries the account's own name, so the row
-       reads "Ada" rather than "My Library" over "My library" -- and it is the
-       row the collections hang from, and the row a collection is added on. */
+  it('calls the personal library "My Library", not what the account is called', async () => {
+    /* The row is the library, not its owner. The account's own name is on the
+       menu at the top of the page, where Zotero puts it too. */
     const wrapper = await open()
 
-    expect(sidebar(wrapper)).toEqual(['Ada', 'My library', 'Everything', 'Trash'])
-    expect(viewsBelongTo(wrapper)).toBe('Ada')
+    expect(sidebar(wrapper)).toEqual(['My Library', 'My Publications', 'Trash'])
+    expect(viewsBelongTo(wrapper)).toBe('My Library')
   })
 
-  it('draws the views inside the library they act on', async () => {
+  it('holds nothing else under it — no second row for the library itself', async () => {
+    /* "Everything" was altero's own invention and appears in neither the
+       desktop client nor the web library; the library row *is* the whole
+       library. */
+    const wrapper = await open()
+
+    expect(sidebar(wrapper).join(' ')).not.toContain('Everything')
+  })
+
+  it('puts the collections above the two views, as Zotero does', async () => {
+    const collections = [COLLECTION, OTHER]
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+
+    const wrapper = await open()
+
+    const rows = wrapper
+      .findAll('.library__library, .tree__name, .library__scope')
+      .map((row) => row.text())
+    expect(rows).toEqual(['My Library', 'Dolphins', 'Whales', 'My Publications', 'Trash'])
+  })
+
+  it('heads the groups, and only when there is one', async () => {
+    const alone = await open()
+    expect(alone.find('.library__heading-group').exists()).toBe(false)
+
     libraries = [PERSONAL, GROUP]
-
     const wrapper = await open()
 
-    expect(sidebar(wrapper)).toEqual([
-      'Ada',
-      'My library',
-      'Everything',
-      'Trash',
-      'Whale Watchers',
-    ])
-    expect(viewsBelongTo(wrapper)).toBe('Ada')
+    expect(wrapper.get('.library__heading-group').text()).toBe('Group Libraries')
   })
 
-  it('takes them along when another library is opened', async () => {
-    /* This is what the nesting is for: "Trash" under a group is that group's
-       trash, and one Trash above a list of libraries said otherwise. */
+  it('gives a group its own name, and no My Publications', async () => {
+    /* Publishing is something an account does with its own library. */
     libraries = [PERSONAL, GROUP]
     const wrapper = await open()
 
     await wrapper.findAll('.library__library')[1].trigger('click')
     await settle(wrapper)
 
-    expect(sidebar(wrapper)).toEqual([
-      'Ada',
-      'Whale Watchers',
-      'My library',
-      'Everything',
-      'Trash',
-    ])
+    expect(sidebar(wrapper)).toEqual(['My Library', 'Whale Watchers', 'Trash'])
     expect(viewsBelongTo(wrapper)).toBe('Whale Watchers')
+  })
+
+  it('asks the server for the publications of the library', async () => {
+    const wrapper = await open()
+
+    await wrapper.findAll('.library__scope').find((e) => e.text() === 'My Publications')!.trigger('click')
+    await settle(wrapper)
+
+    const asked = requestMock.mock.calls.map(([path]) => String(path))
+    expect(asked.some((path) => path.includes('scope=publications'))).toBe(true)
+  })
+
+  it('goes back to the whole library when its row is pressed again', async () => {
+    /* Otherwise somebody who has walked into a collection has no way back to
+       the library except the browser's back button. */
+    const collections = [COLLECTION]
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+    const wrapper = await open()
+    await wrapper.get('.tree__name').trigger('click')
+    await settle(wrapper)
+    expect(useLibraryStore().collectionKey).toBe('CCCC2345')
+
+    await wrapper.get('.library__library').trigger('click')
+    await settle(wrapper)
+
+    expect(useLibraryStore().collectionKey).toBeNull()
+    expect(useLibraryStore().scope).toBe('top')
   })
 })
 
@@ -490,7 +550,7 @@ describe('making and removing collections', () => {
     const wrapper = await open()
 
     const row = libraryAction(wrapper).element.closest('.library__nav-row')
-    expect(row?.querySelector('.library__library')?.textContent).toContain('Ada')
+    expect(row?.querySelector('.library__library')?.textContent).toContain('My Library')
   })
 
   it('offers it only on the library being read', async () => {
@@ -502,7 +562,7 @@ describe('making and removing collections', () => {
 
     expect(wrapper.findAll('.library__action')).toHaveLength(1)
     const row = wrapper.get('.library__action').element.closest('.library__nav-row')
-    expect(row?.querySelector('.library__library')?.textContent).toContain('Ada')
+    expect(row?.querySelector('.library__library')?.textContent).toContain('My Library')
   })
 
   it('puts the library’s plus where a collection’s is, and calls it the same', async () => {
@@ -531,12 +591,13 @@ describe('making and removing collections', () => {
 
   it('lists the collections with the views, as one hierarchy under the library', async () => {
     /* A collection is another thing the library can be narrowed to, not a
-       separate kind of place, and there is no heading saying otherwise. */
+       separate kind of place, and there is no heading saying otherwise. The
+       collections come first, as they do in Zotero's own web library. */
     withCollections([COLLECTION])
     const wrapper = await open()
 
     const rows = wrapper.get('.library__scopes').findAll('.library__label, .tree__label')
-    expect(rows.map((row) => row.text())).toEqual(['My library', 'Everything', 'Trash', 'Whales'])
+    expect(rows.map((row) => row.text())).toEqual(['Whales', 'My Publications', 'Trash'])
   })
 
   it('opens a dialog rather than a field on its own', async () => {
@@ -557,7 +618,7 @@ describe('making and removing collections', () => {
 
     await libraryAction(wrapper).trigger('click')
 
-    expect(wrapper.get('.dialog__path').text()).toContain('Ada')
+    expect(wrapper.get('.dialog__path').text()).toContain('My Library')
   })
 
   it('shows the path down to the row the plus was pressed on', async () => {
@@ -570,7 +631,7 @@ describe('making and removing collections', () => {
     await rowAction(wrapper, 'Humpbacks', 'add').trigger('click')
 
     const steps = wrapper.findAll('.dialog__step-name').map((step) => step.text())
-    expect(steps).toEqual(['Ada', 'Whales', 'Humpbacks'])
+    expect(steps).toEqual(['My Library', 'Whales', 'Humpbacks'])
   })
 
   it('sends the name that was typed', async () => {
@@ -801,7 +862,7 @@ describe('collection settings', () => {
 
     await settings(wrapper, 'Humpbacks')
 
-    expect(places(wrapper)[0]).toBe('Ada')
+    expect(places(wrapper)[0]).toBe('My Library')
   })
 
   it('never offers to put a collection inside itself', async () => {
@@ -812,7 +873,7 @@ describe('collection settings', () => {
 
     await settings(wrapper, 'Whales')
 
-    expect(places(wrapper).map((label) => label.trim())).toEqual(['Ada', 'Dolphins'])
+    expect(places(wrapper).map((label) => label.trim())).toEqual(['My Library', 'Dolphins'])
   })
 
   it('moves a collection back to the top level', async () => {
@@ -1143,7 +1204,7 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
     requestMock.mockClear()
 
-    await drag(wrapper, libraryRow(wrapper, 'Ada'))
+    await drag(wrapper, libraryRow(wrapper, 'My Library'))
 
     expect(writes()).toEqual([
       [
@@ -1159,7 +1220,7 @@ describe('filing, trashing and copying items', () => {
     withLibrary([COLLECTION])
     const wrapper = await open()
 
-    await drag(wrapper, libraryRow(wrapper, 'Ada'))
+    await drag(wrapper, libraryRow(wrapper, 'My Library'))
 
     expect(writes()).toEqual([])
   })
@@ -1522,7 +1583,7 @@ describe('carrying a collection', () => {
     const wrapper = await open()
     await expand(wrapper)
 
-    await carry(wrapper, name(wrapper, 'Humpbacks'), libraryRow(wrapper, 'Ada'))
+    await carry(wrapper, name(wrapper, 'Humpbacks'), libraryRow(wrapper, 'My Library'))
 
     expect(writes()).toEqual([
       [

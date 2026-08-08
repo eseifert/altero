@@ -45,6 +45,19 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
     paths: ['M7.75 3.75h6L17.25 7v9.25H7.75z M13.75 3.75V7h3.5', 'M4.75 7.5v12.75h10.5'],
   },
 
+  /** A page with a globe beside it: the part of a library that is published. */
+  publications: {
+    label: 'My Publications',
+    paths: [
+      'M6.75 19.25V4.75h5.5l4 3.75v3.5',
+      'M12.25 4.75V8.5h4',
+      'M6.75 19.25h4',
+      'M15.5 19.75a3.25 3.25 0 100-6.5 3.25 3.25 0 000 6.5z',
+      'M12.25 16.5h6.5',
+      'M15.5 13.25c.95 1 1.45 2.1 1.45 3.25s-.5 2.25-1.45 3.25c-.95-1-1.45-2.1-1.45-3.25s.5-2.25 1.45-3.25z',
+    ],
+  },
+
   collection: { label: 'Collection', paths: [FOLDER] },
 
   /** A bin with its lid and two staves. */

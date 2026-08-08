@@ -54,6 +54,8 @@ class Scope(StrEnum):
     TOP = "top"
     ALL = "all"
     TRASH = "trash"
+    #: My Publications, which a personal library has and a group does not.
+    PUBLICATIONS = "publications"
 
 
 #: The service-level scope each of those means outside a collection.
@@ -61,6 +63,7 @@ _SCOPES = {
     Scope.TOP: items.Scope.TOP,
     Scope.ALL: items.Scope.ALL,
     Scope.TRASH: items.Scope.TRASH,
+    Scope.PUBLICATIONS: items.Scope.PUBLICATIONS_TOP,
 }
 
 
@@ -166,14 +169,20 @@ async def list_library_items(
     """Return one page of items, in the v3 API's own item shape.
 
     The scope is what the sidebar selects: the top level, everything including
-    child notes and attachments, or the trash. A collection narrows it to that
-    collection's own top-level items, which is what the desktop client shows
-    when you click one.
+    child notes and attachments, the trash, or My Publications. A collection
+    narrows it to that collection's own top-level items, which is what the
+    desktop client shows when you click one.
     """
     library = await _readable_library(session, user, library_id)
 
     if sort not in ITEM_SORT_FIELDS:
         raise HTTPException(status_code=400, detail=f"Cannot sort by {sort}")
+
+    if scope is Scope.PUBLICATIONS and library.type is not LibraryType.USER:
+        # A group has no My Publications: publishing is something an account
+        # does with its own library. The sidebar does not offer the row, so
+        # this is only reachable by hand.
+        raise HTTPException(status_code=400, detail="Only a personal library has publications")
 
     item_scope = _SCOPES[scope]
     if collection:

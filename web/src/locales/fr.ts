@@ -101,7 +101,6 @@ export default {
   'Empty the trash': 'Vider la corbeille',
   'Enter the six-digit code from your authenticator app.':
     "Saisissez le code à six chiffres de votre application d'authentification.",
-  Everything: 'Tout',
   'Everything else': 'Le reste',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
     'Tout ce qu’il contient disparaît avec lui : documents, collections, marqueurs et pièces jointes. Il n’y a pas de corbeille autour d’une bibliothèque.',
@@ -115,6 +114,7 @@ export default {
   'Follow this device ({name})': 'Suivre cet appareil ({name})',
   'For example, my laptop': 'Par exemple : mon ordinateur portable',
   'Go to your library': 'Aller à votre bibliothèque',
+  'Group Libraries': 'Bibliothèques de groupe',
   'Group created.': 'Groupe créé.',
   'Group deleted.': 'Groupe supprimé.',
   'Group saved.': 'Groupe enregistré.',
@@ -156,7 +156,7 @@ export default {
   'Move or copy…': 'Déplacer ou copier…',
   'Move to trash': 'Mettre à la corbeille',
   'My Library': 'Ma bibliothèque',
-  'My library': 'Ma bibliothèque',
+  'My Publications': 'Mes publications',
   Name: 'Nom',
   'Name saved.': 'Nom enregistré.',
   'Never used': 'Jamais utilisée',
@@ -183,6 +183,8 @@ export default {
   'Nothing has happened here yet.': 'Rien ne s\'est encore passé ici.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     "Rien ici pour l'instant. Pointez l'application Zotero vers ce serveur et synchronisez.",
+  'Nothing in this library has been published yet.':
+    'Rien n’a encore été publié dans cette bibliothèque.',
   'Nothing to show.': 'Rien à afficher.',
   Notifications: 'Notifications',
   'Notifications, {count} unread': 'Notifications, {count} non lues',

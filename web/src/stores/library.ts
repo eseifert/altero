@@ -51,8 +51,14 @@ export interface CollectionNode extends CollectionEnvelope {
   children: CollectionNode[]
 }
 
-/** What the sidebar can have selected. */
-export type Scope = 'top' | 'all' | 'trash'
+/**
+ * What the sidebar can have selected.
+ *
+ * ``all`` is the whole library including child notes and attachments. The
+ * sidebar has no row for it -- neither does Zotero's own web library -- but the
+ * server takes it, and the store is the shape of what the server takes.
+ */
+export type Scope = 'top' | 'all' | 'trash' | 'publications'
 
 /** How many items one page holds. */
 export const PAGE_SIZE = 50

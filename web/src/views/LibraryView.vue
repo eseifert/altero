@@ -99,6 +99,8 @@ const emptyMessage = computed(() => {
   if (tagged) return t('No items carry the selected tags.')
 
   if (library.scope === 'trash') return t('The trash is empty.')
+  if (library.scope === 'publications')
+    return t('Nothing in this library has been published yet.')
   if (library.collectionKey) return t('This collection is empty.')
   /* A group fills up when a member syncs into it, and that member need not be
      whoever is reading this -- nor, in a read-only group, can it be. */
@@ -181,11 +183,47 @@ const pending = ref<Pending | null>(null)
 const busy = ref(false)
 const collectionError = ref<string | null>(null)
 
-/* What the sidebar calls a library, so the dialog's path starts with the row
-   the reader can see rather than with a second name for the same thing. */
+/*
+ * What the sidebar calls a library.
+ *
+ * A personal library is "My Library" whatever the account is called, which is
+ * what Zotero calls it in the client and in its web library: the row is the
+ * library, not its owner, and the account's own name is on the menu at the top
+ * of the page where it belongs. A group is called what the group is called.
+ *
+ * Used by the dialogs too, so the path a collection is being made in starts
+ * with the row the reader can see rather than a second name for the same
+ * thing.
+ */
 function libraryLabel(entry: { type: string; name: string; ownerId: number }): string {
-  if (entry.name) return entry.name
-  return entry.type === 'user' ? t('My Library') : t('Group {id}', { id: entry.ownerId })
+  if (entry.type === 'user') return t('My Library')
+  return entry.name || t('Group {id}', { id: entry.ownerId })
+}
+
+/* The heading goes above the first group and nowhere else, so an account with
+   no groups is not told it has none. */
+const firstGroup = computed(
+  () => library.libraries.find((entry) => entry.type === 'group')?.id ?? null,
+)
+
+/** Whether the list is showing the whole of ``id`` -- no collection, no view. */
+function showingWholeOf(id: number): boolean {
+  return id === library.libraryId && !library.collectionKey && library.scope === 'top'
+}
+
+/*
+ * The library row is the library's top level, so pressing it means that.
+ *
+ * Opening another library already lands there; pressing the one that is open
+ * has to say so, or a reader who has walked into a collection has no way back
+ * to the whole library except the browser's back button.
+ */
+async function openLibrary(id: number): Promise<void> {
+  if (id === library.libraryId) {
+    await library.selectScope('top')
+    return
+  }
+  await library.openLibrary(id)
 }
 
 /*
@@ -616,21 +654,24 @@ function sortLabel(column: { field: string; label: string }): string {
   >
     <aside class="library__sidebar">
       <!--
-        The views belong to a library, so they are drawn inside the one they
-        act on rather than in a list of their own above every library. Moving
-        to a group takes them with it, which is the point: "Trash" under a
-        group is that group's trash, and a column that showed one Trash over a
-        list of libraries invited the reading that there is only the one.
+        The shape of the Zotero web library, because a person arriving here
+        from it should not have to learn a second arrangement of the same
+        library. "My Library" is the personal one, whatever the account is
+        called: the row is the library, not its owner. Under it hang its
+        collections, then My Publications, then the trash — and nothing else.
+        The groups follow under a heading of their own.
 
-        The library is named even when it is the only one. It used to be left
-        out there, on the grounds that a single library needs no hierarchy and
-        the row would name it twice over -- but a personal library carries the
-        account's own name, so the row above "My library" reads "Ada", and it
-        is the row everything under it hangs from. It is also where a
-        collection is added, which needs somewhere to be.
+        The views belong to a library rather than sitting above the list of
+        them: "Trash" under a group is that group's trash, and one Trash over
+        a list of libraries invited the reading that there is only the one.
       -->
       <nav class="library__libraries" :aria-label="t('Libraries')">
         <template v-for="entry in library.libraries" :key="entry.id">
+          <!-- Zotero's own heading, and only where there is a group to head. -->
+          <h2 v-if="entry.id === firstGroup" class="library__panel-title library__heading-group">
+            {{ t('Group Libraries') }}
+          </h2>
+
           <!--
             A drop here means one of two things, and which one is which library
             it is: this one takes the item out of the collection being shown,
@@ -641,11 +682,29 @@ function sortLabel(column: { field: string; label: string }): string {
             :class="{ 'library__nav-row--over': lit(`library:${entry.id}`) }"
             :data-drop="`library:${entry.id}`"
           >
+            <!-- The twisty says which library is open rather than opening one
+                 of its own: what a library holds is what the panes below are
+                 showing, and two libraries unfolded at once would be a tree of
+                 things that are not on screen. -->
+            <button
+              class="library__twisty-button"
+              type="button"
+              :aria-label="entry.id === library.libraryId ? t('Collapse') : t('Expand')"
+              :aria-expanded="entry.id === library.libraryId"
+              @click="library.openLibrary(entry.id)"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                   :class="['library__chevron', { 'library__chevron--open': entry.id === library.libraryId }]">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+
             <button
               type="button"
-              :class="['library__library', { 'library__library--current': entry.id === library.libraryId }]"
-              :aria-current="entry.id === library.libraryId ? 'true' : undefined"
-              @click="library.openLibrary(entry.id)"
+              :class="['library__library', { 'library__library--current': showingWholeOf(entry.id) }]"
+              :aria-current="showingWholeOf(entry.id) ? 'true' : undefined"
+              @click="openLibrary(entry.id)"
             >
               <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
               <span class="library__label">{{ libraryLabel(entry) }}</span>
@@ -679,12 +738,10 @@ function sortLabel(column: { field: string; label: string }): string {
           </div>
 
           <!--
-            The views and the collections are one list, because they are one
-            thing: everything this library can be narrowed to. A heading over
-            the collections would have said they were a separate kind of place
-            to be, and they are not -- the desktop client puts them in the same
-            column for the same reason. The rows share a twisty column so that
-            "Trash" and a collection line up rather than sitting a step apart.
+            The collections first, because they are what the library is sorted
+            into and what somebody is usually looking for; then the two rows
+            that are views of the whole of it. They share the collections'
+            twisty column, so a view and a collection line up.
           -->
           <div
             v-if="entry.id === library.libraryId"
@@ -692,30 +749,35 @@ function sortLabel(column: { field: string; label: string }): string {
             role="group"
             :aria-label="libraryLabel(entry)"
           >
-            <div class="library__scope-row">
+            <CollectionTree
+              v-if="library.collections.length"
+              :nodes="library.collections"
+              :selected="library.collectionKey"
+              :editable="library.writable"
+              :carrying="carry.carrying.value !== null"
+              :over="carry.target.value"
+              @select="library.selectCollection($event)"
+              @add="startNew($event)"
+              @settings="startSettings($event)"
+              @remove="startDelete($event)"
+              @carry="carryCollection($event.node, $event.event)"
+            />
+
+            <!-- A group has no My Publications: publishing is something an
+                 account does with its own library. -->
+            <div v-if="entry.type === 'user'" class="library__scope-row">
               <span class="library__twisty" aria-hidden="true"></span>
               <button
                 type="button"
-                :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'top' }]"
-                :aria-current="!library.collectionKey && library.scope === 'top' ? 'true' : undefined"
-                @click="library.selectScope('top')"
+                :class="['library__scope', { 'library__scope--current': library.scope === 'publications' }]"
+                :aria-current="library.scope === 'publications' ? 'true' : undefined"
+                @click="library.selectScope('publications')"
               >
-                <SidebarIcon name="library" />
-                <span class="library__label">{{ t('My library') }}</span>
+                <SidebarIcon name="publications" />
+                <span class="library__label">{{ t('My Publications') }}</span>
               </button>
             </div>
-            <div class="library__scope-row">
-              <span class="library__twisty" aria-hidden="true"></span>
-              <button
-                type="button"
-                :class="['library__scope', { 'library__scope--current': !library.collectionKey && library.scope === 'all' }]"
-                :aria-current="!library.collectionKey && library.scope === 'all' ? 'true' : undefined"
-                @click="library.selectScope('all')"
-              >
-                <SidebarIcon name="everything" />
-                <span class="library__label">{{ t('Everything') }}</span>
-              </button>
-            </div>
+
             <div
               class="library__scope-row"
               :class="{ 'library__scope-row--over': lit('trash:') }"
@@ -732,20 +794,6 @@ function sortLabel(column: { field: string; label: string }): string {
                 <span class="library__label">{{ t('Trash') }}</span>
               </button>
             </div>
-
-            <CollectionTree
-              v-if="library.collections.length"
-              :nodes="library.collections"
-              :selected="library.collectionKey"
-              :editable="library.writable"
-              :carrying="carry.carrying.value !== null"
-              :over="carry.target.value"
-              @select="library.selectCollection($event)"
-              @add="startNew($event)"
-              @settings="startSettings($event)"
-              @remove="startDelete($event)"
-              @carry="carryCollection($event.node, $event.event)"
-            />
           </div>
 
           <template v-if="entry.id === library.libraryId">
@@ -1141,6 +1189,45 @@ function sortLabel(column: { field: string; label: string }): string {
   margin-left: 0.3rem;
   padding-left: 0.35rem;
   border-left: 1px solid var(--md-sys-color-outline-variant);
+}
+
+/*
+ * The heading over the groups. It is the tag panel's heading, because it is
+ * the same kind of thing: a word over a list saying what the list is.
+ */
+.library__heading-group {
+  margin-top: var(--md-spacing-3);
+}
+
+/* The twisty on a library row, in the same column the collections use, so a
+   library and a collection line up down the left. */
+.library__twisty-button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+}
+
+.library__chevron {
+  transition: transform 120ms ease;
+}
+
+.library__chevron--open {
+  transform: rotate(90deg);
+}
+
+@media (pointer: coarse) {
+  .library__twisty-button {
+    width: 2rem;
+    height: 2.25rem;
+  }
 }
 
 /* Every row in this column is something to click and the controls that act on

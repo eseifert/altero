@@ -4,6 +4,7 @@ import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.services import admin
+from tests import factories
 from tests.test_web_routes import csrf_headers, register
 
 
@@ -175,6 +176,39 @@ class TestBrowsing:
 
         assert [entry["data"]["title"] for entry in listed["items"]] == ["Kept"]
         assert [entry["data"]["title"] for entry in trashed["items"]] == ["Discarded"]
+
+    async def test_my_publications_is_its_own_scope(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The row Zotero's own sidebar has, which the browser now offers too."""
+        library_id, key = await self._seed(client, session)
+        await client.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key},
+            json=[
+                {"itemType": "book", "title": "Published", "inPublications": True},
+                {"itemType": "book", "title": "Private"},
+            ],
+        )
+
+        published = (
+            await client.get(f"/web/libraries/{library_id}/items?scope=publications")
+        ).json()
+
+        assert [entry["data"]["title"] for entry in published["items"]] == ["Published"]
+
+    async def test_a_group_has_no_publications(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Publishing is something an account does with its own library. The
+        sidebar does not draw the row for a group, and the endpoint refuses it
+        rather than answering with an empty list that means something else."""
+        await register(client)
+        group = await factories.make_group(session, group_id=50, owner_id=1, members={})
+
+        response = await client.get(f"/web/libraries/{group.id}/items?scope=publications")
+
+        assert response.status_code == 400
 
     async def test_a_search_matches_more_than_the_title(
         self, client: httpx.AsyncClient, session: AsyncSession

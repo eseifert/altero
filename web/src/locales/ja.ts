@@ -104,7 +104,6 @@ export default {
   'Empty the trash': 'ごみ箱を空にする',
   'Enter the six-digit code from your authenticator app.':
     '認証アプリの 6 桁のコードを入力してください。',
-  Everything: 'すべて',
   'Everything else': 'その他',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
     '中身もすべて消えます。アイテム、コレクション、タグ、添付ファイル。ライブラリの外側にゴミ箱はありません。',
@@ -118,6 +117,7 @@ export default {
   'Follow this device ({name})': 'この端末に従う（{name}）',
   'For example, my laptop': '例: 自分のノート PC',
   'Go to your library': 'ライブラリへ',
+  'Group Libraries': 'グループライブラリ',
   'Group created.': 'グループを作成しました。',
   'Group deleted.': 'グループを削除しました。',
   'Group saved.': 'グループを保存しました。',
@@ -159,7 +159,7 @@ export default {
   'Move or copy…': '移動またはコピー…',
   'Move to trash': 'ごみ箱に入れる',
   'My Library': 'マイライブラリ',
-  'My library': 'マイライブラリ',
+  'My Publications': 'マイ パブリケーション',
   Name: '名前',
   'Name saved.': '名前を保存しました。',
   'Never used': '未使用',
@@ -183,6 +183,7 @@ export default {
   'Nothing has happened here yet.': 'まだ何も起きていません。',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'まだ何もありません。Zotero デスクトップアプリをこのサーバーに向けて同期してください。',
+  'Nothing in this library has been published yet.': 'このライブラリからはまだ何も公開されていません。',
   'Nothing to show.': '表示するものはありません。',
   Notifications: '通知',
   'Notifications, {count} unread': '通知、未読 {count} 件',
