@@ -2,8 +2,10 @@
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { placesFor } from '@/collectionplaces'
 import AppButton from '@/components/AppButton.vue'
 import CollectionDialog from '@/components/CollectionDialog.vue'
+import CollectionSettingsDialog from '@/components/CollectionSettingsDialog.vue'
 import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
@@ -145,7 +147,7 @@ function titleOf(item: ItemEnvelope): string {
 }
 
 /*
- * Making and removing a collection.
+ * Making, changing and removing a collection.
  *
  * One pending action at a time, held here rather than in the tree: the tree
  * recurses into itself, so state kept in it would be per level, and there is
@@ -153,11 +155,14 @@ function titleOf(item: ItemEnvelope): string {
  *
  * Making one opens a dialog, because it takes two answers -- where, and what to
  * call it -- and the first of those is a place in a tree that the dialog has to
- * show. Removing one asks in place, as everything else here does, because it
- * takes no answer beyond yes.
+ * show. Changing one opens another, for the same reason: a name and a place.
+ * Removing one asks in place, as everything else here does, because it takes no
+ * answer beyond yes -- and it asks under the tree, where the collection it is
+ * about can still be seen.
  */
 type Pending =
   | { kind: 'create'; parent: CollectionNode | null }
+  | { kind: 'settings'; target: CollectionNode }
   | { kind: 'delete'; target: CollectionNode }
 
 const pending = ref<Pending | null>(null)
@@ -193,9 +198,45 @@ function startNew(parent: CollectionNode | null): void {
   collectionError.value = null
 }
 
+function startSettings(target: CollectionNode): void {
+  pending.value = { kind: 'settings', target }
+  collectionError.value = null
+}
+
 function startDelete(target: CollectionNode): void {
   pending.value = { kind: 'delete', target }
   collectionError.value = null
+}
+
+/*
+ * The collection whose settings are open, and everywhere it could be moved to.
+ *
+ * The library heads the list, because "no parent" is not an absence to a
+ * reader -- it is the library, which is the row the top-level collections hang
+ * from. What is left out is this collection and everything under it.
+ */
+const editing = computed(() => (pending.value?.kind === 'settings' ? pending.value.target : null))
+
+const places = computed(() =>
+  placesFor(
+    library.collections,
+    library.library ? libraryLabel(library.library) : t('Library'),
+    editing.value?.key,
+  ),
+)
+
+async function submitSettings(changes: {
+  name: string
+  parentCollection: string | null
+}): Promise<void> {
+  const current = pending.value
+  if (current?.kind !== 'settings') return
+
+  if (!changes.name) {
+    collectionError.value = t('A collection needs a name.')
+    return
+  }
+  await run(() => library.updateCollection(current.target.key, changes))
 }
 
 function cancel(): void {
@@ -416,7 +457,7 @@ function sortLabel(column: { field: string; label: string }): string {
               :editable="library.writable"
               @select="library.selectCollection($event)"
               @add="startNew($event)"
-              @remove="startDelete($event)"
+              @settings="startSettings($event)"
             />
           </div>
 
@@ -613,6 +654,20 @@ function sortLabel(column: { field: string; label: string }): string {
       :busy="busy"
       :error="collectionError"
       @submit="submitCollection"
+      @cancel="cancel"
+    />
+
+    <!-- Renaming, moving and deleting one collection, which are one dialog
+         because they are one thought: this collection's settings. -->
+    <CollectionSettingsDialog
+      v-if="editing"
+      :name="editing.data.name"
+      :parent-key="editing.data.parentCollection || null"
+      :places="places"
+      :busy="busy"
+      :error="collectionError"
+      @submit="submitSettings"
+      @remove="startDelete(editing)"
       @cancel="cancel"
     />
 

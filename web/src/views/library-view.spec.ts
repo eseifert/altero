@@ -447,14 +447,22 @@ describe('making and removing collections', () => {
     return wrapper.get('.library__action')
   }
 
-  /** The plus or the cross on the row for `name`. */
+  /** The plus or the pencil on the row for `name`. */
   function rowAction(
     wrapper: ReturnType<typeof mount>,
     name: string,
-    action: 'add' | 'remove',
+    action: 'add' | 'settings',
   ) {
-    const label = action === 'add' ? `New subcollection inside “${name}”` : `Delete “${name}”`
+    const label =
+      action === 'add' ? `New subcollection inside “${name}”` : `Settings for “${name}”`
     return wrapper.get(`[aria-label="${label}"]`)
+  }
+
+  /** Open the settings of `name`, and press Delete in them. */
+  async function askToDelete(wrapper: ReturnType<typeof mount>, name: string) {
+    await rowAction(wrapper, name, 'settings').trigger('click')
+    await wrapper.findAll('.dialog__actions button')[0].trigger('click')
+    await wrapper.vm.$nextTick()
   }
 
   /** The calls that changed something. */
@@ -648,16 +656,26 @@ describe('making and removing collections', () => {
     withCollections([COLLECTION])
     const wrapper = await open()
 
-    await rowAction(wrapper, 'Whales', 'remove').trigger('click')
+    await askToDelete(wrapper, 'Whales')
 
     expect(wrapper.get('.collections__confirm').text()).toContain('Whales')
     expect(writes()).toEqual([])
   })
 
+  it('asks under the tree rather than in the dialog, where the collection can be seen', async () => {
+    withCollections([COLLECTION])
+    const wrapper = await open()
+
+    await askToDelete(wrapper, 'Whales')
+
+    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(wrapper.get('.collections__confirm').text()).toContain('stay in the library')
+  })
+
   it('removes it once that is confirmed', async () => {
     withCollections([COLLECTION], () => Promise.resolve(null))
     const wrapper = await open()
-    await rowAction(wrapper, 'Whales', 'remove').trigger('click')
+    await askToDelete(wrapper, 'Whales')
 
     await wrapper.findAll('.collections__confirm button')[1].trigger('click')
     await settle(wrapper)
@@ -670,7 +688,7 @@ describe('making and removing collections', () => {
   it('leaves it alone when the question is dismissed', async () => {
     withCollections([COLLECTION])
     const wrapper = await open()
-    await rowAction(wrapper, 'Whales', 'remove').trigger('click')
+    await askToDelete(wrapper, 'Whales')
 
     await wrapper.findAll('.collections__confirm button')[0].trigger('click')
     await settle(wrapper)
@@ -691,6 +709,163 @@ describe('making and removing collections', () => {
     expect(wrapper.get('.dialog__error').text()).toContain('You cannot change this library')
     expect((wrapper.get('.dialog__field').element as HTMLInputElement).value).toBe('Papers')
     expect(wrapper.find('.library__state--error').exists()).toBe(false)
+  })
+})
+
+/**
+ * The settings of one collection: its name, where it sits, and its removal.
+ *
+ * One dialog for the three because they are one thought, and because a sidebar
+ * row has space for a pair of icons rather than a menu of them.
+ */
+describe('collection settings', () => {
+  const NESTED_TREE = [COLLECTION, NESTED, OTHER]
+
+  function withCollections(collections: unknown[], write?: (path: string) => Promise<unknown>) {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method && options.method !== 'GET') {
+        return write ? write(path) : Promise.resolve(COLLECTION)
+      }
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+  }
+
+  function writes() {
+    return requestMock.mock.calls.filter(
+      ([, options]) => options && options.method && options.method !== 'GET',
+    )
+  }
+
+  /** Open the settings of the collection called `name`, expanding to reach it. */
+  async function settings(wrapper: ReturnType<typeof mount>, name: string) {
+    const pencil = `[aria-label="Settings for “${name}”"]`
+    if (!wrapper.find(pencil).exists()) {
+      await wrapper.get('button.tree__twisty').trigger('click')
+    }
+    await wrapper.get(pencil).trigger('click')
+    await wrapper.vm.$nextTick()
+  }
+
+  /** What the "Inside" picker offers, in order. */
+  function places(wrapper: ReturnType<typeof mount>) {
+    return wrapper.findAll('#collection-settings-parent option').map((option) => option.text())
+  }
+
+  it('opens with the collection as it stands', async () => {
+    withCollections(NESTED_TREE)
+    const wrapper = await open()
+
+    await settings(wrapper, 'Whales')
+
+    expect((wrapper.get('#collection-settings-name').element as HTMLInputElement).value).toBe(
+      'Whales',
+    )
+    expect(writes()).toEqual([])
+  })
+
+  it('sends the name and the parent together, because it is one save', async () => {
+    withCollections(NESTED_TREE, () => Promise.resolve(COLLECTION))
+    const wrapper = await open()
+    await settings(wrapper, 'Whales')
+
+    await wrapper.get('#collection-settings-name').setValue('Cetaceans')
+    await wrapper.get('#collection-settings-parent').setValue('EEEE2345')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/collections/CCCC2345',
+        { method: 'PATCH', body: { name: 'Cetaceans', parentCollection: 'EEEE2345' } },
+      ],
+    ])
+    expect(wrapper.find('dialog').exists()).toBe(false)
+  })
+
+  it('offers the library itself as the place with no parent', async () => {
+    /* "No parent" is not an absence to a reader: it is the library, which is
+       the row the top-level collections hang from. */
+    withCollections(NESTED_TREE)
+    const wrapper = await open()
+
+    await settings(wrapper, 'Humpbacks')
+
+    expect(places(wrapper)[0]).toBe('Ada')
+  })
+
+  it('never offers to put a collection inside itself', async () => {
+    /* A loop takes the branch out of the tree: it still exists and nothing
+       reaches it. The server refuses it; this is why nobody is asked. */
+    withCollections(NESTED_TREE)
+    const wrapper = await open()
+
+    await settings(wrapper, 'Whales')
+
+    expect(places(wrapper).map((label) => label.trim())).toEqual(['Ada', 'Dolphins'])
+  })
+
+  it('moves a collection back to the top level', async () => {
+    withCollections(NESTED_TREE, () => Promise.resolve(NESTED))
+    const wrapper = await open()
+    await settings(wrapper, 'Humpbacks')
+
+    /* The library's option carries `null` rather than a string, so it is
+       selected by index and the change is announced by hand. */
+    const parent = wrapper.get('#collection-settings-parent')
+    ;(parent.element as HTMLSelectElement).selectedIndex = 0
+    await parent.trigger('change')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/collections/DDDD2345',
+        { method: 'PATCH', body: { name: 'Humpbacks', parentCollection: null } },
+      ],
+    ])
+  })
+
+  it('refuses an empty name without asking the server', async () => {
+    withCollections(NESTED_TREE)
+    const wrapper = await open()
+    await settings(wrapper, 'Whales')
+
+    await wrapper.get('#collection-settings-name').setValue('   ')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([])
+    expect(wrapper.get('.dialog__error').text()).toContain('A collection needs a name.')
+  })
+
+  it('reports a refusal in the dialog, which stays open with what was typed', async () => {
+    withCollections(NESTED_TREE, () => Promise.reject(new Error('You cannot change this library')))
+    const wrapper = await open()
+    await settings(wrapper, 'Whales')
+
+    await wrapper.get('#collection-settings-name').setValue('Cetaceans')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(wrapper.get('.dialog__error').text()).toContain('You cannot change this library')
+    expect((wrapper.get('#collection-settings-name').element as HTMLInputElement).value).toBe(
+      'Cetaceans',
+    )
+  })
+
+  it('is not offered at all in a library this account may only read', async () => {
+    libraries = [GROUP]
+    withCollections(NESTED_TREE)
+    const wrapper = await open()
+
+    expect(wrapper.find('[aria-label="Settings for “Whales”"]').exists()).toBe(false)
   })
 })
 

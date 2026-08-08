@@ -26,7 +26,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   select: [key: string]
   add: [node: CollectionNode]
-  remove: [node: CollectionNode]
+  settings: [node: CollectionNode]
 }>()
 
 const expanded = ref<Set<string>>(new Set())
@@ -102,6 +102,12 @@ function toggle(key: string): void {
         </button>
 
         <!--
+          Two controls, and the pencil is the one that leads everywhere else:
+          renaming, moving and deleting are all this collection's settings, and
+          a row has room for a pair of icons rather than a menu of them. The
+          plus is beside it because it makes a *different* collection, which is
+          not a setting of this one.
+
           Kept in the document rather than shown on hover alone: a control that
           exists only under a pointer is a control a keyboard cannot reach.
           What hovering and focusing change is whether they are drawn, not
@@ -123,13 +129,13 @@ function toggle(key: string): void {
           <button
             class="tree__action"
             type="button"
-            :aria-label="t('Delete “{name}”', { name: node.data.name })"
-            :title="t('Delete')"
-            @click="emit('remove', node)"
+            :aria-label="t('Settings for “{name}”', { name: node.data.name })"
+            :title="t('Settings for “{name}”', { name: node.data.name })"
+            @click="emit('settings', node)"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" />
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z" />
             </svg>
           </button>
         </span>
@@ -143,7 +149,7 @@ function toggle(key: string): void {
         :editable="editable"
         @select="emit('select', $event)"
         @add="emit('add', $event)"
-        @remove="emit('remove', $event)"
+        @settings="emit('settings', $event)"
       />
     </li>
   </ul>

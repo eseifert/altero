@@ -1,11 +1,10 @@
-"""Making and removing collections from the browser.
+"""Making, changing and removing collections from the browser.
 
-Everything else the interface does to a library it does by reading. This is the
-narrow exception -- narrow in what it touches rather than in who may reach it:
-one collection at a time, by name and by parent, and never an item. Sorting a
-library into collections is what a library is *for*, and having to open the
-desktop client to make one was the last thing the browser could not do to a
-library it can otherwise read whole.
+Narrow in what it touches rather than in who may reach it: one collection at a
+time, by name and by parent, and never an item. Sorting a library into
+collections is what a library is *for*, and having to open the desktop client
+to make one was the last thing the browser could not do to a library it can
+otherwise read whole.
 
 The rules are the ones the rest of ``/web`` follows. A cookie and never an API
 key; a CSRF token on anything that changes something; and the same
@@ -34,7 +33,7 @@ from altero.api.responses import library_headers
 from altero.api.routes.collections import render_collection
 from altero.api.routes.web import CsrfDep, CurrentUserDep
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
-from altero.models import ActivityKind, Library, User
+from altero.models import ActivityKind, Collection, Library, User
 from altero.services import auth, groupactivity, objectwrites, writes
 from altero.services import collections as collections_service
 
@@ -56,6 +55,19 @@ class NewCollection(BaseModel):
     """
 
     name: str
+    parent_collection: str | None = Field(default=None, alias="parentCollection")
+
+
+class CollectionChanges(BaseModel):
+    """What changing a collection takes: either property, or both.
+
+    Which of them were *sent* is the question, not what they hold, so the
+    defaults are meaningless on their own -- ``parentCollection: null`` asks
+    for the top level and an absent one asks for nothing at all. The route
+    reads ``model_fields_set`` to tell those apart.
+    """
+
+    name: str | None = None
     parent_collection: str | None = Field(default=None, alias="parentCollection")
 
 
@@ -126,6 +138,101 @@ async def create_collection(
     await session.commit()
 
     return JSONResponse(rendered, status_code=201, headers=library_headers(version))
+
+
+async def _would_loop(session: AsyncSession, collection: Collection, parent: Collection) -> bool:
+    """Whether making ``parent`` the parent of ``collection`` closes a loop.
+
+    Walked upwards from the proposed parent, which is the shorter walk and
+    needs no recursion. ``save_collection`` refuses only the one-step case --
+    a collection named as its own parent -- and a two-step loop is just as
+    fatal: everything in that branch would still exist and nothing would reach
+    it, because a tree is drawn from parents and neither end has one.
+    """
+    seen = parent
+    while True:
+        if seen.id == collection.id:
+            return True
+        if seen.parent_id is None:
+            return False
+        above = await session.get(Collection, seen.parent_id)
+        if above is None:
+            return False
+        seen = above
+
+
+@router.patch("/libraries/{library_id}/collections/{collection_key}")
+async def update_collection(
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    library_id: int,
+    collection_key: str,
+    _csrf: CsrfDep,
+    body: Annotated[CollectionChanges, Body()],
+) -> Response:
+    """Rename one collection, move it, or both.
+
+    A patch and not a replacement: a property that was not sent keeps what is
+    stored. The dialog this answers shows a name and a parent together, and one
+    that cleared whichever the reader did not touch would lose a branch of the
+    tree to a rename.
+
+    ``parentCollection: null`` is how it says "no parent", which is what moving
+    a collection back to the top level is. The stored form of that is ``false``,
+    which is what comes back -- the v3 shape, unchanged.
+    """
+    library = await _writable_library(session, user, library_id)
+
+    payload: dict[str, Any] = {}
+    if "name" in body.model_fields_set:
+        name = (body.name or "").strip()
+        if not name:
+            raise InvalidInputError("A collection needs a name")
+        if len(name) > MAX_NAME:
+            raise InvalidInputError(
+                f"A collection name cannot be longer than {MAX_NAME} characters"
+            )
+        payload["name"] = name
+
+    library = await writes.lock_library(session, library)
+    collection = await collections_service.get_collection(session, library, collection_key)
+
+    if "parent_collection" in body.model_fields_set:
+        if body.parent_collection:
+            parent = await collections_service.get_collection(
+                session, library, body.parent_collection
+            )
+            if await _would_loop(session, collection, parent):
+                raise InvalidInputError("A collection cannot be moved inside itself")
+            payload["parentCollection"] = parent.key
+        else:
+            payload["parentCollection"] = False
+
+    if not payload:
+        raise InvalidInputError("Nothing to change")
+
+    # A request that describes what is already stored still takes a version.
+    # The alternative is answering with a version the library never had, and a
+    # person pressing Save twice is not a reason to invent one.
+    version = await writes.bump_library_version(session, library)
+    changed = await objectwrites.save_collection(
+        session, library, payload, version, key=collection.key, replace=False
+    )
+    assert changed is not None  # Only the multi-object path asks to detect that.
+
+    rendered = await render_collection(session, changed, library, base_url)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=user.id,
+        kind=ActivityKind.COLLECTIONS_CHANGED,
+        count=1,
+        objects=[(changed.key, changed.name)],
+    )
+    await session.commit()
+
+    return JSONResponse(rendered, headers=library_headers(version))
 
 
 @router.delete("/libraries/{library_id}/collections/{collection_key}", status_code=204)

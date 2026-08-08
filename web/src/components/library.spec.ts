@@ -178,7 +178,7 @@ describe('CollectionTree', () => {
     expect(wrapper.emitted('add')).toEqual([[papers]])
   })
 
-  it('asks to remove the row it was used on', async () => {
+  it('opens the settings of the row it was used on', async () => {
     const books = node('BBBB2345', 'Books')
     const wrapper = mount(CollectionTree, {
       props: { nodes: [node('AAAA2345', 'Papers'), books], selected: null, editable: true },
@@ -186,12 +186,12 @@ describe('CollectionTree', () => {
 
     await wrapper.findAll('.tree__action')[3].trigger('click')
 
-    expect(wrapper.emitted('remove')).toEqual([[books]])
+    expect(wrapper.emitted('settings')).toEqual([[books]])
   })
 
   it('names the collection in each control, for a reader who cannot see the row', () => {
-    /* Six identical "Delete" buttons down a sidebar say nothing about which
-       collection each one is under. */
+    /* Six identical pencils down a sidebar say nothing about which collection
+       each one belongs to. */
     const wrapper = mount(CollectionTree, {
       props: { nodes: [node('AAAA2345', 'Papers')], selected: null, editable: true },
     })
@@ -199,7 +199,7 @@ describe('CollectionTree', () => {
     const labels = wrapper.findAll('.tree__action').map((b) => b.attributes('aria-label'))
     expect(labels).toEqual([
       'New subcollection inside \u201CPapers\u201D',
-      'Delete \u201CPapers\u201D',
+      'Settings for \u201CPapers\u201D',
     ])
   })
 
@@ -216,7 +216,7 @@ describe('CollectionTree', () => {
 
     await wrapper.findAll('.tree__action')[3].trigger('click')
 
-    expect(wrapper.emitted('remove')).toEqual([[drafts]])
+    expect(wrapper.emitted('settings')).toEqual([[drafts]])
   })
 })
 

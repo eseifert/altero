@@ -228,6 +228,26 @@ export const useLibraryStore = defineStore('library', () => {
   }
 
   /**
+   * Rename a collection, move it, or both.
+   *
+   * A patch: whatever is not sent keeps what is stored. The tree is read again
+   * rather than edited in place, because a move changes how many collections
+   * two parents report and a name changes where the collection sorts among its
+   * siblings, and neither is worth reproducing here.
+   */
+  async function updateCollection(
+    key: string,
+    changes: { name?: string; parentCollection?: string | null },
+  ): Promise<void> {
+    if (libraryId.value === null) return
+    await request(`/web/libraries/${libraryId.value}/collections/${key}`, {
+      method: 'PATCH',
+      body: changes,
+    })
+    await loadCollections()
+  }
+
+  /**
    * Remove a collection. Its subcollections move up; its items stay.
    *
    * If it was the one being shown, the view falls back to the whole library —
@@ -447,6 +467,7 @@ export const useLibraryStore = defineStore('library', () => {
     openLibrary,
     loadCollections,
     createCollection,
+    updateCollection,
     deleteCollection,
     loadTags,
     renameTag,

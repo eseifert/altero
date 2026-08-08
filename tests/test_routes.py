@@ -70,9 +70,10 @@ EXPECTED = [
     ("/web/libraries/{library_id}/collections", "GET"),
     ("/web/libraries/{library_id}/tags", "GET"),
     ("/web/libraries/{library_id}/items/{item_key}/citation", "GET"),
-    # One collection made and one removed. The browser's only writes to the
-    # contents of a library. See altero/api/routes/webcollections.py.
+    # One collection made, renamed or moved, and one removed. See
+    # altero/api/routes/webcollections.py.
     ("/web/libraries/{library_id}/collections", "POST"),
+    ("/web/libraries/{library_id}/collections/{collection_key}", "PATCH"),
     ("/web/libraries/{library_id}/collections/{collection_key}", "DELETE"),
     # One tag renamed, which is a write to every item carrying it and to
     # nothing else. See altero/api/routes/webtags.py.

@@ -154,8 +154,7 @@ IEEE or Nature; the server renders it with the same CSL processor that answers
 
 ## Collections
 
-Collections can be made and removed here. Everything else in a library is still
-read-only: no item, note, tag or saved search is edited in the browser.
+Collections can be made, renamed, moved and removed here.
 
 **Where a collection goes is half of making one**, so it is settled before the
 name is — and it is settled by which row you press. Every row that can hold
@@ -174,8 +173,24 @@ way to say it that can disagree with the first. A new collection is selected
 once it is made, and the branch it went into opens to show it, so it is where
 you can see it rather than somewhere you have to go and find.
 
-Removing one is the cross on its row, beside the plus, and asks in place rather
-than in a dialog: it takes no answer beyond yes.
+**Renaming, moving and removing are one dialog**, because they are one thought
+— this collection's settings — and because a sidebar row has space for a pair
+of icons rather than a menu of them. The pencil beside the plus opens it: the
+name, the collection it sits inside, and Delete.
+
+Moving is a picker rather than a drag. A tree can be taller than the window,
+and a collection cannot be dropped on a parent that is scrolled out of sight;
+items are dragged, a collection is moved by naming where it goes. The list
+leads with the library, because "no parent" is not an absence to a reader — it
+is the row the top-level collections hang from. What it never offers is the
+collection itself or anything under it: a collection inside itself is a branch
+that still exists and that nothing reaches, since the tree is drawn from
+parents and neither end of the loop has one. The server refuses that write as
+well, walking the whole way up from the proposed parent rather than checking
+the one step `services/objectwrites.py` checks.
+
+Delete asks in place rather than in the dialog, under the collection it is
+about, where the tree can still be seen: it takes no answer beyond yes.
 
 The controls appear only where the server says this account may write to the
 library — a group that keeps editing to its administrators shows a member the
@@ -196,9 +211,14 @@ maintain.
 
 Behind it is `services/objectwrites.py`, which is what the v3 endpoints write
 through as well: the same key format, the same validation, and one new library
-version per request, whichever door it came in by. A collection made in the
-browser appears in the desktop client at the next sync, in the right place in
-the tree.
+version per request, whichever door it came in by. A collection made or renamed
+in the browser appears in the desktop client at the next sync, in the right
+place in the tree.
+
+Changing one is a patch: a property that is not sent keeps what is stored, so
+a rename cannot silently move a collection to the top level. `parentCollection:
+null` is how the dialog asks for the top level; the stored form of that is
+`false`, which is the v3 shape and what comes back.
 
 ## Tags
 
@@ -456,10 +476,9 @@ are cached for good, so the second visit fetches none of it.
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
 editing a library beyond its collections and its tag names — collections can be
-made and removed, a tag can be renamed, and a whole library can be restored
-from an archive or copied in from zotero.org, but no item can be changed, a tag
-cannot be deleted or put on something, and a collection cannot be renamed or
-moved to another parent. Moving in from zotero.org brings the personal library
+made, renamed, moved and removed, a tag can be renamed, and a whole library can
+be restored from an archive or copied in from zotero.org, but no item can be
+changed and a tag cannot be deleted or put on something. Moving in from zotero.org brings the personal library
 only; a group has to be made here and its members invited.
 
 Making an account for somebody else, resetting their password and revoking

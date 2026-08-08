@@ -161,7 +161,8 @@ A browser application at `/app/`, in six languages. It covers:
 - Notifications, group invitations, and a group's activity log.
 - Browsing a library: collections, tags, search, an item's details, its
   attachments, and a citation in a style you pick.
-- Making and removing collections, and renaming a tag throughout the library.
+- Making, renaming, moving and removing collections, and renaming a tag
+  throughout the library.
 
 Everything else in a library it reads rather than changes. The sync API accepts
 only an API key and refuses a browser session, so nothing the interface does

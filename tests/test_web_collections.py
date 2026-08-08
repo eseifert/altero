@@ -26,6 +26,20 @@ async def collection_names(client: httpx.AsyncClient, library_id: int) -> list[s
     return [entry["data"]["name"] for entry in payload["collections"]]
 
 
+async def make(
+    client: httpx.AsyncClient, library_id: int, name: str, parent: str | None = None
+) -> dict:
+    """One collection, made the way the browser makes them."""
+    payload: dict[str, object] = {"name": name}
+    if parent:
+        payload["parentCollection"] = parent
+    response = await client.post(
+        f"/web/libraries/{library_id}/collections", json=payload, headers=csrf_headers(client)
+    )
+    assert response.status_code == 201
+    return response.json()
+
+
 @pytest.fixture
 async def ada(client: httpx.AsyncClient) -> httpx.AsyncClient:
     """One account, signed in, with its personal library."""
@@ -247,6 +261,271 @@ class TestRemovingOne:
         )
 
         assert response.status_code == 404
+
+
+class TestChangingOne:
+    """Renaming a collection, and moving it somewhere else in the tree.
+
+    Both are the same write, because both are the same thing to the reader: a
+    collection's settings. Sending one of them leaves the other alone -- this
+    is a patch, and a dialog that offered a name and a parent and cleared
+    whichever was not touched would be a trap.
+    """
+
+    async def test_a_collection_is_renamed(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        made = await make(ada, library_id, "Papers")
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}",
+            json={"name": "Articles"},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["data"]["name"] == "Articles"
+        assert await collection_names(ada, library_id) == ["Articles"]
+
+    async def test_it_is_moved_under_another_collection(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        papers = await make(ada, library_id, "Papers")
+        unread = await make(ada, library_id, "Unread")
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{unread['key']}",
+            json={"parentCollection": papers["key"]},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["data"]["parentCollection"] == papers["key"]
+
+    async def test_it_is_moved_back_to_the_top_level(self, ada: httpx.AsyncClient) -> None:
+        """``null`` is how the dialog says "no parent"; the stored form is false."""
+        library_id = await personal_library(ada)
+        papers = await make(ada, library_id, "Papers")
+        unread = await make(ada, library_id, "Unread", parent=papers["key"])
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{unread['key']}",
+            json={"parentCollection": None},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["data"]["parentCollection"] is False
+
+    async def test_renaming_leaves_the_parent_alone(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        papers = await make(ada, library_id, "Papers")
+        unread = await make(ada, library_id, "Unread", parent=papers["key"])
+
+        body = (
+            await ada.patch(
+                f"/web/libraries/{library_id}/collections/{unread['key']}",
+                json={"name": "To read"},
+                headers=csrf_headers(ada),
+            )
+        ).json()
+
+        assert body["data"]["name"] == "To read"
+        assert body["data"]["parentCollection"] == papers["key"]
+
+    async def test_moving_leaves_the_name_alone(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        papers = await make(ada, library_id, "Papers")
+        unread = await make(ada, library_id, "Unread")
+
+        body = (
+            await ada.patch(
+                f"/web/libraries/{library_id}/collections/{unread['key']}",
+                json={"parentCollection": papers["key"]},
+                headers=csrf_headers(ada),
+            )
+        ).json()
+
+        assert body["data"]["name"] == "Unread"
+
+    async def test_what_is_filed_in_it_stays_filed_in_it(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        key = await admin.create_api_key(session, username="ada", name="seed")
+        made = await make(ada, library_id, "Papers")
+        await ada.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key.key},
+            json=[{"itemType": "book", "title": "Filed", "collections": [made["key"]]}],
+        )
+
+        await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}",
+            json={"name": "Articles"},
+            headers=csrf_headers(ada),
+        )
+
+        items = (
+            await ada.get(f"/web/libraries/{library_id}/items?collection={made['key']}")
+        ).json()
+        assert [item["data"]["title"] for item in items["items"]] == ["Filed"]
+
+    async def test_an_empty_name_is_refused(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        made = await make(ada, library_id, "Papers")
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}",
+            json={"name": "   "},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+        assert await collection_names(ada, library_id) == ["Papers"]
+
+    async def test_a_collection_cannot_become_its_own_parent(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        made = await make(ada, library_id, "Papers")
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}",
+            json={"parentCollection": made["key"]},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+
+    async def test_a_collection_cannot_be_moved_inside_itself(self, ada: httpx.AsyncClient) -> None:
+        """The loop that would take a branch out of the tree altogether.
+
+        Nothing below the moved collection would be reachable from the top
+        again, and a sidebar drawn from parents alone would simply stop showing
+        it. `save_collection` refuses only the one-step case, so the whole
+        descent is checked here.
+        """
+        library_id = await personal_library(ada)
+        papers = await make(ada, library_id, "Papers")
+        unread = await make(ada, library_id, "Unread", parent=papers["key"])
+        deep = await make(ada, library_id, "Deep", parent=unread["key"])
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{papers['key']}",
+            json={"parentCollection": deep["key"]},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+        listed = (await ada.get(f"/web/libraries/{library_id}/collections")).json()["collections"]
+        assert (
+            next(e for e in listed if e["key"] == papers["key"])["data"]["parentCollection"]
+            is False
+        )
+
+    async def test_an_unknown_parent_is_not_found(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        made = await make(ada, library_id, "Papers")
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}",
+            json={"parentCollection": "BBBB2345"},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 404
+
+    async def test_a_parent_in_another_library_is_not_found(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """A move across libraries is not a move; it would strand the items."""
+        library_id = await personal_library(ada)
+        made = await make(ada, library_id, "Papers")
+        grace = await admin.create_user(session, username="grace")
+        theirs = await session.scalar(select(Library).where(Library.owner_id == grace.id))
+        assert theirs is not None
+        elsewhere = await factories.make_collection(session, theirs, name="Theirs")
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}",
+            json={"parentCollection": elsewhere.key},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 404
+
+    async def test_an_unknown_collection_is_not_found(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/AAAA2345",
+            json={"name": "Articles"},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 404
+
+    async def test_it_needs_the_csrf_token(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        made = await make(ada, library_id, "Papers")
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}", json={"name": "Articles"}
+        )
+
+        assert response.status_code == 403
+        assert await collection_names(ada, library_id) == ["Papers"]
+
+    async def test_a_library_this_account_cannot_write_to_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        grace = await admin.create_user(session, username="grace")
+        theirs = await session.scalar(select(Library).where(Library.owner_id == grace.id))
+        assert theirs is not None
+        elsewhere = await factories.make_collection(session, theirs, name="Theirs")
+
+        response = await ada.patch(
+            f"/web/libraries/{theirs.id}/collections/{elsewhere.key}",
+            json={"name": "Mine now"},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 403
+
+    async def test_one_request_is_one_new_version(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        made = await make(ada, library_id, "Papers")
+        before = (await ada.get("/web/libraries")).json()[0]["version"]
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}",
+            json={"name": "Articles"},
+            headers=csrf_headers(ada),
+        )
+
+        assert int(response.headers["Last-Modified-Version"]) == before + 1
+        assert (await ada.get("/web/libraries")).json()[0]["version"] == before + 1
+
+    async def test_a_syncing_client_sees_the_new_name(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The point of going through the same write: the desktop gets it."""
+        library_id = await personal_library(ada)
+        key = await admin.create_api_key(session, username="ada", name="sync")
+        made = await make(ada, library_id, "Papers")
+        before = int(
+            (await ada.get("/users/1/collections", headers={"Zotero-API-Key": key.key})).headers[
+                "Last-Modified-Version"
+            ]
+        )
+
+        await ada.patch(
+            f"/web/libraries/{library_id}/collections/{made['key']}",
+            json={"name": "Articles"},
+            headers=csrf_headers(ada),
+        )
+
+        changed = await ada.get(
+            f"/users/1/collections?since={before}", headers={"Zotero-API-Key": key.key}
+        )
+        assert [entry["data"]["name"] for entry in changed.json()] == ["Articles"]
 
 
 class TestTheVersionCounter:
