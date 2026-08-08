@@ -31,6 +31,7 @@ from altero.api.routes import (
     webaccount,
     webcollections,
     webgroups,
+    webitems,
     weblibrary,
     weblink,
     webmigrate,
@@ -138,6 +139,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(web.router)
     app.include_router(weblibrary.router)
     app.include_router(webcollections.router)
+    app.include_router(webitems.router)
     app.include_router(webtags.router)
     app.include_router(webmigrate.router)
     app.include_router(webaccount.router)

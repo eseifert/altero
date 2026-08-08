@@ -1,4 +1,4 @@
-"""Creating, updating and deleting items."""
+"""Creating, updating, filing, copying and deleting items."""
 
 from datetime import UTC, datetime
 from typing import Any
@@ -25,7 +25,7 @@ from altero.models import (
 )
 from altero.services import itemdata
 from altero.services.deletions import record_deletion
-from altero.services.items import get_item
+from altero.services.items import get_item, tags_for
 from altero.services.objectwrites import parse_relations, resolve_tag
 from altero.services.writes import check_object_version
 
@@ -493,6 +493,129 @@ async def save_item(
         item.last_modified_by_user_id = actor_id
 
     return item
+
+
+async def refile_item(
+    session: AsyncSession,
+    library: Library,
+    item: Item,
+    keys: list[str],
+    version: int,
+    *,
+    actor_id: int | None = None,
+) -> None:
+    """Put ``item`` in exactly the collections named by ``keys``.
+
+    :func:`save_item` cannot express this. A partial write treats an empty
+    ``collections`` array as a property that was not mentioned -- which is what
+    makes a ``PATCH`` of one field safe -- so taking an item out of the last
+    collection it was in would be a write that did nothing at all.
+
+    Everything else about the item is left alone, ``deleted`` included: filing
+    something is not untrashing it.
+    """
+    collections = []
+    for key in keys:
+        collection = await session.scalar(
+            select(Collection).where(Collection.library_id == library.id, Collection.key == key)
+        )
+        if collection is None:
+            raise NotFoundError(f"Collection {key} not found")
+        collections.append(collection)
+
+    await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
+    for collection in collections:
+        session.add(CollectionItem(collection_id=collection.id, item_id=item.id))
+
+    # The item changed, so it takes the new version and a fresh timestamp: a
+    # client that has it must hear about this, and where an item is filed is
+    # part of what it syncs.
+    now = datetime.now(UTC).replace(tzinfo=None, microsecond=0)
+    item.version = version
+    item.date_modified = now
+    item.server_date_modified = now
+    if library.type is LibraryType.GROUP and actor_id is not None:
+        item.last_modified_by_user_id = actor_id
+
+    await session.flush()
+
+
+async def _copyable(session: AsyncSession, item: Item) -> dict[str, Any]:
+    """Return ``item`` as a payload that would create it again elsewhere.
+
+    What is left out is what belongs to the library it came from rather than to
+    the item: its key and version, which the copy gets its own of; its
+    collections, because those collections are in the other library; its
+    relations, which name objects by URI and would point at the original
+    library's items; and ``inPublications``, which is a decision about *this*
+    library's public profile rather than a property of the work.
+    """
+    payload: dict[str, Any] = {"itemType": item.item_type}
+    payload.update(item.field_values())
+
+    if item.creators:
+        payload["creators"] = [
+            {"creatorType": creator.creator_type, "name": creator.name}
+            if creator.name is not None
+            else {
+                "creatorType": creator.creator_type,
+                "firstName": creator.first_name or "",
+                "lastName": creator.last_name or "",
+            }
+            for creator in item.creators
+        ]
+
+    tags = (await tags_for(session, [item])).get(item.id, [])
+    payload["tags"] = [
+        {"tag": name} if type_ == TagType.MANUAL else {"tag": name, "type": type_}
+        for name, type_ in tags
+    ]
+    return payload
+
+
+async def copy_item(
+    session: AsyncSession,
+    target: Library,
+    item: Item,
+    version: int,
+    *,
+    collection_key: str | None = None,
+    actor_id: int | None = None,
+) -> Item:
+    """Copy ``item`` and its children into ``target``, and return the copy.
+
+    A copy and not a move: the original is untouched, which is what dragging
+    between libraries does in the desktop client. The copy is a new item in the
+    library it lands in -- its own key, its own version, its own ``dateAdded``
+    -- because that is what it is. Nothing links it back to the original;
+    Zotero's own relation for that is written by the client that made the copy,
+    and a server that invented one would be claiming the two are the same work
+    on the strength of a drag.
+
+    An attached file needs no copying at all: files are stored under their
+    digest, so the copy names the same bytes the original does. Full-text
+    content is not carried over -- it is indexed from the file, and the client
+    that holds the file will send it again.
+    """
+    payload = await _copyable(session, item)
+    if collection_key:
+        payload["collections"] = [collection_key]
+
+    copy = await save_item(session, target, payload, version, actor_id=actor_id)
+    assert copy is not None  # A new item is never "unchanged".
+
+    # Children go with it. A note or an attachment cannot stand on its own, and
+    # a copy of a book without the note somebody wrote on it is not the copy
+    # they asked for.
+    children = await session.scalars(
+        select(Item).where(Item.parent_id == item.id).order_by(Item.id)
+    )
+    for child in list(children):
+        child_payload = await _copyable(session, child)
+        child_payload["parentItem"] = copy.key
+        await save_item(session, target, child_payload, version, actor_id=actor_id)
+
+    return copy
 
 
 async def _delete_one(session: AsyncSession, library: Library, item: Item, version: int) -> None:

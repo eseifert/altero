@@ -163,8 +163,12 @@ A browser application at `/app/`, in six languages. It covers:
   attachments, and a citation in a style you pick.
 - Making, renaming, moving and removing collections, and renaming a tag
   throughout the library.
+- Filing items into collections, trashing and restoring them, emptying the
+  trash, and copying an item into another library — by drag and drop, or from
+  the keyboard.
 
-Everything else in a library it reads rather than changes. The sync API accepts
+Editing an item's fields is still the desktop client's job; everything else in
+a library the interface reads rather than changes. The sync API accepts
 only an API key and refuses a browser session, so nothing the interface does
 can reach the sync protocol — see
 [docs/web-interface.md](docs/web-interface.md).

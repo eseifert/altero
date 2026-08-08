@@ -220,6 +220,43 @@ a rename cannot silently move a collection to the top level. `parentCollection:
 null` is how the dialog asks for the top level; the stored form of that is
 `false`, which is the v3 shape and what comes back.
 
+## Items
+
+An item can be filed, trashed, restored, deleted and copied to another library
+— all of it by dragging one row of the item list somewhere, and all of it also
+without a pointer. What cannot be done here yet is editing an item's fields.
+
+**Dragging onto a collection files it there and leaves it where it was**, which
+is Zotero's own rule: a collection is not a folder, and an item can be in
+several. Holding `Shift` while dropping moves it instead — out of the
+collection being shown and into the one it was dropped on, in one request and
+one library version. Dropping on the library's own row takes it out of the
+collection currently shown without trashing it, and dropping on the trash
+trashes it.
+
+**Dragging onto another library copies it**, with its notes and attachments and
+tags. The original stays: a move would be a deletion nobody asked for on the
+far side of a drag that can be started by accident. The copy is a new item in
+the library it lands in — its own key, its own version — and the collections it
+was in do not come with it, because those collections are in the library it
+came from. An attached file is not copied at all: files are stored under their
+digest, so the copy names the same bytes.
+
+**Everything a drag does, the keyboard does too.** The `Delete` key trashes
+what is selected, and empties it for good when the trash is what is showing;
+the detail pane carries the same actions as buttons, with the collection and
+the library to move to named rather than dropped on. A control only a pointer
+can reach is a control some readers do not have.
+
+**Deleting for good happens only out of the trash.** Trashing sets `deleted` on
+the item, which is what the desktop client's own trash does and what makes it
+reversible; only an item already in the trash can be removed outright, and the
+server refuses the shortcut rather than trusting the browser to have asked
+first. Emptying the trash is the one place the interface deletes more than one
+thing at once, which is also the one place where that is the errand. Trashed
+collections are left where they are — the browser never trashes one, so
+anything in there came from the desktop and is not shown here at all.
+
 ## Tags
 
 A tag can be renamed here. It is the one thing the browser does that reaches
@@ -475,11 +512,13 @@ are cached for good, so the second visit fetches none of it.
 ## Not built yet
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
-editing a library beyond its collections and its tag names — collections can be
-made, renamed, moved and removed, a tag can be renamed, and a whole library can
-be restored from an archive or copied in from zotero.org, but no item can be
-changed and a tag cannot be deleted or put on something. Moving in from zotero.org brings the personal library
-only; a group has to be made here and its members invited.
+editing an item's fields. Collections can be made, renamed, moved and removed,
+an item can be filed, trashed, restored, deleted and copied to another library,
+a tag can be renamed, and a whole library can be restored from an archive or
+copied in from zotero.org — but no item's title, creators or dates can be
+changed here, no item can be created, and a tag cannot be deleted or put on
+something. Moving in from zotero.org brings the personal library only; a group
+has to be made here and its members invited.
 
 Making an account for somebody else, resetting their password and revoking
 their credentials are still shell operations, as is an operator's view of the

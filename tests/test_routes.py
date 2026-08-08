@@ -75,6 +75,12 @@ EXPECTED = [
     ("/web/libraries/{library_id}/collections", "POST"),
     ("/web/libraries/{library_id}/collections/{collection_key}", "PATCH"),
     ("/web/libraries/{library_id}/collections/{collection_key}", "DELETE"),
+    # Items filed, trashed, deleted out of the trash, and copied into another
+    # library. See altero/api/routes/webitems.py.
+    ("/web/libraries/{library_id}/items/{item_key}", "PATCH"),
+    ("/web/libraries/{library_id}/items/{item_key}", "DELETE"),
+    ("/web/libraries/{library_id}/items/{item_key}/copy", "POST"),
+    ("/web/libraries/{library_id}/trash", "DELETE"),
     # One tag renamed, which is a write to every item carrying it and to
     # nothing else. See altero/api/routes/webtags.py.
     ("/web/libraries/{library_id}/tags/{tag_name}", "PATCH"),
