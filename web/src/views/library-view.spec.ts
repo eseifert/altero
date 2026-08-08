@@ -869,6 +869,361 @@ describe('collection settings', () => {
   })
 })
 
+/**
+ * Moving items about, by pointer and by keyboard.
+ *
+ * A drag is quick and some readers cannot do it at all, so everything here has
+ * to work twice: dropping a row on a sidebar row, and saying the same thing
+ * with a key or a button. The tests come in pairs for that reason.
+ */
+describe('filing, trashing and copying items', () => {
+  const TRASHED = {
+    key: 'BBBB2345',
+    version: 2,
+    data: { itemType: 'book', title: 'Thrown away', deleted: 1 },
+    meta: {},
+  }
+
+  function withLibrary(
+    collections: unknown[],
+    write?: (path: string, options?: { method?: string }) => Promise<unknown>,
+  ) {
+    requestMock.mockImplementation(
+      (path: string, options?: { method?: string; body?: unknown }) => {
+        if (options?.method && options.method !== 'GET') {
+          return write ? write(path, options) : Promise.resolve({ deleted: 1 })
+        }
+        if (path === '/web/libraries') return Promise.resolve(libraries)
+        if (path.startsWith('/web/schema')) {
+          return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+        }
+        if (path.includes('/collections')) return Promise.resolve({ collections })
+        if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+        if (path.includes('/children')) return Promise.resolve({ items: [] })
+        if (/\/items\/[A-Z0-9]+$/.test(path)) return Promise.resolve(contents[0])
+        return Promise.resolve({ total: contents.length, items: contents })
+      },
+    )
+  }
+
+  function writes() {
+    return requestMock.mock.calls.filter(
+      ([, options]) => options && options.method && options.method !== 'GET',
+    )
+  }
+
+  function row(wrapper: ReturnType<typeof mount>, title = 'Structure and Interpretation') {
+    const found = wrapper
+      .findAll('.library__row:not(.library__row--head)')
+      .find((entry) => entry.text().includes(title))
+    if (!found) throw new Error(`No item row for ${title}`)
+    return found
+  }
+
+  /* Dispatched rather than triggered, because `shiftKey` cannot be assigned to
+     an event after it has been constructed. jsdom has no `DragEvent`, and a
+     `MouseEvent` carries everything the handlers read. */
+  function fire(element: Element, type: string, options: MouseEventInit = {}): void {
+    element.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, ...options }))
+  }
+
+  /** Drag the row for `title` onto `target`, holding Shift if asked. */
+  async function drag(
+    wrapper: ReturnType<typeof mount>,
+    target: Element,
+    { shift = false, title = 'Structure and Interpretation' } = {},
+  ) {
+    fire(row(wrapper, title).element, 'dragstart')
+    await wrapper.vm.$nextTick()
+    fire(target, 'dragover', { shiftKey: shift })
+    fire(target, 'drop', { shiftKey: shift })
+    await settle(wrapper)
+  }
+
+  /** The sidebar row for a collection, which is what a drop lands on. */
+  function collectionRow(wrapper: ReturnType<typeof mount>, name: string) {
+    const found = wrapper.findAll('.tree__row').find((entry) => entry.text().includes(name))
+    if (!found) throw new Error(`No collection row for ${name}`)
+    return found.element
+  }
+
+  function libraryRow(wrapper: ReturnType<typeof mount>, name: string) {
+    const found = wrapper.findAll('.library__nav-row').find((entry) => entry.text().includes(name))
+    if (!found) throw new Error(`No library row for ${name}`)
+    return found.element
+  }
+
+  function trashRow(wrapper: ReturnType<typeof mount>) {
+    const found = wrapper
+      .findAll('.library__scope-row')
+      .find((entry) => entry.text().includes('Trash'))
+    if (!found) throw new Error('No trash row')
+    return found.element
+  }
+
+  it('files an item in the collection it was dropped on', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+
+    await drag(wrapper, collectionRow(wrapper, 'Whales'))
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/items/AAAA2345',
+        { method: 'PATCH', body: { addCollections: ['CCCC2345'] } },
+      ],
+    ])
+  })
+
+  it('adds rather than moves, which is what a collection is', async () => {
+    /* An item can be in several collections, so dropping it in one does not
+       take it out of another. Holding Shift is how you say otherwise. */
+    withLibrary([COLLECTION, OTHER])
+    const wrapper = await open()
+    await wrapper
+      .findAll('.tree__name')
+      .find((entry) => entry.text().includes('Dolphins'))!
+      .trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await drag(wrapper, collectionRow(wrapper, 'Whales'))
+
+    expect(writes()[0][1].body).toEqual({ addCollections: ['CCCC2345'] })
+  })
+
+  it('moves it when Shift is held, in one request', async () => {
+    withLibrary([COLLECTION, OTHER])
+    const wrapper = await open()
+    await wrapper
+      .findAll('.tree__name')
+      .find((entry) => entry.text().includes('Dolphins'))!
+      .trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await drag(wrapper, collectionRow(wrapper, 'Whales'), { shift: true })
+
+    expect(writes()).toHaveLength(1)
+    expect(writes()[0][1].body).toEqual({
+      addCollections: ['CCCC2345'],
+      removeCollections: ['EEEE2345'],
+    })
+  })
+
+  it('trashes an item dropped on the trash', async () => {
+    withLibrary([])
+    const wrapper = await open()
+
+    await drag(wrapper, trashRow(wrapper))
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/items/AAAA2345', { method: 'PATCH', body: { deleted: true } }],
+    ])
+  })
+
+  it('takes it out of the collection being shown when dropped on the library', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+    await wrapper.findAll('.tree__name')[0].trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await drag(wrapper, libraryRow(wrapper, 'Ada'))
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/items/AAAA2345',
+        { method: 'PATCH', body: { removeCollections: ['CCCC2345'] } },
+      ],
+    ])
+  })
+
+  it('writes nothing when it is dropped on the library outside a collection', async () => {
+    /* There is nothing to take it out of, and "put it where it already is" is
+       not a request worth a library version. */
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+
+    await drag(wrapper, libraryRow(wrapper, 'Ada'))
+
+    expect(writes()).toEqual([])
+  })
+
+  it('copies it into another library it was dropped on', async () => {
+    libraries = [PERSONAL, { ...GROUP, writable: true }]
+    withLibrary([])
+    const wrapper = await open()
+
+    await drag(wrapper, libraryRow(wrapper, 'Whale Watchers'))
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/items/AAAA2345/copy', { method: 'POST', body: { library: 7 } }],
+    ])
+  })
+
+  it('offers no drag at all in a library this account may only read', async () => {
+    libraries = [GROUP]
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+
+    expect(row(wrapper).attributes('draggable')).toBe('false')
+
+    await drag(wrapper, collectionRow(wrapper, 'Whales'))
+    expect(writes()).toEqual([])
+  })
+
+  it('trashes with the Delete key, so a pointer is not the only way', async () => {
+    withLibrary([])
+    const wrapper = await open()
+
+    await row(wrapper).trigger('keydown', { key: 'Delete' })
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/items/AAAA2345', { method: 'PATCH', body: { deleted: true } }],
+    ])
+  })
+
+  it('asks first when Delete would remove something for good', async () => {
+    /* Out of the trash there is nowhere further to put it, so this is the one
+       action in the interface that cannot be undone. */
+    contents = [TRASHED]
+    withLibrary([])
+    const wrapper = await open()
+    await wrapper.findAll('.library__scope').find((e) => e.text().includes('Trash'))!.trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await row(wrapper, 'Thrown away').trigger('keydown', { key: 'Delete' })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('.collections__confirm').text()).toContain('cannot be undone')
+    expect(writes()).toEqual([])
+  })
+
+  it('deletes it once that is answered', async () => {
+    contents = [TRASHED]
+    withLibrary([])
+    const wrapper = await open()
+    await wrapper.findAll('.library__scope').find((e) => e.text().includes('Trash'))!.trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+    await row(wrapper, 'Thrown away').trigger('keydown', { key: 'Delete' })
+    await wrapper.vm.$nextTick()
+
+    await wrapper.findAll('.collections__confirm button')[1].trigger('click')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([['/web/libraries/1/items/BBBB2345', { method: 'DELETE' }]])
+  })
+
+  it('offers to empty the trash, but only in the trash', async () => {
+    contents = [TRASHED]
+    withLibrary([])
+    const wrapper = await open()
+
+    expect(wrapper.text()).not.toContain('Empty the trash')
+
+    await wrapper.findAll('.library__scope').find((e) => e.text().includes('Trash'))!.trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.text()).toContain('Empty the trash')
+  })
+
+  it('empties it once that is answered', async () => {
+    contents = [TRASHED]
+    withLibrary([])
+    const wrapper = await open()
+    await wrapper.findAll('.library__scope').find((e) => e.text().includes('Trash'))!.trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await wrapper.findAll('button').find((e) => e.text() === 'Empty the trash')!.trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.findAll('.collections__confirm button')[1].trigger('click')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([['/web/libraries/1/trash', { method: 'DELETE' }]])
+  })
+
+  it('says what went wrong rather than doing nothing visible', async () => {
+    withLibrary([COLLECTION], () => Promise.reject(new Error('You cannot change this library')))
+    const wrapper = await open()
+
+    await drag(wrapper, collectionRow(wrapper, 'Whales'))
+
+    expect(wrapper.get('.library__state--error').text()).toContain('You cannot change this library')
+  })
+
+  it('carries the same errands in the detail pane, in words', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+    await row(wrapper).trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await wrapper.findAll('.detail__tool').find((e) => e.text() === 'Move to trash')!.trigger('click')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/items/AAAA2345', { method: 'PATCH', body: { deleted: true } }],
+    ])
+  })
+
+  it('files from the dialog what a drop would have filed', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+    await row(wrapper).trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await wrapper.findAll('.detail__tool').find((e) => e.text() === 'Move or copy…')!.trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.get('#item-destination').setValue('place:CCCC2345')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/items/AAAA2345',
+        { method: 'PATCH', body: { addCollections: ['CCCC2345'] } },
+      ],
+    ])
+    expect(wrapper.find('dialog').exists()).toBe(false)
+  })
+
+  it('copies from the dialog into another library', async () => {
+    libraries = [PERSONAL, { ...GROUP, writable: true }]
+    withLibrary([])
+    const wrapper = await open()
+    await row(wrapper).trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await wrapper.findAll('.detail__tool').find((e) => e.text() === 'Move or copy…')!.trigger('click')
+    await wrapper.vm.$nextTick()
+    await wrapper.get('#item-destination').setValue('library:7')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()[0]).toEqual([
+      '/web/libraries/1/items/AAAA2345/copy',
+      { method: 'POST', body: { library: 7 } },
+    ])
+  })
+
+  it('offers no such buttons in a library this account may only read', async () => {
+    libraries = [GROUP]
+    withLibrary([])
+    const wrapper = await open()
+    await row(wrapper).trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('.detail__tool').exists()).toBe(false)
+  })
+})
+
 describe('renaming a tag', () => {
   const TAGS = [
     { tag: 'ficton', type: 0, numItems: 2 },

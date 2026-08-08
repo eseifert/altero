@@ -67,6 +67,7 @@ export default {
   'Connecting to zotero.org…': 'Connexion à zotero.org…',
   'Copy my library': 'Copier ma bibliothèque',
   'Copy this now. It will not be shown again.': 'Copiez-la maintenant. Elle ne sera plus affichée.',
+  'Copy to {name}': 'Copier vers {name}',
   'Copy your library from zotero.org': 'Copier votre bibliothèque depuis zotero.org',
   'Create': 'Créer',
   'Create a key': 'Créer une clé',
@@ -80,8 +81,10 @@ export default {
   'Dates look like this: {example}': 'Les dates ressemblent à ceci : {example}',
   Decline: 'Refuser',
   Delete: 'Supprimer',
+  'Delete everything in the trash?': 'Supprimer tout ce qui se trouve dans la corbeille ?',
   'Delete this group': 'Supprimer ce groupe',
   'Delete “{name}” and everything in it?': 'Supprimer « {name} » et tout ce qu’il contient ?',
+  'Delete “{name}” for good?': 'Supprimer « {name} » définitivement ?',
   'Delete “{name}”?': 'Supprimer « {name} » ?',
   Description: 'Description',
   'Display name': 'Nom affiché',
@@ -94,6 +97,7 @@ export default {
   'Drag to resize the sidebar. Double-click to put it back.':
     'Faites glisser pour redimensionner la barre latérale. Double-cliquez pour la rétablir.',
   'Email address': 'Adresse e-mail',
+  'Empty the trash': 'Vider la corbeille',
   'Enter the six-digit code from your authenticator app.':
     "Saisissez le code à six chiffres de votre application d'authentification.",
   Everything: 'Tout',
@@ -146,6 +150,10 @@ export default {
   Member: 'Membre',
   Members: 'Membres',
   'Move from zotero.org': 'Migrer depuis zotero.org',
+  'Move or copy': 'Déplacer ou copier',
+  'Move or copy “{name}”': 'Déplacer ou copier « {name} »',
+  'Move or copy…': 'Déplacer ou copier…',
+  'Move to trash': 'Mettre à la corbeille',
   'My Library': 'Ma bibliothèque',
   'My library': 'Ma bibliothèque',
   Name: 'Nom',
@@ -191,6 +199,7 @@ export default {
   Public: 'Public',
   'People joining or leaving': 'Arrivées et départs',
   'Public, invitation only': 'Public, sur invitation',
+  'Put it in': 'Placer dans',
   'Read and change any group library you belong to':
     'Lire et modifier toute bibliothèque de groupe dont vous êtes membre',
   'Read and change everything in your library':
@@ -261,6 +270,7 @@ export default {
   'Sync clients see this as group {id}.':
     'Les clients de synchronisation voient ceci comme le groupe {id}.',
   Tags: 'Marqueurs',
+  'Take it out of “{name}”': 'Le retirer de « {name} »',
   'Tell me about': 'Me notifier de',
   'That confirmation link is not valid or has expired.':
     "Ce lien de confirmation n'est pas valide ou a expiré.",
@@ -276,6 +286,7 @@ export default {
   'The trash is empty.': 'La corbeille est vide.',
   'The two passwords do not match': 'Les deux mots de passe ne correspondent pas',
   'This can take a while. You can leave this page open or come back to it.': 'Cela peut prendre un moment. Vous pouvez laisser cette page ouverte ou y revenir plus tard.',
+  'This cannot be undone.': 'Cette action est irréversible.',
   'This collection is empty.': 'Cette collection est vide.',
   'This creates a key that keeps working until you remove it in Settings, even after you sign out here.':
     "Cela crée une clé qui reste valable jusqu'à ce que vous la supprimiez dans les paramètres, même après votre déconnexion ici.",

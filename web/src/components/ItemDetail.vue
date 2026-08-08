@@ -15,9 +15,29 @@ const props = defineProps<{
   children: ItemEnvelope[]
   libraryId: number
   fileUrl: (key: string, options?: { download?: boolean }) => string
+  /** Whether this account may change the library, which the server decides. */
+  writable?: boolean
 }>()
 
-const emit = defineEmits<{ open: [item: ItemEnvelope]; close: [] }>()
+/*
+ * What can be done to the item, said in words.
+ *
+ * The item list does all of this by dragging, which is quick and which some
+ * readers cannot do at all. These are the same errands as buttons, on the pane
+ * that is already about this one item -- so nothing here is reachable only
+ * with a pointer, and nothing needs a menu that appears under one.
+ */
+const emit = defineEmits<{
+  open: [item: ItemEnvelope]
+  close: []
+  move: []
+  trash: []
+  restore: []
+  remove: []
+}>()
+
+/** Whether the item is in the trash, which decides what can be done to it. */
+const trashed = computed(() => Boolean(props.item.data.deleted))
 
 /** Properties shown elsewhere in the pane, or of no interest to a reader. */
 const HIDDEN = new Set([
@@ -146,6 +166,28 @@ function childTitle(child: ItemEnvelope): string {
       </button>
     </header>
 
+    <!--
+      A child item is filed by its parent and trashed with it: an attachment
+      does not belong in a collection of its own, and Zotero does not offer it
+      either. So the row is the top-level item's.
+    -->
+    <div v-if="writable && !item.data.parentItem" class="detail__tools">
+      <button class="detail__tool" type="button" @click="emit('move')">
+        {{ t('Move or copy…') }}
+      </button>
+      <button v-if="!trashed" class="detail__tool" type="button" @click="emit('trash')">
+        {{ t('Move to trash') }}
+      </button>
+      <template v-else>
+        <button class="detail__tool" type="button" @click="emit('restore')">
+          {{ t('Restore') }}
+        </button>
+        <button class="detail__tool detail__tool--danger" type="button" @click="emit('remove')">
+          {{ t('Delete') }}
+        </button>
+      </template>
+    </div>
+
     <div v-if="isNote" class="detail__note" v-html="item.data.note"></div>
 
     <dl v-if="creators.length" class="detail__fields">
@@ -256,6 +298,35 @@ function childTitle(child: ItemEnvelope): string {
 
 .detail__close:hover {
   background: var(--md-sys-color-surface-container-high);
+}
+
+/* A row of words rather than icons: these are consequential enough to be worth
+   naming, and there is no icon for "move or copy" that anybody reads correctly
+   the first time. */
+.detail__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-spacing-2);
+}
+
+.detail__tool {
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  cursor: pointer;
+}
+
+.detail__tool:hover {
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.detail__tool--danger {
+  border-color: var(--md-sys-color-error);
+  color: var(--md-sys-color-error);
 }
 
 .detail__title {

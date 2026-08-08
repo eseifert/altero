@@ -21,13 +21,27 @@ const props = defineProps<{
   /** Whether to offer the controls that change the tree. Off for a library
    *  this account may only read, which the server decides. */
   editable?: boolean
+  /** Whether an item is being dragged, and could be dropped on a row here. */
+  dragging?: boolean
+  /** The row a drag is over, as the view names it, so one row lights up. */
+  over?: string | null
 }>()
 
 const emit = defineEmits<{
   select: [key: string]
   add: [node: CollectionNode]
   settings: [node: CollectionNode]
+  /** `Delete` on a row, which asks the same question the dialog's Delete does. */
+  remove: [node: CollectionNode]
+  over: [move: { target: string; event: DragEvent }]
+  leave: [target: string]
+  drop: [dropped: { node: CollectionNode; event: DragEvent }]
 }>()
+
+/** How the view names this row while something is being dragged over it. */
+function target(node: CollectionNode): string {
+  return `collection:${node.key}`
+}
 
 const expanded = ref<Set<string>>(new Set())
 
@@ -73,7 +87,19 @@ function toggle(key: string): void {
 <template>
   <ul class="tree" role="group">
     <li v-for="node in nodes" :key="node.key">
-      <div class="tree__row" :style="{ paddingLeft: `${(depth ?? 0) * 0.9 + 0.15}rem` }">
+      <!--
+        Dropping an item here files it in this collection. Adding rather than
+        moving, which is Zotero's rule; holding Shift while dropping takes it
+        out of the collection being shown, which is what makes it a move.
+      -->
+      <div
+        class="tree__row"
+        :class="{ 'tree__row--over': dragging && over === target(node) }"
+        :style="{ paddingLeft: `${(depth ?? 0) * 0.9 + 0.15}rem` }"
+        @dragover="emit('over', { target: target(node), event: $event })"
+        @dragleave="emit('leave', target(node))"
+        @drop.prevent="emit('drop', { node, event: $event })"
+      >
         <button
           v-if="node.children.length"
           class="tree__twisty"
@@ -95,6 +121,7 @@ function toggle(key: string): void {
           :class="['tree__name', { 'tree__name--selected': selected === node.key }]"
           :aria-current="selected === node.key ? 'true' : undefined"
           @click="emit('select', node.key)"
+          @keydown.delete.prevent="editable && emit('remove', node)"
         >
           <SidebarIcon name="collection" />
           <span class="tree__label">{{ node.data.name }}</span>
@@ -147,9 +174,15 @@ function toggle(key: string): void {
         :selected="selected"
         :depth="(depth ?? 0) + 1"
         :editable="editable"
+        :dragging="dragging"
+        :over="over"
         @select="emit('select', $event)"
         @add="emit('add', $event)"
         @settings="emit('settings', $event)"
+        @remove="emit('remove', $event)"
+        @over="emit('over', $event)"
+        @leave="emit('leave', $event)"
+        @drop="emit('drop', $event)"
       />
     </li>
   </ul>
@@ -166,6 +199,14 @@ function toggle(key: string): void {
   display: flex;
   align-items: center;
   gap: 0.15rem;
+  border-radius: var(--md-sys-shape-corner-small);
+}
+
+/* An outline rather than a fill, so a row being dragged over does not look
+   like the row that is selected. */
+.tree__row--over {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: -1px;
 }
 
 .tree__twisty {

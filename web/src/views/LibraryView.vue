@@ -7,6 +7,7 @@ import AppButton from '@/components/AppButton.vue'
 import CollectionDialog from '@/components/CollectionDialog.vue'
 import CollectionSettingsDialog from '@/components/CollectionSettingsDialog.vue'
 import CollectionTree from '@/components/CollectionTree.vue'
+import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
@@ -321,6 +322,223 @@ async function submitRename(name: string): Promise<void> {
   }
 }
 
+/*
+ * What can be done to an item, and the two ways of asking for it.
+ *
+ * Dragging is the quick way and the one the desktop client teaches: a row onto
+ * a collection files it there, onto the library takes it out of the collection
+ * being shown, onto the trash throws it away, and onto another library copies
+ * it. Every one of those is also a button or a key, because a control only a
+ * pointer can reach is a control some readers do not have -- `Delete` on a row
+ * trashes it, and the detail pane names the same errands in words.
+ *
+ * Nothing here decides a permission for itself: the sidebar offers a drop only
+ * where `writable` says the server would accept the write.
+ */
+const dragged = ref<ItemEnvelope | null>(null)
+
+/** The row a drag is currently over, so exactly one can be lit. */
+const over = ref<string | null>(null)
+
+const itemError = ref<string | null>(null)
+
+function startDrag(item: ItemEnvelope, event: DragEvent): void {
+  dragged.value = item
+  over.value = null
+  /* The key goes on the drag as text as well, so that dropping it in a text
+     field somewhere produces something meaningful rather than nothing. */
+  event.dataTransfer?.setData('text/plain', item.key)
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copyMove'
+}
+
+function endDrag(): void {
+  dragged.value = null
+  over.value = null
+}
+
+/** Whether ``target`` is the row the drag is over, and so the one to light. */
+function lit(target: string): boolean {
+  return dragged.value !== null && over.value === target
+}
+
+function dragOver(target: string, event: DragEvent): void {
+  if (!dragged.value || !library.writable) return
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = event.shiftKey ? 'move' : 'copy'
+  }
+  over.value = target
+}
+
+function dragLeave(target: string): void {
+  if (over.value === target) over.value = null
+}
+
+/* Whatever the failure was, it is shown above the list rather than swallowed:
+   a drag that quietly did nothing is indistinguishable from a bug. */
+async function runOnItem(action: () => Promise<void>): Promise<void> {
+  itemError.value = null
+  try {
+    await action()
+  } catch (thrown) {
+    itemError.value = thrown instanceof Error ? thrown.message : String(thrown)
+  }
+}
+
+/**
+ * Drop onto a collection: file it there.
+ *
+ * Adding rather than moving, which is Zotero's rule -- a collection is not a
+ * folder and an item can be in several. Holding Shift moves it, which means
+ * taking it out of the collection the list is showing; from the library's top
+ * level or the trash there is nothing to take it out of, so Shift does nothing
+ * and the item is simply filed.
+ */
+async function dropOnCollection(node: CollectionNode, event: DragEvent): Promise<void> {
+  const item = dragged.value
+  endDrag()
+  if (!item || !library.writable) return
+
+  const from = library.collectionKey
+  const remove = event.shiftKey && from && from !== node.key ? [from] : []
+  await runOnItem(() => library.fileItem(item.key, { add: [node.key], remove }))
+}
+
+/** Drop onto the trash: throw it away, reversibly. */
+async function dropOnTrash(): Promise<void> {
+  const item = dragged.value
+  endDrag()
+  if (!item || !library.writable) return
+  await runOnItem(() => library.trashItem(item.key))
+}
+
+/**
+ * Drop onto a library row.
+ *
+ * The library being read means "out of the collection being shown", which is
+ * where an item goes when it belongs to no collection. Another library means a
+ * copy into it -- the original stays, because a move would be a deletion
+ * nobody asked for at the end of a drag that can start by accident.
+ */
+async function dropOnLibrary(entry: { id: number; writable: boolean }): Promise<void> {
+  const item = dragged.value
+  endDrag()
+  if (!item || !entry.writable) return
+
+  if (entry.id !== library.libraryId) {
+    await runOnItem(() => library.copyItem(item.key, entry.id))
+    return
+  }
+  const from = library.collectionKey
+  if (!from) return
+  await runOnItem(() => library.fileItem(item.key, { remove: [from] }))
+}
+
+/*
+ * Deleting from the keyboard.
+ *
+ * `Delete` on a row does what dropping it on the trash does, except in the
+ * trash itself, where the item is already there and the key means the other
+ * thing. That one asks first: it is the only action in the interface that
+ * cannot be undone.
+ */
+const removing = ref<ItemEnvelope | null>(null)
+const emptying = ref(false)
+const itemBusy = ref(false)
+
+function askToRemove(item: ItemEnvelope): void {
+  removing.value = item
+  emptying.value = false
+  itemError.value = null
+}
+
+function askToEmpty(): void {
+  emptying.value = true
+  removing.value = null
+  itemError.value = null
+}
+
+function cancelRemoval(): void {
+  removing.value = null
+  emptying.value = false
+}
+
+async function deleteItem(item: ItemEnvelope): Promise<void> {
+  itemBusy.value = true
+  await runOnItem(() => library.deleteItem(item.key))
+  itemBusy.value = false
+  cancelRemoval()
+}
+
+async function emptyTrash(): Promise<void> {
+  itemBusy.value = true
+  await runOnItem(async () => void (await library.emptyTrash()))
+  itemBusy.value = false
+  cancelRemoval()
+}
+
+/** `Delete` on a row: the trash, or -- from the trash -- the question. */
+async function removeKey(item: ItemEnvelope): Promise<void> {
+  if (!library.writable) return
+  if (library.scope === 'trash' || item.data.deleted) {
+    askToRemove(item)
+    return
+  }
+  await runOnItem(() => library.trashItem(item.key))
+}
+
+/*
+ * The same errands as words, for the item that is open.
+ *
+ * `moving` is the dialog: one list holding this library's collections and the
+ * other libraries this account may write to, which is the keyboard's version
+ * of dropping a row on a sidebar row.
+ */
+const moving = ref<ItemEnvelope | null>(null)
+
+const otherLibraries = computed(() =>
+  library.libraries
+    .filter((entry) => entry.id !== library.libraryId && entry.writable)
+    .map((entry) => ({ id: entry.id, label: libraryLabel(entry) })),
+)
+
+const currentCollection = computed(() => {
+  const node = library.selectedCollection
+  return node ? { key: node.key, name: node.data.name } : null
+})
+
+async function submitDestination(destination: {
+  library: number | null
+  collection: string | null
+  takeOut: boolean
+}): Promise<void> {
+  const item = moving.value
+  if (!item) return
+
+  itemBusy.value = true
+  itemError.value = null
+  try {
+    if (destination.library !== null) {
+      await library.copyItem(item.key, destination.library)
+    } else {
+      const from = currentCollection.value?.key
+      const remove = destination.takeOut && from && from !== destination.collection ? [from] : []
+      /* The library's own row is "no collection", which is a removal from
+         every collection the item is in rather than an addition to any. */
+      const add = destination.collection ? [destination.collection] : []
+      const clearing = !destination.collection
+        ? ((item.data.collections as string[] | undefined) ?? [])
+        : []
+      await library.fileItem(item.key, { add, remove: [...remove, ...clearing] })
+    }
+    moving.value = null
+  } catch (thrown) {
+    itemError.value = thrown instanceof Error ? thrown.message : String(thrown)
+  } finally {
+    itemBusy.value = false
+  }
+}
+
 function sortIndicator(field: string): string {
   if (library.sort !== field) return ''
   return library.direction === 'asc' ? '↑' : '↓'
@@ -361,7 +579,18 @@ function sortLabel(column: { field: string; label: string }): string {
       -->
       <nav class="library__libraries" :aria-label="t('Libraries')">
         <template v-for="entry in library.libraries" :key="entry.id">
-          <div class="library__nav-row">
+          <!--
+            A drop here means one of two things, and which one is which library
+            it is: this one takes the item out of the collection being shown,
+            another one copies it over there.
+          -->
+          <div
+            class="library__nav-row"
+            :class="{ 'library__nav-row--over': lit(`library:${entry.id}`) }"
+            @dragover="dragOver(`library:${entry.id}`, $event)"
+            @dragleave="dragLeave(`library:${entry.id}`)"
+            @drop.prevent="dropOnLibrary(entry)"
+          >
             <button
               type="button"
               :class="['library__library', { 'library__library--current': entry.id === library.libraryId }]"
@@ -437,7 +666,13 @@ function sortLabel(column: { field: string; label: string }): string {
                 <span class="library__label">{{ t('Everything') }}</span>
               </button>
             </div>
-            <div class="library__scope-row">
+            <div
+              class="library__scope-row"
+              :class="{ 'library__scope-row--over': lit('trash') }"
+              @dragover="dragOver('trash', $event)"
+              @dragleave="dragLeave('trash')"
+              @drop.prevent="dropOnTrash()"
+            >
               <span class="library__twisty" aria-hidden="true"></span>
               <button
                 type="button"
@@ -455,9 +690,15 @@ function sortLabel(column: { field: string; label: string }): string {
               :nodes="library.collections"
               :selected="library.collectionKey"
               :editable="library.writable"
+              :dragging="dragged !== null && library.writable"
+              :over="over"
               @select="library.selectCollection($event)"
               @add="startNew($event)"
               @settings="startSettings($event)"
+              @remove="startDelete($event)"
+              @over="dragOver($event.target, $event.event)"
+              @leave="dragLeave($event)"
+              @drop="dropOnCollection($event.node, $event.event)"
             />
           </div>
 
@@ -533,6 +774,16 @@ function sortLabel(column: { field: string; label: string }): string {
     <section class="library__list">
       <header class="library__header">
         <h1 class="library__heading">{{ heading }}</h1>
+        <!-- The one place the interface deletes more than one thing at once,
+             and the one place where that is the errand. -->
+        <button
+          v-if="library.scope === 'trash' && library.writable && library.items.length"
+          class="library__more"
+          type="button"
+          @click="askToEmpty()"
+        >
+          {{ t('Empty the trash') }}
+        </button>
         <div class="library__search">
           <svg class="library__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
@@ -563,6 +814,36 @@ function sortLabel(column: { field: string; label: string }): string {
 
       <p v-if="library.failure" class="library__state library__state--error" role="alert">
         {{ library.failure }}
+      </p>
+
+      <p v-if="itemError" class="library__state library__state--error" role="alert">
+        {{ itemError }}
+      </p>
+
+      <!--
+        Asked in the list, above the rows it is about. Deleting out of the
+        trash is the only thing in this interface that cannot be undone, so it
+        is the only one that asks.
+      -->
+      <p v-if="removing || emptying" class="collections__confirm" role="alert">
+        <span v-if="emptying">
+          {{ t('Delete everything in the trash?') }} {{ t('This cannot be undone.') }}
+        </span>
+        <span v-else-if="removing">
+          {{ t('Delete “{name}” for good?', { name: titleOf(removing) }) }}
+          {{ t('This cannot be undone.') }}
+        </span>
+        <span class="collections__actions">
+          <AppButton variant="text" :disabled="itemBusy" @click="cancelRemoval">
+            {{ t('Cancel') }}
+          </AppButton>
+          <AppButton
+            :loading="itemBusy"
+            @click="emptying ? emptyTrash() : removing && deleteItem(removing)"
+          >
+            {{ t('Delete') }}
+          </AppButton>
+        </span>
       </p>
 
       <!--
@@ -601,14 +882,27 @@ function sortLabel(column: { field: string; label: string }): string {
 
         <ul v-else class="library__items" :aria-label="t('Items in {name}', { name: heading })">
           <li v-for="item in library.items" :key="item.key">
+            <!--
+              Draggable only where the library can be written to: a drag that
+              can only ever be refused is a promise the interface should not
+              make. `Delete` does what dropping on the trash does, so the
+              keyboard is not the poor relation.
+            -->
             <button
               type="button"
               :class="[
                 'library__row',
-                { 'library__row--selected': library.selected?.key === item.key },
+                {
+                  'library__row--selected': library.selected?.key === item.key,
+                  'library__row--dragging': dragged?.key === item.key,
+                },
               ]"
               :aria-pressed="library.selected?.key === item.key"
+              :draggable="library.writable"
               @click="library.select(item)"
+              @dragstart="startDrag(item, $event)"
+              @dragend="endDrag()"
+              @keydown.delete.prevent="removeKey(item)"
             >
               <span class="library__cell library__cell--icon">
                 <ItemTypeIcon :item-type="item.data.itemType" />
@@ -641,8 +935,13 @@ function sortLabel(column: { field: string; label: string }): string {
         :children="library.children"
         :library-id="library.libraryId"
         :file-url="library.fileUrl"
+        :writable="library.writable"
         @open="library.select($event)"
         @close="library.select(null)"
+        @move="moving = library.selected"
+        @trash="runOnItem(() => library.trashItem(library.selected!.key))"
+        @restore="runOnItem(() => library.trashItem(library.selected!.key, false))"
+        @remove="askToRemove(library.selected!)"
       />
     </aside>
 
@@ -669,6 +968,20 @@ function sortLabel(column: { field: string; label: string }): string {
       @submit="submitSettings"
       @remove="startDelete(editing)"
       @cancel="cancel"
+    />
+
+    <!-- Dropping a row on a sidebar row, said in words: the collections of
+         this library and the other libraries it could be copied to. -->
+    <ItemDestinationDialog
+      v-if="moving"
+      :title="titleOf(moving)"
+      :places="places"
+      :libraries="otherLibraries"
+      :current-collection="currentCollection"
+      :busy="itemBusy"
+      :error="itemError"
+      @submit="submitDestination"
+      @cancel="moving = null"
     />
 
     <TagDialog
@@ -824,6 +1137,21 @@ function sortLabel(column: { field: string; label: string }): string {
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-medium-size);
   font-weight: var(--md-sys-typescale-weight-medium);
+}
+
+/* An outline rather than a fill on the row a drag is over, so it does not
+   look like the row that is selected. */
+.library__nav-row--over,
+.library__scope-row--over {
+  border-radius: var(--md-sys-shape-corner-small);
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: -1px;
+}
+
+/* The row being dragged, dimmed so that the pointer is carrying something
+   visibly out of the list rather than duplicating it in place. */
+.library__row--dragging {
+  opacity: 0.5;
 }
 
 /* The same hover-revealed pair the collection rows carry, so the library's

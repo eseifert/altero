@@ -242,18 +242,24 @@ was in do not come with it, because those collections are in the library it
 came from. An attached file is not copied at all: files are stored under their
 digest, so the copy names the same bytes.
 
-**Everything a drag does, the keyboard does too.** The `Delete` key trashes
-what is selected, and empties it for good when the trash is what is showing;
-the detail pane carries the same actions as buttons, with the collection and
-the library to move to named rather than dropped on. A control only a pointer
-can reach is a control some readers do not have.
+**Everything a drag does, the keyboard does too.** `Delete` on a row trashes
+it; in the trash it asks first, because that is the one thing here that cannot
+be undone. The detail pane carries the same errands as words — “Move or copy…”,
+which opens one list holding this library's collections and the other libraries
+it could be copied to, “Move to trash”, and “Restore” and “Delete” for
+something already in the trash. A control only a pointer can reach is a control
+some readers do not have.
+
+The `Delete` key works on a collection in the sidebar too, and asks the same
+question the settings dialog's Delete asks.
 
 **Deleting for good happens only out of the trash.** Trashing sets `deleted` on
 the item, which is what the desktop client's own trash does and what makes it
 reversible; only an item already in the trash can be removed outright, and the
 server refuses the shortcut rather than trusting the browser to have asked
-first. Emptying the trash is the one place the interface deletes more than one
-thing at once, which is also the one place where that is the errand. Trashed
+first. Emptying the trash is offered only while the trash is what is showing, asks
+before it goes ahead, and is the one place the interface deletes more than one
+thing at once — which is also the one place where that is the errand. Trashed
 collections are left where they are — the browser never trashes one, so
 anything in there came from the desktop and is not shown here at all.
 

@@ -304,6 +304,92 @@ export const useLibraryStore = defineStore('library', () => {
     return renamed.itemsChanged
   }
 
+  /**
+   * Writes to one item: where it is filed, whether it is in the trash, and
+   * whether it exists at all.
+   *
+   * Every one of them re-runs the query rather than editing the list in place.
+   * A trashed item leaves the list it was in, a filed one may leave the
+   * collection being shown, and both change the counts beside the collections
+   * in the sidebar -- there is no version of "patch what is on screen" that
+   * gets all of that right, and a list that disagrees with the library is
+   * worse than a request.
+   */
+  async function afterItemWrite(): Promise<void> {
+    await Promise.all([refresh(), loadCollections()])
+    /* The open item may have gone, or moved out of what is being shown. If it
+       is still in the list, it is read again; if it is not, the pane closes,
+       because a detail pane describing something the list no longer holds is
+       the one pane that can lie. */
+    const key = selected.value?.key
+    if (!key) return
+    if (items.value.some((entry) => entry.key === key)) {
+      await reloadSelected()
+    } else {
+      selected.value = null
+      children.value = []
+    }
+  }
+
+  /** Put ``key`` into collections, take it out of others, or both. */
+  async function fileItem(
+    key: string,
+    changes: { add?: string[]; remove?: string[] },
+  ): Promise<void> {
+    if (libraryId.value === null) return
+    const body: Record<string, string[]> = {}
+    if (changes.add?.length) body.addCollections = changes.add
+    if (changes.remove?.length) body.removeCollections = changes.remove
+    if (!Object.keys(body).length) return
+
+    await request(`/web/libraries/${libraryId.value}/items/${key}`, { method: 'PATCH', body })
+    await afterItemWrite()
+  }
+
+  /** Move ``key`` to the trash, or bring it back out. */
+  async function trashItem(key: string, deleted = true): Promise<void> {
+    if (libraryId.value === null) return
+    await request(`/web/libraries/${libraryId.value}/items/${key}`, {
+      method: 'PATCH',
+      body: { deleted },
+    })
+    await afterItemWrite()
+  }
+
+  /** Remove ``key`` for good. The server refuses this outside the trash. */
+  async function deleteItem(key: string): Promise<void> {
+    if (libraryId.value === null) return
+    await request(`/web/libraries/${libraryId.value}/items/${key}`, { method: 'DELETE' })
+    await afterItemWrite()
+  }
+
+  /** Empty the trash, and return how many items went. */
+  async function emptyTrash(): Promise<number> {
+    if (libraryId.value === null) return 0
+    const payload = await request<{ deleted: number }>(
+      `/web/libraries/${libraryId.value}/trash`,
+      { method: 'DELETE' },
+    )
+    await afterItemWrite()
+    return payload.deleted
+  }
+
+  /**
+   * Copy ``key`` into another library, optionally into a collection there.
+   *
+   * Nothing on screen changes: the library being read is the one the item came
+   * from, and it is untouched. Only its version in `libraries` is stale
+   * afterwards, so that is read again.
+   */
+  async function copyItem(key: string, target: number, collection?: string | null): Promise<void> {
+    if (libraryId.value === null) return
+    const body: Record<string, unknown> = { library: target }
+    if (collection) body.collection = collection
+
+    await request(`/web/libraries/${libraryId.value}/items/${key}/copy`, { method: 'POST', body })
+    libraries.value = await request<LibrarySummary[]>('/web/libraries')
+  }
+
   /** Read the open item again, so a pane showing the old name stops. */
   async function reloadSelected(): Promise<void> {
     const key = selected.value?.key
@@ -473,6 +559,11 @@ export const useLibraryStore = defineStore('library', () => {
     renameTag,
     loadItems,
     loadMore,
+    fileItem,
+    trashItem,
+    deleteItem,
+    emptyTrash,
+    copyItem,
     refresh,
     selectScope,
     selectCollection,
