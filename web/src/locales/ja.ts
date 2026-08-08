@@ -95,6 +95,7 @@ export default {
   Download: 'ダウンロード',
   'Download and upload attachments': '添付ファイルのダウンロードとアップロード',
   'Downloading attachments…': '添付ファイルをダウンロードしています…',
+  'Drag to resize the sidebar. Double-click to put it back.': 'ドラッグしてサイドバーの幅を変更します。ダブルクリックで元に戻ります。',
   'Email address': 'メールアドレス',
   'Enter the six-digit code from your authenticator app.':
     '認証アプリの 6 桁のコードを入力してください。',
@@ -237,6 +238,7 @@ export default {
   Settings: '設定',
   'Show more': 'さらに表示',
   'Shown in your notifications. Add an email address to receive them as mail too.': '通知に表示されます。メールでも受け取るにはメールアドレスを追加してください。',
+  'Sidebar width': 'サイドバーの幅',
   'Sign in': 'サインイン',
   'Sign in to answer it.': 'サインインすると返答できます。',
   'Sign out': 'サインアウト',

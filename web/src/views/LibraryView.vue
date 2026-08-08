@@ -8,8 +8,16 @@ import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
+import SidebarSplitter from '@/components/SidebarSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
 import { fieldLabel, loadLabels } from '@/items/labels'
+import {
+  readSidebarWidth,
+  storeSidebarWidth,
+  SIDEBAR_DEFAULT,
+  SIDEBAR_MAX,
+  SIDEBAR_MIN,
+} from '@/sidebarwidth'
 import {
   useLibraryStore,
   type CollectionNode,
@@ -36,6 +44,22 @@ const columns = computed(() =>
 
 const searchText = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
+
+/*
+ * The width the reader last chose.
+ *
+ * The layout follows the drag frame by frame; the store does not. One drag is
+ * dozens of updates and a single decision, and `localStorage` is synchronous,
+ * so the writing waits out a pause exactly as the search field does.
+ */
+const sidebarWidth = ref(readSidebarWidth())
+let widthTimer: ReturnType<typeof setTimeout> | undefined
+
+function resizeSidebar(width: number): void {
+  sidebarWidth.value = width
+  clearTimeout(widthTimer)
+  widthTimer = setTimeout(() => storeSidebarWidth(width), 250)
+}
 
 /* The detail pane exists only when there is something in it. An empty third
    column would take a fifth of the width to say nothing, and the item list is
@@ -274,7 +298,11 @@ function sortLabel(column: { field: string; label: string }): string {
 </script>
 
 <template>
-  <div class="library" :class="{ 'library--detail': showDetail }">
+  <div
+    class="library"
+    :class="{ 'library--detail': showDetail }"
+    :style="{ '--sidebar-width': `${sidebarWidth}px` }"
+  >
     <aside class="library__sidebar">
       <!--
         The views belong to a library, so they are drawn inside the one they
@@ -453,6 +481,14 @@ function sortLabel(column: { field: string; label: string }): string {
       </section>
     </aside>
 
+    <SidebarSplitter
+      :width="sidebarWidth"
+      :min="SIDEBAR_MIN"
+      :max="SIDEBAR_MAX"
+      :preferred="SIDEBAR_DEFAULT"
+      @update:width="resizeSidebar"
+    />
+
     <section class="library__list">
       <header class="library__header">
         <h1 class="library__heading">{{ heading }}</h1>
@@ -593,11 +629,17 @@ function sortLabel(column: { field: string; label: string }): string {
 </template>
 
 <style scoped>
+/*
+ * The sidebar's width is whatever the reader dragged it to, kept in
+ * `--sidebar-width` so that the grid and the grip sitting in the gutter read it
+ * from one place. `position: relative` is what the grip positions against.
+ */
 .library {
   display: grid;
-  grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   gap: var(--md-spacing-4);
   align-items: start;
+  position: relative;
 }
 
 /* The list and the item get the same width. An abstract is prose, often several
@@ -605,7 +647,7 @@ function sortLabel(column: { field: string; label: string }): string {
    ribbon of text nobody reads. Below 60rem the whole thing stacks anyway, so
    an even split never comes at the list's expense. */
 .library--detail {
-  grid-template-columns: minmax(11rem, 14rem) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .library__sidebar {
@@ -626,8 +668,10 @@ function sortLabel(column: { field: string; label: string }): string {
 /*
  * One step in from the library the views and collections belong to, and no
  * more: the twisty column each of those rows carries is already most of an
- * indent, and adding a level's worth on top of it pushed the whole list into
- * the middle of a column that is only fourteen characters wide.
+ * indent, and adding a level's worth on top of it pushes the whole list into
+ * the middle of the column. The column can be widened now, but a tree indents
+ * per level and the deepest branch is the one that has to survive the
+ * narrowest setting.
  *
  * The rule down the left is the thread back up to the library they act on, and
  * it is the same hairline the tag panel's heading uses.

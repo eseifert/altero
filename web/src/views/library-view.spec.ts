@@ -1,9 +1,15 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { i18n } from '@/i18n'
 import { resetLabels } from '@/items/labels'
+import {
+  SIDEBAR_DEFAULT,
+  SIDEBAR_MAX,
+  SIDEBAR_MIN,
+  SIDEBAR_STORAGE_KEY,
+} from '@/sidebarwidth'
 import { useLibraryStore } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 
@@ -813,5 +819,135 @@ describe('renaming a tag', () => {
     expect(wrapper.get('.dialog__error').text()).toContain('You cannot change this library')
     expect((wrapper.get('.dialog__field').element as HTMLInputElement).value).toBe('fiction')
     expect(wrapper.find('.library__state--error').exists()).toBe(false)
+  })
+})
+
+/**
+ * The width of the sidebar.
+ *
+ * A tree is as wide as whoever built it made it, so the column has to be the
+ * reader's to set -- and having set it, they should not have to set it again
+ * on the next visit. Everything here also has to work without a pointer,
+ * which is what the arrow keys are for.
+ */
+describe('the sidebar width', () => {
+  beforeEach(() => localStorage.clear())
+  afterEach(() => localStorage.clear())
+
+  /** The width the grid is currently laid out at, in pixels. */
+  function width(wrapper: ReturnType<typeof mount>): number {
+    const style = wrapper.get('.library').attributes('style') ?? ''
+    return Number(/--sidebar-width:\s*(\d+)px/.exec(style)?.[1])
+  }
+
+  function grip(wrapper: ReturnType<typeof mount>) {
+    return wrapper.get('[role="separator"]')
+  }
+
+  /* Dispatched rather than triggered: the wrapper's `trigger` assigns the
+     properties after constructing the event, and `clientX` is read-only. */
+  function drag(wrapper: ReturnType<typeof mount>, from: number, to: number): void {
+    grip(wrapper).element.dispatchEvent(
+      new MouseEvent('pointerdown', { clientX: from, bubbles: true }),
+    )
+    window.dispatchEvent(new MouseEvent('pointermove', { clientX: to }))
+    window.dispatchEvent(new MouseEvent('pointerup', { clientX: to }))
+  }
+
+  /** Let the pause the writing waits out expire. */
+  async function stored(): Promise<string | null> {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    return localStorage.getItem(SIDEBAR_STORAGE_KEY)
+  }
+
+  it('starts at the default when nothing has been chosen', async () => {
+    const wrapper = await open()
+
+    expect(width(wrapper)).toBe(SIDEBAR_DEFAULT)
+  })
+
+  it('starts at the remembered width', async () => {
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, '320')
+
+    const wrapper = await open()
+
+    expect(width(wrapper)).toBe(320)
+  })
+
+  it('falls back to the default rather than failing on nonsense', async () => {
+    /* A convenience must not be able to stop the library from being drawn. */
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, 'as wide as a barn')
+
+    const wrapper = await open()
+
+    expect(width(wrapper)).toBe(SIDEBAR_DEFAULT)
+  })
+
+  it('follows a drag, and remembers where it was let go', async () => {
+    const wrapper = await open()
+
+    drag(wrapper, 300, 360)
+    await wrapper.vm.$nextTick()
+
+    expect(width(wrapper)).toBe(SIDEBAR_DEFAULT + 60)
+    expect(await stored()).toBe(String(SIDEBAR_DEFAULT + 60))
+  })
+
+  it('stops following once the pointer is let go', async () => {
+    const wrapper = await open()
+
+    grip(wrapper).element.dispatchEvent(
+      new MouseEvent('pointerdown', { clientX: 300, bubbles: true }),
+    )
+    window.dispatchEvent(new MouseEvent('pointerup', { clientX: 300 }))
+    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 900 }))
+    await wrapper.vm.$nextTick()
+
+    expect(width(wrapper)).toBe(SIDEBAR_DEFAULT)
+  })
+
+  it('moves with the arrow keys, so a pointer is not the only way', async () => {
+    const wrapper = await open()
+
+    await grip(wrapper).trigger('keydown', { key: 'ArrowRight' })
+    await grip(wrapper).trigger('keydown', { key: 'ArrowRight' })
+    await grip(wrapper).trigger('keydown', { key: 'ArrowLeft' })
+
+    expect(width(wrapper)).toBe(SIDEBAR_DEFAULT + 16)
+    expect(await stored()).toBe(String(SIDEBAR_DEFAULT + 16))
+  })
+
+  it('goes no narrower than the tree can be read in, and no wider than the window', async () => {
+    const wrapper = await open()
+
+    await grip(wrapper).trigger('keydown', { key: 'Home' })
+    expect(width(wrapper)).toBe(SIDEBAR_MIN)
+
+    drag(wrapper, 300, -400)
+    await wrapper.vm.$nextTick()
+    expect(width(wrapper)).toBe(SIDEBAR_MIN)
+
+    await grip(wrapper).trigger('keydown', { key: 'End' })
+    expect(width(wrapper)).toBe(SIDEBAR_MAX)
+  })
+
+  it('goes back to the default on a double-click', async () => {
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, '400')
+    const wrapper = await open()
+
+    await grip(wrapper).trigger('dblclick')
+
+    expect(width(wrapper)).toBe(SIDEBAR_DEFAULT)
+    expect(await stored()).toBe(String(SIDEBAR_DEFAULT))
+  })
+
+  it('says what it is and where it stands, for anything that cannot see it', async () => {
+    const wrapper = await open()
+
+    expect(grip(wrapper).attributes('aria-orientation')).toBe('vertical')
+    expect(grip(wrapper).attributes('aria-label')).toBe('Sidebar width')
+    expect(grip(wrapper).attributes('aria-valuenow')).toBe(String(SIDEBAR_DEFAULT))
+    expect(grip(wrapper).attributes('aria-valuemin')).toBe(String(SIDEBAR_MIN))
+    expect(grip(wrapper).attributes('aria-valuemax')).toBe(String(SIDEBAR_MAX))
   })
 })

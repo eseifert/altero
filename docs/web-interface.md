@@ -133,6 +133,15 @@ headed section beneath it, because they are one kind of thing, which is how the
 desktop client has them too. Under that is the tag list; picking tags narrows
 the middle pane, and picking several requires all of them.
 
+How wide that pane is, is the reader's to decide: the divide between it and the
+item list can be dragged, and moved with the arrow keys once it has the focus —
+`Home` and `End` go to the narrowest and widest it will take, and a
+double-click puts it back where it started. A collection tree indents per level
+and a name is as long as whoever wrote it made it, so no default is right for
+every library. The width is kept in the browser rather than on the account,
+because it belongs to the window it was chosen in: the same person on a laptop
+and on a wide monitor does not want one answer for both.
+
 The middle pane searches title, creator, year and every field, sorts by title,
 creator or date in either direction, and pages fifty at a time. The search is
 the API's own, so it finds what the desktop client's quick search finds.

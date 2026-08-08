@@ -91,6 +91,8 @@ export default {
   Download: 'Descargar',
   'Download and upload attachments': 'Descargar y subir adjuntos',
   'Downloading attachments…': 'Descargando adjuntos…',
+  'Drag to resize the sidebar. Double-click to put it back.':
+    'Arrastre para cambiar la anchura de la barra lateral. Haga doble clic para restablecerla.',
   'Email address': 'Dirección de correo',
   'Enter the six-digit code from your authenticator app.':
     'Escribe el código de seis dígitos de tu aplicación de autenticación.',
@@ -236,6 +238,7 @@ export default {
   Settings: 'Ajustes',
   'Show more': 'Mostrar más',
   'Shown in your notifications. Add an email address to receive them as mail too.': 'Aparece en tus notificaciones. Añade una dirección de correo para recibirlas también por correo.',
+  'Sidebar width': 'Anchura de la barra lateral',
   'Sign in': 'Iniciar sesión',
   'Sign in to answer it.': 'Inicie sesión para responderla.',
   'Sign out': 'Cerrar sesión',

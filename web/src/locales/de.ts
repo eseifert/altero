@@ -92,6 +92,8 @@ export default {
   Download: 'Herunterladen',
   'Download and upload attachments': 'Anhänge herunter- und hochladen',
   'Downloading attachments…': 'Anhänge werden geladen…',
+  'Drag to resize the sidebar. Double-click to put it back.':
+    'Ziehen, um die Breite der Seitenleiste zu ändern. Doppelklick setzt sie zurück.',
   'Email address': 'E-Mail-Adresse',
   'Enter the six-digit code from your authenticator app.':
     'Gib den sechsstelligen Code aus deiner Authenticator-App ein.',
@@ -238,6 +240,7 @@ export default {
   Settings: 'Einstellungen',
   'Show more': 'Mehr anzeigen',
   'Shown in your notifications. Add an email address to receive them as mail too.': 'Erscheint in deinen Benachrichtigungen. Mit einer E-Mail-Adresse kommt es zusätzlich per Mail.',
+  'Sidebar width': 'Breite der Seitenleiste',
   'Sign in': 'Anmelden',
   'Sign in to answer it.': 'Melde dich an, um darauf zu antworten.',
   'Sign out': 'Abmelden',
