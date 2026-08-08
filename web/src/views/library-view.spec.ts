@@ -5,11 +5,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { i18n } from '@/i18n'
 import { resetLabels } from '@/items/labels'
 import {
+  DETAIL_DEFAULT,
+  DETAIL_MAX,
+  DETAIL_MIN,
+  DETAIL_STORAGE_KEY,
   SIDEBAR_DEFAULT,
   SIDEBAR_MAX,
   SIDEBAR_MIN,
   SIDEBAR_STORAGE_KEY,
-} from '@/sidebarwidth'
+} from '@/panewidths'
 import { useLibraryStore } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 
@@ -876,6 +880,91 @@ describe('collection settings', () => {
  * to work twice: dropping a row on a sidebar row, and saying the same thing
  * with a key or a button. The tests come in pairs for that reason.
  */
+/**
+ * The width of the detail pane.
+ *
+ * The same decision as the sidebar's and the same machinery, with one
+ * difference that is easy to get backwards: the pane is on the *right* of its
+ * grip, so it grows as the grip goes left. The keys move the grip, not the
+ * pane, so `ArrowRight` still moves the divide rightwards -- which makes the
+ * pane narrower.
+ */
+describe('the detail width', () => {
+  beforeEach(() => localStorage.clear())
+  afterEach(() => localStorage.clear())
+
+  function width(wrapper: ReturnType<typeof mount>): number {
+    const style = wrapper.get('.library').attributes('style') ?? ''
+    return Number(/--detail-width:\s*(\d+)px/.exec(style)?.[1])
+  }
+
+  function grip(wrapper: ReturnType<typeof mount>) {
+    return wrapper.get('.library__grip--detail')
+  }
+
+  /** Open the library with an item selected, which is what draws the pane. */
+  async function opened() {
+    const wrapper = await open()
+    await wrapper.get('.library__row:not(.library__row--head)').trigger('click')
+    await settle(wrapper)
+    return wrapper
+  }
+
+  it('has no grip while there is no pane to size', async () => {
+    const wrapper = await open()
+
+    expect(wrapper.find('.library__grip--detail').exists()).toBe(false)
+  })
+
+  it('starts at the remembered width', async () => {
+    localStorage.setItem(DETAIL_STORAGE_KEY, '500')
+
+    const wrapper = await opened()
+
+    expect(width(wrapper)).toBe(500)
+  })
+
+  it('grows as the grip is dragged towards the list', async () => {
+    const wrapper = await opened()
+
+    grip(wrapper).element.dispatchEvent(
+      new MouseEvent('pointerdown', { clientX: 800, bubbles: true }),
+    )
+    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 700 }))
+    window.dispatchEvent(new MouseEvent('pointerup', { clientX: 700 }))
+    await wrapper.vm.$nextTick()
+
+    expect(width(wrapper)).toBe(DETAIL_DEFAULT + 100)
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    expect(localStorage.getItem(DETAIL_STORAGE_KEY)).toBe(String(DETAIL_DEFAULT + 100))
+  })
+
+  it('moves the divide, not the pane, under the arrow keys', async () => {
+    const wrapper = await opened()
+
+    await grip(wrapper).trigger('keydown', { key: 'ArrowRight' })
+
+    expect(width(wrapper)).toBe(DETAIL_DEFAULT - 16)
+  })
+
+  it('goes no narrower than prose can be read in, and no wider than the list allows', async () => {
+    const wrapper = await opened()
+
+    await grip(wrapper).trigger('keydown', { key: 'Home' })
+    expect(width(wrapper)).toBe(DETAIL_MAX)
+
+    await grip(wrapper).trigger('keydown', { key: 'End' })
+    expect(width(wrapper)).toBe(DETAIL_MIN)
+  })
+
+  it('is a separator of its own, named apart from the one beside the tree', async () => {
+    const wrapper = await opened()
+
+    expect(grip(wrapper).attributes('aria-label')).toBe('Detail width')
+    expect(wrapper.findAll('[role="separator"]')).toHaveLength(2)
+  })
+})
+
 describe('filing, trashing and copying items', () => {
   const TRASHED = {
     key: 'BBBB2345',
@@ -1371,7 +1460,7 @@ describe('the sidebar width', () => {
   }
 
   function grip(wrapper: ReturnType<typeof mount>) {
-    return wrapper.get('[role="separator"]')
+    return wrapper.get('.library__grip--sidebar')
   }
 
   /* Dispatched rather than triggered: the wrapper's `trigger` assigns the
@@ -1474,6 +1563,7 @@ describe('the sidebar width', () => {
   it('says what it is and where it stands, for anything that cannot see it', async () => {
     const wrapper = await open()
 
+    expect(grip(wrapper).attributes('role')).toBe('separator')
     expect(grip(wrapper).attributes('aria-orientation')).toBe('vertical')
     expect(grip(wrapper).attributes('aria-label')).toBe('Sidebar width')
     expect(grip(wrapper).attributes('aria-valuenow')).toBe(String(SIDEBAR_DEFAULT))

@@ -133,14 +133,18 @@ headed section beneath it, because they are one kind of thing, which is how the
 desktop client has them too. Under that is the tag list; picking tags narrows
 the middle pane, and picking several requires all of them.
 
-How wide that pane is, is the reader's to decide: the divide between it and the
-item list can be dragged, and moved with the arrow keys once it has the focus —
-`Home` and `End` go to the narrowest and widest it will take, and a
-double-click puts it back where it started. A collection tree indents per level
-and a name is as long as whoever wrote it made it, so no default is right for
-every library. The width is kept in the browser rather than on the account,
-because it belongs to the window it was chosen in: the same person on a laptop
-and on a wide monitor does not want one answer for both.
+How wide the outer two columns are is the reader's to decide. Both divides can
+be dragged, and moved with the arrow keys once one has the focus — `Home` and
+`End` go to the extremes it will take, and a double-click puts it back where it
+started. Neither has a right answer to impose: a collection tree indents per
+level and a name is as long as whoever wrote it made it, and the detail pane
+holds three fields for a book and six hundred words of abstract for an article.
+The arrow keys move the divide rather than the pane, so `ArrowRight` always
+moves it rightwards — which widens the sidebar and narrows the item detail.
+
+Both widths are kept in the browser rather than on the account, because they
+belong to the window they were chosen in: the same person on a laptop and on a
+wide monitor does not want one answer for both.
 
 The middle pane searches title, creator, year and every field, sorts by title,
 creator or date in either direction, and pages fifty at a time. The search is

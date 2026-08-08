@@ -5,11 +5,13 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 /**
- * The grip between the sidebar and the item list.
+ * The grip between two panes.
  *
  * It draws nothing until it is wanted: a line in the gutter under the pointer,
  * and a lit one while it is being dragged or focused. The width it reports is
- * the parent's to keep -- this only says which way the pointer went.
+ * the parent's to keep -- this only says which way the pointer went -- and
+ * where it sits is the parent's too, because only the layout knows which gutter
+ * this is.
  *
  * `role="separator"` with a `tabindex` is the pane splitter ARIA describes, and
  * the arrow keys that go with it are not a courtesy: a splitter that only a
@@ -21,6 +23,16 @@ const props = defineProps<{
   max: number
   /** What a double-click, and `Backspace`, put it back to. */
   preferred: number
+  /** What the grip is called, since a window can hold more than one. */
+  label: string
+  /**
+   * Whether the pane being sized is to the *right* of the grip.
+   *
+   * The detail pane is, and it therefore grows as the pointer goes left. Both
+   * grips still move the same way under the same key: the arrow keys move the
+   * grip, not the pane, so `ArrowRight` always moves the divide rightwards.
+   */
+  trailing?: boolean
 }>()
 
 const emit = defineEmits<{ 'update:width': [width: number] }>()
@@ -48,7 +60,8 @@ function startDrag(event: PointerEvent): void {
   const originWidth = props.width
   dragging.value = true
 
-  const move = (moved: PointerEvent) => set(originWidth + moved.clientX - originX)
+  const move = (moved: PointerEvent) =>
+    set(originWidth + (props.trailing ? originX - moved.clientX : moved.clientX - originX))
   const stop = () => {
     dragging.value = false
     window.removeEventListener('pointermove', move)
@@ -63,11 +76,12 @@ function startDrag(event: PointerEvent): void {
 }
 
 function onKeydown(event: KeyboardEvent): void {
+  const towards = (grip: number) => (props.trailing ? -grip : grip)
   const moves: Record<string, number | undefined> = {
-    ArrowLeft: props.width - STEP,
-    ArrowRight: props.width + STEP,
-    Home: props.min,
-    End: props.max,
+    ArrowLeft: props.width + towards(-STEP),
+    ArrowRight: props.width + towards(STEP),
+    Home: props.trailing ? props.max : props.min,
+    End: props.trailing ? props.min : props.max,
     Backspace: props.preferred,
   }
 
@@ -85,11 +99,11 @@ function onKeydown(event: KeyboardEvent): void {
     role="separator"
     tabindex="0"
     aria-orientation="vertical"
-    :aria-label="t('Sidebar width')"
+    :aria-label="label"
     :aria-valuenow="width"
     :aria-valuemin="min"
     :aria-valuemax="max"
-    :title="t('Drag to resize the sidebar. Double-click to put it back.')"
+    :title="t('Drag to move this divide. Double-click to put it back.')"
     @pointerdown="startDrag"
     @keydown="onKeydown"
     @dblclick="set(preferred)"
@@ -98,24 +112,28 @@ function onKeydown(event: KeyboardEvent): void {
 
 <style scoped>
 /*
- * Placed in the gap the grid already leaves rather than given a column of its
- * own, so the sidebar and the list stay exactly as far apart as they were and
- * the grip is centred between them. `--sidebar-width` is set on the grid and
- * inherits down to here.
+ * Everything except where it is. The grip is placed by whoever draws the
+ * layout, in the gap the grid already leaves, so the panes stay exactly as far
+ * apart as they were.
  *
- * Full height, because the sidebar can be shorter than the list and a grip
- * that stopped where the tags do would be missing from most of the divide.
+ * A fingertip is about ten times the area of a pointer tip, so on a touch
+ * screen the grab area widens -- the line it draws does not.
  */
 .splitter {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(var(--sidebar-width) + var(--md-spacing-4) / 2);
   width: 0.75rem;
   transform: translateX(-50%);
   /* A pointer that is about to drag horizontally must not also scroll. */
   touch-action: none;
   cursor: col-resize;
+}
+
+@media (pointer: coarse) {
+  .splitter {
+    width: 1.75rem;
+  }
 }
 
 /* The line itself, drawn in the middle of the grab area. Absent until the
@@ -147,13 +165,5 @@ function onKeydown(event: KeyboardEvent): void {
 
 .splitter:focus-visible {
   outline: none;
-}
-
-/* Below this the panes are stacked one above another, so there is no vertical
-   divide to move. */
-@media (max-width: 60rem) {
-  .splitter {
-    display: none;
-  }
 }
 </style>

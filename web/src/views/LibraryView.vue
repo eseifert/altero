@@ -11,16 +11,10 @@ import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
-import SidebarSplitter from '@/components/SidebarSplitter.vue'
+import PaneSplitter from '@/components/PaneSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
 import { fieldLabel, loadLabels } from '@/items/labels'
-import {
-  readSidebarWidth,
-  storeSidebarWidth,
-  SIDEBAR_DEFAULT,
-  SIDEBAR_MAX,
-  SIDEBAR_MIN,
-} from '@/sidebarwidth'
+import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
 import {
   useLibraryStore,
   type CollectionNode,
@@ -49,19 +43,35 @@ const searchText = ref('')
 let searchTimer: ReturnType<typeof setTimeout> | undefined
 
 /*
- * The width the reader last chose.
+ * The widths the reader last chose, for the two columns that have a choice.
  *
- * The layout follows the drag frame by frame; the store does not. One drag is
+ * The layout follows a drag frame by frame; the store does not. One drag is
  * dozens of updates and a single decision, and `localStorage` is synchronous,
  * so the writing waits out a pause exactly as the search field does.
  */
-const sidebarWidth = ref(readSidebarWidth())
-let widthTimer: ReturnType<typeof setTimeout> | undefined
+const sidebarWidth = ref(readWidth(SIDEBAR))
+const detailWidth = ref(readWidth(DETAIL))
+
+const widthTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+/* A ref cannot be passed in from the template -- it arrives unwrapped, as the
+   number it holds -- so the two panes get a setter each over one debounce. */
+function remember(pane: PaneWidth, width: number): void {
+  clearTimeout(widthTimers.get(pane.key))
+  widthTimers.set(
+    pane.key,
+    setTimeout(() => storeWidth(pane, width), 250),
+  )
+}
 
 function resizeSidebar(width: number): void {
   sidebarWidth.value = width
-  clearTimeout(widthTimer)
-  widthTimer = setTimeout(() => storeSidebarWidth(width), 250)
+  remember(SIDEBAR, width)
+}
+
+function resizeDetail(width: number): void {
+  detailWidth.value = width
+  remember(DETAIL, width)
 }
 
 /* The detail pane exists only when there is something in it. An empty third
@@ -560,7 +570,7 @@ function sortLabel(column: { field: string; label: string }): string {
   <div
     class="library"
     :class="{ 'library--detail': showDetail }"
-    :style="{ '--sidebar-width': `${sidebarWidth}px` }"
+    :style="{ '--sidebar-width': `${sidebarWidth}px`, '--detail-width': `${detailWidth}px` }"
   >
     <aside class="library__sidebar">
       <!--
@@ -763,11 +773,13 @@ function sortLabel(column: { field: string; label: string }): string {
       </section>
     </aside>
 
-    <SidebarSplitter
+    <PaneSplitter
+      class="library__grip library__grip--sidebar"
       :width="sidebarWidth"
-      :min="SIDEBAR_MIN"
-      :max="SIDEBAR_MAX"
-      :preferred="SIDEBAR_DEFAULT"
+      :min="SIDEBAR.min"
+      :max="SIDEBAR.max"
+      :preferred="SIDEBAR.preferred"
+      :label="t('Sidebar width')"
       @update:width="resizeSidebar"
     />
 
@@ -929,6 +941,20 @@ function sortLabel(column: { field: string; label: string }): string {
       </footer>
     </section>
 
+    <!-- Only while there is a pane to size: a grip in the gutter of a column
+         that is not there would be a divide between the list and nothing. -->
+    <PaneSplitter
+      v-if="showDetail"
+      class="library__grip library__grip--detail"
+      trailing
+      :width="detailWidth"
+      :min="DETAIL.min"
+      :max="DETAIL.max"
+      :preferred="DETAIL.preferred"
+      :label="t('Detail width')"
+      @update:width="resizeDetail"
+    />
+
     <aside v-if="showDetail && library.selected && library.libraryId !== null" class="library__detail">
       <ItemDetail
         :item="library.selected"
@@ -1010,12 +1036,31 @@ function sortLabel(column: { field: string; label: string }): string {
   position: relative;
 }
 
-/* The list and the item get the same width. An abstract is prose, often several
-   hundred words of it, and in a column narrow enough to be a sidebar it is a
-   ribbon of text nobody reads. Below 60rem the whole thing stacks anyway, so
-   an even split never comes at the list's expense. */
+/* The item takes what it was given and the list takes the rest. An abstract is
+   prose, often several hundred words of it, and in a column narrow enough to be
+   a sidebar it is a ribbon of text nobody reads -- so the pane starts wide, and
+   which of the two deserves the room after that is the reader's to say. Below
+   60rem the whole thing stacks anyway. */
 .library--detail {
-  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--detail-width);
+}
+
+/* Both grips sit in the middle of the gap the grid already leaves, so the
+   panes stay exactly as far apart as they were. */
+.library__grip--sidebar {
+  left: calc(var(--sidebar-width) + var(--md-spacing-4) / 2);
+}
+
+.library__grip--detail {
+  right: calc(var(--detail-width) + var(--md-spacing-4) / 2);
+  transform: translateX(50%);
+}
+
+/* Stacked, so there is no vertical divide left to move. */
+@media (max-width: 60rem) {
+  .library__grip {
+    display: none;
+  }
 }
 
 .library__sidebar {

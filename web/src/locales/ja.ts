@@ -91,6 +91,7 @@ export default {
   'Delete “{name}” for good?': '「{name}」を完全に削除しますか？',
   'Delete “{name}”?': '「{name}」を削除しますか？',
   Description: '説明',
+  'Detail width': '詳細パネルの幅',
   'Display name': '表示名',
   Done: '完了',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -98,7 +99,7 @@ export default {
   Download: 'ダウンロード',
   'Download and upload attachments': '添付ファイルのダウンロードとアップロード',
   'Downloading attachments…': '添付ファイルをダウンロードしています…',
-  'Drag to resize the sidebar. Double-click to put it back.': 'ドラッグしてサイドバーの幅を変更します。ダブルクリックで元に戻ります。',
+  'Drag to move this divide. Double-click to put it back.': 'ドラッグして仕切りを移動します。ダブルクリックで元に戻ります。',
   'Email address': 'メールアドレス',
   'Empty the trash': 'ごみ箱を空にする',
   'Enter the six-digit code from your authenticator app.':

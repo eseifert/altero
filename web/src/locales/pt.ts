@@ -87,6 +87,7 @@ export default {
   'Delete “{name}” for good?': 'Eliminar «{name}» definitivamente?',
   'Delete “{name}”?': 'Eliminar «{name}»?',
   Description: 'Descrição',
+  'Detail width': 'Largura do painel de detalhes',
   'Display name': 'Nome apresentado',
   Done: 'Concluído',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -94,8 +95,8 @@ export default {
   Download: 'Transferir',
   'Download and upload attachments': 'Transferir e enviar anexos',
   'Downloading attachments…': 'A transferir anexos…',
-  'Drag to resize the sidebar. Double-click to put it back.':
-    'Arraste para redimensionar a barra lateral. Faça duplo clique para a repor.',
+  'Drag to move this divide. Double-click to put it back.':
+    'Arraste para mover esta divisória. Faça duplo clique para a repor.',
   'Email address': 'Endereço de e-mail',
   'Empty the trash': 'Esvaziar o lixo',
   'Enter the six-digit code from your authenticator app.':
