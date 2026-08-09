@@ -136,7 +136,7 @@ stays missing; use **Restore to Server** afterwards to force a full upload.
 ## Group policy
 
 A group carries three settings that decide what its members may do, and all
-three are now enforced rather than merely stored:
+three are enforced rather than merely stored:
 
 | Setting | Values | Effect |
 | --- | --- | --- |

@@ -107,16 +107,13 @@ of an instance administrator to show it to: permissions today are per library
 and stop there. Until those exist, an instance is still something a systems
 administrator runs rather than a librarian or a research-group lead.
 
-This goal came with a constraint — that the interface stay strictly
-administrative, and that no browsing interface compete with the clients — and
-that constraint has been dropped rather than met. The interface reads a library
-too: collections, tags, search, an item with its attachments, a citation. What
-survives is the part that was load-bearing, and it is enforced rather than
-promised: the v3 API is reachable by API key and by nothing else, a session
-cookie is refused there, and `tests/test_web_routes.py` fails in both directions
-if that ever stops being true. Reading is all the interface does today; editing
-is intended, and when it arrives it will go through the same services and the
-same version preconditions as a client's write, not around them.
+The interface is not strictly administrative: it reads a library too —
+collections, tags, search, an item with its attachments, a citation — and
+writes part of one. The line that matters is enforced rather than promised: the
+v3 API is reachable by API key and by nothing else, a session cookie is refused
+there, and `tests/test_web_routes.py` fails in both directions if that ever
+stops being true. What the interface writes goes through the same services and
+the same version preconditions as a client's write, not around them.
 
 **Institutional independence.** A university could run Zotero sync as internal
 infrastructure the way it runs GitLab, Nextcloud or Matrix — with institutional
@@ -138,22 +135,21 @@ That keeps authentication, authorization and data handling auditable and
 security fixes public. It does not by itself guarantee privacy, security,
 maintenance, or that anyone publishes their deployment configuration.
 
-**Room for capabilities the hosted service does not prioritise.** Institutional
-identity integration, more flexible group policies, local full-text search,
-custom retention and backup rules, event notifications, administrative import
-and export, and integration with repositories and research-information systems.
-Zotero's own streaming API was on that list and is now served, so a client
-pointed at it hears about a change rather than waiting to ask. Local full-text
-search was on it too, and is now answered by the database the server already
-has, rather than by the search cluster the operational shape here rules out.
-Event notifications have followed: a member of a group library can ask to hear
-when it changes, and does, once the library has been quiet long enough that one
-sync is one message. The activity log upstream has wanted since 2019 and never
-built is served alongside it, out of the same record — who changed what in a
-group and when, readable by every member.
-All of this is secondary: compatibility and dependable sync come first,
-and a feature that breaks a client is a regression however useful it is on its
-own.
+**Room for capabilities the hosted service does not prioritise.** Four are
+served. Zotero's own streaming API, so a client pointed at it hears about a
+change rather than waiting to ask. Local full-text search, answered by the
+database the server already has rather than by the search cluster the
+operational shape here rules out. Event notifications: a member of a group
+library can ask to hear when it changes, and does, once the library has been
+quiet long enough that one sync is one message. And out of the same record, the
+activity log upstream has wanted since 2019 and never built — who changed what
+in a group and when, readable by every member.
+
+Room rather than code: institutional identity integration, more flexible group
+policies, custom retention and backup rules, and integration with repositories
+and research-information systems. All of this is secondary: compatibility and
+dependable sync come first, and a feature that breaks a client is a regression
+however useful it is on its own.
 
 **Portability and disaster recovery as first-class operations.** Exporting a
 whole account or group, restoring it elsewhere, replicating to a standby,
@@ -187,41 +183,30 @@ can responsibly depend on.
 
 ## Status of the claims above
 
-Points 1 and 2 are what the test suite and `docs/compatibility.md` work
-towards, and are partly reached — see the status list in `status.md`.
-
-Point 1 is not yet evidenced by the thing it describes.
+**Point 1 is not evidenced by the thing it describes.**
 `tests/test_sync_cycle.py` drives a real server over a real socket with the
 request sequence, headers and encodings taken from the client's debug log, and
-checks that a second client downloads what the first uploaded; but no real
-library has been synced between two installed clients and then watched for
-divergence. That is a stronger claim than a replay can make, and it has not
-been made.
+checks that a second client downloads what the first uploaded. No real library
+has been synced between two installed clients and then watched for divergence,
+which is a stronger claim than a replay can make.
 
-Point 2 is reached as far as the test suite can show. The two holes recorded
-here are both closed: creating a group is an API operation and not only a
-command-line one, see [administration.md](administration.md); and full-text
-content is now searched rather than merely stored, so `q` with
-`qmode=everything` reaches an attachment's text and a `/top` listing answers
-with the item a matching attachment or child note hangs under. Upstream searches
-that text through Elasticsearch and altero through the database it already has,
-which is a deliberate difference with consequences — see the quick-search
-section of [compatibility.md](compatibility.md).
+**Point 2 is reached as far as the test suite can show**; `status.md` has the
+feature-by-feature list. One mechanism differs on purpose: upstream searches
+attachment text through Elasticsearch and altero through the database it
+already has, which has consequences — see the quick-search section of
+[compatibility.md](compatibility.md).
 
-A web interface is no longer among the intentions below; it exists, and what it
-does and does not cover is set out above. The following are still stated here as
-intentions rather than properties of the current code: object storage,
-institutional single sign-on, audit and retention controls, event notifications,
-federation, replication to a standby, and automatic backup verification. Today
-altero stores attachments on a local filesystem and is configured by a single
-file. It authenticates the API with API keys and the browser with a session
-cookie, and keeps those two apart on purpose.
+**Points 3, 4 and 5 are reached.** A container image and a compose file install
+and upgrade an instance, with `GET /health` reporting the migration revision it
+is stamped with; `altero library export` and `import` move a whole library
+between instances, versions included, which is also what lets a user take their
+data elsewhere. Point 4 is sharper than it reads above: a restore that
+renumbers versions locks out every client that had synced with the original, in
+both directions, so exactness is the requirement rather than completeness.
 
-Points 3, 4 and 5 have since been reached. A container image and a compose file
-install and upgrade an instance, with `GET /health` reporting the migration
-revision it is stamped with; `altero library export` and `import` move a whole
-library between instances, versions included, which is also what lets a user
-take their data elsewhere. Point 4 turned out to be sharper than it reads here:
-a restore that renumbers versions locks out every client that had synced with
-the original, in both directions, so exactness is the requirement rather than
-completeness.
+Intentions rather than properties of the current code: object storage,
+institutional single sign-on, retention controls, federation, replication to a
+standby, and automatic backup verification. altero stores attachments on a
+local filesystem and is configured by a single file. It authenticates the API
+with API keys and the browser with a session cookie, and keeps those two apart
+on purpose.

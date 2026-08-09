@@ -76,10 +76,10 @@ things the desktop client asks for that no data server documents.
   group and when, naming the items and collections each change touched as they
   were called at the time, for every member rather than only administrators.
   This is `dataserver#89`, open since 2019
-- `meta.createdByUser` and `meta.lastModifiedByUser` on an item in a group,
-  which upstream has served for years, with `sort=addedBy` finally doing
-  something and `sort=editedBy` added — the latter is `dataserver#153`, which
-  upstream has open and has not built
+- `meta.createdByUser` and `meta.lastModifiedByUser` on an item in a group, as
+  upstream serves them, and sorting by either with `sort=addedBy` and
+  `sort=editedBy` — the latter is `dataserver#153`, which upstream has open and
+  has not built
 - Provisioning from the command line, CORS, and API version negotiation
 
 ## Not implemented

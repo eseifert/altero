@@ -167,10 +167,10 @@ says what each one was taken to mean. The window Recently Read covers is a
 guess, and is marked as one there.
 
 The library's row *is* the whole library: pressing it shows everything at the
-top level, which is also how to get back out of a collection. altero used to
-draw a second row under the library for that, and a third called "Everything"
-that included child notes and attachments; neither the desktop client nor the
-web library has either, and the row they duplicated was already there.
+top level, which is also how to get back out of a collection. There is no
+second row under the library for that, and none called "Everything" covering
+child notes and attachments: neither the desktop client nor the web library has
+either, and the row they would duplicate is already there.
 
 Under all of it is the tag list; picking tags narrows the middle pane, and
 picking several requires all of them.
@@ -687,7 +687,7 @@ offers a group RSS feed instead, which shows neither what was modified nor what
 was deleted.
 
 Alongside it, an item in a group library carries who added it and who last
-changed it — that part *is* upstream's, and altero had not served it until now.
+changed it. That part is upstream's own.
 
 ### Hearing about a group
 
@@ -735,8 +735,7 @@ on something. Moving in from zotero.org brings the personal library only; a grou
 has to be made here and its members invited.
 
 Making an account for somebody else, resetting their password and revoking
-their credentials are still shell operations, as is an operator's view of the
-instance. Groups are no longer among them, and neither is taking a backup of a
-library.
+their credentials are shell operations, as is an operator's view of the
+instance.
 [administration.md](administration.md) says what that covers and
 [motivation.md](motivation.md) why it matters.
