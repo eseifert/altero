@@ -589,6 +589,20 @@ and failed against every container deployment, with the whole suite green.
 `storage_uploads.mtime` is BIGINT, and `tests/test_web_on_postgres.py` covers
 it against the database the image actually uses.
 
+**And it is served as a number.** Every other field value is text, and altero
+stores them all as text, but upstream keeps this one in a column of its own and
+emits `"mtime": 1299848186000` where `md5` beside it is quoted — read off an
+attachment in public group 91 on api.zotero.org. `Item.fromJSON` ignores both
+fields, so an ordinary sync never notices the difference; the one place it shows
+is `Zotero.Sync.Storage.Local.resolveConflicts`, which assigns
+`conflict.right.mtime` from the cached remote JSON when a file conflict is
+settled in favour of the local copy, into a setter that throws
+`attachmentSyncedModificationTime must be a number`. A file conflict is what two
+clients editing one attachment produce, so `serializers.item` casts it back on
+the way out. Found while checking the tool that
+[testing-two-clients.md](testing-two-clients.md) uses to compare two clients
+against the server.
+
 **Full text is uploaded in batches.** The documented endpoints are
 `GET`/`PUT` on `<prefix>/items/<key>/fulltext`, but the client uploads with
 `POST <prefix>/fulltext`, carrying an array of

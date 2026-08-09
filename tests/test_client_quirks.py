@@ -497,6 +497,89 @@ class TestAttachmentFieldOrder:
         assert emitted == ["title", "date", "DOI"]
 
 
+class TestAttachmentModificationTime:
+    """`mtime` is a number in the item JSON, where every field beside it is text.
+
+    api.zotero.org serves `"mtime": 1299848186000` -- read off an attachment in
+    public group 91 -- with `md5` next to it as a string. `Item.fromJSON`
+    ignores both, so an ordinary sync never notices the difference, but
+    `Zotero.Sync.Storage.Local.resolveConflicts` assigns `conflict.right.mtime`
+    straight from the cached remote JSON when a file conflict is settled in
+    favour of the local copy, and the `attachmentSyncedModificationTime` setter
+    throws "must be a number" on anything else. A file conflict is exactly what
+    two clients syncing one library produce.
+    """
+
+    async def test_it_is_served_as_a_number(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            item_type="attachment",
+            fields=SCRAMBLED | {"md5": "0" * 32, "mtime": "1785701798544"},
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+
+        assert data["mtime"] == 1785701798544
+        assert not isinstance(data["mtime"], str)
+
+    async def test_the_digest_beside_it_stays_text(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # `md5` is a hex digest, which happens to be all digits often enough
+        # that coercing by shape rather than by name would eventually turn one
+        # into a number.
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            item_type="attachment",
+            fields=SCRAMBLED | {"md5": "1" * 32, "mtime": "1785701798544"},
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+
+        assert data["md5"] == "1" * 32
+
+    async def test_it_keeps_its_place_in_the_order(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Emitting it as a number must not move it, for the reason
+        # `TestAttachmentFieldOrder` exists.
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            item_type="attachment",
+            fields=SCRAMBLED | {"md5": "0" * 32, "mtime": "1785701798544"},
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        keys = list(data)
+
+        assert keys.index("filename") < keys.index("md5") < keys.index("mtime")
+
+    async def test_something_that_is_not_a_timestamp_is_left_alone(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Nothing stops a write storing text here, and serving it back as it
+        # was stored is better than a 500 on reading the library.
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            item_type="attachment",
+            fields=SCRAMBLED | {"mtime": "whenever"},
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+
+        assert data["mtime"] == "whenever"
+
+
 class TestErrorBodies:
     async def test_an_unexpected_failure_does_not_leak_a_traceback(
         self, client: httpx.AsyncClient, library: Library

@@ -227,7 +227,10 @@ class TestUploadAndRegistration:
         assert data["md5"] == MD5
         assert data["filename"] == "moby.txt"
         assert data["contentType"] == "text/plain"
-        assert data["mtime"] == "1700000000000"
+        # A number, as upstream serves it, though it is stored as text like
+        # every other field value. See `TestAttachmentModificationTime` in
+        # `test_client_quirks.py` for what reads it and why the type matters.
+        assert data["mtime"] == 1700000000000
 
     async def test_bytes_that_do_not_match_the_digest_are_refused(
         self, client: httpx.AsyncClient, attachment: str

@@ -252,6 +252,16 @@ def item(
     if parent_key:
         data["parentItem"] = parent_key
     data.update(fields)
+    # An attachment's `mtime` is the one field value upstream serves as a
+    # number: it keeps it in a column of its own, where altero keeps every
+    # field as text. `Item.fromJSON` ignores it, so a plain sync never notices,
+    # but `resolveConflicts` in the client's storage sync assigns it to
+    # `attachmentSyncedModificationTime` -- whose setter throws "must be a
+    # number" -- when a file conflict is settled in favour of the local copy.
+    # Assigning in place rather than re-inserting, because the emitted order of
+    # an attachment's fields is load-bearing (see `ordered_fields`).
+    if str(data.get("mtime", "")).isdigit():
+        data["mtime"] = int(data["mtime"])
 
     if obj.creators:
         data["creators"] = [
