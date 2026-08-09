@@ -133,8 +133,21 @@ export const useLibraryStore = defineStore('library', () => {
   const sort = ref('dateModified')
   const direction = ref<'asc' | 'desc'>('desc')
 
+  /*
+   * Two things, and they are not the same thing.
+   *
+   * `selection` is every row picked out, and is what the errands act on.
+   * `selected` is the one row the detail pane describes, which exists only when
+   * exactly one is picked out: a pane showing the fields of one item out of five
+   * would be describing a row nobody singled out, and a pane showing five items'
+   * fields at once is a field editor, which this is not.
+   */
+  const selection = ref<string[]>([])
   const selected = ref<ItemEnvelope | null>(null)
   const children = ref<ItemEnvelope[]>([])
+
+  /** The row a Shift-click measures its range from. */
+  const anchor = ref<string | null>(null)
 
   const loading = ref(false)
   const failure = ref<string | null>(null)
@@ -147,6 +160,18 @@ export const useLibraryStore = defineStore('library', () => {
   )
   const hasMore = computed(() => start.value + items.value.length < total.value)
   const writable = computed(() => library.value?.writable === true)
+
+  /**
+   * The rows picked out, in the order the list draws them.
+   *
+   * Derived from the list rather than stored in click order, because that is the
+   * order everything downstream means: "these three" reads top to bottom, and a
+   * key whose row has gone simply is not here.
+   */
+  const selectedItems = computed(() =>
+    items.value.filter((entry) => selection.value.includes(entry.key)),
+  )
+  const selectionKeys = computed(() => selectedItems.value.map((entry) => entry.key))
   /**
    * The collections from the top of the tree down to ``key``, ``key`` last.
    *
@@ -208,6 +233,8 @@ export const useLibraryStore = defineStore('library', () => {
     selectedTags.value = []
     scope.value = 'top'
     search.value = ''
+    selection.value = []
+    anchor.value = null
     selected.value = null
     children.value = []
     start.value = 0
@@ -336,6 +363,11 @@ export const useLibraryStore = defineStore('library', () => {
    */
   async function afterItemWrite(): Promise<void> {
     await Promise.all([refresh(), loadCollections()])
+    /* Rows that have left the list leave the selection with them: a count in
+       the pane that includes items nothing on screen shows is a count the
+       reader cannot check, and the next errand would act on them regardless. */
+    selection.value = selectionKeys.value
+    if (!selection.value.includes(anchor.value ?? '')) anchor.value = null
     /* The open item may have gone, or moved out of what is being shown. If it
        is still in the list, it is read again; if it is not, the pane closes,
        because a detail pane describing something the list no longer holds is
@@ -350,35 +382,43 @@ export const useLibraryStore = defineStore('library', () => {
     }
   }
 
-  /** Put ``key`` into collections, take it out of others, or both. */
-  async function fileItem(
-    key: string,
+  /**
+   * Put ``keys`` into collections, take them out of others, or both.
+   *
+   * One request however many rows, because that is one new library version and
+   * one thing the reader did. The same call carries a selection of one, so
+   * there is no second path for the ordinary case to drift away from.
+   */
+  async function fileItems(
+    keys: string[],
     changes: { add?: string[]; remove?: string[] },
   ): Promise<void> {
-    if (libraryId.value === null) return
-    const body: Record<string, string[]> = {}
+    if (libraryId.value === null || !keys.length) return
+    const body: Record<string, unknown> = { items: keys }
     if (changes.add?.length) body.addCollections = changes.add
     if (changes.remove?.length) body.removeCollections = changes.remove
-    if (!Object.keys(body).length) return
+    if (Object.keys(body).length === 1) return
 
-    await request(`/web/libraries/${libraryId.value}/items/${key}`, { method: 'PATCH', body })
+    await request(`/web/libraries/${libraryId.value}/items`, { method: 'PATCH', body })
     await afterItemWrite()
   }
 
-  /** Move ``key`` to the trash, or bring it back out. */
-  async function trashItem(key: string, deleted = true): Promise<void> {
-    if (libraryId.value === null) return
-    await request(`/web/libraries/${libraryId.value}/items/${key}`, {
+  /** Move ``keys`` to the trash, or bring them back out. */
+  async function trashItems(keys: string[], deleted = true): Promise<void> {
+    if (libraryId.value === null || !keys.length) return
+    await request(`/web/libraries/${libraryId.value}/items`, {
       method: 'PATCH',
-      body: { deleted },
+      body: { items: keys, deleted },
     })
     await afterItemWrite()
   }
 
-  /** Remove ``key`` for good. The server refuses this outside the trash. */
-  async function deleteItem(key: string): Promise<void> {
-    if (libraryId.value === null) return
-    await request(`/web/libraries/${libraryId.value}/items/${key}`, { method: 'DELETE' })
+  /** Remove ``keys`` for good. The server refuses this outside the trash, and
+   *  refuses the whole selection if any one of them is outside it. */
+  async function deleteItems(keys: string[]): Promise<void> {
+    if (libraryId.value === null || !keys.length) return
+    const named = new URLSearchParams({ itemKey: keys.join(',') })
+    await request(`/web/libraries/${libraryId.value}/items?${named}`, { method: 'DELETE' })
     await afterItemWrite()
   }
 
@@ -463,18 +503,22 @@ export const useLibraryStore = defineStore('library', () => {
   }
 
   /**
-   * Copy ``key`` into another library, optionally into a collection there.
+   * Copy ``keys`` into another library, optionally into a collection there.
    *
-   * Nothing on screen changes: the library being read is the one the item came
+   * Nothing on screen changes: the library being read is the one the items came
    * from, and it is untouched. Only its version in `libraries` is stale
    * afterwards, so that is read again.
    */
-  async function copyItem(key: string, target: number, collection?: string | null): Promise<void> {
-    if (libraryId.value === null) return
-    const body: Record<string, unknown> = { library: target }
+  async function copyItems(
+    keys: string[],
+    target: number,
+    collection?: string | null,
+  ): Promise<void> {
+    if (libraryId.value === null || !keys.length) return
+    const body: Record<string, unknown> = { items: keys, library: target }
     if (collection) body.collection = collection
 
-    await request(`/web/libraries/${libraryId.value}/items/${key}/copy`, { method: 'POST', body })
+    await request(`/web/libraries/${libraryId.value}/items/copy`, { method: 'POST', body })
     libraries.value = await request<LibrarySummary[]>('/web/libraries')
   }
 
@@ -537,6 +581,8 @@ export const useLibraryStore = defineStore('library', () => {
   async function selectScope(next: Scope): Promise<void> {
     scope.value = next
     collectionKey.value = null
+    selection.value = []
+    anchor.value = null
     selected.value = null
     await refresh()
   }
@@ -544,6 +590,8 @@ export const useLibraryStore = defineStore('library', () => {
   async function selectCollection(key: string | null): Promise<void> {
     collectionKey.value = key
     if (key) scope.value = 'top'
+    selection.value = []
+    anchor.value = null
     selected.value = null
     await refresh()
   }
@@ -571,7 +619,80 @@ export const useLibraryStore = defineStore('library', () => {
     await refresh()
   }
 
+  /**
+   * Pick out one row and nothing else, which is what an ordinary click means.
+   *
+   * The anchor moves here and only here: a range is measured from the last row
+   * chosen outright, so Shift-clicking twice from the same starting row grows
+   * and shrinks one range rather than walking the anchor along behind it.
+   */
   async function select(item: ItemEnvelope | null): Promise<void> {
+    selection.value = item ? [item.key] : []
+    anchor.value = item?.key ?? null
+    await open(item)
+  }
+
+  /**
+   * Add a row to the selection, or take it out again.
+   *
+   * The detail pane follows: back to one row and it describes that row, more
+   * than one and there is no single row to describe.
+   */
+  async function toggleSelected(item: ItemEnvelope): Promise<void> {
+    selection.value = selection.value.includes(item.key)
+      ? selection.value.filter((key) => key !== item.key)
+      : [...selection.value, item.key]
+    anchor.value = item.key
+    await followSelection()
+  }
+
+  /**
+   * Everything between the anchor and ``item``, inclusive.
+   *
+   * Replacing the selection rather than adding to it, which is what a range
+   * means: Shift-clicking a nearer row shrinks the range instead of leaving the
+   * rows beyond it picked out with nothing on screen saying why.
+   */
+  async function extendSelection(item: ItemEnvelope): Promise<void> {
+    const from = items.value.findIndex((entry) => entry.key === anchor.value)
+    const to = items.value.findIndex((entry) => entry.key === item.key)
+    if (to < 0) return
+    if (from < 0) {
+      await select(item)
+      return
+    }
+
+    const [first, last] = from <= to ? [from, to] : [to, from]
+    selection.value = items.value.slice(first, last + 1).map((entry) => entry.key)
+    await followSelection()
+  }
+
+  /** Every row loaded. Not every row there is: the list pages, and a promise to
+   *  act on what has not been fetched is one the interface cannot keep. */
+  async function selectAll(): Promise<void> {
+    selection.value = items.value.map((entry) => entry.key)
+    anchor.value = items.value.length ? items.value[0].key : null
+    await followSelection()
+  }
+
+  async function clearSelection(): Promise<void> {
+    selection.value = []
+    anchor.value = null
+    await open(null)
+  }
+
+  /** Open the one row picked out, or close the pane when there is not one. */
+  async function followSelection(): Promise<void> {
+    const keys = selectionKeys.value
+    if (keys.length !== 1) {
+      await open(null)
+      return
+    }
+    if (selected.value?.key === keys[0]) return
+    await open(items.value.find((entry) => entry.key === keys[0]) ?? null)
+  }
+
+  async function open(item: ItemEnvelope | null): Promise<void> {
     selected.value = item
     children.value = []
     if (!item || libraryId.value === null) return
@@ -607,6 +728,8 @@ export const useLibraryStore = defineStore('library', () => {
     collections.value = []
     tags.value = []
     items.value = []
+    selection.value = []
+    anchor.value = null
     selected.value = null
     children.value = []
     total.value = 0
@@ -631,6 +754,9 @@ export const useLibraryStore = defineStore('library', () => {
     search,
     sort,
     direction,
+    selection,
+    selectedItems,
+    selectionKeys,
     selected,
     children,
     loading,
@@ -647,11 +773,11 @@ export const useLibraryStore = defineStore('library', () => {
     renameTag,
     loadItems,
     loadMore,
-    fileItem,
-    trashItem,
-    deleteItem,
+    fileItems,
+    trashItems,
+    deleteItems,
     emptyTrash,
-    copyItem,
+    copyItems,
     childrenOf,
     editItem,
     publishItem,
@@ -663,6 +789,10 @@ export const useLibraryStore = defineStore('library', () => {
     setSearch,
     sortBy,
     select,
+    toggleSelected,
+    extendSelection,
+    selectAll,
+    clearSelection,
     fileUrl,
     reset,
   }

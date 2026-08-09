@@ -360,8 +360,8 @@ class TestTakingItOutAgain:
         book, children = await seed_work(ada, session, with_note=True)
         await publish(ada, library_id, book, includeNotes=True)
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{children['note']}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [children["note"]], "deleted": True},
             headers=csrf_headers(ada),
         )
 

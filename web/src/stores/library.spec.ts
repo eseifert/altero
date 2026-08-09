@@ -285,6 +285,37 @@ describe('selection', () => {
     expect(store.failure).toBeNull()
   })
 
+  it('stops describing one item once a second is picked out', async () => {
+    /* The detail pane's item and the selection are two different things. An
+       item's fields belong to that item, so a pane describing one of five would
+       be describing a row nobody singled out. */
+    const items = [item('AAAA2345', 'One'), item('BBBB2345', 'Two')]
+    respond({ '/items?': { total: 2, items } })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    await store.select(items[0])
+
+    await store.toggleSelected(items[1])
+
+    expect(store.selectionKeys).toEqual(['AAAA2345', 'BBBB2345'])
+    expect(store.selected).toBeNull()
+    expect(store.children).toEqual([])
+  })
+
+  it('describes it again when the selection comes back to one', async () => {
+    const items = [item('AAAA2345', 'One'), item('BBBB2345', 'Two')]
+    respond({ '/items?': { total: 2, items } })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    await store.select(items[0])
+    await store.toggleSelected(items[1])
+
+    await store.toggleSelected(items[0])
+
+    expect(store.selectionKeys).toEqual(['BBBB2345'])
+    expect(store.selected?.key).toBe('BBBB2345')
+  })
+
   it('builds a file URL for the library it is in', async () => {
     const store = useLibraryStore()
     await store.loadLibraries()

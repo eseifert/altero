@@ -10,7 +10,7 @@ import { useModal } from '@/modal'
  * Where an item should go: a collection here, or another library.
  *
  * This is the keyboard's half of drag and drop. Everything it offers can be
- * done by dragging a row of the item list onto a row of the sidebar, and a
+ * done by dragging rows of the item list onto a row of the sidebar, and a
  * control that only a pointer can reach is a control some readers do not have
  * — so the same four errands are here as a dialog: file it in a collection,
  * take it out of the one being shown, put it at the library's top level, or
@@ -20,10 +20,16 @@ import { useModal } from '@/modal'
  * collections of the library being read come first, since that is where an
  * item usually goes; the other libraries are named as copies, because that is
  * what crossing a library boundary does — the original stays where it is.
+ *
+ * It takes a selection as readily as one row, and the questions do not change:
+ * where they go, and whether they come out of where they are. Only how it names
+ * what it is about does, since a count is not a title.
  */
 const props = defineProps<{
-  /** What the item is called, so the dialog says what it is about. */
+  /** What this is about: an item's title, or how many were picked out. */
   title: string
+  /** How many rows, so a count is not read as somebody's title. */
+  count?: number
   /** The library being read, and every collection in it. */
   places: Place[]
   /** The other libraries this account may write to. */
@@ -87,7 +93,11 @@ function submit(): void {
   <dialog
     ref="dialog"
     class="dialog"
-    :aria-label="t('Move or copy “{name}”', { name: title })"
+    :aria-label="
+      (count ?? 1) > 1
+        ? t('Move or copy {count} items', { count: count ?? 1 })
+        : t('Move or copy “{name}”', { name: title })
+    "
     @cancel.prevent="emit('cancel')"
     @click="backdrop"
   >
@@ -95,7 +105,9 @@ function submit(): void {
       <h2 class="dialog__title">{{ t('Move or copy') }}</h2>
       <p class="dialog__what">{{ title }}</p>
 
-      <label class="dialog__label" for="item-destination">{{ t('Put it in') }}</label>
+      <label class="dialog__label" for="item-destination">
+        {{ (count ?? 1) > 1 ? t('Put them in') : t('Put it in') }}
+      </label>
       <select id="item-destination" ref="field" v-model="destination" class="dialog__field">
         <option v-for="place in places" :key="place.key ?? ''" :value="`place:${place.key ?? ''}`">
           {{ '  '.repeat(place.depth) + place.label }}
@@ -112,7 +124,13 @@ function submit(): void {
       -->
       <label v-if="currentCollection && staying" class="dialog__check">
         <input v-model="takeOut" type="checkbox" />
-        <span>{{ t('Take it out of “{name}”', { name: currentCollection.name }) }}</span>
+        <span>
+          {{
+            (count ?? 1) > 1
+              ? t('Take them out of “{name}”', { name: currentCollection.name })
+              : t('Take it out of “{name}”', { name: currentCollection.name })
+          }}
+        </span>
       </label>
 
       <p v-if="error" class="dialog__error" role="alert">{{ error }}</p>

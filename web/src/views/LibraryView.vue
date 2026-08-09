@@ -9,6 +9,7 @@ import CollectionSettingsDialog from '@/components/CollectionSettingsDialog.vue'
 import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
+import ItemSelection from '@/components/ItemSelection.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import PublicationsDialog from '@/components/PublicationsDialog.vue'
 import RightsDialog from '@/components/RightsDialog.vue'
@@ -85,8 +86,9 @@ function resizeDetail(width: number): void {
 
 /* The detail pane exists only when there is something in it. An empty third
    column would take a fifth of the width to say nothing, and the item list is
-   what the width is for. */
-const showDetail = computed(() => library.selected !== null && library.libraryId !== null)
+   what the width is for. With more than one row picked out it holds a count and
+   the errands rather than an item's fields -- see `ItemSelection`. */
+const showDetail = computed(() => library.selection.length > 0 && library.libraryId !== null)
 
 /*
  * A list can be empty for half a dozen reasons and only one of them is "this
@@ -385,14 +387,20 @@ async function submitRename(name: string): Promise<void> {
 }
 
 /*
- * What can be done to an item and to a collection, and the two ways of asking.
+ * What can be done to items and to a collection, and the two ways of asking.
  *
- * Carrying a row somewhere is the quick way and the one the desktop client
- * teaches: an item onto a collection files it there, onto the library takes it
- * out of the collection being shown, onto the trash throws it away, and onto
- * another library copies it. A collection can be carried too — onto another
+ * Carrying rows somewhere is the quick way and the one the desktop client
+ * teaches: onto a collection files them there, onto the library takes them out
+ * of the collection being shown, onto the trash throws them away, and onto
+ * another library copies them. A collection can be carried too — onto another
  * collection to sit inside it, onto the library to come back to the top level,
  * onto the trash to be asked about deleting it.
+ *
+ * A carry holds whatever was picked out. Dragging a row that is part of the
+ * selection carries the whole selection; dragging one that is not carries that
+ * row alone and leaves the selection alone with it. What is under the pointer
+ * says which it is — a title, or a count — so a carry never takes anything the
+ * reader cannot see it holding.
  *
  * Every one of those is also a button or a key, because a control only a
  * pointer can reach is a control some readers do not have -- `Delete` on a row
@@ -403,18 +411,20 @@ async function submitRename(name: string): Promise<void> {
  * `writable` says the server would accept the write.
  */
 type Cargo =
-  | { kind: 'item'; item: ItemEnvelope }
+  | { kind: 'items'; items: ItemEnvelope[] }
   | { kind: 'collection'; node: CollectionNode }
 
 const carry = useCarry<Cargo>()
 
 const itemError = ref<string | null>(null)
 
-/** The key of the row being carried, so it can be shown leaving. */
-const carriedKey = computed(() => {
+/** The keys of the rows being carried, so they can be shown leaving. */
+const carriedKeys = computed(() => {
   const cargo = carry.carrying.value?.data
-  if (!cargo) return null
-  return cargo.kind === 'item' ? cargo.item.key : cargo.node.key
+  if (!cargo) return new Set<string>()
+  return new Set(
+    cargo.kind === 'items' ? cargo.items.map((item) => item.key) : [cargo.node.key],
+  )
 })
 
 /** Whether ``target`` is the row underneath the carry, and so the one to light. */
@@ -443,16 +453,22 @@ function accepts(target: string): boolean {
 
   const [kind, value] = [target.slice(0, target.indexOf(':')), target.slice(target.indexOf(':') + 1)]
 
-  if (cargo.kind === 'item') {
+  if (cargo.kind === 'items') {
     if (kind === 'library') return Number(value) !== library.libraryId || Boolean(library.collectionKey)
     /* Only a work, only one that is not published already, and not one in the
        trash: a note or an attachment reaches My Publications with the item it
        belongs to, and the published list hides trashed items, so publishing
-       one would flag something nobody can see. */
+       one would flag something nobody can see.
+
+       And only ever one at a time. Publishing is a wizard whose answers depend
+       on the item in front of it -- which of its files go, which of its notes,
+       what its Rights field already says -- so a selection has no one set of
+       answers to give it. The row does not light up rather than the wizard
+       opening on a question it cannot ask. */
     if (kind === 'publications') {
-      return (
-        !cargo.item.data.parentItem && !cargo.item.data.inPublications && !cargo.item.data.deleted
-      )
+      const item = cargo.items.length === 1 ? cargo.items[0] : null
+      if (!item) return false
+      return !item.data.parentItem && !item.data.inPublications && !item.data.deleted
     }
     return kind === 'collection' || kind === 'trash'
   }
@@ -490,8 +506,23 @@ function startCarry(cargo: Cargo, label: string, event: PointerEvent): void {
   })
 }
 
+/**
+ * Begin carrying a row, and whatever else is picked out with it.
+ *
+ * A row already in the selection carries the whole selection; one that is not
+ * carries itself alone, and leaves the selection where it was. Picking rows out
+ * is what a click is for, and a drag that quietly changed the selection on the
+ * way past would leave the reader with a different list than they had — the
+ * carry says what it holds, which is what the label under the pointer is for.
+ */
 function carryItem(item: ItemEnvelope, event: PointerEvent): void {
-  startCarry({ kind: 'item', item }, titleOf(item), event)
+  const items =
+    library.selectionKeys.includes(item.key) && library.selectionKeys.length > 1
+      ? [...library.selectedItems]
+      : [item]
+  const label =
+    items.length > 1 ? t('{count} item | {count} items', items.length) : titleOf(items[0])
+  startCarry({ kind: 'items', items }, label, event)
 }
 
 function carryCollection(node: CollectionNode, event: PointerEvent): void {
@@ -508,17 +539,18 @@ async function drop(cargo: Cargo, target: string, { modified = false } = {}): Pr
   const kind = target.slice(0, target.indexOf(':'))
   const value = target.slice(target.indexOf(':') + 1)
 
-  if (cargo.kind === 'item') {
-    const item = cargo.item
+  if (cargo.kind === 'items') {
+    const keys = cargo.items.map((item) => item.key)
     if (kind === 'trash') {
-      await runOnItem(() => library.trashItem(item.key))
+      await runOnItem(() => library.trashItems(keys))
       return
     }
     if (kind === 'publications') {
       /* The one drop that asks before it acts, and the desktop client asks
          too: what goes with the work and under what licence are not things a
-         gesture can say, and publishing is not undone by dragging it back. */
-      await startPublishing(item)
+         gesture can say, and publishing is not undone by dragging it back.
+         `accepts` has already refused anything but a single work. */
+      await startPublishing(cargo.items[0])
       return
     }
     if (kind === 'collection') {
@@ -527,15 +559,15 @@ async function drop(cargo: Cargo, target: string, { modified = false } = {}): Pr
          otherwise; a finger says it in the dialog instead. */
       const from = library.collectionKey
       const remove = modified && from && from !== value ? [from] : []
-      await runOnItem(() => library.fileItem(item.key, { add: [value], remove }))
+      await runOnItem(() => library.fileItems(keys, { add: [value], remove }))
       return
     }
     if (Number(value) !== library.libraryId) {
-      await runOnItem(() => library.copyItem(item.key, Number(value)))
+      await runOnItem(() => library.copyItems(keys, Number(value)))
       return
     }
     const from = library.collectionKey
-    if (from) await runOnItem(() => library.fileItem(item.key, { remove: [from] }))
+    if (from) await runOnItem(() => library.fileItems(keys, { remove: [from] }))
     return
   }
 
@@ -675,13 +707,14 @@ async function submitPublication(terms: {
  * Both ask first. One cannot be undone at all; the other cannot be undone by
  * pressing anything, only by going through the wizard again.
  */
-const removing = ref<ItemEnvelope | null>(null)
+const removing = ref<ItemEnvelope[]>([])
 const unpublishing = ref<ItemEnvelope | null>(null)
 const emptying = ref(false)
 const itemBusy = ref(false)
 
-function askToRemove(item: ItemEnvelope): void {
-  removing.value = item
+function askToRemove(items: ItemEnvelope[]): void {
+  if (!items.length) return
+  removing.value = items
   unpublishing.value = null
   emptying.value = false
   itemError.value = null
@@ -700,27 +733,27 @@ async function askToUnpublish(item: ItemEnvelope): Promise<void> {
     return
   }
   unpublishing.value = item
-  removing.value = null
+  removing.value = []
   emptying.value = false
   itemError.value = null
 }
 
 function askToEmpty(): void {
   emptying.value = true
-  removing.value = null
+  removing.value = []
   unpublishing.value = null
   itemError.value = null
 }
 
 function cancelRemoval(): void {
-  removing.value = null
+  removing.value = []
   unpublishing.value = null
   emptying.value = false
 }
 
-async function deleteItem(item: ItemEnvelope): Promise<void> {
+async function deleteItems(items: ItemEnvelope[]): Promise<void> {
   itemBusy.value = true
-  await runOnItem(() => library.deleteItem(item.key))
+  await runOnItem(() => library.deleteItems(items.map((item) => item.key)))
   itemBusy.value = false
   cancelRemoval()
 }
@@ -739,19 +772,28 @@ async function unpublishItem(item: ItemEnvelope): Promise<void> {
   cancelRemoval()
 }
 
-/** `Delete` on a row: the trash, or -- in the trash and in My Publications --
- *  the question that view's Delete asks instead. */
+/**
+ * `Delete` on a row: the trash, or -- in the trash and in My Publications --
+ * the question that view's Delete asks instead.
+ *
+ * On the whole selection when the row pressed is part of it, and on that row
+ * alone when it is not, which is the rule the drag follows. My Publications is
+ * the exception: taking something out of it is per work, so the key acts on the
+ * row it was pressed on there.
+ */
 async function removeKey(item: ItemEnvelope): Promise<void> {
   if (!library.writable) return
-  if (library.scope === 'trash' || item.data.deleted) {
-    askToRemove(item)
-    return
-  }
   if (library.scope === 'publications') {
     askToUnpublish(item)
     return
   }
-  await runOnItem(() => library.trashItem(item.key))
+
+  const items = library.selectionKeys.includes(item.key) ? [...library.selectedItems] : [item]
+  if (library.scope === 'trash' || items.every((entry) => entry.data.deleted)) {
+    askToRemove(items)
+    return
+  }
+  await runOnItem(() => library.trashItems(items.map((entry) => entry.key)))
 }
 
 /*
@@ -761,7 +803,7 @@ async function removeKey(item: ItemEnvelope): Promise<void> {
  * other libraries this account may write to, which is the keyboard's version
  * of dropping a row on a sidebar row.
  */
-const moving = ref<ItemEnvelope | null>(null)
+const moving = ref<ItemEnvelope[]>([])
 
 const otherLibraries = computed(() =>
   library.libraries
@@ -779,32 +821,105 @@ async function submitDestination(destination: {
   collection: string | null
   takeOut: boolean
 }): Promise<void> {
-  const item = moving.value
-  if (!item) return
+  const items = moving.value
+  if (!items.length) return
+  const keys = items.map((item) => item.key)
 
   itemBusy.value = true
   itemError.value = null
   try {
     if (destination.library !== null) {
-      await library.copyItem(item.key, destination.library)
+      await library.copyItems(keys, destination.library)
     } else {
       const from = currentCollection.value?.key
       const remove = destination.takeOut && from && from !== destination.collection ? [from] : []
       /* The library's own row is "no collection", which is a removal from
-         every collection the item is in rather than an addition to any. */
+         every collection these items are in rather than an addition to any --
+         the union of them, since one request states one set of removals and
+         each item is only ever taken out of what it was actually in. */
       const add = destination.collection ? [destination.collection] : []
-      const clearing = !destination.collection
-        ? ((item.data.collections as string[] | undefined) ?? [])
-        : []
-      await library.fileItem(item.key, { add, remove: [...remove, ...clearing] })
+      const clearing = destination.collection
+        ? []
+        : [
+            ...new Set(
+              items.flatMap((item) => (item.data.collections as string[] | undefined) ?? []),
+            ),
+          ]
+      await library.fileItems(keys, { add, remove: [...remove, ...clearing] })
     }
-    moving.value = null
+    moving.value = []
   } catch (thrown) {
     itemError.value = thrown instanceof Error ? thrown.message : String(thrown)
   } finally {
     itemBusy.value = false
   }
 }
+
+/*
+ * Picking out more than one row.
+ *
+ * Three ways in, because a mouse, a finger and a keyboard are three different
+ * hands. `Ctrl`/`Cmd`-click adds a row and takes one away, `Shift`-click takes
+ * everything between, and `Ctrl`/`Cmd`-A takes the whole page — the conventions
+ * of every list anybody has used, and Zotero's own.
+ *
+ * None of those exist on a touch screen, and none of them can be reached by a
+ * keyboard either: pressing a button fires a click with no modifier on it, so a
+ * row that is only a button can only ever be selected on its own. That is what
+ * **Select** is for. It draws a checkbox on every row, and a checkbox is a
+ * control a finger can hit and a keyboard can reach with `Tab` and `Space`. It
+ * is one control serving the two readers a modifier key leaves out, rather than
+ * a touch affordance bolted onto a mouse interface.
+ *
+ * While it is on, pressing anywhere on a row toggles that row: in a mode whose
+ * whole purpose is picking rows out, a tap that opened the detail pane instead
+ * would be the mode failing to mean anything.
+ */
+const selecting = ref(false)
+
+/* Turning the mode off leaves the selection alone -- it is how a reader gets
+   back to reading after picking rows out, not an undo. */
+function toggleSelecting(): void {
+  selecting.value = !selecting.value
+}
+
+async function pressRow(item: ItemEnvelope, event: MouseEvent): Promise<void> {
+  if (event.shiftKey) return void (await library.extendSelection(item))
+  if (event.ctrlKey || event.metaKey || selecting.value) {
+    return void (await library.toggleSelected(item))
+  }
+  await library.select(item)
+}
+
+/* On the list rather than on a row, so it works wherever the focus is inside
+   it. Everything loaded, which is not everything there is -- the list pages, and
+   an errand cannot act on rows that have not been fetched. */
+async function selectAllKey(event: KeyboardEvent): Promise<void> {
+  if (!(event.ctrlKey || event.metaKey) || event.altKey) return
+  event.preventDefault()
+  await library.selectAll()
+}
+
+const allSelected = computed(
+  () => library.items.length > 0 && library.selection.length === library.items.length,
+)
+
+async function toggleAll(): Promise<void> {
+  if (allSelected.value) {
+    await library.clearSelection()
+    return
+  }
+  await library.selectAll()
+}
+
+/** Whether everything picked out is already in the trash, which is what decides
+ *  between throwing away and deleting for good. */
+const selectionTrashed = computed(
+  () =>
+    library.scope === 'trash' ||
+    (library.selectedItems.length > 0 &&
+      library.selectedItems.every((entry) => entry.data.deleted === true)),
+)
 
 function sortIndicator(field: string): string {
   if (library.sort !== field) return ''
@@ -1093,8 +1208,23 @@ function sortLabel(column: { field: string; label: string }): string {
     <section class="library__list">
       <header class="library__header">
         <h1 class="library__heading">{{ heading }}</h1>
-        <!-- The one place the interface deletes more than one thing at once,
-             and the one place where that is the errand. -->
+        <!--
+          Checkboxes on demand: the way in for a finger, which has no modifier
+          keys, and for a keyboard, which cannot press a row with one held. A
+          mouse needs neither and is not made to use it — `Ctrl`-click and
+          `Shift`-click work whether this is on or off.
+        -->
+        <button
+          v-if="library.items.length"
+          class="library__more"
+          type="button"
+          :aria-pressed="selecting"
+          @click="toggleSelecting()"
+        >
+          {{ selecting ? t('Done selecting') : t('Select') }}
+        </button>
+        <!-- Emptying the trash is the one errand that reaches items nobody
+             picked out: the trash is a list of things already thrown away. -->
         <button
           v-if="library.scope === 'trash' && library.writable && library.items.length"
           class="library__more"
@@ -1159,12 +1289,22 @@ function sortLabel(column: { field: string; label: string }): string {
         trash is the only thing in this interface that cannot be undone, so it
         is the only one that asks.
       -->
-      <p v-if="removing || emptying || unpublishing" class="collections__confirm" role="alert">
+      <p
+        v-if="removing.length || emptying || unpublishing"
+        class="collections__confirm"
+        role="alert"
+      >
         <span v-if="emptying">
           {{ t('Delete everything in the trash?') }} {{ t('This cannot be undone.') }}
         </span>
-        <span v-else-if="removing">
-          {{ t('Delete “{name}” for good?', { name: titleOf(removing) }) }}
+        <!-- Named while there is one, counted once there are several: five
+             titles in a sentence is not a sentence anybody reads. -->
+        <span v-else-if="removing.length === 1">
+          {{ t('Delete “{name}” for good?', { name: titleOf(removing[0]) }) }}
+          {{ t('This cannot be undone.') }}
+        </span>
+        <span v-else-if="removing.length">
+          {{ t('Delete {count} items for good?', { count: removing.length }) }}
           {{ t('This cannot be undone.') }}
         </span>
         <!-- Nothing is deleted here, and the sentence says so: the work stays
@@ -1188,7 +1328,7 @@ function sortLabel(column: { field: string; label: string }): string {
           <AppButton
             v-else
             :loading="itemBusy"
-            @click="emptying ? emptyTrash() : removing && deleteItem(removing)"
+            @click="emptying ? emptyTrash() : deleteItems(removing)"
           >
             {{ t('Delete') }}
           </AppButton>
@@ -1202,20 +1342,34 @@ function sortLabel(column: { field: string; label: string }): string {
         header cells are sort controls rather than headers.
       -->
       <div v-else class="library__table">
-        <div class="library__row library__row--head">
-          <span class="library__cell library__cell--icon"></span>
-          <button
-            v-for="column in columns"
-            :key="column.field"
-            type="button"
-            class="library__cell library__cell--head"
-            :aria-label="sortLabel(column)"
-            @click="library.sortBy(column.field)"
-          >
-            <span aria-hidden="true">
-              {{ column.label }} {{ sortIndicator(column.field) }}
-            </span>
-          </button>
+        <div class="library__line">
+          <!-- One box for the whole page, and only while Select is on: a column
+               of checkboxes over a list nobody is picking from is a column of
+               questions nobody asked. It sits beside the grid rather than in
+               it, so that the columns underneath line up with the headings. -->
+          <span v-if="selecting" class="library__cell library__cell--check">
+            <input
+              type="checkbox"
+              :checked="allSelected"
+              :aria-label="t('Select everything shown')"
+              @change="toggleAll()"
+            />
+          </span>
+          <div class="library__row library__row--head">
+            <span class="library__cell library__cell--icon"></span>
+            <button
+              v-for="column in columns"
+              :key="column.field"
+              type="button"
+              class="library__cell library__cell--head"
+              :aria-label="sortLabel(column)"
+              @click="library.sortBy(column.field)"
+            >
+              <span aria-hidden="true">
+                {{ column.label }} {{ sortIndicator(column.field) }}
+              </span>
+            </button>
+          </div>
         </div>
 
         <p
@@ -1229,8 +1383,26 @@ function sortLabel(column: { field: string; label: string }): string {
           {{ emptyMessage }}
         </p>
 
-        <ul v-else class="library__items" :aria-label="t('Items in {name}', { name: heading })">
-          <li v-for="item in library.items" :key="item.key">
+        <ul
+          v-else
+          class="library__items"
+          :aria-label="t('Items in {name}', { name: heading })"
+          @keydown.a="selectAllKey"
+          @keydown.esc="library.clearSelection()"
+        >
+          <li v-for="item in library.items" :key="item.key" class="library__line">
+            <!-- The checkbox is a sibling of the row rather than inside it: a
+                 checkbox within a button is neither, and a reader tabbing
+                 through would find one control where there are two. -->
+            <span v-if="selecting" class="library__cell library__cell--check">
+              <input
+                type="checkbox"
+                :checked="library.selection.includes(item.key)"
+                :aria-label="t('Select “{name}”', { name: titleOf(item) })"
+                @change="library.toggleSelected(item)"
+              />
+            </span>
+
             <!--
               Carried only where the library can be written to: a drag that can
               only ever be refused is a promise the interface should not make.
@@ -1242,12 +1414,12 @@ function sortLabel(column: { field: string; label: string }): string {
               :class="[
                 'library__row',
                 {
-                  'library__row--selected': library.selected?.key === item.key,
-                  'library__row--carried': carriedKey === item.key,
+                  'library__row--selected': library.selection.includes(item.key),
+                  'library__row--carried': carriedKeys.has(item.key),
                 },
               ]"
-              :aria-pressed="library.selected?.key === item.key"
-              @click="library.select(item)"
+              :aria-pressed="library.selection.includes(item.key)"
+              @click="pressRow(item, $event)"
               @pointerdown="carryItem(item, $event)"
               @keydown.delete.prevent="removeKey(item)"
             >
@@ -1290,8 +1462,9 @@ function sortLabel(column: { field: string; label: string }): string {
       @update:width="resizeDetail"
     />
 
-    <aside v-if="showDetail && library.selected && library.libraryId !== null" class="library__detail">
+    <aside v-if="showDetail && library.libraryId !== null" class="library__detail">
       <ItemDetail
+        v-if="library.selected"
         :item="library.selected"
         :children="library.children"
         :library-id="library.libraryId"
@@ -1301,13 +1474,27 @@ function sortLabel(column: { field: string; label: string }): string {
         :in-publications-view="library.scope === 'publications'"
         @open="library.select($event)"
         @close="library.select(null)"
-        @move="moving = library.selected"
-        @trash="runOnItem(() => library.trashItem(library.selected!.key))"
-        @restore="runOnItem(() => library.trashItem(library.selected!.key, false))"
-        @remove="askToRemove(library.selected!)"
+        @move="moving = [library.selected]"
+        @trash="runOnItem(() => library.trashItems([library.selected!.key]))"
+        @restore="runOnItem(() => library.trashItems([library.selected!.key], false))"
+        @remove="askToRemove([library.selected!])"
         @publish="startPublishing(library.selected!)"
         @unpublish="askToUnpublish(library.selected!)"
         @rights="editingRights = library.selected"
+      />
+      <!-- More than one row picked out: a count and the errands, because what
+           several items have in common is what can be done to them rather than
+           what their fields say. -->
+      <ItemSelection
+        v-else
+        :count="library.selection.length"
+        :writable="library.writable"
+        :trashed="selectionTrashed"
+        @move="moving = [...library.selectedItems]"
+        @trash="runOnItem(() => library.trashItems(library.selectionKeys))"
+        @restore="runOnItem(() => library.trashItems(library.selectionKeys, false))"
+        @remove="askToRemove([...library.selectedItems])"
+        @close="library.clearSelection()"
       />
     </aside>
 
@@ -1353,15 +1540,18 @@ function sortLabel(column: { field: string; label: string }): string {
     <!-- Dropping a row on a sidebar row, said in words: the collections of
          this library and the other libraries it could be copied to. -->
     <ItemDestinationDialog
-      v-if="moving"
-      :title="titleOf(moving)"
+      v-if="moving.length"
+      :title="
+        moving.length === 1 ? titleOf(moving[0]) : t('{count} item | {count} items', moving.length)
+      "
+      :count="moving.length"
       :places="places"
       :libraries="otherLibraries"
       :current-collection="currentCollection"
       :busy="itemBusy"
       :error="itemError"
       @submit="submitDestination"
-      @cancel="moving = null"
+      @cancel="moving = []"
     />
 
     <!-- Everything the desktop client asks before it publishes something,
@@ -1973,6 +2163,41 @@ function sortLabel(column: { field: string; label: string }): string {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* A row and the box that picks it out, side by side. The box is outside the
+   grid the cells live in, and the same width on the heading line, so turning
+   Select on shifts the whole table across rather than pulling the columns out
+   of line with their headings. */
+.library__line {
+  display: flex;
+  align-items: stretch;
+}
+
+.library__line > .library__row {
+  flex: 1;
+  min-width: 0;
+}
+
+.library__cell--check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2.5rem;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+/* Big enough for a fingertip where there is one; the box itself is the
+   browser's, so it grows with the setting rather than against it. */
+@media (pointer: coarse) {
+  .library__cell--check {
+    width: 3rem;
+  }
+
+  .library__cell--check input {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
 }
 
 /* The title is what the row is for, so it is the last thing to give way: two

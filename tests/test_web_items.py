@@ -4,16 +4,19 @@ The writes themselves are `services/itemwrites`, tested against the v3
 endpoints in ``test_items_write.py``. What is checked here is what only this
 door has: a cookie instead of a key, a CSRF token, who may write to which
 library, one new version per request, and the rules this door adds — that a
-permanent deletion happens only out of the trash, and that a copy into another
-library is a copy and never a move.
+permanent deletion happens only out of the trash, that a copy into another
+library is a copy and never a move, and that a selection of rows is one errand
+rather than one errand per row.
 """
+
+from typing import Any
 
 import httpx
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.models import Item, Library
+from altero.models import GroupActivity, Item, Library
 from altero.services import admin
 from tests import factories
 from tests.test_web_routes import csrf_headers, register
@@ -60,6 +63,18 @@ async def seed_item(
     return str(response.json()["successful"]["0"]["key"])
 
 
+def only(response: httpx.Response) -> dict[str, Any]:
+    """The one item out of an answer that always names a selection.
+
+    Filing, trashing and copying answer with a list because that is what they
+    take. Most of what is checked here is about one item, and this asserts that
+    one is all that came back on the way to reading it.
+    """
+    body = response.json()
+    assert len(body["items"]) == 1
+    return dict(body["items"][0])
+
+
 async def listed(client: httpx.AsyncClient, library_id: int, **query: str) -> list[str]:
     """The titles the interface would draw, in the scope asked for."""
     request = "&".join(f"{name}={value}" for name, value in query.items())
@@ -76,13 +91,13 @@ class TestFiling:
         item = await seed_item(ada, session)
 
         response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"addCollections": [papers]},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "addCollections": [papers]},
             headers=csrf_headers(ada),
         )
 
         assert response.status_code == 200
-        assert response.json()["data"]["collections"] == [papers]
+        assert only(response)["data"]["collections"] == [papers]
         assert await listed(ada, library_id, collection=papers) == ["Structure and Interpretation"]
 
     async def test_filing_it_again_somewhere_else_keeps_the_first(
@@ -94,13 +109,13 @@ class TestFiling:
         books = await make_collection(ada, library_id, "Books")
         item = await seed_item(ada, session, collections=[papers])
 
-        body = (
+        body = only(
             await ada.patch(
-                f"/web/libraries/{library_id}/items/{item}",
-                json={"addCollections": [books]},
+                f"/web/libraries/{library_id}/items",
+                json={"items": [item], "addCollections": [books]},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         assert sorted(body["data"]["collections"]) == sorted([papers, books])
 
@@ -115,12 +130,12 @@ class TestFiling:
         before = (await ada.get("/web/libraries")).json()[0]["version"]
 
         response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"addCollections": [books], "removeCollections": [papers]},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "addCollections": [books], "removeCollections": [papers]},
             headers=csrf_headers(ada),
         )
 
-        assert response.json()["data"]["collections"] == [books]
+        assert only(response)["data"]["collections"] == [books]
         assert int(response.headers["Last-Modified-Version"]) == before + 1
 
     async def test_it_is_taken_out_of_the_only_collection_it_was_in(
@@ -132,13 +147,13 @@ class TestFiling:
         papers = await make_collection(ada, library_id, "Papers")
         item = await seed_item(ada, session, collections=[papers])
 
-        body = (
+        body = only(
             await ada.patch(
-                f"/web/libraries/{library_id}/items/{item}",
-                json={"removeCollections": [papers]},
+                f"/web/libraries/{library_id}/items",
+                json={"items": [item], "removeCollections": [papers]},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         assert body["data"]["collections"] == []
         assert await listed(ada, library_id, collection=papers) == []
@@ -151,13 +166,13 @@ class TestFiling:
         papers = await make_collection(ada, library_id, "Papers")
         item = await seed_item(ada, session, collections=[papers])
 
-        body = (
+        body = only(
             await ada.patch(
-                f"/web/libraries/{library_id}/items/{item}",
-                json={"addCollections": [papers]},
+                f"/web/libraries/{library_id}/items",
+                json={"items": [item], "addCollections": [papers]},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         assert body["data"]["collections"] == [papers]
 
@@ -170,18 +185,36 @@ class TestFiling:
         papers = await make_collection(ada, library_id, "Papers")
         item = await seed_item(ada, session)
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"addCollections": [papers]},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "addCollections": [papers]},
             headers=csrf_headers(ada),
         )
 
         assert await listed(ada, library_id, scope="trash") == ["Structure and Interpretation"]
+
+    async def test_a_request_that_asks_for_nothing_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Naming items is not an errand. A request the server can satisfy by
+        doing nothing would still take a library version if it were allowed."""
+        library_id = await personal_library(ada)
+        item = await seed_item(ada, session)
+        before = (await ada.get("/web/libraries")).json()[0]["version"]
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item]},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+        assert (await ada.get("/web/libraries")).json()[0]["version"] == before
 
     async def test_an_unknown_collection_is_not_found(
         self, ada: httpx.AsyncClient, session: AsyncSession
@@ -190,8 +223,8 @@ class TestFiling:
         item = await seed_item(ada, session)
 
         response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"addCollections": ["BBBB2345"]},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "addCollections": ["BBBB2345"]},
             headers=csrf_headers(ada),
         )
 
@@ -206,8 +239,8 @@ class TestTheTrash:
         item = await seed_item(ada, session)
 
         response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
@@ -222,14 +255,14 @@ class TestTheTrash:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": False},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": False},
             headers=csrf_headers(ada),
         )
 
@@ -244,13 +277,13 @@ class TestTheTrash:
         papers = await make_collection(ada, library_id, "Papers")
         item = await seed_item(ada, session, collections=[papers])
 
-        body = (
+        body = only(
             await ada.patch(
-                f"/web/libraries/{library_id}/items/{item}",
-                json={"deleted": True},
+                f"/web/libraries/{library_id}/items",
+                json={"items": [item], "deleted": True},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         assert body["data"]["collections"] == [papers]
 
@@ -262,8 +295,8 @@ class TestTheTrash:
         key = await admin.create_api_key(session, username="ada", name="sync")
 
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
@@ -278,13 +311,13 @@ class TestDeletingForGood:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
         response = await ada.delete(
-            f"/web/libraries/{library_id}/items/{item}", headers=csrf_headers(ada)
+            f"/web/libraries/{library_id}/items?itemKey={item}", headers=csrf_headers(ada)
         )
 
         assert response.status_code == 204
@@ -300,7 +333,7 @@ class TestDeletingForGood:
         item = await seed_item(ada, session)
 
         response = await ada.delete(
-            f"/web/libraries/{library_id}/items/{item}", headers=csrf_headers(ada)
+            f"/web/libraries/{library_id}/items?itemKey={item}", headers=csrf_headers(ada)
         )
 
         assert response.status_code == 400
@@ -318,12 +351,14 @@ class TestDeletingForGood:
             ]
         )
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
-        await ada.delete(f"/web/libraries/{library_id}/items/{item}", headers=csrf_headers(ada))
+        await ada.delete(
+            f"/web/libraries/{library_id}/items?itemKey={item}", headers=csrf_headers(ada)
+        )
 
         deleted = await ada.get(
             f"/users/1/deleted?since={before}", headers={"Zotero-API-Key": key.key}
@@ -334,7 +369,7 @@ class TestDeletingForGood:
         library_id = await personal_library(ada)
 
         response = await ada.delete(
-            f"/web/libraries/{library_id}/items/AAAA2345", headers=csrf_headers(ada)
+            f"/web/libraries/{library_id}/items?itemKey=AAAA2345", headers=csrf_headers(ada)
         )
 
         assert response.status_code == 404
@@ -349,8 +384,8 @@ class TestEmptyingTheTrash:
         second = await seed_item(ada, session, title="Two", key_name="two")
         for item in (first, second):
             await ada.patch(
-                f"/web/libraries/{library_id}/items/{item}",
-                json={"deleted": True},
+                f"/web/libraries/{library_id}/items",
+                json={"items": [item], "deleted": True},
                 headers=csrf_headers(ada),
             )
 
@@ -367,8 +402,8 @@ class TestEmptyingTheTrash:
         kept = await seed_item(ada, session, title="Kept", key_name="kept")
         thrown = await seed_item(ada, session, title="Thrown", key_name="thrown")
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{thrown}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [thrown], "deleted": True},
             headers=csrf_headers(ada),
         )
 
@@ -399,8 +434,8 @@ class TestEmptyingTheTrash:
         for name in ("one", "two", "three"):
             item = await seed_item(ada, session, title=name, key_name=name)
             await ada.patch(
-                f"/web/libraries/{library_id}/items/{item}",
-                json={"deleted": True},
+                f"/web/libraries/{library_id}/items",
+                json={"items": [item], "deleted": True},
                 headers=csrf_headers(ada),
             )
         before = (await ada.get("/web/libraries")).json()[0]["version"]
@@ -421,8 +456,8 @@ class TestEmptyingTheTrash:
             ]
         )
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
@@ -439,8 +474,8 @@ class TestEmptyingTheTrash:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
@@ -480,13 +515,13 @@ class TestCopyingToAnotherLibrary:
         item = await seed_item(ada, session)
 
         response = await ada.post(
-            f"/web/libraries/{library_id}/items/{item}/copy",
-            json={"library": group.id},
+            f"/web/libraries/{library_id}/items/copy",
+            json={"items": [item], "library": group.id},
             headers=csrf_headers(ada),
         )
 
         assert response.status_code == 201
-        assert response.json()["data"]["title"] == "Structure and Interpretation"
+        assert only(response)["data"]["title"] == "Structure and Interpretation"
         assert await listed(ada, group.id) == ["Structure and Interpretation"]
 
     async def test_the_original_stays_where_it_was(
@@ -498,8 +533,8 @@ class TestCopyingToAnotherLibrary:
         item = await seed_item(ada, session)
 
         await ada.post(
-            f"/web/libraries/{library_id}/items/{item}/copy",
-            json={"library": group.id},
+            f"/web/libraries/{library_id}/items/copy",
+            json={"items": [item], "library": group.id},
             headers=csrf_headers(ada),
         )
 
@@ -512,13 +547,13 @@ class TestCopyingToAnotherLibrary:
         group = await self._group(session)
         item = await seed_item(ada, session)
 
-        body = (
+        body = only(
             await ada.post(
-                f"/web/libraries/{library_id}/items/{item}/copy",
-                json={"library": group.id},
+                f"/web/libraries/{library_id}/items/copy",
+                json={"items": [item], "library": group.id},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         assert body["key"] != item
         # The library block names a group by its Zotero group id, as the v3
@@ -533,13 +568,13 @@ class TestCopyingToAnotherLibrary:
         item = await seed_item(ada, session)
         target = await factories.make_collection(session, group, name="Sightings")
 
-        body = (
+        body = only(
             await ada.post(
-                f"/web/libraries/{library_id}/items/{item}/copy",
-                json={"library": group.id, "collection": target.key},
+                f"/web/libraries/{library_id}/items/copy",
+                json={"items": [item], "library": group.id, "collection": target.key},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         assert body["data"]["collections"] == [target.key]
 
@@ -552,13 +587,13 @@ class TestCopyingToAnotherLibrary:
         papers = await make_collection(ada, library_id, "Papers")
         item = await seed_item(ada, session, collections=[papers])
 
-        body = (
+        body = only(
             await ada.post(
-                f"/web/libraries/{library_id}/items/{item}/copy",
-                json={"library": group.id},
+                f"/web/libraries/{library_id}/items/copy",
+                json={"items": [item], "library": group.id},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         assert body["data"]["collections"] == []
 
@@ -577,13 +612,13 @@ class TestCopyingToAnotherLibrary:
             json=[{"itemType": "note", "note": "<p>Read chapter 3</p>", "parentItem": item}],
         )
 
-        copied = (
+        copied = only(
             await ada.post(
-                f"/web/libraries/{library_id}/items/{item}/copy",
-                json={"library": group.id},
+                f"/web/libraries/{library_id}/items/copy",
+                json={"items": [item], "library": group.id},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         children = await ada.get(f"/web/libraries/{group.id}/items/{copied['key']}/children")
         assert [entry["data"]["note"] for entry in children.json()["items"]] == [
@@ -603,13 +638,13 @@ class TestCopyingToAnotherLibrary:
         )
         item = made.json()["successful"]["0"]["key"]
 
-        body = (
+        body = only(
             await ada.post(
-                f"/web/libraries/{library_id}/items/{item}/copy",
-                json={"library": group.id},
+                f"/web/libraries/{library_id}/items/copy",
+                json={"items": [item], "library": group.id},
                 headers=csrf_headers(ada),
             )
-        ).json()
+        )
 
         assert body["data"]["tags"] == [{"tag": "toread"}]
 
@@ -623,8 +658,8 @@ class TestCopyingToAnotherLibrary:
         item = await seed_item(ada, session)
 
         response = await ada.post(
-            f"/web/libraries/{library_id}/items/{item}/copy",
-            json={"library": library_id},
+            f"/web/libraries/{library_id}/items/copy",
+            json={"items": [item], "library": library_id},
             headers=csrf_headers(ada),
         )
 
@@ -640,8 +675,8 @@ class TestCopyingToAnotherLibrary:
         assert theirs is not None
 
         response = await ada.post(
-            f"/web/libraries/{library_id}/items/{item}/copy",
-            json={"library": theirs.id},
+            f"/web/libraries/{library_id}/items/copy",
+            json={"items": [item], "library": theirs.id},
             headers=csrf_headers(ada),
         )
 
@@ -659,8 +694,8 @@ class TestCopyingToAnotherLibrary:
         group = await self._group(session)
 
         response = await ada.post(
-            f"/web/libraries/{theirs.id}/items/{elsewhere.key}/copy",
-            json={"library": group.id},
+            f"/web/libraries/{theirs.id}/items/copy",
+            json={"items": [elsewhere.key], "library": group.id},
             headers=csrf_headers(ada),
         )
 
@@ -680,8 +715,8 @@ class TestCopyingToAnotherLibrary:
         }
 
         response = await ada.post(
-            f"/web/libraries/{library_id}/items/{item}/copy",
-            json={"library": group.id},
+            f"/web/libraries/{library_id}/items/copy",
+            json={"items": [item], "library": group.id},
             headers=csrf_headers(ada),
         )
 
@@ -701,7 +736,7 @@ class TestWhoMay:
         item = await seed_item(ada, session)
 
         response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}", json={"deleted": True}
+            f"/web/libraries/{library_id}/items", json={"items": [item], "deleted": True}
         )
 
         assert response.status_code == 403
@@ -713,12 +748,12 @@ class TestWhoMay:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers=csrf_headers(ada),
         )
 
-        response = await ada.delete(f"/web/libraries/{library_id}/items/{item}")
+        response = await ada.delete(f"/web/libraries/{library_id}/items?itemKey={item}")
 
         assert response.status_code == 403
         assert await listed(ada, library_id, scope="trash") == ["Structure and Interpretation"]
@@ -733,7 +768,7 @@ class TestWhoMay:
         item = await seed_item(ada, session)
 
         response = await ada.post(
-            f"/web/libraries/{library_id}/items/{item}/copy", json={"library": group.id}
+            f"/web/libraries/{library_id}/items/copy", json={"items": [item], "library": group.id}
         )
 
         assert response.status_code == 403
@@ -749,8 +784,8 @@ class TestWhoMay:
         ada.cookies.clear()
 
         response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{item}",
-            json={"deleted": True},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item], "deleted": True},
             headers={"Zotero-API-Key": key.key, "X-CSRF-Token": "anything"},
         )
 
@@ -765,8 +800,8 @@ class TestWhoMay:
         item = await factories.make_item(session, theirs, fields={"title": "Not yours"})
 
         response = await ada.patch(
-            f"/web/libraries/{theirs.id}/items/{item.key}",
-            json={"deleted": True},
+            f"/web/libraries/{theirs.id}/items",
+            json={"items": [item.key], "deleted": True},
             headers=csrf_headers(ada),
         )
 
@@ -786,8 +821,8 @@ class TestWhoMay:
         item = await factories.make_item(session, group, fields={"title": "Theirs"})
 
         response = await ada.patch(
-            f"/web/libraries/{group.id}/items/{item.key}",
-            json={"deleted": True},
+            f"/web/libraries/{group.id}/items",
+            json={"items": [item.key], "deleted": True},
             headers=csrf_headers(ada),
         )
 
@@ -834,8 +869,8 @@ class TestEditingAField:
         library_id, key = await self.key_of(ada, session)
         papers = await make_collection(ada, library_id, "Papers")
         await ada.patch(
-            f"/web/libraries/{library_id}/items/{key}",
-            json={"addCollections": [papers]},
+            f"/web/libraries/{library_id}/items",
+            json={"items": [key], "addCollections": [papers]},
             headers=csrf_headers(ada),
         )
         version = await self.version_of(ada, library_id, key)
@@ -889,6 +924,20 @@ class TestEditingAField:
         )
 
         assert response.status_code == 428
+
+    async def test_an_edit_that_writes_no_field_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+        version = await self.version_of(ada, library_id, key)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {}, "version": version},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
 
     async def test_no_other_field_may_be_written(
         self, ada: httpx.AsyncClient, session: AsyncSession
@@ -948,3 +997,288 @@ class TestEditingAField:
         )
 
         assert response.status_code == 403
+
+
+class TestASelection:
+    """Several rows picked out and dragged somewhere: one errand, one version.
+
+    The reader who selected twenty rows and dropped them on a collection did one
+    thing. What is checked here is that the server treats it as one — a single
+    new library version, a single entry in a group's activity, and all of it or
+    none of it.
+    """
+
+    async def _group(self, session: AsyncSession) -> Library:
+        return await factories.make_group(
+            session, group_id=50, owner_id=1, members={}, name="Whale Watchers"
+        )
+
+    async def _three(self, ada: httpx.AsyncClient, session: AsyncSession) -> list[str]:
+        return [
+            await seed_item(ada, session, title=name.capitalize(), key_name=name)
+            for name in ("one", "two", "three")
+        ]
+
+    async def test_a_selection_is_filed_in_one_request(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        papers = await make_collection(ada, library_id, "Papers")
+        items = await self._three(ada, session)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": items, "addCollections": [papers]},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 200
+        assert [entry["key"] for entry in response.json()["items"]] == items
+        assert sorted(await listed(ada, library_id, collection=papers)) == ["One", "Three", "Two"]
+
+    async def test_however_many_rows_it_is_one_new_version(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The whole reason the endpoint takes a list. Three requests would be
+        three versions, and every syncing client would fetch three times."""
+        library_id = await personal_library(ada)
+        papers = await make_collection(ada, library_id, "Papers")
+        items = await self._three(ada, session)
+        before = (await ada.get("/web/libraries")).json()[0]["version"]
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": items, "addCollections": [papers]},
+            headers=csrf_headers(ada),
+        )
+
+        assert int(response.headers["Last-Modified-Version"]) == before + 1
+        assert {entry["version"] for entry in response.json()["items"]} == {before + 1}
+
+    async def test_each_row_keeps_the_collections_only_it_was_in(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Filing is worked out per item against what is stored, so a selection
+        does not flatten three different filings into one."""
+        library_id = await personal_library(ada)
+        papers = await make_collection(ada, library_id, "Papers")
+        books = await make_collection(ada, library_id, "Books")
+        loose = await seed_item(ada, session, title="Loose", key_name="loose")
+        filed = await seed_item(ada, session, title="Filed", collections=[books], key_name="filed")
+
+        body = (
+            await ada.patch(
+                f"/web/libraries/{library_id}/items",
+                json={"items": [loose, filed], "addCollections": [papers]},
+                headers=csrf_headers(ada),
+            )
+        ).json()
+
+        collections = {
+            entry["key"]: sorted(entry["data"]["collections"]) for entry in body["items"]
+        }
+        assert collections[loose] == [papers]
+        assert collections[filed] == sorted([books, papers])
+
+    async def test_a_selection_moves_out_of_one_collection_and_into_another(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Shift-dragging a selection: the removal and the addition together."""
+        library_id = await personal_library(ada)
+        papers = await make_collection(ada, library_id, "Papers")
+        books = await make_collection(ada, library_id, "Books")
+        first = await seed_item(ada, session, title="One", collections=[papers], key_name="one")
+        second = await seed_item(ada, session, title="Two", collections=[papers], key_name="two")
+
+        await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={
+                "items": [first, second],
+                "addCollections": [books],
+                "removeCollections": [papers],
+            },
+            headers=csrf_headers(ada),
+        )
+
+        assert await listed(ada, library_id, collection=papers) == []
+        assert sorted(await listed(ada, library_id, collection=books)) == ["One", "Two"]
+
+    async def test_a_selection_goes_to_the_trash_together(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        items = await self._three(ada, session)
+        before = (await ada.get("/web/libraries")).json()[0]["version"]
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": items, "deleted": True},
+            headers=csrf_headers(ada),
+        )
+
+        assert int(response.headers["Last-Modified-Version"]) == before + 1
+        assert await listed(ada, library_id) == []
+        assert sorted(await listed(ada, library_id, scope="trash")) == ["One", "Three", "Two"]
+
+    async def test_a_selection_comes_back_out_together(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        items = await self._three(ada, session)
+        await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": items, "deleted": True},
+            headers=csrf_headers(ada),
+        )
+
+        await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": items, "deleted": False},
+            headers=csrf_headers(ada),
+        )
+
+        assert sorted(await listed(ada, library_id)) == ["One", "Three", "Two"]
+        assert await listed(ada, library_id, scope="trash") == []
+
+    async def test_a_selection_is_deleted_for_good_in_one_request(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        items = await self._three(ada, session)
+        await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": items, "deleted": True},
+            headers=csrf_headers(ada),
+        )
+        before = (await ada.get("/web/libraries")).json()[0]["version"]
+
+        response = await ada.delete(
+            f"/web/libraries/{library_id}/items?itemKey={','.join(items)}",
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 204
+        assert int(response.headers["Last-Modified-Version"]) == before + 1
+        assert await listed(ada, library_id, scope="trash") == []
+
+    async def test_one_row_outside_the_trash_refuses_the_whole_selection(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The trash is the undo, and it is the undo for every row named. A
+        request that deleted the trashed ones and refused the rest would leave a
+        reader with no way to tell which of the two had happened."""
+        library_id = await personal_library(ada)
+        trashed = await seed_item(ada, session, title="Trashed", key_name="trashed")
+        kept = await seed_item(ada, session, title="Kept", key_name="kept")
+        await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": [trashed], "deleted": True},
+            headers=csrf_headers(ada),
+        )
+        before = (await ada.get("/web/libraries")).json()[0]["version"]
+
+        response = await ada.delete(
+            f"/web/libraries/{library_id}/items?itemKey={trashed},{kept}",
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+        assert await listed(ada, library_id, scope="trash") == ["Trashed"]
+        assert (await ada.get("/web/libraries")).json()[0]["version"] == before
+
+    async def test_a_key_naming_nothing_writes_none_of_the_others(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Everything is resolved before anything is written, so a selection is
+        filed or it is not — never half filed with no way to say which half."""
+        library_id = await personal_library(ada)
+        papers = await make_collection(ada, library_id, "Papers")
+        item = await seed_item(ada, session)
+        before = (await ada.get("/web/libraries")).json()[0]["version"]
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": [item, "AAAA2345"], "addCollections": [papers]},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 404
+        assert await listed(ada, library_id, collection=papers) == []
+        assert (await ada.get("/web/libraries")).json()[0]["version"] == before
+
+    async def test_the_same_row_named_twice_is_written_once(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        papers = await make_collection(ada, library_id, "Papers")
+        item = await seed_item(ada, session)
+
+        body = (
+            await ada.patch(
+                f"/web/libraries/{library_id}/items",
+                json={"items": [item, item], "addCollections": [papers]},
+                headers=csrf_headers(ada),
+            )
+        ).json()
+
+        assert [entry["key"] for entry in body["items"]] == [item]
+
+    async def test_an_empty_selection_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        await seed_item(ada, session)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": [], "deleted": True},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+
+    async def test_a_selection_is_copied_into_a_group_in_one_request(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        group = await self._group(session)
+        items = await self._three(ada, session)
+        before = {
+            entry["id"]: entry["version"] for entry in (await ada.get("/web/libraries")).json()
+        }
+
+        response = await ada.post(
+            f"/web/libraries/{library_id}/items/copy",
+            json={"items": items, "library": group.id},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 201
+        assert len(response.json()["items"]) == 3
+        assert int(response.headers["Last-Modified-Version"]) == before[group.id] + 1
+        assert sorted(await listed(ada, group.id)) == ["One", "Three", "Two"]
+        assert sorted(await listed(ada, library_id)) == ["One", "Three", "Two"]
+
+    async def test_a_group_hears_about_it_as_one_change(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """One row in the log saying three items changed, rather than three rows
+        saying one each: what the members are told is what happened."""
+        grace = await admin.create_user(session, username="grace")
+        group = await factories.make_group(
+            session, group_id=52, owner_id=1, members={grace.id: "member"}
+        )
+        items = [
+            (await factories.make_item(session, group, fields={"title": name})).key
+            for name in ("One", "Two", "Three")
+        ]
+        await session.commit()
+
+        await ada.patch(
+            f"/web/libraries/{group.id}/items",
+            json={"items": items, "deleted": True},
+            headers=csrf_headers(ada),
+        )
+
+        activity = (await session.scalars(select(GroupActivity))).all()
+        assert [entry.count for entry in activity] == [3]

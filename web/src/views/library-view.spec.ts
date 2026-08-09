@@ -1192,8 +1192,8 @@ describe('filing, trashing and copying items', () => {
 
     expect(writes()).toEqual([
       [
-        '/web/libraries/1/items/AAAA2345',
-        { method: 'PATCH', body: { addCollections: ['CCCC2345'] } },
+        '/web/libraries/1/items',
+        { method: 'PATCH', body: { items: ['AAAA2345'], addCollections: ['CCCC2345'] } },
       ],
     ])
   })
@@ -1212,7 +1212,7 @@ describe('filing, trashing and copying items', () => {
 
     await drag(wrapper, collectionRow(wrapper, 'Whales'))
 
-    expect(writes()[0][1].body).toEqual({ addCollections: ['CCCC2345'] })
+    expect(writes()[0][1].body).toEqual({ items: ['AAAA2345'], addCollections: ['CCCC2345'] })
   })
 
   it('moves it when Shift is held, in one request', async () => {
@@ -1229,6 +1229,7 @@ describe('filing, trashing and copying items', () => {
 
     expect(writes()).toHaveLength(1)
     expect(writes()[0][1].body).toEqual({
+      items: ['AAAA2345'],
       addCollections: ['CCCC2345'],
       removeCollections: ['EEEE2345'],
     })
@@ -1241,7 +1242,10 @@ describe('filing, trashing and copying items', () => {
     await drag(wrapper, trashRow(wrapper))
 
     expect(writes()).toEqual([
-      ['/web/libraries/1/items/AAAA2345', { method: 'PATCH', body: { deleted: true } }],
+      [
+        '/web/libraries/1/items',
+        { method: 'PATCH', body: { items: ['AAAA2345'], deleted: true } },
+      ],
     ])
   })
 
@@ -1256,8 +1260,8 @@ describe('filing, trashing and copying items', () => {
 
     expect(writes()).toEqual([
       [
-        '/web/libraries/1/items/AAAA2345',
-        { method: 'PATCH', body: { removeCollections: ['CCCC2345'] } },
+        '/web/libraries/1/items',
+        { method: 'PATCH', body: { items: ['AAAA2345'], removeCollections: ['CCCC2345'] } },
       ],
     ])
   })
@@ -1281,7 +1285,10 @@ describe('filing, trashing and copying items', () => {
     await drag(wrapper, libraryRow(wrapper, 'Whale Watchers'))
 
     expect(writes()).toEqual([
-      ['/web/libraries/1/items/AAAA2345/copy', { method: 'POST', body: { library: 7 } }],
+      [
+        '/web/libraries/1/items/copy',
+        { method: 'POST', body: { items: ['AAAA2345'], library: 7 } },
+      ],
     ])
   })
 
@@ -1354,8 +1361,8 @@ describe('filing, trashing and copying items', () => {
 
     expect(writes()).toEqual([
       [
-        '/web/libraries/1/items/AAAA2345',
-        { method: 'PATCH', body: { addCollections: ['CCCC2345'] } },
+        '/web/libraries/1/items',
+        { method: 'PATCH', body: { items: ['AAAA2345'], addCollections: ['CCCC2345'] } },
       ],
     ])
   })
@@ -1368,7 +1375,10 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
 
     expect(writes()).toEqual([
-      ['/web/libraries/1/items/AAAA2345', { method: 'PATCH', body: { deleted: true } }],
+      [
+        '/web/libraries/1/items',
+        { method: 'PATCH', body: { items: ['AAAA2345'], deleted: true } },
+      ],
     ])
   })
 
@@ -1402,7 +1412,9 @@ describe('filing, trashing and copying items', () => {
     await wrapper.findAll('.collections__confirm button')[1].trigger('click')
     await settle(wrapper)
 
-    expect(writes()).toEqual([['/web/libraries/1/items/BBBB2345', { method: 'DELETE' }]])
+    expect(writes()).toEqual([
+      ['/web/libraries/1/items?itemKey=BBBB2345', { method: 'DELETE' }],
+    ])
   })
 
   it('offers to empty the trash, but only in the trash', async () => {
@@ -1454,7 +1466,10 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
 
     expect(writes()).toEqual([
-      ['/web/libraries/1/items/AAAA2345', { method: 'PATCH', body: { deleted: true } }],
+      [
+        '/web/libraries/1/items',
+        { method: 'PATCH', body: { items: ['AAAA2345'], deleted: true } },
+      ],
     ])
   })
 
@@ -1473,8 +1488,8 @@ describe('filing, trashing and copying items', () => {
 
     expect(writes()).toEqual([
       [
-        '/web/libraries/1/items/AAAA2345',
-        { method: 'PATCH', body: { addCollections: ['CCCC2345'] } },
+        '/web/libraries/1/items',
+        { method: 'PATCH', body: { items: ['AAAA2345'], addCollections: ['CCCC2345'] } },
       ],
     ])
     expect(wrapper.find('dialog').exists()).toBe(false)
@@ -1495,8 +1510,8 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
 
     expect(writes()[0]).toEqual([
-      '/web/libraries/1/items/AAAA2345/copy',
-      { method: 'POST', body: { library: 7 } },
+      '/web/libraries/1/items/copy',
+      { method: 'POST', body: { items: ['AAAA2345'], library: 7 } },
     ])
   })
 
@@ -1508,6 +1523,429 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
 
     expect(wrapper.find('.detail__tool').exists()).toBe(false)
+  })
+})
+
+/**
+ * Picking out more than one row, and doing something to all of them.
+ *
+ * The point of every one of these is that the interface sends *one* request:
+ * the reader who picked out three rows and dragged them onto a collection did
+ * one thing, and three requests would be three library versions for it. So most
+ * of what is asserted here is the shape and the count of what went out.
+ */
+describe('picking out several items', () => {
+  const SECOND = {
+    key: 'BBBB2345',
+    version: 1,
+    data: { itemType: 'book', title: 'The Dispossessed' },
+    meta: {},
+  }
+  const THIRD = {
+    key: 'CCCC9999',
+    version: 1,
+    data: { itemType: 'journalArticle', title: 'On whales' },
+    meta: {},
+  }
+
+  function withLibrary(collections: unknown[] = []) {
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      if (/\/items\/[A-Z0-9]+$/.test(path)) return Promise.resolve(contents[0])
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+  }
+
+  function writes() {
+    return requestMock.mock.calls.filter(
+      ([, options]) => options && options.method && options.method !== 'GET',
+    )
+  }
+
+  function rows(wrapper: ReturnType<typeof mount>) {
+    return wrapper.findAll('.library__row:not(.library__row--head)')
+  }
+
+  function picked(wrapper: ReturnType<typeof mount>) {
+    return wrapper.findAll('.library__row--selected').map((entry) => entry.text())
+  }
+
+  /* The same carry the block above uses: pointer events rather than the
+     browser's drag and drop, and `elementFromPoint` stated rather than
+     implemented, which jsdom does not do. */
+  function fire(element: EventTarget, type: string, options: PointerEventInit = {}): void {
+    element.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerType: 'mouse',
+        clientX: 10,
+        clientY: 10,
+        ...options,
+      }),
+    )
+  }
+
+  async function carry(
+    wrapper: ReturnType<typeof mount>,
+    from: Element,
+    target: Element | null,
+  ) {
+    document.elementFromPoint = () => target
+    fire(from, 'pointerdown')
+    fire(window, 'pointermove', { clientX: 200, clientY: 200 })
+    await wrapper.vm.$nextTick()
+    fire(window, 'pointerup', { clientX: 200, clientY: 200 })
+    await settle(wrapper)
+  }
+
+  function collectionRow(wrapper: ReturnType<typeof mount>, name: string) {
+    const found = wrapper.findAll('.tree__row').find((entry) => entry.text().includes(name))
+    if (!found) throw new Error(`No collection row for ${name}`)
+    return found.element
+  }
+
+  function libraryRow(wrapper: ReturnType<typeof mount>, name: string) {
+    const found = wrapper.findAll('.library__nav-row').find((entry) => entry.text().includes(name))
+    if (!found) throw new Error(`No library row for ${name}`)
+    return found.element
+  }
+
+  function trashRow(wrapper: ReturnType<typeof mount>) {
+    const found = wrapper
+      .findAll('.library__scope-row')
+      .find((entry) => entry.text().includes('Trash'))
+    if (!found) throw new Error('No trash row')
+    return found.element
+  }
+
+  beforeEach(() => {
+    contents = [ITEM, SECOND, THIRD]
+  })
+
+  it('adds a row to the selection when Ctrl is held', async () => {
+    withLibrary()
+    const wrapper = await open()
+
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[2].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345', 'CCCC9999'])
+  })
+
+  it('takes one out again the same way', async () => {
+    withLibrary()
+    const wrapper = await open()
+
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345'])
+  })
+
+  it('takes everything between when Shift is held', async () => {
+    withLibrary()
+    const wrapper = await open()
+
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[2].trigger('click', { shiftKey: true })
+    await settle(wrapper)
+
+    expect(picked(wrapper)).toHaveLength(3)
+  })
+
+  it('shrinks the range when the second click is nearer than the last', async () => {
+    /* A range is replaced rather than added to, or clicking back would leave
+       rows picked out with nothing on screen saying why. */
+    withLibrary()
+    const wrapper = await open()
+
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[2].trigger('click', { shiftKey: true })
+    await rows(wrapper)[1].trigger('click', { shiftKey: true })
+    await settle(wrapper)
+
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345', 'BBBB2345'])
+  })
+
+  it('goes back to one row on an ordinary click', async () => {
+    withLibrary()
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[2].trigger('click', { ctrlKey: true })
+
+    await rows(wrapper)[1].trigger('click')
+    await settle(wrapper)
+
+    expect(useLibraryStore().selectionKeys).toEqual(['BBBB2345'])
+  })
+
+  it('files the whole selection in one request', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await carry(wrapper, rows(wrapper)[0].element, collectionRow(wrapper, 'Whales'))
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/items',
+        {
+          method: 'PATCH',
+          body: { items: ['AAAA2345', 'BBBB2345'], addCollections: ['CCCC2345'] },
+        },
+      ],
+    ])
+  })
+
+  it('carries one row alone when it was not picked out', async () => {
+    /* A drag does not change the selection, so it says what it holds instead:
+       the row under the pointer, and nothing that was lit up elsewhere. */
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await carry(wrapper, rows(wrapper)[2].element, collectionRow(wrapper, 'Whales'))
+
+    expect(writes()[0][1].body.items).toEqual(['CCCC9999'])
+  })
+
+  it('names how many are being carried rather than one of their titles', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    document.elementFromPoint = () => collectionRow(wrapper, 'Whales')
+    fire(rows(wrapper)[0].element, 'pointerdown')
+    fire(window, 'pointermove', { clientX: 200, clientY: 200 })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('.library__cargo').text()).toBe('2 items')
+
+    // Put it down on nothing: the carry listens on the window, and one left
+    // open would be released by the next test's pointer.
+    document.elementFromPoint = () => null
+    fire(window, 'pointerup', { clientX: 200, clientY: 200 })
+    await settle(wrapper)
+  })
+
+  it('trashes the whole selection in one request', async () => {
+    withLibrary()
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[2].trigger('click', { shiftKey: true })
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await carry(wrapper, rows(wrapper)[0].element, trashRow(wrapper))
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/items',
+        {
+          method: 'PATCH',
+          body: { items: ['AAAA2345', 'BBBB2345', 'CCCC9999'], deleted: true },
+        },
+      ],
+    ])
+  })
+
+  it('trashes the whole selection with the Delete key too', async () => {
+    withLibrary()
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await rows(wrapper)[0].trigger('keydown', { key: 'Delete' })
+    await settle(wrapper)
+
+    expect(writes()[0][1].body.items).toEqual(['AAAA2345', 'BBBB2345'])
+  })
+
+  it('copies the whole selection into another library in one request', async () => {
+    libraries = [PERSONAL, { ...GROUP, writable: true }]
+    withLibrary()
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await carry(wrapper, rows(wrapper)[0].element, libraryRow(wrapper, 'Whale Watchers'))
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/items/copy',
+        { method: 'POST', body: { items: ['AAAA2345', 'BBBB2345'], library: 7 } },
+      ],
+    ])
+  })
+
+  it('refuses to publish a selection, since the wizard asks about one work', async () => {
+    /* The questions depend on the item in front of them -- which of its files
+       go, what its Rights field says -- so several have no one set of answers.
+       The row does not light up rather than the wizard opening on a question it
+       cannot ask. */
+    withLibrary()
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    const publications = wrapper
+      .findAll('.library__scope-row')
+      .find((entry) => entry.text().includes('My Publications'))!.element
+    await carry(wrapper, rows(wrapper)[0].element, publications)
+
+    expect(wrapper.find('.publications').exists()).toBe(false)
+    expect(writes()).toEqual([])
+  })
+
+  it('says how many are picked out instead of one item’s fields', async () => {
+    withLibrary()
+    const wrapper = await open()
+
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    expect(wrapper.get('.selection__count').text()).toBe('2 items selected')
+    expect(wrapper.find('.detail__title').exists()).toBe(false)
+  })
+
+  it('offers the same errands there as the detail pane does for one', async () => {
+    withLibrary()
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    const trash = wrapper.findAll('.selection__tool').find((e) => e.text() === 'Move to trash')!
+    await trash.trigger('click')
+    await settle(wrapper)
+
+    expect(writes()[0][1].body.items).toEqual(['AAAA2345', 'BBBB2345'])
+  })
+
+  it('counts them rather than naming them when Delete asks in the trash', async () => {
+    contents = [
+      { ...ITEM, data: { ...ITEM.data, deleted: 1 } },
+      { ...SECOND, data: { ...SECOND.data, deleted: 1 } },
+    ]
+    withLibrary()
+    const wrapper = await open()
+    await wrapper.findAll('.library__scope').find((e) => e.text().includes('Trash'))!.trigger('click')
+    await settle(wrapper)
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await rows(wrapper)[0].trigger('keydown', { key: 'Delete' })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.get('.collections__confirm').text()).toContain('Delete 2 items for good?')
+
+    await wrapper.findAll('.collections__confirm button')[1].trigger('click')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/items?itemKey=AAAA2345%2CBBBB2345', { method: 'DELETE' }],
+    ])
+  })
+
+  it('picks rows out by checkbox once Select is on', async () => {
+    /* The way in for a finger, which has no modifier keys, and for a keyboard,
+       which cannot press a row with one held. */
+    withLibrary()
+    const wrapper = await open()
+
+    expect(wrapper.find('.library__cell--check').exists()).toBe(false)
+    await wrapper.findAll('.library__more').find((e) => e.text() === 'Select')!.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const boxes = wrapper.findAll('.library__cell--check input')
+    // One for the heading line, and one for each row.
+    expect(boxes).toHaveLength(4)
+    await boxes[1].setValue(true)
+    await boxes[3].setValue(true)
+    await settle(wrapper)
+
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345', 'CCCC9999'])
+  })
+
+  it('takes the whole page from the box on the heading line', async () => {
+    withLibrary()
+    const wrapper = await open()
+    await wrapper.findAll('.library__more').find((e) => e.text() === 'Select')!.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    await wrapper.findAll('.library__cell--check input')[0].setValue(true)
+    await settle(wrapper)
+
+    expect(picked(wrapper)).toHaveLength(3)
+  })
+
+  it('takes the whole page from Ctrl-A as well', async () => {
+    withLibrary()
+    const wrapper = await open()
+
+    await wrapper.get('.library__items').trigger('keydown', { key: 'a', ctrlKey: true })
+    await settle(wrapper)
+
+    expect(picked(wrapper)).toHaveLength(3)
+  })
+
+  it('forgets rows that have left the list', async () => {
+    /* Asserted on the count the pane shows rather than on the store: a count
+       including items nothing on screen holds is a count the reader cannot
+       check, and that is the thing that must not happen. */
+    contents = [ITEM, SECOND, THIRD, { ...THIRD, key: 'DDDD9999', data: { ...THIRD.data } }]
+    withLibrary()
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[3].trigger('click', { shiftKey: true })
+    await settle(wrapper)
+    expect(wrapper.get('.selection__count').text()).toBe('4 items selected')
+
+    // Two of the four are gone from the list the next read answers with.
+    contents = [ITEM, SECOND]
+    await carry(wrapper, rows(wrapper)[0].element, trashRow(wrapper))
+
+    expect(wrapper.get('.selection__count').text()).toBe('2 items selected')
+    expect(useLibraryStore().selection).toEqual(['AAAA2345', 'BBBB2345'])
+  })
+
+  it('lets go of the selection when the sidebar moves elsewhere', async () => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+    await rows(wrapper)[0].trigger('click')
+    await rows(wrapper)[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    await wrapper.findAll('.tree__name')[0].trigger('click')
+    await settle(wrapper)
+
+    expect(useLibraryStore().selectionKeys).toEqual([])
   })
 })
 

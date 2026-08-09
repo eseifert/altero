@@ -1,8 +1,8 @@
 """Filing, trashing, deleting, copying and publishing items from the browser.
 
 The fifth module that writes to a library, and the first that writes to items.
-Almost everything it does is something a person can express by dragging one row
-of the item list somewhere: onto a collection, onto the library, onto the trash,
+Almost everything it does is something a person can express by dragging rows of
+the item list somewhere: onto a collection, onto the library, onto the trash,
 onto another library, or onto My Publications.
 
 This is not a field editor, and it is one field away from not being one at all.
@@ -23,8 +23,17 @@ key, a CSRF token on anything that changes something, who may write decided by
 here is filed the way a syncing client would have filed it — one new library
 version, and the item at that version for every client to pick up.
 
-Five deliberate departures from the v3 endpoints, all of them because a person
+Six deliberate departures from the v3 endpoints, all of them because a person
 clicking is not a client reconciling:
+
+**A selection is one errand.** Filing, trashing, restoring, deleting and copying
+name their items in a list rather than in the path, because the reader who
+picked out twenty rows and dragged them onto a collection did one thing.
+Twenty requests would be twenty library versions, twenty entries in a group's
+activity, and — if the tenth were refused — a selection half moved with nothing
+to say so. So the items are named together, resolved together before anything is
+written, and take one new version between them. A list of one is the ordinary
+case and needs no separate door.
 
 **Filing says what changed, not what the result is.** ``addCollections`` and
 ``removeCollections`` rather than the whole ``collections`` array. A browser
@@ -56,12 +65,14 @@ is an errand the server works out against what is stored -- add this
 collection, take that one away, set a flag -- so a page an hour old cannot
 express a wrong one. Text can: somebody typing over a licence that another
 client changed while the page sat open is a lost write, and the browser knows
-which version it was shown. A stale one is refused rather than applied.
+which version it was shown. A stale one is refused rather than applied. It is
+also the one write here that is about a single item and says so in its path,
+because a version belongs to an item and a selection has no shared one.
 """
 
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -104,26 +115,35 @@ router = APIRouter(prefix="/web", tags=["web"])
 EDITABLE_FIELDS = frozenset({"rights"})
 
 
-class ItemChanges(BaseModel):
-    """What changing an item takes from the browser.
+class ItemErrands(BaseModel):
+    """What filing, trashing or restoring a selection takes from the browser.
 
-    Each property is a separate errand and any of them may be absent, so
-    ``model_fields_set`` is what the route reads: ``deleted: false`` restores
-    something from the trash and an absent ``deleted`` asks for nothing at all.
+    ``items`` holds one key or two hundred; the route makes no distinction,
+    because the reader made none. Each of the other properties is a separate
+    errand and any of them may be absent, so ``model_fields_set`` is what the
+    route reads: ``deleted: false`` restores something from the trash and an
+    absent ``deleted`` asks for nothing at all.
     """
 
+    items: list[str] = Field(min_length=1)
     deleted: bool | None = None
     add_collections: list[str] = Field(default_factory=list, alias="addCollections")
     remove_collections: list[str] = Field(default_factory=list, alias="removeCollections")
+
+
+class ItemFields(BaseModel):
+    """The one text write: field values, and the version they replace."""
+
     #: Field values to write, by their API names. Only :data:`EDITABLE_FIELDS`.
-    fields: dict[str, str] | None = None
-    #: The version the browser last read, which a field edit must state.
+    fields: dict[str, str]
+    #: The version the browser last read. Absent is refused rather than assumed.
     version: int | None = None
 
 
-class CopyTarget(BaseModel):
-    """Where a copied item is going: a library, and optionally a collection."""
+class CopyRequest(BaseModel):
+    """Which items are being copied, and where they are going."""
 
+    items: list[str] = Field(min_length=1)
     library: int
     collection: str | None = None
 
@@ -159,27 +179,120 @@ async def _library(session: AsyncSession, user: User, library_id: int, *, write:
     return library
 
 
+async def _rendered_all(
+    session: AsyncSession, items: list[Item], library: Library, base_url: str
+) -> list[dict[str, Any]]:
+    """The items in the envelope the interface already reads elsewhere.
+
+    One set of queries for the whole selection rather than one per item: every
+    one of these helpers takes a list already, because the item list is drawn
+    fifty rows at a time by the same means.
+    """
+    for item in items:
+        await session.refresh(item)
+    tags = await items_service.tags_for(session, items)
+    collections = await items_service.collection_keys_for(session, items)
+    parents = await items_service.parent_keys_for(session, items)
+    children = await items_service.count_children(session, items)
+    authors = await items_service.authors_for(session, items)
+
+    return [
+        render_item(
+            item,
+            library,
+            base_url,
+            tags=tags.get(item.id, []),
+            collections=collections.get(item.id, []),
+            num_children=children.get(item.id, 0),
+            parent_key=parents.get(item.parent_id) if item.parent_id else None,
+            authors=authors,
+        )
+        for item in items
+    ]
+
+
 async def _rendered(
     session: AsyncSession, item: Item, library: Library, base_url: str
 ) -> dict[str, Any]:
-    """The item in the envelope the interface already reads elsewhere."""
-    await session.refresh(item)
-    tags = (await items_service.tags_for(session, [item])).get(item.id, [])
-    collections = (await items_service.collection_keys_for(session, [item])).get(item.id, [])
-    parents = await items_service.parent_keys_for(session, [item])
-    children = await items_service.count_children(session, [item])
-    authors = await items_service.authors_for(session, [item])
+    """The one item in that same envelope."""
+    return (await _rendered_all(session, [item], library, base_url))[0]
 
-    return render_item(
-        item,
+
+@router.patch("/libraries/{library_id}/items")
+async def update_items(
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    library_id: int,
+    _csrf: CsrfDep,
+    body: Annotated[ItemErrands, Body()],
+) -> Response:
+    """File a selection, take it out of a collection, trash it, or restore it.
+
+    One request and one new library version, whether it names one item or two
+    hundred: dragging a selection onto a collection is one thing the reader did.
+    More than one errand fits in it too -- moving between collections is a
+    removal and an addition, and two requests would be two versions again for
+    something asked for once.
+
+    Every item is resolved before anything is written, so a key that names
+    nothing is a 404 with the library untouched rather than half a selection
+    filed and the rest refused.
+    """
+    library = await _library(session, user, library_id, write=True)
+
+    refiling = bool(body.add_collections or body.remove_collections)
+    trashing = "deleted" in body.model_fields_set
+    if not refiling and not trashing:
+        raise InvalidInputError("Nothing to change")
+
+    library = await writes.lock_library(session, library)
+    # Named once each: a selection can hold the same row twice only through a
+    # request nobody's interface would send, and writing an item twice would
+    # give it two timestamps for one errand.
+    keys = list(dict.fromkeys(body.items))
+    items = [await items_service.get_item(session, library, key) for key in keys]
+
+    version = await writes.bump_library_version(session, library)
+
+    if refiling:
+        # Read here rather than taken from the request: the page may be minutes
+        # old, and a collection added from the desktop since it was drawn must
+        # not disappear because the browser did not know about it. Per item,
+        # because "take it out of where it is" is a different answer for each.
+        current = await items_service.collection_keys_for(session, items)
+        for item in items:
+            filed = current.get(item.id, [])
+            keep = [key for key in filed if key not in body.remove_collections]
+            keep += [key for key in body.add_collections if key not in keep]
+            await itemwrites.refile_item(session, library, item, keep, version, actor_id=user.id)
+
+    if trashing:
+        # Through `save_item` so that trashing from the browser is the write a
+        # client makes when it trashes: same validation, same timestamps.
+        for item in items:
+            await itemwrites.save_item(
+                session,
+                library,
+                {"deleted": bool(body.deleted)},
+                version,
+                key=item.key,
+                replace=False,
+                actor_id=user.id,
+            )
+
+    rendered = await _rendered_all(session, items, library, base_url)
+    await groupactivity.record(
+        session,
         library,
-        base_url,
-        tags=tags,
-        collections=collections,
-        num_children=children.get(item.id, 0),
-        parent_key=parents.get(item.parent_id) if item.parent_id else None,
-        authors=authors,
+        actor_id=user.id,
+        kind=ActivityKind.ITEMS_CHANGED,
+        count=len(items),
+        objects=await groupactivity.name_items(session, library, keys),
     )
+    await session.commit()
+
+    return JSONResponse({"items": rendered}, headers=library_headers(version))
 
 
 @router.patch("/libraries/{library_id}/items/{item_key}")
@@ -190,79 +303,46 @@ async def update_item(
     library_id: int,
     item_key: str,
     _csrf: CsrfDep,
-    body: Annotated[ItemChanges, Body()],
+    body: Annotated[ItemFields, Body()],
 ) -> Response:
-    """File an item, take it out of a collection, trash it, restore it, or
-    write one of the fields the browser may write.
+    """Write one of the fields the browser may write, on one item.
 
-    All of it in one request when a drag asks for more than one -- moving
-    between collections is a removal and an addition, and two requests would be
-    two library versions for something the reader did once.
-
-    A field edit is the one change here that states the version it replaces.
-    The others are add-and-remove errands the server works out for itself
-    against what is stored, so a stale page cannot express a wrong one; text is
-    different. Somebody typing over a licence that another client changed while
-    the page sat open is a lost write, and the browser knows which version it
-    was shown.
+    The one write here that names a single item in its path, and the one that
+    states the version it replaces. Every other change is an add-and-remove
+    errand the server works out for itself against what is stored, so a stale
+    page cannot express a wrong one; text is different. Somebody typing over a
+    licence that another client changed while the page sat open is a lost write,
+    and the browser knows which version it was shown. A version belongs to an
+    item, which is why this is not something a selection can ask for.
     """
     library = await _library(session, user, library_id, write=True)
 
     library = await writes.lock_library(session, library)
     item = await items_service.get_item(session, library, item_key)
 
-    refiling = bool(body.add_collections or body.remove_collections)
-    trashing = "deleted" in body.model_fields_set
-    editing = bool(body.fields)
-    if not refiling and not trashing and not editing:
+    if not body.fields:
         raise InvalidInputError("Nothing to change")
-
-    if editing:
-        assert body.fields is not None
-        if refused := sorted(set(body.fields) - EDITABLE_FIELDS):
-            raise InvalidInputError(f"'{refused[0]}' cannot be changed here")
-        if body.version is None:
-            raise PreconditionRequiredError("Say which version you are changing")
-        if body.version != item.version:
-            raise PreconditionFailedError("The item has changed since you read it")
+    if refused := sorted(set(body.fields) - EDITABLE_FIELDS):
+        raise InvalidInputError(f"'{refused[0]}' cannot be changed here")
+    if body.version is None:
+        raise PreconditionRequiredError("Say which version you are changing")
+    if body.version != item.version:
+        raise PreconditionFailedError("The item has changed since you read it")
 
     version = await writes.bump_library_version(session, library)
 
-    if refiling:
-        # Read here rather than taken from the request: the page may be minutes
-        # old, and a collection added from the desktop since it was drawn must
-        # not disappear because the browser did not know about it.
-        current = (await items_service.collection_keys_for(session, [item])).get(item.id, [])
-        keys = [key for key in current if key not in body.remove_collections]
-        keys += [key for key in body.add_collections if key not in keys]
-        await itemwrites.refile_item(session, library, item, keys, version, actor_id=user.id)
-
-    if trashing:
-        # Through `save_item` so that trashing from the browser is the write a
-        # client makes when it trashes: same validation, same timestamps.
-        await itemwrites.save_item(
-            session,
-            library,
-            {"deleted": bool(body.deleted)},
-            version,
-            key=item.key,
-            replace=False,
-            actor_id=user.id,
-        )
-
-    if editing:
-        # Also `save_item`, which is what decides whether the field belongs to
-        # this item type at all: a note has no `rights`, and the refusal for
-        # that is the one a syncing client would get, from the same place.
-        await itemwrites.save_item(
-            session,
-            library,
-            dict(body.fields or {}),
-            version,
-            key=item.key,
-            replace=False,
-            actor_id=user.id,
-        )
+    # Through `save_item`, which is what decides whether the field belongs to
+    # this item type at all: a note has no `rights`, and the refusal for that is
+    # the one a syncing client would get, from the same place.
+    await itemwrites.save_item(
+        session,
+        library,
+        dict(body.fields),
+        version,
+        key=item.key,
+        replace=False,
+        actor_id=user.id,
+    )
 
     rendered = await _rendered(session, item, library, base_url)
     await groupactivity.record(
@@ -278,37 +358,50 @@ async def update_item(
     return JSONResponse(rendered, headers=library_headers(version))
 
 
-@router.delete("/libraries/{library_id}/items/{item_key}", status_code=204)
-async def delete_item(
+@router.delete("/libraries/{library_id}/items", status_code=204)
+async def delete_items(
     session: SessionDep,
     user: CurrentUserDep,
     library_id: int,
-    item_key: str,
+    item_key: Annotated[str, Query(alias="itemKey")],
     _csrf: CsrfDep,
 ) -> Response:
-    """Remove an item that is in the trash, and its children with it.
+    """Remove the items named by ``itemKey``, and their children with them.
 
-    Only out of the trash. There is no undo in the browser, and an item removed
-    here is gone from every client that syncs afterwards; the trash is the step
-    that makes that recoverable, so it is not one this endpoint will skip.
+    Comma-separated keys, which is the shape the v3 ``DELETE`` on a collection
+    of items takes, and one new library version for the lot.
+
+    Only out of the trash, and only if *every* one of them is there. There is no
+    undo in the browser, and an item removed here is gone from every client that
+    syncs afterwards; the trash is the step that makes that recoverable, so it is
+    not one this endpoint will skip for any item in the selection.
+
+    No cap on how many. The v3 endpoint has one because a syncing client can
+    always send another batch; a reader who selected everything in the trash
+    cannot, and emptying the trash already deletes as much in one request.
     """
     library = await _library(session, user, library_id, write=True)
 
-    library = await writes.lock_library(session, library)
-    item = await items_service.get_item(session, library, item_key)
-    if not item.deleted:
-        raise InvalidInputError("Move the item to the trash before deleting it")
+    keys = list(dict.fromkeys(key for key in item_key.split(",") if key))
+    if not keys:
+        raise InvalidInputError("'itemKey' parameter not provided")
 
-    # Named before it goes: there is nothing left to read afterwards.
-    named = await groupactivity.name_items(session, library, [item.key])
+    library = await writes.lock_library(session, library)
+    for key in keys:
+        item = await items_service.get_item(session, library, key)
+        if not item.deleted:
+            raise InvalidInputError("Move the item to the trash before deleting it")
+
+    # Named before they go: there is nothing left to read afterwards.
+    named = await groupactivity.name_items(session, library, keys)
     version = await writes.bump_library_version(session, library)
-    await itemwrites.delete_items(session, library, [item.key], version)
+    await itemwrites.delete_items(session, library, keys, version)
     await groupactivity.record(
         session,
         library,
         actor_id=user.id,
         kind=ActivityKind.ITEMS_DELETED,
-        count=1,
+        count=len(keys),
         objects=named,
     )
     await session.commit()
@@ -369,25 +462,30 @@ async def empty_trash(
     return JSONResponse({"deleted": len(trashed)}, headers=library_headers(version))
 
 
-@router.post("/libraries/{library_id}/items/{item_key}/copy", status_code=201)
-async def copy_item(
+@router.post("/libraries/{library_id}/items/copy", status_code=201)
+async def copy_items(
     session: SessionDep,
     user: CurrentUserDep,
     base_url: BaseUrlDep,
     library_id: int,
-    item_key: str,
     _csrf: CsrfDep,
-    body: Annotated[CopyTarget, Body()],
+    body: Annotated[CopyRequest, Body()],
 ) -> Response:
-    """Copy an item, with its notes and attachments, into another library.
+    """Copy items, with their notes and attachments, into another library.
 
-    Two libraries, two permissions: the one it comes out of has to be readable
-    and is not touched, the one it goes into has to be writable and is the only
-    one whose version moves. Answering with the copy is what tells the browser
-    which library to look in for it.
+    Two libraries, two permissions: the one they come out of has to be readable
+    and is not touched, the one they go into has to be writable and is the only
+    one whose version moves. Answering with the copies is what tells the browser
+    which library to look in for them.
+
+    One new version there however many items went, and the copies are made in
+    the order they were named, so a selection arrives as a selection rather than
+    as a scattering of separately-versioned items.
     """
     source = await _library(session, user, library_id, write=False)
-    item = await items_service.get_item(session, source, item_key)
+
+    keys = list(dict.fromkeys(body.items))
+    items = [await items_service.get_item(session, source, key) for key in keys]
 
     if body.library == library_id:
         raise InvalidInputError("An item is already in its own library")
@@ -400,27 +498,30 @@ async def copy_item(
         await collections_service.get_collection(session, target, body.collection)
 
     version = await writes.bump_library_version(session, target)
-    copy = await itemwrites.copy_item(
-        session,
-        target,
-        item,
-        version,
-        collection_key=body.collection,
-        actor_id=user.id,
-    )
+    copies = [
+        await itemwrites.copy_item(
+            session,
+            target,
+            item,
+            version,
+            collection_key=body.collection,
+            actor_id=user.id,
+        )
+        for item in items
+    ]
 
-    rendered = await _rendered(session, copy, target, base_url)
+    rendered = await _rendered_all(session, copies, target, base_url)
     await groupactivity.record(
         session,
         target,
         actor_id=user.id,
         kind=ActivityKind.ITEMS_CHANGED,
-        count=1,
-        objects=await groupactivity.name_items(session, target, [copy.key]),
+        count=len(copies),
+        objects=await groupactivity.name_items(session, target, [copy.key for copy in copies]),
     )
     await session.commit()
 
-    return JSONResponse(rendered, status_code=201, headers=library_headers(version))
+    return JSONResponse({"items": rendered}, status_code=201, headers=library_headers(version))
 
 
 @router.put("/libraries/{library_id}/publications/items/{item_key}")

@@ -269,8 +269,46 @@ null` is how the dialog asks for the top level; the stored form of that is
 ## Items
 
 An item can be filed, trashed, restored, deleted and copied to another library
-— all of it by dragging one row of the item list somewhere, and all of it also
+— all of it by dragging rows of the item list somewhere, and all of it also
 without a pointer. What cannot be done here yet is editing an item's fields.
+
+**Several rows can be picked out and carried together.** `Ctrl`-click — `Cmd`
+on a Mac — adds a row and takes one away, `Shift`-click takes everything
+between, and `Ctrl`-A takes the whole page: the conventions of every list
+anybody has used, and the desktop client's own. A drag that starts on a row
+already picked out carries all of them; one that starts anywhere else carries
+that row alone and leaves the selection where it was, because picking rows out
+is what a click is for and a drag that quietly changed the selection would hand
+back a different list than the reader had. What is under the pointer says which
+it is: a title, or a count.
+
+None of those exist on a touch screen, and none of them can be reached from a
+keyboard either — pressing a button fires a click with no modifier on it, so a
+row that is only a button can only ever be selected on its own. **Select** is
+what answers both. It draws a checkbox on every row and one on the heading line
+for the whole page, and a checkbox is a control a finger can hit and a keyboard
+reaches with `Tab` and `Space`. While it is on, pressing anywhere on a row
+toggles that row: in a mode whose whole purpose is picking rows out, a tap that
+opened the detail pane instead would be the mode failing to mean anything. A
+mouse is not made to use it — the modifiers work whether it is on or off.
+
+**A selection is one request and one new library version**, whichever errand it
+is. Twenty rows dragged onto a collection is one thing the reader did; twenty
+requests would be twenty versions for it, twenty entries in a group's activity,
+and — if the tenth were refused — a selection half moved with nothing on screen
+to say which half. The server resolves every item before it writes any, so the
+whole selection lands or none of it does. Deleting for good is the same: it
+refuses the request outright if any one row is not in the trash, rather than
+taking the ones that are.
+
+The right-hand pane follows. One row picked out and it describes that item; more
+than one and it holds the count and the same errands in the same words —
+“Move or copy…”, “Move to trash”, “Restore” and “Delete”. It does not show five
+items' fields side by side, and it does not offer to publish them: the wizard's
+questions are about the work in front of it — which of its files go, what its
+Rights field says — so a selection has no one set of answers to give it. The
+**My Publications** row refuses a drop of several for the same reason, and being
+a row that would refuse, it does not light up.
 
 **Dragging onto a collection files it there and leaves it where it was**, which
 is Zotero's own rule: a collection is not a folder, and an item can be in
@@ -297,12 +335,19 @@ came from. An attached file is not copied at all: files are stored under their
 digest, so the copy names the same bytes.
 
 **Everything a drag does, the keyboard does too.** `Delete` on a row trashes
-it; in the trash it asks first, because that is the one thing here that cannot
-be undone. The detail pane carries the same errands as words — “Move or copy…”,
-which opens one list holding this library's collections and the other libraries
-it could be copied to, “Move to trash”, and “Restore” and “Delete” for
-something already in the trash. A control only a pointer can reach is a control
-some readers do not have.
+it — the whole selection if that row is part of it, and that row alone if it is
+not, which is the rule the drag follows. In the trash it asks first, because
+that is the one thing here that cannot be undone, and it names the item while
+there is one to name and counts them once there are several: five titles in a
+sentence is not a sentence anybody reads. The detail pane carries the same
+errands as words — “Move or copy…”, which opens one list holding this library's
+collections and the other libraries it could be copied to, “Move to trash”, and
+“Restore” and “Delete” for something already in the trash. A control only a
+pointer can reach is a control some readers do not have.
+
+“Move or copy…” takes a selection as readily as one row, and asks the same two
+questions of it: where they go, and whether they come out of where they are.
+Only how it names what it is about changes, since a count is not a title.
 
 The `Delete` key works on a collection in the sidebar too, and asks the same
 question the settings dialog's Delete asks.
@@ -311,10 +356,11 @@ question the settings dialog's Delete asks.
 the item, which is what the desktop client's own trash does and what makes it
 reversible; only an item already in the trash can be removed outright, and the
 server refuses the shortcut rather than trusting the browser to have asked
-first. Emptying the trash is offered only while the trash is what is showing, asks
-before it goes ahead, and is the one place the interface deletes more than one
-thing at once — which is also the one place where that is the errand. Trashed
-collections are left where they are — the browser never trashes one, so
+first, and refusing the whole request rather than the rows it objects to.
+Emptying the trash is offered only while the trash is what is showing, asks
+before it goes ahead, and is the one errand here that reaches items nobody
+picked out — which is what the trash is: a list of things already thrown away.
+Trashed collections are left where they are — the browser never trashes one, so
 anything in there came from the desktop and is not shown here at all.
 
 ## My Publications
@@ -461,7 +507,17 @@ is swallowed, or every drag would also select the row it started from.
 
 `Shift` to move rather than file has no equivalent on a touch screen, which is
 one of the reasons the dialog exists: “Move or copy…” carries a “take it out
-of” checkbox that says the same thing.
+of” checkbox that says the same thing. `Ctrl` and `Shift` to pick out several
+rows have no equivalent either, and **Select** is the answer to that one — a
+checkbox on every row, which is a control a finger can hit. It is not only a
+touch affordance: a keyboard cannot press a row with a modifier held down
+either, so the same checkboxes are how somebody working without a pointer picks
+out more than one row.
+
+`Shift` means two things and they do not collide: held while *dropping* it
+moves rather than files, and held while *clicking* it takes everything between.
+One needs the pointer to have moved and the other needs it not to have, so a
+gesture is only ever one of them.
 
 Everything a fingertip has to hit is sized for one — the controls on a sidebar
 row, the row itself, the buttons in a dialog and the two grips between the

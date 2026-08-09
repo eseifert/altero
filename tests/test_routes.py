@@ -76,11 +76,15 @@ EXPECTED = [
     ("/web/libraries/{library_id}/collections/{collection_key}", "PATCH"),
     ("/web/libraries/{library_id}/collections/{collection_key}", "DELETE"),
     # Items filed, trashed, deleted out of the trash, and copied into another
-    # library. See altero/api/routes/webitems.py.
-    ("/web/libraries/{library_id}/items/{item_key}", "PATCH"),
-    ("/web/libraries/{library_id}/items/{item_key}", "DELETE"),
-    ("/web/libraries/{library_id}/items/{item_key}/copy", "POST"),
+    # library -- a selection at a time, because that is what the reader picked
+    # out. See altero/api/routes/webitems.py.
+    ("/web/libraries/{library_id}/items", "PATCH"),
+    ("/web/libraries/{library_id}/items", "DELETE"),
+    ("/web/libraries/{library_id}/items/copy", "POST"),
     ("/web/libraries/{library_id}/trash", "DELETE"),
+    # The one write about a single item: a version belongs to an item, and a
+    # selection has no shared one. Same module; see its docstring.
+    ("/web/libraries/{library_id}/items/{item_key}", "PATCH"),
     # An item put into My Publications on the desktop client's terms, and taken
     # out again with its children. Same module; see its docstring.
     ("/web/libraries/{library_id}/publications/items/{item_key}", "PUT"),
