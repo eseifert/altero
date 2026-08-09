@@ -247,7 +247,7 @@ function toggle(key: string): void {
 }
 
 .tree__name:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .tree__name--selected {
@@ -296,7 +296,7 @@ function toggle(key: string): void {
 }
 
 .tree__action:hover {
-  background: var(--md-sys-color-surface-container-highest);
+  background: var(--md-sys-state-hover-surface);
   color: var(--md-sys-color-on-surface);
 }
 

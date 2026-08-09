@@ -285,7 +285,7 @@ async function signOut(): Promise<void> {
 }
 
 .shell__icon:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .shell__badge {

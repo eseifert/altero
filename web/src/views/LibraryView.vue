@@ -1763,7 +1763,7 @@ function sortLabel(column: { field: string; label: string }): string {
 
 .library__library:hover,
 .library__scope:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .library__library--current,
@@ -1872,7 +1872,7 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__action:hover {
-  background: var(--md-sys-color-surface-container-highest);
+  background: var(--md-sys-state-hover-surface);
   color: var(--md-sys-color-on-surface);
 }
 
@@ -2007,7 +2007,7 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__tag:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .library__tag--on,
@@ -2064,7 +2064,7 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__tag-action:hover {
-  background: var(--md-sys-color-surface-container-highest);
+  background: var(--md-sys-state-hover-surface);
   color: var(--md-sys-color-on-surface);
   opacity: 1;
 }
@@ -2147,7 +2147,7 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__search-clear:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
   color: var(--md-sys-color-on-surface);
 }
 
@@ -2231,7 +2231,7 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__row:hover:not(.library__row--head) {
-  background: var(--md-sys-color-surface-container-low);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .library__row--selected,

@@ -408,7 +408,7 @@ function childTitle(child: ItemEnvelope): string {
 }
 
 .detail__close:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 @media (pointer: coarse) {
@@ -443,7 +443,7 @@ function childTitle(child: ItemEnvelope): string {
 }
 
 .detail__tool:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .detail__tool--danger {
@@ -468,7 +468,7 @@ function childTitle(child: ItemEnvelope): string {
 }
 
 .detail__edit:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
   color: var(--md-sys-color-on-surface);
 }
 
@@ -629,7 +629,7 @@ function childTitle(child: ItemEnvelope): string {
 }
 
 .detail__child:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .detail__child span {

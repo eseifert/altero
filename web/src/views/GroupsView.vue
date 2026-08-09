@@ -528,7 +528,7 @@ const editedDescription = computed({
 }
 
 .card:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .card__title {

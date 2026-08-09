@@ -121,7 +121,7 @@ const { t } = useI18n()
 }
 
 .selection__close:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .selection__tools {
@@ -142,7 +142,7 @@ const { t } = useI18n()
 }
 
 .selection__tool:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .selection__tool--danger {

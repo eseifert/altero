@@ -86,6 +86,44 @@ const CONTROLS: Array<[string, string, string]> = [
   ['error', 'surface', 'invalid field border'],
 ]
 
+/**
+ * The hover wash, resolved.
+ *
+ * `--md-sys-state-hover-surface` is a `color-mix` against `transparent`, so
+ * what lands on screen depends on what is under it. This reads the percentage
+ * out of the stylesheet and composites it, which is the only way to measure a
+ * state layer at all.
+ */
+function washed(over: string, scheme: Scheme): string {
+  const found = TOKENS.match(
+    /--md-sys-state-hover-surface:\s*color-mix\(\s*in srgb,\s*var\(--md-sys-color-([\w-]+)\)\s*([\d.]+)%/,
+  )
+  if (!found) throw new Error('No hover wash in tokens.css')
+
+  const [, source, percent] = found
+  const alpha = Number(percent) / 100
+  const channels = (colour: string) =>
+    [1, 3, 5].map((index) => parseInt(colour.slice(index, index + 2), 16))
+
+  const top = channels(colours[source][scheme])
+  const bottom = channels(colours[over][scheme])
+  return (
+    '#' +
+    top
+      .map((value, index) => Math.round(value * alpha + bottom[index] * (1 - alpha)))
+      .map((value) => value.toString(16).padStart(2, '0'))
+      .join('')
+  )
+}
+
+/** The surfaces a hoverable row or control actually sits on. */
+const HOVERED = [
+  ['surface', 'a row of the item list, a sidebar row'],
+  ['surface-container-low', 'a row over a low container'],
+  ['surface-container', 'a control over a container'],
+  ['surface-container-high', 'a control inside a dialog'],
+]
+
 const colours = palette()
 const schemes: Scheme[] = ['light', 'dark']
 
@@ -101,6 +139,34 @@ describe('the colour system', () => {
     for (const scheme of schemes) {
       const ratio = contrast(colours[foreground][scheme], colours[background][scheme])
       expect(ratio, `${description} in ${scheme}`).toBeGreaterThanOrEqual(3)
+    }
+  })
+
+  /*
+   * Hover has no WCAG threshold: it is a pointer affordance rather than
+   * information, and nothing is lost by a reader who never sees it. What it
+   * cannot be is invisible, which is what it was -- the item list washed its
+   * rows with `surface-container-low` over a white page, 1.03:1, a difference a
+   * screen at an angle does not show at all. 1.2:1 is roughly where a large
+   * block of flat colour separates from its background; the floor sits above
+   * it so the wash clears that on every surface rather than on the kindest one.
+   */
+  it.each(HOVERED)('washes %s: %s', (surface, description) => {
+    for (const scheme of schemes) {
+      const ratio = contrast(washed(surface, scheme), colours[surface][scheme])
+      expect(ratio, `hover on ${description} in ${scheme}`).toBeGreaterThanOrEqual(1.25)
+    }
+  })
+
+  it('marks a chosen row more strongly than the pointer does', () => {
+    /* Hover and selection are both washes of the same rows, so their order is
+       what says which one means "chosen". A hover that outweighed the selection
+       would make the row under the pointer look picked out and the picked-out
+       rows look passed over. */
+    for (const scheme of schemes) {
+      const hover = contrast(washed('surface', scheme), colours.surface[scheme])
+      const selected = contrast(colours['secondary-container'][scheme], colours.surface[scheme])
+      expect(selected, `selection against hover in ${scheme}`).toBeGreaterThan(hover)
     }
   })
 

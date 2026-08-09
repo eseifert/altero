@@ -769,6 +769,16 @@ configured.
 The design follows Material 3 with a teal accent, and light and dark follow the
 operating system unless the user picks one.
 
+Hover is a state layer rather than a colour — a translucent wash of the text
+colour, one token, laid over whatever is underneath. Every hoverable row used to
+reach for whichever `surface-container-*` step was nearest to hand, which made
+hover mean five different things by depth and, in the item list, almost nothing:
+1.03:1 against a white page, a difference a screen at an angle does not show at
+all. A wash reads the same over the list as over a dialog's raised surface, and
+`styles/contrast.node.spec.ts` measures what it comes to on each of them. It
+also checks the one ordering that matters: a selected row is marked more
+strongly than the row under the pointer, or hovering would look like choosing.
+
 It is set in IBM Plex Sans, with IBM Plex Sans JP behind it for Japanese, and
 both are served by this application: nothing is loaded from a third party, no
 CDN, no request that tells anyone else who is reading. The faces are split by

@@ -255,7 +255,7 @@ const restore = () =>
 }
 
 .settings__download:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .settings__file {

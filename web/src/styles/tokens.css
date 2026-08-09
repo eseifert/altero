@@ -27,7 +27,12 @@
   /* ---- Secondary: muted teal-grey, for supporting surfaces. ---- */
   --md-sys-color-secondary: light-dark(#4a6363, #b0cccb);
   --md-sys-color-on-secondary: light-dark(#ffffff, #1b3534);
-  --md-sys-color-secondary-container: light-dark(#cce8e7, #324b4b);
+  /* Deeper in light than M3's own step, because this is what marks a selected
+     row and it has to stay clearly ahead of the hover wash below: at #cce8e7 it
+     was 1.29:1 against the page and hover is 1.33:1, so a row under the pointer
+     read as more chosen than the rows actually chosen. Dark was already 1.99:1
+     and is left alone. */
+  --md-sys-color-secondary-container: light-dark(#aedcdb, #324b4b);
   --md-sys-color-on-secondary-container: light-dark(#051f1f, #cce8e7);
 
   /* ---- Tertiary: a cool blue, for the occasional accent that is not a CTA. ---- */
@@ -128,6 +133,30 @@
   --md-sys-state-hover-opacity: 0.08;
   --md-sys-state-focus-opacity: 0.1;
   --md-sys-state-pressed-opacity: 0.1;
+
+  /*
+   * The hover wash as a colour, for everything that is not `AppButton`.
+   *
+   * A control with a pseudo-element can lay `currentColor` over itself at the
+   * opacity above; a row of a list cannot, and every one of them used to reach
+   * for whichever `surface-container-*` step was nearest to hand. That made
+   * hover mean five different things by depth, and in the item list it meant
+   * almost nothing: `surface-container-low` over a white page is 1.03:1, which
+   * a screen at an angle does not show at all.
+   *
+   * Mixed against `transparent` rather than picked out as a colour, so it
+   * composites over whatever is beneath and reads the same over the white list
+   * as over a dialog's raised surface. 14% rather than the 8% above because the
+   * two are doing different jobs: over a filled control the wash lightens
+   * something already distinct from its surroundings, and over a row it is the
+   * only thing separating that row from the page. `contrast.node.spec.ts`
+   * measures what this comes to over each surface it is used on.
+   */
+  --md-sys-state-hover-surface: color-mix(
+    in srgb,
+    var(--md-sys-color-on-surface) 14%,
+    transparent
+  );
 
   /* ---- Motion ---- */
   --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);

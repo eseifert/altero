@@ -155,7 +155,7 @@ onMounted(reload)
 }
 
 .settings__section:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .settings__section--current,

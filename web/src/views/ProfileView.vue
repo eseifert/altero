@@ -473,7 +473,7 @@ const audience = computed(() => {
 }
 
 .publication__summary:hover {
-  background: var(--md-sys-color-surface-container-low);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .publication__headings {

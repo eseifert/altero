@@ -180,7 +180,7 @@ onBeforeUnmount(() => {
 }
 
 .theme-menu__trigger:hover {
-  background: var(--md-sys-color-surface-container-high);
+  background: var(--md-sys-state-hover-surface);
 }
 
 .theme-menu__list {
