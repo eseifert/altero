@@ -168,7 +168,8 @@ A browser application at `/app/`, in six languages. It covers:
   keyboard, or with a finger.
 - Publishing a work to My Publications, and taking it out again, with the
   questions the desktop client asks: whether its files and notes go with it,
-  and under which licence.
+  and under which licence — which can be changed afterwards, since the licence
+  is the item's Rights field and that one field can be edited here.
 - Resizable, remembered sidebar and detail columns.
 - The sidebar the Zotero applications have: My Library and its collections,
   Recently Read, My Publications, Duplicate Items, Unfiled Items and the trash,

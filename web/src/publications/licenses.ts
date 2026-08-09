@@ -86,3 +86,20 @@ export function creativeCommonsLicense(
 export function licenseFor(id: string): License | undefined {
   return LICENSES.find((entry) => entry.id === id)
 }
+
+/**
+ * The short name a Creative Commons licence is known by: CC BY, CC BY-NC-SA.
+ *
+ * Derived from the identifier rather than kept in the table beside the full
+ * name, because it *is* the identifier — spelt the way the licence spells it.
+ * Two columns saying the same thing are two columns that can disagree.
+ *
+ * Null for reserved rights, which is not a licence and has no code. Zotero
+ * shows the badge image here; this interface has no images to show, and the
+ * code is what the badge says anyway.
+ */
+export function licenseCode(id: string): string | null {
+  if (id === 'reserved') return null
+  if (id === 'cc0') return 'CC0'
+  return id.toUpperCase().replace('-', ' ')
+}

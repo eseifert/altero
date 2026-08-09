@@ -350,6 +350,21 @@ The whole of it is one request and one library version, however many notes and
 files go with the work: publishing a work and its files is one decision, and a
 client syncing afterwards sees it as one.
 
+**Changing the licence afterwards** is the Rights field, which the detail pane
+can edit — the pencil beside it, or “Not stated — say what it is” where the
+item says nothing yet. That is where the desktop client changes a licence too:
+its wizard refuses to run a second time on the same item
+(`collectionTree.jsx`: “Item … already exists in My Publications”), and Rights
+is an ordinary field in its Info pane. The dialog offers the same eight
+licences the wizard does, by code and by name, and free text for everything
+else a Rights field says — “© 1974 the author” as readily as a licence.
+
+It is the only field this interface writes, and it states the version it is
+replacing: filing and trashing are add-and-remove errands the server works out
+against what is stored, so a stale page cannot express a wrong one, but typing
+over a licence that another client changed while the page sat open is a lost
+write. A stale edit is refused rather than applied.
+
 **Taking it out again** is `Delete` in the My Publications view, or a button in
 the detail pane, and it asks first. The work leaves the published list with its
 published notes and files — including any that have since been trashed, which
@@ -646,12 +661,14 @@ are cached for good, so the second visit fetches none of it.
 ## Not built yet
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
-editing an item's fields. Collections can be made, renamed, moved and removed,
-an item can be filed, trashed, restored, deleted, copied to another library and
-published to My Publications, a tag can be renamed, and a whole library can be
-restored from an archive or copied in from zotero.org — but no item's title,
-creators or dates can be changed here, no item can be created, and a tag cannot
-be deleted or put on something. Moving in from zotero.org brings the personal library only; a group
+editing an item's fields — with one exception, the Rights field, because a
+licence set when a work was published has to be revisable by whoever set it.
+Collections can be made, renamed, moved and removed, an item can be filed,
+trashed, restored, deleted, copied to another library and published to My
+Publications, a tag can be renamed, and a whole library can be restored from an
+archive or copied in from zotero.org — but no item's title, creators or dates
+can be changed here, no item can be created, and a tag cannot be deleted or put
+on something. Moving in from zotero.org brings the personal library only; a group
 has to be made here and its members invited.
 
 Making an account for somebody else, resetting their password and revoking

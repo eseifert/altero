@@ -11,6 +11,7 @@ import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import PublicationsDialog from '@/components/PublicationsDialog.vue'
+import RightsDialog from '@/components/RightsDialog.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import PaneSplitter from '@/components/PaneSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
@@ -608,6 +609,33 @@ async function startPublishing(item: ItemEnvelope): Promise<void> {
      on a disabled box, nothing happens, and the files are left behind on a
      page that has already moved on. */
   publishing.value = item
+}
+
+/*
+ * The Rights field, which is the one field this interface writes.
+ *
+ * It is here rather than in the wizard because it is not a publishing
+ * question: an item says what its rights are whether or not it is published.
+ * What makes it worth having at all is publishing — the wizard sets a licence
+ * once, and the desktop client's own wizard refuses to run twice on the same
+ * item, so without this the licence could never be corrected here.
+ */
+const editingRights = ref<ItemEnvelope | null>(null)
+
+async function submitRights(rights: string): Promise<void> {
+  const item = editingRights.value
+  if (!item) return
+
+  itemBusy.value = true
+  itemError.value = null
+  try {
+    await library.editItem(item.key, { rights })
+    editingRights.value = null
+  } catch (thrown) {
+    itemError.value = thrown instanceof Error ? thrown.message : String(thrown)
+  } finally {
+    itemBusy.value = false
+  }
 }
 
 async function submitPublication(terms: {
@@ -1259,6 +1287,7 @@ function sortLabel(column: { field: string; label: string }): string {
         @remove="askToRemove(library.selected!)"
         @publish="startPublishing(library.selected!)"
         @unpublish="askToUnpublish(library.selected!)"
+        @rights="editingRights = library.selected"
       />
     </aside>
 
@@ -1328,6 +1357,18 @@ function sortLabel(column: { field: string; label: string }): string {
       :error="itemError"
       @submit="submitPublication"
       @cancel="publishing = null"
+    />
+
+    <!-- The licence of a published work, and the Rights field of anything
+         else: one dialog, because they are one field. -->
+    <RightsDialog
+      v-if="editingRights"
+      :title="titleOf(editingRights)"
+      :rights="(editingRights.data.rights as string) ?? ''"
+      :busy="itemBusy"
+      :error="itemError"
+      @submit="submitRights"
+      @cancel="editingRights = null"
     />
 
     <TagDialog

@@ -792,3 +792,159 @@ class TestWhoMay:
         )
 
         assert response.status_code == 403
+
+
+class TestEditingAField:
+    """The one field the browser writes, and the reasons it may.
+
+    Editing an item is the desktop client's job here, with one exception: the
+    licence of a published work. The client changes that in its Info pane --
+    `rights` is an ordinary field there -- and its My Publications wizard will
+    not run twice on the same item, so a browser that could publish under a
+    licence and never revise it would be worse than the client it copies.
+    """
+
+    async def key_of(self, ada: httpx.AsyncClient, session: AsyncSession) -> tuple[int, str]:
+        library_id = await personal_library(ada)
+        return library_id, await seed_item(ada, session)
+
+    async def version_of(self, ada: httpx.AsyncClient, library_id: int, key: str) -> int:
+        payload = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()
+        return int(payload["version"])
+
+    async def test_the_rights_field_is_written(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+        version = await self.version_of(ada, library_id, key)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"rights": "CC BY 4.0"}, "version": version},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["data"]["rights"] == "CC BY 4.0"
+
+    async def test_it_leaves_everything_else_alone(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """A partial write, like every other write this door makes."""
+        library_id, key = await self.key_of(ada, session)
+        papers = await make_collection(ada, library_id, "Papers")
+        await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"addCollections": [papers]},
+            headers=csrf_headers(ada),
+        )
+        version = await self.version_of(ada, library_id, key)
+
+        await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"rights": "All rights reserved"}, "version": version},
+            headers=csrf_headers(ada),
+        )
+
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert data["title"] == "Structure and Interpretation"
+        assert data["collections"] == [papers]
+
+    async def test_a_stale_version_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Text is not an errand the server can work out for itself.
+
+        Filing and trashing are add-and-remove against what is stored, so a
+        stale page cannot express a wrong one. Typing over a licence somebody
+        else changed while the page sat open is a lost write.
+        """
+        library_id, key = await self.key_of(ada, session)
+        stale = await self.version_of(ada, library_id, key)
+        await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"rights": "First"}, "version": stale},
+            headers=csrf_headers(ada),
+        )
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"rights": "Second"}, "version": stale},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 412
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert data["rights"] == "First"
+
+    async def test_a_field_edit_without_a_version_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"rights": "CC0"}},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 428
+
+    async def test_no_other_field_may_be_written(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The allowlist is the whole of what this door edits."""
+        library_id, key = await self.key_of(ada, session)
+        version = await self.version_of(ada, library_id, key)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"title": "Something else"}, "version": version},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["message"] == "'title' cannot be changed here"
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert data["title"] == "Structure and Interpretation"
+
+    async def test_a_type_without_the_field_is_refused_as_a_client_would_be(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """A note has no `rights`, and `save_item` is what says so."""
+        library_id = await personal_library(ada)
+        parent = await seed_item(ada, session)
+        key = await admin.create_api_key(session, username="ada", name="note")
+        created = await ada.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key.key},
+            json=[{"itemType": "note", "parentItem": parent, "note": "<p>x</p>"}],
+        )
+        note = created.json()["successful"]["0"]
+        version = int(note["version"])
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{note['key']}",
+            json={"fields": {"rights": "CC0"}, "version": version},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+        assert "not a valid field" in response.json()["message"]
+
+    async def test_a_read_only_library_refuses_it(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        grace = await admin.create_user(session, username="grace")
+        theirs = await session.scalar(select(Library).where(Library.owner_id == grace.id))
+        assert theirs is not None
+        item = await factories.make_item(session, theirs, fields={"title": "Theirs"})
+        await session.commit()
+
+        response = await ada.patch(
+            f"/web/libraries/{theirs.id}/items/{item.key}",
+            json={"fields": {"rights": "CC0"}, "version": item.version},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 403

@@ -43,7 +43,17 @@ const emit = defineEmits<{
   remove: []
   publish: []
   unpublish: []
+  rights: []
 }>()
+
+/**
+ * Item types with no ``rights`` field, which is the whole of that list.
+ *
+ * Every other type in the schema has one. Checked against
+ * ``itemschema`` rather than guessed: the server refuses the write anyway, but
+ * offering a control that can only be refused is a promise not to make.
+ */
+const WITHOUT_RIGHTS = new Set(['note', 'attachment', 'annotation'])
 
 /** Whether the item is in the trash, which decides what can be done to it. */
 const trashed = computed(() => Boolean(props.item.data.deleted))
@@ -60,6 +70,13 @@ const child = computed(() => Boolean(props.item.data.parentItem))
  * not belong in a collection of its own, and Zotero does not offer it either.
  */
 const showsTools = computed(() => Boolean(props.writable) && !child.value)
+
+/** Whether this pane offers to change the item's Rights field. */
+const editableRights = computed(
+  () => Boolean(props.writable) && !WITHOUT_RIGHTS.has(props.item.data.itemType),
+)
+
+const statesRights = computed(() => Boolean(props.item.data.rights))
 
 /**
  * Whether the pane offers to publish this item.
@@ -258,7 +275,7 @@ function childTitle(child: ItemEnvelope): string {
       </template>
     </dl>
 
-    <dl v-if="fields.length" class="detail__fields">
+    <dl v-if="fields.length || editableRights" class="detail__fields">
       <template v-for="field in fields" :key="field.name">
         <dt>{{ field.label }}</dt>
         <dd>
@@ -268,7 +285,40 @@ function childTitle(child: ItemEnvelope): string {
             target="_blank"
             rel="noopener noreferrer"
           >{{ field.value }}</a>
+          <!--
+            The one field this pane can change, and the pencil is here rather
+            than beside every field because it is the only one: publishing a
+            work sets its licence, and the licence has to be revisable by
+            whoever set it. Everything else is still the desktop's to edit.
+          -->
+          <template v-else-if="field.name === 'rights' && editableRights">
+            <span>{{ field.value }}</span>
+            <button
+              class="detail__edit"
+              type="button"
+              :aria-label="t('Change the rights')"
+              :title="t('Change the rights')"
+              @click="emit('rights')"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z" />
+              </svg>
+            </button>
+          </template>
           <span v-else>{{ field.value }}</span>
+        </dd>
+      </template>
+
+      <!-- An item that says nothing about rights has no row above to hang the
+           pencil on, and "nothing" is exactly the state somebody publishing a
+           work wants to change. -->
+      <template v-if="editableRights && !statesRights">
+        <dt>{{ fieldLabel('rights') }}</dt>
+        <dd>
+          <button class="detail__add" type="button" @click="emit('rights')">
+            {{ t('Not stated — say what it is') }}
+          </button>
         </dd>
       </template>
     </dl>
@@ -399,6 +449,42 @@ function childTitle(child: ItemEnvelope): string {
 .detail__tool--danger {
   border-color: var(--md-sys-color-error);
   color: var(--md-sys-color-error);
+}
+
+/*
+ * The pencil beside the one field this pane can change, and the offer to fill
+ * it where it is empty. Both are drawn rather than revealed on hover: a finger
+ * cannot hover, which is the rule the sidebar's row controls follow too.
+ */
+.detail__edit {
+  margin-left: var(--md-spacing-2);
+  padding: 0.1rem 0.25rem;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.detail__edit:hover {
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+}
+
+.detail__add {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--md-sys-color-primary);
+  font: inherit;
+  font-size: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.detail__add:hover {
+  text-decoration: underline;
 }
 
 .detail__title {

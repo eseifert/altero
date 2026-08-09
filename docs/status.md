@@ -34,7 +34,8 @@ things the desktop client asks for that no data server documents.
   library's does not move
 - `inPublications`, the My Publications flag, with the refusals upstream
   attaches to it, and — from the browser — publishing a work on the terms the
-  desktop client's wizard collects, licence included; see
+  desktop client's wizard collects, licence included, with the licence
+  changeable afterwards through the item's `rights` field; see
   [compatibility.md](compatibility.md#publishing-from-the-browser)
 - Trashing collections and saved searches, which sync as a `deleted` flag on
   the object rather than as a deletion

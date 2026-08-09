@@ -410,6 +410,25 @@ export const useLibraryStore = defineStore('library', () => {
     return payload.items
   }
 
+  /**
+   * Write the fields of ``key`` the browser is allowed to write.
+   *
+   * One field today — Rights, which is a published work's licence — and the
+   * version is sent with it. The server refuses a stale one rather than
+   * letting a page that has sat open all afternoon type over what somebody
+   * else changed; the other item writes need no such thing, being errands the
+   * server works out against what is stored.
+   */
+  async function editItem(key: string, fields: Record<string, string>): Promise<void> {
+    if (libraryId.value === null) return
+    const current = items.value.find((entry) => entry.key === key) ?? selected.value
+    await request(`/web/libraries/${libraryId.value}/items/${key}`, {
+      method: 'PATCH',
+      body: { fields, version: current?.version },
+    })
+    await afterItemWrite()
+  }
+
   /** Put ``key`` into My Publications on the terms the wizard collected. */
   async function publishItem(
     key: string,
@@ -634,6 +653,7 @@ export const useLibraryStore = defineStore('library', () => {
     emptyTrash,
     copyItem,
     childrenOf,
+    editItem,
     publishItem,
     unpublishItem,
     refresh,

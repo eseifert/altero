@@ -933,6 +933,18 @@ catalogue on the server side to draw it with. The table of licences lives in
 rather than a translation of it, and `tests/test_web_publications.py` fails if
 the two disagree.
 
+**The licence can be changed afterwards; the wizard cannot be re-run.** The
+client's drop skips an item that is already published — `if (item.inPublications)
+{ ... continue; }` in `collectionTree.jsx` — so the wizard sets a licence once,
+and a desktop user who wants a different one edits the item's **Rights** field
+in the Info pane, where it is an ordinary field. altero's browser has no field
+editor, so it grew the same escape hatch in the narrowest form that works: the
+item `PATCH` under `/web` takes a `fields` object limited to an allowlist that
+holds `rights` and nothing else (`EDITABLE_FIELDS` in
+`api/routes/webitems.py`). Unlike the other writes that door makes, it carries
+the version it replaces and is refused if the item has moved on, because text
+is not an errand the server can reconstruct from what is stored.
+
 **The client's generic `cc` licence is not offered.** It is what its wizard
 reports while a Creative Commons licence is still being chosen, and it reaches
 `rights` only on the one path where `keepRights` means nothing is written

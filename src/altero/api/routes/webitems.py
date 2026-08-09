@@ -1,15 +1,20 @@
 """Filing, trashing, deleting, copying and publishing items from the browser.
 
 The fifth module that writes to a library, and the first that writes to items.
-Everything it does is something a person can express by dragging one row of the
-item list somewhere: onto a collection, onto the library, onto the trash, onto
-another library, or onto My Publications. Nothing here is a field editor —
-typing into an item is a different kind of write and a different set of
-questions. Publishing does write one field, and only one: the licence the
-reader chose, into ``rights``, decided by
-:mod:`altero.services.publications` from a licence identifier rather than from
-text the browser sent. That is part of what publishing *means* in the desktop
-client, not an item being edited through the back door.
+Almost everything it does is something a person can express by dragging one row
+of the item list somewhere: onto a collection, onto the library, onto the trash,
+onto another library, or onto My Publications.
+
+This is not a field editor, and it is one field away from not being one at all.
+``rights`` can be written here (:data:`EDITABLE_FIELDS`), and no other field
+can, because publishing a work sets its licence and a licence has to be
+revisable by whoever set it — the desktop client revises it in its Info pane,
+where ``rights`` is an ordinary field, and its My Publications wizard refuses to
+run a second time on the same item. An interface that can publish and cannot
+correct the terms would be worse than the client it copies. Everything else
+about an item is still the desktop's to edit; a general field editor is a
+larger thing than a line of this module, and it needs answers this does not
+have.
 
 The rules are the ones the rest of ``/web`` follows: a cookie and never an API
 key, a CSRF token on anything that changes something, who may write decided by
@@ -18,7 +23,7 @@ key, a CSRF token on anything that changes something, who may write decided by
 here is filed the way a syncing client would have filed it — one new library
 version, and the item at that version for every client to pick up.
 
-Four deliberate departures from the v3 endpoints, all of them because a person
+Five deliberate departures from the v3 endpoints, all of them because a person
 clicking is not a client reconciling:
 
 **Filing says what changed, not what the result is.** ``addCollections`` and
@@ -45,6 +50,13 @@ files go, whether the notes go, and under what licence, with the same rules in
 :mod:`altero.services.publications`. Taking an item out again takes its
 children with it, because half a published work is not a state anybody asked
 for.
+
+**The one field edit states the version it replaces.** Every other write here
+is an errand the server works out against what is stored -- add this
+collection, take that one away, set a flag -- so a page an hour old cannot
+express a wrong one. Text can: somebody typing over a licence that another
+client changed while the page sat open is a lost write, and the browser knows
+which version it was shown. A stale one is refused rather than applied.
 """
 
 from typing import Annotated, Any
@@ -58,7 +70,13 @@ from starlette.responses import JSONResponse, Response
 from altero.api.deps import BaseUrlDep, SessionDep
 from altero.api.responses import library_headers
 from altero.api.routes.web import CsrfDep, CurrentUserDep
-from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
+from altero.errors import (
+    ForbiddenError,
+    InvalidInputError,
+    NotFoundError,
+    PreconditionFailedError,
+    PreconditionRequiredError,
+)
 from altero.models import ActivityKind, Item, Library, User
 from altero.serializers import item as render_item
 from altero.services import auth, groupactivity, itemwrites, publications, writes
@@ -66,6 +84,24 @@ from altero.services import collections as collections_service
 from altero.services import items as items_service
 
 router = APIRouter(prefix="/web", tags=["web"])
+
+
+#: The fields the browser may write, and the whole of that list.
+#:
+#: ``rights`` is here because the licence of a published work has to be
+#: changeable by whoever published it, and this is where the desktop client
+#: changes it: `rights` is an ordinary field in its Info pane, edited like any
+#: other, and its My Publications wizard refuses to run twice on the same item
+#: (`collectionTree.jsx`: "Item ... already exists in My Publications"). A
+#: browser that could publish under a licence and never revise it would be
+#: worse than the client it copies.
+#:
+#: An allowlist rather than "any field the schema knows", because everything
+#: else in a library is still the desktop's to edit and a general field editor
+#: is a larger thing than one line of this module -- it needs an answer for
+#: creators, dates, notes and item types, and it needs one for what a browser
+#: does with an item another client changed while the page sat open.
+EDITABLE_FIELDS = frozenset({"rights"})
 
 
 class ItemChanges(BaseModel):
@@ -79,6 +115,10 @@ class ItemChanges(BaseModel):
     deleted: bool | None = None
     add_collections: list[str] = Field(default_factory=list, alias="addCollections")
     remove_collections: list[str] = Field(default_factory=list, alias="removeCollections")
+    #: Field values to write, by their API names. Only :data:`EDITABLE_FIELDS`.
+    fields: dict[str, str] | None = None
+    #: The version the browser last read, which a field edit must state.
+    version: int | None = None
 
 
 class CopyTarget(BaseModel):
@@ -152,11 +192,19 @@ async def update_item(
     _csrf: CsrfDep,
     body: Annotated[ItemChanges, Body()],
 ) -> Response:
-    """File an item, take it out of a collection, trash it, or restore it.
+    """File an item, take it out of a collection, trash it, restore it, or
+    write one of the fields the browser may write.
 
     All of it in one request when a drag asks for more than one -- moving
     between collections is a removal and an addition, and two requests would be
     two library versions for something the reader did once.
+
+    A field edit is the one change here that states the version it replaces.
+    The others are add-and-remove errands the server works out for itself
+    against what is stored, so a stale page cannot express a wrong one; text is
+    different. Somebody typing over a licence that another client changed while
+    the page sat open is a lost write, and the browser knows which version it
+    was shown.
     """
     library = await _library(session, user, library_id, write=True)
 
@@ -165,8 +213,18 @@ async def update_item(
 
     refiling = bool(body.add_collections or body.remove_collections)
     trashing = "deleted" in body.model_fields_set
-    if not refiling and not trashing:
+    editing = bool(body.fields)
+    if not refiling and not trashing and not editing:
         raise InvalidInputError("Nothing to change")
+
+    if editing:
+        assert body.fields is not None
+        if refused := sorted(set(body.fields) - EDITABLE_FIELDS):
+            raise InvalidInputError(f"'{refused[0]}' cannot be changed here")
+        if body.version is None:
+            raise PreconditionRequiredError("Say which version you are changing")
+        if body.version != item.version:
+            raise PreconditionFailedError("The item has changed since you read it")
 
     version = await writes.bump_library_version(session, library)
 
@@ -186,6 +244,20 @@ async def update_item(
             session,
             library,
             {"deleted": bool(body.deleted)},
+            version,
+            key=item.key,
+            replace=False,
+            actor_id=user.id,
+        )
+
+    if editing:
+        # Also `save_item`, which is what decides whether the field belongs to
+        # this item type at all: a note has no `rights`, and the refusal for
+        # that is the one a syncing client would get, from the same place.
+        await itemwrites.save_item(
+            session,
+            library,
+            dict(body.fields or {}),
             version,
             key=item.key,
             replace=False,

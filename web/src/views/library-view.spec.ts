@@ -2200,6 +2200,63 @@ describe('publishing an item', () => {
     ])
   })
 
+  it('offers to change the rights, which is how a licence is corrected', async () => {
+    /* The wizard sets a licence once and the desktop client's own wizard will
+       not run twice on the same item, so this is the way back to it — the same
+       way the client offers, which is the Rights field itself. */
+    contents = [
+      {
+        key: 'AAAA2345',
+        version: 4,
+        data: {
+          itemType: 'book',
+          title: 'Structure and Interpretation',
+          inPublications: true,
+          rights: 'All rights reserved',
+        },
+        meta: {},
+      },
+    ]
+    const wrapper = await open()
+    await row(wrapper).trigger('click')
+    await settle(wrapper)
+
+    await wrapper.get('.detail__edit').trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('dialog.dialog').exists()).toBe(true)
+    await wrapper.get('.dialog select').setValue('cc-by')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/items/AAAA2345',
+        {
+          method: 'PATCH',
+          body: {
+            fields: { rights: 'Creative Commons Attribution 4.0 International License' },
+            version: 4,
+          },
+        },
+      ],
+    ])
+  })
+
+  it('offers to fill the rights of an item that states none', async () => {
+    const wrapper = await open()
+    await row(wrapper).trigger('click')
+    await settle(wrapper)
+
+    const offer = wrapper.get('.detail__add')
+    expect(offer.text()).toBe('Not stated — say what it is')
+
+    await offer.trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('dialog.dialog').exists()).toBe(true)
+  })
+
   it('offers the same two errands in the detail pane, for readers who do not drag', async () => {
     const wrapper = await open()
 

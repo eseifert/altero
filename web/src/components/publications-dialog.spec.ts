@@ -181,12 +181,41 @@ describe('the My Publications wizard', () => {
     await radios[2].setValue(true) // Adaptations: yes
     await radios[4].setValue(true) // Commercial: yes
 
-    expect(wrapper.get('.publish__license').text()).toBe(
+    expect(wrapper.get('.publish__license').text()).toContain(
       'Creative Commons Attribution 4.0 International License',
     )
     expect(wrapper.get('.publish__license a').attributes('href')).toBe(
       'https://creativecommons.org/licenses/by/4.0/',
     )
+  })
+
+  it('names the licence by its code as well, which is what it is called', async () => {
+    /* "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+       License" is what the Rights field will say; CC BY-NC-SA is what anybody
+       asking about the licence will say. Zotero draws the badge here. */
+    const wrapper = open()
+    await claim(wrapper, { files: true })
+    await press(wrapper)
+    await choose(wrapper, 'under a Creative Commons license')
+    await press(wrapper)
+
+    expect(wrapper.get('.publish__code').text()).toBe('CC BY-NC-ND')
+
+    await choose(wrapper, 'Yes, as long as others share alike')
+
+    expect(wrapper.get('.publish__code').text()).toBe('CC BY-NC-SA')
+  })
+
+  it('gives CC0 its code and reserved rights none, because it has none', async () => {
+    const wrapper = open()
+    await claim(wrapper, { files: true })
+    await press(wrapper)
+
+    expect(wrapper.find('.publish__code').exists()).toBe(false)
+
+    await choose(wrapper, 'public domain')
+
+    expect(wrapper.get('.publish__code').text()).toBe('CC0')
   })
 
   it('offers to keep the Rights field only when there is one', async () => {

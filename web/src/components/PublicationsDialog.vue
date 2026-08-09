@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import AppButton from '@/components/AppButton.vue'
 import { useModal } from '@/modal'
-import { creativeCommonsLicense, licenseFor } from '@/publications/licenses'
+import { creativeCommonsLicense, licenseCode, licenseFor } from '@/publications/licenses'
 
 /**
  * Putting one item into My Publications, on the terms the desktop client asks.
@@ -102,6 +102,9 @@ const license = computed<string | null>(() => {
 const chosen = computed(() =>
   page.value !== 'intro' && license.value ? licenseFor(license.value) : undefined,
 )
+
+/** CC BY, CC BY-NC-SA, CC0 — the short name, where the licence has one. */
+const code = computed(() => (chosen.value ? licenseCode(chosen.value.id) : null))
 
 /** Whether this page is the last one, which decides what the button says. */
 const finishes = computed(() => {
@@ -298,6 +301,10 @@ function advance(): void {
         name here and the name stored are one string.
       -->
       <p v-if="chosen" class="publish__license">
+        <!-- The code first, because that is what a licence is called in
+             conversation and on the badge Zotero draws here — the name that
+             follows it is what the item's Rights field will actually say. -->
+        <span v-if="code" class="publish__code">{{ code }}</span>
         <a v-if="chosen.url" :href="chosen.url" target="_blank" rel="noreferrer">
           {{ chosen.name }}
         </a>
@@ -334,6 +341,17 @@ function advance(): void {
 </template>
 
 <style scoped>
+/* The licence's short name, set apart from the sentence that names it in full:
+   CC BY is the thing being chosen, and the long name is what will be stored. */
+.publish__code {
+  margin-right: var(--md-spacing-2);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-highest, transparent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* A group of answers to one question. The browser's own fieldset border would
    box each question separately, which reads as three forms rather than one. */
 .publish__group {
