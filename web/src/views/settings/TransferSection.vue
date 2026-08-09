@@ -18,6 +18,7 @@ import { useI18n } from 'vue-i18n'
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import { libraryLabel } from '@/librarylabel'
 import type { LibrarySummary } from '@/stores/library'
 import { message, usePanel } from './panel'
 
@@ -71,14 +72,20 @@ const importable = computed(() => libraries.value.filter(mayImport))
 
 const chosen = computed(() => libraries.value.find((entry) => entry.id === target.value) ?? null)
 
-function name(library: LibrarySummary): string {
-  if (library.name) return library.name
-  return library.type === 'user' ? t('My Library') : t('Group {id}', { id: library.ownerId })
-}
+/* The same words the library page uses, from the same function: this page
+   listed the account holder's own name while the sidebar said "My Library",
+   which is two names for one library on two screens of one application. */
+const name = libraryLabel
 
 const targetName = computed(() => (chosen.value ? name(chosen.value) : ''))
 
-/** Which library the archive was made from, named as well as it can be. */
+/**
+ * Which library the archive was made from, named as well as it can be.
+ *
+ * Not `libraryLabel`, deliberately: this names a library somewhere else — on
+ * another server, belonging to somebody else — as its manifest recorded it.
+ * Calling that "My Library" would claim it was this account's own.
+ */
 function sourceName(done: Restored): string {
   const source = done.source
   if (!source) return ''

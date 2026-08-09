@@ -112,6 +112,15 @@ list's column headings included. Where the interface's own messages name
 something Zotero also names, they use Zotero's word for it, so the two
 applications read as one vocabulary.
 
+A personal library is called **My Library** everywhere the interface names one
+— the sidebar, the dialogs, and the export and restore lists in settings — from
+one function in `web/src/librarylabel.ts`. It is one function because it was
+briefly two: the sidebar took Zotero's word for it while Import and export went
+on printing the account holder's own name, which is one library under two names
+on two screens of one application. The exception is the library an *archive*
+was made from, which is named as its manifest recorded it: that one may be on
+another server and belong to somebody else.
+
 Where a row names something Zotero also names, the words are Zotero's own,
 taken from `chrome/locale/<lang>/zotero/zotero.properties` and `zotero.ftl` in
 the client rather than translated again here: `pane.collections.library`,

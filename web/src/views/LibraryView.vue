@@ -15,6 +15,7 @@ import PaneSplitter from '@/components/PaneSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
 import { useCarry } from '@/dragging'
 import { fieldLabel, loadLabels } from '@/items/labels'
+import { libraryLabel } from '@/librarylabel'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
 import {
   useLibraryStore,
@@ -204,23 +205,6 @@ type Pending =
 const pending = ref<Pending | null>(null)
 const busy = ref(false)
 const collectionError = ref<string | null>(null)
-
-/*
- * What the sidebar calls a library.
- *
- * A personal library is "My Library" whatever the account is called, which is
- * what Zotero calls it in the client and in its web library: the row is the
- * library, not its owner, and the account's own name is on the menu at the top
- * of the page where it belongs. A group is called what the group is called.
- *
- * Used by the dialogs too, so the path a collection is being made in starts
- * with the row the reader can see rather than a second name for the same
- * thing.
- */
-function libraryLabel(entry: { type: string; name: string; ownerId: number }): string {
-  if (entry.type === 'user') return t('My Library')
-  return entry.name || t('Group {id}', { id: entry.ownerId })
-}
 
 /* The heading goes above the first group and nowhere else, so an account with
    no groups is not told it has none. */

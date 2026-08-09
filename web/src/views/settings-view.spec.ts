@@ -162,7 +162,7 @@ describe('import and export', () => {
     const links = wrapper.findAll('.settings__download').map((a) => a.attributes('href'))
     expect(links).toEqual(['/web/libraries/1/archive'])
     const targets = wrapper.get('select').findAll('option').map((option) => option.text())
-    expect(targets).toEqual(['Ada'])
+    expect(targets).toEqual(['My Library'])
   })
 
   it('lets only the owner of a group restore over it', async () => {
@@ -172,7 +172,20 @@ describe('import and export', () => {
     const { wrapper } = await open('import-export')
 
     const targets = wrapper.get('select').findAll('option').map((option) => option.text())
-    expect(targets).toEqual(['Ada', 'Engine'])
+    expect(targets).toEqual(['My Library', 'Engine'])
+  })
+
+  it('calls the personal library what the library page calls it', async () => {
+    /* It used to print the account holder's name here while the sidebar said
+       "My Library", which is one library under two names on two screens of one
+       application. */
+    libraries = [MINE, GROUP]
+    groups = [{ id: 2, role: 'admin', owner: true }]
+
+    const { wrapper } = await open('import-export')
+
+    expect(wrapper.text()).toContain('My Library')
+    expect(wrapper.get('.settings__entry').text()).not.toBe('Ada')
   })
 
   it('will not restore until an archive has been chosen', async () => {
@@ -214,7 +227,7 @@ describe('import and export', () => {
 
     await wrapper.get('input[type="checkbox"]').setValue(true)
 
-    expect(wrapper.get('.settings__warning').text()).toContain('Everything in Ada is deleted first')
+    expect(wrapper.get('.settings__warning').text()).toContain('Everything in My Library is deleted first')
   })
 })
 
