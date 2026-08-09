@@ -3,6 +3,10 @@
 export default {
   ' from {address}': ' depuis {address}',
   '(untitled)': '(sans titre)',
+  'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
+    'Une licence Creative Commons permet aux autres de copier et redistribuer votre travail pour autant qu’il vous crédite correctement, fournisse le lien de la licence et indique si des modifications ont été apportées. Des conditions supplémentaires peuvent être spécifiées plus bas.',
+  'A Creative Commons license cannot be revoked, even if you later choose different terms or stop publishing the work.':
+    'Une licence Creative Commons ne peut pas être révoquée, même si vous choisissez ultérieurement des conditions différentes ou si vous cessez de publier l’œuvre.',
   'A Zotero client is asking to connect to': 'Un client Zotero demande à se connecter à',
   'A collection needs a name.': 'Une collection a besoin d’un nom.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -16,12 +20,18 @@ export default {
   Accept: 'Accepter',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
     "Ajoutez ce secret à votre application d'authentification, puis saisissez le code qu'elle affiche. Rien ne change avant cela.",
+  'Add to My Publications': 'Ajouter à Mes publications',
+  'Add to My Publications…': 'Ajouter à Mes publications…',
+  'Add “{name}” to My Publications': 'Ajouter « {name} » à Mes publications',
   Administrator: 'Administrateur',
   Administrators: 'Administrateurs',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.': 'Ensuite, Zotero sur votre ordinateur remarquera qu’il parle à un autre compte et proposera de réinitialiser ses données locales. Acceptez : tout ce dont il a besoin se trouve désormais sur ce serveur.',
   'All items': 'Tous les documents',
+  'Allow adaptations of your work to be shared?':
+    'Autoriser de modifier et partager votre travail ?',
   'Allow changes (Zotero needs this to sync)':
     'Autoriser les modifications (Zotero en a besoin pour synchroniser)',
+  'Allow commercial uses of your work?': 'Autoriser une utilisation commerciale de votre travail ?',
   'Allow it to read your personal library, and save it.': 'Autorisez-la à lire votre bibliothèque personnelle, puis enregistrez-la.',
   'Already have an account?': 'Vous avez déjà un compte ?',
   'An archive holds everything in the library — items, collections, tags, saved searches and attached files — at the versions your Zotero clients know. Keep it as a backup, or restore it on another altero server.':
@@ -30,19 +40,24 @@ export default {
   'An invitation reaches an address rather than an account, so somebody without one here can still be asked.':
     'Une invitation s’adresse à une adresse et non à un compte : quelqu’un qui n’en a pas ici peut donc être invité.',
   Anyone: 'Tout le monde',
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+    'Tout le monde peut lire ce que vous mettez dans Mes publications, sans compte sur ce serveur et sans clé. Les fichiers que vous incluez sont publiés sous la licence que vous choisissez. N’ajoutez que des travaux que vous avez créés vous-même, et n’incluez que des fichiers que vous avez le droit de distribuer.',
   Archive: 'Archive',
   'At least {count} characters': 'Au moins {count} caractères',
   'Attachments and notes': 'Pièces jointes et notes',
   'Authenticator app': "Application d'authentification",
   'Authenticator enabled.': "Application d'authentification activée.",
   'Authenticator removed.': "Application d'authentification supprimée.",
+  Back: 'Retour',
   'Back to groups': 'Retour aux groupes',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Les deux suivent cet appareil sauf choix contraire, et suivent votre compte.',
   Cancel: 'Annuler',
   'Change password': 'Changer le mot de passe',
   'Checking the request…': 'Vérification de la demande…',
+  'Choose a Creative Commons license': 'Choisissez une licence Creative Commons',
   'Choose a library and an archive first.': 'Choisissez d’abord une bibliothèque et une archive.',
+  'Choose how your work may be shared': 'Choisissez comment votre travail peut être partagé',
   Citation: 'Citation',
   'Citation style': 'Style de citation',
   'Clear search': 'Effacer la recherche',
@@ -80,6 +95,8 @@ export default {
   'Current password': 'Mot de passe actuel',
   'Dates look like this: {example}': 'Les dates ressemblent à ceci : {example}',
   Decline: 'Refuser',
+  'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
+    'Placer votre travail dans le domaine public est irréversible, même si vous choisissez plus tard des conditions différentes ou si vous cessez la publication de ce travail.',
   Delete: 'Supprimer',
   'Delete everything in the trash?': 'Supprimer tout ce qui se trouve dans la corbeille ?',
   'Delete this group': 'Supprimer ce groupe',
@@ -123,16 +140,25 @@ export default {
   'Group {id}': 'Groupe {id}',
   Groups: 'Groupes',
   'Hand over the group': 'Céder le groupe',
+  'Hide from My Publications': 'Masquer de Mes publications',
+  'I created this work and have the rights to distribute the files included.':
+    'Je suis l’auteur de ce travail et j’ai le droit de distribuer les fichiers qui y sont attachés.',
+  'I created this work.': 'Je suis l’auteur de ce travail.',
   'Import and export': 'Import et export',
+  'Include files': 'Inclure les fichiers',
   'Include group libraries': 'Inclure les bibliothèques de groupe',
+  'Include notes': 'Inclure les notes',
   'Inside': 'Dans',
   'Invitation declined.': 'Invitation refusée.',
   'Invitation sent.': 'Invitation envoyée.',
   Invitations: 'Invitations',
   Invite: 'Inviter',
+  'It stays in your library, with its notes and files.':
+    'Il reste dans votre bibliothèque, avec ses notes et ses fichiers.',
   'Items added or changed': 'Documents ajoutés ou modifiés',
   'Items deleted': 'Documents supprimés',
   'Items in {name}': 'Documents dans {name}',
+  'Keep the existing Rights field': 'Conserver le contenu existant du champ « Autorisations »',
   'Key created. Copy it now — it is not shown again.':
     'Clé créée. Copiez-la maintenant — elle ne sera plus affichée.',
   Language: 'Langue',
@@ -167,6 +193,9 @@ export default {
   'New group': 'Nouveau groupe',
   'New password': 'Nouveau mot de passe',
   'New subcollection inside “{name}”': 'Nouvelle sous-collection dans « {name} »',
+  'Next: Choose a License': 'Suivant : choisir une licence',
+  'Next: Sharing': 'Suivant : partager',
+  No: 'Non',
   'No account yet?': 'Pas encore de compte ?',
   'No items carry the selected tags.': 'Aucun document ne porte les marqueurs sélectionnés.',
   'No items match this search and the selected tags.':
@@ -178,6 +207,7 @@ export default {
   'No library here is yours to restore into.':
     'Aucune bibliothèque ici ne vous appartient pour y restaurer une archive.',
   'No two items here look like the same work.': 'Aucun élément n’en double un autre ici.',
+  'No, publish my work here only': 'Non, ne publier mon travail qu’ici',
   Nobody: 'Personne',
   'Not enabled.': 'Non activée.',
   'Not now': 'Pas maintenant',
@@ -230,6 +260,8 @@ export default {
   'Registration is open on this server.': 'L’inscription est ouverte sur ce serveur.',
   Remove: 'Retirer',
   'Remove authenticator': "Supprimer l'application d'authentification",
+  'Remove from My Publications': 'Retirer de Mes publications',
+  'Remove “{name}” from My Publications?': 'Retirer « {name} » de Mes publications ?',
   Render: 'Générer',
   'Rendering…': 'Génération…',
   'Repeat password': 'Répétez le mot de passe',
@@ -258,6 +290,7 @@ export default {
   'Set up an authenticator': "Configurer une application d'authentification",
   Settings: 'Paramètres',
   'Settings for “{name}”': 'Paramètres de « {name} »',
+  'Show in My Publications': 'Afficher dans Mes publications',
   'Show more': 'Afficher plus',
   'Shown in your notifications. Add an email address to receive them as mail too.': 'Affiché dans vos notifications. Ajoutez une adresse e-mail pour les recevoir aussi par courrier.',
   'Sidebar width': 'Largeur de la barre latérale',
@@ -325,8 +358,20 @@ export default {
   Withdraw: 'Retirer',
   'Without this, a library that already holds anything is left alone rather than merged into.':
     'Sans cela, une bibliothèque qui contient déjà quelque chose est laissée intacte plutôt que fusionnée.',
+  'Would you like to allow your work to be shared by others?':
+    'Comment votre travail peut-il être partagé par les autres ?',
   'Writing it into your library…': 'Écriture dans votre bibliothèque…',
+  Yes: 'Oui',
+  'Yes, and place my work in the public domain':
+    'Oui, et placer mon travail dans le domaine public',
+  'Yes, as long as others share alike':
+    'Oui, tant que les autres partagent selon les mêmes conditions',
+  'Yes, under a Creative Commons license': 'Oui, sous licence Creative Commons',
   'You are not in any groups yet.': 'Vous n’êtes encore dans aucun groupe.',
+  'You can change what is shown at any time from My Publications.':
+    'Vous pouvez en tout temps ajuster ce qui s’affiche depuis Mes publications.',
+  'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
+    'Vous pouvez vous réserver tous les droits sur votre travail, le publier sous licence Creative Commons, ou le placer dans le domaine public. Dans tous les cas, le travail lui-même est publié ici et lisible par tous.',
   'You have joined the group.': 'Vous avez rejoint le groupe.',
   confirmed: 'confirmée',
   'date unknown': 'date inconnue',

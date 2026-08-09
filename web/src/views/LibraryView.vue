@@ -10,6 +10,7 @@ import CollectionTree from '@/components/CollectionTree.vue'
 import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
+import PublicationsDialog from '@/components/PublicationsDialog.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import PaneSplitter from '@/components/PaneSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
@@ -438,6 +439,15 @@ function accepts(target: string): boolean {
 
   if (cargo.kind === 'item') {
     if (kind === 'library') return Number(value) !== library.libraryId || Boolean(library.collectionKey)
+    /* Only a work, only one that is not published already, and not one in the
+       trash: a note or an attachment reaches My Publications with the item it
+       belongs to, and the published list hides trashed items, so publishing
+       one would flag something nobody can see. */
+    if (kind === 'publications') {
+      return (
+        !cargo.item.data.parentItem && !cargo.item.data.inPublications && !cargo.item.data.deleted
+      )
+    }
     return kind === 'collection' || kind === 'trash'
   }
 
@@ -498,6 +508,13 @@ async function drop(cargo: Cargo, target: string, { modified = false } = {}): Pr
       await runOnItem(() => library.trashItem(item.key))
       return
     }
+    if (kind === 'publications') {
+      /* The one drop that asks before it acts, and the desktop client asks
+         too: what goes with the work and under what licence are not things a
+         gesture can say, and publishing is not undone by dragging it back. */
+      await startPublishing(item)
+      return
+    }
     if (kind === 'collection') {
       /* Adding rather than moving, which is Zotero's rule: a collection is not
          a folder and an item can be in several. Shift is how a mouse says
@@ -531,19 +548,122 @@ async function drop(cargo: Cargo, target: string, { modified = false } = {}): Pr
 }
 
 /*
- * Deleting from the keyboard.
+ * Publishing a work, and taking it back out.
  *
- * `Delete` on a row does what dropping it on the trash does, except in the
- * trash itself, where the item is already there and the key means the other
- * thing. That one asks first: it is the only action in the interface that
- * cannot be undone.
+ * The wizard is `PublicationsDialog`; what is held here is which item it is
+ * about and what that item has, because the answers it offers depend on the
+ * item: there is no point offering to include files that are not there, and
+ * the Rights field can only be kept if it says something. The children are
+ * fetched when the dialog opens rather than read off the row — a row carries a
+ * title and a count, not the attachments themselves.
+ */
+const publishing = ref<ItemEnvelope | null>(null)
+const publishingChildren = ref<ItemEnvelope[]>([])
+
+/** Attachments this server holds the bytes of. A link is neither, and goes
+ *  along regardless; a linked file cannot be published at all. */
+const publishHasFiles = computed(() =>
+  publishingChildren.value.some(
+    (child) =>
+      child.data.itemType === 'attachment' &&
+      typeof child.data.linkMode === 'string' &&
+      child.data.linkMode.startsWith('imported'),
+  ),
+)
+
+const publishHasNotes = computed(() =>
+  publishingChildren.value.some((child) => child.data.itemType === 'note'),
+)
+
+const publishHasRights = computed(() => Boolean(publishing.value?.data.rights))
+
+async function startPublishing(item: ItemEnvelope): Promise<void> {
+  /* A note or an attachment is shown on its own, with nothing to ask: what to
+     include and under what licence are the work's questions, and the work has
+     already answered them. The desktop client's button does the same — it
+     publishes the child and opens no wizard. */
+  if (item.data.parentItem) {
+    await runOnItem(() =>
+      library.publishItem(item.key, {
+        includeFiles: false,
+        includeNotes: false,
+        license: null,
+        keepRights: true,
+      }),
+    )
+    return
+  }
+
+  publishing.value = item
+  publishingChildren.value = []
+  itemError.value = null
+  try {
+    publishingChildren.value = await library.childrenOf(item.key)
+  } catch {
+    /* The dialog opens either way, with both checkboxes disabled: it asks
+       about files and notes, and "we could not find out" is closer to "there
+       are none" than to refusing to publish the work at all. */
+  }
+}
+
+async function submitPublication(terms: {
+  includeFiles: boolean
+  includeNotes: boolean
+  license: string | null
+  keepRights: boolean
+}): Promise<void> {
+  const item = publishing.value
+  if (!item) return
+
+  itemBusy.value = true
+  itemError.value = null
+  try {
+    await library.publishItem(item.key, terms)
+    publishing.value = null
+    publishingChildren.value = []
+  } catch (thrown) {
+    itemError.value = thrown instanceof Error ? thrown.message : String(thrown)
+  } finally {
+    itemBusy.value = false
+  }
+}
+
+/*
+ * Deleting from the keyboard, and unpublishing from it.
+ *
+ * `Delete` on a row does what dropping it on the trash does, except in two
+ * views where the row means something else: in the trash the item is already
+ * there and the key means for good, and in My Publications it means take it
+ * out of the list — which is what the desktop client's Delete does there too.
+ * Both ask first. One cannot be undone at all; the other cannot be undone by
+ * pressing anything, only by going through the wizard again.
  */
 const removing = ref<ItemEnvelope | null>(null)
+const unpublishing = ref<ItemEnvelope | null>(null)
 const emptying = ref(false)
 const itemBusy = ref(false)
 
 function askToRemove(item: ItemEnvelope): void {
   removing.value = item
+  unpublishing.value = null
+  emptying.value = false
+  itemError.value = null
+}
+
+/**
+ * Take an item out of My Publications: the question, or the act.
+ *
+ * A work is asked about, because it takes its notes and files out with it and
+ * because putting it back is the whole wizard again. A child is hidden on the
+ * spot — that is one flag on one item, and showing it again is one press.
+ */
+async function askToUnpublish(item: ItemEnvelope): Promise<void> {
+  if (item.data.parentItem) {
+    await runOnItem(() => library.unpublishItem(item.key))
+    return
+  }
+  unpublishing.value = item
+  removing.value = null
   emptying.value = false
   itemError.value = null
 }
@@ -551,11 +671,13 @@ function askToRemove(item: ItemEnvelope): void {
 function askToEmpty(): void {
   emptying.value = true
   removing.value = null
+  unpublishing.value = null
   itemError.value = null
 }
 
 function cancelRemoval(): void {
   removing.value = null
+  unpublishing.value = null
   emptying.value = false
 }
 
@@ -573,11 +695,23 @@ async function emptyTrash(): Promise<void> {
   cancelRemoval()
 }
 
-/** `Delete` on a row: the trash, or -- from the trash -- the question. */
+async function unpublishItem(item: ItemEnvelope): Promise<void> {
+  itemBusy.value = true
+  await runOnItem(() => library.unpublishItem(item.key))
+  itemBusy.value = false
+  cancelRemoval()
+}
+
+/** `Delete` on a row: the trash, or -- in the trash and in My Publications --
+ *  the question that view's Delete asks instead. */
 async function removeKey(item: ItemEnvelope): Promise<void> {
   if (!library.writable) return
   if (library.scope === 'trash' || item.data.deleted) {
     askToRemove(item)
+    return
+  }
+  if (library.scope === 'publications') {
+    askToUnpublish(item)
     return
   }
   await runOnItem(() => library.trashItem(item.key))
@@ -783,8 +917,15 @@ function sortLabel(column: { field: string; label: string }): string {
             />
 
             <!-- A group has no My Publications: publishing is something an
-                 account does with its own library. -->
-            <div v-if="entry.type === 'user'" class="library__scope-row">
+                 account does with its own library. Dropping a work here is how
+                 the desktop client publishes one, and it opens the same
+                 questions rather than publishing on the spot. -->
+            <div
+              v-if="entry.type === 'user'"
+              class="library__scope-row"
+              :class="{ 'library__scope-row--over': lit('publications:') }"
+              data-drop="publications:"
+            >
               <span class="library__twisty" aria-hidden="true"></span>
               <button
                 type="button"
@@ -966,7 +1107,7 @@ function sortLabel(column: { field: string; label: string }): string {
         trash is the only thing in this interface that cannot be undone, so it
         is the only one that asks.
       -->
-      <p v-if="removing || emptying" class="collections__confirm" role="alert">
+      <p v-if="removing || emptying || unpublishing" class="collections__confirm" role="alert">
         <span v-if="emptying">
           {{ t('Delete everything in the trash?') }} {{ t('This cannot be undone.') }}
         </span>
@@ -974,11 +1115,26 @@ function sortLabel(column: { field: string; label: string }): string {
           {{ t('Delete “{name}” for good?', { name: titleOf(removing) }) }}
           {{ t('This cannot be undone.') }}
         </span>
+        <!-- Nothing is deleted here, and the sentence says so: the work stays
+             in the library, and what goes is its place in the published list
+             and that of the notes and files published with it. -->
+        <span v-else-if="unpublishing">
+          {{ t('Remove “{name}” from My Publications?', { name: titleOf(unpublishing) }) }}
+          {{ t('It stays in your library, with its notes and files.') }}
+        </span>
         <span class="collections__actions">
           <AppButton variant="text" :disabled="itemBusy" @click="cancelRemoval">
             {{ t('Cancel') }}
           </AppButton>
           <AppButton
+            v-if="unpublishing"
+            :loading="itemBusy"
+            @click="unpublishing && unpublishItem(unpublishing)"
+          >
+            {{ t('Remove') }}
+          </AppButton>
+          <AppButton
+            v-else
             :loading="itemBusy"
             @click="emptying ? emptyTrash() : removing && deleteItem(removing)"
           >
@@ -1089,12 +1245,16 @@ function sortLabel(column: { field: string; label: string }): string {
         :library-id="library.libraryId"
         :file-url="library.fileUrl"
         :writable="library.writable"
+        :publishable="library.writable && library.library?.type === 'user'"
+        :in-publications-view="library.scope === 'publications'"
         @open="library.select($event)"
         @close="library.select(null)"
         @move="moving = library.selected"
         @trash="runOnItem(() => library.trashItem(library.selected!.key))"
         @restore="runOnItem(() => library.trashItem(library.selected!.key, false))"
         @remove="askToRemove(library.selected!)"
+        @publish="startPublishing(library.selected!)"
+        @unpublish="askToUnpublish(library.selected!)"
       />
     </aside>
 
@@ -1149,6 +1309,21 @@ function sortLabel(column: { field: string; label: string }): string {
       :error="itemError"
       @submit="submitDestination"
       @cancel="moving = null"
+    />
+
+    <!-- Everything the desktop client asks before it publishes something,
+         asked in the same order. Mounted only while it is open, so it always
+         starts on its first page. -->
+    <PublicationsDialog
+      v-if="publishing"
+      :title="titleOf(publishing)"
+      :has-files="publishHasFiles"
+      :has-notes="publishHasNotes"
+      :has-rights="publishHasRights"
+      :busy="itemBusy"
+      :error="itemError"
+      @submit="submitPublication"
+      @cancel="publishing = null"
     />
 
     <TagDialog

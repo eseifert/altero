@@ -354,6 +354,78 @@ class TestReplaceAndUpdate:
         assert [i["key"] for i in trash] == ["AAAA2345"]
 
 
+class TestThePatchLeavesTheTwoFlagsAlone:
+    """``deleted`` and ``inPublications`` under a partial write.
+
+    ``Zotero_Items::updateFromJSON`` sets each only when the object mentions it
+    or the write replaces -- ``if (isset($json->deleted) || !$partialUpdate)``,
+    and the same line again for ``inPublications``. Collections and searches
+    already followed that rule here; items did not, so any patch that did not
+    restate them cleared both. Filing an item from the browser untrashed it,
+    and publishing one that was in the trash brought it back out.
+    """
+
+    async def test_a_patch_that_says_nothing_leaves_it_in_the_trash(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", version=10, deleted=True)
+
+        await client.patch(
+            "/users/1/items/AAAA2345",
+            headers=JSON,
+            json={"itemType": "book", "title": "New", "version": 10},
+        )
+
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["deleted"] == 1
+
+    async def test_a_patch_that_says_nothing_leaves_it_published(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", version=10, in_publications=True)
+
+        await client.patch(
+            "/users/1/items/AAAA2345",
+            headers=JSON,
+            json={"itemType": "book", "title": "New", "version": 10},
+        )
+
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+        assert body["data"]["inPublications"] is True
+
+    async def test_a_patch_that_says_so_still_takes_it_out_of_the_trash(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """The client writes the flag out when it goes, rather than dropping it."""
+        await make_item(session, library, key="AAAA2345", version=10, deleted=True)
+
+        await client.patch(
+            "/users/1/items/AAAA2345",
+            headers=JSON,
+            json={"itemType": "book", "deleted": False, "version": 10},
+        )
+
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+        assert "deleted" not in body["data"]
+
+    async def test_a_replacing_put_still_clears_what_it_leaves_out(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(
+            session, library, key="AAAA2345", version=10, deleted=True, in_publications=True
+        )
+
+        await client.put(
+            "/users/1/items/AAAA2345",
+            headers=JSON,
+            json={"itemType": "book", "title": "New", "version": 10},
+        )
+
+        body = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()
+        assert "deleted" not in body["data"]
+        assert "inPublications" not in body["data"]
+
+
 class TestDelete:
     async def test_an_item_is_deleted(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library

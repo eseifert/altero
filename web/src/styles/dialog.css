@@ -26,6 +26,12 @@
   background: rgb(0 0 0 / 45%);
 }
 
+/* The publishing wizard is the one dialog that explains rather than asks for a
+   word, and a paragraph set 26rem wide is a column of four words. */
+.dialog--wide {
+  width: min(34rem, calc(100vw - 2rem));
+}
+
 .dialog__body {
   display: flex;
   flex-direction: column;
@@ -135,6 +141,10 @@ dialog:not([open]) {
   overflow: auto;
   background: rgb(0 0 0 / 45%);
   color: var(--md-sys-color-on-surface);
+}
+
+.dialog--wide[data-modal-fallback] > * {
+  width: min(34rem, 100%);
 }
 
 .dialog[data-modal-fallback] > * {

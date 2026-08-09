@@ -27,6 +27,9 @@ export interface ItemEnvelope {
     filename?: string
     contentType?: string
     linkMode?: string
+    rights?: string
+    /** Emitted only when true, as the API emits it. */
+    inPublications?: boolean
     tags?: { tag: string; type?: number }[]
     collections?: string[]
   }
@@ -391,6 +394,56 @@ export const useLibraryStore = defineStore('library', () => {
   }
 
   /**
+   * Read one item's notes and attachments, without opening it.
+   *
+   * `select` fetches these for the item in the detail pane; this is for the
+   * one being published, which is whichever row was carried and need not be
+   * the one on screen. The wizard has to know what it is offering to include
+   * before it asks — a checkbox for files on an item that has none is a
+   * question with no answer.
+   */
+  async function childrenOf(key: string): Promise<ItemEnvelope[]> {
+    if (libraryId.value === null) return []
+    const payload = await request<{ items: ItemEnvelope[] }>(
+      `/web/libraries/${libraryId.value}/items/${key}/children`,
+    )
+    return payload.items
+  }
+
+  /** Put ``key`` into My Publications on the terms the wizard collected. */
+  async function publishItem(
+    key: string,
+    terms: {
+      includeFiles: boolean
+      includeNotes: boolean
+      license: string | null
+      keepRights: boolean
+    },
+  ): Promise<void> {
+    if (libraryId.value === null) return
+    await request(`/web/libraries/${libraryId.value}/publications/items/${key}`, {
+      method: 'PUT',
+      body: terms,
+    })
+    await afterItemWrite()
+  }
+
+  /**
+   * Take ``key`` out of My Publications, with its children.
+   *
+   * The item stays in the library and keeps everything it holds; only its
+   * place in the published list goes. The list is read again all the same,
+   * because in the My Publications view that place *is* the row.
+   */
+  async function unpublishItem(key: string): Promise<void> {
+    if (libraryId.value === null) return
+    await request(`/web/libraries/${libraryId.value}/publications/items/${key}`, {
+      method: 'DELETE',
+    })
+    await afterItemWrite()
+  }
+
+  /**
    * Copy ``key`` into another library, optionally into a collection there.
    *
    * Nothing on screen changes: the library being read is the one the item came
@@ -580,6 +633,9 @@ export const useLibraryStore = defineStore('library', () => {
     deleteItem,
     emptyTrash,
     copyItem,
+    childrenOf,
+    publishItem,
+    unpublishItem,
     refresh,
     selectScope,
     selectCollection,

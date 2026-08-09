@@ -250,7 +250,7 @@ def validate_item(
     # and both expand a predicate naming several objects.
     relations = parse_relations(payload)
 
-    return {
+    parsed = {
         "item_type": item_type,
         "key": payload.get("key") or None,
         "version": payload.get("version"),
@@ -260,11 +260,25 @@ def validate_item(
         "tags": _validate_tags(payload.get("tags", [])),
         "collections": [str(key) for key in collections],
         "relations": relations,
-        "deleted": bool(payload.get("deleted", False)),
-        "in_publications": _validate_publications(payload, item_type, library_type, existing),
         "date_added": _parse_timestamp(payload.get("dateAdded"), "dateAdded"),
         "date_modified": _parse_timestamp(payload.get("dateModified"), "dateModified"),
     }
+
+    # The two flags are carried only when the object mentions them, because
+    # that is the difference upstream makes between "set it to false" and "I am
+    # not talking about it": `if (isset($json->deleted) || !$partialUpdate)`,
+    # and the same line again for `inPublications`. A patch that restated
+    # neither would otherwise take an item out of the trash and out of My
+    # Publications while changing its title. `_apply` clears both when the
+    # write replaces, which is where the second half of that condition lives.
+    if "deleted" in payload:
+        parsed["deleted"] = bool(payload["deleted"])
+    if "inPublications" in payload:
+        parsed["in_publications"] = _validate_publications(
+            payload, item_type, library_type, existing
+        )
+
+    return parsed
 
 
 async def _state(session: AsyncSession, item: Item) -> tuple[Any, ...]:
@@ -331,10 +345,13 @@ async def _apply(
     """
     item.item_type = parsed["item_type"]
     item.version = version
-    item.deleted = parsed["deleted"]
-    # A partial update leaves it alone; a replacing write means what it omits.
+    # A partial update leaves alone what it did not mention -- `validate_item`
+    # carries the flag only when the object named it -- and a replacing write
+    # means what it omits.
+    if replace or "deleted" in parsed:
+        item.deleted = parsed.get("deleted", False)
     if replace or "in_publications" in parsed:
-        item.in_publications = parsed["in_publications"]
+        item.in_publications = parsed.get("in_publications", False)
 
     # Client timestamps round-trip; the server's own is always now, which is what
     # makes sorting by `serverDateModified` trustworthy.

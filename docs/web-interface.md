@@ -317,6 +317,52 @@ thing at once — which is also the one place where that is the errand. Trashed
 collections are left where they are — the browser never trashes one, so
 anything in there came from the desktop and is not shown here at all.
 
+## My Publications
+
+Dropping a work on the **My Publications** row publishes it, and is the one
+drop that asks before it acts. It has to: publishing is not filing. The
+questions are the desktop client's, in the client's own order, and so are the
+rules they set — [compatibility.md](compatibility.md#publishing-from-the-browser)
+lists each rule beside the line of `Zotero.Items.addToPublications` it comes
+from.
+
+**What goes along.** Files and notes are separate answers, and each is offered
+only where the item has one. Link attachments always go, since a link is a URL
+the item's own fields already carry; a *linked file* never does, because this
+server does not hold its bytes and so could not publish them.
+
+**Whether the work is yours.** Nothing advances until that is confirmed, and
+the sentence changes when files are included: distributing somebody's PDF is a
+larger claim than listing their paper.
+
+**Under what licence.** Only when files are being published — there is nothing
+else to license. Reserved rights, a Creative Commons licence, or the public
+domain; Creative Commons then asks the two questions that decide which of the
+six it is, defaulting to the most restrictive of each pair. The licence's name
+goes into the item's **Rights** field, unless the field already says something
+and “Keep the existing Rights field” is ticked — in which case there is nothing
+left to ask and the wizard ends there. The name shown is the name that will be
+stored, in English, and
+[compatibility.md](compatibility.md#publishing-from-the-browser) says why it is
+not translated.
+
+The whole of it is one request and one library version, however many notes and
+files go with the work: publishing a work and its files is one decision, and a
+client syncing afterwards sees it as one.
+
+**Taking it out again** is `Delete` in the My Publications view, or a button in
+the detail pane, and it asks first. The work leaves the published list with its
+published notes and files — including any that have since been trashed, which
+were still published until now — and stays in the library with everything it
+holds. Its `Rights` field is left as it is: a licence already granted is not
+withdrawn by hiding the page. Inside the My Publications view a single note or
+attachment can also be shown or hidden on its own, which is what the desktop
+client offers there and nowhere else.
+
+A group has no My Publications and none of this appears in one: publishing is
+something an account does with its own library, and the server refuses it for a
+group item in any case.
+
 ## By touch
 
 Dragging is not the browser's own drag and drop, and could not be: that API is
@@ -601,11 +647,11 @@ are cached for good, so the second visit fetches none of it.
 
 Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
 editing an item's fields. Collections can be made, renamed, moved and removed,
-an item can be filed, trashed, restored, deleted and copied to another library,
-a tag can be renamed, and a whole library can be restored from an archive or
-copied in from zotero.org — but no item's title, creators or dates can be
-changed here, no item can be created, and a tag cannot be deleted or put on
-something. Moving in from zotero.org brings the personal library only; a group
+an item can be filed, trashed, restored, deleted, copied to another library and
+published to My Publications, a tag can be renamed, and a whole library can be
+restored from an archive or copied in from zotero.org — but no item's title,
+creators or dates can be changed here, no item can be created, and a tag cannot
+be deleted or put on something. Moving in from zotero.org brings the personal library only; a group
 has to be made here and its members invited.
 
 Making an account for somebody else, resetting their password and revoking

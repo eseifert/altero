@@ -895,6 +895,50 @@ publications library, a separate library that altero has never had and cannot
 create. Reproducing it would mean refusing every modern client that has
 published anything, with advice it has already followed.
 
+### Publishing from the browser
+
+Setting `inPublications` is all the v3 API knows about publishing, and it is
+not all publishing *is*. The desktop client asks four things before it sets the
+flag, in `publicationsDialog.js`, and acts on them in
+`Zotero.Items.addToPublications`: whether the item's files go along, whether
+its notes go along, whether an existing `Rights` value stands, and under what
+licence the files are published. altero's browser interface asks the same four
+and sends them to endpoints of its own, `PUT` and `DELETE` on
+`/web/libraries/<id>/publications/items/<key>`, which are cookie-authenticated
+like everything under `/web` and never reachable with an API key. The rules
+they enforce are the client's:
+
+| Rule | Where it comes from |
+| --- | --- |
+| Child notes go only with `includeNotes` | `options.childNotes` |
+| Stored attachments go only with `includeFiles` | `options.childFileAttachments` |
+| Link attachments always go | the client's own drop passes `childLinks: true` |
+| Linked files never go | `LINK_MODE_LINKED_FILE` is skipped in the loop |
+| Annotations never go | the drop passes `annotations: false` |
+| The licence is written into `rights` unless `keepRights` and the field already says something | `if (!options.keepRights \|\| !item.getField('rights'))` |
+| Removing takes the item's notes and attachments out with it, trashed ones included | `getNotes(true).concat(getAttachments(true))` |
+| Removing something that is not published is an error | `throw new Error(...is not in My Publications)` |
+
+Two deliberate differences:
+
+**The licence name is English, whatever language the account reads in.** The
+client writes the name its own window was showing, so the same licence reaches
+the field as `Creative Commons Namensnennung 4.0 Internationale Lizenz` from a
+German client and in English from a Japanese one, whose catalogue leaves the
+strings untranslated. `rights` is data — exported, cited, read by every other
+client — rather than a label this server draws, and altero has no message
+catalogue on the server side to draw it with. The table of licences lives in
+`services/publications.py`; the interface holds the same table in
+`web/src/publications/licenses.ts` and shows the name the item will carry
+rather than a translation of it, and `tests/test_web_publications.py` fails if
+the two disagree.
+
+**The client's generic `cc` licence is not offered.** It is what its wizard
+reports while a Creative Commons licence is still being chosen, and it reaches
+`rights` only on the one path where `keepRights` means nothing is written
+anyway. Choosing Creative Commons here always leads to the two questions that
+narrow it to one of the six.
+
 ## Trashing a collection or a saved search
 
 Zotero trashes these by setting `deleted` on the object, not by deleting it, and
@@ -949,8 +993,25 @@ It is emitted only when true, the way `deleted` is
 (`if ($this->getPublications()) $arr['inPublications'] = true;`), rather than
 put on every item in every library as `false`.
 
-The `/publications` endpoints — the public listing of those items — are still
-not implemented. The property is what the sync path needs.
+**A partial write that does not mention it leaves it alone**, and so does one
+that does not mention `deleted`:
+
+```php
+if (isset($json->deleted) || !$partialUpdate) { $item->deleted = ...; }
+if (isset($json->inPublications) || !$partialUpdate) { $item->inPublications = ...; }
+```
+
+Both lines are `Zotero_Items::updateFromJSON`, and altero followed neither for
+items — it applied both flags on every write, so a `PATCH` of a title took the
+item out of the trash and out of My Publications. Collections and searches had
+the rule from the start (see *Trashing a collection or a saved search*); items
+now do too. A `PUT` still clears what it omits, and the client writes
+`deleted: false` explicitly when the flag goes away rather than dropping the
+key.
+
+The public listing of published items is served — see *My Publications* above.
+Putting an item into that list from the browser, with the options the desktop
+client's wizard offers, is *Publishing from the browser* below.
 
 ## A POSTed batch is a batch of patches
 

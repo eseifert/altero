@@ -203,8 +203,11 @@ class _Assembler:
                 "version": int(envelope.get("version") or data.get("version") or 0),
                 "itemType": item_type,
                 "parent": parsed["parent_item"],
-                "deleted": parsed["deleted"],
-                "inPublications": parsed["in_publications"],
+                # Absent from `parsed` unless the envelope named them, which is
+                # how a patch says "leave it alone"; here every item is new, so
+                # not mentioned is not set.
+                "deleted": parsed.get("deleted", False),
+                "inPublications": parsed.get("in_publications", False),
                 "sortTitle": itemdata.derive_sort_title(item_type, fields),
                 "sortCreator": itemdata.derive_sort_creator(creators),
                 "sortDate": itemdata.derive_sort_date(item_type, fields),

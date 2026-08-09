@@ -17,6 +17,13 @@ const props = defineProps<{
   fileUrl: (key: string, options?: { download?: boolean }) => string
   /** Whether this account may change the library, which the server decides. */
   writable?: boolean
+  /** Whether this library has a My Publications at all: a personal one does,
+   *  a group does not, and publishing is refused there. */
+  publishable?: boolean
+  /** Whether the list behind this pane is the My Publications view. The
+   *  desktop client shows a child item's publishing button only there, and so
+   *  does this: elsewhere a note's place in the list is its parent's business. */
+  inPublicationsView?: boolean
 }>()
 
 /*
@@ -34,10 +41,42 @@ const emit = defineEmits<{
   trash: []
   restore: []
   remove: []
+  publish: []
+  unpublish: []
 }>()
 
 /** Whether the item is in the trash, which decides what can be done to it. */
 const trashed = computed(() => Boolean(props.item.data.deleted))
+
+const published = computed(() => Boolean(props.item.data.inPublications))
+
+/** Whether this item is a note or an attachment hanging off another item. */
+const child = computed(() => Boolean(props.item.data.parentItem))
+
+/**
+ * Whether the pane offers to move, trash or restore this item.
+ *
+ * A child item is filed by its parent and trashed with it: an attachment does
+ * not belong in a collection of its own, and Zotero does not offer it either.
+ */
+const showsTools = computed(() => Boolean(props.writable) && !child.value)
+
+/**
+ * Whether the pane offers to publish this item.
+ *
+ * A work, in a library that has a My Publications, that is not in the trash —
+ * publishing something on its way out is a contradiction, and Zotero's own
+ * view hides trashed items. A *child* is offered it only in the My
+ * Publications view, which is where the client offers it: that is the one
+ * place where a note being published or not is visible on its own.
+ */
+const offersPublishing = computed(
+  () =>
+    Boolean(props.writable) &&
+    Boolean(props.publishable) &&
+    !trashed.value &&
+    (!child.value || Boolean(props.inPublicationsView)),
+)
 
 /** Properties shown elsewhere in the pane, or of no interest to a reader. */
 const HIDDEN = new Set([
@@ -167,28 +206,46 @@ function childTitle(child: ItemEnvelope): string {
     </header>
 
     <!--
-      A child item is filed by its parent and trashed with it: an attachment
-      does not belong in a collection of its own, and Zotero does not offer it
-      either. So the row is the top-level item's.
+      What can be done to this item, in words. Filing and trashing are the
+      top-level item's alone — see `showsTools` — and publishing has a rule of
+      its own, so the row appears when either has something to offer.
     -->
-    <div v-if="writable && !item.data.parentItem" class="detail__tools">
-      <button class="detail__tool" type="button" @click="emit('move')">
+    <div v-if="showsTools || offersPublishing" class="detail__tools">
+      <button v-if="showsTools" class="detail__tool" type="button" @click="emit('move')">
         {{ t('Move or copy…') }}
       </button>
-      <button v-if="!trashed" class="detail__tool" type="button" @click="emit('trash')">
-        {{ t('Move to trash') }}
-      </button>
-      <template v-else>
-        <!-- Zotero's own words for this, and a key of its own: "Restore"
-             alone is also what the settings page calls putting an archive
-             back, and one message for the two had German telling somebody
-             their item was about to be replayed from a backup. -->
-        <button class="detail__tool" type="button" @click="emit('restore')">
-          {{ t('Restore to Library') }}
+
+      <!--
+        The same errands the sidebar's My Publications row takes by drag, for
+        readers who do not drag. Adding says "…" because it asks: what goes
+        with the work, and under what licence. Removing does not ask here — the
+        list does, above the rows, where the item can still be seen.
+      -->
+      <template v-if="offersPublishing">
+        <button v-if="!published" class="detail__tool" type="button" @click="emit('publish')">
+          {{ child ? t('Show in My Publications') : t('Add to My Publications…') }}
         </button>
-        <button class="detail__tool detail__tool--danger" type="button" @click="emit('remove')">
-          {{ t('Delete') }}
+        <button v-else class="detail__tool" type="button" @click="emit('unpublish')">
+          {{ child ? t('Hide from My Publications') : t('Remove from My Publications') }}
         </button>
+      </template>
+
+      <template v-if="showsTools">
+        <button v-if="!trashed" class="detail__tool" type="button" @click="emit('trash')">
+          {{ t('Move to trash') }}
+        </button>
+        <template v-else>
+          <!-- Zotero's own words for this, and a key of its own: "Restore"
+               alone is also what the settings page calls putting an archive
+               back, and one message for the two had German telling somebody
+               their item was about to be replayed from a backup. -->
+          <button class="detail__tool" type="button" @click="emit('restore')">
+            {{ t('Restore to Library') }}
+          </button>
+          <button class="detail__tool detail__tool--danger" type="button" @click="emit('remove')">
+            {{ t('Delete') }}
+          </button>
+        </template>
       </template>
     </div>
 

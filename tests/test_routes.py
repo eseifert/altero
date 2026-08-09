@@ -81,6 +81,10 @@ EXPECTED = [
     ("/web/libraries/{library_id}/items/{item_key}", "DELETE"),
     ("/web/libraries/{library_id}/items/{item_key}/copy", "POST"),
     ("/web/libraries/{library_id}/trash", "DELETE"),
+    # An item put into My Publications on the desktop client's terms, and taken
+    # out again with its children. Same module; see its docstring.
+    ("/web/libraries/{library_id}/publications/items/{item_key}", "PUT"),
+    ("/web/libraries/{library_id}/publications/items/{item_key}", "DELETE"),
     # One tag renamed, which is a write to every item carrying it and to
     # nothing else. See altero/api/routes/webtags.py.
     ("/web/libraries/{library_id}/tags/{tag_name}", "PATCH"),

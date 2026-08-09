@@ -112,9 +112,36 @@ class TestAcceptingTheProperty:
         stored = created.json()["successful"]["0"]["data"]
         del stored["inPublications"]
 
-        again = await post(client, "/users/1/items", [stored])
+        await client.put(f"/users/1/items/{stored['key']}", headers=JSON, json=stored)
 
-        assert "inPublications" not in again.json()["successful"]["0"]["data"]
+        fetched = await client.get(f"/users/1/items/{stored['key']}", headers=AUTH)
+        assert "inPublications" not in fetched.json()["data"]
+
+    async def test_a_batched_write_that_omits_it_leaves_it_alone(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """A POSTed batch is a batch of patches, and a patch says nothing here.
+
+        ``if (isset($json->inPublications) || !$partialUpdate)`` -- so an
+        object that does not mention the property is not talking about it. The
+        client sends only what changed, and a change of title that took the
+        item out of My Publications would be a deletion nobody asked for.
+        """
+        created = await post(
+            client,
+            "/users/1/items",
+            [{"itemType": "book", "title": "Dune", "inPublications": True}],
+        )
+        stored = created.json()["successful"]["0"]["data"]
+
+        await post(
+            client,
+            "/users/1/items",
+            [{"key": stored["key"], "version": stored["version"], "title": "Dune Messiah"}],
+        )
+
+        fetched = await client.get(f"/users/1/items/{stored['key']}", headers=AUTH)
+        assert fetched.json()["data"]["inPublications"] is True
 
     async def test_a_child_attachment_may_be_in_publications(
         self, client: httpx.AsyncClient, library: Library

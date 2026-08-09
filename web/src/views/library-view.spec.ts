@@ -1955,3 +1955,240 @@ describe('the sidebar width', () => {
     expect(grip(wrapper).attributes('aria-valuemax')).toBe(String(SIDEBAR_MAX))
   })
 })
+
+/**
+ * Putting an item into My Publications, and taking it out.
+ *
+ * The interesting part is that the drop does not publish: it asks, the way the
+ * desktop client's does, because what goes along and under what licence are
+ * not things a gesture can say. What the wizard itself asks is
+ * `publications-dialog.spec.ts`; what is here is the wiring — that the row
+ * accepts the drop, that the answers reach the server as one request, and that
+ * taking something out again asks first.
+ */
+describe('publishing an item', () => {
+  const PUBLISHED = {
+    key: 'BBBB2345',
+    version: 3,
+    data: { itemType: 'book', title: 'Already out there', inPublications: true },
+    meta: {},
+  }
+
+  function withServer(write?: (path: string, options?: { method?: string }) => Promise<unknown>) {
+    requestMock.mockImplementation(
+      (path: string, options?: { method?: string; body?: unknown }) => {
+        if (options?.method && options.method !== 'GET') {
+          return write ? write(path, options) : Promise.resolve(contents[0])
+        }
+        if (path === '/web/libraries') return Promise.resolve(libraries)
+        if (path.startsWith('/web/schema')) {
+          return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+        }
+        if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+        if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+        if (path.includes('/children')) return Promise.resolve({ items: CHILDREN })
+        if (/\/items\/[A-Z0-9]+$/.test(path)) return Promise.resolve(contents[0])
+        return Promise.resolve({ total: contents.length, items: contents })
+      },
+    )
+  }
+
+  /** What `/children` answers. A test about the checkboxes fills it. */
+  let CHILDREN: unknown[] = []
+
+  function writes() {
+    return requestMock.mock.calls.filter(
+      ([, options]) => options && options.method && options.method !== 'GET',
+    )
+  }
+
+  function row(wrapper: ReturnType<typeof mount>, title = 'Structure and Interpretation') {
+    const found = wrapper
+      .findAll('.library__row:not(.library__row--head)')
+      .find((entry) => entry.text().includes(title))
+    if (!found) throw new Error(`No item row for ${title}`)
+    return found
+  }
+
+  function publicationsRow(wrapper: ReturnType<typeof mount>) {
+    const found = wrapper
+      .findAll('.library__scope-row')
+      .find((entry) => entry.text().includes('My Publications'))
+    if (!found) throw new Error('No My Publications row')
+    return found.element
+  }
+
+  function fire(element: EventTarget, type: string, options: PointerEventInit = {}): void {
+    element.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerType: 'mouse',
+        clientX: 10,
+        clientY: 10,
+        ...options,
+      }),
+    )
+  }
+
+  async function drag(wrapper: ReturnType<typeof mount>, target: Element | null, title?: string) {
+    document.elementFromPoint = () => target
+    fire(row(wrapper, title).element, 'pointerdown')
+    fire(window, 'pointermove', { clientX: 200, clientY: 200 })
+    await wrapper.vm.$nextTick()
+    fire(window, 'pointerup', { clientX: 200, clientY: 200 })
+    await settle(wrapper)
+  }
+
+  /** Tick the control whose label says `label`, wherever it is. */
+  async function choose(wrapper: ReturnType<typeof mount>, label: string) {
+    const found = wrapper.findAll('.dialog__check').find((entry) => entry.text().includes(label))
+    if (!found) throw new Error(`No control labelled ${label}`)
+    await found.get('input').setValue(true)
+  }
+
+  async function press(wrapper: ReturnType<typeof mount>, label: string) {
+    const found = wrapper.findAll('button').find((entry) => entry.text() === label)
+    if (!found) throw new Error(`No button called ${label}`)
+    await found.trigger('click')
+    await settle(wrapper)
+  }
+
+  beforeEach(() => {
+    CHILDREN = []
+    withServer()
+  })
+
+  it('asks before it publishes anything', async () => {
+    const wrapper = await open()
+
+    await drag(wrapper, publicationsRow(wrapper))
+
+    expect(wrapper.find('.dialog').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Add to My Publications')
+    expect(writes()).toEqual([])
+  })
+
+  it('sends the answers as one request', async () => {
+    const wrapper = await open()
+    await drag(wrapper, publicationsRow(wrapper))
+
+    await choose(wrapper, 'I created this work')
+    await wrapper.get('.dialog__body').trigger('submit')
+    await settle(wrapper)
+
+    expect(writes()).toEqual([
+      [
+        '/web/libraries/1/publications/items/AAAA2345',
+        {
+          method: 'PUT',
+          body: { includeFiles: false, includeNotes: false, license: null, keepRights: false },
+        },
+      ],
+    ])
+  })
+
+  it('offers the files and notes the item actually has', async () => {
+    CHILDREN = [
+      {
+        key: 'CHILD123',
+        version: 1,
+        data: { itemType: 'attachment', linkMode: 'imported_file', parentItem: 'AAAA2345' },
+        meta: {},
+      },
+    ]
+    const wrapper = await open()
+
+    await drag(wrapper, publicationsRow(wrapper))
+
+    const boxes = wrapper.findAll('.dialog__check input')
+    expect(boxes[0].attributes('disabled')).toBeUndefined()
+    expect(boxes[1].attributes('disabled')).toBeDefined()
+  })
+
+  it('does not take a work that is already published', async () => {
+    /* The row does not light up, which is how every other refusal is said
+       here: it is easier not to offer than to explain afterwards. */
+    contents = [PUBLISHED]
+    const wrapper = await open()
+
+    await drag(wrapper, publicationsRow(wrapper), 'Already out there')
+
+    expect(wrapper.find('.dialog').exists()).toBe(false)
+    expect(writes()).toEqual([])
+  })
+
+  it('does not take a work out of the trash, which the published list hides', async () => {
+    contents = [
+      {
+        key: 'CCCC2345',
+        version: 2,
+        data: { itemType: 'book', title: 'Thrown away', deleted: 1 },
+        meta: {},
+      },
+    ]
+    const wrapper = await open()
+
+    await drag(wrapper, publicationsRow(wrapper), 'Thrown away')
+
+    expect(wrapper.find('.dialog').exists()).toBe(false)
+    expect(writes()).toEqual([])
+  })
+
+  it('asks before taking one out again, and says what stays behind', async () => {
+    contents = [PUBLISHED]
+    const wrapper = await open()
+    await wrapper.findAll('.library__scope').find((e) => e.text() === 'My Publications')!.trigger('click')
+    await settle(wrapper)
+
+    await row(wrapper, 'Already out there').trigger('keydown', { key: 'Delete' })
+    await settle(wrapper)
+
+    expect(wrapper.get('.collections__confirm').text()).toContain(
+      'Remove “Already out there” from My Publications?',
+    )
+    expect(wrapper.get('.collections__confirm').text()).toContain('stays in your library')
+    expect(writes()).toEqual([])
+
+    await press(wrapper, 'Remove')
+
+    expect(writes()).toEqual([
+      ['/web/libraries/1/publications/items/BBBB2345', { method: 'DELETE' }],
+    ])
+  })
+
+  it('offers the same two errands in the detail pane, for readers who do not drag', async () => {
+    const wrapper = await open()
+
+    await row(wrapper).trigger('click')
+    await settle(wrapper)
+
+    const tools = wrapper.findAll('.detail__tool').map((entry) => entry.text())
+    expect(tools).toContain('Add to My Publications…')
+  })
+
+  it('offers to take a published one out from the detail pane', async () => {
+    contents = [PUBLISHED]
+    const wrapper = await open()
+
+    await row(wrapper, 'Already out there').trigger('click')
+    await settle(wrapper)
+
+    const tools = wrapper.findAll('.detail__tool').map((entry) => entry.text())
+    expect(tools).toContain('Remove from My Publications')
+  })
+
+  it('offers none of it in a group, which has no My Publications', async () => {
+    libraries = [PERSONAL, { ...GROUP, writable: true }]
+    const wrapper = await open()
+    await wrapper.findAll('.library__library').find((e) => e.text().includes('Whale'))!.trigger('click')
+    await settle(wrapper)
+
+    await row(wrapper).trigger('click')
+    await settle(wrapper)
+
+    const tools = wrapper.findAll('.detail__tool').map((entry) => entry.text())
+    expect(tools).not.toContain('Add to My Publications…')
+    expect(wrapper.text()).not.toContain('My Publications')
+  })
+})
