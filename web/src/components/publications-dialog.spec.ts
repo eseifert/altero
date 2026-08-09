@@ -100,6 +100,18 @@ describe('the My Publications wizard', () => {
     expect(wrapper.text()).toContain('have the rights to distribute')
   })
 
+  it('names no licence on the first page, where none has been chosen', async () => {
+    /* Ticking "include files" settles nothing about the licence: "All rights
+       reserved" is the first answer to a question that has not been asked yet,
+       and printing it here read as the whole of the choice. */
+    const wrapper = open()
+
+    await claim(wrapper, { files: true })
+
+    expect(wrapper.find('.publish__license').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('All rights reserved')
+  })
+
   it('asks about sharing once files are included, and finishes on reserved rights', async () => {
     const wrapper = open()
     await claim(wrapper, { files: true })

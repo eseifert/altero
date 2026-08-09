@@ -594,8 +594,6 @@ async function startPublishing(item: ItemEnvelope): Promise<void> {
     return
   }
 
-  publishing.value = item
-  publishingChildren.value = []
   itemError.value = null
   try {
     publishingChildren.value = await library.childrenOf(item.key)
@@ -603,7 +601,13 @@ async function startPublishing(item: ItemEnvelope): Promise<void> {
     /* The dialog opens either way, with both checkboxes disabled: it asks
        about files and notes, and "we could not find out" is closer to "there
        are none" than to refusing to publish the work at all. */
+    publishingChildren.value = []
   }
+  /* Opened only once the answer is in. A dialog that opens first and enables
+     its checkboxes a moment later is a race the reader can lose: a tick lands
+     on a disabled box, nothing happens, and the files are left behind on a
+     page that has already moved on. */
+  publishing.value = item
 }
 
 async function submitPublication(terms: {

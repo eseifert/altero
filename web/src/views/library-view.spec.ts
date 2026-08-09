@@ -2106,6 +2106,49 @@ describe('publishing an item', () => {
     expect(boxes[1].attributes('disabled')).toBeDefined()
   })
 
+  it('opens the wizard only once it knows what the item has', async () => {
+    /* The checkboxes are about the item's files and notes, so a dialog that
+       opens before the children have arrived offers two disabled boxes and
+       enables them a moment later — a race the reader loses by ticking early,
+       and the files are left behind on a page that has already moved on. */
+    CHILDREN = [
+      {
+        key: 'CHILD123',
+        version: 1,
+        data: { itemType: 'note', parentItem: 'AAAA2345', note: '<p>x</p>' },
+        meta: {},
+      },
+    ]
+    let answerChildren: (value: unknown) => void = () => {}
+    const held = new Promise((resolve) => {
+      answerChildren = resolve
+    })
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method && options.method !== 'GET') return Promise.resolve(contents[0])
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return held.then(() => ({ items: CHILDREN }))
+      if (/\/items\/[A-Z0-9]+$/.test(path)) return Promise.resolve(contents[0])
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+    const wrapper = await open()
+
+    await drag(wrapper, publicationsRow(wrapper))
+
+    expect(wrapper.find('.dialog').exists()).toBe(false)
+
+    answerChildren(null)
+    await settle(wrapper)
+
+    expect(wrapper.find('.dialog').exists()).toBe(true)
+    const boxes = wrapper.findAll('.dialog__check input')
+    expect(boxes[1].attributes('disabled')).toBeUndefined()
+  })
+
   it('does not take a work that is already published', async () => {
     /* The row does not light up, which is how every other refusal is said
        here: it is easier not to offer than to explain afterwards. */

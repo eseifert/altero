@@ -91,7 +91,17 @@ const license = computed<string | null>(() => {
   return creativeCommonsLicense(adaptations.value, commercial.value)
 })
 
-const chosen = computed(() => (license.value ? licenseFor(license.value) : undefined))
+/**
+ * The licence to print, which is not the same as the licence so far.
+ *
+ * Only where it is being chosen. Ticking "include files" on the first page
+ * settles nothing about the licence -- the default is the first answer to a
+ * question that has not been asked yet -- and printing "All rights reserved"
+ * there read as the whole of the choice, with nothing on the page to change it.
+ */
+const chosen = computed(() =>
+  page.value !== 'intro' && license.value ? licenseFor(license.value) : undefined,
+)
 
 /** Whether this page is the last one, which decides what the button says. */
 const finishes = computed(() => {
