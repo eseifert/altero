@@ -59,6 +59,12 @@ at an existing one with `--key`.
 Either way the key covers group libraries as well as the personal one, which is
 what the client expects to sync.
 
+## Two of them at once
+
+Two installations on one machine are two profiles and two data directories,
+which is how the sync itself gets tested rather than only replayed:
+[testing-two-clients.md](testing-two-clients.md).
+
 ## Mobile is not possible
 
 The desktop application is the only client this works with. Zotero for iOS and

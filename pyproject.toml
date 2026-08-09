@@ -72,7 +72,10 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "PT"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["altero"]
+# `tools` holds what is run by hand rather than shipped: the wheel packages
+# `src/altero` alone. It is still this project's code, and imports of it sort
+# with the rest of it.
+known-first-party = ["altero", "tools"]
 
 [tool.ty.environment]
 python-version = "3.14"
