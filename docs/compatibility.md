@@ -895,6 +895,50 @@ publications library, a separate library that altero has never had and cannot
 create. Reproducing it would mean refusing every modern client that has
 published anything, with advice it has already followed.
 
+### Who may read My Publications
+
+Upstream: anybody. The list is served without a key, and there is no setting.
+
+altero keeps that as the default and lets the account narrow it, because a
+personal server is not a service — see
+[web-interface.md](web-interface.md#who-can-see-it). The setting is one column
+on the account, `public` for every account that existed before it did, and it is
+enforced on the v3 endpoints as well as on the profile page:
+
+| Setting | Keyless | Any key this server issued | A key that may read the library |
+| --- | --- | --- | --- |
+| `public` (default) | 200 | 200 | 200 |
+| `users` | 403 | 200 | 200 |
+| `private` | 403 | 403 | 200 |
+
+The last column is why the owner's desktop client is unaffected: it syncs My
+Publications with a key that can read the library it belongs to, so closing the
+page never breaks the sync that filled it. Every publications endpoint asks —
+`items`, `items/top`, one item, and the `settings` and `deleted` polls — because
+a closed list that still reported its version to anyone would be describing a
+library it had refused to show.
+
+An instance that never touches the setting behaves exactly as the dataserver
+does, which is what upstream's own test file expects when it reads every case
+with `API::useAPIKey("")`.
+
+### Profile pages
+
+Upstream's profile page is `zotero.org/<slug>`, built by
+`Zotero_URI::getUserURI` from the username put through
+`Zotero_Utilities::slugify` — lower case, everything outside `[a-z0-9 ._-]`
+dropped, spaces to underscores. altero serves the same page from its own
+interface at `/app/u/<username>`, under a prefix, because a bare path would
+collide with the interface's own route names: an account called `settings` would
+otherwise have no page, and every route added later would silently claim a
+username. Both the username and upstream's slug of it resolve, and neither is
+matched case-sensitively.
+
+`Zotero_Users::getName` falls back from the profile's real name to the username,
+and so does the heading here. There is no `alternate` link to zotero.org for the
+same reason the item envelopes carry none: altero will not point a reader at
+somebody else's copy of the data.
+
 ### Publishing from the browser
 
 Setting `inPublications` is all the v3 API knows about publishing, and it is

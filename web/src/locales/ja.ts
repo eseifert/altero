@@ -45,8 +45,10 @@ export default {
   Anyone: '全員',
   'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     '「私の出版物」に入れたものは、このサーバーのアカウントもキーもなしに誰でも読むことができます。含めたファイルは、選んだライセンスの下で公開されます。あなた自身が作成した著作物のみを加え、配布する権利を持つファイルのみを含めてください。',
+  'Anyone can see this page, with no account here.': 'このページは、ここにアカウントがなくても誰でも見られます。',
   Archive: 'アーカイブ',
   'At least {count} characters': '{count} 文字以上',
+  Attachments: '添付ファイル',
   'Attachments and notes': '添付ファイルとメモ',
   'Authenticator app': '認証アプリ',
   'Authenticator enabled.': '認証アプリを有効にしました。',
@@ -58,6 +60,7 @@ export default {
   Cancel: 'キャンセル',
   'Change password': 'パスワードを変更',
   'Change the rights': '権利を変更',
+  'Change who can see it': '見られる人を変更',
   'Checking the request…': 'リクエストを確認しています…',
   'Choose a Creative Commons license': 'クリエイティブ・コモンズ・ライセンスを選択する',
   'Choose a library and an archive first.': '先にライブラリーとアーカイブを選んでください。',
@@ -207,14 +210,19 @@ export default {
   'No keys yet.': 'キーはまだありません。',
   'No library here is yours to export.': 'エクスポートできるご自身のライブラリーはここにはありません。',
   'No library here is yours to restore into.': '復元先にできるご自身のライブラリーはここにはありません。',
+  'No such profile': 'そのプロフィールはありません',
   'No two items here look like the same work.': '同じ著作と思われる項目はありません。',
   'No, publish my work here only': 'いいえ、私の著作物はここでのみ公開してください',
   Nobody: '誰も',
+  'Nobody but you can see this page.': 'このページはあなた以外には見えません。',
+  'Nobody here goes by that name.': 'その名前の人はここにはいません。',
   'Not enabled.': '無効です。',
   'Not now': '今はしない',
   'Not stated — say what it is': '未記入 — 記入する',
   Note: 'メモ',
+  Notes: 'メモ',
   'Nothing has been added to this group yet.': 'このグループにはまだ何も追加されていません。',
+  'Nothing has been published here yet.': 'ここにはまだ何も公開されていません。',
   'Nothing has been read here lately.': '最近ここで読まれたものはありません。',
   'Nothing has happened here yet.': 'まだ何も起きていません。',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
@@ -226,6 +234,7 @@ export default {
   'On a work in My Publications, this is the licence its files are published under.':
     '「私の出版物」にある著作物では、これがそのファイルを公開するライセンスです。',
   'One more step': 'あと 1 ステップ',
+  'Only people signed in to this server can see this page.': 'このページは、このサーバーにサインインしている人だけが見られます。',
   'Open file': 'ファイルを開く',
   'Open zotero.org → Settings → Security → Applications and create a new private key.': 'zotero.org → Settings → Security → Applications を開き、新しいプライベートキーを作成します。',
   Optional: '任意',
@@ -233,10 +242,12 @@ export default {
   Password: 'パスワード',
   'Password changed. Every other browser was signed out.': 'パスワードを変更しました。他のすべてのブラウザーはサインアウトされました。',
   'Paste it below. It is used for this copy and never stored.': '下に貼り付けてください。このコピーにのみ使われ、保存されません。',
+  'People with an account here': 'ここにアカウントを持つ人',
   Private: '非公開',
   Profile: 'プロフィール',
   Public: '公開',
   'People joining or leaving': 'メンバーの参加と脱退',
+  'Public page': '公開ページ',
   'Public, invitation only': '公開（招待制）',
   'Put it in': '配置先',
   'Read and change any group library you belong to':
@@ -285,6 +296,8 @@ export default {
     '下のコードを読み取り、アプリのコードを入力してください。',
   Search: '検索',
   'Search this library': 'このライブラリを検索',
+  'See your page': '自分のページを見る',
+  'See your public page': '公開ページを見る',
   'Send a new link': '新しいリンクを送信',
   'Send confirmation': '確認メールを送信',
   'Sent to {address}.': '{address} 宛に送信されました。',
@@ -306,6 +319,7 @@ export default {
   'Signed-in browsers': 'サインイン中のブラウザー',
   'Signing in asks for a code.': 'サインイン時にコードが必要です。',
   'Skip to content': '本文へスキップ',
+  'Some profiles are shown only to people signed in.': 'サインインしている人にだけ表示されるプロフィールもあります。',
   'Somebody': '誰か',
   'Something else…': 'その他…',
   'Sort by {column}': '{column} で並べ替え',
@@ -328,6 +342,8 @@ export default {
   'The tag will be changed in all associated items.': 'タグの変更がすべての関連項目に適用されます。',
   'The trash is empty.': 'ごみ箱は空です。',
   'The two passwords do not match': 'パスワードが一致しません',
+  'The work you add to My Publications is shown on your public page.':
+    '「私の出版物」に追加した著作物は、公開ページに表示されます。',
   'This can take a while. You can leave this page open or come back to it.': 'しばらく時間がかかります。このページを開いたままにするか、後で戻ってきてください。',
   'This cannot be undone.': 'この操作は取り消せません。',
   'This collection is empty.': 'このコレクションは空です。',
@@ -335,6 +351,7 @@ export default {
     'ここで作成したキーは、設定で削除するまで有効です。ここからサインアウトしても失効しません。',
   'This instance has no accounts yet, so this one will be yours.':
     'このインスタンスにはまだアカウントがないため、これがあなたのアカウントになります。',
+  'This is your public page.': 'これはあなたの公開ページです。',
   'Time zone': 'タイムゾーン',
   Trash: 'ごみ箱',
   'Turn on': '有効にする',
@@ -351,6 +368,7 @@ export default {
   'What is it for?': '用途は何ですか？',
   'What the Zotero app and any scripts use to sync. Linking Zotero from its own settings creates one of these for you.':
     'Zotero アプリやスクリプトが同期に使うものです。Zotero の設定から接続すると自動的に作成されます。',
+  'Who can see it': '見られる人',
   'Who may add and change items': 'アイテムを追加・変更できる人',
   'Who may do what': '権限',
   'Who may read the library': 'ライブラリを閲覧できる人',
@@ -369,6 +387,12 @@ export default {
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     '著作物のすべての権利を留保することも、クリエイティブ・コモンズ・ライセンスの下でライセンスすることも、パブリックドメインに捧げることも可能です。いずれの場合も、著作物そのものはここで誰でも読めるように公開されます。',
   'You have joined the group.': 'グループに参加しました。',
+  'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
+    'ページは非表示です。アイテムは「私の出版物」に残るため、いつでも再び公開できます。',
+  'Your published work can be read by anyone signed in to this server.':
+    '公開した著作物は、このサーバーにサインインしている人なら誰でも読めます。',
+  'Your published work can be read by anyone, without an account here.':
+    '公開した著作物は、ここにアカウントがなくても誰でも読めます。',
   confirmed: '確認済み',
   'date unknown': '日付不明',
   'not confirmed yet': '未確認',
@@ -389,6 +413,7 @@ export default {
   '{count} member | {count} members': 'メンバー {count} 人 | メンバー {count} 人',
   '{count} membership changed | {count} memberships changed': '{count} 件のメンバーシップを変更 | {count} 件のメンバーシップを変更',
   '{count} more | {count} more': '他 {count} 件 | 他 {count} 件',
+  '{count} publication | {count} publications': '{count} 件の出版物 | {count} 件の出版物',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} 件の項目、{collections} 件のコレクション、{files} 件のファイルを、{source} のアーカイブから読み込みました。',
   '{items} items, {collections} collections, {tags} tags and {files} files, from {username} at zotero.org.': 'zotero.org の {username} から、{items} 件の項目、{collections} 件のコレクション、{tags} 件のタグ、{files} 件のファイル。',

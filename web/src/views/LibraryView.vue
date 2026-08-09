@@ -19,6 +19,7 @@ import { useCarry } from '@/dragging'
 import { fieldLabel, loadLabels } from '@/items/labels'
 import { libraryLabel } from '@/librarylabel'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
+import { useAuthStore } from '@/stores/auth'
 import {
   useLibraryStore,
   type CollectionNode,
@@ -31,6 +32,10 @@ const { t } = useI18n()
 
 const library = useLibraryStore()
 const locales = useLocaleStore()
+/* Only for the account's own username, which is what its public page is
+   addressed by. Nothing else on this screen needs to know who is signed in --
+   what may be done to a library is the server's answer, not this one's. */
+const auth = useAuthStore()
 
 /** Columns the list offers, named by the field each one asks the server to sort by. */
 const COLUMN_FIELDS = ['title', 'creator', 'date']
@@ -1098,6 +1103,21 @@ function sortLabel(column: { field: string; label: string }): string {
         >
           {{ t('Empty the trash') }}
         </button>
+        <!--
+          The list of what has been published, and the page it is published
+          on. The wizard promises the work "will be shown on your profile
+          page"; this is where somebody standing in front of that list can go
+          and read the page as everybody else does. Styled as the button
+          beside it, since it is the same kind of errand and the pill is what
+          this header puts one in.
+        -->
+        <RouterLink
+          v-if="library.scope === 'publications' && auth.user"
+          class="library__more"
+          :to="{ name: 'profile', params: { username: auth.user.username } }"
+        >
+          {{ t('See your public page') }}
+        </RouterLink>
         <div class="library__search">
           <svg class="library__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
@@ -2050,6 +2070,10 @@ function sortLabel(column: { field: string; label: string }): string {
   color: inherit;
   font: inherit;
   cursor: pointer;
+  /* The pill is worn by a button and by one link -- the public page -- and a
+     link brings an underline and a colour of its own that would make the two
+     read as different kinds of control. */
+  text-decoration: none;
 }
 
 .library__detail {

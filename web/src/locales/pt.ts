@@ -42,8 +42,11 @@ export default {
   Anyone: 'Qualquer pessoa',
   'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     'Qualquer pessoa pode ler o que colocar em As Minhas Publicações, sem uma conta neste servidor e sem uma chave. Os ficheiros que incluir são publicados sob a licença que escolher. Adicione apenas trabalho criado por si e inclua apenas ficheiros que tenha o direito de distribuir.',
+  'Anyone can see this page, with no account here.':
+    'Qualquer pessoa pode ver esta página, sem ter conta aqui.',
   Archive: 'Arquivo',
   'At least {count} characters': 'Pelo menos {count} caracteres',
+  Attachments: 'Anexos',
   'Attachments and notes': 'Anexos e notas',
   'Authenticator app': 'Aplicação de autenticação',
   'Authenticator enabled.': 'Autenticação ativada.',
@@ -55,6 +58,7 @@ export default {
   Cancel: 'Cancelar',
   'Change password': 'Alterar a palavra-passe',
   'Change the rights': 'Alterar os direitos',
+  'Change who can see it': 'Alterar quem pode vê-la',
   'Checking the request…': 'A verificar o pedido…',
   'Choose a Creative Commons license': 'Escolha uma licença Creative Commons',
   'Choose a library and an archive first.': 'Escolha primeiro uma biblioteca e um arquivo.',
@@ -208,14 +212,19 @@ export default {
   'No keys yet.': 'Ainda não há chaves.',
   'No library here is yours to export.': 'Aqui não há nenhuma biblioteca sua para exportar.',
   'No library here is yours to restore into.': 'Aqui não há nenhuma biblioteca sua onde restaurar.',
+  'No such profile': 'Perfil inexistente',
   'No two items here look like the same work.': 'Não há dois itens aqui que pareçam a mesma obra.',
   'No, publish my work here only': 'Não, publicar o meu trabalho apenas aqui',
   Nobody: 'Ninguém',
+  'Nobody but you can see this page.': 'Ninguém além de si pode ver esta página.',
+  'Nobody here goes by that name.': 'Ninguém aqui usa esse nome.',
   'Not enabled.': 'Não ativada.',
   'Not now': 'Agora não',
   'Not stated — say what it is': 'Não indicado — indicar agora',
   Note: 'Nota',
+  Notes: 'Notas',
   'Nothing has been added to this group yet.': 'Ainda não foi adicionado nada a este grupo.',
+  'Nothing has been published here yet.': 'Ainda não foi publicado nada aqui.',
   'Nothing has been read here lately.': 'Não foi lido nada aqui recentemente.',
   'Nothing has happened here yet.': 'Ainda não aconteceu nada aqui.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
@@ -228,6 +237,8 @@ export default {
   'On a work in My Publications, this is the licence its files are published under.':
     'Num trabalho em As Minhas Publicações, esta é a licença sob a qual os seus ficheiros são publicados.',
   'One more step': 'Mais um passo',
+  'Only people signed in to this server can see this page.':
+    'Só quem tiver sessão iniciada neste servidor pode ver esta página.',
   'Open file': 'Abrir o ficheiro',
   'Open zotero.org → Settings → Security → Applications and create a new private key.': 'Abra zotero.org → Settings → Security → Applications e crie uma nova chave privada.',
   Optional: 'Opcional',
@@ -236,10 +247,12 @@ export default {
   'Password changed. Every other browser was signed out.':
     'Palavra-passe alterada. A sessão foi terminada em todos os outros navegadores.',
   'Paste it below. It is used for this copy and never stored.': 'Cole-a abaixo. É usada para esta cópia e nunca guardada.',
+  'People with an account here': 'Quem tiver conta aqui',
   Private: 'Privado',
   Profile: 'Perfil',
   Public: 'Público',
   'People joining or leaving': 'Entradas e saídas de pessoas',
+  'Public page': 'Página pública',
   'Public, invitation only': 'Público, apenas por convite',
   'Put it in': 'Colocar em',
   'Read and change any group library you belong to':
@@ -288,6 +301,8 @@ export default {
     'Leia o código abaixo e depois introduza um código da aplicação.',
   Search: 'Pesquisar',
   'Search this library': 'Pesquisar nesta biblioteca',
+  'See your page': 'Ver a sua página',
+  'See your public page': 'Ver a sua página pública',
   'Send a new link': 'Enviar uma nova ligação',
   'Send confirmation': 'Enviar a confirmação',
   'Sent to {address}.': 'Enviado para {address}.',
@@ -309,6 +324,8 @@ export default {
   'Signed-in browsers': 'Navegadores com sessão iniciada',
   'Signing in asks for a code.': 'Ao iniciar sessão é pedido um código.',
   'Skip to content': 'Saltar para o conteúdo',
+  'Some profiles are shown only to people signed in.':
+    'Alguns perfis só são mostrados a quem tem sessão iniciada.',
   'Somebody': 'Alguém',
   'Something else…': 'Outra coisa…',
   'Sort by {column}': 'Ordenar por {column}',
@@ -332,6 +349,8 @@ export default {
   'The tag will be changed in all associated items.': 'A etiqueta será alterada em todos os itens associados.',
   'The trash is empty.': 'O lixo está vazio.',
   'The two passwords do not match': 'As duas palavras-passe não coincidem',
+  'The work you add to My Publications is shown on your public page.':
+    'O que adicionar a As Minhas Publicações aparece na sua página pública.',
   'This can take a while. You can leave this page open or come back to it.': 'Isto pode demorar. Pode deixar esta página aberta ou voltar mais tarde.',
   'This cannot be undone.': 'Isto não pode ser anulado.',
   'This collection is empty.': 'Esta coleção está vazia.',
@@ -339,6 +358,7 @@ export default {
     'Isto cria uma chave que continua a funcionar até a remover nas definições, mesmo depois de terminar sessão aqui.',
   'This instance has no accounts yet, so this one will be yours.':
     'Esta instância ainda não tem contas, por isso esta será a sua.',
+  'This is your public page.': 'Esta é a sua página pública.',
   'Time zone': 'Fuso horário',
   Trash: 'Lixo',
   'Turn on': 'Ativar',
@@ -355,6 +375,7 @@ export default {
   'What is it for?': 'Para que serve?',
   'What the Zotero app and any scripts use to sync. Linking Zotero from its own settings creates one of these for you.':
     'É o que a aplicação Zotero e os seus scripts usam para sincronizar. Ligar o Zotero a partir das definições dele cria uma automaticamente.',
+  'Who can see it': 'Quem pode vê-la',
   'Who may add and change items': 'Quem pode adicionar e alterar itens',
   'Who may do what': 'Quem pode fazer o quê',
   'Who may read the library': 'Quem pode ler a biblioteca',
@@ -375,6 +396,12 @@ export default {
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Pode reservar todos os direitos do seu trabalho, licenciá-lo sob uma licença Creative Commons ou colocá-lo no domínio público. Em qualquer dos casos, o trabalho é publicado aqui para qualquer pessoa ler.',
   'You have joined the group.': 'Juntou-se ao grupo.',
+  'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
+    'A sua página está oculta. Os seus itens permanecem em As Minhas Publicações, por isso pode voltar a abri-la.',
+  'Your published work can be read by anyone signed in to this server.':
+    'A sua obra publicada pode ser lida por quem tiver sessão iniciada neste servidor.',
+  'Your published work can be read by anyone, without an account here.':
+    'A sua obra publicada pode ser lida por qualquer pessoa, sem conta aqui.',
   confirmed: 'confirmado',
   'date unknown': 'data desconhecida',
   'not confirmed yet': 'ainda não confirmado',
@@ -395,6 +422,7 @@ export default {
   '{count} member | {count} members': '{count} membro | {count} membros',
   '{count} membership changed | {count} memberships changed': '{count} adesão alterada | {count} adesões alteradas',
   '{count} more | {count} more': 'mais {count} | mais {count}',
+  '{count} publication | {count} publications': '{count} publicação | {count} publicações',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} itens, {collections} coleções e {files} ficheiros, de um arquivo de {source}.',
   '{items} items, {collections} collections, {tags} tags and {files} files, from {username} at zotero.org.': '{items} itens, {collections} coleções, {tags} etiquetas e {files} ficheiros, de {username} em zotero.org.',

@@ -42,7 +42,11 @@ things the desktop client asks for that no data server documents.
 - `relations` on both items and collections, including a predicate that names
   several objects
 - `/users/<id>/publications/items`, `settings` and `deleted`, readable without
-  a key
+  a key — or by whichever narrower audience the account has chosen; see
+  [compatibility.md](compatibility.md#who-may-read-my-publications)
+- Profile pages in the browser at `/app/u/<username>`: one person's published
+  work, the files it was published with, and the licence they are under, read
+  by anyone the account allows
 - Rate limiting, off unless configured, answering `429` with `Retry-After`
 - Citations and bibliographies: `format=bib`, `format=csljson` and
   `include=bib,citation,csljson`, in any of the styles published by the

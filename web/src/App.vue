@@ -22,8 +22,10 @@ const router = useRouter()
 const route = useRoute()
 
 /* The sign-in screens are centred on an empty page; the library gets the
-   full shell with a header. */
-const bare = computed(() => route.meta.requiresAuth !== true)
+   full shell with a header. Needing an account is what usually tells them
+   apart, but not always: a profile page is read by strangers and is still a
+   page of content, so a route can ask for the frame with `shell`. */
+const bare = computed(() => route.meta.requiresAuth !== true && route.meta.shell !== true)
 
 /* Reading text wants a narrow measure; browsing a library wants room. The
    library is three panes side by side, and at the reading width the middle one
@@ -143,6 +145,16 @@ async function signOut(): Promise<void> {
         </RouterLink>
         <ThemeMenu />
         <AppButton v-if="auth.isAuthenticated" variant="text" @click="signOut">{{ t('Sign out') }}</AppButton>
+        <!-- A page with this frame that nobody is signed in for is a profile
+             somebody arrived at from outside. The bar is the only chrome they
+             have; without this it offers them no way in at all. -->
+        <RouterLink
+          v-else-if="!bare"
+          class="shell__signin"
+          :to="{ name: 'sign-in', query: { next: route.fullPath } }"
+        >
+          {{ t('Sign in') }}
+        </RouterLink>
       </div>
     </header>
 
@@ -288,6 +300,13 @@ async function signOut(): Promise<void> {
   font-size: 11px;
   line-height: 16px;
   text-align: center;
+}
+
+.shell__signin {
+  padding: 0 var(--md-spacing-3);
+  color: var(--md-sys-color-primary);
+  font-size: var(--md-sys-typescale-label-large-size);
+  text-decoration: none;
 }
 
 .shell__actions {

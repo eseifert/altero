@@ -9,7 +9,14 @@ from altero.models.apikey import ApiKey, ApiKeyGroupAccess
 from altero.models.collection import Collection, CollectionItem, CollectionRelation
 from altero.models.fulltext import FullText
 from altero.models.item import Item, ItemCreator, ItemField, ItemRelation
-from altero.models.library import Group, GroupMember, Library, LibraryType, User
+from altero.models.library import (
+    Group,
+    GroupMember,
+    Library,
+    LibraryType,
+    ProfileVisibility,
+    User,
+)
 from altero.models.login import LoginSession
 from altero.models.search import SavedSearch, SearchCondition
 from altero.models.setting import Setting
@@ -49,6 +56,7 @@ __all__ = [
     "LibraryType",
     "LoginSession",
     "Notification",
+    "ProfileVisibility",
     "SavedSearch",
     "SearchCondition",
     "Setting",

@@ -7,25 +7,58 @@ suite runs the file anonymously and expects 200. Only items flagged
 
 There is no group form. My Publications belongs to a person, which is also why
 ``inPublications`` is refused on a group item in the first place.
+
+One thing here is altero's and not upstream's: the owner decides who this list
+is for. The default is ``public``, which is exactly the behaviour above, so an
+account that never opens the setting is served precisely as the dataserver
+serves one. See :func:`get_visible_library` and
+:mod:`altero.services.profiles`.
 """
 
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from altero.api.deps import BaseUrlDep, LibraryDep, SessionDep
+from altero.api.deps import ApiKeyDep, BaseUrlDep, LibraryDep, SessionDep
 from altero.api.responses import library_headers, not_modified, object_response
 from altero.api.routes.items import render_item, render_listing
 from altero.errors import ForbiddenError, NotFoundError
+from altero.models import Library
 from altero.services import items as items_service
+from altero.services import profiles
 from altero.services.items import Scope
 
 router = APIRouter(tags=["publications"])
 
 
+async def get_visible_library(
+    library: LibraryDep, api_key: ApiKeyDep, session: SessionDep
+) -> Library:
+    """Return the addressed library, if its owner publishes to this caller.
+
+    Nothing is asked of the caller when the owner's setting is ``public``,
+    which is the default and upstream's only behaviour: the whole point of
+    these endpoints is that they answer without a key, and upstream's own test
+    file reads every one of them with ``API::useAPIKey("")``.
+
+    The other two settings are altero's, and are enforced here rather than only
+    on the profile page. A page in the browser that refused a stranger while
+    ``curl /users/1/publications/items`` still listed the same work would not
+    be a setting; it would be a decoration.
+    """
+    if not await profiles.readable_by_key(session, library, api_key):
+        raise ForbiddenError("These publications are not public")
+    return library
+
+
+VisibleLibraryDep = Annotated[Library, Depends(get_visible_library)]
+
+
 @router.get("/users/{user_id}/publications/items")
 async def list_published_items(
-    request: Request, session: SessionDep, library: LibraryDep, base_url: BaseUrlDep
+    request: Request, session: SessionDep, library: VisibleLibraryDep, base_url: BaseUrlDep
 ) -> Response:
     """List the items the owner has published, to anyone who asks."""
     return await render_listing(request, session, library, base_url, Scope.PUBLICATIONS)
@@ -33,7 +66,7 @@ async def list_published_items(
 
 @router.get("/users/{user_id}/publications/items/top")
 async def list_top_published_items(
-    request: Request, session: SessionDep, library: LibraryDep, base_url: BaseUrlDep
+    request: Request, session: SessionDep, library: VisibleLibraryDep, base_url: BaseUrlDep
 ) -> Response:
     return await render_listing(request, session, library, base_url, Scope.PUBLICATIONS_TOP)
 
@@ -43,7 +76,7 @@ async def get_published_item(
     item_key: str,
     request: Request,
     session: SessionDep,
-    library: LibraryDep,
+    library: VisibleLibraryDep,
     base_url: BaseUrlDep,
 ) -> Response:
     """Return one published item.
@@ -62,7 +95,7 @@ async def get_published_item(
 
 
 @router.get("/users/{user_id}/publications/settings")
-async def list_published_settings(library: LibraryDep) -> Response:
+async def list_published_settings(library: VisibleLibraryDep) -> Response:
     """Answer the settings poll a My Publications sync makes.
 
     Always empty. Upstream serves an empty array here too: settings belong to a
@@ -74,7 +107,7 @@ async def list_published_settings(library: LibraryDep) -> Response:
 
 
 @router.get("/users/{user_id}/publications/deleted")
-async def list_published_deletions(library: LibraryDep) -> Response:
+async def list_published_deletions(library: VisibleLibraryDep) -> Response:
     """Answer the deletion poll, which is likewise always empty.
 
     An object leaves My Publications by having ``inPublications`` cleared, which

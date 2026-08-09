@@ -97,6 +97,16 @@ EXPECTED = [
     # rather than an edit. See altero/api/routes/webtransfer.py.
     ("/web/libraries/{library_id}/archive", "GET"),
     ("/web/libraries/{library_id}/archive", "POST"),
+    # A profile page: one person's published work, read by whoever their
+    # setting allows -- including, by default, somebody with no account here.
+    # The only endpoints under /web that answer without a cookie. See
+    # altero/api/routes/webprofile.py.
+    ("/web/profiles/{username}", "GET"),
+    ("/web/profiles/{username}/items", "GET"),
+    ("/web/profiles/{username}/items/{item_key}", "GET"),
+    ("/web/profiles/{username}/items/{item_key}/children", "GET"),
+    ("/web/profiles/{username}/items/{item_key}/file", "GET"),
+    ("/web/profiles/{username}/items/{item_key}/citation", "GET"),
     ("/web/schema", "GET"),
     ("/keys/{key}", "GET"),
     ("/keys/current", "GET"),

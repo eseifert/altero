@@ -74,6 +74,9 @@ def _serialise(user: User) -> dict:
         # null rather than filled in with a default the account did not choose.
         "language": user.language,
         "timeZone": user.time_zone,
+        # Who may read this account's profile page. Reported to the account
+        # itself and to nobody else -- see altero/api/routes/webprofile.py.
+        "profileVisibility": user.profile_visibility.value,
     }
 
 
@@ -191,6 +194,26 @@ async def get_current_user(record: AuthenticatedDep, session: SessionDep) -> Use
 
 
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
+
+
+async def get_viewer(request: Request, session: SessionDep) -> User | None:
+    """Return who is signed in, or ``None``, without refusing anybody.
+
+    For the pages that are readable by strangers -- a profile and the
+    publications on it -- where being signed in changes what may be seen but
+    not whether the request is answered. Everything else takes
+    :data:`CurrentUserDep`, which refuses.
+
+    A session part-way through a second factor counts as nobody: it holds a
+    real cookie and has not finished proving whose it is.
+    """
+    record = await websessions.lookup(session, request.cookies.get(SESSION_COOKIE))
+    if record is None or not websessions.is_authenticated(record):
+        return None
+    return await session.get(User, record.user_id)
+
+
+ViewerDep = Annotated[User | None, Depends(get_viewer)]
 
 
 def require_csrf(request: Request) -> None:

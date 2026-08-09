@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 
 import { ApiError, request } from '@/api/client'
 import { useLocaleStore } from '@/stores/locale'
+import type { Visibility } from '@/stores/profile'
 
 export interface User {
   id: number
@@ -14,6 +15,9 @@ export interface User {
   language: string | null
   /** IANA zone, or null to follow the browser. */
   timeZone: string | null
+  /** Who may read this account's profile page. Sent to the account itself and
+   *  to nobody else; see `stores/profile.ts`. */
+  profileVisibility: Visibility
 }
 
 interface AuthResponse {

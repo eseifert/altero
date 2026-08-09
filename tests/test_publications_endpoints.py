@@ -14,7 +14,7 @@ import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.models import Library, LibraryType
+from altero.models import Library, LibraryType, ProfileVisibility, User
 from altero.services.auth import get_library
 from tests.factories import make_api_key, make_item, make_user
 
@@ -171,3 +171,101 @@ class TestWhatIsNotThere:
         response = await client.get("/groups/2/publications/items")
 
         assert response.status_code == 404
+
+
+class TestTheOwnersVisibilitySetting:
+    """altero's one addition here, and the reason it is not decorative.
+
+    Upstream serves this list to anybody, full stop. altero lets the owner say
+    who it is for, defaulting to upstream's answer -- and enforces that choice
+    on these endpoints as well as on the profile page, because a page in the
+    browser that refused a stranger while `curl` still listed the same work
+    would be no setting at all.
+    """
+
+    @pytest.fixture
+    async def owner(self, session: AsyncSession, library: Library) -> User:
+        user = await session.get(User, 1)
+        assert user is not None
+        return user
+
+    async def test_public_is_the_default_and_answers_a_stranger(
+        self, client: httpx.AsyncClient, owner: User, published: dict[str, Any]
+    ) -> None:
+        assert owner.profile_visibility is ProfileVisibility.PUBLIC
+        assert (await client.get("/users/1/publications/items")).status_code == 200
+
+    async def test_users_refuses_a_caller_with_no_key(
+        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+    ) -> None:
+        owner.profile_visibility = ProfileVisibility.USERS
+        await session.commit()
+
+        response = await client.get("/users/1/publications/items")
+
+        assert response.status_code == 403
+
+    async def test_users_admits_a_key_this_server_issued(
+        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+    ) -> None:
+        owner.profile_visibility = ProfileVisibility.USERS
+        await session.commit()
+
+        response = await client.get("/users/1/publications/items", headers=AUTH)
+
+        assert response.status_code == 200
+
+    async def test_private_refuses_a_stranger(
+        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+    ) -> None:
+        owner.profile_visibility = ProfileVisibility.PRIVATE
+        await session.commit()
+
+        assert (await client.get("/users/1/publications/items")).status_code == 403
+
+    async def test_private_refuses_somebody_elses_key(
+        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+    ) -> None:
+        owner.profile_visibility = ProfileVisibility.PRIVATE
+        await session.commit()
+        await make_user(session, user_id=2, username="grace")
+        stranger = await make_api_key(session, key="ZZZZZZZZZZZZZZZZZZZZZZZZ", user_id=2)
+
+        response = await client.get(
+            "/users/1/publications/items", headers={"Zotero-API-Key": stranger.key}
+        )
+
+        assert response.status_code == 403
+
+    async def test_the_owners_own_client_goes_on_syncing(
+        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+    ) -> None:
+        """Closing the page must not stop the desktop client reading its own list."""
+        owner.profile_visibility = ProfileVisibility.PRIVATE
+        await session.commit()
+
+        assert (await client.get("/users/1/publications/items", headers=AUTH)).status_code == 200
+
+    async def test_the_polls_the_client_makes_are_refused_too(
+        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+    ) -> None:
+        """Otherwise a closed list still reports its version to whoever asks."""
+        owner.profile_visibility = ProfileVisibility.PRIVATE
+        await session.commit()
+
+        for path in ("settings", "deleted", "items/top"):
+            assert (await client.get(f"/users/1/publications/{path}")).status_code == 403, path
+
+    async def test_one_item_is_refused_by_key_as_well(
+        self,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        owner: User,
+        published: dict[str, Any],
+    ) -> None:
+        owner.profile_visibility = ProfileVisibility.PRIVATE
+        await session.commit()
+
+        response = await client.get(f"/users/1/publications/items/{published['public']}")
+
+        assert response.status_code == 403

@@ -129,13 +129,17 @@ async def list_libraries(
     )
 
 
-async def _render_items(
+async def render_items(
     session: SessionDep,
     objects: Sequence[Item],
     library: Library,
     base_url: str,
 ) -> list[dict[str, Any]]:
     """Serialize items with the related data their envelopes carry.
+
+    Shared with :mod:`altero.api.routes.webprofile`, so that an item read on a
+    profile page is the same object the library view shows and the sync
+    protocol writes. There is one definition of an item in this application.
 
     Gathered once for the whole page, as the v3 item route does, so a page of a
     hundred items is a handful of queries rather than hundreds.
@@ -213,7 +217,7 @@ async def list_library_items(
         {
             "total": page.total,
             "libraryVersion": page.library_version,
-            "items": await _render_items(session, page.objects, library, base_url),
+            "items": await render_items(session, page.objects, library, base_url),
         }
     )
 
@@ -230,7 +234,7 @@ async def get_library_item(
     library = await _readable_library(session, user, library_id)
     item = await items.get_item(session, library, item_key)
 
-    (rendered,) = await _render_items(session, [item], library, base_url)
+    (rendered,) = await render_items(session, [item], library, base_url)
     return JSONResponse(rendered)
 
 
@@ -252,7 +256,7 @@ async def list_item_children(
     return JSONResponse(
         {
             "total": page.total,
-            "items": await _render_items(session, page.objects, library, base_url),
+            "items": await render_items(session, page.objects, library, base_url),
         }
     )
 

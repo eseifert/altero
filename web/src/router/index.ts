@@ -60,6 +60,28 @@ const routes = [
     component: () => import('@/views/LibraryView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    // Somebody's published work. Deliberately unguarded: publishing something
+    // here means anyone may read it, which is what the desktop client's wizard
+    // promises and what `/users/<id>/publications/items` already does — see
+    // `api/routes/webprofile.py` for the owner's own say in that.
+    //
+    // Under `/u/` rather than at `/<username>`, which is where zotero.org puts
+    // it. A bare path would collide with this router's own names, so an
+    // account called `settings` or `library` would have no page at all, and
+    // every route added later would quietly claim a username. The prefix costs
+    // two characters and cannot go wrong.
+    //
+    // `props: true` so the view takes the name as a parameter rather than
+    // reading the route: it is the one thing the page is about.
+    path: '/u/:username',
+    name: 'profile',
+    component: () => import('@/views/ProfileView.vue'),
+    props: true,
+    // Not `requiresAuth`, but not a sign-in screen either: it is a page of
+    // content and wants the application's own frame around it.
+    meta: { shell: true },
+  },
 ]
 
 export const router = createRouter({

@@ -7,6 +7,7 @@ import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { useAuthStore } from '@/stores/auth'
+import type { Visibility } from '@/stores/profile'
 import { usePanel } from './panel'
 
 const { t } = useI18n()
@@ -18,6 +19,36 @@ const displayName = ref('')
 const newEmail = ref('')
 const emailPassword = ref('')
 
+/**
+ * Who may read the profile page, and the sentence each choice makes.
+ *
+ * Three answers rather than a switch, because the middle one is the reason the
+ * setting exists: an instance shared by a research group is neither the open
+ * web nor a private drive. `public` is first and is what every account starts
+ * as -- it is what publishing means upstream, and what the desktop client's
+ * wizard says will happen.
+ */
+const AUDIENCES: { value: Visibility; label: () => string; detail: () => string }[] = [
+  {
+    value: 'public',
+    label: () => t('Anyone'),
+    detail: () => t('Your published work can be read by anyone, without an account here.'),
+  },
+  {
+    value: 'users',
+    label: () => t('People with an account here'),
+    detail: () => t('Your published work can be read by anyone signed in to this server.'),
+  },
+  {
+    value: 'private',
+    label: () => t('Nobody'),
+    detail: () =>
+      t('Your page is hidden. Your items stay in My Publications, so it can be opened again.'),
+  },
+]
+
+const visibility = ref<Visibility>('public')
+
 /* The account arrives after the section is drawn, and again after every save,
    so the field follows it rather than being filled in once on mount. */
 watch(
@@ -25,6 +56,7 @@ watch(
   (loaded) => {
     if (loaded) {
       displayName.value = loaded.user.displayName
+      visibility.value = loaded.user.profileVisibility
     }
   },
   { immediate: true },
@@ -37,6 +69,27 @@ const saveName = () =>
     // the next full load.
     await auth.restore()
   }, t('Name saved.'))
+
+/* Saved on the change rather than behind a button: there is one control, and a
+   radio somebody has already moved with a Save beside it reads as unsaved for
+   as long as they leave it there.
+
+   Moved here first so the control answers the click, and moved back if the
+   save is refused — a radio resting on a choice the server did not accept is a
+   screen saying the page is hidden when it is not. */
+const saveVisibility = (chosen: Visibility) => {
+  const before = visibility.value
+  visibility.value = chosen
+  return attempt(async () => {
+    try {
+      await request('/web/account', { method: 'PATCH', body: { profileVisibility: chosen } })
+    } catch (thrown) {
+      visibility.value = before
+      throw thrown
+    }
+    await auth.restore()
+  }, t('Saved.'))
+}
 
 const saveEmail = () =>
   attempt(async () => {
@@ -64,6 +117,40 @@ const saveEmail = () =>
     <AppButton :loading="busy" @click="saveName">{{ t('Save') }}</AppButton>
   </section>
 
+  <!--
+    The public page, and who may read it. It sits under the name because it is
+    the same question continued: this is how you appear to other people.
+  -->
+  <section class="settings__card">
+    <h2>{{ t('Public page') }}</h2>
+    <p class="settings__detail">
+      {{ t('The work you add to My Publications is shown on your public page.') }}
+      <RouterLink
+        v-if="account"
+        :to="{ name: 'profile', params: { username: account.user.username } }"
+      >
+        {{ t('See your page') }}
+      </RouterLink>
+    </p>
+    <fieldset class="audience">
+      <legend class="audience__legend">{{ t('Who can see it') }}</legend>
+      <label v-for="choice in AUDIENCES" :key="choice.value" class="audience__choice">
+        <input
+          type="radio"
+          name="profile-visibility"
+          :value="choice.value"
+          :checked="visibility === choice.value"
+          :disabled="busy"
+          @change="saveVisibility(choice.value)"
+        />
+        <span>
+          <span class="audience__label">{{ choice.label() }}</span>
+          <span class="audience__detail">{{ choice.detail() }}</span>
+        </span>
+      </label>
+    </fieldset>
+  </section>
+
   <section class="settings__card">
     <h2>{{ t('Email address') }}</h2>
     <p class="settings__detail">
@@ -84,4 +171,35 @@ const saveEmail = () =>
 
 <style scoped>
 @import '@/styles/settings.css';
+
+.audience {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.audience__legend {
+  padding: 0;
+  margin-bottom: var(--md-spacing-2);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.audience__choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--md-spacing-3);
+  padding: var(--md-spacing-2) 0;
+  cursor: pointer;
+}
+
+.audience__label,
+.audience__detail {
+  display: block;
+}
+
+.audience__detail {
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
 </style>

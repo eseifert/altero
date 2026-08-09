@@ -19,7 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
-from altero.models import ApiKey, TotpCredential, User, WebSession
+from altero.models import ApiKey, ProfileVisibility, TotpCredential, User, WebSession
 from altero.services import (
     admin,
     emailverify,
@@ -65,6 +65,21 @@ async def set_display_name(session: AsyncSession, user: User, display_name: str)
     if len(name) > 255:
         raise InvalidInputError("That display name is too long")
     user.display_name = name
+    await session.commit()
+    return user
+
+
+async def set_profile_visibility(
+    session: AsyncSession, user: User, visibility: ProfileVisibility
+) -> User:
+    """Change who may read the account's profile page.
+
+    No password either, and for a related reason: this hides or shows work its
+    owner chose to publish, and nothing about it reaches a credential. Closing
+    the page leaves every item flagged, so reopening it publishes exactly what
+    was there before.
+    """
+    user.profile_visibility = visibility
     await session.commit()
     return user
 

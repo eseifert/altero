@@ -23,6 +23,7 @@ const ADA = {
   emailVerified: true,
   language: null,
   timeZone: null,
+  profileVisibility: 'public' as const,
 }
 
 const GRACE = { id: 2, username: 'grace', displayName: 'Grace', role: 'member', owner: false }

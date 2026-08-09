@@ -16,6 +16,28 @@ class LibraryType(StrEnum):
     GROUP = "group"
 
 
+class ProfileVisibility(StrEnum):
+    """Who may read an account's profile page, and its published items with it.
+
+    Upstream has no such setting: zotero.org shows everyone's profile to
+    everyone, and the dataserver serves ``/users/<id>/publications/items``
+    without a key to whoever asks. :data:`PUBLIC` is that behaviour and is the
+    default, so an existing account's publications stay exactly as reachable as
+    they were. The other two exist because this server is somebody's own rather
+    than a service, and "published" there can reasonably mean "to the people I
+    share this instance with" or "to my own clients only".
+    """
+
+    #: Anyone, with no account and no key. What publishing means upstream, and
+    #: what the desktop client's wizard promises.
+    PUBLIC = "public"
+    #: Anybody holding an account on this instance.
+    USERS = "users"
+    #: Nobody but the owner. The items stay in My Publications and stay
+    #: flagged, so turning the profile back on republishes them unchanged.
+    PRIVATE = "private"
+
+
 class User(Base):
     """A Zotero user account."""
 
@@ -46,6 +68,18 @@ class User(Base):
     #: UTC offset: an offset is wrong for half the year everywhere that keeps
     #: summer time.
     time_zone: Mapped[str | None] = mapped_column(String(64), default=None)
+    #: Who may read this account's profile page and the items it publishes.
+    #: Public by default, which is upstream's only behaviour and the one the
+    #: publishing wizard describes.
+    #: The default is the enum's *name*, not its value. ``Enum`` persists the
+    #: name -- the column holds ``PUBLIC``, not ``public`` -- so a value here
+    #: would be written into every row the column was added to and then fail to
+    #: read back: "'public' is not among the defined enum values".
+    profile_visibility: Mapped[ProfileVisibility] = mapped_column(
+        Enum(ProfileVisibility, native_enum=False, length=8),
+        default=ProfileVisibility.PUBLIC,
+        server_default=ProfileVisibility.PUBLIC.name,
+    )
 
 
 class Library(Base):

@@ -24,14 +24,23 @@ from altero.api.routes.web import (
     _serialise,
 )
 from altero.errors import NotFoundError
-from altero.models import ApiKey, Invitation, Library, Notification, User
+from altero.models import ApiKey, Invitation, Library, Notification, ProfileVisibility, User
 from altero.services import account, invitations, locales, notifications
 
 router = APIRouter(prefix="/web", tags=["web"])
 
 
-class DisplayName(BaseModel):
-    display_name: str = Field(alias="displayName")
+class Profile(BaseModel):
+    """What the profile section of the settings page can change.
+
+    Both optional and each applied only when it is sent, because the two are
+    separate decisions that happen to share a screen: renaming yourself is not
+    a statement about who may read the page, and closing the page is not a
+    reason to clear the name.
+    """
+
+    display_name: str | None = Field(default=None, alias="displayName")
+    profile_visibility: ProfileVisibility | None = Field(default=None, alias="profileVisibility")
 
 
 class Locale(BaseModel):
@@ -162,9 +171,13 @@ async def read_account(
 
 @router.patch("/account")
 async def update_account(
-    session: SessionDep, user: CurrentUserDep, body: DisplayName, _csrf: CsrfDep
+    session: SessionDep, user: CurrentUserDep, body: Profile, _csrf: CsrfDep
 ) -> Response:
-    await account.set_display_name(session, user, body.display_name)
+    """Change the display name, who may see the profile page, or both."""
+    if body.display_name is not None:
+        await account.set_display_name(session, user, body.display_name)
+    if body.profile_visibility is not None:
+        await account.set_profile_visibility(session, user, body.profile_visibility)
     return JSONResponse({"user": _serialise(user)})
 
 

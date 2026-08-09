@@ -23,6 +23,7 @@ const ACCOUNT = {
     emailVerified: true,
     language: null,
     timeZone: null,
+    profileVisibility: 'public',
   },
   totpEnabled: false,
   sessions: [
@@ -57,7 +58,12 @@ beforeEach(() => {
 async function open(section = '') {
   const router = createRouter({
     history: createMemoryHistory(),
-    routes: [{ path: '/settings/:section?', name: 'settings', component: SettingsView }],
+    routes: [
+      { path: '/settings/:section?', name: 'settings', component: SettingsView },
+      // The profile section links to the account's own public page, so the
+      // route has to exist for the link to resolve.
+      { path: '/u/:username', name: 'profile', component: { template: '<div />' } },
+    ],
   })
   await router.push(section ? `/settings/${section}` : '/settings')
   await router.isReady()
@@ -377,5 +383,41 @@ describe('moving a library in from zotero.org', () => {
     expect(wrapper.findAll('button').some((entry) => entry.text().includes('Copy my library'))).toBe(
       false,
     )
+  })
+})
+
+describe('who can see the profile page', () => {
+  it("offers the three audiences, with the account's own chosen", async () => {
+    const { wrapper } = await open('profile')
+
+    const radios = wrapper.findAll('.audience input[type="radio"]')
+    expect(radios).toHaveLength(3)
+    expect((radios[0].element as HTMLInputElement).checked).toBe(true)
+  })
+
+  it('saves the choice as soon as it is made', async () => {
+    /* One control: a Save beside it would read as unsaved until pressed. */
+    const { wrapper } = await open('profile')
+
+    await wrapper.findAll('.audience input[type="radio"]')[2].trigger('change')
+
+    expect(requestMock).toHaveBeenCalledWith('/web/account', {
+      method: 'PATCH',
+      body: { profileVisibility: 'private' },
+    })
+  })
+
+  it('puts the choice back when the server refuses it', async () => {
+    /* A radio resting where the server did not agree says the page is hidden
+       when it is not. */
+    const { wrapper } = await open('profile')
+    requestMock.mockRejectedValueOnce(new Error('Nope'))
+
+    await wrapper.findAll('.audience input[type="radio"]')[2].trigger('change')
+    await settle(wrapper)
+
+    const radios = wrapper.findAll('.audience input[type="radio"]')
+    expect((radios[0].element as HTMLInputElement).checked).toBe(true)
+    expect((radios[2].element as HTMLInputElement).checked).toBe(false)
   })
 })

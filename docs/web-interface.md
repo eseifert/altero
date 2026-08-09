@@ -378,6 +378,69 @@ A group has no My Publications and none of this appears in one: publishing is
 something an account does with its own library, and the server refuses it for a
 group item in any case.
 
+## Profile pages
+
+Publishing something has to publish it *somewhere*. The desktop client's wizard
+says so in every language it ships — "Items you add to My Publications will be
+shown on your profile page" — and that page is what `/app/u/<username>` is.
+
+It is a list rather than the library's three panes, because somebody reading it
+is reading a bibliography: each entry opens in place to show the abstract, where
+the work appeared, the licence its files are under, and the files themselves.
+Everything on it goes through the same services and the same serialiser as the
+library view, so an item on a profile page is the item a syncing client
+receives; only which items exist differs, and that is `inPublications` and
+nothing else. Notes and files appear only if they were published with the work —
+which the wizard asked once, and does not ask again.
+
+The licence links to the licence. A **Rights** field holding one of the eight
+the wizard offers is shown as a link to the deed; anything else is shown as the
+text it is, because guessing a URL for "© 1974 the author" would be inventing a
+permission. Files are served from the profile itself, under the same rules
+upstream applies — its own permission check falls through to `canAccessObject`,
+which passes a published item, "for My Publications files".
+
+Each entry can also be cited, in the same six styles the library's detail pane
+offers and through the same renderer on the server. A list of somebody's work is
+where a reader is most likely to want a citation of it, and the alternative was
+a second CSL implementation, in a second language, to disagree with the first.
+
+**The address is `/app/u/<name>`**, not `/app/<name>`, which is where zotero.org
+puts it. A bare path would collide with the interface's own routes, so an
+account called `settings` or `library` would have no page at all and every route
+added later would quietly claim a username. The name is matched without regard
+to case, and upstream's slug is accepted too, so a link formed the way
+zotero.org forms one still arrives.
+
+### Who can see it
+
+Upstream has no such question: zotero.org is a service, its profiles are public,
+and the dataserver serves `/users/<id>/publications/items` to whoever asks. This
+server is somebody's own, and "published" on it can reasonably mean something
+narrower — so the account decides, in settings under **Profile**:
+
+- **Anyone**, with no account here. Upstream's behaviour, and what every account
+  starts as, so nothing changed for work already published.
+- **People with an account here.** The middle answer, and the reason the setting
+  exists: an instance shared by a research group is neither the open web nor a
+  private drive.
+- **Nobody.** The page is hidden. The items stay in My Publications and stay
+  flagged, so turning it back on publishes exactly what was there before.
+
+The choice governs the v3 endpoints as well, not only the browser: a page that
+refused a stranger while `curl /users/1/publications/items` listed the same work
+would be a decoration rather than a setting. In v3 terms, **users** means any key
+this server issued and **nobody** means a key that could read the library anyway
+— so the owner's own desktop client goes on syncing My Publications whatever the
+page says. See
+[compatibility.md](compatibility.md#who-may-read-my-publications).
+
+A page that may not be read answers 404, exactly as an unclaimed name does.
+Distinguishing them would turn the address into a way of asking which usernames
+have accounts behind them; the page itself says the useful half — that some
+profiles are shown only to people signed in — without the server disclosing
+anything.
+
 ## By touch
 
 Dragging is not the browser's own drag and drop, and could not be: that API is
