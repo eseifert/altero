@@ -50,6 +50,10 @@ STRUCTURAL_KEYS = frozenset(
     }
 )
 
+#: Properties holding a list of things rather than one value, and which a
+#: partial write therefore clears by sending empty rather than by omitting.
+LIST_PROPERTIES = ("creators", "tags", "collections", "relations")
+
 #: Item types whose JSON carries a `note` property.
 NOTE_BEARING_TYPES = frozenset({"note", "attachment"})
 
@@ -262,6 +266,14 @@ def validate_item(
         "relations": relations,
         "date_added": _parse_timestamp(payload.get("dateAdded"), "dateAdded"),
         "date_modified": _parse_timestamp(payload.get("dateModified"), "dateModified"),
+        # Which of the list-valued properties the object actually carried.
+        # `updateFromJSON` walks the properties that are there --
+        # `foreach ($json as $key=>$val)` -- and hands each to its setter, so an
+        # empty array reaches `setCollections([])` and empties the list. Only an
+        # absent property is left alone. Reading empty and absent as one thing
+        # left no way to say "none", and `_apply` is where the difference is
+        # spent.
+        "mentioned": {name for name in LIST_PROPERTIES if name in payload},
     }
 
     # The two flags are carried only when the object mentions them, because
@@ -375,7 +387,7 @@ async def _apply(
             else:
                 item.fields.append(ItemField(field=name, value=value))
 
-    if replace or parsed["creators"]:
+    if replace or "creators" in parsed["mentioned"]:
         item.creators = [
             ItemCreator(
                 position=index,
@@ -387,7 +399,7 @@ async def _apply(
             for index, creator in enumerate(parsed["creators"])
         ]
 
-    if replace or parsed["relations"]:
+    if replace or "relations" in parsed["mentioned"]:
         item.relations = [
             ItemRelation(predicate=predicate, object=obj) for predicate, obj in parsed["relations"]
         ]
@@ -400,14 +412,14 @@ async def _apply(
 
     await session.flush()
 
-    if replace or parsed["tags"]:
+    if replace or "tags" in parsed["mentioned"]:
         await session.execute(delete(ItemTag).where(ItemTag.item_id == item.id))
         for name, tag_type in parsed["tags"]:
             tag = await resolve_tag(session, library, name, tag_type)
             tag.version = version
             session.add(ItemTag(item_id=item.id, tag_id=tag.id))
 
-    if replace or parsed["collections"]:
+    if replace or "collections" in parsed["mentioned"]:
         await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
         for key in parsed["collections"]:
             collection = await session.scalar(
@@ -523,10 +535,10 @@ async def refile_item(
 ) -> None:
     """Put ``item`` in exactly the collections named by ``keys``.
 
-    :func:`save_item` cannot express this. A partial write treats an empty
-    ``collections`` array as a property that was not mentioned -- which is what
-    makes a ``PATCH`` of one field safe -- so taking an item out of the last
-    collection it was in would be a write that did nothing at all.
+    Filing is an add-and-remove errand computed from what is stored, so it
+    states no version and restates none of the item: :func:`save_item` would
+    take the caller's whole idea of the item and write that, and the browser's
+    idea of it may be minutes stale.
 
     Everything else about the item is left alone, ``deleted`` included: filing
     something is not untrashing it.

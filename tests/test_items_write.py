@@ -1006,3 +1006,152 @@ class TestPartialUploads:
         data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
         assert data["title"] == "Moby-Dick"
         assert "publisher" not in data
+
+
+class TestAPatchClearsWhatItSendsEmpty:
+    """An empty array is a property that was mentioned, and it means "none".
+
+    `updateFromJSON` iterates the properties the object actually carries --
+    `foreach ($json as $key=>$val)` -- and hands each straight to its setter,
+    so `collections: []` reaches `setCollections([])` and empties the list.
+    Only a property that is *absent* is left alone. altero read empty and
+    absent as the same thing, and so could never take an item out of its last
+    collection, off its last tag, or away from its last creator.
+
+    The desktop client relies on this on the ordinary path: saving through the
+    connector and then moving the target to the library root uploads
+    `{key, version, collections: [], dateModified}`. Ignored, the item comes
+    back still filed, the client re-files it locally from the answer, and the
+    next sync uploads the same patch again -- for good.
+    """
+
+    async def test_an_empty_collections_array_files_the_item_nowhere(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345", version=10)
+        await make_collection(session, library, key="CCCC2345", name="Whales", items=[item])
+
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "collections": []}],
+        )
+
+        assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["collections"] == []
+
+    async def test_the_upload_the_connector_sends_when_the_target_moves_to_the_root(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # Copied from a real sync: an item saved into a collection, then the
+        # connector's save target changed to the library itself.
+        item = await make_item(session, library, key="EIZTUZZL", version=18)
+        await make_collection(session, library, key="RPISFQKW", name="Coll2", items=[item])
+
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[
+                {
+                    "key": "EIZTUZZL",
+                    "version": 18,
+                    "collections": [],
+                    "dateModified": "2026-08-10T12:34:10Z",
+                }
+            ],
+        )
+
+        assert response.json()["failed"] == {}
+        assert response.json()["successful"]["0"]["data"]["collections"] == []
+
+    async def test_an_empty_tags_array_takes_the_last_tag_off(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="AAAA2345", version=10)
+        await tag_item(session, library, item, "fiction")
+
+        response = await client.post(
+            "/users/1/items", headers=JSON, json=[{"key": "AAAA2345", "version": 10, "tags": []}]
+        )
+
+        assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["tags"] == []
+
+    async def test_an_empty_creators_array_takes_the_last_creator_off(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            version=10,
+            creators=[("author", "Herman", "Melville")],
+        )
+
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "creators": []}],
+        )
+
+        assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        # An item with no creators has no `creators` property at all, which is
+        # upstream's rule for that one list and not for the other three:
+        # `if (!$arr['creators'] && !$includeEmpty) unset($arr['creators']);`.
+        assert "creators" not in data
+
+    async def test_an_empty_relations_map_takes_the_last_relation_off(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """`DataObjectUtilities.patch` sends `relations: {}` rather than omitting it."""
+        await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[
+                {
+                    "key": "AAAA2345",
+                    "itemType": "book",
+                    "version": 0,
+                    "relations": {"dc:replaces": "http://zotero.org/users/1/items/BBBB2345"},
+                }
+            ],
+        )
+
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 11, "relations": {}}],
+        )
+
+        assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["relations"] == {}
+
+    async def test_a_patch_that_stays_silent_still_leaves_them_alone(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """The other half of the rule, and the one a type change depends on."""
+        item = await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            version=10,
+            creators=[("author", "Herman", "Melville")],
+        )
+        await tag_item(session, library, item, "fiction")
+        await make_collection(session, library, key="CCCC2345", name="Whales", items=[item])
+
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[{"key": "AAAA2345", "version": 10, "publisher": "Penguin"}],
+        )
+
+        assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["collections"] == ["CCCC2345"]
+        assert data["tags"] == [{"tag": "fiction"}]
+        assert data["creators"][0]["lastName"] == "Melville"

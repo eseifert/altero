@@ -1151,6 +1151,25 @@ sending it empty.** The client already does exactly that — `patch()` writes
 `deleted: false` rather than dropping the key, and sends `relations: {}` rather
 than omitting the map — so nothing depends on omission meaning erasure.
 
+That distinction has to hold for the four properties holding a *list* —
+`creators`, `tags`, `collections` and `relations` — and not only for the two
+flags. `updateFromJSON` walks the properties the object carries,
+`foreach ($json as $key=>$val)`, and hands each straight to its setter, so
+`collections: []` reaches `setCollections([])` and files the item nowhere;
+only an absent property is skipped. Reading empty and absent as one thing
+leaves no way to say "none", and the desktop client asks for exactly that on
+an ordinary path: save through the connector into a collection, then move the
+save target to the library root, and it uploads
+`{key, version, collections: [], dateModified}`. Ignored, that write appears
+to succeed while the item stays filed, the client re-files it locally from the
+answer, and every following sync uploads the same patch again — a library that
+takes a new version each time and an item that can never leave its collection.
+
+An item with no creators carries no `creators` property at all
+(`if (!$arr['creators'] && !$includeEmpty) unset($arr['creators'])`), while
+`tags`, `collections` and `relations` are emitted even when empty. That
+asymmetry is upstream's and is mirrored.
+
 ## Objects that were sent again without changing
 
 An object identical to the stored one is reported under `unchanged` and keeps
