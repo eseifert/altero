@@ -9,8 +9,14 @@ request sequence captured from the client's debug log, which is a replay; two
 installed clients disagreeing about a library is a thing only two installed
 clients can show.
 
-Both of them fit on one machine. What follows is the rig, the four traps in it,
+Both of them fit on one machine. What follows is the rig, the five traps in it,
 and the tool that decides whether the run passed.
+
+**Back up the library you are copying from before you start, and check the
+backup.** This procedure resets local databases and unlinks accounts on purpose,
+and every one of those operations acts on *a* data directory — deleting every
+file in it, `storage` included. Getting the wrong directory is one mistaken
+launch away, and has happened.
 
 ## The rig
 
@@ -50,6 +56,12 @@ over a database in use:
 ```sh
 cp -a ~/Zotero/. ~/zotero-test/A/data/
 ```
+
+**Copy the data directory and nothing else.** A copied *profile* carries
+`extensions.zotero.dataDir` and `useDataDir` pointing at the library it came
+from, so any launch of it that forgets `-datadir` opens the original — and
+`logins.json`, so it arrives already signed in as an account this server has
+never issued a key for. The profiles here are new and empty.
 
 Then start them. `--new-instance` is what lets the second one run while the
 first is up:
@@ -111,6 +123,15 @@ first if it is part of what you want tested; `altero group add` assigns the id
 itself, so check what it got. A group is also the only way to exercise the
 Zotero 9 group-level file-naming setting, which nothing here has yet confirmed
 against a real 9.0 client.
+
+**A reset acts on the data directory in use, not on the one you meant.**
+"Switch User" and the sync reset both write a `reset-data-directory` marker into
+`Zotero.DataDirectory.dir`, and the *next* start deletes every file in that
+directory — database, `storage`, all of it (`zotero.js:493`, which iterates the
+directory rather than removing it, so a symlinked data directory is emptied
+too). Nothing is moved to the trash. Two consequences: check the Advanced pane
+says the data directory you think you are resetting, and treat a marker left
+lying in a data directory as a wipe that has not happened yet.
 
 **The clients must be closed before comparing.** The comparison reads
 `zotero.sqlite` directly and opens it read-only, which SQLite refuses on a
