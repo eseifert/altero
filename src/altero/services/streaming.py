@@ -64,8 +64,24 @@ class AccessChanged:
     user_id: int
 
 
+@dataclass(frozen=True, slots=True)
+class LoginResolved:
+    """A client waiting to be linked has been answered.
+
+    Not a `topicUpdated`: the client registers a listener on
+    ``login-session:<token>`` that resolves on ``loginComplete`` and gives up
+    on ``loginCancelled`` (`_subscribeToLoginSession` in the client's sync
+    preferences), and the payload is the one the poll endpoint returns, which
+    is what it hands to `checkUser`.
+    """
+
+    topic: str
+    event: str
+    payload: dict[str, Any]
+
+
 #: Anything the broker carries.
-Event = TopicUpdated | AccessChanged
+Event = TopicUpdated | AccessChanged | LoginResolved
 
 
 def topic_for(library: Library) -> str:
@@ -76,6 +92,15 @@ def topic_for(library: Library) -> str:
     """
     prefix = "users" if library.type is LibraryType.USER else "groups"
     return f"/{prefix}/{library.owner_id}"
+
+
+#: What a login session's topic is called. The client builds the same string
+#: from the token it was handed by `POST /keys/sessions`.
+LOGIN_TOPIC_PREFIX = "login-session:"
+
+
+def topic_for_login(token: str) -> str:
+    return f"{LOGIN_TOPIC_PREFIX}{token}"
 
 
 class Broker:

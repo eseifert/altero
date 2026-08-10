@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import ApiKey, LoginSession, User
+from altero.services import streaming
 
 #: How long a client may take to complete a login before the session expires.
 SESSION_LIFETIME_MINUTES = 30
@@ -73,6 +74,23 @@ async def get_session(session: AsyncSession, token: str) -> LoginSession:
     return login
 
 
+def _announce(token: str, event: str, payload: dict[str, object]) -> None:
+    """Tell the waiting client, rather than leaving it to its next poll.
+
+    Published after the commit, like every other event: a client told a login
+    had completed and then finding the session still pending would be worse
+    than waiting the three seconds. It reaches only clients attached to this
+    process, so an approval from `altero login approve` -- a process of its
+    own -- announces to nobody and the client's poll finishes the job, which
+    is what happened before this existed.
+    """
+    streaming.broker.publish(
+        streaming.LoginResolved(
+            topic=streaming.topic_for_login(token), event=event, payload=dict(payload)
+        )
+    )
+
+
 async def approve_session(session: AsyncSession, token: str, api_key: ApiKey) -> LoginSession:
     """Complete a session, handing the client ``api_key``."""
     login = await get_session(session, token)
@@ -90,6 +108,7 @@ async def approve_session(session: AsyncSession, token: str, api_key: ApiKey) ->
     login.status = COMPLETED
     login.api_key_id = api_key.id
     await session.commit()
+    _announce(login.token, "loginComplete", await render(session, login))
     return login
 
 
@@ -100,6 +119,7 @@ async def cancel_session(session: AsyncSession, token: str) -> None:
         return
     login.status = CANCELLED
     await session.commit()
+    _announce(login.token, "loginCancelled", {"status": CANCELLED})
 
 
 async def list_pending(session: AsyncSession) -> list[LoginSession]:

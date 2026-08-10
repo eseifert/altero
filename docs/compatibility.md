@@ -752,8 +752,40 @@ everything that key can reach and lists it on the `connected` event; and
 `createSubscriptions`, which is what the Zotero client sends — one subscription
 naming its key and **no** topics, meaning "everything, and keep it current".
 
+**Three topics that are not libraries.** The client names all three on
+connections it opens as a matter of course, and every one of them was refused
+until two clients were watched doing it:
+
+- **`styles` and `translators`** are subscribed to whenever the client updates
+  those automatically. altero publishes to neither — the client's own
+  repository timer is what fetches them — so the subscription is accepted and
+  never fires. Refusing it changed nothing except to put two errors in the
+  log on every connection.
+- **`login-session:<token>`** is how the client is told the moment a login is
+  approved, instead of waiting for its next three-second poll. Subscribing
+  needs the token, which is also what `GET /keys/sessions/<token>` is
+  authenticated by; a token naming no session is refused rather than accepted
+  and silent. On approval the topic carries `loginComplete` with the same body
+  the poll endpoint returns — the client hands it straight to `checkUser` —
+  and `loginCancelled` when the session is abandoned. Neither is a
+  `topicUpdated`: the client registers a listener for those two events by name.
+  An approval from `altero login approve` announces to nobody, because that is
+  a process of its own and the broker is in memory; the client's poll finishes
+  the login as it did before.
+
+**Deleting a subscription that is not held is ignored**, and 4409 is never
+sent. The client's login flow produces exactly that case: it asks to watch a
+login session and unsubscribes when the login is over, whether the
+subscription was granted or not. A close code it did not expect reads to it as
+its own bug — "Not reconnecting to WebSocket due to client error" — and it
+stops trying, so a documented code cost the connection.
+
+**`subscriptionsDeleted` names what went.** `streamer.js` walks
+`data.subscriptions` to take them out of its own set and throws on an event
+without them.
+
 **What is inferred rather than copied.** There is no dataserver source for any
-of this, so three things are altero's:
+of this, so these are altero's:
 
 - **Close code 4400** for a message that is not JSON or names an action this
   server has not got. The documentation gives 4403, 4409 and 4413 and stops

@@ -20,9 +20,10 @@ from starlette.websockets import WebSocketDisconnect
 from altero.api.routes.streaming import (
     INVALID_KEY,
     INVALID_MESSAGE,
-    NO_SUCH_SUBSCRIPTION,
     STREAM_PATH,
 )
+from altero.services import auth
+from altero.services import login as login_service
 from altero.services.streaming import RETRY_MILLISECONDS, broker
 from tests import factories
 
@@ -207,20 +208,38 @@ class TestSubscriptions:
             )
             (deleted,) = receive(socket)
 
-        assert deleted == {"event": "subscriptionsDeleted"}
+        # The event names what went: `streamer.js` walks `data.subscriptions`
+        # to take them out of its own set, and throws on the bare event.
+        assert deleted["event"] == "subscriptionsDeleted"
+        assert deleted["subscriptions"] == [{"apiKey": KEY, "topics": ["/users/1"]}]
 
-    async def test_deleting_one_that_is_not_held_closes_the_connection(
+    async def test_deleting_one_that_is_not_held_is_ignored(
         self, account, http: TestClient
     ) -> None:
+        # The client's own login flow produces this: it subscribes to a topic,
+        # and unsubscribes when it is finished whether the subscription was
+        # granted or not. Closing the socket makes it stop reconnecting --
+        # "Not reconnecting to WebSocket due to client error".
         with http.websocket_connect(STREAM_PATH) as socket:
             receive(socket)
             socket.send_text(
-                json.dumps({"action": "deleteSubscriptions", "subscriptions": [{"apiKey": KEY}]})
+                json.dumps(
+                    {
+                        "action": "deleteSubscriptions",
+                        "subscriptions": [{"topic": "login-session:nobody"}],
+                    }
+                )
             )
-            with pytest.raises(WebSocketDisconnect) as closed:
-                socket.receive_text()
+            (deleted,) = receive(socket)
 
-        assert closed.value.code == NO_SUCH_SUBSCRIPTION
+            # Still open, and still usable.
+            socket.send_text(
+                json.dumps({"action": "createSubscriptions", "subscriptions": [{"apiKey": KEY}]})
+            )
+            (created,) = receive(socket)
+
+        assert deleted == {"event": "subscriptionsDeleted", "subscriptions": []}
+        assert created["subscriptions"] == [{"apiKey": KEY, "topics": ["/users/1"]}]
 
     async def test_an_unreadable_message_closes_the_connection(
         self, account, http: TestClient
@@ -232,6 +251,150 @@ class TestSubscriptions:
                 socket.receive_text()
 
         assert closed.value.code == INVALID_MESSAGE
+
+
+class TestWhatTheClientAsksFor:
+    """The three topics the Zotero client names that are not libraries.
+
+    Every one of them was refused, which put two error lines in the client's
+    log on every connection and, for the login session, closed the socket when
+    the client tidied up after itself. Read off two clients driven through
+    docs/testing-two-clients.md.
+    """
+
+    async def test_the_bundled_file_topics_are_accepted(self, account, http: TestClient) -> None:
+        # The client subscribes to these whenever `automaticScraperUpdates` is
+        # on, without a key, and logs an error for each refusal. altero
+        # publishes neither, so the subscription is accepted and never fires;
+        # the client's own repository timer is what actually fetches updates.
+        with http.websocket_connect(STREAM_PATH) as socket:
+            receive(socket)
+            socket.send_text(
+                json.dumps(
+                    {
+                        "action": "createSubscriptions",
+                        "subscriptions": [{"topics": ["styles", "translators"]}],
+                    }
+                )
+            )
+            (created,) = receive(socket)
+
+        assert created["errors"] == []
+        assert created["subscriptions"] == [{"topics": ["styles", "translators"]}]
+
+    async def test_a_login_session_can_be_watched(
+        self, account, session: AsyncSession, http: TestClient
+    ) -> None:
+        login = await login_service.start_session(session)
+
+        with http.websocket_connect(STREAM_PATH) as socket:
+            receive(socket)
+            socket.send_text(
+                json.dumps(
+                    {
+                        "action": "createSubscriptions",
+                        "subscriptions": [{"topics": [f"login-session:{login.token}"]}],
+                    }
+                )
+            )
+            (created,) = receive(socket)
+
+        assert created["errors"] == []
+        assert created["subscriptions"] == [{"topics": [f"login-session:{login.token}"]}]
+
+    async def test_a_login_session_that_does_not_exist_is_refused(
+        self, account, http: TestClient
+    ) -> None:
+        with http.websocket_connect(STREAM_PATH) as socket:
+            receive(socket)
+            socket.send_text(
+                json.dumps(
+                    {
+                        "action": "createSubscriptions",
+                        "subscriptions": [{"topics": ["login-session:nobody"]}],
+                    }
+                )
+            )
+            (created,) = receive(socket)
+
+        assert created["subscriptions"] == []
+        assert created["errors"] == [
+            {"topic": "login-session:nobody", "error": "Topic is not valid for provided API key"}
+        ]
+
+    async def test_approving_a_login_tells_the_client_that_is_waiting(
+        self, account, session: AsyncSession, http: TestClient
+    ) -> None:
+        # What the topic is for: `_subscribeToLoginSession` in the client's
+        # preferences resolves on `loginComplete` and carries the same fields
+        # the poll response does, so linking finishes on the event rather than
+        # on the next three-second poll.
+        login = await login_service.start_session(session)
+        api_key = await auth.authenticate(session, KEY)
+        assert api_key is not None
+
+        with http.websocket_connect(STREAM_PATH) as socket:
+            receive(socket)
+            socket.send_text(
+                json.dumps(
+                    {
+                        "action": "createSubscriptions",
+                        "subscriptions": [{"topics": [f"login-session:{login.token}"]}],
+                    }
+                )
+            )
+            receive(socket)
+
+            await login_service.approve_session(session, login.token, api_key)
+            (event,) = receive(socket)
+
+        assert event["event"] == "loginComplete"
+        assert event["topic"] == f"login-session:{login.token}"
+        assert event["apiKey"] == KEY
+        assert event["userID"] == 1
+
+    async def test_cancelling_one_tells_the_client_too(
+        self, account, session: AsyncSession, http: TestClient
+    ) -> None:
+        login = await login_service.start_session(session)
+
+        with http.websocket_connect(STREAM_PATH) as socket:
+            receive(socket)
+            socket.send_text(
+                json.dumps(
+                    {
+                        "action": "createSubscriptions",
+                        "subscriptions": [{"topics": [f"login-session:{login.token}"]}],
+                    }
+                )
+            )
+            receive(socket)
+
+            await login_service.cancel_session(session, login.token)
+            (event,) = receive(socket)
+
+        assert event["event"] == "loginCancelled"
+        assert event["topic"] == f"login-session:{login.token}"
+
+    async def test_nobody_else_hears_about_a_login(
+        self, account, session: AsyncSession, http: TestClient
+    ) -> None:
+        # The token is the credential for the poll endpoint, so it is the
+        # credential for the topic: a connection that has not named it is told
+        # nothing, whatever key it holds.
+        login = await login_service.start_session(session)
+        api_key = await auth.authenticate(session, KEY)
+        assert api_key is not None
+
+        with http.websocket_connect(STREAM_PATH, headers={"Zotero-API-Key": KEY}) as socket:
+            receive(socket)
+            await login_service.approve_session(session, login.token, api_key)
+
+            http.post("/users/1/items", json=ITEM, headers={"Zotero-API-Key": KEY})
+            (event,) = receive(socket)
+
+        # The write that followed is the next thing it hears, not the login.
+        assert event["event"] == "topicUpdated"
 
 
 class TestEvents:
