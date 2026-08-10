@@ -23,9 +23,16 @@ export ALTERO_DATABASE_URL=sqlite+aiosqlite:///$HOME/zotero-test/altero.sqlite
 export ALTERO_STORAGE_PATH=$HOME/zotero-test/storage
 mkdir -p ~/zotero-test/{A,B}/profile
 
+uv run alembic upgrade head                        # nothing exists until this
 uv run altero user add <username> --id <user id>   # see "The account id" below
+uv run altero key add <username>                   # the comparison reads with it
 uv run altero                                      # :8000
 ```
+
+The migration is not optional and nothing runs it for you: neither the server
+nor the CLI creates the schema, so `user add` against a fresh file fails with
+`no such table: users`. `alembic` reads the same `ALTERO_DATABASE_URL`, which is
+why it is exported rather than passed.
 
 Two client installations are two profiles with two data directories. Both are
 command-line arguments, and they behave differently: `--profile` is Gecko's and
