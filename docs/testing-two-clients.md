@@ -21,39 +21,61 @@ them too.
 ```sh
 export ALTERO_DATABASE_URL=sqlite+aiosqlite:///$HOME/zotero-test/altero.sqlite
 export ALTERO_STORAGE_PATH=$HOME/zotero-test/storage
-mkdir -p ~/zotero-test/{A,B}
+mkdir -p ~/zotero-test/{A,B}/profile
 
 uv run altero user add <username> --id <user id>   # see "The account id" below
 uv run altero                                      # :8000
 ```
 
-Two client installations are two profiles with two data directories. Zotero
-takes both on the command line — `--profile` is Gecko's and creates the
-directory, `-datadir` is Zotero's own (`BrowserContentHandler.sys.mjs`, which
-requires an absolute path whose parent already exists), and `--new-instance` is
-what lets the second one start while the first is running:
+Two client installations are two profiles with two data directories. Both are
+command-line arguments, and they behave differently: `--profile` is Gecko's and
+takes a directory that **must already exist** — a missing one is answered with
+"Your Zotero profile cannot be loaded. It may be missing or inaccessible.",
+which is why the `mkdir` above creates them — while `-datadir` is Zotero's own
+(`BrowserContentHandler.sys.mjs`), takes an absolute path whose *parent* exists,
+and creates the directory itself.
+
+Seed A before its first launch, with a copy of a real library taken while the
+installation that owns it is closed. Zotero initialises an empty library in a
+data directory it finds empty, and copying over that afterwards means copying
+over a database in use:
+
+```sh
+cp -a ~/Zotero/. ~/zotero-test/A/data/
+```
+
+Then start them. `--new-instance` is what lets the second one run while the
+first is up:
 
 ```sh
 zotero --profile ~/zotero-test/A/profile -datadir ~/zotero-test/A/data --new-instance &
 zotero --profile ~/zotero-test/B/profile -datadir ~/zotero-test/B/data --new-instance &
 ```
 
-Seed A with a copy of a real library, taken while the installation that owns it
-is closed:
+Each profile needs `extensions.zotero.api.url` and
+`extensions.zotero.streaming.url`, as [clients.md](clients.md) describes — the
+streaming URL is not derived from the API one, and left alone the client sends
+your key to zotero.org. **Settings → Advanced → Config Editor** sets them, but a
+`user.js` in the profile directory keeps the rig out of the GUI and survives
+every restart:
 
 ```sh
-cp -a ~/Zotero/. ~/zotero-test/A/data/
+for p in A B; do cat > ~/zotero-test/$p/profile/user.js <<'PREFS'
+user_pref("extensions.zotero.api.url", "http://localhost:8000/");
+user_pref("extensions.zotero.streaming.url", "ws://localhost:8000/stream");
+PREFS
+done
 ```
 
-In **each** profile, open **Settings → Advanced → Config Editor** and set
-`extensions.zotero.api.url` and `extensions.zotero.streaming.url`, as
-[clients.md](clients.md) describes — the streaming URL is not derived from the
-API one, and left alone the client sends its key to zotero.org. Then **Settings
-→ Sync → Link Account** in both, and turn on file syncing for My Library and for
-group libraries, or attachments will never be part of what is being tested.
+`user.js` is applied at every startup, so it also overrides anything the Config
+Editor is later used to change. Then **Settings → Sync → Link Account** in both
+— `altero login approve` completes it from the command line — and turn on file
+syncing for My Library and for group libraries, or attachments will never be
+part of what is being tested.
 
-Finally, in A alone: **Settings → Sync → Reset → Restore to Online Library**.
-Leave your own `~/Zotero` installation pointed at zotero.org throughout.
+Finally, in A alone, and only if it is seeded from a library this server has
+never held: **Settings → Sync → Reset → Restore to Online Library**. Leave the
+installation you copied from pointed where it was.
 
 ## The four traps
 
