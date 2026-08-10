@@ -292,6 +292,25 @@ class TestUploadAndRegistration:
 
         assert response.status_code == 404
 
+    async def test_an_item_can_be_deleted_while_an_upload_is_authorized(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        # The authorization outlives the request that granted it and names the
+        # item, so an item deleted between the first step and the third has to
+        # take it along.
+        await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data=authorization(),
+        )
+
+        response = await client.delete(
+            f"/users/1/items/{attachment}",
+            headers=AUTH | {"If-Unmodified-Since-Version": "10"},
+        )
+
+        assert response.status_code == 204
+
     async def test_registration_advances_the_version(
         self, client: httpx.AsyncClient, attachment: str
     ) -> None:

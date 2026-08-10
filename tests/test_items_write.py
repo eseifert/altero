@@ -6,7 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import Library, LibraryType
 from altero.services.auth import get_library
-from tests.factories import make_api_key, make_collection, make_item, make_user, tag_item
+from tests.factories import (
+    index_fulltext,
+    make_api_key,
+    make_collection,
+    make_item,
+    make_user,
+    tag_item,
+)
 
 KEY = "P9NiFoyLeZu2bZNvvuQPDWsd"
 AUTH = {"Zotero-API-Key": KEY}
@@ -536,6 +543,43 @@ class TestDelete:
 
         body = (await client.get("/users/1/deleted?since=10", headers=AUTH)).json()
         assert sorted(body["items"]) == ["AAAA2345", "BBBB2345"]
+
+    async def test_an_attachment_is_deleted_with_its_indexed_text(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # The client indexes a PDF and uploads the text; deleting the
+        # attachment has to take that text with it, or the row is left naming
+        # an item that is gone.
+        parent = await make_item(session, library, key="AAAA2345")
+        child = await make_item(
+            session, library, key="BBBB2345", item_type="attachment", parent=parent
+        )
+        await index_fulltext(session, library, child, "Call me Ishmael.")
+
+        response = await client.delete(
+            "/users/1/items?itemKey=BBBB2345,AAAA2345",
+            headers=AUTH | {"If-Unmodified-Since-Version": "10"},
+        )
+
+        assert response.status_code == 204
+        assert (await client.get("/users/1/items", headers=AUTH)).json() == []
+
+    async def test_a_parent_is_deleted_with_its_indexed_attachment(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # The same text, reached through the parent rather than named outright.
+        parent = await make_item(session, library, key="AAAA2345")
+        child = await make_item(
+            session, library, key="BBBB2345", item_type="attachment", parent=parent
+        )
+        await index_fulltext(session, library, child, "Call me Ishmael.")
+
+        response = await client.delete(
+            "/users/1/items/AAAA2345", headers=AUTH | {"If-Unmodified-Since-Version": "10"}
+        )
+
+        assert response.status_code == 204
+        assert (await client.get("/users/1/items", headers=AUTH)).json() == []
 
     async def test_a_tag_left_with_no_items_is_removed(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
