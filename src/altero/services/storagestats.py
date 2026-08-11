@@ -22,14 +22,13 @@ of what an instance administrator is entitled to — see
 :mod:`altero.api.routes.webadmin`.
 """
 
-from __future__ import annotations
-
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from sqlalchemy import func, select
+from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import InstrumentedAttribute
 
 from altero.models import Collection, Item, ItemField, Library, LibraryType, Tag, User
 
@@ -129,7 +128,11 @@ async def _digests_by_library(session: AsyncSession) -> dict[int, set[str]]:
     return digests
 
 
-async def _counts(session: AsyncSession, column, condition=None) -> dict[int, int]:  # type: ignore[no-untyped-def]
+async def _counts(
+    session: AsyncSession,
+    column: InstrumentedAttribute[int],
+    condition: ColumnElement[bool] | None = None,
+) -> dict[int, int]:
     """Return a per-library count of whatever ``column``'s table holds."""
     statement = select(column, func.count()).group_by(column)
     if condition is not None:
