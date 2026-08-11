@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { placesFor } from '@/collectionplaces'
@@ -64,17 +64,45 @@ let searchTimer: ReturnType<typeof setTimeout> | undefined
 const sidebarWidth = ref(readWidth(SIDEBAR))
 const detailWidth = ref(readWidth(DETAIL))
 
-const widthTimers = new Map<string, ReturnType<typeof setTimeout>>()
+/** Per pane: the pause that is running, and the width it is about to store. */
+const widthTimers = new Map<string, { timer: ReturnType<typeof setTimeout>; width: number }>()
 
 /* A ref cannot be passed in from the template -- it arrives unwrapped, as the
    number it holds -- so the two panes get a setter each over one debounce. */
 function remember(pane: PaneWidth, width: number): void {
-  clearTimeout(widthTimers.get(pane.key))
-  widthTimers.set(
-    pane.key,
-    setTimeout(() => storeWidth(pane, width), 250),
-  )
+  clearTimeout(widthTimers.get(pane.key)?.timer)
+  widthTimers.set(pane.key, {
+    width,
+    timer: setTimeout(() => {
+      widthTimers.delete(pane.key)
+      storeWidth(pane, width)
+    }, 250),
+  })
 }
+
+/*
+ * Nothing this screen started outlives it.
+ *
+ * Both pauses here are a quarter of a second long, which is ample time to leave
+ * the screen in: a search typed and then navigated away from would run its
+ * query against a library nobody is looking at any more, and the width from a
+ * drag that had not settled would be lost. So the search is dropped and the
+ * widths are written out at once -- the difference being that one is a
+ * question about what to show and the other is a decision already made.
+ *
+ * In the tests this is what stops a timer from one test firing during the
+ * next: the store write it carried made the earlier test's Pinia active again,
+ * and the next test's `useStore()` then handed back a store its own component
+ * had never heard of. See the note in `src/test-setup.ts`.
+ */
+onBeforeUnmount(() => {
+  clearTimeout(searchTimer)
+  for (const [key, pending] of widthTimers) {
+    clearTimeout(pending.timer)
+    storeWidth(key === SIDEBAR.key ? SIDEBAR : DETAIL, pending.width)
+  }
+  widthTimers.clear()
+})
 
 function resizeSidebar(width: number): void {
   sidebarWidth.value = width
