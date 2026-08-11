@@ -28,6 +28,7 @@ from altero.models.webauth import (
     EmailVerification,
     Invitation,
     Notification,
+    PasswordReset,
     TotpCredential,
     WebSession,
 )
@@ -58,6 +59,7 @@ __all__ = [
     "LibraryType",
     "LoginSession",
     "Notification",
+    "PasswordReset",
     "ProfileVisibility",
     "SavedSearch",
     "SearchCondition",

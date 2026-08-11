@@ -26,6 +26,7 @@ from starlette.responses import JSONResponse, Response
 
 from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
+from altero.api.routes import web
 from altero.api.routes.web import CsrfDep, CurrentUserDep
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import ApiKey, GroupMember, User
@@ -35,10 +36,12 @@ from altero.services import (
     emailverify,
     health,
     instancesettings,
+    passwordreset,
     retention,
     storagestats,
     webauth,
 )
+from altero.services.mail import Message
 
 router = APIRouter(prefix="/web/admin", tags=["web"])
 
@@ -389,6 +392,49 @@ async def set_account_password(
 
     await webauth.set_password(session, user, body.password)
     return Response(status_code=204)
+
+
+@router.post("/users/{user_id}/reset")
+async def issue_password_reset(
+    request: Request,
+    session: SessionDep,
+    admin_user: AdministratorDep,
+    user_id: int,
+    body: PasswordOnly,
+    _csrf: CsrfDep,
+) -> Response:
+    """Issue a link the account can set its own password from.
+
+    The alternative to typing a password and telling somebody what it is, which
+    leaves it known to two people. It is mailed where there is a confirmed
+    address, and returned here either way — an instance with no relay
+    configured is the ordinary case, and a link only readable in the server log
+    would need the shell this screen exists to replace.
+    """
+    account.require_password(admin_user, body.current_password)
+    user = await _account(session, user_id)
+
+    token = await passwordreset.issue(session, user, issued_by=admin_user)
+    link = web.reset_link(request, token)
+    sent = False
+    if emailverify.is_verified(user):
+        sent = await request.app.state.mailer.send(
+            Message(
+                to=user.email or "",
+                subject="Set a new password for altero",
+                body=(
+                    f"Hello {user.display_name or user.username},\n\n"
+                    "Somebody who administers this altero server has asked you to "
+                    "set a new password:\n\n"
+                    f"    {link}\n\n"
+                    f"The link is good for {passwordreset.LIFETIME_HOURS} hours and "
+                    "can be used once. Until you follow it your current password "
+                    "still works.\n"
+                ),
+            )
+        )
+
+    return JSONResponse({"link": link, "sent": sent, "hours": passwordreset.LIFETIME_HOURS})
 
 
 @router.post("/users/{user_id}/revoke")

@@ -75,6 +75,36 @@ class EmailVerification(Base):
     expires: Mapped[datetime] = mapped_column(DateTime, index=True)
 
 
+class PasswordReset(Base):
+    """An outstanding invitation to set a password.
+
+    Issued by an instance administrator and by nobody else. There is
+    deliberately no "I forgot my password" form: a self-service one is a
+    decision about how much a mail relay is trusted and how hard the form is to
+    hammer, and this server's answer is that whoever runs it does the resetting
+    — see :mod:`altero.services.passwordreset`.
+
+    Shaped like :class:`EmailVerification`, and separate from it on purpose:
+    one proves an address, this one replaces a credential, and a row that could
+    do either would be the wrong thing to hand out for the weaker of the two.
+    """
+
+    __tablename__ = "password_resets"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    #: SHA-256 of the token in the link. The token is never stored, so a copy
+    #: of the database sets nobody's password.
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    #: Who issued it. Kept because this is somebody changing somebody else's
+    #: credential, which is a thing worth being able to account for.
+    issued_by: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), default=None
+    )
+    created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    expires: Mapped[datetime] = mapped_column(DateTime, index=True)
+
+
 class Notification(Base):
     """Something the interface should show a person when they next look.
 

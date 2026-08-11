@@ -29,7 +29,7 @@ from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
 from altero.errors import ForbiddenError
 from altero.models import User, WebSession
-from altero.services import emailverify, webauth, websessions
+from altero.services import emailverify, passwordreset, passwords, webauth, websessions
 from altero.services.mail import Message
 
 router = APIRouter(prefix="/web", tags=["web"])
@@ -82,6 +82,18 @@ def _serialise(user: User) -> dict:
         # checks it again for itself.
         "administrator": user.administrator,
     }
+
+
+def reset_link(request: Request, token: str) -> str:
+    """Return the absolute URL a password-reset link points at.
+
+    Built the same way as the confirmation link below, and public because it is
+    the administration screens that issue one -- see
+    `api/routes/webadmin.py`.
+    """
+    configured = request.app.state.settings.public_url.rstrip("/")
+    base = configured or str(request.base_url).rstrip("/")
+    return f"{base}/app/reset?token={quote(token)}"
 
 
 def _verification_link(request: Request, token: str) -> str:
@@ -335,6 +347,42 @@ async def verify_email(session: SessionDep, body: Annotated[Token, Body()]) -> R
     """
     user = await emailverify.confirm(session, body.token)
     return JSONResponse({"user": _serialise(user)})
+
+
+class NewPassword(Token):
+    password: str
+
+
+@router.get("/auth/reset/{token}")
+async def read_reset(session: SessionDep, token: str) -> Response:
+    """Say whose password a link is about to set, before asking for one.
+
+    Needs no session and no CSRF token, like the confirmation link: it is
+    followed in whatever browser is open, and the token is the whole
+    credential. What it discloses is the username the link was issued for,
+    which whoever holds the link was told anyway.
+    """
+    user = await passwordreset.resolve(session, token)
+    return JSONResponse({"username": user.username, "displayName": user.display_name})
+
+
+@router.post("/auth/reset")
+async def complete_reset(session: SessionDep, body: Annotated[NewPassword, Body()]) -> Response:
+    """Set a password from a link an administrator issued.
+
+    The token is checked first and spent only once the new password has been
+    validated, so a password too short to be accepted does not cost somebody
+    their only way in.
+
+    Every other session of that account ends, and the owner is told, because
+    this goes through the same `set_password` a change in settings does.
+    """
+    user = await passwordreset.resolve(session, body.token)
+    passwords.validate_password(body.password)
+
+    await passwordreset.consume(session, body.token)
+    await webauth.set_password(session, user, body.password)
+    return JSONResponse({"username": user.username})
 
 
 @router.post("/auth/verify/resend", status_code=202)

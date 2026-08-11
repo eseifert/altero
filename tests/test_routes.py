@@ -20,6 +20,10 @@ EXPECTED = [
     ("/web/auth/login", "POST"),
     ("/web/auth/totp", "POST"),
     ("/web/auth/verify", "POST"),
+    # Setting a password from a link an administrator issued. Answers without a
+    # cookie, like the confirmation link: the token is the whole credential.
+    ("/web/auth/reset/{token}", "GET"),
+    ("/web/auth/reset", "POST"),
     ("/web/auth/verify/resend", "POST"),
     ("/web/auth/session", "GET"),
     ("/web/auth/logout", "POST"),
@@ -54,6 +58,7 @@ EXPECTED = [
     ("/web/admin/users/{user_id}", "DELETE"),
     ("/web/admin/users/{user_id}/password", "POST"),
     ("/web/admin/users/{user_id}/revoke", "POST"),
+    ("/web/admin/users/{user_id}/reset", "POST"),
     ("/web/link/{token}", "GET"),
     ("/web/link/{token}/approve", "POST"),
     ("/web/link/{token}/deny", "POST"),

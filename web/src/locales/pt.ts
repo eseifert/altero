@@ -15,6 +15,8 @@ export default {
     'Um ficheiro que o cliente anunciou e nunca enviou. Nada se perde: volta a pedir.',
   'A group is a library of its own, shared with the people you add to it.':
     'Um grupo é uma biblioteca própria, partilhada com as pessoas que adicionar.',
+  'A link was emailed to them. It is good for {hours} hours and can be used once.':
+    'Foi-lhes enviada uma ligação por e-mail. É válida durante {hours} horas e só pode ser usada uma vez.',
   'A password must be at least {count} characters':
     'A palavra-passe tem de ter pelo menos {count} caracteres',
   'A private group stays private whatever this says. Make it public as well to share it.':
@@ -56,6 +58,8 @@ export default {
     'Qualquer pessoa pode ver esta página, sem ter conta aqui.',
   Archive: 'Arquivo',
   'Apply them now': 'Aplicar agora',
+  'Ask whoever runs this server for a new one. Your current password still works.':
+    'Peça outra a quem administra este servidor. A sua palavra-passe atual continua a funcionar.',
   'At least {count} characters': 'Pelo menos {count} caracteres',
   Attachments: 'Anexos',
   'Attachments and notes': 'Anexos e notas',
@@ -74,6 +78,7 @@ export default {
   'Change the rights': 'Alterar os direitos',
   'Change who can see it': 'Alterar quem pode vê-la',
   'Checked.': 'Verificado.',
+  'Checking the link…': 'A verificar a ligação…',
   'Checking the request…': 'A verificar o pedido…',
   'Choose a Creative Commons license': 'Escolha uma licença Creative Commons',
   'Choose a library and an archive first.': 'Escolha primeiro uma biblioteca e um arquivo.',
@@ -176,6 +181,8 @@ export default {
   'Follow this device ({name})': 'Seguir este dispositivo ({name})',
   'For example, my laptop': 'Por exemplo: o meu portátil',
   'Format:': 'Formato:',
+  'Give them this link. It is good for {hours} hours and can be used once.':
+    'Dê-lhes esta ligação. É válida durante {hours} horas e só pode ser usada uma vez.',
   'Go to your library': 'Ir para a sua biblioteca',
   'Group Libraries': 'Bibliotecas de Grupo',
   'Group created.': 'Grupo criado.',
@@ -221,6 +228,7 @@ export default {
     'Sair deste grupo? Perderá o acesso à sua biblioteca.',
   Libraries: 'Bibliotecas',
   Library: 'Biblioteca',
+  'Link issued.': 'Ligação emitida.',
   'Loading…': 'A carregar…',
   'Make a member': 'Tornar membro',
   'Make administrator': 'Tornar administrador',
@@ -297,6 +305,8 @@ export default {
   'Password changed. Every other browser was signed out.':
     'Palavra-passe alterada. A sessão foi terminada em todos os outros navegadores.',
   'Password for the new account': 'Palavra-passe da nova conta',
+  'Password set. Every other signed-in browser was signed out.':
+    'Palavra-passe definida. Todos os outros navegadores com sessão iniciada foram terminados.',
   'Password set. Their other browsers were signed out.':
     'Palavra-passe definida. Os outros navegadores foram terminados.',
   'Paste it below. It is used for this copy and never stored.': 'Cole-a abaixo. É usada para esta cópia e nunca guardada.',
@@ -366,12 +376,15 @@ export default {
   'Select everything shown': 'Selecionar tudo o que é mostrado',
   'Select “{name}”': 'Selecionar «{name}»',
   'Send a new link': 'Enviar uma nova ligação',
+  'Send a password link': 'Enviar uma ligação de palavra-passe',
   'Send confirmation': 'Enviar a confirmação',
   'Sent to {address}.': 'Enviado para {address}.',
   'Sent to {email}, once a group has been quiet for a while.': 'Enviado para {email} quando o grupo estiver quieto durante algum tempo.',
+  'Set a password': 'Definir uma palavra-passe',
   'Set password': 'Definir palavra-passe',
   'Set up an authenticator': 'Configurar uma aplicação de autenticação',
   Settings: 'Definições',
+  'Setting the password for {username}.': 'A definir a palavra-passe de {username}.',
   'Settings for “{name}”': 'Definições de «{name}»',
   'Show in My Publications': 'Mostrar em As Minhas Publicações',
   'Show more': 'Mostrar mais',
@@ -413,6 +426,7 @@ export default {
     'Essa ligação de confirmação não é válida ou expirou.',
   'That invitation has already been answered.': 'Esse convite já foi respondido.',
   'That link is missing its token.': 'Falta o token a essa ligação.',
+  'That link is not valid or has expired.': 'Essa ligação não é válida ou expirou.',
   'That session was signed out.': 'Essa sessão foi terminada.',
   'The group has a new owner.': 'O grupo tem um novo proprietário.',
   'The items in it stay in the library.': 'Os itens que contém permanecem na biblioteca.',

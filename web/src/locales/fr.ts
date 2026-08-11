@@ -15,6 +15,8 @@ export default {
     'Un fichier que le client a annoncé et n’a jamais envoyé. Rien n’est perdu : il redemandera.',
   'A group is a library of its own, shared with the people you add to it.':
     'Un groupe est une bibliothèque à part entière, partagée avec les personnes que vous y ajoutez.',
+  'A link was emailed to them. It is good for {hours} hours and can be used once.':
+    'Un lien leur a été envoyé par e-mail. Il est valable {hours} heures et ne peut servir qu’une fois.',
   'A password must be at least {count} characters':
     'Un mot de passe doit compter au moins {count} caractères',
   'A private group stays private whatever this says. Make it public as well to share it.':
@@ -56,6 +58,8 @@ export default {
     'Cette page est visible par tout le monde, sans compte ici.',
   Archive: 'Archive',
   'Apply them now': 'Appliquer maintenant',
+  'Ask whoever runs this server for a new one. Your current password still works.':
+    'Demandez-en un nouveau à qui administre ce serveur. Votre mot de passe actuel fonctionne toujours.',
   'At least {count} characters': 'Au moins {count} caractères',
   Attachments: 'Fichiers joints',
   'Attachments and notes': 'Pièces jointes et notes',
@@ -74,6 +78,7 @@ export default {
   'Change the rights': 'Modifier les autorisations',
   'Change who can see it': 'Modifier qui peut la voir',
   'Checked.': 'Vérifié.',
+  'Checking the link…': 'Vérification du lien…',
   'Checking the request…': 'Vérification de la demande…',
   'Choose a Creative Commons license': 'Choisissez une licence Creative Commons',
   'Choose a library and an archive first.': 'Choisissez d’abord une bibliothèque et une archive.',
@@ -176,6 +181,8 @@ export default {
   'Follow this device ({name})': 'Suivre cet appareil ({name})',
   'For example, my laptop': 'Par exemple : mon ordinateur portable',
   'Format:': 'Format :',
+  'Give them this link. It is good for {hours} hours and can be used once.':
+    'Donnez-leur ce lien. Il est valable {hours} heures et ne peut servir qu’une fois.',
   'Go to your library': 'Aller à votre bibliothèque',
   'Group Libraries': 'Bibliothèques de groupe',
   'Group created.': 'Groupe créé.',
@@ -221,6 +228,7 @@ export default {
     'Quitter ce groupe ? Vous perdrez l’accès à sa bibliothèque.',
   Libraries: 'Bibliothèques',
   Library: 'Bibliothèque',
+  'Link issued.': 'Lien émis.',
   'Loading…': 'Chargement…',
   'Make a member': 'Passer en membre',
   'Make administrator': 'Nommer administrateur',
@@ -299,6 +307,8 @@ export default {
   'Password changed. Every other browser was signed out.':
     'Mot de passe changé. Tous les autres navigateurs ont été déconnectés.',
   'Password for the new account': 'Mot de passe du nouveau compte',
+  'Password set. Every other signed-in browser was signed out.':
+    'Mot de passe défini. Tous les autres navigateurs connectés ont été déconnectés.',
   'Password set. Their other browsers were signed out.':
     'Mot de passe défini. Les autres navigateurs ont été déconnectés.',
   'Paste it below. It is used for this copy and never stored.': 'Collez-la ci-dessous. Elle sert à cette copie et n’est jamais conservée.',
@@ -369,12 +379,15 @@ export default {
   'Select everything shown': 'Sélectionner tout ce qui est affiché',
   'Select “{name}”': 'Sélectionner « {name} »',
   'Send a new link': 'Envoyer un nouveau lien',
+  'Send a password link': 'Envoyer un lien de mot de passe',
   'Send confirmation': 'Envoyer la confirmation',
   'Sent to {address}.': 'Envoyée à {address}.',
   'Sent to {email}, once a group has been quiet for a while.': 'Envoyé à {email}, une fois le groupe calme depuis un moment.',
+  'Set a password': 'Définir un mot de passe',
   'Set password': 'Définir le mot de passe',
   'Set up an authenticator': "Configurer une application d'authentification",
   Settings: 'Paramètres',
+  'Setting the password for {username}.': 'Définition du mot de passe de {username}.',
   'Settings for “{name}”': 'Paramètres de « {name} »',
   'Show in My Publications': 'Afficher dans Mes publications',
   'Show more': 'Afficher plus',
@@ -416,6 +429,7 @@ export default {
     "Ce lien de confirmation n'est pas valide ou a expiré.",
   'That invitation has already been answered.': 'Cette invitation a déjà reçu une réponse.',
   'That link is missing its token.': 'Il manque son jeton à ce lien.',
+  'That link is not valid or has expired.': 'Ce lien n’est pas valide ou a expiré.',
   'That session was signed out.': 'Cette session a été déconnectée.',
   'The group has a new owner.': 'Le groupe a un nouveau propriétaire.',
   'The items in it stay in the library.': 'Les documents qu’elle contient restent dans la bibliothèque.',

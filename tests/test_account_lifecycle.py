@@ -7,14 +7,16 @@ credentials, because a flag enforced in the browser and not in the v3 API would
 leave every sync client of a suspended account working exactly as before.
 """
 
+from datetime import UTC, datetime, timedelta
+
 import httpx
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError
-from altero.models import ApiKey, Group, Item, Library, LibraryType, User
-from altero.services import admin, webauth, websessions
+from altero.models import ApiKey, Group, Item, Library, LibraryType, PasswordReset, User
+from altero.services import admin, passwordreset, webauth, websessions
 from altero.services.auth import get_library
 from tests.factories import make_group, make_item
 from tests.test_web_routes import PASSWORD, csrf_headers, register
@@ -333,3 +335,135 @@ class TestThroughTheBrowser:
         await admin.set_disabled(session, grace, disabled=True)
 
         assert (await client.get("/web/auth/session")).status_code == 401
+
+
+class TestAPasswordResetLink:
+    """The alternative to typing somebody's password and telling them what it is.
+
+    There is deliberately no self-service "I forgot my password" form: that
+    turns an email address into a way in to an account, and needs a rate limit
+    and a decision about how much the relay is trusted. Until then the person
+    who runs the server does the resetting.
+    """
+
+    async def test_an_administrator_gets_a_link_to_hand_over(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Returned as well as mailed: most instances have no relay configured,
+        and a link only readable in the server log would need the shell these
+        screens exist to replace."""
+        await register(client)
+        grace = await second_account(session)
+
+        response = await client.post(
+            f"/web/admin/users/{grace.id}/reset",
+            json={"currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 200
+        assert "/app/reset?token=" in response.json()["link"]
+
+    async def test_the_link_says_whose_password_it_sets(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await register(client)
+        grace = await second_account(session)
+        token = await passwordreset.issue(session, grace)
+
+        body = (await client.get(f"/web/auth/reset/{token}")).json()
+
+        assert body["username"] == "grace"
+
+    async def test_it_sets_the_password_without_a_session(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Followed in whatever browser is open; the token is the credential."""
+        grace = await second_account(session)
+        token = await passwordreset.issue(session, grace)
+        client.cookies.clear()
+
+        response = await client.post(
+            "/web/auth/reset", json={"token": token, "password": "a password of my own"}
+        )
+
+        assert response.status_code == 200
+        session.expire_all()
+        assert await webauth.login(session, username="grace", password="a password of my own")
+
+    async def test_a_link_works_once(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        grace = await second_account(session)
+        token = await passwordreset.issue(session, grace)
+        await client.post(
+            "/web/auth/reset", json={"token": token, "password": "a password of my own"}
+        )
+
+        again = await client.post(
+            "/web/auth/reset", json={"token": token, "password": "another one entirely"}
+        )
+
+        assert again.status_code == 403
+
+    async def test_a_password_that_is_refused_does_not_spend_the_link(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Otherwise a typo costs somebody their only way in."""
+        grace = await second_account(session)
+        token = await passwordreset.issue(session, grace)
+
+        refused = await client.post("/web/auth/reset", json={"token": token, "password": "short"})
+        accepted = await client.post(
+            "/web/auth/reset", json={"token": token, "password": "a password of my own"}
+        )
+
+        assert refused.status_code == 400
+        assert accepted.status_code == 200
+
+    async def test_issuing_a_second_link_stops_the_first(self, session: AsyncSession) -> None:
+        grace = await second_account(session)
+        first = await passwordreset.issue(session, grace)
+
+        await passwordreset.issue(session, grace)
+
+        with pytest.raises(ForbiddenError):
+            await passwordreset.resolve(session, first)
+
+    async def test_a_suspended_account_cannot_come_back_through_one(
+        self, session: AsyncSession
+    ) -> None:
+        """A link issued before the suspension must not outlive it."""
+        grace = await second_account(session)
+        token = await passwordreset.issue(session, grace)
+
+        await admin.set_disabled(session, grace, disabled=True)
+
+        with pytest.raises(ForbiddenError):
+            await passwordreset.resolve(session, token)
+
+    async def test_an_expired_link_is_refused(self, session: AsyncSession) -> None:
+        grace = await second_account(session)
+        token = await passwordreset.issue(session, grace)
+        outstanding = await session.scalar(select(PasswordReset))
+        assert outstanding is not None
+        outstanding.expires = datetime.now(UTC).replace(tzinfo=None) - timedelta(minutes=1)
+        await session.commit()
+
+        with pytest.raises(ForbiddenError):
+            await passwordreset.resolve(session, token)
+
+    async def test_nobody_but_an_administrator_can_issue_one(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await register(client)
+        grace = await second_account(session)
+        await client.post("/web/auth/login", json={"username": "grace", "password": PASSWORD})
+
+        response = await client.post(
+            f"/web/admin/users/{grace.id}/reset",
+            json={"currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 403

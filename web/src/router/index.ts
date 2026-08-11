@@ -17,6 +17,14 @@ const routes = [
     component: () => import('@/views/VerifyEmailView.vue'),
   },
   {
+    // Where a password-reset link lands. Deliberately unguarded, like the
+    // confirmation link: it is followed in whatever browser is open, and the
+    // token in it is the whole credential.
+    path: '/reset',
+    name: 'reset-password',
+    component: () => import('@/views/ResetPasswordView.vue'),
+  },
+  {
     // Where the desktop client's loginURL sends the browser.
     path: '/link',
     name: 'link-client',

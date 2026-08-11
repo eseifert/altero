@@ -112,6 +112,18 @@ const setPassword = (account: Account) =>
     replacement.value = ''
   }, t('Password set. Their other browsers were signed out.'))
 
+/** A link the account sets its own password from, so no password is dictated. */
+const link = ref<{ username: string; link: string; sent: boolean; hours: number } | null>(null)
+
+const sendLink = (account: Account) =>
+  attempt(async () => {
+    const issued = await request<{ link: string; sent: boolean; hours: number }>(
+      `/web/admin/users/${account.id}/reset`,
+      { method: 'POST', body: { currentPassword: password.value } },
+    )
+    link.value = { username: account.username, ...issued }
+  }, t('Link issued.'))
+
 const revoke = (account: Account) =>
   attempt(async () => {
     await request(`/web/admin/users/${account.id}/revoke`, {
@@ -232,6 +244,9 @@ const remove = (account: Account) =>
               <AppButton variant="text" :disabled="busy || !password" @click="revoke(account)">
                 {{ t('Revoke keys and sessions') }}
               </AppButton>
+              <AppButton variant="text" :disabled="busy || !password" @click="sendLink(account)">
+                {{ t('Send a password link') }}
+              </AppButton>
               <AppButton variant="text" :disabled="busy || !password" @click="remove(account)">
                 {{ t('Delete account') }}
               </AppButton>
@@ -252,6 +267,16 @@ const remove = (account: Account) =>
                 {{ t('Set password') }}
               </AppButton>
             </div>
+
+            <p v-if="link && link.username === account.username" class="accounts__issued">
+              <template v-if="link.sent">
+                {{ t('A link was emailed to them. It is good for {hours} hours and can be used once.', { hours: link.hours }) }}
+              </template>
+              <template v-else>
+                {{ t('Give them this link. It is good for {hours} hours and can be used once.', { hours: link.hours }) }}
+              </template>
+              <span class="accounts__link">{{ link.link }}</span>
+            </p>
 
             <p class="accounts__note">
               {{ t('Suspending stops both credentials — the API key a Zotero client holds and this interface — and touches nothing they own. Deleting removes their library and everything in it, and cannot be undone.') }}
@@ -375,6 +400,13 @@ const remove = (account: Account) =>
   flex-wrap: wrap;
   align-items: end;
   gap: var(--md-spacing-2);
+}
+
+.accounts__link {
+  display: block;
+  margin-top: var(--md-spacing-2);
+  font-family: var(--md-sys-typescale-code-family, monospace);
+  overflow-wrap: anywhere;
 }
 
 .accounts__note {
