@@ -17,12 +17,15 @@ export default {
   'A collection needs a name.': 'コレクションには名前が必要です。',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     '2つのライブラリに添付されたファイルは1回だけ保存され、両方で数えられます。1つ目の数はこのサーバーが実際に保持する量、2つ目は各ライブラリを別々に数えた量です。',
+  'A file the client asked to send and never sent. Nothing is lost: it asks again.':
+    'クライアントが送ると告げたまま送らなかったファイルです。失われるものはなく、必要ならもう一度要求されます。',
   'A group is a library of its own, shared with the people you add to it.':
     'グループはそれ自体が一つのライブラリで、追加した人と共有されます。',
   'A password must be at least {count} characters': 'パスワードは {count} 文字以上必要です',
   'A private group stays private whatever this says. Make it public as well to share it.':
     '非公開グループはこの設定にかかわらず非公開のままです。共有するにはグループも公開してください。',
   'A tag needs a name.': 'タグには名前が必要です。',
+  'A whole number of periods, from 0 to {maximum}.': '0 から {maximum} までの整数です。',
   'API keys': 'API キー',
   Accept: '承認',
   'Accounts': 'アカウント',
@@ -52,6 +55,7 @@ export default {
     '「私の出版物」に入れたものは、このサーバーのアカウントもキーもなしに誰でも読むことができます。含めたファイルは、選んだライセンスの下で公開されます。あなた自身が作成した著作物のみを加え、配布する権利を持つファイルのみを含めてください。',
   'Anyone can see this page, with no account here.': 'このページは、ここにアカウントがなくても誰でも見られます。',
   Archive: 'アーカイブ',
+  'Apply them now': '今すぐ適用',
   'At least {count} characters': '{count} 文字以上',
   Attachments: '添付ファイル',
   'Attachments and notes': '添付ファイルとメモ',
@@ -68,6 +72,7 @@ export default {
   'Change password': 'パスワードを変更',
   'Change the rights': '権利を変更',
   'Change who can see it': '見られる人を変更',
+  'Checked.': '確認しました。',
   'Checking the request…': 'リクエストを確認しています…',
   'Choose a Creative Commons license': 'クリエイティブ・コモンズ・ライセンスを選択する',
   'Choose a library and an archive first.': '先にライブラリーとアーカイブを選んでください。',
@@ -113,16 +118,23 @@ export default {
   'Database': 'データベース',
   'Dates look like this: {example}': '日付はこのように表示されます: {example}',
   Decline: '辞退',
+  'Days a delivered group activity record is kept': '配信済みのグループ活動記録を保持する日数',
+  'Days an item stays in the trash': 'アイテムをゴミ箱に残す日数',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     '著作物をパブリックドメインにすることは取り消せません。後で別の条件を選んだり、公開をやめたりした場合も同じです。',
   Delete: '削除',
   'Delete everything in the trash?': 'ごみ箱の中身をすべて削除しますか？',
+  'Delete it now': '今すぐ削除',
   'Delete this group': 'このグループを削除',
   'Delete {count} items for good?': '{count} 件の項目を完全に削除しますか？',
   'Delete “{name}” and everything in it?': '「{name}」と、その中のすべてを削除しますか？',
   'Delete “{name}” for good?': '「{name}」を完全に削除しますか？',
   'Delete “{name}”?': '「{name}」を削除しますか？',
   Description: '説明',
+  'Deleted.': '削除しました。',
+  'Deleted:': '削除しました:',
+  'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.':
+    'ゴミ箱からアイテムを削除するのは他と同じ書き込みです。ライブラリは新しいバージョンになり、すべてのクライアントが何が消えたかを知ります。取り消しはできません。',
   'Detail width': '詳細パネルの幅',
   'Display name': '表示名',
   Done: '完了',
@@ -164,6 +176,8 @@ export default {
   Groups: 'グループ',
   'Hand over the group': 'グループを譲渡',
   'Hide from My Publications': '「私の出版物」から隠す',
+  'Hours an unfinished upload is remembered': '未完了のアップロードを覚えておく時間',
+  'How long things are kept': '保持する期間',
   'I created this work and have the rights to distribute the files included.':
     '私がこの著作を作成し、これに含まれるファイルを配布する権利を有します。',
   'I created this work.': '私がこの作品を作りました。',
@@ -248,6 +262,7 @@ export default {
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'まだ何もありません。Zotero デスクトップアプリをこのサーバーに向けて同期してください。',
   'Nothing in this library has been published yet.': 'このライブラリからはまだ何も公開されていません。',
+  'Nothing to delete.': '削除するものはありません。',
   'Nothing to show.': '表示するものはありません。',
   Notifications: '通知',
   'Notifications, {count} unread': '通知、未読 {count} 件',
@@ -311,6 +326,7 @@ export default {
   'Restore into': '復元先',
   'Restore to Library': 'ライブラリへ復元',
   Revoke: '失効',
+  'Retention': '保持期間',
   'Rights for “{name}”': '「{name}」の権利',
   Role: '役割',
   Save: '保存',
@@ -320,6 +336,7 @@ export default {
     '下のコードを読み取り、アプリのコードを入力してください。',
   Search: '検索',
   'Search this library': 'このライブラリを検索',
+  'See what would go': '何が消えるか確認',
   'See your page': '自分のページを見る',
   'See your public page': '公開ページを見る',
   Select: '選択',
@@ -398,6 +415,8 @@ export default {
   'Version {version}': 'バージョン {version}',
   Visibility: '公開範囲',
   'Web API version': 'Web API のバージョン',
+  'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
+    'グループ通知の元になった記録です。二重に通知されることはなく、ここで決まるのは記録が残る期間だけです。',
   'What is it for?': '用途は何ですか？',
   'What it holds': '保持している内容',
   'What the Zotero app and any scripts use to sync. Linking Zotero from its own settings creates one of these for you.':
@@ -411,6 +430,7 @@ export default {
   Withdraw: '取り消す',
   'Without this, a library that already holds anything is left alone rather than merged into.':
     'これを選ばない場合、すでに何か入っているライブラリーは統合されずそのまま残ります。',
+  'Would delete:': '削除される予定:',
   'Would you like to allow your work to be shared by others?': 'あなたの著作物を他の人と共有できるようにしますか？',
   'Writing it into your library…': 'ライブラリに書き込んでいます…',
   Yes: 'はい',
@@ -429,6 +449,8 @@ export default {
   'Your published work can be read by anyone, without an account here.':
     '公開した著作物は、ここにアカウントがなくても誰でも読めます。',
   confirmed: '確認済み',
+  'Zero keeps the trash for good, which is what this server does until you say otherwise. zotero.org uses 30.':
+    '0 はゴミ箱をずっと保持します。ほかに指定するまでこのサーバーはそう動きます。zotero.org は 30 です。',
   'altero version': 'altero のバージョン',
   'date unknown': '日付不明',
   'not confirmed yet': '未確認',
@@ -442,6 +464,10 @@ export default {
   '{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.': '{count} 件の添付ファイルは zotero.org にファイルが保存されておらず、ファイルなしで取り込まれました。 | {count} 件の添付ファイルは zotero.org にファイルが保存されておらず、ファイルなしで取り込まれました。',
   '{count} attachments have no file on disk.': '{count} 件の添付ファイルにディスク上のファイルがありません。',
   '{count} collection added or changed | {count} collections added or changed': '{count} 件のコレクションを追加または変更 | {count} 件のコレクションを追加または変更',
+  '{count} delivered activity records': '配信済みの活動記録 {count} 件',
+  '{count} expired confirmation links': '期限切れの確認リンク {count} 件',
+  '{count} expired invitations': '期限切れの招待 {count} 件',
+  '{count} expired sessions': '期限切れのセッション {count} 件',
   '{count} files are no longer referenced by any library, holding {size}.':
     '{count} 件のファイルはどのライブラリからも参照されておらず、{size} を占めています。',
   '{count} item added or changed | {count} items added or changed': '{count} 件のアイテムを追加または変更 | {count} 件のアイテムを追加または変更',
@@ -450,11 +476,13 @@ export default {
   '{count} item deleted | {count} items deleted': '{count} 件のアイテムを削除 | {count} 件のアイテムを削除',
   '{count} item selected | {count} items selected': '{count} 件の項目を選択 | {count} 件の項目を選択',
   '{count} item | {count} items': '{count} 件の項目 | {count} 件の項目',
+  '{count} items out of the trash': 'ゴミ箱のアイテム {count} 件',
   '{count} link between items was pointed at your account here. | {count} links between items were pointed at your account here.': '{count} 件の項目間のリンクをこちらのアカウントに向け直しました。 | {count} 件の項目間のリンクをこちらのアカウントに向け直しました。',
   '{count} member | {count} members': 'メンバー {count} 人 | メンバー {count} 人',
   '{count} membership changed | {count} memberships changed': '{count} 件のメンバーシップを変更 | {count} 件のメンバーシップを変更',
   '{count} more | {count} more': '他 {count} 件 | 他 {count} 件',
   '{count} publication | {count} publications': '{count} 件の出版物 | {count} 件の出版物',
+  '{count} unfinished uploads': '未完了のアップロード {count} 件',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} 件の項目、{collections} 件のコレクション、{files} 件のファイルを、{source} のアーカイブから読み込みました。',
   '{items} items, {collections} collections, {tags} tags and {files} files, from {username} at zotero.org.': 'zotero.org の {username} から、{items} 件の項目、{collections} 件のコレクション、{tags} 件のタグ、{files} 件のファイル。',

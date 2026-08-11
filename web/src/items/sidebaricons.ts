@@ -234,6 +234,12 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
     ],
   },
 
+  /** A clock, hands at ten past eight: how long a thing is kept. */
+  retention: {
+    label: 'Retention',
+    paths: ['M12 20.25a8.25 8.25 0 100-16.5 8.25 8.25 0 000 16.5z', 'M12 7.5V12l3 1.75'],
+  },
+
   /** A box with its lid: a library packed up to be carried somewhere. */
   archive: {
     label: 'Import and export',

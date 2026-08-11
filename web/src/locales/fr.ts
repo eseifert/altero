@@ -11,6 +11,8 @@ export default {
   'A collection needs a name.': 'Une collection a besoin d’un nom.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Un fichier joint dans deux bibliothèques est stocké une fois et compté dans les deux. Le premier nombre est ce que ce serveur doit conserver ; le second, ce que les bibliothèques coûteraient séparément.',
+  'A file the client asked to send and never sent. Nothing is lost: it asks again.':
+    'Un fichier que le client a annoncé et n’a jamais envoyé. Rien n’est perdu : il redemandera.',
   'A group is a library of its own, shared with the people you add to it.':
     'Un groupe est une bibliothèque à part entière, partagée avec les personnes que vous y ajoutez.',
   'A password must be at least {count} characters':
@@ -18,6 +20,7 @@ export default {
   'A private group stays private whatever this says. Make it public as well to share it.':
     'Un groupe privé le reste quoi qu’indique ce réglage. Rendez-le également public pour le partager.',
   'A tag needs a name.': 'Un marqueur a besoin d’un nom.',
+  'A whole number of periods, from 0 to {maximum}.': 'Un nombre entier, de 0 à {maximum}.',
   'API keys': 'Clés API',
   Accept: 'Accepter',
   'Accounts': 'Comptes',
@@ -50,6 +53,7 @@ export default {
   'Anyone can see this page, with no account here.':
     'Cette page est visible par tout le monde, sans compte ici.',
   Archive: 'Archive',
+  'Apply them now': 'Appliquer maintenant',
   'At least {count} characters': 'Au moins {count} caractères',
   Attachments: 'Fichiers joints',
   'Attachments and notes': 'Pièces jointes et notes',
@@ -66,6 +70,7 @@ export default {
   'Change password': 'Changer le mot de passe',
   'Change the rights': 'Modifier les autorisations',
   'Change who can see it': 'Modifier qui peut la voir',
+  'Checked.': 'Vérifié.',
   'Checking the request…': 'Vérification de la demande…',
   'Choose a Creative Commons license': 'Choisissez une licence Creative Commons',
   'Choose a library and an archive first.': 'Choisissez d’abord une bibliothèque et une archive.',
@@ -111,16 +116,24 @@ export default {
   'Database': 'Base de données',
   'Dates look like this: {example}': 'Les dates ressemblent à ceci : {example}',
   Decline: 'Refuser',
+  'Days a delivered group activity record is kept':
+    'Jours pendant lesquels un enregistrement d’activité de groupe déjà envoyé est conservé',
+  'Days an item stays in the trash': 'Jours pendant lesquels un document reste dans la corbeille',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Placer votre travail dans le domaine public est irréversible, même si vous choisissez plus tard des conditions différentes ou si vous cessez la publication de ce travail.',
   Delete: 'Supprimer',
   'Delete everything in the trash?': 'Supprimer tout ce qui se trouve dans la corbeille ?',
+  'Delete it now': 'Supprimer maintenant',
   'Delete this group': 'Supprimer ce groupe',
   'Delete {count} items for good?': 'Supprimer {count} documents définitivement ?',
   'Delete “{name}” and everything in it?': 'Supprimer « {name} » et tout ce qu’il contient ?',
   'Delete “{name}” for good?': 'Supprimer « {name} » définitivement ?',
   'Delete “{name}”?': 'Supprimer « {name} » ?',
   Description: 'Description',
+  'Deleted.': 'Supprimé.',
+  'Deleted:': 'Supprimé :',
+  'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.':
+    'Supprimer un document de la corbeille est une écriture comme une autre : la bibliothèque prend une nouvelle version et chaque client apprend ce qui a disparu. Il n’y a pas de retour en arrière.',
   'Detail width': 'Largeur du panneau de détail',
   'Display name': 'Nom affiché',
   Done: 'Terminé',
@@ -163,6 +176,9 @@ export default {
   Groups: 'Groupes',
   'Hand over the group': 'Céder le groupe',
   'Hide from My Publications': 'Masquer de Mes publications',
+  'Hours an unfinished upload is remembered':
+    'Heures pendant lesquelles un envoi inachevé est mémorisé',
+  'How long things are kept': 'Combien de temps les choses sont conservées',
   'I created this work and have the rights to distribute the files included.':
     'Je suis l’auteur de ce travail et j’ai le droit de distribuer les fichiers qui y sont attachés.',
   'I created this work.': 'Je suis l’auteur de ce travail.',
@@ -253,6 +269,7 @@ export default {
     "Rien ici pour l'instant. Pointez l'application Zotero vers ce serveur et synchronisez.",
   'Nothing in this library has been published yet.':
     'Rien n’a encore été publié dans cette bibliothèque.',
+  'Nothing to delete.': 'Rien à supprimer.',
   'Nothing to show.': 'Rien à afficher.',
   Notifications: 'Notifications',
   'Notifications, {count} unread': 'Notifications, {count} non lues',
@@ -319,6 +336,7 @@ export default {
   'Restore into': 'Restaurer dans',
   'Restore to Library': 'Restaurer vers la bibliothèque',
   Revoke: 'Révoquer',
+  'Retention': 'Conservation',
   'Rights for “{name}”': 'Autorisations pour « {name} »',
   Role: 'Rôle',
   Save: 'Enregistrer',
@@ -328,6 +346,7 @@ export default {
     "Scannez le code ci-dessous, puis saisissez un code de l'application.",
   Search: 'Rechercher',
   'Search this library': 'Rechercher dans cette bibliothèque',
+  'See what would go': 'Voir ce qui partirait',
   'See your page': 'Voir votre page',
   'See your public page': 'Voir votre page publique',
   Select: 'Sélectionner',
@@ -410,6 +429,8 @@ export default {
   'Version {version}': 'Version {version}',
   Visibility: 'Visibilité',
   'Web API version': 'Version de l’API web',
+  'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
+    'Ce à partir de quoi les notifications de groupe ont été envoyées. Personne n’est notifié deux fois ; ceci décide seulement combien de temps l’enregistrement reste.',
   'What is it for?': 'À quoi sert-elle ?',
   'What it holds': 'Ce qu’il contient',
   'What the Zotero app and any scripts use to sync. Linking Zotero from its own settings creates one of these for you.':
@@ -423,6 +444,7 @@ export default {
   Withdraw: 'Retirer',
   'Without this, a library that already holds anything is left alone rather than merged into.':
     'Sans cela, une bibliothèque qui contient déjà quelque chose est laissée intacte plutôt que fusionnée.',
+  'Would delete:': 'Supprimerait :',
   'Would you like to allow your work to be shared by others?':
     'Comment votre travail peut-il être partagé par les autres ?',
   'Writing it into your library…': 'Écriture dans votre bibliothèque…',
@@ -445,6 +467,8 @@ export default {
   'Your published work can be read by anyone, without an account here.':
     'Vos travaux publiés sont lisibles par tout le monde, sans compte ici.',
   confirmed: 'confirmée',
+  'Zero keeps the trash for good, which is what this server does until you say otherwise. zotero.org uses 30.':
+    'Zéro conserve la corbeille indéfiniment, ce que fait ce serveur tant que vous n’en décidez autrement. zotero.org utilise 30.',
   'altero version': 'Version d’altero',
   'date unknown': 'date inconnue',
   'not confirmed yet': 'pas encore confirmée',
@@ -459,6 +483,10 @@ export default {
   '{count} attachments have no file on disk.':
     '{count} pièces jointes n’ont aucun fichier sur le disque.',
   '{count} collection added or changed | {count} collections added or changed': '{count} collection ajoutée ou modifiée | {count} collections ajoutées ou modifiées',
+  '{count} delivered activity records': '{count} enregistrements d’activité déjà envoyés',
+  '{count} expired confirmation links': '{count} liens de confirmation expirés',
+  '{count} expired invitations': '{count} invitations expirées',
+  '{count} expired sessions': '{count} sessions expirées',
   '{count} files are no longer referenced by any library, holding {size}.':
     '{count} fichiers ne sont plus référencés par aucune bibliothèque et occupent {size}.',
   '{count} item added or changed | {count} items added or changed': '{count} document ajouté ou modifié | {count} documents ajoutés ou modifiés',
@@ -467,11 +495,13 @@ export default {
   '{count} item deleted | {count} items deleted': '{count} document supprimé | {count} documents supprimés',
   '{count} item selected | {count} items selected': '{count} document sélectionné | {count} documents sélectionnés',
   '{count} item | {count} items': '{count} document | {count} documents',
+  '{count} items out of the trash': '{count} documents sortis de la corbeille',
   '{count} link between items was pointed at your account here. | {count} links between items were pointed at your account here.': '{count} lien entre documents a été redirigé vers votre compte ici. | {count} liens entre documents ont été redirigés vers votre compte ici.',
   '{count} member | {count} members': '{count} membre | {count} membres',
   '{count} membership changed | {count} memberships changed': '{count} adhésion modifiée | {count} adhésions modifiées',
   '{count} more | {count} more': '{count} de plus | {count} de plus',
   '{count} publication | {count} publications': '{count} publication | {count} publications',
+  '{count} unfinished uploads': '{count} envois inachevés',
   '{items} items, {collections} collections and {files} files, from an archive of {source}.':
     '{items} documents, {collections} collections et {files} fichiers, depuis une archive de {source}.',
   '{items} items, {collections} collections, {tags} tags and {files} files, from {username} at zotero.org.': '{items} documents, {collections} collections, {tags} marqueurs et {files} fichiers, depuis {username} sur zotero.org.',

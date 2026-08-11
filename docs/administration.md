@@ -25,6 +25,8 @@ uv run altero library list
 uv run altero library set-version <user|group> <id> <version>
 uv run altero library export <user|group> <id> <archive.zip>
 uv run altero library import <archive.zip> [--replace]
+uv run altero retention show
+uv run altero retention run [--dry-run] [--trash DAYS]
 uv run altero login list
 uv run altero login approve <token> <username> [--key KEY]
 ```
@@ -90,6 +92,59 @@ count and measure, and nothing on them deletes.
 The numbers are counted when the screen is opened rather than kept in a
 counter, because a counter maintained on every upload can drift from the disk
 it describes — which is the failure this is meant to catch.
+
+## Retention
+
+zotero.org empties the trash after 30 days. Here that period is the operator's
+own, and it starts at **never**: an instance that began deleting somebody's
+trash because it was upgraded would be the worst kind of surprise. **Retention**
+under Administration sets three periods, and so does the configuration —
+
+```python
+TRASH_RETENTION_DAYS = 0       # 30 matches zotero.org
+ACTIVITY_RETENTION_DAYS = 0    # delivered group activity
+UPLOAD_RETENTION_HOURS = 24    # uploads whose bytes never arrived
+RETENTION_INTERVAL = 0         # seconds; zero means only `retention run` does it
+```
+
+— with one rule between them: a value set in the browser wins, and clearing it
+returns the setting to the configured one. So an operator who keeps everything
+in `config.py` keeps working and sees their own numbers on the screen.
+
+```sh
+uv run altero retention show
+uv run altero retention run --dry-run            # say what would go
+uv run altero retention run --dry-run --trash 30 # …with a period not yet set
+uv run altero retention run
+```
+
+Two things about the trash sweep matter more than the period.
+
+**It is an ordinary delete.** The library takes one new version, however many
+items go, and each deletion is recorded, so the next `/deleted?since=` tells
+every syncing client exactly what went. A server that removed the rows quietly
+would leave every client holding items that no longer exist, with no way to
+find out short of a full re-download.
+
+**Age is measured from `serverDateModified`**, because nothing records when an
+item was put in the trash and a column added now would be empty for everything
+already in there. The server's own timestamp says the item changed no later
+than that, so an item touched while in the trash gets a fresh lease: the sweep
+deletes late rather than early, which is the right direction to be wrong in.
+
+Alongside those, and needing no setting, the sweep clears rows that are already
+past their own expiry: signed-out browser sessions, confirmation links, and
+invitations that expired without ever being answered — an accepted or declined
+one is kept, so that re-inviting somebody who said no stays a visible act.
+
+Files that no library references are **not** deleted by any of this. They are
+reported on the Storage screen and left alone: bytes are written to disk before
+the item row that refers to them is committed, so a sweep that deleted
+unreferenced files would race every upload in flight.
+
+The sweep is safe to run while the server is serving, and safe to run twice at
+once: each library is locked while it is swept, and deleting an item that has
+already gone is not an error.
 
 ## Moving a library to another server
 

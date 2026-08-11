@@ -17,6 +17,7 @@ import { useRoute } from 'vue-router'
 
 import SectionPanel, { type PanelSection } from '@/components/SectionPanel.vue'
 import OverviewSection from './admin/OverviewSection.vue'
+import RetentionSection from './admin/RetentionSection.vue'
 import StorageSection from './admin/StorageSection.vue'
 import { providePanel } from './admin/panel'
 
@@ -29,6 +30,12 @@ const { notice, failure } = providePanel()
 const SECTIONS: PanelSection[] = [
   { slug: 'overview', icon: 'server', label: () => t('Overview'), component: OverviewSection },
   { slug: 'storage', icon: 'disk', label: () => t('Storage'), component: StorageSection },
+  {
+    slug: 'retention',
+    icon: 'retention',
+    label: () => t('Retention'),
+    component: RetentionSection,
+  },
 ]
 
 const current = computed(

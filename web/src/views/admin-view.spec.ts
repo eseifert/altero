@@ -59,6 +59,16 @@ const STORAGE = {
   missingFiles: 0,
 }
 
+const SETTINGS = {
+  settings: { trashRetentionDays: 0, activityRetentionDays: 0, uploadRetentionHours: 24 },
+  defaults: { trashRetentionDays: 0, activityRetentionDays: 0, uploadRetentionHours: 24 },
+  limits: {
+    trashRetentionDays: { maximum: 3650, zero: 'never' },
+    activityRetentionDays: { maximum: 3650, zero: 'never' },
+    uploadRetentionHours: { maximum: 8760, zero: 'never' },
+  },
+}
+
 beforeEach(() => {
   setActivePinia(createPinia())
   i18n.global.locale.value = 'en'
@@ -66,6 +76,20 @@ beforeEach(() => {
   requestMock.mockImplementation((path: string) => {
     if (path === '/web/admin/overview') return Promise.resolve(OVERVIEW)
     if (path === '/web/admin/storage') return Promise.resolve(STORAGE)
+    if (path === '/web/admin/settings') return Promise.resolve(SETTINGS)
+    if (path.startsWith('/web/admin/retention/run')) {
+      return Promise.resolve({
+        preview: path.includes('preview=true'),
+        itemsDeleted: 3,
+        libraries: 1,
+        activity: 0,
+        uploads: 0,
+        sessions: 0,
+        verifications: 0,
+        invitations: 0,
+        summary: '3 items out of the trash in 1 libraries',
+      })
+    }
     return Promise.resolve({})
   })
 })
@@ -151,6 +175,55 @@ describe('the administration screens', () => {
     await open()
 
     expect(requestMock).not.toHaveBeenCalledWith('/web/admin/storage')
+  })
+})
+
+/** One button, by what it says: the order on the screen is not the contract. */
+function button(wrapper: ReturnType<typeof mount>, label: string) {
+  const found = wrapper.findAll('button').find((candidate) => candidate.text() === label)
+  if (!found) throw new Error(`No button labelled "${label}"`)
+  return found
+}
+
+describe('the retention screen', () => {
+  it('shows the periods in force', async () => {
+    const wrapper = await open('retention')
+
+    const values = wrapper.findAll('input').map((input) => (input.element as HTMLInputElement).value)
+    expect(values).toEqual(['0', '0', '24'])
+  })
+
+  it('says what a period would take before it takes it', async () => {
+    /* A period is a decision about deleting other people's work; a rehearsal
+       is what makes setting one safe. */
+    const wrapper = await open('retention')
+
+    await button(wrapper, 'See what would go').trigger('click')
+    await flush()
+
+    expect(requestMock).toHaveBeenCalledWith('/web/admin/retention/run?preview=true', {
+      method: 'POST',
+    })
+    expect(wrapper.text()).toContain('Would delete: 3 items out of the trash')
+  })
+
+  it('reports a sweep in the reader’s own language, not the server’s sentence', async () => {
+    i18n.global.locale.value = 'de'
+    const wrapper = await open('retention')
+
+    await button(wrapper, 'Jetzt löschen').trigger('click')
+    await flush()
+
+    expect(wrapper.text()).toContain('Gelöscht: 3 Einträge aus dem Papierkorb')
+    i18n.global.locale.value = 'en'
+  })
+
+  it('refuses to save something the server would refuse', async () => {
+    const wrapper = await open('retention')
+
+    await wrapper.findAll('input')[0].setValue('-1')
+
+    expect(button(wrapper, 'Save').attributes('disabled')).toBeDefined()
   })
 })
 

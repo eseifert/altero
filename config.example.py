@@ -52,6 +52,21 @@ PUBLIC_URL = ""
 GROUP_DIGEST_QUIET_PERIOD = 900
 GROUP_DIGEST_INTERVAL = 60
 
+# Retention: how long the server keeps what nobody asked it to keep. Zero is
+# never, which is the default for the first two — an instance that started
+# deleting somebody's trash because it was upgraded would be the worst kind of
+# surprise. zotero.org empties the trash after 30 days, if matching it is what
+# you want. An administrator can change these three in the browser, and a value
+# set there wins over the value here.
+#
+# The interval is how often to apply them; zero, the default, means only
+# `altero retention run` ever does. Age is measured from the last time the
+# server saw the object change — see docs/administration.md#retention.
+TRASH_RETENTION_DAYS = 0
+ACTIVITY_RETENTION_DAYS = 0
+UPLOAD_RETENTION_HOURS = 24
+RETENTION_INTERVAL = 0
+
 # Whether anybody may register an account from the browser. The first account
 # is always allowed, so a fresh instance is reachable without shell access, and
 # so is anyone holding an unanswered invitation to a group. Everything else is

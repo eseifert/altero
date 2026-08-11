@@ -16,7 +16,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.db import Database
 from altero.errors import AlteroError, InvalidInputError
 from altero.models import Library, LibraryType
-from altero.services import admin, auth, groups, login, transfer, webauth, zoteroapi, zoteroimport
+from altero.services import (
+    admin,
+    auth,
+    groups,
+    instancesettings,
+    login,
+    retention,
+    transfer,
+    webauth,
+    zoteroapi,
+    zoteroimport,
+)
 from altero.settings import Settings, get_settings
 
 
@@ -187,6 +198,41 @@ async def _group_delete(session: AsyncSession, args: argparse.Namespace) -> None
 
     await admin.delete_group(session, library)
     print(f"Deleted group {args.group}.")
+
+
+async def _retention_run(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Apply the retention periods now, or say what they would take.
+
+    `--dry-run` is the point of having this on the command line at all: a
+    period is a decision about deleting somebody's data, and being able to see
+    what it takes before it takes it is what makes setting one safe.
+    """
+    settings = get_settings()
+    values = await instancesettings.read_all(session, settings)
+
+    if args.trash is not None:
+        # Asked for rather than stored, so "what would thirty days do" can be
+        # answered without making thirty days the policy first.
+        values = values | {"trashRetentionDays": args.trash}
+
+    report = await retention.sweep(session, values, dry_run=args.dry_run)
+    if not report.anything:
+        print("Nothing to delete.")
+        return
+
+    verb = "Would delete" if args.dry_run else "Deleted"
+    print(f"{verb} {retention.describe(report)}.")
+
+
+async def _retention_show(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Print the retention periods in force and where each came from."""
+    settings = get_settings()
+    values = await instancesettings.read_all(session, settings)
+    for name, value in values.items():
+        configured = instancesettings.default(settings, name)
+        source = "configured" if value == configured else "set here"
+        meaning = instancesettings.DEFINITIONS[name].zero if value == 0 else str(value)
+        print(f"{name:<24} {meaning:<8} ({source})")
 
 
 async def _login_list(session: AsyncSession, args: argparse.Namespace) -> None:
@@ -401,6 +447,20 @@ def build_parser() -> argparse.ArgumentParser:
     drop.add_argument("group", type=int)
     drop.add_argument("--yes", action="store_true", help="do not ask first")
     drop.set_defaults(handler=_group_delete)
+
+    keep = commands.add_parser(
+        "retention", help="delete what the retention periods say to"
+    ).add_subparsers(dest="subcommand")
+    keep.add_parser("show", help="show the periods in force").set_defaults(handler=_retention_show)
+    run = keep.add_parser("run", help="apply the periods now")
+    run.add_argument("--dry-run", action="store_true", help="say what would go without deleting it")
+    run.add_argument(
+        "--trash",
+        type=int,
+        metavar="DAYS",
+        help="use this trash period for this run instead of the one in force",
+    )
+    run.set_defaults(handler=_retention_run)
 
     login_parser = commands.add_parser(
         "login", help="approve a desktop client login"

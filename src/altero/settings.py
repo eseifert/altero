@@ -107,6 +107,50 @@ class Settings(BaseSettings):
         description="Length of the rate-limit window, in seconds.",
     )
 
+    trash_retention_days: int = Field(
+        default=0,
+        ge=0,
+        description=(
+            "How long an item stays in the trash before the server deletes it "
+            "for good. Zero, the default, is never: an instance that started "
+            "deleting somebody's trash because it was upgraded would be a "
+            "surprise of the worst kind. zotero.org empties the trash after 30 "
+            "days, and that is the number to set to match it. An administrator "
+            "can change this in the browser, where it is stored and takes "
+            "precedence over this."
+        ),
+    )
+    activity_retention_days: int = Field(
+        default=0,
+        ge=0,
+        description=(
+            "How long delivered group activity is kept. It is what the "
+            "notifications were sent from and what an activity log would be "
+            "built out of, and it grows without bound. Zero is never."
+        ),
+    )
+    upload_retention_hours: int = Field(
+        default=24,
+        ge=0,
+        description=(
+            "How long an authorized file upload whose bytes never arrived is "
+            "remembered. Nothing is lost by forgetting one: the client asks "
+            "again. Zero is never."
+        ),
+    )
+    retention_interval: int = Field(
+        default=0,
+        ge=0,
+        description=(
+            "How often, in seconds, to apply the retention periods above. "
+            "Zero, the default, means the server never does it on its own and "
+            "`altero retention run` is the only thing that does -- which is "
+            "the right shape for an instance whose operator would rather "
+            "deletion happened when they asked for it. 3600 is a sensible "
+            "number for one that should not need asking."
+        ),
+    )
+
     group_digest_quiet_period: int = Field(
         default=900,
         ge=0,

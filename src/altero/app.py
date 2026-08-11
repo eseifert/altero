@@ -1,5 +1,6 @@
 """ASGI application factory."""
 
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import timedelta
@@ -45,11 +46,13 @@ from altero.api.routes import (
 )
 from altero.api.spa import mount_web_interface
 from altero.db import Database
-from altero.services import groupdigest
+from altero.services import groupdigest, instancesettings, retention
 from altero.services.groupsweeper import Sweeper
 from altero.services.mail import build_mailer
 from altero.services.ratelimit import RateLimiter
 from altero.settings import Settings, get_settings
+
+logger = logging.getLogger("altero.app")
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -66,14 +69,29 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 quiet_period=timedelta(seconds=settings.group_digest_quiet_period),
             )
 
+    async def sweep_retention() -> int:
+        """Apply the operator's retention periods.
+
+        Off unless `retention_interval` says otherwise, which is the default:
+        an instance that started deleting somebody's trash because it was
+        upgraded would be a surprise of the worst kind.
+        """
+        async with database.session_factory() as session:
+            values = await instancesettings.read_all(session, settings)
+            report = await retention.sweep(session, values)
+            if report.anything:
+                logger.info("Retention sweep deleted %s", retention.describe(report))
+            return report.items_deleted
+
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         try:
-            # Inside the dispose, so that leaving this block stops the sweeper
-            # -- and waits for a sweep in flight -- while the database it is
+            # Inside the dispose, so that leaving this block stops the sweepers
+            # -- and waits for a sweep in flight -- while the database they are
             # working against is still there.
-            async with Sweeper(
-                sweep_digests, interval=timedelta(seconds=settings.group_digest_interval)
+            async with (
+                Sweeper(sweep_digests, interval=timedelta(seconds=settings.group_digest_interval)),
+                Sweeper(sweep_retention, interval=timedelta(seconds=settings.retention_interval)),
             ):
                 yield
         finally:
