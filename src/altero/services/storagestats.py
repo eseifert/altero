@@ -22,8 +22,11 @@ of what an instance administrator is entitled to — see
 :mod:`altero.api.routes.webadmin`.
 """
 
+import logging
+import time
 from collections import defaultdict
 from dataclasses import dataclass, field
+from datetime import timedelta
 from pathlib import Path
 
 from sqlalchemy import ColumnElement, func, select
@@ -31,6 +34,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
 from altero.models import Collection, Item, ItemField, Library, LibraryType, Tag, User
+from altero.services.storage import file_path
+
+logger = logging.getLogger("altero.storagestats")
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,6 +144,52 @@ async def _counts(
     if condition is not None:
         statement = statement.where(condition)
     return {library_id: count for library_id, count in await session.execute(statement)}
+
+
+async def purge_orphans(session: AsyncSession, root: Path, *, grace: timedelta) -> tuple[int, int]:
+    """Delete stored files no library references. Returns how many, and how big.
+
+    Never on a timer, and never without ``grace``. A file reaches the disk
+    before the item row that refers to it is committed, so an upload in flight
+    looks exactly like an orphan for as long as that request takes; anything
+    younger than the grace period is left alone, which is what keeps this from
+    racing every client that is sending something.
+
+    The references are read *after* the candidates are listed, so a file that
+    became referenced in between is spared rather than deleted: the check that
+    matters is the later one.
+    """
+    sizes = scan_store(root)
+    if not sizes:
+        return 0, 0
+
+    cutoff = time.time() - grace.total_seconds()
+    old = {
+        digest: size
+        for digest, size in sizes.items()
+        if (path := file_path(root, digest)).is_file() and path.stat().st_mtime < cutoff
+    }
+    if not old:
+        return 0, 0
+
+    referenced = {
+        digest for digests in (await _digests_by_library(session)).values() for digest in digests
+    }
+
+    removed = freed = 0
+    for digest, size in old.items():
+        if digest in referenced:
+            continue
+        path = file_path(root, digest)
+        try:
+            path.unlink()
+        except OSError:  # pragma: no cover - a file somebody else removed
+            logger.warning("Could not remove %s", path)
+            continue
+        removed += 1
+        freed += size
+
+    return removed, freed
 
 
 async def collect(session: AsyncSession, root: Path) -> Usage:

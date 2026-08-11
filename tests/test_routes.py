@@ -46,6 +46,7 @@ EXPECTED = [
     # reachable with an API key -- see altero/api/routes/webadmin.py.
     ("/web/admin/overview", "GET"),
     ("/web/admin/storage", "GET"),
+    ("/web/admin/storage/purge", "POST"),
     ("/web/admin/settings", "GET"),
     ("/web/admin/settings", "PUT"),
     ("/web/admin/retention/run", "POST"),

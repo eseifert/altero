@@ -150,3 +150,32 @@ class TestTheStorageReport:
         body = await (await client.get("/web/admin/storage")).aread()
 
         assert b"Analytical Engine" not in body
+
+
+class TestPurgingStorage:
+    """The only route in this layer that removes bytes."""
+
+    async def test_it_takes_the_administrator_s_own_password(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        await register(client)
+
+        response = await client.post(
+            "/web/admin/storage/purge",
+            json={"currentPassword": "not it"},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 403
+
+    async def test_it_reports_what_it_freed(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        response = await client.post(
+            "/web/admin/storage/purge",
+            json={"currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {"files": 0, "bytes": 0}

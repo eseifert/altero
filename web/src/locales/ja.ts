@@ -136,6 +136,7 @@ export default {
   'Delete everything in the trash?': 'ごみ箱の中身をすべて削除しますか？',
   'Delete it now': '今すぐ削除',
   'Delete this group': 'このグループを削除',
+  'Delete unreferenced files': '参照されていないファイルを削除',
   'Delete {count} items for good?': '{count} 件の項目を完全に削除しますか？',
   'Delete “{name}” and everything in it?': '「{name}」と、その中のすべてを削除しますか？',
   'Delete “{name}” for good?': '「{name}」を完全に削除しますか？',
@@ -145,6 +146,8 @@ export default {
   'Deleted:': '削除しました:',
   'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.':
     'ゴミ箱からアイテムを削除するのは他と同じ書き込みです。ライブラリは新しいバージョンになり、すべてのクライアントが何が消えたかを知ります。取り消しはできません。',
+  'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.':
+    '削除は取り消せません。直近 1 日以内にアップロードされたものはそのままにします。ファイルは、それを参照するアイテムより先にディスクに届くからです。',
   'Detail width': '詳細パネルの幅',
   'Display name': '表示名',
   Done: '完了',
@@ -443,6 +446,7 @@ export default {
   'Unfiled Items': '未整理の項目',
   'Unknown browser': '不明なブラウザー',
   Unread: '未読',
+  'Unreferenced files deleted.': '参照されていないファイルを削除しました。',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     '招待が届いたアドレスを使うと、その招待に返答できます。',
   'Used for security notifications and invitations': 'セキュリティ通知と招待に使用します',

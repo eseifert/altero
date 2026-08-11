@@ -158,6 +158,13 @@ async function open(section = '') {
   return wrapper
 }
 
+/** One button, by what it says: the order on the screen is not the contract. */
+function button(wrapper: ReturnType<typeof mount>, label: string) {
+  const found = wrapper.findAll('button').find((candidate) => candidate.text() === label)
+  if (!found) throw new Error(`No button labelled "${label}"`)
+  return found
+}
+
 describe('the administration screens', () => {
   it('opens on the overview', async () => {
     const wrapper = await open()
@@ -211,19 +218,38 @@ describe('the administration screens', () => {
     expect(wrapper.text()).toContain('no longer referenced')
   })
 
+  it('deletes them only when asked, and with the password', async () => {
+    /* The one irreversible thing on these screens. */
+    const wrapper = await open('storage')
+
+    expect(button(wrapper, 'Delete unreferenced files').attributes('disabled')).toBeDefined()
+
+    await wrapper.get('input[type="password"]').setValue('a good password')
+    await button(wrapper, 'Delete unreferenced files').trigger('click')
+    await flush()
+
+    expect(requestMock).toHaveBeenCalledWith('/web/admin/storage/purge', {
+      method: 'POST',
+      body: { currentPassword: 'a good password' },
+    })
+  })
+
+  it('offers nothing to delete when there are no orphans', async () => {
+    requestMock.mockImplementation((path: string) =>
+      Promise.resolve(path === '/web/admin/storage' ? { ...STORAGE, orphanFiles: 0 } : {}),
+    )
+
+    const wrapper = await open('storage')
+
+    expect(wrapper.find('input[type="password"]').exists()).toBe(false)
+  })
+
   it('does not fetch a section that is not showing', async () => {
     await open()
 
     expect(requestMock).not.toHaveBeenCalledWith('/web/admin/storage')
   })
 })
-
-/** One button, by what it says: the order on the screen is not the contract. */
-function button(wrapper: ReturnType<typeof mount>, label: string) {
-  const found = wrapper.findAll('button').find((candidate) => candidate.text() === label)
-  if (!found) throw new Error(`No button labelled "${label}"`)
-  return found
-}
 
 describe('the retention screen', () => {
   it('shows the periods in force', async () => {

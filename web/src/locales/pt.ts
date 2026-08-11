@@ -135,6 +135,7 @@ export default {
   'Delete everything in the trash?': 'Eliminar tudo o que está no lixo?',
   'Delete it now': 'Eliminar agora',
   'Delete this group': 'Eliminar este grupo',
+  'Delete unreferenced files': 'Eliminar os ficheiros sem referência',
   'Delete {count} items for good?': 'Eliminar {count} itens definitivamente?',
   'Delete “{name}” and everything in it?': 'Eliminar “{name}” e tudo o que contém?',
   'Delete “{name}” for good?': 'Eliminar «{name}» definitivamente?',
@@ -144,6 +145,8 @@ export default {
   'Deleted:': 'Eliminado:',
   'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.':
     'Eliminar um item do lixo é uma escrita como qualquer outra: a biblioteca recebe uma versão nova e cada cliente fica a saber o que desapareceu. Não há forma de desfazer.',
+  'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.':
+    'Eliminá-los não pode ser desfeito. O que foi enviado no último dia fica intacto: um ficheiro chega ao disco antes do item que lhe faz referência.',
   'Detail width': 'Largura do painel de detalhes',
   'Display name': 'Nome apresentado',
   Done: 'Concluído',
@@ -454,6 +457,7 @@ export default {
   'Unfiled Items': 'Itens por Classificar',
   'Unknown browser': 'Navegador desconhecido',
   Unread: 'Por ler',
+  'Unreferenced files deleted.': 'Ficheiros sem referência eliminados.',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Use o endereço para o qual o convite foi enviado e poderá respondê-lo.',
   'Used for security notifications and invitations': 'Usado para avisos de segurança e convites',

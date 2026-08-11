@@ -6,6 +6,8 @@ in both libraries' accounts: what each library would cost on its own is not
 what the instance is paying, and an operator asked to plan for disk needs both.
 """
 
+import os
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -34,6 +36,13 @@ async def personal_library(session: AsyncSession) -> Library:
     """Return the library `make_user` gives an account."""
     await make_user(session)
     return await get_library(session, LibraryType.USER, 1)
+
+
+def age(root: Path, digest: str, *, hours: int) -> None:
+    """Backdate a stored file, as if it had been sitting there."""
+    path = storage.file_path(root, digest)
+    when = path.stat().st_mtime - hours * 3600
+    os.utime(path, (when, when))
 
 
 DIGEST = "0" * 32
@@ -157,3 +166,64 @@ class TestTheLibrariesItNames:
         assert report.libraries[0].type is LibraryType.USER
         assert report.libraries[0].owner_id == 1
         assert report.libraries[0].name == "Ada's library"
+
+
+class TestPurgingOrphans:
+    """Deleting bytes is the riskiest thing in the operator layer.
+
+    Never on a timer, and never without a grace period: a file reaches the disk
+    before the item row that refers to it is committed, so an upload in flight
+    looks exactly like an orphan for as long as that request takes.
+    """
+
+    async def test_an_old_orphan_goes_when_it_is_asked_for(
+        self, session: AsyncSession, store: Path
+    ) -> None:
+        await personal_library(session)
+        put_file(store, OTHER, b"y" * 500)
+        age(store, OTHER, hours=48)
+
+        files, freed = await storagestats.purge_orphans(session, store, grace=timedelta(hours=24))
+
+        assert (files, freed) == (1, 500)
+        assert not storage.file_path(store, OTHER).exists()
+
+    async def test_a_file_that_has_just_arrived_is_left_alone(
+        self, session: AsyncSession, store: Path
+    ) -> None:
+        """This is the upload in flight, and it is the whole reason for a grace."""
+        await personal_library(session)
+        put_file(store, OTHER, b"y" * 500)
+
+        files, freed = await storagestats.purge_orphans(session, store, grace=timedelta(hours=24))
+
+        assert (files, freed) == (0, 0)
+        assert storage.file_path(store, OTHER).exists()
+
+    async def test_a_referenced_file_is_never_touched(
+        self, session: AsyncSession, store: Path
+    ) -> None:
+        library = await personal_library(session)
+        put_file(store, DIGEST, b"x" * 1000)
+        age(store, DIGEST, hours=4000)
+        await make_item(session, library, item_type="attachment", fields={"md5": DIGEST})
+
+        files, _ = await storagestats.purge_orphans(session, store, grace=timedelta(hours=24))
+
+        assert files == 0
+        assert storage.file_path(store, DIGEST).exists()
+
+    async def test_a_file_in_another_library_is_not_an_orphan(
+        self, session: AsyncSession, store: Path
+    ) -> None:
+        """The digest is shared; only the union of every library counts."""
+        personal = await personal_library(session)
+        group = await make_group(session, group_id=100, owner_id=1)
+        put_file(store, DIGEST, b"x" * 1000)
+        age(store, DIGEST, hours=4000)
+        await make_item(session, group, item_type="attachment", fields={"md5": DIGEST})
+        assert personal is not None
+
+        files, _ = await storagestats.purge_orphans(session, store, grace=timedelta(hours=24))
+
+        assert files == 0

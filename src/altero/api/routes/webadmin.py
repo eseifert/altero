@@ -15,6 +15,7 @@ operator rather than to a library — which is the gap ``docs/motivation.md``
 names, and which until now meant a shell on the server.
 """
 
+from datetime import timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException
@@ -479,6 +480,38 @@ async def delete_account(
 
     await admin.delete_user(session, user)
     return Response(status_code=204)
+
+
+#: How long a stored file must have been sitting there before the purge below
+#: will touch it. Long enough that no upload in flight looks like an orphan,
+#: and not a setting: an operator has no way to judge it and getting it wrong
+#: deletes somebody's attachment.
+ORPHAN_GRACE = timedelta(hours=24)
+
+
+@router.post("/storage/purge")
+async def purge_storage(
+    request: Request,
+    session: SessionDep,
+    admin_user: AdministratorDep,
+    body: PasswordOnly,
+    _csrf: CsrfDep,
+) -> Response:
+    """Delete stored files no library references any more.
+
+    The only thing in this layer that removes bytes, and the only reason it is
+    a button rather than part of the retention sweep: a file reaches the disk
+    before the item row that refers to it is committed, so an upload in flight
+    is indistinguishable from an orphan. Anything younger than
+    :data:`ORPHAN_GRACE` is left where it is, and the administrator's own
+    password is asked for, because this is not recoverable from here.
+    """
+    account.require_password(admin_user, body.current_password)
+
+    files, freed = await storagestats.purge_orphans(
+        session, request.app.state.settings.storage_path, grace=ORPHAN_GRACE
+    )
+    return JSONResponse({"files": files, "bytes": freed})
 
 
 @router.get("/storage")

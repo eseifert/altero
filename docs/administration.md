@@ -94,8 +94,13 @@ quota — which is what the storage threads on the forums are about.
 Two things that do not add up are reported alongside: files nothing references
 any more, which is where a self-hosted instance quietly loses disk, and
 attachments whose bytes are not there, which is what a restore that lost its
-files looks like. Both are reported and neither is acted on: these screens
-count and measure, and nothing on them deletes.
+files looks like.
+
+The first can be deleted, and it is the only thing on these screens that
+removes bytes — a button, never a timer, asking for your password. A file
+reaches the disk before the item row that refers to it is committed, so an
+upload in flight is indistinguishable from an orphan; anything written in the
+last day is left where it is for that reason. Nothing else here deletes.
 
 The numbers are counted when the screen is opened rather than kept in a
 counter, because a counter maintained on every upload can drift from the disk
@@ -189,10 +194,10 @@ past their own expiry: signed-out browser sessions, confirmation links, and
 invitations that expired without ever being answered — an accepted or declined
 one is kept, so that re-inviting somebody who said no stays a visible act.
 
-Files that no library references are **not** deleted by any of this. They are
-reported on the Storage screen and left alone: bytes are written to disk before
-the item row that refers to them is committed, so a sweep that deleted
-unreferenced files would race every upload in flight.
+Files that no library references are **not** touched by any of this. Deleting
+them is a button on the Storage screen, deliberately not a period: bytes are
+written to disk before the item row that refers to them is committed, so a
+sweep that deleted unreferenced files would race every upload in flight.
 
 The sweep is safe to run while the server is serving, and safe to run twice at
 once: each library is locked while it is swept, and deleting an item that has

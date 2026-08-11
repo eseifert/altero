@@ -756,7 +756,9 @@ writes asks for your own password, as the account's own screens do.
 What none of it does is read. No screen here answers with an item, a title, a
 note or a file, and administering the instance adds nothing to what its holder
 may see in anybody's library. Deleting an account is the one operation that
-reaches into a library, and it reads nothing on its way through.
+reaches into a library, and it reads nothing on its way through. The two that
+remove anything — that, and deleting files no library references any more — ask
+for your own password, as the account's own screens do.
 
 ## Groups
 

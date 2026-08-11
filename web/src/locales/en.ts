@@ -133,6 +133,7 @@ export default {
   'Delete everything in the trash?': 'Delete everything in the trash?',
   'Delete it now': 'Delete it now',
   'Delete this group': 'Delete this group',
+  'Delete unreferenced files': 'Delete unreferenced files',
   'Delete {count} items for good?': 'Delete {count} items for good?',
   'Delete “{name}” and everything in it?': 'Delete “{name}” and everything in it?',
   'Delete “{name}” for good?': 'Delete “{name}” for good?',
@@ -141,6 +142,8 @@ export default {
   'Deleted:': 'Deleted:',
   'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.':
     'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.',
+  'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.':
+    'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.',
   'Description': 'Description',
   'Detail width': 'Detail width',
   'Display name': 'Display name',
@@ -430,6 +433,7 @@ export default {
   'Unfiled Items': 'Unfiled Items',
   'Unknown browser': 'Unknown browser',
   'Unread': 'Unread',
+  'Unreferenced files deleted.': 'Unreferenced files deleted.',
   'Use the address the invitation was sent to, and you will be able to answer it.': 'Use the address the invitation was sent to, and you will be able to answer it.',
   'Used for security notifications and invitations': 'Used for security notifications and invitations',
   'Username': 'Username',

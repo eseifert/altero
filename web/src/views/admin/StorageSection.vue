@@ -13,11 +13,13 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
+import AppButton from '@/components/AppButton.vue'
+import AppTextField from '@/components/AppTextField.vue'
 import { formatBytes } from '@/formats'
 import { message, usePanel } from './panel'
 
 const { t } = useI18n()
-const { failure } = usePanel()
+const { busy, failure, attempt } = usePanel()
 
 interface LibraryUsage {
   id: number
@@ -48,6 +50,20 @@ interface StorageReport {
 }
 
 const report = ref<StorageReport | null>(null)
+
+/* Deleting bytes is the one irreversible thing on these screens, so it asks
+   for the password the account's own settings ask for. */
+const password = ref('')
+
+const purge = () =>
+  attempt(async () => {
+    await request('/web/admin/storage/purge', {
+      method: 'POST',
+      body: { currentPassword: password.value },
+    })
+    password.value = ''
+    report.value = await request<StorageReport>('/web/admin/storage')
+  }, t('Unreferenced files deleted.'))
 
 /** How a library is addressed in the API, which is how an operator acts on it. */
 function address(library: LibraryUsage): string {
@@ -82,14 +98,28 @@ onMounted(async () => {
           )
         }}
       </p>
-      <p v-if="report.orphanFiles" class="storage__note">
-        {{
-          t('{count} files are no longer referenced by any library, holding {size}.', {
-            count: report.orphanFiles,
-            size: formatBytes(report.orphanBytes),
-          })
-        }}
-      </p>
+      <template v-if="report.orphanFiles">
+        <p class="storage__note">
+          {{
+            t('{count} files are no longer referenced by any library, holding {size}.', {
+              count: report.orphanFiles,
+              size: formatBytes(report.orphanBytes),
+            })
+          }}
+          {{ t('Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.') }}
+        </p>
+        <div class="storage__purge">
+          <AppTextField
+            v-model="password"
+            type="password"
+            :label="t('Your password')"
+            autocomplete="current-password"
+          />
+          <AppButton variant="text" :disabled="busy || !password" @click="purge">
+            {{ t('Delete unreferenced files') }}
+          </AppButton>
+        </div>
+      </template>
       <p v-if="report.missingFiles" class="storage__warning" role="alert">
         {{ t('{count} attachments have no file on disk.', { count: report.missingFiles }) }}
       </p>
@@ -171,6 +201,13 @@ onMounted(async () => {
   margin: 0;
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-small-size);
+}
+
+.storage__purge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--md-spacing-2);
 }
 
 .storage__warning {

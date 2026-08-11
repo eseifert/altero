@@ -135,6 +135,7 @@ export default {
   'Delete everything in the trash?': 'Supprimer tout ce qui se trouve dans la corbeille ?',
   'Delete it now': 'Supprimer maintenant',
   'Delete this group': 'Supprimer ce groupe',
+  'Delete unreferenced files': 'Supprimer les fichiers non référencés',
   'Delete {count} items for good?': 'Supprimer {count} documents définitivement ?',
   'Delete “{name}” and everything in it?': 'Supprimer « {name} » et tout ce qu’il contient ?',
   'Delete “{name}” for good?': 'Supprimer « {name} » définitivement ?',
@@ -144,6 +145,8 @@ export default {
   'Deleted:': 'Supprimé :',
   'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.':
     'Supprimer un document de la corbeille est une écriture comme une autre : la bibliothèque prend une nouvelle version et chaque client apprend ce qui a disparu. Il n’y a pas de retour en arrière.',
+  'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.':
+    'Leur suppression est définitive. Ce qui a été envoyé dans la dernière journée n’est pas touché : un fichier arrive sur le disque avant le document qui y renvoie.',
   'Detail width': 'Largeur du panneau de détail',
   'Display name': 'Nom affiché',
   Done: 'Terminé',
@@ -458,6 +461,7 @@ export default {
   'Unfiled Items': 'Non classés',
   'Unknown browser': 'Navigateur inconnu',
   Unread: 'Non lu',
+  'Unreferenced files deleted.': 'Fichiers non référencés supprimés.',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Utilisez l’adresse à laquelle l’invitation a été envoyée : vous pourrez alors y répondre.',
   'Used for security notifications and invitations':

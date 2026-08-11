@@ -136,6 +136,7 @@ export default {
   'Delete everything in the trash?': 'Alles im Papierkorb löschen?',
   'Delete it now': 'Jetzt löschen',
   'Delete this group': 'Diese Gruppe löschen',
+  'Delete unreferenced files': 'Nicht referenzierte Dateien löschen',
   'Delete {count} items for good?': '{count} Einträge endgültig löschen?',
   'Delete “{name}” and everything in it?': '„{name}“ und alles darin löschen?',
   'Delete “{name}” for good?': '„{name}“ endgültig löschen?',
@@ -145,6 +146,8 @@ export default {
   'Deleted:': 'Gelöscht:',
   'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.':
     'Einen Eintrag aus dem Papierkorb zu löschen ist ein Schreibvorgang wie jeder andere: die Bibliothek bekommt eine neue Version, und jeder Client erfährt, was verschwunden ist. Rückgängig machen lässt es sich nicht.',
+  'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.':
+    'Das Löschen lässt sich nicht rückgängig machen. Was am letzten Tag hochgeladen wurde, bleibt unangetastet: eine Datei liegt auf der Platte, bevor der Eintrag existiert, der auf sie zeigt.',
   'Detail width': 'Breite der Detailspalte',
   'Display name': 'Anzeigename',
   Done: 'Fertig',
@@ -456,6 +459,7 @@ export default {
   'Unfiled Items': 'Einträge ohne Sammlung',
   'Unknown browser': 'Unbekannter Browser',
   Unread: 'Ungelesen',
+  'Unreferenced files deleted.': 'Nicht referenzierte Dateien gelöscht.',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Nimm die Adresse, an die die Einladung ging, dann kannst du darauf antworten.',
   'Used for security notifications and invitations': 'Für Sicherheitshinweise und Einladungen',
