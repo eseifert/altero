@@ -34,7 +34,16 @@ def upgrade() -> None:
     # id is that account: ids are assigned in sequence and never reused.
     # Without this an upgraded instance has an operator view nobody can open,
     # and the only way to a first administrator would be a shell on the server.
-    op.execute("UPDATE users SET administrator = 1 WHERE id = (SELECT MIN(id) FROM users)")
+    #
+    # Written as an expression rather than as SQL text so each backend spells
+    # the boolean its own way: literal SQL saying `= 1` runs on SQLite and is
+    # refused by PostgreSQL, which will not compare a boolean to an integer.
+    users = sa.table("users", sa.column("id", sa.Integer), sa.column("administrator", sa.Boolean))
+    op.execute(
+        users.update()
+        .where(users.c.id == sa.select(sa.func.min(users.c.id)).scalar_subquery())
+        .values(administrator=True)
+    )
 
 
 def downgrade() -> None:
