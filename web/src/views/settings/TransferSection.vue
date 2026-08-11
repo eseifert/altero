@@ -218,7 +218,7 @@ const restore = () =>
       <!-- Read defensively: the restore has already happened by the time this
            is drawn, and a report that cannot be rendered would replace the
            news that it worked with a blank screen. -->
-      <div v-if="restored" class="settings__restored">
+      <div v-if="restored" class="card__inset settings__restored">
         <p class="settings__detail">
           {{
             t('{items} items, {collections} collections and {files} files, from an archive of {source}.', {
@@ -272,8 +272,5 @@ const restore = () =>
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-2);
-  padding: var(--md-spacing-4);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-small);
 }
 </style>

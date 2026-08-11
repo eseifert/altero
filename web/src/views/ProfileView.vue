@@ -600,7 +600,7 @@ const audience = computed(() => {
 .profile__more {
   align-self: flex-start;
   padding: var(--md-spacing-2) var(--md-spacing-4);
-  border: 1px solid var(--md-sys-color-outline-variant);
+  border: 1px solid var(--md-sys-color-outline);
   border-radius: var(--md-sys-shape-corner-full);
   background: none;
   color: inherit;
