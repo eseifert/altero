@@ -35,6 +35,17 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    // The instance rather than a library: what it is running, what it costs,
+    // and the policies that belong to whoever runs it. Sectioned in the path
+    // for the same reasons settings is. Guarded twice — `requiresAdmin` here
+    // so an ordinary account is not shown a screen of refusals, and the server
+    // itself, which is where it actually matters.
+    path: '/admin/:section?',
+    name: 'admin',
+    component: () => import('@/views/AdminView.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
     // Where an emailed invitation lands. Deliberately not guarded: somebody
     // with no account here has to be able to read what they were asked to
     // join before deciding to make one.
@@ -110,6 +121,13 @@ router.beforeEach(async (to: RouteLocationNormalized) => {
     // the form that can actually get them in.
     const destination = auth.registrationOpen ? 'register' : 'sign-in'
     return { name: destination, query: { next: to.fullPath } }
+  }
+
+  /* Signed in, but not for this. The library rather than the sign-in form:
+     signing in again would not help, and the account already has a screen of
+     its own to be on. */
+  if (to.meta.requiresAdmin && auth.isAuthenticated && !auth.user?.administrator) {
+    return { name: 'library' }
   }
 
   if ((to.name === 'sign-in' || to.name === 'register') && auth.isAuthenticated) {

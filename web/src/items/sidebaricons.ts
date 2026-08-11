@@ -212,6 +212,28 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
     ],
   },
 
+  /* ---- The administration sidebar ---- */
+
+  /** Two racked units with a light apiece: the server itself. */
+  server: {
+    label: 'Overview',
+    paths: [
+      'M5.75 5.25h12.5a1 1 0 011 1v3.5a1 1 0 01-1 1H5.75a1 1 0 01-1-1v-3.5a1 1 0 011-1z',
+      'M5.75 13.25h12.5a1 1 0 011 1v3.5a1 1 0 01-1 1H5.75a1 1 0 01-1-1v-3.5a1 1 0 011-1z',
+      'M8 8h.01 M8 16h.01',
+    ],
+  },
+
+  /** A platter seen edge on: what the attachments weigh. */
+  disk: {
+    label: 'Storage',
+    paths: [
+      'M19.25 7c0 1.24-3.25 2.25-7.25 2.25S4.75 8.24 4.75 7 8 4.75 12 4.75 19.25 5.76 19.25 7z',
+      'M4.75 7v10c0 1.24 3.25 2.25 7.25 2.25s7.25-1.01 7.25-2.25V7',
+      'M19.25 12c0 1.24-3.25 2.25-7.25 2.25S4.75 13.24 4.75 12',
+    ],
+  },
+
   /** A box with its lid: a library packed up to be carried somewhere. */
   archive: {
     label: 'Import and export',

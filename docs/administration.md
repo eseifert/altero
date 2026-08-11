@@ -62,6 +62,35 @@ The last administrator cannot stand down. An instance with none can only be
 given one from a shell on the server, which is what this is for in the first
 place.
 
+### What the operator's screens show
+
+Under **Administration** in the browser, next to Settings and only for an
+account that has the role.
+
+**Overview** is what the instance is running — altero's version, the Web API
+version, the database's dialect, the directory the attachments are in, and the
+Alembic revision the database is stamped with, which is the question an upgrade
+asks and otherwise means a shell and `alembic current`. Below that, how many
+accounts, libraries and groups there are, and what is on disk.
+
+**Storage** is what each library costs, and it reports two totals rather than
+one. Files are stored once per digest, so a paper attached in a group and in
+somebody's own library is on disk once and in both libraries' accounts. *On
+disk* is what this server has to hold; *counted across libraries* is what the
+libraries would cost apart, and the difference is what storing each file once
+has saved. zotero.org cannot tell those apart — group files bill to the owner's
+quota — which is what the storage threads on the forums are about.
+
+Two things that do not add up are reported alongside: files nothing references
+any more, which is where a self-hosted instance quietly loses disk, and
+attachments whose bytes are not there, which is what a restore that lost its
+files looks like. Both are reported and neither is acted on: these screens
+count and measure, and nothing on them deletes.
+
+The numbers are counted when the screen is opened rather than kept in a
+counter, because a counter maintained on every upload can drift from the disk
+it describes — which is the failure this is meant to catch.
+
 ## Moving a library to another server
 
 ```sh

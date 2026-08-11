@@ -734,6 +734,22 @@ a client that synced past that point will not notice what changed underneath
 it. `altero library set-version` is the way out; see
 [administration.md](administration.md#after-recreating-the-database).
 
+## Administration
+
+A screen of its own, reached from an icon the header draws only for an account
+that administers the instance — usually nobody at all on a personal server, and
+one person on a departmental one. Every route behind it is refused to anybody
+else, so the icon hides a door rather than guarding one; see
+[administration.md](administration.md#who-administers-the-instance) for who has
+the role and how it is handed on.
+
+It is the one part of this interface that is about the instance rather than
+about a library: **Overview** says what the server is running and how much of
+everything it holds, and **Storage** says what each library costs on disk,
+against what the instance actually holds. What it never does is read: no screen
+here answers with an item, a title, a note or a file, and administering the
+instance adds nothing to what its holder may see in anybody's library.
+
 ## Groups
 
 A screen of its own, reached from the header. It lists the groups the account
@@ -883,7 +899,7 @@ Report…. The server renders both — `format=bib` is what the detail pane's
 citation comes from — so what is missing is the asking, not the writing.
 
 Making an account for somebody else, resetting their password and revoking
-their credentials are shell operations, as is an operator's view of the
-instance.
-[administration.md](administration.md) says what that covers and
+their credentials are shell operations. The operator's view of the instance is
+not: see **Administration** above.
+[administration.md](administration.md) says what the shell still covers and
 [motivation.md](motivation.md) why it matters.

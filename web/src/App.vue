@@ -123,6 +123,26 @@ async function signOut(): Promise<void> {
             <path d="M15.5 4.6a3 3 0 010 5.8" />
           </svg>
         </RouterLink>
+        <!-- Only for the account that administers the instance, which is
+             usually nobody on a personal server. The server refuses these
+             screens to everybody else regardless; this keeps a door nobody
+             may open out of everybody's way. -->
+        <RouterLink
+          v-if="auth.user?.administrator"
+          class="shell__icon"
+          :to="{ name: 'admin' }"
+          :aria-label="t('Administration')"
+        >
+          <!-- Two racked units with a light apiece, matching the sidebar's
+               own `server` glyph. -->
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5.75 5.25h12.5a1 1 0 011 1v3.5a1 1 0 01-1 1H5.75a1 1 0 01-1-1v-3.5a1 1 0 011-1z" />
+            <path d="M5.75 13.25h12.5a1 1 0 011 1v3.5a1 1 0 01-1 1H5.75a1 1 0 01-1-1v-3.5a1 1 0 011-1z" />
+            <path d="M8 8h.01" />
+            <path d="M8 16h.01" />
+          </svg>
+        </RouterLink>
         <RouterLink
           v-if="auth.isAuthenticated"
           class="shell__icon"

@@ -85,7 +85,7 @@ describe('the settings panel', () => {
   it('lists every section', async () => {
     const { wrapper } = await open()
 
-    expect(wrapper.findAll('.settings__section')).toHaveLength(6)
+    expect(wrapper.findAll('.section-panel__section')).toHaveLength(6)
     expect(wrapper.text()).toContain('Import and export')
     expect(wrapper.text()).toContain('Move from zotero.org')
   })
@@ -113,13 +113,13 @@ describe('the settings panel', () => {
     const { wrapper } = await open('telepathy')
 
     expect(wrapper.text()).toContain('Display name')
-    expect(wrapper.get('.settings__section--current').text()).toBe('Profile')
+    expect(wrapper.get('.section-panel__section--current').text()).toBe('Profile')
   })
 
   it('moves to another section when its row is clicked', async () => {
     const { wrapper, router } = await open()
 
-    await wrapper.findAll('.settings__section')[3].trigger('click')
+    await wrapper.findAll('.section-panel__section')[3].trigger('click')
     await settle(wrapper)
 
     expect(router.currentRoute.value.params.section).toBe('keys')
@@ -131,7 +131,7 @@ describe('the settings panel', () => {
 
     expect(requestMock).not.toHaveBeenCalledWith('/web/account/keys')
 
-    await wrapper.findAll('.settings__section')[3].trigger('click')
+    await wrapper.findAll('.section-panel__section')[3].trigger('click')
     await settle(wrapper)
 
     expect(requestMock).toHaveBeenCalledWith('/web/account/keys')

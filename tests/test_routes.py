@@ -37,6 +37,11 @@ EXPECTED = [
     ("/web/account/keys", "GET"),
     ("/web/account/keys", "POST"),
     ("/web/account/keys/{key_id}", "DELETE"),
+    # The operator's own screens: what the instance costs and what state it is
+    # in, for the one account that administers it rather than a library. Never
+    # reachable with an API key -- see altero/api/routes/webadmin.py.
+    ("/web/admin/overview", "GET"),
+    ("/web/admin/storage", "GET"),
     ("/web/link/{token}", "GET"),
     ("/web/link/{token}/approve", "POST"),
     ("/web/link/{token}/deny", "POST"),

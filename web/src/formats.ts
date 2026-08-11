@@ -71,6 +71,43 @@ export function formatDateTimeWithZone(value: string | Date | null | undefined):
   }).format(date)
 }
 
+/**
+ * A number of bytes, in the reader's own numbering and units.
+ *
+ * Decimal steps rather than binary ones, and `Intl`'s own unit names, so a
+ * German reader gets `1,5 MB` and a Japanese one `1.5 MB` without this file
+ * knowing how either writes a number. Disk is sold and reported in decimal
+ * everywhere an operator will compare this against.
+ */
+const BYTE_UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte']
+
+export function formatBytes(value: number | null | undefined): string {
+  const bytes = Math.max(0, Math.round(value ?? 0))
+  const locale = useLocaleStore()
+
+  let step = 0
+  let amount = bytes
+  while (amount >= 1000 && step < BYTE_UNITS.length - 1) {
+    amount /= 1000
+    step += 1
+  }
+
+  try {
+    return new Intl.NumberFormat(locale.formatting, {
+      style: 'unit',
+      unit: BYTE_UNITS[step],
+      unitDisplay: 'short',
+      // Whole bytes; one decimal once there is a prefix, because 1.5 GB and
+      // 2 GB are different amounts of disk to buy and 1,502,341,904 is not an
+      // amount anybody reads.
+      maximumFractionDigits: step === 0 ? 0 : 1,
+    }).format(amount)
+  } catch {
+    // An unknown locale must not take the page down; see `formatter` above.
+    return `${Math.round(amount)} ${BYTE_UNITS[step]}`
+  }
+}
+
 /** Only what the discarded formatters cost. Used by tests. */
 export function clearFormatterCache(): void {
   cache.clear()
