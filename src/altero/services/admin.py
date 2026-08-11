@@ -29,7 +29,8 @@ from altero.models import (
     WebSession,
     WriteToken,
 )
-from altero.services import groups
+from altero.services import groups, streaming, websessions
+from altero.services.transfer import clear_library
 
 
 async def _next_user_id(session: AsyncSession) -> int:
@@ -103,8 +104,6 @@ async def set_disabled(session: AsyncSession, user: User, *, disabled: bool) -> 
     await session.commit()
 
     if disabled:
-        from altero.services import websessions
-
         await websessions.revoke_all(session, user)
     return user
 
@@ -142,9 +141,6 @@ async def delete_user(session: AsyncSession, user: User) -> None:
     shared by digest, and removing them here would take files out from under
     another library that had uploaded the same ones.
     """
-    from altero.services import streaming
-    from altero.services.transfer import clear_library
-
     if user.administrator and await count_administrators(session) <= 1:
         raise InvalidInputError(
             "This is the last administrator of this instance; promote somebody "

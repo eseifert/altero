@@ -110,13 +110,6 @@ async def read_all(session: AsyncSession, settings: Settings) -> dict[str, int]:
     return {name: stored.get(name, default(settings, name)) for name in DEFINITIONS}
 
 
-async def get(session: AsyncSession, settings: Settings, name: str) -> int:
-    """Return one setting in force."""
-    if name not in DEFINITIONS:
-        raise NotFoundError(f"No setting called '{name}'")
-    return (await read_all(session, settings))[name]
-
-
 async def save(
     session: AsyncSession, settings: Settings, values: dict[str, object]
 ) -> dict[str, int]:

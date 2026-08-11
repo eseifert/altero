@@ -243,3 +243,28 @@ async def test_an_empty_instance_sweeps_cleanly(session: AsyncSession, period: s
 
     assert report.items_deleted == 0
     assert report.libraries == 0
+
+
+class TestWhatTheSweepWillNotTouch:
+    async def test_a_file_nothing_references_survives(
+        self, session: AsyncSession, settings
+    ) -> None:
+        """Reported on the storage screen, never swept.
+
+        Bytes reach the disk before the item row that refers to them is
+        committed, so a sweep that deleted unreferenced files would race every
+        upload in flight.
+        """
+        from altero.services import storage
+
+        await make_user(session)
+        path = storage.file_path(settings.storage_path, "0" * 32)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"nobody's file")
+
+        await retention.sweep(
+            session,
+            {"trashRetentionDays": 1, "activityRetentionDays": 1, "uploadRetentionHours": 1},
+        )
+
+        assert path.is_file()
