@@ -82,6 +82,19 @@ things the desktop client asks for that no data server documents.
   upstream serves them, and sorting by either with `sort=addedBy` and
   `sort=editedBy` — the latter is `dataserver#153`, which upstream has open and
   has not built
+- An instance administrator, and the operator's view that needed one: what the
+  server is running and what each library costs on disk, real against nominal —
+  a number zotero.org cannot report, because it stores a file per library and
+  altero stores one per digest
+- Retention the operator sets: how long an item stays in the trash, how long
+  delivered group activity is kept, how long an unfinished upload is
+  remembered. Never by default. The trash sweep is an ordinary delete, so the
+  library takes one new version and `/deleted?since=` tells every client what
+  went
+- Account lifecycle in the browser: making an account for somebody else,
+  issuing a link they set their own password from, suspending one — refused at
+  both credentials, the API key and the cookie alike — revoking credentials,
+  and deleting an account with its library
 - Provisioning from the command line, CORS, and API version negotiation
 
 ## Not implemented

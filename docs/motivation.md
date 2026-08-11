@@ -92,20 +92,29 @@ institution already runs. This is the argument for a new implementation, and it
 is about what has to be operated, not what it is written in.
 
 **Administration without shell access.** Anybody who administers a library
-should not need a login on the server. The web interface reaches most of that
-now. It covers a person administering themselves — password, email address, an
-authenticator app, the signed-in browsers, their own API keys — approving a
-Zotero client's login, which was the operation that most often sent somebody to
-a shell, and everything to do with a group: creating one, deciding who may read
-it, edit it and upload to it, inviting people who have no account here yet, and
-handing it on or deleting it. Registration opens for the first account, for an
-instance that says so, and for an address somebody invited; every other account
-is still `altero user add`, as are resetting somebody's password and revoking
-their credentials. Missing too is the operational view — versions, storage
-use, backups — that an operator otherwise has to infer, and with it any notion
-of an instance administrator to show it to: permissions today are per library
-and stop there. Until those exist, an instance is still something a systems
-administrator runs rather than a librarian or a research-group lead.
+should not need a login on the server, and now does not. The interface covers a
+person administering themselves — password, email address, an authenticator
+app, the signed-in browsers, their own API keys — approving a Zotero client's
+login, which was the operation that most often sent somebody to a shell, and
+everything to do with a group: creating one, deciding who may read it, edit it
+and upload to it, inviting people who have no account here yet, and handing it
+on or deleting it.
+
+It also covers the instance itself, which needed a notion that did not exist:
+permissions here are per library, so there was nobody to show an operator's
+view to. An **instance administrator** is that — the account that claims the
+instance, handed on from the browser or the shell — and it is deliberately the
+narrowest thing that will do. It reports what the server is running and what
+each library costs on disk, sets how long the trash and the rest are kept, and
+makes, suspends and removes accounts. It grants no access to anybody's library:
+an administrator counts and measures, and cannot read a title, a note or a file
+they were not already entitled to.
+
+What is left on the command line is what belongs there: the first account on a
+fresh database, an instance whose administrator has left, and the disaster
+recovery in `administration.md`. That is the difference between a server a
+librarian or a research-group lead can run and one that needs a systems
+administrator.
 
 The interface is not strictly administrative: it reads a library too —
 collections, tags, search, an item with its attachments, a citation — and
@@ -118,7 +127,8 @@ the same version preconditions as a client's write, not around them.
 **Institutional independence.** A university could run Zotero sync as internal
 infrastructure the way it runs GitLab, Nextcloud or Matrix — with institutional
 accounts, internal groups, retention rules, local backups, regional storage and
-continued access when staff leave. This has been raised on the Zotero forums as
+continued access when staff leave. Retention rules and the account lifecycle
+that deprovisioning needs are built; institutional identity is not. This has been raised on the Zotero forums as
 the blocker for organisations that currently reject Zotero outright.
 
 **Plurality of operators.** A personal instance, a departmental server, a
@@ -145,9 +155,12 @@ quiet long enough that one sync is one message. And out of the same record, the
 activity log upstream has wanted since 2019 and never built — who changed what
 in a group and when, readable by every member.
 
+Retention is a fifth: how long the trash is kept, and the record behind the
+notifications, are the operator's to set here rather than fixed at thirty days.
+
 Room rather than code: institutional identity integration, more flexible group
-policies, custom retention and backup rules, and integration with repositories
-and research-information systems. All of this is secondary: compatibility and
+policies, storage quotas, backup rules, and integration with repositories and
+research-information systems. All of this is secondary: compatibility and
 dependable sync come first, and a feature that breaks a client is a regression
 however useful it is on its own.
 
@@ -205,7 +218,7 @@ renumbers versions locks out every client that had synced with the original, in
 both directions, so exactness is the requirement rather than completeness.
 
 Intentions rather than properties of the current code: object storage,
-institutional single sign-on, retention controls, federation, replication to a
+institutional single sign-on, storage quotas, federation, replication to a
 standby, and automatic backup verification. altero stores attachments on a
 local filesystem and is configured by a single file. It authenticates the API
 with API keys and the browser with a session cookie, and keeps those two apart

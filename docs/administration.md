@@ -41,8 +41,8 @@ uv run altero login approve <token> <username> [--key KEY]
 
 Registration in the browser opens for three cases: the first account, an
 instance whose `ALTERO_OPEN_REGISTRATION` says so, and an address somebody has
-invited to a group. Every other account is made here. See
-[web-interface.md](web-interface.md#accounts).
+invited to a group. Every other account is made by an administrator, here or on
+the **Accounts** screen. See [web-interface.md](web-interface.md#accounts).
 
 The group commands go through the same service the API's group endpoints do, so
 the shell and an API key cannot disagree about what a group is or what a role
@@ -105,7 +105,7 @@ it describes — which is the failure this is meant to catch.
 
 **Accounts** lists everybody with an account here — whether they administer the
 instance, whether they are suspended, how many API keys they hold and how many
-groups they are in — and does the four things that used to need a shell.
+groups they are in — and does the things that used to need a shell.
 
 **Making one** takes a username and a password, which is shown once and never
 again, exactly as `altero key add` shows a key once; handing it over is your
@@ -113,8 +113,19 @@ business, and the person changes it in their own settings. An address is
 optional, as it is for `altero user add`.
 
 **Setting somebody's password** ends their other browser sessions and tells them
-about it, if they have a confirmed address — the same
-`altero user password` does.
+about it, if they have a confirmed address — the same `altero user password`
+does. The better of the two ways is next to it: **Send a password link** issues
+a single-use link, good for twelve hours, that the account sets its *own*
+password from, so the password is not known to two people. It is emailed where
+there is a confirmed address and shown to you either way, because most
+instances have no relay configured and a link readable only in the log would
+need the shell this screen replaces.
+
+There is deliberately no "I forgot my password" form. That would turn an email
+address into a way in to an account — the relay becomes part of the
+authentication, and the form needs a rate limit and an answer to what it says
+about an address that has no account here. Until that exists, this is the
+answer to a forgotten password.
 
 **Suspending** stops *both* credentials: the API key a Zotero client holds and
 this interface. That is the whole of it — a suspension the browser honoured
