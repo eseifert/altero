@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
+import SidebarIcon from '@/components/SidebarIcon.vue'
+import { exportable } from '@/exportformats'
 import { formatDateTime } from '@/formats'
 import { fieldLabel, itemTypeLabel } from '@/items/labels'
 import type { ItemEnvelope } from '@/stores/library'
@@ -44,6 +46,7 @@ const emit = defineEmits<{
   publish: []
   unpublish: []
   rights: []
+  export: []
 }>()
 
 /**
@@ -54,6 +57,10 @@ const emit = defineEmits<{
  * offering a control that can only be refused is a promise not to make.
  */
 const WITHOUT_RIGHTS = new Set(['note', 'attachment', 'annotation'])
+
+/** Whether this item has a bibliography entry to write out. A note has none,
+ *  and altero has no note translator to make one — see `exportformats.ts`. */
+const offersExport = computed(() => exportable(props.item.data.itemType))
 
 /** Whether the item is in the trash, which decides what can be done to it. */
 const trashed = computed(() => Boolean(props.item.data.deleted))
@@ -223,13 +230,29 @@ function childTitle(child: ItemEnvelope): string {
     </header>
 
     <!--
-      What can be done to this item, in words. Filing and trashing are the
-      top-level item's alone — see `showsTools` — and publishing has a rule of
-      its own, so the row appears when either has something to offer.
+      What can be done to this item. Filing and trashing are the top-level
+      item's alone — see `showsTools` — and publishing has a rule of its own, so
+      the row appears when any of them has something to offer. Exporting is the
+      one that is not a write, and so is offered on its own in a library this
+      account may only read.
+
+      Glyphs, like the tools over the item list, and each carries the same words
+      twice: as `aria-label`, which is what a screen reader announces, and as
+      `title`, which is what a pointer reveals. Publishing draws a plus and
+      unpublishing a minus, because a control that toggles has to show which way
+      it is about to go — the label alone would be a sentence nobody sees until
+      after they have pressed it.
     -->
-    <div v-if="showsTools || offersPublishing" class="detail__tools">
-      <button v-if="showsTools" class="detail__tool" type="button" @click="emit('move')">
-        {{ t('Move or copy…') }}
+    <div v-if="showsTools || offersPublishing || offersExport" class="detail__tools">
+      <button
+        v-if="showsTools"
+        class="detail__tool"
+        type="button"
+        :aria-label="t('Move or copy…')"
+        :title="t('Move or copy…')"
+        @click="emit('move')"
+      >
+        <SidebarIcon name="move" :size="18" />
       </button>
 
       <!--
@@ -239,28 +262,78 @@ function childTitle(child: ItemEnvelope): string {
         list does, above the rows, where the item can still be seen.
       -->
       <template v-if="offersPublishing">
-        <button v-if="!published" class="detail__tool" type="button" @click="emit('publish')">
-          {{ child ? t('Show in My Publications') : t('Add to My Publications…') }}
+        <button
+          v-if="!published"
+          class="detail__tool"
+          type="button"
+          :aria-label="child ? t('Show in My Publications') : t('Add to My Publications…')"
+          :title="child ? t('Show in My Publications') : t('Add to My Publications…')"
+          @click="emit('publish')"
+        >
+          <SidebarIcon name="publish" :size="18" />
         </button>
-        <button v-else class="detail__tool" type="button" @click="emit('unpublish')">
-          {{ child ? t('Hide from My Publications') : t('Remove from My Publications') }}
+        <button
+          v-else
+          class="detail__tool"
+          type="button"
+          :aria-label="child ? t('Hide from My Publications') : t('Remove from My Publications')"
+          :title="child ? t('Hide from My Publications') : t('Remove from My Publications')"
+          @click="emit('unpublish')"
+        >
+          <SidebarIcon name="unpublish" :size="18" />
         </button>
       </template>
 
+      <!-- Writing this item out as a file. Not behind `showsTools`: exporting
+           is a read, so it is offered on a child item and in a library this
+           account may only read. -->
+      <button
+        v-if="offersExport"
+        class="detail__tool"
+        type="button"
+        :aria-label="t('Export…')"
+        :title="t('Export…')"
+        @click="emit('export')"
+      >
+        <SidebarIcon name="export" :size="18" />
+      </button>
+
       <template v-if="showsTools">
-        <button v-if="!trashed" class="detail__tool" type="button" @click="emit('trash')">
-          {{ t('Move to trash') }}
+        <button
+          v-if="!trashed"
+          class="detail__tool"
+          type="button"
+          :aria-label="t('Move to trash')"
+          :title="t('Move to trash')"
+          @click="emit('trash')"
+        >
+          <SidebarIcon name="trash" :size="18" />
         </button>
         <template v-else>
           <!-- Zotero's own words for this, and a key of its own: "Restore"
                alone is also what the settings page calls putting an archive
                back, and one message for the two had German telling somebody
                their item was about to be replayed from a backup. -->
-          <button class="detail__tool" type="button" @click="emit('restore')">
-            {{ t('Restore to Library') }}
+          <button
+            class="detail__tool"
+            type="button"
+            :aria-label="t('Restore to Library')"
+            :title="t('Restore to Library')"
+            @click="emit('restore')"
+          >
+            <SidebarIcon name="restore" :size="18" />
           </button>
-          <button class="detail__tool detail__tool--danger" type="button" @click="emit('remove')">
-            {{ t('Delete') }}
+          <!-- A bin with a cross through it rather than the bin: this is the
+               one thing here that cannot be undone, and it must not look like
+               the errand that can. -->
+          <button
+            class="detail__tool detail__tool--danger"
+            type="button"
+            :aria-label="t('Delete')"
+            :title="t('Delete')"
+            @click="emit('remove')"
+          >
+            <SidebarIcon name="deleteforever" :size="18" />
           </button>
         </template>
       </template>
@@ -418,37 +491,53 @@ function childTitle(child: ItemEnvelope): string {
   }
 
   .detail__tool {
-    padding: 0.55rem 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 }
 
-/* A row of words rather than icons: these are consequential enough to be worth
-   naming, and there is no icon for "move or copy" that anybody reads correctly
-   the first time. */
+/* A row of glyphs, drawn like the tools over the item list, because they are
+   the same errands reaching the same items -- one row picked out here, several
+   picked out there. Each says what it is in `aria-label` and in `title`. */
 .detail__tools {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--md-spacing-2);
+  gap: var(--md-spacing-1);
 }
 
 .detail__tool {
-  padding: 0.25rem 0.7rem;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 999px;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
   background: none;
-  color: inherit;
-  font: inherit;
-  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-surface-variant);
   cursor: pointer;
+}
+
+/* The glyph takes the button's colour rather than the icon component's own
+   muted one: hover and the danger red are set on the button, and an SVG with a
+   colour of its own would go on drawing itself grey through both. */
+.detail__tool :deep(.sidebar-icon) {
+  color: inherit;
 }
 
 .detail__tool:hover {
   background: var(--md-sys-state-hover-surface);
+  color: var(--md-sys-color-on-surface);
 }
 
 .detail__tool--danger {
-  border-color: var(--md-sys-color-error);
   color: var(--md-sys-color-error);
+}
+
+.detail__tool--danger:hover {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
 }
 
 /*

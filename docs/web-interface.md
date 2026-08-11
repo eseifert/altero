@@ -192,6 +192,17 @@ The middle pane searches title, creator, year and every field, sorts by title,
 creator or date in either direction, and pages fifty at a time. The search is
 the API's own, so it finds what the desktop client's quick search finds.
 
+Everything that acts on that list — **Select**, **Export…**, emptying the trash,
+the link to a public page — sits in one row at the end of its heading, next to
+the search, because a control that acts on the list belongs beside the one that
+narrows it. They are glyphs rather than words and each carries its name twice,
+as `aria-label` for a screen reader and as `title` for a pointer; a control with
+neither is a rebus. The search is one more glyph until it is pressed, and then
+it unfolds into the field — a library is read far more often than it is
+searched. It folds away again when it is left empty, never while it holds a
+term: the term is the only thing on screen that says why the list is short.
+Escape empties it, and a second Escape closes it.
+
 The right pane shows an item's fields under the names the schema gives them,
 its creators, tags and notes, and its attachments — which can be opened in the
 browser or downloaded. A citation can be rendered there in Chicago, APA, MLA,
@@ -302,8 +313,9 @@ refuses the request outright if any one row is not in the trash, rather than
 taking the ones that are.
 
 The right-hand pane follows. One row picked out and it describes that item; more
-than one and it holds the count and the same errands in the same words —
-“Move or copy…”, “Move to trash”, “Restore” and “Delete”. It does not show five
+than one and it holds the count and the same errands — move or copy, move to
+trash, restore, delete, export — drawn with the same glyphs, since three rows
+picked out do not make trashing them a different errand. It does not show five
 items' fields side by side, and it does not offer to publish them: the wizard's
 questions are about the work in front of it — which of its files go, what its
 Rights field says — so a selection has no one set of answers to give it. The
@@ -340,10 +352,20 @@ not, which is the rule the drag follows. In the trash it asks first, because
 that is the one thing here that cannot be undone, and it names the item while
 there is one to name and counts them once there are several: five titles in a
 sentence is not a sentence anybody reads. The detail pane carries the same
-errands as words — “Move or copy…”, which opens one list holding this library's
-collections and the other libraries it could be copied to, “Move to trash”, and
-“Restore” and “Delete” for something already in the trash. A control only a
-pointer can reach is a control some readers do not have.
+errands as controls of its own: “Move or copy…”, which opens one list holding
+this library's collections and the other libraries it could be copied to,
+“Move to trash”, and “Restore” and “Delete” for something already in the trash.
+A control only a pointer can reach is a control some readers do not have.
+
+They are glyphs, like the tools over the item list, and each carries its name
+twice — as `aria-label`, which is what a screen reader announces, and as
+`title`, which is what a pointer reveals. Two of them are drawn apart from their
+neighbours on purpose: deleting for good is a bin with a cross through it rather
+than the bin that means the trash, because it is the one act here that cannot be
+undone — and emptying the trash, over the list, carries that same glyph in that
+same red, since it is the same act on more of them. The other is publishing,
+which draws a plus where unpublishing draws a minus: a control that toggles has
+to show which way it is about to go.
 
 “Move or copy…” takes a selection as readily as one row, and asks the same two
 questions of it: where they go, and whether they come out of where they are.
@@ -362,6 +384,58 @@ before it goes ahead, and is the one errand here that reaches items nobody
 picked out — which is what the trash is: a list of things already thrown away.
 Trashed collections are left where they are — the browser never trashes one, so
 anything in there came from the desktop and is not shown here at all.
+
+### Writing items out
+
+**Export…** writes items as a file for another program to read. The desktop
+client has three gestures for this — Export Library…, Export Collection… and
+Export Items… — and they are one errand with three ways of saying which items,
+so the interface has one dialog reached from three places: the list's header,
+which exports what the list is showing, and the detail and selection panes,
+which export the rows picked out.
+
+**Rows picked out are what it offers first.** A selection is a decision somebody
+has just made, and an export that went on writing the whole library would be
+answering a question nobody asked — so the dialog asks which items, with the
+selection as the answer already given and the way back out to all of it beside
+it. Where the list is narrower than the library — a collection, the trash, a
+search, a tag — that view is offered as well, so the ladder reads: these rows,
+this view, the whole library. With nothing picked out and nothing narrowing the
+list there is only one answer, and the dialog states it rather than asking. The
+detail pane's Export… does not ask either: it sits beside one item and means
+that item.
+
+What the list is showing is exactly what the file holds. The export takes the
+same query the list took — the scope, the collection, the search, the tags — so
+a collection narrowed by a search exports that, and not the library behind it;
+“the whole library” drops all four rather than only the ones the screen happens
+to show. It does not stop at the end of the loaded page: an export over a
+library of nine thousand items writes nine thousand entries, which is what
+“export the library” has to mean. A selection is named item by item instead,
+and is the same selection every other errand acts on.
+
+Four formats, because they are the four the server can write: **BibTeX**,
+**BibLaTeX**, **RIS** and **CSL JSON**. The desktop client offers a dozen more
+through JavaScript translators run by a translation server, which altero has no
+equivalent of; these four are `altero/cite/`, the same code the v3 API's
+`format=bibtex` and the citation in the detail pane go through. The chosen one
+is remembered per device, as the client remembers its last translator. There
+are no other questions: the client's export dialog also offers to export the
+attached files, to write notes as their own entries and to abbreviate journal
+titles, and all three are things a translator does that none of these four can.
+
+Notes, attachments and annotations are left out, and the gesture is not offered
+where they are all there is. None of them has a bibliography entry, and altero
+has no note translator to write one with — the client's own BibTeX and RIS
+translators skip them too. A CSL JSON file is a JSON array, which is what
+pandoc and citeproc read and what the client's CSL JSON translator writes; the
+`{"items": …}` wrapper the v3 API puts around the same objects is an API
+envelope, not a file format.
+
+Exporting is a **read**, which is why it is offered wherever a library can be
+read at all, including a group that reserves editing for its administrators and
+a note or attachment's own pane. It carries nothing that reader could not open
+item by item — unlike an archive, which is an administrator's affair.
 
 ## My Publications
 
@@ -627,11 +701,13 @@ what the API cannot serve and what altero does instead.
 Settings offers the archive `altero library export` writes, and reads one back.
 It is a backup or a move between servers, not an export for another
 application: every object at the version clients remember, the deletion log,
-and the attachment bytes. What an item list offers — BibTeX, RIS, CSL JSON — is
-the other thing, and lives with the items.
+and the attachment bytes. The other thing — BibTeX, BibLaTeX, RIS and CSL JSON
+— lives with the items, under
+[Writing items out](#writing-items-out).
 
-Exporting is a link rather than a fetch, so the browser streams it to disk and
-shows its own progress; an archive is as large as the library it came from.
+Both are a link rather than a fetch, so the browser streams the file to disk and
+shows its own progress; an archive is as large as the library it came from, and
+a library's worth of BibTeX is not something to assemble in memory either.
 
 Restoring is the one place the browser writes to a library, and it writes all of
 it, so it is fenced three ways:
@@ -793,12 +869,18 @@ Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
 editing an item's fields — with one exception, the Rights field, because a
 licence set when a work was published has to be revisable by whoever set it.
 Collections can be made, renamed, moved and removed, an item can be filed,
-trashed, restored, deleted, copied to another library and published to My
-Publications, a tag can be renamed, and a whole library can be restored from an
-archive or copied in from zotero.org — but no item's title, creators or dates
-can be changed here, no item can be created, and a tag cannot be deleted or put
-on something. Moving in from zotero.org brings the personal library only; a group
-has to be made here and its members invited.
+trashed, restored, deleted, copied to another library, published to My
+Publications and written out as a file, a tag can be renamed, and a whole
+library can be restored from an archive or copied in from zotero.org — but no
+item's title, creators or dates can be changed here, no item can be created, and
+a tag cannot be deleted or put on something. Moving in from zotero.org brings
+the personal library only; a group has to be made here and its members invited.
+
+The two things the desktop client does with a set of items that this does not
+are the ones that produce a document rather than a file: Create Bibliography
+from Items…, which needs a citation style chosen out of thousands, and Generate
+Report…. The server renders both — `format=bib` is what the detail pane's
+citation comes from — so what is missing is the asking, not the writing.
 
 Making an account for somebody else, resetting their password and revoking
 their credentials are shell operations, as is an operator's view of the

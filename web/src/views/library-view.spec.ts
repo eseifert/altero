@@ -120,6 +120,55 @@ async function open() {
   return wrapper
 }
 
+/**
+ * The tools over the item list, which are glyphs and so are found by name.
+ *
+ * `aria-label` is what a screen reader announces and `title` is what a pointer
+ * reveals; both carry the same words, and a test that goes by the label is
+ * asking the question a reader without the picture asks.
+ */
+function labelled(wrapper: ReturnType<typeof mount>, selector: string): string[] {
+  return wrapper.findAll(selector).map((entry) => entry.attributes('aria-label') ?? '')
+}
+
+async function press(wrapper: ReturnType<typeof mount>, selector: string, label: string) {
+  const found = wrapper
+    .findAll(selector)
+    .find((entry) => entry.attributes('aria-label') === label)
+  if (!found) throw new Error(`No ${selector} labelled ${label}`)
+  await found.trigger('click')
+  // Twice: the search waits a tick of its own before reaching for the field.
+  await wrapper.vm.$nextTick()
+  await wrapper.vm.$nextTick()
+}
+
+/** The tools over the item list. */
+function tools(wrapper: ReturnType<typeof mount>): string[] {
+  return labelled(wrapper, '.library__tool')
+}
+
+async function tool(wrapper: ReturnType<typeof mount>, label: string) {
+  await press(wrapper, '.library__tool', label)
+}
+
+/** The glyphs beside the item in the detail pane, and beside a selection. */
+function itemTools(wrapper: ReturnType<typeof mount>): string[] {
+  return labelled(wrapper, '.detail__tool')
+}
+
+async function itemTool(wrapper: ReturnType<typeof mount>, label: string) {
+  await press(wrapper, '.detail__tool', label)
+}
+
+
+/** Open the search, which is one more glyph until it is pressed. */
+async function search(wrapper: ReturnType<typeof mount>) {
+  if (!wrapper.find('.library__search-field').exists()) {
+    await tool(wrapper, 'Search this library')
+  }
+  return wrapper.get('.library__search-field')
+}
+
 describe('the detail pane', () => {
   it('is absent until an item is selected', async () => {
     /* An empty third column would take a fifth of the width to say nothing,
@@ -466,8 +515,59 @@ describe('the library nav', () => {
 })
 
 describe('the search field', () => {
+  it('is a glyph until it is asked for, and a field after', async () => {
+    /* A library is read far more often than it is searched, and a field that
+       is always open holds eighteen rems the heading and the tools do not
+       have. */
+    const wrapper = await open()
+
+    expect(wrapper.find('.library__search-field').exists()).toBe(false)
+    expect(tools(wrapper)).toContain('Search this library')
+
+    await search(wrapper)
+
+    expect(wrapper.find('.library__search-field').exists()).toBe(true)
+  })
+
+  it('folds away again when it is left with nothing in it', async () => {
+    const wrapper = await open()
+    const field = await search(wrapper)
+
+    await field.trigger('blur')
+
+    expect(wrapper.find('.library__search-field').exists()).toBe(false)
+  })
+
+  it('stays open while it holds a term, whatever the focus does', async () => {
+    /* The term is the only thing on screen that says why the list is short. */
+    const wrapper = await open()
+    const field = await search(wrapper)
+    await field.setValue('whales')
+
+    await field.trigger('blur')
+
+    expect(wrapper.find('.library__search-field').exists()).toBe(true)
+  })
+
+  it('empties on Escape, and closes on a second one', async () => {
+    const wrapper = await open()
+    const field = await search(wrapper)
+    await field.setValue('whales')
+
+    await field.trigger('keydown.esc')
+
+    expect(useLibraryStore().search).toBe('')
+    expect(wrapper.find('.library__search-field').exists()).toBe(true)
+
+    await wrapper.get('.library__search-field').trigger('keydown.esc')
+
+    expect(wrapper.find('.library__search-field').exists()).toBe(false)
+  })
+
   it('offers nothing to clear while it is empty', async () => {
     const wrapper = await open()
+
+    await search(wrapper)
 
     expect(wrapper.find('.library__search-clear').exists()).toBe(false)
   })
@@ -475,14 +575,14 @@ describe('the search field', () => {
   it('offers a clear once something has been typed', async () => {
     const wrapper = await open()
 
-    await wrapper.get('.library__search-field').setValue('whales')
+    await (await search(wrapper)).setValue('whales')
 
     expect(wrapper.find('.library__search-clear').exists()).toBe(true)
   })
 
   it('empties the field and the query when it is used', async () => {
     const wrapper = await open()
-    await wrapper.get('.library__search-field').setValue('whales')
+    await (await search(wrapper)).setValue('whales')
 
     await wrapper.get('.library__search-clear').trigger('click')
 
@@ -496,11 +596,12 @@ describe('the search field', () => {
        quarter of a second reads as a click that did not register. */
     const wrapper = await open()
     const store = useLibraryStore()
+    const field = await search(wrapper)
 
     vi.useFakeTimers()
     try {
       // Typed under fake timers, so the pause it starts is ours to advance.
-      await wrapper.get('.library__search-field').setValue('whales')
+      await field.setValue('whales')
       await vi.advanceTimersByTimeAsync(300)
       expect(store.search).toBe('whales')
 
@@ -1422,12 +1523,39 @@ describe('filing, trashing and copying items', () => {
     withLibrary([])
     const wrapper = await open()
 
-    expect(wrapper.text()).not.toContain('Empty the trash')
+    expect(tools(wrapper)).not.toContain('Empty the trash')
 
     await wrapper.findAll('.library__scope').find((e) => e.text().includes('Trash'))!.trigger('click')
     await settle(wrapper)
 
-    expect(wrapper.text()).toContain('Empty the trash')
+    expect(tools(wrapper)).toContain('Empty the trash')
+  })
+
+  it('draws emptying the trash as the same act as deleting one item', async () => {
+    /* Both are the deletion that cannot be undone, and a reader who has learnt
+       the bin with a cross through it on one row must not meet the plain bin —
+       which everywhere here means the trash — on all of them. */
+    contents = [TRASHED]
+    withLibrary([])
+    const wrapper = await open()
+    await wrapper.findAll('.library__scope').find((e) => e.text().includes('Trash'))!.trigger('click')
+    await settle(wrapper)
+    await row(wrapper, 'Thrown away').trigger('click')
+    await settle(wrapper)
+
+    /* The paths themselves, not the markup: the two are drawn by the same
+       component under different parents, so the scope attributes differ. */
+    const glyph = (selector: string, label: string) =>
+      wrapper
+        .findAll(selector)
+        .find((entry) => entry.attributes('aria-label') === label)!
+        .findAll('path')
+        .map((path) => path.attributes('d'))
+
+    expect(glyph('.library__tool', 'Empty the trash')).toEqual(glyph('.detail__tool', 'Delete'))
+    expect(glyph('.library__tool', 'Empty the trash')).not.toEqual(
+      glyph('.detail__tool', 'Move or copy…'),
+    )
   })
 
   it('empties it once that is answered', async () => {
@@ -1438,8 +1566,7 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
     requestMock.mockClear()
 
-    await wrapper.findAll('button').find((e) => e.text() === 'Empty the trash')!.trigger('click')
-    await wrapper.vm.$nextTick()
+    await tool(wrapper, 'Empty the trash')
     await wrapper.findAll('.collections__confirm button')[1].trigger('click')
     await settle(wrapper)
 
@@ -1462,7 +1589,7 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
     requestMock.mockClear()
 
-    await wrapper.findAll('.detail__tool').find((e) => e.text() === 'Move to trash')!.trigger('click')
+    await itemTool(wrapper, 'Move to trash')
     await settle(wrapper)
 
     expect(writes()).toEqual([
@@ -1480,7 +1607,7 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
     requestMock.mockClear()
 
-    await wrapper.findAll('.detail__tool').find((e) => e.text() === 'Move or copy…')!.trigger('click')
+    await itemTool(wrapper, 'Move or copy…')
     await wrapper.vm.$nextTick()
     await wrapper.get('#item-destination').setValue('place:CCCC2345')
     await wrapper.get('.dialog__body').trigger('submit')
@@ -1503,7 +1630,7 @@ describe('filing, trashing and copying items', () => {
     await settle(wrapper)
     requestMock.mockClear()
 
-    await wrapper.findAll('.detail__tool').find((e) => e.text() === 'Move or copy…')!.trigger('click')
+    await itemTool(wrapper, 'Move or copy…')
     await wrapper.vm.$nextTick()
     await wrapper.get('#item-destination').setValue('library:7')
     await wrapper.get('.dialog__body').trigger('submit')
@@ -1522,7 +1649,10 @@ describe('filing, trashing and copying items', () => {
     await row(wrapper).trigger('click')
     await settle(wrapper)
 
-    expect(wrapper.find('.detail__tool').exists()).toBe(false)
+    /* Export… is the exception and belongs here: it writes nothing to the
+       library, so a member who may read a group may take a copy of its
+       bibliography. Every button that does change something is gone. */
+    expect(itemTools(wrapper)).toEqual(['Export…'])
   })
 })
 
@@ -1840,7 +1970,9 @@ describe('picking out several items', () => {
     await settle(wrapper)
     requestMock.mockClear()
 
-    const trash = wrapper.findAll('.selection__tool').find((e) => e.text() === 'Move to trash')!
+    const trash = wrapper
+      .findAll('.selection__tool')
+      .find((e) => e.attributes('aria-label') === 'Move to trash')!
     await trash.trigger('click')
     await settle(wrapper)
 
@@ -1880,8 +2012,7 @@ describe('picking out several items', () => {
     const wrapper = await open()
 
     expect(wrapper.find('.library__cell--check').exists()).toBe(false)
-    await wrapper.findAll('.library__more').find((e) => e.text() === 'Select')!.trigger('click')
-    await wrapper.vm.$nextTick()
+    await tool(wrapper, 'Select')
 
     const boxes = wrapper.findAll('.library__cell--check input')
     // One for the heading line, and one for each row.
@@ -1893,11 +2024,26 @@ describe('picking out several items', () => {
     expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345', 'CCCC9999'])
   })
 
+  it('says that Select is on, which is all a glyph has to say it with', async () => {
+    /* The mode has to be switched off again, and a control drawn as a picture
+       has no room for a second word to say so. */
+    withLibrary()
+    const wrapper = await open()
+    const glyph = () => wrapper.findAll('.library__tool')[0]
+
+    expect(glyph().attributes('aria-pressed')).toBe('false')
+
+    await tool(wrapper, 'Select')
+
+    expect(glyph().attributes('aria-pressed')).toBe('true')
+    expect(glyph().attributes('aria-label')).toBe('Done selecting')
+    expect(glyph().classes()).toContain('library__tool--on')
+  })
+
   it('takes the whole page from the box on the heading line', async () => {
     withLibrary()
     const wrapper = await open()
-    await wrapper.findAll('.library__more').find((e) => e.text() === 'Select')!.trigger('click')
-    await wrapper.vm.$nextTick()
+    await tool(wrapper, 'Select')
 
     await wrapper.findAll('.library__cell--check input')[0].setValue(true)
     await settle(wrapper)
@@ -2701,7 +2847,7 @@ describe('publishing an item', () => {
     await row(wrapper).trigger('click')
     await settle(wrapper)
 
-    const tools = wrapper.findAll('.detail__tool').map((entry) => entry.text())
+    const tools = itemTools(wrapper)
     expect(tools).toContain('Add to My Publications…')
   })
 
@@ -2712,7 +2858,7 @@ describe('publishing an item', () => {
     await row(wrapper, 'Already out there').trigger('click')
     await settle(wrapper)
 
-    const tools = wrapper.findAll('.detail__tool').map((entry) => entry.text())
+    const tools = itemTools(wrapper)
     expect(tools).toContain('Remove from My Publications')
   })
 
@@ -2725,8 +2871,195 @@ describe('publishing an item', () => {
     await row(wrapper).trigger('click')
     await settle(wrapper)
 
-    const tools = wrapper.findAll('.detail__tool').map((entry) => entry.text())
+    const tools = itemTools(wrapper)
     expect(tools).not.toContain('Add to My Publications…')
     expect(wrapper.text()).not.toContain('My Publications')
+  })
+})
+
+/**
+ * Writing items out as a file.
+ *
+ * The desktop client has three gestures for this — Export Library…, Export
+ * Collection… and Export Items… — and the interface has the same three: the
+ * list's header for what is on screen, and the two right-hand panes for what
+ * has been picked out. What is checked is which of them is offered when, and
+ * that the link the dialog hands over asks for those items and no others.
+ */
+describe('exporting', () => {
+  const NOTE = {
+    key: 'NNNN2345',
+    version: 1,
+    data: { itemType: 'note', note: '<p>A thought</p>' },
+    meta: {},
+  }
+
+  async function openExport(wrapper: ReturnType<typeof mount>, from = '.library__tool') {
+    await press(wrapper, from, 'Export…')
+  }
+
+  function link(wrapper: ReturnType<typeof mount>): string {
+    return wrapper.get('.dialog__download').attributes('href') ?? ''
+  }
+
+  /** What the dialog says it can export, in the order it offers them. */
+  function choices(wrapper: ReturnType<typeof mount>): string[] {
+    const radios = wrapper.findAll('.dialog__check')
+    return radios.length ? radios.map((entry) => entry.text()) : [wrapper.get('.dialog__what').text()]
+  }
+
+  it('offers the whole view from the header', async () => {
+    const wrapper = await open()
+
+    await openExport(wrapper)
+
+    expect(wrapper.get('.dialog__what').text()).toBe('My Library')
+    expect(link(wrapper)).toContain('/web/libraries/1/items/export?')
+    expect(link(wrapper)).toContain('name=My+Library')
+    expect(link(wrapper)).not.toContain('itemKey')
+  })
+
+  it('offers the rows picked out first, and the library behind them', async () => {
+    /* Rows picked out are a decision somebody has just made; an export that
+       went on writing the whole library would be answering another question.
+       The way back out to all of it is one radio button, not a trip back to
+       clear the selection. */
+    contents = [ITEM, { ...ITEM, key: 'BBBB2345', data: { ...ITEM.data, title: 'Another' } }]
+    const wrapper = await open()
+    const rows = wrapper.findAll('.library__row:not(.library__row--head)')
+    await rows[0].trigger('click')
+    await rows[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    await openExport(wrapper)
+
+    expect(choices(wrapper)).toEqual(['2 items selected', 'My Library'])
+    expect(link(wrapper)).toContain('itemKey=AAAA2345%2CBBBB2345')
+  })
+
+  it('exports all of it once the wider answer is chosen', async () => {
+    contents = [ITEM, { ...ITEM, key: 'BBBB2345', data: { ...ITEM.data, title: 'Another' } }]
+    const wrapper = await open()
+    await wrapper.findAll('.library__row:not(.library__row--head)')[0].trigger('click')
+    await settle(wrapper)
+    await openExport(wrapper)
+
+    await wrapper.findAll('input[type="radio"]')[1].setValue(true)
+
+    expect(link(wrapper)).not.toContain('itemKey')
+    expect(link(wrapper)).toContain('name=My+Library')
+  })
+
+  it('names the collection when the sidebar has one open', async () => {
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections: [COLLECTION] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+    const wrapper = await open()
+
+    await wrapper.findAll('.tree__label').find((e) => e.text() === 'Whales')!.trigger('click')
+    await settle(wrapper)
+    await openExport(wrapper)
+
+    /* A collection is narrower than the library, so both are offered -- and
+       the collection, which is what is on screen, comes first. */
+    expect(choices(wrapper)).toEqual(['Whales', 'My Library'])
+    expect(link(wrapper)).toContain('collection=CCCC2345')
+    expect(link(wrapper)).toContain('name=Whales')
+
+    await wrapper.findAll('input[type="radio"]')[1].setValue(true)
+
+    expect(link(wrapper)).not.toContain('collection=')
+  })
+
+  it('is not offered over a list with nothing in it', async () => {
+    /* The client greys its own menu item out for the same reason: a file with
+       no entries in it is not what anybody pressed the button for. */
+    contents = []
+
+    const wrapper = await open()
+
+    expect(tools(wrapper)).not.toContain('Export…')
+  })
+
+  it('is not offered over a list holding nothing but notes', async () => {
+    contents = [NOTE]
+
+    const wrapper = await open()
+
+    expect(tools(wrapper)).not.toContain('Export…')
+  })
+
+  it('writes out the one item the detail pane is describing', async () => {
+    const wrapper = await open()
+    await wrapper.get('.library__row:not(.library__row--head)').trigger('click')
+    await settle(wrapper)
+
+    await openExport(wrapper, '.detail__tool')
+
+    /* One item, and so no question: a radio offering the whole library beside
+       a single work is a question nobody standing in front of one is asking. */
+    expect(wrapper.get('.dialog__what').text()).toBe('Structure and Interpretation')
+    expect(wrapper.findAll('input[type="radio"]')).toHaveLength(0)
+    expect(link(wrapper)).toContain('itemKey=AAAA2345')
+  })
+
+  it('offers nothing to write out for a note, which has no entry', async () => {
+    contents = [ITEM, NOTE]
+    const wrapper = await open()
+
+    await wrapper.findAll('.library__row:not(.library__row--head)')[1].trigger('click')
+    await settle(wrapper)
+
+    expect(itemTools(wrapper)).not.toContain('Export…')
+  })
+
+  it('offers it in a library this account may only read', async () => {
+    /* Exporting is a read. Everything else in these panes is a write, and a
+       group that reserves editing for its administrators hides those. */
+    libraries = [PERSONAL, GROUP]
+    const wrapper = await open()
+    await wrapper.findAll('.library__library').find((e) => e.text().includes('Whale'))!.trigger('click')
+    await settle(wrapper)
+    await wrapper.get('.library__row:not(.library__row--head)').trigger('click')
+    await settle(wrapper)
+
+    const tools = itemTools(wrapper)
+    expect(tools).toEqual(['Export…'])
+  })
+
+  it('writes out the rows picked out, and only those', async () => {
+    contents = [ITEM, NOTE, { ...ITEM, key: 'BBBB2345', data: { ...ITEM.data, title: 'Another' } }]
+    const wrapper = await open()
+    const rows = wrapper.findAll('.library__row:not(.library__row--head)')
+    await rows[0].trigger('click')
+    await rows[2].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    await openExport(wrapper, '.selection__tool')
+
+    expect(choices(wrapper)).toEqual(['2 items selected', 'My Library'])
+    expect(link(wrapper)).toContain('itemKey=AAAA2345%2CBBBB2345')
+    expect(link(wrapper)).toContain('name=Exported+Items')
+  })
+
+  it('leaves the notes out of a selection that also holds a work', async () => {
+    contents = [ITEM, NOTE]
+    const wrapper = await open()
+    const rows = wrapper.findAll('.library__row:not(.library__row--head)')
+    await rows[0].trigger('click')
+    await rows[1].trigger('click', { ctrlKey: true })
+    await settle(wrapper)
+
+    await openExport(wrapper, '.selection__tool')
+
+    expect(link(wrapper)).toContain('itemKey=AAAA2345')
+    expect(link(wrapper)).not.toContain('NNNN2345')
   })
 })

@@ -629,3 +629,49 @@ describe('where a collection is', () => {
     expect(store.selectedCollection).toBeNull()
   })
 })
+
+describe('the export address', () => {
+  it('carries the query the list is showing', async () => {
+    /* Whatever narrows the list narrows the file: an export that quietly held
+       the whole library while the screen showed one collection is the one file
+       nobody can check against what they were looking at. */
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    await store.selectCollection('CCCC2345')
+    await store.toggleTag('toread')
+    await store.setSearch('whales')
+
+    const url = store.exportUrl('ris')
+
+    expect(url).toContain('/web/libraries/1/items/export?')
+    expect(url).toContain('format=ris')
+    expect(url).toContain('collection=CCCC2345')
+    expect(url).toContain('tag=toread')
+    expect(url).toContain('q=whales')
+  })
+
+  it('names the rows picked out, when there are some', async () => {
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    expect(store.exportUrl('bibtex', { keys: ['AAAA2345', 'BBBB2345'] })).toContain(
+      'itemKey=AAAA2345%2CBBBB2345',
+    )
+    expect(store.exportUrl('bibtex')).not.toContain('itemKey')
+  })
+
+  it('says what the file should be called', async () => {
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    expect(store.exportUrl('bibtex', { name: 'My Library' })).toContain('name=My+Library')
+  })
+
+  it('asks for no page, because an export is not one', async () => {
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    expect(store.exportUrl('bibtex')).not.toContain('limit=')
+    expect(store.exportUrl('bibtex')).not.toContain('start=')
+  })
+})

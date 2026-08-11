@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
+import SidebarIcon from '@/components/SidebarIcon.vue'
+
 /**
  * What the right-hand pane says when more than one row is picked out.
  *
@@ -14,7 +16,9 @@ import { useI18n } from 'vue-i18n'
  * There is no field editor here for the same reason there is none there: this
  * interface does not edit items. Publishing is missing too, and that is not an
  * omission — the wizard's questions are about the item in front of it, so a
- * selection has no single set of answers to give it.
+ * selection has no single set of answers to give it. Writing the rows out as a
+ * file is here, and is the one errand that is not a write, so it appears in a
+ * library this account may only read.
  */
 defineProps<{
   /** How many rows are picked out. */
@@ -24,6 +28,8 @@ defineProps<{
   /** Whether every one of them is already in the trash, which is what decides
    *  between throwing away and deleting for good. */
   trashed: boolean
+  /** Whether any of them has a bibliography entry to write out. */
+  exportable?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -31,6 +37,7 @@ const emit = defineEmits<{
   trash: []
   restore: []
   remove: []
+  export: []
   close: []
 }>()
 
@@ -56,27 +63,63 @@ const { t } = useI18n()
       </button>
     </header>
 
-    <!-- The same errands as a drag, in the same words the detail pane uses for
-         one row. Only where the server says the library can be written to. -->
-    <div v-if="writable" class="selection__tools">
-      <button class="selection__tool" type="button" @click="emit('move')">
-        {{ t('Move or copy…') }}
-      </button>
-      <button v-if="!trashed" class="selection__tool" type="button" @click="emit('trash')">
-        {{ t('Move to trash') }}
-      </button>
-      <template v-else>
-        <button class="selection__tool" type="button" @click="emit('restore')">
-          {{ t('Restore to Library') }}
+    <!-- The same errands as a drag, and the same glyphs the detail pane draws
+         for one row: three rows picked out do not make trashing them a
+         different errand. Writing them out is not a write, so it is offered in
+         a library this account may only read. -->
+    <div v-if="writable || exportable" class="selection__tools">
+      <template v-if="writable">
+        <button
+          class="selection__tool"
+          type="button"
+          :aria-label="t('Move or copy…')"
+          :title="t('Move or copy…')"
+          @click="emit('move')"
+        >
+          <SidebarIcon name="move" :size="18" />
         </button>
         <button
-          class="selection__tool selection__tool--danger"
+          v-if="!trashed"
+          class="selection__tool"
           type="button"
-          @click="emit('remove')"
+          :aria-label="t('Move to trash')"
+          :title="t('Move to trash')"
+          @click="emit('trash')"
         >
-          {{ t('Delete') }}
+          <SidebarIcon name="trash" :size="18" />
         </button>
+        <template v-else>
+          <button
+            class="selection__tool"
+            type="button"
+            :aria-label="t('Restore to Library')"
+            :title="t('Restore to Library')"
+            @click="emit('restore')"
+          >
+            <SidebarIcon name="restore" :size="18" />
+          </button>
+          <button
+            class="selection__tool selection__tool--danger"
+            type="button"
+            :aria-label="t('Delete')"
+            :title="t('Delete')"
+            @click="emit('remove')"
+          >
+            <SidebarIcon name="deleteforever" :size="18" />
+          </button>
+        </template>
       </template>
+
+      <button
+        v-if="exportable"
+        class="selection__tool"
+        type="button"
+        :aria-label="t('Export…')"
+        :title="t('Export…')"
+        @click="emit('export')"
+      >
+        <SidebarIcon name="export" :size="18" />
+      </button>
     </div>
 
   </article>
@@ -127,27 +170,42 @@ const { t } = useI18n()
 .selection__tools {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--md-spacing-2);
+  gap: var(--md-spacing-1);
 }
 
 .selection__tool {
-  padding: 0.25rem 0.7rem;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 999px;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
   background: none;
-  color: inherit;
-  font: inherit;
-  font-size: var(--md-sys-typescale-body-medium-size);
+  color: var(--md-sys-color-on-surface-variant);
   cursor: pointer;
+}
+
+/* The glyph takes the button's colour rather than the icon component's own
+   muted one: hover and the danger red are set on the button, and an SVG with a
+   colour of its own would go on drawing itself grey through both. */
+.selection__tool :deep(.sidebar-icon) {
+  color: inherit;
 }
 
 .selection__tool:hover {
   background: var(--md-sys-state-hover-surface);
+  color: var(--md-sys-color-on-surface);
 }
 
 .selection__tool--danger {
-  border-color: var(--md-sys-color-error);
   color: var(--md-sys-color-error);
+}
+
+.selection__tool--danger:hover {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
 }
 
 /* A finger cannot hit a 28-pixel target reliably, and nothing here is revealed
@@ -159,7 +217,8 @@ const { t } = useI18n()
   }
 
   .selection__tool {
-    padding: 0.55rem 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 }
 </style>

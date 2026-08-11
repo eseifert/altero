@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { placesFor } from '@/collectionplaces'
@@ -7,6 +7,7 @@ import AppButton from '@/components/AppButton.vue'
 import CollectionDialog from '@/components/CollectionDialog.vue'
 import CollectionSettingsDialog from '@/components/CollectionSettingsDialog.vue'
 import CollectionTree from '@/components/CollectionTree.vue'
+import ExportDialog from '@/components/ExportDialog.vue'
 import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemSelection from '@/components/ItemSelection.vue'
@@ -17,6 +18,7 @@ import SidebarIcon from '@/components/SidebarIcon.vue'
 import PaneSplitter from '@/components/PaneSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
 import { useCarry } from '@/dragging'
+import { exportable } from '@/exportformats'
 import { fieldLabel, loadLabels } from '@/items/labels'
 import { libraryLabel } from '@/librarylabel'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
@@ -173,6 +175,40 @@ watch(searchText, (value) => {
 })
 
 const searchField = useTemplateRef<HTMLInputElement>('searchField')
+
+/*
+ * Whether the search is open, which is whether it is a field or a glyph.
+ *
+ * Closed is the resting state: a library is read far more often than it is
+ * searched, and eighteen rems of empty field over a list is eighteen rems the
+ * heading and the tools do not have. It opens when pressed and closes when it
+ * is left with nothing in it — never while it holds a term, since the term is
+ * the only thing on screen that explains the list underneath it.
+ */
+const searching = ref(false)
+
+async function openSearch(): Promise<void> {
+  searching.value = true
+  // The field does not exist until this has been drawn, and a search that
+  // opens without the cursor in it is a control pressed twice.
+  await nextTick()
+  searchField.value?.focus()
+}
+
+function closeSearchIfEmpty(): void {
+  if (!searchText.value) searching.value = false
+}
+
+/* Escape empties a field that holds something and closes one that does not,
+   which is how every search that folds away behaves. It stops there rather
+   than reaching the list, whose own Escape clears the selection. */
+function escapeSearch(): void {
+  if (searchText.value) {
+    clearSearch()
+    return
+  }
+  searching.value = false
+}
 
 /* Clearing is a decision, not a keystroke, so it does not wait out the pause
    the way typing does. Focus stays in the field: emptying it is usually the
@@ -912,6 +948,116 @@ async function toggleAll(): Promise<void> {
   await library.selectAll()
 }
 
+/*
+ * Writing items out as a file, which the desktop client offers three ways:
+ * Export Library…, Export Collection… and Export Items…. They are one errand
+ * with three ways of saying which items — so this is one dialog, and the three
+ * become the choice it offers rather than three controls to find.
+ *
+ * `null` while it is shut, and otherwise the choices in it, widest last. The
+ * first is the one offered: rows picked out if there are any, because a
+ * selection is a decision somebody has just made and an export that ignored it
+ * would be answering a question nobody asked.
+ */
+interface ExportChoice {
+  id: string
+  /** What the radio says: "3 items selected", "Whales", "My Library". */
+  label: string
+  /** The rows to write out, or `null` for everything the scope holds. */
+  keys: string[] | null
+  /** What the file will be called. Settled here, since this is where the view
+   *  has a name in the reader's own language. */
+  name: string
+  /** The library rather than the view: no collection, no search, no tags. */
+  whole?: boolean
+}
+
+const exporting = ref<ExportChoice[] | null>(null)
+
+/** Rows that would end up in the file: notes and attachments have no entry. */
+function exportableItems(items: ItemEnvelope[]): ItemEnvelope[] {
+  return items.filter((entry) => exportable(entry.data.itemType))
+}
+
+/* Offered only where it would produce something. The client greys its own menu
+   item out when the view holds no items, for the same reason: an export of
+   nothing is a file nobody wanted. */
+const canExportView = computed(() => exportableItems(library.items).length > 0)
+
+/** Whether the list is showing less than the whole library. */
+const narrowed = computed(
+  () =>
+    library.collectionKey !== null ||
+    library.scope !== 'top' ||
+    library.search.trim() !== '' ||
+    library.selectedTags.length > 0,
+)
+
+/** The choice for a set of rows, named as the client names one: by its title
+ *  when it is a single row, and "Exported Items" when it is several. */
+function rowsChoice(items: ItemEnvelope[]): ExportChoice {
+  return {
+    id: 'selection',
+    label:
+      items.length === 1
+        ? titleOf(items[0])
+        : t('{count} item selected | {count} items selected', items.length),
+    keys: items.map((entry) => entry.key),
+    /* Where the client offers a file picker to correct the name in, this has
+       only what it guesses, and "Exported Items.bib" is no help sitting beside
+       four other files of that name. */
+    name: items.length === 1 ? titleOf(items[0]) : t('Exported Items'),
+  }
+}
+
+/**
+ * The wider things this list sits in: the view, and the library behind it.
+ *
+ * The view is offered only when it is narrower than the library — otherwise
+ * the two are the same list under two names, which is a choice that is not one.
+ * The heading names the view, because that is already what this view is called
+ * on screen and a second answer is how the two end up disagreeing.
+ */
+function widerChoices(): ExportChoice[] {
+  const name = library.library ? libraryLabel(library.library) : t('Library')
+  const choices: ExportChoice[] = []
+  if (narrowed.value) {
+    choices.push({ id: 'view', label: heading.value, keys: null, name: heading.value })
+  }
+  choices.push({ id: 'library', label: name, keys: null, name, whole: true })
+  return choices
+}
+
+/**
+ * Export from the header, or from the pane that holds a selection.
+ *
+ * Both start from the rows picked out where there are any, and both offer the
+ * way back out to the view and the library. The detail pane does not: its
+ * button sits beside one item and means that item, and a radio offering the
+ * whole library there would be a question nobody standing in front of a single
+ * work is asking.
+ */
+function exportSelectionOrView(): void {
+  const picked = exportableItems(library.selectedItems)
+  exporting.value = [...(picked.length ? [rowsChoice(picked)] : []), ...widerChoices()]
+}
+
+/** Export one item, from the pane that is about it. */
+function exportItem(item: ItemEnvelope): void {
+  const wanted = exportableItems([item])
+  if (!wanted.length) return
+  exporting.value = [rowsChoice(wanted)]
+}
+
+function exportLink(format: string, id: string): string {
+  const chosen = exporting.value?.find((entry) => entry.id === id) ?? exporting.value?.[0]
+  return library.exportUrl(format, {
+    keys: chosen?.keys ?? undefined,
+    name: chosen?.name,
+    whole: chosen?.whole,
+  })
+}
+
 /** Whether everything picked out is already in the trash, which is what decides
  *  between throwing away and deleting for good. */
 const selectionTrashed = computed(
@@ -1208,71 +1354,143 @@ function sortLabel(column: { field: string; label: string }): string {
     <section class="library__list">
       <header class="library__header">
         <h1 class="library__heading">{{ heading }}</h1>
+
         <!--
-          Checkboxes on demand: the way in for a finger, which has no modifier
-          keys, and for a keyboard, which cannot press a row with one held. A
-          mouse needs neither and is not made to use it — `Ctrl`-click and
-          `Shift`-click work whether this is on or off.
+          One row of tools at the end of the header, the search last.
+          Everything here acts on the list below, and a control that acts on
+          the list belongs beside the one that narrows it rather than strung
+          out across the width of the screen.
+
+          Glyphs rather than words, and so each carries its name twice: as
+          `aria-label`, which is what a screen reader announces, and as
+          `title`, which is what a pointer reveals. A control with neither is a
+          rebus.
         -->
-        <button
-          v-if="library.items.length"
-          class="library__more"
-          type="button"
-          :aria-pressed="selecting"
-          @click="toggleSelecting()"
-        >
-          {{ selecting ? t('Done selecting') : t('Select') }}
-        </button>
-        <!-- Emptying the trash is the one errand that reaches items nobody
-             picked out: the trash is a list of things already thrown away. -->
-        <button
-          v-if="library.scope === 'trash' && library.writable && library.items.length"
-          class="library__more"
-          type="button"
-          @click="askToEmpty()"
-        >
-          {{ t('Empty the trash') }}
-        </button>
-        <!--
-          The list of what has been published, and the page it is published
-          on. The wizard promises the work "will be shown on your profile
-          page"; this is where somebody standing in front of that list can go
-          and read the page as everybody else does. Styled as the button
-          beside it, since it is the same kind of errand and the pill is what
-          this header puts one in.
-        -->
-        <RouterLink
-          v-if="library.scope === 'publications' && auth.user"
-          class="library__more"
-          :to="{ name: 'profile', params: { username: auth.user.username } }"
-        >
-          {{ t('See your public page') }}
-        </RouterLink>
-        <div class="library__search">
-          <svg class="library__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-            <path d="M10.75 4.75a6 6 0 100 12 6 6 0 000-12z M15.25 15.25l4 4" />
-          </svg>
-          <input
-            ref="searchField"
-            v-model="searchText"
-            class="library__search-field"
-            type="search"
-            :placeholder="t('Search')"
-            :aria-label="t('Search this library')"
-          />
+        <div class="library__tools">
+          <!--
+            Checkboxes on demand: the way in for a finger, which has no
+            modifier keys, and for a keyboard, which cannot press a row with
+            one held. A mouse needs neither and is not made to use it —
+            `Ctrl`-click and `Shift`-click work whether this is on or off.
+          -->
           <button
-            v-if="searchText"
-            class="library__search-clear"
+            v-if="library.items.length"
+            class="library__tool"
+            :class="{ 'library__tool--on': selecting }"
             type="button"
-            :aria-label="t('Clear search')"
-            @click="clearSearch"
+            :aria-pressed="selecting"
+            :aria-label="selecting ? t('Done selecting') : t('Select')"
+            :title="selecting ? t('Done selecting') : t('Select')"
+            @click="toggleSelecting()"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
+            <SidebarIcon name="select" :size="18" />
           </button>
+
+          <!--
+            What the client calls Export Library… and Export Collection…: this
+            list, written out as a file. Beside Select rather than inside it,
+            because it is about what is on screen and not about what was
+            picked out — the panes on the right export a selection.
+          -->
+          <button
+            v-if="canExportView"
+            class="library__tool"
+            type="button"
+            :aria-label="t('Export…')"
+            :title="t('Export…')"
+            @click="exportSelectionOrView()"
+          >
+            <SidebarIcon name="export" :size="18" />
+          </button>
+
+          <!-- Emptying the trash is the one errand that reaches items nobody
+               picked out: the trash is a list of things already thrown away.
+               It asks before it goes ahead, which is what makes a glyph enough
+               for something this final.
+
+               The same glyph the panes draw for deleting one item for good,
+               because it is the same act on more of them — the bin with a
+               cross through it, never the plain bin, which everywhere here
+               means the trash an item can still come back out of. -->
+          <button
+            v-if="library.scope === 'trash' && library.writable && library.items.length"
+            class="library__tool library__tool--danger"
+            type="button"
+            :aria-label="t('Empty the trash')"
+            :title="t('Empty the trash')"
+            @click="askToEmpty()"
+          >
+            <SidebarIcon name="deleteforever" :size="18" />
+          </button>
+
+          <!--
+            The list of what has been published, and the page it is published
+            on. The wizard promises the work "will be shown on your profile
+            page"; this is where somebody standing in front of that list can go
+            and read the page as everybody else does.
+          -->
+          <RouterLink
+            v-if="library.scope === 'publications' && auth.user"
+            class="library__tool"
+            :aria-label="t('See your public page')"
+            :title="t('See your public page')"
+            :to="{ name: 'profile', params: { username: auth.user.username } }"
+          >
+            <SidebarIcon name="account" :size="18" />
+          </RouterLink>
+
+          <!--
+            Closed, the search is one more glyph in the row; open, it is the
+            field it always was. It opens when it is pressed and closes again
+            when it is left empty, so the width it takes is the width it is
+            using — and it stays open while it holds a term, because a list
+            filtered by a word nothing on screen shows is a list that looks
+            wrong for no reason.
+          -->
+          <div class="library__search" :class="{ 'library__search--open': searching }">
+            <button
+              v-if="!searching"
+              class="library__tool"
+              type="button"
+              :aria-label="t('Search this library')"
+              :title="t('Search this library')"
+              @click="openSearch"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                <path d="M10.75 4.75a6 6 0 100 12 6 6 0 000-12z M15.25 15.25l4 4" />
+              </svg>
+            </button>
+            <template v-else>
+              <svg class="library__search-icon" width="16" height="16" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                   aria-hidden="true">
+                <path d="M10.75 4.75a6 6 0 100 12 6 6 0 000-12z M15.25 15.25l4 4" />
+              </svg>
+              <input
+                ref="searchField"
+                v-model="searchText"
+                class="library__search-field"
+                type="search"
+                :placeholder="t('Search')"
+                :aria-label="t('Search this library')"
+                @blur="closeSearchIfEmpty"
+                @keydown.esc.stop="escapeSearch"
+              />
+              <button
+                v-if="searchText"
+                class="library__search-clear"
+                type="button"
+                :aria-label="t('Clear search')"
+                @click="clearSearch"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+            </template>
+          </div>
         </div>
       </header>
 
@@ -1481,6 +1699,7 @@ function sortLabel(column: { field: string; label: string }): string {
         @publish="startPublishing(library.selected!)"
         @unpublish="askToUnpublish(library.selected!)"
         @rights="editingRights = library.selected"
+        @export="exportItem(library.selected!)"
       />
       <!-- More than one row picked out: a count and the errands, because what
            several items have in common is what can be done to them rather than
@@ -1490,10 +1709,12 @@ function sortLabel(column: { field: string; label: string }): string {
         :count="library.selection.length"
         :writable="library.writable"
         :trashed="selectionTrashed"
+        :exportable="exportableItems(library.selectedItems).length > 0"
         @move="moving = [...library.selectedItems]"
         @trash="runOnItem(() => library.trashItems(library.selectionKeys))"
         @restore="runOnItem(() => library.trashItems(library.selectionKeys, false))"
         @remove="askToRemove([...library.selectedItems])"
+        @export="exportSelectionOrView()"
         @close="library.clearSelection()"
       />
     </aside>
@@ -1579,6 +1800,15 @@ function sortLabel(column: { field: string; label: string }): string {
       :error="itemError"
       @submit="submitRights"
       @cancel="editingRights = null"
+    />
+
+    <!-- Which format the file is written in — the client's export options
+         dialog, with the one question altero's four formats leave it. -->
+    <ExportDialog
+      v-if="exporting"
+      :scopes="exporting"
+      :link="exportLink"
+      @close="exporting = null"
     />
 
     <TagDialog
@@ -1901,6 +2131,19 @@ function sortLabel(column: { field: string; label: string }): string {
     height: 2.25rem;
   }
 
+  /* The glyphs over the list are the smallest targets on this screen, and the
+     one a finger reaches for most. The closed search grows with them, since it
+     is one of them until it is pressed. */
+  .library__tool,
+  .library__search {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .library__search--open {
+    height: auto;
+  }
+
   .library__tag-action {
     width: 1.6rem;
     height: 1.6rem;
@@ -2085,30 +2328,115 @@ function sortLabel(column: { field: string; label: string }): string {
 
 .library__header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: var(--md-spacing-4);
 }
 
 .library__heading {
+  /* Takes what is left and gives it up first: a collection with a long name
+     shortens its heading rather than pushing the tools off the end, and when
+     even that is not enough the tools wrap to a line of their own. */
+  flex: 1 1 8rem;
+  min-width: 0;
   margin: 0;
+  overflow: hidden;
   font-size: var(--md-sys-typescale-title-large-size, 1.35rem);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Everything that acts on the list, gathered at the end of the header. */
+.library__tools {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: var(--md-spacing-1);
+  min-width: 0;
+  margin-left: auto;
+}
+
+.library__tool {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+}
+
+/* The glyph takes the button's colour rather than the icon component's own
+   muted one: hover and the danger red are set on the button, and an SVG with a
+   colour of its own would go on drawing itself grey through both. */
+.library__tool :deep(.sidebar-icon) {
+  color: inherit;
+}
+
+.library__tool:hover {
+  background: var(--md-sys-state-hover-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* A tool that is switched on says so by staying lit, which is the only thing
+   telling a reader that the column of checkboxes is theirs to turn off again.
+   Hover is named again here, and after: the hover rule above would otherwise
+   paint over the lit state and make the pointer resting on it read as off. */
+.library__tool--on,
+.library__tool--on:hover {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/* Coloured as the panes colour theirs, since it is the same act: red at rest
+   rather than only under the pointer, which a finger never produces. */
+.library__tool--danger {
+  color: var(--md-sys-color-error);
+}
+
+.library__tool--danger:hover {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
 }
 
 .library__search {
   display: flex;
+  flex: none;
   align-items: center;
   gap: var(--md-spacing-2);
-  width: min(18rem, 50%);
+  /* Closed, it is exactly one tool wide, and the border and background are the
+     tool's own -- which is none, so that a row of glyphs reads as a row. */
+  width: 2rem;
+  border: 1px solid transparent;
+  border-radius: var(--md-sys-shape-corner-medium);
+  transition: width 180ms ease;
+}
+
+.library__search--open {
+  /* Wide enough for a phrase, and never more than a screenful: on a phone the
+     header is the width of the window, and a field that took all of it would
+     leave the heading nowhere to go. */
+  width: min(18rem, 60vw);
   padding: 0.3rem 0.6rem;
   /* A control's own border has to be discernible: `outline`, not the divider. */
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-medium);
+  border-color: var(--md-sys-color-outline);
   background: var(--md-sys-color-surface);
 }
 
 .library__search:focus-within {
   border-color: var(--md-sys-color-primary);
+}
+
+/* The width is a nicety; somebody who has asked for less movement gets the
+   field at once instead. */
+@media (prefers-reduced-motion: reduce) {
+  .library__search {
+    transition: none;
+  }
 }
 
 .library__search-icon {

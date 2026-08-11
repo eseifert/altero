@@ -203,10 +203,9 @@ export const useLibraryStore = defineStore('library', () => {
   })
   const collectionName = computed(() => selectedCollection.value?.data.name ?? null)
 
-  function itemsUrl(): string {
+  /** What the list is showing: the scope, the collection, the search, the tags. */
+  function viewParams(): URLSearchParams {
     const params = new URLSearchParams({
-      limit: String(PAGE_SIZE),
-      start: String(start.value),
       scope: scope.value,
       sort: sort.value,
       direction: direction.value,
@@ -214,7 +213,44 @@ export const useLibraryStore = defineStore('library', () => {
     if (collectionKey.value) params.set('collection', collectionKey.value)
     if (search.value.trim()) params.set('q', search.value.trim())
     for (const tag of selectedTags.value) params.append('tag', tag)
+    return params
+  }
+
+  function itemsUrl(): string {
+    const params = viewParams()
+    params.set('limit', String(PAGE_SIZE))
+    params.set('start', String(start.value))
     return `/web/libraries/${libraryId.value}/items?${params}`
+  }
+
+  /**
+   * Where the browser fetches an export of what is being looked at.
+   *
+   * The list's own query, so the file holds what the screen holds — narrowed to
+   * `keys` when rows are picked out, which is the difference between the
+   * client's Export Library… and its Export Items…. `name` is what to call the
+   * file: the browser knows the view's name in the reader's language and the
+   * server does not.
+   *
+   * A URL rather than a fetch, as the archive in settings is: the browser
+   * streams it to disk and shows its own progress, and an export is as long as
+   * the library it came from.
+   */
+  function exportUrl(
+    format: string,
+    { keys, name, whole = false }: { keys?: string[]; name?: string; whole?: boolean } = {},
+  ): string {
+    /* `whole` is the library rather than the view: the top level of it, with
+       no collection, no search and no tags. It is what somebody means by "all
+       of it" while standing in a collection, and it cannot be expressed by
+       leaving parameters off, since the view supplies them. */
+    const params = whole
+      ? new URLSearchParams({ scope: 'top', sort: sort.value, direction: direction.value })
+      : viewParams()
+    params.set('format', format)
+    if (keys?.length) params.set('itemKey', keys.join(','))
+    if (name) params.set('name', name)
+    return `/web/libraries/${libraryId.value}/items/export?${params}`
   }
 
   async function loadLibraries(): Promise<void> {
@@ -794,6 +830,7 @@ export const useLibraryStore = defineStore('library', () => {
     selectAll,
     clearSelection,
     fileUrl,
+    exportUrl,
     reset,
   }
 })
