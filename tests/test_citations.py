@@ -413,6 +413,23 @@ class TestExportFormats:
         assert "@article{doe2019study," in written
         assert "@article{doe2019studya," in written
 
+    def test_the_twenty_seventh_collision_is_still_a_key_somebody_can_type(self) -> None:
+        """After ``z`` the letters carry, rather than running on into
+        punctuation and control characters."""
+        entry = {
+            "id": "1/AAAA2345",
+            "type": "article-journal",
+            "title": "Study of things",
+            "author": [{"family": "Doe", "given": "Jane"}],
+            "issued": {"date-parts": [[2019]]},
+        }
+
+        written = bibtex([{**entry, "id": f"1/{number:08d}"} for number in range(30)])
+
+        assert "@article{doe2019studyz," in written
+        assert "@article{doe2019studyaa," in written
+        assert "@article{doe2019studyac," in written
+
     def test_a_key_never_begins_with_a_digit(self) -> None:
         """Legal in BibTeX, and refused by enough tools downstream to matter."""
         written = bibtex(

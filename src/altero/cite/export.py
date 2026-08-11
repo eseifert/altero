@@ -152,6 +152,23 @@ def _names(csl: dict[str, Any], variable: str) -> list[str]:
     return names
 
 
+def _suffix(index: int) -> str:
+    """Return the ``index``-th disambiguating letter: ``a`` … ``z``, then ``aa``.
+
+    Counting in letters rather than in code points. The obvious ``chr(ord("a")
+    + index)`` is right for the first twenty-six and writes punctuation, control
+    characters and eventually whole other alphabets after that -- and a
+    citation key is something a person types.
+    """
+    letters = ""
+    while True:
+        index, remainder = divmod(index, 26)
+        letters = chr(ord("a") + remainder) + letters
+        if index == 0:
+            return letters
+        index -= 1
+
+
 def citation_key(csl: dict[str, Any], taken: set[str]) -> str:
     """Return a citation key for an item, unique within one export.
 
@@ -175,10 +192,10 @@ def citation_key(csl: dict[str, Any], taken: set[str]) -> str:
         stem = str(csl.get("id", "")).rpartition("/")[2] or "item"
 
     candidate = stem
-    suffix = ord("a")
+    index = 0
     while candidate in taken:
-        candidate = f"{stem}{chr(suffix)}"
-        suffix += 1
+        candidate = f"{stem}{_suffix(index)}"
+        index += 1
     taken.add(candidate)
     return candidate
 
@@ -245,6 +262,7 @@ def bibtex(
     *,
     keywords: Sequence[Sequence[str]] | None = None,
     biblatex: bool = False,
+    taken: set[str] | None = None,
 ) -> str:
     """Return items as a BibTeX or BibLaTeX file.
 
@@ -253,11 +271,15 @@ def bibtex(
         keywords: Tags for each item, in the same order. Tags are not part of
             CSL, so they are carried alongside rather than folded into it.
         biblatex: Use BibLaTeX's larger set of entry types.
+        taken: Citation keys already spoken for, added to as more are made. A
+            file written in several passes -- an export longer than one batch --
+            passes one set through all of them, because a citation key is unique
+            within a file and not within a call.
     """
     from bibtexparser.bibdatabase import BibDatabase
     from bibtexparser.bwriter import BibTexWriter
 
-    taken: set[str] = set()
+    taken = set() if taken is None else taken
     database = BibDatabase()
     database.entries = [
         _bibtex_entry(csl, (keywords or [])[index] if keywords else (), taken, biblatex=biblatex)
