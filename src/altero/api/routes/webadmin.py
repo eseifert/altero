@@ -11,8 +11,8 @@ answers with an item, a title, a tag, a note or a file, and the flag adds
 nothing to :func:`altero.services.auth.user_access`: somebody administering the
 instance has exactly the access to a library they had before. What they get is
 what the instance costs, what state it is in, and the levers that belong to the
-operator rather than to a library — which is the gap ``docs/motivation.md``
-names, and which until now meant a shell on the server.
+operator rather than to a library — the operator's view ``docs/motivation.md``
+asks for, without a shell on the server.
 """
 
 from datetime import timedelta

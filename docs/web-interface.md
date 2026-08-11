@@ -55,9 +55,9 @@ to the browser.
 ## Account settings
 
 Five sections behind a side panel — profile, sign-in and security, language and
-time zone, API keys, import and export — rather than one page of cards. It was
-one page until the cards outgrew a screen, and reaching the time zone meant
-scrolling past the authenticator and every key on the account.
+time zone, API keys, import and export — rather than one page of cards, which
+at this many cards means scrolling past the authenticator and every key on the
+account to reach the time zone.
 
 The panel is the library's: the same rows, the same fill on the current one, so
 the two screens read as one application. Which section is showing is in the
@@ -872,11 +872,10 @@ The design follows Material 3 with a teal accent, and light and dark follow the
 operating system unless the user picks one. What altero does inside that frame
 is written down in [design.md](design.md): one rule — fill groups, outline
 controls, hairline separates — three surface steps, one card recipe that every
-screen imports rather than draws again, and a toolbar around every row of
+screen imports rather than draws itself, and a toolbar around every row of
 icon-only tools, because a glyph on a page says nothing about being pressable
-until a pointer rests on it. It exists because the interface grew three
-different cards without anyone deciding to, and
-`styles/surfaces.node.spec.ts` is what stops a fourth.
+until a pointer rests on it. `styles/surfaces.node.spec.ts` fails when a
+component draws a surface of its own.
 
 The target is WCAG 2.2 AA. What can be measured is measured in tests that fail
 — every contrast pair the interface puts on screen, and the ordering that keeps
@@ -885,14 +884,14 @@ a hovered row from looking more chosen than a chosen one — and
 including what has not been verified.
 
 Hover is a state layer rather than a colour — a translucent wash of the text
-colour, one token, laid over whatever is underneath. Every hoverable row used to
-reach for whichever `surface-container-*` step was nearest to hand, which made
-hover mean five different things by depth and, in the item list, almost nothing:
-1.03:1 against a white page, a difference a screen at an angle does not show at
-all. A wash reads the same over the list as over a dialog's raised surface, and
-`styles/contrast.node.spec.ts` measures what it comes to on each of them. It
-also checks the one ordering that matters: a selected row is marked more
-strongly than the row under the pointer, or hovering would look like choosing.
+colour, one token, laid over whatever is underneath. One wash rather than a
+surface step per depth: it reads the same over the item list as over a dialog's
+raised surface, where a step chosen to separate a row from a white page comes
+to 1.03:1 and a screen at an angle shows nothing at all.
+`styles/contrast.node.spec.ts` measures what the wash comes to on each surface
+it lands on, and checks the one ordering that matters: a selected row is marked
+more strongly than the row under the pointer, or hovering would look like
+choosing.
 
 It is set in IBM Plex Sans, with IBM Plex Sans JP behind it for Japanese, and
 both are served by this application: nothing is loaded from a third party, no
@@ -923,7 +922,6 @@ Report…. The server renders both — `format=bib` is what the detail pane's
 citation comes from — so what is missing is the asking, not the writing.
 
 Making an account for somebody else, resetting a password, suspending an
-account and the operator's view of the instance are no longer shell operations
-— see **Administration** above.
-[administration.md](administration.md) says what the shell still covers alone
-and what it now shares with the browser.
+account and the operator's view of the instance are under **Administration**
+above. [administration.md](administration.md) says what the shell covers alone
+and what it shares with the browser.

@@ -2530,10 +2530,9 @@ function sortLabel(column: { field: string; label: string }): string {
   gap: var(--md-spacing-3);
   width: 100%;
   padding: var(--md-spacing-3) var(--md-spacing-4);
-  /* The hairline belongs to the line rather than to the row: the row is the
-     last child of its line whether or not a checkbox is beside it, so a rule
-     drawn here and taken off `:last-child` was taken off every row -- which is
-     how the list came to have no separators at all. */
+  /* The hairline belongs to the line rather than to the row: a row is the last
+     child of its line whether or not a checkbox is beside it, so a rule drawn
+     here and taken off `:last-child` comes off every row. */
   border: none;
   background: none;
   color: inherit;

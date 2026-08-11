@@ -1,12 +1,11 @@
 # The design system
 
-What the web interface looks like, written down so it stays one interface. It
-grew a seam without anyone deciding to: the settings sections drew a card as a
-hairline outline with nothing behind it, the administration screens drew one as
-a filled block, and three other screens picked whichever `surface-container-*`
-step was nearest to hand. Every one of those was defensible on its own screen
-and none of them agreed. This document is the decision, and
-`web/src/styles/surfaces.node.spec.ts` is what keeps it.
+What the web interface looks like: the surfaces, the shapes and the states every
+screen is built from. One card, one toolbar, one row, drawn once in
+`web/src/styles/surfaces.css` and imported wherever they are used, so that a
+screen written next year looks like the screens written this one.
+`web/src/styles/surfaces.node.spec.ts` fails when a component draws its own
+instead.
 
 Material 3 is the frame, seeded from a teal (`web/src/styles/tokens.css`), with
 light and dark following the operating system unless somebody chooses. What
@@ -67,8 +66,9 @@ press.
 ```
 
 It lives in `web/src/styles/surfaces.css` and is imported by the components that
-use it, the way `auth-form.css` and `dialog.css` already are. A component **does
-not write this rule again** — that is how the seam appeared.
+use it, the way `auth-form.css` and `dialog.css` are. A component **does not
+write this rule itself**: a card that is a different height or a different grey
+on one screen reads as a seam between two applications.
 
 - `.card__title` — the heading inside a card: `title-medium`, medium weight, no
   margin. Cards are titled by their content, not by their size.
@@ -111,11 +111,10 @@ fill behind a dense list tints the thing being read. What bounds it instead:
 - **The rows themselves on the page**, which is what keeps the text on the
   surface the hover wash was measured against.
 
-That treatment replaced an outlined box around the whole list, and the first
-attempt at it left the list with nothing at all: the hairline was drawn on the
-row and taken off `:last-child`, and a row is always the last child of its line
-— so every rule was removed and the list became a wall of text. The rule now
-belongs to the line rather than to the row.
+The hairline belongs to the **line** rather than to the row. A row is always the
+last child of its line, whether or not a checkbox sits beside it, so a rule
+drawn on the row and taken off `:last-child` is taken off every row and the
+list becomes a wall of text.
 
 **The current row** carries `.row--current`: the `secondary-container` fill, and
 a `primary` bar down its leading edge. The bar is not decoration. A state told
@@ -252,21 +251,21 @@ buttons rather than a `role="grid"`, so a reader hears each row's values in
 order without hearing the column names — a deliberate trade, and the first
 thing to revisit if this is ever tested with assistive technology.
 
-## What keeps this from drifting again
+## What keeps this
 
 `web/src/styles/surfaces.node.spec.ts` reads every component in the tree and
 fails on three things: a component that paints a surface step of its own
 (`background: var(--md-sys-color-surface-container…)` outside the shared
 stylesheets), anything that reaches for the steps below the page, and an area
-bounded in the divider colour — the outlined card this replaced. A control's own
-border in `outline` is untouched by that last rule, which is the distinction
-`contrast.node.spec.ts` already draws: `outline` bounds something you can
-operate, `outline-variant` divides things you cannot.
+bounded in the divider colour, which is a group drawn as an outline rather than
+a fill. A control's own border in `outline` is untouched by that last rule,
+which is the distinction `contrast.node.spec.ts` draws: `outline` bounds
+something you can operate, `outline-variant` divides things you cannot.
 
-Three components are listed there as exceptions, each a different one: the
+Three components are listed there as exceptions, each for its own reason: the
 application bar is chrome rather than a card, the theme menu floats, and the
-publications dialog fills a step above the dialog it sits in. Adding a fourth is
-a deliberate line in a test rather than a CSS block somebody copied.
+publications dialog fills a step above the dialog it sits in. A fourth is a
+deliberate line in a test rather than a CSS block somebody copied.
 
 That is the same shape as the two guards already in `web/src/styles`:
 `fonts.node.spec.ts`, which fails if a font is ever fetched from somebody else's

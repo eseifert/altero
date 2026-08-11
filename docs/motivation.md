@@ -100,15 +100,14 @@ everything to do with a group: creating one, deciding who may read it, edit it
 and upload to it, inviting people who have no account here yet, and handing it
 on or deleting it.
 
-It also covers the instance itself, which needed a notion that did not exist:
-permissions here are per library, so there was nobody to show an operator's
-view to. An **instance administrator** is that — the account that claims the
-instance, handed on from the browser or the shell — and it is deliberately the
-narrowest thing that will do. It reports what the server is running and what
-each library costs on disk, sets how long the trash and the rest are kept, and
-makes, suspends and removes accounts. It grants no access to anybody's library:
-an administrator counts and measures, and cannot read a title, a note or a file
-they were not already entitled to.
+It also covers the instance itself. Permissions here are per library, with one
+exception: an **instance administrator**, which is the account that claims the
+instance and can hand the role on from the browser or the shell. It is
+deliberately the narrowest thing that will do — it reports what the server is
+running and what each library costs on disk, sets how long the trash and the
+rest are kept, and makes, suspends and removes accounts. It grants no access to
+anybody's library: an administrator counts and measures, and cannot read a
+title, a note or a file they were not already entitled to.
 
 What is left on the command line is what belongs there: the first account on a
 fresh database, an instance whose administrator has left, and the disaster

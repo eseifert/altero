@@ -169,9 +169,8 @@ async def _sweep_uploads(session: AsyncSession, hours: int, *, now: datetime, dr
     """Forget authorizations whose bytes never arrived.
 
     Nothing is lost by forgetting one: the client asks permission again. The
-    file protocol has always written these rows and nothing has ever removed
-    them -- :func:`altero.services.storage.purge_stale_uploads` was written for
-    a caller that did not exist until now.
+    file protocol writes a row per authorization and only a completed upload
+    clears it, so without this the table keeps every abandoned one.
     """
     if hours <= 0:
         return 0

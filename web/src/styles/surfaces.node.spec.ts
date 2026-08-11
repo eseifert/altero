@@ -10,12 +10,12 @@ import { describe, expect, it } from 'vitest'
  * The design system, enforced.
  *
  * `docs/design.md` says what a bounded area looks like, and `surfaces.css` is
- * the one place it is written as CSS. This is what keeps that true: the
- * interface grew three different cards -- an outlined one in settings, a
- * filled one in the administration screens, and a third step for everything
- * else -- and every one of them looked deliberate in the file it was in.
+ * the one place it is written as CSS. This is what keeps that true. A card
+ * drawn in a component looks deliberate in the file it is in and reads as a
+ * seam on screen, which is a difference no reviewer catches by reading one
+ * file at a time.
  *
- * Two rules, both about components rather than about the shared stylesheets:
+ * Three rules, all about components rather than about the shared stylesheets:
  *
  * - a component may not paint a surface step of its own, and
  * - a component may not draw a card, which is a medium corner with a border.

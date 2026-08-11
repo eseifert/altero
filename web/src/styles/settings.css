@@ -4,10 +4,8 @@
  * separate components but they are one screen, and a hint that is a different
  * grey in one of them reads as a seam.
  *
- * The card itself is not here. It is `.card` in `surfaces.css`, which every
- * screen shares -- settings used to draw its own as an outline while the
- * administration screens drew a filled one, which is two applications rather
- * than one. See `docs/design.md`.
+ * The card itself is not here: it is `.card` in `surfaces.css`, which every
+ * screen shares. See `docs/design.md`.
  */
 
 @import './surfaces.css';

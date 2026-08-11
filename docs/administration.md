@@ -110,7 +110,8 @@ it describes — which is the failure this is meant to catch.
 
 **Accounts** lists everybody with an account here — whether they administer the
 instance, whether they are suspended, how many API keys they hold and how many
-groups they are in — and does the things that used to need a shell.
+groups they are in — and does the four things below, each of which the command
+line does too.
 
 **Making one** takes a username and a password, which is shown once and never
 again, exactly as `altero key add` shows a key once; handing it over is your

@@ -1,12 +1,10 @@
 /*
  * The bounded areas every screen is made of.
  *
- * One recipe, imported into the scoped block of whatever draws one — the way
- * `auth-form.css` and `dialog.css` already are. It exists because there were
- * three: settings drew a card as a hairline outline with nothing behind it,
- * the administration screens drew one as a filled block, and the rest picked
- * whichever `surface-container-*` step was nearest to hand. Each was
- * defensible on its own screen and none of them agreed.
+ * One recipe apiece, imported into the scoped block of whatever draws one —
+ * the way `auth-form.css` and `dialog.css` are. A card that is a different
+ * height or a different grey on one screen reads as a seam between two
+ * applications, so no component writes these rules itself.
  *
  * The rule, and `docs/design.md` says it at greater length:
  *
