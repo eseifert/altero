@@ -37,6 +37,7 @@ from altero.services import (
     health,
     instancesettings,
     passwordreset,
+    passwords,
     retention,
     storagestats,
     webauth,
@@ -318,20 +319,19 @@ async def create_account(
     """
     account.require_password(admin_user, body.current_password)
 
+    # Everything is checked before anything is created, so a mistyped address
+    # or a password the server will refuse does not leave half an account
+    # behind -- the same order `webauth.register` takes.
+    username = webauth.validate_username(body.username)
+    address = emailverify.normalise(body.email) if body.email else None
+    passwords.validate_password(body.password)
+    if address and await session.scalar(select(User).where(func.lower(User.email) == address)):
+        raise InvalidInputError("That email address is already registered")
+
     user = await admin.create_user(
-        session,
-        username=webauth.validate_username(body.username),
-        display_name=body.display_name or body.username,
+        session, username=username, display_name=body.display_name or username
     )
-    if body.email:
-        address = emailverify.normalise(body.email)
-        if await session.scalar(
-            select(User).where(func.lower(User.email) == address, User.id != user.id)
-        ):
-            # Checked after the account exists only because create_user assigns
-            # the id; the account is removed again rather than left half-made.
-            await admin.delete_user(session, user)
-            raise InvalidInputError("That email address is already registered")
+    if address:
         user.email = address
         await session.commit()
 

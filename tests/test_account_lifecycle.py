@@ -467,3 +467,38 @@ class TestAPasswordResetLink:
         )
 
         assert response.status_code == 403
+
+
+class TestNothingHalfMade:
+    async def test_a_refused_password_leaves_no_account(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await register(client)
+
+        response = await client.post(
+            "/web/admin/users",
+            json={"username": "grace", "password": "short", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 400
+        assert await session.scalar(select(User).where(User.username == "grace")) is None
+
+    async def test_an_address_somebody_else_holds_leaves_no_account(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await register(client)
+
+        response = await client.post(
+            "/web/admin/users",
+            json={
+                "username": "grace",
+                "password": "a good password",
+                "email": "ada@example.org",
+                "currentPassword": PASSWORD,
+            },
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 400
+        assert await session.scalar(select(User).where(User.username == "grace")) is None
