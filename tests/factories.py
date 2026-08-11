@@ -198,6 +198,32 @@ async def make_collection(
     return collection
 
 
+async def get_collection_by_key(session: AsyncSession, library: Library, key: str) -> Collection:
+    """Return a collection a test made through an endpoint rather than here."""
+    from sqlalchemy import select
+
+    collection = await session.scalar(
+        select(Collection).where(Collection.library_id == library.id, Collection.key == key)
+    )
+    assert collection is not None, f"no collection {key}"
+    return collection
+
+
+async def get_item_by_key(session: AsyncSession, library: Library, key: str) -> Item:
+    """Return an item a test made through an endpoint rather than here."""
+    from sqlalchemy import select
+
+    item = await session.scalar(select(Item).where(Item.library_id == library.id, Item.key == key))
+    assert item is not None, f"no item {key}"
+    return item
+
+
+async def file_item(session: AsyncSession, collection: Collection, item: Item) -> None:
+    """Put an existing item into an existing collection."""
+    session.add(CollectionItem(collection_id=collection.id, item_id=item.id))
+    await session.commit()
+
+
 async def make_search(
     session: AsyncSession,
     library: Library,

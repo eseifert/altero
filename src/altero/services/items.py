@@ -52,6 +52,12 @@ class Scope(StrEnum):
     CHILDREN = auto()
     COLLECTION = auto()
     COLLECTION_TOP = auto()
+    #: A collection together with everything nested inside it. Not in the v3
+    #: API, which scopes to one collection exactly; it is the desktop client's
+    #: "Show Items from Subcollections", and here it is what a shared collection
+    #: link means -- somebody sharing a branch means the branch.
+    COLLECTION_TREE = auto()
+    COLLECTION_TREE_TOP = auto()
     #: The owner's My Publications, which is a public view of one library.
     PUBLICATIONS = auto()
     PUBLICATIONS_TOP = auto()
@@ -293,23 +299,36 @@ async def _scope_filters(
     if scope is Scope.RECENTLY_READ:
         return [Item.id.in_(await _recently_read_ids(session, library))]
 
-    if scope in (Scope.COLLECTION, Scope.COLLECTION_TOP):
+    if scope in (
+        Scope.COLLECTION,
+        Scope.COLLECTION_TOP,
+        Scope.COLLECTION_TREE,
+        Scope.COLLECTION_TREE_TOP,
+    ):
         collection = await session.scalar(
             select(Collection).where(Collection.library_id == library.id, Collection.key == key)
         )
         if collection is None:
             raise NotFoundError("Collection not found")
 
+        recursive = scope in (Scope.COLLECTION_TREE, Scope.COLLECTION_TREE_TOP)
+        if recursive:
+            from altero.services.collections import subtree
+
+            ids = [entry.id for entry in await subtree(session, collection)]
+        else:
+            ids = [collection.id]
+
         member = (
             select(CollectionItem.item_id)
             .where(
-                CollectionItem.collection_id == collection.id,
+                CollectionItem.collection_id.in_(ids),
                 CollectionItem.item_id == Item.id,
             )
             .exists()
         )
         filters: list[ColumnElement[bool]] = [member]
-        if scope is Scope.COLLECTION_TOP and not to_parents:
+        if scope in (Scope.COLLECTION_TOP, Scope.COLLECTION_TREE_TOP) and not to_parents:
             filters.append(Item.parent_id.is_(None))
         return filters
 
@@ -362,6 +381,7 @@ _TOP_SCOPES = frozenset(
     {
         Scope.TOP,
         Scope.COLLECTION_TOP,
+        Scope.COLLECTION_TREE_TOP,
         Scope.PUBLICATIONS_TOP,
         Scope.UNFILED,
         Scope.DUPLICATES,

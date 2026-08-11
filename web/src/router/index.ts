@@ -101,6 +101,20 @@ const routes = [
     // content and wants the application's own frame around it.
     meta: { shell: true },
   },
+  {
+    // One shared collection. Deliberately unguarded, like the profile page and
+    // the invitation link: the token in the address is the whole credential,
+    // and the point of the link is that it can be sent to somebody who has no
+    // account here.
+    //
+    // `props: true` so the view takes the token as a parameter rather than
+    // reading the route: it is the one thing the page is about.
+    path: '/shared/:token',
+    name: 'shared',
+    component: () => import('@/views/SharedView.vue'),
+    props: true,
+    meta: { shell: true },
+  },
 ]
 
 export const router = createRouter({

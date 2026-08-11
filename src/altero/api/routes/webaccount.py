@@ -78,6 +78,8 @@ class NewKey(BaseModel):
 class InviteRequest(BaseModel):
     email: str
     role: str = "member"
+    #: How far the membership goes; see :class:`~altero.models.MemberPermission`.
+    permission: str = "inherit"
 
 
 def _serialise_session(record, current_id: int) -> dict:  # type: ignore[no-untyped-def]
@@ -140,6 +142,7 @@ async def _serialise_invitation(session: AsyncSession, record: Invitation) -> di
         "libraryId": record.library_id,
         "libraryName": library.name if library else "",
         "role": record.role,
+        "permission": record.permission,
         "invitedBy": (inviter.display_name or inviter.username) if inviter else "",
         "status": record.status,
         "created": record.created.isoformat() + "Z",
@@ -432,7 +435,12 @@ async def invite_to_library(
         raise NotFoundError("No such library")
 
     record, token = await invitations.invite_with_token(
-        session, library=library, inviter=user, email=body.email, role=body.role
+        session,
+        library=library,
+        inviter=user,
+        email=body.email,
+        role=body.role,
+        permission=body.permission,
     )
 
     base = request.app.state.settings.public_url.rstrip("/") or str(request.base_url).rstrip("/")
@@ -453,7 +461,7 @@ def _invitation_message(record: Invitation, library: Library, inviter: User, lin
         subject=f"{who} invited you to “{library.name}” on altero",
         body=(
             f"{who} has invited you to join the group library “{library.name}” "
-            f"as {'an administrator' if record.role == 'admin' else 'a member'}.\n\n"
+            f"as {invitations.described(record.role, record.permission)}.\n\n"
             f"    {link}\n\n"
             "If you already have an account here, the invitation is also "
             "waiting in your notifications.\n"

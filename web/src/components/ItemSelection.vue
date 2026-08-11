@@ -23,8 +23,11 @@ import SidebarIcon from '@/components/SidebarIcon.vue'
 defineProps<{
   /** How many rows are picked out. */
   count: number
-  /** Whether the server says this account may change the library. */
+  /** Whether the server would accept a change to every one of these rows. */
   writable: boolean
+  /** Whether it would accept taking them out. Narrower than `writable` for a
+   *  member who may add to a group library and not remove from it. */
+  removable?: boolean
   /** Whether every one of them is already in the trash, which is what decides
    *  between throwing away and deleting for good. */
   trashed: boolean
@@ -78,8 +81,12 @@ const { t } = useI18n()
         >
           <SidebarIcon name="move" :size="18" />
         </button>
+        <!-- Throwing away and deleting for good are both removals, and a
+             member of a group who may add and not remove is offered neither.
+             Restoring is not a removal and stays. -->
         <button
           v-if="!trashed"
+          v-show="removable !== false"
           class="icon-button"
           type="button"
           :aria-label="t('Move to trash')"
@@ -99,6 +106,7 @@ const { t } = useI18n()
             <SidebarIcon name="restore" :size="18" />
           </button>
           <button
+            v-if="removable !== false"
             class="icon-button icon-button--danger"
             type="button"
             :aria-label="t('Delete')"

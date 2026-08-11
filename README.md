@@ -130,8 +130,20 @@ Finding things, and getting them out again:
 
 ### Things zotero.org does not offer
 
-Four things people have asked it for over the years and not got:
+Six things people have asked it for over the years and not got:
 
+- **Share a collection, not a whole library.** [Asked for since
+  2008](https://forums.zotero.org/discussion/21217/), and the longest-running
+  request of its kind. A link shows one collection — the branch under it, or
+  the collection alone — to whoever you send it to, with no account needed and
+  nothing to change. Not a sync feature and deliberately so: a Zotero client
+  syncs whole libraries, and scoping below one would mean lying to it about
+  what a library holds.
+- **Finer roles in a group.** [Asked for since
+  2010](https://forums.zotero.org/discussion/14053/): a member who can only
+  read, one who can add but not delete, one who can edit only their own items.
+  All three, set per member, never widening what the group's own policy already
+  allows.
 - **Tell me when a group changes.** A member can ask to hear about it, and
   hears once the library has been quiet for a while — a digest rather than a
   message per batch of a sync. Off until somebody turns it on.
@@ -161,8 +173,8 @@ A browser application at `/app/`, in six languages. It covers:
 - Notifications, group invitations, and a group's activity log.
 - Browsing a library: collections, tags, search, an item's details, its
   attachments, and a citation in a style you pick.
-- Making, renaming, moving and removing collections, and renaming a tag
-  throughout the library.
+- Making, renaming, moving and removing collections, sharing one by link, and
+  renaming a tag throughout the library.
 - Filing items into collections, trashing and restoring them, emptying the
   trash, and copying an item into another library — by dragging, from the
   keyboard, or with a finger.
@@ -174,6 +186,10 @@ A browser application at `/app/`, in six languages. It covers:
 - The sidebar the Zotero applications have: My Library and its collections,
   Recently Read, My Publications, Duplicate Items, Unfiled Items and the trash,
   with group libraries under their own heading.
+- Running a group: its policy, its members, what each of them may do, and
+  inviting somebody who has no account here yet.
+- For whoever administers the instance, the three operator screens under
+  **Administration** below.
 
 Editing an item's fields is still the desktop client's job; everything else in
 a library the interface reads rather than changes. The sync API accepts
@@ -183,13 +199,35 @@ can reach the sync protocol — see
 
 ## Administration
 
-Accounts, keys, groups and moving libraries are command-line operations:
+One account administers the instance — the one that claimed it — and it is the
+only permission here that is not per library. It grants nothing over anybody's
+library: an administrator counts and measures, and cannot read a title, a note
+or a file they were not already entitled to.
+
+Under **Administration** in the browser, that account gets three screens:
+
+- **Overview** — what this instance is running, down to the migration revision
+  the database is stamped with, and how many accounts, libraries and groups it
+  holds.
+- **Storage** — what each library costs, on disk and counted across libraries,
+  since a file attached in two places is stored once. Files nothing references
+  any more, and attachments whose bytes are missing, are reported alongside.
+- **Accounts** — making an account for somebody, issuing a link they set their
+  own password from, suspending one, and deleting one with its library.
+  Retention periods for the trash and for unfinished uploads live here too;
+  every one of them is off until an operator sets it.
+
+The same things, and the ones that have no screen, are command-line
+operations:
 
 ```sh
 uv run altero user add <username>
+uv run altero user admin <username>            # hand the role on
 uv run altero key add <username> --name laptop
+uv run altero group permission 1 grace read    # what one member may do
 uv run altero library export user 1 library.zip
 uv run altero library import library.zip
+uv run altero retention run --dry-run
 ```
 
 [docs/administration.md](docs/administration.md) is the full list. It also

@@ -3,6 +3,17 @@ import { computed, ref } from 'vue'
 
 import { request } from '@/api/client'
 
+/**
+ * How far a change may go, when the library is writable at all.
+ *
+ * `inherit` is every personal library and every ordinary group membership.
+ * The other two are the finer group roles: `add` may create and change and
+ * remove nothing, `own` may touch only what this account added. A read-only
+ * member never appears here -- the server has already answered
+ * `writable: false` for them, which is the whole of that permission.
+ */
+export type LibraryPermission = 'inherit' | 'add' | 'own'
+
 export interface LibrarySummary {
   id: number
   type: string
@@ -14,6 +25,10 @@ export interface LibrarySummary {
    *  group can reserve editing for its administrators, and deciding that here
    *  would be a second implementation of a rule that already exists. */
   writable: boolean
+  /** How far a change may go. Resolved by the server for the same reason:
+   *  `writable` alone cannot say "may add but not remove", so the trash button
+   *  would be drawn, pressed, and refused. */
+  permission: LibraryPermission
 }
 
 export interface ItemEnvelope {
@@ -33,7 +48,13 @@ export interface ItemEnvelope {
     tags?: { tag: string; type?: number }[]
     collections?: string[]
   }
-  meta: { creatorSummary?: string; parsedDate?: string; numChildren?: number }
+  meta: {
+    creatorSummary?: string
+    parsedDate?: string
+    numChildren?: number
+    /** Who added the item. Group libraries only, as the API emits it. */
+    createdByUser?: { id: number; username: string; name: string }
+  }
 }
 
 export interface CollectionEnvelope {
@@ -160,6 +181,36 @@ export const useLibraryStore = defineStore('library', () => {
   )
   const hasMore = computed(() => start.value + items.value.length < total.value)
   const writable = computed(() => library.value?.writable === true)
+  const permission = computed<LibraryPermission>(() => library.value?.permission ?? 'inherit')
+
+  /** Whose account is reading. Set by the view, so the store stays free of it. */
+  const viewerId = ref<number | null>(null)
+
+  /**
+   * Whether this account may change one particular item.
+   *
+   * Only ever narrower than `writable`, and only in a group whose membership
+   * restricts this account to its own items. `createdByUser` is what the API
+   * already reports for a group item; an item with none was added before
+   * altero recorded who added anything, and is nobody's -- which the server
+   * refuses to let an `own` member touch, so the button is not offered either.
+   *
+   * The server decides this again on every request. What this decides is
+   * whether to draw a control that would be refused, which is a question about
+   * the screen rather than about permission.
+   */
+  function changeable(item: ItemEnvelope): boolean {
+    if (!writable.value) return false
+    if (permission.value !== 'own') return true
+    return item.meta.createdByUser?.id === viewerId.value
+  }
+
+  /** Whether this account may take that item out of the library. */
+  function removable(item: ItemEnvelope): boolean {
+    if (permission.value === 'add') return false
+    return changeable(item)
+  }
+
 
   /**
    * The rows picked out, in the order the list draws them.
@@ -172,6 +223,16 @@ export const useLibraryStore = defineStore('library', () => {
     items.value.filter((entry) => selection.value.includes(entry.key)),
   )
   const selectionKeys = computed(() => selectedItems.value.map((entry) => entry.key))
+
+  /* A selection is one errand, so it is offered only when every row in it may
+     take that errand: half a selection moved, with nothing on screen to say
+     which half, is the outcome the server already refuses to produce. */
+  const selectionChangeable = computed(
+    () => selectedItems.value.length > 0 && selectedItems.value.every(changeable),
+  )
+  const selectionRemovable = computed(
+    () => selectedItems.value.length > 0 && selectedItems.value.every(removable),
+  )
   /**
    * The collections from the top of the tree down to ``key``, ``key`` last.
    *
@@ -799,6 +860,12 @@ export const useLibraryStore = defineStore('library', () => {
     failure,
     hasMore,
     writable,
+    permission,
+    viewerId,
+    changeable,
+    removable,
+    selectionChangeable,
+    selectionRemovable,
     loadLibraries,
     openLibrary,
     loadCollections,

@@ -71,20 +71,25 @@ class CollectionChanges(BaseModel):
     parent_collection: str | None = Field(default=None, alias="parentCollection")
 
 
-async def _writable_library(session: AsyncSession, user: User, library_id: int) -> Library:
-    """Return the library if this person may change it.
+async def _writable_library(
+    session: AsyncSession, user: User, library_id: int
+) -> tuple[Library, auth.Access]:
+    """Return the library if this person may change it, with what they may do.
 
     Read access is not enough and is not checked separately: writing implies
     it. A group that reserves editing for its administrators refuses a member
-    here exactly as it refuses their API key.
+    here exactly as it refuses their API key, and a member restricted to their
+    own items is refused by the access this hands back -- a collection is the
+    library's shared structure and belongs to nobody in particular.
     """
     library = await session.get(Library, library_id)
     if library is None:
         raise NotFoundError("No such library")
 
-    if not (await auth.user_access(session, library, user.id)).write:
+    access = await auth.user_access(session, library, user.id)
+    if not access.write:
         raise ForbiddenError("You cannot change this library")
-    return library
+    return library, access
 
 
 @router.post("/libraries/{library_id}/collections", status_code=201)
@@ -102,7 +107,7 @@ async def create_collection(
     so the interface can show it without asking for the tree again -- though it
     does ask, because a new subcollection changes its parent's count too.
     """
-    library = await _writable_library(session, user, library_id)
+    library, access = await _writable_library(session, user, library_id)
 
     name = body.name.strip()
     if not name:
@@ -123,7 +128,9 @@ async def create_collection(
     # number twice, and the second write is the one nobody ever sees again.
     library = await writes.lock_library(session, library)
     version = await writes.bump_library_version(session, library)
-    collection = await objectwrites.save_collection(session, library, payload, version)
+    collection = await objectwrites.save_collection(
+        session, library, payload, version, permit=access
+    )
     assert collection is not None  # A new collection is never "unchanged".
 
     rendered = await render_collection(session, collection, library, base_url)
@@ -182,7 +189,7 @@ async def update_collection(
     a collection back to the top level is. The stored form of that is ``false``,
     which is what comes back -- the v3 shape, unchanged.
     """
-    library = await _writable_library(session, user, library_id)
+    library, access = await _writable_library(session, user, library_id)
 
     payload: dict[str, Any] = {}
     if "name" in body.model_fields_set:
@@ -217,7 +224,7 @@ async def update_collection(
     # person pressing Save twice is not a reason to invent one.
     version = await writes.bump_library_version(session, library)
     changed = await objectwrites.save_collection(
-        session, library, payload, version, key=collection.key, replace=False
+        session, library, payload, version, key=collection.key, replace=False, permit=access
     )
     assert changed is not None  # Only the multi-object path asks to detect that.
 
@@ -251,12 +258,14 @@ async def delete_collection(
     the library since the page was drawn. What the lock still guarantees is
     that this is one version of its own.
     """
-    library = await _writable_library(session, user, library_id)
+    library, access = await _writable_library(session, user, library_id)
 
     library = await writes.lock_library(session, library)
     await collections_service.get_collection(session, library, collection_key)
     version = await writes.bump_library_version(session, library)
-    await objectwrites.delete_collections(session, library, [collection_key], version)
+    await objectwrites.delete_collections(
+        session, library, [collection_key], version, permit=access
+    )
     await session.commit()
 
     # Nothing is recorded for the group's digest, because the v3 delete records

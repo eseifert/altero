@@ -33,7 +33,7 @@ from altero.models import (
     LibraryType,
     User,
 )
-from altero.services import grouplog, groupprefs, groups, invitations, writes
+from altero.services import auth, grouplog, groupprefs, groups, invitations, writes
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -55,8 +55,17 @@ class GroupWrite(BaseModel):
         return self.model_dump(by_alias=True, exclude_none=True)
 
 
-class RoleChange(BaseModel):
-    role: str
+class MembershipChange(BaseModel):
+    """What a member's row can be changed to. Either half, or both.
+
+    Two properties rather than one because they answer different questions --
+    a role says whether somebody helps run the group, a permission says how far
+    they may go in it -- and a form that had to send both to change one would
+    keep overwriting the other.
+    """
+
+    role: str | None = None
+    permission: str | None = None
 
 
 async def _group(session: AsyncSession, library_id: int) -> tuple[Library, Group]:
@@ -98,12 +107,17 @@ async def _serialise(
         "description": group.description,
         "type": group.type,
         "libraryReading": group.library_reading,
+        # The group's own policy, unnarrowed. This is the settings form: an
+        # administrator has to see what they set, and a restricted member has to
+        # see what the group says before their own restriction is applied to it.
+        # `permission` beside it is the narrowing, said separately.
         "libraryEditing": group.library_editing,
         "fileEditing": group.file_editing,
         "version": library.version,
         # What this account may do here, so the interface can decide what to
         # draw rather than offering buttons the server will refuse.
         "role": member.role,
+        "permission": auth.member_permission(member),
         "owner": group.owner_id == member.user_id,
         "ownerId": group.owner_id,
         "numMembers": members or 0,
@@ -157,6 +171,7 @@ def _member_payload(user: User, member: GroupMember, owner_id: int) -> dict[str,
         "username": user.username,
         "displayName": user.display_name,
         "role": member.role,
+        "permission": auth.member_permission(member),
         "owner": user.id == owner_id,
     }
 
@@ -165,9 +180,7 @@ def _member_payload(user: User, member: GroupMember, owner_id: int) -> dict[str,
 async def list_groups(session: SessionDep, user: CurrentUserDep) -> Response:
     """Return every group this account belongs to."""
     payload = []
-    for library, group in await groups.list_groups_for_user(session, user.id):
-        member = await groups.membership(session, library, user.id)
-        assert member is not None  # implied by the query that found the library
+    for library, group, member in await groups.list_groups_for_user(session, user.id):
         payload.append(await _serialise(session, library, group, member))
 
     return JSONResponse({"groups": payload})
@@ -213,6 +226,7 @@ async def read_group(session: SessionDep, user: CurrentUserDep, library_id: int)
                 "id": record.id,
                 "email": record.email,
                 "role": record.role,
+                "permission": record.permission,
                 "expires": record.expires.isoformat() + "Z",
             }
             for record in await invitations.pending_for_library(session, library)
@@ -362,19 +376,34 @@ async def set_member_role(
     user: CurrentUserDep,
     library_id: int,
     member_id: int,
-    body: Annotated[RoleChange, Body()],
+    body: Annotated[MembershipChange, Body()],
     _csrf: CsrfDep,
 ) -> Response:
-    """Change what one member may do. Administrators only."""
+    """Change one member's role, their permission, or both. Administrators only.
+
+    The library version moves, as it does for every membership change: a member
+    who has just been made read-only is told so by their client asking for the
+    group again, and it asks because the version moved.
+    """
     library, group = await _group(session, library_id)
     await groups.require_admin(session, library, user.id)
 
     subject = await session.get(User, member_id)
     if subject is None:
         raise NotFoundError("No such user")
+    if body.role is None and body.permission is None:
+        raise InvalidInputError("Nothing to change")
 
     library = await writes.lock_library(session, library)
-    member = await groups.set_role(session, library, subject, body.role)
+    # Role first: promoting somebody clears their permission, so a request
+    # carrying both ends on the permission it asked for.
+    member = None
+    if body.role is not None:
+        member = await groups.set_role(session, library, subject, body.role)
+    if body.permission is not None:
+        member = await groups.set_permission(session, library, subject, body.permission)
+    assert member is not None
+
     await writes.bump_library_version(session, library)
     await session.commit()
 
@@ -470,6 +499,7 @@ async def read_invitation(session: SessionDep, token: str) -> Response:
             "libraryName": library.name if library else "",
             "email": record.email,
             "role": record.role,
+            "permission": record.permission,
             "status": record.status,
             "expires": record.expires.isoformat() + "Z",
             "invitedBy": (inviter.display_name or inviter.username) if inviter else "",

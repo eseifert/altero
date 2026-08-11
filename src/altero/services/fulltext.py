@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import FullText, Item, Library
+from altero.services.auth import Access
 from altero.services.items import get_item
 
 #: Counts the client may report alongside the content. Only those it sends are
@@ -45,8 +46,17 @@ async def save_content(
     item: Item,
     payload: Any,
     version: int,
+    *,
+    permit: Access | None = None,
 ) -> FullText:
-    """Store the text of one attachment."""
+    """Store the text of one attachment.
+
+    Indexed text is part of the attachment rather than a thing of its own, so a
+    member restricted to their own items may not overwrite anybody else's.
+    """
+    if permit is not None:
+        permit.require_change(item.created_by_user_id)
+
     if not isinstance(payload, dict) or "content" not in payload:
         raise InvalidInputError("'content' property not provided")
 
@@ -74,6 +84,8 @@ async def save_batch_entry(
     library: Library,
     payload: Any,
     version: int,
+    *,
+    permit: Access | None = None,
 ) -> dict[str, Any]:
     """Store one entry of a batch upload and return its result object.
 
@@ -88,7 +100,7 @@ async def save_batch_entry(
         raise InvalidInputError("Item key not provided")
 
     item = await get_item(session, library, str(key))
-    await save_content(session, library, item, payload, version)
+    await save_content(session, library, item, payload, version, permit=permit)
 
     # The client reads `.key` off every successful and unchanged entry, so this
     # is an object rather than a bare key.

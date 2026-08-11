@@ -23,6 +23,7 @@ const GROUP: Group = {
   fileEditing: 'members',
   version: 3,
   role: 'admin',
+  permission: 'inherit',
   owner: true,
   ownerId: 1,
   numMembers: 2,
@@ -130,11 +131,11 @@ describe('the group store', () => {
     requestMock.mockResolvedValue({})
     const store = useGroupStore()
 
-    await store.invite(2, 'ada@example.org', 'member', 'Invitation sent.')
+    await store.invite(2, 'ada@example.org', 'member', 'read', 'Invitation sent.')
 
     expect(requestMock.mock.calls[0]).toEqual([
       '/web/libraries/2/invitations',
-      { method: 'POST', body: { email: 'ada@example.org', role: 'member' } },
+      { method: 'POST', body: { email: 'ada@example.org', role: 'member', permission: 'read' } },
     ])
   })
 

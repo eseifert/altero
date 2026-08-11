@@ -135,6 +135,22 @@ EXPECTED = [
     ("/web/profiles/{username}/items/{item_key}/children", "GET"),
     ("/web/profiles/{username}/items/{item_key}/file", "GET"),
     ("/web/profiles/{username}/items/{item_key}/citation", "GET"),
+    # A link that shows one collection to whoever holds it. Making, changing
+    # and revoking one takes a cookie, a CSRF token and write access to the
+    # library; following one takes the token and nothing else, which makes
+    # these the second set of endpoints under /web that answer without a
+    # cookie. See altero/api/routes/webshares.py.
+    ("/web/libraries/{library_id}/shares", "GET"),
+    ("/web/libraries/{library_id}/collections/{collection_key}/shares", "POST"),
+    ("/web/shares/{share_id}", "PATCH"),
+    ("/web/shares/{share_id}", "DELETE"),
+    ("/web/shared/{token}", "GET"),
+    ("/web/shared/{token}/collections", "GET"),
+    ("/web/shared/{token}/items", "GET"),
+    ("/web/shared/{token}/items/{item_key}", "GET"),
+    ("/web/shared/{token}/items/{item_key}/children", "GET"),
+    ("/web/shared/{token}/items/{item_key}/file", "GET"),
+    ("/web/shared/{token}/items/{item_key}/citation", "GET"),
     ("/web/schema", "GET"),
     ("/keys/{key}", "GET"),
     ("/keys/current", "GET"),

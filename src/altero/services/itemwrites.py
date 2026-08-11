@@ -1,4 +1,12 @@
-"""Creating, updating, filing, copying and deleting items."""
+"""Creating, updating, filing, copying and deleting items.
+
+Every path that writes an item passes through :func:`save_item`,
+:func:`refile_item` or :func:`delete_items`, which is why the finer group
+permissions are enforced in those three rather than in the eight routes that
+call them. A ``permit`` of ``None`` means an unrestricted write -- a restore, a
+migration, the command line -- and every route hands its caller's
+:class:`~altero.services.auth.Access` instead.
+"""
 
 from datetime import UTC, datetime
 from typing import Any
@@ -26,6 +34,7 @@ from altero.models import (
     TagType,
 )
 from altero.services import itemdata
+from altero.services.auth import Access
 from altero.services.deletions import record_deletion
 from altero.services.items import get_item, tags_for
 from altero.services.objectwrites import parse_relations, resolve_tag
@@ -450,6 +459,7 @@ async def save_item(
     require_version: bool = False,
     detect_unchanged: bool = False,
     actor_id: int | None = None,
+    permit: Access | None = None,
 ) -> Item | None:
     """Create or update one item and return it.
 
@@ -463,6 +473,8 @@ async def save_item(
             rolling back, since applying it stamped a version onto the item.
         actor_id: Who is writing. Recorded in a group library so the item can
             say who added it and who last changed it.
+        permit: What the caller may write. ``None`` for a path with no
+            credential to hold to -- a restore, an import, the command line.
     """
     # The item has to be resolved before validation, because an object naming an
     # existing item may omit properties that a new one must carry.
@@ -503,6 +515,14 @@ async def save_item(
         )
         session.add(item)
     else:
+        if permit is not None:
+            # Asked of the item as stored, before anything is applied to it.
+            # Trashing is asked separately, because sending `deleted` on
+            # something already in the trash is not a removal and re-sending an
+            # item unchanged should not be refused as one.
+            permit.require_change(item.created_by_user_id)
+            if parsed.get("deleted") and not item.deleted:
+                permit.require_remove(item.created_by_user_id)
         check_object_version(item.version, parsed["version"], required=require_version)
         if detect_unchanged:
             before = await _state(session, item)
@@ -534,6 +554,7 @@ async def refile_item(
     version: int,
     *,
     actor_id: int | None = None,
+    permit: Access | None = None,
 ) -> None:
     """Put ``item`` in exactly the collections named by ``keys``.
 
@@ -544,7 +565,15 @@ async def refile_item(
 
     Everything else about the item is left alone, ``deleted`` included: filing
     something is not untrashing it.
+
+    Filing is a change to the *item*, not to the collections, which is why a
+    member restricted to their own items may file one of theirs into a
+    collection somebody else made -- and may not file somebody else's item
+    anywhere.
     """
+    if permit is not None:
+        permit.require_change(item.created_by_user_id)
+
     collections = []
     for key in keys:
         collection = await session.scalar(
@@ -696,8 +725,17 @@ async def delete_items(
     library: Library,
     keys: list[str],
     version: int,
+    *,
+    permit: Access | None = None,
 ) -> None:
-    """Remove items outright and record the deletions for ``/deleted``."""
+    """Remove items outright and record the deletions for ``/deleted``.
+
+    Every named item is asked about before any of them goes, so a batch a
+    restricted member is only partly entitled to takes none of it: the
+    alternative is a request that half succeeds and leaves nobody able to say
+    which half.
+    """
+    found = []
     for key in keys:
         item = await session.scalar(
             select(Item).where(Item.library_id == library.id, Item.key == key)
@@ -705,4 +743,9 @@ async def delete_items(
         if item is None:
             # Deleting something already gone is not an error.
             continue
+        if permit is not None:
+            permit.require_remove(item.created_by_user_id)
+        found.append(item)
+
+    for item in found:
         await _delete_one(session, library, item, version)

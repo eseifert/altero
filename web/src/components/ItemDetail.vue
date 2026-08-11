@@ -19,6 +19,10 @@ const props = defineProps<{
   fileUrl: (key: string, options?: { download?: boolean }) => string
   /** Whether this account may change the library, which the server decides. */
   writable?: boolean
+  /** Whether the server would accept taking this item out of the library.
+   *  Narrower than `writable` for a member of a group who may add to it and
+   *  not remove from it. */
+  removable?: boolean
   /** Whether this library has a My Publications at all: a personal one does,
    *  a group does not, and publishing is refused there. */
   publishable?: boolean
@@ -299,8 +303,11 @@ function childTitle(child: ItemEnvelope): string {
       </button>
 
       <template v-if="showsTools">
+        <!-- Throwing away is a removal, which is what a member who may add to
+             a group and not remove from it is not offered. -->
         <button
           v-if="!trashed"
+          v-show="removable !== false"
           class="icon-button"
           type="button"
           :aria-label="t('Move to trash')"
@@ -327,6 +334,7 @@ function childTitle(child: ItemEnvelope): string {
                one thing here that cannot be undone, and it must not look like
                the errand that can. -->
           <button
+            v-if="removable !== false"
             class="icon-button icon-button--danger"
             type="button"
             :aria-label="t('Delete')"

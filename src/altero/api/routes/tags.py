@@ -10,6 +10,7 @@ from starlette.responses import Response
 
 from altero import atom, serializers
 from altero.api.deps import (
+    AccessDep,
     BaseUrlDep,
     ReadableLibraryDep,
     SessionDep,
@@ -158,6 +159,7 @@ async def rename_tag(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Rename one tag, taking ``{"tag": "<new name>"}``.
 
@@ -195,7 +197,7 @@ async def rename_tag(
         return Response(status_code=204, headers=library_headers(library.version))
 
     version = await writes.bump_library_version(session, library)
-    await object_writes.rename_tag(session, library, tag_name, new_name, version)
+    await object_writes.rename_tag(session, library, tag_name, new_name, version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))
@@ -312,6 +314,7 @@ async def delete_tags(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Remove up to fifty tags named by the ``tag`` parameter.
 
@@ -344,7 +347,7 @@ async def delete_tags(
         raise RequestTooLargeError(f"Cannot delete more than {writes.MAX_OBJECTS} tags at a time")
 
     version = await writes.bump_library_version(session, library)
-    await object_writes.delete_tags(session, library, names, version)
+    await object_writes.delete_tags(session, library, names, version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))

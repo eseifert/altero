@@ -24,16 +24,114 @@ from altero.models import (
     GroupMember,
     Library,
     LibraryType,
+    MemberPermission,
     User,
 )
 
 
 @dataclass(frozen=True, slots=True)
 class Access:
-    """The access a credential has to one library."""
+    """The access a credential has to one library.
+
+    ``read`` and ``write`` are the whole answer for a personal library and for
+    every group membership that carries no permission of its own, which is all
+    of them by default. :attr:`permission` is the fourth ceiling
+    :class:`~altero.models.MemberPermission` describes, and it is the reason
+    this is a small object with questions on it rather than two booleans: "may
+    this credential write here" stops being answerable without knowing *what*
+    is being written and *who put it there*.
+
+    A read-only member needs none of that: :func:`access_for` has already
+    turned their permission into ``write=False``, so every path that could
+    refuse them already does. The two that need asking are ``add``, which may
+    change anything and remove nothing, and ``own``, which may touch only what
+    it added.
+    """
 
     read: bool
     write: bool
+    #: Which :class:`~altero.models.MemberPermission` applied. ``inherit``
+    #: outside a group library, and for an administrator of one.
+    permission: str = MemberPermission.INHERIT.value
+    #: Whose access this is, or ``None`` for an anonymous read. What ``own``
+    #: compares an object's author against.
+    user_id: int | None = None
+
+    def may_change(self, created_by: int | None) -> bool:
+        """Whether this credential may change an object ``created_by`` added.
+
+        ``created_by`` is ``None`` for anything with no recorded author -- an
+        object written before altero recorded one, or by a path that had no
+        account to name. An ``own`` member may not touch it: an unowned object
+        is not theirs, and the safe direction for a restriction is to hold.
+        """
+        if not self.write:
+            return False
+        if self.permission == MemberPermission.OWN:
+            return created_by is not None and created_by == self.user_id
+        return True
+
+    def may_remove(self, created_by: int | None) -> bool:
+        """Whether this credential may take that object out of the library.
+
+        Trashing counts. It is how the desktop client deletes, and a member who
+        may not delete but may trash could still empty a library in one gesture
+        -- which is the thing this was asked for after.
+        """
+        if self.permission == MemberPermission.ADD:
+            return False
+        return self.may_change(created_by)
+
+    def may_change_structure(self) -> bool:
+        """Whether this credential may write the library's shared structure.
+
+        Its collections, its saved searches and its settings, none of which
+        records who made it. ``own`` therefore cannot tell one member's from
+        another's and treats all of it as somebody else's; filing an item into
+        a collection is a write to the *item* and stays allowed.
+        """
+        return self.write and self.permission != MemberPermission.OWN
+
+    def may_remove_structure(self) -> bool:
+        """Whether this credential may delete a collection, search or setting."""
+        return self.may_change_structure() and self.permission != MemberPermission.ADD
+
+    def require_change(self, created_by: int | None) -> None:
+        """Raise unless :meth:`may_change` allows it."""
+        if not self.may_change(created_by):
+            raise ForbiddenError(_refusal(self.permission, changing=True))
+
+    def require_remove(self, created_by: int | None) -> None:
+        """Raise unless :meth:`may_remove` allows it."""
+        if not self.may_remove(created_by):
+            raise ForbiddenError(_refusal(self.permission, changing=False))
+
+    def require_change_structure(self) -> None:
+        """Raise unless :meth:`may_change_structure` allows it."""
+        if not self.may_change_structure():
+            raise ForbiddenError(_refusal(self.permission, changing=True))
+
+    def require_remove_structure(self) -> None:
+        """Raise unless :meth:`may_remove_structure` allows it."""
+        if not self.may_remove_structure():
+            raise ForbiddenError(_refusal(self.permission, changing=False))
+
+
+def _refusal(permission: str, *, changing: bool) -> str:
+    """Return what a refusal should say.
+
+    Said in words rather than as a bare "Forbidden" because the desktop client
+    has no vocabulary for either of these permissions and will show whatever
+    comes back as a sync error. That message is the only explanation the person
+    holding the restriction is going to get.
+    """
+    if permission == MemberPermission.ADD:
+        return "You can add to this group library but not remove from it"
+    if permission == MemberPermission.OWN:
+        if changing:
+            return "You can only change what you added to this group library"
+        return "You can only remove what you added to this group library"
+    return "Forbidden"
 
 
 async def authenticate(session: AsyncSession, credential: str | None) -> ApiKey | None:
@@ -95,12 +193,17 @@ def access_for(
     Write access always implies read access, so a key that may write but not read
     can do neither.
 
-    For a group library three things have to agree, and all three are ceilings
-    rather than grants: the key's group permissions, membership of the group,
-    and the group's own policy. A key saying "all groups" means every group its
-    owner belongs to -- not every group on the server, which is what it used to
-    mean here and which let anyone holding such a key read every private
-    library on the instance.
+    For a group library four things have to agree, and every one of them is a
+    ceiling rather than a grant: the key's group permissions, membership of the
+    group, the group's own policy, and the member's own permission. A key saying
+    "all groups" means every group its owner belongs to -- not every group on
+    the server, which is what it used to mean here and which let anyone holding
+    such a key read every private library on the instance.
+
+    The fourth is :class:`~altero.models.MemberPermission`, and being a ceiling
+    is the whole of how it composes: a member marked ``add`` in a group that
+    reserves editing for its administrators has already lost ``write`` by the
+    time their permission is looked at, so it cannot give them anything.
 
     Args:
         override: The key's per-group access for this library, if any. Only
@@ -115,16 +218,17 @@ def access_for(
         # A key only ever grants write access to its own owner's library. Another
         # user's library is reachable only if it is public, and then read-only.
         if library.owner_id != api_key.user_id:
-            return Access(read=library.public, write=False)
+            return Access(read=library.public, write=False, user_id=api_key.user_id)
         return Access(
             read=api_key.library_read,
             write=api_key.library_read and api_key.library_write,
+            user_id=api_key.user_id,
         )
 
     if membership is None:
         # A stranger to the group. A public one is still readable, because that
         # is what public means, and still not writable.
-        return Access(read=library.public, write=False)
+        return Access(read=library.public, write=False, user_id=api_key.user_id)
 
     if override is not None:
         read, write = override.read, override.write
@@ -137,7 +241,34 @@ def access_for(
     if group is not None and group.library_editing == "admins" and membership.role != "admin":
         write = False
 
-    return Access(read=read or library.public, write=read and write)
+    permission = member_permission(membership)
+    if permission == MemberPermission.READ:
+        # The one permission with a way of saying itself to a sync client, and
+        # it says it here: nothing further down has to know about it, because
+        # what reaches the write paths is a credential that cannot write.
+        write = False
+
+    return Access(
+        read=read or library.public,
+        write=read and write,
+        permission=permission,
+        user_id=api_key.user_id,
+    )
+
+
+def member_permission(membership: GroupMember) -> str:
+    """Return the permission this membership carries.
+
+    An administrator's is always ``inherit``, whatever the column says: a
+    restriction somebody can lift by editing their own membership is not one.
+    :func:`altero.services.groups.set_permission` refuses to store one on an
+    administrator, and clearing it on promotion is what
+    :func:`altero.services.groups.set_role` does; this is the third place that
+    could disagree with those two, so it agrees with them by construction.
+    """
+    if membership.role == "admin":
+        return MemberPermission.INHERIT.value
+    return membership.permission
 
 
 async def get_group_override(
@@ -258,8 +389,8 @@ async def user_access(session: AsyncSession, library: Library, user_id: int) -> 
     """
     if library.type is LibraryType.USER:
         if library.owner_id == user_id:
-            return Access(read=True, write=True)
-        return Access(read=library.public, write=False)
+            return Access(read=True, write=True, user_id=user_id)
+        return Access(read=library.public, write=False, user_id=user_id)
 
     row = (
         await session.execute(
@@ -280,12 +411,16 @@ async def user_access(session: AsyncSession, library: Library, user_id: int) -> 
     if membership is None:
         # A stranger to the group. A public one is still readable, and still
         # not writable, exactly as it is for a key.
-        return Access(read=library.public, write=False)
+        return Access(read=library.public, write=False, user_id=user_id)
 
     write = not (
         group is not None and group.library_editing == "admins" and membership.role != "admin"
     )
-    return Access(read=True, write=write)
+    permission = member_permission(membership)
+    if permission == MemberPermission.READ:
+        write = False
+
+    return Access(read=True, write=write, permission=permission, user_id=user_id)
 
 
 async def get_user(session: AsyncSession, user_id: int) -> User:

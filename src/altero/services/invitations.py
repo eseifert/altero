@@ -19,8 +19,9 @@ from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
-from altero.models import GroupMember, Invitation, Library, LibraryType, User
+from altero.models import GroupMember, Invitation, Library, LibraryType, MemberPermission, User
 from altero.services import emailverify, groups, notifications
+from altero.services.groups import MEMBER_PERMISSIONS
 
 PENDING = "pending"
 ACCEPTED = "accepted"
@@ -34,6 +35,22 @@ TOKEN_BYTES = 32
 
 #: Roles an invitation may offer.
 ROLES = ("member", "admin")
+
+
+def described(role: str, permission: str) -> str:
+    """Say what is being offered, for the notification that offers it.
+
+    A membership is two answers now, and somebody invited to read a library
+    should be told that before they accept rather than after they try to add
+    something.
+    """
+    if role == "admin":
+        return "an administrator"
+    return {
+        MemberPermission.READ.value: "a member who can read it",
+        MemberPermission.ADD.value: "a member who can add to it but not remove from it",
+        MemberPermission.OWN.value: "a member who can work on their own items in it",
+    }.get(permission, "a member")
 
 
 def _now() -> datetime:
@@ -78,6 +95,7 @@ async def invite_with_token(
     inviter: User,
     email: str,
     role: str = "member",
+    permission: str = MemberPermission.INHERIT.value,
 ) -> tuple[Invitation, str]:
     """Invite ``email`` and return the invitation with its token.
 
@@ -89,6 +107,10 @@ async def invite_with_token(
         raise InvalidInputError("Only a group library has members")
     if role not in ROLES:
         raise InvalidInputError(f"A role must be one of {', '.join(ROLES)}")
+    if permission not in MEMBER_PERMISSIONS:
+        raise InvalidInputError(f"A permission must be one of {', '.join(MEMBER_PERMISSIONS)}")
+    if role == "admin" and permission != MemberPermission.INHERIT:
+        raise InvalidInputError("An administrator of a group cannot be restricted")
 
     await require_admin(session, library, inviter)
     address = emailverify.normalise(email)
@@ -118,6 +140,7 @@ async def invite_with_token(
         outstanding.token_hash = hash_token(token)
         outstanding.expires = _now() + timedelta(days=LIFETIME_DAYS)
         outstanding.role = role
+        outstanding.permission = permission
         outstanding.user_id = invited.id if invited else None
         await session.commit()
         return outstanding, token
@@ -127,6 +150,7 @@ async def invite_with_token(
         email=address,
         user_id=invited.id if invited else None,
         role=role,
+        permission=permission,
         invited_by=inviter.id,
         token_hash=hash_token(token),
         status=PENDING,
@@ -143,7 +167,7 @@ async def invite_with_token(
             subject=f"{inviter.display_name or inviter.username} invited you to “{library.name}”",
             body=(
                 f"You have been invited to join the group library “{library.name}” "
-                f"as {'an administrator' if role == 'admin' else 'a member'}."
+                f"as {described(role, permission)}."
             ),
             invitation_id=invitation.id,
         )
@@ -158,6 +182,7 @@ async def invite(
     inviter: User,
     email: str,
     role: str = "member",
+    permission: str = MemberPermission.INHERIT.value,
 ) -> Invitation:
     """Invite ``email``, discarding the token.
 
@@ -165,7 +190,7 @@ async def invite(
     :func:`invite_with_token`.
     """
     invitation, _ = await invite_with_token(
-        session, library=library, inviter=inviter, email=email, role=role
+        session, library=library, inviter=inviter, email=email, role=role, permission=permission
     )
     return invitation
 
@@ -238,7 +263,10 @@ async def accept(session: AsyncSession, invitation: Invitation, user: User) -> G
     )
     if existing is None:
         existing = GroupMember(
-            library_id=invitation.library_id, user_id=user.id, role=invitation.role
+            library_id=invitation.library_id,
+            user_id=user.id,
+            role=invitation.role,
+            permission=invitation.permission,
         )
         session.add(existing)
 

@@ -200,7 +200,9 @@ async def _group_library(session: AsyncSession, group_id: int) -> Library:
 
 async def _group_member_add(session: AsyncSession, args: argparse.Namespace) -> None:
     library = await _group_library(session, args.group)
-    await admin.add_group_member(session, library, username=args.username, role=args.role)
+    await admin.add_group_member(
+        session, library, username=args.username, role=args.role, permission=args.permission
+    )
     print(f"Added {args.username} to group {args.group} as {args.role}.")
 
 
@@ -208,6 +210,14 @@ async def _group_member_role(session: AsyncSession, args: argparse.Namespace) ->
     library = await _group_library(session, args.group)
     await admin.set_group_member_role(session, library, username=args.username, role=args.role)
     print(f"{args.username} is now {args.role} of group {args.group}.")
+
+
+async def _group_member_permission(session: AsyncSession, args: argparse.Namespace) -> None:
+    library = await _group_library(session, args.group)
+    await admin.set_group_member_permission(
+        session, library, username=args.username, permission=args.permission
+    )
+    print(f"{args.username} is now '{args.permission}' in group {args.group}.")
 
 
 async def _group_member_remove(session: AsyncSession, args: argparse.Namespace) -> None:
@@ -219,7 +229,7 @@ async def _group_member_remove(session: AsyncSession, args: argparse.Namespace) 
 async def _group_member_list(session: AsyncSession, args: argparse.Namespace) -> None:
     library = await _group_library(session, args.group)
     for user, member in await groups.list_members(session, library):
-        print(f"{user.id}\t{user.username}\t{member.role}")
+        print(f"{user.id}\t{user.username}\t{member.role}\t{member.permission}")
 
 
 async def _group_delete(session: AsyncSession, args: argparse.Namespace) -> None:
@@ -485,6 +495,12 @@ def build_parser() -> argparse.ArgumentParser:
     member.add_argument("group", type=int)
     member.add_argument("username")
     member.add_argument("--role", default="member", choices=["member", "admin"])
+    member.add_argument(
+        "--permission",
+        default="inherit",
+        choices=list(groups.MEMBER_PERMISSIONS),
+        help="how far this member may go: inherit, read, add or own",
+    )
     member.set_defaults(handler=_group_member_add)
     members = group.add_parser("members", help="list the members of a group")
     members.add_argument("group", type=int)
@@ -494,6 +510,11 @@ def build_parser() -> argparse.ArgumentParser:
     role.add_argument("username")
     role.add_argument("role", choices=["member", "admin"])
     role.set_defaults(handler=_group_member_role)
+    permission = group.add_parser("permission", help="change how far a member may go")
+    permission.add_argument("group", type=int)
+    permission.add_argument("username")
+    permission.add_argument("permission", choices=list(groups.MEMBER_PERMISSIONS))
+    permission.set_defaults(handler=_group_member_permission)
     remove = group.add_parser("remove", help="take a member out of a group")
     remove.add_argument("group", type=int)
     remove.add_argument("username")

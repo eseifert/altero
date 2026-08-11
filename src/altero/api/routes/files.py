@@ -12,6 +12,7 @@ from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
 from altero.api.deps import (
+    AccessDep,
     BaseUrlDep,
     FileWritableLibraryDep,
     ReadableLibraryDep,
@@ -39,6 +40,7 @@ async def upload_file(
     request: Request,
     session: SessionDep,
     library: FileWritableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     """Authorize an upload, or register one that has finished.
@@ -50,6 +52,10 @@ async def upload_file(
 
     library = await writes.lock_library(session, library)
     item = await items_service.get_item(session, library, item_key)
+    # Putting bytes on an attachment is a change to that attachment, so a member
+    # restricted to their own items is held to the same line here as anywhere
+    # else. The group's own `fileEditing` policy has already been applied.
+    access.require_change(item.created_by_user_id)
 
     if_match = request.headers.get("If-Match")
     if_none_match = request.headers.get("If-None-Match")

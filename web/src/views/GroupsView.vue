@@ -9,6 +9,7 @@ import {
   useGroupStore,
   type ActivityEntry,
   type Group,
+  type MemberPermission,
   type NotificationKind,
   type Role,
 } from '@/stores/groups'
@@ -28,6 +29,7 @@ const newDescription = ref('')
 
 const inviteEmail = ref('')
 const inviteRole = ref<Role>('member')
+const invitePermission = ref<MemberPermission>('inherit')
 
 /** Held until confirmed: deleting a group takes a library with it. */
 const confirming = ref<'delete' | 'leave' | null>(null)
@@ -155,6 +157,26 @@ async function setRole(memberId: number, role: Role): Promise<void> {
   await refresh()
 }
 
+/**
+ * The four permissions, in the order they widen.
+ *
+ * Labels as functions rather than strings so they are translated when the list
+ * is drawn rather than once when this module is first evaluated, for the reason
+ * the notification kinds give.
+ */
+const PERMISSIONS: { name: MemberPermission; label: () => string }[] = [
+  { name: 'inherit', label: () => t('Whatever the group allows') },
+  { name: 'read', label: () => t('Read only') },
+  { name: 'own', label: () => t('Only their own items') },
+  { name: 'add', label: () => t('Add but not remove') },
+]
+
+async function setPermission(memberId: number, permission: MemberPermission): Promise<void> {
+  if (!open.value) return
+  await store.setPermission(open.value.id, memberId, permission)
+  await refresh()
+}
+
 async function removeMember(memberId: number): Promise<void> {
   if (!open.value) return
   await store.removeMember(open.value.id, memberId)
@@ -173,7 +195,13 @@ async function transfer(memberId: number): Promise<void> {
 
 async function invite(): Promise<void> {
   if (!open.value || !inviteEmail.value.trim()) return
-  await store.invite(open.value.id, inviteEmail.value.trim(), inviteRole.value, t('Invitation sent.'))
+  await store.invite(
+    open.value.id,
+    inviteEmail.value.trim(),
+    inviteRole.value,
+    invitePermission.value,
+    t('Invitation sent.'),
+  )
   inviteEmail.value = ''
   await refresh()
 }
@@ -385,6 +413,27 @@ const editedDescription = computed({
           </div>
           <div class="member__actions">
             <template v-if="canAdminister && !member.owner">
+              <!-- How far this member may go, which is a different question
+                   from whether they help run the group. Not offered for an
+                   administrator: they can edit any membership including their
+                   own, so a restriction on one would be a thing the screen
+                   showed and nothing enforced, and the server refuses it. -->
+              <label v-if="member.role !== 'admin'" class="choice member__permission">
+                <span class="member__permission-label">{{ t('Can') }}</span>
+                <select
+                  :value="member.permission"
+                  @change="
+                    setPermission(
+                      member.id,
+                      ($event.target as HTMLSelectElement).value as MemberPermission,
+                    )
+                  "
+                >
+                  <option v-for="entry in PERMISSIONS" :key="entry.name" :value="entry.name">
+                    {{ entry.label() }}
+                  </option>
+                </select>
+              </label>
               <AppButton
                 variant="text"
                 @click="setRole(member.id, member.role === 'admin' ? 'member' : 'admin')"
@@ -426,6 +475,10 @@ const editedDescription = computed({
               <p class="member__name">{{ invitation.email }}</p>
               <p class="member__detail">
                 {{ invitation.role === 'admin' ? t('Administrator') : t('Member') }}
+                <template v-if="invitation.permission !== 'inherit'">
+                  ·
+                  {{ PERMISSIONS.find((entry) => entry.name === invitation.permission)?.label() }}
+                </template>
                 ·
                 {{ t('Expires {when}.', { when: formatDate(invitation.expires) }) }}
               </p>
@@ -440,6 +493,17 @@ const editedDescription = computed({
             <select v-model="inviteRole">
               <option value="member">{{ t('Member') }}</option>
               <option value="admin">{{ t('Administrator') }}</option>
+            </select>
+          </label>
+          <!-- Said on the offer rather than set afterwards: "come and read
+               this" and "come and help with this" are different invitations,
+               and the person accepting is told which one they were sent. -->
+          <label v-if="inviteRole === 'member'" class="choice">
+            <span>{{ t('Can') }}</span>
+            <select v-model="invitePermission">
+              <option v-for="entry in PERMISSIONS" :key="entry.name" :value="entry.name">
+                {{ entry.label() }}
+              </option>
             </select>
           </label>
           <AppButton type="submit" :loading="store.busy">{{ t('Invite') }}</AppButton>
@@ -549,6 +613,14 @@ const editedDescription = computed({
 }
 
 .panel__actions,
+.member__permission {
+  gap: 0.35rem;
+}
+
+.member__permission-label {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
 .member__actions,
 .confirm__actions {
   display: flex;

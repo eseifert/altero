@@ -35,6 +35,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   submit: [changes: { name: string; parentCollection: string | null }]
   remove: []
+  share: []
   cancel: []
 }>()
 
@@ -119,6 +120,19 @@ function submit(): void {
       </p>
 
       <!--
+        Sharing lives here because this is the one place in the interface about
+        one collection, and because a link to a collection is a thing you decide
+        for a collection. It is a different dialog rather than another field:
+        the links a collection already carries are a list, and a list does not
+        fit under a name and a parent.
+      -->
+      <div class="settings__share">
+        <AppButton variant="text" :disabled="busy" @click="emit('share')">
+          {{ t('Share a link…') }}
+        </AppButton>
+      </div>
+
+      <!--
         Deleting sits apart from the pair that save, on the other side of the
         row: it is the one control here that cannot be undone by pressing the
         other one. What it does is ask — the confirmation is in the sidebar,
@@ -137,3 +151,12 @@ function submit(): void {
     </form>
   </dialog>
 </template>
+
+<style scoped>
+/* Left-aligned with the fields above it: it is an action about this
+   collection, not one of the pair that saves or cancels. */
+.settings__share {
+  display: flex;
+  justify-content: flex-start;
+}
+</style>

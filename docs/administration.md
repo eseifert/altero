@@ -318,6 +318,35 @@ Membership is a ceiling over all of it. A key granting "all groups" means every
 group its owner belongs to, and a group nobody has added you to is not readable
 whatever your key says.
 
+### One member at a time
+
+The three settings above are the group's answer for everybody in it, which is
+all Zotero has. Beside them, each membership carries a **permission** of its
+own:
+
+| Permission | What the member may do |
+| --- | --- |
+| `inherit` | whatever the group's policy allows. The default, and what every membership meant before this existed |
+| `read` | read, and nothing else |
+| `add` | create and change anything; remove nothing — no trashing, no deleting, no emptying the trash |
+| `own` | create freely, and change or remove only the items they added. Collections and saved searches are read-only |
+
+From a shell:
+
+```sh
+uv run altero group member <group> <username> --permission read
+uv run altero group permission <group> <username> add
+uv run altero group members <group>          # id, name, role, permission
+```
+
+A permission is a fourth ceiling, applied after the other three: it never lets
+somebody past what the group's policy already allows, and it cannot be set on
+an administrator, who could lift it in a click. Only `read` can be expressed to
+a sync client; `add` and `own` are enforcement only and a client that tries
+anyway is refused with a sentence saying why. See
+[compatibility.md](compatibility.md#finer-roles-for-one-member) before setting
+either, since that refusal is what the member will see.
+
 ## What has no home yet
 
 An operator's view of the instance — versions, storage use, backups — is not

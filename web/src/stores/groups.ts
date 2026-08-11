@@ -3,14 +3,27 @@ import { computed, ref } from 'vue'
 
 import { ApiError, request } from '@/api/client'
 
-/** What one member of a group may do. */
+/** Whether one member helps run a group. */
 export type Role = 'member' | 'admin'
+
+/**
+ * How far one member may go in what the group holds.
+ *
+ * A separate question from the role, and upstream has neither: a Zotero group
+ * decides who may edit as one property of the group, the same answer for
+ * everybody in it. These are the three finer roles the forums have asked for
+ * since 2010. `inherit` is what every membership means by default -- the
+ * group's own policy decides -- and each of the others is a ceiling under it,
+ * never a way past it.
+ */
+export type MemberPermission = 'inherit' | 'read' | 'add' | 'own'
 
 export interface GroupMember {
   id: number
   username: string
   displayName: string
   role: Role
+  permission: MemberPermission
   owner: boolean
 }
 
@@ -18,6 +31,7 @@ export interface PendingInvitation {
   id: number
   email: string
   role: Role
+  permission: MemberPermission
   expires: string
 }
 
@@ -89,6 +103,10 @@ export interface Group {
   version: number
   /** What this account may do here, decided by the server. */
   role: Role
+  /** How far this account may go here, decided by the server for the same
+   *  reason. `libraryEditing` above is the group's own policy, unnarrowed:
+   *  an administrator has to see what they set. */
+  permission: MemberPermission
   owner: boolean
   ownerId: number
   numMembers: number
@@ -225,6 +243,22 @@ export const useGroupStore = defineStore('groups', () => {
     )
   }
 
+  /**
+   * Change how far one member may go, without touching their role.
+   *
+   * Sent on its own for the reason the server takes it on its own: a form that
+   * had to send both to change one would keep overwriting the other.
+   */
+  async function setPermission(
+    id: number,
+    memberId: number,
+    permission: MemberPermission,
+  ): Promise<void> {
+    await attempt(() =>
+      request(`/web/groups/${id}/members/${memberId}`, { method: 'PUT', body: { permission } }),
+    )
+  }
+
   async function removeMember(id: number, memberId: number): Promise<void> {
     const outcome = await attempt(() =>
       request(`/web/groups/${id}/members/${memberId}`, { method: 'DELETE' }),
@@ -241,9 +275,19 @@ export const useGroupStore = defineStore('groups', () => {
     )
   }
 
-  async function invite(id: number, email: string, role: Role, success: string): Promise<void> {
+  async function invite(
+    id: number,
+    email: string,
+    role: Role,
+    permission: MemberPermission,
+    success: string,
+  ): Promise<void> {
     await attempt(
-      () => request(`/web/libraries/${id}/invitations`, { method: 'POST', body: { email, role } }),
+      () =>
+        request(`/web/libraries/${id}/invitations`, {
+          method: 'POST',
+          body: { email, role, permission },
+        }),
       success,
     )
   }
@@ -324,6 +368,7 @@ export const useGroupStore = defineStore('groups', () => {
     update,
     remove,
     setRole,
+    setPermission,
     removeMember,
     transfer,
     invite,

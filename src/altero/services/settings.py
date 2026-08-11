@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import DeletedObjectType, Library, Setting
+from altero.services.auth import Access
 from altero.services.deletions import record_deletion
 from altero.services.writes import check_object_version
 
@@ -51,12 +52,20 @@ async def save_setting(
     version: int,
     *,
     require_version: bool = False,
+    permit: Access | None = None,
 ) -> Setting:
     """Create or replace one setting.
 
     The body is ``{"value": ...}``; anything JSON-encodable is accepted, since
     the server never interprets what a setting means.
+
+    A setting belongs to the library rather than to whoever wrote it -- tag
+    colours are the one the desktop client uses -- so it follows the same rule
+    as the collections and saved searches beside it.
     """
+    if permit is not None:
+        permit.require_change_structure()
+
     if not name or len(name) > MAX_NAME_LENGTH:
         raise InvalidInputError(f"Invalid setting name '{name}'")
     if not isinstance(payload, dict) or "value" not in payload:
@@ -82,9 +91,17 @@ async def save_setting(
 
 
 async def delete_settings(
-    session: AsyncSession, library: Library, names: list[str], version: int
+    session: AsyncSession,
+    library: Library,
+    names: list[str],
+    version: int,
+    *,
+    permit: Access | None = None,
 ) -> None:
     """Remove settings by name and record the deletions."""
+    if permit is not None:
+        permit.require_remove_structure()
+
     for name in names:
         setting = await session.scalar(
             select(Setting).where(Setting.library_id == library.id, Setting.name == name)

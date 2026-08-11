@@ -30,6 +30,7 @@ from altero.models import (
     Collection,
     CollectionItem,
     CollectionRelation,
+    CollectionShare,
     DeletedObject,
     FullText,
     Item,
@@ -339,6 +340,10 @@ async def clear_library(session: AsyncSession, library: Library) -> None:
     await session.execute(
         delete(CollectionItem).where(CollectionItem.collection_id.in_(collections))
     )
+    # Before the collections themselves: a share names one by id, and a row left
+    # pointing at a collection that no longer exists is a foreign key that fails
+    # on the next backend that checks.
+    await session.execute(delete(CollectionShare).where(CollectionShare.library_id == library.id))
     await session.execute(
         delete(CollectionRelation).where(CollectionRelation.collection_id.in_(collections))
     )

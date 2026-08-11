@@ -11,7 +11,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
-from altero.errors import NotFoundError
+from altero.errors import ForbiddenError, NotFoundError
 from altero.models import ApiKey, Library, LibraryType
 from altero.services import auth, keyusage
 
@@ -87,22 +87,41 @@ async def get_library(request: Request, session: SessionDep) -> Library:
 LibraryDep = Annotated[Library, Depends(get_library)]
 
 
-async def get_readable_library(
-    library: LibraryDep, api_key: ApiKeyDep, session: SessionDep
-) -> Library:
+async def get_access(library: LibraryDep, api_key: ApiKeyDep, session: SessionDep) -> auth.Access:
+    """Return what this request may do to the library it addresses.
+
+    A dependency of its own so that a route can ask what it is allowed to write
+    -- which for a restricted group member depends on the object in hand -- and
+    still resolve it once. FastAPI caches a dependency per request, so the three
+    below and the route itself share this one answer rather than each asking the
+    database again; ``tests/test_query_counts.py`` is what notices if that stops
+    being true.
+    """
+    return await auth.get_access(session, library, api_key)
+
+
+AccessDep = Annotated[auth.Access, Depends(get_access)]
+
+
+async def get_readable_library(library: LibraryDep, access: AccessDep) -> Library:
     """Return the addressed library, requiring read access to it."""
-    await auth.require_read(session, library, api_key)
+    if not access.read:
+        raise ForbiddenError("Forbidden")
     return library
 
 
 ReadableLibraryDep = Annotated[Library, Depends(get_readable_library)]
 
 
-async def get_writable_library(
-    library: LibraryDep, api_key: ApiKeyDep, session: SessionDep
-) -> Library:
-    """Return the addressed library, requiring write access to it."""
-    await auth.require_write(session, library, api_key)
+async def get_writable_library(library: LibraryDep, access: AccessDep) -> Library:
+    """Return the addressed library, requiring write access to it.
+
+    Write access to the library, which is not the same as permission to make
+    any particular write: a member restricted to adding, or to their own items,
+    passes here and is refused further in, where what they are writing is known.
+    """
+    if not access.write:
+        raise ForbiddenError("Forbidden")
     return library
 
 
@@ -110,13 +129,15 @@ WritableLibraryDep = Annotated[Library, Depends(get_writable_library)]
 
 
 async def get_file_writable_library(
-    library: LibraryDep, api_key: ApiKeyDep, session: SessionDep
+    library: LibraryDep, access: AccessDep, api_key: ApiKeyDep, session: SessionDep
 ) -> Library:
     """Return the addressed library, requiring the right to put files in it.
 
     Separate from write access because a group says separately who may upload
     -- see :func:`altero.services.auth.require_file_write`.
     """
+    if not access.write:
+        raise ForbiddenError("Forbidden")
     await auth.require_file_write(session, library, api_key)
     return library
 

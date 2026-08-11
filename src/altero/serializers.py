@@ -51,11 +51,19 @@ def library_block(library: Library, base_url: str) -> dict[str, Any]:
     }
 
 
-def group(library: Library, group: Group, base_url: str) -> dict[str, Any]:
+def group(
+    library: Library, group: Group, base_url: str, *, library_editing: str | None = None
+) -> dict[str, Any]:
     """Render a group library.
 
     ``meta`` is not emitted yet: its ``created``, ``lastModified`` and
     ``numItems`` values need object timestamps that do not exist so far.
+
+    Args:
+        library_editing: What to report as ``libraryEditing``, when the caller
+            has worked out that this requester sees something narrower than the
+            stored policy -- see :func:`altero.services.groups.editing_for`.
+            ``None`` reports what is stored.
     """
     return {
         "id": library.owner_id,
@@ -69,7 +77,7 @@ def group(library: Library, group: Group, base_url: str) -> dict[str, Any]:
             "type": group.type,
             "description": group.description,
             "url": group.url,
-            "libraryEditing": group.library_editing,
+            "libraryEditing": library_editing or group.library_editing,
             "libraryReading": group.library_reading,
             "fileEditing": group.file_editing,
         },

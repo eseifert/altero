@@ -11,7 +11,16 @@ vi.mock('@/api/client', async (importOriginal) => ({
 }))
 
 const LIBRARIES = [
-  { id: 1, type: 'user', ownerId: 1, name: 'Ada', version: 4, prefix: '/users/1', writable: true },
+  {
+    id: 1,
+    type: 'user',
+    ownerId: 1,
+    name: 'Ada',
+    version: 4,
+    prefix: '/users/1',
+    writable: true,
+    permission: 'inherit',
+  },
   {
     id: 2,
     type: 'group',
@@ -20,6 +29,7 @@ const LIBRARIES = [
     version: 9,
     prefix: '/groups/100',
     writable: false,
+    permission: 'inherit',
   },
 ]
 
@@ -673,5 +683,83 @@ describe('the export address', () => {
 
     expect(store.exportUrl('bibtex')).not.toContain('limit=')
     expect(store.exportUrl('bibtex')).not.toContain('start=')
+  })
+})
+
+/**
+ * What the errands may reach in a group that restricts this member.
+ *
+ * The server decides this again on every request; what these hold is that the
+ * interface does not draw a control the server would refuse — which for `add`
+ * and `own` is the only warning anybody gets, since neither has a way of saying
+ * itself to a Zotero client.
+ */
+describe('a restricted membership', () => {
+  function authored(key: string, by: number | null) {
+    return {
+      key,
+      version: 1,
+      data: { itemType: 'book', title: key },
+      meta: by === null ? {} : { createdByUser: { id: by, username: 'x', name: 'X' } },
+    }
+  }
+
+  /** One group library this account may write to, held to `permission`. */
+  function restrictedTo(permission: 'add' | 'own', items: ReturnType<typeof authored>[] = []) {
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/libraries') {
+        return Promise.resolve([{ ...LIBRARIES[1], writable: true, permission }])
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: items.length, items })
+    })
+  }
+
+  it('lets an add-only member change an item and not remove it', async () => {
+    restrictedTo('add')
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    const item = authored('AAAA1111', 2)
+
+    expect(store.changeable(item)).toBe(true)
+    expect(store.removable(item)).toBe(false)
+  })
+
+  it('lets an own-items member touch only what they added', async () => {
+    restrictedTo('own')
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    store.viewerId = 1
+
+    expect(store.changeable(authored('MINE1111', 1))).toBe(true)
+    expect(store.removable(authored('MINE1111', 1))).toBe(true)
+    expect(store.changeable(authored('THEIRS11', 2))).toBe(false)
+  })
+
+  it("treats an item with no recorded author as nobody's", async () => {
+    /* The safe direction for a restriction is to hold, and the server refuses
+       it too. */
+    restrictedTo('own')
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    store.viewerId = 1
+
+    expect(store.changeable(authored('OLDITEM1', null))).toBe(false)
+  })
+
+  it('offers a selection an errand only when every row may take it', async () => {
+    restrictedTo('own', [authored('MINE1111', 1), authored('THEIRS11', 2)])
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    store.viewerId = 1
+
+    store.selection = ['MINE1111']
+    expect(store.selectionRemovable).toBe(true)
+
+    store.selection = ['MINE1111', 'THEIRS11']
+    expect(store.selectionRemovable).toBe(false)
   })
 })

@@ -149,6 +149,12 @@ class Invitation(Base):
     #: The account holding that address, if there is one.
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), default=None, index=True)
     role: Mapped[str] = mapped_column(String(16), default="member")
+    #: How far the membership being offered goes, one of
+    #: :class:`~altero.models.MemberPermission`. Carried on the offer rather
+    #: than applied afterwards, because "come and read this" and "come and help
+    #: with this" are different invitations and the person accepting should be
+    #: told which one they were sent.
+    permission: Mapped[str] = mapped_column(String(16), default="inherit", server_default="inherit")
     invited_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
     #: SHA-256 of the token in the emailed link, for accepting without an
     #: account to sign in to first.

@@ -38,6 +38,45 @@ class ProfileVisibility(StrEnum):
     PRIVATE = "private"
 
 
+class MemberPermission(StrEnum):
+    """What one member of a group may do to its library, beyond their role.
+
+    Upstream has no such notion: a Zotero group decides who may edit as a
+    property of the group, the same answer for everybody in it, and the three
+    finer roles asked for on the forums since 2010 -- a read-only member, one
+    who may add but not delete, one who may edit only their own items -- have
+    never shipped. These are those three.
+
+    Every one of them is a **ceiling**, like the key's grants, the membership
+    and the group's own policy beside it. A permission never lets somebody past
+    what the group already allows: a member marked :data:`ADD` in a group that
+    reserves editing for its administrators still edits nothing.
+
+    Only :data:`READ` has a way of saying itself in the vocabulary a sync
+    client understands -- see :func:`altero.services.groups.editing_for`. The
+    other two are enforcement and nothing else, so a client that tries anyway
+    is refused rather than told in advance; ``docs/compatibility.md`` records
+    what that looks like.
+    """
+
+    #: The group's policy alone decides, which is what every membership meant
+    #: before this column existed and what every one of them still means by
+    #: default.
+    INHERIT = "inherit"
+    #: Reads, and nothing else. Rendered to that member as
+    #: ``libraryEditing: admins``, so their client shows the library read-only
+    #: without knowing anything new.
+    READ = "read"
+    #: Creates and changes anything, removes nothing: no trashing, no deleting
+    #: out of the trash, no deleting a collection, a search or a tag. Asked for
+    #: after a group library was wiped.
+    ADD = "add"
+    #: Creates freely, and changes or removes only the items it created. The
+    #: library's shared structure -- its collections and saved searches -- is
+    #: read-only, because none of it is theirs and nothing records who made it.
+    OWN = "own"
+
+
 class User(Base):
     """A Zotero user account."""
 
@@ -134,6 +173,21 @@ class GroupMember(Base):
     library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     role: Mapped[str] = mapped_column(String(16), default="member")
+
+    #: How far this member may go, one of :class:`MemberPermission`. Separate
+    #: from ``role`` because the two answer different questions: a role says
+    #: whether somebody helps run the group, a permission says what they may do
+    #: to what is in it. Stored as the enum's value beside ``role``, which is a
+    #: plain string for the same reason.
+    #:
+    #: An administrator's is always ``inherit``. A restriction they could lift
+    #: by editing their own membership is not a restriction, so setting one is
+    #: refused and promoting somebody to administrator clears theirs.
+    permission: Mapped[str] = mapped_column(
+        String(16),
+        default=MemberPermission.INHERIT.value,
+        server_default=MemberPermission.INHERIT.value,
+    )
 
     #: What this member has asked to be told about, one flag per
     #: :class:`~altero.models.activity.ActivityKind`. Held here rather than on

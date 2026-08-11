@@ -6,7 +6,12 @@ complete metadata.
 
 from altero.models.activity import ActivityKind, GroupActivity, GroupActivityObject
 from altero.models.apikey import ApiKey, ApiKeyGroupAccess
-from altero.models.collection import Collection, CollectionItem, CollectionRelation
+from altero.models.collection import (
+    Collection,
+    CollectionItem,
+    CollectionRelation,
+    CollectionShare,
+)
 from altero.models.fulltext import FullText
 from altero.models.instance import InstanceSetting
 from altero.models.item import Item, ItemCreator, ItemField, ItemRelation
@@ -15,6 +20,7 @@ from altero.models.library import (
     GroupMember,
     Library,
     LibraryType,
+    MemberPermission,
     ProfileVisibility,
     User,
 )
@@ -40,6 +46,7 @@ __all__ = [
     "Collection",
     "CollectionItem",
     "CollectionRelation",
+    "CollectionShare",
     "DeletedObject",
     "DeletedObjectType",
     "EmailVerification",
@@ -58,6 +65,7 @@ __all__ = [
     "Library",
     "LibraryType",
     "LoginSession",
+    "MemberPermission",
     "Notification",
     "PasswordReset",
     "ProfileVisibility",

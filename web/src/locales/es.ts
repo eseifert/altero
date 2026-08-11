@@ -29,6 +29,7 @@ export default {
   'Account deleted.': 'Cuenta eliminada.',
   'Accounts': 'Cuentas',
   'Across the instance': 'En toda la instancia',
+  'Add but not remove': 'Añadir, pero no quitar',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
     'Añade este secreto a tu aplicación de autenticación y escribe el código que muestre. Hasta entonces no cambia nada.',
   'Add to My Publications': 'Añadir a Mis publicaciones',
@@ -50,6 +51,8 @@ export default {
   'An invitation': 'Una invitación',
   'An invitation reaches an address rather than an account, so somebody without one here can still be asked.':
     'Una invitación se dirige a una dirección y no a una cuenta, así que también se puede invitar a quien no tenga ninguna aquí.',
+  'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
+    'Cualquiera que tenga el enlace puede leer «{name}». No necesita una cuenta aquí y no puede cambiar nada.',
   Anyone: 'Cualquiera',
   'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     'Cualquiera puede leer lo que añadas a Mis publicaciones, sin una cuenta en este servidor y sin una clave. Los archivos que incluyas se publican bajo la licencia que elijas. Añade únicamente trabajos que hayas creado tú mismo, e incluye solo archivos que tengas derecho a distribuir.',
@@ -71,6 +74,7 @@ export default {
   'Back to groups': 'Volver a los grupos',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Ambos siguen a este dispositivo salvo que elijas otra cosa, y acompañan a tu cuenta.',
+  'Can': 'Puede',
   Cancel: 'Cancelar',
   'By library': 'Por biblioteca',
   'Change password': 'Cambiar la contraseña',
@@ -92,6 +96,7 @@ export default {
   'Code from the app': 'Código de la aplicación',
   Collapse: 'Contraer',
   'Collection settings': 'Ajustes de la colección',
+  'Collections': 'Colecciones',
   'Collections added or changed': 'Colecciones añadidas o modificadas',
   'Colour theme': 'Tema de color',
   'Colour theme: {name}': 'Tema de color: {name}',
@@ -106,6 +111,10 @@ export default {
   Connect: 'Conectar',
   'Connect Zotero': 'Conectar Zotero',
   'Connecting to zotero.org…': 'Conectando con zotero.org…',
+  'Copied': 'Copiado',
+  'Copy': 'Copiar',
+  'Copy it now. It is not stored anywhere it can be read back.':
+    'Cópialo ahora. No se guarda en ningún sitio del que pueda volver a leerse.',
   'Copy my library': 'Copiar mi biblioteca',
   'Copy this now. It will not be shown again.': 'Cópiala ahora. No se mostrará de nuevo.',
   'Copy to {name}': 'Copiar a {name}',
@@ -113,6 +122,7 @@ export default {
   'Counted across libraries': 'Contado por bibliotecas',
   'Create': 'Crear',
   'Create a key': 'Crear una clave',
+  'Create a link': 'Crear un enlace',
   'Create account': 'Crear la cuenta',
   'Create group': 'Crear grupo',
   'Create key': 'Crear la clave',
@@ -164,6 +174,7 @@ export default {
   'Empty the trash': 'Vaciar la papelera',
   'Enter the six-digit code from your authenticator app.':
     'Escribe el código de seis dígitos de tu aplicación de autenticación.',
+  'Everything': 'Todo',
   'Everything below asks for it, as your own settings do.':
     'Todo lo de abajo lo pide, igual que tus propios ajustes.',
   'Everything else': 'Lo demás',
@@ -201,9 +212,11 @@ export default {
   'I created this work.': 'Yo creé este trabajo.',
   'Import and export': 'Importar y exportar',
   'In the trash': 'En la papelera',
+  'Include attached files': 'Incluir los archivos adjuntos',
   'Include files': 'Incluir archivos',
   'Include group libraries': 'Incluir bibliotecas de grupo',
   'Include notes': 'Incluir notas',
+  'Include the collections inside this one': 'Incluir las colecciones que contiene',
   'Inside': 'Dentro de',
   'Invitation declined.': 'Invitación rechazada.',
   'Invitation sent.': 'Invitación enviada.',
@@ -221,16 +234,21 @@ export default {
   Language: 'Idioma',
   'Language and time zone': 'Idioma y zona horaria',
   'Language and time zone saved.': 'Idioma y zona horaria guardados.',
+  'Last opened {date}': 'Abierto por última vez {date}',
   'Last used {when}': 'Último uso {when}',
   Leave: 'Salir',
   'Leave it empty to say nothing about rights.':
     'Déjalo vacío para no decir nada sobre los derechos.',
+  'Leave this empty for a link that never stops working.':
+    'Déjalo vacío para un enlace que nunca caduca.',
   'Leave this group? You will lose access to its library.':
     '¿Salir de este grupo? Perderá el acceso a su biblioteca.',
   Libraries: 'Bibliotecas',
   Library: 'Biblioteca',
   'Link issued.': 'Enlace emitido.',
+  'Links to this collection': 'Enlaces a esta colección',
   'Loading…': 'Cargando…',
+  'Made {date}': 'Creado {date}',
   'Make a member': 'Convertir en miembro',
   'Make administrator': 'Hacer administrador',
   'Make an account with this address to answer it.':
@@ -250,6 +268,7 @@ export default {
   'My Publications': 'Mis publicaciones',
   Name: 'Nombre',
   'Name saved.': 'Nombre guardado.',
+  'Never opened': 'Nunca abierto',
   'Never used': 'Nunca usada',
   'New address': 'Nueva dirección',
   'New collection': 'Nueva colección',
@@ -269,6 +288,7 @@ export default {
   'No library here is yours to export.': 'Aquí no hay ninguna biblioteca tuya que puedas exportar.',
   'No library here is yours to restore into.':
     'Aquí no hay ninguna biblioteca tuya en la que puedas restaurar.',
+  'No such link': 'No existe ese enlace',
   'No such profile': 'No existe ese perfil',
   'No two items here look like the same work.': 'No hay dos elementos que parezcan la misma obra.',
   'No, publish my work here only': 'No, publicar mi trabajo solo aquí',
@@ -286,6 +306,7 @@ export default {
   'Nothing has happened here yet.': 'Aquí todavía no ha pasado nada.',
   'Nothing here yet. Point the Zotero desktop app at this server and sync.':
     'Aquí no hay nada todavía. Apunta la aplicación Zotero a este servidor y sincroniza.',
+  'Nothing here.': 'Aquí no hay nada.',
   'Nothing in this library has been published yet.':
     'Todavía no se ha publicado nada de esta biblioteca.',
   'Nothing to delete.': 'Nada que eliminar.',
@@ -298,6 +319,7 @@ export default {
   'One more step': 'Un paso más',
   'Only people signed in to this server can see this page.':
     'Solo quienes hayan iniciado sesión en este servidor pueden ver esta página.',
+  'Only their own items': 'Solo sus propios elementos',
   'Open file': 'Abrir el archivo',
   'Open zotero.org → Settings → Security → Applications and create a new private key.': 'Abre zotero.org → Settings → Security → Applications y crea una nueva clave privada.',
   Optional: 'Opcional',
@@ -388,6 +410,9 @@ export default {
   Settings: 'Ajustes',
   'Setting the password for {username}.': 'Estableciendo la contraseña de {username}.',
   'Settings for “{name}”': 'Ajustes de «{name}»',
+  'Share a link…': 'Compartir un enlace…',
+  'Share this collection': 'Compartir esta colección',
+  'Shared from {library}': 'Compartido desde {library}',
   'Show in My Publications': 'Mostrar en Mis publicaciones',
   'Show more': 'Mostrar más',
   'Shown in your notifications. Add an email address to receive them as mail too.': 'Aparece en tus notificaciones. Añade una dirección de correo para recibirlas también por correo.',
@@ -412,6 +437,8 @@ export default {
   'Sort by {column}, currently descending': 'Ordenar por {column}, ahora descendente',
   'Stop administering': 'Dejar de administrar',
   'Stopped.': 'Detenido.',
+  'Stops working on': 'Deja de funcionar el',
+  'Stops working {date}': 'Deja de funcionar {date}',
   'Storage': 'Almacenamiento',
   'Suspend': 'Suspender',
   'Suspended': 'Suspendida',
@@ -430,10 +457,12 @@ export default {
   'That link is missing its token.': 'A ese enlace le falta su token.',
   'That link is not valid or has expired.': 'Ese enlace no es válido o ha caducado.',
   'That session was signed out.': 'Esa sesión se ha cerrado.',
+  'The collection and everything inside it': 'La colección y todo lo que contiene',
   'The group has a new owner.': 'El grupo tiene un nuevo propietario.',
   'The items in it stay in the library.': 'Los elementos que contiene permanecen en la biblioteca.',
   'The library is now at version {version}.': 'La biblioteca está ahora en la versión {version}.',
   'The library was restored.': 'La biblioteca se restauró.',
+  'The link': 'El enlace',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'La contraseña de {username} es {password}. Cópiala ahora; no se mostrará de nuevo.',
   'The tag will be changed in all associated items.': 'La etiqueta se cambiará en todos los elementos asociados.',
@@ -444,11 +473,16 @@ export default {
   'This can take a while. You can leave this page open or come back to it.': 'Esto puede tardar. Puedes dejar esta página abierta o volver más tarde.',
   'This cannot be undone.': 'Esto no se puede deshacer.',
   'This collection is empty.': 'Esta colección está vacía.',
+  'This collection only': 'Solo esta colección',
   'This creates a key that keeps working until you remove it in Settings, even after you sign out here.':
     'Esto crea una clave que sigue funcionando hasta que la elimines en los ajustes, incluso después de cerrar sesión aquí.',
   'This instance has no accounts yet, so this one will be yours.':
     'Esta instancia todavía no tiene cuentas, así que esta será la tuya.',
   'This is your public page.': 'Esta es tu página pública.',
+  'This link does not include the files themselves.': 'Este enlace no incluye los archivos en sí.',
+  'This link has been revoked, has expired, or never existed.':
+    'Este enlace se ha revocado, ha caducado o nunca existió.',
+  'This link stops working {date}.': 'Este enlace deja de funcionar {date}.',
   'This server': 'Este servidor',
   'Time zone': 'Zona horaria',
   Trash: 'Papelera',
@@ -474,6 +508,7 @@ export default {
   'What the Zotero app and any scripts use to sync. Linking Zotero from its own settings creates one of these for you.':
     'Lo que usan la aplicación Zotero y tus scripts para sincronizar. Conectar Zotero desde sus propios ajustes crea una automáticamente.',
   'What to export': 'Qué exportar',
+  'Whatever the group allows': 'Lo que permita el grupo',
   'Who can see it': 'Quién puede verla',
   'Who may add and change items': 'Quién puede añadir y cambiar ítems',
   'Who may do what': 'Quién puede hacer qué',
@@ -513,6 +548,7 @@ export default {
   'not stamped': 'sin sellar',
   'this one': 'este',
   'to your altero library': 'a tu biblioteca de altero',
+  'without files': 'sin archivos',
   'zotero.org API key': 'Clave de API de zotero.org',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.': 'zotero.org no ofrece inicio de sesión con contraseña a otros programas; por eso aquí hace falta una clave y no tu contraseña de zotero.org.',
   'zotero.org would not serve everything asked of it. The copy is missing {parts} and is otherwise whole.': 'zotero.org no ha entregado todo lo que se le pidió. A la copia le falta {parts}; por lo demás está completa.',

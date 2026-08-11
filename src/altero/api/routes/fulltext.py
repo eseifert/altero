@@ -12,7 +12,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from altero.api.batch import batch_write
-from altero.api.deps import ReadableLibraryDep, SessionDep, WritableLibraryDep
+from altero.api.deps import AccessDep, ReadableLibraryDep, SessionDep, WritableLibraryDep
 from altero.api.responses import library_headers
 from altero.errors import InvalidInputError
 from altero.models import Library
@@ -42,7 +42,7 @@ async def list_fulltext_versions(
 @router.post("/users/{user_id}/fulltext")
 @router.post("/groups/{group_id}/fulltext")
 async def upload_fulltext(
-    request: Request, session: SessionDep, library: WritableLibraryDep
+    request: Request, session: SessionDep, library: WritableLibraryDep, access: AccessDep
 ) -> Response:
     """Store full text for a batch of items.
 
@@ -55,7 +55,9 @@ async def upload_fulltext(
     async def save(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
     ) -> dict[str, Any]:
-        return await fulltext_service.save_batch_entry(session, library, payload, version)
+        return await fulltext_service.save_batch_entry(
+            session, library, payload, version, permit=access
+        )
 
     return await batch_write(request, session, library, save, require_version=True)
 
@@ -73,7 +75,11 @@ async def get_fulltext(item_key: str, session: SessionDep, library: ReadableLibr
 @router.put("/users/{user_id}/items/{item_key}/fulltext")
 @router.put("/groups/{group_id}/items/{item_key}/fulltext")
 async def put_fulltext(
-    item_key: str, request: Request, session: SessionDep, library: WritableLibraryDep
+    item_key: str,
+    request: Request,
+    session: SessionDep,
+    library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Store the text of one attachment."""
     payload = await request.json()
@@ -82,7 +88,7 @@ async def put_fulltext(
     item = await items_service.get_item(session, library, item_key)
 
     version = await writes.bump_library_version(session, library)
-    await fulltext_service.save_content(session, library, item, payload, version)
+    await fulltext_service.save_content(session, library, item, payload, version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))

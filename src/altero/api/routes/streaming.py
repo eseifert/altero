@@ -141,7 +141,7 @@ async def _readable_topics(session: AsyncSession, api_key: ApiKey | None) -> set
     if (await auth.get_access(session, personal, api_key)).read:
         topics.add(topic_for(personal))
 
-    for library, _ in await groups.list_groups_for_user(session, api_key.user_id):
+    for library, _, _ in await groups.list_groups_for_user(session, api_key.user_id):
         if (await auth.get_access(session, library, api_key)).read:
             topics.add(topic_for(library))
 

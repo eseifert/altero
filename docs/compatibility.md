@@ -1261,6 +1261,106 @@ the library's as both, so a role change costs connected clients one sync poll
 that finds nothing new. That is the cheaper mistake: a client that has not
 noticed it was demoted is one that still believes it may write.
 
+## Finer roles for one member
+
+A Zotero group decides who may edit as a property of the group — `members` or
+`admins`, the same answer for everybody in it. A read-only member, one who may
+add but not delete, and one who may edit only their own items have been asked
+for on the forums since 2010
+([discussion 14053](https://forums.zotero.org/discussion/14053/)), answered
+with "more fine-grained permissions have long been on the agenda", and none of
+them has shipped. altero has all three, as a **per-member permission** stored
+on the membership beside the role.
+
+The two answer different questions. A role says whether somebody helps run the
+group; a permission says how far they may go in what is in it. So an
+administrator can be an ordinary contributor, and a member can be held to
+reading without anybody's role changing.
+
+| Permission | Creates | Changes | Removes | Collections and searches |
+| --- | --- | --- | --- | --- |
+| `inherit` | ✓ | ✓ | ✓ | ✓ |
+| `read` | | | | |
+| `add` | ✓ | anything | | make and change, never remove |
+| `own` | ✓ | its own | its own | read-only |
+
+Four things decide how it behaves, and each is a decision rather than a
+derivation:
+
+**It is a ceiling, never a grant.** It joins the key's permissions, the
+membership and the group's own policy, and it is applied last: a member marked
+`add` in a group that reserves editing for its administrators has already lost
+write access before their permission is looked at. `access_for` in
+`services/auth.py` is where all four meet.
+
+**Trashing counts as removing.** Setting `deleted` is how the desktop client's
+Delete does its work, so a member who may not delete but may trash could still
+empty a library in one gesture — which is what the forum thread was posted
+after. Restoring something from the trash is not a removal and stays allowed.
+
+**The shared structure belongs to nobody.** Nothing records who made a
+collection, a saved search or a library setting, so `own` cannot tell one
+member's from another's and treats all of it as somebody else's. Filing an item
+into a collection is a write to the *item* and stays allowed, which is what
+makes `own` usable: a contributor puts their own work wherever the group's
+structure says it goes and cannot restructure it.
+
+**An administrator cannot be restricted.** They can edit any membership,
+including their own, so a restriction on one would be a thing the interface
+displayed and nothing enforced. Setting one is refused, and promoting somebody
+to administrator clears theirs.
+
+### One library version, two representations
+
+Only `read` can be said in a vocabulary a sync client already understands, and
+this is how it is said: `libraryEditing` renders as `admins` in **that
+member's** view of the group, and as whatever is stored to everybody else. The
+client then draws the library read-only with no idea that anything new exists,
+which is exactly what it does for every ordinary member of a group whose
+editing is reserved.
+
+That gives one library version two representations, which was the question this
+feature turned on. It is settled by what the group resource already was: `GET
+/groups/<id>` answers **404** to a stranger and **200** to a member, and `GET
+/users/<id>/groups` is by definition the caller's own list. The group has never
+had a single representation for a per-member one to break. What a client
+compares versions against is its own view, and that view changes only when the
+library version moves — which setting a permission does, like every other
+membership change.
+
+`services/groups.editing_for` is the whole of it, and it is the only place the
+rendered value can come from.
+
+### `add` and `own` surface as sync errors
+
+Neither has any client vocabulary, and altero does not invent one: they are
+enforcement and nothing else. A desktop client belonging to a restricted member
+draws the library as writable, because as far as `libraryEditing` is concerned
+it is, and a write the permission forbids comes back **403** with a sentence
+saying why:
+
+- `You can add to this group library but not remove from it`
+- `You can only change what you added to this group library`
+- `You can only remove what you added to this group library`
+
+The client shows that as a sync error. It is said in words rather than as a
+bare `Forbidden` because it is the only explanation the person holding the
+restriction is going to get. Anybody setting `add` or `own` on a member should
+know that is what it will look like from the other side; the browser interface
+knows about both and does not offer the controls, which is the only place the
+restriction can be shown before it is hit.
+
+### Where a permission is set
+
+`PUT /groups/<id>/users/<userID>` takes `permission` alongside `role`, and
+either alone. Both in one request applies the role first, so a demotion
+followed by a restriction ends on the restriction rather than on the `inherit`
+the promotion rule would otherwise have left. `GET /groups/<id>/users` reports
+it. The browser sets it on the group's member list, an invitation can carry one
+so that "come and read this" and "come and help with this" are different
+invitations, and `altero group permission <group> <username> <permission>` does
+it from a shell.
+
 ## Renaming a tag
 
 `PATCH <prefix>/tags/<name>`, taking `{"tag": "<new name>"}` and answering

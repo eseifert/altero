@@ -165,8 +165,16 @@ class PublicationTerms(BaseModel):
     keep_rights: bool = Field(default=True, alias="keepRights")
 
 
-async def _library(session: AsyncSession, user: User, library_id: int, *, write: bool) -> Library:
-    """Return the library if this person may read it, or change it."""
+async def _library(
+    session: AsyncSession, user: User, library_id: int, *, write: bool
+) -> tuple[Library, auth.Access]:
+    """Return the library if this person may read it, or change it.
+
+    The access comes back with it rather than being asked for again, because a
+    group member restricted to adding, or to their own items, passes the check
+    for the library and is refused per item further in -- and the object that
+    answers that is this one.
+    """
     library = await session.get(Library, library_id)
     if library is None:
         raise NotFoundError("No such library")
@@ -176,7 +184,7 @@ async def _library(session: AsyncSession, user: User, library_id: int, *, write:
         raise ForbiddenError("You cannot change this library")
     if not write and not access.read:
         raise ForbiddenError("You cannot read this library")
-    return library
+    return library, access
 
 
 async def _rendered_all(
@@ -239,7 +247,7 @@ async def update_items(
     nothing is a 404 with the library untouched rather than half a selection
     filed and the rest refused.
     """
-    library = await _library(session, user, library_id, write=True)
+    library, access = await _library(session, user, library_id, write=True)
 
     refiling = bool(body.add_collections or body.remove_collections)
     trashing = "deleted" in body.model_fields_set
@@ -265,7 +273,9 @@ async def update_items(
             filed = current.get(item.id, [])
             keep = [key for key in filed if key not in body.remove_collections]
             keep += [key for key in body.add_collections if key not in keep]
-            await itemwrites.refile_item(session, library, item, keep, version, actor_id=user.id)
+            await itemwrites.refile_item(
+                session, library, item, keep, version, actor_id=user.id, permit=access
+            )
 
     if trashing:
         # Through `save_item` so that trashing from the browser is the write a
@@ -279,6 +289,7 @@ async def update_items(
                 key=item.key,
                 replace=False,
                 actor_id=user.id,
+                permit=access,
             )
 
     rendered = await _rendered_all(session, items, library, base_url)
@@ -315,7 +326,7 @@ async def update_item(
     and the browser knows which version it was shown. A version belongs to an
     item, which is why this is not something a selection can ask for.
     """
-    library = await _library(session, user, library_id, write=True)
+    library, access = await _library(session, user, library_id, write=True)
 
     library = await writes.lock_library(session, library)
     item = await items_service.get_item(session, library, item_key)
@@ -342,6 +353,7 @@ async def update_item(
         key=item.key,
         replace=False,
         actor_id=user.id,
+        permit=access,
     )
 
     rendered = await _rendered(session, item, library, base_url)
@@ -380,7 +392,7 @@ async def delete_items(
     always send another batch; a reader who selected everything in the trash
     cannot, and emptying the trash already deletes as much in one request.
     """
-    library = await _library(session, user, library_id, write=True)
+    library, access = await _library(session, user, library_id, write=True)
 
     keys = list(dict.fromkeys(key for key in item_key.split(",") if key))
     if not keys:
@@ -395,7 +407,7 @@ async def delete_items(
     # Named before they go: there is nothing left to read afterwards.
     named = await groupactivity.name_items(session, library, keys)
     version = await writes.bump_library_version(session, library)
-    await itemwrites.delete_items(session, library, keys, version)
+    await itemwrites.delete_items(session, library, keys, version, permit=access)
     await groupactivity.record(
         session,
         library,
@@ -429,7 +441,7 @@ async def empty_trash(
     endpoint's caller can see. Emptying a trash should not remove objects the
     person emptying it was never shown.
     """
-    library = await _library(session, user, library_id, write=True)
+    library, access = await _library(session, user, library_id, write=True)
 
     library = await writes.lock_library(session, library)
     trashed = list(
@@ -448,7 +460,7 @@ async def empty_trash(
     # Children of a trashed parent are removed with it by `delete_items`, and
     # a child that was trashed on its own is in `trashed` in its own right;
     # deleting something already gone is not an error there.
-    await itemwrites.delete_items(session, library, trashed, version)
+    await itemwrites.delete_items(session, library, trashed, version, permit=access)
     await groupactivity.record(
         session,
         library,
@@ -482,14 +494,14 @@ async def copy_items(
     the order they were named, so a selection arrives as a selection rather than
     as a scattering of separately-versioned items.
     """
-    source = await _library(session, user, library_id, write=False)
+    source, _ = await _library(session, user, library_id, write=False)
 
     keys = list(dict.fromkeys(body.items))
     items = [await items_service.get_item(session, source, key) for key in keys]
 
     if body.library == library_id:
         raise InvalidInputError("An item is already in its own library")
-    target = await _library(session, user, body.library, write=True)
+    target, _ = await _library(session, user, body.library, write=True)
 
     target = await writes.lock_library(session, target)
     if body.collection:
@@ -543,7 +555,7 @@ async def publish_item(
     No group activity is recorded: a group library has no My Publications, and
     this refuses one before it writes anything.
     """
-    library = await _library(session, user, library_id, write=True)
+    library, _ = await _library(session, user, library_id, write=True)
 
     library = await writes.lock_library(session, library)
     item = await items_service.get_item(session, library, item_key)
@@ -584,7 +596,7 @@ async def unpublish_item(
     instead of 204 -- there is still something to show, and the browser reads
     the same envelope back that publishing gave it.
     """
-    library = await _library(session, user, library_id, write=True)
+    library, _ = await _library(session, user, library_id, write=True)
 
     library = await writes.lock_library(session, library)
     item = await items_service.get_item(session, library, item_key)

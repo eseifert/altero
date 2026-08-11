@@ -6,6 +6,7 @@ import { placesFor } from '@/collectionplaces'
 import AppButton from '@/components/AppButton.vue'
 import CollectionDialog from '@/components/CollectionDialog.vue'
 import CollectionSettingsDialog from '@/components/CollectionSettingsDialog.vue'
+import ShareDialog from '@/components/ShareDialog.vue'
 import CollectionTree from '@/components/CollectionTree.vue'
 import ExportDialog from '@/components/ExportDialog.vue'
 import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
@@ -30,14 +31,18 @@ import {
   type TagEntry,
 } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
+import { useShareStore } from '@/stores/shares'
 
 const { t } = useI18n()
 
 const library = useLibraryStore()
 const locales = useLocaleStore()
-/* Only for the account's own username, which is what its public page is
-   addressed by. Nothing else on this screen needs to know who is signed in --
-   what may be done to a library is the server's answer, not this one's. */
+const shares = useShareStore()
+/* The account's own username, which is what its public page is addressed by,
+   and its id, which is the only thing a member restricted to their own items
+   can be compared against -- `createdByUser` on an item is an id. What may be
+   *done* to a library is still the server's answer and not this one's; this
+   decides only whether to draw a control the server would refuse. */
 const auth = useAuthStore()
 
 /** Columns the list offers, named by the field each one asks the server to sort by. */
@@ -188,6 +193,10 @@ watch(
 )
 
 onMounted(async () => {
+  /* Who is reading, for the one question the store cannot answer without it:
+     a member restricted to their own items is compared against `createdByUser`,
+     which is an account id. */
+  library.viewerId = auth.user?.id ?? null
   try {
     await library.loadLibraries()
   } catch (thrown) {
@@ -330,6 +339,41 @@ function startNew(parent: CollectionNode | null): void {
 function startSettings(target: CollectionNode): void {
   pending.value = { kind: 'settings', target }
   collectionError.value = null
+}
+
+/* ---- Sharing one collection by link ---- */
+
+/** The collection whose links are open, or null. */
+const sharing = ref<CollectionNode | null>(null)
+
+function startSharing(target: CollectionNode): void {
+  /* The settings dialog goes: two dialogs at once is two top layers, and the
+     one underneath cannot be reached anyway. */
+  pending.value = null
+  sharing.value = target
+  shares.forget()
+  if (library.libraryId !== null) {
+    void shares.load(library.libraryId)
+  }
+}
+
+function stopSharing(): void {
+  sharing.value = null
+  shares.forget()
+}
+
+async function createShare(terms: {
+  subcollections: boolean
+  files: boolean
+  expires: string | null
+}): Promise<void> {
+  if (!sharing.value || library.libraryId === null) return
+  await shares.create(library.libraryId, sharing.value.key, terms)
+}
+
+async function revokeShare(shareId: number): Promise<void> {
+  if (library.libraryId === null) return
+  await shares.revoke(library.libraryId, shareId)
 }
 
 function startDelete(target: CollectionNode): void {
@@ -1441,7 +1485,12 @@ function sortLabel(column: { field: string; label: string }): string {
                cross through it, never the plain bin, which everywhere here
                means the trash an item can still come back out of. -->
           <button
-            v-if="library.scope === 'trash' && library.writable && library.items.length"
+            v-if="
+              library.scope === 'trash' &&
+              library.writable &&
+              library.permission !== 'add' &&
+              library.items.length
+            "
             class="icon-button icon-button--danger library__tool"
             type="button"
             :aria-label="t('Empty the trash')"
@@ -1715,7 +1764,8 @@ function sortLabel(column: { field: string; label: string }): string {
         :children="library.children"
         :library-id="library.libraryId"
         :file-url="library.fileUrl"
-        :writable="library.writable"
+        :writable="library.selected ? library.changeable(library.selected) : false"
+        :removable="library.selected ? library.removable(library.selected) : false"
         :publishable="library.writable && library.library?.type === 'user'"
         :in-publications-view="library.scope === 'publications'"
         @open="library.select($event)"
@@ -1735,7 +1785,8 @@ function sortLabel(column: { field: string; label: string }): string {
       <ItemSelection
         v-else
         :count="library.selection.length"
-        :writable="library.writable"
+        :writable="library.selectionChangeable"
+        :removable="library.selectionRemovable"
         :trashed="selectionTrashed"
         :exportable="exportableItems(library.selectedItems).length > 0"
         @move="moving = [...library.selectedItems]"
@@ -1769,7 +1820,23 @@ function sortLabel(column: { field: string; label: string }): string {
       :error="collectionError"
       @submit="submitSettings"
       @remove="startDelete(editing)"
+      @share="startSharing(editing)"
       @cancel="cancel"
+    />
+
+    <!-- The links that show one collection to whoever holds them. Not sync and
+         not a permission: a page, at an address that can be sent to somebody
+         with no account here. -->
+    <ShareDialog
+      v-if="sharing"
+      :collection-name="sharing.data.name"
+      :shares="shares.shares"
+      :issued="shares.issued"
+      :busy="shares.busy"
+      :error="shares.error"
+      @create="createShare"
+      @revoke="revokeShare"
+      @cancel="stopSharing"
     />
 
     <!--

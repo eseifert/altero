@@ -279,6 +279,55 @@ a rename cannot silently move a collection to the top level. `parentCollection:
 null` is how the dialog asks for the top level; the stored form of that is
 `false`, which is the v3 shape and what comes back.
 
+### Sharing one
+
+"Share a collection, not an entire library?" has been open on the Zotero forums
+since 2008 and is the longest-running request in this space. The collection
+settings dialog answers it, and answers it as a **page** rather than as sync.
+
+As sync it is impossible. A Zotero client syncs a library; scoping below one
+means either telling a client that a library holds less than it does — which
+breaks `since` and every version comparison that depends on it — or patching
+clients, which altero does not do. So no API key reaches any of this, no
+library version moves when a link is made or revoked, and no syncing client
+ever learns that a share exists.
+
+As a page it is a link, at `/app/shared/<token>`, that shows the collection
+read-only to whoever opens it. It is the second part of the interface that
+answers with no cookie at all, after the profile pages, and for the same
+reason: it identifies nobody, and what it can reach was fixed when the link was
+made.
+
+Three questions, and they are the whole of the form:
+
+- **How much of the tree.** The branch, which is what the sidebar shows when
+  you click a collection, or the one collection alone.
+- **Whether the files go.** A reading list is not the same thing to hand out
+  as the PDFs, which is the same separation the publishing wizard makes.
+- **How long.** An expiry, or none. A link given to a seminar in March is not
+  one to leave working in November.
+
+The link itself is shown once, by the request that makes it. Nothing is stored
+that it could be rebuilt from, so a link that is lost is replaced rather than
+recovered — the rule the invitation links follow. Afterwards the dialog lists
+what a collection carries, when each was made, when it was last opened, and
+offers to revoke it; revoking is a delete, so there is nothing left to turn
+back on.
+
+Making a link takes **write** access to the library, not read: giving a
+collection away is a decision about the library rather than a use of it, and a
+member who may only read a group's items is not the person to make it.
+
+The page never shows the trash, and a reader cannot widen what they were given
+— the library and the collection come out of the token, and the one parameter
+that narrows anything is resolved against the shared subtree. A link that was
+revoked, one that has expired, one that never existed and one whose collection
+has been thrown away all answer **404**: they are the same fact from the
+reader's side, and telling them apart would turn the link into a way of asking
+which tokens are real. Deleting a collection deletes its links with it.
+
+`api/routes/webshares.py` and `services/shares.py` are where this lives.
+
 ## Items
 
 An item can be filed, trashed, restored, deleted and copied to another library
@@ -773,6 +822,19 @@ read the library, who may add and change items, and who may upload files. Those
 last three are Zotero's own `libraryReading`, `libraryEditing` and
 `fileEditing`, enforced by the server rather than merely recorded — see
 [administration.md](administration.md#group-policy).
+
+Beside those, each member carries a permission of their own: whatever the group
+allows, read only, only their own items, or add but not remove. Zotero has no
+such notion — its groups decide who may edit once, for everybody — and these
+are the three finer roles the forums have asked for since 2010. A permission is
+a ceiling under the group's policy rather than a way past it, an administrator
+cannot be given one, and an invitation can carry one so that being asked to
+read a library and being asked to work on it are different invitations.
+[compatibility.md](compatibility.md#finer-roles-for-one-member) has the table
+and the two decisions behind it — how a read-only member is expressed to a sync
+client, and why the other two show up as sync errors when a desktop client
+tries anyway. The item list here knows about all of them and does not draw a
+control the server would refuse.
 
 What a screen offers follows the role the *server* resolved and sends back with
 the group. Deciding it in the browser would mean a second implementation of the

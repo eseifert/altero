@@ -346,10 +346,11 @@ async def add_group_member(
     *,
     username: str,
     role: str = "member",
+    permission: str = "inherit",
 ) -> GroupMember:
     """Add a user to a group library."""
     user = await get_user_by_name(session, username)
-    member = await groups.add_member(session, library, user, role)
+    member = await groups.add_member(session, library, user, role, permission)
     await session.commit()
     return member
 
@@ -357,9 +358,19 @@ async def add_group_member(
 async def set_group_member_role(
     session: AsyncSession, library: Library, *, username: str, role: str
 ) -> GroupMember:
-    """Change what a member of a group library may do."""
+    """Change whether a member helps run a group library."""
     user = await get_user_by_name(session, username)
     member = await groups.set_role(session, library, user, role)
+    await session.commit()
+    return member
+
+
+async def set_group_member_permission(
+    session: AsyncSession, library: Library, *, username: str, permission: str
+) -> GroupMember:
+    """Change how far a member of a group library may go."""
+    user = await get_user_by_name(session, username)
+    member = await groups.set_permission(session, library, user, permission)
     await session.commit()
     return member
 

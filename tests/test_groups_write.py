@@ -62,7 +62,13 @@ class TestCreating:
         response = await client.get(f"/groups/{group['id']}/users", headers=AS_ALICE)
 
         assert response.json() == [
-            {"id": 1, "username": "alice", "displayName": "alice", "role": "admin"}
+            {
+                "id": 1,
+                "username": "alice",
+                "displayName": "alice",
+                "role": "admin",
+                "permission": "inherit",
+            }
         ]
 
     async def test_a_read_only_key_cannot_create_one(

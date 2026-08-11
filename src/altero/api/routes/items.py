@@ -12,6 +12,7 @@ from starlette.responses import Response
 from altero import atom, cite, serializers
 from altero.api.batch import batch_write
 from altero.api.deps import (
+    AccessDep,
     ApiKeyDep,
     BaseUrlDep,
     ReadableLibraryDep,
@@ -37,8 +38,8 @@ from altero.query import (
     ListQuery,
     parse_list_query,
 )
+from altero.services import auth, groupactivity, writes
 from altero.services import collections as collections_service
-from altero.services import groupactivity, writes
 from altero.services import items as items_service
 from altero.services import itemwrites as item_writes
 from altero.services.items import Page, Scope
@@ -363,6 +364,7 @@ async def create_items(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
     api_key: ApiKeyDep,
 ) -> Response:
@@ -391,6 +393,7 @@ async def create_items(
             detect_unchanged=True,
             replace=False,
             actor_id=api_key.user_id if api_key else None,
+            permit=access,
         )
         if item is None:
             return None
@@ -414,10 +417,11 @@ async def replace_item(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
     api_key: ApiKeyDep,
 ) -> Response:
     """Replace an item outright. Properties left out are cleared."""
-    return await _write_single(item_key, request, session, library, api_key, replace=True)
+    return await _write_single(item_key, request, session, library, api_key, access, replace=True)
 
 
 @router.patch("/users/{user_id}/items/{item_key}")
@@ -427,10 +431,11 @@ async def update_item(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
     api_key: ApiKeyDep,
 ) -> Response:
     """Update an item in place. Properties left out are untouched."""
-    return await _write_single(item_key, request, session, library, api_key, replace=False)
+    return await _write_single(item_key, request, session, library, api_key, access, replace=False)
 
 
 async def _write_single(
@@ -439,6 +444,7 @@ async def _write_single(
     session: AsyncSession,
     library: Library,
     api_key: ApiKey | None,
+    access: auth.Access,
     *,
     replace: bool,
 ) -> Response:
@@ -460,6 +466,7 @@ async def _write_single(
         replace=replace,
         require_version=True,
         actor_id=api_key.user_id if api_key else None,
+        permit=access,
     )
     await session.commit()
 
@@ -473,6 +480,7 @@ async def delete_item(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
     api_key: ApiKeyDep,
 ) -> Response:
     """Remove one item. Requires the version the client last saw."""
@@ -486,7 +494,7 @@ async def delete_item(
     # and an entry saying only that something was deleted is the one the log
     # exists to improve on.
     named = await groupactivity.name_items(session, library, [item_key])
-    await item_writes.delete_items(session, library, [item_key], version)
+    await item_writes.delete_items(session, library, [item_key], version, permit=access)
     await groupactivity.record(
         session,
         library,
@@ -506,6 +514,7 @@ async def delete_items(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
     api_key: ApiKeyDep,
 ) -> Response:
     """Remove up to fifty items named by the ``itemKey`` parameter."""
@@ -521,7 +530,7 @@ async def delete_items(
 
     version = await writes.bump_library_version(session, library)
     named = await groupactivity.name_items(session, library, keys)
-    await item_writes.delete_items(session, library, keys, version)
+    await item_writes.delete_items(session, library, keys, version, permit=access)
     await groupactivity.record(
         session,
         library,

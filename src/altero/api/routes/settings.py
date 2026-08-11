@@ -10,7 +10,7 @@ from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from altero.api.deps import ReadableLibraryDep, SessionDep, WritableLibraryDep
+from altero.api.deps import AccessDep, ReadableLibraryDep, SessionDep, WritableLibraryDep
 from altero.api.responses import library_headers, not_modified
 from altero.errors import InvalidInputError, RequestTooLargeError
 from altero.services import settings as settings_service
@@ -47,7 +47,7 @@ async def get_setting(name: str, session: SessionDep, library: ReadableLibraryDe
 @router.post("/users/{user_id}/settings")
 @router.post("/groups/{group_id}/settings")
 async def replace_settings(
-    request: Request, session: SessionDep, library: WritableLibraryDep
+    request: Request, session: SessionDep, library: WritableLibraryDep, access: AccessDep
 ) -> Response:
     """Store a batch of settings, given as an object keyed by name."""
     payload = await request.json()
@@ -60,7 +60,7 @@ async def replace_settings(
 
     version = await writes.bump_library_version(session, library)
     for name, value in payload.items():
-        await settings_service.save_setting(session, library, name, value, version)
+        await settings_service.save_setting(session, library, name, value, version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))
@@ -69,7 +69,7 @@ async def replace_settings(
 @router.put("/users/{user_id}/settings/{name}")
 @router.put("/groups/{group_id}/settings/{name}")
 async def replace_setting(
-    name: str, request: Request, session: SessionDep, library: WritableLibraryDep
+    name: str, request: Request, session: SessionDep, library: WritableLibraryDep, access: AccessDep
 ) -> Response:
     """Store one setting."""
     payload: Any = await request.json()
@@ -80,7 +80,7 @@ async def replace_setting(
         payload = {"version": header_version, **payload}
 
     version = await writes.bump_library_version(session, library)
-    await settings_service.save_setting(session, library, name, payload, version)
+    await settings_service.save_setting(session, library, name, payload, version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))
@@ -89,7 +89,7 @@ async def replace_setting(
 @router.delete("/users/{user_id}/settings/{name}")
 @router.delete("/groups/{group_id}/settings/{name}")
 async def delete_setting(
-    name: str, request: Request, session: SessionDep, library: WritableLibraryDep
+    name: str, request: Request, session: SessionDep, library: WritableLibraryDep, access: AccessDep
 ) -> Response:
     """Remove one setting."""
     library = await writes.lock_library(session, library)
@@ -98,7 +98,7 @@ async def delete_setting(
 
     await settings_service.get_setting(session, library, name)
     version = await writes.bump_library_version(session, library)
-    await settings_service.delete_settings(session, library, [name], version)
+    await settings_service.delete_settings(session, library, [name], version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))
@@ -107,7 +107,7 @@ async def delete_setting(
 @router.delete("/users/{user_id}/settings")
 @router.delete("/groups/{group_id}/settings")
 async def delete_settings(
-    request: Request, session: SessionDep, library: WritableLibraryDep
+    request: Request, session: SessionDep, library: WritableLibraryDep, access: AccessDep
 ) -> Response:
     """Remove up to fifty settings named by ``settingKey``."""
     library = await writes.lock_library(session, library)
@@ -123,7 +123,7 @@ async def delete_settings(
         )
 
     version = await writes.bump_library_version(session, library)
-    await settings_service.delete_settings(session, library, names, version)
+    await settings_service.delete_settings(session, library, names, version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))

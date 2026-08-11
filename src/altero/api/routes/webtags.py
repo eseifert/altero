@@ -39,15 +39,18 @@ class TagRename(BaseModel):
     tag: str
 
 
-async def _writable_library(session: AsyncSession, user: User, library_id: int) -> Library:
-    """Return the library if this person may change it."""
+async def _writable_library(
+    session: AsyncSession, user: User, library_id: int
+) -> tuple[Library, auth.Access]:
+    """Return the library if this person may change it, with what they may do."""
     library = await session.get(Library, library_id)
     if library is None:
         raise NotFoundError("No such library")
 
-    if not (await auth.user_access(session, library, user.id)).write:
+    access = await auth.user_access(session, library, user.id)
+    if not access.write:
         raise ForbiddenError("You cannot change this library")
-    return library
+    return library, access
 
 
 @router.patch("/libraries/{library_id}/tags/{tag_name}")
@@ -71,7 +74,7 @@ async def rename_tag(
     it last saw, while a person renaming the tag in front of them means that
     tag, whatever else has happened since the page was drawn.
     """
-    library = await _writable_library(session, user, library_id)
+    library, access = await _writable_library(session, user, library_id)
     new_name = objectwrites.clean_tag_name(body.tag)
 
     library = await writes.lock_library(session, library)
@@ -91,7 +94,9 @@ async def rename_tag(
         )
 
     version = await writes.bump_library_version(session, library)
-    changed = await objectwrites.rename_tag(session, library, tag_name, new_name, version)
+    changed = await objectwrites.rename_tag(
+        session, library, tag_name, new_name, version, permit=access
+    )
     renamed = await tags_service.get_tag(session, library, new_name)
     await session.commit()
 

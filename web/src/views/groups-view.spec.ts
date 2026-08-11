@@ -27,7 +27,14 @@ const ADA = {
   administrator: false,
 }
 
-const GRACE = { id: 2, username: 'grace', displayName: 'Grace', role: 'member', owner: false }
+const GRACE = {
+  id: 2,
+  username: 'grace',
+  displayName: 'Grace',
+  role: 'member',
+  permission: 'inherit',
+  owner: false,
+}
 
 function group(overrides: Partial<Group> = {}): Group {
   return {
@@ -41,6 +48,7 @@ function group(overrides: Partial<Group> = {}): Group {
     fileEditing: 'members',
     version: 3,
     role: 'admin',
+    permission: 'inherit',
     owner: true,
     ownerId: 1,
     numMembers: 2,

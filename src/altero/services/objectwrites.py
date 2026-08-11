@@ -1,4 +1,13 @@
-"""Creating, updating and deleting collections, saved searches and tags."""
+"""Creating, updating and deleting collections, saved searches and tags.
+
+All three are the library's shared structure: nothing records who made a
+collection, a saved search or a tag, because none of them belongs to anybody in
+particular. That is what decides how the finer group permissions land here. A
+member restricted to *adding* may make and change them and may remove none of
+them; a member restricted to their *own items* may do none of it, having no way
+to tell their own from anybody else's -- filing one of their items into a
+collection somebody else made is a write to the item and stays allowed.
+"""
 
 from datetime import UTC, datetime
 from typing import Any
@@ -22,6 +31,8 @@ from altero.models import (
     Tag,
     TagType,
 )
+from altero.services import shares
+from altero.services.auth import Access
 from altero.services.collections import get_collection
 from altero.services.deletions import forget_deletion, record_deletion
 from altero.services.writes import check_object_version
@@ -112,6 +123,7 @@ async def save_collection(
     require_version: bool = False,
     detect_unchanged: bool = False,
     replace: bool = True,
+    permit: Access | None = None,
 ) -> Collection | None:
     """Create or update one collection.
 
@@ -121,7 +133,12 @@ async def save_collection(
             for this, because only its response has somewhere to report it.
         replace: Whether properties the payload leaves out are cleared. ``PATCH``
             passes ``False``, so an absent property keeps what is stored.
+        permit: What the caller may write, or ``None`` for a path with no
+            credential to hold to.
     """
+    if permit is not None:
+        permit.require_change_structure()
+
     target_key = key or _check_key(payload, "collection")
 
     collection = None
@@ -150,7 +167,12 @@ async def save_collection(
 
     collection.version = version
     if not keeps(payload, "deleted", partial=partial):
-        collection.deleted = parse_deleted(payload)
+        trashing = parse_deleted(payload)
+        if permit is not None and trashing and not collection.deleted:
+            # The trash is where the desktop client's Delete Collection puts
+            # things, so a member who may not remove may not put one there.
+            permit.require_remove_structure()
+        collection.deleted = trashing
     if not keeps(payload, "relations", partial=partial):
         collection.relations = [
             CollectionRelation(predicate=predicate, object=obj)
@@ -176,9 +198,17 @@ async def save_collection(
 
 
 async def delete_collections(
-    session: AsyncSession, library: Library, keys: list[str], version: int
+    session: AsyncSession,
+    library: Library,
+    keys: list[str],
+    version: int,
+    *,
+    permit: Access | None = None,
 ) -> None:
     """Remove collections and record the deletions."""
+    if permit is not None:
+        permit.require_remove_structure()
+
     for key in keys:
         collection = await session.scalar(
             select(Collection).where(Collection.library_id == library.id, Collection.key == key)
@@ -198,6 +228,11 @@ async def delete_collections(
         await session.execute(
             delete(CollectionItem).where(CollectionItem.collection_id == collection.id)
         )
+        # Any link sharing this collection goes with it. A share of something
+        # that no longer exists is not a page that should answer 404 later; it
+        # should stop existing at the moment the collection did. Subcollections
+        # are promoted rather than removed, so their own links keep working.
+        await shares.revoke_for_collections(session, [collection.id])
         await session.delete(collection)
         await record_deletion(session, library, DeletedObjectType.COLLECTION, key, version)
 
@@ -212,6 +247,7 @@ async def save_search(
     require_version: bool = False,
     detect_unchanged: bool = False,
     replace: bool = True,
+    permit: Access | None = None,
 ) -> SavedSearch | None:
     """Create or update one saved search.
 
@@ -220,7 +256,12 @@ async def save_search(
             matches what is stored.
         replace: Whether properties the payload leaves out are cleared. ``PATCH``
             passes ``False``.
+        permit: What the caller may write, or ``None`` for a path with no
+            credential to hold to.
     """
+    if permit is not None:
+        permit.require_change_structure()
+
     target_key = key or _check_key(payload, "search")
 
     search = None
@@ -277,6 +318,9 @@ async def save_search(
     deleted = (
         search.deleted if keeps(payload, "deleted", partial=partial) else parse_deleted(payload)
     )
+    if permit is not None and deleted and not search.deleted:
+        permit.require_remove_structure()
+
     if before is not None and before == (name, deleted, desired):
         # Compared before the conditions are replaced: assigning the list would
         # delete and reinsert every row to arrive at what is already there.
@@ -295,9 +339,17 @@ async def save_search(
 
 
 async def delete_searches(
-    session: AsyncSession, library: Library, keys: list[str], version: int
+    session: AsyncSession,
+    library: Library,
+    keys: list[str],
+    version: int,
+    *,
+    permit: Access | None = None,
 ) -> None:
     """Remove saved searches and record the deletions."""
+    if permit is not None:
+        permit.require_remove_structure()
+
     for key in keys:
         search = await session.scalar(
             select(SavedSearch).where(SavedSearch.library_id == library.id, SavedSearch.key == key)
@@ -359,7 +411,13 @@ async def resolve_tag(session: AsyncSession, library: Library, name: str, type_:
 
 
 async def rename_tag(
-    session: AsyncSession, library: Library, old_name: str, new_name: str, version: int
+    session: AsyncSession,
+    library: Library,
+    old_name: str,
+    new_name: str,
+    version: int,
+    *,
+    permit: Access | None = None,
 ) -> list[int]:
     """Rename every tag called ``old_name`` and return the items that changed.
 
@@ -396,6 +454,12 @@ async def rename_tag(
     settles both before a version is spent, so that a request changing nothing
     does not move the library on.
     """
+    if permit is not None:
+        # A rename rewrites every item carrying the tag, whoever added them, so
+        # it is the shared structure's rule and not any one item's. Renaming is
+        # not removing: a member restricted to adding may do this.
+        permit.require_change_structure()
+
     named = select(Tag).where(Tag.library_id == library.id, Tag.name.in_([old_name, new_name]))
     tags = list(await session.scalars(named))
     if not any(tag.name == old_name for tag in tags):
@@ -446,13 +510,21 @@ async def rename_tag(
 
 
 async def delete_tags(
-    session: AsyncSession, library: Library, names: list[str], version: int
+    session: AsyncSession,
+    library: Library,
+    names: list[str],
+    version: int,
+    *,
+    permit: Access | None = None,
 ) -> None:
     """Remove tags by name, detaching them from every item first.
 
     A name may exist twice, once manual and once automatic, and deleting by name
     removes both.
     """
+    if permit is not None:
+        permit.require_remove_structure()
+
     for name in names:
         tags = await session.scalars(
             select(Tag).where(Tag.library_id == library.id, Tag.name == name)

@@ -11,6 +11,7 @@ from starlette.responses import Response
 from altero import atom, serializers
 from altero.api.batch import batch_write
 from altero.api.deps import (
+    AccessDep,
     BaseUrlDep,
     ReadableLibraryDep,
     SessionDep,
@@ -34,9 +35,9 @@ from altero.query import (
     ListQuery,
     parse_list_query,
 )
+from altero.services import auth, writes
 from altero.services import objectwrites as object_writes
 from altero.services import searches as searches_service
-from altero.services import writes
 
 router = APIRouter(tags=["searches"])
 
@@ -131,6 +132,7 @@ async def create_searches(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     """Create or update a batch of saved searches.
@@ -145,7 +147,13 @@ async def create_searches(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
     ) -> dict[str, Any] | None:
         search = await object_writes.save_search(
-            session, library, payload, version, detect_unchanged=True, replace=False
+            session,
+            library,
+            payload,
+            version,
+            detect_unchanged=True,
+            replace=False,
+            permit=access,
         )
         if search is None:
             return None
@@ -161,9 +169,10 @@ async def replace_search(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Replace one saved search. Properties left out are cleared."""
-    return await _write_single(search_key, request, session, library, replace=True)
+    return await _write_single(search_key, request, session, library, access, replace=True)
 
 
 @router.patch("/users/{user_id}/searches/{search_key}")
@@ -173,9 +182,10 @@ async def update_search(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Update one saved search in place. Properties left out are untouched."""
-    return await _write_single(search_key, request, session, library, replace=False)
+    return await _write_single(search_key, request, session, library, access, replace=False)
 
 
 async def _write_single(
@@ -183,6 +193,7 @@ async def _write_single(
     request: Request,
     session: AsyncSession,
     library: Library,
+    access: auth.Access,
     *,
     replace: bool,
 ) -> Response:
@@ -203,6 +214,7 @@ async def _write_single(
         key=search_key,
         replace=replace,
         require_version=True,
+        permit=access,
     )
     await session.commit()
 
@@ -216,6 +228,7 @@ async def delete_search(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Remove one saved search."""
     library = await writes.lock_library(session, library)
@@ -224,7 +237,7 @@ async def delete_search(
 
     await searches_service.get_search(session, library, search_key)
     version = await writes.bump_library_version(session, library)
-    await object_writes.delete_searches(session, library, [search_key], version)
+    await object_writes.delete_searches(session, library, [search_key], version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))
@@ -236,6 +249,7 @@ async def delete_searches(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Remove up to fifty saved searches named by ``searchKey``."""
     library = await writes.lock_library(session, library)
@@ -251,7 +265,7 @@ async def delete_searches(
         )
 
     version = await writes.bump_library_version(session, library)
-    await object_writes.delete_searches(session, library, keys, version)
+    await object_writes.delete_searches(session, library, keys, version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))

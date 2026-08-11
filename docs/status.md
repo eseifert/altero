@@ -14,6 +14,12 @@ things the desktop client asks for that no data server documents.
   JSON body where upstream wants a superuser and XML
 - The group policies `libraryReading`, `libraryEditing` and `fileEditing`,
   enforced rather than merely stored, with membership a ceiling over all three
+- Finer roles for one member of a group — read only, add but not remove, only
+  their own items — which Zotero has been asked for since 2010 and does not
+  have. A fourth ceiling under the group's own policy; see
+  [compatibility.md](compatibility.md#finer-roles-for-one-member) for how a
+  read-only member is expressed to a sync client and why the other two show up
+  as sync errors
 - The schema endpoints (`/itemTypes`, `/itemFields`, `/itemTypeFields`,
   `/itemTypeCreatorTypes`, `/creatorFields`, `/items/new`, `/schema`)
 - Reading items, collections, saved searches and tags, including `format=json`,
@@ -47,6 +53,10 @@ things the desktop client asks for that no data server documents.
 - Profile pages in the browser at `/app/u/<username>`: one person's published
   work, the files it was published with, and the licence they are under, read
   by anyone the account allows
+- Sharing one collection by link, at `/app/shared/<token>`, read by whoever
+  holds it and with no account needed. Deliberately not a sync feature: see
+  [web-interface.md](web-interface.md#sharing-one) for why the request that has
+  been open since 2008 is answered as a page
 - Rate limiting, off unless configured, answering `429` with `Retry-After`
 - Citations and bibliographies: `format=bib`, `format=csljson` and
   `include=bib,citation,csljson`, in any of the styles published by the

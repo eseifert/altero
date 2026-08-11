@@ -38,6 +38,28 @@ async def get_collection(session: AsyncSession, library: Library, key: str) -> C
     return collection
 
 
+async def subtree(session: AsyncSession, collection: Collection) -> list[Collection]:
+    """Return ``collection`` and every collection nested inside it, at any depth.
+
+    Walked a level at a time rather than with a recursive CTE, which SQLite and
+    PostgreSQL spell differently enough to be worth avoiding for a tree that is
+    a handful of levels deep in every real library. The walk cannot loop:
+    ``webcollections`` refuses a move that would close one, and a collection
+    already seen is not descended into a second time.
+    """
+    found = {collection.id: collection}
+    frontier = [collection.id]
+
+    while frontier:
+        children = list(
+            await session.scalars(select(Collection).where(Collection.parent_id.in_(frontier)))
+        )
+        frontier = [child.id for child in children if child.id not in found]
+        found.update({child.id: child for child in children})
+
+    return list(found.values())
+
+
 async def list_collections(
     session: AsyncSession,
     library: Library,

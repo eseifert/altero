@@ -12,6 +12,7 @@ from starlette.responses import Response
 from altero import atom, serializers
 from altero.api.batch import batch_write
 from altero.api.deps import (
+    AccessDep,
     ApiKeyDep,
     BaseUrlDep,
     ReadableLibraryDep,
@@ -37,10 +38,10 @@ from altero.query import (
     ListQuery,
     parse_list_query,
 )
+from altero.services import auth, writes
 from altero.services import collections as collections_service
 from altero.services import items as items_service
 from altero.services import objectwrites as object_writes
-from altero.services import writes
 from altero.services.collections import Page
 from altero.services.items import Scope
 
@@ -279,6 +280,7 @@ async def create_collections(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
     api_key: ApiKeyDep,
 ) -> Response:
@@ -298,7 +300,13 @@ async def create_collections(
         session: AsyncSession, library: Library, payload: dict[str, Any], version: int
     ) -> dict[str, Any] | None:
         collection = await object_writes.save_collection(
-            session, library, payload, version, detect_unchanged=True, replace=False
+            session,
+            library,
+            payload,
+            version,
+            detect_unchanged=True,
+            replace=False,
+            permit=access,
         )
         if collection is None:
             return None
@@ -321,9 +329,10 @@ async def replace_collection(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Replace one collection. Properties left out are cleared."""
-    return await _write_single(collection_key, request, session, library, replace=True)
+    return await _write_single(collection_key, request, session, library, access, replace=True)
 
 
 @router.patch("/users/{user_id}/collections/{collection_key}")
@@ -333,9 +342,10 @@ async def update_collection(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Update one collection in place. Properties left out are untouched."""
-    return await _write_single(collection_key, request, session, library, replace=False)
+    return await _write_single(collection_key, request, session, library, access, replace=False)
 
 
 async def _write_single(
@@ -343,6 +353,7 @@ async def _write_single(
     request: Request,
     session: AsyncSession,
     library: Library,
+    access: auth.Access,
     *,
     replace: bool,
 ) -> Response:
@@ -364,6 +375,7 @@ async def _write_single(
         key=collection_key,
         replace=replace,
         require_version=True,
+        permit=access,
     )
     await session.commit()
 
@@ -377,6 +389,7 @@ async def delete_collection(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Remove one collection. Nested collections move up to its parent."""
     library = await writes.lock_library(session, library)
@@ -385,7 +398,9 @@ async def delete_collection(
 
     await collections_service.get_collection(session, library, collection_key)
     version = await writes.bump_library_version(session, library)
-    await object_writes.delete_collections(session, library, [collection_key], version)
+    await object_writes.delete_collections(
+        session, library, [collection_key], version, permit=access
+    )
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))
@@ -397,6 +412,7 @@ async def delete_collections(
     request: Request,
     session: SessionDep,
     library: WritableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Remove up to fifty collections named by ``collectionKey``."""
     library = await writes.lock_library(session, library)
@@ -412,7 +428,7 @@ async def delete_collections(
         )
 
     version = await writes.bump_library_version(session, library)
-    await object_writes.delete_collections(session, library, keys, version)
+    await object_writes.delete_collections(session, library, keys, version, permit=access)
     await session.commit()
 
     return Response(status_code=204, headers=library_headers(version))

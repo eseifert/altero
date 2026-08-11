@@ -31,7 +31,15 @@ from altero import serializers
 from altero.api.deps import ApiKeyDep, BaseUrlDep, LibraryDep, SessionDep
 from altero.api.responses import library_headers, object_response
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
-from altero.models import ApiKey, Group, GroupMember, Library, LibraryType, User
+from altero.models import (
+    ApiKey,
+    Group,
+    GroupMember,
+    Library,
+    LibraryType,
+    MemberPermission,
+    User,
+)
 from altero.query import Format
 from altero.services import auth, groups, writes
 
@@ -44,12 +52,18 @@ def _member_payload(user: User, member: GroupMember) -> dict[str, Any]:
     A shape of altero's own: upstream answers ``403`` here to anything an API
     key can present, so there is nothing to copy. It names the account the way
     ``/keys/<key>`` does, so the two read alike.
+
+    ``permission`` is altero's too, and the group JSON beside it says nothing
+    about anybody's -- ``libraryEditing`` there is what *the requester* may do,
+    not a roster. This is the roster, and only a member of the group can read
+    it.
     """
     return {
         "id": user.id,
         "username": user.username,
         "displayName": user.display_name,
         "role": member.role,
+        "permission": auth.member_permission(member),
     }
 
 
@@ -77,9 +91,25 @@ async def _admin(session: AsyncSession, library: Library, api_key: ApiKey | None
 
 
 async def _rendered(
-    session: AsyncSession, library: Library, base_url: str, group: Group | None = None
+    session: AsyncSession,
+    library: Library,
+    base_url: str,
+    api_key: ApiKey | None = None,
+    group: Group | None = None,
 ) -> dict[str, Any]:
-    return serializers.group(library, group or await groups.get_group(session, library), base_url)
+    """Render the group as *this* requester sees it.
+
+    ``libraryEditing`` is the one property that differs between requesters --
+    :func:`altero.services.groups.editing_for` says why -- so every route that
+    renders a group has to say who is asking.
+    """
+    group = group or await groups.get_group(session, library)
+    member = (
+        await groups.membership(session, library, api_key.user_id) if api_key is not None else None
+    )
+    return serializers.group(
+        library, group, base_url, library_editing=groups.editing_for(group, member)
+    )
 
 
 async def _body(request: Request) -> dict[str, Any]:
@@ -109,7 +139,7 @@ async def get_group(
     except ForbiddenError:
         raise NotFoundError("Group not found") from None
 
-    return object_response(await _rendered(session, library, base_url), library.version)
+    return object_response(await _rendered(session, library, base_url, api_key), library.version)
 
 
 @router.get("/users/{user_id}/groups")
@@ -138,10 +168,17 @@ async def list_user_groups(
     memberships = await groups.list_groups_for_user(session, user_id)
 
     if request.query_params.get("format") == Format.VERSIONS:
-        return JSONResponse({str(library.owner_id): library.version for library, _ in memberships})
+        return JSONResponse(
+            {str(library.owner_id): library.version for library, _, _ in memberships}
+        )
 
     return JSONResponse(
-        [serializers.group(library, group, base_url) for library, group in memberships]
+        [
+            serializers.group(
+                library, group, base_url, library_editing=groups.editing_for(group, member)
+            )
+            for library, group, member in memberships
+        ]
     )
 
 
@@ -170,7 +207,7 @@ async def create_group(
     await session.commit()
 
     return JSONResponse(
-        serializers.group(library, group, base_url),
+        await _rendered(session, library, base_url, api_key, group),
         status_code=201,
         headers=library_headers(library.version),
     )
@@ -224,7 +261,7 @@ async def _write_group(
     version = await writes.bump_library_version(session, library)
     await session.commit()
 
-    return object_response(serializers.group(library, group, base_url), version)
+    return object_response(await _rendered(session, library, base_url, api_key, group), version)
 
 
 @router.delete("/groups/{group_id}", status_code=204)
@@ -317,7 +354,13 @@ async def add_group_user(
 
     user = await _named_user(session, payload)
     library = await writes.lock_library(session, library)
-    member = await groups.add_member(session, library, user, payload.get("role", "member"))
+    member = await groups.add_member(
+        session,
+        library,
+        user,
+        str(payload.get("role", "member")),
+        str(payload.get("permission", MemberPermission.INHERIT.value)),
+    )
     version = await writes.bump_library_version(session, library)
     await session.commit()
 
@@ -337,12 +380,22 @@ async def set_group_user_role(
     """Change what one member may do. Administrators only."""
     await _admin(session, library, api_key)
     payload = await request.json()
-    if not isinstance(payload, dict) or "role" not in payload:
-        raise InvalidInputError("'role' is required")
+    if not isinstance(payload, dict) or not {"role", "permission"} & set(payload):
+        raise InvalidInputError("'role' or 'permission' is required")
 
     user = await auth.get_user(session, member_id)
     library = await writes.lock_library(session, library)
-    member = await groups.set_role(session, library, user, payload["role"])
+
+    # Role first, because promoting somebody clears their permission: a request
+    # carrying both then ends on the permission it asked for rather than on the
+    # `inherit` the promotion left behind.
+    member = None
+    if "role" in payload:
+        member = await groups.set_role(session, library, user, str(payload["role"]))
+    if "permission" in payload:
+        member = await groups.set_permission(session, library, user, str(payload["permission"]))
+    assert member is not None  # one of the two was present
+
     version = await writes.bump_library_version(session, library)
     await session.commit()
 

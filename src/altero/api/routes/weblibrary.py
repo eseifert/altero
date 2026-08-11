@@ -113,8 +113,11 @@ async def list_libraries(
     groups = list(await session.scalars(select(Library).where(Library.id.in_(list(group_ids)))))
 
     visible = ([personal] if personal is not None else []) + groups
-    return JSONResponse(
-        [
+
+    payload = []
+    for library in visible:
+        access = await auth.user_access(session, library, user.id)
+        payload.append(
             {
                 "id": library.id,
                 "type": library.type.value,
@@ -127,11 +130,15 @@ async def list_libraries(
                 # editing for its administrators, and a screen that offered the
                 # controls anyway would be a second implementation of that rule
                 # drifting against the one that actually refuses the request.
-                "writable": (await auth.user_access(session, library, user.id)).write,
+                "writable": access.write,
+                # How far a change may go, for the same reason. `writable` alone
+                # cannot express a member who may add and not remove: the trash
+                # button would be drawn, pressed, and refused. A read-only
+                # member is already `writable: false` and needs nothing here.
+                "permission": access.permission,
             }
-            for library in visible
-        ]
-    )
+        )
+    return JSONResponse(payload)
 
 
 async def render_items(

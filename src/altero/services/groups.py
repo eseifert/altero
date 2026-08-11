@@ -11,6 +11,12 @@ it**: a member may add items and still not decide who else can. And **the owner
 is one of the admins, not a fourth role**: what the owner alone may do is hand
 the group over and destroy it, both of which end the group as everybody else
 knows it.
+
+A third joins them for the per-member permissions: **a role and a permission
+answer different questions.** A role says whether somebody helps run the group;
+a permission says how far they may go in what is in it. Keeping them apart is
+what lets a group have an administrator who is not its owner and a member who
+may only add -- the two axes upstream collapses into one property of the group.
 """
 
 from typing import Any
@@ -27,6 +33,7 @@ from altero.models import (
     Invitation,
     Library,
     LibraryType,
+    MemberPermission,
     StorageUpload,
     User,
     WriteToken,
@@ -48,6 +55,10 @@ FILE_EDITING = ("none", "members", "admins")
 
 #: Roles a member may hold.
 ROLES = ("member", "admin")
+
+#: How far one member may go, beside their role. See
+#: :class:`~altero.models.MemberPermission` for what each one means.
+MEMBER_PERMISSIONS = tuple(permission.value for permission in MemberPermission)
 
 #: Longest a group name may be, matching the column.
 MAX_NAME = 255
@@ -116,17 +127,52 @@ async def list_public_libraries(session: AsyncSession) -> list[Library]:
 async def list_groups_for_user(
     session: AsyncSession,
     user_id: int,
-) -> list[tuple[Library, Group]]:
-    """Return the group libraries ``user_id`` belongs to, with their metadata."""
+) -> list[tuple[Library, Group, GroupMember]]:
+    """Return the group libraries ``user_id`` belongs to, with their metadata.
+
+    The membership comes back with each one because every caller needs it:
+    ``libraryEditing`` is rendered from what *this* member may do -- see
+    :func:`editing_for` -- and asking for it afterwards would be one query per
+    group for something the join already had in hand.
+    """
     statement = (
-        select(Library, Group)
+        select(Library, Group, GroupMember)
         .join(Group, Group.library_id == Library.id)
         .join(GroupMember, GroupMember.library_id == Library.id)
         .where(GroupMember.user_id == user_id, Library.type == LibraryType.GROUP)
         .order_by(Library.owner_id)
     )
     result = await session.execute(statement)
-    return [(library, group) for library, group in result.all()]
+    return [(library, group, member) for library, group, member in result.all()]
+
+
+def editing_for(group: Group, member: GroupMember | None) -> str:
+    """Return what ``libraryEditing`` says to this member.
+
+    The one place a per-member permission is expressed in the vocabulary a sync
+    client already understands. A member restricted to reading is told
+    ``admins``, which they are not, and their client draws the library
+    read-only with no idea that anything new exists -- exactly as it does for
+    every ordinary member of a group whose editing is reserved.
+
+    That makes one library version have two representations, which is the
+    question this feature turns on. It is settled by what the group resource
+    already is: ``GET /groups/<id>`` answers 404 to a stranger and 200 to a
+    member, and ``GET /users/<id>/groups`` is by definition the caller's own
+    list. The group has never had a single representation to break. What a
+    client compares versions against is its *own* view, and that view changes
+    only when the library version moves -- which setting a permission does.
+
+    ``add`` and ``own`` have nothing to say here and say nothing: they are
+    enforcement and no more, and a client that tries is refused with the words
+    in :func:`altero.services.auth._refusal`. ``docs/compatibility.md`` records
+    what that looks like.
+    """
+    if member is None or member.role == "admin":
+        return group.library_editing
+    if member.permission == MemberPermission.READ:
+        return "admins"
+    return group.library_editing
 
 
 # --------------------------------------------------------------------------
@@ -182,25 +228,35 @@ async def list_members(session: AsyncSession, library: Library) -> list[tuple[Us
 
 
 async def add_member(
-    session: AsyncSession, library: Library, user: User, role: str = "member"
+    session: AsyncSession,
+    library: Library,
+    user: User,
+    role: str = "member",
+    permission: str = MemberPermission.INHERIT.value,
 ) -> GroupMember:
-    """Add ``user`` to ``library`` at ``role``."""
+    """Add ``user`` to ``library`` at ``role``, restricted to ``permission``."""
     _check_role(role)
+    _check_permission(role, permission)
     if await membership(session, library, user.id) is not None:
         raise InvalidInputError(f"'{user.username}' is already a member")
 
-    member = GroupMember(library_id=library.id, user_id=user.id, role=role)
+    member = GroupMember(library_id=library.id, user_id=user.id, role=role, permission=permission)
     session.add(member)
     streaming.note_access_change(session.sync_session, user.id)
     return member
 
 
 async def set_role(session: AsyncSession, library: Library, user: User, role: str) -> GroupMember:
-    """Change what ``user`` may do in ``library``.
+    """Change whether ``user`` helps run ``library``.
 
     The owner's own role is fixed at admin. Demoting them would leave a group
     whose owner cannot administer it, and only a transfer of ownership should
     be able to produce that.
+
+    Promoting somebody clears whatever permission they were held to. An
+    administrator can set their own, so a restriction left on one would be a
+    thing the interface displayed and nothing enforced -- and
+    :func:`altero.services.auth.member_permission` already reads it as absent.
     """
     _check_role(role)
     group = await get_group(session, library)
@@ -212,6 +268,26 @@ async def set_role(session: AsyncSession, library: Library, user: User, role: st
         raise InvalidInputError("The owner of a group is always an administrator")
 
     member.role = role
+    if role == "admin":
+        member.permission = MemberPermission.INHERIT.value
+    return member
+
+
+async def set_permission(
+    session: AsyncSession, library: Library, user: User, permission: str
+) -> GroupMember:
+    """Change how far ``user`` may go in ``library``.
+
+    Separate from :func:`set_role` because the two are separate questions, and
+    an interface that had to send both to change one would keep overwriting the
+    other.
+    """
+    member = await membership(session, library, user.id)
+    if member is None:
+        raise NotFoundError(f"'{user.username}' is not a member of this group")
+
+    _check_permission(member.role, permission)
+    member.permission = permission
     return member
 
 
@@ -239,6 +315,22 @@ async def remove_member(session: AsyncSession, library: Library, user: User) -> 
 def _check_role(role: str) -> None:
     if role not in ROLES:
         raise InvalidInputError(f"A role must be one of {', '.join(ROLES)}")
+
+
+def _check_permission(role: str, permission: str) -> None:
+    """Refuse a permission that is not one, or one on an administrator.
+
+    An administrator may edit any membership including their own, so a
+    restriction on one is something they can lift in a click. Refusing it here
+    is the honest answer: take the administrator's role away first, and then the
+    restriction means what it says.
+    """
+    if permission not in MEMBER_PERMISSIONS:
+        raise InvalidInputError(f"A permission must be one of {', '.join(MEMBER_PERMISSIONS)}")
+    if role == "admin" and permission != MemberPermission.INHERIT:
+        raise InvalidInputError(
+            "An administrator of a group cannot be restricted; change their role first"
+        )
 
 
 # --------------------------------------------------------------------------
