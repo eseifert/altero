@@ -394,12 +394,21 @@ every other style tried (APA, MLA, IEEE, Nature, AMA, the other Chicago
 variants), and the bibliography is the path both the API and the interface lead
 with. Reported upstream, with a patch.
 
-One correction is applied to citeproc-py itself, in `altero/cite/compat.py`:
-`citation-number` is excluded there from what counts as calling a variable, so a
-numeric style whose citation groups the number with a locator macro — IEEE —
-renders an empty citation. CSL 1.0.1 counts it as a number variable.
-`tests/test_citations.py` covers it, so a release that fixes it upstream shows
-up as a failing test.
+Nothing is corrected in citeproc-py itself any more. One thing was until
+citeproc-py 0.10.6: a `cs:group` is suppressed when every variable it calls is
+empty, and `citation-number` did not count as one, so a numeric style whose
+citation groups the number with a locator macro — IEEE — rendered an empty
+citation, the locator being empty. CSL 1.0.1 counts it as a number variable.
+[citeproc-py#206](https://github.com/citeproc-py/citeproc-py/pull/206) fixes it
+upstream, and `tests/test_citations.py` asserts the rendered citation rather
+than the mechanism, so it went on holding once the local correction went.
+
+`pyproject.toml` floors citeproc-py at 0.10.7 rather than 0.10.6 for a second
+fix ([citeproc-py#201](https://github.com/citeproc-py/citeproc-py/pull/201)):
+the delimiters around a style's `and` had no default, so every bibliography of
+more than one author lost the space or comma before it — APA read
+`Doe, J.& Roe, R.` and MLA `Doe, J.and R. Roe.` Nothing here worked around
+that, which is why no test caught it; there is one now.
 
 ## Item type schema
 

@@ -17,7 +17,6 @@ import re
 from functools import lru_cache
 from typing import Any
 
-from .compat import apply as apply_compat
 from .styles import DEFAULT_LOCALE, DEFAULT_STYLE, style_path
 
 #: Smallest line height the reference implementation will emit, whatever the
@@ -50,7 +49,6 @@ def _style(name: str, locale: str) -> Any:
     """
     from citeproc import CitationStylesStyle
 
-    apply_compat()
     return CitationStylesStyle(style_path(name), locale=locale, validate=False)
 
 
