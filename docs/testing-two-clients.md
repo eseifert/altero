@@ -96,7 +96,7 @@ Finally, in A alone, and only if it is seeded from a library this server has
 never held: **Settings → Sync → Reset → Restore to Online Library**. Leave the
 installation you copied from pointed where it was.
 
-## The four traps
+## The five traps
 
 **The account id.** If the data directory last synced as a different `userID`,
 the client offers to delete the whole data directory rather than sync it
@@ -175,18 +175,71 @@ Everything in this list has a way of going wrong that a single client never
 shows.
 
 - Edit the same item on both clients while one is offline, then bring it back.
+  Turning automatic syncing off in the Sync pane is offline enough; quitting
+  the client also does it.
 - Delete an item on one and edit it on the other.
-- Move items between collections; move a collection under another.
-- Rename a tag, which rewrites every item carrying it.
-- Add a PDF, let it index, annotate it, and check the annotation arrives.
-- Trash something on one client, restore it on the other, empty the trash.
-- Publish an item to My Publications and change its licence.
-- Do all of it again in a group library, with the second client as a member.
+- Move items between collections and a collection under another, by dragging in
+  the left pane. Taking an item *out* of a collection is its context menu
+  rather than a drag, and is where a partial write has to tell an empty list
+  from an absent one.
+- Rename a tag from the tag selector, which rewrites every item carrying it.
+- Add a PDF, let it index, annotate it in the reader, and check the annotation
+  arrives. An annotation is an item of its own and syncs as one.
+- Trash something on one client, restore it from the other's trash, empty the
+  trash.
+- Publish an item to My Publications — dragging it onto that row opens the
+  client's own wizard — and change its licence afterwards by editing `rights`
+  in the Info pane.
+- Do all of it again in a group library.
+
+Two of those reach the server by a different road than the browser does, so a
+clean desktop run says nothing about the browser's version of the same thing,
+or the other way round. **Renaming a tag** is `Zotero.Tags.rename`: the client
+rewrites its own rows and uploads the affected items as an ordinary batch,
+never touching `PATCH <prefix>/tags/<name>`, which exists because upstream
+serves nothing for it and which only the browser calls. What the desktop
+exercises here is one request writing many items for one library version, worth
+its own run for that alone. **Publishing** is the client's wizard, which
+decides which children go along and writes the licence's name into `rights`
+before uploading; the browser asks the same questions and answers them in
+`services/publications.py`, which no desktop client reaches.
+
+The licence's name is the one place the two disagree on purpose: the client
+writes it in the language its window is showing, where the browser always
+writes the canonical English one — `services/publications.py` says why. What a
+desktop client wrote round-trips unchanged, so a German name arriving in the
+other client is not divergence.
 
 An external annotation — one that lives in the PDF rather than in the library —
 is deliberately not counted: the client never uploads it
 (`getUnsynced` in `xpcom/sync/syncLocal.js` excludes it by name), so a server
 without it is not behind.
+
+## One account or two
+
+Both clients linked to one account is what the list above wants: two
+installations of one library, which is what makes an edit on each of them
+something the server has to arbitrate rather than two libraries passing in the
+night.
+
+A group needs no second account either. One account owning a group sees it in
+both clients, and that is enough for its items, collections, tags, files and
+settings — the Zotero 9 file-naming format included. A second account buys only
+what membership itself is about: `access_for` with a real member, the group's
+`fileEditing` policy, an invitation answered by somebody who is not the owner,
+whether a plain member is served the file-naming setting, and authorship —
+`lastModifiedByUser` is dropped when it names the same person as
+`createdByUser`, so while one account writes everything it is never emitted at
+all.
+
+Add one as a third installation rather than by re-pointing B. A data directory
+remembers the account it last synced as, so linking B to another one leaves the
+`reset-data-directory` marker the traps above describe, and the next launch
+deletes every file in it. A fresh `C/profile` and `C/data`, joined to the group
+as a member, leaves A and B on one account for the conflict tests. Compare the
+group rather than the personal libraries afterwards — `--library group/<id>` —
+since three installations on two accounts are *supposed* to disagree about
+My Library.
 
 ## When it is over
 
