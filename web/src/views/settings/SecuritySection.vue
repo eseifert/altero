@@ -140,7 +140,7 @@ function when(iso: string | null): string {
         <div>
           <p class="settings__entry">
             {{ entry.userAgent || t('Unknown browser') }}
-            <span v-if="entry.current" class="settings__badge">{{ t('this one') }}</span>
+            <span v-if="entry.current" class="chip">{{ t('this one') }}</span>
           </p>
           <p class="settings__detail">
             {{ t('Last used {when}', { when: when(entry.lastSeen) }) }}

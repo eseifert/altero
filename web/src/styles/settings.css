@@ -79,12 +79,3 @@
   width: 18px;
   height: 18px;
 }
-
-.settings__badge {
-  margin-left: var(--md-spacing-2);
-  padding: 2px 8px;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-  font-size: var(--md-sys-typescale-label-medium-size);
-}
