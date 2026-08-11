@@ -24,6 +24,39 @@ async def _next_user_id(session: AsyncSession) -> int:
     return (highest or 0) + 1
 
 
+async def _no_users_yet(session: AsyncSession) -> bool:
+    """Return whether this instance has no accounts at all."""
+    return (await session.scalar(select(func.count()).select_from(User))) == 0
+
+
+async def count_administrators(session: AsyncSession) -> int:
+    """Return how many accounts administer the instance."""
+    return (
+        await session.scalar(
+            select(func.count()).select_from(User).where(User.administrator.is_(True))
+        )
+    ) or 0
+
+
+async def set_administrator(session: AsyncSession, user: User, *, administrator: bool) -> User:
+    """Say whether ``user`` administers the instance.
+
+    Refuses to take the last one away. An instance with no administrator can
+    only be given one from a shell on the server, which is the thing this whole
+    layer exists to stop being necessary -- so it must not be reachable by one
+    careless click, and least of all by the operator clicking on themselves.
+    """
+    if user.administrator and not administrator and await count_administrators(session) <= 1:
+        raise InvalidInputError(
+            "This is the last administrator of this instance; promote somebody "
+            "else before standing down"
+        )
+
+    user.administrator = administrator
+    await session.commit()
+    return user
+
+
 async def get_user_by_name(session: AsyncSession, username: str) -> User:
     """Return the named user."""
     user = await session.scalar(select(User).where(User.username == username))
@@ -56,6 +89,12 @@ async def create_user(
         id=user_id if user_id is not None else await _next_user_id(session),
         username=username,
         display_name=display_name,
+        # The account that claims an instance administers it. Decided here
+        # rather than in each caller, so that `altero user add` on a fresh
+        # database and the browser's registration form agree: an instance
+        # whose first account was made the other way would have an operator
+        # view nobody can open.
+        administrator=await _no_users_yet(session),
     )
     session.add(user)
     await session.flush()

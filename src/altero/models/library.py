@@ -3,7 +3,7 @@
 from datetime import datetime
 from enum import StrEnum
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, UniqueConstraint
+from sqlalchemy import DateTime, Enum, ForeignKey, String, UniqueConstraint, false
 from sqlalchemy.orm import Mapped, mapped_column
 
 from altero.db import Base
@@ -68,6 +68,17 @@ class User(Base):
     #: UTC offset: an offset is wrong for half the year everywhere that keeps
     #: summer time.
     time_zone: Mapped[str | None] = mapped_column(String(64), default=None)
+    #: Whether this account administers the instance rather than a library.
+    #: The one permission in altero that is not per library: it says who may
+    #: see what the instance costs, set retention and take an account out of
+    #: service. It grants nothing over anybody's library -- see
+    #: :mod:`altero.api.routes.webadmin`.
+    administrator: Mapped[bool] = mapped_column(default=False, server_default=false())
+    #: When this account was taken out of service, or null. Refuses both
+    #: credentials -- an API key and a browser session alike -- and touches
+    #: nothing it owns: access stops, the data stays, and reinstating it is
+    #: clearing this column.
+    disabled_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     #: Who may read this account's profile page and the items it publishes.
     #: Public by default, which is upstream's only behaviour and the one the
     #: publishing wizard describes.

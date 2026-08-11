@@ -18,6 +18,10 @@ export interface User {
   /** Who may read this account's profile page. Sent to the account itself and
    *  to nobody else; see `stores/profile.ts`. */
   profileVisibility: Visibility
+  /** Whether this account administers the instance rather than a library. The
+   *  interface shows the administration screens from this alone; every route
+   *  behind them checks it again for itself. */
+  administrator: boolean
 }
 
 interface AuthResponse {

@@ -11,6 +11,7 @@ person are still command-line operations.
 uv run altero user add <username> [--display-name NAME] [--id N]
 uv run altero user list
 uv run altero user password <username>
+uv run altero user admin <username> [--revoke]
 uv run altero key add <username> [--name LABEL] [--read-only] [--groups]
 uv run altero key list
 uv run altero key revoke <key>
@@ -37,6 +38,29 @@ The group commands go through the same service the API's group endpoints do, so
 the shell and an API key cannot disagree about what a group is or what a role
 means. The shell is not a superuser path either: `group delete` removes a
 library and everything in it, and asks before it does unless told `--yes`.
+
+## Who administers the instance
+
+Every other permission in altero is per library. This one is not: an
+**instance administrator** is the account that may see what the instance costs,
+set retention and take an account out of service. It grants nothing over
+anybody's library — an administrator counts and measures, and cannot read a
+title, a note or a file they were not already entitled to.
+
+The account that claims an instance administers it, whether it was made with
+`altero user add` on a fresh database or through the registration form on a
+fresh container; both go through the same rule, so an instance cannot end up
+with none. On an instance that already existed, the upgrade promotes the
+lowest-numbered account, which is the one that claimed it.
+
+```sh
+uv run altero user admin grace            # hand the role on
+uv run altero user admin ada --revoke     # and stand down
+```
+
+The last administrator cannot stand down. An instance with none can only be
+given one from a shell on the server, which is what this is for in the first
+place.
 
 ## Moving a library to another server
 

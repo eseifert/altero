@@ -77,6 +77,10 @@ def _serialise(user: User) -> dict:
         # Who may read this account's profile page. Reported to the account
         # itself and to nobody else -- see altero/api/routes/webprofile.py.
         "profileVisibility": user.profile_visibility.value,
+        # Whether this account administers the instance. The interface shows
+        # the administration screens from this alone; every route behind them
+        # checks it again for itself.
+        "administrator": user.administrator,
     }
 
 

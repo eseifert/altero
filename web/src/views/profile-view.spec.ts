@@ -208,6 +208,7 @@ describe('a profile page', () => {
       language: null,
       timeZone: null,
       profileVisibility: 'public',
+      administrator: false,
     }
     await flush()
 

@@ -76,13 +76,28 @@ async def _user_password(session: AsyncSession, args: argparse.Namespace) -> Non
     print(f"Set the password for {user.username}. Their other sessions were signed out.")
 
 
+async def _user_admin(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Say whether a user administers the instance.
+
+    The way back in when the last administrator has left, which is why it stays
+    on the command line as well as in the browser.
+    """
+    user = await admin.get_user_by_name(session, args.username)
+    await admin.set_administrator(session, user, administrator=not args.revoke)
+    if args.revoke:
+        print(f"{user.username} no longer administers this instance.")
+    else:
+        print(f"{user.username} now administers this instance.")
+
+
 async def _user_list(session: AsyncSession, args: argparse.Namespace) -> None:
     users = await admin.list_users(session)
     if not users:
         print("No users.")
         return
     for user in users:
-        print(f"{user.id:>8}  {user.username}  {user.display_name}".rstrip())
+        role = "  administrator" if user.administrator else ""
+        print(f"{user.id:>8}  {user.username}  {user.display_name}{role}".rstrip())
 
 
 async def _key_add(session: AsyncSession, args: argparse.Namespace) -> None:
@@ -339,6 +354,12 @@ def build_parser() -> argparse.ArgumentParser:
     password = user.add_parser("password", help="set a user's web password")
     password.add_argument("username")
     password.set_defaults(handler=_user_password)
+    administrator = user.add_parser("admin", help="say who administers the instance")
+    administrator.add_argument("username")
+    administrator.add_argument(
+        "--revoke", action="store_true", help="take the role away instead of granting it"
+    )
+    administrator.set_defaults(handler=_user_admin)
     user.add_parser("list", help="list users").set_defaults(handler=_user_list)
 
     key = commands.add_parser("key", help="manage API keys").add_subparsers(dest="subcommand")
