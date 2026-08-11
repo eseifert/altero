@@ -64,6 +64,7 @@ EXPECTED = [
     ("/web/groups/{library_id}/transfer", "POST"),
     ("/web/libraries", "GET"),
     ("/web/libraries/{library_id}/items", "GET"),
+    ("/web/libraries/{library_id}/items/export", "GET"),
     ("/web/libraries/{library_id}/items/{item_key}", "GET"),
     ("/web/libraries/{library_id}/items/{item_key}/children", "GET"),
     ("/web/libraries/{library_id}/items/{item_key}/file", "GET"),

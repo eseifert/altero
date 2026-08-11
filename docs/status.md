@@ -53,7 +53,9 @@ things the desktop client asks for that no data server documents.
   [CSL project](https://github.com/citation-style-language/styles), with
   `style`, `locale` and `linkwrap`. Nothing is fetched at request time
 - Export as `format=bibtex`, `biblatex` or `ris`, and the matching `include`
-  values, with tags carried across as keywords
+  values, with tags carried across as keywords. The browser writes the same
+  three and CSL JSON as a file, for a library, a collection or a selection; see
+  [web-interface.md](web-interface.md#writing-items-out)
 - Items of every type, including notes, attachments and annotations, whose
   fields the published schema does not list
 - Client-supplied `dateAdded` and `dateModified`, kept as sent

@@ -10,6 +10,8 @@ Access is decided by :mod:`altero.services.auth` exactly as it is for a key.
 The credential differs; the rules do not.
 """
 
+import shutil
+import tempfile
 from collections.abc import Sequence
 from enum import StrEnum
 from pathlib import Path
@@ -17,24 +19,27 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Query
 from sqlalchemy import select
+from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
 from altero import cite, serializers
 from altero.api.deps import BaseUrlDep, SessionDep
+from altero.api.responses import CONTENT_TYPES
 from altero.api.routes.web import CurrentUserDep
 from altero.itemschema import get_schema
 from altero.models import Item, Library, LibraryType
 from altero.query import (
     ITEM_SORT_FIELDS,
     Direction,
+    Format,
     ListQuery,
     QuickSearchMode,
     TagSearchMode,
     default_direction,
 )
 from altero.search import parse_expressions
-from altero.services import auth, collections, items, storage, tags
+from altero.services import auth, collections, itemexport, items, storage, tags
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -163,6 +168,51 @@ async def render_items(
     ]
 
 
+def _item_query(
+    library: Library,
+    *,
+    scope: Scope,
+    collection: str | None,
+    q: str | None,
+    sort: str,
+    direction: Direction | None,
+    tag: Sequence[str] | None,
+    item_keys: Sequence[str] = (),
+    limit: int = 50,
+    start: int = 0,
+) -> tuple[ListQuery, items.Scope]:
+    """Return the query and the service-level scope one view of a library means.
+
+    Shared by the listing and the export, because an export that quietly meant
+    something else than the list it was started from would be the one file
+    nobody can check: what comes out has to be what was on screen.
+    """
+    if sort not in ITEM_SORT_FIELDS:
+        raise HTTPException(status_code=400, detail=f"Cannot sort by {sort}")
+
+    if scope is Scope.PUBLICATIONS and library.type is not LibraryType.USER:
+        # A group has no My Publications: publishing is something an account
+        # does with its own library. The sidebar does not offer the row, so
+        # this is only reachable by hand.
+        raise HTTPException(status_code=400, detail="Only a personal library has publications")
+
+    item_scope = _SCOPES[scope]
+    if collection:
+        item_scope = items.Scope.COLLECTION_TOP if scope is Scope.TOP else items.Scope.COLLECTION
+
+    query = ListQuery(
+        limit=limit,
+        start=start,
+        q=q,
+        qmode=QuickSearchMode.EVERYTHING if q else QuickSearchMode.TITLE_CREATOR_YEAR,
+        sort=sort,
+        direction=direction or default_direction(sort),
+        tags=parse_expressions(tag or []),
+        item_keys=tuple(item_keys),
+    )
+    return query, item_scope
+
+
 @router.get("/libraries/{library_id}/items")
 async def list_library_items(
     session: SessionDep,
@@ -189,27 +239,16 @@ async def list_library_items(
     """
     library = await _readable_library(session, user, library_id)
 
-    if sort not in ITEM_SORT_FIELDS:
-        raise HTTPException(status_code=400, detail=f"Cannot sort by {sort}")
-
-    if scope is Scope.PUBLICATIONS and library.type is not LibraryType.USER:
-        # A group has no My Publications: publishing is something an account
-        # does with its own library. The sidebar does not offer the row, so
-        # this is only reachable by hand.
-        raise HTTPException(status_code=400, detail="Only a personal library has publications")
-
-    item_scope = _SCOPES[scope]
-    if collection:
-        item_scope = items.Scope.COLLECTION_TOP if scope is Scope.TOP else items.Scope.COLLECTION
-
-    query = ListQuery(
+    query, item_scope = _item_query(
+        library,
+        scope=scope,
+        collection=collection,
+        q=q,
+        sort=sort,
+        direction=direction,
+        tag=tag,
         limit=limit,
         start=start,
-        q=q,
-        qmode=QuickSearchMode.EVERYTHING if q else QuickSearchMode.TITLE_CREATOR_YEAR,
-        sort=sort,
-        direction=direction or default_direction(sort),
-        tags=parse_expressions(tag or []),
     )
     page = await items.list_items(session, library, query, scope=item_scope, key=collection)
 
@@ -219,6 +258,90 @@ async def list_library_items(
             "libraryVersion": page.library_version,
             "items": await render_items(session, page.objects, library, base_url),
         }
+    )
+
+
+#: Declared above ``/items/{item_key}`` on purpose: routes are matched in the
+#: order they are added, and an export is not an item with the key "export".
+@router.get("/libraries/{library_id}/items/export")
+async def export_library_items(
+    session: SessionDep,
+    user: CurrentUserDep,
+    library_id: int,
+    response_format: Annotated[str, Query(alias="format")] = str(Format.BIBTEX),
+    name: str | None = None,
+    q: str | None = None,
+    sort: str = "dateModified",
+    direction: Direction | None = None,
+    collection: str | None = None,
+    tag: Annotated[list[str] | None, Query()] = None,
+    item_key: Annotated[str | None, Query(alias="itemKey")] = None,
+    scope: Scope = Scope.TOP,
+) -> Response:
+    """Write what the item list is showing as a file, and send it.
+
+    The desktop client has three of these — Export Library…, Export Collection…
+    and Export Items… — and they are one errand with three ways of saying which
+    items: the whole library, a collection, or the rows picked out. So this
+    takes the listing's own parameters, and ``itemKey`` narrows them to a
+    selection; whatever the list would draw is what the file holds.
+
+    Reading the library is enough. An archive is an administrator's affair
+    because it carries every version, the deletion log and the attachment bytes;
+    this carries the bibliography of items the reader can already open one by
+    one, which is the same reason ``/citation`` beside it needs no more.
+
+    Built on disk and streamed from there, as the archive is: a library's worth
+    of BibTeX is not something to assemble in memory per request. The temporary
+    copy goes once the response has been sent.
+    """
+    library = await _readable_library(session, user, library_id)
+
+    offered = sorted(str(entry) for entry in itemexport.EXPORT_FORMATS)
+    if response_format not in offered:
+        # `json` and `atom` are refused here as firmly as a made-up name: they
+        # describe an item to a program that already knows what an item is,
+        # which is the API's job and not a file anybody exports.
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot export as {response_format}; the formats are {', '.join(offered)}",
+        )
+    chosen = Format(response_format)
+
+    query, item_scope = _item_query(
+        library,
+        scope=scope,
+        collection=collection,
+        q=q,
+        sort=sort,
+        direction=direction,
+        tag=tag,
+        item_keys=[key for key in (item_key or "").split(",") if key],
+    )
+
+    workspace = Path(tempfile.mkdtemp(prefix="altero-items-"))
+    filename = itemexport.file_name(
+        name, chosen, fallback=f"altero-{library.type.value}-{library.owner_id}"
+    )
+    try:
+        await itemexport.write_items(
+            session,
+            library,
+            workspace / filename,
+            response_format=chosen,
+            query=query,
+            scope=item_scope,
+            key=collection,
+        )
+    except BaseException:
+        shutil.rmtree(workspace, ignore_errors=True)
+        raise
+
+    return FileResponse(
+        workspace / filename,
+        media_type=CONTENT_TYPES[chosen],
+        filename=filename,
+        background=BackgroundTask(shutil.rmtree, workspace, ignore_errors=True),
     )
 
 
