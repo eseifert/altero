@@ -18,14 +18,27 @@ names, and which until now meant a shell on the server.
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, Depends, HTTPException
+from pydantic import BaseModel, Field
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
 from altero.api.routes.web import CsrfDep, CurrentUserDep
-from altero.models import User
-from altero.services import health, instancesettings, retention, storagestats
+from altero.errors import InvalidInputError, NotFoundError
+from altero.models import ApiKey, GroupMember, User
+from altero.services import (
+    account,
+    admin,
+    emailverify,
+    health,
+    instancesettings,
+    retention,
+    storagestats,
+    webauth,
+)
 
 router = APIRouter(prefix="/web/admin", tags=["web"])
 
@@ -43,6 +56,63 @@ async def get_administrator(user: CurrentUserDep) -> User:
 
 
 AdministratorDep = Annotated[User, Depends(get_administrator)]
+
+
+class NewAccount(BaseModel):
+    """What making an account for somebody else takes."""
+
+    username: str
+    password: str
+    email: str = ""
+    display_name: str = Field(default="", alias="displayName")
+    administrator: bool = False
+    #: The administrator's own, as everything that touches a credential takes.
+    current_password: str = Field(default="", alias="currentPassword")
+
+
+class AccountChange(BaseModel):
+    """A change to somebody else's account. Each applied only when it is sent."""
+
+    disabled: bool | None = None
+    administrator: bool | None = None
+    current_password: str = Field(default="", alias="currentPassword")
+
+
+class NewPassword(BaseModel):
+    password: str
+    current_password: str = Field(default="", alias="currentPassword")
+
+
+class PasswordOnly(BaseModel):
+    current_password: str = Field(default="", alias="currentPassword")
+
+
+def _serialise_account(user: User, *, keys: int = 0, groups: int = 0) -> dict:
+    """Render one account for the list.
+
+    Nothing about what is *in* their library, and no credential: an
+    administrator counts and measures. The counts are what a decision to
+    suspend or delete somebody is actually made from.
+    """
+    return {
+        "id": user.id,
+        "username": user.username,
+        "displayName": user.display_name,
+        "email": user.email,
+        "emailVerified": user.email_verified is not None,
+        "administrator": user.administrator,
+        "disabled": user.disabled_at is not None,
+        "disabledAt": user.disabled_at.isoformat() + "Z" if user.disabled_at else None,
+        "keys": keys,
+        "groups": groups,
+    }
+
+
+async def _account(session: AsyncSession, user_id: int) -> User:
+    user = await session.get(User, user_id)
+    if user is None:
+        raise NotFoundError("No such account")
+    return user
 
 
 def _library_usage(entry: storagestats.LibraryUsage) -> dict:
@@ -196,6 +266,173 @@ async def run_retention(
             "summary": retention.describe(report),
         }
     )
+
+
+@router.get("/users")
+async def list_accounts(session: SessionDep, _admin: AdministratorDep) -> Response:
+    """Report every account, with what a decision about it would be made from."""
+    users = list(await session.scalars(select(User).order_by(User.id)))
+    keys = {
+        user_id: count
+        for user_id, count in await session.execute(
+            select(ApiKey.user_id, func.count()).group_by(ApiKey.user_id)
+        )
+    }
+    groups = {
+        user_id: count
+        for user_id, count in await session.execute(
+            select(GroupMember.user_id, func.count()).group_by(GroupMember.user_id)
+        )
+    }
+
+    return JSONResponse(
+        {
+            "users": [
+                _serialise_account(user, keys=keys.get(user.id, 0), groups=groups.get(user.id, 0))
+                for user in users
+            ]
+        }
+    )
+
+
+@router.post("/users", status_code=201)
+async def create_account(
+    request: Request,
+    session: SessionDep,
+    admin_user: AdministratorDep,
+    body: NewAccount,
+    _csrf: CsrfDep,
+) -> Response:
+    """Make an account for somebody else, with a password to hand them.
+
+    The password is set here rather than mailed, and the interface shows it
+    once, the way `altero key add` shows a key once. Handing it over is the
+    administrator's business; the person changes it in their own settings.
+
+    An address is optional, exactly as it is for `altero user add`: an account
+    syncs without one, and requiring one would make this refuse the case the
+    command line has always allowed.
+    """
+    account.require_password(admin_user, body.current_password)
+
+    user = await admin.create_user(
+        session,
+        username=webauth.validate_username(body.username),
+        display_name=body.display_name or body.username,
+    )
+    if body.email:
+        address = emailverify.normalise(body.email)
+        if await session.scalar(
+            select(User).where(func.lower(User.email) == address, User.id != user.id)
+        ):
+            # Checked after the account exists only because create_user assigns
+            # the id; the account is removed again rather than left half-made.
+            await admin.delete_user(session, user)
+            raise InvalidInputError("That email address is already registered")
+        user.email = address
+        await session.commit()
+
+    await webauth.set_password(session, user, body.password)
+    if body.administrator:
+        await admin.set_administrator(session, user, administrator=True)
+
+    return JSONResponse({"user": _serialise_account(user)}, status_code=201)
+
+
+@router.patch("/users/{user_id}")
+async def change_account(
+    session: SessionDep,
+    admin_user: AdministratorDep,
+    user_id: int,
+    body: AccountChange,
+    _csrf: CsrfDep,
+) -> Response:
+    """Suspend an account, put it back, or change who administers the instance.
+
+    Neither can be done to yourself. Suspending yourself is a door that locks
+    from the inside with the key still in it, and standing down is
+    :func:`altero.services.admin.set_administrator`'s own refusal when you are
+    the last one -- which it makes on behalf of the instance rather than of
+    whoever clicked.
+    """
+    account.require_password(admin_user, body.current_password)
+    user = await _account(session, user_id)
+
+    if user.id == admin_user.id and body.disabled is not None:
+        raise InvalidInputError("You cannot suspend yourself")
+
+    if body.disabled is not None:
+        await admin.set_disabled(session, user, disabled=body.disabled)
+    if body.administrator is not None:
+        await admin.set_administrator(session, user, administrator=body.administrator)
+
+    return JSONResponse({"user": _serialise_account(user)})
+
+
+@router.post("/users/{user_id}/password", status_code=204)
+async def set_account_password(
+    session: SessionDep,
+    admin_user: AdministratorDep,
+    user_id: int,
+    body: NewPassword,
+    _csrf: CsrfDep,
+) -> Response:
+    """Set somebody's password, ending their other sessions.
+
+    The operation `docs/motivation.md` names as one of the two that most often
+    sent somebody to a shell. Through the same
+    :func:`altero.services.webauth.set_password` the command line uses, so the
+    owner is told about it if there is a confirmed address to tell.
+    """
+    account.require_password(admin_user, body.current_password)
+    user = await _account(session, user_id)
+
+    await webauth.set_password(session, user, body.password)
+    return Response(status_code=204)
+
+
+@router.post("/users/{user_id}/revoke")
+async def revoke_account_credentials(
+    session: SessionDep,
+    admin_user: AdministratorDep,
+    user_id: int,
+    body: PasswordOnly,
+    _csrf: CsrfDep,
+) -> Response:
+    """Drop every key and every signed-in browser, leaving the account working."""
+    account.require_password(admin_user, body.current_password)
+    user = await _account(session, user_id)
+
+    keys, sessions = await admin.revoke_credentials(session, user)
+    return JSONResponse({"keys": keys, "sessions": sessions})
+
+
+@router.delete("/users/{user_id}", status_code=204)
+async def delete_account(
+    session: SessionDep,
+    admin_user: AdministratorDep,
+    user_id: int,
+    body: PasswordOnly,
+    _csrf: CsrfDep,
+) -> Response:
+    """Remove an account and its personal library.
+
+    The one route here that reaches into a library, and it does not read one:
+    it goes through the same `clear_library` a group deletion uses. Refused
+    while the account owns a group, and refused for yourself -- an
+    administrator deleting their own account would take the instance's
+    administration with it.
+    """
+    account.require_password(admin_user, body.current_password)
+    user = await _account(session, user_id)
+
+    if user.id == admin_user.id:
+        raise InvalidInputError(
+            "You cannot delete your own account here. Another administrator can."
+        )
+
+    await admin.delete_user(session, user)
+    return Response(status_code=204)
 
 
 @router.get("/storage")

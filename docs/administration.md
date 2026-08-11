@@ -4,14 +4,22 @@ The Web API cannot create accounts or issue credentials. It can administer a
 **group** — creating one, changing it, and deciding who belongs to it — with an
 ordinary API key, and so can the [web interface](web-interface.md#groups); see
 [compatibility.md](compatibility.md#groups) for what that copies from upstream
-and what it does not. Accounts, credentials and anything else about another
-person are still command-line operations.
+and what it does not.
+
+Everything else about another person — making them an account, resetting their
+password, suspending them, deleting one — is an *instance administrator's*
+work, and is done either here or in the browser under **Administration**. The
+two go through the same service, so the shell and the screen cannot disagree
+about what any of it means.
 
 ```sh
 uv run altero user add <username> [--display-name NAME] [--id N]
 uv run altero user list
 uv run altero user password <username>
 uv run altero user admin <username> [--revoke]
+uv run altero user disable <username> [--undo]
+uv run altero user revoke <username>
+uv run altero user delete <username> [--yes]
 uv run altero key add <username> [--name LABEL] [--read-only] [--groups]
 uv run altero key list
 uv run altero key revoke <key>
@@ -93,6 +101,39 @@ The numbers are counted when the screen is opened rather than kept in a
 counter, because a counter maintained on every upload can drift from the disk
 it describes — which is the failure this is meant to catch.
 
+### Accounts
+
+**Accounts** lists everybody with an account here — whether they administer the
+instance, whether they are suspended, how many API keys they hold and how many
+groups they are in — and does the four things that used to need a shell.
+
+**Making one** takes a username and a password, which is shown once and never
+again, exactly as `altero key add` shows a key once; handing it over is your
+business, and the person changes it in their own settings. An address is
+optional, as it is for `altero user add`.
+
+**Setting somebody's password** ends their other browser sessions and tells them
+about it, if they have a confirmed address — the same
+`altero user password` does.
+
+**Suspending** stops *both* credentials: the API key a Zotero client holds and
+this interface. That is the whole of it — a suspension the browser honoured
+alone would leave every sync client of that account working exactly as before.
+Nothing they own is touched, and reinstating them puts everything back, which is
+what makes this the answer to somebody leaving while their library is still
+wanted.
+
+**Deleting** removes the account, its personal library and everything in it,
+through the same machinery that deletes a group. It is refused while the account
+owns a group — the groups are named, and handing one on is its own operation
+rather than something this should guess at — and refused for your own account.
+Attachment bytes are shared by digest and stay: another library may have
+uploaded the same file.
+
+The last administrator cannot be suspended, demoted or deleted, and every one of
+these asks for your own password before it does anything, as your own settings
+do for anything touching a credential.
+
 ## Retention
 
 zotero.org empties the trash after 30 days. Here that period is the operator's
@@ -101,10 +142,10 @@ trash because it was upgraded would be the worst kind of surprise. **Retention**
 under Administration sets three periods, and so does the configuration —
 
 ```python
-TRASH_RETENTION_DAYS = 0       # 30 matches zotero.org
-ACTIVITY_RETENTION_DAYS = 0    # delivered group activity
-UPLOAD_RETENTION_HOURS = 24    # uploads whose bytes never arrived
-RETENTION_INTERVAL = 0         # seconds; zero means only `retention run` does it
+TRASH_RETENTION_DAYS = 0  # 30 matches zotero.org
+ACTIVITY_RETENTION_DAYS = 0  # delivered group activity
+UPLOAD_RETENTION_HOURS = 24  # uploads whose bytes never arrived
+RETENTION_INTERVAL = 0  # seconds; zero means only `retention run` does it
 ```
 
 — with one rule between them: a value set in the browser wins, and clearing it

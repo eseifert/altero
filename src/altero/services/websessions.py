@@ -70,15 +70,29 @@ async def lookup(session: AsyncSession, token: str | None) -> WebSession | None:
 
     Expiry is applied here rather than left to the caller, so that there is no
     path on which an out-of-date session is honoured by someone who forgot to
-    check.
+    check. A session belonging to a suspended account is refused for the same
+    reason: :func:`altero.services.admin.set_disabled` ends those sessions, and
+    this is what makes suspension a property of the credential rather than of
+    a cleanup step that could be raced by a sign-in.
+
+    The owner is fetched in the same statement, so this stays one query on the
+    path every request under ``/web`` takes.
     """
     if not token:
         return None
 
-    record = await session.scalar(
-        select(WebSession).where(WebSession.token_hash == hash_token(token))
-    )
-    if record is None or record.expires < _now():
+    row = (
+        await session.execute(
+            select(WebSession, User.disabled_at)
+            .join(User, User.id == WebSession.user_id)
+            .where(WebSession.token_hash == hash_token(token))
+        )
+    ).first()
+    if row is None:
+        return None
+
+    record, disabled_at = row
+    if disabled_at is not None or record.expires < _now():
         return None
     return record
 

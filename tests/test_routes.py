@@ -45,6 +45,15 @@ EXPECTED = [
     ("/web/admin/settings", "GET"),
     ("/web/admin/settings", "PUT"),
     ("/web/admin/retention/run", "POST"),
+    # Account lifecycle: the operations that used to need a shell. The DELETE
+    # is the one route under /web/admin that reaches into a library, and it
+    # goes through the same clear_library a group deletion does.
+    ("/web/admin/users", "GET"),
+    ("/web/admin/users", "POST"),
+    ("/web/admin/users/{user_id}", "PATCH"),
+    ("/web/admin/users/{user_id}", "DELETE"),
+    ("/web/admin/users/{user_id}/password", "POST"),
+    ("/web/admin/users/{user_id}/revoke", "POST"),
     ("/web/link/{token}", "GET"),
     ("/web/link/{token}/approve", "POST"),
     ("/web/link/{token}/deny", "POST"),

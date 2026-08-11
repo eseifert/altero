@@ -23,6 +23,8 @@ export default {
   'A whole number of periods, from 0 to {maximum}.': 'Un nombre entier, de 0 à {maximum}.',
   'API keys': 'Clés API',
   Accept: 'Accepter',
+  'Account created.': 'Compte créé.',
+  'Account deleted.': 'Compte supprimé.',
   'Accounts': 'Comptes',
   'Across the instance': 'Sur l’ensemble de l’instance',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
@@ -62,6 +64,7 @@ export default {
   'Authenticator enabled.': "Application d'authentification activée.",
   'Authenticator removed.': "Application d'authentification supprimée.",
   Back: 'Retour',
+  'Back in service.': 'De nouveau en service.',
   'Back to groups': 'Retour aux groupes',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Les deux suivent cet appareil sauf choix contraire, et suivent votre compte.',
@@ -112,6 +115,7 @@ export default {
   'Create one': 'En créer un',
   'Create your account': 'Créez votre compte',
   'Created in': 'Créée dans',
+  'Credentials revoked.': 'Identifiants révoqués.',
   'Current password': 'Mot de passe actuel',
   'Database': 'Base de données',
   'Dates look like this: {example}': 'Les dates ressemblent à ceci : {example}',
@@ -122,6 +126,7 @@ export default {
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Placer votre travail dans le domaine public est irréversible, même si vous choisissez plus tard des conditions différentes ou si vous cessez la publication de ce travail.',
   Delete: 'Supprimer',
+  'Delete account': 'Supprimer le compte',
   'Delete everything in the trash?': 'Supprimer tout ce qui se trouve dans la corbeille ?',
   'Delete it now': 'Supprimer maintenant',
   'Delete this group': 'Supprimer ce groupe',
@@ -146,10 +151,14 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Faites glisser pour déplacer cette séparation. Double-cliquez pour la rétablir.',
   'Duplicate Items': 'Doublons',
+  'Email': 'E-mail',
   'Email address': 'Adresse e-mail',
+  'Email address (optional)': 'Adresse e-mail (facultative)',
   'Empty the trash': 'Vider la corbeille',
   'Enter the six-digit code from your authenticator app.':
     "Saisissez le code à six chiffres de votre application d'authentification.",
+  'Everything below asks for it, as your own settings do.':
+    'Tout ce qui suit le demande, comme le font vos propres réglages.',
   'Everything else': 'Le reste',
   'Everything here is filed in a collection.': 'Tout ici est classé dans une collection.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
@@ -214,6 +223,7 @@ export default {
   Library: 'Bibliothèque',
   'Loading…': 'Chargement…',
   'Make a member': 'Passer en membre',
+  'Make administrator': 'Nommer administrateur',
   'Make an account with this address to answer it.':
     'Créez un compte avec cette adresse pour y répondre.',
   'Make an administrator': 'Passer en administrateur',
@@ -236,6 +246,7 @@ export default {
   'New collection': 'Nouvelle collection',
   'New group': 'Nouveau groupe',
   'New password': 'Nouveau mot de passe',
+  'New password for this account': 'Nouveau mot de passe pour ce compte',
   'New subcollection inside “{name}”': 'Nouvelle sous-collection dans « {name} »',
   'Next: Choose a License': 'Suivant : choisir une licence',
   'Next: Sharing': 'Suivant : partager',
@@ -287,6 +298,9 @@ export default {
   'Overview': 'Vue d’ensemble',
   'Password changed. Every other browser was signed out.':
     'Mot de passe changé. Tous les autres navigateurs ont été déconnectés.',
+  'Password for the new account': 'Mot de passe du nouveau compte',
+  'Password set. Their other browsers were signed out.':
+    'Mot de passe défini. Les autres navigateurs ont été déconnectés.',
   'Paste it below. It is used for this copy and never stored.': 'Collez-la ci-dessous. Elle sert à cette copie et n’est jamais conservée.',
   'People joining or leaving': 'Arrivées et départs',
   'People with an account here': 'Les personnes ayant un compte ici',
@@ -319,6 +333,7 @@ export default {
     "Refusé. Zotero a été informé qu'il peut cesser d'attendre.",
   'Registration is open on this server.': 'L’inscription est ouverte sur ce serveur.',
   Remove: 'Retirer',
+  'Reinstate': 'Rétablir',
   'Remove authenticator': "Supprimer l'application d'authentification",
   'Remove from My Publications': 'Retirer de Mes publications',
   'Remove “{name}” from My Publications?': 'Retirer « {name} » de Mes publications ?',
@@ -337,6 +352,7 @@ export default {
   'Restore to Library': 'Restaurer vers la bibliothèque',
   Revoke: 'Révoquer',
   'Retention': 'Conservation',
+  'Revoke keys and sessions': 'Révoquer les clés et les sessions',
   'Rights for “{name}”': 'Autorisations pour « {name} »',
   Role: 'Rôle',
   Save: 'Enregistrer',
@@ -356,6 +372,7 @@ export default {
   'Send confirmation': 'Envoyer la confirmation',
   'Sent to {address}.': 'Envoyée à {address}.',
   'Sent to {email}, once a group has been quiet for a while.': 'Envoyé à {email}, une fois le groupe calme depuis un moment.',
+  'Set password': 'Définir le mot de passe',
   'Set up an authenticator': "Configurer une application d'authentification",
   Settings: 'Paramètres',
   'Settings for “{name}”': 'Paramètres de « {name} »',
@@ -381,8 +398,14 @@ export default {
   'Sort by {column}': 'Trier par {column}',
   'Sort by {column}, currently ascending': 'Trier par {column}, actuellement croissant',
   'Sort by {column}, currently descending': 'Trier par {column}, actuellement décroissant',
+  'Stop administering': 'Cesser d’administrer',
   'Stopped.': 'Interrompu.',
   'Storage': 'Stockage',
+  'Suspend': 'Suspendre',
+  'Suspended': 'Suspendu',
+  'Suspended. Their libraries are untouched.': 'Suspendu. Ses bibliothèques ne sont pas touchées.',
+  'Suspending stops both credentials — the API key a Zotero client holds and this interface — and touches nothing they own. Deleting removes their library and everything in it, and cannot be undone.':
+    'Une suspension arrête les deux identifiants — la clé d’API que détient un client Zotero et cette interface — et ne touche à rien de ce qui lui appartient. La suppression retire sa bibliothèque et tout ce qu’elle contient, sans retour possible.',
   'Sync clients see this as group {id}.':
     'Les clients de synchronisation voient ceci comme le groupe {id}.',
   Tags: 'Marqueurs',
@@ -399,6 +422,8 @@ export default {
   'The library is now at version {version}.':
     'La bibliothèque est maintenant à la version {version}.',
   'The library was restored.': 'La bibliothèque a été restaurée.',
+  'The password for {username} is {password}. Copy this now. It will not be shown again.':
+    'Le mot de passe de {username} est {password}. Copiez-le maintenant : il ne sera plus affiché.',
   'The tag will be changed in all associated items.': 'Le marqueur sera modifié dans tous les documents associés.',
   'The trash is empty.': 'La corbeille est vide.',
   'The two passwords do not match': 'Les deux mots de passe ne correspondent pas',
@@ -462,6 +487,7 @@ export default {
   'You have joined the group.': 'Vous avez rejoint le groupe.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     'Votre page est masquée. Vos documents restent dans Mes publications : la page peut donc être rouverte.',
+  'Your password': 'Votre mot de passe',
   'Your published work can be read by anyone signed in to this server.':
     'Vos travaux publiés sont lisibles par toute personne connectée à ce serveur.',
   'Your published work can be read by anyone, without an account here.':

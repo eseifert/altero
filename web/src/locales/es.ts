@@ -23,6 +23,8 @@ export default {
   'A whole number of periods, from 0 to {maximum}.': 'Un número entero, de 0 a {maximum}.',
   'API keys': 'Claves de API',
   Accept: 'Aceptar',
+  'Account created.': 'Cuenta creada.',
+  'Account deleted.': 'Cuenta eliminada.',
   'Accounts': 'Cuentas',
   'Across the instance': 'En toda la instancia',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
@@ -61,6 +63,7 @@ export default {
   'Authenticator enabled.': 'Autenticación activada.',
   'Authenticator removed.': 'Autenticación eliminada.',
   Back: 'Atrás',
+  'Back in service.': 'De nuevo en servicio.',
   'Back to groups': 'Volver a los grupos',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Ambos siguen a este dispositivo salvo que elijas otra cosa, y acompañan a tu cuenta.',
@@ -111,6 +114,7 @@ export default {
   'Create one': 'Crear una',
   'Create your account': 'Crea tu cuenta',
   'Created in': 'Se creará en',
+  'Credentials revoked.': 'Credenciales revocadas.',
   'Current password': 'Contraseña actual',
   'Database': 'Base de datos',
   'Dates look like this: {example}': 'Las fechas se ven así: {example}',
@@ -121,6 +125,7 @@ export default {
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Dedicar tu obra al dominio público es irreversible, aunque más adelante elijas condiciones diferentes o dejes de publicar la obra.',
   Delete: 'Eliminar',
+  'Delete account': 'Eliminar la cuenta',
   'Delete everything in the trash?': '¿Eliminar todo lo que hay en la papelera?',
   'Delete it now': 'Eliminar ahora',
   'Delete this group': 'Eliminar este grupo',
@@ -145,10 +150,14 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Arrastre para mover esta división. Haga doble clic para restablecerla.',
   'Duplicate Items': 'Elementos duplicados',
+  'Email': 'Correo electrónico',
   'Email address': 'Dirección de correo',
+  'Email address (optional)': 'Dirección de correo (opcional)',
   'Empty the trash': 'Vaciar la papelera',
   'Enter the six-digit code from your authenticator app.':
     'Escribe el código de seis dígitos de tu aplicación de autenticación.',
+  'Everything below asks for it, as your own settings do.':
+    'Todo lo de abajo lo pide, igual que tus propios ajustes.',
   'Everything else': 'Lo demás',
   'Everything here is filed in a collection.': 'Todo lo que hay aquí está en una colección.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
@@ -212,6 +221,7 @@ export default {
   Library: 'Biblioteca',
   'Loading…': 'Cargando…',
   'Make a member': 'Convertir en miembro',
+  'Make administrator': 'Hacer administrador',
   'Make an account with this address to answer it.':
     'Cree una cuenta con esta dirección para responderla.',
   'Make an administrator': 'Convertir en administrador',
@@ -234,6 +244,7 @@ export default {
   'New collection': 'Nueva colección',
   'New group': 'Nuevo grupo',
   'New password': 'Nueva contraseña',
+  'New password for this account': 'Nueva contraseña para esta cuenta',
   'New subcollection inside “{name}”': 'Nueva subcolección dentro de «{name}»',
   'Next: Choose a License': 'Siguiente: Escoge una licencia',
   'Next: Sharing': 'Siguiente: Compartir',
@@ -284,6 +295,9 @@ export default {
   'Overview': 'Resumen',
   'Password changed. Every other browser was signed out.':
     'Contraseña cambiada. Se cerró la sesión en todos los demás navegadores.',
+  'Password for the new account': 'Contraseña de la nueva cuenta',
+  'Password set. Their other browsers were signed out.':
+    'Contraseña establecida. Sus otros navegadores se han cerrado.',
   'Paste it below. It is used for this copy and never stored.': 'Pégala abajo. Se usa para esta copia y no se guarda.',
   'People joining or leaving': 'Altas y bajas de personas',
   'People with an account here': 'Quienes tengan una cuenta aquí',
@@ -315,6 +329,7 @@ export default {
     'Rechazado. Se ha avisado a Zotero de que deje de esperar.',
   'Registration is open on this server.': 'El registro está abierto en este servidor.',
   Remove: 'Quitar',
+  'Reinstate': 'Restablecer',
   'Remove authenticator': 'Eliminar la autenticación',
   'Remove from My Publications': 'Eliminar de Mis publicaciones',
   'Remove “{name}” from My Publications?': '¿Eliminar «{name}» de Mis publicaciones?',
@@ -333,6 +348,7 @@ export default {
   'Restore to Library': 'Restaurar a la biblioteca',
   Revoke: 'Revocar',
   'Retention': 'Conservación',
+  'Revoke keys and sessions': 'Revocar claves y sesiones',
   'Rights for “{name}”': 'Derechos de «{name}»',
   Role: 'Rol',
   Save: 'Guardar',
@@ -352,6 +368,7 @@ export default {
   'Send confirmation': 'Enviar la confirmación',
   'Sent to {address}.': 'Enviada a {address}.',
   'Sent to {email}, once a group has been quiet for a while.': 'Se envía a {email} cuando el grupo lleva un rato tranquilo.',
+  'Set password': 'Establecer contraseña',
   'Set up an authenticator': 'Configurar una aplicación de autenticación',
   Settings: 'Ajustes',
   'Settings for “{name}”': 'Ajustes de «{name}»',
@@ -377,8 +394,14 @@ export default {
   'Sort by {column}': 'Ordenar por {column}',
   'Sort by {column}, currently ascending': 'Ordenar por {column}, ahora ascendente',
   'Sort by {column}, currently descending': 'Ordenar por {column}, ahora descendente',
+  'Stop administering': 'Dejar de administrar',
   'Stopped.': 'Detenido.',
   'Storage': 'Almacenamiento',
+  'Suspend': 'Suspender',
+  'Suspended': 'Suspendida',
+  'Suspended. Their libraries are untouched.': 'Suspendida. Sus bibliotecas quedan intactas.',
+  'Suspending stops both credentials — the API key a Zotero client holds and this interface — and touches nothing they own. Deleting removes their library and everything in it, and cannot be undone.':
+    'Suspender detiene ambas credenciales —la clave de API que tiene un cliente de Zotero y esta interfaz— y no toca nada de lo suyo. Eliminar borra su biblioteca y todo lo que hay en ella, y no se puede deshacer.',
   'Sync clients see this as group {id}.':
     'Los clientes de sincronización ven esto como el grupo {id}.',
   Tags: 'Etiquetas',
@@ -394,6 +417,8 @@ export default {
   'The items in it stay in the library.': 'Los elementos que contiene permanecen en la biblioteca.',
   'The library is now at version {version}.': 'La biblioteca está ahora en la versión {version}.',
   'The library was restored.': 'La biblioteca se restauró.',
+  'The password for {username} is {password}. Copy this now. It will not be shown again.':
+    'La contraseña de {username} es {password}. Cópiala ahora; no se mostrará de nuevo.',
   'The tag will be changed in all associated items.': 'La etiqueta se cambiará en todos los elementos asociados.',
   'The trash is empty.': 'La papelera está vacía.',
   'The two passwords do not match': 'Las dos contraseñas no coinciden',
@@ -455,6 +480,7 @@ export default {
   'You have joined the group.': 'Se ha unido al grupo.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     'Tu página está oculta. Tus elementos siguen en Mis publicaciones, así que puedes volver a abrirla.',
+  'Your password': 'Tu contraseña',
   'Your published work can be read by anyone signed in to this server.':
     'Cualquiera que haya iniciado sesión en este servidor puede leer tu obra publicada.',
   'Your published work can be read by anyone, without an account here.':

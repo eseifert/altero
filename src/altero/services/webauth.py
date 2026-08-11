@@ -232,6 +232,14 @@ async def login(
         raise ForbiddenError(BAD_CREDENTIALS)
     assert user is not None  # implied by the check above; narrows the type
 
+    # Checked after the password, deliberately. Refusing a suspended account
+    # before it proves who it is would turn this form into a way of asking
+    # which accounts have been suspended.
+    if user.disabled_at is not None:
+        raise ForbiddenError(
+            "This account has been suspended. Ask whoever runs this server about it."
+        )
+
     # The plain password is in hand exactly here, so this is the only moment a
     # hash made at older parameters can be brought up to the current ones.
     if user.password_hash and passwords.needs_rehash(user.password_hash):

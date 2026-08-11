@@ -234,6 +234,17 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
     ],
   },
 
+  /** Two heads and shoulders: everybody with an account here. */
+  accounts: {
+    label: 'Accounts',
+    paths: [
+      'M10 12a3 3 0 100-6 3 3 0 000 6z',
+      'M4.75 18.75c0-2.9 2.35-4.75 5.25-4.75s5.25 1.85 5.25 4.75',
+      'M15.5 6.4a3 3 0 010 5.2',
+      'M17.5 14.4c1.15.55 1.75 1.6 1.75 3.1',
+    ],
+  },
+
   /** A clock, hands at ten past eight: how long a thing is kept. */
   retention: {
     label: 'Retention',

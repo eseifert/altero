@@ -5,12 +5,30 @@ create an account or issue a credential, so without them a deployment could only
 be set up by writing rows by hand.
 """
 
-from sqlalchemy import func, select
+from datetime import UTC, datetime
+
+from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.keys import generate_api_key
-from altero.models import ApiKey, GroupMember, Library, LibraryType, User
+from altero.models import (
+    ApiKey,
+    ApiKeyGroupAccess,
+    EmailVerification,
+    Group,
+    GroupMember,
+    Invitation,
+    Library,
+    LibraryType,
+    LoginSession,
+    Notification,
+    StorageUpload,
+    TotpCredential,
+    User,
+    WebSession,
+    WriteToken,
+)
 from altero.services import groups
 
 
@@ -55,6 +73,142 @@ async def set_administrator(session: AsyncSession, user: User, *, administrator:
     user.administrator = administrator
     await session.commit()
     return user
+
+
+async def set_disabled(session: AsyncSession, user: User, *, disabled: bool) -> User:
+    """Take ``user`` out of service, or put them back.
+
+    Access stops and the data stays: their libraries, their memberships and
+    what they published are untouched, and reinstating them is clearing this.
+    That is the difference between somebody leaving and somebody's account
+    being deleted, and the deprovisioning half of what an institution needs
+    when a student graduates.
+
+    Both credentials are refused, not one. A flag the browser honoured alone
+    would leave every sync client of a suspended account working exactly as
+    before, which is not a suspension at all -- see
+    :func:`altero.services.auth.authenticate` and
+    :func:`altero.services.websessions.lookup`.
+
+    Their sessions go, because a browser already signed in would otherwise keep
+    working until its cookie expired.
+    """
+    if disabled and user.administrator and await count_administrators(session) <= 1:
+        raise InvalidInputError(
+            "This is the last administrator of this instance; suspending them "
+            "would leave nobody able to put them back"
+        )
+
+    user.disabled_at = datetime.now(UTC).replace(tzinfo=None) if disabled else None
+    await session.commit()
+
+    if disabled:
+        from altero.services import websessions
+
+        await websessions.revoke_all(session, user)
+    return user
+
+
+async def revoke_credentials(session: AsyncSession, user: User) -> tuple[int, int]:
+    """Drop every API key and every signed-in browser. Returns how many of each.
+
+    What you do when a laptop is lost rather than when somebody leaves: the
+    account goes on working, and everything holding a credential for it has to
+    ask again.
+    """
+    keys = list(await session.scalars(select(ApiKey).where(ApiKey.user_id == user.id)))
+    for key in keys:
+        await session.delete(key)
+
+    sessions = list(await session.scalars(select(WebSession).where(WebSession.user_id == user.id)))
+    for record in sessions:
+        await session.delete(record)
+
+    await session.commit()
+    return len(keys), len(sessions)
+
+
+async def delete_user(session: AsyncSession, user: User) -> None:
+    """Remove an account, its personal library and everything in it.
+
+    Refused while the account owns a group, and the groups are named rather
+    than guessed at: handing one on is its own operation with its own screen,
+    and picking an heir here would be this server deciding who inherits
+    somebody else's shared library.
+
+    The library goes through the same :func:`~altero.services.transfer.
+    clear_library` a group deletion uses, so there is one answer to "what is in
+    a library" and this is not a second one. Attachment bytes stay: they are
+    shared by digest, and removing them here would take files out from under
+    another library that had uploaded the same ones.
+    """
+    from altero.services import streaming
+    from altero.services.transfer import clear_library
+
+    if user.administrator and await count_administrators(session) <= 1:
+        raise InvalidInputError(
+            "This is the last administrator of this instance; promote somebody "
+            "else before deleting the account"
+        )
+
+    owned = list(
+        await session.scalars(
+            select(Group.name)
+            .join(Library, Library.id == Group.library_id)
+            .where(Group.owner_id == user.id)
+        )
+    )
+    if owned:
+        raise InvalidInputError(
+            f"{user.username} owns {', '.join(sorted(owned))}. Hand each group on "
+            "to somebody else before deleting the account, or delete the group."
+        )
+
+    library = await session.scalar(
+        select(Library).where(Library.type == LibraryType.USER, Library.owner_id == user.id)
+    )
+    if library is not None:
+        await clear_library(session, library)
+        await session.execute(delete(WriteToken).where(WriteToken.library_id == library.id))
+        await session.execute(delete(StorageUpload).where(StorageUpload.library_id == library.id))
+        await session.execute(
+            delete(ApiKeyGroupAccess).where(ApiKeyGroupAccess.library_id == library.id)
+        )
+        await session.execute(delete(Invitation).where(Invitation.library_id == library.id))
+
+    keys = select(ApiKey.id).where(ApiKey.user_id == user.id)
+    await session.execute(delete(ApiKeyGroupAccess).where(ApiKeyGroupAccess.api_key_id.in_(keys)))
+    # A client login points at a key, and the key is about to go.
+    await session.execute(
+        update(LoginSession).where(LoginSession.api_key_id.in_(keys)).values(api_key_id=None)
+    )
+    await session.execute(delete(ApiKey).where(ApiKey.user_id == user.id))
+
+    await session.execute(delete(WebSession).where(WebSession.user_id == user.id))
+    await session.execute(delete(TotpCredential).where(TotpCredential.user_id == user.id))
+    await session.execute(delete(EmailVerification).where(EmailVerification.user_id == user.id))
+    await session.execute(delete(Notification).where(Notification.user_id == user.id))
+    # Invitations they sent as well as ones addressed to them: `invited_by`
+    # points here and cannot be left dangling.
+    await session.execute(
+        delete(Invitation).where(
+            or_(Invitation.invited_by == user.id, Invitation.user_id == user.id)
+        )
+    )
+    memberships = list(
+        await session.scalars(select(GroupMember).where(GroupMember.user_id == user.id))
+    )
+    await session.execute(delete(GroupMember).where(GroupMember.user_id == user.id))
+
+    if library is not None:
+        await session.execute(delete(Library).where(Library.id == library.id))
+    await session.delete(user)
+    await session.commit()
+
+    # Whoever shared a group with them sees a membership change; the account
+    # itself is gone and hears nothing.
+    for member in memberships:
+        streaming.note_access_change(session.sync_session, member.user_id)
 
 
 async def get_user_by_name(session: AsyncSession, username: str) -> User:

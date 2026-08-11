@@ -69,6 +69,45 @@ const SETTINGS = {
   },
 }
 
+const ACCOUNTS = [
+  {
+    id: 1,
+    username: 'ada',
+    displayName: 'Ada',
+    email: 'ada@example.org',
+    emailVerified: true,
+    administrator: true,
+    disabled: false,
+    disabledAt: null,
+    keys: 2,
+    groups: 1,
+  },
+  {
+    id: 2,
+    username: 'grace',
+    displayName: 'Grace',
+    email: null,
+    emailVerified: false,
+    administrator: false,
+    disabled: false,
+    disabledAt: null,
+    keys: 0,
+    groups: 0,
+  },
+  {
+    id: 3,
+    username: 'rita',
+    displayName: 'Rita',
+    email: null,
+    emailVerified: false,
+    administrator: false,
+    disabled: true,
+    disabledAt: '2026-08-01T00:00:00Z',
+    keys: 1,
+    groups: 0,
+  },
+]
+
 beforeEach(() => {
   setActivePinia(createPinia())
   i18n.global.locale.value = 'en'
@@ -77,6 +116,7 @@ beforeEach(() => {
     if (path === '/web/admin/overview') return Promise.resolve(OVERVIEW)
     if (path === '/web/admin/storage') return Promise.resolve(STORAGE)
     if (path === '/web/admin/settings') return Promise.resolve(SETTINGS)
+    if (path === '/web/admin/users') return Promise.resolve({ users: ACCOUNTS })
     if (path.startsWith('/web/admin/retention/run')) {
       return Promise.resolve({
         preview: path.includes('preview=true'),
@@ -224,6 +264,61 @@ describe('the retention screen', () => {
     await wrapper.findAll('input')[0].setValue('-1')
 
     expect(button(wrapper, 'Save').attributes('disabled')).toBeDefined()
+  })
+})
+
+describe('the accounts screen', () => {
+  it('lists the accounts and marks what each one is', async () => {
+    const wrapper = await open('accounts')
+
+    expect(wrapper.text()).toContain('Ada')
+    expect(wrapper.text()).toContain('Administrator')
+    expect(wrapper.text()).toContain('Suspended')
+  })
+
+  it('asks for the administrator’s own password before anything can be done', async () => {
+    const wrapper = await open('accounts')
+
+    await wrapper.findAll('.accounts__row')[1].trigger('click')
+
+    expect(button(wrapper, 'Suspend').attributes('disabled')).toBeDefined()
+  })
+
+  it('suspends an account once the password is there', async () => {
+    const wrapper = await open('accounts')
+    await wrapper.findAll('.accounts__row')[1].trigger('click')
+
+    await wrapper.findAll('input[type="password"]')[0].setValue('a good password')
+    await button(wrapper, 'Suspend').trigger('click')
+    await flush()
+
+    expect(requestMock).toHaveBeenCalledWith('/web/admin/users/2', {
+      method: 'PATCH',
+      body: { disabled: true, currentPassword: 'a good password' },
+    })
+  })
+
+  it('offers to reinstate one that is already suspended', async () => {
+    const wrapper = await open('accounts')
+
+    await wrapper.findAll('.accounts__row')[2].trigger('click')
+
+    expect(button(wrapper, 'Reinstate')).toBeTruthy()
+  })
+
+  it('shows a new account’s password once', async () => {
+    /* The only time anybody sees it, exactly as an API key is shown once. */
+    const wrapper = await open('accounts')
+
+    await button(wrapper, 'Create account').trigger('click')
+    await wrapper.findAll('input')[0].setValue('rita')
+    await wrapper.findAll('input[type="password"]')[0].setValue('a password for rita')
+    await wrapper.findAll('input[type="password"]')[1].setValue('mine')
+    // The form rather than the button: jsdom does not submit one from a click.
+    await wrapper.get('.accounts__form').trigger('submit')
+    await flush()
+
+    expect(wrapper.get('.accounts__issued').text()).toContain('a password for rita')
   })
 })
 

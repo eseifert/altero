@@ -43,8 +43,10 @@ opens the door for one address, and advertising the instance as open would
 promise a form that refuses almost everybody. The link in the invitation goes
 straight to the form.
 
-Every other account is made with `altero user add` and given a password with
-`altero user password <username>` — see [administration.md](administration.md).
+Every other account is made by an instance administrator — under
+**Administration → Accounts** in the browser, or with `altero user add` and
+`altero user password <username>` from a shell. See
+[administration.md](administration.md).
 
 Accounts that predate this interface keep working exactly as they did. They
 have no password until one is set, which means they can sync but cannot sign in
@@ -744,11 +746,17 @@ else, so the icon hides a door rather than guarding one; see
 the role and how it is handed on.
 
 It is the one part of this interface that is about the instance rather than
-about a library: **Overview** says what the server is running and how much of
-everything it holds, and **Storage** says what each library costs on disk,
-against what the instance actually holds. What it never does is read: no screen
-here answers with an item, a title, a note or a file, and administering the
-instance adds nothing to what its holder may see in anybody's library.
+about a library. **Overview** says what the server is running and how much of
+everything it holds; **Storage** says what each library costs on disk, against
+what the instance actually holds; **Accounts** makes an account for somebody
+else, resets a password, suspends an account and deletes one; and **Retention**
+says how long this server keeps what nobody asked it to keep. Each of those
+writes asks for your own password, as the account's own screens do.
+
+What none of it does is read. No screen here answers with an item, a title, a
+note or a file, and administering the instance adds nothing to what its holder
+may see in anybody's library. Deleting an account is the one operation that
+reaches into a library, and it reads nothing on its way through.
 
 ## Groups
 
@@ -881,7 +889,8 @@ are cached for good, so the second visit fetches none of it.
 
 ## Not built yet
 
-Passkeys, single sign-on through OIDC and SAML, one-time codes by email, and
+Passkeys, single sign-on through OIDC and SAML, an emailed link for somebody
+who has forgotten their password — an administrator sets one instead — and
 editing an item's fields — with one exception, the Rights field, because a
 licence set when a work was published has to be revisable by whoever set it.
 Collections can be made, renamed, moved and removed, an item can be filed,
@@ -898,8 +907,8 @@ from Items…, which needs a citation style chosen out of thousands, and Generat
 Report…. The server renders both — `format=bib` is what the detail pane's
 citation comes from — so what is missing is the asking, not the writing.
 
-Making an account for somebody else, resetting their password and revoking
-their credentials are shell operations. The operator's view of the instance is
-not: see **Administration** above.
-[administration.md](administration.md) says what the shell still covers and
-[motivation.md](motivation.md) why it matters.
+Making an account for somebody else, resetting a password, suspending an
+account and the operator's view of the instance are no longer shell operations
+— see **Administration** above.
+[administration.md](administration.md) says what the shell still covers alone
+and what it now shares with the browser.

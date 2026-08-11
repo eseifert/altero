@@ -16,6 +16,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import SectionPanel, { type PanelSection } from '@/components/SectionPanel.vue'
+import AccountsSection from './admin/AccountsSection.vue'
 import OverviewSection from './admin/OverviewSection.vue'
 import RetentionSection from './admin/RetentionSection.vue'
 import StorageSection from './admin/StorageSection.vue'
@@ -30,6 +31,12 @@ const { notice, failure } = providePanel()
 const SECTIONS: PanelSection[] = [
   { slug: 'overview', icon: 'server', label: () => t('Overview'), component: OverviewSection },
   { slug: 'storage', icon: 'disk', label: () => t('Storage'), component: StorageSection },
+  {
+    slug: 'accounts',
+    icon: 'accounts',
+    label: () => t('Accounts'),
+    component: AccountsSection,
+  },
   {
     slug: 'retention',
     icon: 'retention',

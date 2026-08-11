@@ -101,14 +101,54 @@ async def _user_admin(session: AsyncSession, args: argparse.Namespace) -> None:
         print(f"{user.username} now administers this instance.")
 
 
+async def _user_disable(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Take an account out of service, or put it back.
+
+    Access stops and the data stays, so this is what a departure looks like
+    when the library is still wanted. Both credentials are refused: the API key
+    a sync client holds and the browser session alike.
+    """
+    user = await admin.get_user_by_name(session, args.username)
+    await admin.set_disabled(session, user, disabled=not args.undo)
+    if args.undo:
+        print(f"{user.username} can sign in and sync again.")
+    else:
+        print(f"Suspended {user.username}. Their libraries are untouched.")
+
+
+async def _user_delete(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Delete an account and its personal library.
+
+    Asks first unless told not to, like `group delete`: this removes a library,
+    and there is no trash around a library to take it back out of.
+    """
+    user = await admin.get_user_by_name(session, args.username)
+    if not args.yes:
+        answer = input(f"Delete {user.username} and everything in their library? [y/N] ")
+        if answer.strip().lower() not in ("y", "yes"):
+            print("Left alone.")
+            return
+
+    await admin.delete_user(session, user)
+    print(f"Deleted {args.username}.")
+
+
+async def _user_revoke(session: AsyncSession, args: argparse.Namespace) -> None:
+    """Drop every credential an account holds, leaving the account itself."""
+    user = await admin.get_user_by_name(session, args.username)
+    keys, sessions = await admin.revoke_credentials(session, user)
+    print(f"Revoked {keys} keys and {sessions} signed-in browsers for {user.username}.")
+
+
 async def _user_list(session: AsyncSession, args: argparse.Namespace) -> None:
     users = await admin.list_users(session)
     if not users:
         print("No users.")
         return
     for user in users:
-        role = "  administrator" if user.administrator else ""
-        print(f"{user.id:>8}  {user.username}  {user.display_name}{role}".rstrip())
+        marks = "  administrator" if user.administrator else ""
+        marks += "  suspended" if user.disabled_at else ""
+        print(f"{user.id:>8}  {user.username}  {user.display_name}{marks}".rstrip())
 
 
 async def _key_add(session: AsyncSession, args: argparse.Namespace) -> None:
@@ -406,6 +446,21 @@ def build_parser() -> argparse.ArgumentParser:
         "--revoke", action="store_true", help="take the role away instead of granting it"
     )
     administrator.set_defaults(handler=_user_admin)
+    disable = user.add_parser("disable", help="take an account out of service")
+    disable.add_argument("username")
+    disable.add_argument(
+        "--undo", action="store_true", help="put the account back in service instead"
+    )
+    disable.set_defaults(handler=_user_disable)
+    revoke_credentials = user.add_parser(
+        "revoke", help="drop every key and signed-in browser an account holds"
+    )
+    revoke_credentials.add_argument("username")
+    revoke_credentials.set_defaults(handler=_user_revoke)
+    remove_user = user.add_parser("delete", help="delete an account and its personal library")
+    remove_user.add_argument("username")
+    remove_user.add_argument("--yes", action="store_true", help="do not ask first")
+    remove_user.set_defaults(handler=_user_delete)
     user.add_parser("list", help="list users").set_defaults(handler=_user_list)
 
     key = commands.add_parser("key", help="manage API keys").add_subparsers(dest="subcommand")

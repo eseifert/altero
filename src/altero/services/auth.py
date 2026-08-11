@@ -42,13 +42,29 @@ async def authenticate(session: AsyncSession, credential: str | None) -> ApiKey 
     Returns ``None`` when no credential was supplied. An unrecognised credential
     is an error rather than anonymous access, so that a typo in a key is not
     silently downgraded to a public-library request.
+
+    A key belonging to a suspended account is refused, which is the half of a
+    suspension that matters: one enforced in the browser alone would leave
+    every sync client of that account working exactly as before. The owner is
+    fetched in the same statement, so this costs no extra query on the path
+    every request takes -- see ``tests/test_query_counts.py``.
     """
     if not credential:
         return None
 
-    api_key = await session.scalar(select(ApiKey).where(ApiKey.key == credential))
-    if api_key is None:
+    row = (
+        await session.execute(
+            select(ApiKey, User.disabled_at)
+            .join(User, User.id == ApiKey.user_id)
+            .where(ApiKey.key == credential)
+        )
+    ).first()
+    if row is None:
         raise ForbiddenError("Invalid key")
+
+    api_key, disabled_at = row
+    if disabled_at is not None:
+        raise ForbiddenError("This account has been suspended")
     return api_key
 
 

@@ -28,6 +28,8 @@ export default {
   'A whole number of periods, from 0 to {maximum}.': '0 から {maximum} までの整数です。',
   'API keys': 'API キー',
   Accept: '承認',
+  'Account created.': 'アカウントを作成しました。',
+  'Account deleted.': 'アカウントを削除しました。',
   'Accounts': 'アカウント',
   'Across the instance': 'インスタンス全体',
   'Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.':
@@ -64,6 +66,7 @@ export default {
   'Authenticator enabled.': '認証アプリを有効にしました。',
   'Authenticator removed.': '認証アプリを解除しました。',
   Back: '戻る',
+  'Back in service.': '利用を再開しました。',
   'Back to groups': 'グループ一覧へ戻る',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'どちらも既定ではこの端末に従い、アカウントとともに引き継がれます。',
@@ -114,6 +117,7 @@ export default {
   'Create one': '作成する',
   'Create your account': 'アカウントを作成',
   'Created in': '作成先',
+  'Credentials revoked.': '資格情報を失効させました。',
   'Current password': '現在のパスワード',
   'Database': 'データベース',
   'Dates look like this: {example}': '日付はこのように表示されます: {example}',
@@ -123,6 +127,7 @@ export default {
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     '著作物をパブリックドメインにすることは取り消せません。後で別の条件を選んだり、公開をやめたりした場合も同じです。',
   Delete: '削除',
+  'Delete account': 'アカウントを削除',
   'Delete everything in the trash?': 'ごみ箱の中身をすべて削除しますか？',
   'Delete it now': '今すぐ削除',
   'Delete this group': 'このグループを削除',
@@ -146,10 +151,13 @@ export default {
   'Downloading attachments…': '添付ファイルをダウンロードしています…',
   'Drag to move this divide. Double-click to put it back.': 'ドラッグして仕切りを移動します。ダブルクリックで元に戻ります。',
   'Duplicate Items': '重複項目',
+  'Email': 'メールアドレス',
   'Email address': 'メールアドレス',
+  'Email address (optional)': 'メールアドレス（任意）',
   'Empty the trash': 'ごみ箱を空にする',
   'Enter the six-digit code from your authenticator app.':
     '認証アプリの 6 桁のコードを入力してください。',
+  'Everything below asks for it, as your own settings do.': '以下の操作はすべて、自分の設定と同じようにパスワードを求めます。',
   'Everything else': 'その他',
   'Everything here is filed in a collection.': 'すべての項目がコレクションに整理されています。',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
@@ -211,6 +219,7 @@ export default {
   Library: 'ライブラリ',
   'Loading…': '読み込み中…',
   'Make a member': 'メンバーにする',
+  'Make administrator': '管理者にする',
   'Make an account with this address to answer it.':
     'このアドレスでアカウントを作成すると返答できます。',
   'Make an administrator': '管理者にする',
@@ -233,6 +242,7 @@ export default {
   'New collection': '新規コレクション',
   'New group': '新しいグループ',
   'New password': '新しいパスワード',
+  'New password for this account': 'このアカウントの新しいパスワード',
   'New subcollection inside “{name}”': '「{name}」内に新規サブコレクション',
   'Next: Choose a License': '次へ: ライセンスの選択',
   'Next: Sharing': '次へ: 共有',
@@ -278,6 +288,8 @@ export default {
   Password: 'パスワード',
   'Overview': '概要',
   'Password changed. Every other browser was signed out.': 'パスワードを変更しました。他のすべてのブラウザーはサインアウトされました。',
+  'Password for the new account': '新しいアカウントのパスワード',
+  'Password set. Their other browsers were signed out.': 'パスワードを設定しました。ほかのブラウザーはサインアウトされました。',
   'Paste it below. It is used for this copy and never stored.': '下に貼り付けてください。このコピーにのみ使われ、保存されません。',
   'People joining or leaving': 'メンバーの参加と脱退',
   'People with an account here': 'ここにアカウントを持つ人',
@@ -309,6 +321,7 @@ export default {
     '拒否しました。Zotero に待機の終了を伝えました。',
   'Registration is open on this server.': 'このサーバーでは登録が開放されています。',
   Remove: '削除',
+  'Reinstate': '利用を再開',
   'Remove authenticator': '認証アプリを解除',
   'Remove from My Publications': '「私の出版物」から削除',
   'Remove “{name}” from My Publications?': '「{name}」を「私の出版物」から削除しますか？',
@@ -327,6 +340,7 @@ export default {
   'Restore to Library': 'ライブラリへ復元',
   Revoke: '失効',
   'Retention': '保持期間',
+  'Revoke keys and sessions': 'キーとセッションを失効させる',
   'Rights for “{name}”': '「{name}」の権利',
   Role: '役割',
   Save: '保存',
@@ -346,6 +360,7 @@ export default {
   'Send confirmation': '確認メールを送信',
   'Sent to {address}.': '{address} 宛に送信されました。',
   'Sent to {email}, once a group has been quiet for a while.': 'グループがしばらく静かになったら {email} に送信されます。',
+  'Set password': 'パスワードを設定',
   'Set up an authenticator': '認証アプリを設定',
   Settings: '設定',
   'Settings for “{name}”': '「{name}」の設定',
@@ -370,8 +385,14 @@ export default {
   'Sort by {column}': '{column} で並べ替え',
   'Sort by {column}, currently ascending': '{column} で並べ替え（現在は昇順）',
   'Sort by {column}, currently descending': '{column} で並べ替え（現在は降順）',
+  'Stop administering': '管理者を解除',
   'Stopped.': '中止しました。',
   'Storage': 'ストレージ',
+  'Suspend': '停止する',
+  'Suspended': '停止中',
+  'Suspended. Their libraries are untouched.': '停止しました。ライブラリはそのままです。',
+  'Suspending stops both credentials — the API key a Zotero client holds and this interface — and touches nothing they own. Deleting removes their library and everything in it, and cannot be undone.':
+    '停止すると、Zotero クライアントが持つ API キーとこのインターフェースの両方が使えなくなりますが、本人のものには何も手を触れません。削除するとライブラリとその中身がなくなり、取り消せません。',
   'Sync clients see this as group {id}.': '同期クライアントからはグループ {id} として見えます。',
   Tags: 'タグ',
   'Take it out of “{name}”': '「{name}」から取り出す',
@@ -386,6 +407,8 @@ export default {
   'The items in it stay in the library.': '中のアイテムはライブラリーに残ります。',
   'The library is now at version {version}.': 'ライブラリーはバージョン {version} になりました。',
   'The library was restored.': 'ライブラリーを復元しました。',
+  'The password for {username} is {password}. Copy this now. It will not be shown again.':
+    '{username} のパスワードは {password} です。今すぐ控えてください。二度と表示されません。',
   'The tag will be changed in all associated items.': 'タグの変更がすべての関連項目に適用されます。',
   'The trash is empty.': 'ごみ箱は空です。',
   'The two passwords do not match': 'パスワードが一致しません',
@@ -444,6 +467,7 @@ export default {
   'You have joined the group.': 'グループに参加しました。',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     'ページは非表示です。アイテムは「私の出版物」に残るため、いつでも再び公開できます。',
+  'Your password': '自分のパスワード',
   'Your published work can be read by anyone signed in to this server.':
     '公開した著作物は、このサーバーにサインインしている人なら誰でも読めます。',
   'Your published work can be read by anyone, without an account here.':
