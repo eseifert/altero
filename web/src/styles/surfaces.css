@@ -1,0 +1,150 @@
+/*
+ * The bounded areas every screen is made of.
+ *
+ * One recipe, imported into the scoped block of whatever draws one — the way
+ * `auth-form.css` and `dialog.css` already are. It exists because there were
+ * three: settings drew a card as a hairline outline with nothing behind it,
+ * the administration screens drew one as a filled block, and the rest picked
+ * whichever `surface-container-*` step was nearest to hand. Each was
+ * defensible on its own screen and none of them agreed.
+ *
+ * The rule, and `docs/design.md` says it at greater length:
+ *
+ *     Fill groups, outline controls, hairline separates.
+ *
+ * A group of things is marked by a fill and never by a border; a border says
+ * something can be operated; a hairline divides rows inside a group and never
+ * bounds one. `surfaces.node.spec.ts` fails if a component paints a surface of
+ * its own instead of using what is here.
+ */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-spacing-3);
+  padding: var(--md-spacing-5);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+.card__title {
+  margin: 0;
+  font-size: var(--md-sys-typescale-title-medium-size);
+  font-weight: var(--md-sys-typescale-weight-medium);
+}
+
+/* The quiet line under a control: what it does, or what it will cost. Not a
+   smaller paragraph of body text -- if it is worth reading at body size, it is
+   not a note. */
+.card__note {
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+
+/*
+ * A block inside a card that is its own thing: a key shown once, a link to
+ * hand over, a secret to copy. It steps *up* rather than down, because the
+ * card is already above the page and a lighter step would sink into it -- in
+ * both schemes, since every surface token is `light-dark()`.
+ */
+.card__inset {
+  margin: 0;
+  padding: var(--md-spacing-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-high);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  overflow-wrap: anywhere;
+}
+
+/* An inset that says what cannot be undone. Before the button, never after. */
+.card__warning {
+  margin: 0;
+  padding: var(--md-spacing-3) var(--md-spacing-4);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+/*
+ * A column of a screen rather than a group on one: the item list's detail
+ * pane. The same fill a card has, since it is the same kind of thing to the
+ * eye, but no opinion about padding or flow -- a pane's contents arrange
+ * themselves and frequently scroll.
+ */
+.pane {
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container);
+}
+
+/*
+ * A block on a page rather than in a card: a rendered citation, a note, a
+ * progress readout. The card's fill at the card's own level, because it sits
+ * on the page as a card does; smaller corner, because it holds one thing.
+ */
+.block {
+  margin: 0;
+  padding: var(--md-spacing-3);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+/*
+ * A word about the thing beside it: a key's last four characters, a role, a
+ * state. `secondary-container`, because a chip is meaning rather than depth --
+ * and because a chip drawn in a surface step is a fourth grey nobody chose.
+ */
+.chip {
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  font-size: var(--md-sys-typescale-label-medium-size);
+}
+
+/* The one a reader should not pass over: what has gone wrong, or what is out
+   of service. */
+.chip--warning {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+/* A card you can press -- a group in the list, an account. The wash is the one
+   every row uses, so a card and a row answer the pointer the same way. */
+.card--interactive {
+  border: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.card--interactive:hover {
+  background: var(--md-sys-state-hover-surface);
+}
+
+/*
+ * A button in a card is as wide as its own label. Stretched across the card it
+ * reads as the card's own edge rather than as something to press.
+ */
+.card :deep(.app-button) {
+  align-self: flex-start;
+}
+
+/*
+ * Rows inside a card: separated by a hairline, never bounded by one. The last
+ * row has no rule under it, so the card's own edge is what ends the list.
+ */
+.card__rows {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card__rows > * + * {
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}

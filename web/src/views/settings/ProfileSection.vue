@@ -108,8 +108,8 @@ const saveEmail = () =>
   <!-- "Name" rather than "Profile": the panel and the heading above already
        say which section this is, and a card that repeats it reads as a
        mistake. -->
-  <section class="settings__card">
-    <h2>{{ t('Name') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Name') }}</h2>
     <p class="settings__detail">
       {{ t('Signed in as {username}.', { username: account?.user.username ?? '' }) }}
     </p>
@@ -121,8 +121,8 @@ const saveEmail = () =>
     The public page, and who may read it. It sits under the name because it is
     the same question continued: this is how you appear to other people.
   -->
-  <section class="settings__card">
-    <h2>{{ t('Public page') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Public page') }}</h2>
     <p class="settings__detail">
       {{ t('The work you add to My Publications is shown on your public page.') }}
       <RouterLink
@@ -151,8 +151,8 @@ const saveEmail = () =>
     </fieldset>
   </section>
 
-  <section class="settings__card">
-    <h2>{{ t('Email address') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Email address') }}</h2>
     <p class="settings__detail">
       {{ account?.user.email }}
       <span v-if="account?.user.emailVerified"> — {{ t('confirmed') }}</span>

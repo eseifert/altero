@@ -102,7 +102,7 @@ function lastSeen(entry: KeyEntry): string {
 
 <template>
   <!-- The heading above names the section; this card is all of it. -->
-  <section class="settings__card">
+  <section class="card">
     <p class="settings__detail">
       {{
         t('What the Zotero app and any scripts use to sync. Linking Zotero from its own settings creates one of these for you.')
@@ -114,7 +114,7 @@ function lastSeen(entry: KeyEntry): string {
         <div>
           <p class="settings__entry">
             {{ entry.name }}
-            <code class="settings__suffix">…{{ entry.suffix }}</code>
+            <code class="chip settings__suffix">…{{ entry.suffix }}</code>
           </p>
           <p class="settings__detail">
             {{ t('{what} · created {when}', { what: describe(entry), when: when(entry.created) }) }}
@@ -131,7 +131,7 @@ function lastSeen(entry: KeyEntry): string {
     <!-- Shown once. The server masks every key after this response. -->
     <div v-if="issuedKey" class="settings__issued">
       <p class="settings__detail">{{ t('Copy this now. It will not be shown again.') }}</p>
-      <code class="settings__secret">{{ issuedKey }}</code>
+      <code class="card__inset settings__secret">{{ issuedKey }}</code>
       <AppButton variant="text" @click="issuedKey = null">{{ t('Done') }}</AppButton>
     </div>
 
@@ -175,9 +175,6 @@ function lastSeen(entry: KeyEntry): string {
 
 .settings__suffix {
   margin-left: var(--md-spacing-2);
-  padding: 1px 6px;
-  border-radius: var(--md-sys-shape-corner-extra-small);
-  background: var(--md-sys-color-surface-container);
   font-family: var(--md-sys-typescale-font-mono);
   font-size: var(--md-sys-typescale-body-small-size);
   color: var(--md-sys-color-on-surface-variant);

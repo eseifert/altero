@@ -151,8 +151,8 @@ async function begin(): Promise<void> {
 </script>
 
 <template>
-  <section class="settings__card">
-    <h2>{{ t('Copy your library from zotero.org') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Copy your library from zotero.org') }}</h2>
     <p class="settings__detail">
       {{
         t('Reads your personal library from zotero.org — items, collections, tags, saved searches, notes and attached files — and puts it here, keeping the versions your Zotero clients know.')
@@ -183,7 +183,7 @@ async function begin(): Promise<void> {
         <span>{{ t('Replace what my library here already holds') }}</span>
       </label>
 
-      <p v-if="replace" class="settings__warning" role="status">
+      <p v-if="replace" class="card__warning" role="status">
         {{ t('Everything in your library here is deleted first, files included, and there is no trash around it.') }}
       </p>
       <p v-else class="settings__detail">
@@ -206,7 +206,7 @@ async function begin(): Promise<void> {
       </p>
     </template>
 
-    <div v-if="status" class="settings__progress">
+    <div v-if="status" class="card__inset settings__progress">
       <p class="settings__entry" role="status">
         {{ stageLabel }} <span v-if="counted">{{ counted }}</span>
       </p>
@@ -214,7 +214,7 @@ async function begin(): Promise<void> {
       <p v-if="running" class="settings__detail">
         {{ t('This can take a while. You can leave this page open or come back to it.') }}
       </p>
-      <p v-if="status.error" class="settings__warning" role="alert">{{ status.error }}</p>
+      <p v-if="status.error" class="card__warning" role="alert">{{ status.error }}</p>
 
       <template v-if="summary && !status.error">
         <p class="settings__detail">
@@ -231,13 +231,13 @@ async function begin(): Promise<void> {
         <p v-if="summary.rewritten" class="settings__detail">
           {{ t('{count} link between items was pointed at your account here. | {count} links between items were pointed at your account here.', summary.rewritten) }}
         </p>
-        <p v-if="summary.unavailable?.length" class="settings__warning">
+        <p v-if="summary.unavailable?.length" class="card__warning">
           {{ t('zotero.org would not serve everything asked of it. The copy is missing {parts} and is otherwise whole.', { parts: summary.unavailable.join(', ') }) }}
         </p>
-        <p v-if="summary.filesMissing.length" class="settings__warning">
+        <p v-if="summary.filesMissing.length" class="card__warning">
           {{ t('{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.', summary.filesMissing.length) }}
         </p>
-        <p v-if="summary.skipped.length" class="settings__warning">
+        <p v-if="summary.skipped.length" class="card__warning">
           {{ t('{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}', { count: summary.skipped.length, keys: summary.skipped.map((entry) => entry.key).join(', ') }, summary.skipped.length) }}
         </p>
       </template>
@@ -264,8 +264,5 @@ async function begin(): Promise<void> {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-2);
-  padding: var(--md-spacing-3);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
 }
 </style>

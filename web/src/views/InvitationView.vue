@@ -86,7 +86,7 @@ const next = computed(() => ({ query: { next: route.fullPath } }))
 </script>
 
 <template>
-  <section class="invitation">
+  <section class="card invitation">
     <h1>{{ t('An invitation') }}</h1>
 
     <p v-if="failure" class="invitation__error" role="alert">{{ failure }}</p>
@@ -146,15 +146,14 @@ const next = computed(() => ({ query: { next: route.fullPath } }))
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .invitation {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-3);
   max-width: 32rem;
   padding: var(--md-spacing-6);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
 }
 
 .invitation h1 {

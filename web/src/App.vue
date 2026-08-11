@@ -218,7 +218,7 @@ async function signOut(): Promise<void> {
   gap: var(--md-spacing-4);
   padding: var(--md-spacing-2) var(--md-spacing-5);
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
-  background: var(--md-sys-color-surface-container-low);
+  background: var(--md-sys-color-surface-container);
 }
 
 /* The sign-in screens are one card on an empty page; a bar of chrome above it

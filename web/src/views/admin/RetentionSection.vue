@@ -166,7 +166,7 @@ function sweep(preview: boolean) {
 
     <section class="card">
       <h3 class="card__title">{{ t('Apply them now') }}</h3>
-      <p class="retention__hint">
+      <p class="card__note">
         {{
           t(
             'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.',
@@ -191,31 +191,15 @@ function sweep(preview: boolean) {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .retention {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-4);
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--md-spacing-3);
-  padding: var(--md-spacing-4);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container);
-}
 
-.card__title {
-  margin: 0;
-  font-size: var(--md-sys-typescale-title-medium-size, 1.1rem);
-}
-
-.retention__hint {
-  margin: 0;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-body-small-size);
-}
 
 .retention__actions {
   display: flex;

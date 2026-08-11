@@ -339,7 +339,7 @@ function childTitle(child: ItemEnvelope): string {
       </template>
     </div>
 
-    <div v-if="isNote" class="detail__note" v-html="item.data.note"></div>
+    <div v-if="isNote" class="card__inset detail__note" v-html="item.data.note"></div>
 
     <dl v-if="creators.length" class="detail__fields">
       <template v-for="(creator, index) in creators" :key="index">
@@ -439,12 +439,14 @@ function childTitle(child: ItemEnvelope): string {
       </div>
       <p v-if="citationError" class="detail__error" role="alert">{{ citationError }}</p>
       <!-- Rendered by the server's own CSL processor from this item's data. -->
-      <div v-else-if="bibliography" class="detail__bib" v-html="bibliography"></div>
+      <div v-else-if="bibliography" class="card__inset detail__bib" v-html="bibliography"></div>
     </section>
   </article>
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .detail {
   display: flex;
   flex-direction: column;
@@ -739,10 +741,6 @@ function childTitle(child: ItemEnvelope): string {
 }
 
 .detail__note {
-  padding: var(--md-spacing-3);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
-  font-size: var(--md-sys-typescale-body-medium-size);
   word-break: break-word;
   overflow-wrap: anywhere;
 }
@@ -768,10 +766,6 @@ function childTitle(child: ItemEnvelope): string {
 }
 
 .detail__bib {
-  padding: var(--md-spacing-3);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
-  font-size: var(--md-sys-typescale-body-medium-size);
   word-break: break-word;
   overflow-wrap: anywhere;
 }

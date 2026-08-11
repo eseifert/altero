@@ -220,7 +220,7 @@ const editedDescription = computed({
     <p v-else-if="store.notice" class="groups__notice" role="status">{{ store.notice }}</p>
 
     <!-- Creating -->
-    <form v-if="creating && !open" class="panel" @submit.prevent="create">
+    <form v-if="creating && !open" class="card panel" @submit.prevent="create">
       <h2>{{ t('New group') }}</h2>
       <p class="panel__lead">
         {{ t('A group is a library of its own, shared with the people you add to it.') }}
@@ -240,7 +240,7 @@ const editedDescription = computed({
       </p>
       <ul v-else class="groups__list">
         <li v-for="group in store.groups" :key="group.id">
-          <button class="card" type="button" @click="show(group)">
+          <button class="card card--interactive" type="button" @click="show(group)">
             <span class="card__title">{{ group.name }}</span>
             <span class="card__detail">
               {{ t('{count} member | {count} members', { count: group.numMembers }, group.numMembers) }}
@@ -256,7 +256,7 @@ const editedDescription = computed({
     </template>
 
     <!-- One group -->
-    <div v-if="open" class="panel">
+    <div v-if="open" class="card panel">
       <h2>{{ open.name }}</h2>
       <p class="panel__lead">
         {{ t('Sync clients see this as group {id}.', { id: open.groupId }) }}
@@ -376,7 +376,7 @@ const editedDescription = computed({
 
       <h3>{{ t('Members') }}</h3>
       <ul class="members">
-        <li v-for="member in open.members" :key="member.id" class="member">
+        <li v-for="member in open.members" :key="member.id" class="card__inset member">
           <div>
             <p class="member__name">{{ member.displayName || member.username }}</p>
             <p class="member__detail">
@@ -421,7 +421,7 @@ const editedDescription = computed({
           {{ t('An invitation reaches an address rather than an account, so somebody without one here can still be asked.') }}
         </p>
         <ul v-if="open.invitations?.length" class="members">
-          <li v-for="invitation in open.invitations" :key="invitation.id" class="member">
+          <li v-for="invitation in open.invitations" :key="invitation.id" class="card__inset member">
             <div>
               <p class="member__name">{{ invitation.email }}</p>
               <p class="member__detail">
@@ -467,6 +467,8 @@ const editedDescription = computed({
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .groups {
   display: flex;
   flex-direction: column;
@@ -513,27 +515,12 @@ const editedDescription = computed({
   gap: var(--md-spacing-2);
 }
 
+/* A group in the list is a card you can press: the shared recipe, plus the
+   tighter gap a two-line summary wants. */
 .card {
-  display: flex;
-  flex-direction: column;
   gap: var(--md-spacing-1);
   width: 100%;
   padding: var(--md-spacing-4);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.card:hover {
-  background: var(--md-sys-state-hover-surface);
-}
-
-.card__title {
-  font-size: var(--md-sys-typescale-title-medium-size);
-  font-weight: var(--md-sys-typescale-weight-medium);
 }
 
 .card__detail,
@@ -543,15 +530,7 @@ const editedDescription = computed({
   font-size: var(--md-sys-typescale-body-medium-size);
 }
 
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--md-spacing-3);
-  padding: var(--md-spacing-5);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
-}
+
 
 .panel h2,
 .panel h3 {
@@ -616,9 +595,6 @@ const editedDescription = computed({
   align-items: center;
   justify-content: space-between;
   gap: var(--md-spacing-4);
-  padding: var(--md-spacing-3) var(--md-spacing-4);
-  border-radius: var(--md-sys-shape-corner-small);
-  background: var(--md-sys-color-surface-container);
   flex-wrap: wrap;
 }
 

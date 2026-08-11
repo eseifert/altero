@@ -229,11 +229,11 @@ describe('import and export', () => {
   it('says what replacing costs, before it is done rather than after', async () => {
     const { wrapper } = await open('import-export')
 
-    expect(wrapper.find('.settings__warning').exists()).toBe(false)
+    expect(wrapper.find('.card__warning').exists()).toBe(false)
 
     await wrapper.get('input[type="checkbox"]').setValue(true)
 
-    expect(wrapper.get('.settings__warning').text()).toContain('Everything in My Library is deleted first')
+    expect(wrapper.get('.card__warning').text()).toContain('Everything in My Library is deleted first')
   })
 })
 
@@ -324,11 +324,11 @@ describe('moving a library in from zotero.org', () => {
     polling([IDLE])
     const { wrapper } = await open('migrate')
 
-    expect(wrapper.find('.settings__warning').exists()).toBe(false)
+    expect(wrapper.find('.card__warning').exists()).toBe(false)
 
     await wrapper.get('input[type="checkbox"]').setValue(true)
 
-    expect(wrapper.get('.settings__warning').text()).toContain('deleted first')
+    expect(wrapper.get('.card__warning').text()).toContain('deleted first')
   })
 
   it('shows what a finished migration brought across', async () => {
@@ -353,7 +353,7 @@ describe('moving a library in from zotero.org', () => {
     ])
     const { wrapper } = await open('migrate')
 
-    expect(wrapper.get('.settings__warning[role="alert"]').text()).toContain('refused that key')
+    expect(wrapper.get('.card__warning[role="alert"]').text()).toContain('refused that key')
   })
 
   it('names what did not come across, rather than reporting a clean run', async () => {

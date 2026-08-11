@@ -869,7 +869,12 @@ configured.
 ## Design
 
 The design follows Material 3 with a teal accent, and light and dark follow the
-operating system unless the user picks one.
+operating system unless the user picks one. What altero does inside that frame
+is written down in [design.md](design.md): one rule — fill groups, outline
+controls, hairline separates — three surface steps, and one card recipe that
+every screen imports rather than draws again. It exists because the interface
+grew three different cards without anyone deciding to, and
+`styles/surfaces.node.spec.ts` is what stops a fourth.
 
 Hover is a state layer rather than a colour — a translucent wash of the text
 colour, one token, laid over whatever is underneath. Every hoverable row used to

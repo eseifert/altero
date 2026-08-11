@@ -140,8 +140,8 @@ const restore = () =>
 </script>
 
 <template>
-  <section class="settings__card">
-    <h2>{{ t('Export a library') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Export a library') }}</h2>
     <p class="settings__detail">
       {{
         t('An archive holds everything in the library — items, collections, tags, saved searches and attached files — at the versions your Zotero clients know. Keep it as a backup, or restore it on another altero server.')
@@ -166,8 +166,8 @@ const restore = () =>
     <p v-else class="settings__detail">{{ t('No library here is yours to export.') }}</p>
   </section>
 
-  <section class="settings__card">
-    <h2>{{ t('Restore a library') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Restore a library') }}</h2>
     <p class="settings__detail">
       {{
         t('Reads an archive back into a library of yours. The library is restored to the state the archive holds, versions included, so a Zotero client that synced with it carries on where it left off.')
@@ -195,7 +195,7 @@ const restore = () =>
         <span>{{ t('Replace what this library already holds') }}</span>
       </label>
 
-      <p v-if="replace" class="settings__warning" role="status">
+      <p v-if="replace" class="card__warning" role="status">
         {{
           t('Everything in {name} is deleted first, files included, and there is no trash around it.', { name: targetName })
         }}

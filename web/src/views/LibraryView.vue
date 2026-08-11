@@ -1311,7 +1311,7 @@ function sortLabel(column: { field: string; label: string }): string {
           <template v-if="entry.id === library.libraryId">
             <!-- Below the list rather than over it, so the tree does not move
                  down while the question is being read. -->
-            <p v-if="pending?.kind === 'delete'" class="collections__confirm" role="alert">
+            <p v-if="pending?.kind === 'delete'" class="block collections__confirm" role="alert">
               <span>
                 {{ t('Delete “{name}”?', { name: pending.target.data.name }) }}
                 {{ t('The items in it stay in the library.') }}
@@ -1537,7 +1537,7 @@ function sortLabel(column: { field: string; label: string }): string {
       -->
       <p
         v-if="removing.length || emptying || unpublishing"
-        class="collections__confirm"
+        class="block collections__confirm"
         role="alert"
       >
         <span v-if="emptying">
@@ -1708,7 +1708,7 @@ function sortLabel(column: { field: string; label: string }): string {
       @update:width="resizeDetail"
     />
 
-    <aside v-if="showDetail && library.libraryId !== null" class="library__detail">
+    <aside v-if="showDetail && library.libraryId !== null" class="pane library__detail">
       <ItemDetail
         v-if="library.selected"
         :item="library.selected"
@@ -1852,6 +1852,8 @@ function sortLabel(column: { field: string; label: string }): string {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 /*
  * The sidebar's width is whatever the reader dragged it to, kept in
  * `--sidebar-width` so that the grid and the grip sitting in the gutter read it
@@ -2207,9 +2209,6 @@ function sortLabel(column: { field: string; label: string }): string {
   flex-direction: column;
   gap: var(--md-spacing-2);
   margin: 0;
-  padding: var(--md-spacing-3);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-medium-size);
 }
@@ -2507,11 +2506,13 @@ function sortLabel(column: { field: string; label: string }): string {
   color: var(--md-sys-color-on-surface);
 }
 
+/* A table rather than a card: what bounds it is the rule under its heading
+   and the hairlines between its rows. A fill behind a dense list would tint
+   the thing being read, and an outline around it is the box this interface
+   stopped drawing -- see docs/design.md. */
 .library__table {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
   overflow: hidden;
 }
 
@@ -2578,7 +2579,6 @@ function sortLabel(column: { field: string; label: string }): string {
 
 .library__row--head {
   padding: 0;
-  background: var(--md-sys-color-surface-container-low);
   cursor: default;
 }
 
@@ -2660,8 +2660,6 @@ function sortLabel(column: { field: string; label: string }): string {
 .library__detail {
   position: sticky;
   top: var(--md-spacing-4);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
   max-height: calc(100vh - 8rem);
   overflow-y: auto;
 }

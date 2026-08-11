@@ -78,7 +78,7 @@ onMounted(async () => {
         <dt>{{ t('Saved by storing each file once') }}</dt>
         <dd>{{ formatBytes(overview.savedBytes) }}</dd>
       </dl>
-      <p v-if="overview.missingFiles" class="overview__warning" role="alert">
+      <p v-if="overview.missingFiles" class="card__warning" role="alert">
         {{
           t('{count} attachments have no file on disk.', { count: overview.missingFiles })
         }}
@@ -88,25 +88,14 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .overview {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-4);
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--md-spacing-3);
-  padding: var(--md-spacing-4);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container);
-}
-
-.card__title {
-  margin: 0;
-  font-size: var(--md-sys-typescale-title-medium-size, 1.1rem);
-}
 
 /* Two columns, the label narrow and the value taking what is left: a column
    of numbers is read down, so they line up on their own left edge. */
@@ -131,9 +120,4 @@ onMounted(async () => {
   font-family: var(--md-sys-typescale-code-family, monospace);
 }
 
-.overview__warning {
-  margin: 0;
-  color: var(--md-sys-color-error);
-  font-size: var(--md-sys-typescale-body-small-size);
-}
 </style>

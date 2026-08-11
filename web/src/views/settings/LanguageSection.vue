@@ -66,7 +66,7 @@ const saveLocale = () =>
 <template>
   <!-- One card, and the heading above it already names the section: a title
        here would be the same words twice. -->
-  <section class="settings__card">
+  <section class="card">
     <p class="settings__detail">
       {{ t('Both follow this device unless you choose otherwise, and travel with your account.') }}
     </p>

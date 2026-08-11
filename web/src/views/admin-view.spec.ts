@@ -344,7 +344,7 @@ describe('the accounts screen', () => {
     await wrapper.get('.accounts__form').trigger('submit')
     await flush()
 
-    expect(wrapper.get('.accounts__issued').text()).toContain('a password for rita')
+    expect(wrapper.get('.card__inset').text()).toContain('a password for rita')
   })
 })
 

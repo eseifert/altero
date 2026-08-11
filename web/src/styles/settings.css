@@ -1,30 +1,16 @@
 /*
  * Shared by the settings sections. Each one imports this into its own scoped
  * block, the way the sign-in screens share `auth-form.css`: the sections are
- * separate components but they are one screen, and a card that is a different
- * height or a hint that is a different grey in one of them reads as a seam.
+ * separate components but they are one screen, and a hint that is a different
+ * grey in one of them reads as a seam.
+ *
+ * The card itself is not here. It is `.card` in `surfaces.css`, which every
+ * screen shares -- settings used to draw its own as an outline while the
+ * administration screens drew a filled one, which is two applications rather
+ * than one. See `docs/design.md`.
  */
 
-.settings__card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--md-spacing-3);
-  padding: var(--md-spacing-5);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
-}
-
-.settings__card h2 {
-  margin: 0;
-  font-size: var(--md-sys-typescale-title-medium-size);
-  font-weight: var(--md-sys-typescale-weight-medium);
-}
-
-/* A button in a card is as wide as its own label. Stretched across the card it
-   reads as the card's own edge rather than as something to press. */
-.settings__card :deep(.app-button) {
-  align-self: flex-start;
-}
+@import './surfaces.css';
 
 .settings__detail {
   margin: 0;
@@ -52,10 +38,9 @@
   font: inherit;
 }
 
+/* Worn together with `.card__inset`, which is the surface; this is only what
+   makes a secret legible character by character. */
 .settings__secret {
-  padding: var(--md-spacing-3);
-  border-radius: var(--md-sys-shape-corner-small);
-  background: var(--md-sys-color-surface-container);
   font-family: var(--md-sys-typescale-font-mono);
   letter-spacing: 0.08em;
   word-break: break-all;
@@ -102,15 +87,4 @@
   background: var(--md-sys-color-secondary-container);
   color: var(--md-sys-color-on-secondary-container);
   font-size: var(--md-sys-typescale-label-medium-size);
-}
-
-/* What cannot be undone says so before it is done, not after: the same
-   container the error messages use, in a card that is otherwise calm. */
-.settings__warning {
-  margin: 0;
-  padding: var(--md-spacing-3) var(--md-spacing-4);
-  border-radius: var(--md-sys-shape-corner-small);
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
-  font-size: var(--md-sys-typescale-body-medium-size);
 }

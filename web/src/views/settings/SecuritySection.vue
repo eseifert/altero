@@ -80,8 +80,8 @@ function when(iso: string | null): string {
 </script>
 
 <template>
-  <section class="settings__card">
-    <h2>{{ t('Password') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Password') }}</h2>
     <AppTextField
       v-model="currentPassword"
       :label="t('Current password')"
@@ -98,8 +98,8 @@ function when(iso: string | null): string {
     <AppButton :loading="busy" @click="savePassword">{{ t('Change password') }}</AppButton>
   </section>
 
-  <section class="settings__card">
-    <h2>{{ t('Authenticator app') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Authenticator app') }}</h2>
 
     <template v-if="account?.totpEnabled">
       <p class="settings__detail">{{ t('Signing in asks for a code.') }}</p>
@@ -120,7 +120,7 @@ function when(iso: string | null): string {
           t('Add this secret to your authenticator app, then enter the code it shows. Nothing changes until you do.')
         }}
       </p>
-      <code class="settings__secret">{{ enrolment.secret }}</code>
+      <code class="card__inset settings__secret">{{ enrolment.secret }}</code>
       <AppTextField v-model="enrolmentCode" :label="t('Code from the app')" inputmode="numeric" />
       <AppButton :loading="busy" @click="confirmEnrolment">{{ t('Turn on') }}</AppButton>
     </template>
@@ -133,8 +133,8 @@ function when(iso: string | null): string {
     </template>
   </section>
 
-  <section class="settings__card">
-    <h2>{{ t('Signed-in browsers') }}</h2>
+  <section class="card">
+    <h2 class="card__title">{{ t('Signed-in browsers') }}</h2>
     <ul class="settings__list">
       <li v-for="entry in account?.sessions ?? []" :key="entry.id">
         <div>

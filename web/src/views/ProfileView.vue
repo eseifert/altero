@@ -363,7 +363,7 @@ const audience = computed(() => {
               </div>
               <p v-if="citationError" class="profile__error" role="alert">{{ citationError }}</p>
               <!-- Rendered by the server's own CSL processor from this item's data. -->
-              <div v-else-if="bibliography" class="publication__bib" v-html="bibliography"></div>
+              <div v-else-if="bibliography" class="block publication__bib" v-html="bibliography"></div>
             </section>
 
             <section v-if="notes().length" class="publication__section">
@@ -395,6 +395,8 @@ const audience = computed(() => {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .profile {
   display: flex;
   flex-direction: column;
@@ -586,11 +588,7 @@ const audience = computed(() => {
 
 .publication__bib {
   margin-top: var(--md-spacing-2);
-  padding: var(--md-spacing-3);
   max-width: 60ch;
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
-  font-size: var(--md-sys-typescale-body-medium-size);
   overflow-wrap: anywhere;
 }
 

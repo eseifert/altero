@@ -155,7 +155,7 @@ const remove = (account: Account) =>
       </div>
 
       <!-- Shown once and never again, like an API key. -->
-      <p v-if="issued" class="accounts__issued" role="status">
+      <p v-if="issued" class="card__inset" role="status">
         {{ t('The password for {username} is {password}. Copy this now. It will not be shown again.', { username: issued.username, password: issued.password }) }}
       </p>
 
@@ -195,10 +195,10 @@ const remove = (account: Account) =>
               <span class="accounts__username">{{ account.username }}</span>
             </span>
             <span class="accounts__marks">
-              <span v-if="account.administrator" class="accounts__mark">
+              <span v-if="account.administrator" class="chip">
                 {{ t('Administrator') }}
               </span>
-              <span v-if="account.disabled" class="accounts__mark accounts__mark--warning">
+              <span v-if="account.disabled" class="chip chip--warning">
                 {{ t('Suspended') }}
               </span>
             </span>
@@ -268,7 +268,7 @@ const remove = (account: Account) =>
               </AppButton>
             </div>
 
-            <p v-if="link && link.username === account.username" class="accounts__issued">
+            <p v-if="link && link.username === account.username" class="card__inset">
               <template v-if="link.sent">
                 {{ t('A link was emailed to them. It is good for {hours} hours and can be used once.', { hours: link.hours }) }}
               </template>
@@ -278,7 +278,7 @@ const remove = (account: Account) =>
               <span class="accounts__link">{{ link.link }}</span>
             </p>
 
-            <p class="accounts__note">
+            <p class="card__note">
               {{ t('Suspending stops both credentials — the API key a Zotero client holds and this interface — and touches nothing they own. Deleting removes their library and everything in it, and cannot be undone.') }}
             </p>
           </div>
@@ -289,25 +289,14 @@ const remove = (account: Account) =>
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .accounts {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-4);
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--md-spacing-3);
-  padding: var(--md-spacing-4);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container);
-}
-
-.card__title {
-  margin: 0;
-  font-size: var(--md-sys-typescale-title-medium-size, 1.1rem);
-}
 
 .accounts__heading {
   display: flex;
@@ -316,15 +305,6 @@ const remove = (account: Account) =>
   gap: var(--md-spacing-2);
 }
 
-.accounts__issued {
-  margin: 0;
-  padding: var(--md-spacing-3);
-  border-radius: var(--md-sys-shape-corner-small);
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-  font-size: var(--md-sys-typescale-body-medium-size);
-  overflow-wrap: anywhere;
-}
 
 .accounts__form,
 .accounts__detail {
@@ -379,18 +359,6 @@ const remove = (account: Account) =>
   flex: none;
 }
 
-.accounts__mark {
-  padding: 0.1rem 0.45rem;
-  border-radius: var(--md-sys-shape-corner-small);
-  background: var(--md-sys-color-surface-container-high, var(--md-sys-color-surface-variant));
-  font-size: var(--md-sys-typescale-body-small-size);
-}
-
-.accounts__mark--warning {
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
-}
-
 .accounts__detail {
   padding: var(--md-spacing-3) 0.6rem var(--md-spacing-4);
 }
@@ -409,11 +377,6 @@ const remove = (account: Account) =>
   overflow-wrap: anywhere;
 }
 
-.accounts__note {
-  margin: 0;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-body-small-size);
-}
 
 .facts {
   display: grid;

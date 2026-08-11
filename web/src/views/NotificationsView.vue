@@ -43,7 +43,7 @@ function when(iso: string): string {
     <section v-if="store.invitations.length" class="notifications__group">
       <h2>{{ t('Invitations') }}</h2>
       <ul class="notifications__list">
-        <li v-for="invitation in store.invitations" :key="invitation.id" class="invitation">
+        <li v-for="invitation in store.invitations" :key="invitation.id" class="card invitation">
           <div>
             <p class="invitation__title">{{ invitation.libraryName }}</p>
             <p class="invitation__detail">
@@ -84,7 +84,7 @@ function when(iso: string): string {
           v-for="entry in store.notifications"
           :key="entry.id"
           class="notice"
-          :class="{ 'notice--unread': !entry.read }"
+          :class="{ block: !entry.read, 'notice--unread': !entry.read }"
           @click="!entry.read && store.markRead(entry.id)"
         >
           <span class="notice__dot" :aria-hidden="entry.read">
@@ -102,6 +102,8 @@ function when(iso: string): string {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .notifications {
   display: flex;
   flex-direction: column;
@@ -150,9 +152,6 @@ function when(iso: string): string {
   justify-content: space-between;
   gap: var(--md-spacing-4);
   padding: var(--md-spacing-4);
-  border: 1px solid var(--md-sys-color-outline-variant);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container-low);
 }
 
 .invitation__title {
@@ -183,7 +182,6 @@ function when(iso: string): string {
 }
 
 .notice--unread {
-  background: var(--md-sys-color-surface-container-low);
   cursor: pointer;
 }
 

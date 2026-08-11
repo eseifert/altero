@@ -91,7 +91,7 @@ onMounted(async () => {
         <dt>{{ t('Saved by storing each file once') }}</dt>
         <dd>{{ formatBytes(report.savedBytes) }}</dd>
       </dl>
-      <p class="storage__note">
+      <p class="card__note">
         {{
           t(
             'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.',
@@ -99,7 +99,7 @@ onMounted(async () => {
         }}
       </p>
       <template v-if="report.orphanFiles">
-        <p class="storage__note">
+        <p class="card__note">
           {{
             t('{count} files are no longer referenced by any library, holding {size}.', {
               count: report.orphanFiles,
@@ -120,7 +120,7 @@ onMounted(async () => {
           </AppButton>
         </div>
       </template>
-      <p v-if="report.missingFiles" class="storage__warning" role="alert">
+      <p v-if="report.missingFiles" class="card__warning" role="alert">
         {{ t('{count} attachments have no file on disk.', { count: report.missingFiles }) }}
       </p>
     </section>
@@ -161,25 +161,14 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .storage {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-4);
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--md-spacing-3);
-  padding: var(--md-spacing-4);
-  border-radius: var(--md-sys-shape-corner-medium);
-  background: var(--md-sys-color-surface-container);
-}
-
-.card__title {
-  margin: 0;
-  font-size: var(--md-sys-typescale-title-medium-size, 1.1rem);
-}
 
 .facts {
   display: grid;
@@ -197,11 +186,6 @@ onMounted(async () => {
   margin: 0;
 }
 
-.storage__note {
-  margin: 0;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-body-small-size);
-}
 
 .storage__purge {
   display: flex;
@@ -210,11 +194,6 @@ onMounted(async () => {
   gap: var(--md-spacing-2);
 }
 
-.storage__warning {
-  margin: 0;
-  color: var(--md-sys-color-error);
-  font-size: var(--md-sys-typescale-body-small-size);
-}
 
 .storage__scroller {
   overflow-x: auto;
