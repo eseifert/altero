@@ -165,6 +165,34 @@ async def _sweep_activity(session: AsyncSession, days: int, *, now: datetime, dr
     return len(doomed)
 
 
+async def _sweep_uploads(session: AsyncSession, hours: int, *, now: datetime, dry_run: bool) -> int:
+    """Forget authorizations whose bytes never arrived.
+
+    Nothing is lost by forgetting one: the client asks permission again. The
+    file protocol has always written these rows and nothing has ever removed
+    them -- :func:`altero.services.storage.purge_stale_uploads` was written for
+    a caller that did not exist until now.
+    """
+    if hours <= 0:
+        return 0
+
+    before = now - timedelta(hours=hours)
+    if dry_run:
+        return len(
+            list(
+                await session.scalars(
+                    select(StorageUpload.key).where(
+                        StorageUpload.received.is_(False), StorageUpload.created < before
+                    )
+                )
+            )
+        )
+
+    purged = await storage.purge_stale_uploads(session, before)
+    await session.commit()
+    return purged
+
+
 async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool) -> Report:
     """Remove rows that are past their own expiry.
 
@@ -223,24 +251,9 @@ async def sweep(
         session, values.get("activityRetentionDays", 0), now=moment, dry_run=dry_run
     )
 
-    uploads = 0
-    hours = values.get("uploadRetentionHours", 0)
-    if hours > 0:
-        if dry_run:
-            uploads = len(
-                list(
-                    await session.scalars(
-                        select(StorageUpload.key).where(
-                            StorageUpload.received.is_(False),
-                            StorageUpload.created < moment - timedelta(hours=hours),
-                        )
-                    )
-                )
-            )
-        else:
-            uploads = await storage.purge_stale_uploads(session, moment - timedelta(hours=hours))
-            await session.commit()
-
+    uploads = await _sweep_uploads(
+        session, values.get("uploadRetentionHours", 0), now=moment, dry_run=dry_run
+    )
     expired = await _sweep_expired(session, now=moment, dry_run=dry_run)
 
     return Report(
