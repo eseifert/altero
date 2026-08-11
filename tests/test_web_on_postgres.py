@@ -389,3 +389,93 @@ class TestTheFileProtocol:
             content=f"upload={upload_key}",
         )
         assert registered.status_code == 204, registered.text
+
+
+class TestTheOperatorLayerOnPostgres:
+    """The paths SQLite cannot exercise: the row lock, and a boolean column.
+
+    `lock_library` emits ``FOR UPDATE`` on PostgreSQL and nothing at all on
+    SQLite, so the retention sweep -- which locks a library, bumps its version
+    and commits, once per library -- runs a statement here that the rest of the
+    suite never sees.
+    """
+
+    async def test_the_administration_screens_answer(
+        self, client: httpx.AsyncClient, database: Database
+    ) -> None:
+        await make_cli_account(database)
+        await sign_in(client)
+
+        overview = await client.get("/web/admin/overview")
+        storage = await client.get("/web/admin/storage")
+        accounts = await client.get("/web/admin/users")
+
+        assert overview.json()["database"] == "postgresql"
+        assert storage.status_code == 200
+        assert accounts.json()["users"][0]["administrator"] is True
+
+    async def test_a_retention_period_is_stored_and_read_back(
+        self, client: httpx.AsyncClient, database: Database
+    ) -> None:
+        await make_cli_account(database)
+        await sign_in(client)
+
+        await client.put(
+            "/web/admin/settings", json={"trashRetentionDays": 30}, headers=csrf(client)
+        )
+        again = await client.get("/web/admin/settings")
+
+        assert again.json()["settings"]["trashRetentionDays"] == 30
+
+    async def test_the_trash_sweep_takes_the_row_lock_and_deletes(
+        self, client: httpx.AsyncClient, database: Database
+    ) -> None:
+        from datetime import UTC, datetime, timedelta
+
+        from sqlalchemy import select
+
+        from altero.models import Item, LibraryType
+        from altero.services import retention
+        from altero.services.auth import get_library
+        from tests.factories import make_item
+
+        user_id = await make_cli_account(database)
+        async with database.session_factory() as session:
+            library = await get_library(session, LibraryType.USER, user_id)
+            item = await make_item(session, library, deleted=True)
+            item.server_date_modified = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=40)
+            await session.commit()
+
+            report = await retention.sweep(
+                session,
+                {
+                    "trashRetentionDays": 30,
+                    "activityRetentionDays": 0,
+                    "uploadRetentionHours": 0,
+                },
+            )
+
+            assert report.items_deleted == 1
+            assert await session.scalar(select(Item)) is None
+
+    async def test_suspending_refuses_the_key_and_the_cookie(
+        self, client: httpx.AsyncClient, database: Database
+    ) -> None:
+        user_id = await make_cli_account(database)
+        await sign_in(client)
+        async with database.session_factory() as session:
+            key = await admin.create_api_key(session, username="ada", name="laptop")
+            key_value = key.key
+
+        async with database.session_factory() as session:
+            user = await admin.get_user_by_name(session, "ada")
+            # Another administrator has to exist, or this is the last one.
+            await admin.create_user(session, username="grace")
+            grace = await admin.get_user_by_name(session, "grace")
+            await admin.set_administrator(session, grace, administrator=True)
+            await admin.set_disabled(session, user, disabled=True)
+
+        assert (
+            await client.get(f"/users/{user_id}/items", headers={"Zotero-API-Key": key_value})
+        ).status_code == 403
+        assert (await client.get("/web/auth/session")).status_code == 401
