@@ -2499,16 +2499,23 @@ function sortLabel(column: { field: string; label: string }): string {
   width: 2.5rem;
 }
 
-/* Big enough for a fingertip where there is one; the box itself is the
-   browser's, so it grows with the setting rather than against it. */
+/* The box is the target -- the cell around it takes no click -- so it carries
+   the 24 CSS pixels WCAG 2.2 asks of one (2.5.8), and more where the pointer
+   is a fingertip. */
+.library__cell--check input {
+  width: 1.5rem;
+  height: 1.5rem;
+  accent-color: var(--md-sys-color-primary);
+}
+
 @media (pointer: coarse) {
   .library__cell--check {
     width: 3rem;
   }
 
   .library__cell--check input {
-    width: 1.15rem;
-    height: 1.15rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 }
 

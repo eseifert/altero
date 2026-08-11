@@ -76,6 +76,8 @@
 
 .settings__check input {
   accent-color: var(--md-sys-color-primary);
-  width: 18px;
-  height: 18px;
+  /* 24 CSS pixels: the box is the target, not the label beside it, and the
+     browser's own is well under what WCAG 2.2 asks (2.5.8). */
+  width: 1.5rem;
+  height: 1.5rem;
 }

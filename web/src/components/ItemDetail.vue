@@ -497,6 +497,10 @@ function childTitle(child: ItemEnvelope): string {
  * cannot hover, which is the rule the sidebar's row controls follow too.
  */
 .detail__edit {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
   margin-left: var(--md-spacing-2);
   padding: 0.1rem 0.25rem;
   border: none;
