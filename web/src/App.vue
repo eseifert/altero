@@ -90,6 +90,11 @@ async function signOut(): Promise<void> {
       </RouterLink>
 
       <div class="shell__actions">
+        <!-- One container for the glyphs, so that a row of icons says it can
+             be pressed before a pointer arrives to prove it. A plain element
+             rather than a landmark: each link names itself, and the bar it
+             sits in is a banner already. -->
+        <div class="toolbar shell__toolbar">
         <RouterLink
           v-if="auth.isAuthenticated"
           class="shell__icon"
@@ -163,7 +168,8 @@ async function signOut(): Promise<void> {
             <circle cx="12" cy="12" r="2.5" />
           </svg>
         </RouterLink>
-        <ThemeMenu />
+          <ThemeMenu />
+        </div>
         <AppButton v-if="auth.isAuthenticated" variant="text" @click="signOut">{{ t('Sign out') }}</AppButton>
         <!-- A page with this frame that nobody is signed in for is a profile
              somebody arrived at from outside. The bar is the only chrome they
@@ -196,6 +202,8 @@ async function signOut(): Promise<void> {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .shell {
   display: flex;
   flex-direction: column;
@@ -293,13 +301,15 @@ async function signOut(): Promise<void> {
   display: none;
 }
 
+/* An icon button in the bar's toolbar: `icon-button`'s shape, with room for
+   the badge the notifications one carries. */
 .shell__icon {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 2rem;
+  height: 2rem;
   border-radius: var(--md-sys-shape-corner-full);
   color: var(--md-sys-color-on-surface-variant);
 }

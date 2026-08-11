@@ -208,8 +208,8 @@ function toggle(key: string): void {
 .tree__twisty {
   display: grid;
   place-items: center;
-  width: 1rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: none;
   border-radius: var(--md-sys-shape-corner-small);
@@ -285,8 +285,9 @@ function toggle(key: string): void {
 .tree__action {
   display: grid;
   place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  /* 24 CSS pixels square: the smallest target WCAG 2.2 accepts (2.5.8). */
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: none;
   border-radius: var(--md-sys-shape-corner-small);

@@ -134,6 +134,127 @@
 }
 
 /*
+ * A row of icon-only controls, in a container of its own.
+ *
+ * Material 3's icon button comes with or without a container; without one it
+ * is a glyph on the page, and a glyph on the page says nothing about being
+ * pressable until a pointer happens to rest on it -- which a finger never
+ * does. So the group carries the container: the buttons inside stay plain and
+ * the toolbar around them is the affordance, which is the standard treatment
+ * and keeps a row of six from becoming six filled circles.
+ *
+ * The inset step, wherever it sits: on the page it is a container inside the
+ * page, and inside a card it steps up from the card. One value that works in
+ * both places beats two that have to be chosen correctly.
+ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-1);
+  padding: var(--md-spacing-1);
+  border-radius: var(--md-sys-shape-corner-full);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+/*
+ * One icon-only button, inside a toolbar or standing alone.
+ *
+ * 2rem of container around a 1rem glyph, which clears the 24 by 24 CSS pixels
+ * WCAG 2.2 asks of a target (2.5.8) with room to spare, and grows on a coarse
+ * pointer where the target is a fingertip.
+ */
+.icon-button {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-full);
+  background: none;
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: pointer;
+}
+
+/* The glyph takes the button's colour rather than the icon component's own
+   muted one: hover and the danger red are set on the button, and an SVG with a
+   colour of its own would go on drawing itself grey through both. */
+.icon-button :deep(.sidebar-icon) {
+  color: inherit;
+}
+
+.icon-button:hover {
+  background: var(--md-sys-state-hover-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* A tool that is switched on says so by staying lit -- the only thing telling
+   a reader that what it turned on is theirs to turn off again. Hover is named
+   again here, or the rule above would paint over the lit state and make the
+   pointer resting on it read as off. */
+.icon-button--on,
+.icon-button--on:hover {
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/* Red at rest rather than only under the pointer, which a finger never
+   produces. */
+.icon-button--danger {
+  color: var(--md-sys-color-error);
+}
+
+.icon-button--danger:hover {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+}
+
+@media (pointer: coarse) {
+  .icon-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+/*
+ * A table's heading strip.
+ *
+ * Filled, because it is a group of labels rather than one of the rows, and the
+ * one part of a table that is chrome. The rule under it is what the rows hang
+ * from; the rows themselves are on the page, since a fill behind a dense list
+ * tints the thing being read.
+ */
+.table-head {
+  border-radius: var(--md-sys-shape-corner-small) var(--md-sys-shape-corner-small) 0 0;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface-container);
+}
+
+/*
+ * The rows under it: a hairline between each pair and one to close the last,
+ * so the table ends rather than stops. Nothing above the first — the heading's
+ * own rule is already there.
+ */
+.table-rows {
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.table-rows > * + * {
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+}
+
+/*
+ * The row you are on. A bar down its leading edge as well as the fill, because
+ * a state told in colour alone is told to fewer people than it needs to be
+ * (WCAG 1.4.1) -- and because on a long list the eye finds an edge faster than
+ * a wash.
+ */
+.row--current {
+  box-shadow: inset 3px 0 0 var(--md-sys-color-primary);
+}
+
+/*
  * Rows inside a card: separated by a hairline, never bounded by one. The last
  * row has no rule under it, so the card's own edge is what ends the list.
  */

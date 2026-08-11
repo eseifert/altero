@@ -39,8 +39,8 @@ schemes:
 | Layer | Token | Where |
 | --- | --- | --- |
 | The page | `surface` | behind everything |
-| A card, a pane, a block, the app bar | `surface-container` | `.card`, `.pane`, `.block` |
-| Inside one of those | `surface-container-high` | `.card__inset` |
+| A card, a pane, a block, a table's heading, the app bar | `surface-container` | `.card`, `.pane`, `.block`, `.table-head` |
+| Inside one of those, and every toolbar | `surface-container-high` | `.card__inset`, `.toolbar` |
 | Floating | `surface-container-high` + a shadow | dialogs and menus, in `dialog.css` |
 
 Three steps, and a component may not reach for a fourth. `surface-container-low`
@@ -98,14 +98,66 @@ Two more words for things that are not cards but are painted the same:
   role, *Suspended*. `secondary-container`, because a chip carries meaning
   rather than depth; `.chip--warning` for what is out of service.
 
-## The one thing that is not filled
+## Tables
 
-The item list. A table is bounded by the rule under its heading and the
-hairlines between its rows, and nothing else: a fill behind a dense list tints
-the thing being read, and the hover wash is measured against the page it sits
-on. So `.library__table` lost its outline and gained nothing in its place,
-which is the same decision as filling everything else — the box was what had to
-go.
+The item list is the one thing that is not a card, and the reason is that a
+fill behind a dense list tints the thing being read. What bounds it instead:
+
+- **A filled heading strip** (`.table-head`) — the one part of a table that is
+  chrome rather than content, so it takes the card's fill and rounds its top
+  corners. The rule beneath it is what the rows hang from.
+- **A hairline between each pair of rows, and one to close the last**
+  (`.table-rows`), so the table ends rather than stops.
+- **The rows themselves on the page**, which is what keeps the text on the
+  surface the hover wash was measured against.
+
+That treatment replaced an outlined box around the whole list, and the first
+attempt at it left the list with nothing at all: the hairline was drawn on the
+row and taken off `:last-child`, and a row is always the last child of its line
+— so every rule was removed and the list became a wall of text. The rule now
+belongs to the line rather than to the row.
+
+**The current row** carries `.row--current`: the `secondary-container` fill, and
+a `primary` bar down its leading edge. The bar is not decoration. A state told
+in colour alone is told to fewer people than it needs to be, which is WCAG
+1.4.1, and on a long list an edge is found faster than a wash.
+
+## Icon buttons and toolbars
+
+Material 3's icon button comes with a container or without one. Without one it
+is a glyph on a page, and a glyph on a page says nothing about being pressable
+until a pointer happens to rest on it — which a finger never does.
+
+So the **group** carries the container. A row of icon-only controls is a
+`.toolbar`: the inset fill, fully rounded, holding `.icon-button`s that stay
+plain. That is the standard treatment, and it keeps a row of six tools from
+becoming six filled circles competing with the content they act on.
+
+- `.toolbar` takes `surface-container-high` wherever it sits — on the page it
+  is a container inside the page, and inside a card it steps up from the card.
+  One value that works in both places beats two that have to be chosen right.
+- `.icon-button` is 2rem around a 1rem glyph, growing to 2.5rem where the
+  pointer is coarse. `.icon-button--on` stays lit for a tool that is switched
+  on, which is the only thing telling a reader it is theirs to switch off;
+  `.icon-button--danger` is red at rest rather than only under a pointer, which
+  a finger never produces.
+- An icon button that dismisses the thing it sits in — the close on a pane —
+  stands outside the toolbar, because it does not act on the contents.
+- Every icon-only control carries its name twice: `aria-label`, which a screen
+  reader announces, and `title`, which a pointer reveals. A control with
+  neither is a rebus.
+
+## Icons
+
+Single-weight line glyphs on a 24-unit grid, `stroke-width: 1.5`, round caps and
+joins, no fill — `web/src/items/icons.ts` and `sidebaricons.ts`. The library's
+are drawn to read like the desktop client's sidebar; the ones with no
+counterpart there follow the same rules so they sit with them. They are drawn
+rather than copied: Zotero's assets are the client's and carry its licence.
+
+A glyph that is the only thing in a control carries a label
+(`aria-label`); one that sits beside text is `aria-hidden`, because a screen
+reader saying "trash trash" is worse than silence.
 
 ## Rows
 
@@ -151,26 +203,54 @@ is in the tokens; what matters here is which step means what:
 Nothing sets `text-transform`, and nothing invents a size. A number that wants
 to line up in a column gets `font-variant-numeric: tabular-nums`.
 
-## Colour is not the only signal
+## Accessibility
 
-Anything the colour says is said again in words or in shape: a suspended account
-carries the word *Suspended*, not only a red chip; a failure has `role="alert"`
-as well as an error fill. The palette is measured by
-`styles/contrast.node.spec.ts`, which reads the tokens and checks every pair the
-interface actually puts on screen — 4.5:1 for text, 3:1 for the parts of a
-control that identify it.
+The target is **WCAG 2.2 level AA**, and the parts of it that are decisions
+about design rather than about markup are settled here.
 
-## Icons
+**Contrast (1.4.3, 1.4.11).** `styles/contrast.node.spec.ts` reads the tokens
+and measures every pair the interface actually puts on screen: 4.5:1 for text,
+3:1 for the parts of a control that identify it — its border, its focus ring,
+the bar on the current row. It also holds one ordering that is not a ratio: the
+current row is marked more strongly than the row under the pointer, or hovering
+would look like choosing.
 
-Single-weight line glyphs on a 24-unit grid, `stroke-width: 1.5`, round caps and
-joins, no fill — `web/src/items/icons.ts` and `sidebaricons.ts`. The library's
-are drawn to read like the desktop client's sidebar; the ones with no
-counterpart there follow the same rules so they sit with them. They are drawn
-rather than copied: Zotero's assets are the client's and carry its licence.
+**Colour is never the only signal (1.4.1).** A suspended account carries the
+word *Suspended*, not only a red chip. The current row carries a bar as well as
+a fill. A failure carries `role="alert"` as well as an error fill. A tool that
+is switched on is both lit and `aria-pressed`.
 
-A glyph that is the only thing in a control carries a label
-(`aria-label`); one that sits beside text is `aria-hidden`, because a screen
-reader saying "trash trash" is worse than silence.
+**Focus (2.4.7, 2.4.11).** One ring everywhere, `primary` at 2px with an offset
+so it is not confused with a control's own border, on `:focus-visible` with a
+`:focus` fallback for Safari before 15.4. The application bar is sticky, so
+`html { scroll-padding-block-start: 4rem }` keeps anything scrolled into view
+clear of it.
+
+**Targets (2.5.8).** Nothing you can press is smaller than 24 by 24 CSS pixels,
+and the controls a finger reaches for grow past that on a coarse pointer. The
+smallest ones — a pencil on a tag, a twisty in the tree — sit at exactly 24 with
+their glyphs unchanged.
+
+**Dragging has an alternative (2.5.7).** Everything a drag of the item list can
+express can also be done without one: filing and copying through **Move or
+copy…**, trashing and deleting through the tools, and a collection is moved by a
+picker rather than dragged at all. See
+[web-interface.md](web-interface.md#by-touch).
+
+**Authentication (3.3.8).** Nothing asks a reader to solve a puzzle, transcribe
+an image or remember anything but their password, and nothing prevents pasting
+into a field — including the one-time code.
+
+**Motion (2.3.3).** `prefers-reduced-motion` turns the transitions off, at
+0.01ms rather than zero so that a transition end event nothing else waits for
+still fires.
+
+What this cannot claim: none of it has been through a screen reader or a real
+audit. The measurable parts are measured, in tests that fail; the rest is
+careful work by somebody who cannot see the result. The item list is a list of
+buttons rather than a `role="grid"`, so a reader hears each row's values in
+order without hearing the column names — a deliberate trade, and the first
+thing to revisit if this is ever tested with assistive technology.
 
 ## What keeps this from drifting again
 

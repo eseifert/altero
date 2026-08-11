@@ -153,11 +153,11 @@ async function tool(wrapper: ReturnType<typeof mount>, label: string) {
 
 /** The glyphs beside the item in the detail pane, and beside a selection. */
 function itemTools(wrapper: ReturnType<typeof mount>): string[] {
-  return labelled(wrapper, '.detail__tool')
+  return labelled(wrapper, '.detail__tools .icon-button')
 }
 
 async function itemTool(wrapper: ReturnType<typeof mount>, label: string) {
-  await press(wrapper, '.detail__tool', label)
+  await press(wrapper, '.detail__tools .icon-button', label)
 }
 
 
@@ -1552,9 +1552,9 @@ describe('filing, trashing and copying items', () => {
         .findAll('path')
         .map((path) => path.attributes('d'))
 
-    expect(glyph('.library__tool', 'Empty the trash')).toEqual(glyph('.detail__tool', 'Delete'))
-    expect(glyph('.library__tool', 'Empty the trash')).not.toEqual(
-      glyph('.detail__tool', 'Move or copy…'),
+    expect(glyph('.library__tools .icon-button', 'Empty the trash')).toEqual(glyph('.detail__tools .icon-button', 'Delete'))
+    expect(glyph('.library__tools .icon-button', 'Empty the trash')).not.toEqual(
+      glyph('.detail__tools .icon-button', 'Move or copy…'),
     )
   })
 
@@ -1971,7 +1971,7 @@ describe('picking out several items', () => {
     requestMock.mockClear()
 
     const trash = wrapper
-      .findAll('.selection__tool')
+      .findAll('.selection__tools .icon-button')
       .find((e) => e.attributes('aria-label') === 'Move to trash')!
     await trash.trigger('click')
     await settle(wrapper)
@@ -2037,7 +2037,7 @@ describe('picking out several items', () => {
 
     expect(glyph().attributes('aria-pressed')).toBe('true')
     expect(glyph().attributes('aria-label')).toBe('Done selecting')
-    expect(glyph().classes()).toContain('library__tool--on')
+    expect(glyph().classes()).toContain('icon-button--on')
   })
 
   it('takes the whole page from the box on the heading line', async () => {
@@ -3001,7 +3001,7 @@ describe('exporting', () => {
     await wrapper.get('.library__row:not(.library__row--head)').trigger('click')
     await settle(wrapper)
 
-    await openExport(wrapper, '.detail__tool')
+    await openExport(wrapper, '.detail__tools .icon-button')
 
     /* One item, and so no question: a radio offering the whole library beside
        a single work is a question nobody standing in front of one is asking. */
@@ -3042,7 +3042,7 @@ describe('exporting', () => {
     await rows[2].trigger('click', { ctrlKey: true })
     await settle(wrapper)
 
-    await openExport(wrapper, '.selection__tool')
+    await openExport(wrapper, '.selection__tools .icon-button')
 
     expect(choices(wrapper)).toEqual(['2 items selected', 'My Library'])
     expect(link(wrapper)).toContain('itemKey=AAAA2345%2CBBBB2345')
@@ -3057,7 +3057,7 @@ describe('exporting', () => {
     await rows[1].trigger('click', { ctrlKey: true })
     await settle(wrapper)
 
-    await openExport(wrapper, '.selection__tool')
+    await openExport(wrapper, '.selection__tools .icon-button')
 
     expect(link(wrapper)).toContain('itemKey=AAAA2345')
     expect(link(wrapper)).not.toContain('NNNN2345')

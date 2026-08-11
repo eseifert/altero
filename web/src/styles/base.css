@@ -89,6 +89,16 @@ a {
  */
 
 /*
+ * The application bar is sticky, so anything scrolled into view -- by a Tab, by
+ * a link to a fragment -- has to stop below it rather than under it. WCAG 2.2
+ * asks that of a focused control (2.4.11 Focus Not Obscured), and this is the
+ * one line that answers it for every scroll the browser performs.
+ */
+html {
+  scroll-padding-block-start: 4rem;
+}
+
+/*
  * One visible focus ring everywhere, at 3:1 against every surface it can land
  * on (see contrast.spec.ts). `:focus-visible` rather than `:focus` so a mouse
  * click does not leave a ring behind, and an offset so the ring is not confused

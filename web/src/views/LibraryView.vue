@@ -1394,7 +1394,7 @@ function sortLabel(column: { field: string; label: string }): string {
           `title`, which is what a pointer reveals. A control with neither is a
           rebus.
         -->
-        <div class="library__tools">
+        <div class="library__tools toolbar">
           <!--
             Checkboxes on demand: the way in for a finger, which has no
             modifier keys, and for a keyboard, which cannot press a row with
@@ -1403,8 +1403,8 @@ function sortLabel(column: { field: string; label: string }): string {
           -->
           <button
             v-if="library.items.length"
-            class="library__tool"
-            :class="{ 'library__tool--on': selecting }"
+            class="icon-button library__tool"
+            :class="{ 'icon-button--on': selecting }"
             type="button"
             :aria-pressed="selecting"
             :aria-label="selecting ? t('Done selecting') : t('Select')"
@@ -1422,7 +1422,7 @@ function sortLabel(column: { field: string; label: string }): string {
           -->
           <button
             v-if="canExportView"
-            class="library__tool"
+            class="icon-button library__tool"
             type="button"
             :aria-label="t('Export…')"
             :title="t('Export…')"
@@ -1442,7 +1442,7 @@ function sortLabel(column: { field: string; label: string }): string {
                means the trash an item can still come back out of. -->
           <button
             v-if="library.scope === 'trash' && library.writable && library.items.length"
-            class="library__tool library__tool--danger"
+            class="icon-button icon-button--danger library__tool"
             type="button"
             :aria-label="t('Empty the trash')"
             :title="t('Empty the trash')"
@@ -1459,7 +1459,7 @@ function sortLabel(column: { field: string; label: string }): string {
           -->
           <RouterLink
             v-if="library.scope === 'publications' && auth.user"
-            class="library__tool"
+            class="icon-button library__tool"
             :aria-label="t('See your public page')"
             :title="t('See your public page')"
             :to="{ name: 'profile', params: { username: auth.user.username } }"
@@ -1478,7 +1478,7 @@ function sortLabel(column: { field: string; label: string }): string {
           <div class="library__search" :class="{ 'library__search--open': searching }">
             <button
               v-if="!searching"
-              class="library__tool"
+              class="icon-button library__tool"
               type="button"
               :aria-label="t('Search this library')"
               :title="t('Search this library')"
@@ -1588,7 +1588,7 @@ function sortLabel(column: { field: string; label: string }): string {
         header cells are sort controls rather than headers.
       -->
       <div v-else class="library__table">
-        <div class="library__line">
+        <div class="library__line table-head">
           <!-- One box for the whole page, and only while Select is on: a column
                of checkboxes over a list nobody is picking from is a column of
                questions nobody asked. It sits beside the grid rather than in
@@ -1631,7 +1631,7 @@ function sortLabel(column: { field: string; label: string }): string {
 
         <ul
           v-else
-          class="library__items"
+          class="library__items table-rows"
           :aria-label="t('Items in {name}', { name: heading })"
           @keydown.a="selectAllKey"
           @keydown.esc="library.clearSelection()"
@@ -1660,7 +1660,7 @@ function sortLabel(column: { field: string; label: string }): string {
               :class="[
                 'library__row',
                 {
-                  'library__row--selected': library.selection.includes(item.key),
+                  'library__row--selected row--current': library.selection.includes(item.key),
                   'library__row--carried': carriedKeys.has(item.key),
                 },
               ]"
@@ -1940,8 +1940,8 @@ function sortLabel(column: { field: string; label: string }): string {
   display: grid;
   flex: none;
   place-items: center;
-  width: 1rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: none;
   border-radius: var(--md-sys-shape-corner-small);
@@ -2121,8 +2121,10 @@ function sortLabel(column: { field: string; label: string }): string {
 .library__action {
   display: grid;
   place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  /* 24 CSS pixels square, the smallest target WCAG 2.2 accepts (2.5.8). The
+     glyph inside it stays the size it was. */
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: none;
   border-radius: var(--md-sys-shape-corner-small);
@@ -2310,8 +2312,8 @@ function sortLabel(column: { field: string; label: string }): string {
   display: grid;
   flex: none;
   place-items: center;
-  width: 1rem;
-  height: 1rem;
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: none;
   border-radius: var(--md-sys-shape-corner-small);
@@ -2383,53 +2385,6 @@ function sortLabel(column: { field: string; label: string }): string {
   margin-left: auto;
 }
 
-.library__tool {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: none;
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-}
-
-/* The glyph takes the button's colour rather than the icon component's own
-   muted one: hover and the danger red are set on the button, and an SVG with a
-   colour of its own would go on drawing itself grey through both. */
-.library__tool :deep(.sidebar-icon) {
-  color: inherit;
-}
-
-.library__tool:hover {
-  background: var(--md-sys-state-hover-surface);
-  color: var(--md-sys-color-on-surface);
-}
-
-/* A tool that is switched on says so by staying lit, which is the only thing
-   telling a reader that the column of checkboxes is theirs to turn off again.
-   Hover is named again here, and after: the hover rule above would otherwise
-   paint over the lit state and make the pointer resting on it read as off. */
-.library__tool--on,
-.library__tool--on:hover {
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-}
-
-/* Coloured as the panes colour theirs, since it is the same act: red at rest
-   rather than only under the pointer, which a finger never produces. */
-.library__tool--danger {
-  color: var(--md-sys-color-error);
-}
-
-.library__tool--danger:hover {
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
-}
-
 .library__search {
   display: flex;
   flex: none;
@@ -2491,8 +2446,8 @@ function sortLabel(column: { field: string; label: string }): string {
   display: grid;
   flex: none;
   place-items: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   padding: 0;
   border: none;
   border-radius: var(--md-sys-shape-corner-full);
@@ -2506,10 +2461,11 @@ function sortLabel(column: { field: string; label: string }): string {
   color: var(--md-sys-color-on-surface);
 }
 
-/* A table rather than a card: what bounds it is the rule under its heading
-   and the hairlines between its rows. A fill behind a dense list would tint
-   the thing being read, and an outline around it is the box this interface
-   stopped drawing -- see docs/design.md. */
+/* A table rather than a card: what bounds it is the filled strip its headings
+   sit in, the rule under that, and the hairlines between its rows. A fill
+   behind the rows themselves would tint the thing being read, and an outline
+   around the whole is the box this interface stopped drawing -- see
+   docs/design.md. */
 .library__table {
   display: flex;
   flex-direction: column;
@@ -2541,7 +2497,6 @@ function sortLabel(column: { field: string; label: string }): string {
   flex: none;
   place-items: center;
   width: 2.5rem;
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
 }
 
 /* Big enough for a fingertip where there is one; the box itself is the
@@ -2568,8 +2523,11 @@ function sortLabel(column: { field: string; label: string }): string {
   gap: var(--md-spacing-3);
   width: 100%;
   padding: var(--md-spacing-3) var(--md-spacing-4);
+  /* The hairline belongs to the line rather than to the row: the row is the
+     last child of its line whether or not a checkbox is beside it, so a rule
+     drawn here and taken off `:last-child` was taken off every row -- which is
+     how the list came to have no separators at all. */
   border: none;
-  border-bottom: 1px solid var(--md-sys-color-outline-variant);
   background: none;
   color: inherit;
   font: inherit;
@@ -2580,10 +2538,6 @@ function sortLabel(column: { field: string; label: string }): string {
 .library__row--head {
   padding: 0;
   cursor: default;
-}
-
-.library__row:last-child {
-  border-bottom: none;
 }
 
 .library__row:hover:not(.library__row--head) {
@@ -2606,6 +2560,11 @@ function sortLabel(column: { field: string; label: string }): string {
 
 .library__cell--title {
   color: inherit;
+}
+
+/* Dates line up under one another rather than wandering by digit. */
+.library__row > .library__cell:last-child {
+  font-variant-numeric: tabular-nums;
 }
 
 .library__cell--icon {

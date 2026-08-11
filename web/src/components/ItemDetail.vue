@@ -221,7 +221,7 @@ function childTitle(child: ItemEnvelope): string {
         <h2 class="detail__title">{{ title }}</h2>
         <p class="detail__type">{{ itemTypeLabel(item.data.itemType) }}</p>
       </div>
-      <button class="detail__close" type="button" :aria-label="t('Close details')" @click="emit('close')">
+      <button class="icon-button detail__close" type="button" :aria-label="t('Close details')" @click="emit('close')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
              stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
           <path d="M6 6l12 12M18 6L6 18" />
@@ -243,10 +243,10 @@ function childTitle(child: ItemEnvelope): string {
       it is about to go — the label alone would be a sentence nobody sees until
       after they have pressed it.
     -->
-    <div v-if="showsTools || offersPublishing || offersExport" class="detail__tools">
+    <div v-if="showsTools || offersPublishing || offersExport" class="detail__tools toolbar">
       <button
         v-if="showsTools"
-        class="detail__tool"
+        class="icon-button"
         type="button"
         :aria-label="t('Move or copy…')"
         :title="t('Move or copy…')"
@@ -264,7 +264,7 @@ function childTitle(child: ItemEnvelope): string {
       <template v-if="offersPublishing">
         <button
           v-if="!published"
-          class="detail__tool"
+          class="icon-button"
           type="button"
           :aria-label="child ? t('Show in My Publications') : t('Add to My Publications…')"
           :title="child ? t('Show in My Publications') : t('Add to My Publications…')"
@@ -274,7 +274,7 @@ function childTitle(child: ItemEnvelope): string {
         </button>
         <button
           v-else
-          class="detail__tool"
+          class="icon-button"
           type="button"
           :aria-label="child ? t('Hide from My Publications') : t('Remove from My Publications')"
           :title="child ? t('Hide from My Publications') : t('Remove from My Publications')"
@@ -289,7 +289,7 @@ function childTitle(child: ItemEnvelope): string {
            account may only read. -->
       <button
         v-if="offersExport"
-        class="detail__tool"
+        class="icon-button"
         type="button"
         :aria-label="t('Export…')"
         :title="t('Export…')"
@@ -301,7 +301,7 @@ function childTitle(child: ItemEnvelope): string {
       <template v-if="showsTools">
         <button
           v-if="!trashed"
-          class="detail__tool"
+          class="icon-button"
           type="button"
           :aria-label="t('Move to trash')"
           :title="t('Move to trash')"
@@ -315,7 +315,7 @@ function childTitle(child: ItemEnvelope): string {
                back, and one message for the two had German telling somebody
                their item was about to be replayed from a backup. -->
           <button
-            class="detail__tool"
+            class="icon-button"
             type="button"
             :aria-label="t('Restore to Library')"
             :title="t('Restore to Library')"
@@ -327,7 +327,7 @@ function childTitle(child: ItemEnvelope): string {
                one thing here that cannot be undone, and it must not look like
                the errand that can. -->
           <button
-            class="detail__tool detail__tool--danger"
+            class="icon-button icon-button--danger"
             type="button"
             :aria-label="t('Delete')"
             :title="t('Delete')"
@@ -468,22 +468,10 @@ function childTitle(child: ItemEnvelope): string {
   min-width: 0;
 }
 
+/* Standing on its own rather than in the toolbar: it dismisses the pane
+   instead of acting on what is in it. */
 .detail__close {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: none;
   border-radius: var(--md-sys-shape-corner-small);
-  background: none;
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-}
-
-.detail__close:hover {
-  background: var(--md-sys-state-hover-surface);
 }
 
 @media (pointer: coarse) {
@@ -492,54 +480,15 @@ function childTitle(child: ItemEnvelope): string {
     height: 2.5rem;
   }
 
-  .detail__tool {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
 }
 
 /* A row of glyphs, drawn like the tools over the item list, because they are
    the same errands reaching the same items -- one row picked out here, several
-   picked out there. Each says what it is in `aria-label` and in `title`. */
+   picked out there. Each says what it is in `aria-label` and in `title`. The
+   toolbar around them is what says they can be pressed; this adds only the
+   wrapping a narrow pane needs. */
 .detail__tools {
-  display: flex;
   flex-wrap: wrap;
-  gap: var(--md-spacing-1);
-}
-
-.detail__tool {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: none;
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-}
-
-/* The glyph takes the button's colour rather than the icon component's own
-   muted one: hover and the danger red are set on the button, and an SVG with a
-   colour of its own would go on drawing itself grey through both. */
-.detail__tool :deep(.sidebar-icon) {
-  color: inherit;
-}
-
-.detail__tool:hover {
-  background: var(--md-sys-state-hover-surface);
-  color: var(--md-sys-color-on-surface);
-}
-
-.detail__tool--danger {
-  color: var(--md-sys-color-error);
-}
-
-.detail__tool--danger:hover {
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
 }
 
 /*

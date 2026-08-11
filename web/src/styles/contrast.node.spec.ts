@@ -58,13 +58,12 @@ const TEXT: Array<[string, string, string]> = [
   ['on-background', 'background', 'body text'],
   ['on-surface', 'surface', 'text on a surface'],
   ['on-surface-variant', 'surface', 'secondary text'],
-  ['on-surface-variant', 'surface-container-low', 'secondary text, low container'],
+  ['on-surface-variant', 'surface-container', 'secondary text on a card'],
   ['on-surface-variant', 'surface-container-high', 'secondary text, high container'],
-  ['on-surface', 'surface-container-low', 'text on a low container'],
-  ['on-surface', 'surface-container', 'text on a container'],
+  ['on-surface', 'surface-container', 'text on a card'],
   ['on-surface', 'surface-container-high', 'text on a high container'],
   ['primary', 'surface', 'accent text'],
-  ['primary', 'surface-container-low', 'accent text, low container'],
+  ['primary', 'surface-container', 'accent text on a card'],
   ['on-primary', 'primary', 'filled button label'],
   ['on-secondary-container', 'secondary-container', 'selected row label'],
   ['on-primary-container', 'primary-container', 'text in a primary container'],
@@ -78,12 +77,16 @@ const TEXT: Array<[string, string, string]> = [
 /** Control borders and focus rings, which need 3:1. */
 const CONTROLS: Array<[string, string, string]> = [
   ['outline', 'surface', 'control border'],
-  ['outline', 'surface-container-low', 'control border, low container'],
+  ['outline', 'surface-container', 'control border on a card'],
   ['outline', 'surface-container-high', 'control border, high container'],
   ['primary', 'surface', 'focus ring'],
-  ['primary', 'surface-container-low', 'focus ring, low container'],
-  ['primary', 'surface-container-high', 'focus ring, high container'],
+  ['primary', 'surface-container', 'focus ring on a card'],
+  ['primary', 'surface-container-high', 'focus ring in a toolbar or a dialog'],
   ['error', 'surface', 'invalid field border'],
+  ['error', 'surface-container-high', 'a danger glyph in a toolbar'],
+  /* The bar down the leading edge of the current row, which is what says
+     "this one" to a reader for whom the fill alone does not (1.4.1). */
+  ['primary', 'secondary-container', 'the bar on the current row'],
 ]
 
 /**
@@ -119,9 +122,8 @@ function washed(over: string, scheme: Scheme): string {
 /** The surfaces a hoverable row or control actually sits on. */
 const HOVERED = [
   ['surface', 'a row of the item list, a sidebar row'],
-  ['surface-container-low', 'a row over a low container'],
-  ['surface-container', 'a control over a container'],
-  ['surface-container-high', 'a control inside a dialog'],
+  ['surface-container', 'a row or a control on a card'],
+  ['surface-container-high', 'a glyph in a toolbar, a control in a dialog'],
 ]
 
 const colours = palette()

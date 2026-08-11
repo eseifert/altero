@@ -51,7 +51,7 @@ const { t } = useI18n()
         {{ t('{count} item selected | {count} items selected', count) }}
       </h2>
       <button
-        class="selection__close"
+        class="icon-button selection__close"
         type="button"
         :aria-label="t('Clear the selection')"
         @click="emit('close')"
@@ -67,10 +67,10 @@ const { t } = useI18n()
          for one row: three rows picked out do not make trashing them a
          different errand. Writing them out is not a write, so it is offered in
          a library this account may only read. -->
-    <div v-if="writable || exportable" class="selection__tools">
+    <div v-if="writable || exportable" class="selection__tools toolbar">
       <template v-if="writable">
         <button
-          class="selection__tool"
+          class="icon-button"
           type="button"
           :aria-label="t('Move or copy…')"
           :title="t('Move or copy…')"
@@ -80,7 +80,7 @@ const { t } = useI18n()
         </button>
         <button
           v-if="!trashed"
-          class="selection__tool"
+          class="icon-button"
           type="button"
           :aria-label="t('Move to trash')"
           :title="t('Move to trash')"
@@ -90,7 +90,7 @@ const { t } = useI18n()
         </button>
         <template v-else>
           <button
-            class="selection__tool"
+            class="icon-button"
             type="button"
             :aria-label="t('Restore to Library')"
             :title="t('Restore to Library')"
@@ -99,7 +99,7 @@ const { t } = useI18n()
             <SidebarIcon name="restore" :size="18" />
           </button>
           <button
-            class="selection__tool selection__tool--danger"
+            class="icon-button icon-button--danger"
             type="button"
             :aria-label="t('Delete')"
             :title="t('Delete')"
@@ -112,7 +112,7 @@ const { t } = useI18n()
 
       <button
         v-if="exportable"
-        class="selection__tool"
+        class="icon-button"
         type="button"
         :aria-label="t('Export…')"
         :title="t('Export…')"
@@ -126,6 +126,8 @@ const { t } = useI18n()
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .selection {
   display: flex;
   flex-direction: column;
@@ -149,63 +151,15 @@ const { t } = useI18n()
   line-height: 1.35;
 }
 
+/* The close is an icon button standing on its own rather than in the toolbar:
+   it dismisses the pane instead of acting on what is in it. */
 .selection__close {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: none;
   border-radius: var(--md-sys-shape-corner-small);
-  background: none;
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
 }
 
-.selection__close:hover {
-  background: var(--md-sys-state-hover-surface);
-}
-
+/* The toolbar's own row, plus the wrapping a narrow pane needs. */
 .selection__tools {
-  display: flex;
   flex-wrap: wrap;
-  gap: var(--md-spacing-1);
-}
-
-.selection__tool {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  padding: 0;
-  border: none;
-  border-radius: var(--md-sys-shape-corner-full);
-  background: none;
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-}
-
-/* The glyph takes the button's colour rather than the icon component's own
-   muted one: hover and the danger red are set on the button, and an SVG with a
-   colour of its own would go on drawing itself grey through both. */
-.selection__tool :deep(.sidebar-icon) {
-  color: inherit;
-}
-
-.selection__tool:hover {
-  background: var(--md-sys-state-hover-surface);
-  color: var(--md-sys-color-on-surface);
-}
-
-.selection__tool--danger {
-  color: var(--md-sys-color-error);
-}
-
-.selection__tool--danger:hover {
-  background: var(--md-sys-color-error-container);
-  color: var(--md-sys-color-on-error-container);
 }
 
 /* A finger cannot hit a 28-pixel target reliably, and nothing here is revealed
@@ -216,9 +170,5 @@ const { t } = useI18n()
     height: 2.5rem;
   }
 
-  .selection__tool {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
 }
 </style>

@@ -871,10 +871,18 @@ configured.
 The design follows Material 3 with a teal accent, and light and dark follow the
 operating system unless the user picks one. What altero does inside that frame
 is written down in [design.md](design.md): one rule — fill groups, outline
-controls, hairline separates — three surface steps, and one card recipe that
-every screen imports rather than draws again. It exists because the interface
-grew three different cards without anyone deciding to, and
+controls, hairline separates — three surface steps, one card recipe that every
+screen imports rather than draws again, and a toolbar around every row of
+icon-only tools, because a glyph on a page says nothing about being pressable
+until a pointer rests on it. It exists because the interface grew three
+different cards without anyone deciding to, and
 `styles/surfaces.node.spec.ts` is what stops a fourth.
+
+The target is WCAG 2.2 AA. What can be measured is measured in tests that fail
+— every contrast pair the interface puts on screen, and the ordering that keeps
+a hovered row from looking more chosen than a chosen one — and
+[design.md](design.md#accessibility) says which criteria were decided where,
+including what has not been verified.
 
 Hover is a state layer rather than a colour — a translucent wash of the text
 colour, one token, laid over whatever is underneath. Every hoverable row used to
