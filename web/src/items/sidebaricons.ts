@@ -1,5 +1,7 @@
 /**
- * Icons for the rows of a sidebar — the library's, and settings'.
+ * Icons for the rows of a sidebar — the library's, and settings' — and for the
+ * handful of controls elsewhere that are a glyph and nothing else: the tools
+ * over the item list, and the path a dialog shows.
  *
  * The library's are drawn to read like the Zotero desktop application's
  * sidebar: a stack of books for a library, two figures for a group, a folder
@@ -92,6 +94,81 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
       'M9.5 7.25V5.5a1.25 1.25 0 011.25-1.25h2.5A1.25 1.25 0 0114.5 5.5v1.75',
       'M6.75 7.25l.9 11.4a1.5 1.5 0 001.5 1.35h5.7a1.5 1.5 0 001.5-1.35l.9-11.4',
       'M10.5 10.75v6 M13.5 10.75v6',
+    ],
+  },
+
+  /* ---- The tools over the item list, and the ones beside an item ---- */
+
+  /** A ticked box: picking rows out, which is what the mode draws on each. */
+  select: {
+    label: 'Select',
+    paths: [
+      'M5.75 4.75h12.5a1 1 0 011 1v12.5a1 1 0 01-1 1H5.75a1 1 0 01-1-1V5.75a1 1 0 011-1z',
+      'M8.5 12.15l2.4 2.4 4.6-5.1',
+    ],
+  },
+
+  /** Something leaving a tray: an item written out of the library as a file.
+   *  Not the settings box, which is a whole library packed up to be carried. */
+  export: {
+    label: 'Export',
+    paths: [
+      'M12 15V4.75',
+      'M8.5 8.25L12 4.75l3.5 3.5',
+      'M4.75 14.75v3.5a1.5 1.5 0 001.5 1.5h11.5a1.5 1.5 0 001.5-1.5v-3.5',
+    ],
+  },
+
+  /** An arrow going into a folder: filing something, or copying it elsewhere. */
+  move: {
+    label: 'Move or copy',
+    paths: [
+      'M3.75 12.5h6.5',
+      'M8.25 10.25l2.25 2.25-2.25 2.25',
+      'M13.25 7.25h2.4l1.1 1.4h3a.9.9 0 01.9.9v6.9a.9.9 0 01-.9.9h-6.5a.9.9 0 01-.9-.9V8.15a.9.9 0 01.9-.9z',
+    ],
+  },
+
+  /** An arrow curving back on itself: out of the trash, where it came from. */
+  restore: {
+    label: 'Restore to Library',
+    paths: [
+      'M4.75 12a7.25 7.25 0 107.25-7.25 7.2 7.2 0 00-5.55 2.6',
+      'M4.75 4.75v3.5h3.5',
+    ],
+  },
+
+  /** The bin again, with a cross through what is in it: gone for good, which
+   *  is a different act from putting something in the trash. */
+  deleteforever: {
+    label: 'Delete',
+    paths: [
+      'M4.75 7.25h14.5',
+      'M9.5 7.25V5.5a1.25 1.25 0 011.25-1.25h2.5A1.25 1.25 0 0114.5 5.5v1.75',
+      'M6.75 7.25l.9 11.4a1.5 1.5 0 001.5 1.35h5.7a1.5 1.5 0 001.5-1.35l.9-11.4',
+      'M10.15 11.1l3.7 4.4 M13.85 11.1l-3.7 4.4',
+    ],
+  },
+
+  /** The published page with a plus, and with a minus: the two directions of
+   *  one errand, which a glyph has to show since it cannot say them. */
+  publish: {
+    label: 'Add to My Publications',
+    paths: [
+      'M6.75 18.25V4.75h5.25l3.75 3.45v2.55',
+      'M12 4.75V8.5h3.75',
+      'M6.75 18.25h4.5',
+      'M16.75 14.25v5.5 M14 17h5.5',
+    ],
+  },
+
+  unpublish: {
+    label: 'Remove from My Publications',
+    paths: [
+      'M6.75 18.25V4.75h5.25l3.75 3.45v2.55',
+      'M12 4.75V8.5h3.75',
+      'M6.75 18.25h4.5',
+      'M14 17h5.5',
     ],
   },
 
