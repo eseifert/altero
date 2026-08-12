@@ -141,8 +141,18 @@ class Wikipedia(TextWriter):
     #: which is what upstream writes for one.
     skips = frozenset({"attachment", "annotation"})
 
+    def __init__(self) -> None:
+        self.written = 0
+
     def entries(self, items: Sequence[ExportItem]) -> str:
-        return "\r\n".join(self._entry(item) for item in items)
+        # The break goes *before* each template rather than after it, so a file
+        # ends without one and a file written in batches does not lose the break
+        # between the last of one batch and the first of the next.
+        rendered = []
+        for item in items:
+            rendered.append(("\r\n" if self.written else "") + self._entry(item))
+            self.written += 1
+        return "".join(rendered)
 
     def _entry(self, item: ExportItem) -> str:
         template = _TEMPLATES.get(item.item_type, "Cite")

@@ -23,9 +23,17 @@ class BibTeX(TextWriter):
 
     def __init__(self) -> None:
         self.taken: set[str] = set()
+        self.written = 0
 
     def entries(self, items: Sequence[ExportItem]) -> str:
-        return bibtex(
+        if not items:
+            return ""
+        # A blank line separates two entries, and bibtexparser puts one between
+        # the entries of a single call. The one between two batches is put in
+        # here, so a file written in pieces is the file written at once.
+        separator = "\n" if self.written else ""
+        self.written += len(items)
+        return separator + bibtex(
             [item.csl for item in items],
             keywords=[item.tag_names for item in items],
             biblatex=self.biblatex,
@@ -42,8 +50,19 @@ class BibLaTeX(BibTeX):
 class Ris(TextWriter):
     """RIS."""
 
+    def __init__(self) -> None:
+        self.written = 0
+
     def entries(self, items: Sequence[ExportItem]) -> str:
-        return ris([item.csl for item in items], keywords=[item.tag_names for item in items])
+        if not items:
+            return ""
+        # As in :class:`BibTeX`: rispy separates two entries with a blank line,
+        # and the one between two batches belongs here.
+        separator = "\n" if self.written else ""
+        self.written += len(items)
+        return separator + ris(
+            [item.csl for item in items], keywords=[item.tag_names for item in items]
+        )
 
 
 class CslJson(TextWriter):

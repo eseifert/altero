@@ -738,6 +738,35 @@ class TestBibliontologyRdf:
         assert "<bibo:isbn10>146143436X</bibo:isbn10>" in written
 
 
+class TestWritingAFileInBatches:
+    """An export follows the query past the end of a page, so a writer is called
+    once per batch. What it produces has to be what one call would have."""
+
+    @pytest.mark.parametrize("response_format", sorted(exportformats.kinds()))
+    async def test_the_batches_join_up(
+        self, session: AsyncSession, library: Library, article: Item, response_format: Format
+    ) -> None:
+        book = await make_item(
+            session,
+            library,
+            item_type="book",
+            fields={"title": "A book", "publisher": "Springer", "date": "2012"},
+            creators=[("author", "Ada", "Lovelace")],
+        )
+        note = await make_item(session, library, item_type="note", fields={"note": "<p>Hi</p>"})
+        views = [exportitem.export_item(item, library, BASE) for item in (article, book, note)]
+
+        at_once = exportformats.render(response_format, views)
+
+        writer = exportformats.writer(response_format)
+        in_batches = writer.begin()
+        for view in views:
+            in_batches += writer.write([view])
+        in_batches += writer.end()
+
+        assert in_batches == at_once
+
+
 class TestTheEndpoints:
     @pytest.mark.parametrize(
         ("response_format", "content_type", "marker"),
