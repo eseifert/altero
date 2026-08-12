@@ -1,12 +1,11 @@
 /**
  * The formats a set of items can be written out in.
  *
- * Four, against the desktop client's dozen, because these are the four the
- * server can write: BibTeX, BibLaTeX and RIS are `altero/cite/export.py`, and
- * CSL JSON is what a citation is rendered from. Everything else the client
- * offers — Zotero RDF, MODS, Endnote XML, the note translators — is a
- * JavaScript translator run by a translation server that altero has no
- * equivalent of.
+ * All of them the server writes, which is every export format zotero.org
+ * serves: `altero/cite/formats/` is a port of the same translators the desktop
+ * client runs, so a file exported here is the file exported there. The only
+ * thing the client offers and this does not is its note translators, which
+ * write a note rather than a bibliography.
  *
  * The names are not translated and are not in the catalogues: BibTeX is BibTeX
  * in every language, and the client's own format menu leaves them alone too.
@@ -24,9 +23,22 @@ export interface ExportFormat {
 
 export const EXPORT_FORMATS: ExportFormat[] = [
   { id: 'biblatex', label: 'BibLaTeX' },
+  { id: 'rdf_bibliontology', label: 'Bibliontology RDF' },
   { id: 'bibtex', label: 'BibTeX' },
+  { id: 'bookmarks', label: 'Bookmarks' },
+  { id: 'coins', label: 'COinS' },
   { id: 'csljson', label: 'CSL JSON' },
+  { id: 'csv', label: 'CSV' },
+  { id: 'endnote_xml', label: 'Endnote XML' },
+  { id: 'mods', label: 'MODS' },
+  { id: 'refer', label: 'Refer/BibIX' },
+  { id: 'refworks_tagged', label: 'RefWorks Tagged' },
   { id: 'ris', label: 'RIS' },
+  { id: 'evernote', label: 'Simple Evernote Export' },
+  { id: 'tei', label: 'TEI' },
+  { id: 'rdf_dc', label: 'Unqualified Dublin Core RDF' },
+  { id: 'wikipedia', label: 'Wikipedia Citation Templates' },
+  { id: 'rdf_zotero', label: 'Zotero RDF' },
 ]
 
 /**
@@ -62,13 +74,14 @@ export function rememberFormat(id: string): void {
 }
 
 /**
- * Item types none of these formats has an entry for.
+ * Item types a bibliography has no entry for.
  *
  * A note is not a work, an attachment is a file belonging to one, and an
- * annotation belongs to the attachment. The server leaves them out of what it
- * writes; this is here so the interface does not offer an export that would
- * come back empty — which is what the client does too, by hiding every format
- * but its note translators when a selection is nothing but notes.
+ * annotation belongs to the attachment. Most of the formats leave them out —
+ * the exceptions are Zotero RDF, which is a library export rather than a
+ * bibliography, and COinS — so the interface does not offer an export that
+ * would usually come back empty. It is what the client does too, by hiding
+ * every format but its note translators when a selection is nothing but notes.
  */
 const UNCITED = new Set(['note', 'attachment', 'annotation'])
 

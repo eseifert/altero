@@ -93,10 +93,9 @@ searchable, group libraries and My Publications, and live updates that reach a
 connected client at once.
 
 Finding things and getting them out again: search inside attached PDFs and
-child notes, citations and bibliographies in any published style, export as
-BibTeX, BibLaTeX or RIS, and Atom feeds of a library.
-
-Not yet: the export formats beyond those three.
+child notes, citations and bibliographies in any published style, every export
+format zotero.org serves — BibTeX, BibLaTeX, RIS, CSV, MODS, TEI, Zotero RDF
+and the rest — and Atom feeds of a library.
 [docs/status.md](docs/status.md) has the list, feature by feature.
 
 ## What zotero.org does not offer

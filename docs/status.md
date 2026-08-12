@@ -62,10 +62,15 @@ things the desktop client asks for that no data server documents.
   `include=bib,citation,csljson`, in any of the styles published by the
   [CSL project](https://github.com/citation-style-language/styles), with
   `style`, `locale` and `linkwrap`. Nothing is fetched at request time
-- Export as `format=bibtex`, `biblatex` or `ris`, and the matching `include`
-  values, with tags carried across as keywords. The browser writes the same
-  three and CSL JSON as a file, for a library, a collection or a selection; see
-  [web-interface.md](web-interface.md#writing-items-out)
+- Every export format zotero.org serves — `bibtex`, `biblatex`, `bookmarks`,
+  `coins`, `csv`, `endnote_xml`, `evernote`, `mods`, `rdf_bibliontology`,
+  `rdf_dc`, `rdf_zotero`, `refer`, `refworks_tagged`, `ris`, `tei` and
+  `wikipedia` — and the matching `include` values. Each is a port of the Zotero
+  translator that writes it rather than a format invented here, and most
+  reproduce it byte for byte; see
+  [compatibility.md](compatibility.md#citations-and-bibliographies). The browser writes
+  the same list and CSL JSON as a file, for a library, a collection or a
+  selection; see [web-interface.md](web-interface.md#writing-items-out)
 - Items of every type, including notes, attachments and annotations, whose
   fields the published schema does not list
 - Client-supplied `dateAdded` and `dateModified`, kept as sent
@@ -120,7 +125,8 @@ things the desktop client asks for that no data server documents.
 
 ## Not implemented
 
-- The eleven export formats beyond BibTeX, BibLaTeX and RIS
+- Zotero's note translators, `Note HTML` and `Note Markdown`, which write a note
+  rather than a bibliography. Neither is an export format the API serves
 
 Group administration, registration and the invitation flow are also in the web
 interface; it has its own list of what is and is not built, see

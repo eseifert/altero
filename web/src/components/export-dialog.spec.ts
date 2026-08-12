@@ -35,12 +35,30 @@ describe('the export dialog', () => {
     localStorage.clear()
   })
 
-  it('offers the four formats the server can write', () => {
+  it('offers every format the server can write, in the client\'s order', () => {
     const wrapper = open()
 
     const offered = wrapper.findAll('option').map((option) => option.text())
 
-    expect(offered).toEqual(['BibLaTeX', 'BibTeX', 'CSL JSON', 'RIS'])
+    expect(offered).toEqual([
+      'BibLaTeX',
+      'Bibliontology RDF',
+      'BibTeX',
+      'Bookmarks',
+      'COinS',
+      'CSL JSON',
+      'CSV',
+      'Endnote XML',
+      'MODS',
+      'Refer/BibIX',
+      'RefWorks Tagged',
+      'RIS',
+      'Simple Evernote Export',
+      'TEI',
+      'Unqualified Dublin Core RDF',
+      'Wikipedia Citation Templates',
+      'Zotero RDF',
+    ])
   })
 
   it('starts on BibTeX, and on whatever was chosen last after that', async () => {

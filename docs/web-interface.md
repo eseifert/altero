@@ -581,23 +581,28 @@ library of nine thousand items writes nine thousand entries, which is what
 “export the library” has to mean. A selection is named item by item instead,
 and is the same selection every other errand acts on.
 
-Four formats, because they are the four the server can write: **BibTeX**,
-**BibLaTeX**, **RIS** and **CSL JSON**. The desktop client offers a dozen more
-through JavaScript translators run by a translation server, which altero has no
-equivalent of; these four are `altero/cite/`, the same code the v3 API's
-`format=bibtex` and the citation in the detail pane go through. The chosen one
-is remembered per device, as the client remembers its last translator. There
-are no other questions: the client's export dialog also offers to export the
-attached files, to write notes as their own entries and to abbreviate journal
-titles, and all three are things a translator does that none of these four can.
+Seventeen formats, which is every one the server can write and every one
+zotero.org serves: **BibTeX**, **BibLaTeX**, **CSL JSON**, **RIS**, **CSV**,
+**MODS**, **TEI**, **EndNote XML**, **Zotero RDF**, **Bibliontology RDF**,
+**Unqualified Dublin Core RDF**, **Refer/BibIX**, **RefWorks Tagged**,
+**Bookmarks**, **COinS**, **Simple Evernote Export** and **Wikipedia citation
+templates**. They are `altero/cite/formats/`, ports of the same Zotero
+translators the desktop client runs, and the same code the v3 API's
+`format=bibtex` and the citation in the detail pane go through. The order is the
+client's, which sorts its translator list by label, and the chosen one is
+remembered per device as the client remembers its last translator. There are no
+other questions: the client's export dialog also offers to export the attached
+files, to write notes as their own entries and to abbreviate journal titles, and
+all three are things a translator is asked about child items and files that an
+export over the API has neither of.
 
 Notes, attachments and annotations are left out, and the gesture is not offered
-where they are all there is. None of them has a bibliography entry, and altero
-has no note translator to write one with — the client's own BibTeX and RIS
-translators skip them too. A CSL JSON file is a JSON array, which is what
-pandoc and citeproc read and what the client's CSL JSON translator writes; the
-`{"items": …}` wrapper the v3 API puts around the same objects is an API
-envelope, not a file format.
+where they are all there is. Most of the formats have no entry for them — the
+client's own BibTeX and RIS translators skip them by name — and offering an
+export that came back empty would be worse than not offering it. A CSL JSON file
+is a JSON array, which is what pandoc and citeproc read and what the client's
+CSL JSON translator writes; the `{"items": …}` wrapper the v3 API puts around
+the same objects is an API envelope, not a file format.
 
 Exporting is a **read**, which is why it is offered wherever a library can be
 read at all, including a group that reserves editing for its administrators and
@@ -868,8 +873,8 @@ what the API cannot serve and what altero does instead.
 Settings offers the archive `altero library export` writes, and reads one back.
 It is a backup or a move between servers, not an export for another
 application: every object at the version clients remember, the deletion log,
-and the attachment bytes. The other thing — BibTeX, BibLaTeX, RIS and CSL JSON
-— lives with the items, under
+and the attachment bytes. The other thing — a bibliography, in any of the
+seventeen formats — lives with the items, under
 [Writing items out](#writing-items-out).
 
 Both are a link rather than a fetch, so the browser streams the file to disk and

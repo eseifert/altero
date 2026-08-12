@@ -335,33 +335,91 @@ header, and rejects `sort`, `direction`, `start`, `limit` and `order` with a
 size are both 150 (`Zotero_API::MAX_BIBLIOGRAPHY_ITEMS`).
 
 **`include` is validated rather than ignored.** `data`, `bib`, `citation`,
-`csljson`, `bibtex`, `biblatex`, `ris` and `none` are accepted; `include=none`
-may not be combined with anything; `include` outside `format=json` is a 400, as
-is an unknown value. Upstream additionally accepts `html`, which needs Atom, and
-eleven more export formats; those are refused here rather than accepted — a
-client that asked for one and silently received `data` would have no way to
-notice.
+`csljson`, `none` and every export format are accepted; `include=none` may not
+be combined with anything; `include` outside `format=json` is a 400, as is an
+unknown value. Upstream additionally accepts `html`, which needs Atom and is
+asked for through `content` here.
 
-**Three export formats are written, not fourteen.** Upstream produces them by
-handing the item JSON to a translation server running Zotero's own JavaScript
-translators. altero has no such thing, so `bibtex`, `biblatex` and `ris` are
-mapped from the CSL JSON an item already renders as, with
+**Every export format is written, and each is a port of Zotero's own
+translator.** Upstream produces them by handing the item JSON to a translation
+server running the JavaScript translators from
+[zotero/translators](https://github.com/zotero/translators); altero has no such
+thing, so each of the sixteen formats `Zotero_Translate::$exportFormats` names
+is ported into `altero/cite/formats/`
+and checked against what `api.zotero.org` answers for the same item. Six of them
+— Refer/BibIX, RefWorks Tagged, Wikipedia citation templates, COinS, MODS and
+TEI — reproduce it byte for byte on every item tested. CSV and EndNote XML do
+too, apart from the one place each that is named below. The three RDF formats
+match statement for statement, the serialiser's own whitespace aside.
+
+`bibtex`, `biblatex` and `ris` are the exception to the porting: they are mapped
+from the CSL JSON an item already renders as, with
 [bibtexparser](https://github.com/sciunto-org/python-bibtexparser) and
 [rispy](https://github.com/MrTango/rispy) doing the writing. Consequences worth
 knowing:
 
-- CSL is a superset of what these formats carry, so the mapping loses nothing
-  they can hold — but a type CSL renders as `document` becomes `@misc` or `GEN`,
-  where a translator might have known better.
+- CSL is a superset of what these three formats carry, so the mapping loses
+  nothing they can hold — but a type CSL renders as `document` becomes `@misc`
+  or `GEN`, where a translator might have known better.
 - Citation keys are generated as `surname` + `year` + first significant title
   word, disambiguated with a letter within one response. Upstream's translator
   has its own scheme; neither is stable across servers, which is why a
   `citationKey` field in the item wins over both.
 - Tags become `keywords`. They are not part of CSL, so they are carried
   alongside it rather than through it.
-- `bookmarks`, `coins`, `csv`, `endnote_xml`, `evernote`, `mods`, `refer`,
-  `refworks_tagged`, `rdf_*`, `tei` and `wikipedia` are not implemented, and are
-  refused rather than silently answered as JSON.
+
+What a translator is handed matters, and altero reproduces that too: Zotero adds
+its compatibility mappings — base fields under their own names, `versionNumber`
+called `version`, an access date written with a space rather than a `T` — only
+for translators declaring a `minVersion` below 4.0.27. TEI is the one export
+translator on the far side of that line, so it alone sees the item as the API
+serves it: it reads `versionNumber`, writes no publisher for a report (whose
+field is `institution`), and dates its access with a `T`.
+
+Eight deliberate differences. The first names the application that wrote the
+file; the rest are places where copying upstream would mean copying something
+broken:
+
+- **A file says altero wrote it.** EndNote XML's `source-app` and Evernote's
+  `en-export application` name this server and its version, where upstream's
+  name Zotero and the client version its translation server happens to run.
+
+- **The XML and RDF formats match in content, not in whitespace.** Zotero's RDF
+  serialiser indents a resource with one child differently from one with two and
+  writes a line of three spaces into an empty document; the namespaces are all
+  declared on the root here, because a file is written in batches and the root
+  goes out before the first item. No RDF or XML parser can tell the difference.
+- **CSV's `Date Added` column is the date the item was added.** Upstream writes
+  `dateModified` into it, which loses the one thing the column is for.
+- **Bookmarks are escaped.** The translator writes the title and the URL
+  straight into the markup, so an ampersand in a title produces a file no HTML
+  parser reads back the way it went in — and this server will answer
+  `format=bookmarks` to a browser with an API key in the query string.
+- **Evernote's ampersands are escaped once.** Upstream escapes `<` and then
+  escapes every `&` over the whole document again, including the ones inside a
+  CDATA section that needs none, so a title with an angle bracket arrives
+  reading `&lt;` in full.
+- **An Evernote `<updated>` ends in one `Z`, and an item with no URL has an
+  empty `<source-url>`.** Upstream appends a `Z` to a timestamp that has one,
+  and writes the string `undefined` for the URL.
+- **An ISBN of two numbers separated by two spaces produces two Bibliontology
+  statements, not three.** The third is empty upstream — what splitting on a
+  single space does to a double one.
+- **An entry's TEI `xml:id` keeps its plain form and the *second* one gains a
+  letter.** Upstream renames the earlier entry and numbers from `b`; a file
+  written in batches cannot go back and rename an entry already sent.
+
+Two things a translator can be *asked* have no answer here, because an export
+over the API has neither to offer: the attached files, and child notes. Upstream
+sends each item on its own, so its `item.notes` and `item.attachments` are empty
+as well — a note is exported as an item of its own, in the formats that write
+one, or not at all.
+
+Where a format writes something for a note, an attachment or an annotation is
+the translator's own decision and is kept: CSV, Refer, BibTeX and most of the
+rest skip them by name; COinS writes a span for anything; Evernote makes a note
+of everything; Zotero RDF describes them, being the format a library export is
+written in.
 
 Four places where the rendered output is not upstream's:
 

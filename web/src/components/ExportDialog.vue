@@ -11,10 +11,10 @@ import { useModal } from '@/modal'
  *
  * The client's dialog asks three things: the format, the options that format
  * declares, and where to put the file. Only the first is a question here. The
- * options are all things a translator supports and altero's four formats do
- * not — exporting the attached files, exporting notes as their own entries,
- * abbreviating journal titles — and where the file goes is the browser's
- * business, not this application's.
+ * options are all things a translator is *asked* — export the attached files,
+ * export notes as their own entries, abbreviate journal titles — and an export
+ * over the API has no files and no child items to ask about; where the file
+ * goes is the browser's business, not this application's.
  *
  * What it asks *instead* is which items, where the client has three separate
  * menu items for that. Rows picked out come first and are the answer unless
