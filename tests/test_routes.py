@@ -22,6 +22,7 @@ EXPECTED = [
     ("/web/auth/verify", "POST"),
     # Setting a password from a link an administrator issued. Answers without a
     # cookie, like the confirmation link: the token is the whole credential.
+    ("/web/auth/forgot", "POST"),
     ("/web/auth/reset/{token}", "GET"),
     ("/web/auth/reset", "POST"),
     ("/web/auth/verify/resend", "POST"),

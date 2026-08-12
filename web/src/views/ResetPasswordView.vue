@@ -17,9 +17,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { ApiError, request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
 
+const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -103,9 +105,22 @@ async function submit(): Promise<void> {
       <p class="auth-form__error" role="alert">
         {{ failure ?? t('That link is not valid or has expired.') }}
       </p>
-      <p class="auth-form__lead">
+      <!-- Where the instance offers the form, sending somebody to it is more
+           use than telling them to find an administrator. -->
+      <p v-if="auth.passwordResetOpen" class="auth-form__lead">
+        {{ t('Ask for a new one. Your current password still works.') }}
+      </p>
+      <p v-else class="auth-form__lead">
         {{ t('Ask whoever runs this server for a new one. Your current password still works.') }}
       </p>
+      <AppButton
+        v-if="auth.passwordResetOpen"
+        variant="text"
+        full-width
+        @click="router.push({ name: 'forgot-password' })"
+      >
+        {{ t('Forgotten password?') }}
+      </AppButton>
       <AppButton variant="text" full-width @click="router.push({ name: 'sign-in' })">
         {{ t('Sign in') }}
       </AppButton>

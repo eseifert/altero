@@ -48,6 +48,15 @@ Every other account is made by an instance administrator — under
 `altero user password <username>` from a shell. See
 [administration.md](administration.md).
 
+**A forgotten password** is offered on the sign-in page only where the
+deployment set `ALTERO_PASSWORD_RESET` and configured a relay; otherwise an
+administrator issues the link. The form says the same thing whatever it finds —
+"if an account here uses that address, a link is on its way" — because a page
+that said otherwise would answer, one address at a time, which addresses have
+accounts here. It works only for an address that has been confirmed: nobody has
+proved they hold an unconfirmed one, and honouring it would make a typo at
+registration somebody else's way in.
+
 Accounts that predate this interface keep working exactly as they did. They
 have no password until one is set, which means they can sync but cannot sign in
 to the browser.
@@ -970,8 +979,7 @@ are cached for good, so the second visit fetches none of it.
 
 ## Not built yet
 
-Passkeys, single sign-on through OIDC and SAML, an emailed link for somebody
-who has forgotten their password — an administrator sets one instead — and
+Passkeys, single sign-on through OIDC and SAML, and
 editing an item's fields — with one exception, the Rights field, because a
 licence set when a work was published has to be revisable by whoever set it.
 Collections can be made, renamed, moved and removed, an item can be filed,

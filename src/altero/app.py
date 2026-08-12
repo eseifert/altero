@@ -47,7 +47,7 @@ from altero.api.routes import (
 )
 from altero.api.spa import mount_web_interface
 from altero.db import Database
-from altero.services import groupdigest, instancesettings, retention
+from altero.services import groupdigest, instancesettings, passwordreset, retention
 from altero.services.groupsweeper import Sweeper
 from altero.services.mail import build_mailer
 from altero.services.ratelimit import RateLimiter
@@ -112,6 +112,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # Built once, at start-up, so a malformed smtp URL is a start-up
     # failure rather than a surprise the first time someone registers.
     app.state.mailer = build_mailer(settings)
+    # Its own limiter rather than the API's: the API's is off by default and is
+    # about a runaway sync client, while this one is about a form anybody on
+    # the internet can submit and must hold whatever the deployment configured.
+    # Per process, like the other one, and for the same reason -- see
+    # services/ratelimit.py.
+    app.state.reset_limiter = RateLimiter(
+        limit=passwordreset.REQUESTS_PER_WINDOW,
+        window=passwordreset.REQUEST_WINDOW_SECONDS,
+    )
 
     # A browser can only read a response header that is named here, and the
     # API's whole protocol lives in headers: without this a web client cannot

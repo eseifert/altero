@@ -61,6 +61,7 @@ export default {
     'Cette page est visible par tout le monde, sans compte ici.',
   Archive: 'Archive',
   'Apply them now': 'Appliquer maintenant',
+  'Ask for a new one. Your current password still works.': 'Demandez-en un nouveau. Votre mot de passe actuel fonctionne toujours.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Demandez-en un nouveau à qui administre ce serveur. Votre mot de passe actuel fonctionne toujours.',
   'At least {count} characters': 'Au moins {count} caractères',
@@ -73,6 +74,7 @@ export default {
   Back: 'Retour',
   'Back in service.': 'De nouveau en service.',
   'Back to groups': 'Retour aux groupes',
+  'Back to sign in': 'Retour à la connexion',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Les deux suivent cet appareil sauf choix contraire, et suivent votre compte.',
   'Can': 'Peut',
@@ -194,7 +196,10 @@ export default {
   'Finished.': 'Terminé.',
   'Follow this device ({name})': 'Suivre cet appareil ({name})',
   'For example, my laptop': 'Par exemple : mon ordinateur portable',
+  'Forgotten password': 'Mot de passe oublié',
+  'Forgotten password?': 'Mot de passe oublié ?',
   'Format:': 'Format :',
+  'Give the address on your account and we will send a link to set a new one.': 'Indiquez l’adresse de votre compte et nous enverrons un lien pour en définir un nouveau.',
   'Give them this link. It is good for {hours} hours and can be used once.':
     'Donnez-leur ce lien. Il est valable {hours} heures et ne peut servir qu’une fois.',
   'Go to your library': 'Aller à votre bibliothèque',
@@ -212,6 +217,7 @@ export default {
   'I created this work and have the rights to distribute the files included.':
     'Je suis l’auteur de ce travail et j’ai le droit de distribuer les fichiers qui y sont attachés.',
   'I created this work.': 'Je suis l’auteur de ce travail.',
+  'If an account here uses that address, a link to set a new password is on its way.': 'Si un compte utilise cette adresse ici, un lien pour définir un nouveau mot de passe est en route.',
   'Import and export': 'Import et export',
   'In the trash': 'Dans la corbeille',
   'Include attached files': 'Inclure les fichiers joints',
@@ -406,6 +412,7 @@ export default {
   'Send a new link': 'Envoyer un nouveau lien',
   'Send a password link': 'Envoyer un lien de mot de passe',
   'Send confirmation': 'Envoyer la confirmation',
+  'Send the link': 'Envoyer le lien',
   'Sent to {address}.': 'Envoyée à {address}.',
   'Sent to {email}, once a group has been quiet for a while.': 'Envoyé à {email}, une fois le groupe calme depuis un moment.',
   'Set a password': 'Définir un mot de passe',
@@ -468,6 +475,7 @@ export default {
     'La bibliothèque est maintenant à la version {version}.',
   'The library was restored.': 'La bibliothèque a été restaurée.',
   'The link': 'Le lien',
+  'The link works once and lasts twelve hours. Your current password still works.': 'Le lien fonctionne une seule fois et dure douze heures. Votre mot de passe actuel fonctionne toujours.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Le mot de passe de {username} est {password}. Copiez-le maintenant : il ne sera plus affiché.',
   'The tag will be changed in all associated items.': 'Le marqueur sera modifié dans tous les documents associés.',

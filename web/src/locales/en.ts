@@ -63,6 +63,7 @@ export default {
     'Anyone can see this page, with no account here.',
   'Apply them now': 'Apply them now',
   'Archive': 'Archive',
+  'Ask for a new one. Your current password still works.': 'Ask for a new one. Your current password still works.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Ask whoever runs this server for a new one. Your current password still works.',
   'At least {count} characters': 'At least {count} characters',
@@ -75,6 +76,7 @@ export default {
   Back: 'Back',
   'Back in service.': 'Back in service.',
   'Back to groups': 'Back to groups',
+  'Back to sign in': 'Back to sign in',
   'Both follow this device unless you choose otherwise, and travel with your account.': 'Both follow this device unless you choose otherwise, and travel with your account.',
   'By library': 'By library',
   'Can': 'Can',
@@ -187,7 +189,10 @@ export default {
   'Finished.': 'Finished.',
   'Follow this device ({name})': 'Follow this device ({name})',
   'For example, my laptop': 'For example, my laptop',
+  'Forgotten password': 'Forgotten password',
+  'Forgotten password?': 'Forgotten password?',
   'Format:': 'Format:',
+  'Give the address on your account and we will send a link to set a new one.': 'Give the address on your account and we will send a link to set a new one.',
   'Give them this link. It is good for {hours} hours and can be used once.':
     'Give them this link. It is good for {hours} hours and can be used once.',
   'Go to your library': 'Go to your library',
@@ -204,6 +209,7 @@ export default {
   'I created this work and have the rights to distribute the files included.':
     'I created this work and have the rights to distribute the files included.',
   'I created this work.': 'I created this work.',
+  'If an account here uses that address, a link to set a new password is on its way.': 'If an account here uses that address, a link to set a new password is on its way.',
   'Import and export': 'Import and export',
   'In the trash': 'In the trash',
   'Include attached files': 'Include attached files',
@@ -383,6 +389,7 @@ export default {
   'Send a new link': 'Send a new link',
   'Send a password link': 'Send a password link',
   'Send confirmation': 'Send confirmation',
+  'Send the link': 'Send the link',
   'Sent to {address}.': 'Sent to {address}.',
   'Sent to {email}, once a group has been quiet for a while.': 'Sent to {email}, once a group has been quiet for a while.',
   'Set a password': 'Set a password',
@@ -442,6 +449,7 @@ export default {
   'The library is now at version {version}.': 'The library is now at version {version}.',
   'The library was restored.': 'The library was restored.',
   'The link': 'The link',
+  'The link works once and lasts twelve hours. Your current password still works.': 'The link works once and lasts twelve hours. Your current password still works.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'The password for {username} is {password}. Copy this now. It will not be shown again.',
   'The tag will be changed in all associated items.': 'The tag will be changed in all associated items.',

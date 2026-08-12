@@ -57,6 +57,10 @@ async function submit(): Promise<void> {
 
     <AppButton type="submit" full-width :loading="auth.busy">{{ t('Sign in') }}</AppButton>
 
+    <p v-if="auth.passwordResetOpen" class="auth-form__aside">
+      <RouterLink :to="{ name: 'forgot-password' }">{{ t('Forgotten password?') }}</RouterLink>
+    </p>
+
     <p v-if="auth.registrationOpen" class="auth-form__aside">
       {{ t('No account yet?') }}
       <RouterLink :to="{ name: 'register' }">{{ t('Create one') }}</RouterLink>

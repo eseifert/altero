@@ -7,7 +7,7 @@ variables exist.
 
 ## What is sent, and when
 
-Five kinds of message, all plain text. Four are triggered by something a person
+Six kinds of message, all plain text. Five are triggered by something a person
 just did:
 
 - **Confirm your email address**, on registration, when the address on an
@@ -16,28 +16,32 @@ just did:
 - **An invitation to a group library**, when an administrator invites an
   address from the browser. The link carries a token and can be read without an
   account, so somebody who is not here yet can see what they were asked to join.
+- **Set a new password**, carrying a single-use link good for 12 hours. Either
+  an administrator issued it from **Administration → Accounts**, or — where the
+  deployment set `ALTERO_PASSWORD_RESET` — the account asked for one itself from
+  the sign-in page. The self-service form additionally needs a relay to be
+  configured, since a link to set a password is the one message that must not
+  fall back to the log.
 - **Your password was changed**, after a password change in the browser.
 - **An authenticator app was added / removed**, after enrolling or disabling
   TOTP.
 
-The last two are security notices, and they go **only to a confirmed address**.
-An address nobody has proved they hold may be somebody else's, and a notice
-about a password change is exactly the message not to send to a stranger. So an
-account whose address is unconfirmed silently gets no security mail — which is
-the other reason the confirmation message matters.
+The last three are security notices, and they go **only to a confirmed
+address**. An address nobody has proved they hold may be somebody else's, and a
+notice about a password change is exactly the message not to send to a stranger.
+So an account whose address is unconfirmed silently gets no security mail —
+which is the other reason the confirmation message matters, and why an
+administrator issuing a reset link is shown it as well as mailing it.
 
-The fifth is the exception, and the only message not caused by the person
+The sixth is the exception, and the only message not caused by the person
 receiving it:
 
 - **New activity in a group library**, to members who asked for it, once the
   library has been quiet for a while. Off for everybody until they turn it on.
   See [Group notifications](#group-notifications) below.
 
-Nothing else is sent. There is no password reset by email: an account locked out
-of the browser is recovered from the command line with `altero user password
-<username>`, which is what the "if this was not you" notice tells the owner to
-ask for. There is no marketing, and nothing goes to somebody who did not either
-cause it or ask for it.
+Nothing else is sent. There is no marketing, and nothing goes to somebody who
+did not either cause it or ask for it.
 
 ## Without a relay
 

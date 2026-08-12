@@ -56,6 +56,21 @@ class Settings(BaseSettings):
         ),
     )
 
+    password_reset: bool = Field(
+        default=False,
+        description=(
+            "Whether somebody who has forgotten their password may ask for a "
+            "link to set a new one. Off by default, because it makes the mail "
+            "relay part of the authentication: whoever can read the mailbox "
+            "can take the account. An instance whose people are all reachable "
+            "by its administrator does not need it, and an administrator "
+            "issues a link from the Accounts screen either way. It does "
+            "nothing without ALTERO_SMTP_URL -- a self-service link written to "
+            "the log is one anybody who can read the log can follow -- and "
+            "nothing for an account whose address was never confirmed."
+        ),
+    )
+
     smtp_url: str = Field(
         default="",
         description=(

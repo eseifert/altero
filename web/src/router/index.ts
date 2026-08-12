@@ -25,6 +25,14 @@ const routes = [
     component: () => import('@/views/ResetPasswordView.vue'),
   },
   {
+    // Where "forgotten your password?" goes. Unguarded for the obvious reason,
+    // and reachable even where the instance does not offer it -- the link is
+    // hidden then, and the endpoint behind it answers 202 and sends nothing.
+    path: '/forgot',
+    name: 'forgot-password',
+    component: () => import('@/views/ForgotPasswordView.vue'),
+  },
+  {
     // Where the desktop client's loginURL sends the browser.
     path: '/link',
     name: 'link-client',

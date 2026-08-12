@@ -35,6 +35,7 @@ interface ServerConfig {
   registrationOpen: boolean
   firstAccount: boolean
   secondFactors: string[]
+  passwordResetOpen: boolean
 }
 
 export interface RegistrationDetails {
@@ -72,6 +73,14 @@ export const useAuthStore = defineStore('auth', () => {
   const registrationOpen = ref(false)
   /** True while the instance has no users, which is a different sentence. */
   const firstAccount = ref(false)
+  /**
+   * Whether the sign-in page offers "forgotten your password?".
+   *
+   * Asked of the server rather than assumed, because it takes both an operator
+   * who turned it on and a relay to send through -- an instance with neither
+   * would show a form that can only ever answer 202 and send nothing.
+   */
+  const passwordResetOpen = ref(false)
 
   const isAuthenticated = computed(() => user.value !== null)
 
@@ -121,11 +130,14 @@ export const useAuthStore = defineStore('auth', () => {
       const config = await request<ServerConfig>('/web/config')
       registrationOpen.value = config.registrationOpen
       firstAccount.value = config.firstAccount
+      passwordResetOpen.value = config.passwordResetOpen
     } catch {
       // Offering a register link that the server will refuse is worse than
-      // not offering one, so an unanswered question means closed.
+      // not offering one, so an unanswered question means closed. The same
+      // reasoning covers the reset link.
       registrationOpen.value = false
       firstAccount.value = false
+      passwordResetOpen.value = false
     }
   }
 
@@ -202,6 +214,7 @@ export const useAuthStore = defineStore('auth', () => {
     ready,
     registrationOpen,
     firstAccount,
+    passwordResetOpen,
     isAuthenticated,
     restore,
     loadConfig,

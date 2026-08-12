@@ -31,6 +31,7 @@ from altero.errors import ForbiddenError
 from altero.models import User, WebSession
 from altero.services import emailverify, passwordreset, passwords, webauth, websessions
 from altero.services.mail import Message
+from altero.services.passwordreset import LIFETIME_HOURS
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -265,6 +266,11 @@ async def read_config(request: Request, session: SessionDep) -> Response:
             # page cannot tell them apart from `registrationOpen` alone.
             "firstAccount": await webauth.no_accounts_yet(session),
             "secondFactors": ["totp"],
+            # Whether the sign-in page offers "forgotten your password?" at
+            # all. Reported rather than assumed, so an instance that has no
+            # relay does not show a form that can only ever answer 202 and
+            # send nothing.
+            "passwordResetOpen": _reset_allowed(request),
         }
     )
 
@@ -351,6 +357,80 @@ async def verify_email(session: SessionDep, body: Annotated[Token, Body()]) -> R
 
 class NewPassword(Token):
     password: str
+
+
+class ForgottenPassword(BaseModel):
+    email: str
+
+
+def _reset_allowed(request: Request) -> bool:
+    """Return whether this deployment offers a self-service reset at all.
+
+    Both halves are required and neither is a substitute for the other: the
+    operator has to have asked for it, and there has to be somewhere for the
+    link to go. Without a relay the message is written to the log, which is
+    the right fallback for a confirmation somebody is waiting for and the
+    wrong one entirely for a credential -- anybody who can read the log could
+    then take any account on the instance.
+    """
+    settings = request.app.state.settings
+    return bool(settings.password_reset and settings.smtp_url)
+
+
+@router.post("/auth/forgot", status_code=202)
+async def forgot_password(
+    request: Request, session: SessionDep, body: Annotated[ForgottenPassword, Body()]
+) -> Response:
+    """Send a link to set a new password, if this address has an account.
+
+    **202 whatever happens**, and deliberately so. A response that told a
+    caller whether anything was sent would answer "does this person have an
+    account here", one address at a time, to anybody who asked -- and the
+    people most likely to ask are not the ones who forgot a password. The same
+    silence covers a closed instance, an unknown address, an unconfirmed one,
+    a suspended account and a relay that is down.
+
+    No session and no CSRF token: whoever is looking at this form is by
+    definition not signed in, and there is nothing to forge -- the request
+    grants nothing and the link goes to the address on the account rather than
+    anywhere the caller named.
+
+    The rate limit is keyed by address rather than by the caller's own, because
+    the thing worth bounding is how much mail one mailbox can be made to
+    receive; a limit on the sender would be evaded by the same botnet that
+    made it necessary.
+    """
+    if not _reset_allowed(request):
+        return Response(status_code=202)
+
+    limiter = request.app.state.reset_limiter
+    if limiter.check(body.email.strip().lower()) is not None:
+        return Response(status_code=202)
+
+    issued = await passwordreset.self_service(session, body.email)
+    if issued is None:
+        return Response(status_code=202)
+
+    user, token = issued
+    assert user.email is not None
+    await request.app.state.mailer.send(
+        Message(
+            to=user.email,
+            subject="Set a new password for altero",
+            body=(
+                f"Hello {user.display_name or user.username},\n\n"
+                "Somebody asked to set a new password for the altero account "
+                f"'{user.username}'. If it was you, follow this link:\n\n"
+                f"    {reset_link(request, token)}\n\n"
+                f"The link is good for {LIFETIME_HOURS} hours and can be used "
+                "once. Every browser signed in to the account will be signed "
+                "out when it is used.\n\n"
+                "If it was not you, there is nothing to do: your password has "
+                "not changed and this link is the only thing that was made.\n"
+            ),
+        )
+    )
+    return Response(status_code=202)
 
 
 @router.get("/auth/reset/{token}")

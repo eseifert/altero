@@ -115,6 +115,14 @@ are written to the log instead, which is deliberate — it is how the owner of a
 fresh container reads the confirmation link and finishes registering. See
 [email.md](email.md).
 
+The one message that does **not** fall back to the log is a self-service
+password reset. `ALTERO_PASSWORD_RESET` puts "forgotten your password?" on the
+sign-in page, and it does nothing at all without a relay configured: a link
+that sets a password, written to a log, is one anybody who can read the log can
+follow. It is off by default either way, because it makes the mailbox part of
+the authentication. An administrator can issue the same link from
+**Administration → Accounts** on any instance.
+
 ## Group notifications
 
 A member of a group library can ask to be told when it changes. Nobody is

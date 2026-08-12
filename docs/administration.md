@@ -127,11 +127,17 @@ there is a confirmed address and shown to you either way, because most
 instances have no relay configured and a link readable only in the log would
 need the shell this screen replaces.
 
-There is deliberately no "I forgot my password" form. That would turn an email
-address into a way in to an account — the relay becomes part of the
-authentication, and the form needs a rate limit and an answer to what it says
-about an address that has no account here. Until that exists, this is the
-answer to a forgotten password.
+**A forgotten password** is the account's own affair where the instance allows
+it. `ALTERO_PASSWORD_RESET` opens a form on the sign-in page that mails the
+same single-use link, and it is off by default because it makes the relay part
+of the authentication: whoever can read the mailbox can take the account. It
+does nothing without `ALTERO_SMTP_URL` — a self-service link written to the log
+is one anybody who can read the log can follow — and nothing for an account
+whose address was never confirmed, since nobody has proved they hold it. The
+form answers the same way whatever it finds, so it cannot be used to ask which
+addresses have accounts here, and one address may ask three times an hour. On
+an instance that leaves it closed, the link above is the answer to a forgotten
+password.
 
 **Suspending** stops *both* credentials: the API key a Zotero client holds and
 this interface. That is the whole of it — a suspension the browser honoured

@@ -61,6 +61,7 @@ export default {
     'Diese Seite kann jeder sehen, auch ohne Konto hier.',
   Archive: 'Archiv',
   'Apply them now': 'Jetzt anwenden',
+  'Ask for a new one. Your current password still works.': 'Fordern Sie einen neuen an. Ihr aktuelles Passwort funktioniert weiterhin.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Bitte wer diesen Server betreibt um einen neuen. Dein bisheriges Passwort gilt weiterhin.',
   'At least {count} characters': 'Mindestens {count} Zeichen',
@@ -73,6 +74,7 @@ export default {
   Back: 'Zurück',
   'Back in service.': 'Wieder im Dienst.',
   'Back to groups': 'Zurück zu den Gruppen',
+  'Back to sign in': 'Zurück zur Anmeldung',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Beides richtet sich nach diesem Gerät, sofern du nichts anderes wählst, und gehört zu deinem Konto.',
   'Can': 'Darf',
@@ -195,7 +197,10 @@ export default {
   'Finished.': 'Fertig.',
   'Follow this device ({name})': 'Diesem Gerät folgen ({name})',
   'For example, my laptop': 'Zum Beispiel: mein Laptop',
+  'Forgotten password': 'Passwort vergessen',
+  'Forgotten password?': 'Passwort vergessen?',
   'Format:': 'Format:',
+  'Give the address on your account and we will send a link to set a new one.': 'Geben Sie die Adresse Ihres Kontos an; wir senden einen Link zum Setzen eines neuen Passworts.',
   'Give them this link. It is good for {hours} hours and can be used once.':
     'Gib ihnen diesen Link. Er gilt {hours} Stunden und lässt sich einmal verwenden.',
   'Go to your library': 'Zur Bibliothek',
@@ -212,6 +217,7 @@ export default {
   'I created this work and have the rights to distribute the files included.':
     'Ich habe dieses Werk erstellt und habe die Rechte, die enthaltenen Dateien zu verbreiten.',
   'I created this work.': 'Ich habe dieses Werk erstellt.',
+  'If an account here uses that address, a link to set a new password is on its way.': 'Falls ein Konto hier diese Adresse verwendet, ist ein Link zum Setzen eines neuen Passworts unterwegs.',
   'Import and export': 'Import und Export',
   'In the trash': 'Im Papierkorb',
   'Include attached files': 'Angehängte Dateien einschließen',
@@ -406,6 +412,7 @@ export default {
   'Send a new link': 'Neuen Link senden',
   'Send a password link': 'Passwort-Link schicken',
   'Send confirmation': 'Bestätigung senden',
+  'Send the link': 'Link senden',
   'Sent to {address}.': 'Gesendet an {address}.',
   'Sent to {email}, once a group has been quiet for a while.': 'Geht an {email}, sobald in der Gruppe eine Weile Ruhe war.',
   'Set a password': 'Passwort setzen',
@@ -466,6 +473,7 @@ export default {
   'The library is now at version {version}.': 'Die Bibliothek steht jetzt bei Version {version}.',
   'The library was restored.': 'Die Bibliothek wurde zurückgespielt.',
   'The link': 'Der Link',
+  'The link works once and lasts twelve hours. Your current password still works.': 'Der Link gilt einmalig und zwölf Stunden lang. Ihr aktuelles Passwort funktioniert weiterhin.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Das Passwort für {username} lautet {password}. Kopiere es jetzt; es wird nicht wieder angezeigt.',
   'The tag will be changed in all associated items.': 'Das Tag wird in allen zugehörigen Einträgen geändert werden.',

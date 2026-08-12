@@ -63,6 +63,7 @@ export default {
   'Anyone can see this page, with no account here.': 'このページは、ここにアカウントがなくても誰でも見られます。',
   Archive: 'アーカイブ',
   'Apply them now': '今すぐ適用',
+  'Ask for a new one. Your current password still works.': '新しいリンクをリクエストしてください。現在のパスワードは引き続き使用できます。',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'このサーバーの管理者に新しいリンクを頼んでください。今のパスワードはそのまま使えます。',
   'At least {count} characters': '{count} 文字以上',
@@ -75,6 +76,7 @@ export default {
   Back: '戻る',
   'Back in service.': '利用を再開しました。',
   'Back to groups': 'グループ一覧へ戻る',
+  'Back to sign in': 'サインインに戻る',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'どちらも既定ではこの端末に従い、アカウントとともに引き継がれます。',
   'Can': '権限',
@@ -192,7 +194,10 @@ export default {
   'Finished.': '完了しました。',
   'Follow this device ({name})': 'この端末に従う（{name}）',
   'For example, my laptop': '例: 自分のノート PC',
+  'Forgotten password': 'パスワードをお忘れの場合',
+  'Forgotten password?': 'パスワードをお忘れですか？',
   'Format:': 'フォーマット:',
+  'Give the address on your account and we will send a link to set a new one.': 'アカウントのメールアドレスを入力してください。新しいパスワードを設定するリンクをお送りします。',
   'Give them this link. It is good for {hours} hours and can be used once.':
     'このリンクを渡してください。{hours} 時間有効で、1 回だけ使えます。',
   'Go to your library': 'ライブラリへ',
@@ -209,6 +214,7 @@ export default {
   'I created this work and have the rights to distribute the files included.':
     '私がこの著作を作成し、これに含まれるファイルを配布する権利を有します。',
   'I created this work.': '私がこの作品を作りました。',
+  'If an account here uses that address, a link to set a new password is on its way.': 'そのアドレスを使用しているアカウントがある場合、新しいパスワードを設定するリンクを送信しました。',
   'Import and export': 'インポートとエクスポート',
   'In the trash': 'ゴミ箱の中',
   'Include attached files': '添付ファイルを含める',
@@ -392,6 +398,7 @@ export default {
   'Send a new link': '新しいリンクを送信',
   'Send a password link': 'パスワード設定リンクを送る',
   'Send confirmation': '確認メールを送信',
+  'Send the link': 'リンクを送信',
   'Sent to {address}.': '{address} 宛に送信されました。',
   'Sent to {email}, once a group has been quiet for a while.': 'グループがしばらく静かになったら {email} に送信されます。',
   'Set a password': 'パスワードを設定する',
@@ -451,6 +458,7 @@ export default {
   'The library is now at version {version}.': 'ライブラリーはバージョン {version} になりました。',
   'The library was restored.': 'ライブラリーを復元しました。',
   'The link': 'リンク',
+  'The link works once and lasts twelve hours. Your current password still works.': 'リンクは一度だけ、12時間有効です。現在のパスワードは引き続き使用できます。',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} のパスワードは {password} です。今すぐ控えてください。二度と表示されません。',
   'The tag will be changed in all associated items.': 'タグの変更がすべての関連項目に適用されます。',

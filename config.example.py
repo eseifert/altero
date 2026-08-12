@@ -72,3 +72,12 @@ RETENTION_INTERVAL = 0
 # so is anyone holding an unanswered invitation to a group. Everything else is
 # `altero user add`.
 OPEN_REGISTRATION = False
+
+# Whether somebody who has forgotten their password may ask for a link to set a
+# new one. Off by default: it makes the mail relay part of the authentication,
+# so whoever can read the mailbox can take the account. Does nothing without
+# SMTP_URL above — a link that sets a password, written to the log, is one
+# anybody who can read the log can follow — and nothing for an account whose
+# address was never confirmed. An administrator can issue the same link from
+# Administration → Accounts whatever this says.
+PASSWORD_RESET = False
