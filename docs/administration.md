@@ -110,8 +110,9 @@ it describes — which is the failure this is meant to catch.
 
 **Accounts** lists everybody with an account here — whether they administer the
 instance, whether they are suspended, how many API keys they hold and how many
-groups they are in — and does the four things below, each of which the command
-line does too.
+groups they are in — and does the five things below, each of which the command
+line does too. Handing the role on is there as well, and is the same thing
+`altero user admin` does.
 
 **Making one** takes a username and a password, which is shown once and never
 again, exactly as `altero key add` shows a key once; handing it over is your
@@ -145,6 +146,13 @@ alone would leave every sync client of that account working exactly as before.
 Nothing they own is touched, and reinstating them puts everything back, which is
 what makes this the answer to somebody leaving while their library is still
 wanted.
+
+**Revoking their credentials** is the narrower thing next to it, and the answer
+to a lost laptop rather than a departure: every API key and every signed-in
+browser goes, the account itself goes on working, and everything that held a
+credential for it has to be given a new one. `altero user revoke` is the same
+operation. Suspending stops an account; this stops what is currently holding
+the door open for it.
 
 **Deleting** removes the account, its personal library and everything in it,
 through the same machinery that deletes a group. It is refused while the account
@@ -266,9 +274,12 @@ than that, so an item touched while in the trash gets a fresh lease: the sweep
 deletes late rather than early, which is the right direction to be wrong in.
 
 Alongside those, and needing no setting, the sweep clears rows that are already
-past their own expiry: signed-out browser sessions, confirmation links, and
-invitations that expired without ever being answered — an accepted or declined
-one is kept, so that re-inviting somebody who said no stays a visible act.
+past their own expiry: signed-out browser sessions, sign-in codes sent by mail
+and never used, sign-ins that left for a directory and never came back, the
+SAML assertions kept only long enough that one cannot be replayed, passkey
+ceremonies begun and never answered, confirmation links, and invitations that
+expired without ever being answered — an accepted or declined one is kept, so
+that re-inviting somebody who said no stays a visible act.
 
 Files that no library references are **not** touched by any of this. Deleting
 them is a button on the Storage screen, deliberately not a period: bytes are
@@ -421,12 +432,3 @@ a sync client; `add` and `own` are enforcement only and a client that tries
 anyway is refused with a sentence saying why. See
 [compatibility.md](compatibility.md#finer-roles-for-one-member) before setting
 either, since that refusal is what the member will see.
-
-## What has no home yet
-
-An operator's view of the instance — versions, storage use, backups — is not
-built. Permissions are per library, and there is no notion of an instance
-administrator to show such a view to. Until that exists, an instance is
-something a systems administrator runs rather than a librarian or a
-research-group lead; [motivation.md](motivation.md) treats that as a gap
-against the project's goals rather than a detail.
