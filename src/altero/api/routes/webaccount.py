@@ -27,7 +27,7 @@ from altero.api.routes.web import (
 )
 from altero.errors import NotFoundError
 from altero.models import ApiKey, Invitation, Library, Notification, ProfileVisibility, User
-from altero.services import account, invitations, locales, notifications
+from altero.services import account, invitations, locales, logincodes, notifications
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -171,6 +171,7 @@ async def read_account(
         {
             "user": _serialise(user),
             "totpEnabled": await account.is_totp_active(session, user),
+            "emailCodesEnabled": await logincodes.is_enrolled(session, user),
             "sessions": [
                 _serialise_session(entry, record.id)
                 for entry in await account.list_sessions(session, user)
@@ -300,6 +301,50 @@ async def disable_totp(
     _csrf: CsrfDep,
 ) -> Response:
     await account.disable_totp(
+        session,
+        user,
+        current_password=body.current_password,
+        record=record,
+        notify=request.app.state.mailer.send,
+    )
+    return Response(status_code=204)
+
+
+@router.post("/account/email-codes", status_code=204)
+async def enable_email_codes(
+    request: Request,
+    session: SessionDep,
+    user: CurrentUserDep,
+    record: AuthenticatedDep,
+    body: PasswordOnly,
+    _csrf: CsrfDep,
+) -> Response:
+    """Take the second factor as a code sent to the account's address.
+
+    One step rather than two, unlike enrolling an authenticator: there is no
+    new secret whose working has to be proved, only an address that was
+    confirmed before this could be turned on at all.
+    """
+    await account.enable_email_factor(
+        session,
+        user,
+        current_password=body.current_password,
+        record=record,
+        notify=request.app.state.mailer.send,
+    )
+    return Response(status_code=204)
+
+
+@router.delete("/account/email-codes", status_code=204)
+async def disable_email_codes(
+    request: Request,
+    session: SessionDep,
+    user: CurrentUserDep,
+    record: AuthenticatedDep,
+    body: PasswordOnly,
+    _csrf: CsrfDep,
+) -> Response:
+    await account.disable_email_factor(
         session,
         user,
         current_password=body.current_password,

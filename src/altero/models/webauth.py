@@ -59,6 +59,52 @@ class TotpCredential(Base):
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
+class EmailFactor(Base):
+    """An account that takes its second factor as a code by email.
+
+    A row and nothing more: what would be stored on it -- the address, and
+    whether anybody has proved they hold it -- is already on the user, and
+    copying it here would let the two disagree. Enrolling therefore has no
+    second step, unlike :class:`TotpCredential`: there is no new secret to
+    prove works, only an address that was proved before this was enrolled.
+
+    Kept as its own table rather than a flag on the user, so that a credential
+    lives with the other credentials and ``models/library.py`` stays about
+    libraries.
+    """
+
+    __tablename__ = "email_factors"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class LoginCode(Base):
+    """A code sent by mail, standing between a password and a session.
+
+    Bound to the session rather than to the user, and cascaded with it: a code
+    is an answer to one particular sign-in, and one that could be typed into a
+    different browser's pending sign-in would let whoever intercepted the mail
+    use it from their own machine rather than only from the one that asked.
+
+    Only the SHA-256 is stored, as everywhere else here. Six digits is not much
+    to grind, which is what :attr:`attempts` is for -- the row is spent after a
+    few wrong guesses rather than standing until it expires.
+    """
+
+    __tablename__ = "login_codes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    session_id: Mapped[int] = mapped_column(
+        ForeignKey("web_sessions.id", ondelete="CASCADE"), index=True
+    )
+    code_hash: Mapped[str] = mapped_column(String(64), index=True)
+    #: Wrong guesses so far. The row goes when this reaches the limit.
+    attempts: Mapped[int] = mapped_column(default=0)
+    created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    expires: Mapped[datetime] = mapped_column(DateTime, index=True)
+
+
 class EmailVerification(Base):
     """An outstanding request to confirm an address.
 

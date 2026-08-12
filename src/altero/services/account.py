@@ -29,6 +29,7 @@ from altero.services import (
     admin,
     emailverify,
     locales,
+    logincodes,
     reauth,
     totp,
     webauth,
@@ -249,6 +250,74 @@ async def is_totp_active(session: AsyncSession, user: User) -> bool:
     """Return whether a *confirmed* authenticator is enrolled."""
     credential = await session.get(TotpCredential, user.id)
     return credential is not None and credential.confirmed
+
+
+async def enable_email_factor(
+    session: AsyncSession,
+    user: User,
+    *,
+    current_password: str | None = None,
+    record: WebSession | None = None,
+    notify: Notifier | None = None,
+) -> None:
+    """Take the second factor as a code sent to the account's address.
+
+    Refused without a *confirmed* address, and that is the whole of the
+    enrolment check. A factor sent to an address nobody has proved they hold
+    would be a second factor in name only -- and worse than none, because the
+    account would believe itself protected while the codes went to whoever
+    typed the address in.
+    """
+    await require_proof(session, user, record, password=current_password)
+
+    if not emailverify.is_verified(user):
+        raise InvalidInputError(
+            "Confirm your email address first, so the codes go somewhere you "
+            "have proved you can read"
+        )
+    if await logincodes.is_enrolled(session, user):
+        raise InvalidInputError("Codes by email are already turned on")
+
+    await logincodes.enrol(session, user)
+
+    await webauth.notify_security(
+        user,
+        notify,
+        subject="Sign-in codes by email were turned on for your altero account",
+        body=(
+            "Signing in to this altero account now asks for a code sent to this "
+            "address.\n\nIf this was not you, change your password "
+            "immediately.\n"
+        ),
+    )
+
+
+async def disable_email_factor(
+    session: AsyncSession,
+    user: User,
+    *,
+    current_password: str | None = None,
+    record: WebSession | None = None,
+    notify: Notifier | None = None,
+) -> None:
+    """Stop asking for a code by email. Needs proof: it weakens the account."""
+    await require_proof(session, user, record, password=current_password)
+
+    if not await logincodes.is_enrolled(session, user):
+        raise InvalidInputError("Codes by email are not turned on")
+
+    await logincodes.disable(session, user)
+
+    await webauth.notify_security(
+        user,
+        notify,
+        subject="Sign-in codes by email were turned off for your altero account",
+        body=(
+            "Signing in to this altero account no longer asks for a code sent "
+            "to this address.\n\nIf this was not you, change your password "
+            "immediately.\n"
+        ),
+    )
 
 
 async def list_sessions(session: AsyncSession, user: User) -> list[WebSession]:

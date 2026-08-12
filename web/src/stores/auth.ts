@@ -27,6 +27,8 @@ export interface User {
 interface AuthResponse {
   user: User | null
   needsFactor: string | null
+  /** The other factors this account could present instead, if any. */
+  alternativeFactors?: string[]
 }
 
 interface ServerConfig {
@@ -66,6 +68,15 @@ export const useAuthStore = defineStore('auth', () => {
     locale.adopt({ language: account?.language ?? null, timeZone: account?.timeZone ?? null })
   }
   const needsFactor = ref<string | null>(null)
+  /**
+   * The other ways this account could finish signing in.
+   *
+   * What the "use a code by email instead" button is drawn from, and the
+   * answer to a lost authenticator: without it, an account with one it can no
+   * longer reach has to find whoever runs the server. Told only to a session
+   * that has already produced the password, so it discloses nothing.
+   */
+  const alternativeFactors = ref<string[]>([])
   const error = ref<string | null>(null)
   const busy = ref(false)
   /** False until the first session check has finished. */
@@ -88,6 +99,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = response.user
     adoptLocale(response.user)
     needsFactor.value = response.needsFactor
+    alternativeFactors.value = response.alternativeFactors ?? []
     error.value = null
   }
 
@@ -160,12 +172,31 @@ export const useAuthStore = defineStore('auth', () => {
     )
   }
 
+  /* Which endpoint takes the code depends on where it came from: an
+     authenticator app or an inbox. One function either way, because the screen
+     asking for it is the same screen. */
+  const FACTOR_ENDPOINTS: Record<string, string> = {
+    totp: '/web/auth/totp',
+    email: '/web/auth/code',
+  }
+
   async function submitFactor(code: string): Promise<void> {
-    adopt(
-      await attempt(() =>
-        request<AuthResponse>('/web/auth/totp', { method: 'POST', body: { code } }),
-      ),
+    const endpoint = FACTOR_ENDPOINTS[needsFactor.value ?? 'totp'] ?? FACTOR_ENDPOINTS.totp
+    adopt(await attempt(() => request<AuthResponse>(endpoint, { method: 'POST', body: { code } })))
+  }
+
+  /** Present a different factor of the same account instead. */
+  async function chooseFactor(factor: string): Promise<void> {
+    const response = await attempt(() =>
+      request<AuthResponse>('/web/auth/factor', { method: 'POST', body: { factor } }),
     )
+    needsFactor.value = response.needsFactor
+    alternativeFactors.value = response.alternativeFactors ?? []
+  }
+
+  /** Ask for another emailed code, which stops the one before it working. */
+  async function resendCode(): Promise<void> {
+    await attempt(() => request('/web/auth/code/resend', { method: 'POST' }))
   }
 
   /**
@@ -220,7 +251,10 @@ export const useAuthStore = defineStore('auth', () => {
     loadConfig,
     login,
     register,
+    alternativeFactors,
     submitFactor,
+    chooseFactor,
+    resendCode,
     verifyEmail,
     resendVerification,
     logout,

@@ -21,6 +21,7 @@ export default {
     'Ein Passwort muss mindestens {count} Zeichen lang sein',
   'A private group stays private whatever this says. Make it public as well to share it.':
     'Eine private Gruppe bleibt privat, egal was hier steht. Mache sie auch öffentlich, um sie zu teilen.',
+  'A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.': 'Ein zweiter Faktor für alle ohne Authenticator-App – und der Weg zurück, wenn Sie Ihre verlieren.',
   'A tag needs a name.': 'Ein Tag braucht einen Namen.',
   'A whole number of periods, from 0 to {maximum}.': 'Eine ganze Zahl von 0 bis {maximum}.',
   'API keys': 'API-Schlüssel',
@@ -52,6 +53,7 @@ export default {
   'An invitation': 'Eine Einladung',
   'An invitation reaches an address rather than an account, so somebody without one here can still be asked.':
     'Eine Einladung geht an eine Adresse und nicht an ein Konto, sodass auch jemand ohne Konto hier eingeladen werden kann.',
+  'Another code is on its way. The one before it no longer works.': 'Ein neuer Code ist unterwegs. Der vorherige funktioniert nicht mehr.',
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'Wer den Link hat, kann „{name}“ lesen. Ein Konto hier ist dafür nicht nötig, und ändern lässt sich nichts.',
   Anyone: 'Alle',
@@ -98,11 +100,15 @@ export default {
   Code: 'Code',
   'Code from the app': 'Code aus der App',
   Collapse: 'Zuklappen',
+  'Codes by email': 'Codes per E-Mail',
+  'Codes by email turned off.': 'Codes per E-Mail ausgeschaltet.',
+  'Codes by email turned on.': 'Codes per E-Mail eingeschaltet.',
   'Collection settings': 'Sammlungseinstellungen',
   'Collections': 'Sammlungen',
   'Collections added or changed': 'Hinzugefügte oder geänderte Sammlungen',
   'Colour theme': 'Farbschema',
   'Colour theme: {name}': 'Farbschema: {name}',
+  'Confirm your email address first, so the codes go somewhere you can read.': 'Bestätigen Sie zuerst Ihre E-Mail-Adresse, damit die Codes dorthin gehen, wo Sie sie lesen können.',
   'Confirm your password': 'Passwort bestätigen',
   'Confirm {address} to receive security notifications and invitations. Your library works either way.':
     'Bestätige {address}, um Sicherheitshinweise und Einladungen zu erhalten. Deine Bibliothek funktioniert so oder so.',
@@ -178,6 +184,7 @@ export default {
   'Empty the trash': 'Papierkorb leeren',
   'Enter the six-digit code from your authenticator app.':
     'Gib den sechsstelligen Code aus deiner Authenticator-App ein.',
+  'Enter the six-digit code we sent to your email address.': 'Geben Sie den sechsstelligen Code ein, den wir an Ihre E-Mail-Adresse gesendet haben.',
   'Everything': 'Alles',
   'Everything below asks for it, as your own settings do.':
     'Alles darunter verlangt es, so wie deine eigenen Einstellungen es tun.',
@@ -411,6 +418,7 @@ export default {
   'Select “{name}”': '„{name}“ auswählen',
   'Send a new link': 'Neuen Link senden',
   'Send a password link': 'Passwort-Link schicken',
+  'Send another code': 'Neuen Code senden',
   'Send confirmation': 'Bestätigung senden',
   'Send the link': 'Link senden',
   'Sent to {address}.': 'Gesendet an {address}.',
@@ -436,6 +444,7 @@ export default {
   'Signed in as {username}.': 'Angemeldet als {username}.',
   'Signed out everywhere else.': 'Überall sonst abgemeldet.',
   'Signed-in browsers': 'Angemeldete Browser',
+  'Signing in asks for a code sent to your address.': 'Bei der Anmeldung wird ein an Ihre Adresse gesendeter Code abgefragt.',
   'Signing in asks for a code.': 'Beim Anmelden wird ein Code verlangt.',
   'Size': 'Größe',
   'Skip to content': 'Zum Inhalt springen',
@@ -498,11 +507,14 @@ export default {
   'This server': 'Dieser Server',
   'Time zone': 'Zeitzone',
   Trash: 'Papierkorb',
+  'Turn off codes by email': 'Codes per E-Mail ausschalten',
   'Turn on': 'Aktivieren',
+  'Turn on codes by email': 'Codes per E-Mail einschalten',
   'Unfiled Items': 'Einträge ohne Sammlung',
   'Unknown browser': 'Unbekannter Browser',
   Unread: 'Ungelesen',
   'Unreferenced files deleted.': 'Nicht referenzierte Dateien gelöscht.',
+  'Use a code by email instead': 'Stattdessen Code per E-Mail verwenden',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Nimm die Adresse, an die die Einladung ging, dann kannst du darauf antworten.',
   'Used for security notifications and invitations': 'Für Sicherheitshinweise und Einladungen',

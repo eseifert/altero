@@ -7,7 +7,7 @@ variables exist.
 
 ## What is sent, and when
 
-Six kinds of message, all plain text. Five are triggered by something a person
+Seven kinds of message, all plain text. Six are triggered by something a person
 just did:
 
 - **Confirm your email address**, on registration, when the address on an
@@ -22,9 +22,13 @@ just did:
   the sign-in page. The self-service form additionally needs a relay to be
   configured, since a link to set a password is the one message that must not
   fall back to the log.
+- **Your sign-in code**, when an account whose second factor is a code by email
+  signs in, and again if they ask for another. The code is in the subject line
+  so a phone can show it without the message being opened. It lasts ten
+  minutes, works once, and works only in the browser that asked for it.
 - **Your password was changed**, after a password change in the browser.
-- **An authenticator app was added / removed**, after enrolling or disabling
-  TOTP.
+- **An authenticator app was added / removed**, or **codes by email were turned
+  on / off**, after either second factor changes.
 
 The last three are security notices, and they go **only to a confirmed
 address**. An address nobody has proved they hold may be somebody else's, and a
@@ -33,7 +37,7 @@ So an account whose address is unconfirmed silently gets no security mail —
 which is the other reason the confirmation message matters, and why an
 administrator issuing a reset link is shown it as well as mailing it.
 
-The sixth is the exception, and the only message not caused by the person
+The seventh is the exception, and the only message not caused by the person
 receiving it:
 
 - **New activity in a group library**, to members who asked for it, once the

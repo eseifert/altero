@@ -31,8 +31,10 @@ from altero.models.storage import StorageUpload
 from altero.models.sync import DeletedObject, DeletedObjectType, WriteToken
 from altero.models.tag import ItemTag, Tag, TagType
 from altero.models.webauth import (
+    EmailFactor,
     EmailVerification,
     Invitation,
+    LoginCode,
     Notification,
     PasswordReset,
     TotpCredential,
@@ -49,6 +51,7 @@ __all__ = [
     "CollectionShare",
     "DeletedObject",
     "DeletedObjectType",
+    "EmailFactor",
     "EmailVerification",
     "FullText",
     "Group",
@@ -64,6 +67,7 @@ __all__ = [
     "ItemTag",
     "Library",
     "LibraryType",
+    "LoginCode",
     "LoginSession",
     "MemberPermission",
     "Notification",

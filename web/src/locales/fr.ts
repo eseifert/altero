@@ -21,6 +21,7 @@ export default {
     'Un mot de passe doit compter au moins {count} caractères',
   'A private group stays private whatever this says. Make it public as well to share it.':
     'Un groupe privé le reste quoi qu’indique ce réglage. Rendez-le également public pour le partager.',
+  'A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.': 'Un deuxième facteur pour qui n’a pas d’application d’authentification, et le moyen de revenir si vous perdez la vôtre.',
   'A tag needs a name.': 'Un marqueur a besoin d’un nom.',
   'A whole number of periods, from 0 to {maximum}.': 'Un nombre entier, de 0 à {maximum}.',
   'API keys': 'Clés API',
@@ -52,6 +53,7 @@ export default {
   'An invitation': 'Une invitation',
   'An invitation reaches an address rather than an account, so somebody without one here can still be asked.':
     'Une invitation s’adresse à une adresse et non à un compte : quelqu’un qui n’en a pas ici peut donc être invité.',
+  'Another code is on its way. The one before it no longer works.': 'Un nouveau code est en route. Le précédent ne fonctionne plus.',
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'Quiconque a le lien peut lire « {name} ». Aucun compte ici n’est nécessaire, et rien ne peut être modifié.',
   Anyone: 'Tout le monde',
@@ -98,11 +100,15 @@ export default {
   Code: 'Code',
   'Code from the app': "Code de l'application",
   Collapse: 'Réduire',
+  'Codes by email': 'Codes par e-mail',
+  'Codes by email turned off.': 'Codes par e-mail désactivés.',
+  'Codes by email turned on.': 'Codes par e-mail activés.',
   'Collection settings': 'Paramètres de la collection',
   'Collections': 'Collections',
   'Collections added or changed': 'Collections ajoutées ou modifiées',
   'Colour theme': 'Thème de couleurs',
   'Colour theme: {name}': 'Thème de couleurs : {name}',
+  'Confirm your email address first, so the codes go somewhere you can read.': 'Confirmez d’abord votre adresse e-mail, pour que les codes arrivent là où vous pouvez les lire.',
   'Confirm your password': 'Confirmez votre mot de passe',
   'Confirm {address} to receive security notifications and invitations. Your library works either way.':
     'Confirmez {address} pour recevoir les alertes de sécurité et les invitations. Votre bibliothèque fonctionne dans les deux cas.',
@@ -177,6 +183,7 @@ export default {
   'Empty the trash': 'Vider la corbeille',
   'Enter the six-digit code from your authenticator app.':
     "Saisissez le code à six chiffres de votre application d'authentification.",
+  'Enter the six-digit code we sent to your email address.': 'Saisissez le code à six chiffres envoyé à votre adresse e-mail.',
   'Everything': 'Tout',
   'Everything below asks for it, as your own settings do.':
     'Tout ce qui suit le demande, comme le font vos propres réglages.',
@@ -411,6 +418,7 @@ export default {
   'Select “{name}”': 'Sélectionner « {name} »',
   'Send a new link': 'Envoyer un nouveau lien',
   'Send a password link': 'Envoyer un lien de mot de passe',
+  'Send another code': 'Envoyer un autre code',
   'Send confirmation': 'Envoyer la confirmation',
   'Send the link': 'Envoyer le lien',
   'Sent to {address}.': 'Envoyée à {address}.',
@@ -436,6 +444,7 @@ export default {
   'Signed in as {username}.': 'Connecté en tant que {username}.',
   'Signed out everywhere else.': 'Déconnecté partout ailleurs.',
   'Signed-in browsers': 'Navigateurs connectés',
+  'Signing in asks for a code sent to your address.': 'La connexion demande un code envoyé à votre adresse.',
   'Signing in asks for a code.': 'La connexion demande un code.',
   'Size': 'Taille',
   'Skip to content': 'Aller au contenu',
@@ -500,11 +509,14 @@ export default {
   'This server': 'Ce serveur',
   'Time zone': 'Fuseau horaire',
   Trash: 'Corbeille',
+  'Turn off codes by email': 'Désactiver les codes par e-mail',
   'Turn on': 'Activer',
+  'Turn on codes by email': 'Activer les codes par e-mail',
   'Unfiled Items': 'Non classés',
   'Unknown browser': 'Navigateur inconnu',
   Unread: 'Non lu',
   'Unreferenced files deleted.': 'Fichiers non référencés supprimés.',
+  'Use a code by email instead': 'Utiliser plutôt un code par e-mail',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Utilisez l’adresse à laquelle l’invitation a été envoyée : vous pourrez alors y répondre.',
   'Used for security notifications and invitations':

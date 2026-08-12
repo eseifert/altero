@@ -41,6 +41,7 @@ from altero.models import (
     Invitation,
     Item,
     Library,
+    LoginCode,
     StorageUpload,
     WebSession,
 )
@@ -63,6 +64,8 @@ class Report:
     uploads: int = 0
     #: Browser sessions past their expiry.
     sessions: int = 0
+    #: Sign-in codes sent by mail and never used.
+    codes: int = 0
     #: Confirmation links past theirs.
     verifications: int = 0
     #: Invitations that expired without ever being answered.
@@ -75,6 +78,7 @@ class Report:
             or self.activity
             or self.uploads
             or self.sessions
+            or self.codes
             or self.verifications
             or self.invitations
         )
@@ -202,6 +206,7 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
     visible act.
     """
     sessions = list(await session.scalars(select(WebSession.id).where(WebSession.expires < now)))
+    codes = list(await session.scalars(select(LoginCode.id).where(LoginCode.expires < now)))
     verifications = list(
         await session.scalars(select(EmailVerification.id).where(EmailVerification.expires < now))
     )
@@ -213,6 +218,9 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
 
     if not dry_run:
         for model, doomed in (
+            # Codes first: they cascade from the sessions below, and deleting
+            # the sessions would take them without the count reflecting it.
+            (LoginCode, codes),
             (WebSession, sessions),
             (EmailVerification, verifications),
             (Invitation, invitations),
@@ -223,6 +231,7 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
 
     return Report(
         sessions=len(sessions),
+        codes=len(codes),
         verifications=len(verifications),
         invitations=len(invitations),
     )
@@ -261,6 +270,7 @@ async def sweep(
         activity=activity,
         uploads=uploads,
         sessions=expired.sessions,
+        codes=expired.codes,
         verifications=expired.verifications,
         invitations=expired.invitations,
     )

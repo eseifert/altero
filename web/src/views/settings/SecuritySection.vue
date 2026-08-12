@@ -23,6 +23,7 @@ const { account, busy, attempt } = usePanel()
 const currentPassword = ref('')
 const newPassword = ref('')
 const disablePassword = ref('')
+const emailCodePassword = ref('')
 
 /** Set while enrolling, cleared once the code is confirmed. */
 const enrolment = ref<{ secret: string; uri: string } | null>(null)
@@ -61,6 +62,24 @@ const disableTotp = () =>
     })
     disablePassword.value = ''
   }, t('Authenticator removed.'))
+
+const enableEmailCodes = () =>
+  attempt(async () => {
+    await request('/web/account/email-codes', {
+      method: 'POST',
+      body: { currentPassword: emailCodePassword.value },
+    })
+    emailCodePassword.value = ''
+  }, t('Codes by email turned on.'))
+
+const disableEmailCodes = () =>
+  attempt(async () => {
+    await request('/web/account/email-codes', {
+      method: 'DELETE',
+      body: { currentPassword: emailCodePassword.value },
+    })
+    emailCodePassword.value = ''
+  }, t('Codes by email turned off.'))
 
 const revokeOthers = () =>
   attempt(
@@ -130,6 +149,49 @@ function when(iso: string | null): string {
       <AppButton variant="tonal" :loading="busy" @click="startEnrolment">
         {{ t('Set up an authenticator') }}
       </AppButton>
+    </template>
+  </section>
+
+  <section class="card">
+    <h2 class="card__title">{{ t('Codes by email') }}</h2>
+
+    <template v-if="account?.emailCodesEnabled">
+      <p class="settings__detail">{{ t('Signing in asks for a code sent to your address.') }}</p>
+      <AppTextField
+        v-model="emailCodePassword"
+        :label="t('Current password')"
+        type="password"
+        autocomplete="current-password"
+      />
+      <AppButton variant="outlined" :loading="busy" @click="disableEmailCodes">
+        {{ t('Turn off codes by email') }}
+      </AppButton>
+    </template>
+
+    <template v-else-if="account?.user.emailVerified">
+      <p class="settings__detail">
+        {{
+          t('A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.')
+        }}
+      </p>
+      <AppTextField
+        v-model="emailCodePassword"
+        :label="t('Current password')"
+        type="password"
+        autocomplete="current-password"
+      />
+      <AppButton variant="tonal" :loading="busy" @click="enableEmailCodes">
+        {{ t('Turn on codes by email') }}
+      </AppButton>
+    </template>
+
+    <template v-else>
+      <!-- Codes sent to an address nobody has proved they can read would be a
+           second factor in name only, so the server refuses; saying so here is
+           better than offering a button that answers 400. -->
+      <p class="settings__detail">
+        {{ t('Confirm your email address first, so the codes go somewhere you can read.') }}
+      </p>
     </template>
   </section>
 

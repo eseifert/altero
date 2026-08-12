@@ -23,7 +23,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import TotpCredential, User, WebSession
-from altero.services import admin, emailverify, invitations, passwords, totp, websessions
+from altero.services import (
+    admin,
+    emailverify,
+    invitations,
+    logincodes,
+    passwords,
+    totp,
+    websessions,
+)
 from altero.services.mail import Message
 
 logger = logging.getLogger("altero.webauth")
@@ -259,9 +267,67 @@ async def _outstanding_factor(session: AsyncSession, user: User) -> str | None:
     Only a *confirmed* enrolment counts. A secret stored while somebody was
     part-way through setting up an authenticator must not start being demanded,
     or an interrupted setup is an account nobody can sign in to.
+
+    An authenticator wins where both are enrolled, without asking: it is the
+    stronger of the two, and an account that has one wanting the weaker can say
+    so on the screen -- see :func:`alternative_factors`. Choosing the weaker by
+    default because it is more convenient is how a second factor stops being
+    one.
     """
     enrolled = await session.get(TotpCredential, user.id)
-    return "totp" if enrolled is not None and enrolled.confirmed else None
+    if enrolled is not None and enrolled.confirmed:
+        return "totp"
+    if await logincodes.is_enrolled(session, user):
+        return "email"
+    return None
+
+
+async def alternative_factors(session: AsyncSession, user: User, current: str | None) -> list[str]:
+    """Return the other factors this account could present instead.
+
+    What the "use a code by email instead" button on the second-factor screen
+    is drawn from, and the answer to a lost phone: without it, an account with
+    an authenticator it can no longer reach has one way back in, which is to
+    find whoever runs the server.
+
+    Told only to a session that has already proved the password, so it
+    discloses nothing to a stranger.
+    """
+    available: list[str] = []
+    if current != "email" and await logincodes.is_enrolled(session, user):
+        available.append("email")
+    return available
+
+
+async def switch_factor(session: AsyncSession, record: WebSession, factor: str) -> None:
+    """Point a pending sign-in at a different factor of the same account.
+
+    Refused unless the account really has it, and unless a factor is genuinely
+    outstanding -- otherwise this would be a way of putting an already complete
+    session back into a state where a code could be presented against it.
+    """
+    if record.pending_factor is None:
+        raise ForbiddenError("This session is not waiting for a factor")
+
+    user = await session.get(User, record.user_id)
+    if user is None:  # pragma: no cover - defensive
+        raise ForbiddenError("This session is not waiting for a factor")
+
+    if factor not in await alternative_factors(session, user, record.pending_factor):
+        raise ForbiddenError("That is not a way of signing in to this account")
+
+    record.pending_factor = factor
+    await session.commit()
+
+
+async def complete_email_code(session: AsyncSession, record: WebSession, code: str) -> None:
+    """Clear an outstanding emailed code on ``record``."""
+    if record.pending_factor != "email":
+        raise ForbiddenError("This session is not waiting for a code")
+
+    await logincodes.verify(session, record, code)
+    record.pending_factor = None
+    await session.commit()
 
 
 async def enrol_totp(

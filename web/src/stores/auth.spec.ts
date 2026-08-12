@@ -169,6 +169,68 @@ describe('the auth store', () => {
       expect(auth.needsFactor).toBe('totp')
       expect(auth.error).toBe('That code is not valid')
     })
+
+    it('sends the code to the endpoint that takes the factor being asked for', async () => {
+      /* One screen asks for six digits either way; which endpoint takes them
+         depends on whether they came from an app or an inbox. */
+      const auth = useAuthStore()
+      requestMock.mockResolvedValueOnce({ user: null, needsFactor: 'email' })
+      await auth.login('ada', 'correct horse battery staple')
+
+      requestMock.mockResolvedValueOnce({ user: ADA, needsFactor: null })
+      await auth.submitFactor('123456')
+
+      expect(requestMock).toHaveBeenLastCalledWith('/web/auth/code', {
+        method: 'POST',
+        body: { code: '123456' },
+      })
+    })
+
+    it('keeps the other ways this account could sign in', async () => {
+      /* What the "use a code by email instead" button is drawn from. */
+      const auth = useAuthStore()
+      requestMock.mockResolvedValueOnce({
+        user: null,
+        needsFactor: 'totp',
+        alternativeFactors: ['email'],
+      })
+
+      await auth.login('ada', 'correct horse battery staple')
+
+      expect(auth.alternativeFactors).toEqual(['email'])
+    })
+
+    it('has no alternatives when the server names none', async () => {
+      const auth = useAuthStore()
+      requestMock.mockResolvedValueOnce({ user: null, needsFactor: 'totp' })
+
+      await auth.login('ada', 'correct horse battery staple')
+
+      expect(auth.alternativeFactors).toEqual([])
+    })
+
+    it('switches to another factor and asks for that one instead', async () => {
+      /* The answer to a lost phone: without it, the only way back in is to
+         find whoever runs the server. */
+      const auth = useAuthStore()
+      requestMock.mockResolvedValueOnce({
+        user: null,
+        needsFactor: 'totp',
+        alternativeFactors: ['email'],
+      })
+      await auth.login('ada', 'correct horse battery staple')
+
+      requestMock.mockResolvedValueOnce({
+        user: null,
+        needsFactor: 'email',
+        alternativeFactors: [],
+      })
+      await auth.chooseFactor('email')
+
+      expect(auth.needsFactor).toBe('email')
+      expect(auth.alternativeFactors).toEqual([])
+      expect(auth.isAuthenticated).toBe(false)
+    })
   })
 
   describe('registering', () => {

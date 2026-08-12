@@ -20,8 +20,14 @@ EXPECTED = [
     ("/web/auth/login", "POST"),
     ("/web/auth/totp", "POST"),
     ("/web/auth/verify", "POST"),
-    # Setting a password from a link an administrator issued. Answers without a
-    # cookie, like the confirmation link: the token is the whole credential.
+    # A second factor sent by mail, and the way to ask for it when the
+    # authenticator is the one that cannot be reached.
+    ("/web/auth/code", "POST"),
+    ("/web/auth/code/resend", "POST"),
+    ("/web/auth/factor", "POST"),
+    # Asking for a link to set a password, where the operator allows it, and
+    # setting one from a link. Both answer without a cookie, like the
+    # confirmation link: the token is the whole credential.
     ("/web/auth/forgot", "POST"),
     ("/web/auth/reset/{token}", "GET"),
     ("/web/auth/reset", "POST"),
@@ -34,6 +40,8 @@ EXPECTED = [
     ("/web/account/locales", "GET"),
     ("/web/account/password", "POST"),
     ("/web/account/email", "POST"),
+    ("/web/account/email-codes", "POST"),
+    ("/web/account/email-codes", "DELETE"),
     ("/web/account/totp", "POST"),
     ("/web/account/totp/confirm", "POST"),
     ("/web/account/totp/disable", "POST"),

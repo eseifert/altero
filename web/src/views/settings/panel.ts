@@ -19,6 +19,7 @@ import type { User } from '@/stores/auth'
 export interface AccountPayload {
   user: User
   totpEnabled: boolean
+  emailCodesEnabled: boolean
   sessions: SessionEntry[]
 }
 

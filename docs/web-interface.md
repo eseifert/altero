@@ -1,8 +1,8 @@
 # The web interface
 
 A Vue 3 single-page application, served at `/app/`. It signs in with a username
-and password, optionally behind a one-time code from an authenticator app, and
-shows the library.
+and password, optionally behind a one-time code — from an authenticator app or
+sent by email — and shows the library.
 
 The Zotero desktop client is unaffected by any of it: the v3 API remains
 API-key only, and a session cookie is refused there on purpose. That boundary
@@ -87,6 +87,22 @@ out of its own settings for lacking a credential it was never given.
 Setting up an authenticator is two steps. The secret is stored but ignored
 until a code from the app proves it works, so an interrupted setup cannot lock
 the account.
+
+**A code by email** is the second factor for anyone with no authenticator app,
+and the way back in for anyone who had one and lost the phone. It needs a
+confirmed address and nothing else — there is no secret whose working has to be
+proved, only an address somebody proved they could read — so turning it on is
+one step rather than two. It is a weaker factor than an app, and where both are
+enrolled the app is asked for; **Use a code by email instead** is on the
+sign-in screen, which is what makes it a recovery path rather than a
+convenience. Before it existed, an account with an unreachable authenticator
+had exactly one way back: find whoever runs the server.
+
+The code lasts ten minutes, works once, and works only in the browser that
+asked for it — so somebody who reads the message cannot use it from their own
+machine. Five wrong guesses throw it away rather than leaving six digits
+standing to be walked through, and asking for another stops the one before it
+working.
 
 ## API keys
 

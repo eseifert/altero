@@ -29,7 +29,14 @@ from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
 from altero.errors import ForbiddenError
 from altero.models import User, WebSession
-from altero.services import emailverify, passwordreset, passwords, webauth, websessions
+from altero.services import (
+    emailverify,
+    logincodes,
+    passwordreset,
+    passwords,
+    webauth,
+    websessions,
+)
 from altero.services.mail import Message
 from altero.services.passwordreset import LIFETIME_HOURS
 
@@ -61,6 +68,10 @@ class Code(BaseModel):
 
 class Token(BaseModel):
     token: str
+
+
+class Factor(BaseModel):
+    factor: str
 
 
 def _serialise(user: User) -> dict:
@@ -265,7 +276,7 @@ async def read_config(request: Request, session: SessionDep) -> Response:
             # claims the instance. The two are different sentences, and the
             # page cannot tell them apart from `registrationOpen` alone.
             "firstAccount": await webauth.no_accounts_yet(session),
-            "secondFactors": ["totp"],
+            "secondFactors": ["totp", "email"],
             # Whether the sign-in page offers "forgotten your password?" at
             # all. Reported rather than assumed, so an instance that has no
             # relay does not show a form that can only ever answer 202 and
@@ -312,9 +323,19 @@ async def login(session: SessionDep, request: Request, body: Credentials) -> Res
 
     user = await session.get(User, result.session.user_id)
     assert user is not None
+
+    # Sent from the route rather than from `webauth.login`, which takes a
+    # session and plain values and has no business knowing about a mail relay.
+    if result.needs_factor == "email":
+        await _send_login_code(request, session, result.session)
+
     payload = {
         "user": _serialise(user) if result.needs_factor is None else None,
         "needsFactor": result.needs_factor,
+        # The other ways this account could finish signing in, so the screen
+        # can offer them. Disclosed only to somebody who has already produced
+        # the password.
+        "alternativeFactors": await webauth.alternative_factors(session, user, result.needs_factor),
     }
     response = JSONResponse(payload)
     _set_session_cookies(response, request, result.token)
@@ -337,6 +358,94 @@ async def submit_totp(
     user = await session.get(User, record.user_id)
     assert user is not None
     return JSONResponse({"user": _serialise(user), "needsFactor": None})
+
+
+async def _send_login_code(request: Request, session: SessionDep, record: WebSession) -> None:
+    """Make a code for this pending sign-in and mail it.
+
+    Failure to deliver is not reported: whoever is waiting cannot do anything
+    about a relay that is down, and saying so on the sign-in screen would tell
+    a caller which accounts take a code by mail.
+    """
+    user = await session.get(User, record.user_id)
+    assert user is not None
+    # Enrolling the factor requires a confirmed address, and confirming one
+    # sets it, so there is always somewhere to send by the time this runs.
+    assert user.email is not None
+
+    code = await logincodes.issue(session, record)
+    await request.app.state.mailer.send(
+        Message(
+            to=user.email,
+            subject=f"{code} is your altero sign-in code",
+            body=(
+                f"Hello {user.display_name or user.username},\n\n"
+                f"Your sign-in code is {code}\n\n"
+                f"It works for {logincodes.LIFETIME_MINUTES} minutes, once, and "
+                "only in the browser that asked for it.\n\n"
+                "If you were not signing in, somebody else knows your password. "
+                "Change it, and tell whoever runs this server.\n"
+            ),
+        )
+    )
+
+
+@router.post("/auth/code")
+async def submit_login_code(
+    session: SessionDep,
+    record: PendingSessionDep,
+    body: Annotated[Code, Body()],
+    _csrf: CsrfDep,
+) -> Response:
+    """Clear an outstanding emailed code on the current session."""
+    try:
+        await webauth.complete_email_code(session, record, body.code)
+    except ForbiddenError as error:
+        raise HTTPException(status_code=401, detail=error.message) from error
+
+    user = await session.get(User, record.user_id)
+    assert user is not None
+    return JSONResponse({"user": _serialise(user), "needsFactor": None})
+
+
+@router.post("/auth/code/resend", status_code=202)
+async def resend_login_code(
+    request: Request, session: SessionDep, record: PendingSessionDep, _csrf: CsrfDep
+) -> Response:
+    """Send another code, replacing the one before it.
+
+    202 whether or not anything went, like the other resend on this router. The
+    previous code stops working, which is deliberate: two live codes double
+    what somebody who intercepted the mail has to work with.
+    """
+    if record.pending_factor == "email":
+        await _send_login_code(request, session, record)
+    return Response(status_code=202)
+
+
+@router.post("/auth/factor")
+async def choose_factor(
+    request: Request,
+    session: SessionDep,
+    record: PendingSessionDep,
+    body: Annotated[Factor, Body()],
+    _csrf: CsrfDep,
+) -> Response:
+    """Present a different factor of the same account instead.
+
+    The answer to a lost phone. Without it, an account with an authenticator it
+    can no longer reach has exactly one way back in, which is to find whoever
+    runs the server -- fine on an instance of six people and poor on one of six
+    hundred.
+    """
+    try:
+        await webauth.switch_factor(session, record, body.factor)
+    except ForbiddenError as error:
+        raise HTTPException(status_code=401, detail=error.message) from error
+
+    if record.pending_factor == "email":
+        await _send_login_code(request, session, record)
+    return JSONResponse({"needsFactor": record.pending_factor, "alternativeFactors": []})
 
 
 class AddressChange(BaseModel):
