@@ -36,7 +36,10 @@ class Format(StrEnum):
     CSV = "csv"
     ENDNOTE_XML = "endnote_xml"
     EVERNOTE = "evernote"
+    MODS = "mods"
+    RDF_BIBLIONTOLOGY = "rdf_bibliontology"
     RDF_DC = "rdf_dc"
+    RDF_ZOTERO = "rdf_zotero"
     REFER = "refer"
     REFWORKS_TAGGED = "refworks_tagged"
     RIS = "ris"
@@ -60,7 +63,10 @@ EXPORT_FORMATS = frozenset(
         Format.CSV,
         Format.ENDNOTE_XML,
         Format.EVERNOTE,
+        Format.MODS,
+        Format.RDF_BIBLIONTOLOGY,
         Format.RDF_DC,
+        Format.RDF_ZOTERO,
         Format.REFER,
         Format.REFWORKS_TAGGED,
         Format.RIS,

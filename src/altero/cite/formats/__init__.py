@@ -104,7 +104,10 @@ def _kinds() -> dict[Format, Kind]:
         csvfile,
         endnotexml,
         evernote,
+        mods,
+        rdfbibliontology,
         rdfdc,
+        rdfzotero,
         refer,
         refworks,
         tei,
@@ -125,7 +128,12 @@ def _kinds() -> dict[Format, Kind]:
         Format.CSV: Kind(csvfile.Csv, "text/csv;charset=UTF-8", "csv"),
         Format.ENDNOTE_XML: Kind(endnotexml.EndNoteXml, "text/xml;charset=UTF-8", "xml"),
         Format.EVERNOTE: Kind(evernote.Evernote, "text/xml;charset=UTF-8", "enex"),
+        Format.MODS: Kind(mods.Mods, "application/mods+xml", "xml"),
+        Format.RDF_BIBLIONTOLOGY: Kind(
+            rdfbibliontology.BibliontologyRdf, "application/rdf+xml", "rdf"
+        ),
         Format.RDF_DC: Kind(rdfdc.RdfDublinCore, "application/rdf+xml", "rdf"),
+        Format.RDF_ZOTERO: Kind(rdfzotero.ZoteroRdf, "application/rdf+xml", "rdf"),
         Format.REFER: Kind(refer.Refer, "application/x-research-info-systems", "txt"),
         Format.REFWORKS_TAGGED: Kind(refworks.RefWorks, "text/plain;charset=UTF-8", "txt"),
         Format.TEI: Kind(tei.Tei, "text/xml;charset=UTF-8", "xml"),

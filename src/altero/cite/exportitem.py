@@ -32,10 +32,15 @@ from typing import Any
 from altero.cite.csljson import csl_item
 from altero.itemschema import get_schema
 from altero.models import Item, Library
-from altero.serializers import library_prefix, timestamp
+from altero.serializers import library_prefix, ordered_fields, timestamp
 
 #: Fields the export format knows by a name the schema no longer uses.
 _RENAMED = {"versionNumber": "version"}
+
+
+def _sql_stamp(value: str) -> str:
+    """Return an API timestamp the way the client stores one: no `T`, no `Z`."""
+    return value.replace("T", " ").rstrip("Z")
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,6 +84,11 @@ class ExportItem:
     #: The same fields under the names the API serves them by, with no aliases
     #: and no renaming. One translator reads these instead -- see :meth:`plain`.
     stored: Mapping[str, str] = field(default_factory=dict)
+    #: One entry per stored field, under its base name where it has one and its
+    #: own where it has not, in the schema's order. This is `uniqueFields`, and
+    #: the two RDF formats walk it rather than asking for fields by name -- so
+    #: what it holds and the order it holds it in are both the output.
+    unique: Mapping[str, str] = field(default_factory=dict)
     creators: tuple[Creator, ...] = ()
     #: `(name, type)` pairs, type 0 being a tag somebody typed and 1 one that
     #: came with the item. CSV keeps the two apart; everything else does not.
@@ -121,20 +131,37 @@ class ExportItem:
         return [name for name, _ in self.tags]
 
 
+def _base_fields(item_type: str) -> dict[str, str]:
+    """Return each field of an item type that stands in for a base field."""
+    schema = get_schema()
+    if not schema.is_valid_item_type(item_type):
+        return {}
+    return {
+        entry.name: entry.base_field
+        for entry in schema.get_item_type(item_type).fields
+        if entry.base_field
+    }
+
+
+def _unique_fields(item: Item) -> dict[str, str]:
+    """Return an item's fields under their base names, in the schema's order."""
+    bases = _base_fields(item.item_type)
+    ordered = ordered_fields(item.item_type, item.field_values())
+    unique = {
+        _RENAMED.get(bases.get(name, name), bases.get(name, name)): value
+        for name, value in ordered.items()
+    }
+    if access := unique.get("accessDate"):
+        unique["accessDate"] = _sql_stamp(access)
+    return unique
+
+
 def _fields(item: Item) -> dict[str, str]:
     """Return an item's fields under both their own and their base names."""
-    schema = get_schema()
     stored = item.field_values()
     values: dict[str, str] = {}
 
-    bases: dict[str, str] = {}
-    if schema.is_valid_item_type(item.item_type):
-        bases = {
-            entry.name: entry.base_field
-            for entry in schema.get_item_type(item.item_type).fields
-            if entry.base_field
-        }
-
+    bases = _base_fields(item.item_type)
     for name, value in stored.items():
         values[_RENAMED.get(name, name)] = value
         if base := bases.get(name):
@@ -149,7 +176,7 @@ def _fields(item: Item) -> dict[str, str]:
     # stored and served as `2018-03-14T02:34:19Z` and read by the translators as
     # `2018-03-14 02:34:19`, several of which cut it at the space.
     if access := values.get("accessDate"):
-        values["accessDate"] = access.replace("T", " ").rstrip("Z")
+        values["accessDate"] = _sql_stamp(access)
     return values
 
 
@@ -166,6 +193,7 @@ def export_item(
         uri=f"{base_url}{library_prefix(library)}/items/{item.key}",
         fields=_fields(item),
         stored=item.field_values(),
+        unique=_unique_fields(item),
         creators=tuple(
             Creator(
                 creator_type=creator.creator_type,

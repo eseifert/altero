@@ -8,6 +8,7 @@ says so and says why.
 
 import csv
 import io
+import re
 
 import httpx
 import pytest
@@ -598,6 +599,143 @@ class TestTei:
 
         assert 'xml:id="Gault2012"' in written
         assert 'xml:id="Gault2012a"' in written
+
+
+class TestMods:
+    async def test_an_article_describes_itself_and_its_host(
+        self, library: Library, article: Item
+    ) -> None:
+        """A journal article is a piece of something larger, so the journal is a
+        `relatedItem` and carries the volume, the issue and the ISSN."""
+        written = render("mods", article, library, tags=["embryo"])
+
+        assert written.startswith(
+            '<?xml version="1.0"?>\n<modsCollection xmlns="http://www.loc.gov/mods/v3"'
+        )
+        assert '<genre authority="local">journalArticle</genre>' in written
+        assert '<relatedItem type="host">' in written
+        assert '<genre authority="marcgt">journal</genre>' in written
+        assert '<detail type="volume"><number>40</number></detail>' in written
+        assert '<extent unit="pages"><start>1769</start><end>1777</end></extent>' in written
+        assert '<identifier type="issn">0022-1554, 1551-5044</identifier>' in written
+        assert "<subject><topic>embryo</topic></subject>" in written
+        assert written.endswith("</modsCollection>")
+
+    async def test_a_book_is_described_by_itself_alone(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        book = await make_item(
+            session,
+            library,
+            item_type="book",
+            fields={"title": "A book", "publisher": "Springer", "ISBN": "9781461434368"},
+        )
+
+        written = render("mods", book, library)
+
+        assert "<relatedItem" not in written
+        assert '<identifier type="isbn">9781461434368</identifier>' in written
+        assert "<issuance>monographic</issuance>" in written
+
+
+class TestZoteroRdf:
+    async def test_the_container_carries_what_describes_the_journal(
+        self, library: Library, article: Item
+    ) -> None:
+        written = render("rdf_zotero", article, library)
+
+        assert (
+            '<bib:Article rdf:about="http://journals.sagepub.com/doi/10.1177/40.11.1385517">'
+            in written
+        )
+        assert "<z:itemType>journalArticle</z:itemType>" in written
+        assert '<dcterms:isPartOf rdf:resource="urn:issn:0022-1554,%201551-5044"/>' in written
+        assert '<bib:Journal rdf:about="urn:issn:0022-1554,%201551-5044">' in written
+        assert "<prism:volume>40</prism:volume>" in written
+        assert "<dc:identifier>ISSN 0022-1554, 1551-5044</dc:identifier>" in written
+
+    async def test_a_field_nothing_knows_about_keeps_its_own_name(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        """Which is what makes the format worth reading back in."""
+        book = await make_item(
+            session,
+            library,
+            item_type="book",
+            fields={"title": "A book", "numberOfVolumes": "3"},
+        )
+
+        assert "<z:numberOfVolumes>3</z:numberOfVolumes>" in render("rdf_zotero", book, library)
+
+    async def test_the_publisher_is_an_organisation_with_an_address(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        book = await make_item(
+            session,
+            library,
+            item_type="book",
+            fields={"title": "A book", "publisher": "Springer", "place": "New York"},
+        )
+
+        written = render("rdf_zotero", book, library)
+
+        assert "<foaf:name>Springer</foaf:name>" in written
+        assert "<vcard:locality>New York</vcard:locality>" in written
+
+
+class TestBibliontologyRdf:
+    async def test_the_library_copy_is_kept_apart_from_the_work(
+        self, library: Library, article: Item
+    ) -> None:
+        written = render("rdf_bibliontology", article, library)
+
+        assert '<z:UserItem rdf:about="http://testserver/users/1/items/AAAA2345">' in written
+        assert (
+            '<res:resource rdf:resource="http://journals.sagepub.com/doi/10.1177/40.11.1385517"/>'
+            in written
+        )
+        # What the library knows about its copy, rather than about the article.
+        assert "<z:accessDate>2018-03-14 02:34:19</z:accessDate>" in written
+        assert "<z:repository>CrossRef</z:repository>" in written
+
+    async def test_an_article_sits_in_an_issue_in_a_journal(
+        self, library: Library, article: Item
+    ) -> None:
+        written = render("rdf_bibliontology", article, library)
+
+        assert "<bibo:AcademicArticle" in written
+        assert "<bibo:Issue>" in written
+        assert "<bibo:volume>40</bibo:volume>" in written
+        assert "<bibo:Journal>" in written
+        assert "<bibo:issn>0022-1554, 1551-5044</bibo:issn>" in written
+
+    async def test_a_creator_is_written_once_and_pointed_at(
+        self, library: Library, article: Item
+    ) -> None:
+        """They are named twice -- as the creator, and in the list that records
+        the order -- so they need a name of their own."""
+        written = render("rdf_bibliontology", article, library)
+
+        assert written.count("<foaf:surname>Aoyama</foaf:surname>") == 1
+        creator = re.search(r'<dcterms:creator rdf:nodeID="(\w+)"/>', written)
+        assert creator is not None
+        assert f'<rdf:li rdf:nodeID="{creator.group(1)}"/>' in written
+        assert f'<foaf:Person rdf:nodeID="{creator.group(1)}">' in written
+
+    async def test_an_isbn_says_which_kind_it_is(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        book = await make_item(
+            session,
+            library,
+            item_type="book",
+            fields={"title": "A book", "ISBN": "9781461434368 146143436X"},
+        )
+
+        written = render("rdf_bibliontology", book, library)
+
+        assert "<bibo:isbn13>9781461434368</bibo:isbn13>" in written
+        assert "<bibo:isbn10>146143436X</bibo:isbn10>" in written
 
 
 class TestTheEndpoints:
