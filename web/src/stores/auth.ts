@@ -38,6 +38,14 @@ interface ServerConfig {
   firstAccount: boolean
   secondFactors: string[]
   passwordResetOpen: boolean
+  providers: IdentityProvider[]
+}
+
+/** A directory this instance accepts a sign-in from. */
+export interface IdentityProvider {
+  slug: string
+  kind: string
+  displayName: string
 }
 
 export interface RegistrationDetails {
@@ -92,6 +100,13 @@ export const useAuthStore = defineStore('auth', () => {
    * would show a form that can only ever answer 202 and send nothing.
    */
   const passwordResetOpen = ref(false)
+  /**
+   * The directories the sign-in page should offer a button for.
+   *
+   * Three fields each and nothing about how any of them is configured: this
+   * comes from an endpoint that answers to anybody who loads the page.
+   */
+  const providers = ref<IdentityProvider[]>([])
 
   const isAuthenticated = computed(() => user.value !== null)
 
@@ -143,6 +158,7 @@ export const useAuthStore = defineStore('auth', () => {
       registrationOpen.value = config.registrationOpen
       firstAccount.value = config.firstAccount
       passwordResetOpen.value = config.passwordResetOpen
+      providers.value = config.providers ?? []
     } catch {
       // Offering a register link that the server will refuse is worse than
       // not offering one, so an unanswered question means closed. The same
@@ -150,6 +166,7 @@ export const useAuthStore = defineStore('auth', () => {
       registrationOpen.value = false
       firstAccount.value = false
       passwordResetOpen.value = false
+      providers.value = []
     }
   }
 
@@ -246,6 +263,7 @@ export const useAuthStore = defineStore('auth', () => {
     registrationOpen,
     firstAccount,
     passwordResetOpen,
+    providers,
     isAuthenticated,
     restore,
     loadConfig,

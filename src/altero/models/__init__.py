@@ -13,6 +13,7 @@ from altero.models.collection import (
     CollectionShare,
 )
 from altero.models.fulltext import FullText
+from altero.models.identity import AuthRequest, FederatedIdentity, IdentityProvider
 from altero.models.instance import InstanceSetting
 from altero.models.item import Item, ItemCreator, ItemField, ItemRelation
 from altero.models.library import (
@@ -45,6 +46,7 @@ __all__ = [
     "ActivityKind",
     "ApiKey",
     "ApiKeyGroupAccess",
+    "AuthRequest",
     "Collection",
     "CollectionItem",
     "CollectionRelation",
@@ -53,11 +55,13 @@ __all__ = [
     "DeletedObjectType",
     "EmailFactor",
     "EmailVerification",
+    "FederatedIdentity",
     "FullText",
     "Group",
     "GroupActivity",
     "GroupActivityObject",
     "GroupMember",
+    "IdentityProvider",
     "InstanceSetting",
     "Invitation",
     "Item",

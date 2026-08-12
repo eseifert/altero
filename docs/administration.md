@@ -159,6 +159,54 @@ own settings do for anything touching a credential. Your own password is the
 usual proof, and it stands for five minutes once given, so a run of account
 operations is one prompt rather than one each.
 
+## Sign-in providers
+
+**Administration → Sign-in providers** configures the directories this instance
+accepts a sign-in from. OpenID Connect is implemented; SAML is not, and a SAML
+directory is reached through a bridge that speaks both — Keycloak and Authentik
+are the usual ones.
+
+Four things are worth knowing before setting one up.
+
+**The callback address has to match.** The screen shows the one to register at
+the directory, and it is built from `ALTERO_PUBLIC_URL`. Where that is unset it
+comes from whatever request arrived, which behind a proxy is the proxy's idea
+of it — and a redirect URI that does not match is refused by the directory
+outright, with an error page nobody here can act on. The screen says so when
+the variable is missing. Set it first.
+
+**The client secret is write-only.** It is stored as given and never returned:
+a signed-in browser tab is not a way of reading back a credential this instance
+holds for somebody else's directory. The form shows whether one is set and
+takes a replacement; saving without touching it keeps what is there.
+
+**Making accounts is off by default.** Turning it on means everybody in the
+directory may have a library here, which is a policy rather than a detail. With
+it off, somebody whose subject nobody has connected is refused and told to sign
+in with a password and connect it themselves.
+
+**The required claim is the deprovisioning half**, and it is honest about what
+it is. Name a claim and a value — a group, an entitlement — and every sign-in
+through that provider checks it. Somebody who no longer carries it is not
+merely refused: the account is **suspended**, which stops *both* credentials,
+so the API key their desktop client is still syncing with stops working too.
+Nothing is deleted, and reinstating them is clearing the flag under
+**Accounts**. Optionally the keys are revoked as well, which is the stronger
+thing to do when a laptop is not coming back; leaving them is what makes
+reinstating somebody restore their sync rather than make them set every client
+up again.
+
+What that check **cannot** do is notice somebody who has left and simply stops
+signing in — the check only runs when they do. It catches the person who
+changed departments and still uses this server, not the person who left the
+organisation entirely. For that, **Accounts** lists everybody and suspends in
+one click, and that is the honest answer rather than an automatic one this
+server is not in a position to give.
+
+Removing a provider removes every account's connection to it. The accounts
+stay; somebody whose only way in was that provider is left unable to sign in,
+which is why the screen says so.
+
 ## Retention
 
 zotero.org empties the trash after 30 days. Here that period is the operator's

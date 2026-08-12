@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -15,6 +15,33 @@ const route = useRoute()
 
 const username = ref('')
 const password = ref('')
+
+/* Why a federated sign-in came back without signing anybody in. The server
+   redirects here with a slug rather than a sentence, because the sentence
+   belongs in the reader's own language and the server does not know it. What
+   the directory itself said is deliberately not passed on: that text is
+   written for whoever configured the client. */
+const REASONS: Record<string, () => string> = {
+  refused: () => t('That sign-in was not completed.'),
+  expired: () => t('That sign-in took too long. Please try again.'),
+  'not-permitted': () => t('Your account there is not permitted to use this server.'),
+  'unknown-provider': () => t('That way of signing in is not available here.'),
+  'provider-disabled': () => t('That way of signing in is not available here.'),
+  'provider-unreachable': () => t('That provider could not be reached. Try again shortly.'),
+  'not-signed-in': () => t('Please sign in first.'),
+}
+
+const failure = computed(() => {
+  const named = route.query.error
+  return typeof named === 'string' ? (REASONS[named]?.() ?? REASONS.refused()) : null
+})
+
+/* A plain link rather than a fetch: the server answers with a redirect to the
+   directory, and the browser's own navigation is what has to carry it. */
+function ssoHref(slug: string): string {
+  const next = typeof route.query.next === 'string' ? route.query.next : '/library'
+  return `/web/auth/sso/${encodeURIComponent(slug)}/start?next=${encodeURIComponent(next)}`
+}
 
 async function submit(): Promise<void> {
   try {
@@ -37,6 +64,20 @@ async function submit(): Promise<void> {
   <form class="auth-form" @submit.prevent="submit">
     <h1>{{ t('Sign in') }}</h1>
     <p class="auth-form__lead">{{ t('to your altero library') }}</p>
+
+    <p v-if="failure" class="auth-form__error" role="alert">{{ failure }}</p>
+
+    <template v-if="auth.providers.length">
+      <a
+        v-for="provider in auth.providers"
+        :key="provider.slug"
+        class="auth-form__provider"
+        :href="ssoHref(provider.slug)"
+      >
+        {{ t('Continue with {provider}', { provider: provider.displayName }) }}
+      </a>
+      <p class="auth-form__divider"><span>{{ t('or') }}</span></p>
+    </template>
 
     <AppTextField
       v-model="username"
@@ -70,4 +111,49 @@ async function submit(): Promise<void> {
 
 <style scoped>
 @import '@/styles/auth-form.css';
+
+/* Shaped like an outlined AppButton rather than being one: this is a
+   navigation to another origin, and an anchor is what a browser expects to
+   hand a redirect to. */
+.auth-form__provider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 var(--md-spacing-5);
+  border-radius: var(--md-sys-shape-corner-full);
+  box-shadow: inset 0 0 0 1px var(--md-sys-color-outline);
+  color: var(--md-sys-color-primary);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: var(--md-sys-typescale-weight-medium);
+  text-decoration: none;
+}
+
+/* A fingertip needs about a centimetre, as AppButton says. */
+@media (pointer: coarse) {
+  .auth-form__provider {
+    min-height: 2.75rem;
+  }
+}
+
+.auth-form__provider:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.auth-form__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-3);
+  margin: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-small-size);
+}
+
+.auth-form__divider::before,
+.auth-form__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--md-sys-color-outline-variant);
+}
 </style>

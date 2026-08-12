@@ -18,6 +18,7 @@ import { useRoute } from 'vue-router'
 import SectionPanel, { type PanelSection } from '@/components/SectionPanel.vue'
 import AccountsSection from './admin/AccountsSection.vue'
 import OverviewSection from './admin/OverviewSection.vue'
+import ProvidersSection from './admin/ProvidersSection.vue'
 import RetentionSection from './admin/RetentionSection.vue'
 import StorageSection from './admin/StorageSection.vue'
 import { providePanel } from './admin/panel'
@@ -36,6 +37,12 @@ const SECTIONS: PanelSection[] = [
     icon: 'accounts',
     label: () => t('Accounts'),
     component: AccountsSection,
+  },
+  {
+    slug: 'providers',
+    icon: 'providers',
+    label: () => t('Sign-in providers'),
+    component: ProvidersSection,
   },
   {
     slug: 'retention',

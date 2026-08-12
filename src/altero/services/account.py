@@ -69,6 +69,17 @@ async def require_proof(
     await reauth.require(session, user, record, password=password)
 
 
+async def stamp_proof(session: AsyncSession, record: WebSession | None) -> None:
+    """Record that this browser has just proved itself some other way.
+
+    For the paths that establish a proof without a password: a trip through an
+    identity provider with ``prompt=login``, and later a passkey assertion.
+    Kept here beside :func:`require_proof` so both halves of the seam are in
+    one place.
+    """
+    await reauth.stamp(session, record)
+
+
 async def set_display_name(session: AsyncSession, user: User, display_name: str) -> User:
     """Change the name shown in the interface.
 

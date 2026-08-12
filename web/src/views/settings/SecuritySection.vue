@@ -7,18 +7,54 @@
  * and what do I do about it — and because the answer to "sign out everywhere"
  * is usually followed by "change the password".
  */
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { formatDate } from '@/formats'
+import { useAuthStore } from '@/stores/auth'
 import { usePanel } from './panel'
 
 const { t } = useI18n()
 
 const { account, busy, attempt } = usePanel()
+const auth = useAuthStore()
+
+interface Connection {
+  id: number
+  provider: string
+  displayName: string
+  assertedName: string
+  linked: string
+  lastSeen: string | null
+}
+
+const connections = ref<Connection[]>([])
+
+async function loadConnections(): Promise<void> {
+  const body = await request<{ identities?: Connection[] }>('/web/account/identities')
+  // Defaulted rather than assigned straight through: an answer without the
+  // key would otherwise leave the whole settings page unable to render.
+  connections.value = body.identities ?? []
+}
+
+onMounted(async () => {
+  await auth.loadConfig()
+  await loadConnections().catch(() => undefined)
+})
+
+/* A navigation rather than a fetch: the server sends the browser to the
+   directory and it comes back here. */
+const connectHref = (slug: string) =>
+  `/web/auth/sso/${encodeURIComponent(slug)}/start?purpose=link&next=/settings/security`
+
+const disconnect = (id: number) =>
+  attempt(async () => {
+    await request(`/web/account/identities/${id}`, { method: 'DELETE' })
+    await loadConnections()
+  }, t('That connection was removed.'))
 
 const currentPassword = ref('')
 const newPassword = ref('')
@@ -195,6 +231,41 @@ function when(iso: string | null): string {
     </template>
   </section>
 
+  <section v-if="auth.providers.length || connections.length" class="card">
+    <h2 class="card__title">{{ t('Connected accounts') }}</h2>
+    <p class="settings__detail">
+      {{ t('Sign in here with an account you already have somewhere else.') }}
+    </p>
+
+    <ul v-if="connections.length" class="settings__list">
+      <li v-for="entry in connections" :key="entry.id">
+        <div>
+          <p class="settings__entry">{{ entry.displayName || entry.provider }}</p>
+          <p class="settings__detail">
+            {{ entry.assertedName }}
+            <span v-if="entry.lastSeen"> · {{ formatDate(entry.lastSeen) }}</span>
+          </p>
+        </div>
+        <AppButton variant="text" :loading="busy" @click="disconnect(entry.id)">
+          {{ t('Disconnect') }}
+        </AppButton>
+      </li>
+    </ul>
+
+    <!-- Only the ones not already connected: a second link to the same
+         directory would be refused, and offering it invites the refusal. -->
+    <a
+      v-for="provider in auth.providers.filter(
+        (candidate) => !connections.some((entry) => entry.provider === candidate.slug),
+      )"
+      :key="provider.slug"
+      class="settings__connect"
+      :href="connectHref(provider.slug)"
+    >
+      {{ t('Connect {provider}', { provider: provider.displayName }) }}
+    </a>
+  </section>
+
   <section class="card">
     <h2 class="card__title">{{ t('Signed-in browsers') }}</h2>
     <ul class="settings__list">
@@ -226,4 +297,19 @@ function when(iso: string | null): string {
 
 <style scoped>
 @import '@/styles/settings.css';
+
+/* An anchor rather than a button, for the same reason the sign-in page uses
+   one: the server answers with a redirect to the directory. */
+.settings__connect {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--md-spacing-5);
+  border-radius: var(--md-sys-shape-corner-full);
+  box-shadow: inset 0 0 0 1px var(--md-sys-color-outline);
+  color: var(--md-sys-color-primary);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: var(--md-sys-typescale-weight-medium);
+  text-decoration: none;
+}
 </style>

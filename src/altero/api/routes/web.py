@@ -31,6 +31,7 @@ from altero.errors import ForbiddenError
 from altero.models import User, WebSession
 from altero.services import (
     emailverify,
+    identityproviders,
     logincodes,
     passwordreset,
     passwords,
@@ -282,6 +283,14 @@ async def read_config(request: Request, session: SessionDep) -> Response:
             # relay does not show a form that can only ever answer 202 and
             # send nothing.
             "passwordResetOpen": _reset_allowed(request),
+            # The directories this instance accepts a sign-in from, so the
+            # page can draw a button per provider. Three fields each and
+            # nothing about how any of them is configured -- this answers to
+            # anybody who loads the page.
+            "providers": [
+                identityproviders.public(entry)
+                for entry in await identityproviders.list_enabled(session)
+            ],
         }
     )
 

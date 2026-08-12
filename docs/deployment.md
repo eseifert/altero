@@ -123,6 +123,16 @@ follow. It is off by default either way, because it makes the mailbox part of
 the authentication. An administrator can issue the same link from
 **Administration → Accounts** on any instance.
 
+## Single sign-on
+
+`ALTERO_PUBLIC_URL` stops being optional the moment a sign-in provider is
+configured. The callback address a directory has to be told is built from it,
+and behind a proxy the address a request arrived on is the proxy's idea of it —
+a redirect URI that does not match the registered one is refused by the
+directory outright. The **Sign-in providers** screen shows the address it will
+use and says so when the variable is unset. See
+[administration.md](administration.md#sign-in-providers).
+
 ## Group notifications
 
 A member of a group library can ask to be told when it changes. Nobody is

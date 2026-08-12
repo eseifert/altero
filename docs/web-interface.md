@@ -57,6 +57,27 @@ accounts here. It works only for an address that has been confirmed: nobody has
 proved they hold an unconfirmed one, and honouring it would make a typo at
 registration somebody else's way in.
 
+**Signing in through somebody else's directory** is offered where an operator
+has configured one — see [administration.md](administration.md#sign-in-providers).
+The button appears above the password form, which stays: federation is an
+addition, not a replacement, and an instance keeps its local accounts.
+
+What a completed sign-in produces is a browser session, exactly the one a
+password produces. **A Zotero client still holds an API key, and still gets it
+from Settings → API keys.** That is the boundary rule doing its job rather than
+a gap: the v3 API takes keys and nothing else, and no amount of single sign-on
+changes it. It is the first question an institution asks, so it is answered
+here rather than in a footnote.
+
+An account here is matched to a directory by its **subject** — the opaque
+identifier the directory issues — and never by an email address. A directory
+that can assert an address would otherwise be able to take the account holding
+it, which is the usual way federated sign-in is broken into. So a first sign-in
+that nobody has connected either makes a new account, where the operator allows
+that, or is refused; it never adopts one. Connecting a directory to an account
+you already have is done from **Settings → Sign-in and security**, while signed
+in, exactly as enrolling an authenticator is.
+
 Accounts that predate this interface keep working exactly as they did. They
 have no password until one is set, which means they can sync but cannot sign in
 to the browser.
@@ -995,7 +1016,7 @@ are cached for good, so the second visit fetches none of it.
 
 ## Not built yet
 
-Passkeys, single sign-on through OIDC and SAML, and
+Passkeys, single sign-on through SAML — OIDC is built, SAML is not — and
 editing an item's fields — with one exception, the Rights field, because a
 licence set when a work was published has to be revisable by whoever set it.
 Collections can be made, renamed, moved and removed, an item can be filed,

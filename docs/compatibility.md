@@ -1515,6 +1515,42 @@ api.zotero.org absolutely, so following it would send a fetch pointed anywhere
 else — a test, a proxy, another altero — back to the real thing halfway
 through.
 
+## Not verifying the ID token's signature
+
+Not a compatibility decision — nothing upstream has an opinion, since zotero.org
+has no single sign-on — but the same kind of decision, and recorded here for the
+same reason: it looks wrong at a glance and is deliberate.
+
+altero does **not** verify the signature on an OpenID Connect ID token. The
+token is fetched by altero directly from the token endpoint over TLS, and
+OpenID Connect Core §3.1.3.7 item 6 permits exactly that case to be validated by
+the connection instead: *"If the ID Token is received via direct communication
+between the Client and the Token Endpoint, the TLS server validation MAY be used
+to validate the issuer in place of checking the token signature."*
+
+Taking that path is what keeps a JWS implementation out of this codebase, and
+with it every way one goes wrong — `alg: none`, HMAC-versus-RSA confusion, a key
+chosen by an attacker-supplied `kid`, a JWKS fetch that is itself a request to
+get right. `services/oidc.read_id_token` reads the payload and never looks at
+the header, so there is no `alg` for anybody to lie about.
+
+What it rests on is two conditions, and both hold by construction:
+
+- **The client is confidential.** A secret is configured and sent on the token
+  request; the flow is authorization code with PKCE, and there is no implicit
+  or hybrid path.
+- **The token came from the token endpoint on that connection**, not from the
+  browser. Nothing here accepts a token as a request parameter.
+
+Every *claim* check is still made, and with the signature out of the picture
+they are where the security is: `iss`, `aud`, `azp`, `nonce`, `exp`, `iat` and
+`sub`, in `services/oidc.validate_claims`, with `tests/test_oidc.py` holding one
+test per way a token could otherwise be somebody else's.
+
+**If a public client is ever wanted here, this has to be revisited first.** The
+exemption does not cover one, and a signature verifier would have to be written
+before the flow could be offered.
+
 ## Deliberate differences
 
 Six places where altero does not copy upstream:

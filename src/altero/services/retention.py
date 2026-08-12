@@ -35,6 +35,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import (
     ActivityKind,
+    AuthRequest,
     EmailVerification,
     GroupActivity,
     GroupActivityObject,
@@ -66,6 +67,8 @@ class Report:
     sessions: int = 0
     #: Sign-in codes sent by mail and never used.
     codes: int = 0
+    #: Federated sign-ins that left here and never came back.
+    federated: int = 0
     #: Confirmation links past theirs.
     verifications: int = 0
     #: Invitations that expired without ever being answered.
@@ -79,6 +82,7 @@ class Report:
             or self.uploads
             or self.sessions
             or self.codes
+            or self.federated
             or self.verifications
             or self.invitations
         )
@@ -207,6 +211,9 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
     """
     sessions = list(await session.scalars(select(WebSession.id).where(WebSession.expires < now)))
     codes = list(await session.scalars(select(LoginCode.id).where(LoginCode.expires < now)))
+    federated = list(
+        await session.scalars(select(AuthRequest.state).where(AuthRequest.expires < now))
+    )
     verifications = list(
         await session.scalars(select(EmailVerification.id).where(EmailVerification.expires < now))
     )
@@ -227,11 +234,16 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
         ):
             if doomed:
                 await session.execute(delete(model).where(model.id.in_(doomed)))
+        if federated:
+            # Keyed by state rather than by an id column, so it does not fit
+            # the loop above.
+            await session.execute(delete(AuthRequest).where(AuthRequest.state.in_(federated)))
         await session.commit()
 
     return Report(
         sessions=len(sessions),
         codes=len(codes),
+        federated=len(federated),
         verifications=len(verifications),
         invitations=len(invitations),
     )
@@ -271,6 +283,7 @@ async def sweep(
         uploads=uploads,
         sessions=expired.sessions,
         codes=expired.codes,
+        federated=expired.federated,
         verifications=expired.verifications,
         invitations=expired.invitations,
     )

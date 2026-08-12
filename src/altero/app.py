@@ -33,6 +33,7 @@ from altero.api.routes import (
     webadmin,
     webcollections,
     webgroups,
+    webidentity,
     webitems,
     weblibrary,
     weblink,
@@ -96,6 +97,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             ):
                 yield
         finally:
+            # The outbound client federated sign-in builds lazily, if anything
+            # ever used it. Closed here so its connections do not outlive the
+            # application in a test that makes several.
+            client = getattr(app.state, "http_client", None)
+            if client is not None:
+                await client.aclose()
+                app.state.http_client = None
             await database.dispose()
 
     app = FastAPI(
@@ -174,6 +182,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(webmigrate.router)
     app.include_router(webaccount.router)
     app.include_router(webadmin.router)
+    app.include_router(webidentity.router)
     app.include_router(webgroups.router)
     app.include_router(webtransfer.router)
     app.include_router(webprofile.router)

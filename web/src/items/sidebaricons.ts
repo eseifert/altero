@@ -245,6 +245,16 @@ export const SIDEBAR_ICONS: Record<string, ItemIcon> = {
     ],
   },
 
+  /** A key: a way in to this instance that somebody else hands out. */
+  providers: {
+    label: 'Sign-in providers',
+    paths: [
+      'M15.25 5.75a3.5 3.5 0 100 7 3.5 3.5 0 000-7z',
+      'M12.9 11.6l-7.15 7.15',
+      'M8.5 16l1.75 1.75',
+    ],
+  },
+
   /** A clock, hands at ten past eight: how long a thing is kept. */
   retention: {
     label: 'Retention',

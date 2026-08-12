@@ -31,6 +31,12 @@ EXPECTED = [
     ("/web/auth/forgot", "POST"),
     ("/web/auth/reset/{token}", "GET"),
     ("/web/auth/reset", "POST"),
+    # Signing in against somebody else's directory. Both answer without a
+    # cookie: they are navigations, and the state parameter resolving to a row
+    # this server wrote is what makes the callback genuine. See
+    # altero/api/routes/webidentity.py.
+    ("/web/auth/sso/{slug}/start", "GET"),
+    ("/web/auth/sso/{slug}/callback", "GET"),
     ("/web/auth/verify/resend", "POST"),
     ("/web/auth/session", "GET"),
     ("/web/auth/logout", "POST"),
@@ -50,6 +56,9 @@ EXPECTED = [
     ("/web/account/keys", "GET"),
     ("/web/account/keys", "POST"),
     ("/web/account/keys/{key_id}", "DELETE"),
+    # The directories this account can sign in through, and detaching one.
+    ("/web/account/identities", "GET"),
+    ("/web/account/identities/{identity_id}", "DELETE"),
     # The operator's own screens: what the instance costs and what state it is
     # in, for the one account that administers it rather than a library. Never
     # reachable with an API key -- see altero/api/routes/webadmin.py.
@@ -69,6 +78,12 @@ EXPECTED = [
     ("/web/admin/users/{user_id}/password", "POST"),
     ("/web/admin/users/{user_id}/revoke", "POST"),
     ("/web/admin/users/{user_id}/reset", "POST"),
+    # The directories the instance accepts a sign-in from. Configuration rather
+    # than a library, so it lives with the operator's other screens.
+    ("/web/admin/providers", "GET"),
+    ("/web/admin/providers", "POST"),
+    ("/web/admin/providers/{slug}", "PATCH"),
+    ("/web/admin/providers/{slug}", "DELETE"),
     ("/web/link/{token}", "GET"),
     ("/web/link/{token}/approve", "POST"),
     ("/web/link/{token}/deny", "POST"),
