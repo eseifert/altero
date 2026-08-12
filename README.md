@@ -12,33 +12,13 @@ Point an unmodified Zotero desktop application at it and it syncs the way it
 always has — items, collections, tags, groups, notes, annotations, attachments
 and full text — with your library on a machine you run.
 
-It is meant to be small to look after:
+It is meant to be small to look after: one server process, one database, one
+folder of attachments. Nothing to provision first — no cache, no search
+cluster, no queue, no object storage. SQLite for one person, PostgreSQL when
+several people use it at once. A backup is a database dump and a folder.
 
-- One server process, one database, one folder of attachments.
-- Nothing to provision first: no cache, no search cluster, no queue, no object
-  storage.
-- SQLite for one person; PostgreSQL when several people use it at once.
-- A backup is a database dump and a folder.
-
-## Bringing your library with you
-
-Settings → **Move from zotero.org** copies your personal library across: items,
-collections, tags, saved searches, notes, the trash and your attachments, at
-the versions your Zotero clients already know.
-
-- It takes an API key you make at zotero.org, not your zotero.org password —
-  their API has no password sign-in for other programs. The key is used once
-  and never stored.
-- It replaces what is here rather than merging into it, and says so before it
-  does.
-- Your desktop client will offer to reset itself afterwards, and should be let
-  to; everything it needs is on the server by then. Creating the account with
-  `--id <your zotero.org user id>` avoids even that.
-- Personal library only for now. Groups stay where they are.
-
-`uv run altero migrate zotero <username>` does the same from the command line.
-[docs/web-interface.md](docs/web-interface.md#moving-in-from-zoteroorg) has the
-detail.
+And it is not only a copy of what zotero.org runs — see [what zotero.org does
+not offer](#what-zoteroorg-does-not-offer).
 
 ## Before you start
 
@@ -107,115 +87,71 @@ docker compose -f docker/compose.yaml exec altero altero user add <username>
 
 ## What works
 
-Everyday syncing, in both directions:
+Everyday syncing, in both directions: items, collections, tags and saved
+searches, every kind of item Zotero has, attached files with their text
+searchable, group libraries and My Publications, and live updates that reach a
+connected client at once.
 
-- Items, collections, tags and saved searches, with the safeguards that stop
-  two clients overwriting each other.
-- Every kind of item Zotero has, including notes, attachments and annotations.
-- Attached files, uploaded and downloaded, with their text searchable.
-- Group libraries, with the permissions that go with them, and My Publications.
-- Who added an item to a group, and who last changed it.
-- Live updates, so a change reaches a connected client at once instead of at
-  its next check.
+Finding things and getting them out again: search inside attached PDFs and
+child notes, citations and bibliographies in any published style, export as
+BibTeX, BibLaTeX or RIS, and Atom feeds of a library.
 
-Finding things, and getting them out again:
+Not yet: the export formats beyond those three.
+[docs/status.md](docs/status.md) has the list, feature by feature.
 
-- Search that looks inside attached PDFs and child notes, and answers with the
-  item they belong to. It runs in the database rather than needing a search
-  cluster alongside — [what that
-  costs](docs/compatibility.md#quick-search-and-full-text-search).
-- Citations and bibliographies in any published citation style.
-- Export as BibTeX, BibLaTeX or RIS.
-- Atom feeds of a library.
+## What zotero.org does not offer
 
-### Things zotero.org does not offer
+Things people have asked it for over the years and not got, which a server of
+your own is in a position to answer:
 
-Six things people have asked it for over the years and not got:
-
-- **Share a collection, not a whole library.** [Asked for since
-  2008](https://forums.zotero.org/discussion/21217/), and the longest-running
-  request of its kind. A link shows one collection — the branch under it, or
-  the collection alone — to whoever you send it to, with no account needed and
-  nothing to change. Not a sync feature and deliberately so: a Zotero client
-  syncs whole libraries, and scoping below one would mean lying to it about
-  what a library holds.
-- **Finer roles in a group.** [Asked for since
+- **Sign in with your organisation's directory** — OpenID Connect or SAML 2.0,
+  asked for repeatedly and unsupported upstream. It signs you in to the
+  browser; a Zotero client still uses an API key.
+  [How to set one up.](docs/administration.md#sign-in-providers)
+- **Share a collection, not a whole library** — [asked for since
+  2008](https://forums.zotero.org/discussion/21217/), and answered as a link
+  anybody can open, no account needed.
+  [Why a link and not sync.](docs/web-interface.md#sharing-one)
+- **Finer roles in a group** — [asked for since
   2010](https://forums.zotero.org/discussion/14053/): a member who can only
   read, one who can add but not delete, one who can edit only their own items.
-  All three, set per member, never widening what the group's own policy already
-  allows.
-- **Tell me when a group changes.** A member can ask to hear about it, and
-  hears once the library has been quiet for a while — a digest rather than a
-  message per batch of a sync. Off until somebody turns it on.
-- **What happened in this group.** A log of who changed what and when, naming
-  the items and collections involved as they were called at the time, readable
-  by every member rather than only administrators.
-- **Renaming a tag in one go.** zotero.org has no way to do this at all, so a
-  client has to rewrite every item carrying the tag itself. [Asked for since
-  2016.](https://github.com/zotero/dataserver/issues/108)
-- **Taking your library with you.** altero reads one out of zotero.org and
-  keeps every key and version, so a client that had synced there carries on
-  where it left off. See above.
-
-### Not yet
-
-- Export formats other than BibTeX, BibLaTeX and RIS.
-
-[docs/status.md](docs/status.md) has the detailed list, feature by feature.
+  [How they behave.](docs/compatibility.md#finer-roles-for-one-member)
+- **Hear when a group changes**, and read a log of what happened in it — for
+  every member rather than only administrators.
+- **Rename a tag in one go** — [asked for since
+  2016](https://github.com/zotero/dataserver/issues/108); zotero.org has no way
+  to do this at all.
+- **Decide how long things are kept**, rather than living with a trash emptied
+  after 30 days. [Retention.](docs/administration.md#retention)
+- **See what a library costs on disk**, real usage against nominal, which
+  zotero.org cannot report.
+- **Take your library with you** — altero copies your personal library out of
+  zotero.org with every key and version intact, so a client that had synced
+  there carries on where it left off.
+  [Moving in.](docs/web-interface.md#moving-in-from-zoteroorg)
 
 ## The web interface
 
-A browser application at `/app/`, in six languages. It covers:
+A browser application at `/app/`, in six languages: registering and signing in,
+account settings and API keys, browsing a library with its collections, tags,
+search, item details and citations, filing and trashing items, sharing a
+collection by link, renaming a tag, publishing to My Publications, running a
+group, and moving a library in from zotero.org or a backup out. Editing an
+item's fields is still the desktop client's job.
 
-- Registration, sign-in with an optional authenticator code, account settings
-  and API keys.
-- Copying your library in from zotero.org, and taking a backup of it out.
-- Notifications, group invitations, and a group's activity log.
-- Browsing a library: collections, tags, search, an item's details, its
-  attachments, and a citation in a style you pick.
-- Making, renaming, moving and removing collections, sharing one by link, and
-  renaming a tag throughout the library.
-- Filing items into collections, trashing and restoring them, emptying the
-  trash, and copying an item into another library — by dragging, from the
-  keyboard, or with a finger.
-- Publishing a work to My Publications, and taking it out again, with the
-  questions the desktop client asks: whether its files and notes go with it,
-  and under which licence — which can be changed afterwards, since the licence
-  is the item's Rights field and that one field can be edited here.
-- Resizable, remembered sidebar and detail columns.
-- The sidebar the Zotero applications have: My Library and its collections,
-  Recently Read, My Publications, Duplicate Items, Unfiled Items and the trash,
-  with group libraries under their own heading.
-- Running a group: its policy, its members, what each of them may do, and
-  inviting somebody who has no account here yet.
-- For whoever administers the instance, the three operator screens under
-  **Administration** below.
+Signing in takes a password with an optional second factor — an authenticator
+app or a code by email — a passkey, or your organisation's directory. None of
+that reaches the sync API, which authenticates by API key and nothing else.
 
-Editing an item's fields is still the desktop client's job; everything else in
-a library the interface reads rather than changes. The sync API accepts
-only an API key and refuses a browser session, so nothing the interface does
-can reach the sync protocol — see
-[docs/web-interface.md](docs/web-interface.md).
+[docs/web-interface.md](docs/web-interface.md) covers all of it.
 
 ## Administration
 
-One account administers the instance — the one that claimed it — and it is the
-only permission here that is not per library. It grants nothing over anybody's
-library: an administrator counts and measures, and cannot read a title, a note
-or a file they were not already entitled to.
-
-Under **Administration** in the browser, that account gets three screens:
-
-- **Overview** — what this instance is running, down to the migration revision
-  the database is stamped with, and how many accounts, libraries and groups it
-  holds.
-- **Storage** — what each library costs, on disk and counted across libraries,
-  since a file attached in two places is stored once. Files nothing references
-  any more, and attachments whose bytes are missing, are reported alongside.
-- **Accounts** — making an account for somebody, issuing a link they set their
-  own password from, suspending one, and deleting one with its library.
-  Retention periods for the trash and for unfinished uploads live here too;
-  every one of them is off until an operator sets it.
+One account administers the instance, and it is the only permission here that
+is not per library. It grants nothing over anybody's library: an administrator
+counts and measures, and cannot read a title, a note or a file they were not
+already entitled to. In the browser that account gets five screens — overview,
+storage, accounts, sign-in providers and retention.
 
 The same things, and the ones that have no screen, are command-line
 operations:
