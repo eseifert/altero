@@ -102,7 +102,10 @@ def _kinds() -> dict[Format, Kind]:
         bookmarks,
         coins,
         csvfile,
+        evernote,
+        rdfdc,
         refer,
+        refworks,
         wikipedia,
     )
 
@@ -118,7 +121,10 @@ def _kinds() -> dict[Format, Kind]:
         # for a page rather than for a file. A span of HTML is HTML.
         Format.COINS: Kind(coins.Coins, "text/html;charset=UTF-8", "html"),
         Format.CSV: Kind(csvfile.Csv, "text/csv;charset=UTF-8", "csv"),
+        Format.EVERNOTE: Kind(evernote.Evernote, "text/xml;charset=UTF-8", "enex"),
+        Format.RDF_DC: Kind(rdfdc.RdfDublinCore, "application/rdf+xml", "rdf"),
         Format.REFER: Kind(refer.Refer, "application/x-research-info-systems", "txt"),
+        Format.REFWORKS_TAGGED: Kind(refworks.RefWorks, "text/plain;charset=UTF-8", "txt"),
         Format.WIKIPEDIA: Kind(wikipedia.Wikipedia, "text/x-wiki;charset=UTF-8", "txt"),
     }
 

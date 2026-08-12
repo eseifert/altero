@@ -323,6 +323,145 @@ class TestCsv:
         assert written.count("\n") == 0
 
 
+class TestRefWorks:
+    async def test_an_article_is_written_tag_by_tag(self, library: Library, article: Item) -> None:
+        written = render("refworks_tagged", article, library)
+
+        assert written == (
+            "RT Journal Article\r\n"
+            "T1 Monoclonal antibodies specific to quail embryo tissues: their epitopes in the "
+            "developing quail embryo and their application to identification of quail cells "
+            "in quail-chick chimeras.\r\n"
+            "A1 Aoyama, H\r\n"
+            "A1 Asamoto, K\r\n"
+            "A1 Nojyo, Y\r\n"
+            "A1 Kinutani, M\r\n"
+            "T2 Journal of Histochemistry & Cytochemistry\r\n"
+            "FD 1992-11\r\n"
+            "YR 1992\r\n"
+            "DO 10.1177/40.11.1385517\r\n"
+            "VO 40\r\n"
+            "IS 11\r\n"
+            "SP 1769\r\n"
+            "OP 1777\r\n"
+            "LA en\r\n"
+            "SN 0022-1554, 1551-5044\r\n"
+            "ST Monoclonal antibodies specific to quail embryo tissues\r\n"
+            "UL http://journals.sagepub.com/doi/10.1177/40.11.1385517\r\n"
+            "RD 2018/03/14/02:34:19\r\n"
+            "\r\n\r\n"
+        )
+
+    async def test_one_tag_holds_a_different_field_per_item_type(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        """`T2` is the journal of an article and the book a section is in; a
+        book's own `T2` is its series, and its title stays in `T1`."""
+        chapter = await make_item(
+            session,
+            library,
+            item_type="bookSection",
+            fields={"title": "A chapter", "bookTitle": "A book", "numPages": "300"},
+        )
+
+        written = render("refworks_tagged", chapter, library)
+
+        assert "RT Book, Section\r\n" in written
+        assert "T1 A chapter\r\n" in written
+        assert "T2 A book\r\n" in written
+
+    async def test_a_page_range_is_split_in_two(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        """A single page is written as neither: the translator fills the value
+        in only when the range matches, and an unset value is not written."""
+        one = await make_item(
+            session, library, item_type="journalArticle", fields={"pages": "1769"}
+        )
+
+        written = render("refworks_tagged", one, library)
+
+        assert "SP " not in written
+        assert "OP " not in written
+
+
+class TestDublinCoreRdf:
+    async def test_an_item_becomes_a_description(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        book = await make_item(
+            session,
+            library,
+            item_type="book",
+            fields={
+                "title": "Atom probe microscopy",
+                "publisher": "Springer",
+                "date": "2012",
+                "ISBN": "9781461434368",
+            },
+            creators=[("author", "Baptiste", "Gault"), ("editor", "Ann", "Other")],
+        )
+
+        assert render("rdf_dc", book, library) == (
+            '<rdf:RDF\n xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"'
+            '\n xmlns:dc="http://purl.org/dc/elements/1.1/">\n'
+            '    <rdf:Description rdf:about="urn:isbn:9781461434368">\n'
+            "        <dc:title>Atom probe microscopy</dc:title>\n"
+            "        <dc:type>book</dc:type>\n"
+            "        <dc:creator>Gault, Baptiste</dc:creator>\n"
+            "        <dc:contributor>Other, Ann</dc:contributor>\n"
+            "        <dc:publisher>Springer</dc:publisher>\n"
+            "        <dc:date>2012</dc:date>\n"
+            "        <dc:identifier>ISBN 9781461434368</dc:identifier>\n"
+            "    </rdf:Description>\n"
+            "</rdf:RDF>\n"
+        )
+
+    async def test_an_item_with_nothing_to_name_it_is_a_blank_node(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        book = await make_item(session, library, item_type="book", fields={"title": "A book"})
+
+        assert 'rdf:nodeID="item_1"' in render("rdf_dc", book, library)
+
+
+class TestEvernote:
+    async def test_an_item_becomes_a_note_carrying_its_metadata(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        page = await make_item(
+            session,
+            library,
+            item_type="webpage",
+            fields={"title": "A page", "url": "http://example.org/a"},
+        )
+
+        written = render("evernote", page, library, tags=["one, two"])
+
+        assert "<title>A page</title>" in written
+        # A comma separates one tag from the next in Evernote.
+        assert "<tag>one / two</tag>" in written
+        assert "<source-url>http://example.org/a</source-url>" in written
+        assert written.endswith("</en-export>\n")
+
+    async def test_a_timestamp_ends_in_one_z(self, session: AsyncSession, library: Library) -> None:
+        """Upstream appends a `Z` to `dateModified`, which already carries
+        one, and writes `20260227T045900ZZ`."""
+        book = await make_item(session, library, item_type="book", fields={"title": "A book"})
+
+        written = render("evernote", book, library)
+
+        assert "ZZ</updated>" not in written
+        assert written.count("Z</updated>") == 1
+
+    async def test_an_item_with_no_url_says_nothing_rather_than_undefined(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        book = await make_item(session, library, item_type="book", fields={"title": "A book"})
+
+        assert "<source-url></source-url>" in render("evernote", book, library)
+
+
 class TestTheEndpoints:
     @pytest.mark.parametrize(
         ("response_format", "content_type", "marker"),
