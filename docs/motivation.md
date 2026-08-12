@@ -216,9 +216,16 @@ data elsewhere. Point 4 is sharper than it reads above: a restore that
 renumbers versions locks out every client that had synced with the original, in
 both directions, so exactness is the requirement rather than completeness.
 
-Intentions rather than properties of the current code: object storage,
-institutional single sign-on, storage quotas, federation, replication to a
-standby, and automatic backup verification. altero stores attachments on a
-local filesystem and is configured by a single file. It authenticates the API
-with API keys and the browser with a session cookie, and keeps those two apart
-on purpose.
+Intentions rather than properties of the current code: object storage, storage
+quotas, federation, replication to a standby, and automatic backup
+verification. altero stores attachments on a local filesystem and is configured
+by a single file.
+
+**Institutional single sign-on is built**, and it is worth saying exactly what
+that means, because it is the thing an institution asks about first. The
+browser signs in through an OpenID Connect or SAML 2.0 provider; the API
+authenticates with API keys and nothing else, and the two are kept apart on
+purpose. A desktop client therefore still holds a key, issued from a signed-in
+browser, exactly as before. Single sign-on reaches who may open the interface,
+not what the sync protocol accepts — that boundary is the reason this was
+possible to add at all, and pretending otherwise would be the wrong promise.
