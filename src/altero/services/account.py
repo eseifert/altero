@@ -1,10 +1,15 @@
 """Changes a person makes to their own account.
 
-Everything that alters a credential asks for the current password first. That
-is not ceremony: a session cookie is what an attacker who borrowed an unlocked
-laptop or landed a cross-site request already has, and without re-authentication
-each of these is a one-request account takeover. Nothing here is reachable with
-an API key, which is a sync credential and not a person.
+Everything that alters a credential asks the browser to prove itself first.
+That is not ceremony: a session cookie is what an attacker who borrowed an
+unlocked laptop or landed a cross-site request already has, and without
+re-authentication each of these is a one-request account takeover. Nothing here
+is reachable with an API key, which is a sync credential and not a person.
+
+What counts as proof is :mod:`altero.services.reauth`, not a password field
+here. An account can have no password at all -- one made by ``altero user add``
+has none until somebody sets one -- and asking such an account for one would
+leave it unable to change anything about itself.
 
 Enrolling a second factor is two steps on purpose. A secret is stored
 unconfirmed and does not affect sign-in until a code proves the authenticator
@@ -24,7 +29,7 @@ from altero.services import (
     admin,
     emailverify,
     locales,
-    passwords,
+    reauth,
     totp,
     webauth,
     websessions,
@@ -43,16 +48,24 @@ class TotpEnrolment:
     uri: str
 
 
-def require_password(user: User, password: str) -> None:
-    """Raise unless ``password`` is this user's current one.
+async def require_proof(
+    session: AsyncSession,
+    user: User,
+    record: WebSession | None,
+    *,
+    password: str | None = None,
+) -> None:
+    """Raise unless this browser has proved, or proves now, that it is theirs.
 
     Public because it is not only credentials that want it: restoring a library
     over an existing one is as irreversible as changing a password, and the
-    transfer endpoints ask for the same proof. One implementation, so "the
-    current password" means the same thing wherever it is demanded.
+    transfer endpoints ask for the same proof. One implementation, so "prove it
+    is you" means the same thing wherever it is demanded.
+
+    A thin pass-through to :func:`altero.services.reauth.require`, kept here
+    because this is where every caller already looks for it.
     """
-    if not passwords.verify_password(user.password_hash, password):
-        raise ForbiddenError("That password is not correct")
+    await reauth.require(session, user, record, password=password)
 
 
 async def set_display_name(session: AsyncSession, user: User, display_name: str) -> User:
@@ -107,13 +120,14 @@ async def change_password(
     session: AsyncSession,
     user: User,
     *,
-    current_password: str,
+    current_password: str | None,
     new_password: str,
     keep: WebSession | None = None,
+    record: WebSession | None = None,
     notify: Notifier | None = None,
 ) -> None:
     """Replace the password, keeping only the session that did it."""
-    require_password(user, current_password)
+    await require_proof(session, user, record, password=current_password)
     if new_password == current_password:
         raise InvalidInputError("The new password is the same as the old one")
     await webauth.set_password(session, user, new_password, keep=keep, notify=notify)
@@ -124,7 +138,8 @@ async def request_email_change(
     user: User,
     *,
     new_email: str,
-    current_password: str,
+    current_password: str | None = None,
+    record: WebSession | None = None,
 ) -> str:
     """Begin moving the account to ``new_email`` and return the token.
 
@@ -133,7 +148,7 @@ async def request_email_change(
     attacker -- from becoming the account's contact address and taking the
     security notices with it.
     """
-    require_password(user, current_password)
+    await require_proof(session, user, record, password=current_password)
     address = emailverify.normalise(new_email)
 
     if address == (user.email or ""):
@@ -205,11 +220,12 @@ async def disable_totp(
     session: AsyncSession,
     user: User,
     *,
-    current_password: str,
+    current_password: str | None = None,
+    record: WebSession | None = None,
     notify: Notifier | None = None,
 ) -> None:
-    """Remove the second factor. Needs the password, since it weakens the account."""
-    require_password(user, current_password)
+    """Remove the second factor. Needs proof, since it weakens the account."""
+    await require_proof(session, user, record, password=current_password)
 
     credential = await session.get(TotpCredential, user.id)
     if credential is None:
@@ -300,7 +316,8 @@ async def create_key(
     user: User,
     *,
     name: str,
-    current_password: str,
+    current_password: str | None = None,
+    record: WebSession | None = None,
     write: bool = True,
     groups: bool = True,
 ) -> ApiKey:
@@ -313,7 +330,7 @@ async def create_key(
     one here is to sync a Zotero client, and a key that cannot write or cannot
     see groups presents to that client as a server which has lost things.
     """
-    require_password(user, current_password)
+    await require_proof(session, user, record, password=current_password)
 
     label = name.strip()
     if not label:

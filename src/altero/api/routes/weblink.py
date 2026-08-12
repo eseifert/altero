@@ -25,17 +25,17 @@ from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import SessionDep
-from altero.api.routes.web import CsrfDep, CurrentUserDep
-from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
+from altero.api.routes.web import AuthenticatedDep, CsrfDep, CurrentUserDep
+from altero.errors import InvalidInputError, NotFoundError
 from altero.models import LoginSession, User
-from altero.services import admin, passwords
+from altero.services import account, admin
 from altero.services import login as login_service
 
 router = APIRouter(prefix="/web", tags=["web"])
 
 
 class Approval(BaseModel):
-    current_password: str = Field(alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
 
 
 async def _pending(session: SessionDep, token: str) -> LoginSession:
@@ -96,6 +96,7 @@ async def read_link_request(session: SessionDep, user: CurrentUserDep, token: st
 async def approve_link_request(
     session: SessionDep,
     user: CurrentUserDep,
+    browser: AuthenticatedDep,
     token: str,
     body: Annotated[Approval, Body()],
     _csrf: CsrfDep,
@@ -103,8 +104,7 @@ async def approve_link_request(
     """Issue a key for this account and complete the client's login."""
     record = await _pending(session, token)
 
-    if not passwords.verify_password(user.password_hash, body.current_password):
-        raise ForbiddenError("That password is not correct")
+    await account.require_proof(session, user, browser, password=body.current_password)
 
     reason = await _refusal(session, record, user)
     if reason is not None:

@@ -28,7 +28,7 @@ from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
 from altero.api.deps import SessionDep
-from altero.api.routes.web import CsrfDep, CurrentUserDep
+from altero.api.routes.web import AuthenticatedDep, CsrfDep, CurrentUserDep
 from altero.errors import ForbiddenError, NotFoundError
 from altero.models import Library, LibraryType, User
 from altero.services import account, groups, transfer
@@ -117,10 +117,11 @@ async def restore_archive(
     request: Request,
     session: SessionDep,
     user: CurrentUserDep,
+    record: AuthenticatedDep,
     library_id: int,
     _csrf: CsrfDep,
     archive: Annotated[UploadFile, File()],
-    current_password: Annotated[str, Form(alias="currentPassword")],
+    current_password: Annotated[str | None, Form(alias="currentPassword")] = None,
     replace: Annotated[bool, Form()] = False,
 ) -> Response:
     """Restore an uploaded archive into this library.
@@ -132,7 +133,7 @@ async def restore_archive(
     """
     library = await _library_or_404(session, library_id)
     await _may_import(session, library, user)
-    account.require_password(user, current_password)
+    await account.require_proof(session, user, record, password=current_password)
 
     workspace = Path(tempfile.mkdtemp(prefix="altero-import-"))
     try:

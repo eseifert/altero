@@ -28,6 +28,11 @@ class WebSession(Base):
     #: The factor still outstanding, or ``None`` once the session is complete.
     #: A session with this set has proved a password and nothing more.
     pending_factor: Mapped[str | None] = mapped_column(String(16), default=None)
+    #: When this browser last proved it holds a credential of the account's --
+    #: see :mod:`altero.services.reauth`. Distinct from ``created`` because a
+    #: session lives for thirty days and the proof is good for minutes: signing
+    #: in is not standing consent to replace the credentials afterwards.
+    reauthenticated: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     last_seen: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires: Mapped[datetime] = mapped_column(DateTime, index=True)

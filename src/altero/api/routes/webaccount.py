@@ -2,8 +2,10 @@
 
 Same rules as the rest of ``/web``: cookie only, never an API key, and a CSRF
 token on anything that changes something. On top of that, every endpoint here
-that touches a credential takes the current password as well -- see
-:mod:`altero.services.account` for why a cookie alone is not enough.
+that touches a credential makes the browser prove itself -- see
+:mod:`altero.services.reauth` for what counts as proof and why a cookie alone
+is not enough. A password is the usual proof and is what these bodies carry;
+it is optional in the schema because an account may not have one.
 """
 
 from typing import Annotated
@@ -50,14 +52,19 @@ class Locale(BaseModel):
     time_zone: str | None = Field(default=None, alias="timeZone")
 
 
+# `currentPassword` is optional on every one of these, and optional means "an
+# account that has no password can still get here" rather than "the proof is
+# optional". What is not optional is the proof: without a password the session
+# must have proved itself in the last few minutes -- see
+# :mod:`altero.services.reauth`.
 class PasswordChange(BaseModel):
-    current_password: str = Field(alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
     new_password: str = Field(alias="newPassword")
 
 
 class EmailChange(BaseModel):
     email: str
-    current_password: str = Field(alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
 
 
 class Confirmation(BaseModel):
@@ -65,12 +72,12 @@ class Confirmation(BaseModel):
 
 
 class PasswordOnly(BaseModel):
-    current_password: str = Field(alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
 
 
 class NewKey(BaseModel):
     name: str
-    current_password: str = Field(alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
     write: bool = True
     groups: bool = True
 
@@ -229,6 +236,7 @@ async def change_password(
         current_password=body.current_password,
         new_password=body.new_password,
         keep=record,
+        record=record,
         notify=request.app.state.mailer.send,
     )
     return Response(status_code=204)
@@ -236,7 +244,12 @@ async def change_password(
 
 @router.post("/account/email", status_code=202)
 async def change_email(
-    request: Request, session: SessionDep, user: CurrentUserDep, body: EmailChange, _csrf: CsrfDep
+    request: Request,
+    session: SessionDep,
+    user: CurrentUserDep,
+    record: AuthenticatedDep,
+    body: EmailChange,
+    _csrf: CsrfDep,
 ) -> Response:
     """Begin moving the account to another address.
 
@@ -244,7 +257,11 @@ async def change_email(
     is followed.
     """
     await account.request_email_change(
-        session, user, new_email=body.email, current_password=body.current_password
+        session,
+        user,
+        new_email=body.email,
+        current_password=body.current_password,
+        record=record,
     )
     # Re-issued by _send_verification so that the mail carries the token; the
     # call above has already checked the password and the address.
@@ -278,6 +295,7 @@ async def disable_totp(
     request: Request,
     session: SessionDep,
     user: CurrentUserDep,
+    record: AuthenticatedDep,
     body: PasswordOnly,
     _csrf: CsrfDep,
 ) -> Response:
@@ -285,6 +303,7 @@ async def disable_totp(
         session,
         user,
         current_password=body.current_password,
+        record=record,
         notify=request.app.state.mailer.send,
     )
     return Response(status_code=204)
@@ -320,7 +339,11 @@ async def list_keys(session: SessionDep, user: CurrentUserDep) -> Response:
 
 @router.post("/account/keys", status_code=201)
 async def create_key(
-    session: SessionDep, user: CurrentUserDep, body: NewKey, _csrf: CsrfDep
+    session: SessionDep,
+    user: CurrentUserDep,
+    record: AuthenticatedDep,
+    body: NewKey,
+    _csrf: CsrfDep,
 ) -> Response:
     """Issue a key and return it in full, this once.
 
@@ -332,6 +355,7 @@ async def create_key(
         user,
         name=body.name,
         current_password=body.current_password,
+        record=record,
         write=body.write,
         groups=body.groups,
     )

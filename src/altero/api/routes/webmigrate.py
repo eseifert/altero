@@ -36,7 +36,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import SessionDep
-from altero.api.routes.web import CsrfDep, CurrentUserDep
+from altero.api.routes.web import AuthenticatedDep, CsrfDep, CurrentUserDep
 from altero.errors import AlteroError, ForbiddenError, InvalidInputError
 from altero.models import LibraryType, User
 from altero.services import account, auth, migrations, transfer, zoteroapi, zoteroimport
@@ -52,7 +52,7 @@ class StartMigration(BaseModel):
     """What starting one takes."""
 
     api_key: str = Field(alias="apiKey")
-    current_password: str = Field(alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
     #: Discard what the library already holds. Without it, a library with
     #: anything in it is refused rather than merged.
     replace: bool = False
@@ -147,6 +147,7 @@ async def start_migration(
     request: Request,
     session: SessionDep,
     user: CurrentUserDep,
+    record: AuthenticatedDep,
     _csrf: CsrfDep,
     body: Annotated[StartMigration, Body()],
 ) -> Response:
@@ -157,7 +158,7 @@ async def start_migration(
     request.
     """
     _own_library(user, user.id)
-    account.require_password(user, body.current_password)
+    await account.require_proof(session, user, record, password=body.current_password)
 
     key = body.api_key.strip()
     if not key:

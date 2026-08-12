@@ -5,7 +5,16 @@ from datetime import UTC, datetime
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.services import account, admin, invitations, totp, webauth
+from altero.models import User, WebSession
+from altero.services import (
+    account,
+    admin,
+    invitations,
+    reauth,
+    totp,
+    webauth,
+    websessions,
+)
 from tests.test_web_routes import CSRF_HEADER, csrf_headers, register
 
 PASSWORD = "correct horse battery staple"
@@ -724,3 +733,118 @@ class TestLanguageAndTimeZone:
         assert {entry["tag"] for entry in body["languages"]} == {"en", "de", "fr", "es", "pt", "ja"}
         assert "Europe/Berlin" in body["timeZones"]
         assert len(body["timeZones"]) > 100
+
+
+class TestAnAccountWithNoPassword:
+    """The accounts single sign-on will create, and the ones `altero user add` makes.
+
+    Every one of these operations used to ask for a password and refuse anyone
+    who had none, which would have made a federated account able to sign in and
+    then do nothing at all -- including issue itself the API key a desktop
+    client needs. See `altero.services.reauth`.
+    """
+
+    async def _signed_in(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> tuple[User, WebSession]:
+        """Make a passwordless account and put its cookie in ``client``."""
+        # The first account made on an instance administers it, and this test
+        # is about an ordinary one; registering first takes that flag.
+        await register(client)
+        user = await admin.create_user(session, username="grace", display_name="Grace")
+        token, record = await websessions.create(session, user, user_agent="tests")
+        client.cookies.set("altero_session", token)
+        return user, record
+
+    async def test_it_cannot_make_a_key_without_proving_itself(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await self._signed_in(client, session)
+
+        response = await client.post(
+            "/web/account/keys", json={"name": "Zotero"}, headers=csrf_headers(client)
+        )
+
+        assert response.status_code == 403
+
+    async def test_a_recent_proof_lets_it_make_one(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        _, record = await self._signed_in(client, session)
+        await reauth.stamp(session, record)
+
+        response = await client.post(
+            "/web/account/keys", json={"name": "Zotero"}, headers=csrf_headers(client)
+        )
+
+        assert response.status_code == 201
+        assert response.json()["key"]
+
+    async def test_a_made_up_password_does_not_get_it_through(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """There is no hash to match, and `verify_password` must not say yes."""
+        await self._signed_in(client, session)
+
+        response = await client.post(
+            "/web/account/keys",
+            json={"name": "Zotero", "currentPassword": "anything at all"},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 403
+
+    async def test_it_can_set_a_password_once_it_has_proved_itself(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        _, record = await self._signed_in(client, session)
+        await reauth.stamp(session, record)
+
+        response = await client.post(
+            "/web/account/password",
+            json={"newPassword": NEW_PASSWORD},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 204
+
+
+class TestAPasswordIsStillAskedFor:
+    async def test_making_a_key_without_one_is_refused(self, client: httpx.AsyncClient) -> None:
+        """An ordinary account gains nothing from the new seam."""
+        await register(client)
+
+        response = await client.post(
+            "/web/account/keys", json={"name": "Zotero"}, headers=csrf_headers(client)
+        )
+
+        assert response.status_code == 403
+
+    async def test_the_wrong_one_is_refused(self, client: httpx.AsyncClient) -> None:
+        await register(client)
+
+        response = await client.post(
+            "/web/account/keys",
+            json={"name": "Zotero", "currentPassword": "not it"},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 403
+
+    async def test_giving_it_once_covers_the_next_operation(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """What the freshness window is for: a settings page asks once."""
+        await register(client)
+
+        first = await client.post(
+            "/web/account/keys",
+            json={"name": "Zotero", "currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+        second = await client.post(
+            "/web/account/keys", json={"name": "A second one"}, headers=csrf_headers(client)
+        )
+
+        assert first.status_code == 201
+        assert second.status_code == 201

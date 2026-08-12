@@ -148,8 +148,10 @@ Attachment bytes are shared by digest and stay: another library may have
 uploaded the same file.
 
 The last administrator cannot be suspended, demoted or deleted, and every one of
-these asks for your own password before it does anything, as your own settings
-do for anything touching a credential.
+these asks you to prove the browser is yours before it does anything, as your
+own settings do for anything touching a credential. Your own password is the
+usual proof, and it stands for five minutes once given, so a run of account
+operations is one prompt rather than one each.
 
 ## Retention
 

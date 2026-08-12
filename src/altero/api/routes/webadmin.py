@@ -28,7 +28,7 @@ from starlette.responses import JSONResponse, Response
 from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
 from altero.api.routes import web
-from altero.api.routes.web import CsrfDep, CurrentUserDep
+from altero.api.routes.web import AuthenticatedDep, CsrfDep, CurrentUserDep
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import ApiKey, GroupMember, User
 from altero.services import (
@@ -72,7 +72,7 @@ class NewAccount(BaseModel):
     display_name: str = Field(default="", alias="displayName")
     administrator: bool = False
     #: The administrator's own, as everything that touches a credential takes.
-    current_password: str = Field(default="", alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
 
 
 class AccountChange(BaseModel):
@@ -80,16 +80,16 @@ class AccountChange(BaseModel):
 
     disabled: bool | None = None
     administrator: bool | None = None
-    current_password: str = Field(default="", alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
 
 
 class NewPassword(BaseModel):
     password: str
-    current_password: str = Field(default="", alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
 
 
 class PasswordOnly(BaseModel):
-    current_password: str = Field(default="", alias="currentPassword")
+    current_password: str | None = Field(default=None, alias="currentPassword")
 
 
 def _serialise_account(user: User, *, keys: int = 0, groups: int = 0) -> dict:
@@ -305,6 +305,7 @@ async def create_account(
     request: Request,
     session: SessionDep,
     admin_user: AdministratorDep,
+    browser: AuthenticatedDep,
     body: NewAccount,
     _csrf: CsrfDep,
 ) -> Response:
@@ -318,7 +319,7 @@ async def create_account(
     syncs without one, and requiring one would make this refuse the case the
     command line has always allowed.
     """
-    account.require_password(admin_user, body.current_password)
+    await account.require_proof(session, admin_user, browser, password=body.current_password)
 
     # Everything is checked before anything is created, so a mistyped address
     # or a password the server will refuse does not leave half an account
@@ -347,6 +348,7 @@ async def create_account(
 async def change_account(
     session: SessionDep,
     admin_user: AdministratorDep,
+    browser: AuthenticatedDep,
     user_id: int,
     body: AccountChange,
     _csrf: CsrfDep,
@@ -359,7 +361,7 @@ async def change_account(
     the last one -- which it makes on behalf of the instance rather than of
     whoever clicked.
     """
-    account.require_password(admin_user, body.current_password)
+    await account.require_proof(session, admin_user, browser, password=body.current_password)
     user = await _account(session, user_id)
 
     if user.id == admin_user.id and body.disabled is not None:
@@ -377,6 +379,7 @@ async def change_account(
 async def set_account_password(
     session: SessionDep,
     admin_user: AdministratorDep,
+    browser: AuthenticatedDep,
     user_id: int,
     body: NewPassword,
     _csrf: CsrfDep,
@@ -388,7 +391,7 @@ async def set_account_password(
     :func:`altero.services.webauth.set_password` the command line uses, so the
     owner is told about it if there is a confirmed address to tell.
     """
-    account.require_password(admin_user, body.current_password)
+    await account.require_proof(session, admin_user, browser, password=body.current_password)
     user = await _account(session, user_id)
 
     await webauth.set_password(session, user, body.password)
@@ -400,6 +403,7 @@ async def issue_password_reset(
     request: Request,
     session: SessionDep,
     admin_user: AdministratorDep,
+    browser: AuthenticatedDep,
     user_id: int,
     body: PasswordOnly,
     _csrf: CsrfDep,
@@ -412,7 +416,7 @@ async def issue_password_reset(
     configured is the ordinary case, and a link only readable in the server log
     would need the shell this screen exists to replace.
     """
-    account.require_password(admin_user, body.current_password)
+    await account.require_proof(session, admin_user, browser, password=body.current_password)
     user = await _account(session, user_id)
 
     token = await passwordreset.issue(session, user, issued_by=admin_user)
@@ -442,12 +446,13 @@ async def issue_password_reset(
 async def revoke_account_credentials(
     session: SessionDep,
     admin_user: AdministratorDep,
+    browser: AuthenticatedDep,
     user_id: int,
     body: PasswordOnly,
     _csrf: CsrfDep,
 ) -> Response:
     """Drop every key and every signed-in browser, leaving the account working."""
-    account.require_password(admin_user, body.current_password)
+    await account.require_proof(session, admin_user, browser, password=body.current_password)
     user = await _account(session, user_id)
 
     keys, sessions = await admin.revoke_credentials(session, user)
@@ -458,6 +463,7 @@ async def revoke_account_credentials(
 async def delete_account(
     session: SessionDep,
     admin_user: AdministratorDep,
+    browser: AuthenticatedDep,
     user_id: int,
     body: PasswordOnly,
     _csrf: CsrfDep,
@@ -470,7 +476,7 @@ async def delete_account(
     administrator deleting their own account would take the instance's
     administration with it.
     """
-    account.require_password(admin_user, body.current_password)
+    await account.require_proof(session, admin_user, browser, password=body.current_password)
     user = await _account(session, user_id)
 
     if user.id == admin_user.id:
@@ -494,6 +500,7 @@ async def purge_storage(
     request: Request,
     session: SessionDep,
     admin_user: AdministratorDep,
+    browser: AuthenticatedDep,
     body: PasswordOnly,
     _csrf: CsrfDep,
 ) -> Response:
@@ -506,7 +513,7 @@ async def purge_storage(
     :data:`ORPHAN_GRACE` is left where it is, and the administrator's own
     password is asked for, because this is not recoverable from here.
     """
-    account.require_password(admin_user, body.current_password)
+    await account.require_proof(session, admin_user, browser, password=body.current_password)
 
     files, freed = await storagestats.purge_orphans(
         session, request.app.state.settings.storage_path, grace=ORPHAN_GRACE

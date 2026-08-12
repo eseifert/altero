@@ -67,8 +67,13 @@ unknown one falls back to the first section rather than to an empty page.
 
 Display name, password, email address, an authenticator app, and the list of
 signed-in browsers, each of which can be signed out on its own. Anything that
-touches a credential asks for the current password again: a session cookie is
-what somebody who borrowed an unlocked laptop already has.
+touches a credential asks you to prove again that the browser is yours: a
+session cookie is what somebody who borrowed an unlocked laptop already has.
+The usual proof is the current password, and once it has been given it stands
+for five minutes, so changing a password and then making a key is one prompt
+rather than two. An account that has no password — one an administrator created
+and never set one for — proves itself the other ways it can, and is not shut
+out of its own settings for lacking a credential it was never given.
 
 Setting up an authenticator is two steps. The secret is stored but ignored
 until a code from the app proves it works, so an interrupted setup cannot lock
