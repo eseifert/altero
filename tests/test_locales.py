@@ -41,6 +41,13 @@ class TestTheOfferedLanguages:
         """A language list in one language is only useful to people who read it."""
         assert LANGUAGES["de"] == "Deutsch"
         assert LANGUAGES["ja"] == "日本語"
+        assert LANGUAGES["pl"] == "Polski"
+        assert LANGUAGES["ru"] == "Русский"
+        assert LANGUAGES["zh"] == "简体中文"
+
+    def test_none_is_named_in_english(self) -> None:
+        """`English` is the one name that is its own language's."""
+        assert [tag for tag, name in LANGUAGES.items() if name == "English"] == ["en"]
 
 
 class TestNormalisingALanguage:
@@ -54,6 +61,11 @@ class TestNormalisingALanguage:
     @pytest.mark.parametrize("tag", ["pt-BR", "pt_BR", "PT-br", " pt-BR "])
     def test_a_region_narrows_to_its_language(self, tag: str) -> None:
         assert normalise_language(tag) == "pt"
+
+    @pytest.mark.parametrize("tag", ["zh-Hans", "zh-Hans-CN", "zh_TW"])
+    def test_a_script_narrows_to_its_language_too(self, tag: str) -> None:
+        """One Chinese catalogue, so a script subtag is dropped like a region."""
+        assert normalise_language(tag) == "zh"
 
     def test_a_language_with_no_catalogue_is_refused(self) -> None:
         with pytest.raises(InvalidInputError, match="Unsupported language"):

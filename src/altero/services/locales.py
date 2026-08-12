@@ -17,13 +17,25 @@ from altero.errors import InvalidInputError
 #: Interface languages, by BCP 47 tag, with the name each is called in itself.
 #: A tag here must have a catalogue in `web/src/locales`; the two are checked
 #: against each other by `tests/test_locales.py`.
+#:
+#: Keyed by language alone, never by region or script, because that is the
+#: granularity the catalogues have -- which is why Chinese names itself as the
+#: script it is written in rather than as `中文`. Somebody arriving with
+#: `zh-TW` gets Simplified words; their dates stay Taiwanese, formatting being
+#: the browser's tag rather than this one.
 LANGUAGES: dict[str, str] = {
     "en": "English",
     "de": "Deutsch",
     "fr": "Français",
     "es": "Español",
     "pt": "Português",
+    "it": "Italiano",
+    "nl": "Nederlands",
+    "da": "Dansk",
+    "pl": "Polski",
+    "ru": "Русский",
     "ja": "日本語",
+    "zh": "简体中文",
 }
 
 #: The language used when a request carries no usable preference at all.

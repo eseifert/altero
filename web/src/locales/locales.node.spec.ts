@@ -6,12 +6,20 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import da from './da'
 import de from './de'
 import en from './en'
 import es from './es'
 import fr from './fr'
+// `it` is vitest's, so the Italian catalogue comes in under another name and
+// goes back to its tag in `CATALOGUES` below.
+import italian from './it'
 import ja from './ja'
+import nl from './nl'
+import pl from './pl'
 import pt from './pt'
+import ru from './ru'
+import zh from './zh'
 
 /**
  * The catalogues, against each other and against the source.
@@ -23,7 +31,17 @@ import pt from './pt'
  * what makes that visible.
  */
 
-const CATALOGUES = { de, fr, es, pt, ja }
+const CATALOGUES = { de, fr, es, pt, it: italian, nl, da, pl, ru, ja, zh }
+
+/**
+ * How many branches a plural message has, where that is not English's two.
+ *
+ * The same table as `PLURAL_RULES` in `i18n.ts`, from the other side: there it
+ * decides which branch to render, here it holds a catalogue to writing all of
+ * them. A Polish message with two branches would render "2 elementów" and
+ * never fail a test that only counted English's forms.
+ */
+const PLURAL_BRANCHES: Record<string, number> = { pl: 3, ru: 3 }
 
 const SOURCE = fileURLToPath(new URL('../', import.meta.url))
 
@@ -52,7 +70,7 @@ function usedKeys(): Set<string> {
   return keys
 }
 
-describe.each(Object.entries(CATALOGUES))('the %s catalogue', (_name, catalogue) => {
+describe.each(Object.entries(CATALOGUES))('the %s catalogue', (name, catalogue) => {
   it('translates every message English has', () => {
     const missing = Object.keys(en).filter((key) => !(key in catalogue))
 
@@ -69,21 +87,40 @@ describe.each(Object.entries(CATALOGUES))('the %s catalogue', (_name, catalogue)
 
   it('keeps every placeholder its English carries', () => {
     /* A dropped `{count}` renders the braces as text; an invented one renders
-       nothing at all. */
+       nothing at all. Branch by branch rather than over the whole message,
+       because a language with a third plural form has a third `{count}` and
+       counting them all would call that a mismatch. A branch past English's
+       last is held to that last one, every branch of a plural carrying the
+       same placeholders. */
     const placeholders = (text: string) => (text.match(/\{[a-zA-Z]+\}/g) ?? []).sort()
 
     for (const [key, translated] of Object.entries(catalogue as Record<string, string>)) {
       const source = (en as Record<string, string>)[key]
       if (!source) continue
-      expect(placeholders(translated), key).toEqual(placeholders(source))
+      const wanted = source.split('|').map(placeholders)
+      translated.split('|').forEach((branch, index) => {
+        expect(placeholders(branch), key).toEqual(wanted[Math.min(index, wanted.length - 1)])
+      })
     }
   })
 
-  it('keeps both branches of a plural message', () => {
+  it('writes a branch for every plural form its own language has', () => {
+    const branches = PLURAL_BRANCHES[name] ?? 2
+
     for (const [key, translated] of Object.entries(catalogue as Record<string, string>)) {
       const source = (en as Record<string, string>)[key]
       if (!source?.includes('|')) continue
-      expect(translated.split('|'), key).toHaveLength(source.split('|').length)
+      expect(translated.split('|'), key).toHaveLength(branches)
+    }
+  })
+
+  it('splits nothing English keeps whole', () => {
+    /* A stray `|` in a message that is not a plural renders as two branches,
+       one of which is never shown. */
+    for (const [key, translated] of Object.entries(catalogue as Record<string, string>)) {
+      const source = (en as Record<string, string>)[key]
+      if (!source || source.includes('|')) continue
+      expect(translated, key).not.toContain('|')
     }
   })
 })

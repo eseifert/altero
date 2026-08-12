@@ -730,7 +730,20 @@ class TestLanguageAndTimeZone:
 
         body = (await client.get("/web/account/locales")).json()
 
-        assert {entry["tag"] for entry in body["languages"]} == {"en", "de", "fr", "es", "pt", "ja"}
+        assert {entry["tag"] for entry in body["languages"]} == {
+            "en",
+            "de",
+            "fr",
+            "es",
+            "pt",
+            "it",
+            "nl",
+            "da",
+            "pl",
+            "ru",
+            "ja",
+            "zh",
+        }
         assert "Europe/Berlin" in body["timeZones"]
         assert len(body["timeZones"]) > 100
 

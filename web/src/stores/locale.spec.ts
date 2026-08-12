@@ -1,7 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { clearFormatterCache, formatDate, formatDateTime } from '@/formats'
+import { clearFormatterCache, formatBytes, formatDate, formatDateTime } from '@/formats'
 import { i18n, resolveLocale } from '@/i18n'
 
 import { useLocaleStore } from './locale'
@@ -127,5 +127,87 @@ describe('formatting dates', () => {
   it('renders nothing for a missing or unreadable timestamp', () => {
     expect(formatDate(null)).toBe('')
     expect(formatDate('not a date')).toBe('')
+  })
+})
+
+/**
+ * A date's shape, in every language the interface offers.
+ *
+ * The words of the interface come from the catalogues; the shape of a date does
+ * not. It is `Intl` over the CLDR data the browser already ships, which is why
+ * a new language needs no date rules written for it here -- and why these tests
+ * assert what CLDR produces rather than a table of our own. What they guard is
+ * that a language reaches `Intl` at all: `formatting` handing over the wrong
+ * tag would show every reader English dates and nothing would say so.
+ */
+describe('formatting a date in each language on offer', () => {
+  it.each([
+    ['en', 'April'],
+    ['de', 'April'],
+    ['fr', 'avril'],
+    ['es', 'abril'],
+    ['pt', 'abril'],
+    ['it', 'aprile'],
+    ['nl', 'april'],
+    ['da', 'april'],
+    ['pl', 'kwietnia'],
+    ['ru', 'апреля'],
+    ['ja', '4月'],
+    ['zh', '4月'],
+  ])('%s names the month in its own words', (language, month) => {
+    const store = browser(['en-GB'], 'UTC')
+
+    store.adopt({ language, timeZone: 'Europe/Berlin' })
+
+    expect(formatDate('2019-04-04T12:00:00Z')).toContain(month)
+  })
+
+  it('separates the hour the way Danish does, with a full stop', () => {
+    /* `00.30`, not `00:30`. Nothing in altero writes that rule down. */
+    const store = browser(['en-GB'], 'UTC')
+
+    store.adopt({ language: 'da', timeZone: 'Europe/Copenhagen' })
+
+    expect(formatDateTime('2019-04-03T22:30:00Z')).toContain('00.30')
+  })
+
+  it('keeps a region the account never chose', () => {
+    /* The Chinese catalogue is Simplified, so a reader in Taipei gets
+       Simplified words -- but their dates stay Taiwanese, by the same rule
+       that gives German words Austrian dates. */
+    const store = browser(['zh-TW'], 'Asia/Taipei')
+
+    store.adopt({ language: 'zh', timeZone: null })
+
+    expect(store.active).toBe('zh')
+    expect(store.formatting).toBe('zh-TW')
+  })
+})
+
+describe('formatting a size', () => {
+  it('writes the number the way the language writes numbers', () => {
+    const store = browser(['en-GB'], 'UTC')
+
+    store.adopt({ language: 'en', timeZone: null })
+    expect(formatBytes(1_500_000)).toBe('1.5 MB')
+
+    store.adopt({ language: 'pl', timeZone: null })
+    expect(formatBytes(1_500_000)).toBe('1,5 MB')
+  })
+
+  it('takes the unit’s own name where the language has one', () => {
+    /* Russian abbreviates megabyte in Cyrillic, and `Intl` knows that without
+       a byte unit appearing in any catalogue. */
+    const store = browser(['en-GB'], 'UTC')
+
+    store.adopt({ language: 'ru', timeZone: null })
+
+    expect(formatBytes(1_500_000)).toBe('1,5 МБ')
+  })
+
+  it('counts whole bytes below the first prefix', () => {
+    browser(['en-GB'], 'UTC')
+
+    expect(formatBytes(999)).toBe('999 byte')
   })
 })

@@ -1,11 +1,17 @@
 import { createI18n } from 'vue-i18n'
 
+import da from './locales/da'
 import de from './locales/de'
 import en from './locales/en'
 import es from './locales/es'
 import fr from './locales/fr'
+import it from './locales/it'
 import ja from './locales/ja'
+import nl from './locales/nl'
+import pl from './locales/pl'
 import pt from './locales/pt'
+import ru from './locales/ru'
+import zh from './locales/zh'
 
 /**
  * The interface's languages.
@@ -24,17 +30,57 @@ import pt from './locales/pt'
  * first, then what the browser asks for, then English.
  */
 
-export const MESSAGES = { en, de, fr, es, pt, ja }
+export const MESSAGES = { en, de, fr, es, pt, it, nl, da, pl, ru, ja, zh }
 
 export type Locale = keyof typeof MESSAGES
 
 export const LOCALES = Object.keys(MESSAGES) as Locale[]
+
+/**
+ * Which branch of a plural message a number asks for, per language.
+ *
+ * English separates one from many and every catalogue followed, because that is
+ * what German, French, Spanish, Portuguese, Danish, Dutch and Italian do too --
+ * and Japanese and Chinese, which inflect nothing, write the one form twice
+ * rather than pretend to a distinction. Polish and Russian have a third form
+ * for the small counts, so "2 elementy" and "5 elementów" are different words:
+ * their catalogues carry three branches and these rules choose between them. A
+ * catalogue written with English's two would be wrong on every count from 2 to
+ * 4, which is what `locales.node.spec.ts` now checks for.
+ *
+ * `branches` is how many the message actually has. Each rule clamps to it, so a
+ * message reached by fallback -- English's two, under a rule that counts three
+ * -- renders its last branch instead of nothing at all.
+ */
+export const PLURAL_RULES = {
+  /* Exactly one; 2-4 but not 12-14; everything else. */
+  pl: (choice: number, branches: number) => {
+    const tens = choice % 10
+    const hundreds = choice % 100
+    if (choice === 1) return 0
+    if (tens >= 2 && tens <= 4 && !(hundreds >= 12 && hundreds <= 14)) {
+      return Math.min(1, branches - 1)
+    }
+    return Math.min(2, branches - 1)
+  },
+  /* Ends in 1 but not 11; ends in 2-4 but not 12-14; everything else. */
+  ru: (choice: number, branches: number) => {
+    const tens = choice % 10
+    const hundreds = choice % 100
+    if (tens === 1 && hundreds !== 11) return 0
+    if (tens >= 2 && tens <= 4 && !(hundreds >= 12 && hundreds <= 14)) {
+      return Math.min(1, branches - 1)
+    }
+    return Math.min(2, branches - 1)
+  },
+}
 
 export const i18n = createI18n({
   legacy: false,
   locale: 'en',
   fallbackLocale: 'en',
   messages: MESSAGES,
+  pluralRules: PLURAL_RULES,
   // A missing key renders as the key, which is the English text. That is a
   // usable result rather than an error, so it is not worth a console warning
   // per string on every render.

@@ -132,9 +132,9 @@ your own is in a position to answer:
 
 ## The web interface
 
-A browser application at `/app/`, in six languages: registering and signing in,
-account settings and API keys, browsing a library with its collections, tags,
-search, item details and citations, filing and trashing items, sharing a
+A browser application at `/app/`, in twelve languages: registering and signing
+in, account settings and API keys, browsing a library with its collections,
+tags, search, item details and citations, filing and trashing items, sharing a
 collection by link, renaming a tag, publishing to My Publications, running a
 group, and moving a library in from zotero.org or a backup out. Editing an
 item's fields is still the desktop client's job.
