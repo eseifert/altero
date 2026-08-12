@@ -13,6 +13,7 @@ import { useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import * as passkeys from '@/passkeys'
 import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
@@ -24,6 +25,18 @@ const code = ref('')
 const resent = ref(false)
 
 const byEmail = computed(() => auth.needsFactor === 'email')
+const canUsePasskey = computed(() => auth.passkeysAvailable && passkeys.available())
+
+/* A passkey answers this too, for the account that would rather touch a key
+   than read a code. */
+async function withPasskey(): Promise<void> {
+  try {
+    await auth.submitFactorWithPasskey()
+  } catch {
+    return
+  }
+  await router.push({ name: 'library' })
+}
 const canSwitchToEmail = computed(() => auth.alternativeFactors.includes('email'))
 
 async function submit(): Promise<void> {
@@ -78,6 +91,16 @@ async function resend(): Promise<void> {
     </p>
     <AppButton v-else-if="byEmail" variant="text" full-width :disabled="auth.busy" @click="resend">
       {{ t('Send another code') }}
+    </AppButton>
+
+    <AppButton
+      v-if="canUsePasskey"
+      variant="text"
+      full-width
+      :disabled="auth.busy"
+      @click="withPasskey"
+    >
+      {{ t('Use a passkey instead') }}
     </AppButton>
 
     <AppButton

@@ -109,6 +109,36 @@ Setting up an authenticator is two steps. The secret is stored but ignored
 until a code from the app proves it works, so an interrupted setup cannot lock
 the account.
 
+**A passkey signs you in on its own.** Your device checks it is you — a
+fingerprint, a face, a PIN — and there is no password to steal, phish or
+reuse. It is the strongest way in this interface has, and the sign-in page
+offers it before the password form.
+
+That is why it is not followed by a second factor: the authenticator has
+already established both that somebody is present and that it is you, and
+asking for a code afterwards would add something weaker than what was just
+presented. A passkey also counts as having proved yourself, so the things that
+would otherwise ask for your password again — making an API key, changing your
+address — do not ask twice.
+
+**No username is typed.** The browser offers whichever passkey it holds for
+this site, and the assertion says whose it is. There is no form here that
+behaves differently for a name that exists, so the sign-in page cannot be used
+to ask who has an account.
+
+Adding one asks for your password, because a passkey is a way *in* rather than
+a hurdle in front of one — the same rule an API key follows. Removing one asks
+too, and the last way in cannot be removed: an account with no password and one
+passkey would otherwise be able to lock itself out of a library nobody else can
+reach. Where a passkey lives on a single device rather than being backed up,
+the list says so, which is worth knowing when it is your only one.
+
+Passkeys need `ALTERO_PUBLIC_URL` and are not offered without it. A passkey is
+bound to the address it was enrolled at, and an instance that guessed that from
+whatever request arrived would make passkeys that stop working the day the
+address changes — silently, weeks later. The sign-in page asks the server
+rather than assuming.
+
 **A code by email** is the second factor for anyone with no authenticator app,
 and the way back in for anyone who had one and lost the phone. It needs a
 confirmed address and nothing else — there is no secret whose working has to be
@@ -1016,7 +1046,7 @@ are cached for good, so the second visit fetches none of it.
 
 ## Not built yet
 
-Passkeys and editing an item's fields — with one exception, the Rights field, because a
+Editing an item's fields — with one exception, the Rights field, because a
 licence set when a work was published has to be revisable by whoever set it.
 Collections can be made, renamed, moved and removed, an item can be filed,
 trashed, restored, deleted, copied to another library, published to My

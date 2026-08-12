@@ -7,13 +7,14 @@
  * and what do I do about it — and because the answer to "sign out everywhere"
  * is usually followed by "change the password".
  */
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { formatDate } from '@/formats'
+import * as passkeys from '@/passkeys'
 import { useAuthStore } from '@/stores/auth'
 import { usePanel } from './panel'
 
@@ -33,6 +34,43 @@ interface Connection {
 
 const connections = ref<Connection[]>([])
 
+interface Passkey {
+  id: number
+  name: string
+  created: string
+  lastUsed: string | null
+  backedUp: boolean
+}
+
+const keys = ref<Passkey[]>([])
+const newPasskeyName = ref('')
+const canUsePasskeys = computed(() => auth.passkeysAvailable && passkeys.available())
+
+async function loadPasskeys(): Promise<void> {
+  const body = await request<{ passkeys?: Passkey[] }>('/web/account/passkeys')
+  keys.value = body.passkeys ?? []
+}
+
+const addPasskey = () =>
+  attempt(async () => {
+    await passkeys.enrol(newPasskeyName.value, passkeyPassword.value)
+    newPasskeyName.value = ''
+    passkeyPassword.value = ''
+    await loadPasskeys()
+  }, t('Passkey added.'))
+
+const removePasskey = (id: number) =>
+  attempt(async () => {
+    await request(`/web/account/passkeys/${id}`, {
+      method: 'DELETE',
+      body: { currentPassword: passkeyPassword.value },
+    })
+    passkeyPassword.value = ''
+    await loadPasskeys()
+  }, t('That passkey was removed.'))
+
+const passkeyPassword = ref('')
+
 async function loadConnections(): Promise<void> {
   const body = await request<{ identities?: Connection[] }>('/web/account/identities')
   // Defaulted rather than assigned straight through: an answer without the
@@ -43,6 +81,7 @@ async function loadConnections(): Promise<void> {
 onMounted(async () => {
   await auth.loadConfig()
   await loadConnections().catch(() => undefined)
+  await loadPasskeys().catch(() => undefined)
 })
 
 /* A navigation rather than a fetch: the server sends the browser to the
@@ -228,6 +267,56 @@ function when(iso: string | null): string {
       <p class="settings__detail">
         {{ t('Confirm your email address first, so the codes go somewhere you can read.') }}
       </p>
+    </template>
+  </section>
+
+  <section v-if="canUsePasskeys || keys.length" class="card">
+    <h2 class="card__title">{{ t('Passkeys') }}</h2>
+    <p class="settings__detail">
+      {{
+        t(
+          'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.',
+        )
+      }}
+    </p>
+
+    <ul v-if="keys.length" class="settings__list">
+      <li v-for="entry in keys" :key="entry.id">
+        <div>
+          <p class="settings__entry">{{ entry.name }}</p>
+          <p class="settings__detail">
+            <template v-if="entry.lastUsed">
+              {{ t('Last used {when}', { when: formatDate(entry.lastUsed) }) }}
+            </template>
+            <template v-else>{{ t('Never used') }}</template>
+            <!-- Worth saying when it is the only one: a passkey that lives on
+                 one device goes with that device. -->
+            <span v-if="!entry.backedUp"> · {{ t('On this device only') }}</span>
+          </p>
+        </div>
+        <AppButton variant="text" :loading="busy" @click="removePasskey(entry.id)">
+          {{ t('Remove') }}
+        </AppButton>
+      </li>
+    </ul>
+
+    <AppTextField
+      v-model="passkeyPassword"
+      :label="t('Current password')"
+      type="password"
+      autocomplete="current-password"
+      :hint="t('Needed to add or remove one.')"
+    />
+
+    <template v-if="canUsePasskeys">
+      <AppTextField
+        v-model="newPasskeyName"
+        :label="t('Name for a new passkey')"
+        :hint="t('So you can tell it apart later — “Work laptop”, “Yubikey”.')"
+      />
+      <AppButton variant="tonal" :loading="busy" @click="addPasskey">
+        {{ t('Add a passkey') }}
+      </AppButton>
     </template>
   </section>
 

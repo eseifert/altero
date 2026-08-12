@@ -39,6 +39,13 @@ dependencies = [
     # lxml and cryptography, both of which publish manylinux wheels for 3.14,
     # so docker/Dockerfile needs no build tooling.
     "signxml>=5.1.0",
+    # WebAuthn, for passkeys. Hand-rolled the way services/totp.py hand-rolls
+    # RFC 6238 would be a mistake of a different kind: RFC 6238 publishes test
+    # vectors an implementation can be held against, and WebAuthn publishes no
+    # such table -- while CBOR decoding, COSE key parsing and attestation are
+    # exactly where the bugs live. It brings cbor2, pyasn1 and pyOpenSSL on top
+    # of the cryptography signxml already pulled in.
+    "webauthn>=3.0.0",
 ]
 
 [project.optional-dependencies]

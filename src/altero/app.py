@@ -38,6 +38,7 @@ from altero.api.routes import (
     weblibrary,
     weblink,
     webmigrate,
+    webpasskeys,
     webprofile,
     webshares,
     webtags,
@@ -48,7 +49,13 @@ from altero.api.routes import (
 )
 from altero.api.spa import mount_web_interface
 from altero.db import Database
-from altero.services import groupdigest, instancesettings, passwordreset, retention
+from altero.services import (
+    groupdigest,
+    instancesettings,
+    passkeys,
+    passwordreset,
+    retention,
+)
 from altero.services.groupsweeper import Sweeper
 from altero.services.mail import build_mailer
 from altero.services.ratelimit import RateLimiter
@@ -129,6 +136,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         limit=passwordreset.REQUESTS_PER_WINDOW,
         window=passwordreset.REQUEST_WINDOW_SECONDS,
     )
+    # Checked at start-up rather than at the first enrolment, because a passkey
+    # is bound to this and a wrong one is not a failure anybody sees: every
+    # passkey simply stops working, weeks later, with nothing to connect it to
+    # a configuration change. A deployment with no public URL is left without
+    # passkeys rather than refused -- most instances have neither.
+    if settings.public_url:
+        party = passkeys.relying_party(settings.public_url)
+        logger.info("Passkeys are bound to %s", party.id)
 
     # A browser can only read a response header that is named here, and the
     # API's whole protocol lives in headers: without this a web client cannot
@@ -183,6 +198,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(webaccount.router)
     app.include_router(webadmin.router)
     app.include_router(webidentity.router)
+    app.include_router(webpasskeys.router)
     app.include_router(webgroups.router)
     app.include_router(webtransfer.router)
     app.include_router(webprofile.router)

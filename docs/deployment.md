@@ -133,6 +133,19 @@ directory outright. The **Sign-in providers** screen shows the address it will
 use and says so when the variable is unset. See
 [administration.md](administration.md#sign-in-providers).
 
+## Passkeys
+
+`ALTERO_PUBLIC_URL` again, and here it is not optional at all: a passkey is
+bound to the host it was enrolled under, so an instance that guessed that from
+whatever request arrived would hand out passkeys that stop working the moment
+the address changes — silently, and weeks later. Without the setting altero
+does not offer passkeys, and `/web/config` says so, rather than drawing a
+button that cannot work. The relying party is logged at start-up so the value
+in force is visible.
+
+Changing `ALTERO_PUBLIC_URL` to a different **host** invalidates every passkey
+on the instance. Changing the scheme or the port does not.
+
 ## Group notifications
 
 A member of a group library can ask to be told when it changes. Nobody is

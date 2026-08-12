@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 import { ApiError, request } from '@/api/client'
+import * as passkeys from '@/passkeys'
 import { useLocaleStore } from '@/stores/locale'
 import type { Visibility } from '@/stores/profile'
 
@@ -39,6 +40,7 @@ interface ServerConfig {
   secondFactors: string[]
   passwordResetOpen: boolean
   providers: IdentityProvider[]
+  passkeysAvailable: boolean
 }
 
 /** A directory this instance accepts a sign-in from. */
@@ -107,6 +109,14 @@ export const useAuthStore = defineStore('auth', () => {
    * comes from an endpoint that answers to anybody who loads the page.
    */
   const providers = ref<IdentityProvider[]>([])
+  /**
+   * Whether this deployment can hold a passkey.
+   *
+   * It takes a configured public URL, because a passkey is bound to the host
+   * it was enrolled under. A button that always failed would be worse than
+   * none, so the server is asked rather than assumed.
+   */
+  const passkeysAvailable = ref(false)
 
   const isAuthenticated = computed(() => user.value !== null)
 
@@ -159,6 +169,7 @@ export const useAuthStore = defineStore('auth', () => {
       firstAccount.value = config.firstAccount
       passwordResetOpen.value = config.passwordResetOpen
       providers.value = config.providers ?? []
+      passkeysAvailable.value = config.passkeysAvailable ?? false
     } catch {
       // Offering a register link that the server will refuse is worse than
       // not offering one, so an unanswered question means closed. The same
@@ -167,6 +178,7 @@ export const useAuthStore = defineStore('auth', () => {
       firstAccount.value = false
       passwordResetOpen.value = false
       providers.value = []
+      passkeysAvailable.value = false
     }
   }
 
@@ -209,6 +221,22 @@ export const useAuthStore = defineStore('auth', () => {
     )
     needsFactor.value = response.needsFactor
     alternativeFactors.value = response.alternativeFactors ?? []
+  }
+
+  /**
+   * Sign in with a passkey, which needs no username and no second factor.
+   *
+   * The authenticator has already established presence and identity, so the
+   * response carries a complete session -- see services/passkeys.py for why
+   * asking for a code afterwards would be theatre.
+   */
+  async function signInWithPasskey(): Promise<void> {
+    adopt((await attempt(() => passkeys.signIn())) as unknown as AuthResponse)
+  }
+
+  /** Answer an outstanding second factor with a passkey instead of a code. */
+  async function submitFactorWithPasskey(): Promise<void> {
+    adopt((await attempt(() => passkeys.satisfyFactor())) as unknown as AuthResponse)
   }
 
   /** Ask for another emailed code, which stops the one before it working. */
@@ -264,6 +292,7 @@ export const useAuthStore = defineStore('auth', () => {
     firstAccount,
     passwordResetOpen,
     providers,
+    passkeysAvailable,
     isAuthenticated,
     restore,
     loadConfig,
@@ -273,6 +302,8 @@ export const useAuthStore = defineStore('auth', () => {
     submitFactor,
     chooseFactor,
     resendCode,
+    signInWithPasskey,
+    submitFactorWithPasskey,
     verifyEmail,
     resendVerification,
     logout,

@@ -39,6 +39,11 @@ MAIL_FROM = "altero@localhost"
 # Absolute base URL this instance is reached at, used to build the links in
 # email. Empty falls back to the address the request arrived on, which is right
 # for a single host and wrong behind a proxy that rewrites it.
+#
+# Two things stop working without it rather than falling back: single sign-on,
+# whose callback address a directory has to be told exactly, and passkeys,
+# which are bound to the host they were enrolled under. Guessing either would
+# break quietly and much later. See docs/deployment.md.
 PUBLIC_URL = ""
 
 # Group notifications. A member of a group library can ask to be told when it

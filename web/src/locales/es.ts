@@ -17,6 +17,7 @@ export default {
     'Un grupo es una biblioteca propia, compartida con las personas que añada.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Se les ha enviado un enlace por correo. Vale durante {hours} horas y solo puede usarse una vez.',
+  'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.': 'Una clave de acceso inicia sesión por sí sola: su dispositivo comprueba que es usted y no hay contraseña que robar.',
   'A password must be at least {count} characters':
     'La contraseña debe tener al menos {count} caracteres',
   'A private group stays private whatever this says. Make it public as well to share it.':
@@ -32,6 +33,7 @@ export default {
   'Accounts': 'Cuentas',
   'Across the instance': 'En toda la instancia',
   'Add a SAML provider': 'Añadir un proveedor SAML',
+  'Add a passkey': 'Añadir una clave de acceso',
   'Add a provider': 'Añadir un proveedor',
   'Add an OpenID Connect provider': 'Añadir un proveedor OpenID Connect',
   'Add but not remove': 'Añadir, pero no quitar',
@@ -302,8 +304,10 @@ export default {
   'My Library': 'Mi biblioteca',
   'My Publications': 'Mis publicaciones',
   Name: 'Nombre',
+  'Name for a new passkey': 'Nombre de una nueva clave de acceso',
   'Name on the button': 'Nombre en el botón',
   'Name saved.': 'Nombre guardado.',
+  'Needed to add or remove one.': 'Necesaria para añadir o eliminar una.',
   'Never opened': 'Nunca abierto',
   'Never shown again once saved.': 'No se vuelve a mostrar una vez guardado.',
   'Never used': 'Nunca usada',
@@ -356,6 +360,7 @@ export default {
   'On a work in My Publications, this is the licence its files are published under.':
     'En un trabajo de Mis publicaciones, esta es la licencia bajo la que se publican sus archivos.',
   'On disk': 'En disco',
+  'On this device only': 'Solo en este dispositivo',
   'One is stored. Leave this empty to keep it.': 'Hay uno guardado. Déjelo vacío para conservarlo.',
   'One more step': 'Un paso más',
   'Only people signed in to this server can see this page.':
@@ -368,6 +373,8 @@ export default {
   Password: 'Contraseña',
   'Overview': 'Resumen',
   'PEM. Paste both while the provider is rolling its key over.': 'PEM. Pegue ambos mientras el proveedor cambia su clave.',
+  'Passkey added.': 'Clave de acceso añadida.',
+  'Passkeys': 'Claves de acceso',
   'Password changed. Every other browser was signed out.':
     'Contraseña cambiada. Se cerró la sesión en todos los demás navegadores.',
   'Password for the new account': 'Contraseña de la nueva cuenta',
@@ -472,6 +479,7 @@ export default {
   'Sign in': 'Iniciar sesión',
   'Sign in here with an account you already have somewhere else.': 'Inicie sesión aquí con una cuenta que ya tenga en otro sitio.',
   'Sign in to answer it.': 'Inicie sesión para responderla.',
+  'Sign in with a passkey': 'Iniciar sesión con una clave de acceso',
   'Sign out': 'Cerrar sesión',
   'Sign out everywhere else': 'Cerrar sesión en todos los demás sitios',
   'Sign-in and security': 'Inicio de sesión y seguridad',
@@ -485,6 +493,7 @@ export default {
   'Signing in asks for a code.': 'Al iniciar sesión se pide un código.',
   'Size': 'Tamaño',
   'Skip to content': 'Saltar al contenido',
+  'So you can tell it apart later — “Work laptop”, “Yubikey”.': 'Para distinguirla luego: «Portátil del trabajo», «Yubikey».',
   'Some profiles are shown only to people signed in.':
     'Algunos perfiles solo se muestran a quienes han iniciado sesión.',
   'Somebody': 'Alguien',
@@ -514,6 +523,7 @@ export default {
   'That invitation has already been answered.': 'Esa invitación ya ha sido respondida.',
   'That link is missing its token.': 'A ese enlace le falta su token.',
   'That link is not valid or has expired.': 'Ese enlace no es válido o ha caducado.',
+  'That passkey was removed.': 'Esa clave de acceso se ha eliminado.',
   'That provider could not be reached. Try again shortly.': 'No se pudo contactar con ese proveedor. Inténtelo de nuevo en breve.',
   'That provider was removed.': 'Ese proveedor se ha eliminado.',
   'That session was signed out.': 'Esa sesión se ha cerrado.',
@@ -560,6 +570,7 @@ export default {
   Unread: 'Sin leer',
   'Unreferenced files deleted.': 'Ficheros sin referencia eliminados.',
   'Use a code by email instead': 'Usar un código por correo en su lugar',
+  'Use a passkey instead': 'Usar una clave de acceso en su lugar',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Use la dirección a la que se envió la invitación y podrá responderla.',
   'Used for security notifications and invitations':

@@ -17,6 +17,7 @@ export default {
     'Eine Gruppe ist eine eigene Bibliothek, geteilt mit den Personen, die du hinzufügst.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Ein Link wurde ihnen per E-Mail geschickt. Er gilt {hours} Stunden und lässt sich einmal verwenden.',
+  'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.': 'Ein Passkey meldet Sie allein an – Ihr Gerät prüft, dass Sie es sind, und es gibt kein Passwort zu stehlen.',
   'A password must be at least {count} characters':
     'Ein Passwort muss mindestens {count} Zeichen lang sein',
   'A private group stays private whatever this says. Make it public as well to share it.':
@@ -32,6 +33,7 @@ export default {
   'Accounts': 'Konten',
   'Across the instance': 'Über die Instanz hinweg',
   'Add a SAML provider': 'SAML-Anbieter hinzufügen',
+  'Add a passkey': 'Passkey hinzufügen',
   'Add a provider': 'Anbieter hinzufügen',
   'Add an OpenID Connect provider': 'OpenID-Connect-Anbieter hinzufügen',
   'Add but not remove': 'Hinzufügen, aber nichts entfernen',
@@ -304,8 +306,10 @@ export default {
   'My Library': 'Meine Bibliothek',
   'My Publications': 'Meine Publikationen',
   Name: 'Name',
+  'Name for a new passkey': 'Name für einen neuen Passkey',
   'Name on the button': 'Name auf der Schaltfläche',
   'Name saved.': 'Name gespeichert.',
+  'Needed to add or remove one.': 'Zum Hinzufügen oder Entfernen erforderlich.',
   'Never opened': 'Nie geöffnet',
   'Never shown again once saved.': 'Nach dem Speichern nicht mehr sichtbar.',
   'Never used': 'Nie benutzt',
@@ -360,6 +364,7 @@ export default {
   'On a work in My Publications, this is the licence its files are published under.':
     'Bei einem Werk in Meine Publikationen ist das die Lizenz, unter der seine Dateien veröffentlicht sind.',
   'On disk': 'Auf der Platte',
+  'On this device only': 'Nur auf diesem Gerät',
   'One is stored. Leave this empty to keep it.': 'Eines ist gespeichert. Leer lassen, um es zu behalten.',
   'One more step': 'Noch ein Schritt',
   'Only people signed in to this server can see this page.':
@@ -372,6 +377,8 @@ export default {
   Password: 'Passwort',
   'Overview': 'Überblick',
   'PEM. Paste both while the provider is rolling its key over.': 'PEM. Fügen Sie beide ein, solange der Anbieter seinen Schlüssel wechselt.',
+  'Passkey added.': 'Passkey hinzugefügt.',
+  'Passkeys': 'Passkeys',
   'Password changed. Every other browser was signed out.':
     'Passwort geändert. Alle anderen Browser wurden abgemeldet.',
   'Password for the new account': 'Passwort für das neue Konto',
@@ -476,6 +483,7 @@ export default {
   'Sign in': 'Anmelden',
   'Sign in here with an account you already have somewhere else.': 'Melden Sie sich hier mit einem Konto an, das Sie anderswo bereits haben.',
   'Sign in to answer it.': 'Melde dich an, um darauf zu antworten.',
+  'Sign in with a passkey': 'Mit Passkey anmelden',
   'Sign out': 'Abmelden',
   'Sign out everywhere else': 'Überall sonst abmelden',
   'Sign-in and security': 'Anmeldung und Sicherheit',
@@ -489,6 +497,7 @@ export default {
   'Signing in asks for a code.': 'Beim Anmelden wird ein Code verlangt.',
   'Size': 'Größe',
   'Skip to content': 'Zum Inhalt springen',
+  'So you can tell it apart later — “Work laptop”, “Yubikey”.': 'Damit Sie ihn später unterscheiden können – „Arbeitslaptop“, „Yubikey“.',
   'Some profiles are shown only to people signed in.':
     'Manche Profile werden nur angemeldeten Personen gezeigt.',
   'Somebody': 'Jemand',
@@ -517,6 +526,7 @@ export default {
   'That invitation has already been answered.': 'Diese Einladung wurde bereits beantwortet.',
   'That link is missing its token.': 'Diesem Link fehlt sein Token.',
   'That link is not valid or has expired.': 'Dieser Link ist ungültig oder abgelaufen.',
+  'That passkey was removed.': 'Dieser Passkey wurde entfernt.',
   'That provider could not be reached. Try again shortly.': 'Dieser Anbieter war nicht erreichbar. Versuchen Sie es gleich noch einmal.',
   'That provider was removed.': 'Dieser Anbieter wurde entfernt.',
   'That session was signed out.': 'Diese Sitzung wurde abgemeldet.',
@@ -564,6 +574,7 @@ export default {
   Unread: 'Ungelesen',
   'Unreferenced files deleted.': 'Nicht referenzierte Dateien gelöscht.',
   'Use a code by email instead': 'Stattdessen Code per E-Mail verwenden',
+  'Use a passkey instead': 'Stattdessen Passkey verwenden',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Nimm die Adresse, an die die Einladung ging, dann kannst du darauf antworten.',
   'Used for security notifications and invitations': 'Für Sicherheitshinweise und Einladungen',

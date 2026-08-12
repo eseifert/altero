@@ -45,6 +45,7 @@ from altero.models import (
     Library,
     LoginCode,
     StorageUpload,
+    WebAuthnChallenge,
     WebSession,
 )
 from altero.services import groupactivity, itemwrites, storage, writes
@@ -72,6 +73,8 @@ class Report:
     federated: int = 0
     #: SAML assertions remembered past the point they could be replayed.
     assertions: int = 0
+    #: Passkey ceremonies that were started and never answered.
+    ceremonies: int = 0
     #: Confirmation links past theirs.
     verifications: int = 0
     #: Invitations that expired without ever being answered.
@@ -87,6 +90,7 @@ class Report:
             or self.codes
             or self.federated
             or self.assertions
+            or self.ceremonies
             or self.verifications
             or self.invitations
         )
@@ -223,6 +227,11 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
             select(ConsumedAssertion.assertion_id).where(ConsumedAssertion.expires < now)
         )
     )
+    ceremonies = list(
+        await session.scalars(
+            select(WebAuthnChallenge.challenge).where(WebAuthnChallenge.expires < now)
+        )
+    )
     verifications = list(
         await session.scalars(select(EmailVerification.id).where(EmailVerification.expires < now))
     )
@@ -247,6 +256,10 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
             # Keyed by state rather than by an id column, so it does not fit
             # the loop above.
             await session.execute(delete(AuthRequest).where(AuthRequest.state.in_(federated)))
+        if ceremonies:
+            await session.execute(
+                delete(WebAuthnChallenge).where(WebAuthnChallenge.challenge.in_(ceremonies))
+            )
         if assertions:
             await session.execute(
                 delete(ConsumedAssertion).where(ConsumedAssertion.assertion_id.in_(assertions))
@@ -258,6 +271,7 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
         codes=len(codes),
         federated=len(federated),
         assertions=len(assertions),
+        ceremonies=len(ceremonies),
         verifications=len(verifications),
         invitations=len(invitations),
     )
@@ -299,6 +313,7 @@ async def sweep(
         codes=expired.codes,
         federated=expired.federated,
         assertions=expired.assertions,
+        ceremonies=expired.ceremonies,
         verifications=expired.verifications,
         invitations=expired.invitations,
     )

@@ -9,7 +9,7 @@ two sets of rules bending to the other.
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, func
+from sqlalchemy import DateTime, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from altero.db import Base
@@ -57,6 +57,69 @@ class TotpCredential(Base):
     #: account.
     confirmed: Mapped[bool] = mapped_column(default=False)
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class PasskeyCredential(Base):
+    """A passkey enrolled on an account.
+
+    What is stored is a public key and a counter -- there is no secret here to
+    leak, which is the whole point of the thing and the reason a passkey is a
+    stronger credential than either factor beside it.
+
+    ``sign_count`` is the authenticator's own counter, and a value that fails
+    to advance is the signature of a cloned authenticator. Many real ones
+    (Touch ID, Windows Hello, anything backed up to a keychain) do not keep a
+    counter at all and always send zero, so a stalled counter is *noticed and
+    recorded* rather than treated as a refusal -- refusing it would lock out
+    the most common authenticators there are.
+    """
+
+    __tablename__ = "passkey_credentials"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    #: The authenticator's own id for this credential, base64url as the browser
+    #: sends it. Unique across the instance: two accounts cannot share one.
+    credential_id: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    #: The COSE public key, base64url. Nothing secret.
+    public_key: Mapped[str] = mapped_column(Text)
+    sign_count: Mapped[int] = mapped_column(default=0)
+    #: How the authenticator can be reached -- "usb", "internal", "hybrid" --
+    #: as the browser reported it, so a later sign-in can hint at it.
+    transports: Mapped[str] = mapped_column(String(255), default="")
+    #: The owner's own label, as an API key has one. A list of three
+    #: indistinguishable passkeys is a list nobody can safely remove from.
+    name: Mapped[str] = mapped_column(String(255), default="")
+    #: Whether the authenticator says this key is backed up somewhere. What
+    #: makes it worth telling somebody their only passkey lives on one device.
+    backed_up: Mapped[bool] = mapped_column(default=False)
+    created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    last_used: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+
+
+class WebAuthnChallenge(Base):
+    """A passkey ceremony between the browser being asked and answering.
+
+    In the database rather than in the session, because the sign-in half has no
+    session yet: a discoverable-credential sign-in starts with nobody claiming
+    to be anybody. Single use, and short lived.
+    """
+
+    __tablename__ = "webauthn_challenges"
+
+    #: The challenge itself, base64url, and the primary key: one lookup, and
+    #: the row is what the browser has to come back with.
+    challenge: Mapped[str] = mapped_column(String(128), primary_key=True)
+    #: Set when the ceremony belongs to a known account -- enrolling one, or
+    #: proving an account again. ``None`` is a sign-in that has not said who it
+    #: is yet.
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), default=None
+    )
+    #: ``register``, ``login`` or ``reauth``.
+    purpose: Mapped[str] = mapped_column(String(8), default="login")
+    created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    expires: Mapped[datetime] = mapped_column(DateTime, index=True)
 
 
 class EmailFactor(Base):

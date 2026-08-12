@@ -27,7 +27,7 @@ from starlette.responses import JSONResponse, Response
 
 from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
-from altero.errors import ForbiddenError
+from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import User, WebSession
 from altero.services import (
     emailverify,
@@ -277,7 +277,12 @@ async def read_config(request: Request, session: SessionDep) -> Response:
             # claims the instance. The two are different sentences, and the
             # page cannot tell them apart from `registrationOpen` alone.
             "firstAccount": await webauth.no_accounts_yet(session),
-            "secondFactors": ["totp", "email"],
+            "secondFactors": ["totp", "email", "webauthn"],
+            # Whether the sign-in page should offer "use a passkey". A passkey
+            # is bound to the address it was made at, so an instance with no
+            # public URL configured cannot have one -- and a button that always
+            # failed would be worse than none.
+            "passkeysAvailable": _passkeys_available(request),
             # Whether the sign-in page offers "forgotten your password?" at
             # all. Reported rather than assumed, so an instance that has no
             # relay does not show a form that can only ever answer 202 and
@@ -479,6 +484,22 @@ class NewPassword(Token):
 
 class ForgottenPassword(BaseModel):
     email: str
+
+
+def _passkeys_available(request: Request) -> bool:
+    """Return whether this deployment can hold a passkey at all.
+
+    It takes a configured public URL: a passkey is bound to the host it was
+    enrolled under, and guessing that from whatever request arrived would mean
+    a passkey made behind a proxy quietly stops working.
+    """
+    from altero.services import passkeys as passkey_service
+
+    try:
+        passkey_service.relying_party(request.app.state.settings.public_url)
+    except InvalidInputError:
+        return False
+    return True
 
 
 def _reset_allowed(request: Request) -> bool:

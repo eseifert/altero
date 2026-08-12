@@ -438,9 +438,11 @@ class TestTurningItOn:
 
 class TestTheConfigListsIt:
     async def test_the_sign_in_page_is_told_it_exists(self, client: httpx.AsyncClient) -> None:
+        """Named rather than compared to the whole list, which grows as factors
+        are added and is not what this test is about."""
         body = (await client.get("/web/config")).json()
 
-        assert body["secondFactors"] == ["totp", "email"]
+        assert "email" in body["secondFactors"]
 
 
 class TestTheCsrfHeaderIsStillRequired:

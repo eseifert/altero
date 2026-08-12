@@ -5,6 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import * as passkeys from '@/passkeys'
 import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
@@ -15,6 +16,29 @@ const route = useRoute()
 
 const username = ref('')
 const password = ref('')
+
+/* Offered only where the instance can hold one and the browser can make one.
+   A button that always failed would be worse than no button. */
+const canUsePasskey = computed(() => auth.passkeysAvailable && passkeys.available())
+const passkeyBusy = ref(false)
+const passkeyError = ref<string | null>(null)
+
+async function withPasskey(): Promise<void> {
+  passkeyBusy.value = true
+  passkeyError.value = null
+  try {
+    await auth.signInWithPasskey()
+  } catch (thrown) {
+    // A cancelled prompt is not a failure to report: they closed it.
+    if (!(thrown instanceof passkeys.Cancelled)) {
+      passkeyError.value = thrown instanceof Error ? thrown.message : String(thrown)
+    }
+    return
+  } finally {
+    passkeyBusy.value = false
+  }
+  await router.push((route.query.next as string) || { name: 'library' })
+}
 
 /* Why a federated sign-in came back without signing anybody in. The server
    redirects here with a slug rather than a sentence, because the sentence
@@ -65,9 +89,21 @@ async function submit(): Promise<void> {
     <h1>{{ t('Sign in') }}</h1>
     <p class="auth-form__lead">{{ t('to your altero library') }}</p>
 
-    <p v-if="failure" class="auth-form__error" role="alert">{{ failure }}</p>
+    <p v-if="failure || passkeyError" class="auth-form__error" role="alert">
+      {{ failure ?? passkeyError }}
+    </p>
 
-    <template v-if="auth.providers.length">
+    <AppButton
+      v-if="canUsePasskey"
+      variant="outlined"
+      full-width
+      :loading="passkeyBusy"
+      @click="withPasskey"
+    >
+      {{ t('Sign in with a passkey') }}
+    </AppButton>
+
+    <template v-if="auth.providers.length || canUsePasskey">
       <a
         v-for="provider in auth.providers"
         :key="provider.slug"

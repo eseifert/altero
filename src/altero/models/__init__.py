@@ -42,8 +42,10 @@ from altero.models.webauth import (
     Invitation,
     LoginCode,
     Notification,
+    PasskeyCredential,
     PasswordReset,
     TotpCredential,
+    WebAuthnChallenge,
     WebSession,
 )
 
@@ -81,6 +83,7 @@ __all__ = [
     "LoginSession",
     "MemberPermission",
     "Notification",
+    "PasskeyCredential",
     "PasswordReset",
     "ProfileVisibility",
     "SavedSearch",
@@ -91,6 +94,7 @@ __all__ = [
     "TagType",
     "TotpCredential",
     "User",
+    "WebAuthnChallenge",
     "WebSession",
     "WriteToken",
 ]

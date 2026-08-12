@@ -108,6 +108,10 @@ things the desktop client asks for that no data server documents.
 - Provisioning from the command line, CORS, and API version negotiation
 - A second factor by email, alongside the authenticator app, and the way back
   in when the authenticator is what cannot be reached
+- Passkeys, as a first factor and as a second. A passkey signs in on its own —
+  no username, no code afterwards — and counts as having proved yourself. Needs
+  `ALTERO_PUBLIC_URL`, because a passkey is bound to the address it was
+  enrolled at
 - Signing in through an OpenID Connect or SAML 2.0 provider, configured per
   instance from **Administration → Sign-in providers**. It reaches the browser
   session and nothing else: the v3 API stays API-key-only, and a desktop client
@@ -117,7 +121,6 @@ things the desktop client asks for that no data server documents.
 ## Not implemented
 
 - The eleven export formats beyond BibTeX, BibLaTeX and RIS
-- Passkeys
 
 Group administration, registration and the invitation flow are also in the web
 interface; it has its own list of what is and is not built, see

@@ -42,6 +42,12 @@ EXPECTED = [
     # a cross-site POST, and SameSite=Lax sends nothing with one. The signed
     # assertion and its InResponseTo are what make it genuine.
     ("/web/auth/saml/{slug}/acs", "POST"),
+    # Passkeys. The sign-in pair answers with no session -- a passkey sign-in
+    # starts with nobody claiming to be anybody, which is what makes account
+    # enumeration impossible here. See altero/api/routes/webpasskeys.py.
+    ("/web/auth/passkey/options", "POST"),
+    ("/web/auth/passkey/verify", "POST"),
+    ("/web/auth/passkey/factor", "POST"),
     ("/web/auth/verify/resend", "POST"),
     ("/web/auth/session", "GET"),
     ("/web/auth/logout", "POST"),
@@ -64,6 +70,12 @@ EXPECTED = [
     # The directories this account can sign in through, and detaching one.
     ("/web/account/identities", "GET"),
     ("/web/account/identities/{identity_id}", "DELETE"),
+    # The passkeys on this account.
+    ("/web/account/passkeys", "GET"),
+    ("/web/account/passkeys", "POST"),
+    ("/web/account/passkeys/options", "POST"),
+    ("/web/account/passkeys/{passkey_id}", "PATCH"),
+    ("/web/account/passkeys/{passkey_id}", "DELETE"),
     # The operator's own screens: what the instance costs and what state it is
     # in, for the one account that administers it rather than a library. Never
     # reachable with an API key -- see altero/api/routes/webadmin.py.

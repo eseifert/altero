@@ -50,3 +50,15 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
     dispatchEvent: () => false,
   })) as unknown as typeof window.matchMedia
 }
+
+// jsdom implements no WebAuthn at all, and a component that merely *asks*
+// whether passkeys are available would otherwise fail on a missing global
+// rather than on anything real. The stub says "no" by default; a test that
+// wants passkeys replaces it.
+if (typeof window !== 'undefined' && window.PublicKeyCredential === undefined) {
+  Object.defineProperty(window, 'PublicKeyCredential', {
+    value: undefined,
+    writable: true,
+    configurable: true,
+  })
+}
