@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 
+import { ApiError } from '@/api/client'
 import { i18n } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 
@@ -140,8 +141,12 @@ async function flush(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve))
 }
 
+/** The router the screen is mounted on, for the tests that move between
+ *  sections rather than opening one. */
+let router: Router
+
 async function open(section = '') {
-  const router = createRouter({
+  router = createRouter({
     history: createMemoryHistory(),
     routes: [
       { path: '/admin/:section?', name: 'admin', component: AdminView },
@@ -156,6 +161,12 @@ async function open(section = '') {
   })
   await flush()
   return wrapper
+}
+
+/** Choose another section, as clicking its row in the panel does. */
+async function go(section: string): Promise<void> {
+  await router.push(`/admin/${section}`)
+  await flush()
 }
 
 /** One button, by what it says: the order on the screen is not the contract. */
@@ -248,6 +259,36 @@ describe('the administration screens', () => {
     await open()
 
     expect(requestMock).not.toHaveBeenCalledWith('/web/admin/storage')
+  })
+
+  it('leaves the last section’s message behind when another is chosen', async () => {
+    /* A message says how one action went, and the section that ran it is gone
+       the moment another is chosen: "Checked." greeting whoever opens the
+       overview claims something happened there. */
+    const wrapper = await open('retention')
+    await button(wrapper, 'See what would go').trigger('click')
+    await flush()
+    expect(wrapper.get('.section-panel__notice').text()).toBe('Checked.')
+
+    await go('overview')
+
+    expect(wrapper.find('.section-panel__notice').exists()).toBe(false)
+  })
+
+  it('leaves a refusal behind too', async () => {
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/admin/overview') return Promise.resolve(OVERVIEW)
+      if (path === '/web/admin/settings') return Promise.resolve(SETTINGS)
+      return Promise.reject(new ApiError('Forbidden', 403))
+    })
+    const wrapper = await open('retention')
+    await button(wrapper, 'See what would go').trigger('click')
+    await flush()
+    expect(wrapper.get('.section-panel__failure').text()).toBe('Forbidden')
+
+    await go('overview')
+
+    expect(wrapper.find('.section-panel__failure').exists()).toBe(false)
   })
 })
 

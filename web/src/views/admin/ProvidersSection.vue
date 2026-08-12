@@ -25,7 +25,7 @@ import { usePanel } from './panel'
 
 const { t } = useI18n()
 
-const { busy, notice, failure, attempt } = usePanel()
+const { busy, failure, attempt } = usePanel()
 
 interface Provider {
   id: number
@@ -316,8 +316,6 @@ const remove = (provider: Provider) =>
       {{ t('Nobody can sign in through another service until one is configured here.') }}
     </p>
   </section>
-
-  <p v-if="notice" class="settings__detail" role="status">{{ notice }}</p>
 </template>
 
 <style scoped>

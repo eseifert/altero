@@ -5,7 +5,8 @@
  * edits one account, so that panel owns the account and reloads it. These
  * sections each read a different endpoint — what the instance is running, what
  * it costs, who holds an account — and share only the line at the top that
- * says how the last thing went.
+ * says how the last thing went, which is `components/sectionmessages.ts` and
+ * belongs to whichever section is showing.
  *
  * Provided per mount rather than held in a module, for the reason
  * `views/settings/panel.ts` gives: state that outlives the component outlives
@@ -15,6 +16,7 @@
 import { inject, provide, ref, type InjectionKey, type Ref } from 'vue'
 
 import { ApiError } from '@/api/client'
+import { useSectionMessages } from '@/components/sectionmessages'
 
 export interface AdminPanel {
   busy: Ref<boolean>
@@ -33,13 +35,11 @@ export function message(thrown: unknown): string {
 /** Build the shared state and hand it to the sections beneath. */
 export function providePanel(): AdminPanel {
   const busy = ref(false)
-  const notice = ref<string | null>(null)
-  const failure = ref<string | null>(null)
+  const { notice, failure, clear } = useSectionMessages()
 
   async function attempt(work: () => Promise<void>, success: string): Promise<void> {
     busy.value = true
-    notice.value = null
-    failure.value = null
+    clear()
     try {
       await work()
       notice.value = success

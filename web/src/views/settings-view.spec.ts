@@ -136,6 +136,21 @@ describe('the settings panel', () => {
 
     expect(requestMock).toHaveBeenCalledWith('/web/account/keys')
   })
+
+  it('leaves the last section’s message behind when another is chosen', async () => {
+    /* "Saved." belongs to the thing that was saved. Carried to the next
+       section it reads as an account of what happened there. */
+    const { wrapper } = await open('profile')
+
+    await wrapper.findAll('.audience input[type="radio"]')[2].trigger('change')
+    await settle(wrapper)
+    expect(wrapper.get('.section-panel__notice').text()).toBe('Saved.')
+
+    await wrapper.findAll('.section-panel__section')[3].trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('.section-panel__notice').exists()).toBe(false)
+  })
 })
 
 describe('import and export', () => {

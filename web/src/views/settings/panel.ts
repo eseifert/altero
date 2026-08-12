@@ -4,7 +4,9 @@
  * The screen is one page split into sections rather than five screens: the
  * account is loaded once, and whichever section reports success or failure
  * reports it in the same place, at the top, where the eye already is. So the
- * shell owns that state and the sections reach it through here.
+ * shell owns that state and the sections reach it through here — the message
+ * itself is `components/sectionmessages.ts`, shared with the administration
+ * panel, and belongs to the section that is showing.
  *
  * Provided per mount rather than held in a module: state that outlives the
  * component outlives the sign-in too, and the next account would open settings
@@ -14,6 +16,7 @@
 import { inject, provide, ref, type InjectionKey, type Ref } from 'vue'
 
 import { ApiError, request } from '@/api/client'
+import { useSectionMessages } from '@/components/sectionmessages'
 import type { User } from '@/stores/auth'
 
 export interface AccountPayload {
@@ -52,8 +55,7 @@ export function message(thrown: unknown): string {
 export function providePanel(): SettingsPanel {
   const account = ref<AccountPayload | null>(null)
   const busy = ref(false)
-  const notice = ref<string | null>(null)
-  const failure = ref<string | null>(null)
+  const { notice, failure, clear } = useSectionMessages()
 
   async function reload(): Promise<void> {
     try {
@@ -65,8 +67,7 @@ export function providePanel(): SettingsPanel {
 
   async function attempt(work: () => Promise<void>, success: string): Promise<void> {
     busy.value = true
-    notice.value = null
-    failure.value = null
+    clear()
     try {
       await work()
       notice.value = success
