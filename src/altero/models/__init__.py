@@ -13,7 +13,12 @@ from altero.models.collection import (
     CollectionShare,
 )
 from altero.models.fulltext import FullText
-from altero.models.identity import AuthRequest, FederatedIdentity, IdentityProvider
+from altero.models.identity import (
+    AuthRequest,
+    ConsumedAssertion,
+    FederatedIdentity,
+    IdentityProvider,
+)
 from altero.models.instance import InstanceSetting
 from altero.models.item import Item, ItemCreator, ItemField, ItemRelation
 from altero.models.library import (
@@ -51,6 +56,7 @@ __all__ = [
     "CollectionItem",
     "CollectionRelation",
     "CollectionShare",
+    "ConsumedAssertion",
     "DeletedObject",
     "DeletedObjectType",
     "EmailFactor",

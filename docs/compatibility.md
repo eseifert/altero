@@ -1551,6 +1551,38 @@ test per way a token could otherwise be somebody else's.
 exemption does not cover one, and a signature verifier would have to be written
 before the flow could be offered.
 
+## Reading a SAML assertion out of what was signed
+
+The same kind of decision as the one above, and the reason it is written down:
+the code looks like it is doing less than it should.
+
+`signxml` verifies the XML signature; altero does not attempt to. Hand-rolling
+that is not on — canonicalisation is where implementations grow
+signature-wrapping holes, and the defence is structural rather than a check.
+`XMLVerifier.verify` returns the **signed subtree**, and every claim
+`services/saml.py` reads comes out of that return value and never out of the
+document that was parsed. An attacker who wraps a forged assertion around a
+genuine signed one gets a verified subtree that is still the genuine one, so
+the forgery is simply not what is read.
+
+What `signxml` does not do is here, and each of these is a way a perfectly
+valid signature still means nothing:
+
+| Check | Why the signature does not cover it |
+| --- | --- |
+| `Status` is `Success` | A failed sign-in is signed too |
+| `Conditions` window, with skew | An assertion from last year is still signed |
+| `AudienceRestriction` | The directory signed it for a *different* service |
+| `Recipient` | It was minted for another address of ours |
+| `InResponseTo` | It answers a sign-in nobody here started |
+| Replay | Nothing in SAML stops one being presented twice |
+
+Three deliberate limits: **SP-initiated only**, because an unsolicited assertion
+has no `InResponseTo` to match and accepting one means accepting anything that
+key ever signed; **no encrypted assertions**, since TLS covers the transport;
+and **no Single Logout**, which is unreliable in practice and altero's session
+is its own.
+
 ## Deliberate differences
 
 Six places where altero does not copy upstream:

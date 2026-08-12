@@ -37,6 +37,9 @@ interface Provider {
   clientId: string
   hasClientSecret: boolean
   scopes: string
+  idpEntityId: string
+  ssoUrl: string
+  certificates: string
   usernameClaim: string
   nameClaim: string
   emailClaim: string
@@ -79,9 +82,12 @@ onMounted(async () => {
 
 const isNew = computed(() => editing.value !== null && !editing.value.id)
 
-function add(): void {
+/* Which protocol is being added. Fixed once a provider exists, because the
+   fields behind it are different and changing one into the other is adding a
+   different provider rather than editing this one. */
+function add(kind: 'oidc' | 'saml'): void {
   editing.value = {
-    kind: 'oidc',
+    kind: kind,
     enabled: true,
     scopes: 'profile email',
     usernameClaim: 'preferred_username',
@@ -116,6 +122,9 @@ const save = () =>
       issuer: draft.issuer ?? '',
       clientId: draft.clientId ?? '',
       scopes: draft.scopes ?? '',
+      idpEntityId: draft.idpEntityId ?? '',
+      ssoUrl: draft.ssoUrl ?? '',
+      certificates: draft.certificates ?? '',
       usernameClaim: draft.usernameClaim ?? '',
       nameClaim: draft.nameClaim ?? '',
       emailClaim: draft.emailClaim ?? '',
@@ -176,8 +185,9 @@ const remove = (provider: Provider) =>
       {{ provider.displayName || provider.slug }}
       <span v-if="!provider.enabled" class="chip">{{ t('Off') }}</span>
     </h2>
-    <p class="settings__detail">{{ provider.issuer }}</p>
-    <p class="settings__detail">
+    <p class="settings__detail">{{ provider.issuer || provider.idpEntityId }}</p>
+    <p v-if="provider.kind === 'saml'" class="settings__detail">{{ t('SAML') }}</p>
+    <p v-else class="settings__detail">
       <template v-if="provider.discovered">
         {{ t('Configuration read {when}', { when: formatDate(provider.discovered) }) }}
       </template>
@@ -202,24 +212,47 @@ const remove = (provider: Provider) =>
       :hint="t('Appears in the sign-in address. Lower-case letters, digits and hyphens.')"
     />
     <AppTextField v-model="editing.displayName as string" :label="t('Name on the button')" />
-    <AppTextField
-      v-model="editing.issuer as string"
-      :label="t('Issuer')"
-      :hint="t('The base URL. Its configuration is read from /.well-known/openid-configuration.')"
-    />
-    <AppTextField v-model="editing.clientId as string" :label="t('Client ID')" />
-    <AppTextField
-      v-model="secret"
-      type="password"
-      :label="t('Client secret')"
-      autocomplete="new-password"
-      :hint="
-        editing.hasClientSecret
-          ? t('One is stored. Leave this empty to keep it.')
-          : t('Never shown again once saved.')
-      "
-    />
-    <AppTextField v-model="editing.scopes as string" :label="t('Scopes')" />
+    <template v-if="editing.kind !== 'saml'">
+      <AppTextField
+        v-model="editing.issuer as string"
+        :label="t('Issuer')"
+        :hint="t('The base URL. Its configuration is read from /.well-known/openid-configuration.')"
+      />
+      <AppTextField v-model="editing.clientId as string" :label="t('Client ID')" />
+      <AppTextField
+        v-model="secret"
+        type="password"
+        :label="t('Client secret')"
+        autocomplete="new-password"
+        :hint="
+          editing.hasClientSecret
+            ? t('One is stored. Leave this empty to keep it.')
+            : t('Never shown again once saved.')
+        "
+      />
+      <AppTextField v-model="editing.scopes as string" :label="t('Scopes')" />
+    </template>
+
+    <template v-else>
+      <AppTextField
+        v-model="editing.idpEntityId as string"
+        :label="t('Provider entity ID')"
+        :hint="t('What its assertions carry as Issuer.')"
+      />
+      <AppTextField
+        v-model="editing.ssoUrl as string"
+        :label="t('Sign-on URL')"
+        :hint="t('Where a request goes, over the HTTP-Redirect binding.')"
+      />
+      <AppTextField
+        v-model="editing.certificates as string"
+        :label="t('Signing certificate')"
+        :hint="t('PEM. Paste both while the provider is rolling its key over.')"
+      />
+      <p class="settings__detail">
+        {{ t('This server’s entity ID is its own public URL.') }}
+      </p>
+    </template>
     <AppTextField v-model="editing.usernameClaim as string" :label="t('Username claim')" />
     <AppTextField v-model="editing.nameClaim as string" :label="t('Display name claim')" />
     <AppTextField v-model="editing.emailClaim as string" :label="t('Email claim')" />
@@ -271,7 +304,14 @@ const remove = (provider: Provider) =>
   </section>
 
   <section v-if="!editing" class="card">
-    <AppButton variant="tonal" @click="add">{{ t('Add a provider') }}</AppButton>
+    <div class="settings__field">
+      <AppButton variant="tonal" @click="add('oidc')">
+        {{ t('Add an OpenID Connect provider') }}
+      </AppButton>
+      <AppButton variant="outlined" @click="add('saml')">
+        {{ t('Add a SAML provider') }}
+      </AppButton>
+    </div>
     <p v-if="!providers.length" class="settings__detail">
       {{ t('Nobody can sign in through another service until one is configured here.') }}
     </p>

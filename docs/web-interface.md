@@ -1016,8 +1016,7 @@ are cached for good, so the second visit fetches none of it.
 
 ## Not built yet
 
-Passkeys, single sign-on through SAML — OIDC is built, SAML is not — and
-editing an item's fields — with one exception, the Rights field, because a
+Passkeys and editing an item's fields — with one exception, the Rights field, because a
 licence set when a work was published has to be revisable by whoever set it.
 Collections can be made, renamed, moved and removed, an item can be filed,
 trashed, restored, deleted, copied to another library, published to My

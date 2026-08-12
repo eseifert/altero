@@ -35,6 +35,9 @@ WRITABLE = (
     "issuer",
     "client_id",
     "client_secret",
+    "idp_entity_id",
+    "sso_url",
+    "certificates",
     "scopes",
     "username_claim",
     "name_claim",
@@ -73,6 +76,11 @@ def serialise(provider: IdentityProvider) -> dict[str, Any]:
         # Whether there is one, never what it is.
         "hasClientSecret": bool(provider.client_secret),
         "scopes": provider.scopes,
+        "idpEntityId": provider.idp_entity_id,
+        "ssoUrl": provider.sso_url,
+        # Public information -- a signing certificate is published in metadata
+        # for anybody to read -- so unlike the client secret it is shown back.
+        "certificates": provider.certificates,
         "usernameClaim": provider.username_claim,
         "nameClaim": provider.name_claim,
         "emailClaim": provider.email_claim,
@@ -105,19 +113,26 @@ async def list_all(session: AsyncSession) -> list[IdentityProvider]:
     return list(result)
 
 
+def is_usable(provider: IdentityProvider) -> bool:
+    """Return whether there is anything behind this provider's button yet."""
+    if provider.kind == "saml":
+        return bool(provider.sso_url and provider.certificates and provider.idp_entity_id)
+    return bool(provider.authorization_endpoint)
+
+
 async def list_enabled(session: AsyncSession) -> list[IdentityProvider]:
     """Return the providers a sign-in page should offer.
 
-    A provider missing the endpoints it needs is left out rather than drawn as
-    a button that fails: discovery has not run, or it failed, and either way
-    there is nothing behind it yet.
+    A provider missing what it needs is left out rather than drawn as a button
+    that fails: for OIDC discovery has not run or failed, for SAML the
+    certificate is not in yet, and either way there is nothing behind it.
     """
     result = await session.scalars(
         select(IdentityProvider)
         .where(IdentityProvider.enabled.is_(True))
         .order_by(IdentityProvider.slug)
     )
-    return [entry for entry in result if entry.authorization_endpoint]
+    return [entry for entry in result if is_usable(entry)]
 
 
 async def by_slug(session: AsyncSession, slug: str) -> IdentityProvider:

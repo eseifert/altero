@@ -26,8 +26,9 @@ from typing import Annotated
 from urllib.parse import quote, urlencode
 
 import httpx
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Form, HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response
 
@@ -41,7 +42,16 @@ from altero.api.routes.web import (
 from altero.api.routes.webadmin import AdministratorDep
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.models import AuthRequest, FederatedIdentity, IdentityProvider, User
-from altero.services import account, authrequests, federation, identityproviders, oidc, websessions
+from altero.services import (
+    account,
+    authrequests,
+    federation,
+    identityproviders,
+    oidc,
+    saml,
+    samlreplay,
+    websessions,
+)
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -55,6 +65,9 @@ class ProviderInput(BaseModel):
 
     slug: str | None = None
     kind: str = "oidc"
+    idp_entity_id: str | None = Field(default=None, alias="idpEntityId")
+    sso_url: str | None = Field(default=None, alias="ssoUrl")
+    certificates: str | None = None
     display_name: str | None = Field(default=None, alias="displayName")
     enabled: bool | None = None
     issuer: str | None = None
@@ -91,6 +104,29 @@ def redirect_uri(request: Request, slug: str) -> str:
     configured = request.app.state.settings.public_url.rstrip("/")
     base = configured or str(request.base_url).rstrip("/")
     return f"{base}/web/auth/sso/{quote(slug)}/callback"
+
+
+def acs_url(request: Request, slug: str) -> str:
+    """Return where a SAML assertion is to be posted back to.
+
+    Checked against the assertion's own ``Recipient``, so it has to be the
+    address the directory was actually configured with -- which is what
+    ``public_url`` is for.
+    """
+    configured = request.app.state.settings.public_url.rstrip("/")
+    base = configured or str(request.base_url).rstrip("/")
+    return f"{base}/web/auth/saml/{quote(slug)}/acs"
+
+
+def entity_id(request: Request) -> str:
+    """Return this instance's SAML entity id.
+
+    Its own public URL, which is what a service provider's entity id
+    conventionally is and is one less thing for an operator to invent and get
+    wrong in two places.
+    """
+    configured = request.app.state.settings.public_url.rstrip("/")
+    return configured or str(request.base_url).rstrip("/")
 
 
 def _app_url(request: Request, path: str, **query: str) -> str:
@@ -163,6 +199,31 @@ async def start_sign_in(
             return RedirectResponse(_app_url(request, "/sign-in", error="not-signed-in"), 303)
         user = await session.get(User, record.user_id)
 
+    if provider.kind == "saml":
+        if not provider.sso_url or not provider.certificates:
+            return RedirectResponse(
+                _app_url(request, "/sign-in", error="provider-unreachable"), 303
+            )
+        pending = await authrequests.create(
+            session,
+            provider,
+            next_path=next if next.startswith("/") else "/library",
+            purpose=purpose,
+            user_id=user.id if user else None,
+            # An xsd:ID rather than a URL-safe token: the value goes into the
+            # AuthnRequest's ID attribute, which may not begin with a digit.
+            state=saml.generate_request_id(),
+        )
+        return RedirectResponse(
+            saml.authn_request_url(
+                provider,
+                acs_url=acs_url(request, provider.slug),
+                entity_id=entity_id(request),
+                request_id=pending.state,
+            ),
+            status_code=303,
+        )
+
     try:
         await _ready(request, session, provider)
     except InvalidInputError:
@@ -231,6 +292,82 @@ async def complete_sign_in(
     try:
         outcome = await federation.sign_in(
             session, provider, assertion, notify=request.app.state.mailer.send
+        )
+    except ForbiddenError:
+        return RedirectResponse(_app_url(request, "/sign-in", error="not-permitted"), 303)
+
+    token, _ = await websessions.create(
+        session, outcome.user, user_agent=request.headers.get("user-agent", "")
+    )
+    response = RedirectResponse(_app_url(request, pending.next_path), status_code=303)
+    _set_session_cookies(response, request, token)
+    return response
+
+
+@router.post("/auth/saml/{slug}/acs")
+async def consume_assertion(
+    request: Request,
+    session: SessionDep,
+    slug: str,
+    SAMLResponse: Annotated[str, Form()] = "",
+) -> Response:
+    """Take a SAML assertion posted back by the directory.
+
+    **No session and no CSRF token, and neither is an oversight.** The
+    HTTP-POST binding delivers this as a cross-site form submission, and
+    ``SameSite=Lax`` means the browser sends *no* cookies with it -- not the
+    session, not the CSRF token. There is nothing to read and nothing to
+    compare. What makes the request genuine instead is the signature on the
+    assertion plus its ``InResponseTo`` matching a request row this server
+    wrote, and this is the route that *sets* the cookies rather than one that
+    reads them.
+
+    It is also why altero is SP-initiated only: without a request row to match,
+    there is nothing left holding this up.
+    """
+    if not SAMLResponse:
+        return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
+
+    provider = await session.scalar(
+        select(IdentityProvider).where(IdentityProvider.slug == slug.strip().lower())
+    )
+    if provider is None or provider.kind != "saml" or not provider.enabled:
+        return RedirectResponse(_app_url(request, "/sign-in", error="unknown-provider"), 303)
+
+    # Read out of the assertion before the request row is spent, because the
+    # row is what says which request this answers.
+    try:
+        request_id = saml.in_response_to(SAMLResponse)
+    except ForbiddenError:
+        return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
+
+    pending = await authrequests.consume(session, request_id)
+    if pending is None or pending.provider_id != provider.id:
+        return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
+
+    try:
+        verified = saml.verify_response(
+            SAMLResponse,
+            provider,
+            acs_url=acs_url(request, provider.slug),
+            entity_id=entity_id(request),
+            in_response_to=request_id,
+        )
+        await samlreplay.consume(
+            session,
+            provider,
+            assertion_id=verified.assertion_id,
+            expires=verified.expires,
+        )
+    except ForbiddenError, InvalidInputError:
+        return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
+
+    if pending.purpose in ("link", "reauth"):
+        return await _finish_for_signed_in(request, session, provider, pending, verified.assertion)
+
+    try:
+        outcome = await federation.sign_in(
+            session, provider, verified.assertion, notify=request.app.state.mailer.send
         )
     except ForbiddenError:
         return RedirectResponse(_app_url(request, "/sign-in", error="not-permitted"), 303)

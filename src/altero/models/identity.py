@@ -62,6 +62,16 @@ class IdentityProvider(Base):
     userinfo_endpoint: Mapped[str] = mapped_column(String(500), default="")
     discovered: Mapped[datetime | None] = mapped_column(DateTime, default=None)
 
+    # --- SAML ---------------------------------------------------------------
+    #: The directory's own entity id, which its assertions carry as ``Issuer``.
+    idp_entity_id: Mapped[str] = mapped_column(String(255), default="")
+    #: Where an AuthnRequest goes, over the HTTP-Redirect binding.
+    sso_url: Mapped[str] = mapped_column(String(500), default="")
+    #: The signing certificates, PEM, one after another. A list rather than one
+    #: because a directory rolling its key over publishes both for a while, and
+    #: an instance that could hold only one would go down in the middle of it.
+    certificates: Mapped[str] = mapped_column(Text, default="")
+
     # --- What a claim means here --------------------------------------------
     #: Which claim carries the username, the display name and the address. Each
     #: configurable because directories disagree: ``preferred_username`` is the
@@ -121,6 +131,31 @@ class FederatedIdentity(Base):
     asserted_name: Mapped[str] = mapped_column(String(255), default="")
     linked: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     last_seen: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+
+
+class ConsumedAssertion(Base):
+    """A SAML assertion that has already been used.
+
+    Its own table rather than a flag on :class:`AuthRequest`, because the two
+    have different lifetimes: the request is spent the moment the browser comes
+    back, while the assertion id has to be remembered until the assertion could
+    no longer be replayed -- which is what its own ``NotOnOrAfter`` says.
+
+    Nothing in the SAML specification stops an assertion being presented twice;
+    the service provider is required to notice, and this is how.
+    """
+
+    __tablename__ = "consumed_assertions"
+
+    #: The assertion's own ``ID`` attribute, and the primary key: the insert
+    #: failing is itself the replay check.
+    assertion_id: Mapped[str] = mapped_column(String(255), primary_key=True)
+    provider_id: Mapped[int] = mapped_column(
+        ForeignKey("identity_providers.id", ondelete="CASCADE"), index=True
+    )
+    consumed: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    #: When it stops being worth remembering, taken from the assertion itself.
+    expires: Mapped[datetime] = mapped_column(DateTime, index=True)
 
 
 class AuthRequest(Base):

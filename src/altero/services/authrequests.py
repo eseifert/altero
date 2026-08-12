@@ -33,14 +33,20 @@ async def create(
     next_path: str = "/library",
     purpose: str = "login",
     user_id: int | None = None,
+    state: str | None = None,
 ) -> AuthRequest:
-    """Start a sign-in and return the row the callback will have to match."""
+    """Start a sign-in and return the row the callback will have to match.
+
+    ``state`` is supplied by SAML, where the value has to be an ``xsd:ID`` --
+    it goes into the AuthnRequest's ``ID`` attribute, which may not begin with
+    a digit. OIDC leaves it alone and gets a URL-safe token.
+    """
     # Expired rows go as new ones are made, which keeps the table bounded
     # without a scheduled job -- the same approach as sessions and login codes.
     await session.execute(delete(AuthRequest).where(AuthRequest.expires < _now()))
 
     pending = AuthRequest(
-        state=secrets.token_urlsafe(32),
+        state=state or secrets.token_urlsafe(32),
         provider_id=provider.id,
         code_verifier=oidc.generate_verifier(),
         nonce=oidc.generate_nonce(),

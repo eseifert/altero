@@ -36,6 +36,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.models import (
     ActivityKind,
     AuthRequest,
+    ConsumedAssertion,
     EmailVerification,
     GroupActivity,
     GroupActivityObject,
@@ -69,6 +70,8 @@ class Report:
     codes: int = 0
     #: Federated sign-ins that left here and never came back.
     federated: int = 0
+    #: SAML assertions remembered past the point they could be replayed.
+    assertions: int = 0
     #: Confirmation links past theirs.
     verifications: int = 0
     #: Invitations that expired without ever being answered.
@@ -83,6 +86,7 @@ class Report:
             or self.sessions
             or self.codes
             or self.federated
+            or self.assertions
             or self.verifications
             or self.invitations
         )
@@ -214,6 +218,11 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
     federated = list(
         await session.scalars(select(AuthRequest.state).where(AuthRequest.expires < now))
     )
+    assertions = list(
+        await session.scalars(
+            select(ConsumedAssertion.assertion_id).where(ConsumedAssertion.expires < now)
+        )
+    )
     verifications = list(
         await session.scalars(select(EmailVerification.id).where(EmailVerification.expires < now))
     )
@@ -238,12 +247,17 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
             # Keyed by state rather than by an id column, so it does not fit
             # the loop above.
             await session.execute(delete(AuthRequest).where(AuthRequest.state.in_(federated)))
+        if assertions:
+            await session.execute(
+                delete(ConsumedAssertion).where(ConsumedAssertion.assertion_id.in_(assertions))
+            )
         await session.commit()
 
     return Report(
         sessions=len(sessions),
         codes=len(codes),
         federated=len(federated),
+        assertions=len(assertions),
         verifications=len(verifications),
         invitations=len(invitations),
     )
@@ -284,6 +298,7 @@ async def sweep(
         sessions=expired.sessions,
         codes=expired.codes,
         federated=expired.federated,
+        assertions=expired.assertions,
         verifications=expired.verifications,
         invitations=expired.invitations,
     )

@@ -108,16 +108,15 @@ things the desktop client asks for that no data server documents.
 - Provisioning from the command line, CORS, and API version negotiation
 - A second factor by email, alongside the authenticator app, and the way back
   in when the authenticator is what cannot be reached
-- Signing in through an OpenID Connect provider, configured per instance from
-  **Administration → Sign-in providers**. It reaches the browser session and
-  nothing else: the v3 API stays API-key-only, and a desktop client still takes
-  a key issued from a signed-in browser
+- Signing in through an OpenID Connect or SAML 2.0 provider, configured per
+  instance from **Administration → Sign-in providers**. It reaches the browser
+  session and nothing else: the v3 API stays API-key-only, and a desktop client
+  still takes a key issued from a signed-in browser. SAML is SP-initiated only,
+  with no encrypted assertions and no Single Logout
 
 ## Not implemented
 
 - The eleven export formats beyond BibTeX, BibLaTeX and RIS
-- SAML. An OpenID Connect provider is supported, and a SAML directory is
-  reached through a bridge that speaks both
 - Passkeys
 
 Group administration, registration and the invitation flow are also in the web

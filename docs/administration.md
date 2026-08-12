@@ -162,14 +162,31 @@ operations is one prompt rather than one each.
 ## Sign-in providers
 
 **Administration → Sign-in providers** configures the directories this instance
-accepts a sign-in from. OpenID Connect is implemented; SAML is not, and a SAML
-directory is reached through a bridge that speaks both — Keycloak and Authentik
-are the usual ones.
+accepts a sign-in from. Both OpenID Connect and SAML 2.0 are implemented, and
+the screen offers one button per protocol because the fields behind them are
+different.
+
+A SAML provider takes three things: its **entity ID**, which is what its
+assertions carry as `Issuer`; its **sign-on URL**; and its **signing
+certificate** in PEM. Paste both certificates while a directory is rolling its
+key over — an instance that could hold only one would go down in the middle of
+it. This server's own entity ID is its public URL, so there is nothing further
+to invent.
+
+Three things about the SAML implementation are worth knowing, and each is a
+deliberate limit rather than an omission. It is **SP-initiated only**: a sign-in
+has to start here, because an unsolicited assertion has no request of ours to
+match and accepting one means accepting anything the directory's key ever
+signed, for any service, at any time — there is no "launch from the portal"
+button. **Assertions are not decrypted**: TLS covers the transport and a
+decryption key is one more thing to hold. And there is **no Single Logout**:
+altero's session is its own, and signing out here signs out here.
 
 Four things are worth knowing before setting one up.
 
 **The callback address has to match.** The screen shows the one to register at
-the directory, and it is built from `ALTERO_PUBLIC_URL`. Where that is unset it
+the directory — the OIDC redirect URI, or the SAML assertion consumer service —
+and it is built from `ALTERO_PUBLIC_URL`. Where that is unset it
 comes from whatever request arrived, which behind a proxy is the proxy's idea
 of it — and a redirect URI that does not match is refused by the directory
 outright, with an error page nobody here can act on. The screen says so when
@@ -178,7 +195,9 @@ the variable is missing. Set it first.
 **The client secret is write-only.** It is stored as given and never returned:
 a signed-in browser tab is not a way of reading back a credential this instance
 holds for somebody else's directory. The form shows whether one is set and
-takes a replacement; saving without touching it keeps what is there.
+takes a replacement; saving without touching it keeps what is there. A SAML
+signing certificate is *not* treated that way and is shown back, because it is
+published in the directory's own metadata for anybody to read.
 
 **Making accounts is off by default.** Turning it on means everybody in the
 directory may have a library here, which is a policy rather than a detail. With

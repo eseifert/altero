@@ -37,6 +37,11 @@ EXPECTED = [
     # altero/api/routes/webidentity.py.
     ("/web/auth/sso/{slug}/start", "GET"),
     ("/web/auth/sso/{slug}/callback", "GET"),
+    # Where a SAML assertion is posted back. Answers with no cookie and no
+    # CSRF token because it cannot have either: the HTTP-POST binding makes it
+    # a cross-site POST, and SameSite=Lax sends nothing with one. The signed
+    # assertion and its InResponseTo are what make it genuine.
+    ("/web/auth/saml/{slug}/acs", "POST"),
     ("/web/auth/verify/resend", "POST"),
     ("/web/auth/session", "GET"),
     ("/web/auth/logout", "POST"),

@@ -28,9 +28,17 @@ dependencies = [
     "dateparser>=1.4.1",
     "bibtexparser>=1.4.4",
     "rispy>=0.10.0",
-    # The one outbound conversation this server has: reading a library out of
-    # api.zotero.org when somebody migrates one in. See services/zoteroapi.py.
+    # The outbound conversations this server has: reading a library out of
+    # api.zotero.org when somebody migrates one in (services/zoteroapi.py), and
+    # talking to an OpenID Connect provider (services/oidc.py).
     "httpx>=0.28",
+    # XML signature verification for the SAML service provider. Hand-rolling
+    # this is not on: canonicalisation is where naive implementations grow
+    # signature-wrapping holes, and XMLVerifier.verify returns the *signed*
+    # subtree, which is the specific defence -- see services/saml.py. It brings
+    # lxml and cryptography, both of which publish manylinux wheels for 3.14,
+    # so docker/Dockerfile needs no build tooling.
+    "signxml>=5.1.0",
 ]
 
 [project.optional-dependencies]
