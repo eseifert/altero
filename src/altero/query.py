@@ -34,11 +34,13 @@ class Format(StrEnum):
     BOOKMARKS = "bookmarks"
     COINS = "coins"
     CSV = "csv"
+    ENDNOTE_XML = "endnote_xml"
     EVERNOTE = "evernote"
     RDF_DC = "rdf_dc"
     REFER = "refer"
     REFWORKS_TAGGED = "refworks_tagged"
     RIS = "ris"
+    TEI = "tei"
     WIKIPEDIA = "wikipedia"
 
 
@@ -56,11 +58,13 @@ EXPORT_FORMATS = frozenset(
         Format.BOOKMARKS,
         Format.COINS,
         Format.CSV,
+        Format.ENDNOTE_XML,
         Format.EVERNOTE,
         Format.RDF_DC,
         Format.REFER,
         Format.REFWORKS_TAGGED,
         Format.RIS,
+        Format.TEI,
         Format.WIKIPEDIA,
     }
 )

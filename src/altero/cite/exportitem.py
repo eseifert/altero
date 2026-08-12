@@ -26,7 +26,7 @@ empty here -- a note is exported as an item of its own or not at all.
 """
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from altero.cite.csljson import csl_item
@@ -76,6 +76,9 @@ class ExportItem:
     #: reason `alternate` links are omitted altogether.
     uri: str
     fields: Mapping[str, str]
+    #: The same fields under the names the API serves them by, with no aliases
+    #: and no renaming. One translator reads these instead -- see :meth:`plain`.
+    stored: Mapping[str, str] = field(default_factory=dict)
     creators: tuple[Creator, ...] = ()
     #: `(name, type)` pairs, type 0 being a tag somebody typed and 1 one that
     #: came with the item. CSV keeps the two apart; everything else does not.
@@ -89,6 +92,18 @@ class ExportItem:
     #: The same item as CSL JSON, for the formats mapped from a citation rather
     #: than from the item: BibTeX, BibLaTeX and RIS.
     csl: dict[str, Any] = field(default_factory=dict)
+
+    def plain(self) -> ExportItem:
+        """Return this item with its fields under the names the API uses.
+
+        Zotero adds its compatibility mappings for translators written before
+        4.0.27 and hands the later ones the item as it is. TEI is the only
+        export translator on the far side of that line, and it shows: it reads
+        `versionNumber` where the others read `version`, gets no `publisher` for
+        a report -- whose field is `institution` -- and writes an access date
+        with a `T` in it where the others write a space.
+        """
+        return replace(self, fields=self.stored)
 
     def get(self, *names: str) -> str:
         """Return the first of ``names`` this item has a value for."""
@@ -150,6 +165,7 @@ def export_item(
         key=item.key,
         uri=f"{base_url}{library_prefix(library)}/items/{item.key}",
         fields=_fields(item),
+        stored=item.field_values(),
         creators=tuple(
             Creator(
                 creator_type=creator.creator_type,

@@ -38,9 +38,26 @@ class Element:
         if self.children:
             inside = "".join(child.render(depth + 1) for child in self.children)
             return f"{pad}<{self.name}{attributes}>\n{inside}{pad}</{self.name}>\n"
-        if self.text is None:
+        if not self.text:
             return f"{pad}<{self.name}{attributes}/>\n"
         return f"{pad}<{self.name}{attributes}>{escape(self.text)}</{self.name}>\n"
+
+    def compact(self) -> str:
+        """Return this element on one line, with no whitespace of its own.
+
+        EndNote's XML is serialised by a DOM and so carries no indentation at
+        all; the reader it is written for is a program, and a newline the
+        document did not have is a newline in somebody's abstract.
+        """
+        attributes = "".join(
+            f" {name}={quoteattr(value)}" for name, value in self.attributes if value is not None
+        )
+        if self.children:
+            inside = "".join(child.compact() for child in self.children)
+            return f"<{self.name}{attributes}>{inside}</{self.name}>"
+        if not self.text:
+            return f"<{self.name}{attributes}/>"
+        return f"<{self.name}{attributes}>{escape(self.text)}</{self.name}>"
 
 
 @dataclass

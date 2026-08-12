@@ -462,6 +462,144 @@ class TestEvernote:
         assert "<source-url></source-url>" in render("evernote", book, library)
 
 
+class TestEndNoteXml:
+    async def test_a_record_is_written_element_by_element(
+        self, library: Library, article: Item
+    ) -> None:
+        written = render("endnote_xml", article, library, tags=["embryo"])
+
+        assert written == (
+            '<?xml version="1.0" encoding="UTF-8"?>\n<xml><records><record>'
+            '<database name="MyLibrary">MyLibrary</database>'
+            '<source-app name="altero">altero</source-app>'
+            '<ref-type name="Journal Article">17</ref-type>'
+            "<contributors><authors><author>Aoyama, H</author><author>Asamoto, K</author>"
+            "<author>Nojyo, Y</author><author>Kinutani, M</author></authors></contributors>"
+            "<titles><title>Monoclonal antibodies specific to quail embryo tissues: their "
+            "epitopes in the developing quail embryo and their application to identification "
+            "of quail cells in quail-chick chimeras.</title>"
+            "<secondary-title>Journal of Histochemistry &amp; Cytochemistry</secondary-title>"
+            "<short-title>Monoclonal antibodies specific to quail embryo tissues</short-title>"
+            "</titles>"
+            "<periodical><full-title>Journal of Histochemistry &amp; Cytochemistry</full-title>"
+            "</periodical>"
+            "<pages>1769-1777</pages><volume>40</volume><number>11</number><issue>11</issue>"
+            "<keywords><keyword>embryo</keyword></keywords>"
+            "<dates><year>1992</year><pub-dates><date>1992-11</date></pub-dates></dates>"
+            "<isbn>0022-1554, 1551-5044</isbn>"
+            "<electronic-resource-num>10.1177/40.11.1385517</electronic-resource-num>"
+            "<remote-database-name>CrossRef</remote-database-name><language>en</language>"
+            "<urls><web-urls><url>http://journals.sagepub.com/doi/10.1177/40.11.1385517</url>"
+            "</web-urls></urls>"
+            "<access-date>2018-03-14 02:34:19</access-date>"
+            "</record></records></xml>"
+        )
+
+    async def test_a_file_holding_no_records_closes_the_element_itself(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        note = await make_item(session, library, item_type="note", fields={"note": "<p>Hi</p>"})
+
+        assert render("endnote_xml", note, library) == (
+            '<?xml version="1.0" encoding="UTF-8"?>\n<xml><records/></xml>'
+        )
+
+    async def test_a_newline_in_a_field_is_written_as_endnote_writes_one(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        book = await make_item(
+            session,
+            library,
+            item_type="book",
+            fields={"title": "A book", "abstractNote": "One line.\nAnd another."},
+        )
+
+        written = render("endnote_xml", book, library)
+
+        assert "<abstract>One line.&#xD;And another.</abstract>" in written
+
+
+class TestTei:
+    async def test_an_article_is_analytic(self, library: Library, article: Item) -> None:
+        """Its own title belongs to the article and the journal's to the
+        `monogr`, which is what `analytic` means."""
+        written = render("tei", article, library)
+
+        assert written == (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<listBibl xmlns="http://www.tei-c.org/ns/1.0">'
+            '<biblStruct type="journalArticle" xml:id="Aoyama1992" '
+            'corresp="http://testserver/users/1/items/AAAA2345">'
+            '<analytic><title level="a">Monoclonal antibodies specific to quail embryo '
+            "tissues: their epitopes in the developing quail embryo and their application to "
+            "identification of quail cells in quail-chick chimeras.</title>"
+            '<idno type="DOI">10.1177/40.11.1385517</idno>'
+            '<title type="short">Monoclonal antibodies specific to quail embryo tissues</title>'
+            "<author><forename>H</forename><surname>Aoyama</surname></author>"
+            "<author><forename>K</forename><surname>Asamoto</surname></author>"
+            "<author><forename>Y</forename><surname>Nojyo</surname></author>"
+            "<author><forename>M</forename><surname>Kinutani</surname></author></analytic>"
+            '<monogr><title level="j">Journal of Histochemistry &amp; Cytochemistry</title>'
+            '<idno type="ISSN">0022-1554, 1551-5044</idno>'
+            '<imprint><biblScope unit="volume">40</biblScope>'
+            '<biblScope unit="issue">11</biblScope>'
+            '<biblScope unit="page">1769-1777</biblScope><date>1992</date>'
+            '<note type="accessed">2018-03-14T02:34:19Z</note>'
+            '<note type="url">http://journals.sagepub.com/doi/10.1177/40.11.1385517</note>'
+            "</imprint></monogr></biblStruct></listBibl>"
+        )
+
+    async def test_a_report_gets_no_publisher_from_its_institution(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        """TEI is the one export translator Zotero hands the item to without its
+        compatibility mappings, so it sees `institution` and not the base field
+        `publisher` -- and writes neither."""
+        report = await make_item(
+            session,
+            library,
+            item_type="report",
+            fields={"title": "A report", "institution": "Sandia National Laboratories"},
+        )
+
+        written = render("tei", report, library)
+
+        assert "<publisher>" not in written
+
+    async def test_the_id_is_the_citation_key_where_there_is_one(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        book = await make_item(
+            session,
+            library,
+            item_type="book",
+            fields={"title": "A book", "citationKey": "gault2012atom"},
+            creators=[("author", "Baptiste", "Gault")],
+        )
+
+        assert 'xml:id="gault2012atom"' in render("tei", book, library)
+
+    async def test_two_items_cannot_share_an_id(
+        self, session: AsyncSession, library: Library
+    ) -> None:
+        items = [
+            await make_item(
+                session,
+                library,
+                item_type="book",
+                fields={"title": f"Book {number}", "date": "2012"},
+                creators=[("author", "Baptiste", "Gault")],
+            )
+            for number in (1, 2)
+        ]
+
+        views = [exportitem.export_item(item, library, BASE) for item in items]
+        written = exportformats.render(Format.TEI, views)
+
+        assert 'xml:id="Gault2012"' in written
+        assert 'xml:id="Gault2012a"' in written
+
+
 class TestTheEndpoints:
     @pytest.mark.parametrize(
         ("response_format", "content_type", "marker"),
