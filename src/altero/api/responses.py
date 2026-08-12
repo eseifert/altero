@@ -11,20 +11,19 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
 
 from altero import atom
+from altero.cite import formats
 from altero.pagination import build_page_links, format_link_header
 from altero.query import Format, ListQuery
 
 #: Content types of the formats that are not JSON. A bibliography is a document
 #: to display; CSL JSON has a media type of its own that citation tooling looks
-#: for.
+#: for. Each export format carries its own, taken from what upstream's
+#: translation server answers with.
 CONTENT_TYPES: dict[Format, str] = {
     Format.ATOM: atom.CONTENT_TYPE,
     Format.BIB: "text/html; charset=UTF-8",
     Format.CSLJSON: "application/vnd.citationstyles.csl+json",
-    Format.BIBTEX: "application/x-bibtex",
-    Format.BIBLATEX: "application/x-bibtex",
-    Format.RIS: "application/x-research-info-systems",
-}
+} | {name: entry.content_type for name, entry in formats.kinds().items()}
 
 
 @dataclass(frozen=True, slots=True)

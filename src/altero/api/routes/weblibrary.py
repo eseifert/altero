@@ -274,6 +274,7 @@ async def list_library_items(
 async def export_library_items(
     session: SessionDep,
     user: CurrentUserDep,
+    base_url: BaseUrlDep,
     library_id: int,
     response_format: Annotated[str, Query(alias="format")] = str(Format.BIBTEX),
     name: str | None = None,
@@ -335,6 +336,7 @@ async def export_library_items(
             session,
             library,
             workspace / filename,
+            base_url=base_url,
             response_format=chosen,
             query=query,
             scope=item_scope,

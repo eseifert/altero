@@ -88,6 +88,19 @@ def date_parts(raw: str) -> tuple[int, ...] | None:
     return (date.year, date.month, date.day)
 
 
+def iso_date(raw: str) -> str:
+    """Return a stored date as far as it is known, in ISO order.
+
+    ``Zotero.Date.strToISO``, which the OpenURL context object and several
+    export formats write dates with: a year alone stays a year, and a date that
+    cannot be read at all is empty rather than guessed at.
+    """
+    parts = date_parts(raw)
+    if not parts:
+        return ""
+    return "-".join(f"{part:02d}" if index else f"{part:04d}" for index, part in enumerate(parts))
+
+
 def csl_date(raw: str) -> dict[str, Any] | None:
     """Return the CSL date variable for a stored date field.
 

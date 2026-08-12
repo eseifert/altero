@@ -27,6 +27,8 @@ from altero.api.responses import (
     not_modified,
     object_response,
 )
+from altero.cite import exportitem
+from altero.cite import formats as exportformats
 from altero.errors import InvalidInputError, RequestTooLargeError
 from altero.models import ActivityKind, ApiKey, Item, Library
 from altero.query import (
@@ -96,6 +98,7 @@ def _with_included(
     envelopes: list[dict[str, Any]],
     items: Sequence[Item],
     library: Library,
+    base_url: str,
     query: ListQuery,
     tags: dict[int, list[tuple[str, int]]],
 ) -> list[dict[str, Any]]:
@@ -126,14 +129,13 @@ def _with_included(
                 envelope["bib"] = cite.bibliography(
                     [csl], style=query.style, locale=query.locale, linkwrap=query.linkwrap
                 )
-        for name in query.include & {str(entry) for entry in EXPORT_FORMATS}:
-            keywords = [[tag for tag, _ in tags.get(item.id, [])]]
-            csl_item = [cite.csl_item(item, library)]
-            envelope[name] = (
-                cite.ris(csl_item, keywords=keywords)
-                if name == Format.RIS
-                else cite.bibtex(csl_item, keywords=keywords, biblatex=name == Format.BIBLATEX)
-            )
+        wanted = query.include & {str(entry) for entry in EXPORT_FORMATS}
+        if wanted:
+            # One item on its own, in each format asked for: a document per
+            # entry rather than a file, which is what `include` means.
+            view = exportitem.export_item(item, library, base_url, tags.get(item.id, []))
+            for name in wanted:
+                envelope[name] = exportformats.render(Format(name), [view])
     return envelopes
 
 
@@ -172,7 +174,7 @@ async def render_items(
     ]
     if query is None:
         return envelopes
-    return _with_included(envelopes, items, library, query, tags)
+    return _with_included(envelopes, items, library, base_url, query, tags)
 
 
 async def render_item(
@@ -225,7 +227,9 @@ async def render_page(
             linkwrap=query.linkwrap,
         )
     elif query.response_format in EXPORT_FORMATS:
-        exported = await export_items(session, list(page.objects), library, query.response_format)
+        exported = await export_items(
+            session, list(page.objects), library, base_url, query.response_format
+        )
 
     return listing_response(
         request,
@@ -243,22 +247,23 @@ async def render_page(
 
 
 async def export_items(
-    session: AsyncSession, items: Sequence[Item], library: Library, response_format: Format
+    session: AsyncSession,
+    items: Sequence[Item],
+    library: Library,
+    base_url: str,
+    response_format: Format,
 ) -> str:
     """Write items in one of the export formats.
 
-    Tags are fetched separately because they are not part of CSL and so are not
-    in what :func:`altero.cite.csl_items` produces -- but both BibTeX and RIS
-    carry keywords, and a library exported without its tags has lost something
-    the person put there.
+    Tags are fetched separately because they belong to the item rather than to
+    any of the fields on it -- and a library exported without its tags has lost
+    something the person put there, whether the format calls them keywords or
+    subjects or writes them into a column of their own.
     """
-    csl = cite.csl_items(list(items), library)
     stored = await items_service.tags_for(session, items)
-    keywords = [[name for name, _ in stored.get(item.id, [])] for item in items]
-
-    if response_format is Format.RIS:
-        return cite.ris(csl, keywords=keywords)
-    return cite.bibtex(csl, keywords=keywords, biblatex=response_format is Format.BIBLATEX)
+    return exportformats.render(
+        response_format, exportitem.export_items(list(items), library, base_url, stored)
+    )
 
 
 async def render_listing(
@@ -339,7 +344,7 @@ async def get_item(
             linkwrap=query.linkwrap,
         )
     elif query.response_format in EXPORT_FORMATS:
-        payload = await export_items(session, [item], library, query.response_format)
+        payload = await export_items(session, [item], library, base_url, query.response_format)
     else:
         payload = await render_item(session, item, library, base_url, query)
 

@@ -31,13 +31,33 @@ class Format(StrEnum):
     BIB = "bib"
     BIBTEX = "bibtex"
     BIBLATEX = "biblatex"
+    BOOKMARKS = "bookmarks"
+    COINS = "coins"
+    CSV = "csv"
+    REFER = "refer"
     RIS = "ris"
+    WIKIPEDIA = "wikipedia"
 
 
 #: Formats written from an item rather than describing one: a file to hand to
-#: another program. Upstream produces these through a translation server and
-#: offers more of them; these three are the ones altero writes.
-EXPORT_FORMATS = frozenset({Format.BIBTEX, Format.BIBLATEX, Format.RIS})
+#: another program. The same sixteen `Zotero_Translate::$exportFormats` names,
+#: `csljson` aside -- it is listed there as well but is a citation format here.
+#: How each is written is :mod:`altero.cite.formats`, which is not imported from
+#: here: it reaches the serialiser, which reaches back into the service layer,
+#: and this module is imported by both. `tests/test_export_formats.py` holds
+#: the two lists together.
+EXPORT_FORMATS = frozenset(
+    {
+        Format.BIBTEX,
+        Format.BIBLATEX,
+        Format.BOOKMARKS,
+        Format.COINS,
+        Format.CSV,
+        Format.REFER,
+        Format.RIS,
+        Format.WIKIPEDIA,
+    }
+)
 
 #: Formats the item endpoints answer in.
 ITEM_FORMATS = frozenset(Format)
