@@ -33,11 +33,6 @@ _URL = re.compile(r"(?<![\"'>=])\bhttps?://[^\s<>\"']+[^\s<>\"'.,;:)\]]")
 #: Text outside of a tag, which is the only place a link may be introduced.
 _TEXT_OUTSIDE_TAGS = re.compile(r"(<[^>]*>)|([^<]+)")
 
-#: Exactly two full stops, as an initialled name followed by a style's own
-#: sentence-ending period produces. Three are left alone: that is an ellipsis a
-#: style put there deliberately.
-_DOUBLED_PERIOD = re.compile(r"(?<!\.)\.\.(?!\.)")
-
 
 @lru_cache(maxsize=32)
 def _style(name: str, locale: str) -> Any:
@@ -50,23 +45,6 @@ def _style(name: str, locale: str) -> Any:
     from citeproc import CitationStylesStyle
 
     return CitationStylesStyle(style_path(name), locale=locale, validate=False)
-
-
-def _tidy(markup: str) -> str:
-    """Collapse the doubled full stop a style's own period adds after initials.
-
-    citeproc-js drops one of the two; citeproc-py emits both, so ``Doe, J.``
-    followed by a sentence-ending period reads ``Doe, J...``. Only text outside
-    tags is touched, so an attribute value cannot be rewritten.
-    """
-    return _TEXT_OUTSIDE_TAGS.sub(
-        lambda match: (
-            match.group(1)
-            if match.group(1) is not None
-            else _DOUBLED_PERIOD.sub(".", match.group(2))
-        ),
-        markup,
-    )
 
 
 def _bibliography_options(style: Any) -> tuple[float, int, bool]:
@@ -105,12 +83,6 @@ def _linkwrap(markup: str) -> str:
     return _TEXT_OUTSIDE_TAGS.sub(wrap, markup)
 
 
-def _finish(markup: str, linkwrap: bool) -> str:
-    """Apply the post-processing every rendered result gets."""
-    markup = _tidy(markup)
-    return _linkwrap(markup) if linkwrap else markup
-
-
 def _render(items: list[dict[str, Any]], style_name: str, locale: str) -> tuple[Any, list[Any]]:
     """Register ``items`` against a style and return the bibliography and cites."""
     from citeproc import Citation, CitationItem, CitationStylesBibliography, formatter
@@ -146,7 +118,7 @@ def bibliography(
     if not rendered.style.has_bibliography():
         entries = [str(rendered.cite(citation, lambda _: None)) for citation in citations]
         markup = "<ol>\n\t<li>" + "</li>\n\t<li>".join(entries) + "</li>\n</ol>"
-        return _finish(markup, linkwrap)
+        return _linkwrap(markup) if linkwrap else markup
 
     rendered.sort()
     entries = [str(entry) for entry in rendered.bibliography()]
@@ -166,7 +138,8 @@ def bibliography(
         lines.append(f'  <div class="csl-entry"{spacing}>{entry}</div>')
     lines.append("</div>")
 
-    return _finish("\n".join(lines), linkwrap)
+    markup = "\n".join(lines)
+    return _linkwrap(markup) if linkwrap else markup
 
 
 def citation(
@@ -179,4 +152,5 @@ def citation(
     """Return one item's in-text citation, in the span upstream wraps it in."""
     rendered, citations = _render([item], style, locale)
     text = str(rendered.cite(citations[0], lambda _: None))
-    return _finish(f"<span>{text}</span>", linkwrap)
+    markup = f"<span>{text}</span>"
+    return _linkwrap(markup) if linkwrap else markup

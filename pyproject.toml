@@ -17,13 +17,10 @@ dependencies = [
     "uvicorn[standard]>=0.36",
     "python-multipart>=0.0.32",
     "argon2-cffi>=25.1.0",
-    # Two fixes altero's output depends on, neither of which it can reach from
-    # outside: 0.10.6 counts `citation-number` as a variable call in a
-    # `cs:group`, which is what makes a numeric style's citation render at all
-    # and was altero's own correction until then; 0.10.7 defaults the
-    # delimiters around a style's `and`, without which every bibliography of
-    # more than one author reads `Doe, J.& Roe, R.`
-    "citeproc-py>=0.10.7",
+    # 0.11.0 correctly counts citation-number in a cs:group, defaults the
+    # delimiters around a style's `and`, and normalizes concatenation seams --
+    # altero's rendered bibliographies depend on all three.
+    "citeproc-py>=0.11.0",
     "citeproc-py-styles>=0.1.6",
     "dateparser>=1.4.1",
     "bibtexparser>=1.4.4",

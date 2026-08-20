@@ -5,6 +5,10 @@ All notable changes to altero, newest first. Versions follow
 development history, tagged retroactively at the points where the server
 gained a capability worth naming.
 
+## [Unreleased]
+
+- citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialled name.
+
 ## [1.0.0-alpha.1] — 2026-08-19
 
 The first release meant to be used by somebody other than its author.

@@ -421,7 +421,7 @@ rest skip them by name; COinS writes a span for anything; Evernote makes a note
 of everything; Zotero RDF describes them, being the format a library export is
 written in.
 
-Four places where the rendered output is not upstream's:
+Three places where the rendered output is not upstream's:
 
 - **Style names are resolved through the CSL project's own
   `renamed-styles.json`.** The API's default, `chicago-note-bibliography`, was
@@ -435,10 +435,6 @@ Four places where the rendered output is not upstream's:
   CSS exactly as the client's `makeFormattedBibliography` does. The
   `second-field-align` handling, which needs citeproc-js's `maxoffset`, is not:
   citeproc-py does not emit the `csl-left-margin` structure it applies to.
-- **A doubled full stop is collapsed.** An initialled name ends in a period and
-  the style adds its own; citeproc-js drops one, citeproc-py emits both, and
-  every name would otherwise read `Doe, J..`. Only text outside tags is touched,
-  and three periods are left alone.
 
 One limitation is worth knowing about, and it is upstream's. citeproc-py's
 `cs:label` renders its term whether or not the variable it labels has a value,
@@ -452,21 +448,14 @@ every other style tried (APA, MLA, IEEE, Nature, AMA, the other Chicago
 variants), and the bibliography is the path both the API and the interface lead
 with. Reported upstream, with a patch.
 
-Nothing is corrected in citeproc-py itself any more. One thing was until
-citeproc-py 0.10.6: a `cs:group` is suppressed when every variable it calls is
-empty, and `citation-number` did not count as one, so a numeric style whose
-citation groups the number with a locator macro — IEEE — rendered an empty
-citation, the locator being empty. CSL 1.0.1 counts it as a number variable.
-[citeproc-py#206](https://github.com/citeproc-py/citeproc-py/pull/206) fixes it
-upstream, and `tests/test_citations.py` asserts the rendered citation rather
-than the mechanism, so it went on holding once the local correction went.
-
-`pyproject.toml` floors citeproc-py at 0.10.7 rather than 0.10.6 for a second
-fix ([citeproc-py#201](https://github.com/citeproc-py/citeproc-py/pull/201)):
-the delimiters around a style's `and` had no default, so every bibliography of
-more than one author lost the space or comma before it — APA read
-`Doe, J.& Roe, R.` and MLA `Doe, J.and R. Roe.` Nothing here worked around
-that, which is why no test caught it; there is one now.
+Nothing here corrects citeproc-py's own output. `pyproject.toml` floors it at
+0.11.0: altero's rendered bibliographies depend on it counting
+`citation-number` as a variable call in a `cs:group` (without which a numeric
+style like IEEE, whose citation groups the number with an empty locator macro,
+renders nothing at all), defaulting the delimiters around a style's `and`
+(without which APA reads `Doe, J.& Roe, R.` and MLA `Doe, J.and R. Roe.`), and
+normalizing punctuation at a concatenation seam (without which an initialled
+name reads `Doe, J..`).
 
 ## Item type schema
 
