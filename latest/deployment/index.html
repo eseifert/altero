@@ -1065,6 +1065,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#build-the-image-instead-of-pulling-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Build the image instead of pulling it
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-a-small-instance-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What a small instance costs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1155,6 +1177,45 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Behind a reverse proxy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nginx" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        nginx
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caddy" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Caddy
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#traefik" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Traefik
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1663,6 +1724,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#build-the-image-instead-of-pulling-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Build the image instead of pulling it
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-a-small-instance-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What a small instance costs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1754,6 +1837,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Behind a reverse proxy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nginx" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        nginx
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#caddy" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Caddy
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#traefik" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Traefik
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1833,11 +1955,18 @@
 </table>
 <p>For a server used by several people, prefer PostgreSQL.</p>
 <h2 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h2>
-<p>Start the stack from the repository root:</p>
+<p>The image is published as <code>ghcr.io/eseifert/altero</code>, so running altero needs no checkout and no build. From a repository checkout:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
 </span></code></pre></div>
+<p>Without one, the Compose file on its own is the deployment:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkdir<span class="w"> </span>altero<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>altero
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
+</span></code></pre></div>
 <p>The stack contains PostgreSQL, altero and persistent attachment storage.</p>
+<p><code>latest</code> is the newest release, prereleases included. <code>ALTERO_IMAGE_TAG</code> selects another: a version such as <code>1.0.0-alpha.1</code> pins one release, and <code>dev</code> follows master.</p>
 <p>The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.</p>
 <h3 id="production-settings-to-change-first">Production settings to change first<a class="headerlink" href="#production-settings-to-change-first" title="Permanent link">&para;</a></h3>
 <p>Before putting real data on the instance:</p>
@@ -1850,21 +1979,59 @@
 </ol>
 <p>Container settings belong in <strong><code>docker/.env</code></strong>, beside <code>docker/compose.yaml</code>.</p>
 <p>To see the values Compose resolved:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>config
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>config
 </span></code></pre></div>
 <h3 id="upgrade-altero">Upgrade altero<a class="headerlink" href="#upgrade-altero" title="Permanent link">&para;</a></h3>
-<p>The altero image is built from the checkout; there is no published altero image to pull.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>git<span class="w"> </span>pull
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>pull<span class="w"> </span>altero
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
-<p><code>--build</code> is important. Without it, Compose can restart the old locally built image.</p>
+<p>An instance pinned with <code>ALTERO_IMAGE_TAG</code> upgrades when that value changes, not when <code>pull</code> runs.</p>
 <p>Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.</p>
 <p>To update only the PostgreSQL image within the currently compatible major version:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>pull<span class="w"> </span>db
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>pull<span class="w"> </span>db
 </span></code></pre></div>
 <h3 id="upgrade-postgresql-across-a-major-version">Upgrade PostgreSQL across a major version<a class="headerlink" href="#upgrade-postgresql-across-a-major-version" title="Permanent link">&para;</a></h3>
 <p>altero's migrations do not upgrade PostgreSQL's own on-disk data format.</p>
 <p>Moving a PostgreSQL volume to a new major version requires a dump and restore, for example with <code>pg_dump</code> from the old server and <code>psql</code> into the new one. The PostgreSQL image will refuse an incompatible data directory rather than silently adopting it.</p>
+<h3 id="build-the-image-instead-of-pulling-it">Build the image instead of pulling it<a class="headerlink" href="#build-the-image-instead-of-pulling-it" title="Permanent link">&para;</a></h3>
+<p>A change to the source, the Dockerfile or the web interface wants a locally built image. <code>docker/compose.build.yaml</code> adds the build to the same deployment:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>-f<span class="w"> </span>docker/compose.build.yaml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build
+</span></code></pre></div>
+<p>It builds <code>altero:local</code>, deliberately not the published name, so that a later <code>docker compose pull</code> cannot replace a built image without saying so. Both files carry the same project name, so the built stack uses the volumes an earlier pulled one wrote.</p>
+<h3 id="what-a-small-instance-costs">What a small instance costs<a class="headerlink" href="#what-a-small-instance-costs" title="Permanent link">&para;</a></h3>
+<p>Measured on x86-64 from a source checkout, Python 3.14 and SQLite, with the interface built:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>altero, idle after start</td>
+<td>~125 MB resident</td>
+</tr>
+<tr>
+<td>altero, after light API traffic</td>
+<td>~130 MB resident</td>
+</tr>
+<tr>
+<td>Peak during start-up and migration</td>
+<td>~133 MB resident</td>
+</tr>
+<tr>
+<td>An empty database, schema only</td>
+<td>0.7 MB</td>
+</tr>
+<tr>
+<td>The installed Python environment</td>
+<td>~380 MB</td>
+</tr>
+</tbody>
+</table>
+<p>The container runs the same interpreter and the same packages, so the application's own use is the figure above. Two things sit on top of it and are <strong>not</strong> measured here: the PostgreSQL container in the Compose stack, and the image on disk.</p>
+<p>Attachments are what grows. They are stored once per digest, so a file two libraries hold is on disk once; a library's nominal and real usage are reported per library under <strong>Administration → Storage</strong>.</p>
 <h2 id="from-a-source-checkout">From a source checkout<a class="headerlink" href="#from-a-source-checkout" title="Permanent link">&para;</a></h2>
 <p>Requirements:</p>
 <ul>
@@ -1872,47 +2039,47 @@
 <li><a href="https://docs.astral.sh/uv/">uv</a>.</li>
 </ul>
 <p>SQLite is the default. For PostgreSQL outside Docker, install the extra dependency:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>postgres
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>postgres
 </span></code></pre></div>
 <p>For a basic SQLite installation:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>sync
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>cp<span class="w"> </span>config.example.py<span class="w"> </span>config.py
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>uv<span class="w"> </span>run<span class="w"> </span>altero
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>sync
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>cp<span class="w"> </span>config.example.py<span class="w"> </span>config.py
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>uv<span class="w"> </span>run<span class="w"> </span>altero
 </span></code></pre></div>
 <p>The default address is:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>http://127.0.0.1:8000
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>http://127.0.0.1:8000
 </span></code></pre></div>
 <p>You can create an API key directly if needed:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>key<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--name<span class="w"> </span>laptop
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>key<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--name<span class="w"> </span>laptop
 </span></code></pre></div>
 <p>The key is printed once and cannot be displayed again.</p>
 <h2 id="health-check">Health check<a class="headerlink" href="#health-check" title="Permanent link">&para;</a></h2>
 <p><code>GET /health</code> is the readiness endpoint and is also used by the container health check.</p>
 <p>A successful response includes the application version, API version, schema version and database migration revision, for example:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="nt">&quot;apiVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">  </span><span class="nt">&quot;schemaVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="nt">&quot;revision&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;c1b573deea88&quot;</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">{</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="w">  </span><span class="nt">&quot;apiVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">  </span><span class="nt">&quot;schemaVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">  </span><span class="nt">&quot;revision&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;c1b573deea88&quot;</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>If the database is unavailable, the endpoint returns <code>503</code> with:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;error&quot;</span><span class="p">}</span>
 </span></code></pre></div>
 <p>Because <code>/health</code> is unauthenticated, it intentionally does not expose the database failure details.</p>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
 <p>For a source installation, copy <code>config.example.py</code> to <code>config.py</code>.</p>
 <p>Every setting can also be supplied as an <code>ALTERO_</code>-prefixed environment variable. Environment variables take precedence over the configuration file.</p>
 <p>Example:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nv">ALTERO_PORT</span><span class="o">=</span><span class="m">9000</span><span class="w"> </span><span class="nv">ALTERO_DEBUG</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nv">ALTERO_PORT</span><span class="o">=</span><span class="m">9000</span><span class="w"> </span><span class="nv">ALTERO_DEBUG</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
 </span></code></pre></div>
 <p>Set <code>ALTERO_CONFIG</code> if the configuration module lives at another path.</p>
 <h2 id="public-url">Public URL<a class="headerlink" href="#public-url" title="Permanent link">&para;</a></h2>
 <p><code>ALTERO_PUBLIC_URL</code> should be the stable external URL of the instance, for example:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>https://altero.example.org
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>https://altero.example.org
 </span></code></pre></div>
 <p>It becomes required in practice when you use features that generate callbacks or bind credentials to a host:</p>
 <ul>
@@ -1937,19 +2104,73 @@
 <h2 id="group-notifications">Group notifications<a class="headerlink" href="#group-notifications" title="Permanent link">&para;</a></h2>
 <p>Group notifications are opt-in per member and per group.</p>
 <p>Two settings control digest delivery:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nv">ALTERO_GROUP_DIGEST_QUIET_PERIOD</span><span class="o">=</span><span class="m">900</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nv">ALTERO_GROUP_DIGEST_INTERVAL</span><span class="o">=</span><span class="m">60</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nv">ALTERO_GROUP_DIGEST_QUIET_PERIOD</span><span class="o">=</span><span class="m">900</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="nv">ALTERO_GROUP_DIGEST_INTERVAL</span><span class="o">=</span><span class="m">60</span>
 </span></code></pre></div>
 <p><code>ALTERO_GROUP_DIGEST_INTERVAL=0</code> disables delivery. Activity is still recorded, so it can be delivered after the feature is re-enabled.</p>
 <p>See <a href="../email/#group-notifications">Email</a>.</p>
 <h2 id="behind-a-reverse-proxy">Behind a reverse proxy<a class="headerlink" href="#behind-a-reverse-proxy" title="Permanent link">&para;</a></h2>
-<p>Without trusted forwarded headers, altero sees the proxy's address rather than the original client's address.</p>
-<p><code>ALTERO_FORWARDED_ALLOW_IPS</code> identifies proxies whose forwarded address headers altero may trust. This affects both rate limiting and the “last used from” address shown for API keys.</p>
-<p>Only trust a proxy that <strong>overwrites</strong> forwarded-address headers. If a trusted proxy simply passes a client-supplied header through, the client can choose the address attributed to its request.</p>
+<p>Three things have to be right, and a default configuration gets two of them wrong.</p>
+<p><strong>Attachment uploads need a large request body.</strong> altero accepts a file of up to 1 GiB. nginx allows 1 MB by default and answers <code>413</code> above it, which rejects most PDFs; Zotero reports the attachment as failing to sync. Caddy and Traefik impose no limit of their own.</p>
+<p><strong><code>/stream</code> is a WebSocket.</strong> It needs the upgrade headers, and a read timeout longer than an idle connection. The connection is not silently idle — the server pings every 20 seconds — so a 60-second timeout is already enough, but a proxy that drops the upgrade entirely leaves Zotero without live updates. Worse, a streaming URL that does not resolve is why <a href="../clients/">Connecting a Zotero client</a> insists on setting <code>extensions.zotero.streaming.url</code>: left at its default, the client sends the altero API key to zotero.org.</p>
+<p><strong>Forwarded addresses are believed only when a proxy is named.</strong> Without <code>ALTERO_FORWARDED_ALLOW_IPS</code>, altero sees the proxy's address rather than the client's, and both rate limiting and the “last used from” shown for an API key report one address for everybody. Name only a proxy that <strong>overwrites</strong> the forwarded-address header. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it.</p>
+<p>In the Compose stack the proxy is a container, so the value is that container's address on the Docker network — not <code>127.0.0.1</code>, which is altero's own container.</p>
+<p>Set <code>ALTERO_PUBLIC_URL</code> to the URL people actually open. See <a href="#public-url">Public URL</a>; passkeys in particular are bound to that host.</p>
+<h3 id="nginx">nginx<a class="headerlink" href="#nginx" title="Permanent link">&para;</a></h3>
+<div class="language-nginx highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">server</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">    </span><span class="kn">listen</span><span class="w"> </span><span class="mi">443</span><span class="w"> </span><span class="s">ssl</span><span class="p">;</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">    </span><span class="kn">server_name</span><span class="w"> </span><span class="s">zotero.example.org</span><span class="p">;</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">    </span><span class="c1"># Attachments. The default is 1m, which rejects most PDFs with 413.</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="w">    </span><span class="kn">client_max_body_size</span><span class="w"> </span><span class="mi">1024m</span><span class="p">;</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:8000</span><span class="p">;</span>
+</span><span id="__span-15-10"><a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
+</span><span id="__span-15-11"><a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">        </span><span class="c1"># Overwritten, not appended: $proxy_add_x_forwarded_for would carry a</span>
+</span><span id="__span-15-12"><a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="w">        </span><span class="c1"># client-supplied header through, and altero believes this one.</span>
+</span><span id="__span-15-13"><a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span id="__span-15-14"><a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span>
+</span><span id="__span-15-15"><a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-15-16"><a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>
+</span><span id="__span-15-17"><a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="w">    </span><span class="c1"># The streaming API. Same upstream, but the upgrade has to be passed on</span>
+</span><span id="__span-15-18"><a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="w">    </span><span class="c1"># explicitly and the connection lives longer than a request.</span>
+</span><span id="__span-15-19"><a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="w">    </span><span class="kn">location</span><span class="w"> </span><span class="s">/stream</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-15-20"><a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a><span class="w">        </span><span class="kn">proxy_pass</span><span class="w"> </span><span class="s">http://127.0.0.1:8000</span><span class="p">;</span>
+</span><span id="__span-15-21"><a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="w">        </span><span class="kn">proxy_http_version</span><span class="w"> </span><span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+</span><span id="__span-15-22"><a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Upgrade</span><span class="w"> </span><span class="nv">$http_upgrade</span><span class="p">;</span>
+</span><span id="__span-15-23"><a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Connection</span><span class="w"> </span><span class="s">&quot;upgrade&quot;</span><span class="p">;</span>
+</span><span id="__span-15-24"><a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">Host</span><span class="w"> </span><span class="nv">$host</span><span class="p">;</span>
+</span><span id="__span-15-25"><a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-For</span><span class="w"> </span><span class="nv">$remote_addr</span><span class="p">;</span>
+</span><span id="__span-15-26"><a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a><span class="w">        </span><span class="kn">proxy_set_header</span><span class="w"> </span><span class="s">X-Forwarded-Proto</span><span class="w"> </span><span class="nv">$scheme</span><span class="p">;</span>
+</span><span id="__span-15-27"><a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a><span class="w">        </span><span class="kn">proxy_read_timeout</span><span class="w"> </span><span class="s">3600s</span><span class="p">;</span>
+</span><span id="__span-15-28"><a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a><span class="w">    </span><span class="p">}</span>
+</span><span id="__span-15-29"><a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="caddy">Caddy<a class="headerlink" href="#caddy" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>zotero.example.org {
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    reverse_proxy 127.0.0.1:8000 {
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>        # Caddy appends the client to an X-Forwarded-For it was handed;
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>        # replacing it is what makes trusting the header safe.
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>        header_up X-Forwarded-For {remote_host}
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>    }
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>}
+</span></code></pre></div>
+<p>Caddy needs nothing said about WebSockets or body size: it passes an upgrade through as it stands and imposes no limit of its own.</p>
+<h3 id="traefik">Traefik<a class="headerlink" href="#traefik" title="Permanent link">&para;</a></h3>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="nt">labels</span><span class="p">:</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.enable=true</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.http.routers.altero.rule=Host(`zotero.example.org`)</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.http.routers.altero.entrypoints=websecure</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.http.routers.altero.tls.certresolver=letsencrypt</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.http.services.altero.loadbalancer.server.port=8000</span>
+</span></code></pre></div>
+<p>Traefik proxies the WebSocket without configuration and imposes no body limit. It replaces <code>X-Forwarded-For</code> with the address the connection came from unless <code>forwardedHeaders.trustedIPs</code> is set on the entry point, which is the behaviour to keep.</p>
+<p>Reaching altero by container name means both containers share a network, and the <code>ports:</code> publication in <code>docker/compose.yaml</code> is then unnecessary — remove it rather than exposing the application port beside the proxy.</p>
 <h2 id="rate-limiting">Rate limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
 <p>Rate limiting is off by default.</p>
 <p>Example: allow 600 requests per 60 seconds per API key:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nv">ALTERO_RATE_LIMIT</span><span class="o">=</span><span class="m">600</span><span class="w"> </span><span class="nv">ALTERO_RATE_LIMIT_WINDOW</span><span class="o">=</span><span class="m">60</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="nv">ALTERO_RATE_LIMIT</span><span class="o">=</span><span class="m">600</span><span class="w"> </span><span class="nv">ALTERO_RATE_LIMIT_WINDOW</span><span class="o">=</span><span class="m">60</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
 </span></code></pre></div>
 <p>Requests over the limit receive <code>429</code> with a whole-second <code>Retry-After</code>, which Zotero understands.</p>
 <p>Unauthenticated requests are counted per client address. <code>/health</code> is never rate limited.</p>

@@ -1627,9 +1627,14 @@
 <p>altero is pre-stable software. Use a separate Zotero profile or a library you can recreate.</p>
 </div>
 <h2 id="1-start-altero-with-docker-compose">1. Start altero with Docker Compose<a class="headerlink" href="#1-start-altero-with-docker-compose" title="Permanent link">&para;</a></h2>
-<p>From a checkout of the repository:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
+<p>The image is published, so a checkout is optional. In an empty directory:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
+</span></code></pre></div>
+<p>From a checkout of the repository, name the file where it lives instead:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
 </span></code></pre></div>
 <p>This starts PostgreSQL, altero and persistent attachment storage. The API is published on the loopback interface by default.</p>
 <p>For a source installation instead, see <a href="../deployment/#from-a-source-checkout">Deployment</a>.</p>
@@ -1637,8 +1642,8 @@
 <p>In Zotero Desktop, open:</p>
 <p><strong>Settings → Advanced → Config Editor</strong></p>
 <p>Set:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>extensions.zotero.api.url = http://localhost:8000/
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>extensions.zotero.streaming.url = ws://localhost:8000/stream
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>extensions.zotero.api.url = http://localhost:8000/
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>extensions.zotero.streaming.url = ws://localhost:8000/stream
 </span></code></pre></div>
 <p>The trailing slash on <code>api.url</code> matters.</p>
 <div class="admonition important">
@@ -1646,7 +1651,7 @@
 <p>Set the streaming URL as well as the API URL. Zotero resolves the streaming service separately. If the streaming URL is left at its built-in default, Zotero can send the altero API key to zotero.org, where it is not valid.</p>
 </div>
 <p>If you do not want streaming updates, disable them instead of leaving the default endpoint in place:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>extensions.zotero.streaming.enabled = false
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>extensions.zotero.streaming.enabled = false
 </span></code></pre></div>
 <p>Restart Zotero after changing these preferences.</p>
 <h2 id="3-link-the-account">3. Link the account<a class="headerlink" href="#3-link-the-account" title="Permanent link">&para;</a></h2>
@@ -1656,7 +1661,7 @@
 <p>The desktop client receives an API key and begins using altero for synchronization.</p>
 <h2 id="4-confirm-that-the-instance-is-healthy">4. Confirm that the instance is healthy<a class="headerlink" href="#4-confirm-that-the-instance-is-healthy" title="Permanent link">&para;</a></h2>
 <p>The readiness endpoint is:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>GET http://localhost:8000/health
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>GET http://localhost:8000/health
 </span></code></pre></div>
 <p>A healthy instance returns a JSON response with <code>status: "ok"</code> plus version and database-revision information.</p>
 <h2 id="5-test-with-disposable-data">5. Test with disposable data<a class="headerlink" href="#5-test-with-disposable-data" title="Permanent link">&para;</a></h2>
