@@ -1,8 +1,5 @@
 # The design system
 
-**Audience:** contributors working on the browser interface  
-**You do not need this page to install, administer or use altero.**
-
 This is the implementation reference for altero's browser UI. The short rule is: **fill groups, outline controls, hairline separates**. Shared surfaces and tokens should be reused rather than redrawn in individual components.
 
 ## The one rule

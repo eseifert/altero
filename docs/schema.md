@@ -1,8 +1,5 @@
 # Database schema
 
-**Audience:** developers, database maintainers and operators investigating recovery or concurrency issues  
-**You do not need this page for routine installation or use.**
-
 This reference explains the data-model decisions that matter for Zotero compatibility. It compares altero with the official dataserver and focuses on substantive differences rather than naming conventions.
 
 ## Adopted from the dataserver

@@ -1,6 +1,6 @@
 # altero documentation
 
-altero is a self-hosted synchronization server for Zotero Desktop. These pages are organized by **what you are trying to do**, not by the internal components of the server.
+altero is a self-hosted synchronization server for Zotero Desktop.
 
 > [!WARNING]
 > altero is under active development. Use a test Zotero profile or a library you can recreate. Do not use it yet as the only copy of a library you care about.
@@ -76,14 +76,3 @@ The credential Zotero Desktop uses to synchronize with altero. Browser sessions 
 
 **Instance administrator**  
 An account allowed to manage the altero installation itself. This role does not automatically grant access to other users' library contents.
-
-## How these docs are written
-
-Task pages put the steps and expected result first. Explanations about protocol behavior, security choices and implementation details come afterwards or live in the reference pages.
-
-That distinction matters because altero has two audiences:
-
-- people who need to install, use or evaluate it; and
-- developers and operators who need to know exactly why a particular Zotero-compatible behavior exists.
-
-The technical detail is still documented, but you should not have to read it to complete a routine task.

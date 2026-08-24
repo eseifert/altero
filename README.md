@@ -6,10 +6,13 @@
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-006a6a)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-006a6a)](https://www.python.org/)
 [![GitHub stars](https://img.shields.io/github/stars/eseifert/altero?style=flat&logo=github)](https://github.com/eseifert/altero/stargazers)
+[![Documentation](https://img.shields.io/badge/docs-eseifert.github.io%2Faltero-006a6a)](https://eseifert.github.io/altero/)
 
 **altero is a self-hosted synchronization server for Zotero.** Point an unmodified Zotero desktop application at it and keep your libraries, groups, notes, annotations, attachments and full text on infrastructure you control.
 
 It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v3/start) that the desktop client uses and deliberately reproduces upstream behavior where compatibility matters.
+
+📖 **The documentation is at <https://eseifert.github.io/altero/>** — installation, connecting a client, deployment, administration and the compatibility reference.
 
 - **Use the normal Zotero desktop app** — no patched client or custom build.
 - **Self-host the whole sync service** — not only attachment files.
@@ -78,7 +81,7 @@ The goal is ordinary desktop Zotero synchronization, in both directions.
 | Importing a personal library from zotero.org | ✅ |
 | Zotero iOS and Android apps | ❌ |
 
-The [full implementation status](docs/status.md) documents the API surface feature by feature, including deliberate differences and remaining omissions.
+The [full implementation status](https://eseifert.github.io/altero/latest/status/) documents the API surface feature by feature, including deliberate differences and remaining omissions.
 
 ### Desktop yes, mobile no
 
@@ -86,7 +89,7 @@ The desktop application has hidden preferences for the API and streaming server,
 
 The official iOS and Android applications compile the Zotero API host into the application and provide no runtime setting for replacing it. Supporting them would require patched mobile clients, which is outside altero's scope.
 
-See [Connecting a Zotero client](docs/clients.md) for the details.
+See [Connecting a Zotero client](https://eseifert.github.io/altero/latest/clients/) for the details.
 
 ## Quick start with Docker
 
@@ -102,7 +105,7 @@ docker compose -f docker/compose.yaml exec altero altero user add <username>
 
 The server is published on the loopback interface by default.
 
-For anything beyond local testing, read [Deployment](docs/deployment.md) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
+For anything beyond local testing, read [Deployment](https://eseifert.github.io/altero/latest/deployment/) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
 
 ### Point Zotero at altero
 
@@ -128,7 +131,7 @@ Restart Zotero, then open:
 
 Zotero opens altero in your browser. Sign in and approve the client. The desktop application receives its API key and synchronization begins normally.
 
-For a detailed walkthrough, including running two test clients at once, see [Connecting a Zotero client](docs/clients.md).
+For a detailed walkthrough, including running two test clients at once, see [Connecting a Zotero client](https://eseifert.github.io/altero/latest/clients/).
 
 ## Run from source
 
@@ -156,7 +159,7 @@ For PostgreSQL outside Docker:
 uv sync --extra postgres
 ```
 
-See [Deployment](docs/deployment.md) for configuration, health checks, reverse proxies, rate limiting, email and upgrades.
+See [Deployment](https://eseifert.github.io/altero/latest/deployment/) for configuration, health checks, reverse proxies, rate limiting, email and upgrades.
 
 ## A deliberately small server
 
@@ -203,7 +206,7 @@ It currently supports:
 
 The web interface is not intended to replace Zotero Desktop as a full reference manager. Editing bibliographic fields remains the desktop client's job.
 
-See [The web interface](docs/web-interface.md).
+See [The web interface](https://eseifert.github.io/altero/latest/web-interface/).
 
 ## More than a clone of zotero.org
 
@@ -247,7 +250,7 @@ See what libraries actually consume on disk, including physical versus nominal a
 
 altero can copy a personal library from zotero.org while preserving object keys and versions so an already-synchronized desktop client can continue from the same state.
 
-See [Why altero exists](docs/motivation.md) and [Compatibility](docs/compatibility.md) for the design reasoning behind these features.
+See [Why altero exists](https://eseifert.github.io/altero/latest/motivation/) and [Compatibility](https://eseifert.github.io/altero/latest/compatibility/) for the design reasoning behind these features.
 
 ## Compatibility over purity
 
@@ -259,9 +262,9 @@ When the published API documentation, the reference data server and observed ser
 
 The compatibility work is recorded in:
 
-- [Compatibility](docs/compatibility.md)
-- [Implementation status](docs/status.md)
-- [Database schema](docs/schema.md)
+- [Compatibility](https://eseifert.github.io/altero/latest/compatibility/)
+- [Implementation status](https://eseifert.github.io/altero/latest/status/)
+- [Database schema](https://eseifert.github.io/altero/latest/schema/)
 
 This is one of the most useful places to contribute: if Zotero behaves differently against altero than it does against zotero.org, that is worth reporting.
 
@@ -326,21 +329,16 @@ The core architectural rule is that the web framework stays at the API boundary.
 
 ## Documentation
 
-The documentation is published at **<https://eseifert.github.io/altero/>** and organized by task; [docs/README.md](docs/README.md) is the same index in the repository, and names a reading path for evaluating, operating, using and developing altero.
+The documentation is published at **<https://eseifert.github.io/altero/>**.
 
-| Document | What it covers |
+| Section | What it covers |
 |---|---|
-| [getting-started.md](docs/getting-started.md) | A local instance and a test client, from nothing |
-| [motivation.md](docs/motivation.md) | Why altero exists and what it is trying to achieve |
-| [status.md](docs/status.md) | Implemented and missing API behavior |
-| [clients.md](docs/clients.md) | Connecting Zotero Desktop |
-| [deployment.md](docs/deployment.md) | Configuration, deployment and upgrades |
-| [administration.md](docs/administration.md) | Accounts, keys, groups and libraries |
-| [web-interface.md](docs/web-interface.md) | Browser application, over the pages in [docs/web/](docs/web/) |
-| [compatibility.md](docs/compatibility.md) | Upstream quirks and deliberate differences |
-| [schema.md](docs/schema.md) | Database design |
-| [email.md](docs/email.md) | Outgoing email configuration |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Development and contribution guidelines |
+| [Overview](https://eseifert.github.io/altero/latest/motivation/) | What altero is and why it exists |
+| [Get started](https://eseifert.github.io/altero/latest/getting-started/) | Install locally, connect Zotero, first sync |
+| [Using altero](https://eseifert.github.io/altero/latest/web-interface/) | Web interface, groups, sharing |
+| [Running altero](https://eseifert.github.io/altero/latest/deployment/) | Deployment, configuration, administration, email |
+| [Reference](https://eseifert.github.io/altero/latest/compatibility/) | Compatibility, implementation status, database schema |
+| [Contributing](CONTRIBUTING.md) | Development and testing |
 
 ## Project status
 

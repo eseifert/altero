@@ -2,7 +2,6 @@
 
 This page is the feature-level status of altero's Zotero v3 compatibility.
 
-**Audience:** evaluators, testers and developers  
 **Short version:** ordinary Zotero Desktop synchronization is the target; the official mobile apps are not supported.
 
 ## User-facing capabilities

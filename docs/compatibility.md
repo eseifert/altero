@@ -2,9 +2,6 @@
 
 This document records Zotero behavior that altero must reproduce even when the public API documentation is incomplete, ambiguous or different from the reference server.
 
-**Audience:** developers and operators investigating compatibility problems  
-**You do not need this page to install or use altero.** Start with [Getting started](getting-started.md), [Deployment](deployment.md) or [Web interface](web-interface.md) instead.
-
 ## How to use this reference
 
 altero targets the unmodified Zotero Desktop application. At the protocol boundary, the practical rule is:
@@ -18,7 +15,6 @@ The evidence used here comes from three places:
 - read-only requests and observed exchanges from real Zotero libraries and clients where the first two sources are incomplete.
 
 Each section explains a concrete behavior, why altero implements it that way, and—where relevant—how altero deliberately differs.
-
 
 ## API queries and response behavior
 
@@ -490,7 +486,6 @@ templates with `director`. Both behaviours are reproduced, so a template fetched
 from altero is interchangeable with one fetched from Zotero. See
 `TEMPLATE_CREATOR_TYPES` in `altero/itemschema/registry.py`.
 
-
 ## Files and synchronization
 
 ### The file protocol
@@ -553,7 +548,6 @@ first, so only archives are ever hashed, and the digest then separates a wrapper
 from an attachment that is itself a ZIP — a .docx or .epub hashes to what its
 item claims. Digests are cached per file identity, so a library syncing
 repeatedly hashes each archive once.
-
 
 ## Authentication and client login
 
@@ -982,7 +976,6 @@ client guess.
 altero refuses with 429 and a whole-second `Retry-After`, never below 1. It does
 not send `Backoff`: that header asks a client to slow down while the server is
 still answering, which needs a load signal this server does not have.
-
 
 ## Libraries, groups and altero extensions
 
@@ -1580,7 +1573,6 @@ api.zotero.org absolutely, so following it would send a fetch pointed anywhere
 else — a test, a proxy, another altero — back to the real thing halfway
 through.
 
-
 ## Identity-provider security notes
 
 ### Not verifying the ID token's signature
@@ -1650,7 +1642,6 @@ has no `InResponseTo` to match and accepting one means accepting anything that
 key ever signed; **no encrypted assertions**, since TLS covers the transport;
 and **no Single Logout**, which is unreliable in practice and altero's session
 is its own.
-
 
 ## Deliberate differences from zotero.org
 

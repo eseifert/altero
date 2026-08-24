@@ -2,8 +2,6 @@
 
 This page covers running and operating altero. For a first local test, [Getting started](getting-started.md) is shorter.
 
-**Audience:** self-hosters and server administrators
-
 ## Choose how to run altero
 
 | Method | Best for | Database |

@@ -2,8 +2,6 @@
 
 altero can run without an SMTP relay. Configure email only if your instance needs messages delivered to users rather than written to the server log.
 
-**Audience:** server administrators
-
 ## Do you need a mail relay?
 
 | Feature | Without SMTP | With SMTP |

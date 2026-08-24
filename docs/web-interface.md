@@ -2,7 +2,6 @@
 
 altero includes a browser application at `/app/` for account management, library browsing, groups, sharing and instance administration.
 
-**Audience:** all altero users  
 **Important boundary:** the browser session does not authenticate the Zotero v3 API. Zotero Desktop continues to use an API key.
 
 The web interface is a companion to Zotero Desktop, not a replacement for the full reference manager. In particular, bibliographic field editing remains a desktop task.

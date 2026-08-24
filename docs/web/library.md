@@ -2,8 +2,6 @@
 
 The browser interface is a companion to Zotero Desktop. It lets you browse, search and organize a library, but it is not intended to replace the desktop editor for bibliographic fields.
 
-**Audience:** Zotero users
-
 ## Common tasks
 
 - Browse collections, tags and search results from the library view.

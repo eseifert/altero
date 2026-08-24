@@ -2,8 +2,6 @@
 
 Use these features when moving a personal library from zotero.org, backing up a complete altero library, or moving a library between compatible altero instances.
 
-**Audience:** Zotero users and administrators
-
 ## Common tasks
 
 - Move a personal library from zotero.org from **Settings**.

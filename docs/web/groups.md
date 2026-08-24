@@ -2,8 +2,6 @@
 
 The browser lets members see their groups, administrators manage membership and policy, and users review activity or opt into notifications.
 
-**Audience:** group members and group administrators
-
 ## Common tasks
 
 - Create or administer groups from the **Groups** screen.

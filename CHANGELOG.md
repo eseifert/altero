@@ -8,7 +8,7 @@ gained a capability worth naming.
 ## [Unreleased]
 
 - citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialled name.
-- The documentation is organized by what a reader is trying to do: an index with a reading path for evaluating, operating, using and developing altero, a getting-started page, and the browser guide split into one page per part of the interface.
+- The documentation is reorganized around six sections: an index, a getting-started page, and the browser guide split into one page per part of the interface.
 - The documentation is published as a site at https://eseifert.github.io/altero/, built by Zensical and deployed on every push, with a version for each release once 1.0.0 is out.
 
 ## [1.0.0-alpha.1] — 2026-08-19

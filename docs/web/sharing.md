@@ -2,8 +2,6 @@
 
 altero provides two different sharing models: **My Publications** publishes selected work on a profile page, while a shared-collection link exposes one collection to anyone who holds the link.
 
-**Audience:** Zotero users
-
 ## Common tasks
 
 - Use **My Publications** when you want work to appear on your profile page.

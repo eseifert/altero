@@ -2,7 +2,6 @@
 
 This page describes how to connect an **unmodified Zotero Desktop** installation to altero.
 
-**Audience:** Zotero users and testers  
 **Before you begin:** use a test profile or a library you can recreate.
 
 ## Configure Zotero Desktop

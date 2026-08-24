@@ -2,8 +2,6 @@
 
 Use these screens to register or sign in, manage your own account, review API keys, and choose language and time-zone settings.
 
-**Audience:** users
-
 ## Common tasks
 
 - Change your password, display name or email address in **Settings**.

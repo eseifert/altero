@@ -2,7 +2,6 @@
 
 This guide gets a local altero instance running and connects a **test** Zotero Desktop profile to it.
 
-**Audience:** first-time users and evaluators  
 **Result:** Zotero Desktop is linked to a local altero server and can begin syncing.
 
 > [!WARNING]

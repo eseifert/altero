@@ -1,8 +1,6 @@
 # Web interface implementation notes
 
-This page contains build, design and known-gap information for contributors. It is not required for ordinary use of altero.
-
-**Audience:** contributors
+This page covers how the browser interface is built, how it is styled, and what it does not do yet.
 
 ## Common tasks
 

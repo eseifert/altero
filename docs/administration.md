@@ -2,7 +2,6 @@
 
 This page covers operations that affect the altero instance, accounts, groups or complete libraries.
 
-**Audience:** instance administrators and server operators  
 **For ordinary account settings:** see [Web interface](web-interface.md).
 
 ## What an instance administrator can do
