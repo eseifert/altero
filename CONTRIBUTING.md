@@ -172,7 +172,7 @@ which point this goes away.
 
 | What was pushed | Published as | `latest` |
 | --- | --- | --- |
-| master | `dev` | only until the first stable release |
+| master | `dev` | only until a release is published |
 | `v1.0.0`, `v1.2.3` | `1.0`, `1.2` | yes |
 | `v1.0.0a1`, `v1.0.0rc1` | `1.0.0a1`, `1.0.0rc1` | no |
 
@@ -181,8 +181,8 @@ nobody has a reason to choose between, so `v1.2.3` publishes as `1.2`. `latest`
 is the alias the site's root redirects to, and it is what a link into the
 documentation should use.
 
-Releasing 1.0.0 takes nothing beyond tagging it: the development documentation
-answers to `latest` only while no stable release exists, so the tag takes the
+Releasing 1.0.0 takes nothing beyond tagging it. Which version holds `latest` is
+read off the deployed site rather than off the tags, so the release takes the
 alias over and master stops claiming it on its own.
 
 The one thing that is not in the repository is the GitHub setting: **Settings →

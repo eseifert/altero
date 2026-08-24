@@ -27,8 +27,9 @@ jobs:
     name: Build and publish
     runs-on: ubuntu-latest
     steps:
-      # The whole history: the version this run publishes is decided from the
-      # tags, and mike needs the gh-pages branch it is about to add to.
+      # The whole history, so that the gh-pages branch this run adds to is
+      # fetched along with it: mike reads what is already published there to
+      # decide what `latest` should point at.
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
@@ -69,16 +70,22 @@ jobs:
               ;;
             *)
               version="dev"
-              # Until a stable release exists the development documentation is
-              # the only documentation, so it answers to `latest` as well. The
-              # moment v1.0.0 is tagged that stops being true, the tag takes
-              # the alias over, and this branch stops claiming it -- with
-              # nothing to remember to change by hand.
-              if git tag --list 'v*' | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-                alias=""
-              else
-                alias="latest"
-              fi
+              # `latest` is what the site's root redirects to, so it has to
+              # point at something from the first deploy onwards. Whoever holds
+              # it now decides: a release holds it and keeps it, and until one
+              # does, the development documentation is the only documentation
+              # and answers to `latest` as well -- refreshing the alias on
+              # every push rather than leaving it at the first build.
+              #
+              # Asking the deployed site rather than the tags is deliberate.
+              # The 0.x tags were made retroactively, long before any of this
+              # was published, so "has something been released" answers yes and
+              # means no.
+              holder="$(uv run mike list --config-file zensical.toml latest 2>/dev/null || true)"
+              case "${holder}" in
+                ""|dev|dev\ *) alias="latest" ;;
+                *)              alias="" ;;
+              esac
               ;;
           esac
           echo "version=${version}" >> "$GITHUB_OUTPUT"
