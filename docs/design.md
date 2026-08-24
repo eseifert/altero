@@ -1,15 +1,9 @@
 # The design system
 
-What the web interface looks like: the surfaces, the shapes and the states every
-screen is built from. One card, one toolbar, one row, drawn once in
-`web/src/styles/surfaces.css` and imported wherever they are used, so that a
-screen written next year looks like the screens written this one.
-`web/src/styles/surfaces.node.spec.ts` fails when a component draws its own
-instead.
+**Audience:** contributors working on the browser interface  
+**You do not need this page to install, administer or use altero.**
 
-Material 3 is the frame, seeded from a teal (`web/src/styles/tokens.css`), with
-light and dark following the operating system unless somebody chooses. What
-follows is what altero does *inside* that frame, which is where the choices are.
+This is the implementation reference for altero's browser UI. The short rule is: **fill groups, outline controls, hairline separates**. Shared surfaces and tokens should be reused rather than redrawn in individual components.
 
 ## The one rule
 
@@ -234,7 +228,7 @@ their glyphs unchanged.
 express can also be done without one: filing and copying through **Move or
 copy…**, trashing and deleting through the tools, and a collection is moved by a
 picker rather than dragged at all. See
-[web-interface.md](web-interface.md#by-touch).
+[web/library.md](web/library.md#by-touch).
 
 **Authentication (3.3.8).** Nothing asks a reader to solve a puzzle, transcribe
 an image or remember anything but their password, and nothing prevents pasting

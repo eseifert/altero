@@ -1,77 +1,70 @@
 # Connecting a Zotero client
 
-## Point a test installation at it
+This page describes how to connect an **unmodified Zotero Desktop** installation to altero.
 
-altero is not finished, and a sync sends the client's data to it. Use a test
-profile rather than the installation holding a library you care about.
+**Audience:** Zotero users and testers  
+**Before you begin:** use a test profile or a library you can recreate.
 
-## The desktop application
+## Configure Zotero Desktop
 
-The client's API base URL is a hidden preference. In Zotero, open
-**Settings → Advanced → Config Editor**, accept the warning, and set:
+Open **Settings → Advanced → Config Editor** and set both preferences:
 
-    extensions.zotero.api.url = http://localhost:8000/
+```text
+extensions.zotero.api.url = http://localhost:8000/
+extensions.zotero.streaming.url = ws://localhost:8000/stream
+```
 
-The trailing slash matters. Set one more, in the same editor:
+The trailing slash on `extensions.zotero.api.url` matters.
 
-    extensions.zotero.streaming.url = ws://localhost:8000/stream
+For a server behind TLS, use `https://` for the API and `wss://` for streaming.
 
-`api.url` does not redirect the streaming API. The client resolves that
-separately, falling back to a compiled-in `wss://stream.zotero.org`, and sends
-your API key to it — a key that grants full access to your private library
-would go to zotero.org, which rejects it as unknown and may log it. See
-[compatibility.md](compatibility.md).
+> [!IMPORTANT]
+> `api.url` does not redirect the streaming connection. If `extensions.zotero.streaming.url` is left unchanged, Zotero falls back to its built-in `wss://stream.zotero.org` endpoint and may send the altero API key there. zotero.org rejects that key, but the key may appear in upstream logs.
 
-altero serves that socket itself, at `/stream`, so pointing the preference at
-it is both the safe answer and the useful one: the client is told the moment a
-library changes instead of waiting for its next poll. Over TLS the scheme is
-`wss://`. If you would rather not use it at all, turn it off instead — what
-must not be left is the compiled-in default:
+If you do not want streaming updates, disable streaming explicitly:
 
-    extensions.zotero.streaming.enabled = false
+```text
+extensions.zotero.streaming.enabled = false
+```
 
-Then restart Zotero and open **Settings → Sync → Link Account**.
+Restart Zotero after changing the preferences.
 
-## How the client gets its key
+## Link the account
 
-Zotero authenticates by opening a page in the browser and polling until it is
-approved. That page is this server's own [web interface](web-interface.md):
-sign in, confirm with your password, and the client picks up its key on the
-next poll. Nothing else is needed.
+In Zotero, open **Settings → Sync → Link Account**.
 
-Confirming asks for the password even though you are already signed in. The key
-it creates reads and writes every library the account can reach and keeps
-working until it is removed in Settings, so a link somebody sends you should
-not be enough on its own.
+The client then:
 
-Without the web interface built, that page serves the command-line instructions
-instead, and they still work:
+1. asks altero to create a temporary login session;
+2. opens altero's browser interface;
+3. waits while you sign in and approve the client; and
+4. receives an API key for synchronization.
+
+The key can access the personal and group libraries available to that account, as Zotero expects.
+
+Approving the client asks for the password again even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity.
+
+## Command-line approval
+
+If the browser interface is not built, the same login can be approved from the server shell:
 
 ```sh
 uv run altero login list
 uv run altero login approve <token> <username>
 ```
 
-The client picks the key up on its next poll — usually within a few seconds —
-and syncing proceeds normally. `login approve` issues a key unless you point it
-at an existing one with `--key`.
+`login approve` creates a key unless you supply an existing one with `--key`.
 
-Either way the key covers group libraries as well as the personal one, which is
-what the client expects to sync.
+## Test with two desktop clients
 
-## Two of them at once
+Two Zotero installations on one machine can use separate profiles and data directories. This is useful for testing whether changes really travel through the server rather than only exercising one side of sync.
 
-Two installations on one machine are two profiles and two data directories,
-which is how the sync itself gets tested rather than only replayed:
-[testing-two-clients.md](testing-two-clients.md).
+See [Syncing two desktop clients](testing-two-clients.md).
 
-## Mobile is not possible
+## Mobile apps are not supported
 
-The desktop application is the only client this works with. Zotero for iOS and
-for Android compile `https://api.zotero.org` into the build — a
-`buildConfigField` on Android, a constant on iOS — with no preference, no debug
-screen and no runtime override. A phone reaches another server only from a
-patched build, which this project will not produce.
+altero currently works with Zotero Desktop only.
 
-[motivation.md](motivation.md) sets out the evidence, why the non-goal it runs
-into is worth keeping, and why asking upstream is not the missing step.
+The official Zotero iOS and Android applications compile `https://api.zotero.org` into the application and expose no runtime setting for another API host. Supporting them would require patched mobile builds, which is outside altero's scope.
+
+For the reasoning and evidence behind that boundary, see [Why altero exists](motivation.md).

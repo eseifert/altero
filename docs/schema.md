@@ -1,14 +1,9 @@
 # Database schema
 
-altero's schema is compared against the official
-[dataserver](https://github.com/zotero/dataserver), whose definitions live in
-`misc/master.sql` (shared data) and `misc/shard.sql` (per-library data). The
-dataserver shards libraries across MySQL servers; altero uses one database, so
-the split between the two files is not reproduced.
+**Audience:** developers, database maintainers and operators investigating recovery or concurrency issues  
+**You do not need this page for routine installation or use.**
 
-Names differ throughout: the dataserver uses `camelCase` columns and singular
-key names (`itemID`, `collectionName`), altero uses `snake_case` and plural
-table names. Only differences of substance are listed below.
+This reference explains the data-model decisions that matter for Zotero compatibility. It compares altero with the official dataserver and focuses on substantive differences rather than naming conventions.
 
 ## Adopted from the dataserver
 

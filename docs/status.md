@@ -1,156 +1,83 @@
 # What works
 
-The v3 API surface altero serves, what it does not serve yet, and the two
-things the desktop client asks for that no data server documents.
+This page is the feature-level status of altero's Zotero v3 compatibility.
 
-## Implemented
+**Audience:** evaluators, testers and developers  
+**Short version:** ordinary Zotero Desktop synchronization is the target; the official mobile apps are not supported.
 
-- Authentication by `Zotero-API-Key` header, bearer token or `key` parameter,
-  with per-library and per-group permissions
-- `/keys/<key>` and `/users/<userID>/groups`, the latter also as
-  `format=versions`, which is how the client asks which groups it has
-- Group administration: creating a group, changing its metadata, deleting it,
-  and adding, promoting, demoting and removing members — with an API key and a
-  JSON body where upstream wants a superuser and XML
-- The group policies `libraryReading`, `libraryEditing` and `fileEditing`,
-  enforced rather than merely stored, with membership a ceiling over all three
-- Finer roles for one member of a group — read only, add but not remove, only
-  their own items — which Zotero has been asked for since 2010 and does not
-  have. A fourth ceiling under the group's own policy; see
-  [compatibility.md](compatibility.md#finer-roles-for-one-member) for how a
-  read-only member is expressed to a sync client and why the other two show up
-  as sync errors
-- The schema endpoints (`/itemTypes`, `/itemFields`, `/itemTypeFields`,
-  `/itemTypeCreatorTypes`, `/creatorFields`, `/items/new`, `/schema`)
-- Reading items, collections, saved searches and tags, including `format=json`,
-  `atom`, `keys` and `versions`, pagination with the `Link` header, sorting,
-  `since`, and `If-Modified-Since-Version`
-- Atom feeds and entries, with `content` choosing the body: `html`, `json`,
-  `bib`, `citation`, `csljson`, the export formats, `none`, or several at once
-- Tag listings scoped to a library, a collection, one item, the top level or
-  the trash
-- Writing items, collections and saved searches, and deleting tags, with the
-  multi-object response, version preconditions and `Zotero-Write-Token`
-- Renaming a tag with `PATCH <prefix>/tags/<name>`, which upstream does not
-  serve at all — see [compatibility.md](compatibility.md#renaming-a-tag)
-- Copying a personal library in from zotero.org, from the browser or with
-  `altero migrate zotero`, keeping every key and version — see
-  [compatibility.md](compatibility.md#reading-a-library-out-of-zoteroorg)
-- Recognising an object re-sent unchanged, so it keeps its version and the
-  library's does not move
-- `inPublications`, the My Publications flag, with the refusals upstream
-  attaches to it, and — from the browser — publishing a work on the terms the
-  desktop client's wizard collects, licence included, with the licence
-  changeable afterwards through the item's `rights` field; see
-  [compatibility.md](compatibility.md#publishing-from-the-browser)
-- Trashing collections and saved searches, which sync as a `deleted` flag on
-  the object rather than as a deletion
-- `relations` on both items and collections, including a predicate that names
-  several objects
-- `/users/<id>/publications/items`, `settings` and `deleted`, readable without
-  a key — or by whichever narrower audience the account has chosen; see
-  [compatibility.md](compatibility.md#who-may-read-my-publications)
-- Profile pages in the browser at `/app/u/<username>`: one person's published
-  work, the files it was published with, and the licence they are under, read
-  by anyone the account allows
-- Sharing one collection by link, at `/app/shared/<token>`, read by whoever
-  holds it and with no account needed. Deliberately not a sync feature: see
-  [web-interface.md](web-interface.md#sharing-one) for why the request that has
-  been open since 2008 is answered as a page
-- Rate limiting, off unless configured, answering `429` with `Retry-After`
-- Citations and bibliographies: `format=bib`, `format=csljson` and
-  `include=bib,citation,csljson`, in any of the styles published by the
-  [CSL project](https://github.com/citation-style-language/styles), with
-  `style`, `locale` and `linkwrap`. Nothing is fetched at request time
-- Every export format zotero.org serves — `bibtex`, `biblatex`, `bookmarks`,
-  `coins`, `csv`, `endnote_xml`, `evernote`, `mods`, `rdf_bibliontology`,
-  `rdf_dc`, `rdf_zotero`, `refer`, `refworks_tagged`, `ris`, `tei` and
-  `wikipedia` — and the matching `include` values. Each is a port of the Zotero
-  translator that writes it rather than a format invented here, and most
-  reproduce it byte for byte; see
-  [compatibility.md](compatibility.md#citations-and-bibliographies). The browser writes
-  the same list and CSL JSON as a file, for a library, a collection or a
-  selection; see [web-interface.md](web-interface.md#writing-items-out)
-- Items of every type, including notes, attachments and annotations, whose
-  fields the published schema does not list
-- Client-supplied `dateAdded` and `dateModified`, kept as sent
-- `/deleted?since=`, so a client that has been away can tell a deletion from an
-  object it has not fetched
-- Library settings, and attachment full-text, including the batch upload the
-  desktop client uses, and searching it: `q` with `qmode=everything` reaches the
-  stored text, and a `/top` listing answers with the item the matching
-  attachment or note hangs under
-- The attachment file protocol, storing files once per digest
-- The streaming API, at `/stream`: a client pointed at it with
-  `extensions.zotero.streaming.url` is told the moment a library changes
-  instead of waiting for its next poll
-- Group notifications: a member can ask to be told when a shared library gains
-  items, loses them, changes hands or is reorganised, and hears about it once
-  the library has been quiet — in the interface, and by mail where there is an
-  address. Off for everybody until they turn it on. Upstream has never had
-  this; the request goes back to 2019 in the dataserver's own tracker
-- The activity log behind it, readable in the browser: who changed what in a
-  group and when, naming the items and collections each change touched as they
-  were called at the time, for every member rather than only administrators.
-  This is `dataserver#89`, open since 2019
-- `meta.createdByUser` and `meta.lastModifiedByUser` on an item in a group, as
-  upstream serves them, and sorting by either with `sort=addedBy` and
-  `sort=editedBy` — the latter is `dataserver#153`, which upstream has open and
-  has not built
-- An instance administrator, and the operator's view that needed one: what the
-  server is running and what each library costs on disk, real against nominal —
-  a number zotero.org cannot report, because it stores a file per library and
-  altero stores one per digest
-- Retention the operator sets: how long an item stays in the trash, how long
-  delivered group activity is kept, how long an unfinished upload is
-  remembered. Never by default. The trash sweep is an ordinary delete, so the
-  library takes one new version and `/deleted?since=` tells every client what
-  went
-- Account lifecycle in the browser: making an account for somebody else,
-  issuing a link they set their own password from, suspending one — refused at
-  both credentials, the API key and the cookie alike — revoking credentials,
-  and deleting an account with its library
-- Provisioning from the command line, CORS, and API version negotiation
-- A second factor by email, alongside the authenticator app, and the way back
-  in when the authenticator is what cannot be reached
-- Passkeys, as a first factor and as a second. A passkey signs in on its own —
-  no username, no code afterwards — and counts as having proved yourself. Needs
-  `ALTERO_PUBLIC_URL`, because a passkey is bound to the address it was
-  enrolled at
-- Signing in through an OpenID Connect or SAML 2.0 provider, configured per
-  instance from **Administration → Sign-in providers**. It reaches the browser
-  session and nothing else: the v3 API stays API-key-only, and a desktop client
-  still takes a key issued from a signed-in browser. SAML is SP-initiated only,
-  with no encrypted assertions and no Single Logout
+## User-facing capabilities
+
+| Capability | Status | Notes |
+| --- | :---: | --- |
+| Zotero Desktop synchronization | ✅ | Items, collections, tags, saved searches and deletions |
+| Notes and annotations | ✅ | Included in normal item synchronization |
+| Attachment file sync | ✅ | Files stored once per digest |
+| Full-text upload and search | ✅ | Uses the database rather than Elasticsearch |
+| Group libraries | ✅ | Includes group policy and membership |
+| My Publications | ✅ | Includes browser publishing and profile pages |
+| Citations and bibliographies | ✅ | CSL-based styles and Zotero-compatible formats |
+| Zotero export formats | ✅ | API and browser export support |
+| Browser interface | ✅ | Library browsing, account settings, groups and administration |
+| OIDC and SAML browser sign-in | ✅ | API authentication remains API-key based |
+| Passkeys and optional second factors | ✅ | Passkeys require a stable public URL |
+| Import a personal library from zotero.org | ✅ | Preserves object keys and versions |
+| Zotero iOS and Android apps | ❌ | No runtime alternate API host in the official apps |
+
+## Synchronization and API behavior implemented
+
+altero implements the parts of the v3 API needed by the desktop client, including:
+
+- API-key authentication and per-library permissions;
+- personal and group library discovery;
+- item, collection, saved-search and tag reads;
+- `json`, `atom`, `keys` and `versions` response formats;
+- pagination, sorting, `since` and version-aware conditional requests;
+- item, collection and saved-search writes with version preconditions;
+- deleted-object synchronization;
+- library settings;
+- attachment full text;
+- the three-step attachment file protocol;
+- the streaming API at `/stream`;
+- My Publications and publication visibility;
+- citations, bibliographies, CSL JSON and Zotero export formats;
+- group creation, membership and group policy;
+- rate limiting when enabled; and
+- API version negotiation.
+
+The compatibility reference documents behavior that differs from the public API documentation or that had to be learned from the real client or server: [Compatibility notes](compatibility.md).
+
+## Additional altero features
+
+These are not required for basic Zotero compatibility but are available on an altero instance:
+
+- browser-based account and API-key management;
+- instance administration without library-wide superuser access;
+- OpenID Connect and SAML 2.0 browser sign-in;
+- passkeys, authenticator-app second factors and email codes;
+- per-member group permissions such as read-only, add-without-remove and own-items-only;
+- group activity and opt-in notifications;
+- configurable retention;
+- server-side tag rename;
+- single-collection sharing links;
+- storage reporting; and
+- whole-library export/import and migration from zotero.org.
 
 ## Not implemented
 
-- Zotero's note translators, `Note HTML` and `Note Markdown`, which write a note
-  rather than a bibliography. Neither is an export format the API serves
+- Zotero's **Note HTML** and **Note Markdown** translators. These create a note rather than an ordinary bibliography/export response.
+- The official Zotero iOS and Android clients, because they cannot be pointed at an alternate API host at runtime.
 
-Group administration, registration and the invitation flow are also in the web
-interface; it has its own list of what is and is not built, see
-[web-interface.md](web-interface.md).
+## Client requests without a reference server implementation
 
-## Two things the client asks for that no data server documents
+Two client behaviors do not have a corresponding implementation in the public dataserver source:
 
-`GET /retractions/list`, which the desktop client polls to flag retracted
-papers, and the streaming API it opens a WebSocket to, appear nowhere in the
-dataserver source. There is no reference implementation to copy for either.
+- `GET /retractions/list`; and
+- the streaming WebSocket service.
 
-altero answers the first with `404` rather than an empty list, which would
-assert that nothing in the library has been retracted. The client logs the
-failure and syncs normally.
+altero currently answers the retractions request with `404`. Zotero logs the failure and continues syncing. The streaming API is implemented from the published protocol and observed client behavior.
 
-The streaming API *is* documented, so it is implemented — from the published
-protocol, with the handful of inferred details marked as such in
-[compatibility.md](compatibility.md). It is reached at a compiled-in
-`wss://stream.zotero.org` unless `extensions.zotero.streaming.url` is set,
-which is why [connecting a client](clients.md) now sets that preference: left
-alone, the client hands an API key to zotero.org.
+## Library versions and concurrent writes
 
-## One version per request
+Writes to a library are serialized so one request advances the library by one version, even when that request changes several objects. This is important because Zotero synchronization uses the library version as its consistency boundary.
 
-Writes to a library are serialized, so one request produces exactly one new
-version however many objects it touches. See
-[schema.md](schema.md#concurrency) for how, and for what happens without it.
+See [Database schema](schema.md#concurrency) for the implementation details.

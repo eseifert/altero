@@ -1,19 +1,28 @@
-# Compatibility notes
+# Compatibility reference
 
-altero targets the Zotero desktop application, so where the published
-documentation and the official [dataserver](https://github.com/zotero/dataserver)
-disagree, the dataserver wins — even when its behaviour looks like a bug. Every
-such case is listed here, with the source that settles it.
+This document records Zotero behavior that altero must reproduce even when the public API documentation is incomplete, ambiguous or different from the reference server.
 
-Three sources are used throughout:
+**Audience:** developers and operators investigating compatibility problems  
+**You do not need this page to install or use altero.** Start with [Getting started](getting-started.md), [Deployment](deployment.md) or [Web interface](web-interface.md) instead.
 
-- the live API at `https://api.zotero.org`, compared response by response
-- the reference implementation, chiefly `model/API.inc.php`,
-  `model/Tags.inc.php` and `model/Items.inc.php`
-- read-only requests against a real personal library, which settled the points
-  the first two left ambiguous
+## How to use this reference
 
-## Search syntax
+altero targets the unmodified Zotero Desktop application. At the protocol boundary, the practical rule is:
+
+> When published documentation and the behavior required by the real client disagree, compatibility with the real service wins.
+
+The evidence used here comes from three places:
+
+- the live API at `https://api.zotero.org`, compared response by response;
+- the official dataserver implementation; and
+- read-only requests and observed exchanges from real Zotero libraries and clients where the first two sources are incomplete.
+
+Each section explains a concrete behavior, why altero implements it that way, and—where relevant—how altero deliberately differs.
+
+
+## API queries and response behavior
+
+### Search syntax
 
 `Zotero_API::getSearchParamValues` (`model/API.inc.php`) is the authority for
 the `itemType` and `tag` parameters, and it differs from the prose documentation
@@ -39,7 +48,7 @@ uses the spaced form, so clients are unaffected.
 A leading hyphen is escaped as `\-`, and only the whole value is stripped —
 once, before parsing — so inner spacing in `tag=foo bar || bar` survives.
 
-## Quick search and full-text search
+### Quick search and full-text search
 
 `q` is a different parameter from the two above and parses by different rules:
 `Zotero_Utilities::parseSearchString` splits it, and `Zotero_Items::search`
@@ -133,7 +142,7 @@ The matched item must be untrashed, and so must the parent it resolves to:
 upstream joins `deletedItems` a second time on the top-level item for exactly
 this, so a hit inside a trashed item's PDF does not resurrect it.
 
-## Who added an item, and who last changed it
+### Who added an item, and who last changed it
 
 `Zotero_Item::toResponseJSON` puts two blocks in an item's `meta` for a group
 library, and `Zotero_Items::search` sorts on them. Both are copied, including
@@ -164,7 +173,7 @@ it omits every `alternate` link — see [Deliberate differences](#deliberate-dif
 failure and emits no block; altero resolves a page's accounts in one query and
 renders nothing for an id it cannot find, which arrives at the same place.
 
-### Sorting by a person
+#### Sorting by a person
 
 **`sort=addedBy` orders by the author's name**, not the username and not the
 id, because that is what upstream's temp table is filled from.
@@ -188,7 +197,7 @@ A client that sends it here and to api.zotero.org will get an answer here and
 `Invalid 'sort' value` there; nothing altero can do about that, and no client
 sends it today because upstream never offered it.
 
-## Pagination of the sync formats
+### Pagination of the sync formats
 
 `Zotero_API::getLimitMax` returns `0` for `format=keys` and `format=versions`,
 and their default limit is `0` as well. Zero means *no limit*: both formats
@@ -202,7 +211,7 @@ and is not capped at 100.
 
 For every other format the maximum stays 100 and the default 25.
 
-## Naming objects by key
+### Naming objects by key
 
 `itemKey`, `collectionKey` and `searchKey` are one case in
 `Zotero_API::parseQueryParams`, and it does three things worth copying exactly.
@@ -229,7 +238,7 @@ than 50 outright, answered a smaller batch with a 25-object page, and ignored
 `collectionKey` and `searchKey` altogether. A library with fewer than 25
 changed objects hides all three; one with 309 does not.
 
-## Parameter handling
+### Parameter handling
 
 | Behaviour | Source |
 | --- | --- |
@@ -242,7 +251,7 @@ changed objects hides all three; one with 309 does not.
 | `numItems` is a valid sort only for tag endpoints | `parseQueryParams`, `case 'sort'` |
 | `extra` and `serverDateModified` are valid item sort fields | same |
 
-## Response shapes
+### Response shapes
 
 Confirmed against a live library rather than inferred.
 
@@ -281,7 +290,7 @@ order before emitting them, which for an attachment reads `linkMode`, `title`,
 `accessDate`, `url`, `contentType`, `charset`, `filename`, `md5`, `mtime`,
 `note`. That is the order zotero.org serves, read off a migrated library.
 
-## Fields the published schema does not list
+### Fields the published schema does not list
 
 `https://api.zotero.org/schema` gives `attachment` only `title`, `accessDate`
 and `url`, and gives `note` and `annotation` no fields at all. All three carry
@@ -297,7 +306,7 @@ that table is still rejected, so a storage field on a `book` is an error.
 
 If a write is refused with `Invalid field`, this is the first place to look.
 
-## Timestamps
+### Timestamps
 
 `dateAdded` and `dateModified` come from the client and round-trip unchanged, so
 uploading an existing library keeps its history instead of rewriting every item
@@ -305,7 +314,7 @@ to the moment of upload. `serverDateModified` is always the server's own, which
 is what makes sorting by it trustworthy: a client cannot reorder another
 client's results by backdating its own timestamps.
 
-## Citations and bibliographies
+### Citations and bibliographies
 
 Upstream has no citation code of its own: `Zotero_Cite` posts CSL JSON to a
 citation server running citeproc-js and re-styles the HTML that comes back
@@ -457,7 +466,7 @@ renders nothing at all), defaulting the delimiters around a style's `and`
 normalizing punctuation at a concatenation seam (without which an initialled
 name reads `Doe, J..`).
 
-## Item type schema
+### Item type schema
 
 These came out of comparing all 163 schema responses against the live API.
 
@@ -481,7 +490,10 @@ templates with `director`. Both behaviours are reproduced, so a template fetched
 from altero is interchangeable with one fetched from Zotero. See
 `TEMPLATE_CREATOR_TYPES` in `altero/itemschema/registry.py`.
 
-## The file protocol
+
+## Files and synchronization
+
+### The file protocol
 
 Uploading a file is three requests — authorize, send the bytes, register — and
 altero speaks the same exchange, including the `uploadKey` carried between the
@@ -498,7 +510,7 @@ Uploaded bytes are checked against the declared MD5 and length before being
 stored, and `If-Match` or `If-None-Match` is required, so a client working from
 stale information cannot overwrite a newer file.
 
-### Downloading is a redirect, and has to be
+#### Downloading is a redirect, and has to be
 
 `GET <prefix>/items/<key>/file` answers **302**, carrying three headers:
 
@@ -526,7 +538,7 @@ an ordinary API route behind the same key. Nothing is signed into the URL
 because nothing needs to be — the client resends its headers when it follows a
 redirect within one host.
 
-### Telling an archive from a file
+#### Telling an archive from a file
 
 The client zips a snapshot before uploading it, and sends `zipMD5` for the
 archive while `md5` keeps describing the file inside. A snapshot migrated out of
@@ -542,7 +554,10 @@ from an attachment that is itself a ZIP — a .docx or .epub hashes to what its
 item claims. Digests are cached per file identity, so a library syncing
 repeatedly hashes each archive once.
 
-## Obtaining a key
+
+## Authentication and client login
+
+### Obtaining a key
 
 The desktop client asks for `POST /keys/sessions`, opens the `loginURL` it gets
 back in a browser, and polls `GET /keys/sessions/<token>` until the response
@@ -631,7 +646,7 @@ same kind of credential — a session cookie — plus `altero key add` and
 `altero key revoke` for an operator. What an API key can do to itself is what
 upstream lets it do: read `/keys/current` and delete it.
 
-## What the desktop client actually sends
+### What the desktop client actually sends
 
 Two of these were found by running the real client, not by reading the
 documentation, and neither is described there.
@@ -796,7 +811,7 @@ for its next poll to hear about a change.
 
 [streaming]: https://www.zotero.org/support/dev/web_api/v3/streaming_api
 
-## The streaming API
+### The streaming API
 
 Served at `/stream`. Upstream's is the root of a host of its own; altero is one
 application, so it gets a path under it, and the client is pointed at it with
@@ -864,7 +879,7 @@ delivers an event only to the clients attached to the worker that served the
 write; the others hear nothing and fall back on polling, which is what they did
 before. Streaming across workers needs a shared bus, which this is not.
 
-## Atom
+### Atom
 
 `format=atom` is served by the item, collection, saved search and tag
 endpoints, for listings and for single objects, with `content` choosing the
@@ -912,7 +927,7 @@ collection, saved search or tag, for the reason `include` is refused outside
 `format=json`: a caller that asked for a citation and got an empty body has no
 way to tell that from an object that has none.
 
-## API versions
+### API versions
 
 Only version 3 is served. A request naming another version through the
 `Zotero-API-Version` header or the `v` parameter is refused with `400` rather
@@ -922,7 +937,7 @@ pagination, none of which altero serves. Returning v3 bodies under a v2 label
 would be worse than saying so. A header and a parameter that disagree are also
 refused, as upstream does.
 
-## The `relations` map
+### The `relations` map
 
 `Zotero_DataObject::getRelations` builds the map from stored predicate-object
 pairs: the first object for a predicate is emitted as a **string**, and a second
@@ -951,7 +966,7 @@ collections, so it accepts relations that api.zotero.org would refuse. That is
 the permissive direction, so no client is broken by it, but a library moved from
 altero to zotero.org could carry a relation that upstream rejects.
 
-## Backoff and Retry-After
+### Backoff and Retry-After
 
 Both headers must be **whole seconds** or the client discards them.
 `Zotero.Sync.APIClient._checkRetry` logs "Invalid Retry-After delay" and returns
@@ -968,7 +983,10 @@ altero refuses with 429 and a whole-second `Retry-After`, never below 1. It does
 not send `Backoff`: that header asks a client to slow down while the server is
 still answering, which needs a load signal this server does not have.
 
-## My Publications
+
+## Libraries, groups and altero extensions
+
+### My Publications
 
 `/users/<id>/publications/items` is read **without a key** — upstream's own test
 file sets `API::useAPIKey("")` for every case in it and expects 200. Only items
@@ -997,13 +1015,13 @@ publications library, a separate library that altero has never had and cannot
 create. Reproducing it would mean refusing every modern client that has
 published anything, with advice it has already followed.
 
-### Who may read My Publications
+#### Who may read My Publications
 
 Upstream: anybody. The list is served without a key, and there is no setting.
 
 altero keeps that as the default and lets the account narrow it, because a
 personal server is not a service — see
-[web-interface.md](web-interface.md#who-can-see-it). The setting is one column
+[web/sharing.md](web/sharing.md#who-can-see-it). The setting is one column
 on the account, `public` for every account that existed before it did, and it is
 enforced on the v3 endpoints as well as on the profile page:
 
@@ -1024,7 +1042,7 @@ An instance that never touches the setting behaves exactly as the dataserver
 does, which is what upstream's own test file expects when it reads every case
 with `API::useAPIKey("")`.
 
-### Profile pages
+#### Profile pages
 
 Upstream's profile page is `zotero.org/<slug>`, built by
 `Zotero_URI::getUserURI` from the username put through
@@ -1041,7 +1059,7 @@ and so does the heading here. There is no `alternate` link to zotero.org for the
 same reason the item envelopes carry none: altero will not point a reader at
 somebody else's copy of the data.
 
-### Publishing from the browser
+#### Publishing from the browser
 
 Setting `inPublications` is all the v3 API knows about publishing, and it is
 not all publishing *is*. The desktop client asks four things before it sets the
@@ -1097,7 +1115,7 @@ reports while a Creative Commons licence is still being chosen, and it reaches
 anyway. Choosing Creative Commons here always leads to the two questions that
 narrow it to one of the six.
 
-## Trashing a collection or a saved search
+### Trashing a collection or a saved search
 
 Zotero trashes these by setting `deleted` on the object, not by deleting it, and
 syncs the flag like any other property —
@@ -1126,7 +1144,7 @@ semantics upstream — their own endpoint and an `includeTrashed` parameter — 
 The value must be a boolean or the integers 0 or 1, as upstream requires;
 without that check a string `"false"` would read as trashed.
 
-## `inPublications`
+### `inPublications`
 
 An ordinary item property upstream, and one altero used to reject outright with
 "Invalid field" — a per-item `400` for anything the user had put in My
@@ -1171,7 +1189,7 @@ The public listing of published items is served — see *My Publications* above.
 Putting an item into that list from the browser, with the options the desktop
 client's wizard offers, is *Publishing from the browser* below.
 
-## A POSTed batch is a batch of patches
+### A POSTed batch is a batch of patches
 
 `Zotero_DataObjects::updateMultipleFromJSON` passes `$partialUpdate = true` for
 every object in the batch, and each type's validator is then called with
@@ -1226,7 +1244,7 @@ An item with no creators carries no `creators` property at all
 `tags`, `collections` and `relations` are emitted even when empty. That
 asymmetry is upstream's and is mirrored.
 
-## Objects that were sent again without changing
+### Objects that were sent again without changing
 
 An object identical to the stored one is reported under `unchanged` and keeps
 its version, as upstream does: `Zotero_DataObjects::updateMultipleFromJSON`
@@ -1252,7 +1270,7 @@ report to put the answer in, and upstream's controller ignores the flag there
 too. The full-text batch is a different upstream code path (`Zotero_FullText`)
 and is left alone.
 
-## Groups
+### Groups
 
 Upstream serves `POST /groups`, `PUT /groups/<id>`, `DELETE /groups/<id>` and
 `POST /groups/<id>/users`, and none of them is part of the API a client uses:
@@ -1308,7 +1326,7 @@ the library's as both, so a role change costs connected clients one sync poll
 that finds nothing new. That is the cheaper mistake: a client that has not
 noticed it was demoted is one that still believes it may write.
 
-## Finer roles for one member
+### Finer roles for one member
 
 A Zotero group decides who may edit as a property of the group — `members` or
 `admins`, the same answer for everybody in it. A read-only member, one who may
@@ -1357,7 +1375,7 @@ including their own, so a restriction on one would be a thing the interface
 displayed and nothing enforced. Setting one is refused, and promoting somebody
 to administrator clears theirs.
 
-### One library version, two representations
+#### One library version, two representations
 
 Only `read` can be said in a vocabulary a sync client already understands, and
 this is how it is said: `libraryEditing` renders as `admins` in **that
@@ -1378,7 +1396,7 @@ membership change.
 `services/groups.editing_for` is the whole of it, and it is the only place the
 rendered value can come from.
 
-### `add` and `own` surface as sync errors
+#### `add` and `own` surface as sync errors
 
 Neither has any client vocabulary, and altero does not invent one: they are
 enforcement and nothing else. A desktop client belonging to a restricted member
@@ -1397,7 +1415,7 @@ know that is what it will look like from the other side; the browser interface
 knows about both and does not offer the controls, which is the only place the
 restriction can be shown before it is hit.
 
-### Where a permission is set
+#### Where a permission is set
 
 `PUT /groups/<id>/users/<userID>` takes `permission` alongside `role`, and
 either alone. Both in one request applies the role first, so a demotion
@@ -1408,7 +1426,7 @@ so that "come and read this" and "come and help with this" are different
 invitations, and `altero group permission <group> <username> <permission>` does
 it from a shell.
 
-## Renaming a tag
+### Renaming a tag
 
 `PATCH <prefix>/tags/<name>`, taking `{"tag": "<new name>"}` and answering
 `204` with the new `Last-Modified-Version`. Nothing upstream serves this.
@@ -1463,7 +1481,7 @@ The browser reaches the same service through `PATCH
 of a key and no version header. See
 [web-interface.md](web-interface.md#tags).
 
-## The desktop client's three extra views
+### The desktop client's three extra views
 
 The client's sidebar holds three rows that are not collections and not scopes
 the v3 API has: **Recently Read**, **Duplicate Items** and **Unfiled Items**.
@@ -1499,7 +1517,7 @@ and the attachment itself where it has no parent. **The 90 days is a guess**:
 without it the row would grow into "everything ever opened", which is not what
 a row called Recently Read is for.
 
-## Reading a library out of zotero.org
+### Reading a library out of zotero.org
 
 Everywhere else in this document altero is answering requests. This is the one
 place it makes them: `services/zoteroapi.py` reads a personal library from
@@ -1562,7 +1580,10 @@ api.zotero.org absolutely, so following it would send a fetch pointed anywhere
 else — a test, a proxy, another altero — back to the real thing halfway
 through.
 
-## Not verifying the ID token's signature
+
+## Identity-provider security notes
+
+### Not verifying the ID token's signature
 
 Not a compatibility decision — nothing upstream has an opinion, since zotero.org
 has no single sign-on — but the same kind of decision, and recorded here for the
@@ -1598,7 +1619,7 @@ test per way a token could otherwise be somebody else's.
 exemption does not cover one, and a signature verifier would have to be written
 before the flow could be offered.
 
-## Reading a SAML assertion out of what was signed
+### Reading a SAML assertion out of what was signed
 
 The same kind of decision as the one above, and the reason it is written down:
 the code looks like it is doing less than it should.
@@ -1630,7 +1651,10 @@ key ever signed; **no encrypted assertions**, since TLS covers the transport;
 and **no Single Logout**, which is unreliable in practice and altero's session
 is its own.
 
-## Deliberate differences
+
+## Deliberate differences from zotero.org
+
+### Deliberate differences
 
 Six places where altero does not copy upstream:
 

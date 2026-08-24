@@ -326,14 +326,17 @@ The core architectural rule is that the web framework stays at the API boundary.
 
 ## Documentation
 
+The documentation is organized by task; [docs/README.md](docs/README.md) is the index and names a reading path for evaluating, operating, using and developing altero.
+
 | Document | What it covers |
 |---|---|
+| [getting-started.md](docs/getting-started.md) | A local instance and a test client, from nothing |
 | [motivation.md](docs/motivation.md) | Why altero exists and what it is trying to achieve |
 | [status.md](docs/status.md) | Implemented and missing API behavior |
 | [clients.md](docs/clients.md) | Connecting Zotero Desktop |
 | [deployment.md](docs/deployment.md) | Configuration, deployment and upgrades |
 | [administration.md](docs/administration.md) | Accounts, keys, groups and libraries |
-| [web-interface.md](docs/web-interface.md) | Browser application |
+| [web-interface.md](docs/web-interface.md) | Browser application, over the pages in [docs/web/](docs/web/) |
 | [compatibility.md](docs/compatibility.md) | Upstream quirks and deliberate differences |
 | [schema.md](docs/schema.md) | Database design |
 | [email.md](docs/email.md) | Outgoing email configuration |

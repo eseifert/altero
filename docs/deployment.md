@@ -1,199 +1,224 @@
-# Running altero
+# Deployment
 
-## Requirements
+This page covers running and operating altero. For a first local test, [Getting started](getting-started.md) is shorter.
 
-- Python 3.14 or newer
-- [uv](https://docs.astral.sh/uv/)
+**Audience:** self-hosters and server administrators
 
-SQLite is the default and needs nothing further. For PostgreSQL outside a
-container, install the driver with the `postgres` extra: `uv sync --extra
-postgres`.
+## Choose how to run altero
 
-## From a source checkout
+| Method | Best for | Database |
+| --- | --- | --- |
+| Docker Compose | Easiest evaluation and normal self-hosting | PostgreSQL |
+| Source checkout | Development or direct Python deployment | SQLite by default; PostgreSQL optional |
 
-```sh
-uv sync
-cp config.example.py config.py
-uv run alembic upgrade head
-uv run altero user add <username>
-uv run altero key add <username> --name laptop
-uv run altero
-```
+For a server used by several people, prefer PostgreSQL.
 
-The server listens on `http://127.0.0.1:8000` by default. `key add` prints the
-new key once and it cannot be shown again.
+## Docker Compose
 
-## In a container
+Start the stack from the repository root:
 
 ```sh
 docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 ```
 
-That is PostgreSQL, altero and a volume for attachments. Everything the
-container needs lives in `docker/`; run the commands from the repository root,
-or `export COMPOSE_FILE=docker/compose.yaml` once and drop the `-f`.
+The stack contains PostgreSQL, altero and persistent attachment storage.
 
-The image is built from the checkout — nothing publishes one — so an upgrade is
-a `git pull` and a rebuild:
+The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
+
+### Production settings to change first
+
+Before putting real data on the instance:
+
+1. Set a real `POSTGRES_PASSWORD`.
+2. Set `ALTERO_PUBLIC_URL` to the URL users will actually open.
+3. Terminate TLS in front of altero.
+4. Decide whether outgoing email is required; see [Email](email.md).
+5. If a reverse proxy forwards client addresses, configure `ALTERO_FORWARDED_ALLOW_IPS` correctly.
+
+Container settings belong in **`docker/.env`**, beside `docker/compose.yaml`.
+
+To see the values Compose resolved:
+
+```sh
+docker compose -f docker/compose.yaml config
+```
+
+### Upgrade altero
+
+The altero image is built from the checkout; there is no published altero image to pull.
 
 ```sh
 git pull
 docker compose -f docker/compose.yaml up -d --build
 ```
 
-`--build` is the part that matters. Without it `up -d` finds the image it
-already built and starts that, so the new code never runs; and `docker compose
-pull` does not stand in for it, because there is no altero image to fetch. It
-says so — `altero Skipped - No image to be pulled` — and then exits 0, having
-updated PostgreSQL's image and nothing else. Use it when that is what you mean:
+`--build` is important. Without it, Compose can restart the old locally built image.
+
+Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.
+
+To update only the PostgreSQL image within the currently compatible major version:
 
 ```sh
 docker compose -f docker/compose.yaml pull db
 ```
 
-Migrations run on start, so there is nothing else to remember; a failed
-migration exits the container rather than serving against a schema it does not
-understand.
+### Upgrade PostgreSQL across a major version
 
-The API is published on the loopback interface only — put a TLS terminator in
-front of it rather than exposing it directly. `ALTERO_PUBLISH_PORT` moves it,
-and `POSTGRES_PASSWORD` should be set to something other than its default
-before anything real goes in.
+altero's migrations do not upgrade PostgreSQL's own on-disk data format.
 
-Settings for the container go in **`docker/.env`**, beside the compose file
-rather than at the repository root — that is where Compose looks, whichever
-directory the command was run from, and `.env` is ignored by git so a password
-in it stays local. `docker compose -f docker/compose.yaml config` prints what
-the settled values actually are, which is the quick way to see that one
-arrived. Outgoing mail is configured the same way; see [email.md](email.md).
+Moving a PostgreSQL volume to a new major version requires a dump and restore, for example with `pg_dump` from the old server and `psql` into the new one. The PostgreSQL image will refuse an incompatible data directory rather than silently adopting it.
 
-### Upgrading PostgreSQL itself
+## From a source checkout
 
-Migrations on start cover altero's own schema, not PostgreSQL's. The database
-is pinned to PostgreSQL 18, and moving a volume across a major version of
-PostgreSQL is a dump and restore — the image refuses to start on a data
-directory written by an older one, naming the version that wrote it, rather
-than adopting it. `pg_dump` against the old container and `psql` into the new
-one is the whole of it.
+Requirements:
 
-`altero library export` moves a library between instances, but not the users
-and keys that own it; see [administration.md](administration.md).
+- Python 3.14 or newer;
+- [uv](https://docs.astral.sh/uv/).
 
-## Health
+SQLite is the default. For PostgreSQL outside Docker, install the extra dependency:
 
-`GET /health` is the readiness probe, and is what the container's own
-`HEALTHCHECK` polls:
-
-```json
-{"status": "ok", "version": "0.1.0", "apiVersion": 3, "schemaVersion": 42,
- "revision": "c1b573deea88"}
+```sh
+uv sync --extra postgres
 ```
 
-`revision` is the migration the database is stamped with, which is the question
-worth asking during an upgrade. It answers `503` with nothing but
-`{"status": "error"}` when the database cannot be reached: the endpoint needs
-no credentials, so it says nothing about why.
+For a basic SQLite installation:
+
+```sh
+uv sync
+cp config.example.py config.py
+uv run alembic upgrade head
+uv run altero user add <username>
+uv run altero
+```
+
+The default address is:
+
+```text
+http://127.0.0.1:8000
+```
+
+You can create an API key directly if needed:
+
+```sh
+uv run altero key add <username> --name laptop
+```
+
+The key is printed once and cannot be displayed again.
+
+## Health check
+
+`GET /health` is the readiness endpoint and is also used by the container health check.
+
+A successful response includes the application version, API version, schema version and database migration revision, for example:
+
+```json
+{
+  "status": "ok",
+  "version": "0.1.0",
+  "apiVersion": 3,
+  "schemaVersion": 42,
+  "revision": "c1b573deea88"
+}
+```
+
+If the database is unavailable, the endpoint returns `503` with:
+
+```json
+{"status": "error"}
+```
+
+Because `/health` is unauthenticated, it intentionally does not expose the database failure details.
 
 ## Configuration
 
-Copy `config.example.py` to `config.py` and edit it. Every setting can also be
-supplied as an `ALTERO_`-prefixed environment variable, which takes precedence
-over the file:
+For a source installation, copy `config.example.py` to `config.py`.
+
+Every setting can also be supplied as an `ALTERO_`-prefixed environment variable. Environment variables take precedence over the configuration file.
+
+Example:
 
 ```sh
 ALTERO_PORT=9000 ALTERO_DEBUG=true uv run altero
 ```
 
-Set `ALTERO_CONFIG` to load a configuration module from another path.
+Set `ALTERO_CONFIG` if the configuration module lives at another path.
 
-## Outgoing mail
+## Public URL
 
-Confirmations, invitations and security notices need a relay:
-`ALTERO_SMTP_URL`, `ALTERO_MAIL_FROM` and `ALTERO_PUBLIC_URL`. Without one they
-are written to the log instead, which is deliberate — it is how the owner of a
-fresh container reads the confirmation link and finishes registering. See
-[email.md](email.md).
+`ALTERO_PUBLIC_URL` should be the stable external URL of the instance, for example:
 
-The one message that does **not** fall back to the log is a self-service
-password reset. `ALTERO_PASSWORD_RESET` puts "forgotten your password?" on the
-sign-in page, and it does nothing at all without a relay configured: a link
-that sets a password, written to a log, is one anybody who can read the log can
-follow. It is off by default either way, because it makes the mailbox part of
-the authentication. An administrator can issue the same link from
-**Administration → Accounts** on any instance.
+```text
+https://altero.example.org
+```
+
+It becomes required in practice when you use features that generate callbacks or bind credentials to a host:
+
+- OpenID Connect or SAML sign-in;
+- passkeys;
+- links in outgoing email.
+
+Changing the **host** of `ALTERO_PUBLIC_URL` invalidates existing passkeys. Changing only the scheme or port does not.
+
+## Outgoing email
+
+Email uses:
+
+- `ALTERO_SMTP_URL`;
+- `ALTERO_MAIL_FROM`; and
+- `ALTERO_PUBLIC_URL`.
+
+Without an SMTP relay, most messages are written to the log instead. Self-service password reset is the exception: it is not enabled without a relay because a password-reset link must not be exposed in server logs.
+
+See [Email](email.md) for relay URLs, Docker details, security notices and group digests.
 
 ## Single sign-on
 
-`ALTERO_PUBLIC_URL` stops being optional the moment a sign-in provider is
-configured. The callback address a directory has to be told is built from it,
-and behind a proxy the address a request arrived on is the proxy's idea of it —
-a redirect URI that does not match the registered one is refused by the
-directory outright. The **Sign-in providers** screen shows the address it will
-use and says so when the variable is unset. See
-[administration.md](administration.md#sign-in-providers).
+OpenID Connect and SAML 2.0 providers are configured in **Administration → Sign-in providers**.
 
-## Passkeys
+Set `ALTERO_PUBLIC_URL` first. The callback/redirect address shown in the administration screen is built from that value and must match the address registered with the identity provider.
 
-`ALTERO_PUBLIC_URL` again, and here it is not optional at all: a passkey is
-bound to the host it was enrolled under, so an instance that guessed that from
-whatever request arrived would hand out passkeys that stop working the moment
-the address changes — silently, and weeks later. Without the setting altero
-does not offer passkeys, and `/web/config` says so, rather than drawing a
-button that cannot work. The relying party is logged at start-up so the value
-in force is visible.
-
-Changing `ALTERO_PUBLIC_URL` to a different **host** invalidates every passkey
-on the instance. Changing the scheme or the port does not.
+See [Administration](administration.md#sign-in-providers).
 
 ## Group notifications
 
-A member of a group library can ask to be told when it changes. Nobody is
-subscribed by default, so on most instances there is nothing to configure and
-nothing is sent.
+Group notifications are opt-in per member and per group.
 
-Two settings decide the pacing, and a sweep runs inside the server process to
-apply them:
+Two settings control digest delivery:
 
 ```sh
-ALTERO_GROUP_DIGEST_QUIET_PERIOD=900   # wait this long after the last change
-ALTERO_GROUP_DIGEST_INTERVAL=60        # look this often; 0 disables entirely
+ALTERO_GROUP_DIGEST_QUIET_PERIOD=900
+ALTERO_GROUP_DIGEST_INTERVAL=60
 ```
 
-`ALTERO_GROUP_DIGEST_INTERVAL=0` turns the feature off outright: nothing is
-sent and nothing is shown, though activity is still recorded, so turning it
-back on later delivers what accumulated rather than losing it.
+`ALTERO_GROUP_DIGEST_INTERVAL=0` disables delivery. Activity is still recorded, so it can be delivered after the feature is re-enabled.
 
-Unlike the streaming API, this is safe behind several workers. The sweep claims
-what it is about to send in the database, so one digest goes out however many
-processes are running. See
-[email.md](email.md#group-notifications).
+See [Email](email.md#group-notifications).
 
 ## Behind a reverse proxy
 
-The address altero records and counts is the proxy's until
-`ALTERO_FORWARDED_ALLOW_IPS` names it. That one setting decides both what the
-rate limiter counts and what is shown as an API key's last-used address.
+Without trusted forwarded headers, altero sees the proxy's address rather than the original client's address.
 
-Only name a proxy that overwrites the header it forwards. Naming one that
-passes a client-supplied header through lets a caller choose which address is
-attributed to it.
+`ALTERO_FORWARDED_ALLOW_IPS` identifies proxies whose forwarded address headers altero may trust. This affects both rate limiting and the “last used from” address shown for API keys.
+
+Only trust a proxy that **overwrites** forwarded-address headers. If a trusted proxy simply passes a client-supplied header through, the client can choose the address attributed to its request.
 
 ## Rate limiting
 
-Off by default, because a personal instance has nothing to throttle and a limit
-nobody asked for turns a working sync into a stuck one. To allow, say, 600
-requests a minute per API key:
+Rate limiting is off by default.
+
+Example: allow 600 requests per 60 seconds per API key:
 
 ```sh
 ALTERO_RATE_LIMIT=600 ALTERO_RATE_LIMIT_WINDOW=60 uv run altero
 ```
 
-A caller over its allowance gets `429` with `Retry-After` in whole seconds,
-which is what the client pauses on. Unauthenticated requests are counted per
-address, and `/health` is never limited.
+Requests over the limit receive `429` with a whole-second `Retry-After`, which Zotero understands.
 
-The count lives in the serving process, so behind several workers each keeps
-its own and the real allowance is that many times the configured one. It is
-there to stop a runaway client, not a determined one; that belongs in whatever
-terminates TLS in front of altero.
+Unauthenticated requests are counted per client address. `/health` is never rate limited.
+
+The limiter is process-local. With several application workers, each process has its own allowance. Use the reverse proxy or another edge component if you need a deployment-wide defensive limit.
+
+## Moving or restoring data
+
+For whole-library export/import, migration from zotero.org and recovery after recreating a database, see [Administration](administration.md#library-transfer-and-recovery).
