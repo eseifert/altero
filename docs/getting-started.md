@@ -9,7 +9,15 @@ This guide gets a local altero instance running and connects a **test** Zotero D
 
 ## 1. Start altero with Docker Compose
 
-From a checkout of the repository:
+The image is published, so a checkout is optional. In an empty directory:
+
+```sh
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
+docker compose up -d
+docker compose exec altero altero user add <username>
+```
+
+From a checkout of the repository, name the file where it lives instead:
 
 ```sh
 docker compose -f docker/compose.yaml up -d

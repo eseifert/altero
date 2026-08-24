@@ -13,14 +13,25 @@ For a server used by several people, prefer PostgreSQL.
 
 ## Docker Compose
 
-Start the stack from the repository root:
+The image is published as `ghcr.io/eseifert/altero`, so running altero needs no checkout and no build. From a repository checkout:
 
 ```sh
 docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 ```
 
+Without one, the Compose file on its own is the deployment:
+
+```sh
+mkdir altero && cd altero
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
+docker compose up -d
+docker compose exec altero altero user add <username>
+```
+
 The stack contains PostgreSQL, altero and persistent attachment storage.
+
+`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: a version such as `1.0.0-alpha.1` pins one release, and `dev` follows master.
 
 The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
 
@@ -44,14 +55,12 @@ docker compose -f docker/compose.yaml config
 
 ### Upgrade altero
 
-The altero image is built from the checkout; there is no published altero image to pull.
-
 ```sh
-git pull
-docker compose -f docker/compose.yaml up -d --build
+docker compose -f docker/compose.yaml pull altero
+docker compose -f docker/compose.yaml up -d
 ```
 
-`--build` is important. Without it, Compose can restart the old locally built image.
+An instance pinned with `ALTERO_IMAGE_TAG` upgrades when that value changes, not when `pull` runs.
 
 Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.
 
@@ -66,6 +75,32 @@ docker compose -f docker/compose.yaml pull db
 altero's migrations do not upgrade PostgreSQL's own on-disk data format.
 
 Moving a PostgreSQL volume to a new major version requires a dump and restore, for example with `pg_dump` from the old server and `psql` into the new one. The PostgreSQL image will refuse an incompatible data directory rather than silently adopting it.
+
+### Build the image instead of pulling it
+
+A change to the source, the Dockerfile or the web interface wants a locally built image. `docker/compose.build.yaml` adds the build to the same deployment:
+
+```sh
+docker compose -f docker/compose.yaml -f docker/compose.build.yaml up -d --build
+```
+
+It builds `altero:local`, deliberately not the published name, so that a later `docker compose pull` cannot replace a built image without saying so. Both files carry the same project name, so the built stack uses the volumes an earlier pulled one wrote.
+
+### What a small instance costs
+
+Measured on x86-64 from a source checkout, Python 3.14 and SQLite, with the interface built:
+
+| | |
+| --- | --- |
+| altero, idle after start | ~125 MB resident |
+| altero, after light API traffic | ~130 MB resident |
+| Peak during start-up and migration | ~133 MB resident |
+| An empty database, schema only | 0.7 MB |
+| The installed Python environment | ~380 MB |
+
+The container runs the same interpreter and the same packages, so the application's own use is the figure above. Two things sit on top of it and are **not** measured here: the PostgreSQL container in the Compose stack, and the image on disk.
+
+Attachments are what grows. They are stored once per digest, so a file two libraries hold is on disk once; a library's nominal and real usage are reported per library under **Administration → Storage**.
 
 ## From a source checkout
 

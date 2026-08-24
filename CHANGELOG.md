@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The container image is published as `ghcr.io/eseifert/altero` for x86-64 and arm64, so running altero needs neither a checkout nor a build; `docker/compose.yaml` pulls it and `docker/compose.build.yaml` builds from source instead.
 - citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialled name.
 - The documentation is reorganized around six sections: an index, a getting-started page, and the browser guide split into one page per part of the interface.
 - The documentation is published as a site at https://eseifert.github.io/altero/, built by Zensical and deployed on every push, with a version for each release once 1.0.0 is out.

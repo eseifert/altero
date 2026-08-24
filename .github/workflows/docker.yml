@@ -1,0 +1,149 @@
+name: Container image
+
+# What this publishes, and under which names:
+#
+#     ghcr.io/eseifert/altero:dev      every push to master
+#     ghcr.io/eseifert/altero:1.2.3    the v1.2.3 tag
+#     ghcr.io/eseifert/altero:latest   the newest release, prereleases included
+#
+# `latest` moves on every `v*` tag rather than only on a stable one, because
+# until 1.0.0 is out a `latest` that excluded prereleases would not exist, and
+# docker/compose.yaml asks for it by default.
+#
+# The first run creates the package private, whoever owns the repository. Make
+# it public once, under the package's own settings, or every documented
+# `docker compose up` fails on a pull nobody is authenticated for.
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  workflow_dispatch:
+
+# A superseded push to master need not finish; a release tag must.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  # One job per architecture, each on a runner of that architecture. QEMU would
+  # do it in a single job, at the price of emulating `npm ci` and two `uv sync`
+  # runs for arm64 -- tens of minutes for a build that takes a few natively.
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+          - platform: linux/arm64
+            # A NAS or a single-board server is why arm64 is built at all.
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Pushed by digest and left untagged: the tags belong on the manifest
+      # list that the merge job builds out of both architectures, not on either
+      # single-architecture image, which would otherwise claim the name and
+      # leave whoever pulls it on the wrong architecture.
+      - name: Build and push by digest
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: ${{ matrix.platform }}
+          push: true
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true
+          # Scoped per architecture: the two builds share no layers.
+          cache-from: type=gha,scope=${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.platform }}
+          # Set on the build rather than on the manifest list, which is where
+          # they end up being read from. `source` is also what links the
+          # package to this repository on the registry's own pages.
+          labels: |
+            org.opencontainers.image.title=altero
+            org.opencontainers.image.description=Self-hosted sync server for Zotero
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.licenses=AGPL-3.0-or-later
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      # One empty file per architecture, named after the digest, so the merge
+      # job can collect both from a directory without knowing which runners ran.
+      - name: Record the digest
+        run: |
+          digest='${{ steps.build.outputs.digest }}'
+          mkdir -p "${{ runner.temp }}/digests"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          # Artifact names may not contain a slash, and linux/amd64 does.
+          name: digest-${{ matrix.runner }}
+          path: ${{ runner.temp }}/digests/*
+          retention-days: 1
+          if-no-files-found: error
+
+  publish:
+    name: Publish the manifest
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: /tmp/digests
+          pattern: digest-*
+          merge-multiple: true
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Decide the tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          # Spelled out rather than left to the `latest=auto` flavour, which
+          # would withhold `latest` from every prerelease -- see the comment at
+          # the top of this file.
+          flavor: latest=false
+          tags: |
+            type=raw,value=dev,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ github.ref_type == 'tag' }}
+
+      - name: Create the manifest list
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.IMAGE }}@sha256:%s ' *)
+
+      - name: Show what was published
+        run: |
+          for tag in $(jq -r '.tags[]' <<< "$DOCKER_METADATA_OUTPUT_JSON"); do
+            docker buildx imagetools inspect "$tag"
+          done

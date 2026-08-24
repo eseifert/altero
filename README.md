@@ -93,17 +93,19 @@ See [Connecting a Zotero client](https://eseifert.github.io/altero/latest/client
 
 ## Quick start with Docker
 
-Docker Compose is the easiest way to try altero. It starts PostgreSQL, altero and persistent attachment storage.
+Docker Compose is the easiest way to try altero. It starts PostgreSQL, altero and persistent attachment storage. The image is published, so this needs no checkout and no build:
 
 ```bash
-git clone https://github.com/eseifert/altero.git
-cd altero
+mkdir altero && cd altero
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
 
-docker compose -f docker/compose.yaml up -d
-docker compose -f docker/compose.yaml exec altero altero user add <username>
+docker compose up -d
+docker compose exec altero altero user add <username>
 ```
 
-The server is published on the loopback interface by default.
+From a clone of the repository, the same stack is `docker compose -f docker/compose.yaml up -d`.
+
+The server is published on the loopback interface by default. An idle instance uses around 125 MB of memory; attachments are what grows.
 
 For anything beyond local testing, read [Deployment](https://eseifert.github.io/altero/latest/deployment/) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
 

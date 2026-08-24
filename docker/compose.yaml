@@ -7,8 +7,13 @@
 # Run those from the repository root. `-f` is what the file living in docker/
 # costs; `export COMPOSE_FILE=docker/compose.yaml` buys it back for a shell.
 #
+# A checkout is not needed to run altero: the image is published, so this file
+# on its own is a deployment. Downloaded next to a `.env`, it is
+# `docker compose up -d` and nothing else. Building it from a checkout instead
+# is compose.build.yaml beside this file.
+#
 # Point the Zotero client at http://<host>:8000/ and turn its streaming off --
-# see "Using it from the Zotero desktop app" in README.md.
+# see "Point Zotero at altero" in README.md.
 #
 # Named explicitly: the project name otherwise follows the directory the file
 # sits in, and renaming it to "docker" would leave an existing deployment's
@@ -39,11 +44,11 @@ services:
     restart: unless-stopped
 
   altero:
-    # The context is the repository root: the image installs src/, migrations/
-    # and the lock file, none of which are in this directory.
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
+    # Pulled rather than built. `latest` is the newest release, prereleases
+    # included, and moves when one is tagged; ALTERO_IMAGE_TAG pins a release
+    # (`1.0.0-alpha.1`) or follows master (`dev`) instead. An upgrade is
+    # `docker compose pull && docker compose up -d`.
+    image: ghcr.io/eseifert/altero:${ALTERO_IMAGE_TAG:-latest}
     # Migrations run on start, so this is also how an upgrade applies them.
     depends_on:
       db:
