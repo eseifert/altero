@@ -230,11 +230,80 @@ See [Email](email.md#group-notifications).
 
 ## Behind a reverse proxy
 
-Without trusted forwarded headers, altero sees the proxy's address rather than the original client's address.
+Three things have to be right, and a default configuration gets two of them wrong.
 
-`ALTERO_FORWARDED_ALLOW_IPS` identifies proxies whose forwarded address headers altero may trust. This affects both rate limiting and the “last used from” address shown for API keys.
+**Attachment uploads need a large request body.** altero accepts a file of up to 1 GiB. nginx allows 1 MB by default and answers `413` above it, which rejects most PDFs; Zotero reports the attachment as failing to sync. Caddy and Traefik impose no limit of their own.
 
-Only trust a proxy that **overwrites** forwarded-address headers. If a trusted proxy simply passes a client-supplied header through, the client can choose the address attributed to its request.
+**`/stream` is a WebSocket.** It needs the upgrade headers, and a read timeout longer than an idle connection. The connection is not silently idle — the server pings every 20 seconds — so a 60-second timeout is already enough, but a proxy that drops the upgrade entirely leaves Zotero without live updates. Worse, a streaming URL that does not resolve is why [Connecting a Zotero client](clients.md) insists on setting `extensions.zotero.streaming.url`: left at its default, the client sends the altero API key to zotero.org.
+
+**Forwarded addresses are believed only when a proxy is named.** Without `ALTERO_FORWARDED_ALLOW_IPS`, altero sees the proxy's address rather than the client's, and both rate limiting and the “last used from” shown for an API key report one address for everybody. Name only a proxy that **overwrites** the forwarded-address header. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it.
+
+In the Compose stack the proxy is a container, so the value is that container's address on the Docker network — not `127.0.0.1`, which is altero's own container.
+
+Set `ALTERO_PUBLIC_URL` to the URL people actually open. See [Public URL](#public-url); passkeys in particular are bound to that host.
+
+### nginx
+
+```nginx
+server {
+    listen 443 ssl;
+    server_name zotero.example.org;
+
+    # Attachments. The default is 1m, which rejects most PDFs with 413.
+    client_max_body_size 1024m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        # Overwritten, not appended: $proxy_add_x_forwarded_for would carry a
+        # client-supplied header through, and altero believes this one.
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # The streaming API. Same upstream, but the upgrade has to be passed on
+    # explicitly and the connection lives longer than a request.
+    location /stream {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 3600s;
+    }
+}
+```
+
+### Caddy
+
+```caddy
+zotero.example.org {
+    reverse_proxy 127.0.0.1:8000 {
+        # Caddy appends the client to an X-Forwarded-For it was handed;
+        # replacing it is what makes trusting the header safe.
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+```
+
+Caddy needs nothing said about WebSockets or body size: it passes an upgrade through as it stands and imposes no limit of its own.
+
+### Traefik
+
+```yaml
+labels:
+  - traefik.enable=true
+  - traefik.http.routers.altero.rule=Host(`zotero.example.org`)
+  - traefik.http.routers.altero.entrypoints=websecure
+  - traefik.http.routers.altero.tls.certresolver=letsencrypt
+  - traefik.http.services.altero.loadbalancer.server.port=8000
+```
+
+Traefik proxies the WebSocket without configuration and imposes no body limit. It replaces `X-Forwarded-For` with the address the connection came from unless `forwardedHeaders.trustedIPs` is set on the entry point, which is the behaviour to keep.
+
+Reaching altero by container name means both containers share a network, and the `ports:` publication in `docker/compose.yaml` is then unnecessary — remove it rather than exposing the application port beside the proxy.
 
 ## Rate limiting
 
