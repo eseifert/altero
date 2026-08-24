@@ -69,6 +69,18 @@ dev = [
     "ruff>=0.13",
     "ty>=0.0.1a20",
 ]
+# The documentation site, built by `.github/workflows/docs.yml`. A group of
+# its own rather than part of `dev`, so somebody who only wants to run the
+# tests does not pull a site generator and a git checkout along with them:
+# `uv sync` installs `dev` alone, and the docs need `--group docs`.
+docs = [
+    # Renders `> [!WARNING]` as an admonition. The pages under docs/ are read
+    # on GitHub as well as on the site, so they write their callouts the way
+    # GitHub understands and this teaches the site to understand them too.
+    "markdown-callouts>=0.4.0",
+    "mike",
+    "zensical>=0.0.57",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -110,3 +122,9 @@ asyncio_default_fixture_loop_scope = "function"
 [tool.coverage.run]
 source = ["altero"]
 branch = true
+
+[tool.uv.sources]
+# Versioned documentation, until Zensical grows its own. Upstream mike drives
+# MkDocs; this fork drives Zensical instead and is deliberately not published
+# to PyPI, so it can only be had from git. uv.lock pins the commit.
+mike = { git = "https://github.com/squidfunk/mike.git" }

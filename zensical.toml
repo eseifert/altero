@@ -1,0 +1,135 @@
+# The documentation site, published to GitHub Pages by
+# .github/workflows/docs.yml. Build it locally with `uv run zensical serve`.
+
+[project]
+site_name = "altero"
+site_description = "A self-hosted synchronization server for Zotero"
+site_url = "https://eseifert.github.io/altero/"
+site_author = "Erich Seifert"
+copyright = "Copyright &copy; 2026 Erich Seifert &middot; AGPL-3.0-or-later"
+
+docs_dir = "docs"
+site_dir = "site"
+
+repo_url = "https://github.com/eseifert/altero"
+repo_name = "eseifert/altero"
+edit_uri = "edit/master/docs/"
+
+# Six ways in, matching how the pages themselves are written: what altero is,
+# how to try it, how to use it, how to run it, what it does exactly, and how to
+# work on it. A reader should not have to know which file a subject lives in.
+nav = [
+  { "Overview" = [
+    "README.md",
+    "motivation.md",
+  ] },
+  { "Get started" = [
+    "getting-started.md",
+    "clients.md",
+  ] },
+  { "Using altero" = [
+    "web-interface.md",
+    "web/account.md",
+    "web/library.md",
+    "web/sharing.md",
+    "web/groups.md",
+    "web/data-transfer.md",
+  ] },
+  { "Running altero" = [
+    "deployment.md",
+    "administration.md",
+    "email.md",
+  ] },
+  { "Reference" = [
+    "status.md",
+    "compatibility.md",
+    "schema.md",
+  ] },
+  { "Contributing" = [
+    "testing-two-clients.md",
+    "design.md",
+    "web/implementation.md",
+    { "Development guide" = "https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" },
+  ] },
+]
+
+[project.theme]
+language = "en"
+# No Google Fonts: the application self-hosts every face it uses and fetches
+# nothing from a CDN, and its documentation has no business doing otherwise.
+font = false
+features = [
+  "content.action.edit",
+  "content.code.annotate",
+  "content.code.copy",
+  "content.tooltips",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.path",
+  "navigation.tabs",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
+  "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "lucide/sun-moon"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "teal"
+accent = "teal"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "teal"
+accent = "teal"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to system preference"
+
+# Versioned deploys are driven by squidfunk's Zensical-aware fork of mike; see
+# CONTRIBUTING.md. Every version is a subdirectory of site_url, and `latest`
+# is the alias the root redirects to, so a link into the documentation keeps
+# pointing at the current release rather than at whatever master says today.
+[project.extra.version]
+provider = "mike"
+default = "latest"
+alias = true
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/eseifert/altero"
+
+[project.markdown_extensions]
+abbr = {}
+admonition = {}
+attr_list = {}
+def_list = {}
+footnotes = {}
+md_in_html = {}
+tables = {}
+toc.permalink = true
+# The pages are read on GitHub as well as here, so they write their callouts
+# GitHub's way -- `> [!WARNING]` -- and this turns those into admonitions.
+github-callouts = {}
+pymdownx.betterem = {}
+pymdownx.details = {}
+pymdownx.highlight.anchor_linenums = true
+pymdownx.highlight.line_spans = "__span"
+pymdownx.highlight.pygments_lang_class = true
+pymdownx.inlinehilite = {}
+pymdownx.keys = {}
+pymdownx.magiclink = {}
+pymdownx.smartsymbols = {}
+pymdownx.superfences = {}
+pymdownx.tabbed.alternate_style = true
+pymdownx.tasklist.custom_checkbox = true

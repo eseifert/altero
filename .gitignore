@@ -25,6 +25,11 @@ htmlcov/
 .idea/
 *.iml
 
+# Documentation
+# Built by `zensical build`; the published copy lives on the gh-pages branch.
+# (Zensical's own .cache/ ignores itself.)
+/site/
+
 # Frontend
 node_modules/
 # Built by `npm run build` in web/; produced by CI and by the Docker image,

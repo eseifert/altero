@@ -326,7 +326,7 @@ The core architectural rule is that the web framework stays at the API boundary.
 
 ## Documentation
 
-The documentation is organized by task; [docs/README.md](docs/README.md) is the index and names a reading path for evaluating, operating, using and developing altero.
+The documentation is published at **<https://eseifert.github.io/altero/>** and organized by task; [docs/README.md](docs/README.md) is the same index in the repository, and names a reading path for evaluating, operating, using and developing altero.
 
 | Document | What it covers |
 |---|---|

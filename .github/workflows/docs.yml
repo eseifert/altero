@@ -1,0 +1,115 @@
+name: Documentation
+
+on:
+  push:
+    branches: [master]
+    # A release publishes the documentation that describes it. Without this the
+    # site would only ever show what master says, which is not what somebody
+    # running the released server needs to read.
+    tags: ["v*"]
+  workflow_dispatch:
+
+# Every deploy is a commit on gh-pages. Two runs pushing at once would have one
+# of them rejected, so they queue instead -- and unlike CI, a superseded run is
+# still worth finishing: it may be the release deploy.
+concurrency:
+  group: documentation
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  UV_PYTHON: "3.14"
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    steps:
+      # The whole history: the version this run publishes is decided from the
+      # tags, and mike needs the gh-pages branch it is about to add to.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Pinned to an exact release: setup-uv publishes floating major tags only
+      # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --locked --group docs
+
+      - name: Decide which version this is
+        id: version
+        run: |
+          set -euo pipefail
+          case "${GITHUB_REF}" in
+            refs/tags/*)
+              tag="${GITHUB_REF#refs/tags/}"
+              version="${tag#v}"
+              case "${version}" in
+                # 1.0.0a1, 1.0.0rc2. A prerelease is published under its own
+                # full version and never becomes `latest`: somebody who follows
+                # a link to the documentation wants the release, not the
+                # release candidate.
+                *[!0-9.]*)
+                  alias=""
+                  ;;
+                # 1.2.3 is published as 1.2, so a patch release corrects the
+                # pages it corrects instead of adding a version nobody has a
+                # reason to choose between.
+                *)
+                  version="${version%.*}"
+                  alias="latest"
+                  ;;
+              esac
+              ;;
+            *)
+              version="dev"
+              # Until a stable release exists the development documentation is
+              # the only documentation, so it answers to `latest` as well. The
+              # moment v1.0.0 is tagged that stops being true, the tag takes
+              # the alias over, and this branch stops claiming it -- with
+              # nothing to remember to change by hand.
+              if git tag --list 'v*' | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+                alias=""
+              else
+                alias="latest"
+              fi
+              ;;
+          esac
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "alias=${alias}" >> "$GITHUB_OUTPUT"
+          echo "Publishing ${version} ${alias:+(alias: ${alias})}"
+
+      - name: Configure the committer
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # `--alias-type=copy` rather than mike's default symlink: GitHub Pages
+      # refuses to build a branch containing symbolic links. The copies cost
+      # nothing in the repository, since identical files are one git object.
+      - name: Publish
+        run: >
+          uv run mike deploy
+          --config-file zensical.toml
+          --alias-type=copy
+          --update-aliases
+          --push
+          ${{ steps.version.outputs.version }}
+          ${{ steps.version.outputs.alias }}
+
+      # Whoever takes `latest` is what the site opens on. A prerelease or a dev
+      # build that did not claim the alias leaves the released documentation in
+      # place, which is the point of having the alias at all.
+      - name: Point the site at it
+        if: steps.version.outputs.alias != ''
+        run: >
+          uv run mike set-default
+          --config-file zensical.toml
+          --push
+          ${{ steps.version.outputs.alias }}

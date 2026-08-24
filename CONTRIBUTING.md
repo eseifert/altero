@@ -139,6 +139,60 @@ that are worth a look.
 Keep to portable constructs. SQLite is the default and PostgreSQL is the
 supported deployment, so nothing may depend on features of one alone.
 
+## Documentation
+
+The pages under `docs/` are the documentation site at
+<https://eseifert.github.io/altero/>, built by [Zensical](https://zensical.org)
+from `zensical.toml` in the repository root. They are also read on GitHub, which
+is why they keep GitHub's own callout syntax (`> [!WARNING]`) rather than
+Markdown admonitions: the `github-callouts` extension turns those into
+admonitions for the site, so one source renders properly in both places.
+
+```sh
+uv sync --group docs
+uv run zensical serve -a localhost:8001  # rebuilds as you type; :8000 is
+                                        # the altero server's own port
+uv run zensical build --strict          # what CI runs
+```
+
+`--strict` fails on a link to a page that no longer exists or an anchor that was
+renamed. Run it after moving anything in `docs/`.
+
+The navigation is six categories, defined by `nav` in `zensical.toml`, and a new
+page belongs in one of them: **Overview**, **Get started**, **Using altero**,
+**Running altero**, **Reference**, **Contributing**. A page left out of `nav` is
+still built and still reachable by link, but nothing leads to it.
+
+### How a version gets published
+
+`.github/workflows/docs.yml` publishes to the `gh-pages` branch on every push to
+master and on every `v*` tag, using [mike][mike] — squidfunk's fork of it, which
+drives Zensical rather than MkDocs. Zensical will grow versioning of its own, at
+which point this goes away.
+
+| What was pushed | Published as | `latest` |
+| --- | --- | --- |
+| master | `dev` | only until the first stable release |
+| `v1.0.0`, `v1.2.3` | `1.0`, `1.2` | yes |
+| `v1.0.0a1`, `v1.0.0rc1` | `1.0.0a1`, `1.0.0rc1` | no |
+
+A patch release replaces the pages it corrects rather than adding a version
+nobody has a reason to choose between, so `v1.2.3` publishes as `1.2`. `latest`
+is the alias the site's root redirects to, and it is what a link into the
+documentation should use.
+
+Releasing 1.0.0 takes nothing beyond tagging it: the development documentation
+answers to `latest` only while no stable release exists, so the tag takes the
+alias over and master stops claiming it on its own.
+
+The one thing that is not in the repository is the GitHub setting: **Settings →
+Pages → Build and deployment → Deploy from a branch → `gh-pages` / (root)**.
+Aliases are deployed as copies rather than symbolic links, because Pages refuses
+to build a branch that contains one; identical files are a single git object, so
+the copies cost nothing.
+
+[mike]: https://github.com/squidfunk/mike
+
 ## Before opening a pull request
 
 ```sh

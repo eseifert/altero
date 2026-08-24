@@ -153,3 +153,24 @@ jobs:
         env:
           ALTERO_DATABASE_URL: sqlite+aiosqlite:///ci.sqlite
         run: uv run alembic check
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Pinned to an exact release: setup-uv publishes floating major tags only
+      # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --locked --group docs
+
+      # `--strict` fails the build on a link to a page that moved or an anchor
+      # that was renamed. The deploy workflow would publish both without a
+      # word, and a restructuring of docs/ leaves exactly those behind.
+      - name: Build
+        run: uv run zensical build --clean --strict
