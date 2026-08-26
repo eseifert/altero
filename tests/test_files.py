@@ -347,6 +347,15 @@ class TestDownload:
 
         assert (await client.get(f"/users/1/items/{attachment}/file")).status_code == 403
 
+    async def test_download_redirect_preserves_credential_in_location(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        await upload(client, attachment)
+
+        response = await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)
+        assert response.status_code == 302
+        assert response.headers["location"] == f"/users/1/items/{attachment}/file/content?key={AUTH['Zotero-API-Key']}"
+
     async def test_a_file_missing_from_disk_is_a_404(
         self, client: httpx.AsyncClient, attachment: str, settings: Settings
     ) -> None:

@@ -17,6 +17,7 @@ from altero.api.deps import (
     FileWritableLibraryDep,
     ReadableLibraryDep,
     SessionDep,
+    get_credential,
 )
 from altero.api.responses import library_headers
 from altero.errors import RequestTooLargeError
@@ -130,10 +131,16 @@ async def download_file(
     path, fields = await storage.stored_file(item, _storage_root(request))
 
     compressed = storage.is_compressed(path, fields["md5"])
+    credential = get_credential(request)
+    location = (
+        f"{request.url.path}/content?key={credential}"
+        if credential
+        else f"{request.url.path}/content"
+    )
     return Response(
         status_code=302,
         headers={
-            "Location": f"{request.url.path}/content",
+            "Location": location,
             "Zotero-File-Modification-Time": fields.get("mtime") or "0",
             "Zotero-File-MD5": fields["md5"],
             "Zotero-File-Compressed": "Yes" if compressed else "No",
