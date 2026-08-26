@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("slug", sa.String(length=32), nullable=False),
         sa.Column("kind", sa.String(length=8), nullable=False),
         sa.Column("display_name", sa.String(length=64), nullable=False),
-        sa.Column("enabled", sa.Boolean(), server_default=sa.text("1"), nullable=False),
+        sa.Column("enabled", sa.Boolean(), server_default=sa.true(), nullable=False),
         sa.Column("issuer", sa.String(length=255), nullable=False),
         sa.Column("client_id", sa.String(length=255), nullable=False),
         sa.Column("client_secret", sa.Text(), nullable=False),
