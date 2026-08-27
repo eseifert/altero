@@ -1379,6 +1379,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Downloading is a redirect, and has to be">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-location-has-to-be-a-credential" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The location has to be a credential
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2222,6 +2239,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Downloading is a redirect, and has to be">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-location-has-to-be-a-credential" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The location has to be a credential
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -3127,20 +3161,41 @@ stale information cannot overwrite a newer file.</p>
 </tbody>
 </table>
 <p>Upstream sends these on the redirect to S3, and the client reads them there and
-nowhere else: <code>zfs.js</code> fills its <code>requestData</code> inside <code>asyncOnChannelRedirect</code>,
-so a 200 carrying the bytes — however it is labelled — reaches
+nowhere else, so a 200 carrying the bytes — however it is labelled — reaches
 <code>Zotero.Sync.Storage.Local.processDownload</code> with nothing set and throws
 <code>'data.mtime' not set</code>. altero answered 200 and every attachment in the library
 failed to download, on every sync, with "A file sync error occurred".</p>
 <p>The client needs the redirect for a second reason. It compares
-<code>Zotero-File-Modification-Time</code> with the local file and, when they match,
-<em>aborts</em> the redirect rather than fetching bytes it already has. Metadata hung
-on the response that carries the file would arrive too late to save the
-transfer.</p>
-<p>Having no S3, altero redirects to itself: <code>&lt;prefix&gt;/items/&lt;key&gt;/file/content</code>,
-an ordinary API route behind the same key. Nothing is signed into the URL
-because nothing needs to be — the client resends its headers when it follows a
-redirect within one host.</p>
+<code>Zotero-File-Modification-Time</code> with the local file and, when they match, never
+asks for the bytes at all. Metadata hung on the response that carries the file
+would arrive too late to save the transfer.</p>
+<h5 id="the-location-has-to-be-a-credential">The location has to be a credential<a class="headerlink" href="#the-location-has-to-be-a-credential" title="Permanent link">&para;</a></h5>
+<p>The client does not follow the redirect. <code>zfs.js</code> asks for the file with
+<code>followRedirects: false</code>, reads the three headers off the 302, and then makes a
+<em>second, fresh</em> request for the location — <code>Zotero.HTTP.download(fileURL, …)</code>,
+which is passed no <code>headers</code> at all. Upstream can do that because its location
+is a presigned S3 URL, which is a credential in itself.</p>
+<p>So altero's has to be one too. <code>GET &lt;prefix&gt;/items/&lt;key&gt;/file</code> grants a
+short-lived permission for that one file and points at
+<code>/storage/download/&lt;key&gt;</code>, the mirror image of <code>/storage/upload/&lt;key&gt;</code>: the key
+in the path is the whole credential, no API key is taken there and none is
+accepted. It expires after five minutes, it is checked against the digest the
+302 promised so it cannot be spent on whatever the attachment holds later, and
+the redirect carries <code>Cache-Control: no-store</code> so no shared cache keeps it. It
+is deliberately <em>not</em> one-shot — <code>Zotero.HTTP.download</code> retries the same URL
+after a 5xx or a dropped connection.</p>
+<p>The obvious alternative, appending the caller's API key to the location as
+<code>?key=…</code>, works and was rejected. An API key grants the whole account and never
+expires, and a reverse proxy writes every request line to its access log; altero
+ships configurations for three of them.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before Zotero's April 2026 rewrite of <code>HTTP.download()</code> the client followed
+this redirect inside one channel, which carried its headers along, and the
+location could be an ordinary API route behind the same key. That route,
+<code>&lt;prefix&gt;/items/&lt;key&gt;/file/content</code>, is still served for callers that have a
+key and would rather ask for the bytes directly.</p>
+</div>
 <h4 id="telling-an-archive-from-a-file">Telling an archive from a file<a class="headerlink" href="#telling-an-archive-from-a-file" title="Permanent link">&para;</a></h4>
 <p>The client zips a snapshot before uploading it, and sends <code>zipMD5</code> for the
 archive while <code>md5</code> keeps describing the file inside. A snapshot migrated out of
