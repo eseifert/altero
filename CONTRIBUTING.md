@@ -45,7 +45,7 @@ rewriting the server.
 add a module that legitimately starts the server, add it to `FRAMEWORK_MODULES`
 there rather than loosening the check.
 
-## Deciding what the right behaviour is
+## Deciding what the right behavior is
 
 Three sources, in decreasing order of authority:
 
@@ -75,9 +75,9 @@ is not evidence that anything works. When fixing a bug, revert the fix and watch
 the test go red before you commit. This is not ceremony: it caught a concurrency
 test on this project that passed just as happily with the bug present.
 
-**Test through the layer the behaviour belongs to.** Rules that are pure
+**Test through the layer the behavior belongs to.** Rules that are pure
 functions of their input — search syntax, pagination arithmetic, key
-validation — get unit tests with no database. Endpoint behaviour gets tested
+validation — get unit tests with no database. Endpoint behavior gets tested
 through an HTTP client against the app. Prefer the lower layer where there is a
 choice; it is faster and the failure is easier to read.
 
@@ -87,13 +87,13 @@ items left pointing at a deleted parent, and an attachment template the server
 itself would not accept back. If a change touches the request path, run the
 server and use it.
 
-**Name the behaviour, not the function.** `test_negation_covers_every_alternative`
+**Name the behavior, not the function.** `test_negation_covers_every_alternative`
 survives a refactor; `test_parse_expression_2` does not.
 
 ## Commits
 
 One change per commit, with a message that explains **why**. The diff already
-says what changed. What it cannot say is which of three plausible behaviours the
+says what changed. What it cannot say is which of three plausible behaviors the
 API actually has, or that a limit exists because the desktop client would
 otherwise silently believe a library holds 25 objects.
 
@@ -103,7 +103,7 @@ library, say so in the message. The next person will have the same doubt.
 ## Adding an endpoint
 
 1. Check the shape against the live API before writing anything.
-2. Put the behaviour in `services/`, the routing in `api/routes/`.
+2. Put the behavior in `services/`, the routing in `api/routes/`.
 3. Add it to the inventory in `tests/test_routes.py`. That test fails both when
    a route disappears and when an undeclared one appears — deliberately, because
    restructuring has twice dropped an endpoint silently. Under PEP 649 a
@@ -163,6 +163,29 @@ page belongs in one of them: **Overview**, **Get started**, **Using altero**,
 **Running altero**, **Reference**, **Contributing**. A page left out of `nav` is
 still built and still reachable by link, but nothing leads to it.
 
+### One English
+
+The pages are written in American English, and so is every other page in the
+repository that somebody reads: `-ize` and `-ization`, *behavior*, *color*,
+*license* as both noun and verb, *catalog*, *gray*, *analyze*, *defense*,
+*judgment*, *labeled*.
+
+That is not a preference about English. `web/src/locales/en-US.ts` is the
+canonical catalog every other one is checked against, `web/src/i18n.ts` falls
+back to it, and a bare `en` resolves to it, so American is what the interface
+says when nobody has chosen otherwise. `en-GB.ts` renames the Trash to the Bin
+and *Choose a License* to *Choose a Licence*; a page written in British English
+would name buttons that most readers do not have. It is also the language of
+everything the pages quote — the `Authorization` header, `/oauth/authorize`,
+and Zotero's own schema, API and dataserver — so the alternative is
+code-switching every other sentence.
+
+Three things follow. A string quoted from the interface is copied from
+`en-US.ts` exactly, whatever it spells. A date written in prose is ISO-style,
+`2026-08-28`, so it does not depend on where the reader is. And identifiers,
+headers, file names and quoted upstream text are left alone: `loginCancelled`
+is a name in the client, not a spelling.
+
 ### How a version gets published
 
 `.github/workflows/docs.yml` publishes to the `gh-pages` branch on every push to
@@ -206,6 +229,6 @@ CI runs the same checks, plus PostgreSQL for the concurrency tests and
 `alembic check` for schema drift. It fails if any test skipped, so a green run
 locally without `ALTERO_TEST_POSTGRES_URL` set is weaker evidence than it looks.
 
-If you changed observable behaviour, say in the pull request how you established
-what the behaviour should be. "The documentation says so" is not sufficient on
+If you changed observable behavior, say in the pull request how you established
+what the behavior should be. "The documentation says so" is not sufficient on
 its own — see above.

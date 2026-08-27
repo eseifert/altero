@@ -151,7 +151,7 @@ working.
 Settings lists the keys on the account: what each may do, when it was made, and
 when and from where it was last used. That last part is what makes the list
 worth having — a key never used, or last seen from an address nobody
-recognises, is one to remove.
+recognizes, is one to remove.
 
 Creating a key asks for the password, because it hands out a new credential.
 Revoking one does not: the moment somebody reaches for that is the moment a key
@@ -189,7 +189,7 @@ How an operator registers an application, and what a client developer needs:
 ### Language and time zone
 
 The interface speaks English, German, French, Spanish, Portuguese, Italian,
-Dutch, Danish, Polish, Russian, Japanese and Chinese — fifteen catalogues,
+Dutch, Danish, Polish, Russian, Japanese and Chinese — fifteen catalogs,
 because three of those are written differently in different places and are
 carried twice: American and British English, Brazilian and European Portuguese,
 Simplified and Traditional Chinese. They are the same three Zotero splits.
@@ -211,12 +211,12 @@ and takes what the CLDR data in the browser gives back, so Danish separates the
 hour with a full stop — *4. apr. 2019, 00.30* — Russian ends a date in *г.*,
 Chinese and Japanese write 2019年4月4日, and none of that is altero's doing.
 Sizes go the same way, which is why a Russian reader is told *1,5 МБ* although
-no catalogue holds a byte unit. What the tests in `stores/locale.spec.ts` hold
+no catalog holds a byte unit. What the tests in `stores/locale.spec.ts` hold
 is the one thing that *is* ours: that each language reaches `Intl` at all, a
 wrong tag being the failure that would otherwise show every reader English
 dates in a translated page.
 
-A tag is narrowed to the catalogue that answers it, and what gets dropped
+A tag is narrowed to the catalog that answers it, and what gets dropped
 depends on the language. For the twelve carried once, the region goes: `de-AT`
 is German, and the region goes on reaching dates because the browser supplies
 that separately. For English, Portuguese and Chinese the region is what decides
@@ -228,7 +228,7 @@ Three questions follow, and `services/locales.py` answers each rather than
 leaving it to chance. A **bare `en`, `pt` or `zh`** goes where CLDR's likely
 subtags send it — `en-US`, `pt-BR`, `zh-CN` — which is an answer that can be
 cited rather than an opinion about who owns a language. A **territory with no
-catalogue of its own** is sent to the one it reads: Australia, Ireland, India,
+catalog of its own** is sent to the one it reads: Australia, Ireland, India,
 New Zealand and South Africa spell as Britain does, Hong Kong and Macau read
 Traditional characters, and Angola and Mozambique write European Portuguese.
 Anything else falls back to the language's default variant, so `en-CA` is
@@ -285,21 +285,21 @@ English separates one from many, and German, French, Spanish, Portuguese,
 Italian, Dutch and Danish separate it the same way; Japanese and Chinese inflect
 nothing and write the one form twice, so the branch that gets picked does not
 matter. Polish and Russian have a third form for the small counts — *2 elementy*
-against *5 elementów*, *2 записи* against *5 записей* — so their catalogues
+against *5 elementów*, *2 записи* against *5 записей* — so their catalogs
 carry three branches and `pluralRules` in `web/src/i18n.ts` chooses between
-them. A catalogue written with English's two would be wrong on every count from
-2 to 4, so `locales.node.spec.ts` holds each catalogue to the number of forms
+them. A catalog written with English's two would be wrong on every count from
+2 to 4, so `locales.node.spec.ts` holds each catalog to the number of forms
 its own language has rather than to English's — a check against English would
 have called "2 elementów" correct.
 
 The translations beyond American English are mine rather than a native
 speaker's, and are worth reviewing before an institution relies on them. That
-includes British English: `en-US.ts` is the list every other catalogue is
+includes British English: `en-US.ts` is the list every other catalog is
 checked against, and `en-GB.ts` is a translation of it like any other, written
 out in full rather than left to fall back so that a sentence reworded in English
 is caught there too. Adding another language is one file in `web/src/locales`,
 plus its tag in `services/locales.py` and in `MESSAGES` in `web/src/i18n.ts` —
 and a plural rule beside it if the language needs more than two forms.
 `tests/test_locales.py` and `web/src/locales/locales.node.spec.ts` fail if the
-server's list and the catalogues ever disagree, or if a catalogue drifts from
+server's list and the catalogs ever disagree, or if a catalog drifts from
 the English one.

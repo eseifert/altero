@@ -58,7 +58,7 @@ press.
 
 It lives in `web/src/styles/surfaces.css` and is imported by the components that
 use it, the way `auth-form.css` and `dialog.css` are. A component **does not
-write this rule itself**: a card that is a different height or a different grey
+write this rule itself**: a card that is a different height or a different gray
 on one screen reads as a seam between two applications.
 
 - `.card__title` — the heading inside a card: `title-medium`, medium weight, no
@@ -109,7 +109,7 @@ list becomes a wall of text.
 
 **The current row** carries `.row--current`: the `secondary-container` fill, and
 a `primary` bar down its leading edge. The bar is not decoration. A state told
-in colour alone is told to fewer people than it needs to be, which is WCAG
+in color alone is told to fewer people than it needs to be, which is WCAG
 1.4.1, and on a long list an edge is found faster than a wash.
 
 ## Icon buttons and toolbars
@@ -143,7 +143,7 @@ Single-weight line glyphs on a 24-unit grid, `stroke-width: 1.5`, round caps and
 joins, no fill — `web/src/items/icons.ts` and `sidebaricons.ts`. The library's
 are drawn to read like the desktop client's sidebar; the ones with no
 counterpart there follow the same rules so they sit with them. They are drawn
-rather than copied: Zotero's assets are the client's and carry its licence.
+rather than copied: Zotero's assets are the client's and carry its license.
 
 A glyph that is the only thing in a control carries a label
 (`aria-label`); one that sits beside text is `aria-hidden`, because a screen
@@ -157,7 +157,7 @@ accounts, groups — is rows, not cards. One row is:
 - separated from the next by nothing at all, or by a hairline where the rows are
   tall enough to need it;
 - `--md-sys-state-hover-surface` under the pointer, which is a translucent wash
-  of the text colour rather than another surface step, so it reads the same over
+  of the text color rather than another surface step, so it reads the same over
   a white list as over a dialog;
 - `secondary-container` when it is the current one, which is deliberately
   stronger than the hover wash: `contrast.node.spec.ts` asserts that ordering,
@@ -205,7 +205,7 @@ the bar on the current row. It also holds one ordering that is not a ratio: the
 current row is marked more strongly than the row under the pointer, or hovering
 would look like choosing.
 
-**Colour is never the only signal (1.4.1).** A suspended account carries the
+**Color is never the only signal (1.4.1).** A suspended account carries the
 word *Suspended*, not only a red chip. The current row carries a bar as well as
 a fill. A failure carries `role="alert"` as well as an error fill. A tool that
 is switched on is both lit and `aria-pressed`.
@@ -248,7 +248,7 @@ thing to revisit if this is ever tested with assistive technology.
 fails on three things: a component that paints a surface step of its own
 (`background: var(--md-sys-color-surface-container…)` outside the shared
 stylesheets), anything that reaches for the steps below the page, and an area
-bounded in the divider colour, which is a group drawn as an outline rather than
+bounded in the divider color, which is a group drawn as an outline rather than
 a fill. A control's own border in `outline` is untouched by that last rule,
 which is the distinction `contrast.node.spec.ts` draws: `outline` bounds
 something you can operate, `outline-variant` divides things you cannot.

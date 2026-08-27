@@ -120,7 +120,7 @@ Without that lock, ten simultaneous creates were measured all receiving version
 Two further get-or-create patterns — claiming a write token, and creating a tag
 named by more than one concurrent request — insert first and let the unique
 constraint decide, rather than looking and then inserting. With the library lock
-held these cannot interleave, so the behaviour is defence in depth: it keeps
+held these cannot interleave, so the behavior is defense in depth: it keeps
 them correct independently of the locking strategy above.
 
 SQLite is configured with `foreign_keys=ON`, WAL and a busy timeout.

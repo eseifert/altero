@@ -7,12 +7,12 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- The interface splits English, Portuguese and Chinese by the territory they are read in, as Zotero does: fifteen catalogues, in the client's own words.
+- The interface splits English, Portuguese and Chinese by the territory they are read in, as Zotero does: fifteen catalogs, in the client's own words.
 - Third-party applications get scoped, expiring access to a library instead of an API key: OAuth 2.0 with PKCE and OpenID Connect. By [@sadgen] in [PR#8].
 - Attachment downloads survive Zotero's April 2026 client rewrite: the redirect hands out a permission for the file, not the account key. By [@sadgen] in [PR#7].
 - The container image is published as `ghcr.io/eseifert/altero` for x86-64 and arm64, so running altero needs neither a checkout nor a build.
 - Deployment documents what a small instance costs in memory and disk, and carries reverse-proxy configurations for nginx, Caddy and Traefik.
-- citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialled name.
+- citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialed name.
 - The documentation is written in one English throughout: American, which is what the interface speaks when nobody has chosen otherwise and what the API it describes is named in.
 - The documentation is reorganized around six sections: an index, a getting-started page, and the browser guide split into one page per part of the interface.
 - The documentation is published as a site at https://eseifert.github.io/altero/, built by Zensical and deployed on every push, a version per release.
@@ -40,7 +40,7 @@ The first release meant to be used by somebody other than its author.
 - Dragging in the item list, by mouse and by finger, carrying items and collections.
 - Several rows picked out at once and moved as one errand.
 - Both panes resizable, and the widths remembered.
-- Publishing to My Publications the way the desktop client's wizard does, licence and all.
+- Publishing to My Publications the way the desktop client's wizard does, license and all.
 - The sidebar arranged as Zotero's web library arranges it.
 
 ## [0.7.0] — 2026-08-06
@@ -93,7 +93,7 @@ The first release meant to be used by somebody other than its author.
 - Version 3 of the Zotero Web API: items, collections, saved searches, tags, the delete log, library settings, full-text content and the file protocol.
 - Object keys, search syntax, pagination, authentication and access control.
 - The item type schema and the endpoints derived from it.
-- Concurrent writes serialised, so one request produces exactly one new version.
+- Concurrent writes serialized, so one request produces exactly one new version.
 - A command line for provisioning, CI, and the documentation to go with it.
 
 [1.0.0-alpha.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.1

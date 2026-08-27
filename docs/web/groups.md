@@ -85,7 +85,7 @@ supervision tool instead.
 
 An entry is one write request — the same unit as a library version — and it
 names what the request touched: "4 items added or changed", then the titles.
-The first three are shown and the rest summarised, because a request may carry
+The first three are shown and the rest summarized, because a request may carry
 fifty objects and fifty titles under one line would bury the log rather than
 fill it in.
 

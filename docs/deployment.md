@@ -301,7 +301,7 @@ labels:
   - traefik.http.services.altero.loadbalancer.server.port=8000
 ```
 
-Traefik proxies the WebSocket without configuration and imposes no body limit. It replaces `X-Forwarded-For` with the address the connection came from unless `forwardedHeaders.trustedIPs` is set on the entry point, which is the behaviour to keep.
+Traefik proxies the WebSocket without configuration and imposes no body limit. It replaces `X-Forwarded-For` with the address the connection came from unless `forwardedHeaders.trustedIPs` is set on the entry point, which is the behavior to keep.
 
 Reaching altero by container name means both containers share a network, and the `ports:` publication in `docker/compose.yaml` is then unnecessary — remove it rather than exposing the application port beside the proxy.
 

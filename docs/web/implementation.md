@@ -44,8 +44,8 @@ a hovered row from looking more chosen than a chosen one — and
 [design.md](../design.md#accessibility) says which criteria were decided where,
 including what has not been verified.
 
-Hover is a state layer rather than a colour — a translucent wash of the text
-colour, one token, laid over whatever is underneath. One wash rather than a
+Hover is a state layer rather than a color — a translucent wash of the text
+color, one token, laid over whatever is underneath. One wash rather than a
 surface step per depth: it reads the same over the item list as over a dialog's
 raised surface, where a step chosen to separate a row from a white page comes
 to 1.03:1 and a screen at an angle shows nothing at all.
@@ -65,7 +65,7 @@ are cached for good, so the second visit fetches none of it.
 ### Not built yet
 
 Editing an item's fields — with one exception, the Rights field, because a
-licence set when a work was published has to be revisable by whoever set it.
+license set when a work was published has to be revisable by whoever set it.
 Collections can be made, renamed, moved and removed, an item can be filed,
 trashed, restored, deleted, copied to another library, published to My
 Publications and written out as a file, a tag can be renamed, and a whole

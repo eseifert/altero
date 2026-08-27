@@ -425,7 +425,7 @@ the tag being renamed. A name can be two tags here — one added by hand and one
 by a translator — and a rename that absorbed only one of them would leave the
 panel listing the new name twice, with two chips that filter the list
 identically. An automatic tag also becomes a manual one when it is renamed or
-absorbed, which is again the client's own behaviour.
+absorbed, which is again the client's own behavior.
 
 Behind it is `services/objectwrites.rename_tag`, the same call the v3
 `PATCH <prefix>/tags/<name>` makes, so a tag renamed in the browser is renamed

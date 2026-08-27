@@ -7,7 +7,7 @@ altero provides two different sharing models: **My Publications** publishes sele
 - Use **My Publications** when you want work to appear on your profile page.
 - Choose the audience for published work in your profile settings.
 - Use a collection-sharing link when you want to expose one collection without requiring an altero account.
-- Review publication rights/licence choices before publishing files.
+- Review publication rights/license choices before publishing files.
 
 ## Detailed behavior
 
@@ -31,10 +31,10 @@ server does not hold its bytes and so could not publish them.
 the sentence changes when files are included: distributing somebody's PDF is a
 larger claim than listing their paper.
 
-**Under what licence.** Only when files are being published — there is nothing
-else to license. Reserved rights, a Creative Commons licence, or the public
+**Under what license.** Only when files are being published — there is nothing
+else to license. Reserved rights, a Creative Commons license, or the public
 domain; Creative Commons then asks the two questions that decide which of the
-six it is, defaulting to the most restrictive of each pair. The licence's name
+six it is, defaulting to the most restrictive of each pair. The license's name
 goes into the item's **Rights** field, unless the field already says something
 and “Keep the existing Rights field” is ticked — in which case there is nothing
 left to ask and the wizard ends there. The name shown is the name that will be
@@ -46,26 +46,26 @@ The whole of it is one request and one library version, however many notes and
 files go with the work: publishing a work and its files is one decision, and a
 client syncing afterwards sees it as one.
 
-**Changing the licence afterwards** is the Rights field, which the detail pane
+**Changing the license afterwards** is the Rights field, which the detail pane
 can edit — the pencil beside it, or “Not stated — say what it is” where the
-item says nothing yet. That is where the desktop client changes a licence too:
+item says nothing yet. That is where the desktop client changes a license too:
 its wizard refuses to run a second time on the same item
 (`collectionTree.jsx`: “Item … already exists in My Publications”), and Rights
 is an ordinary field in its Info pane. The dialog offers the same eight
-licences the wizard does, by code and by name, and free text for everything
-else a Rights field says — “© 1974 the author” as readily as a licence.
+licenses the wizard does, by code and by name, and free text for everything
+else a Rights field says — “© 1974 the author” as readily as a license.
 
 It is the only field this interface writes, and it states the version it is
 replacing: filing and trashing are add-and-remove errands the server works out
 against what is stored, so a stale page cannot express a wrong one, but typing
-over a licence that another client changed while the page sat open is a lost
+over a license that another client changed while the page sat open is a lost
 write. A stale edit is refused rather than applied.
 
 **Taking it out again** is `Delete` in the My Publications view, or a button in
 the detail pane, and it asks first. The work leaves the published list with its
 published notes and files — including any that have since been trashed, which
 were still published until now — and stays in the library with everything it
-holds. Its `Rights` field is left as it is: a licence already granted is not
+holds. Its `Rights` field is left as it is: a license already granted is not
 withdrawn by hiding the page. Inside the My Publications view a single note or
 attachment can also be shown or hidden on its own, which is what the desktop
 client offers there and nowhere else.
@@ -82,14 +82,14 @@ shown on your profile page" — and that page is what `/app/u/<username>` is.
 
 It is a list rather than the library's three panes, because somebody reading it
 is reading a bibliography: each entry opens in place to show the abstract, where
-the work appeared, the licence its files are under, and the files themselves.
-Everything on it goes through the same services and the same serialiser as the
+the work appeared, the license its files are under, and the files themselves.
+Everything on it goes through the same services and the same serializer as the
 library view, so an item on a profile page is the item a syncing client
 receives; only which items exist differs, and that is `inPublications` and
 nothing else. Notes and files appear only if they were published with the work —
 which the wizard asked once, and does not ask again.
 
-The licence links to the licence. A **Rights** field holding one of the eight
+The license links to the license. A **Rights** field holding one of the eight
 the wizard offers is shown as a link to the deed; anything else is shown as the
 text it is, because guessing a URL for "© 1974 the author" would be inventing a
 permission. Files are served from the profile itself, under the same rules
@@ -115,7 +115,7 @@ and the dataserver serves `/users/<id>/publications/items` to whoever asks. This
 server is somebody's own, and "published" on it can reasonably mean something
 narrower — so the account decides, in settings under **Profile**:
 
-- **Anyone**, with no account here. Upstream's behaviour, and what every account
+- **Anyone**, with no account here. Upstream's behavior, and what every account
   starts as, so nothing changed for work already published.
 - **People with an account here.** The middle answer, and the reason the setting
   exists: an instance shared by a research group is neither the open web nor a
