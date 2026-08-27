@@ -29,8 +29,8 @@ def upgrade() -> None:
         sa.Column("created_by_user_id", sa.Integer(), nullable=False),
         sa.Column("created", sa.DateTime(), nullable=False),
         sa.Column("expires", sa.DateTime(), nullable=True),
-        sa.Column("subcollections", sa.Boolean(), server_default=sa.text("1"), nullable=False),
-        sa.Column("files", sa.Boolean(), server_default=sa.text("1"), nullable=False),
+        sa.Column("subcollections", sa.Boolean(), server_default=sa.true(), nullable=False),
+        sa.Column("files", sa.Boolean(), server_default=sa.true(), nullable=False),
         sa.Column("last_used", sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(
             ["collection_id"],
