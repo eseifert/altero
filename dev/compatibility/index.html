@@ -313,6 +313,8 @@
       
         
       
+        
+      
     
     
     
@@ -898,6 +900,8 @@
       
         
       
+        
+      
     
     
     
@@ -981,6 +985,33 @@
     
   
   Administration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting other applications
 
     
   </span>
@@ -1707,6 +1738,78 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Reading a library out of zotero.org
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-authorization-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The authorization server
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The authorization server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-second-credential-for-the-v3-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A second credential for the v3 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signing-id-tokens-while-still-not-verifying-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Signing ID tokens while still not verifying them
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-dynamic-client-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        No dynamic client registration
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pkce-is-required-and-s256-is-the-only-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        PKCE is required, and <code>S256</code> is the only method
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scopes-are-refused-rather-than-narrowed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Scopes are refused rather than narrowed
       </span>
     </span>
   </a>
@@ -2568,6 +2671,78 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Reading a library out of zotero.org
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-authorization-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The authorization server
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The authorization server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-second-credential-for-the-v3-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A second credential for the v3 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signing-id-tokens-while-still-not-verifying-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Signing ID tokens while still not verifying them
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-dynamic-client-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        No dynamic client registration
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pkce-is-required-and-s256-is-the-only-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        PKCE is required, and <code>S256</code> is the only method
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scopes-are-refused-rather-than-narrowed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Scopes are refused rather than narrowed
       </span>
     </span>
   </a>
@@ -4254,6 +4429,66 @@ changed since any earlier point is told about it.</p>
 api.zotero.org absolutely, so following it would send a fetch pointed anywhere
 else — a test, a proxy, another altero — back to the real thing halfway
 through.</p>
+<h2 id="the-authorization-server">The authorization server<a class="headerlink" href="#the-authorization-server" title="Permanent link">&para;</a></h2>
+<h3 id="a-second-credential-for-the-v3-api">A second credential for the v3 API<a class="headerlink" href="#a-second-credential-for-the-v3-api" title="Permanent link">&para;</a></h3>
+<p>altero's central authentication rule is that the v3 API is authenticated by a
+credential presented on the request and <strong>never</strong> by a browser cookie. The
+authorization server widens what that credential may be — an OAuth access token
+now works where an API key does — and it does not touch the rule itself.</p>
+<p>The distinction is the whole reason this was allowed. A cookie is attached by
+the browser to any request a third party can provoke, which is why letting one
+reach <code>/users/&lt;id&gt;/items</code> would put the entire sync protocol behind a CSRF
+target. A bearer token is attached by the application that holds it and by
+nothing else; a page on another origin cannot cause one to be sent. So the
+reason the rule exists is untouched, and
+<code>tests/test_oauth.py::TestTheApiKeyPathIsUntouched</code> holds both halves: an API
+key still works, and a session cookie still does not.</p>
+<p>What did not widen: <code>/keys/current</code> and <code>/keys/{key}</code> refuse an access token.
+Those endpoints are about an API key as an object — what it grants, and revoking
+it — and a token has no row there, is not what a person revokes, and would leave
+<code>DELETE /keys/current</code> with nothing to delete.</p>
+<h3 id="signing-id-tokens-while-still-not-verifying-them">Signing ID tokens while still not verifying them<a class="headerlink" href="#signing-id-tokens-while-still-not-verifying-them" title="Permanent link">&para;</a></h3>
+<p>These two decisions look contradictory, but they are not:</p>
+<p>As a <em>client</em>, altero does not verify the signature on an ID token it receives —
+see <a href="#not-verifying-the-id-tokens-signature">below</a>. As a <em>provider</em>, it signs
+the ID tokens it issues, with RS256, and publishes the key at
+<code>/oauth/jwks.json</code>.</p>
+<p>The earlier decision was about verification, and every reason given for it is a
+verification problem: <code>alg: none</code>, HMAC-versus-RSA confusion, a key chosen by an
+attacker-supplied <code>kid</code>, a JWKS fetch that is itself a request to get right.
+Each is a decision made about input somebody else controls. Signing has none of
+them — the algorithm is fixed, the key is this server's own, and nothing reads a
+header — so <code>services/jws.py</code> writes it directly rather than bringing in a
+library, and <code>tests/test_jws.py</code> holds it against RFC 7515 Appendix A.2 and
+RFC 7638 §3.1. A published test vector is what makes hand-writing one of these
+defensible, which is the same bargain <code>services/totp.py</code> takes with RFC 6238 and
+the reason <code>services/saml.py</code> does <em>not</em> hand-write its signatures.</p>
+<h3 id="no-dynamic-client-registration">No dynamic client registration<a class="headerlink" href="#no-dynamic-client-registration" title="Permanent link">&para;</a></h3>
+<p>RFC 7591 is not implemented and will not be. The set of addresses an
+authorization code may be sent to is the entire security of the flow: the code
+travels through the browser, and the only thing keeping it from travelling to
+somebody else is that its destination was written down first. An endpoint that
+adds entries to that list on request is not a list.</p>
+<p>Registering is therefore an operator's act, from the command line — the same
+place a group's policy is set, and for the same reason: it is a decision about
+the instance rather than a use of it.</p>
+<h3 id="pkce-is-required-and-s256-is-the-only-method">PKCE is required, and <code>S256</code> is the only method<a class="headerlink" href="#pkce-is-required-and-s256-is-the-only-method" title="Permanent link">&para;</a></h3>
+<p>RFC 7636 allows <code>plain</code>, where the challenge <em>is</em> the verifier. Anyone who
+intercepts the code has also intercepted everything needed to spend it, which is
+precisely the attack PKCE exists to stop. altero neither advertises <code>plain</code> in
+its discovery document nor accepts it, and requires PKCE of confidential clients
+too, where the RFC only recommends it.</p>
+<h3 id="scopes-are-refused-rather-than-narrowed">Scopes are refused rather than narrowed<a class="headerlink" href="#scopes-are-refused-rather-than-narrowed" title="Permanent link">&para;</a></h3>
+<p>An unknown scope, a scope the client is not registered for, and a scope that is
+useless without another are all errors. The alternative — issuing a token
+without them — produces an application that half works and a person who cannot
+tell which half. <code>library.write</code> without <code>library.read</code> is the useless case:
+write access implies read access in <code>access_for</code>, so a token holding only the
+former would be granted and then do nothing.</p>
+<p>Note what is <em>not</em> in the list: there is no <code>annotations.*</code> scope. Annotations
+are items in Zotero's model and there is no separate gate for them anywhere in
+the API, so a scope claiming to grant them alone would be a label on a
+permission that does not exist.</p>
 <h2 id="identity-provider-security-notes">Identity-provider security notes<a class="headerlink" href="#identity-provider-security-notes" title="Permanent link">&para;</a></h2>
 <h3 id="not-verifying-the-id-tokens-signature">Not verifying the ID token's signature<a class="headerlink" href="#not-verifying-the-id-tokens-signature" title="Permanent link">&para;</a></h3>
 <p>Not a compatibility decision — nothing upstream has an opinion, since zotero.org

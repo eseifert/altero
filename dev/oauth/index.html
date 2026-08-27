@@ -12,13 +12,13 @@
         <meta name="author" content="Erich Seifert">
       
       
-        <link rel="canonical" href="https://eseifert.github.io/altero/dev/design/">
+        <link rel="canonical" href="https://eseifert.github.io/altero/dev/oauth/">
       
       
-        <link rel="prev" href="../testing-two-clients/">
+        <link rel="prev" href="../administration/">
       
       
-        <link rel="next" href="../web/implementation/">
+        <link rel="next" href="../email/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>The design system - altero</title>
+        <title>Connecting other applications - altero</title>
       
     
     
@@ -79,7 +79,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#the-design-system" class="md-skip">
+        <a href="#connecting-other-applications" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              The design system
+              Connecting other applications
             
           </span>
         </div>
@@ -303,6 +303,8 @@
   
   
   
+    
+  
   
     
       
@@ -319,7 +321,7 @@
     
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../deployment/" class="md-tabs__link">
           
   
@@ -365,8 +367,6 @@
   
   
   
-    
-  
   
     
       
@@ -383,7 +383,7 @@
     
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../testing-two-clients/" class="md-tabs__link">
           
   
@@ -889,8 +889,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -906,17 +908,20 @@
     
     
       
+        
+        
+      
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
             
   
   
@@ -933,7 +938,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1001,10 +1006,36 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../oauth/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting other applications
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1019,6 +1050,121 @@
   
 
       </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-an-application-gets" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What an application gets
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registering-an-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Registering an application
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Registering an application">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#redirect-uris" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Redirect URIs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The flow
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Endpoints
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#id-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ID tokens
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-person-sees" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What a person sees
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Security notes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1206,10 +1352,8 @@
       
   
   
-    
   
   
-  
     
     
       
@@ -1225,20 +1369,17 @@
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -1255,7 +1396,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1296,36 +1437,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  The design system
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="././" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../design/" class="md-nav__link">
         
   
   
@@ -1340,148 +1455,6 @@
   
 
       </a>
-      
-        
-
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-one-rule" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        The one rule
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#surfaces-in-order" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Surfaces, in order
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-card" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        The card
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tables" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Tables
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#icon-buttons-and-toolbars" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Icon buttons and toolbars
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#icons" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Icons
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rows" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Rows
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spacing-and-shape" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Spacing and shape
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#type" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Type
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#accessibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Accessibility
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-keeps-this" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        What keeps this
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1589,10 +1562,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-one-rule" class="md-nav__link">
+  <a href="#what-an-application-gets" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        The one rule
+        What an application gets
       </span>
     </span>
   </a>
@@ -1600,10 +1573,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#surfaces-in-order" class="md-nav__link">
+  <a href="#registering-an-application" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Surfaces, in order
+        Registering an application
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Registering an application">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#redirect-uris" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Redirect URIs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The flow
       </span>
     </span>
   </a>
@@ -1611,10 +1612,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-card" class="md-nav__link">
+  <a href="#endpoints" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        The card
+        Endpoints
       </span>
     </span>
   </a>
@@ -1622,10 +1623,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tables" class="md-nav__link">
+  <a href="#id-tokens" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Tables
+        ID tokens
       </span>
     </span>
   </a>
@@ -1633,10 +1634,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#icon-buttons-and-toolbars" class="md-nav__link">
+  <a href="#what-a-person-sees" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Icon buttons and toolbars
+        What a person sees
       </span>
     </span>
   </a>
@@ -1644,65 +1645,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#icons" class="md-nav__link">
+  <a href="#security-notes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Icons
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rows" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Rows
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#spacing-and-shape" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Spacing and shape
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#type" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Type
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#accessibility" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Accessibility
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-keeps-this" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        What keeps this
+        Security notes
       </span>
     </span>
   </a>
@@ -1730,7 +1676,7 @@
                 
                   
   
-    <a href="https://github.com/eseifert/altero/edit/master/docs/design.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/eseifert/altero/edit/master/docs/oauth.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
     </a>
@@ -1738,256 +1684,242 @@
   
 
 
-<h1 id="the-design-system">The design system<a class="headerlink" href="#the-design-system" title="Permanent link">&para;</a></h1>
-<p>This is the implementation reference for altero's browser UI. The short rule is: <strong>fill groups, outline controls, hairline separates</strong>. Shared surfaces and tokens should be reused rather than redrawn in individual components.</p>
-<h2 id="the-one-rule">The one rule<a class="headerlink" href="#the-one-rule" title="Permanent link">&para;</a></h2>
-<p><strong>Fill groups, outline controls, hairline separates.</strong></p>
-<ul>
-<li>A group of related things — a card, a panel, a callout — is marked by a
-  <strong>fill</strong>. Never by a border.</li>
-<li>A <strong>border</strong> means something you can operate: a text field, the search box
-  once it is open, a select. It is drawn in <code>outline</code>, which
-  <code>contrast.node.spec.ts</code> holds to 3:1 because WCAG 1.4.11 asks that of the
-  part of a control that identifies it.</li>
-<li>Rows <em>inside</em> a group are separated by a <strong>hairline</strong> in <code>outline-variant</code>,
-  which is a divider and is exempt from that ratio. A hairline never bounds a
-  group; it only divides one.</li>
-</ul>
-<p>If a new screen needs a bounded area, it is a card. If it needs to stand out
-more than that, it is not a card — it floats, and <code>dialog.css</code> already says what
-that looks like.</p>
-<h2 id="surfaces-in-order">Surfaces, in order<a class="headerlink" href="#surfaces-in-order" title="Permanent link">&para;</a></h2>
-<p>The page is <code>surface</code> — white in light, near-black in dark. Everything else
-steps <em>away</em> from the page in one direction, so depth reads the same in both
-schemes:</p>
+<h1 id="connecting-other-applications">Connecting other applications<a class="headerlink" href="#connecting-other-applications" title="Permanent link">&para;</a></h1>
+<p>altero can act as an OAuth 2.0 authorization server and OpenID Connect provider,
+so that a third-party application — a reading tool, an editor plugin, a script,
+a mobile app — can be given access to somebody's library without ever being
+handed their password or a long-lived API key.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This does not change how the Zotero desktop client connects. A desktop client
+still takes an API key from <strong>Settings → API keys</strong>, and the v3 API is still
+authenticated by a credential sent on the request and never by a browser
+cookie. What is new is a second kind of credential — a scoped, expiring access
+token — that the same v3 endpoints accept.</p>
+</div>
+<h2 id="what-an-application-gets">What an application gets<a class="headerlink" href="#what-an-application-gets" title="Permanent link">&para;</a></h2>
+<p>An access token, valid for one hour, and a refresh token to replace it with.
+Both are bearer credentials sent exactly the way an API key is:</p>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">GET</span> <span class="nn">/users/1/items</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer alt_at_…</span>
+</span></code></pre></div>
+<p>A token carries <strong>scopes</strong>, and a scope grants exactly what it says:</p>
 <table>
 <thead>
 <tr>
-<th>Layer</th>
-<th>Token</th>
-<th>Where</th>
+<th>Scope</th>
+<th>What it allows</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>The page</td>
-<td><code>surface</code></td>
-<td>behind everything</td>
+<td><code>openid</code></td>
+<td>Establishes who the person is. Reaches no library, no item and no file.</td>
 </tr>
 <tr>
-<td>A card, a pane, a block, a table's heading, the app bar</td>
-<td><code>surface-container</code></td>
-<td><code>.card</code>, <code>.pane</code>, <code>.block</code>, <code>.table-head</code></td>
+<td><code>profile</code></td>
+<td>The account's name and username, through <code>/oauth/userinfo</code> and the ID token.</td>
 </tr>
 <tr>
-<td>Inside one of those, and every toolbar</td>
-<td><code>surface-container-high</code></td>
-<td><code>.card__inset</code>, <code>.toolbar</code></td>
+<td><code>email</code></td>
+<td>The account's email address, and whether it has been confirmed.</td>
 </tr>
 <tr>
-<td>Floating</td>
-<td><code>surface-container-high</code> + a shadow</td>
-<td>dialogs and menus, in <code>dialog.css</code></td>
+<td><code>library.read</code></td>
+<td>Reading items, collections, saved searches and tags in the personal library.</td>
+</tr>
+<tr>
+<td><code>library.write</code></td>
+<td>Adding, changing and removing them.</td>
+</tr>
+<tr>
+<td><code>notes.read</code></td>
+<td>Reading notes.</td>
+</tr>
+<tr>
+<td><code>files.read</code></td>
+<td>Downloading attachment bytes.</td>
+</tr>
+<tr>
+<td><code>groups.read</code></td>
+<td>Reading the group libraries the account belongs to.</td>
+</tr>
+<tr>
+<td><code>groups.write</code></td>
+<td>Writing to them.</td>
 </tr>
 </tbody>
 </table>
-<p>Three steps, and a component may not reach for a fourth. <code>surface-container-low</code>
-and <code>-lowest</code> exist in the token file because Material defines them; the
-interface does not use them — over a white page <code>-low</code> is 1.03:1, so whatever
-it was meant to separate was not separated — and the guard test says so.</p>
-<p>The other containers are not depth, they are meaning, and they keep their jobs:
-<code>secondary-container</code> marks the row you have chosen, <code>error-container</code> marks
-what has gone wrong or what cannot be undone, <code>primary</code> is what you are meant to
-press.</p>
-<h2 id="the-card">The card<a class="headerlink" href="#the-card" title="Permanent link">&para;</a></h2>
-<div class="language-css highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">.</span><span class="nc">card</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="kc">flex</span><span class="p">;</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="k">flex-direction</span><span class="p">:</span><span class="w"> </span><span class="kc">column</span><span class="p">;</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">gap</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--md-spacing-</span><span class="mi">3</span><span class="p">);</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--md-spacing-</span><span class="mi">5</span><span class="p">);</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--md-sys-shape-corner-medium</span><span class="p">);</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--md-sys-color-surface-container</span><span class="p">);</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
+<p>These map one for one onto the permissions an API key already carries, which is
+what makes the mapping checkable: a token cannot express access that a key could
+not, and every ceiling that applies to a key — the group's policy, the member's
+role, their own permission — applies unchanged to a token.</p>
+<p>Some scopes are useless alone and are refused rather than quietly granted.
+Write access implies read access throughout altero, so <code>library.write</code> without
+<code>library.read</code> would be issued and then do nothing; asking for it is an error
+with a message saying so. The same holds for <code>groups.write</code>, <code>notes.read</code> and
+<code>files.read</code>, each of which needs its corresponding read scope.</p>
+<p>A scope this server does not issue — say <code>annotations.write</code> — is also refused
+rather than dropped. An application asking for it has a belief about what altero
+does, and handing back a token without it produces software that half works.</p>
+<h2 id="registering-an-application">Registering an application<a class="headerlink" href="#registering-an-application" title="Permanent link">&para;</a></h2>
+<p>An operator registers it. Nothing self-registers, and there is no dynamic client
+registration endpoint: the list of addresses an authorization code may be sent
+to is the whole security of the flow, and a list that accepts new entries from
+whoever asks is not a list.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>add<span class="w"> </span>notebook<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;Notebook&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>--description<span class="w"> </span><span class="s2">&quot;Reads your library into a notebook&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span>--redirect-uri<span class="w"> </span>https://notebook.example.com/auth/callback<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span>--scope<span class="w"> </span>openid<span class="w"> </span>--scope<span class="w"> </span>profile<span class="w"> </span>--scope<span class="w"> </span>library.read<span class="w"> </span>--scope<span class="w"> </span>files.read
 </span></code></pre></div>
-<p>It lives in <code>web/src/styles/surfaces.css</code> and is imported by the components that
-use it, the way <code>auth-form.css</code> and <code>dialog.css</code> are. A component <strong>does not
-write this rule itself</strong>: a card that is a different height or a different grey
-on one screen reads as a seam between two applications.</p>
+<p><code>--redirect-uri</code> is repeatable and matched <strong>exactly</strong>. <code>--scope</code> is repeatable
+and is a ceiling: the application may ask for these or fewer, never more.</p>
+<p>For an application that runs on a server and can keep a secret, add
+<code>--confidential</code>. The secret is printed once and stored only as a hash, the same
+bargain <code>altero key add</code> makes.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>list<span class="w">                </span><span class="c1"># what is registered, and what it may ask for</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>disable<span class="w"> </span>notebook<span class="w">    </span><span class="c1"># stop it working, keeping the record</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>rotate-key<span class="w">          </span><span class="c1"># sign ID tokens with a new key from now on</span>
+</span></code></pre></div>
+<h3 id="redirect-uris">Redirect URIs<a class="headerlink" href="#redirect-uris" title="Permanent link">&para;</a></h3>
+<p>Three rules, each of which rules out a way this is broken in the wild:</p>
 <ul>
-<li><code>.card__title</code> — the heading inside a card: <code>title-medium</code>, medium weight, no
-  margin. Cards are titled by their content, not by their size.</li>
-<li><code>.card__note</code> — the quiet line under a control: <code>body-small</code>,
-  <code>on-surface-variant</code>. This is where an explanation goes; it is not a smaller
-  paragraph of body text.</li>
-<li><code>.card__inset</code> — a block inside a card that is its own thing: an API key shown
-  once, a link to hand over, a warning. <code>surface-container-high</code>, corner-small.</li>
-<li><code>.card__warning</code> — an inset that says what cannot be undone, in
-  <code>error-container</code>. Before the button, never after it.</li>
-<li><code>.card--interactive</code> — a card you can press, such as a group in the list. It
-  answers the pointer with the same wash a row does.</li>
-<li><code>.card__rows</code> — rows inside a card, divided by hairlines and bounded by the
-  card's own edge.</li>
-<li>A button inside a card is as wide as its label. Stretched across the card it
-  reads as the card's own edge rather than as something to press.</li>
+<li><strong>No fragment.</strong> The fragment is where an implicit-flow response would go, and
+  altero has no implicit flow.</li>
+<li><strong>Absolute only.</strong> "The browser will work it out" is exactly the ambiguity
+  that lets a mistake resolve somewhere unintended.</li>
+<li><strong><code>https</code>, or the loopback interface.</strong> The authorization code is a
+  credential, and a network that can read it can spend it.</li>
 </ul>
-<p>Two more words for things that are not cards but are painted the same:</p>
+<p>A native application that listens on an ephemeral port is the documented
+exception RFC 8252 §7.3 requires: register <code>http://127.0.0.1:1/callback</code> and any
+port will match, while the scheme, host, path and query still have to match
+exactly. <code>localhost</code> and <code>[::1]</code> work the same way. A private-use scheme —
+<code>com.example.app:/callback</code> — is accepted for a mobile application.</p>
+<h2 id="the-flow">The flow<a class="headerlink" href="#the-flow" title="Permanent link">&para;</a></h2>
+<p>Authorization code with PKCE, and <strong>PKCE is required of every client, <code>S256</code>
+only</strong>. <code>plain</code> is neither advertised nor accepted: it makes the challenge equal
+to the verifier, which is the interception PKCE exists to prevent.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>GET /oauth/authorize
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>      ?client_id=notebook
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>      &amp;redirect_uri=https://notebook.example.com/auth/callback
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>      &amp;response_type=code
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>      &amp;scope=openid%20profile%20library.read
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>      &amp;state=&lt;the application&#39;s own random value&gt;
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>      &amp;code_challenge=&lt;BASE64URL(SHA256(verifier))&gt;
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>      &amp;code_challenge_method=S256
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>      &amp;nonce=&lt;optional, echoed into the ID token&gt;
+</span></code></pre></div>
+<p>altero checks the client and the redirect URI, stores the request, and sends the
+browser to its own interface at <code>/app/authorize</code>. The person signs in there the
+ordinary way — with the second factor, passkey or single sign-on their account
+actually has — sees what is being asked for in their own language, and answers.</p>
+<p>The browser comes back to the registered address with <code>code</code> and <code>state</code>, and
+the application exchanges the code on a back channel:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://library.example.org/oauth/token<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">grant_type</span><span class="o">=</span>authorization_code<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">client_id</span><span class="o">=</span>notebook<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">code</span><span class="o">=</span>…<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">code_verifier</span><span class="o">=</span>…<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">redirect_uri</span><span class="o">=</span>https://notebook.example.com/auth/callback
+</span></code></pre></div>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alt_at_…&quot;</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">&quot;refresh_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alt_rt_…&quot;</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;openid profile library.read&quot;</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&quot;id_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJSUzI1NiIsImtpZCI6…&quot;</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Refreshing rotates: the refresh token is replaced every time it is used.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://library.example.org/oauth/token<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">grant_type</span><span class="o">=</span>refresh_token<span class="w"> </span>-d<span class="w"> </span><span class="nv">client_id</span><span class="o">=</span>notebook<span class="w"> </span>-d<span class="w"> </span><span class="nv">refresh_token</span><span class="o">=</span>alt_rt_…
+</span></code></pre></div>
+<p>If a refresh token is ever presented <em>after</em> it was rotated away, somebody has a
+copy. There is no telling which of the two callers is the thief, so every token
+descended from that authorization is revoked and both have to start again. The
+same happens if an authorization code is presented twice.</p>
+<h2 id="endpoints">Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/.well-known/openid-configuration</code></td>
+<td>Discovery, as OpenID Connect names it</td>
+</tr>
+<tr>
+<td><code>/.well-known/oauth-authorization-server</code></td>
+<td>The same document, as RFC 8414 names it</td>
+</tr>
+<tr>
+<td><code>/oauth/authorize</code></td>
+<td>Where the browser starts</td>
+</tr>
+<tr>
+<td><code>/oauth/token</code></td>
+<td>Code exchange and refresh</td>
+</tr>
+<tr>
+<td><code>/oauth/revoke</code></td>
+<td>RFC 7009 revocation</td>
+</tr>
+<tr>
+<td><code>/oauth/userinfo</code></td>
+<td>Claims the token's scopes allow</td>
+</tr>
+<tr>
+<td><code>/oauth/jwks.json</code></td>
+<td>The keys ID tokens are verified against</td>
+</tr>
+</tbody>
+</table>
+<h2 id="id-tokens">ID tokens<a class="headerlink" href="#id-tokens" title="Permanent link">&para;</a></h2>
+<p>Signed with <strong>RS256</strong>, verifiable against <code>/oauth/jwks.json</code>. The claims are
+<code>iss</code>, <code>sub</code>, <code>aud</code>, <code>iat</code>, <code>exp</code>, <code>auth_time</code> and <code>at_hash</code>, plus <code>nonce</code> when
+the request carried one, and the <code>profile</code> and <code>email</code> claims when those scopes
+were granted.</p>
+<p><code>sub</code> is the account's numeric id as a string. It is stable and it is the only
+thing that identifies somebody: an email address is not an identity, for the
+reasons <code>services/federation.py</code> sets out at length from the other side of this
+protocol.</p>
+<p><code>iss</code> comes from <code>ALTERO_PUBLIC_URL</code> and there is <strong>no fallback</strong> to the address
+the request arrived on. An issuer a caller can choose with a <code>Host</code> header is
+not an issuer anybody can pin, so an instance without that setting refuses to
+serve these endpoints rather than guessing.</p>
+<p>Signing keys are generated on first use and kept in the database. Rotating with
+<code>altero oauth rotate-key</code> starts signing with a new key and keeps publishing the
+old one, so tokens issued before the rotation keep verifying until they expire.</p>
+<h2 id="what-a-person-sees">What a person sees<a class="headerlink" href="#what-a-person-sees" title="Permanent link">&para;</a></h2>
+<p>The consent screen is part of the web interface and is translated like the rest
+of it. It names the application, says in sentences what it will be able to do —
+"Read everything in your library", not <code>library.read</code> — and marks what is new
+when an application that already has consent asks for more.</p>
+<p>Every application somebody has connected is listed under <strong>Settings → Connected
+applications</strong>, with what it may do and whether it is currently in use.
+Disconnecting one takes effect immediately: the tokens go with the grant rather
+than running out an hour later.</p>
+<h2 id="security-notes">Security notes<a class="headerlink" href="#security-notes" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>.pane</code> — a column of a screen rather than a group on one: the item list's
-  detail pane. The same fill, no opinion about padding, because a pane's
-  contents arrange themselves and usually scroll.</li>
-<li><code>.block</code> — one thing on a page rather than a group of them: a rendered
-  citation, a note, the answer to "what would this delete". Card fill, small
-  corner.</li>
-<li><code>.chip</code> — a word about the thing beside it: a key's last four characters, a
-  role, <em>Suspended</em>. <code>secondary-container</code>, because a chip carries meaning
-  rather than depth; <code>.chip--warning</code> for what is out of service.</li>
+<li>The v3 API accepts an access token <em>in addition to</em> an API key. It never
+  accepts a browser cookie; see
+  <a href="../compatibility/#a-second-credential-for-the-v3-api">the boundary</a>.</li>
+<li><code>/keys/current</code> and <code>/keys/{key}</code> refuse an access token. They are about an
+  API key as an object, and a token is not one — what a person revokes is the
+  application.</li>
+<li>A suspended account stops both credentials at once, in
+  <code>services/auth.authenticate</code> and in <code>services/websessions.lookup</code>.</li>
+<li>Access tokens and refresh tokens are stored only as SHA-256 hashes, as
+  authorization codes are.</li>
+<li>Expired requests, codes and tokens are swept by
+  <code>altero retention run</code> along with everything else that carries its own expiry.</li>
 </ul>
-<h2 id="tables">Tables<a class="headerlink" href="#tables" title="Permanent link">&para;</a></h2>
-<p>The item list is the one thing that is not a card, and the reason is that a
-fill behind a dense list tints the thing being read. What bounds it instead:</p>
-<ul>
-<li><strong>A filled heading strip</strong> (<code>.table-head</code>) — the one part of a table that is
-  chrome rather than content, so it takes the card's fill and rounds its top
-  corners. The rule beneath it is what the rows hang from.</li>
-<li><strong>A hairline between each pair of rows, and one to close the last</strong>
-  (<code>.table-rows</code>), so the table ends rather than stops.</li>
-<li><strong>The rows themselves on the page</strong>, which is what keeps the text on the
-  surface the hover wash was measured against.</li>
-</ul>
-<p>The hairline belongs to the <strong>line</strong> rather than to the row. A row is always the
-last child of its line, whether or not a checkbox sits beside it, so a rule
-drawn on the row and taken off <code>:last-child</code> is taken off every row and the
-list becomes a wall of text.</p>
-<p><strong>The current row</strong> carries <code>.row--current</code>: the <code>secondary-container</code> fill, and
-a <code>primary</code> bar down its leading edge. The bar is not decoration. A state told
-in colour alone is told to fewer people than it needs to be, which is WCAG
-1.4.1, and on a long list an edge is found faster than a wash.</p>
-<h2 id="icon-buttons-and-toolbars">Icon buttons and toolbars<a class="headerlink" href="#icon-buttons-and-toolbars" title="Permanent link">&para;</a></h2>
-<p>Material 3's icon button comes with a container or without one. Without one it
-is a glyph on a page, and a glyph on a page says nothing about being pressable
-until a pointer happens to rest on it — which a finger never does.</p>
-<p>So the <strong>group</strong> carries the container. A row of icon-only controls is a
-<code>.toolbar</code>: the inset fill, fully rounded, holding <code>.icon-button</code>s that stay
-plain. That is the standard treatment, and it keeps a row of six tools from
-becoming six filled circles competing with the content they act on.</p>
-<ul>
-<li><code>.toolbar</code> takes <code>surface-container-high</code> wherever it sits — on the page it
-  is a container inside the page, and inside a card it steps up from the card.
-  One value that works in both places beats two that have to be chosen right.</li>
-<li><code>.icon-button</code> is 2rem around a 1rem glyph, growing to 2.5rem where the
-  pointer is coarse. <code>.icon-button--on</code> stays lit for a tool that is switched
-  on, which is the only thing telling a reader it is theirs to switch off;
-  <code>.icon-button--danger</code> is red at rest rather than only under a pointer, which
-  a finger never produces.</li>
-<li>An icon button that dismisses the thing it sits in — the close on a pane —
-  stands outside the toolbar, because it does not act on the contents.</li>
-<li>Every icon-only control carries its name twice: <code>aria-label</code>, which a screen
-  reader announces, and <code>title</code>, which a pointer reveals. A control with
-  neither is a rebus.</li>
-</ul>
-<h2 id="icons">Icons<a class="headerlink" href="#icons" title="Permanent link">&para;</a></h2>
-<p>Single-weight line glyphs on a 24-unit grid, <code>stroke-width: 1.5</code>, round caps and
-joins, no fill — <code>web/src/items/icons.ts</code> and <code>sidebaricons.ts</code>. The library's
-are drawn to read like the desktop client's sidebar; the ones with no
-counterpart there follow the same rules so they sit with them. They are drawn
-rather than copied: Zotero's assets are the client's and carry its licence.</p>
-<p>A glyph that is the only thing in a control carries a label
-(<code>aria-label</code>); one that sits beside text is <code>aria-hidden</code>, because a screen
-reader saying "trash trash" is worse than silence.</p>
-<h2 id="rows">Rows<a class="headerlink" href="#rows" title="Permanent link">&para;</a></h2>
-<p>A list of things you can act on — libraries in the sidebar, sections in a panel,
-accounts, groups — is rows, not cards. One row is:</p>
-<ul>
-<li>separated from the next by nothing at all, or by a hairline where the rows are
-  tall enough to need it;</li>
-<li><code>--md-sys-state-hover-surface</code> under the pointer, which is a translucent wash
-  of the text colour rather than another surface step, so it reads the same over
-  a white list as over a dialog;</li>
-<li><code>secondary-container</code> when it is the current one, which is deliberately
-  stronger than the hover wash: <code>contrast.node.spec.ts</code> asserts that ordering,
-  because a row under the pointer that looks more chosen than the chosen row is
-  a lie about where you are.</li>
-</ul>
-<p>The settings panel and the administration panel are the same rows as the
-library's sidebar, to the pixel, from <code>components/SectionPanel.vue</code>. Two
-sidebars that differ slightly read as two applications.</p>
-<h2 id="spacing-and-shape">Spacing and shape<a class="headerlink" href="#spacing-and-shape" title="Permanent link">&para;</a></h2>
-<p>Spacing comes from <code>--md-spacing-1</code> to <code>-7</code> (4, 8, 12, 16, 24, 32, 48). Inside a
-card the gap is <code>-3</code>; between cards, <code>-4</code>; a card's own padding is <code>-5</code>. A page's
-sections are <code>-5</code> apart. Nothing uses a bare pixel value for space.</p>
-<p>Corners: <code>corner-small</code> (8px) for something inside a card, <code>corner-medium</code>
-(12px) for the card itself, <code>corner-full</code> for a pill or a round icon button.
-<code>corner-large</code> and <code>-extra-large</code> are for dialogs.</p>
-<h2 id="type">Type<a class="headerlink" href="#type" title="Permanent link">&para;</a></h2>
-<p>One family, IBM Plex Sans, served by this application — see
-<a href="../web-interface/#design">web-interface.md</a> for why and what it costs. The scale
-is in the tokens; what matters here is which step means what:</p>
-<ul>
-<li><code>title-large</code> — the name of a screen, once.</li>
-<li><code>title-medium</code> — the heading of a card.</li>
-<li><code>body-medium</code> — everything you read.</li>
-<li><code>body-small</code> — a note under a control, a timestamp, a count.</li>
-<li><code>label-medium</code> — a chip.</li>
-</ul>
-<p>Nothing sets <code>text-transform</code>, and nothing invents a size. A number that wants
-to line up in a column gets <code>font-variant-numeric: tabular-nums</code>.</p>
-<h2 id="accessibility">Accessibility<a class="headerlink" href="#accessibility" title="Permanent link">&para;</a></h2>
-<p>The target is <strong>WCAG 2.2 level AA</strong>, and the parts of it that are decisions
-about design rather than about markup are settled here.</p>
-<p><strong>Contrast (1.4.3, 1.4.11).</strong> <code>styles/contrast.node.spec.ts</code> reads the tokens
-and measures every pair the interface actually puts on screen: 4.5:1 for text,
-3:1 for the parts of a control that identify it — its border, its focus ring,
-the bar on the current row. It also holds one ordering that is not a ratio: the
-current row is marked more strongly than the row under the pointer, or hovering
-would look like choosing.</p>
-<p><strong>Colour is never the only signal (1.4.1).</strong> A suspended account carries the
-word <em>Suspended</em>, not only a red chip. The current row carries a bar as well as
-a fill. A failure carries <code>role="alert"</code> as well as an error fill. A tool that
-is switched on is both lit and <code>aria-pressed</code>.</p>
-<p><strong>Focus (2.4.7, 2.4.11).</strong> One ring everywhere, <code>primary</code> at 2px with an offset
-so it is not confused with a control's own border, on <code>:focus-visible</code> with a
-<code>:focus</code> fallback for Safari before 15.4. The application bar is sticky, so
-<code>html { scroll-padding-block-start: 4rem }</code> keeps anything scrolled into view
-clear of it.</p>
-<p><strong>Targets (2.5.8).</strong> Nothing you can press is smaller than 24 by 24 CSS pixels,
-and the controls a finger reaches for grow past that on a coarse pointer. The
-smallest ones — a pencil on a tag, a twisty in the tree — sit at exactly 24 with
-their glyphs unchanged.</p>
-<p><strong>Dragging has an alternative (2.5.7).</strong> Everything a drag of the item list can
-express can also be done without one: filing and copying through <strong>Move or
-copy…</strong>, trashing and deleting through the tools, and a collection is moved by a
-picker rather than dragged at all. See
-<a href="../web/library/#by-touch">web/library.md</a>.</p>
-<p><strong>Authentication (3.3.8).</strong> Nothing asks a reader to solve a puzzle, transcribe
-an image or remember anything but their password, and nothing prevents pasting
-into a field — including the one-time code.</p>
-<p><strong>Motion (2.3.3).</strong> <code>prefers-reduced-motion</code> turns the transitions off, at
-0.01ms rather than zero so that a transition end event nothing else waits for
-still fires.</p>
-<p>What this cannot claim: none of it has been through a screen reader or a real
-audit. The measurable parts are measured, in tests that fail; the rest is
-careful work by somebody who cannot see the result. The item list is a list of
-buttons rather than a <code>role="grid"</code>, so a reader hears each row's values in
-order without hearing the column names — a deliberate trade, and the first
-thing to revisit if this is ever tested with assistive technology.</p>
-<h2 id="what-keeps-this">What keeps this<a class="headerlink" href="#what-keeps-this" title="Permanent link">&para;</a></h2>
-<p><code>web/src/styles/surfaces.node.spec.ts</code> reads every component in the tree and
-fails on three things: a component that paints a surface step of its own
-(<code>background: var(--md-sys-color-surface-container…)</code> outside the shared
-stylesheets), anything that reaches for the steps below the page, and an area
-bounded in the divider colour, which is a group drawn as an outline rather than
-a fill. A control's own border in <code>outline</code> is untouched by that last rule,
-which is the distinction <code>contrast.node.spec.ts</code> draws: <code>outline</code> bounds
-something you can operate, <code>outline-variant</code> divides things you cannot.</p>
-<p>Three components are listed there as exceptions, each for its own reason: the
-application bar is chrome rather than a card, the theme menu floats, and the
-publications dialog fills a step above the dialog it sits in. A fourth is a
-deliberate line in a test rather than a CSS block somebody copied.</p>
-<p>That is the same shape as the two guards already in <code>web/src/styles</code>:
-<code>fonts.node.spec.ts</code>, which fails if a font is ever fetched from somebody else's
-machine, and <code>contrast.node.spec.ts</code>, which fails if the palette stops being
-readable. A design system nobody can accidentally leave is worth more than one
-written down.</p>
 
 
 
@@ -2025,7 +1957,7 @@ written down.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../testing-two-clients/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Syncing two desktop clients">
+          <a href="../administration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Administration">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -2035,20 +1967,20 @@ written down.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Syncing two desktop clients
+                Administration
               </div>
             </div>
           </a>
         
         
           
-          <a href="../web/implementation/" class="md-footer__link md-footer__link--next" aria-label="Next: Web interface implementation notes">
+          <a href="../email/" class="md-footer__link md-footer__link--next" aria-label="Next: Email">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Web interface implementation notes
+                Email
               </div>
             </div>
             <div class="md-footer__button md-icon">

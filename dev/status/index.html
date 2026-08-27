@@ -313,6 +313,8 @@
       
         
       
+        
+      
     
     
     
@@ -898,6 +900,8 @@
       
         
       
+        
+      
     
     
     
@@ -981,6 +985,33 @@
     
   
   Administration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting other applications
 
     
   </span>
@@ -1658,7 +1689,12 @@
 <tr>
 <td>OIDC and SAML browser sign-in</td>
 <td style="text-align: center;">✅</td>
-<td>API authentication remains API-key based</td>
+<td>Sign-in only; never a v3 API credential</td>
+</tr>
+<tr>
+<td>OAuth 2.0 and OpenID Connect provider</td>
+<td style="text-align: center;">✅</td>
+<td>Scoped tokens for third-party applications; requires a stable public URL</td>
 </tr>
 <tr>
 <td>Passkeys and optional second factors</td>
@@ -1681,6 +1717,7 @@
 <p>altero implements the parts of the v3 API needed by the desktop client, including:</p>
 <ul>
 <li>API-key authentication and per-library permissions;</li>
+<li>OAuth 2.0 access tokens as a second credential for the same endpoints;</li>
 <li>personal and group library discovery;</li>
 <li>item, collection, saved-search and tag reads;</li>
 <li><code>json</code>, <code>atom</code>, <code>keys</code> and <code>versions</code> response formats;</li>
@@ -1704,6 +1741,7 @@
 <li>browser-based account and API-key management;</li>
 <li>instance administration without library-wide superuser access;</li>
 <li>OpenID Connect and SAML 2.0 browser sign-in;</li>
+<li>an OAuth 2.0 and OpenID Connect authorization server, so a third-party application can be given scoped, expiring access instead of an API key;</li>
 <li>passkeys, authenticator-app second factors and email codes;</li>
 <li>per-member group permissions such as read-only, add-without-remove and own-items-only;</li>
 <li>group activity and opt-in notifications;</li>
