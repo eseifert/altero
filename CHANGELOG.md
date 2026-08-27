@@ -7,14 +7,15 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- The interface splits three of its languages by the territory they are read in: American and British English, Brazilian and European Portuguese, and Simplified and Traditional Chinese, which are the same three Zotero splits. Fifteen catalogues where there were twelve, the domain words taken from Zotero's own `chrome/locale`, so a British reader empties the Bin and a Brazilian saves an *arquivo*. A tag with no catalogue of its own is sent where it reads — `en-AU` to British, `zh-HK` to Traditional, `pt-AO` to European — and a bare `en`, `pt` or `zh` goes where CLDR's likely subtags send it; a stored `en`, `pt` or `zh` is migrated to the variant it meant. Everywhere else a region still reaches dates and nothing else, and `de-AT` is German.
-- Third-party applications can be given scoped, expiring access to a library instead of an account's API key: altero is now an OAuth 2.0 authorization server and OpenID Connect provider, with authorization code and PKCE, refresh-token rotation, RS256 ID tokens at `/oauth/jwks.json`, and a consent screen that lives in the web interface — so signing in there goes through the same second factor, passkey or single sign-on as everywhere else. Applications are registered by an operator with `altero oauth add`, and each person can see and disconnect theirs under Settings. The v3 API accepts these tokens alongside API keys and still never accepts a cookie. Proposed, and first implemented, by [@sadgen](https://github.com/sadgen) in [#8](https://github.com/eseifert/altero/pull/8).
-- Attachment downloads survive Zotero's April 2026 client rewrite: the redirect now hands out a short-lived permission for the one file, at `/storage/download/<key>`, rather than a location only an API key can open. The client no longer follows that redirect but makes a second request carrying no headers, so every attachment failed to download; the account key stays out of the URL, and so out of every reverse proxy's access log. Reported and first diagnosed by [@sadgen](https://github.com/sadgen) in [#7](https://github.com/eseifert/altero/pull/7).
-- The container image is published as `ghcr.io/eseifert/altero` for x86-64 and arm64, so running altero needs neither a checkout nor a build; `docker/compose.yaml` pulls it and `docker/compose.build.yaml` builds from source instead.
-- Deployment documents what a small instance costs in memory and disk, and carries reverse-proxy configurations for nginx, Caddy and Traefik, including the upload limit and the WebSocket upgrade that `/stream` needs.
+- The interface splits English, Portuguese and Chinese by the territory they are read in, as Zotero does: fifteen catalogues, in the client's own words.
+- Third-party applications get scoped, expiring access to a library instead of an API key: OAuth 2.0 with PKCE and OpenID Connect. By [@sadgen] in [PR#8].
+- Attachment downloads survive Zotero's April 2026 client rewrite: the redirect hands out a permission for the file, not the account key. By [@sadgen] in [PR#7].
+- The container image is published as `ghcr.io/eseifert/altero` for x86-64 and arm64, so running altero needs neither a checkout nor a build.
+- Deployment documents what a small instance costs in memory and disk, and carries reverse-proxy configurations for nginx, Caddy and Traefik.
 - citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialled name.
+- The documentation is written in one English throughout: American, which is what the interface speaks when nobody has chosen otherwise and what the API it describes is named in.
 - The documentation is reorganized around six sections: an index, a getting-started page, and the browser guide split into one page per part of the interface.
-- The documentation is published as a site at https://eseifert.github.io/altero/, built by Zensical and deployed on every push, with a version for each release once 1.0.0 is out.
+- The documentation is published as a site at https://eseifert.github.io/altero/, built by Zensical and deployed on every push, a version per release.
 
 ## [1.0.0-alpha.1] — 2026-08-19
 
@@ -105,3 +106,7 @@ The first release meant to be used by somebody other than its author.
 [0.3.0]: https://github.com/eseifert/altero/releases/tag/v0.3.0
 [0.2.0]: https://github.com/eseifert/altero/releases/tag/v0.2.0
 [0.1.0]: https://github.com/eseifert/altero/releases/tag/v0.1.0
+
+[@sadgen]: https://github.com/sadgen
+[PR#7]: https://github.com/eseifert/altero/pull/7
+[PR#8]: https://github.com/eseifert/altero/pull/8
