@@ -189,7 +189,10 @@ How an operator registers an application, and what a client developer needs:
 ### Language and time zone
 
 The interface speaks English, German, French, Spanish, Portuguese, Italian,
-Dutch, Danish, Polish, Russian, Japanese and Chinese.
+Dutch, Danish, Polish, Russian, Japanese and Chinese — fifteen catalogues,
+because three of those are written differently in different places and are
+carried twice: American and British English, Brazilian and European Portuguese,
+Simplified and Traditional Chinese. They are the same three Zotero splits.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
 and both default to following the browser — which is a setting in itself, not
@@ -213,11 +216,35 @@ is the one thing that *is* ours: that each language reaches `Intl` at all, a
 wrong tag being the failure that would otherwise show every reader English
 dates in a translated page.
 
-The one language whose tag is coarser than its readers is Chinese. There is a
-single catalogue and it is Simplified, so `zh-TW` narrows to it and somebody in
-Taipei gets Simplified words — with Taiwanese dates, by the rule above. The
-picker says 简体中文 rather than 中文 so that this is visible before it is
-chosen.
+A tag is narrowed to the catalogue that answers it, and what gets dropped
+depends on the language. For the twelve carried once, the region goes: `de-AT`
+is German, and the region goes on reaching dates because the browser supplies
+that separately. For English, Portuguese and Chinese the region is what decides
+the words, so it is kept — a British reader empties the Bin rather than the
+Trash, a Brazilian saves an *arquivo* rather than a *ficheiro*, and Simplified
+and Traditional Chinese do not share a script.
+
+Three questions follow, and `services/locales.py` answers each rather than
+leaving it to chance. A **bare `en`, `pt` or `zh`** goes where CLDR's likely
+subtags send it — `en-US`, `pt-BR`, `zh-CN` — which is an answer that can be
+cited rather than an opinion about who owns a language. A **territory with no
+catalogue of its own** is sent to the one it reads: Australia, Ireland, India,
+New Zealand and South Africa spell as Britain does, Hong Kong and Macau read
+Traditional characters, and Angola and Mozambique write European Portuguese.
+Anything else falls back to the language's default variant, so `en-CA` is
+American rather than nothing at all.
+
+The browser carries the same two tables, in `web/src/i18n.ts`, because it has
+to resolve a tag before it has asked the server anything — the sign-in page has
+no account to ask about. `tests/test_locales.py` reads both and fails if they
+disagree, which would render one language and store another.
+
+Choosing a variant still does not choose a date format. The formatting tag is
+matched on the *language*, so an account set to 简体中文 on a machine in Taipei
+gets Simplified words and Taiwanese dates, by the same rule that gives German
+words Austrian dates. The schema's display names are asked for with the words'
+tag instead, so a column heading and the detail pane cannot end up in different
+Englishes.
 
 What an item type, a field or a creator type is called is not translated here
 at all: those names come from the schema, which carries Zotero's own
@@ -265,11 +292,14 @@ them. A catalogue written with English's two would be wrong on every count from
 its own language has rather than to English's — a check against English would
 have called "2 elementów" correct.
 
-The translations beyond English are mine rather than a native speaker's, and
-are worth reviewing before an institution relies on them. Adding another
-language is one file in `web/src/locales`, plus its tag in
-`services/locales.py` and in `MESSAGES` in `web/src/i18n.ts` — and a plural
-rule beside it if the language needs more than two forms.
+The translations beyond American English are mine rather than a native
+speaker's, and are worth reviewing before an institution relies on them. That
+includes British English: `en-US.ts` is the list every other catalogue is
+checked against, and `en-GB.ts` is a translation of it like any other, written
+out in full rather than left to fall back so that a sentence reworded in English
+is caught there too. Adding another language is one file in `web/src/locales`,
+plus its tag in `services/locales.py` and in `MESSAGES` in `web/src/i18n.ts` —
+and a plural rule beside it if the language needs more than two forms.
 `tests/test_locales.py` and `web/src/locales/locales.node.spec.ts` fail if the
 server's list and the catalogues ever disagree, or if a catalogue drifts from
 the English one.

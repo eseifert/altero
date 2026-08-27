@@ -111,7 +111,7 @@ const ACCOUNTS = [
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  i18n.global.locale.value = 'en'
+  i18n.global.locale.value = 'en-US'
   requestMock.mockReset()
   requestMock.mockImplementation((path: string) => {
     if (path === '/web/admin/overview') return Promise.resolve(OVERVIEW)
@@ -322,7 +322,7 @@ describe('the retention screen', () => {
     await flush()
 
     expect(wrapper.text()).toContain('Gelöscht: 3 Einträge aus dem Papierkorb')
-    i18n.global.locale.value = 'en'
+    i18n.global.locale.value = 'en-US'
   })
 
   it('refuses to save something the server would refuse', async () => {

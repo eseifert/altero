@@ -29,7 +29,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks()
-  i18n.global.locale.value = 'en'
+  i18n.global.locale.value = 'en-US'
 })
 
 describe('choosing the language', () => {
@@ -47,11 +47,11 @@ describe('choosing the language', () => {
   })
 
   it('falls back to English when it speaks none of them', () => {
-    expect(resolveLocale(null, ['cy', 'is'])).toBe('en')
+    expect(resolveLocale(null, ['cy', 'is'])).toBe('en-US')
   })
 
   it('reads an underscore tag, which some browsers still send', () => {
-    expect(resolveLocale(null, ['pt_BR'])).toBe('pt')
+    expect(resolveLocale(null, ['pt_BR'])).toBe('pt-BR')
   })
 })
 
@@ -84,7 +84,7 @@ describe('the locale store', () => {
     expect(store.formatting).toBe('de-AT')
   })
 
-  it('uses the bare language when the browser is set to another one', () => {
+  it('uses the language’s own tag when the browser is set to another one', () => {
     const store = browser(['en-US'], 'America/New_York')
 
     store.adopt({ language: 'de', timeZone: null })
@@ -113,10 +113,10 @@ describe('formatting dates', () => {
        should not have to work that out. */
     const store = browser(['en-GB'], 'UTC')
 
-    store.adopt({ language: 'en', timeZone: 'Europe/Berlin' })
+    store.adopt({ language: 'en-US', timeZone: 'Europe/Berlin' })
     const berlin = formatDateTime('2019-04-03T22:30:00Z')
 
-    store.adopt({ language: 'en', timeZone: 'Asia/Tokyo' })
+    store.adopt({ language: 'en-US', timeZone: 'Asia/Tokyo' })
     const tokyo = formatDateTime('2019-04-03T22:30:00Z')
 
     expect(berlin).toContain('3')
@@ -142,18 +142,21 @@ describe('formatting dates', () => {
  */
 describe('formatting a date in each language on offer', () => {
   it.each([
-    ['en', 'April'],
+    ['en-US', 'April'],
+    ['en-GB', 'April'],
     ['de', 'April'],
     ['fr', 'avril'],
     ['es', 'abril'],
-    ['pt', 'abril'],
+    ['pt-BR', 'abril'],
+    ['pt-PT', 'abril'],
     ['it', 'aprile'],
     ['nl', 'april'],
     ['da', 'april'],
     ['pl', 'kwietnia'],
     ['ru', 'апреля'],
     ['ja', '4月'],
-    ['zh', '4月'],
+    ['zh-CN', '4月'],
+    ['zh-TW', '4月'],
   ])('%s names the month in its own words', (language, month) => {
     const store = browser(['en-GB'], 'UTC')
 
@@ -172,14 +175,24 @@ describe('formatting a date in each language on offer', () => {
   })
 
   it('keeps a region the account never chose', () => {
-    /* The Chinese catalogue is Simplified, so a reader in Taipei gets
-       Simplified words -- but their dates stay Taiwanese, by the same rule
-       that gives German words Austrian dates. */
+    /* An account set to Simplified Chinese on a machine in Taipei gets
+       Simplified words -- that is what it asked for -- but its dates stay
+       Taiwanese, by the same rule that gives German words Austrian dates. */
     const store = browser(['zh-TW'], 'Asia/Taipei')
 
-    store.adopt({ language: 'zh', timeZone: null })
+    store.adopt({ language: 'zh-CN', timeZone: null })
 
-    expect(store.active).toBe('zh')
+    expect(store.active).toBe('zh-CN')
+    expect(store.formatting).toBe('zh-TW')
+  })
+
+  it('follows the browser all the way to the variant when the account has not chosen', () => {
+    /* Nothing stored, a machine in Taipei: Traditional words and Taiwanese
+       dates. The catalogue is the one the region asks for, not the language's
+       default. */
+    const store = browser(['zh-TW'], 'Asia/Taipei')
+
+    expect(store.active).toBe('zh-TW')
     expect(store.formatting).toBe('zh-TW')
   })
 })
@@ -188,7 +201,7 @@ describe('formatting a size', () => {
   it('writes the number the way the language writes numbers', () => {
     const store = browser(['en-GB'], 'UTC')
 
-    store.adopt({ language: 'en', timeZone: null })
+    store.adopt({ language: 'en-US', timeZone: null })
     expect(formatBytes(1_500_000)).toBe('1.5 MB')
 
     store.adopt({ language: 'pl', timeZone: null })

@@ -94,10 +94,10 @@ function label(id: string, name: string): string {
         calling it something else would be the pane and the dialog disagreeing.
       -->
       <p class="dialog__note">
-        {{ t('On a work in My Publications, this is the licence its files are published under.') }}
+        {{ t('On a work in My Publications, this is the license its files are published under.') }}
       </p>
 
-      <label class="dialog__label" for="item-rights">{{ t('Choose a licence') }}</label>
+      <label class="dialog__label" for="item-rights">{{ t('Choose a license') }}</label>
       <select id="item-rights" ref="field" v-model="choice" class="dialog__field" :disabled="busy">
         <option v-for="entry in LICENSES" :key="entry.id" :value="entry.id">
           {{ label(entry.id, entry.name) }}

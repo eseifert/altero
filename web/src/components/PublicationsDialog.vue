@@ -189,7 +189,7 @@ function advance(): void {
         <p class="dialog__note">
           {{
             t(
-              'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.',
+              'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.',
             )
           }}
         </p>

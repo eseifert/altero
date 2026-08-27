@@ -92,7 +92,7 @@ beforeEach(() => {
   // The display names and the language in force outlive a component, so a test
   // that changes either would otherwise decide what the next one starts from.
   resetLabels()
-  i18n.global.locale.value = 'en'
+  i18n.global.locale.value = 'en-US'
   libraries = [PERSONAL]
   contents = [ITEM]
   requestMock.mockReset()

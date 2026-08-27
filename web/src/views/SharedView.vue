@@ -40,10 +40,10 @@ const store = useSharedStore()
 onMounted(() => void store.load(props.token))
 
 /* The field names are the schema's, in the reader's language, exactly as in
-   the library view — and from `formatting` rather than the account's setting,
+   the library view — and from `active` rather than the account's setting,
    which is null for the visitor this page mostly has. */
 watch(
-  () => locale.formatting,
+  () => locale.active,
   (tag) => void loadLabels(tag),
   { immediate: true },
 )

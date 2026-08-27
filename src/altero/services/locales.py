@@ -18,37 +18,90 @@ from altero.errors import InvalidInputError
 #: A tag here must have a catalogue in `web/src/locales`; the two are checked
 #: against each other by `tests/test_locales.py`.
 #:
-#: Keyed by language alone, never by region or script, because that is the
-#: granularity the catalogues have -- which is why Chinese names itself as the
-#: script it is written in rather than as `中文`. Somebody arriving with
-#: `zh-TW` gets Simplified words; their dates stay Taiwanese, formatting being
-#: the browser's tag rather than this one.
+#: Keyed by language alone, except where a territory changes the words rather
+#: than only the dates. Three do, and they are the three Zotero itself splits:
+#: English, Portuguese and Chinese. A British reader empties the Bin and not the
+#: Trash, a Brazilian saves a ficheiro as an arquivo, and Simplified and
+#: Traditional Chinese do not share a script. Everywhere else the region reaches
+#: dates and nothing else, and `de-AT` is German here.
+#:
+#: The default variant of each comes first.
 LANGUAGES: dict[str, str] = {
-    "en": "English",
+    "en-US": "English (US)",
+    "en-GB": "English (UK)",
     "de": "Deutsch",
     "fr": "Français",
     "es": "Español",
-    "pt": "Português",
+    "pt-BR": "Português (Brasil)",
+    "pt-PT": "Português (Portugal)",
     "it": "Italiano",
     "nl": "Nederlands",
     "da": "Dansk",
     "pl": "Polski",
     "ru": "Русский",
     "ja": "日本語",
-    "zh": "简体中文",
+    "zh-CN": "简体中文",
+    "zh-TW": "繁體中文",
+}
+
+#: Where a bare language with more than one catalogue goes: `en`, `pt` and `zh`
+#: name no territory, and CLDR's likely subtags say which one they imply.
+#: Following CLDR rather than picking is what makes this answerable rather than
+#: an opinion about who owns a language.
+DEFAULT_VARIANTS: dict[str, str] = {"en": "en-US", "pt": "pt-BR", "zh": "zh-CN"}
+
+#: The region and script subtags that pick a variant, lowercased.
+#:
+#: A territory with no catalogue of its own is sent to the one it reads: Ireland
+#: and Australia spell as Britain does, Angola and Mozambique write European
+#: Portuguese, and Hong Kong and Macau read Traditional characters. A subtag
+#: absent here falls through to `DEFAULT_VARIANTS`, so `en-CA` is American
+#: rather than nothing.
+VARIANT_SUBTAGS: dict[str, dict[str, str]] = {
+    "en": {
+        "us": "en-US",
+        "au": "en-GB",
+        "gb": "en-GB",
+        "ie": "en-GB",
+        "in": "en-GB",
+        "nz": "en-GB",
+        "uk": "en-GB",
+        "za": "en-GB",
+    },
+    "pt": {
+        "br": "pt-BR",
+        "ao": "pt-PT",
+        "cv": "pt-PT",
+        "gw": "pt-PT",
+        "mz": "pt-PT",
+        "pt": "pt-PT",
+        "st": "pt-PT",
+        "tl": "pt-PT",
+    },
+    "zh": {
+        "cn": "zh-CN",
+        "hans": "zh-CN",
+        "sg": "zh-CN",
+        "hant": "zh-TW",
+        "hk": "zh-TW",
+        "mo": "zh-TW",
+        "tw": "zh-TW",
+    },
 }
 
 #: The language used when a request carries no usable preference at all.
-DEFAULT_LANGUAGE = "en"
+DEFAULT_LANGUAGE = "en-US"
 
 
 def normalise_language(value: str | None) -> str | None:
     """Return a stored language tag, or ``None`` for "follow the browser".
 
-    A tag with a region -- ``de-AT``, ``pt-BR`` -- is accepted and narrowed to
-    the language, because that is the granularity the catalogues have. The
-    region still matters for formatting dates, and the browser keeps supplying
-    that separately.
+    A tag is narrowed to the catalogue that answers it. For most languages that
+    means dropping the region -- ``de-AT`` is stored as ``de`` -- because the
+    region reaches only the shape of a date, which the browser supplies
+    separately. For the three languages written differently in different places
+    the region is kept and, where it names a territory with no catalogue of its
+    own, translated to the one that territory reads.
 
     Raises:
         InvalidInputError: The tag names a language with no catalogue.
@@ -56,11 +109,21 @@ def normalise_language(value: str | None) -> str | None:
     if value is None or value == "":
         return None
 
-    tag = value.strip().replace("_", "-")
-    language = tag.partition("-")[0].lower()
-    if language not in LANGUAGES:
+    subtags = value.strip().replace("_", "-").split("-")
+    language = subtags[0].lower()
+
+    if language in LANGUAGES:
+        return language
+
+    variants = VARIANT_SUBTAGS.get(language)
+    if variants is None:
         raise InvalidInputError(f"Unsupported language '{value}'")
-    return language
+
+    for subtag in subtags[1:]:
+        found = variants.get(subtag.lower())
+        if found is not None:
+            return found
+    return DEFAULT_VARIANTS[language]
 
 
 def normalise_time_zone(value: str | None) -> str | None:

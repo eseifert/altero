@@ -35,13 +35,13 @@ const store = useProfileStore()
 onMounted(() => void store.load(props.username))
 
 /* The field names are the schema's, in the reader's language, exactly as in
-   the library view — and taken from `formatting` rather than from the
-   account's setting, which is null for the visitor this page mostly has.
-   `formatting` is what that resolves to here and now, and it carries the
-   region the schema distinguishes `pt-BR` from `pt-PT` by. Watched rather
-   than read once, because the names always arrive after the first render. */
+   the library view — and taken from `active` rather than from the account's
+   setting, which is null for the visitor this page mostly has. `active` is what
+   that resolves to here and now, and it carries the region the schema
+   distinguishes `pt-BR` from `pt-PT` by. Watched rather than read once, because
+   the names always arrive after the first render. */
 watch(
-  () => locale.formatting,
+  () => locale.active,
   (tag) => void loadLabels(tag),
   { immediate: true },
 )

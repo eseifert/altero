@@ -29,7 +29,7 @@ describe('ThemeMenu', () => {
     const wrapper = open()
 
     expect(wrapper.get('.theme-menu__trigger').attributes('aria-label')).toBe(
-      'Colour theme: System',
+      'Color theme: System',
     )
   })
 
@@ -72,7 +72,7 @@ describe('ThemeMenu', () => {
 
     await wrapper.findAll('[role="menuitemradio"]')[0].trigger('click')
 
-    expect(wrapper.get('.theme-menu__trigger').attributes('aria-label')).toBe('Colour theme: Light')
+    expect(wrapper.get('.theme-menu__trigger').attributes('aria-label')).toBe('Color theme: Light')
   })
 
   it('closes on Escape without changing anything', async () => {

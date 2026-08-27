@@ -5,6 +5,10 @@
  * itself. The file exists for two reasons: it is the list the other
  * catalogues are checked against, and it is where a new string is added first.
  *
+ * The text is American English, which is what makes `en-GB.ts` a translation
+ * like any other rather than a second original: a British reader empties the
+ * Bin, and the key is still `Empty trash`.
+ *
  * `locales.spec.ts` fails if a catalogue drifts from this list, or if the
  * source uses a key that is not in it.
  */
@@ -68,8 +72,8 @@ export default {
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.',
   'Anyone': 'Anyone',
-  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
-    'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.',
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+    'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.',
   'Anyone can see this page, with no account here.':
     'Anyone can see this page, with no account here.',
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.': 'Appears in the sign-in address. Lower-case letters, digits and hyphens.',
@@ -105,7 +109,7 @@ export default {
   'Checking the request…': 'Checking the request…',
   'Choose a Creative Commons license': 'Choose a Creative Commons license',
   'Choose a library and an archive first.': 'Choose a library and an archive first.',
-  'Choose a licence': 'Choose a licence',
+  'Choose a license': 'Choose a license',
   'Choose how your work may be shared': 'Choose how your work may be shared',
   'Citation': 'Citation',
   'Citation style': 'Citation style',
@@ -123,8 +127,8 @@ export default {
   'Collection settings': 'Collection settings',
   'Collections': 'Collections',
   'Collections added or changed': 'Collections added or changed',
-  'Colour theme': 'Colour theme',
-  'Colour theme: {name}': 'Colour theme: {name}',
+  'Color theme': 'Color theme',
+  'Color theme: {name}': 'Color theme: {name}',
   'Configuration not read yet': 'Configuration not read yet',
   'Configuration read {when}': 'Configuration read {when}',
   'Confirm your email address first, so the codes go somewhere you can read.': 'Confirm your email address first, so the codes go somewhere you can read.',
@@ -354,8 +358,8 @@ export default {
   'Notifications, {count} unread': 'Notifications, {count} unread',
   'Off': 'Off',
   'Offer this on the sign-in page': 'Offer this on the sign-in page',
-  'On a work in My Publications, this is the licence its files are published under.':
-    'On a work in My Publications, this is the licence its files are published under.',
+  'On a work in My Publications, this is the license its files are published under.':
+    'On a work in My Publications, this is the license its files are published under.',
   'On disk': 'On disk',
   'On this device only': 'On this device only',
   'One is stored. Leave this empty to keep it.': 'One is stored. Leave this empty to keep it.',

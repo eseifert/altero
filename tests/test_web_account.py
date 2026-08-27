@@ -674,8 +674,21 @@ class TestLanguageAndTimeZone:
     async def test_a_region_narrows_to_the_language_it_has_a_catalogue_for(
         self, client: httpx.AsyncClient
     ) -> None:
-        """`pt-BR` is Portuguese as far as the interface strings go. The region
-        still reaches date formatting, which the browser supplies separately."""
+        """`de-AT` is German as far as the interface strings go. The region still
+        reaches date formatting, which the browser supplies separately."""
+        await register(client)
+
+        response = await client.put(
+            "/web/account/locale",
+            headers=csrf_headers(client),
+            json={"language": "de-AT", "timeZone": "Europe/Vienna"},
+        )
+
+        assert response.json()["user"]["language"] == "de"
+
+    async def test_a_region_that_changes_the_words_is_kept(self, client: httpx.AsyncClient) -> None:
+        """Portuguese is carried twice, so `pt-BR` is stored as itself rather
+        than flattened to a catalogue written in Lisbon."""
         await register(client)
 
         response = await client.put(
@@ -684,7 +697,21 @@ class TestLanguageAndTimeZone:
             json={"language": "pt-BR", "timeZone": "America/Sao_Paulo"},
         )
 
-        assert response.json()["user"]["language"] == "pt"
+        assert response.json()["user"]["language"] == "pt-BR"
+
+    async def test_a_territory_without_a_catalogue_reads_the_nearest(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """Australia spells as Britain does, so that is the catalogue stored."""
+        await register(client)
+
+        response = await client.put(
+            "/web/account/locale",
+            headers=csrf_headers(client),
+            json={"language": "en-AU", "timeZone": "Australia/Sydney"},
+        )
+
+        assert response.json()["user"]["language"] == "en-GB"
 
     async def test_a_language_with_no_catalogue_is_refused(self, client: httpx.AsyncClient) -> None:
         await register(client)
@@ -731,18 +758,21 @@ class TestLanguageAndTimeZone:
         body = (await client.get("/web/account/locales")).json()
 
         assert {entry["tag"] for entry in body["languages"]} == {
-            "en",
+            "en-US",
+            "en-GB",
             "de",
             "fr",
             "es",
-            "pt",
+            "pt-BR",
+            "pt-PT",
             "it",
             "nl",
             "da",
             "pl",
             "ru",
             "ja",
-            "zh",
+            "zh-CN",
+            "zh-TW",
         }
         assert "Europe/Berlin" in body["timeZones"]
         assert len(body["timeZones"]) > 100

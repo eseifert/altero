@@ -40,7 +40,7 @@ let libraries: unknown[] = [MINE]
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  i18n.global.locale.value = 'en'
+  i18n.global.locale.value = 'en-US'
   groups = []
   libraries = [MINE]
   requestMock.mockReset()

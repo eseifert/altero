@@ -1,4 +1,4 @@
-/** Danish. Keys are the English text; see `locales/en.ts`. */
+/** Danish. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
   ' from {address}': ' fra {address}',
@@ -72,7 +72,7 @@ export default {
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'Alle med linket kan læse “{name}”. De behøver ingen konto her, og de kan ikke ændre noget.',
   'Anyone': 'Alle',
-  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     'Alle kan læse det, du lægger i Mine publikationer, uden konto her og uden nøgle. De filer, du inkluderer, udgives under den licens, du vælger. Tilføj kun værker, du selv har lavet, og inkludér kun filer, du har ret til at distribuere.',
   'Anyone can see this page, with no account here.': 'Alle kan se denne side, uden konto her.',
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.':
@@ -111,7 +111,7 @@ export default {
   'Checking the request…': 'Kontrollerer forespørgslen…',
   'Choose a Creative Commons license': 'Vælg en Creative Commons-licens',
   'Choose a library and an archive first.': 'Vælg først et bibliotek og et arkiv.',
-  'Choose a licence': 'Vælg en licens',
+  'Choose a license': 'Vælg en licens',
   'Choose how your work may be shared': 'Vælg, hvordan dit værk må deles',
   'Citation': 'Henvisning',
   'Citation style': 'Henvisningsstil',
@@ -129,8 +129,8 @@ export default {
   'Collection settings': 'Indstillinger for samlingen',
   'Collections': 'Samlinger',
   'Collections added or changed': 'Samlinger tilføjet eller ændret',
-  'Colour theme': 'Farvetema',
-  'Colour theme: {name}': 'Farvetema: {name}',
+  'Color theme': 'Farvetema',
+  'Color theme: {name}': 'Farvetema: {name}',
   'Configuration not read yet': 'Konfigurationen er ikke læst endnu',
   'Configuration read {when}': 'Konfigurationen blev læst {when}',
   'Confirm your email address first, so the codes go somewhere you can read.':
@@ -384,7 +384,7 @@ export default {
   'Notifications, {count} unread': 'Beskeder, {count} ulæste',
   'Off': 'Fra',
   'Offer this on the sign-in page': 'Tilbyd denne på login-siden',
-  'On a work in My Publications, this is the licence its files are published under.':
+  'On a work in My Publications, this is the license its files are published under.':
     'For et værk i Mine publikationer er dette den licens, filerne udgives under.',
   'On disk': 'På disken',
   'On this device only': 'Kun på denne enhed',

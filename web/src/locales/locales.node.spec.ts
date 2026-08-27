@@ -8,7 +8,8 @@ import { describe, expect, it } from 'vitest'
 
 import da from './da'
 import de from './de'
-import en from './en'
+import enGB from './en-GB'
+import en from './en-US'
 import es from './es'
 import fr from './fr'
 // `it` is vitest's, so the Italian catalogue comes in under another name and
@@ -17,9 +18,11 @@ import italian from './it'
 import ja from './ja'
 import nl from './nl'
 import pl from './pl'
-import pt from './pt'
+import ptBR from './pt-BR'
+import ptPT from './pt-PT'
 import ru from './ru'
-import zh from './zh'
+import zhCN from './zh-CN'
+import zhTW from './zh-TW'
 
 /**
  * The catalogues, against each other and against the source.
@@ -31,7 +34,22 @@ import zh from './zh'
  * what makes that visible.
  */
 
-const CATALOGUES = { de, fr, es, pt, it: italian, nl, da, pl, ru, ja, zh }
+const CATALOGUES = {
+  'en-GB': enGB,
+  de,
+  fr,
+  es,
+  'pt-BR': ptBR,
+  'pt-PT': ptPT,
+  it: italian,
+  nl,
+  da,
+  pl,
+  ru,
+  ja,
+  'zh-CN': zhCN,
+  'zh-TW': zhTW,
+}
 
 /**
  * How many branches a plural message has, where that is not English's two.
@@ -125,7 +143,7 @@ describe.each(Object.entries(CATALOGUES))('the %s catalogue', (name, catalogue) 
   })
 })
 
-describe('the English catalogue', () => {
+describe('the American English catalogue', () => {
   it('holds every key the interface asks for', () => {
     const missing = [...usedKeys()].filter((key) => !(key in en)).sort()
 

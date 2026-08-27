@@ -1,4 +1,4 @@
-/** Portuguese. Keys are the English text; see `locales/en.ts`. */
+/** Portuguese, as written in Portugal. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
   ' from {address}': ' a partir de {address}',
@@ -66,7 +66,7 @@ export default {
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'Quem tiver a ligação pode ler “{name}”. Não precisa de conta aqui e não pode alterar nada.',
   Anyone: 'Qualquer pessoa',
-  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     'Qualquer pessoa pode ler o que colocar em As Minhas Publicações, sem uma conta neste servidor e sem uma chave. Os ficheiros que incluir são publicados sob a licença que escolher. Adicione apenas trabalho criado por si e inclua apenas ficheiros que tenha o direito de distribuir.',
   'Anyone can see this page, with no account here.':
     'Qualquer pessoa pode ver esta página, sem ter conta aqui.',
@@ -104,7 +104,7 @@ export default {
   'Checking the request…': 'A verificar o pedido…',
   'Choose a Creative Commons license': 'Escolha uma licença Creative Commons',
   'Choose a library and an archive first.': 'Escolha primeiro uma biblioteca e um arquivo.',
-  'Choose a licence': 'Escolha uma licença',
+  'Choose a license': 'Escolha uma licença',
   'Choose how your work may be shared': 'Escolha a forma de partilha do seu trabalho',
   Citation: 'Citação',
   'Citation style': 'Estilo de citação',
@@ -122,8 +122,8 @@ export default {
   'Collection settings': 'Definições da coleção',
   'Collections': 'Coleções',
   'Collections added or changed': 'Coleções adicionadas ou alteradas',
-  'Colour theme': 'Tema de cores',
-  'Colour theme: {name}': 'Tema de cores: {name}',
+  'Color theme': 'Tema de cores',
+  'Color theme: {name}': 'Tema de cores: {name}',
   'Configuration not read yet': 'Configuração ainda não lida',
   'Configuration read {when}': 'Configuração lida {when}',
   'Confirm your email address first, so the codes go somewhere you can read.': 'Confirme primeiro o seu endereço de e-mail, para que os códigos cheguem onde os possa ler.',
@@ -368,7 +368,7 @@ export default {
   'Notifications, {count} unread': 'Notificações, {count} por ler',
   'Off': 'Desativado',
   'Offer this on the sign-in page': 'Oferecer isto na página de início de sessão',
-  'On a work in My Publications, this is the licence its files are published under.':
+  'On a work in My Publications, this is the license its files are published under.':
     'Num trabalho em As Minhas Publicações, esta é a licença sob a qual os seus ficheiros são publicados.',
   'On disk': 'Em disco',
   'On this device only': 'Apenas neste dispositivo',

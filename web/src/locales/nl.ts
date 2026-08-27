@@ -1,4 +1,4 @@
-/** Dutch. Keys are the English text; see `locales/en.ts`. */
+/** Dutch. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
   ' from {address}': ' van {address}',
@@ -74,7 +74,7 @@ export default {
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'Iedereen met de link kan “{name}” lezen. Zij hebben hier geen account nodig en kunnen niets wijzigen.',
   'Anyone': 'Iedereen',
-  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     'Iedereen kan lezen wat u in Mijn publicaties zet, zonder account hier en zonder sleutel. Bestanden die u meestuurt worden gepubliceerd onder de licentie die u kiest. Voeg alleen werk toe dat u zelf hebt gemaakt, en neem alleen bestanden op die u mag verspreiden.',
   'Anyone can see this page, with no account here.':
     'Iedereen kan deze pagina zien, zonder account hier.',
@@ -114,7 +114,7 @@ export default {
   'Checking the request…': 'Het verzoek wordt gecontroleerd…',
   'Choose a Creative Commons license': 'Kies een Creative Commons-licentie',
   'Choose a library and an archive first.': 'Kies eerst een bibliotheek en een archief.',
-  'Choose a licence': 'Kies een licentie',
+  'Choose a license': 'Kies een licentie',
   'Choose how your work may be shared': 'Kiezen hoe uw werk gedeeld mag worden',
   'Citation': 'Verwijzing',
   'Citation style': 'Verwijzingsstijl',
@@ -132,8 +132,8 @@ export default {
   'Collection settings': 'Instellingen van de verzameling',
   'Collections': 'Verzamelingen',
   'Collections added or changed': 'Verzamelingen toegevoegd of gewijzigd',
-  'Colour theme': 'Kleurthema',
-  'Colour theme: {name}': 'Kleurthema: {name}',
+  'Color theme': 'Kleurthema',
+  'Color theme: {name}': 'Kleurthema: {name}',
   'Configuration not read yet': 'Configuratie nog niet gelezen',
   'Configuration read {when}': 'Configuratie gelezen {when}',
   'Confirm your email address first, so the codes go somewhere you can read.':
@@ -389,7 +389,7 @@ export default {
   'Notifications, {count} unread': 'Meldingen, {count} ongelezen',
   'Off': 'Uit',
   'Offer this on the sign-in page': 'Dit aanbieden op de aanmeldpagina',
-  'On a work in My Publications, this is the licence its files are published under.':
+  'On a work in My Publications, this is the license its files are published under.':
     'Bij een werk in Mijn publicaties is dit de licentie waaronder de bestanden ervan worden gepubliceerd.',
   'On disk': 'Op schijf',
   'On this device only': 'Alleen op dit apparaat',

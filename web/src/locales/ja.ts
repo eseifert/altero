@@ -1,5 +1,5 @@
 /**
- * Japanese. Keys are the English text; see `locales/en.ts`.
+ * Japanese. Keys are the English text; see `locales/en-US.ts`.
  *
  * Japanese has no plural inflection, so the two branches of a plural message
  * are deliberately identical -- vue-i18n still wants both.
@@ -69,7 +69,7 @@ export default {
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'リンクを知っている人は「{name}」を閲覧できます。ここでのアカウントは不要で、変更はできません。',
   Anyone: '全員',
-  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     '「私の出版物」に入れたものは、このサーバーのアカウントもキーもなしに誰でも読むことができます。含めたファイルは、選んだライセンスの下で公開されます。あなた自身が作成した著作物のみを加え、配布する権利を持つファイルのみを含めてください。',
   'Anyone can see this page, with no account here.': 'このページは、ここにアカウントがなくても誰でも見られます。',
   Archive: 'アーカイブ',
@@ -106,7 +106,7 @@ export default {
   'Checking the request…': 'リクエストを確認しています…',
   'Choose a Creative Commons license': 'クリエイティブ・コモンズ・ライセンスを選択する',
   'Choose a library and an archive first.': '先にライブラリーとアーカイブを選んでください。',
-  'Choose a licence': 'ライセンスを選ぶ',
+  'Choose a license': 'ライセンスを選ぶ',
   'Choose how your work may be shared': 'あなたの著作物を共有する方法を選択してください',
   Citation: '引用',
   'Citation style': '引用スタイル',
@@ -124,8 +124,8 @@ export default {
   'Collection settings': 'コレクションの設定',
   'Collections': 'コレクション',
   'Collections added or changed': '追加または変更されたコレクション',
-  'Colour theme': '配色テーマ',
-  'Colour theme: {name}': '配色テーマ: {name}',
+  'Color theme': '配色テーマ',
+  'Color theme: {name}': '配色テーマ: {name}',
   'Configuration not read yet': '設定はまだ読み込まれていません',
   'Configuration read {when}': '設定を読み込みました {when}',
   'Confirm your email address first, so the codes go somewhere you can read.': 'まずメールアドレスを確認してください。読み取れる場所にコードが届くようにするためです。',
@@ -360,7 +360,7 @@ export default {
   'Notifications, {count} unread': '通知、未読 {count} 件',
   'Off': 'オフ',
   'Offer this on the sign-in page': 'サインインページに表示する',
-  'On a work in My Publications, this is the licence its files are published under.':
+  'On a work in My Publications, this is the license its files are published under.':
     '「私の出版物」にある著作物では、これがそのファイルを公開するライセンスです。',
   'On disk': 'ディスク上',
   'On this device only': 'このデバイスのみ',

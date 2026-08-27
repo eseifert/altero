@@ -120,7 +120,7 @@ onBeforeUnmount(() => {
       ref="trigger"
       type="button"
       class="theme-menu__trigger"
-      :aria-label="t('Colour theme: {name}', { name: t(current.label) })"
+      :aria-label="t('Color theme: {name}', { name: t(current.label) })"
       aria-haspopup="menu"
       :aria-expanded="open"
       @click="toggle"
@@ -131,7 +131,7 @@ onBeforeUnmount(() => {
       </svg>
     </button>
 
-    <ul v-if="open" class="theme-menu__list" role="menu" :aria-label="t('Colour theme')">
+    <ul v-if="open" class="theme-menu__list" role="menu" :aria-label="t('Color theme')">
       <li v-for="(option, index) in OPTIONS" :key="option.value" role="none">
         <button
           :ref="(element) => collect(element, index)"

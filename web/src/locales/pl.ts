@@ -1,5 +1,5 @@
 /**
- * Polish. Keys are the English text; see `locales/en.ts`.
+ * Polish. Keys are the English text; see `locales/en-US.ts`.
  *
  * Plural messages carry three branches -- one, few, many -- rather than the
  * two English has, because Polish counts that way. `pluralRules` in `i18n.ts`
@@ -78,7 +78,7 @@ export default {
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'Każdy, kto ma ten odnośnik, może czytać „{name}”. Nie będzie potrzebował tu konta i niczego nie zmieni.',
   'Anyone': 'Każdy',
-  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     'Każdy może czytać to, co umieścisz w Moich publikacjach — bez konta tutaj i bez klucza. Dołączone pliki są publikowane na wybranej przez ciebie licencji. Dodawaj tylko prace, których jesteś autorem, i dołączaj tylko pliki, które masz prawo rozpowszechniać.',
   'Anyone can see this page, with no account here.':
     'Każdy może zobaczyć tę stronę, bez konta tutaj.',
@@ -118,7 +118,7 @@ export default {
   'Checking the request…': 'Sprawdzanie żądania…',
   'Choose a Creative Commons license': 'Wybierz licencję Creative Commons',
   'Choose a library and an archive first.': 'Najpierw wybierz bibliotekę i archiwum.',
-  'Choose a licence': 'Wybierz licencję',
+  'Choose a license': 'Wybierz licencję',
   'Choose how your work may be shared': 'Wybierz sposób współdzielenia swojej pracy',
   'Citation': 'Cytowanie',
   'Citation style': 'Styl cytowania',
@@ -136,8 +136,8 @@ export default {
   'Collection settings': 'Ustawienia kolekcji',
   'Collections': 'Kolekcje',
   'Collections added or changed': 'Kolekcje dodane lub zmienione',
-  'Colour theme': 'Motyw kolorystyczny',
-  'Colour theme: {name}': 'Motyw kolorystyczny: {name}',
+  'Color theme': 'Motyw kolorystyczny',
+  'Color theme: {name}': 'Motyw kolorystyczny: {name}',
   'Configuration not read yet': 'Konfiguracja jeszcze nie odczytana',
   'Configuration read {when}': 'Konfigurację odczytano {when}',
   'Confirm your email address first, so the codes go somewhere you can read.':
@@ -392,7 +392,7 @@ export default {
   'Notifications, {count} unread': 'Powiadomienia, {count} nieprzeczytanych',
   'Off': 'Wyłączone',
   'Offer this on the sign-in page': 'Pokazuj to na stronie logowania',
-  'On a work in My Publications, this is the licence its files are published under.':
+  'On a work in My Publications, this is the license its files are published under.':
     'Przy pracy w Moich publikacjach to licencja, na której publikowane są jej pliki.',
   'On disk': 'Na dysku',
   'On this device only': 'Tylko na tym urządzeniu',

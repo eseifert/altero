@@ -184,10 +184,12 @@ const heading = computed(() => {
 
 /* The display names are per language, and the account can change its language
    while the library is open, so they follow the interface rather than the
-   browser. The formatting tag is the one with a region on it, and the schema
-   distinguishes `pt-BR` from `pt-PT`. */
+   browser. `active` is the tag the schema is asked for, not `formatting`: both
+   name a territory where one matters, but only `active` names the one whose
+   words are on screen, so a heading cannot say `Bin` while the schema answers
+   in American English. */
 watch(
-  () => locales.formatting,
+  () => locales.active,
   (tag) => void loadLabels(tag),
   { immediate: true },
 )

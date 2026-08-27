@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { i18n, isLocale, LOCALES, PLURAL_RULES, resolveLocale } from './i18n'
+import { i18n, isLocale, LOCALES, matchLocale, PLURAL_RULES, resolveLocale } from './i18n'
 
 /**
  * Counting, in the languages that count in more than two ways.
@@ -21,31 +21,78 @@ function items(locale: string, count: number): string {
 }
 
 afterEach(() => {
-  i18n.global.locale.value = 'en'
+  i18n.global.locale.value = 'en-US'
 })
 
 describe('the languages on offer', () => {
   it('holds a catalogue for each', () => {
     expect(LOCALES).toEqual(
-      expect.arrayContaining(['en', 'de', 'fr', 'es', 'pt', 'it', 'nl', 'da', 'pl', 'ru', 'ja', 'zh']),
+      expect.arrayContaining([
+        'en-US',
+        'en-GB',
+        'de',
+        'fr',
+        'es',
+        'pt-BR',
+        'pt-PT',
+        'it',
+        'nl',
+        'da',
+        'pl',
+        'ru',
+        'ja',
+        'zh-CN',
+        'zh-TW',
+      ]),
     )
   })
 
   it('recognises each as a locale and nothing else', () => {
     for (const locale of LOCALES) expect(isLocale(locale)).toBe(true)
     expect(isLocale('kl')).toBe(false)
+    expect(isLocale('en')).toBe(false)
   })
 
-  it('narrows a regional tag to its language', () => {
-    expect(resolveLocale(null, ['zh-Hans-CN'])).toBe('zh')
-    expect(resolveLocale(null, ['pt-BR'])).toBe('pt')
+  it('narrows a regional tag to the catalogue it has', () => {
+    /* Most languages are carried once, so the region reaches dates and nothing
+       else. */
+    expect(resolveLocale(null, ['de-AT'])).toBe('de')
+    expect(resolveLocale(null, ['fr-CA'])).toBe('fr')
+  })
+
+  it('keeps the region where the words depend on it', () => {
+    expect(resolveLocale(null, ['zh-Hans-CN'])).toBe('zh-CN')
+    expect(resolveLocale(null, ['zh-Hant'])).toBe('zh-TW')
+    expect(resolveLocale(null, ['pt-BR'])).toBe('pt-BR')
+    expect(resolveLocale(null, ['pt-PT'])).toBe('pt-PT')
+    expect(resolveLocale(null, ['en-GB'])).toBe('en-GB')
+  })
+
+  it('sends a bare language where CLDR sends it', () => {
+    expect(matchLocale('en')).toBe('en-US')
+    expect(matchLocale('pt')).toBe('pt-BR')
+    expect(matchLocale('zh')).toBe('zh-CN')
+  })
+
+  it('sends a territory with no catalogue to the one it reads', () => {
+    /* Australia spells as Britain does, Hong Kong reads Traditional characters,
+       and Angola writes European Portuguese. */
+    expect(matchLocale('en-AU')).toBe('en-GB')
+    expect(matchLocale('zh-HK')).toBe('zh-TW')
+    expect(matchLocale('pt-AO')).toBe('pt-PT')
+  })
+
+  it('falls back to the default variant for a territory it has never heard of', () => {
+    expect(matchLocale('en-CA')).toBe('en-US')
+    expect(matchLocale('kl-GL')).toBeNull()
   })
 })
 
 describe('counting in a language with two forms', () => {
   it.each([
-    ['en', 1, '1 item'],
-    ['en', 2, '2 items'],
+    ['en-US', 1, '1 item'],
+    ['en-US', 2, '2 items'],
+    ['en-GB', 2, '2 items'],
     ['de', 1, '1 Eintrag'],
     ['de', 5, '5 Einträge'],
   ])('%s renders %i', (locale, count, expected) => {

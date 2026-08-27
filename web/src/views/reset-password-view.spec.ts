@@ -17,7 +17,7 @@ vi.mock('@/api/client', async (importOriginal) => ({
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  i18n.global.locale.value = 'en'
+  i18n.global.locale.value = 'en-US'
   requestMock.mockReset()
   requestMock.mockResolvedValue({ username: 'grace', displayName: 'Grace' })
 })

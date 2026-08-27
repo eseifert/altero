@@ -1,5 +1,5 @@
 /**
- * Russian. Keys are the English text; see `locales/en.ts`.
+ * Russian. Keys are the English text; see `locales/en-US.ts`.
  *
  * Plural messages carry three branches -- one, few, many -- rather than the
  * two English has, because Russian counts that way. `pluralRules` in `i18n.ts`
@@ -79,7 +79,7 @@ export default {
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     'Любой, у кого есть ссылка, может читать «{name}». Учётная запись здесь ему не понадобится, и изменить он ничего не сможет.',
   'Anyone': 'Любой',
-  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     'Любой может прочитать то, что вы поместили в Мои публикации, без учётной записи здесь и без ключа. Включённые файлы публикуются под выбранной вами лицензией. Добавляйте только свои собственные работы и включайте только те файлы, на распространение которых у вас есть право.',
   'Anyone can see this page, with no account here.':
     'Эту страницу может увидеть любой, без учётной записи здесь.',
@@ -119,7 +119,7 @@ export default {
   'Checking the request…': 'Проверка запроса…',
   'Choose a Creative Commons license': 'Выберите лицензию Creative Commons',
   'Choose a library and an archive first.': 'Сначала выберите библиотеку и архив.',
-  'Choose a licence': 'Выберите лицензию',
+  'Choose a license': 'Выберите лицензию',
   'Choose how your work may be shared': 'Выберите, как ваша работа будет распространяться',
   'Citation': 'Ссылка',
   'Citation style': 'Стиль ссылок',
@@ -137,8 +137,8 @@ export default {
   'Collection settings': 'Настройки коллекции',
   'Collections': 'Коллекции',
   'Collections added or changed': 'Коллекций добавлено или изменено',
-  'Colour theme': 'Цветовая тема',
-  'Colour theme: {name}': 'Цветовая тема: {name}',
+  'Color theme': 'Цветовая тема',
+  'Color theme: {name}': 'Цветовая тема: {name}',
   'Configuration not read yet': 'Конфигурация ещё не прочитана',
   'Configuration read {when}': 'Конфигурация прочитана {when}',
   'Confirm your email address first, so the codes go somewhere you can read.':
@@ -391,7 +391,7 @@ export default {
   'Notifications, {count} unread': 'Уведомления, {count} непрочитанных',
   'Off': 'Выключено',
   'Offer this on the sign-in page': 'Предлагать это на странице входа',
-  'On a work in My Publications, this is the licence its files are published under.':
+  'On a work in My Publications, this is the license its files are published under.':
     'Для работы в Моих публикациях это лицензия, под которой публикуются её файлы.',
   'On disk': 'На диске',
   'On this device only': 'Только на этом устройстве',

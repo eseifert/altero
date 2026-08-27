@@ -1,4 +1,4 @@
-/** Chinese (Simplified). Keys are the English text; see `locales/en.ts`. */
+/** Chinese, in Simplified characters. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
   ' from {address}': ' 来自 {address}',
@@ -69,7 +69,7 @@ export default {
   'Anybody with the link can read “{name}”. They will not need an account here, and they cannot change anything.':
     '任何拿到链接的人都可以阅读“{name}”。他们不需要这里的账户，也无法更改任何内容。',
   'Anyone': '任何人',
-  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the licence you choose. Only add work you created yourself, and only include files you have the right to distribute.':
+  'Anyone can read what you put in My Publications, without an account here and without a key. Files you include are published under the license you choose. Only add work you created yourself, and only include files you have the right to distribute.':
     '任何人都可以阅读你放进我的出版物的内容，无需这里的账户，也无需密钥。你包含的文件将以你选择的许可协议发布。请只添加你自己创作的作品，并且只包含你有权分发的文件。',
   'Anyone can see this page, with no account here.': '任何人都可以看到此页面，无需这里的账户。',
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.':
@@ -107,7 +107,7 @@ export default {
   'Checking the request…': '正在检查请求…',
   'Choose a Creative Commons license': '选择一个知识共享许可协议',
   'Choose a library and an archive first.': '请先选择一个文库和一个存档。',
-  'Choose a licence': '选择许可协议',
+  'Choose a license': '选择许可协议',
   'Choose how your work may be shared': '选择你分享作品的方式',
   'Citation': '引注',
   'Citation style': '引注样式',
@@ -125,8 +125,8 @@ export default {
   'Collection settings': '分类设置',
   'Collections': '分类',
   'Collections added or changed': '添加或更改的分类',
-  'Colour theme': '配色主题',
-  'Colour theme: {name}': '配色主题：{name}',
+  'Color theme': '配色主题',
+  'Color theme: {name}': '配色主题：{name}',
   'Configuration not read yet': '尚未读取配置',
   'Configuration read {when}': '配置读取于 {when}',
   'Confirm your email address first, so the codes go somewhere you can read.':
@@ -370,7 +370,7 @@ export default {
   'Notifications, {count} unread': '通知，{count} 条未读',
   'Off': '关闭',
   'Offer this on the sign-in page': '在登录页面提供此选项',
-  'On a work in My Publications, this is the licence its files are published under.':
+  'On a work in My Publications, this is the license its files are published under.':
     '对于我的出版物中的作品，这是其文件发布时所用的许可协议。',
   'On disk': '磁盘上',
   'On this device only': '仅在此设备上',

@@ -27,7 +27,7 @@ const PENDING = {
 
 beforeEach(() => {
   setActivePinia(createPinia())
-  i18n.global.locale.value = 'en'
+  i18n.global.locale.value = 'en-US'
   requestMock.mockReset()
   requestMock.mockResolvedValue(PENDING)
 })
