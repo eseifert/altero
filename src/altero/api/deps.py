@@ -53,12 +53,8 @@ async def get_api_key(request: Request, session: SessionDep) -> ApiKey | None:
 
 
 async def _record_use(request: Request, api_key: ApiKey) -> None:
-    """Note when and where this key was used, for the key list to show.
-
-    In a session of its own. Sharing the request's would commit whatever it has
-    open, which on a write path is a transaction holding a row lock on the
-    library -- the one thing in this application that must not be broken up.
-    """
+    if not api_key.id:
+        return
     async with request.app.state.database.session_factory() as bookkeeping:
         await keyusage.record(
             bookkeeping,

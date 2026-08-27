@@ -48,6 +48,11 @@ from altero.models.webauth import (
     WebAuthnChallenge,
     WebSession,
 )
+from altero.models.oauth import (
+    OAuthAuthorizationCode,
+    OAuthClient,
+    OAuthToken,
+)
 
 __all__ = [
     "ActivityKind",
@@ -83,6 +88,9 @@ __all__ = [
     "LoginSession",
     "MemberPermission",
     "Notification",
+    "OAuthAuthorizationCode",
+    "OAuthClient",
+    "OAuthToken",
     "PasskeyCredential",
     "PasswordReset",
     "ProfileVisibility",

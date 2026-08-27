@@ -233,6 +233,13 @@ EXPECTED = [
     ("/users/{user_id}/publications/items/{item_key}", "GET"),
     ("/users/{user_id}/publications/settings", "GET"),
     ("/users/{user_id}/publications/deleted", "GET"),
+    # OAuth 2.0 / OIDC Authorization Server endpoints (RFC 6749, RFC 7636, RFC 8414)
+    ("/.well-known/openid-configuration", "GET"),
+    ("/oauth/authorize", "GET"),
+    ("/oauth/authorize", "POST"),
+    ("/oauth/token", "POST"),
+    ("/oauth/revoke", "POST"),
+    ("/oauth/userinfo", "GET"),
 ]
 
 #: Endpoints served under both /users/{user_id} and /groups/{group_id}.

@@ -158,6 +158,27 @@ async def authenticate(session: AsyncSession, credential: str | None) -> ApiKey 
         )
     ).first()
     if row is None:
+        from altero.services import oauth
+        token_obj = await oauth.validate_access_token(session, credential)
+        if token_obj is not None:
+            user = await session.scalar(select(User).where(User.id == token_obj.user_id))
+            if user is None:
+                raise ForbiddenError("Invalid key")
+            if user.disabled_at is not None:
+                raise ForbiddenError("This account has been suspended")
+            scopes = token_obj.scopes.split()
+            return ApiKey(
+                id=0,
+                key=credential,
+                user_id=token_obj.user_id,
+                name="OAuth Token",
+                library_read="library.read" in scopes or "openid" in scopes,
+                library_write="library.write" in scopes or "annotations.write" in scopes,
+                notes_read="library.read" in scopes or "openid" in scopes,
+                files_read="files.read" in scopes or "openid" in scopes,
+                all_groups_read="library.read" in scopes or "openid" in scopes,
+                all_groups_write="library.write" in scopes,
+            )
         raise ForbiddenError("Invalid key")
 
     api_key, disabled_at = row

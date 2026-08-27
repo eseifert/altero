@@ -24,6 +24,7 @@ from altero.api.routes import (
     items,
     itemschema,
     keys,
+    oauth,
     publications,
     searches,
     streaming,
@@ -205,6 +206,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(webshares.router)
     app.include_router(weblink.router)
     app.include_router(health.router)
+    app.include_router(oauth.router)
     app.include_router(streaming.router)
     app.include_router(itemschema.router)
     app.include_router(keys.router)
