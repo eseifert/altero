@@ -45,12 +45,14 @@ export default {
   'Add to My Publications': 'Føj til Mine publikationer',
   'Add to My Publications…': 'Føj til Mine publikationer…',
   'Add “{name}” to My Publications': 'Føj “{name}” til Mine publikationer',
+  'Add, change and remove things in your library': 'Tilføje, ændre og fjerne ting i dit bibliotek',
   'Administration': 'Administration',
   'Administrator': 'Administrator',
   'Administrators': 'Administratorer',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Bagefter vil Zotero på din computer opdage, at den taler med en anden konto, og tilbyde at nulstille sine lokale data. Lad den gøre det: alt, den skal bruge, ligger nu på denne server.',
   'All items': 'Alle elementer',
+  'Allow': 'Tillad',
   'Allow adaptations of your work to be shared?': 'Må bearbejdelser af dit værk deles?',
   'Allow changes (Zotero needs this to sync)':
     'Tillad ændringer (Zotero har brug for dette for at synkronisere)',
@@ -100,6 +102,7 @@ export default {
   'Cancel': 'Annullér',
   'Change': 'Skift',
   'Change password': 'Skift adgangskode',
+  'Change the group libraries you belong to': 'Ændre de gruppebiblioteker, du er medlem af',
   'Change the rights': 'Ret rettighederne',
   'Change this provider': 'Ret denne udbyder',
   'Change who can see it': 'Ret hvem der kan se den',
@@ -142,8 +145,11 @@ export default {
   'Confirming…': 'Bekræfter…',
   'Connect': 'Forbind',
   'Connect Zotero': 'Forbind Zotero',
+  'Connect an application': 'Forbind et program',
   'Connect {provider}': 'Forbind {provider}',
   'Connected accounts': 'Forbundne konti',
+  'Connected applications': 'Forbundne programmer',
+  'Connected {when}': 'Forbundet {when}',
   'Connecting to zotero.org…': 'Forbinder til zotero.org…',
   'Continue with {provider}': 'Fortsæt med {provider}',
   'Copied': 'Kopieret',
@@ -201,6 +207,7 @@ export default {
     'Færdig. Zotero er ved at samle forbindelsen op nu — du kan lukke denne side og gå tilbage til den.',
   'Download': 'Hent',
   'Download and upload attachments': 'Hente og lægge vedhæftede filer op',
+  'Download your attachments': 'Hente dine vedhæftede filer',
   'Downloading attachments…': 'Henter vedhæftede filer…',
   'Drag to move this divide. Double-click to put it back.':
     'Træk for at flytte denne skillelinje. Dobbeltklik for at sætte den tilbage.',
@@ -270,8 +277,10 @@ export default {
   'Invitations': 'Invitationer',
   'Invite': 'Invitér',
   'Issuer': 'Udsteder',
+  'It cannot read your library, your notes or your attachments.': 'Den kan ikke læse dit bibliotek, dine noter eller dine vedhæftede filer.',
   'It stays in your library, with its notes and files.':
     'Det bliver i dit bibliotek, med sine noter og filer.',
+  'It will be able to:': 'Den vil kunne:',
   'Items': 'Elementer',
   'Items added or changed': 'Elementer tilføjet eller ændret',
   'Items deleted': 'Elementer slettet',
@@ -279,6 +288,7 @@ export default {
   'Keep the existing Rights field': 'Behold det eksisterende Rettigheder-felt',
   'Key created. Copy it now — it is not shown again.':
     'Nøglen er oprettet. Kopiér den nu — den vises ikke igen.',
+  'Know who you are': 'Vide hvem du er',
   'Language': 'Sprog',
   'Language and time zone': 'Sprog og tidszone',
   'Language and time zone saved.': 'Sprog og tidszone er gemt.',
@@ -336,6 +346,7 @@ export default {
   'Next: Sharing': 'Næste: Deling',
   'No': 'Nej',
   'No account yet?': 'Ingen konto endnu?',
+  'No applications connected.': 'Ingen programmer forbundet.',
   'No items carry the selected tags.': 'Ingen elementer bærer de valgte mærker.',
   'No items match this search and the selected tags.':
     'Ingen elementer passer til denne søgning og de valgte mærker.',
@@ -386,6 +397,7 @@ export default {
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
     'Åbn zotero.org → Settings → Security → Applications, og opret en ny privat nøgle.',
   'Optional': 'Valgfri',
+  'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Andre programmer, du har givet adgang til denne konto. Hvert af dem fik kun de tilladelser, du godkendte.',
   'Overview': 'Overblik',
   'Owner': 'Ejer',
   'PEM. Paste both while the provider is rolling its key over.':
@@ -417,7 +429,10 @@ export default {
     'Læse og ændre ethvert gruppebibliotek, du er med i',
   'Read and change everything in your library': 'Læse og ændre alt i dit bibliotek',
   'Read and write': 'Læse og skrive',
+  'Read everything in your library': 'Læse alt i dit bibliotek',
   'Read only': 'Kun læse',
+  'Read the group libraries you belong to': 'Læse de gruppebiblioteker, du er medlem af',
+  'Read your notes': 'Læse dine noter',
   'Reading collections…': 'Læser samlinger…',
   'Reading full text…': 'Læser fuldtekst…',
   'Reading items…': 'Læser elementer…',
@@ -472,6 +487,8 @@ export default {
   'Search': 'Søg',
   'Search this library': 'Søg i dette bibliotek',
   'See what would go': 'Se hvad der ville ryge',
+  'See your email address': 'Se din e-mailadresse',
+  'See your name and username': 'Se dit navn og brugernavn',
   'See your page': 'Se din side',
   'See your public page': 'Se din offentlige side',
   'Select': 'Markér',
@@ -542,17 +559,20 @@ export default {
   'Tags': 'Mærker',
   'Take it out of “{name}”': 'Tag det ud af “{name}”',
   'Take them out of “{name}”': 'Tag dem ud af “{name}”',
+  'Taking you back to the application…': 'Du sendes tilbage til programmet …',
   'Tell me about': 'Fortæl mig om',
   'That confirmation link is not valid or has expired.':
     'Det bekræftelseslink er ikke gyldigt eller er udløbet.',
   'That connection was removed.': 'Den forbindelse blev fjernet.',
   'That invitation has already been answered.': 'Den invitation er allerede besvaret.',
+  'That link is missing its request.': 'Det link mangler sin forespørgsel.',
   'That link is missing its token.': 'Det link mangler sit token.',
   'That link is not valid or has expired.': 'Det link er ikke gyldigt eller er udløbet.',
   'That passkey was removed.': 'Den adgangsnøgle blev fjernet.',
   'That provider could not be reached. Try again shortly.':
     'Den udbyder kunne ikke nås. Prøv igen om lidt.',
   'That provider was removed.': 'Den udbyder blev fjernet.',
+  'That request has expired or was never started. Start again in the application.': 'Den forespørgsel er udløbet eller blev aldrig startet. Start forfra i programmet.',
   'That session was signed out.': 'Den session blev logget ud.',
   'That sign-in took too long. Please try again.': 'Det login tog for lang tid. Prøv igen.',
   'That sign-in was not completed.': 'Det login blev ikke gennemført.',
@@ -645,8 +665,10 @@ export default {
   'You are not in any groups yet.': 'Du er ikke med i nogen grupper endnu.',
   'You can change what is shown at any time from My Publications.':
     'Du kan når som helst ændre, hvad der vises, fra Mine publikationer.',
+  'You can disconnect it at any time in Settings, under Connected applications.': 'Du kan altid afbryde den under Indstillinger, i Forbundne programmer.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Du kan forbeholde dig alle rettigheder til dit værk, give det en Creative Commons-licens eller overgive det til det offentlige domæne. Uanset hvad udgives selve værket her, så alle kan læse det.',
+  'You have already given this application these permissions.': 'Du har allerede givet dette program disse tilladelser.',
   'You have joined the group.': 'Du er kommet med i gruppen.',
   'Your account there is not permitted to use this server.':
     'Din konto dér har ikke lov til at bruge denne server.',
@@ -662,12 +684,15 @@ export default {
   'altero version': 'altero-version',
   'confirmed': 'bekræftet',
   'date unknown': 'dato ukendt',
+  'in use now': 'i brug nu',
+  'new': 'ny',
   'not confirmed yet': 'ikke bekræftet endnu',
   'not stamped': 'ikke stemplet',
   'open': 'åben',
   'or': 'eller',
   'this one': 'denne',
   'to your altero library': 'til dit altero-bibliotek',
+  'wants to connect to your account': 'vil forbinde til din konto',
   'without files': 'uden filer',
   'zotero.org API key': 'zotero.org-API-nøgle',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.':
@@ -717,6 +742,7 @@ export default {
   '{who} invited you to “{name}” as a member.': '{who} inviterede dig til “{name}” som medlem.',
   '{who} invited you to “{name}” as an administrator.':
     '{who} inviterede dig til “{name}” som administrator.',
+  '“{name}” was disconnected and stops working immediately.': '“{name}” blev afbrudt og holder op med at virke med det samme.',
   '“{name}” was revoked and stops working immediately.':
     '“{name}” blev tilbagekaldt og holder op med at virke med det samme.',
 }

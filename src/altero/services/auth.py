@@ -27,6 +27,55 @@ from altero.models import (
     MemberPermission,
     User,
 )
+from altero.services import oauthscopes, oauthserver
+
+
+@dataclass(frozen=True, slots=True)
+class Credential:
+    """What a request proved about itself, whichever way it proved it.
+
+    An API key and an OAuth access token are two ways of saying the same six
+    things, and this is those six things. Introducing it is what lets
+    :func:`authenticate` answer with one type: the alternative -- handing back
+    an :class:`~altero.models.ApiKey` that was never a row -- puts a transient
+    instance of a mapped class on the request path, where any accidental
+    ``session.add`` writes a credential into ``api_keys``.
+
+    The flags are deliberately the ones the key already carried, because a token
+    that cannot express access a key could not is a token
+    :func:`access_for` needs no new rules for. The four ceilings it applies to a
+    key -- the key's grants, group membership, the group's policy, the member's
+    own permission -- apply to a token unchanged.
+    """
+
+    user_id: int
+    library_read: bool = False
+    library_write: bool = False
+    notes_read: bool = False
+    files_read: bool = False
+    all_groups_read: bool = False
+    all_groups_write: bool = False
+    #: The ``api_keys`` row this came from, or ``None`` for an OAuth token.
+    #: Two things ask: the per-group override, which only a key can carry, and
+    #: the last-used bookkeeping, which only a key has a column for.
+    key_id: int | None = None
+    #: The scopes an OAuth token was issued with, for ``/oauth/userinfo`` to
+    #: decide which claims it may answer with. Empty for an API key.
+    scopes: str = ""
+
+    @classmethod
+    def from_api_key(cls, api_key: ApiKey) -> Credential:
+        """Return the credential ``api_key`` amounts to."""
+        return cls(
+            user_id=api_key.user_id,
+            library_read=api_key.library_read,
+            library_write=api_key.library_write,
+            notes_read=api_key.notes_read,
+            files_read=api_key.files_read,
+            all_groups_read=api_key.all_groups_read,
+            all_groups_write=api_key.all_groups_write,
+            key_id=api_key.id,
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -134,21 +183,32 @@ def _refusal(permission: str, *, changing: bool) -> str:
     return "Forbidden"
 
 
-async def authenticate(session: AsyncSession, credential: str | None) -> ApiKey | None:
-    """Return the API key identified by ``credential``.
+async def authenticate(session: AsyncSession, credential: str | None) -> Credential | None:
+    """Return what ``credential`` proves, whether it is a key or an OAuth token.
 
     Returns ``None`` when no credential was supplied. An unrecognised credential
     is an error rather than anonymous access, so that a typo in a key is not
     silently downgraded to a public-library request.
 
-    A key belonging to a suspended account is refused, which is the half of a
-    suspension that matters: one enforced in the browser alone would leave
-    every sync client of that account working exactly as before. The owner is
-    fetched in the same statement, so this costs no extra query on the path
-    every request takes -- see ``tests/test_query_counts.py``.
+    An OAuth access token is recognised by its prefix and looked up first, which
+    costs the API key path nothing: a key never carries that prefix, so the
+    common case still makes exactly one query. What a token grants is decided by
+    its scopes in :mod:`altero.services.oauthscopes`, and by nothing else -- a
+    scope that says it reads a library reads a library, and one that says it
+    establishes identity establishes identity and reaches no item.
+
+    A credential belonging to a suspended account is refused whichever kind it
+    is, which is the half of a suspension that matters: one enforced in the
+    browser alone would leave every sync client of that account working exactly
+    as before. For a key the owner is fetched in the same statement, so this
+    costs no extra query on the path every request takes -- see
+    ``tests/test_query_counts.py``.
     """
     if not credential:
         return None
+
+    if credential.startswith(oauthserver.ACCESS_PREFIX):
+        return await _authenticate_token(session, credential)
 
     row = (
         await session.execute(
@@ -163,7 +223,33 @@ async def authenticate(session: AsyncSession, credential: str | None) -> ApiKey 
     api_key, disabled_at = row
     if disabled_at is not None:
         raise ForbiddenError("This account has been suspended")
-    return api_key
+    return Credential.from_api_key(api_key)
+
+
+async def _authenticate_token(session: AsyncSession, credential: str) -> Credential:
+    """Return what an OAuth access token proves."""
+    identity = await oauthserver.resolve_access_token(session, credential)
+    if identity is None:
+        raise ForbiddenError("Invalid key")
+
+    owner = await session.get(User, identity.user_id)
+    if owner is None:
+        raise ForbiddenError("Invalid key")
+    if owner.disabled_at is not None:
+        raise ForbiddenError("This account has been suspended")
+
+    granted = oauthscopes.capabilities(identity.scopes)
+    return Credential(
+        user_id=identity.user_id,
+        library_read=granted.library_read,
+        library_write=granted.library_write,
+        notes_read=granted.notes_read,
+        files_read=granted.files_read,
+        all_groups_read=granted.all_groups_read,
+        all_groups_write=granted.all_groups_write,
+        key_id=None,
+        scopes=identity.scopes,
+    )
 
 
 async def get_library(
@@ -182,7 +268,7 @@ async def get_library(
 
 def access_for(
     library: Library,
-    api_key: ApiKey | None,
+    api_key: Credential | None,
     override: ApiKeyGroupAccess | None = None,
     membership: GroupMember | None = None,
     group: Group | None = None,
@@ -274,15 +360,22 @@ def member_permission(membership: GroupMember) -> str:
 async def get_group_override(
     session: AsyncSession,
     library: Library,
-    api_key: ApiKey | None,
+    api_key: Credential | None,
 ) -> ApiKeyGroupAccess | None:
-    """Return the key's per-group access for ``library``, if one is recorded."""
-    if api_key is None or library.type is not LibraryType.GROUP:
+    """Return the key's per-group access for ``library``, if one is recorded.
+
+    Only an API key can carry one. An OAuth token has no row to hang a
+    per-group override off, so it falls through to its ``groups.*`` scopes --
+    which is the correct answer rather than an omission: a token's group access
+    is what its scopes say, once every ceiling in :func:`access_for` has been
+    applied to it.
+    """
+    if api_key is None or api_key.key_id is None or library.type is not LibraryType.GROUP:
         return None
 
     return await session.scalar(
         select(ApiKeyGroupAccess).where(
-            ApiKeyGroupAccess.api_key_id == api_key.id,
+            ApiKeyGroupAccess.api_key_id == api_key.key_id,
             ApiKeyGroupAccess.library_id == library.id,
         )
     )
@@ -291,7 +384,7 @@ async def get_group_override(
 async def get_group_context(
     session: AsyncSession,
     library: Library,
-    api_key: ApiKey | None,
+    api_key: Credential | None,
 ) -> tuple[GroupMember | None, Group | None]:
     """Return the caller's membership of ``library`` and the group's policy.
 
@@ -322,7 +415,7 @@ async def get_group_context(
 async def get_access(
     session: AsyncSession,
     library: Library,
-    api_key: ApiKey | None,
+    api_key: Credential | None,
 ) -> Access:
     """Return the access ``api_key`` has to ``library``, fetching what it needs."""
     override = await get_group_override(session, library, api_key)
@@ -333,7 +426,7 @@ async def get_access(
 async def require_read(
     session: AsyncSession,
     library: Library,
-    api_key: ApiKey | None,
+    api_key: Credential | None,
 ) -> None:
     """Raise :class:`ForbiddenError` unless ``api_key`` may read ``library``."""
     if not (await get_access(session, library, api_key)).read:
@@ -343,7 +436,7 @@ async def require_read(
 async def require_write(
     session: AsyncSession,
     library: Library,
-    api_key: ApiKey | None,
+    api_key: Credential | None,
 ) -> None:
     """Raise :class:`ForbiddenError` unless ``api_key`` may write to ``library``."""
     if not (await get_access(session, library, api_key)).write:
@@ -353,7 +446,7 @@ async def require_write(
 async def require_file_write(
     session: AsyncSession,
     library: Library,
-    api_key: ApiKey | None,
+    api_key: Credential | None,
 ) -> None:
     """Raise unless ``api_key`` may put files in ``library``.
 

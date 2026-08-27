@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
 from altero.errors import ForbiddenError, NotFoundError
-from altero.models import ApiKey, Library, LibraryType
+from altero.models import Library, LibraryType
 from altero.services import auth, keyusage
 
 #: Header carrying the API key, as documented for the v3 API.
@@ -44,31 +44,43 @@ def get_credential(request: Request) -> str | None:
     return request.query_params.get(API_KEY_PARAM)
 
 
-async def get_api_key(request: Request, session: SessionDep) -> ApiKey | None:
-    """Return the authenticated API key, or ``None`` for an anonymous request."""
-    api_key = await auth.authenticate(session, get_credential(request))
-    if api_key is not None:
-        await _record_use(request, api_key)
-    return api_key
+async def get_api_key(request: Request, session: SessionDep) -> auth.Credential | None:
+    """Return what this request proved, or ``None`` for an anonymous one.
+
+    An API key and an OAuth access token both resolve to
+    :class:`~altero.services.auth.Credential`, so nothing downstream has to know
+    which was presented -- see :func:`altero.services.auth.authenticate`.
+    """
+    credential = await auth.authenticate(session, get_credential(request))
+    if credential is not None:
+        await _record_use(request, credential)
+    return credential
 
 
-async def _record_use(request: Request, api_key: ApiKey) -> None:
+async def _record_use(request: Request, credential: auth.Credential) -> None:
     """Note when and where this key was used, for the key list to show.
 
     In a session of its own. Sharing the request's would commit whatever it has
     open, which on a write path is a transaction holding a row lock on the
     library -- the one thing in this application that must not be broken up.
+
+    Only a key has somewhere to record this. An OAuth token's last use is not
+    tracked, because what a person revokes is the application rather than the
+    token, and ``/web/oauth/authorizations`` counts live tokens instead.
     """
+    if credential.key_id is None:
+        return
+
     async with request.app.state.database.session_factory() as bookkeeping:
         await keyusage.record(
             bookkeeping,
-            api_key.id,
+            credential.key_id,
             address=request.client.host if request.client else None,
             user_agent=request.headers.get("user-agent"),
         )
 
 
-ApiKeyDep = Annotated[ApiKey | None, Depends(get_api_key)]
+ApiKeyDep = Annotated[auth.Credential | None, Depends(get_api_key)]
 
 
 async def get_library(request: Request, session: SessionDep) -> Library:

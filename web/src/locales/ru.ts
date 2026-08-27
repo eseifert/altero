@@ -51,12 +51,14 @@ export default {
   'Add to My Publications': 'Добавить в Мои публикации',
   'Add to My Publications…': 'Добавить в Мои публикации…',
   'Add “{name}” to My Publications': 'Добавить «{name}» в Мои публикации',
+  'Add, change and remove things in your library': 'Добавлять, изменять и удалять записи в вашей библиотеке',
   'Administration': 'Администрирование',
   'Administrator': 'Администратор',
   'Administrators': 'Администраторы',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'После этого Zotero на вашем компьютере заметит, что говорит с другой учётной записью, и предложит сбросить локальные данные. Разрешите: всё, что ему нужно, теперь на этом сервере.',
   'All items': 'Все записи',
+  'Allow': 'Разрешить',
   'Allow adaptations of your work to be shared?':
     'Разрешить распространение переработок вашей работы?',
   'Allow changes (Zotero needs this to sync)':
@@ -108,6 +110,7 @@ export default {
   'Cancel': 'Отменить',
   'Change': 'Изменить',
   'Change password': 'Изменить пароль',
+  'Change the group libraries you belong to': 'Изменять групповые библиотеки, в которых вы состоите',
   'Change the rights': 'Изменить права',
   'Change this provider': 'Изменить этого поставщика',
   'Change who can see it': 'Изменить, кто это видит',
@@ -150,8 +153,11 @@ export default {
   'Confirming…': 'Подтверждение…',
   'Connect': 'Подключить',
   'Connect Zotero': 'Подключить Zotero',
+  'Connect an application': 'Подключить приложение',
   'Connect {provider}': 'Подключить {provider}',
   'Connected accounts': 'Подключённые учётные записи',
+  'Connected applications': 'Подключённые приложения',
+  'Connected {when}': 'Подключено {when}',
   'Connecting to zotero.org…': 'Подключение к zotero.org…',
   'Continue with {provider}': 'Продолжить с {provider}',
   'Copied': 'Скопировано',
@@ -209,6 +215,7 @@ export default {
     'Готово. Zotero сейчас подхватывает подключение — эту страницу можно закрыть и вернуться к программе.',
   'Download': 'Скачать',
   'Download and upload attachments': 'Скачивать и загружать вложения',
+  'Download your attachments': 'Загружать ваши вложения',
   'Downloading attachments…': 'Скачивание вложений…',
   'Drag to move this divide. Double-click to put it back.':
     'Потяните, чтобы сдвинуть этот разделитель. Двойной щелчок вернёт его на место.',
@@ -278,8 +285,10 @@ export default {
   'Invitations': 'Приглашения',
   'Invite': 'Пригласить',
   'Issuer': 'Издатель',
+  'It cannot read your library, your notes or your attachments.': 'Оно не может читать вашу библиотеку, заметки и вложения.',
   'It stays in your library, with its notes and files.':
     'Она остаётся в вашей библиотеке, со своими заметками и файлами.',
+  'It will be able to:': 'Оно сможет:',
   'Items': 'Записи',
   'Items added or changed': 'Записей добавлено или изменено',
   'Items deleted': 'Записей удалено',
@@ -287,6 +296,7 @@ export default {
   'Keep the existing Rights field': 'Оставить существующее поле «Права»',
   'Key created. Copy it now — it is not shown again.':
     'Ключ создан. Скопируйте его сейчас — снова показан не будет.',
+  'Know who you are': 'Знать, кто вы',
   'Language': 'Язык',
   'Language and time zone': 'Язык и часовой пояс',
   'Language and time zone saved.': 'Язык и часовой пояс сохранены.',
@@ -343,6 +353,7 @@ export default {
   'Next: Sharing': 'Далее: распространение',
   'No': 'Нет',
   'No account yet?': 'Ещё нет учётной записи?',
+  'No applications connected.': 'Подключённых приложений нет.',
   'No items carry the selected tags.': 'Ни одна запись не несёт выбранных тегов.',
   'No items match this search and the selected tags.':
     'Ни одна запись не подходит под этот поиск и выбранные теги.',
@@ -394,6 +405,7 @@ export default {
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
     'Откройте zotero.org → Settings → Security → Applications и создайте новый приватный ключ.',
   'Optional': 'Необязательно',
+  'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Другие приложения, которым вы разрешили доступ к этой учётной записи. Каждое получило только те разрешения, которые вы одобрили.',
   'Overview': 'Обзор',
   'Owner': 'Владелец',
   'PEM. Paste both while the provider is rolling its key over.':
@@ -425,7 +437,10 @@ export default {
     'Читать и изменять любую групповую библиотеку, к которой вы принадлежите',
   'Read and change everything in your library': 'Читать и изменять всё в вашей библиотеке',
   'Read and write': 'Чтение и запись',
+  'Read everything in your library': 'Читать всё в вашей библиотеке',
   'Read only': 'Только чтение',
+  'Read the group libraries you belong to': 'Читать групповые библиотеки, в которых вы состоите',
+  'Read your notes': 'Читать ваши заметки',
   'Reading collections…': 'Чтение коллекций…',
   'Reading full text…': 'Чтение полного текста…',
   'Reading items…': 'Чтение записей…',
@@ -480,6 +495,8 @@ export default {
   'Search': 'Поиск',
   'Search this library': 'Искать в этой библиотеке',
   'See what would go': 'Посмотреть, что исчезнет',
+  'See your email address': 'Видеть ваш адрес электронной почты',
+  'See your name and username': 'Видеть ваше имя и имя пользователя',
   'See your page': 'Посмотреть свою страницу',
   'See your public page': 'Посмотреть свою открытую страницу',
   'Select': 'Выделить',
@@ -550,17 +567,20 @@ export default {
   'Tags': 'Теги',
   'Take it out of “{name}”': 'Убрать из «{name}»',
   'Take them out of “{name}”': 'Убрать их из «{name}»',
+  'Taking you back to the application…': 'Возвращаем вас в приложение…',
   'Tell me about': 'Сообщать мне о',
   'That confirmation link is not valid or has expired.':
     'Эта ссылка подтверждения недействительна или истекла.',
   'That connection was removed.': 'Это подключение удалено.',
   'That invitation has already been answered.': 'На это приглашение уже ответили.',
+  'That link is missing its request.': 'В этой ссылке нет запроса.',
   'That link is missing its token.': 'В этой ссылке не хватает токена.',
   'That link is not valid or has expired.': 'Эта ссылка недействительна или истекла.',
   'That passkey was removed.': 'Этот ключ доступа удалён.',
   'That provider could not be reached. Try again shortly.':
     'До этого поставщика не удалось достучаться. Попробуйте чуть позже.',
   'That provider was removed.': 'Этот поставщик удалён.',
+  'That request has expired or was never started. Start again in the application.': 'Этот запрос истёк или никогда не начинался. Начните заново в приложении.',
   'That session was signed out.': 'Из этого сеанса выполнен выход.',
   'That sign-in took too long. Please try again.':
     'Этот вход занял слишком много времени. Попробуйте снова.',
@@ -653,8 +673,10 @@ export default {
   'You are not in any groups yet.': 'Вы пока не состоите ни в одной группе.',
   'You can change what is shown at any time from My Publications.':
     'Вы можете в любой момент изменить, что показывается, находясь в Моих публикациях.',
+  'You can disconnect it at any time in Settings, under Connected applications.': 'Отключить его можно в любой момент в настройках, в разделе «Подключённые приложения».',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Вы можете сохранить за собой все права на свою работу, выпустить её под лицензией Creative Commons или передать в общественное достояние. В любом случае сама работа публикуется здесь, чтобы её мог прочитать любой.',
+  'You have already given this application these permissions.': 'Вы уже предоставили этому приложению эти разрешения.',
   'You have joined the group.': 'Вы вступили в группу.',
   'Your account there is not permitted to use this server.':
     'Вашей тамошней учётной записи не разрешено пользоваться этим сервером.',
@@ -670,12 +692,15 @@ export default {
   'altero version': 'версия altero',
   'confirmed': 'подтверждён',
   'date unknown': 'дата неизвестна',
+  'in use now': 'используется сейчас',
+  'new': 'новое',
   'not confirmed yet': 'ещё не подтверждён',
   'not stamped': 'без отметки',
   'open': 'открыта',
   'or': 'или',
   'this one': 'эта',
   'to your altero library': 'в вашу библиотеку altero',
+  'wants to connect to your account': 'хочет подключиться к вашей учётной записи',
   'without files': 'без файлов',
   'zotero.org API key': 'ключ API zotero.org',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.':
@@ -726,6 +751,7 @@ export default {
   '{who} invited you to “{name}” as a member.': '{who} пригласил вас в «{name}» участником.',
   '{who} invited you to “{name}” as an administrator.':
     '{who} пригласил вас в «{name}» администратором.',
+  '“{name}” was disconnected and stops working immediately.': '«{name}» отключено и немедленно перестаёт работать.',
   '“{name}” was revoked and stops working immediately.':
     '«{name}» отозван и немедленно перестаёт работать.',
 }

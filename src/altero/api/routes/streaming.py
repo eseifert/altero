@@ -35,7 +35,7 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from altero.api.deps import API_KEY_HEADER
 from altero.errors import ForbiddenError, NotFoundError
-from altero.models import ApiKey, LibraryType
+from altero.models import LibraryType
 from altero.services import auth, groups, login
 from altero.services.streaming import (
     LOGIN_TOPIC_PREFIX,
@@ -124,7 +124,7 @@ async def _may_watch(session: AsyncSession, topic: str, allowed: set[str]) -> bo
     return False
 
 
-async def _readable_topics(session: AsyncSession, api_key: ApiKey | None) -> set[str]:
+async def _readable_topics(session: AsyncSession, api_key: auth.Credential | None) -> set[str]:
     """Return every topic ``api_key`` may read.
 
     An anonymous connection can still watch a public library, which is the only
@@ -210,7 +210,7 @@ class Connection:
         self, session: AsyncSession, entry: dict[str, Any], errors: list[dict[str, Any]]
     ) -> None:
         key_value = entry.get("apiKey")
-        api_key: ApiKey | None = None
+        api_key: auth.Credential | None = None
 
         if key_value is not None:
             try:

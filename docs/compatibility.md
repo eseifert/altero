@@ -1596,6 +1596,83 @@ api.zotero.org absolutely, so following it would send a fetch pointed anywhere
 else — a test, a proxy, another altero — back to the real thing halfway
 through.
 
+## The authorization server
+
+### A second credential for the v3 API
+
+altero's central authentication rule is that the v3 API is authenticated by a
+credential presented on the request and **never** by a browser cookie. The
+authorization server widens what that credential may be — an OAuth access token
+now works where an API key does — and it does not touch the rule itself.
+
+The distinction is the whole reason this was allowed. A cookie is attached by
+the browser to any request a third party can provoke, which is why letting one
+reach `/users/<id>/items` would put the entire sync protocol behind a CSRF
+target. A bearer token is attached by the application that holds it and by
+nothing else; a page on another origin cannot cause one to be sent. So the
+reason the rule exists is untouched, and
+`tests/test_oauth.py::TestTheApiKeyPathIsUntouched` holds both halves: an API
+key still works, and a session cookie still does not.
+
+What did not widen: `/keys/current` and `/keys/{key}` refuse an access token.
+Those endpoints are about an API key as an object — what it grants, and revoking
+it — and a token has no row there, is not what a person revokes, and would leave
+`DELETE /keys/current` with nothing to delete.
+
+### Signing ID tokens while still not verifying them
+
+These two decisions look contradictory, but they are not:
+
+As a *client*, altero does not verify the signature on an ID token it receives —
+see [below](#not-verifying-the-id-tokens-signature). As a *provider*, it signs
+the ID tokens it issues, with RS256, and publishes the key at
+`/oauth/jwks.json`.
+
+The earlier decision was about verification, and every reason given for it is a
+verification problem: `alg: none`, HMAC-versus-RSA confusion, a key chosen by an
+attacker-supplied `kid`, a JWKS fetch that is itself a request to get right.
+Each is a decision made about input somebody else controls. Signing has none of
+them — the algorithm is fixed, the key is this server's own, and nothing reads a
+header — so `services/jws.py` writes it directly rather than bringing in a
+library, and `tests/test_jws.py` holds it against RFC 7515 Appendix A.2 and
+RFC 7638 §3.1. A published test vector is what makes hand-writing one of these
+defensible, which is the same bargain `services/totp.py` takes with RFC 6238 and
+the reason `services/saml.py` does *not* hand-write its signatures.
+
+### No dynamic client registration
+
+RFC 7591 is not implemented and will not be. The set of addresses an
+authorization code may be sent to is the entire security of the flow: the code
+travels through the browser, and the only thing keeping it from travelling to
+somebody else is that its destination was written down first. An endpoint that
+adds entries to that list on request is not a list.
+
+Registering is therefore an operator's act, from the command line — the same
+place a group's policy is set, and for the same reason: it is a decision about
+the instance rather than a use of it.
+
+### PKCE is required, and `S256` is the only method
+
+RFC 7636 allows `plain`, where the challenge *is* the verifier. Anyone who
+intercepts the code has also intercepted everything needed to spend it, which is
+precisely the attack PKCE exists to stop. altero neither advertises `plain` in
+its discovery document nor accepts it, and requires PKCE of confidential clients
+too, where the RFC only recommends it.
+
+### Scopes are refused rather than narrowed
+
+An unknown scope, a scope the client is not registered for, and a scope that is
+useless without another are all errors. The alternative — issuing a token
+without them — produces an application that half works and a person who cannot
+tell which half. `library.write` without `library.read` is the useless case:
+write access implies read access in `access_for`, so a token holding only the
+former would be granted and then do nothing.
+
+Note what is *not* in the list: there is no `annotations.*` scope. Annotations
+are items in Zotero's model and there is no separate gate for them anywhere in
+the API, so a scope claiming to grant them alone would be a label on a
+permission that does not exist.
+
 ## Identity-provider security notes
 
 ### Not verifying the ID token's signature

@@ -33,7 +33,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import NotFoundError
-from altero.models import ApiKey, Item, Library, LibraryType, ProfileVisibility, User
+from altero.models import Item, Library, LibraryType, ProfileVisibility, User
 from altero.query import ListQuery
 from altero.services import auth, items
 
@@ -113,7 +113,9 @@ def visible_to(owner: User, viewer: User | None) -> bool:
             return False
 
 
-async def readable_by_key(session: AsyncSession, library: Library, api_key: ApiKey | None) -> bool:
+async def readable_by_key(
+    session: AsyncSession, library: Library, api_key: auth.Credential | None
+) -> bool:
     """Return whether ``api_key`` may read ``library``'s publications.
 
     The v3 side of :func:`visible_to`, and the reason the setting is not

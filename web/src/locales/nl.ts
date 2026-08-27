@@ -46,12 +46,14 @@ export default {
   'Add to My Publications': 'Toevoegen aan Mijn publicaties',
   'Add to My Publications…': 'Toevoegen aan Mijn publicaties…',
   'Add “{name}” to My Publications': '“{name}” toevoegen aan Mijn publicaties',
+  'Add, change and remove things in your library': 'Items in je bibliotheek toevoegen, wijzigen en verwijderen',
   'Administration': 'Beheer',
   'Administrator': 'Beheerder',
   'Administrators': 'Beheerders',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Daarna merkt Zotero op uw computer dat het met een ander account praat en biedt het aan zijn lokale gegevens te wissen. Laat het begaan: alles wat het nodig heeft staat nu op deze server.',
   'All items': 'Alle items',
+  'Allow': 'Toestaan',
   'Allow adaptations of your work to be shared?':
     'Toestaan dat bewerkingen van uw werk worden gedeeld?',
   'Allow changes (Zotero needs this to sync)':
@@ -103,6 +105,7 @@ export default {
   'Cancel': 'Annuleren',
   'Change': 'Wijzigen',
   'Change password': 'Wachtwoord wijzigen',
+  'Change the group libraries you belong to': 'De groepsbibliotheken wijzigen waar je lid van bent',
   'Change the rights': 'De rechten wijzigen',
   'Change this provider': 'Deze aanbieder wijzigen',
   'Change who can see it': 'Wijzigen wie het kan zien',
@@ -145,8 +148,11 @@ export default {
   'Confirming…': 'Bevestigen…',
   'Connect': 'Verbinden',
   'Connect Zotero': 'Zotero verbinden',
+  'Connect an application': 'Een applicatie verbinden',
   'Connect {provider}': '{provider} verbinden',
   'Connected accounts': 'Verbonden accounts',
+  'Connected applications': 'Verbonden applicaties',
+  'Connected {when}': 'Verbonden op {when}',
   'Connecting to zotero.org…': 'Verbinding maken met zotero.org…',
   'Continue with {provider}': 'Doorgaan met {provider}',
   'Copied': 'Gekopieerd',
@@ -204,6 +210,7 @@ export default {
     'Klaar. Zotero pakt de verbinding nu op — u kunt deze pagina sluiten en teruggaan naar het programma.',
   'Download': 'Downloaden',
   'Download and upload attachments': 'Bijlagen downloaden en uploaden',
+  'Download your attachments': 'Je bijlagen downloaden',
   'Downloading attachments…': 'Bijlagen downloaden…',
   'Drag to move this divide. Double-click to put it back.':
     'Sleep om deze scheiding te verplaatsen. Dubbelklik om die terug te zetten.',
@@ -273,8 +280,10 @@ export default {
   'Invitations': 'Uitnodigingen',
   'Invite': 'Uitnodigen',
   'Issuer': 'Uitgever',
+  'It cannot read your library, your notes or your attachments.': 'Het kan je bibliotheek, je notities en je bijlagen niet lezen.',
   'It stays in your library, with its notes and files.':
     'Het blijft in uw bibliotheek, met zijn aantekeningen en bestanden.',
+  'It will be able to:': 'Het kan dan:',
   'Items': 'Items',
   'Items added or changed': 'Items toegevoegd of gewijzigd',
   'Items deleted': 'Items verwijderd',
@@ -282,6 +291,7 @@ export default {
   'Keep the existing Rights field': 'Het bestaande veld Rechten behouden',
   'Key created. Copy it now — it is not shown again.':
     'Sleutel aangemaakt. Kopieer hem nu — hij wordt niet nogmaals getoond.',
+  'Know who you are': 'Weten wie je bent',
   'Language': 'Taal',
   'Language and time zone': 'Taal en tijdzone',
   'Language and time zone saved.': 'Taal en tijdzone opgeslagen.',
@@ -339,6 +349,7 @@ export default {
   'Next: Sharing': 'Volgende: delen',
   'No': 'Nee',
   'No account yet?': 'Nog geen account?',
+  'No applications connected.': 'Geen applicaties verbonden.',
   'No items carry the selected tags.': 'Geen items dragen de geselecteerde labels.',
   'No items match this search and the selected tags.':
     'Geen items passen bij deze zoekopdracht en de geselecteerde labels.',
@@ -392,6 +403,7 @@ export default {
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
     'Open zotero.org → Settings → Security → Applications en maak een nieuwe privésleutel aan.',
   'Optional': 'Optioneel',
+  'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Andere applicaties die je toegang tot dit account hebt gegeven. Elk kreeg alleen de rechten die je hebt goedgekeurd.',
   'Overview': 'Overzicht',
   'Owner': 'Eigenaar',
   'PEM. Paste both while the provider is rolling its key over.':
@@ -423,7 +435,10 @@ export default {
     'Elke groepsbibliotheek waar u lid van bent lezen en wijzigen',
   'Read and change everything in your library': 'Alles in uw bibliotheek lezen en wijzigen',
   'Read and write': 'Lezen en schrijven',
+  'Read everything in your library': 'Alles in je bibliotheek lezen',
   'Read only': 'Alleen lezen',
+  'Read the group libraries you belong to': 'De groepsbibliotheken lezen waar je lid van bent',
+  'Read your notes': 'Je notities lezen',
   'Reading collections…': 'Verzamelingen lezen…',
   'Reading full text…': 'Volledige tekst lezen…',
   'Reading items…': 'Items lezen…',
@@ -478,6 +493,8 @@ export default {
   'Search': 'Zoeken',
   'Search this library': 'Zoeken in deze bibliotheek',
   'See what would go': 'Bekijk wat er zou verdwijnen',
+  'See your email address': 'Je e-mailadres zien',
+  'See your name and username': 'Je naam en gebruikersnaam zien',
   'See your page': 'Bekijk uw pagina',
   'See your public page': 'Bekijk uw openbare pagina',
   'Select': 'Selecteren',
@@ -548,17 +565,20 @@ export default {
   'Tags': 'Labels',
   'Take it out of “{name}”': 'Uit “{name}” halen',
   'Take them out of “{name}”': 'Ze uit “{name}” halen',
+  'Taking you back to the application…': 'Je gaat terug naar de applicatie…',
   'Tell me about': 'Bericht mij over',
   'That confirmation link is not valid or has expired.':
     'Die bevestigingslink is niet geldig of is verlopen.',
   'That connection was removed.': 'Die verbinding is verwijderd.',
   'That invitation has already been answered.': 'Die uitnodiging is al beantwoord.',
+  'That link is missing its request.': 'Aan die link ontbreekt het verzoek.',
   'That link is missing its token.': 'Bij die link ontbreekt het token.',
   'That link is not valid or has expired.': 'Die link is niet geldig of is verlopen.',
   'That passkey was removed.': 'Die passkey is verwijderd.',
   'That provider could not be reached. Try again shortly.':
     'Die aanbieder was niet bereikbaar. Probeer het straks opnieuw.',
   'That provider was removed.': 'Die aanbieder is verwijderd.',
+  'That request has expired or was never started. Start again in the application.': 'Dat verzoek is verlopen of is nooit gestart. Begin opnieuw in de applicatie.',
   'That session was signed out.': 'Die sessie is afgemeld.',
   'That sign-in took too long. Please try again.':
     'Die aanmelding duurde te lang. Probeer het opnieuw.',
@@ -654,8 +674,10 @@ export default {
   'You are not in any groups yet.': 'U zit nog in geen enkele groep.',
   'You can change what is shown at any time from My Publications.':
     'U kunt op elk moment vanuit Mijn publicaties wijzigen wat er wordt getoond.',
+  'You can disconnect it at any time in Settings, under Connected applications.': 'Je kunt hem op elk moment loskoppelen in Instellingen, onder Verbonden applicaties.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'U kunt alle rechten op uw werk voorbehouden, het onder een Creative Commons-licentie brengen, of het aan het publieke domein prijsgeven. Hoe dan ook wordt het werk zelf hier gepubliceerd zodat iedereen het kan lezen.',
+  'You have already given this application these permissions.': 'Je hebt deze applicatie deze rechten al gegeven.',
   'You have joined the group.': 'U bent lid geworden van de groep.',
   'Your account there is not permitted to use this server.':
     'Uw account daar mag deze server niet gebruiken.',
@@ -671,12 +693,15 @@ export default {
   'altero version': 'altero-versie',
   'confirmed': 'bevestigd',
   'date unknown': 'datum onbekend',
+  'in use now': 'nu in gebruik',
+  'new': 'nieuw',
   'not confirmed yet': 'nog niet bevestigd',
   'not stamped': 'niet gestempeld',
   'open': 'open',
   'or': 'of',
   'this one': 'deze',
   'to your altero library': 'naar uw altero-bibliotheek',
+  'wants to connect to your account': 'wil verbinding maken met je account',
   'without files': 'zonder bestanden',
   'zotero.org API key': 'zotero.org-API-sleutel',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.':
@@ -727,6 +752,7 @@ export default {
     '{who} heeft u als lid uitgenodigd voor “{name}”.',
   '{who} invited you to “{name}” as an administrator.':
     '{who} heeft u als beheerder uitgenodigd voor “{name}”.',
+  '“{name}” was disconnected and stops working immediately.': '“{name}” is losgekoppeld en werkt per direct niet meer.',
   '“{name}” was revoked and stops working immediately.':
     '“{name}” is ingetrokken en werkt met onmiddellijke ingang niet meer.',
 }

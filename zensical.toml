@@ -38,6 +38,7 @@ nav = [
   { "Running altero" = [
     "deployment.md",
     "administration.md",
+    "oauth.md",
     "email.md",
   ] },
   { "Reference" = [

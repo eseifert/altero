@@ -31,6 +31,14 @@ from altero.models.library import (
     User,
 )
 from altero.models.login import LoginSession
+from altero.models.oauth import (
+    OAuthAuthorizationRequest,
+    OAuthClient,
+    OAuthCode,
+    OAuthGrant,
+    OAuthSigningKey,
+    OAuthToken,
+)
 from altero.models.search import SavedSearch, SearchCondition
 from altero.models.setting import Setting
 from altero.models.storage import StorageDownload, StorageUpload
@@ -83,6 +91,12 @@ __all__ = [
     "LoginSession",
     "MemberPermission",
     "Notification",
+    "OAuthAuthorizationRequest",
+    "OAuthClient",
+    "OAuthCode",
+    "OAuthGrant",
+    "OAuthSigningKey",
+    "OAuthToken",
     "PasskeyCredential",
     "PasswordReset",
     "ProfileVisibility",

@@ -268,6 +268,7 @@ async def run_retention(
             "sessions": report.sessions,
             "verifications": report.verifications,
             "invitations": report.invitations,
+            "authorizations": report.authorizations,
             "summary": retention.describe(report),
         }
     )

@@ -17,6 +17,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import SectionPanel, { type PanelSection } from '@/components/SectionPanel.vue'
+import ApplicationsSection from './settings/ApplicationsSection.vue'
 import KeysSection from './settings/KeysSection.vue'
 import LanguageSection from './settings/LanguageSection.vue'
 import MigrateSection from './settings/MigrateSection.vue'
@@ -46,6 +47,12 @@ const SECTIONS: PanelSection[] = [
     component: LanguageSection,
   },
   { slug: 'keys', icon: 'keys', label: () => t('API keys'), component: KeysSection },
+  {
+    slug: 'applications',
+    icon: 'providers',
+    label: () => t('Connected applications'),
+    component: ApplicationsSection,
+  },
   {
     slug: 'import-export',
     icon: 'archive',

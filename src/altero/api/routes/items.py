@@ -30,7 +30,7 @@ from altero.api.responses import (
 from altero.cite import exportitem
 from altero.cite import formats as exportformats
 from altero.errors import InvalidInputError, RequestTooLargeError
-from altero.models import ActivityKind, ApiKey, Item, Library
+from altero.models import ActivityKind, Item, Library
 from altero.query import (
     EXPORT_FORMATS,
     ITEM_FORMATS,
@@ -448,7 +448,7 @@ async def _write_single(
     request: Request,
     session: AsyncSession,
     library: Library,
-    api_key: ApiKey | None,
+    api_key: auth.Credential | None,
     access: auth.Access,
     *,
     replace: bool,

@@ -6,6 +6,7 @@ Use these screens to register or sign in, manage your own account, review API ke
 
 - Change your password, display name or email address in **Settings**.
 - Review and revoke API keys in **Settings → API keys**.
+- Review and disconnect third-party applications in **Settings → Connected applications**.
 - Choose the interface language and time zone in account settings.
 - If registration is closed, ask an instance administrator to create the account or use an invitation link.
 
@@ -74,10 +75,10 @@ to the browser.
 
 ### Account settings
 
-Five sections behind a side panel — profile, sign-in and security, language and
-time zone, API keys, import and export — rather than one page of cards, which
-at this many cards means scrolling past the authenticator and every key on the
-account to reach the time zone.
+Sections behind a side panel — profile, sign-in and security, language and time
+zone, API keys, connected applications, import and export — rather than one page
+of cards, which at this many cards means scrolling past the authenticator and
+every key on the account to reach the time zone.
 
 The panel is the library's: the same rows, the same fill on the current one, so
 the two screens read as one application. Which section is showing is in the
@@ -162,6 +163,28 @@ Use is recorded at most once a minute per key, and immediately when the address
 changes. It is a convenience for deciding what to revoke, not an audit log.
 Behind a reverse proxy the address recorded is the proxy's until
 `ALTERO_FORWARDED_ALLOW_IPS` names it; see [deployment.md](../deployment.md).
+
+### Connected applications
+
+Separate from API keys next door, because they are different things and saying
+so is the point. A key is a credential you made and pasted somewhere. An
+application is somebody else's software that you allowed to reach this account,
+with a named set of permissions you were shown and approved.
+
+Each entry says what the application may do — in sentences rather than scope
+names — when it was connected, and whether it is in use right now. Disconnecting
+one takes effect immediately: its tokens go with it rather than running out an
+hour later, because somebody who has decided an application should stop meant
+now.
+
+Approving happens on its own screen, reached when an application sends you here.
+That screen has no password field and never will: you sign in the ordinary way
+first, with whatever second factor, passkey or institutional sign-in your account
+has, and only then are you asked what to allow. A second way to prove who you are
+would be a second place for the second factor to be forgotten.
+
+How an operator registers an application, and what a client developer needs:
+[Connecting other applications](../oauth.md).
 
 ### Language and time zone
 

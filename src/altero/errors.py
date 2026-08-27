@@ -36,3 +36,21 @@ class PreconditionRequiredError(AlteroError):
 
 class RequestTooLargeError(AlteroError):
     """More objects were submitted than one request may carry."""
+
+
+class OAuthError(AlteroError):
+    """An OAuth 2.0 protocol error, named by the code RFC 6749 §5.2 defines.
+
+    The code is protocol vocabulary rather than HTTP vocabulary: an OAuth client
+    branches on ``error``, not on the status carrying it, and the registry of
+    codes belongs to the protocol. So it lives here with the other domain
+    errors, and :mod:`altero.api.errors` still decides which status reports it.
+    """
+
+    def __init__(self, code: str, message: str) -> None:
+        super().__init__(message)
+        #: One of the codes RFC 6749 §5.2 or RFC 6750 §3.1 defines --
+        #: ``invalid_request``, ``invalid_client``, ``invalid_grant``,
+        #: ``invalid_scope``, ``unauthorized_client``,
+        #: ``unsupported_grant_type``, ``unsupported_response_type``.
+        self.code = code

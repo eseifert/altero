@@ -33,6 +33,18 @@ const routes = [
     component: () => import('@/views/ForgotPasswordView.vue'),
   },
   {
+    // Where `/oauth/authorize` sends the browser once it has checked what an
+    // application asked for. Guarded like anything else, which is the point:
+    // somebody not signed in goes through the ordinary sign-in — second factor,
+    // passkey, single sign-on and all — and comes back. There is deliberately no
+    // password field on that screen; a second way to prove who you are is a
+    // second place for the second factor to be forgotten.
+    path: '/authorize',
+    name: 'authorize',
+    component: () => import('@/views/AuthorizeView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     // Where the desktop client's loginURL sends the browser.
     path: '/link',
     name: 'link-client',

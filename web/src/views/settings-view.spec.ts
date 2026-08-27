@@ -85,7 +85,8 @@ describe('the settings panel', () => {
   it('lists every section', async () => {
     const { wrapper } = await open()
 
-    expect(wrapper.findAll('.section-panel__section')).toHaveLength(6)
+    expect(wrapper.findAll('.section-panel__section')).toHaveLength(7)
+    expect(wrapper.text()).toContain('Connected applications')
     expect(wrapper.text()).toContain('Import and export')
     expect(wrapper.text()).toContain('Move from zotero.org')
   })

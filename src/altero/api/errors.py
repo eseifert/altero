@@ -17,6 +17,7 @@ from altero.errors import (
     ForbiddenError,
     InvalidInputError,
     NotFoundError,
+    OAuthError,
     PreconditionFailedError,
     PreconditionRequiredError,
     RequestTooLargeError,
@@ -61,6 +62,25 @@ def _reply(
     return PlainTextResponse(message, status_code=status_code, headers=dict(headers or {}))
 
 
+async def handle_oauth_error(request: Request, exc: Exception) -> Response:
+    """Report an OAuth failure the way RFC 6749 §5.2 says to.
+
+    JSON with an ``error`` code whatever the path, because an OAuth client
+    parses this and neither the v3 API's plain text nor the web interface's
+    ``message`` is what it is looking for. ``invalid_client`` is the one that
+    answers 401 rather than 400, and carries the challenge RFC 6749 asks for
+    when the client tried to authenticate.
+    """
+    assert isinstance(exc, OAuthError)
+    status = 401 if exc.code == "invalid_client" else 400
+    headers = {"WWW-Authenticate": 'Basic realm="altero"'} if status == 401 else {}
+    return JSONResponse(
+        {"error": exc.code, "error_description": exc.message},
+        status_code=status,
+        headers=headers,
+    )
+
+
 async def handle_domain_error(request: Request, exc: Exception) -> Response:
     assert isinstance(exc, AlteroError)
     return _reply(request, exc.message, status_for(exc))
@@ -79,6 +99,9 @@ async def handle_validation_error(request: Request, exc: Exception) -> Response:
 
 
 def register_error_handlers(app: FastAPI) -> None:
+    # Registered before the base class, since Starlette picks the most
+    # specific handler by walking the exception's own class hierarchy.
+    app.add_exception_handler(OAuthError, handle_oauth_error)
     app.add_exception_handler(AlteroError, handle_domain_error)
     app.add_exception_handler(HTTPException, handle_http_exception)
     app.add_exception_handler(RequestValidationError, handle_validation_error)

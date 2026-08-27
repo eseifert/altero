@@ -32,7 +32,6 @@ from altero.api.deps import ApiKeyDep, BaseUrlDep, LibraryDep, SessionDep
 from altero.api.responses import library_headers, object_response
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.models import (
-    ApiKey,
     Group,
     GroupMember,
     Library,
@@ -67,7 +66,9 @@ def _member_payload(user: User, member: GroupMember) -> dict[str, Any]:
     }
 
 
-async def _writer(session: AsyncSession, library: Library, api_key: ApiKey | None) -> ApiKey:
+async def _writer(
+    session: AsyncSession, library: Library, api_key: auth.Credential | None
+) -> auth.Credential:
     """Return the key, requiring that it may write to this group at all.
 
     Separate from the admin check and made first, so that a read-only key is
@@ -83,7 +84,7 @@ async def _writer(session: AsyncSession, library: Library, api_key: ApiKey | Non
     return api_key
 
 
-async def _admin(session: AsyncSession, library: Library, api_key: ApiKey | None) -> User:
+async def _admin(session: AsyncSession, library: Library, api_key: auth.Credential | None) -> User:
     """Return the account administering this group through ``api_key``."""
     key = await _writer(session, library, api_key)
     await groups.require_admin(session, library, key.user_id)
@@ -94,7 +95,7 @@ async def _rendered(
     session: AsyncSession,
     library: Library,
     base_url: str,
-    api_key: ApiKey | None = None,
+    api_key: auth.Credential | None = None,
     group: Group | None = None,
 ) -> dict[str, Any]:
     """Render the group as *this* requester sees it.
@@ -241,7 +242,7 @@ async def _write_group(
     request: Request,
     session: AsyncSession,
     library: Library,
-    api_key: ApiKey | None,
+    api_key: auth.Credential | None,
     base_url: str,
     *,
     replace: bool,

@@ -17,7 +17,8 @@ This page is the feature-level status of altero's Zotero v3 compatibility.
 | Citations and bibliographies | ✅ | CSL-based styles and Zotero-compatible formats |
 | Zotero export formats | ✅ | API and browser export support |
 | Browser interface | ✅ | Library browsing, account settings, groups and administration |
-| OIDC and SAML browser sign-in | ✅ | API authentication remains API-key based |
+| OIDC and SAML browser sign-in | ✅ | Sign-in only; never a v3 API credential |
+| OAuth 2.0 and OpenID Connect provider | ✅ | Scoped tokens for third-party applications; requires a stable public URL |
 | Passkeys and optional second factors | ✅ | Passkeys require a stable public URL |
 | Import a personal library from zotero.org | ✅ | Preserves object keys and versions |
 | Zotero iOS and Android apps | ❌ | No runtime alternate API host in the official apps |
@@ -27,6 +28,7 @@ This page is the feature-level status of altero's Zotero v3 compatibility.
 altero implements the parts of the v3 API needed by the desktop client, including:
 
 - API-key authentication and per-library permissions;
+- OAuth 2.0 access tokens as a second credential for the same endpoints;
 - personal and group library discovery;
 - item, collection, saved-search and tag reads;
 - `json`, `atom`, `keys` and `versions` response formats;
@@ -52,6 +54,7 @@ These are not required for basic Zotero compatibility but are available on an al
 - browser-based account and API-key management;
 - instance administration without library-wide superuser access;
 - OpenID Connect and SAML 2.0 browser sign-in;
+- an OAuth 2.0 and OpenID Connect authorization server, so a third-party application can be given scoped, expiring access instead of an API key;
 - passkeys, authenticator-app second factors and email codes;
 - per-member group permissions such as read-only, add-without-remove and own-items-only;
 - group activity and opt-in notifications;

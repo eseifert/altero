@@ -23,6 +23,25 @@ from altero.services import login as login_service
 router = APIRouter(tags=["keys"])
 
 
+async def _own_key(session: AsyncSession, credential: auth.Credential | None) -> ApiKey:
+    """Return the ``api_keys`` row this request was made with, or refuse.
+
+    These endpoints are about a key as an object -- what it grants, and revoking
+    it. An OAuth access token is a credential but not a key: it has no row here,
+    it is not what a person revokes (they disconnect the application), and
+    ``DELETE /keys/current`` would have nothing to delete. Refused rather than
+    approximated, so a client cannot half-manage a credential of a kind these
+    endpoints were never about.
+    """
+    if credential is None or credential.key_id is None:
+        raise ForbiddenError("Invalid key")
+
+    api_key = await session.get(ApiKey, credential.key_id)
+    if api_key is None:  # pragma: no cover - the row was just authenticated
+        raise ForbiddenError("Invalid key")
+    return api_key
+
+
 async def _key_payload(session: AsyncSession, api_key: ApiKey) -> dict[str, Any]:
     """Render a key and the access it grants."""
     user = await auth.get_user(session, api_key.user_id)
@@ -44,18 +63,13 @@ async def get_current_key(session: SessionDep, api_key: ApiKeyDep) -> dict[str, 
 
     This is the first thing the desktop client asks for after storing a key.
     """
-    if api_key is None:
-        raise ForbiddenError("Invalid key")
-    return await _key_payload(session, api_key)
+    return await _key_payload(session, await _own_key(session, api_key))
 
 
 @router.delete("/keys/current", status_code=204)
 async def delete_current_key(session: SessionDep, api_key: ApiKeyDep) -> Response:
     """Revoke the key the request was made with, unlinking the client."""
-    if api_key is None:
-        raise ForbiddenError("Invalid key")
-
-    await session.delete(api_key)
+    await session.delete(await _own_key(session, api_key))
     await session.commit()
     return Response(status_code=204)
 
@@ -134,7 +148,8 @@ async def get_key(key: str, session: SessionDep, api_key: ApiKeyDep) -> dict[str
 
     A key may only be inspected by a request authenticated with that same key.
     """
-    if api_key is None or api_key.key != key:
+    row = await _own_key(session, api_key)
+    if row.key != key:
         raise ForbiddenError("Forbidden")
 
-    return await _key_payload(session, api_key)
+    return await _key_payload(session, row)

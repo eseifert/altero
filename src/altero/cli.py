@@ -8,6 +8,7 @@ import argparse
 import asyncio
 import getpass
 from collections.abc import Awaitable, Callable
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,8 @@ from altero.services import (
     groups,
     instancesettings,
     login,
+    oauthclients,
+    oauthserver,
     retention,
     transfer,
     webauth,
@@ -178,6 +181,54 @@ async def _key_list(session: AsyncSession, args: argparse.Namespace) -> None:
 async def _key_revoke(session: AsyncSession, args: argparse.Namespace) -> None:
     await admin.revoke_api_key(session, args.key)
     print("Revoked.")
+
+
+async def _oauth_client_add(session: AsyncSession, args: argparse.Namespace) -> None:
+    client, secret = await oauthclients.create(
+        session,
+        client_id=args.client_id,
+        name=args.name or args.client_id,
+        redirect_uris=args.redirect_uri,
+        scopes=" ".join(args.scope or ["openid"]),
+        description=args.description,
+        confidential=args.confidential,
+    )
+    print(f"Registered '{client.name}' as {client.client_id}.")
+    print(f"  redirect URIs: {', '.join(args.redirect_uri)}")
+    print(f"  scopes:        {client.scopes}")
+    if secret is not None:
+        # Printed once and never recoverable, the same bargain `key add` makes.
+        print(f"  client secret: {secret}")
+        print("Store the secret now; it cannot be shown again.")
+    else:
+        print("Public client: no secret, and PKCE is required (as it is of every client).")
+
+
+async def _oauth_client_list(session: AsyncSession, args: argparse.Namespace) -> None:
+    clients = await oauthclients.all_clients(session)
+    if not clients:
+        print("No applications registered.")
+        return
+    for client in clients:
+        state = "disabled" if client.disabled_at else "enabled"
+        kind = "confidential" if client.secret_hash else "public"
+        print(f"{client.client_id}  {state}  {kind}  {client.name}")
+        for uri in client.redirect_uris.splitlines():
+            print(f"    -> {uri}")
+        print(f"    scopes: {client.scopes}")
+
+
+async def _oauth_client_disable(session: AsyncSession, args: argparse.Namespace) -> None:
+    client = await oauthclients.require(session, args.client_id)
+    client.disabled_at = datetime.now(UTC).replace(tzinfo=None)
+    await session.commit()
+    print(f"{client.client_id} is disabled. Tokens it holds stop working immediately.")
+
+
+async def _oauth_rotate_key(session: AsyncSession, args: argparse.Namespace) -> None:
+    key = await oauthserver.rotate_signing_key(session)
+    print(f"Now signing ID tokens with {key.kid}.")
+    print("The retired key stays in /oauth/jwks.json so tokens already issued keep verifying.")
 
 
 async def _group_add(session: AsyncSession, args: argparse.Namespace) -> None:
@@ -523,6 +574,41 @@ def build_parser() -> argparse.ArgumentParser:
     drop.add_argument("group", type=int)
     drop.add_argument("--yes", action="store_true", help="do not ask first")
     drop.set_defaults(handler=_group_delete)
+
+    oauth = commands.add_parser(
+        "oauth", help="manage applications authorized to reach libraries"
+    ).add_subparsers(dest="subcommand")
+    oauth_add = oauth.add_parser("add", help="register an application")
+    oauth_add.add_argument("client_id", help="the identifier the application sends")
+    oauth_add.add_argument("--name", default="", help="what the consent screen calls it")
+    oauth_add.add_argument(
+        "--redirect-uri",
+        action="append",
+        required=True,
+        help="where an authorization code may be sent; repeatable, matched exactly",
+    )
+    oauth_add.add_argument(
+        "--scope",
+        action="append",
+        default=None,
+        help="a scope the application may ask for; repeatable",
+    )
+    oauth_add.add_argument("--description", default="", help="what it does with the library")
+    oauth_add.add_argument(
+        "--confidential",
+        action="store_true",
+        help="issue a client secret, for an application that runs on a server",
+    )
+    oauth_add.set_defaults(handler=_oauth_client_add)
+    oauth.add_parser("list", help="list registered applications").set_defaults(
+        handler=_oauth_client_list
+    )
+    oauth_disable = oauth.add_parser("disable", help="stop an application working")
+    oauth_disable.add_argument("client_id")
+    oauth_disable.set_defaults(handler=_oauth_client_disable)
+    oauth.add_parser("rotate-key", help="start signing ID tokens with a new key").set_defaults(
+        handler=_oauth_rotate_key
+    )
 
     keep = commands.add_parser(
         "retention", help="delete what the retention periods say to"

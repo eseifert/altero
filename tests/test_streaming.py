@@ -330,8 +330,9 @@ class TestWhatTheClientAsksFor:
         # the poll response does, so linking finishes on the event rather than
         # on the next three-second poll.
         login = await login_service.start_session(session)
-        api_key = await auth.authenticate(session, KEY)
-        assert api_key is not None
+        # The row itself, not the credential it resolves to: approving a login
+        # writes the key's id and hands the client the key's value.
+        api_key = await auth.get_api_key_by_value(session, KEY)
 
         with http.websocket_connect(STREAM_PATH) as socket:
             receive(socket)
@@ -383,8 +384,9 @@ class TestWhatTheClientAsksFor:
         # credential for the topic: a connection that has not named it is told
         # nothing, whatever key it holds.
         login = await login_service.start_session(session)
-        api_key = await auth.authenticate(session, KEY)
-        assert api_key is not None
+        # The row itself, not the credential it resolves to: approving a login
+        # writes the key's id and hands the client the key's value.
+        api_key = await auth.get_api_key_by_value(session, KEY)
 
         with http.websocket_connect(STREAM_PATH, headers={"Zotero-API-Key": KEY}) as socket:
             receive(socket)

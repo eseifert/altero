@@ -37,6 +37,11 @@ uv run altero user delete <username> [--yes]
 uv run altero key add <username> [--name LABEL] [--read-only] [--groups]
 uv run altero key list
 uv run altero key revoke <key>
+
+uv run altero oauth add <client-id> --redirect-uri URL [--scope SCOPE] [--confidential]
+uv run altero oauth list
+uv run altero oauth disable <client-id>
+uv run altero oauth rotate-key
 ```
 
 ### Groups
@@ -177,6 +182,28 @@ A provider can also require a claim and value, such as an entitlement or group. 
 This check happens at sign-in time. It cannot detect a person who leaves the organization and never attempts to sign in again; administrators must handle that case through the Accounts screen or another operational process.
 
 Removing a provider removes the account links to it, not the local accounts themselves.
+
+## Third-party applications
+
+Sign-in providers are how somebody proves who they are *to* altero. The authorization server is the other direction: how somebody else's application is given access to a library, without ever being handed a password or a long-lived API key.
+
+An application has to be registered before it can ask for anything. Nothing self-registers, because the list of addresses an authorization code may be sent to is the only thing that keeps the code from going somewhere else.
+
+```sh
+uv run altero oauth add notebook \
+    --name "Notebook" \
+    --redirect-uri https://notebook.example.com/auth/callback \
+    --scope openid --scope profile --scope library.read
+uv run altero oauth list
+uv run altero oauth disable notebook
+uv run altero oauth rotate-key
+```
+
+Set `ALTERO_PUBLIC_URL` first. It decides the `iss` claim on every ID token, and there is deliberately no fallback to the address a request arrived on: an issuer a caller can choose with a `Host` header is not one anybody can pin.
+
+A person approves an application in their browser and can disconnect it at any time under **Settings → Connected applications**. Disconnecting takes effect immediately.
+
+Full details, including the scope table and what a client developer needs: [Connecting other applications](oauth.md).
 
 ## Retention
 

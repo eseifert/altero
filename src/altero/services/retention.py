@@ -44,6 +44,9 @@ from altero.models import (
     Item,
     Library,
     LoginCode,
+    OAuthAuthorizationRequest,
+    OAuthCode,
+    OAuthToken,
     StorageDownload,
     StorageUpload,
     WebAuthnChallenge,
@@ -82,6 +85,10 @@ class Report:
     invitations: int = 0
     #: Download permissions handed out with a redirect and not spent.
     downloads: int = 0
+    #: Spent authorization requests, codes and tokens from the authorization
+    #: server. Nothing is load-bearing once it has expired, and a table that
+    #: only grows is one somebody finds the hard way.
+    authorizations: int = 0
 
     @property
     def anything(self) -> bool:
@@ -97,6 +104,7 @@ class Report:
             or self.verifications
             or self.invitations
             or self.downloads
+            or self.authorizations
         )
 
 
@@ -247,6 +255,11 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
     downloads = list(
         await session.scalars(select(StorageDownload.key).where(StorageDownload.expires < now))
     )
+    authorizations = 0
+    for model in (OAuthAuthorizationRequest, OAuthCode, OAuthToken):
+        authorizations += len(
+            list(await session.scalars(select(model.expires).where(model.expires < now)))
+        )
 
     if not dry_run:
         for model, doomed in (
@@ -273,6 +286,8 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
             )
         if downloads:
             await session.execute(delete(StorageDownload).where(StorageDownload.key.in_(downloads)))
+        for model in (OAuthAuthorizationRequest, OAuthCode, OAuthToken):
+            await session.execute(delete(model).where(model.expires < now))
         await session.commit()
 
     return Report(
@@ -284,6 +299,7 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
         verifications=len(verifications),
         invitations=len(invitations),
         downloads=len(downloads),
+        authorizations=authorizations,
     )
 
 
@@ -349,4 +365,6 @@ def describe(report: Report) -> str:
         parts.append(f"{report.invitations} expired invitations")
     if report.downloads:
         parts.append(f"{report.downloads} expired download permissions")
+    if report.authorizations:
+        parts.append(f"{report.authorizations} spent authorizations")
     return ", ".join(parts) if parts else "nothing to delete"

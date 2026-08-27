@@ -50,12 +50,14 @@ export default {
   'Add to My Publications': 'Dodaj do Moich publikacji',
   'Add to My Publications…': 'Dodaj do Moich publikacji…',
   'Add “{name}” to My Publications': 'Dodaj „{name}” do Moich publikacji',
+  'Add, change and remove things in your library': 'Dodawać, zmieniać i usuwać elementy w Twojej bibliotece',
   'Administration': 'Administracja',
   'Administrator': 'Administrator',
   'Administrators': 'Administratorzy',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Potem Zotero na twoim komputerze zauważy, że rozmawia z innym kontem, i zaproponuje wyczyszczenie danych lokalnych. Pozwól na to: wszystko, czego potrzebuje, jest teraz na tym serwerze.',
   'All items': 'Wszystkie elementy',
+  'Allow': 'Zezwól',
   'Allow adaptations of your work to be shared?':
     'Pozwolić na udostępnianie opracowań twojej pracy?',
   'Allow changes (Zotero needs this to sync)':
@@ -107,6 +109,7 @@ export default {
   'Cancel': 'Anuluj',
   'Change': 'Zmień',
   'Change password': 'Zmień hasło',
+  'Change the group libraries you belong to': 'Zmieniać biblioteki grup, do których należysz',
   'Change the rights': 'Zmień prawa',
   'Change this provider': 'Zmień tego dostawcę',
   'Change who can see it': 'Zmień, kto może to zobaczyć',
@@ -149,8 +152,11 @@ export default {
   'Confirming…': 'Potwierdzanie…',
   'Connect': 'Połącz',
   'Connect Zotero': 'Połącz Zotero',
+  'Connect an application': 'Połącz aplikację',
   'Connect {provider}': 'Połącz {provider}',
   'Connected accounts': 'Połączone konta',
+  'Connected applications': 'Połączone aplikacje',
+  'Connected {when}': 'Połączono {when}',
   'Connecting to zotero.org…': 'Łączenie z zotero.org…',
   'Continue with {provider}': 'Kontynuuj z {provider}',
   'Copied': 'Skopiowano',
@@ -208,6 +214,7 @@ export default {
     'Gotowe. Zotero właśnie przejmuje połączenie — możesz zamknąć tę stronę i wrócić do programu.',
   'Download': 'Pobierz',
   'Download and upload attachments': 'Pobieranie i wysyłanie załączników',
+  'Download your attachments': 'Pobierać Twoje załączniki',
   'Downloading attachments…': 'Pobieranie załączników…',
   'Drag to move this divide. Double-click to put it back.':
     'Przeciągnij, aby przesunąć ten podział. Kliknij dwukrotnie, aby go przywrócić.',
@@ -277,8 +284,10 @@ export default {
   'Invitations': 'Zaproszenia',
   'Invite': 'Zaproś',
   'Issuer': 'Wystawca',
+  'It cannot read your library, your notes or your attachments.': 'Nie może czytać Twojej biblioteki, notatek ani załączników.',
   'It stays in your library, with its notes and files.':
     'Pozostaje w twojej bibliotece, razem ze swoimi notatkami i plikami.',
+  'It will be able to:': 'Będzie mogła:',
   'Items': 'Elementy',
   'Items added or changed': 'Elementy dodane lub zmienione',
   'Items deleted': 'Elementy usunięte',
@@ -286,6 +295,7 @@ export default {
   'Keep the existing Rights field': 'Zachowaj istniejące pole Prawa',
   'Key created. Copy it now — it is not shown again.':
     'Klucz został utworzony. Skopiuj go teraz — nie zostanie pokazany ponownie.',
+  'Know who you are': 'Wiedzieć, kim jesteś',
   'Language': 'Język',
   'Language and time zone': 'Język i strefa czasowa',
   'Language and time zone saved.': 'Język i strefa czasowa zostały zapisane.',
@@ -343,6 +353,7 @@ export default {
   'Next: Sharing': 'Dalej: współdzielenie',
   'No': 'Nie',
   'No account yet?': 'Nie masz jeszcze konta?',
+  'No applications connected.': 'Brak połączonych aplikacji.',
   'No items carry the selected tags.': 'Żaden element nie ma wybranych etykiet.',
   'No items match this search and the selected tags.':
     'Żaden element nie pasuje do tego wyszukiwania i wybranych etykiet.',
@@ -395,6 +406,7 @@ export default {
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
     'Otwórz zotero.org → Settings → Security → Applications i utwórz nowy klucz prywatny.',
   'Optional': 'Opcjonalnie',
+  'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Inne aplikacje, którym pozwoliłeś sięgnąć do tego konta. Każda otrzymała tylko te uprawnienia, które zatwierdziłeś.',
   'Overview': 'Przegląd',
   'Owner': 'Właściciel',
   'PEM. Paste both while the provider is rolling its key over.':
@@ -427,7 +439,10 @@ export default {
   'Read and change everything in your library':
     'Czytanie i zmienianie wszystkiego w twojej bibliotece',
   'Read and write': 'Odczyt i zapis',
+  'Read everything in your library': 'Czytać wszystko w Twojej bibliotece',
   'Read only': 'Tylko odczyt',
+  'Read the group libraries you belong to': 'Czytać biblioteki grup, do których należysz',
+  'Read your notes': 'Czytać Twoje notatki',
   'Reading collections…': 'Wczytywanie kolekcji…',
   'Reading full text…': 'Wczytywanie pełnego tekstu…',
   'Reading items…': 'Wczytywanie elementów…',
@@ -482,6 +497,8 @@ export default {
   'Search': 'Szukaj',
   'Search this library': 'Szukaj w tej bibliotece',
   'See what would go': 'Zobacz, co by zniknęło',
+  'See your email address': 'Zobaczyć Twój adres e-mail',
+  'See your name and username': 'Zobaczyć Twoje imię i nazwę użytkownika',
   'See your page': 'Zobacz swoją stronę',
   'See your public page': 'Zobacz swoją stronę publiczną',
   'Select': 'Zaznacz',
@@ -552,17 +569,20 @@ export default {
   'Tags': 'Etykiety',
   'Take it out of “{name}”': 'Wyjmij z „{name}”',
   'Take them out of “{name}”': 'Wyjmij je z „{name}”',
+  'Taking you back to the application…': 'Powrót do aplikacji…',
   'Tell me about': 'Powiadamiaj mnie o',
   'That confirmation link is not valid or has expired.':
     'Ten odnośnik potwierdzający jest nieprawidłowy albo wygasł.',
   'That connection was removed.': 'To połączenie zostało usunięte.',
   'That invitation has already been answered.': 'Na to zaproszenie już odpowiedziano.',
+  'That link is missing its request.': 'W tym odnośniku brakuje żądania.',
   'That link is missing its token.': 'Temu odnośnikowi brakuje tokenu.',
   'That link is not valid or has expired.': 'Ten odnośnik jest nieprawidłowy albo wygasł.',
   'That passkey was removed.': 'Ten klucz dostępu został usunięty.',
   'That provider could not be reached. Try again shortly.':
     'Nie udało się połączyć z tym dostawcą. Spróbuj za chwilę.',
   'That provider was removed.': 'Ten dostawca został usunięty.',
+  'That request has expired or was never started. Start again in the application.': 'To żądanie wygasło lub nigdy nie zostało rozpoczęte. Zacznij ponownie w aplikacji.',
   'That session was signed out.': 'Ta sesja została wylogowana.',
   'That sign-in took too long. Please try again.': 'To logowanie trwało za długo. Spróbuj ponownie.',
   'That sign-in was not completed.': 'To logowanie nie zostało dokończone.',
@@ -655,8 +675,10 @@ export default {
   'You are not in any groups yet.': 'Nie należysz jeszcze do żadnej grupy.',
   'You can change what is shown at any time from My Publications.':
     'W każdej chwili możesz zmienić to, co jest pokazywane, z poziomu Moich publikacji.',
+  'You can disconnect it at any time in Settings, under Connected applications.': 'Możesz ją odłączyć w każdej chwili w Ustawieniach, w sekcji Połączone aplikacje.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Możesz zastrzec wszystkie prawa do swojej pracy, udostępnić ją na licencji Creative Commons albo przekazać do domeny publicznej. Tak czy inaczej sama praca jest publikowana tutaj, aby każdy mógł ją czytać.',
+  'You have already given this application these permissions.': 'Już nadałeś tej aplikacji te uprawnienia.',
   'You have joined the group.': 'Dołączyłeś do grupy.',
   'Your account there is not permitted to use this server.':
     'Twoje tamtejsze konto nie ma prawa korzystać z tego serwera.',
@@ -672,12 +694,15 @@ export default {
   'altero version': 'wersja altero',
   'confirmed': 'potwierdzony',
   'date unknown': 'data nieznana',
+  'in use now': 'obecnie używana',
+  'new': 'nowe',
   'not confirmed yet': 'jeszcze niepotwierdzony',
   'not stamped': 'nieoznaczona',
   'open': 'otwarta',
   'or': 'albo',
   'this one': 'ta',
   'to your altero library': 'do twojej biblioteki altero',
+  'wants to connect to your account': 'chce połączyć się z Twoim kontem',
   'without files': 'bez plików',
   'zotero.org API key': 'klucz API zotero.org',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.':
@@ -728,6 +753,7 @@ export default {
   '{who} invited you to “{name}” as a member.': '{who} zaprosił cię do „{name}” jako członka.',
   '{who} invited you to “{name}” as an administrator.':
     '{who} zaprosił cię do „{name}” jako administratora.',
+  '“{name}” was disconnected and stops working immediately.': '„{name}” została odłączona i natychmiast przestaje działać.',
   '“{name}” was revoked and stops working immediately.':
     '„{name}” został unieważniony i natychmiast przestaje działać.',
 }

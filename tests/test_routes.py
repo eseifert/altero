@@ -233,6 +233,23 @@ EXPECTED = [
     ("/users/{user_id}/publications/items/{item_key}", "GET"),
     ("/users/{user_id}/publications/settings", "GET"),
     ("/users/{user_id}/publications/deleted", "GET"),
+    # The authorization server. Public endpoints: discovery under both the
+    # names clients look for it, the key set ID tokens verify against, the
+    # navigation that hands the browser to the interface, and the three back
+    # channels an application calls. See altero/api/routes/oauth.py.
+    ("/.well-known/openid-configuration", "GET"),
+    ("/.well-known/oauth-authorization-server", "GET"),
+    ("/oauth/jwks.json", "GET"),
+    ("/oauth/authorize", "GET"),
+    ("/oauth/token", "POST"),
+    ("/oauth/revoke", "POST"),
+    ("/oauth/userinfo", "GET"),
+    # Consent, and taking it back. Cookie-authenticated like the rest of /web,
+    # which is what makes the second factor and passkeys apply to it.
+    ("/web/oauth/pending/{handle}", "GET"),
+    ("/web/oauth/pending/{handle}", "POST"),
+    ("/web/oauth/authorizations", "GET"),
+    ("/web/oauth/authorizations/{grant_id}", "DELETE"),
 ]
 
 #: Endpoints served under both /users/{user_id} and /groups/{group_id}.
