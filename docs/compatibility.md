@@ -516,22 +516,45 @@ stale information cannot overwrite a newer file.
 | `Zotero-File-Compressed` | `Yes` when the bytes are an archive around that file |
 
 Upstream sends these on the redirect to S3, and the client reads them there and
-nowhere else: `zfs.js` fills its `requestData` inside `asyncOnChannelRedirect`,
-so a 200 carrying the bytes — however it is labelled — reaches
+nowhere else, so a 200 carrying the bytes — however it is labelled — reaches
 `Zotero.Sync.Storage.Local.processDownload` with nothing set and throws
 `'data.mtime' not set`. altero answered 200 and every attachment in the library
 failed to download, on every sync, with "A file sync error occurred".
 
 The client needs the redirect for a second reason. It compares
-`Zotero-File-Modification-Time` with the local file and, when they match,
-*aborts* the redirect rather than fetching bytes it already has. Metadata hung
-on the response that carries the file would arrive too late to save the
-transfer.
+`Zotero-File-Modification-Time` with the local file and, when they match, never
+asks for the bytes at all. Metadata hung on the response that carries the file
+would arrive too late to save the transfer.
 
-Having no S3, altero redirects to itself: `<prefix>/items/<key>/file/content`,
-an ordinary API route behind the same key. Nothing is signed into the URL
-because nothing needs to be — the client resends its headers when it follows a
-redirect within one host.
+##### The location has to be a credential
+
+The client does not follow the redirect. `zfs.js` asks for the file with
+`followRedirects: false`, reads the three headers off the 302, and then makes a
+*second, fresh* request for the location — `Zotero.HTTP.download(fileURL, …)`,
+which is passed no `headers` at all. Upstream can do that because its location
+is a presigned S3 URL, which is a credential in itself.
+
+So altero's has to be one too. `GET <prefix>/items/<key>/file` grants a
+short-lived permission for that one file and points at
+`/storage/download/<key>`, the mirror image of `/storage/upload/<key>`: the key
+in the path is the whole credential, no API key is taken there and none is
+accepted. It expires after five minutes, it is checked against the digest the
+302 promised so it cannot be spent on whatever the attachment holds later, and
+the redirect carries `Cache-Control: no-store` so no shared cache keeps it. It
+is deliberately *not* one-shot — `Zotero.HTTP.download` retries the same URL
+after a 5xx or a dropped connection.
+
+The obvious alternative, appending the caller's API key to the location as
+`?key=…`, works and was rejected. An API key grants the whole account and never
+expires, and a reverse proxy writes every request line to its access log; altero
+ships configurations for three of them.
+
+> [!NOTE]
+> Before Zotero's April 2026 rewrite of `HTTP.download()` the client followed
+> this redirect inside one channel, which carried its headers along, and the
+> location could be an ordinary API route behind the same key. That route,
+> `<prefix>/items/<key>/file/content`, is still served for callers that have a
+> key and would rather ask for the bytes directly.
 
 #### Telling an archive from a file
 

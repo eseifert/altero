@@ -14,7 +14,15 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.models import ActivityKind, GroupActivity, Item, LibraryType, StorageUpload, WebSession
+from altero.models import (
+    ActivityKind,
+    GroupActivity,
+    Item,
+    LibraryType,
+    StorageDownload,
+    StorageUpload,
+    WebSession,
+)
 from altero.services import retention
 from altero.services.auth import get_library
 from tests.factories import make_api_key, make_group, make_item, make_user
@@ -235,6 +243,33 @@ class TestHousekeeping:
 
         assert report.sessions == 1
         assert (await session.scalar(select(WebSession))) is None
+
+    async def test_a_spent_download_permission_is_swept_without_being_asked(
+        self, session: AsyncSession
+    ) -> None:
+        """Same reasoning: past its five minutes it opens nothing.
+
+        A library syncing its files asks for one of these per attachment, so
+        without the sweep the table grows for as long as the instance runs.
+        """
+        user = await make_user(session)
+        library = await get_library(session, LibraryType.USER, user.id)
+        item = await make_item(session, library, key="AAAA2345", item_type="attachment")
+        session.add(
+            StorageDownload(
+                key="spent",
+                item_id=item.id,
+                library_id=library.id,
+                md5="d41d8cd98f00b204e9800998ecf8427e",
+                expires=now() - timedelta(minutes=1),
+            )
+        )
+        await session.commit()
+
+        report = await retention.sweep(session, NOTHING)
+
+        assert report.downloads == 1
+        assert (await session.scalar(select(StorageDownload))) is None
 
 
 @pytest.mark.parametrize("period", ["trashRetentionDays", "activityRetentionDays"])

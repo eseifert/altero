@@ -34,7 +34,6 @@ from altero.models import (
     Library,
     LibraryType,
     MemberPermission,
-    StorageUpload,
     User,
     WriteToken,
 )
@@ -526,7 +525,6 @@ async def delete_group(session: AsyncSession, library: Library) -> None:
     await clear_library(session, library)
 
     await session.execute(delete(WriteToken).where(WriteToken.library_id == library.id))
-    await session.execute(delete(StorageUpload).where(StorageUpload.library_id == library.id))
     await session.execute(
         delete(ApiKeyGroupAccess).where(ApiKeyGroupAccess.library_id == library.id)
     )

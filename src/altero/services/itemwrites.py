@@ -29,6 +29,7 @@ from altero.models import (
     ItemTag,
     Library,
     LibraryType,
+    StorageDownload,
     StorageUpload,
     Tag,
     TagType,
@@ -690,13 +691,15 @@ async def _delete_one(session: AsyncSession, library: Library, item: Item, versi
     await session.execute(delete(ItemTag).where(ItemTag.item_id == item.id))
     await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
 
-    # An attachment's indexed text and any upload it had authorized. Both name
-    # the item by id, so leaving either behind fails the foreign key on the way
-    # out -- which is what deleting a PDF the client had indexed used to do.
+    # An attachment's indexed text, any upload it had authorized and any
+    # download it had permitted. All three name the item by id, so leaving one
+    # behind fails the foreign key on the way out -- which is what deleting a
+    # PDF the client had indexed used to do.
     # The stored bytes stay: files are shared by digest, and another item may
     # be the same file.
     await session.execute(delete(FullText).where(FullText.item_id == item.id))
     await session.execute(delete(StorageUpload).where(StorageUpload.item_id == item.id))
+    await session.execute(delete(StorageDownload).where(StorageDownload.item_id == item.id))
 
     key = item.key
     await session.delete(item)

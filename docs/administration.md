@@ -210,6 +210,12 @@ Removing database rows without the deletion log would leave offline clients hold
 
 Unreferenced attachment files are not deleted by the timed retention sweep. They are handled separately from the Storage screen to avoid racing uploads that have written their bytes before committing their item rows.
 
+### Rows that carry their own expiry
+
+Browser sessions, sign-in codes, confirmation links, unanswered invitations and attachment download permissions have no retention period of their own. Each records when it expires, and the sweep removes it once it has: an expired session is already nobody's session, and an expired download permission opens nothing.
+
+Download permissions are the highest-volume of these. A client syncing its files is granted one per attachment it fetches, so the sweep is what keeps that table from growing for as long as the instance runs. See [the file protocol](compatibility.md#the-location-has-to-be-a-credential) for what they are and why the redirect cannot simply point at a URL carrying the API key.
+
 ## Library transfer and recovery
 
 ### Move a library to another altero instance

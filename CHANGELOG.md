@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Attachment downloads survive Zotero's April 2026 client rewrite: the redirect now hands out a short-lived permission for the one file, at `/storage/download/<key>`, rather than a location only an API key can open. The client no longer follows that redirect but makes a second request carrying no headers, so every attachment failed to download; the account key stays out of the URL, and so out of every reverse proxy's access log. Reported and first diagnosed by [@sadgen](https://github.com/sadgen) in [#7](https://github.com/eseifert/altero/pull/7).
 - The container image is published as `ghcr.io/eseifert/altero` for x86-64 and arm64, so running altero needs neither a checkout nor a build; `docker/compose.yaml` pulls it and `docker/compose.build.yaml` builds from source instead.
 - Deployment documents what a small instance costs in memory and disk, and carries reverse-proxy configurations for nginx, Caddy and Traefik, including the upload limit and the WebSocket upgrade that `/stream` needs.
 - citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialled name.

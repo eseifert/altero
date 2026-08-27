@@ -220,6 +220,10 @@ EXPECTED = [
     ("/items/new", "GET"),
     ("/schema", "GET"),
     ("/storage/upload/{upload_key}", "POST"),
+    # Where the file download redirect lands. Takes no API key and accepts
+    # none: the permission in the path is the credential, the same way the
+    # upload key above is.
+    ("/storage/download/{download_key}", "GET"),
     # My Publications is a personal library only, so these have no /groups form.
     ("/users/{user_id}/publications/items", "GET"),
     ("/users/{user_id}/publications/items", "POST"),

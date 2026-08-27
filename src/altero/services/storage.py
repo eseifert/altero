@@ -11,6 +11,7 @@ told the upload is unnecessary.
 """
 
 import hashlib
+from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -25,10 +26,19 @@ from altero.errors import (
     PreconditionRequiredError,
 )
 from altero.keys import generate_api_key
-from altero.models import Item, ItemField, Library, StorageUpload
+from altero.models import Item, ItemField, Library, StorageDownload, StorageUpload
 
 #: Fields an attachment carries once a file is attached to it.
 FILE_FIELDS = ("filename", "md5", "mtime", "contentType", "charset")
+
+#: How long the permission a download redirect hands out is good for.
+#:
+#: Long enough that a client which queues its downloads does not lose the
+#: one it was given, short enough that finding it later in an access log is
+#: worth nothing. The transfer itself may take far longer: the permission is
+#: checked when the request arrives and not again, so a slow file is not cut
+#: off half way.
+DOWNLOAD_LIFETIME = timedelta(minutes=5)
 
 
 def file_digest(body: bytes) -> str:
@@ -170,6 +180,50 @@ async def get_upload(session: AsyncSession, key: str) -> StorageUpload:
     if upload is None:
         raise NotFoundError("Upload not found")
     return upload
+
+
+def _now() -> datetime:
+    """The moment a permission is measured against, in the form the column holds."""
+    return datetime.now(UTC).replace(tzinfo=None)
+
+
+async def authorize_download(
+    session: AsyncSession, library: Library, item: Item, md5: str
+) -> StorageDownload:
+    """Grant permission to fetch this item's file, and return it.
+
+    The caller has already been found allowed to read the library; this turns
+    that one answer into something the client can put in a URL, so that the API
+    key does not have to go there. What comes back names one file and expires.
+    """
+    permission = StorageDownload(
+        key=generate_api_key(),
+        item_id=item.id,
+        library_id=library.id,
+        md5=md5,
+        expires=_now() + DOWNLOAD_LIFETIME,
+    )
+    session.add(permission)
+    await session.flush()
+    return permission
+
+
+async def open_download(session: AsyncSession, key: str) -> StorageDownload:
+    """Return a download permission by its key, if it is still good for anything.
+
+    Expired, swept away and never-issued are one answer, because telling them
+    apart would say whether a file is there to somebody holding no permission
+    at all.
+
+    Spent is not among them: a permission is good until it expires rather than
+    for one request. `Zotero.HTTP.download` retries the same URL after a 5xx or
+    a dropped connection, and a one-shot permission would turn every such retry
+    into a failed sync.
+    """
+    permission = await session.get(StorageDownload, key)
+    if permission is None or permission.expires < _now():
+        raise NotFoundError("File not found")
+    return permission
 
 
 def store_bytes(root: Path, upload: StorageUpload, body: bytes) -> None:

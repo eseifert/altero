@@ -19,7 +19,8 @@ from altero.api.deps import (
     SessionDep,
 )
 from altero.api.responses import library_headers
-from altero.errors import RequestTooLargeError
+from altero.errors import NotFoundError, RequestTooLargeError
+from altero.models import Item
 from altero.services import items as items_service
 from altero.services import storage, writes
 
@@ -108,53 +109,19 @@ async def receive_upload(upload_key: str, request: Request, session: SessionDep)
     return Response(status_code=201)
 
 
-@router.get("/users/{user_id}/items/{item_key}/file")
-@router.get("/groups/{group_id}/items/{item_key}/file")
-async def download_file(
-    item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
-) -> Response:
-    """Redirect to the file attached to an item, describing it in the headers.
+async def _file_response(item: Item, root: Path, *, expected_md5: str | None = None) -> Response:
+    """Return the bytes attached to an item, described as what they are.
 
-    Upstream answers with a 302 to S3 and hangs the file's metadata on that
-    redirect. The client reads it there and nowhere else: `zfs.js` fills its
-    `requestData` inside `asyncOnChannelRedirect`, so a 200 with the bytes --
-    however it is labelled -- reaches `processDownload` with nothing set and
-    fails with "'data.mtime' not set". altero has no S3, so the redirect points
-    back at itself; what matters is that it is a redirect.
-
-    The client also uses the three headers to decide it need not download at
-    all: a local file whose modification time matches aborts the redirect, which
-    is why they are on the 302 rather than on the response carrying the bytes.
+    One definition, so the route behind an API key and the route behind a
+    download permission cannot come to disagree about what a file is called or
+    what it holds.
     """
-    item = await items_service.get_item(session, library, item_key)
-    path, fields = await storage.stored_file(item, _storage_root(request))
+    path, fields = await storage.stored_file(item, root)
 
-    compressed = storage.is_compressed(path, fields["md5"])
-    return Response(
-        status_code=302,
-        headers={
-            "Location": f"{request.url.path}/content",
-            "Zotero-File-Modification-Time": fields.get("mtime") or "0",
-            "Zotero-File-MD5": fields["md5"],
-            "Zotero-File-Compressed": "Yes" if compressed else "No",
-        },
-    )
-
-
-@router.get("/users/{user_id}/items/{item_key}/file/content")
-@router.get("/groups/{group_id}/items/{item_key}/file/content")
-async def download_file_content(
-    item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
-) -> Response:
-    """Return the bytes of the file attached to an item.
-
-    Where the upstream redirect lands on a signed S3 URL, altero's lands here.
-    It is an ordinary API route, authorized by the same key as the redirect that
-    named it: the client resends its headers when it follows a redirect within
-    the same host, so nothing has to be signed into the URL.
-    """
-    item = await items_service.get_item(session, library, item_key)
-    path, fields = await storage.stored_file(item, _storage_root(request))
+    if expected_md5 is not None and fields["md5"] != expected_md5:
+        # The file moved on between the redirect and this request. Serving the
+        # new bytes would break the promise the 302 made in `Zotero-File-MD5`.
+        raise NotFoundError("File not found")
 
     if storage.is_compressed(path, fields["md5"]):
         # Describing the archive as the file it holds would be a lie in the one
@@ -166,6 +133,90 @@ async def download_file_content(
         media_type=fields.get("contentType") or "application/octet-stream",
         filename=fields.get("filename") or item.key,
     )
+
+
+@router.get("/users/{user_id}/items/{item_key}/file")
+@router.get("/groups/{group_id}/items/{item_key}/file")
+async def download_file(
+    item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
+) -> Response:
+    """Redirect to the file attached to an item, describing it in the headers.
+
+    Upstream answers with a 302 to S3 and hangs the file's metadata on that
+    redirect. The client reads it there and nowhere else, so a 200 with the
+    bytes -- however it is labelled -- reaches `processDownload` with nothing
+    set and fails with "'data.mtime' not set". altero has no S3, so the
+    redirect points back at itself; what matters is that it is a redirect.
+
+    The client also uses the three headers to decide it need not download at
+    all: a local file whose modification time matches means it never asks for
+    the bytes, which is why they are on the 302 rather than on the response
+    carrying them.
+
+    Where it points is the part that has to be a permission rather than a path.
+    The client does not follow this redirect -- it reads the headers off it and
+    then makes a *second, fresh* request for the location, carrying none of the
+    first one's headers -- so whatever authorizes that request has to be in the
+    URL. Upstream puts a presigned S3 URL there; altero grants one short-lived
+    permission for this one file. See services/storage.authorize_download.
+    """
+    item = await items_service.get_item(session, library, item_key)
+    path, fields = await storage.stored_file(item, _storage_root(request))
+
+    compressed = storage.is_compressed(path, fields["md5"])
+    permission = await storage.authorize_download(session, library, item, fields["md5"])
+    await session.commit()
+
+    return Response(
+        status_code=302,
+        headers={
+            "Location": f"/storage/download/{permission.key}",
+            "Zotero-File-Modification-Time": fields.get("mtime") or "0",
+            "Zotero-File-MD5": fields["md5"],
+            "Zotero-File-Compressed": "Yes" if compressed else "No",
+            # The location is a credential, so no shared cache may keep it and
+            # hand it to the next caller asking for this file.
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+@router.get("/users/{user_id}/items/{item_key}/file/content")
+@router.get("/groups/{group_id}/items/{item_key}/file/content")
+async def download_file_content(
+    item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
+) -> Response:
+    """Return the bytes of the file attached to an item, behind an API key.
+
+    Not where the redirect lands -- that is `/storage/download/<key>`, which
+    the client can reach without a header. This is the same bytes for a caller
+    that has a key and would rather ask for them directly, which is every
+    caller that is not the desktop client's file sync.
+    """
+    item = await items_service.get_item(session, library, item_key)
+    return await _file_response(item, _storage_root(request))
+
+
+@router.get("/storage/download/{download_key}")
+async def send_download(download_key: str, request: Request, session: SessionDep) -> Response:
+    """Return the bytes the redirect granted permission for.
+
+    This stands in for the presigned S3 URL upstream hands out, and the
+    permission is the credential: it was issued to a request that had already
+    proved it may read the library. No API key is taken here, and none is
+    accepted -- the same shape as `/storage/upload/<key>` in the other
+    direction.
+
+    The digest is checked against the one the redirect promised, so a
+    permission granted for one file cannot be spent on whatever replaced it.
+    """
+    permission = await storage.open_download(session, download_key)
+
+    item = await session.get(Item, permission.item_id)
+    if item is None:
+        raise NotFoundError("File not found")
+
+    return await _file_response(item, _storage_root(request), expected_md5=permission.md5)
 
 
 @router.get("/users/{user_id}/items/{item_key}/file/view")

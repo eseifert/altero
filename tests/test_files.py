@@ -1,13 +1,15 @@
 """The attachment file protocol."""
 
 import hashlib
+from datetime import datetime
 from pathlib import Path
 
 import httpx
 import pytest
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.models import Library, LibraryType
+from altero.models import Library, LibraryType, StorageDownload
 from altero.services.auth import get_library
 from altero.settings import Settings
 from tests.factories import make_api_key, make_item, make_user
@@ -356,3 +358,143 @@ class TestDownload:
         response = await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)
 
         assert response.status_code == 404
+
+
+class TestDownloadPermission:
+    """Where the redirect leads, and what reaching it takes.
+
+    The client does not follow this redirect. It reads the three `Zotero-File-*`
+    headers off the 302 and then makes a second, *fresh* request for the
+    location, carrying none of the first request's headers -- see
+    `Zotero.HTTP.download` in `zfs.js`, which is passed no `headers` at all.
+    So the location has to authorize itself, and it does it the way
+    `/storage/upload/<key>` does in the other direction: the key in the path is
+    the credential, it names one file, and it expires.
+    """
+
+    async def test_the_location_is_reachable_with_no_headers_at_all(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        await upload(client, attachment)
+
+        redirect = await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)
+        assert redirect.status_code == 302
+
+        # No AUTH: this is the request the client actually makes.
+        bytes_response = await client.get(redirect.headers["location"])
+
+        assert bytes_response.status_code == 200
+        assert bytes_response.content == CONTENT
+
+    async def test_the_location_carries_no_api_key(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        # A key grants the whole account and never expires; every reverse proxy
+        # writes the request line to its access log.
+        await upload(client, attachment)
+
+        redirect = await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)
+
+        assert KEY not in redirect.headers["location"]
+        assert redirect.headers["cache-control"] == "no-store"
+
+    async def test_the_permission_is_not_an_api_key(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        # It opens one file and nothing else, which is the whole point of it
+        # being something other than the key.
+        await upload(client, attachment)
+        redirect = await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)
+        permission = redirect.headers["location"].rsplit("/", 1)[-1]
+
+        assert (await client.get("/users/1/items", params={"key": permission})).status_code == 403
+        assert (
+            await client.get(f"/users/1/items/{attachment}/file", params={"key": permission})
+        ).status_code == 403
+
+    async def test_it_can_be_spent_more_than_once(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        # `Zotero.HTTP.download` retries the same URL after a 5xx or a dropped
+        # connection. One-shot would turn every such retry into a failed sync.
+        await upload(client, attachment)
+        location = (await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)).headers[
+            "location"
+        ]
+
+        assert (await client.get(location)).status_code == 200
+        assert (await client.get(location)).status_code == 200
+
+    async def test_an_expired_permission_opens_nothing(
+        self, client: httpx.AsyncClient, session: AsyncSession, attachment: str
+    ) -> None:
+        await upload(client, attachment)
+        location = (await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)).headers[
+            "location"
+        ]
+
+        await session.execute(
+            update(StorageDownload).values(expires=datetime(2020, 1, 1, tzinfo=None))
+        )
+        await session.commit()
+
+        assert (await client.get(location)).status_code == 404
+
+    async def test_a_permission_nobody_issued_opens_nothing(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        await upload(client, attachment)
+
+        assert (await client.get("/storage/download/" + "X" * 24)).status_code == 404
+
+    async def test_it_does_not_follow_the_item_to_another_file(
+        self, client: httpx.AsyncClient, session: AsyncSession, attachment: str
+    ) -> None:
+        # The 302 promised a digest in `Zotero-File-MD5`. Serving whatever the
+        # attachment holds later would break that promise silently.
+        await upload(client, attachment)
+        location = (await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)).headers[
+            "location"
+        ]
+
+        replacement = b"Call me something else entirely."
+        authorized = (
+            await client.post(
+                f"/users/1/items/{attachment}/file",
+                headers=AUTH | {"If-Match": MD5},
+                data=authorization(
+                    md5=hashlib.md5(replacement, usedforsecurity=False).hexdigest(),
+                    filesize=len(replacement),
+                ),
+            )
+        ).json()
+        await client.post(authorized["url"], content=replacement)
+        await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | {"If-Match": MD5},
+            data={"upload": authorized["uploadKey"]},
+        )
+
+        assert (await client.get(location)).status_code == 404
+
+    async def test_deleting_the_item_takes_its_permissions(
+        self, client: httpx.AsyncClient, session: AsyncSession, attachment: str
+    ) -> None:
+        # The row names the item by id, so leaving one behind fails the foreign
+        # key on the way out.
+        await upload(client, attachment)
+        location = (await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)).headers[
+            "location"
+        ]
+
+        version = (await client.get(f"/users/1/items/{attachment}", headers=AUTH)).headers[
+            "Last-Modified-Version"
+        ]
+        deleted = await client.delete(
+            f"/users/1/items/{attachment}",
+            headers=AUTH | {"If-Unmodified-Since-Version": version},
+        )
+        assert deleted.status_code == 204
+
+        assert await session.scalar(select(func.count()).select_from(StorageDownload)) == 0
+        assert (await client.get(location)).status_code == 404

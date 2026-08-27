@@ -33,7 +33,7 @@ from altero.models.library import (
 from altero.models.login import LoginSession
 from altero.models.search import SavedSearch, SearchCondition
 from altero.models.setting import Setting
-from altero.models.storage import StorageUpload
+from altero.models.storage import StorageDownload, StorageUpload
 from altero.models.sync import DeletedObject, DeletedObjectType, WriteToken
 from altero.models.tag import ItemTag, Tag, TagType
 from altero.models.webauth import (
@@ -89,6 +89,7 @@ __all__ = [
     "SavedSearch",
     "SearchCondition",
     "Setting",
+    "StorageDownload",
     "StorageUpload",
     "Tag",
     "TagType",

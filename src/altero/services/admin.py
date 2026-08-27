@@ -23,7 +23,6 @@ from altero.models import (
     LibraryType,
     LoginSession,
     Notification,
-    StorageUpload,
     TotpCredential,
     User,
     WebSession,
@@ -166,7 +165,6 @@ async def delete_user(session: AsyncSession, user: User) -> None:
     if library is not None:
         await clear_library(session, library)
         await session.execute(delete(WriteToken).where(WriteToken.library_id == library.id))
-        await session.execute(delete(StorageUpload).where(StorageUpload.library_id == library.id))
         await session.execute(
             delete(ApiKeyGroupAccess).where(ApiKeyGroupAccess.library_id == library.id)
         )

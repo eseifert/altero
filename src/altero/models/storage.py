@@ -1,4 +1,4 @@
-"""Pending file uploads."""
+"""Pending file uploads, and permission to fetch one file back."""
 
 from datetime import datetime
 
@@ -46,3 +46,32 @@ class StorageUpload(Base):
     #: Whether the bytes have arrived and matched what was declared.
     received: Mapped[bool] = mapped_column(default=False)
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)
+
+
+class StorageDownload(Base):
+    """Permission to fetch one attachment's bytes, and only those.
+
+    Upstream's 302 lands on a presigned S3 URL, which is a credential in
+    itself: it names one file and stops working shortly afterwards. altero has
+    no S3, so the redirect points back here, and this row is what stands in for
+    that signature -- the same shape as :class:`StorageUpload`, in the other
+    direction.
+
+    It exists so that the API key does not have to travel in the URL. A key
+    grants the whole account and never expires; a reverse proxy writes every
+    request line to its access log, and altero ships configurations for three
+    of them.
+
+    Bound to the digest as well as to the item, so a permission granted for one
+    file cannot be spent on whatever the attachment holds later.
+    """
+
+    __tablename__ = "storage_downloads"
+
+    key: Mapped[str] = mapped_column(String(32), primary_key=True)
+    item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
+
+    #: The digest the redirect promised, in the header the client reads.
+    md5: Mapped[str] = mapped_column(String(32))
+    expires: Mapped[datetime] = mapped_column(DateTime, index=True)

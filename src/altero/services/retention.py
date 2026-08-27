@@ -44,6 +44,7 @@ from altero.models import (
     Item,
     Library,
     LoginCode,
+    StorageDownload,
     StorageUpload,
     WebAuthnChallenge,
     WebSession,
@@ -79,6 +80,8 @@ class Report:
     verifications: int = 0
     #: Invitations that expired without ever being answered.
     invitations: int = 0
+    #: Download permissions handed out with a redirect and not spent.
+    downloads: int = 0
 
     @property
     def anything(self) -> bool:
@@ -93,6 +96,7 @@ class Report:
             or self.ceremonies
             or self.verifications
             or self.invitations
+            or self.downloads
         )
 
 
@@ -212,10 +216,10 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
     """Remove rows that are past their own expiry.
 
     No period of their own, because they carry one: a session that expired is
-    already nobody's session, and a confirmation link past its hour confirms
-    nothing. Only *unanswered* invitations go — one that was accepted or
-    declined is kept on purpose, so that re-inviting somebody who said no is a
-    visible act.
+    already nobody's session, a confirmation link past its hour confirms
+    nothing, and a download permission past its five minutes opens nothing.
+    Only *unanswered* invitations go — one that was accepted or declined is
+    kept on purpose, so that re-inviting somebody who said no is a visible act.
     """
     sessions = list(await session.scalars(select(WebSession.id).where(WebSession.expires < now)))
     codes = list(await session.scalars(select(LoginCode.id).where(LoginCode.expires < now)))
@@ -239,6 +243,9 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
         await session.scalars(
             select(Invitation.id).where(Invitation.status == "pending", Invitation.expires < now)
         )
+    )
+    downloads = list(
+        await session.scalars(select(StorageDownload.key).where(StorageDownload.expires < now))
     )
 
     if not dry_run:
@@ -264,6 +271,8 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
             await session.execute(
                 delete(ConsumedAssertion).where(ConsumedAssertion.assertion_id.in_(assertions))
             )
+        if downloads:
+            await session.execute(delete(StorageDownload).where(StorageDownload.key.in_(downloads)))
         await session.commit()
 
     return Report(
@@ -274,6 +283,7 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
         ceremonies=len(ceremonies),
         verifications=len(verifications),
         invitations=len(invitations),
+        downloads=len(downloads),
     )
 
 
@@ -316,6 +326,7 @@ async def sweep(
         ceremonies=expired.ceremonies,
         verifications=expired.verifications,
         invitations=expired.invitations,
+        downloads=expired.downloads,
     )
 
 
@@ -336,4 +347,6 @@ def describe(report: Report) -> str:
         parts.append(f"{report.verifications} expired confirmation links")
     if report.invitations:
         parts.append(f"{report.invitations} expired invitations")
+    if report.downloads:
+        parts.append(f"{report.downloads} expired download permissions")
     return ", ".join(parts) if parts else "nothing to delete"

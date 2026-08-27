@@ -43,6 +43,8 @@ from altero.models import (
     SavedSearch,
     SearchCondition,
     Setting,
+    StorageDownload,
+    StorageUpload,
     Tag,
 )
 from altero.services import storage
@@ -351,6 +353,11 @@ async def clear_library(session: AsyncSession, library: Library) -> None:
     await session.execute(delete(ItemField).where(ItemField.item_id.in_(items)))
     await session.execute(delete(ItemCreator).where(ItemCreator.item_id.in_(items)))
     await session.execute(delete(ItemRelation).where(ItemRelation.item_id.in_(items)))
+    # Before the items themselves, for the same reason as the shares above: an
+    # upload that was authorized and never finished, and a download that was
+    # permitted and never fetched, both name an item by id.
+    await session.execute(delete(StorageUpload).where(StorageUpload.library_id == library.id))
+    await session.execute(delete(StorageDownload).where(StorageDownload.library_id == library.id))
     # Children before parents, or the self-reference blocks the delete.
     await session.execute(
         delete(Item).where(Item.library_id == library.id, Item.parent_id.isnot(None))

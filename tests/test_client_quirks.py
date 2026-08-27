@@ -303,12 +303,17 @@ class TestGroupVersions:
 class TestFileDownloads:
     """The client reads a download's metadata off a redirect, and only there.
 
-    `zfs.js` populates `requestData` inside `asyncOnChannelRedirect`, from
-    `Zotero-File-Modification-Time`, `Zotero-File-MD5` and
+    `zfs.js` asks for the file with `followRedirects: false` and populates
+    `requestData` from `Zotero-File-Modification-Time`, `Zotero-File-MD5` and
     `Zotero-File-Compressed` on the 302. Answering the download with the bytes
-    and a 200 means that handler never runs, so `processDownload` is reached
-    with nothing set and throws "'data.mtime' not set" -- which is a file sync
-    error for every attachment in the library, on every sync.
+    and a 200 means it reads none of them, so `processDownload` is reached with
+    nothing set and throws "'data.mtime' not set" -- which is a file sync error
+    for every attachment in the library, on every sync.
+
+    It then makes a *second, fresh* request for the location: `HTTP.download`
+    is passed no `headers`, because upstream's location is a presigned S3 URL
+    and carries its own permission. So altero's has to carry one too, and the
+    tests below fetch it the way the client does -- with nothing attached.
     """
 
     CONTENT = b"%PDF-1.4 a paper"
@@ -366,15 +371,17 @@ class TestFileDownloads:
         assert response.headers["Zotero-File-Compressed"] == "No"
         assert response.headers["Location"]
 
-    async def test_the_redirect_leads_to_the_bytes(
+    async def test_the_redirect_leads_to_the_bytes_without_the_key(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
+        # Not `follow_redirects=True` with the headers still attached: httpx
+        # would resend them and this would pass against a location only an API
+        # key can open, which is the location altero used to send.
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         await self._upload(client, "AAAA2345", self.CONTENT)
 
-        response = await client.get(
-            "/users/1/items/AAAA2345/file", headers=AUTH, follow_redirects=True
-        )
+        redirect = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
+        response = await client.get(redirect.headers["Location"])
 
         assert response.status_code == 200
         assert response.content == self.CONTENT
