@@ -2196,7 +2196,7 @@
 </span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.http.routers.altero.tls.certresolver=letsencrypt</span>
 </span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik.http.services.altero.loadbalancer.server.port=8000</span>
 </span></code></pre></div>
-<p>Traefik proxies the WebSocket without configuration and imposes no body limit. It replaces <code>X-Forwarded-For</code> with the address the connection came from unless <code>forwardedHeaders.trustedIPs</code> is set on the entry point, which is the behaviour to keep.</p>
+<p>Traefik proxies the WebSocket without configuration and imposes no body limit. It replaces <code>X-Forwarded-For</code> with the address the connection came from unless <code>forwardedHeaders.trustedIPs</code> is set on the entry point, which is the behavior to keep.</p>
 <p>Reaching altero by container name means both containers share a network, and the <code>ports:</code> publication in <code>docker/compose.yaml</code> is then unnecessary — remove it rather than exposing the application port beside the proxy.</p>
 <h2 id="rate-limiting">Rate limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
 <p>Rate limiting is off by default.</p>

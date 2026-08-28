@@ -1811,7 +1811,7 @@ press.</p>
 </span></code></pre></div>
 <p>It lives in <code>web/src/styles/surfaces.css</code> and is imported by the components that
 use it, the way <code>auth-form.css</code> and <code>dialog.css</code> are. A component <strong>does not
-write this rule itself</strong>: a card that is a different height or a different grey
+write this rule itself</strong>: a card that is a different height or a different gray
 on one screen reads as a seam between two applications.</p>
 <ul>
 <li><code>.card__title</code> — the heading inside a card: <code>title-medium</code>, medium weight, no
@@ -1860,7 +1860,7 @@ drawn on the row and taken off <code>:last-child</code> is taken off every row a
 list becomes a wall of text.</p>
 <p><strong>The current row</strong> carries <code>.row--current</code>: the <code>secondary-container</code> fill, and
 a <code>primary</code> bar down its leading edge. The bar is not decoration. A state told
-in colour alone is told to fewer people than it needs to be, which is WCAG
+in color alone is told to fewer people than it needs to be, which is WCAG
 1.4.1, and on a long list an edge is found faster than a wash.</p>
 <h2 id="icon-buttons-and-toolbars">Icon buttons and toolbars<a class="headerlink" href="#icon-buttons-and-toolbars" title="Permanent link">&para;</a></h2>
 <p>Material 3's icon button comes with a container or without one. Without one it
@@ -1890,7 +1890,7 @@ becoming six filled circles competing with the content they act on.</p>
 joins, no fill — <code>web/src/items/icons.ts</code> and <code>sidebaricons.ts</code>. The library's
 are drawn to read like the desktop client's sidebar; the ones with no
 counterpart there follow the same rules so they sit with them. They are drawn
-rather than copied: Zotero's assets are the client's and carry its licence.</p>
+rather than copied: Zotero's assets are the client's and carry its license.</p>
 <p>A glyph that is the only thing in a control carries a label
 (<code>aria-label</code>); one that sits beside text is <code>aria-hidden</code>, because a screen
 reader saying "trash trash" is worse than silence.</p>
@@ -1901,7 +1901,7 @@ accounts, groups — is rows, not cards. One row is:</p>
 <li>separated from the next by nothing at all, or by a hairline where the rows are
   tall enough to need it;</li>
 <li><code>--md-sys-state-hover-surface</code> under the pointer, which is a translucent wash
-  of the text colour rather than another surface step, so it reads the same over
+  of the text color rather than another surface step, so it reads the same over
   a white list as over a dialog;</li>
 <li><code>secondary-container</code> when it is the current one, which is deliberately
   stronger than the hover wash: <code>contrast.node.spec.ts</code> asserts that ordering,
@@ -1940,7 +1940,7 @@ and measures every pair the interface actually puts on screen: 4.5:1 for text,
 the bar on the current row. It also holds one ordering that is not a ratio: the
 current row is marked more strongly than the row under the pointer, or hovering
 would look like choosing.</p>
-<p><strong>Colour is never the only signal (1.4.1).</strong> A suspended account carries the
+<p><strong>Color is never the only signal (1.4.1).</strong> A suspended account carries the
 word <em>Suspended</em>, not only a red chip. The current row carries a bar as well as
 a fill. A failure carries <code>role="alert"</code> as well as an error fill. A tool that
 is switched on is both lit and <code>aria-pressed</code>.</p>
@@ -1975,7 +1975,7 @@ thing to revisit if this is ever tested with assistive technology.</p>
 fails on three things: a component that paints a surface step of its own
 (<code>background: var(--md-sys-color-surface-container…)</code> outside the shared
 stylesheets), anything that reaches for the steps below the page, and an area
-bounded in the divider colour, which is a group drawn as an outline rather than
+bounded in the divider color, which is a group drawn as an outline rather than
 a fill. A control's own border in <code>outline</code> is untouched by that last rule,
 which is the distinction <code>contrast.node.spec.ts</code> draws: <code>outline</code> bounds
 something you can operate, <code>outline-variant</code> divides things you cannot.</p>

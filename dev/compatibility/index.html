@@ -2912,7 +2912,7 @@ a narrowing:</p>
 <ul>
 <li><strong>Characters rather than tokens.</strong> The index maps <code>content</code> as a plain <code>text</code>
   field (<code>misc/elasticsearch/item_fulltext/mapping.json</code>), so it gets the
-  standard analyser: tokenised and lowercased, but <em>not</em> stemmed and not accent-
+  standard analyzer: tokenized and lowercased, but <em>not</em> stemmed and not accent-
   folded. <code>match_phrase_prefix</code> then matches whole tokens with the last one as a
   prefix. altero matches the characters instead, which cuts both ways. It finds
   what upstream would not — <code>q=equod</code> reaches <em>Pequod</em> — and misses a phrase
@@ -2922,14 +2922,14 @@ a narrowing:</p>
 </ul>
 <p><strong>Accents are not folded, and CJK matches as a phrase.</strong> <code>q=cafe</code> does not
   reach <em>café</em>, on either backend. Neither does upstream's: the mapping carries
-  no <code>asciifolding</code> filter, so the standard analyser lowercases and stops there.
+  no <code>asciifolding</code> filter, so the standard analyzer lowercases and stops there.
   Zotero 9 made the <em>client's</em> search accent-insensitive, but that is the copy
   it holds locally; the same query against api.zotero.org is as accent-sensitive
   as this one, so the mismatch a user sees is the ecosystem's rather than
   altero's. CJK needs nothing: matching characters means <code>量子計算</code> requires
   those four adjacent and <code>計算量子</code> does not match, which is the phrase
-  behaviour the client had to be fixed to produce. Both are pinned in
-  <code>test_fulltext.py::TestSearching</code>. The analyser's composition is read from
+  behavior the client had to be fixed to produce. Both are pinned in
+  <code>test_fulltext.py::TestSearching</code>. The analyzer's composition is read from
   Elasticsearch's documented default rather than observed — no instance was run.</p>
 <p>Case-insensitivity comes from <code>ILIKE</code> on PostgreSQL and from
   <code>lower(content) LIKE lower(?)</code> on SQLite, which SQLAlchemy emits because
@@ -3048,7 +3048,7 @@ changed objects hides all three; one with 309 does not.</p>
 <table>
 <thead>
 <tr>
-<th>Behaviour</th>
+<th>Behavior</th>
 <th>Source</th>
 </tr>
 </thead>
@@ -3100,8 +3100,8 @@ Summaries are the bare name for one creator, <code>"Smith and Myers"</code> for 
 <code>2016</code>, <code>2018-05</code> or <code>2018-06-20</code>.</p>
 <p><strong>Error bodies name the object.</strong> A missing item answers <code>Item does not exist</code>,
 a collection <code>Collection not found</code>, a search <code>Search not found</code>. An
-unrecognised filter value answers <code>Invalid itemType 'bogus'</code>, and an
-unrecognised sort <code>Invalid 'sort' value 'bogus'</code>.</p>
+unrecognized filter value answers <code>Invalid itemType 'bogus'</code>, and an
+unrecognized sort <code>Invalid 'sort' value 'bogus'</code>.</p>
 <p><strong>An unreadable number is ignored, not rejected.</strong> <code>limit=abc</code> answers 200 with
 the default page size. Only values the server understands and disagrees with,
 such as an unknown <code>sort</code> field, produce a 400.</p>
@@ -3175,7 +3175,7 @@ and checked against what <code>api.zotero.org</code> answers for the same item. 
 — Refer/BibIX, RefWorks Tagged, Wikipedia citation templates, COinS, MODS and
 TEI — reproduce it byte for byte on every item tested. CSV and EndNote XML do
 too, apart from the one place each that is named below. The three RDF formats
-match statement for statement, the serialiser's own whitespace aside.</p>
+match statement for statement, the serializer's own whitespace aside.</p>
 <p><code>bibtex</code>, <code>biblatex</code> and <code>ris</code> are the exception to the porting: they are mapped
 from the CSL JSON an item already renders as, with
 <a href="https://github.com/sciunto-org/python-bibtexparser">bibtexparser</a> and
@@ -3210,7 +3210,7 @@ broken:</p>
 </li>
 <li>
 <p><strong>The XML and RDF formats match in content, not in whitespace.</strong> Zotero's RDF
-  serialiser indents a resource with one child differently from one with two and
+  serializer indents a resource with one child differently from one with two and
   writes a line of three spaces into an empty document; the namespaces are all
   declared on the root here, because a file is written in batches and the root
   goes out before the first item. No RDF or XML parser can tell the difference.</p>
@@ -3277,7 +3277,7 @@ with. Reported upstream, with a patch.</p>
 style like IEEE, whose citation groups the number with an empty locator macro,
 renders nothing at all), defaulting the delimiters around a style's <code>and</code>
 (without which APA reads <code>Doe, J.&amp; Roe, R.</code> and MLA <code>Doe, J.and R. Roe.</code>), and
-normalizing punctuation at a concatenation seam (without which an initialled
+normalizing punctuation at a concatenation seam (without which an initialed
 name reads <code>Doe, J..</code>).</p>
 <h3 id="item-type-schema">Item type schema<a class="headerlink" href="#item-type-schema" title="Permanent link">&para;</a></h3>
 <p>These came out of comparing all 163 schema responses against the live API.</p>
@@ -3294,7 +3294,7 @@ remain valid in writes.</p>
 <p><strong>Templates disagree with the schema for two item types.</strong> The schema marks
 <code>creator</code> as the primary creator type for <code>videoRecording</code> and <code>radioBroadcast</code>,
 and <code>/itemTypeCreatorTypes</code> reports it as such, yet <code>/items/new</code> seeds those
-templates with <code>director</code>. Both behaviours are reproduced, so a template fetched
+templates with <code>director</code>. Both behaviors are reproduced, so a template fetched
 from altero is interchangeable with one fetched from Zotero. See
 <code>TEMPLATE_CREATOR_TYPES</code> in <code>altero/itemschema/registry.py</code>.</p>
 <h2 id="files-and-synchronization">Files and synchronization<a class="headerlink" href="#files-and-synchronization" title="Permanent link">&para;</a></h2>
@@ -3336,7 +3336,7 @@ stale information cannot overwrite a newer file.</p>
 </tbody>
 </table>
 <p>Upstream sends these on the redirect to S3, and the client reads them there and
-nowhere else, so a 200 carrying the bytes — however it is labelled — reaches
+nowhere else, so a 200 carrying the bytes — however it is labeled — reaches
 <code>Zotero.Sync.Storage.Local.processDownload</code> with nothing set and throws
 <code>'data.mtime' not set</code>. altero answered 200 and every attachment in the library
 failed to download, on every sync, with "A file sync error occurred".</p>
@@ -3537,7 +3537,7 @@ client sets on its own when a snapshot is opened.</p>
 full-text upload that follows it can arrive with a stale
 <code>If-Unmodified-Since-Version</code> and be answered 412. The client notices, resyncs
 and repeats the upload successfully — one wasted round trip, not a failure.
-This is upstream's behaviour as well: <code>Zotero_Storage::updateFileItemInfo</code> calls
+This is upstream's behavior as well: <code>Zotero_Storage::updateFileItemInfo</code> calls
 <code>Zotero_Libraries::updateVersionAndTimestamp</code> before saving the item. Suppressing
 the bump to avoid the 412 would break <code>?since=</code> for anyone tracking file changes.</p>
 <p><strong>The client's library version may only ever go up.</strong> A precondition ahead of
@@ -3696,7 +3696,7 @@ emitting both means a consumer reading either finds it. And a bibliography or
 citation is embedded with the XHTML namespace declared on it — citeproc
 produces plain HTML, and <code>type="xhtml"</code> without the declaration would be a
 claim the document does not keep. A fragment that will not parse as XML is
-escaped and labelled <code>type="html"</code> instead, so one bad entry cannot make the
+escaped and labeled <code>type="html"</code> instead, so one bad entry cannot make the
 whole feed unreadable.</p>
 <p><code>content</code> is refused outside <code>format=atom</code>, and a citation form is refused on a
 collection, saved search or tag, for the reason <code>include</code> is refused outside
@@ -3836,7 +3836,7 @@ not all publishing <em>is</em>. The desktop client asks four things before it se
 flag, in <code>publicationsDialog.js</code>, and acts on them in
 <code>Zotero.Items.addToPublications</code>: whether the item's files go along, whether
 its notes go along, whether an existing <code>Rights</code> value stands, and under what
-licence the files are published. altero's browser interface asks the same four
+license the files are published. altero's browser interface asks the same four
 and sends them to endpoints of its own, <code>PUT</code> and <code>DELETE</code> on
 <code>/web/libraries/&lt;id&gt;/publications/items/&lt;key&gt;</code>, which are cookie-authenticated
 like everything under <code>/web</code> and never reachable with an API key. The rules
@@ -3870,7 +3870,7 @@ they enforce are the client's:</p>
 <td>the drop passes <code>annotations: false</code></td>
 </tr>
 <tr>
-<td>The licence is written into <code>rights</code> unless <code>keepRights</code> and the field already says something</td>
+<td>The license is written into <code>rights</code> unless <code>keepRights</code> and the field already says something</td>
 <td><code>if (!options.keepRights \|\| !item.getField('rights'))</code></td>
 </tr>
 <tr>
@@ -3884,20 +3884,20 @@ they enforce are the client's:</p>
 </tbody>
 </table>
 <p>Two deliberate differences:</p>
-<p><strong>The licence name is English, whatever language the account reads in.</strong> The
-client writes the name its own window was showing, so the same licence reaches
+<p><strong>The license name is English, whatever language the account reads in.</strong> The
+client writes the name its own window was showing, so the same license reaches
 the field as <code>Creative Commons Namensnennung 4.0 Internationale Lizenz</code> from a
-German client and in English from a Japanese one, whose catalogue leaves the
+German client and in English from a Japanese one, whose catalog leaves the
 strings untranslated. <code>rights</code> is data — exported, cited, read by every other
 client — rather than a label this server draws, and altero has no message
-catalogue on the server side to draw it with. The table of licences lives in
+catalog on the server side to draw it with. The table of licenses lives in
 <code>services/publications.py</code>; the interface holds the same table in
 <code>web/src/publications/licenses.ts</code> and shows the name the item will carry
 rather than a translation of it, and <code>tests/test_web_publications.py</code> fails if
 the two disagree.</p>
-<p><strong>The licence can be changed afterwards; the wizard cannot be re-run.</strong> The
+<p><strong>The license can be changed afterwards; the wizard cannot be re-run.</strong> The
 client's drop skips an item that is already published — <code>if (item.inPublications)
-{ ... continue; }</code> in <code>collectionTree.jsx</code> — so the wizard sets a licence once,
+{ ... continue; }</code> in <code>collectionTree.jsx</code> — so the wizard sets a license once,
 and a desktop user who wants a different one edits the item's <strong>Rights</strong> field
 in the Info pane, where it is an ordinary field. altero's browser has no field
 editor, so it grew the same escape hatch in the narrowest form that works: the
@@ -3906,8 +3906,8 @@ holds <code>rights</code> and nothing else (<code>EDITABLE_FIELDS</code> in
 <code>api/routes/webitems.py</code>). Unlike the other writes that door makes, it carries
 the version it replaces and is refused if the item has moved on, because text
 is not an errand the server can reconstruct from what is stored.</p>
-<p><strong>The client's generic <code>cc</code> licence is not offered.</strong> It is what its wizard
-reports while a Creative Commons licence is still being chosen, and it reaches
+<p><strong>The client's generic <code>cc</code> license is not offered.</strong> It is what its wizard
+reports while a Creative Commons license is still being chosen, and it reaches
 <code>rights</code> only on the one path where <code>keepRights</code> means nothing is written
 anyway. Choosing Creative Commons here always leads to the two questions that
 narrow it to one of the six.</p>
@@ -4284,7 +4284,7 @@ it from a shell.</p>
 <code>GET</code>, so a rename has to be done by the client, item by item —
 <a href="https://github.com/zotero/dataserver/issues/108">zotero/dataserver#108</a> has
 asked for it since 2016 and is still open, with no discussion of a shape to
-copy. The endpoint is therefore altero's own, and the behaviour behind it is
+copy. The endpoint is therefore altero's own, and the behavior behind it is
 copied from the one implementation that does exist: <code>Zotero.Tags.rename</code> in
 the desktop client.</p>
 <p>That is what settles the questions the operation raises:</p>
@@ -4341,7 +4341,7 @@ itself and would not thank a server for a second opinion.</p>
 <p><strong>Unfiled Items</strong> is the one that needs no guessing: a top-level item in no
 collection, not in the trash. That is what the name says and what the client
 shows.</p>
-<p><strong>Duplicate Items</strong> is a judgement, and <code>services/duplicates.py</code> states which
+<p><strong>Duplicate Items</strong> is a judgment, and <code>services/duplicates.py</code> states which
 one. Two items are the same work if they share a DOI or an ISBN — compared with
 the punctuation, casing and any <code>https://doi.org/</code> prefix taken off — or if
 they share a title, compared with punctuation and casing removed, <em>and</em> have a
@@ -4466,7 +4466,7 @@ the reason <code>services/saml.py</code> does <em>not</em> hand-write its signat
 <h3 id="no-dynamic-client-registration">No dynamic client registration<a class="headerlink" href="#no-dynamic-client-registration" title="Permanent link">&para;</a></h3>
 <p>RFC 7591 is not implemented and will not be. The set of addresses an
 authorization code may be sent to is the entire security of the flow: the code
-travels through the browser, and the only thing keeping it from travelling to
+travels through the browser, and the only thing keeping it from traveling to
 somebody else is that its destination was written down first. An endpoint that
 adds entries to that list on request is not a list.</p>
 <p>Registering is therefore an operator's act, from the command line — the same
@@ -4525,7 +4525,7 @@ before the flow could be offered.</p>
 the code looks like it is doing less than it should.</p>
 <p><code>signxml</code> verifies the XML signature; altero does not attempt to. Hand-rolling
 that is not on — canonicalisation is where implementations grow
-signature-wrapping holes, and the defence is structural rather than a check.
+signature-wrapping holes, and the defense is structural rather than a check.
 <code>XMLVerifier.verify</code> returns the <strong>signed subtree</strong>, and every claim
 <code>services/saml.py</code> reads comes out of that return value and never out of the
 document that was parsed. An attacker who wraps a forged assertion around a
