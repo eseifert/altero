@@ -28,6 +28,7 @@ from altero.models import TotpCredential, User
 from altero.models.oauth import OAuthClient, OAuthCode, OAuthToken
 from altero.services import admin, oauthclients, oauthserver, webauth
 from altero.settings import Settings
+from tests.factories import make_group, make_user
 
 CSRF_HEADER = "X-CSRF-Token"
 PASSWORD = "correct horse battery staple"
@@ -73,7 +74,7 @@ async def make_client(
     *,
     client_id: str = "notebook",
     redirect_uris: list[str] | None = None,
-    scopes: str = "openid profile email library.read library.write files.read notes.read",
+    scopes: str = "openid profile email groups library.read library.write files.read notes.read",
     confidential: bool = False,
 ) -> tuple[OAuthClient, str | None]:
     return await oauthclients.create(
@@ -160,6 +161,16 @@ async def full_flow(
     """Register a client and an account, walk the whole flow, return the tokens."""
     await make_client(session)
     await make_account(client)
+    return await walk_flow(client, scope=scope, nonce=nonce)
+
+
+async def walk_flow(
+    client: httpx.AsyncClient,
+    *,
+    scope: str = "openid library.read",
+    nonce: str = "",
+) -> dict:
+    """Walk the flow for a client and an account that already exist."""
     verifier, challenge = pkce()
 
     started = await authorize(client, challenge=challenge, scope=scope, nonce=nonce)
@@ -182,6 +193,16 @@ async def full_flow(
 
 def bearer(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
+
+
+def claims_of(id_token: str) -> dict:
+    """Return an ID token's payload without verifying it.
+
+    Only for tests that are about *what* is claimed. That the signature holds
+    is ``TestTheIdToken`` above, and it does the verification properly.
+    """
+    payload = id_token.split(".")[1]
+    return json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
 
 
 async def only_user(session: AsyncSession) -> User:
@@ -1346,3 +1367,135 @@ class TestHousekeeping:
 
         assert removed >= 2
         assert (await session.scalars(select(OAuthToken))).all() == []
+
+
+class TestTheGroupsClaim:
+    """Which groups somebody is in, told to an application that may sign them in.
+
+    An identity scope, so it sits beside ``profile`` and ``email`` and reaches
+    no library at all -- which is the point. Role mapping in a relying party
+    needs the *names* and nothing else; ``groups.read``, one line down the
+    consent screen, is the different and much larger question of reading what
+    is inside those libraries.
+    """
+
+    async def test_the_claim_is_absent_without_the_scope(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        tokens = await full_flow(client, session, scope="openid profile")
+
+        assert "groups" not in claims_of(tokens["id_token"])
+
+    async def test_it_names_the_groups_the_account_belongs_to(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        user_id = await make_account(client)
+        await make_group(session, group_id=100, owner_id=user_id, name="Reading Group")
+        await make_group(session, group_id=101, owner_id=user_id, name="Lab Notebook")
+
+        tokens = await walk_flow(client, scope="openid groups")
+
+        assert claims_of(tokens["id_token"])["groups"] == ["Reading Group", "Lab Notebook"]
+
+    async def test_a_group_somebody_else_is_in_is_not_named(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """What gives the test above its teeth: it is membership, not a listing."""
+        await make_client(session)
+        user_id = await make_account(client)
+        stranger = await make_user(session, user_id=user_id + 1, username="grace")
+        await make_group(session, group_id=100, owner_id=user_id, name="Reading Group")
+        await make_group(session, group_id=101, owner_id=stranger.id, name="Somebody Else's")
+
+        tokens = await walk_flow(client, scope="openid groups")
+
+        assert claims_of(tokens["id_token"])["groups"] == ["Reading Group"]
+
+    async def test_an_account_in_no_group_is_told_so_rather_than_left_guessing(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """An empty list, not an absent claim.
+
+        A relying party mapping roles has to tell "no groups" from "this server
+        did not say", and an omitted claim is the second one.
+        """
+        tokens = await full_flow(client, session, scope="openid groups")
+
+        assert claims_of(tokens["id_token"])["groups"] == []
+
+    async def test_userinfo_says_the_same_thing(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        user_id = await make_account(client)
+        await make_group(session, group_id=100, owner_id=user_id, name="Reading Group")
+
+        tokens = await walk_flow(client, scope="openid groups")
+        claims = (
+            await client.get("/oauth/userinfo", headers=bearer(tokens["access_token"]))
+        ).json()
+
+        assert claims["groups"] == ["Reading Group"]
+
+    async def test_userinfo_does_not_say_it_without_the_scope(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        user_id = await make_account(client)
+        await make_group(session, group_id=100, owner_id=user_id, name="Reading Group")
+
+        tokens = await walk_flow(client, scope="openid profile")
+        claims = (
+            await client.get("/oauth/userinfo", headers=bearer(tokens["access_token"]))
+        ).json()
+
+        assert "groups" not in claims
+
+    async def test_it_reaches_no_group_library(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The whole reason this is its own scope rather than part of groups.read."""
+        await make_client(session)
+        user_id = await make_account(client)
+        library = await make_group(session, group_id=100, owner_id=user_id, name="Reading Group")
+
+        tokens = await walk_flow(client, scope="openid groups")
+        response = await client.get(
+            f"/groups/{library.owner_id}/items", headers=bearer(tokens["access_token"])
+        )
+
+        assert response.status_code == 403
+
+    async def test_groups_read_still_reaches_the_group_library(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """And the larger scope is unchanged by the smaller one existing."""
+        await make_client(session, scopes="openid library.read groups.read")
+        user_id = await make_account(client)
+        library = await make_group(session, group_id=100, owner_id=user_id, name="Reading Group")
+
+        tokens = await walk_flow(client, scope="openid library.read groups.read")
+        response = await client.get(
+            f"/groups/{library.owner_id}/items", headers=bearer(tokens["access_token"])
+        )
+
+        assert response.status_code == 200
+
+    async def test_groups_read_alone_does_not_put_names_in_the_token(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """One scope, one thing. Reading the libraries is not being told the list."""
+        await make_client(session, scopes="openid library.read groups.read")
+        user_id = await make_account(client)
+        await make_group(session, group_id=100, owner_id=user_id, name="Reading Group")
+
+        tokens = await walk_flow(client, scope="openid library.read groups.read")
+
+        assert "groups" not in claims_of(tokens["id_token"])
+
+    async def test_the_scope_and_the_claim_are_advertised(self, client: httpx.AsyncClient) -> None:
+        document = (await client.get("/.well-known/openid-configuration")).json()
+
+        assert "groups" in document["scopes_supported"]
+        assert "groups" in document["claims_supported"]

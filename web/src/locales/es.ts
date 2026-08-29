@@ -464,6 +464,7 @@ export default {
   'Scopes': 'Ámbitos',
   'Search this library': 'Buscar en esta biblioteca',
   'See what would go': 'Ver qué se eliminaría',
+  'See which groups you belong to': 'Ver a qué grupos pertenece',
   'See your email address': 'Ver su dirección de correo electrónico',
   'See your name and username': 'Ver su nombre y nombre de usuario',
   'See your page': 'Ver tu página',

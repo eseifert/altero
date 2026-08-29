@@ -493,6 +493,7 @@ export default {
   'Search': 'Cerca',
   'Search this library': 'Cerca in questa biblioteca',
   'See what would go': 'Vedi che cosa sparirebbe',
+  'See which groups you belong to': 'Vedere di quali gruppi fai parte',
   'See your email address': 'Vedere il tuo indirizzo email',
   'See your name and username': 'Vedere il tuo nome e nome utente',
   'See your page': 'Vedi la tua pagina',

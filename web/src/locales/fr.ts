@@ -468,6 +468,7 @@ export default {
   'Scopes': 'Portées',
   'Search this library': 'Rechercher dans cette bibliothèque',
   'See what would go': 'Voir ce qui partirait',
+  'See which groups you belong to': 'Voir les groupes dont vous êtes membre',
   'See your email address': 'Voir votre adresse e-mail',
   'See your name and username': 'Voir votre nom et votre nom d’utilisateur',
   'See your page': 'Voir votre page',

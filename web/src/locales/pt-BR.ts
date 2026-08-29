@@ -500,6 +500,7 @@ export default {
   Scopes: 'Escopos',
   'Search this library': 'Buscar nesta biblioteca',
   'See what would go': 'Ver o que sairia',
+  'See which groups you belong to': 'Ver a quais grupos você pertence',
   'See your email address': 'Ver o seu endereço de e-mail',
   'See your name and username': 'Ver o seu nome e nome de usuário',
   'See your page': 'Ver a sua página',

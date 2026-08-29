@@ -29,6 +29,7 @@ A token carries **scopes**, and a scope grants exactly what it says:
 | `openid` | Establishes who the person is. Reaches no library, no item and no file. |
 | `profile` | The account's name and username, through `/oauth/userinfo` and the ID token. |
 | `email` | The account's email address, and whether it has been confirmed. |
+| `groups` | The names of the groups the account belongs to. Reaches no library. |
 | `library.read` | Reading items, collections, saved searches and tags in the personal library. |
 | `library.write` | Adding, changing and removing them. |
 | `notes.read` | Reading notes. |
@@ -36,8 +37,15 @@ A token carries **scopes**, and a scope grants exactly what it says:
 | `groups.read` | Reading the group libraries the account belongs to. |
 | `groups.write` | Writing to them. |
 
-These map one for one onto the permissions an API key already carries, which is
-what makes the mapping checkable: a token cannot express access that a key could
+`groups` and `groups.read` are next to each other on the consent screen and are
+not the same question. `groups` is an identity scope beside `profile` and
+`email`: it says *which* groups somebody is in, by name, and reaches nothing
+inside them. `groups.read` reads what is in them. An application mapping people
+onto roles wants the first and should not be given the second.
+
+The other identity scopes map onto nothing at all, and the rest map one for one
+onto the permissions an API key already carries, which is what makes the mapping
+checkable: a token cannot express access that a key could
 not, and every ceiling that applies to a key — the group's policy, the member's
 role, their own permission — applies unchanged to a token.
 
@@ -170,8 +178,14 @@ same happens if an authorization code is presented twice.
 
 Signed with **RS256**, verifiable against `/oauth/jwks.json`. The claims are
 `iss`, `sub`, `aud`, `iat`, `exp`, `auth_time` and `at_hash`, plus `nonce` when
-the request carried one, and the `profile` and `email` claims when those scopes
-were granted.
+the request carried one, and the `profile`, `email` and `groups` claims when
+those scopes were granted.
+
+`groups` is a list of group names, present and empty for an account in no group
+rather than absent — an application mapping roles has to be able to tell
+"belongs to nothing" from "this server did not say". Group names are **not
+unique** on an altero instance, so a deployment that maps roles from them has to
+keep them distinct; nothing checks that for you.
 
 `sub` is the account's numeric id as a string. It is stable and it is the only
 thing that identifies somebody: an email address is not an identity, for the

@@ -493,6 +493,7 @@ export default {
   'Search': 'Zoeken',
   'Search this library': 'Zoeken in deze bibliotheek',
   'See what would go': 'Bekijk wat er zou verdwijnen',
+  'See which groups you belong to': 'Zien van welke groepen je lid bent',
   'See your email address': 'Je e-mailadres zien',
   'See your name and username': 'Je naam en gebruikersnaam zien',
   'See your page': 'Bekijk uw pagina',

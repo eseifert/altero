@@ -59,6 +59,7 @@ const DESCRIPTIONS: Record<string, () => string> = {
   openid: () => t('Know who you are'),
   profile: () => t('See your name and username'),
   email: () => t('See your email address'),
+  groups: () => t('See which groups you belong to'),
   'library.read': () => t('Read everything in your library'),
   'library.write': () => t('Add, change and remove things in your library'),
   'notes.read': () => t('Read your notes'),
@@ -76,7 +77,7 @@ const identityOnly = computed(
   () =>
     pending.value !== null &&
     pending.value.scopes.every((scope) =>
-      ['openid', 'profile', 'email'].includes(scope),
+      ['openid', 'profile', 'email', 'groups'].includes(scope),
     ),
 )
 

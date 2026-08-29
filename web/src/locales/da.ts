@@ -487,6 +487,7 @@ export default {
   'Search': 'Søg',
   'Search this library': 'Søg i dette bibliotek',
   'See what would go': 'Se hvad der ville ryge',
+  'See which groups you belong to': 'Se hvilke grupper du er medlem af',
   'See your email address': 'Se din e-mailadresse',
   'See your name and username': 'Se dit navn og brugernavn',
   'See your page': 'Se din side',

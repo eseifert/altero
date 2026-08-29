@@ -454,6 +454,7 @@ export default {
   'Scopes': 'スコープ',
   'Search this library': 'このライブラリを検索',
   'See what would go': '何が消えるか確認',
+  'See which groups you belong to': '参加しているグループを見る',
   'See your email address': 'メールアドレスを見る',
   'See your name and username': '名前とユーザ名を見る',
   'See your page': '自分のページを見る',

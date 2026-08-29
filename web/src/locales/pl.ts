@@ -497,6 +497,7 @@ export default {
   'Search': 'Szukaj',
   'Search this library': 'Szukaj w tej bibliotece',
   'See what would go': 'Zobacz, co by zniknęło',
+  'See which groups you belong to': 'Zobaczyć, do których grup należysz',
   'See your email address': 'Zobaczyć Twój adres e-mail',
   'See your name and username': 'Zobaczyć Twoje imię i nazwę użytkownika',
   'See your page': 'Zobacz swoją stronę',

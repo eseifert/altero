@@ -495,6 +495,7 @@ export default {
   'Search': 'Поиск',
   'Search this library': 'Искать в этой библиотеке',
   'See what would go': 'Посмотреть, что исчезнет',
+  'See which groups you belong to': 'Видеть, в каких группах вы состоите',
   'See your email address': 'Видеть ваш адрес электронной почты',
   'See your name and username': 'Видеть ваше имя и имя пользователя',
   'See your page': 'Посмотреть свою страницу',

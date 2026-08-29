@@ -48,7 +48,7 @@ from altero.models.oauth import (
     OAuthSigningKey,
     OAuthToken,
 )
-from altero.services import jws, oauthclients, oauthscopes
+from altero.services import groups, jws, oauthclients, oauthscopes
 
 #: How long an unanswered authorization may sit on the consent screen. Long
 #: enough to read it and to go through a second factor, short enough that a
@@ -442,6 +442,22 @@ async def _burn_family(session: AsyncSession, family: str) -> None:
         token.revoked_at = now
 
 
+async def group_names(session: AsyncSession, user_id: int) -> list[str]:
+    """Return the names of the groups ``user_id`` belongs to.
+
+    Names rather than identifiers, because the only thing this claim is for is
+    a relying party's role mapping, and those are written by somebody in a
+    configuration file: ``altero_groups = Reading Group`` is a rule that can be
+    checked by reading it, where a list of integers is one that cannot. Group
+    names are not unique on an instance -- ``docs/oauth.md`` says so, since a
+    deployment mapping roles from them has to keep them distinct.
+
+    Membership and nothing else. A public group somebody has never joined is
+    not in the list, the same way it is not in ``GET /users/<id>/groups``.
+    """
+    return [group.name for _, group, _ in await groups.list_groups_for_user(session, user_id)]
+
+
 async def _id_token(
     session: AsyncSession,
     *,
@@ -476,6 +492,11 @@ async def _id_token(
         # that must not be treated as an identity -- services/federation.py says
         # why at length from the other side of this protocol.
         claims["email_verified"] = user.email_verified is not None
+    if oauthscopes.GROUPS in granted:
+        # Present and empty rather than omitted for an account in no group: a
+        # relying party mapping roles has to tell "belongs to nothing" from
+        # "this server did not say", and an absent claim is the second one.
+        claims["groups"] = await group_names(session, user.id)
     return jws.sign(claims, key.private_pem, key.kid)
 
 

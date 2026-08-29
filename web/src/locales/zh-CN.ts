@@ -468,6 +468,7 @@ export default {
   'Search': '搜索',
   'Search this library': '搜索此文库',
   'See what would go': '看看会删掉什么',
+  'See which groups you belong to': '查看您所属的群组',
   'See your email address': '查看您的电子邮件地址',
   'See your name and username': '查看您的姓名和用户名',
   'See your page': '查看你的页面',

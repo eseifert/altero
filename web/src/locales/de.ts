@@ -468,6 +468,7 @@ export default {
   'Scopes': 'Scopes',
   'Search this library': 'Diese Bibliothek durchsuchen',
   'See what would go': 'Zeigen, was verschwände',
+  'See which groups you belong to': 'Sehen, welchen Gruppen Sie angehören',
   'See your email address': 'Ihre E-Mail-Adresse sehen',
   'See your name and username': 'Ihren Namen und Benutzernamen sehen',
   'See your page': 'Deine Seite ansehen',

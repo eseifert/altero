@@ -464,6 +464,7 @@ export default {
   Search: '搜尋',
   'Search this library': '搜尋此文獻庫',
   'See what would go': '看看會刪掉什麼',
+  'See which groups you belong to': '查看你所屬的群組',
   'See your email address': '查看你的電子郵件位址',
   'See your name and username': '查看你的姓名和使用者名稱',
   'See your page': '查看你的頁面',

@@ -12,8 +12,8 @@ a token cannot express access an API key could not, so
 ceilings it already applies to a key -- the key's grants, group membership, the
 group's policy, the member's own permission -- apply unchanged to a token.
 
-``openid``, ``profile`` and ``email`` are identity scopes. They reach no
-library, no item and no file. A token holding nothing else can call
+``openid``, ``profile``, ``email`` and ``groups`` are identity scopes. They
+reach no library, no item and no file. A token holding nothing else can call
 ``/oauth/userinfo`` and nothing more.
 """
 
@@ -27,6 +27,14 @@ OPENID = "openid"
 PROFILE = "profile"
 EMAIL = "email"
 
+#: Which groups somebody is in, by name. An identity scope and not a library
+#: one, which is the distinction that makes it useful: an application mapping
+#: somebody onto a role needs the list and nothing else, and ``groups.read``
+#: below -- reading what is *inside* those libraries -- is a different and much
+#: larger question. Naming them ``groups`` and ``groups.read`` puts both on the
+#: consent screen in the order of how much they give away.
+GROUPS = "groups"
+
 LIBRARY_READ = "library.read"
 LIBRARY_WRITE = "library.write"
 NOTES_READ = "notes.read"
@@ -39,6 +47,7 @@ ALL = (
     OPENID,
     PROFILE,
     EMAIL,
+    GROUPS,
     LIBRARY_READ,
     LIBRARY_WRITE,
     NOTES_READ,
@@ -115,7 +124,8 @@ def capabilities(scopes: str) -> Capabilities:
 
     Written out one line per scope rather than computed, so that reading this
     function is the same as reading the table of what a token can do. The
-    identity scopes appear nowhere in it, which is the point.
+    identity scopes appear nowhere in it, which is the point -- ``groups``
+    included, which is why being told a group's name grants nothing in it.
     """
     granted = set(scopes.split())
     return Capabilities(

@@ -105,6 +105,22 @@ describe('the consent screen', () => {
     expect(wrapper.text()).toContain('It cannot read your library')
   })
 
+  it('describes the group list as a sentence rather than a scope', async () => {
+    requestMock.mockResolvedValue({ ...PENDING, scopes: ['openid', 'groups'] })
+
+    const wrapper = await open()
+
+    expect(wrapper.text()).toContain('See which groups you belong to')
+  })
+
+  it('counts the group list as identity, since it reaches no library', async () => {
+    requestMock.mockResolvedValue({ ...PENDING, scopes: ['openid', 'groups'] })
+
+    const wrapper = await open()
+
+    expect(wrapper.text()).toContain('It cannot read your library')
+  })
+
   it('does not claim that when the library is on offer', async () => {
     const wrapper = await open()
 

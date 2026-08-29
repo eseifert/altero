@@ -83,6 +83,7 @@ def _metadata(request: Request) -> dict[str, Any]:
             "name",
             "email",
             "email_verified",
+            "groups",
         ],
         "service_documentation": "https://eseifert.github.io/altero/latest/oauth/",
     }
@@ -259,5 +260,7 @@ async def userinfo(request: Request, session: SessionDep) -> JSONResponse:
     if oauthscopes.EMAIL in granted and owner.email:
         claims["email"] = owner.email
         claims["email_verified"] = owner.email_verified is not None
+    if oauthscopes.GROUPS in granted:
+        claims["groups"] = await oauthserver.group_names(session, owner.id)
 
     return JSONResponse(claims, headers={"Cache-Control": "no-store"})
