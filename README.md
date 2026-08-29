@@ -36,15 +36,15 @@ That is different from using WebDAV.
 
 According to [Zotero's synchronization documentation](https://www.zotero.org/support/sync), WebDAV can sync attachment files in a personal library. Library data still uses Zotero's synchronization service, and group-library files cannot use WebDAV.
 
-| | Zotero + WebDAV | altero |
-|---|---|---|
-| Personal-library attachment files on your storage | Yes | Yes |
-| Library metadata on your infrastructure | No | **Yes** |
-| Notes and annotations on your infrastructure | No | **Yes** |
-| Group-library synchronization on your infrastructure | No | **Yes** |
-| Group attachment storage on your infrastructure | No | **Yes** |
-| Authentication and account administration under your control | No | **Yes** |
-| Unmodified Zotero desktop client | Yes | **Yes** |
+|                                                              | Zotero + WebDAV | altero  |
+|--------------------------------------------------------------|-----------------|---------|
+| Personal-library attachment files on your storage            | Yes             | **Yes** |
+| Library metadata on your infrastructure                      | No              | **Yes** |
+| Notes and annotations on your infrastructure                 | No              | **Yes** |
+| Group-library synchronization on your infrastructure         | No              | **Yes** |
+| Group attachment storage on your infrastructure              | No              | **Yes** |
+| Authentication and account administration under your control | No              | **Yes** |
+| Unmodified Zotero desktop client                             | Yes             | **Yes** |
 
 altero is therefore not a WebDAV replacement. It is a replacement endpoint for the data and file synchronization services used by the desktop client.
 
@@ -63,25 +63,25 @@ altero may be useful if you are:
 
 The goal is ordinary desktop Zotero synchronization, in both directions.
 
-| Capability | Status |
-|---|:---:|
-| Zotero desktop synchronization | ✅ |
-| Items, collections, tags and saved searches | ✅ |
-| Notes and annotations | ✅ |
-| Attachments and attachment file sync | ✅ |
-| Full-text upload and search | ✅ |
-| Group libraries | ✅ |
-| My Publications | ✅ |
-| Deleted-object synchronization | ✅ |
-| Live updates through the streaming API | ✅ |
-| Citations and bibliographies | ✅ |
-| Zotero export formats | ✅ |
-| Browser interface | ✅ |
-| OIDC and SAML browser sign-in | ✅ |
-| OAuth 2.0 and OpenID Connect provider | ✅ |
-| Passkeys and optional second factors | ✅ |
-| Importing a personal library from zotero.org | ✅ |
-| Zotero iOS and Android apps | ❌ |
+| Capability                                   | Status |
+|----------------------------------------------|:------:|
+| Zotero desktop synchronization               |   ✅   |
+| Items, collections, tags and saved searches  |   ✅   |
+| Notes and annotations                        |   ✅   |
+| Attachments and attachment file sync         |   ✅   |
+| Full-text upload and search                  |   ✅   |
+| Group libraries                              |   ✅   |
+| My Publications                              |   ✅   |
+| Deleted-object synchronization               |   ✅   |
+| Live updates through the streaming API       |   ✅   |
+| Citations and bibliographies                 |   ✅   |
+| Zotero export formats                        |   ✅   |
+| Browser interface                            |   ✅   |
+| OIDC and SAML browser sign-in                |   ✅   |
+| OAuth 2.0 and OIDC provider                  |   ✅   |
+| Passkeys and optional second factors         |   ✅   |
+| Importing a personal library from zotero.org |   ✅   |
+| Zotero iOS and Android apps                  |   ❌   |
 
 The [full implementation status](https://eseifert.github.io/altero/latest/status/) documents the API surface feature by feature, including deliberate differences and remaining omissions.
 
@@ -287,29 +287,29 @@ A successful test on a configuration nobody has tried before is valuable evidenc
 
 Good ways to help include:
 
-- test synchronization with a recent Zotero desktop release;
-- test Windows, macOS or Linux;
-- sync the same test library between two desktop installations;
-- exercise group libraries with several accounts;
-- test attachments and full-text indexing;
-- test PostgreSQL deployments;
-- test nginx, Caddy, Traefik or another reverse proxy;
-- test OIDC or SAML against your identity provider;
-- review or improve translations;
-- document an installation on NixOS, Unraid, TrueNAS, Kubernetes or another platform;
-- review the documentation as a first-time installer;
-- report anything that works against zotero.org but not against altero.
+- test synchronization with a recent Zotero desktop release
+- test Windows, macOS or Linux
+- sync the same test library between two desktop installations
+- exercise group libraries with several accounts
+- test attachments and full-text indexing
+- test PostgreSQL deployments
+- test nginx, Caddy, Traefik or another reverse proxy
+- test OIDC or SAML against your identity provider
+- review or improve translations
+- document an installation on NixOS, Unraid, TrueNAS, Kubernetes or another platform
+- review the documentation as a first-time installer
+- report anything that works against zotero.org but not against altero
 
 If you find a compatibility problem, [open an issue](https://github.com/eseifert/altero/issues/new) and include, where relevant:
 
-- your Zotero version;
-- your operating system;
-- SQLite or PostgreSQL;
-- how altero is deployed;
-- the operation you were performing;
-- what you expected;
-- what happened instead;
-- logs or a minimal reproduction that do not contain private library data or API keys.
+- your Zotero version
+- your operating system
+- SQLite or PostgreSQL
+- how altero is deployed
+- the operation you were performing
+- what you expected
+- what happened instead
+- logs or a minimal reproduction that do not contain private library data or API keys
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) before changing protocol behavior.
 
@@ -342,14 +342,14 @@ The core architectural rule is that the web framework stays at the API boundary.
 
 The documentation is published at **<https://eseifert.github.io/altero/>**.
 
-| Section | What it covers |
-|---|---|
-| [Overview](https://eseifert.github.io/altero/latest/motivation/) | What altero is and why it exists |
-| [Get started](https://eseifert.github.io/altero/latest/getting-started/) | Install locally, connect Zotero, first sync |
-| [Using altero](https://eseifert.github.io/altero/latest/web-interface/) | Web interface, groups, sharing |
-| [Running altero](https://eseifert.github.io/altero/latest/deployment/) | Deployment, configuration, administration, email |
-| [Reference](https://eseifert.github.io/altero/latest/compatibility/) | Compatibility, implementation status, database schema |
-| [Contributing](CONTRIBUTING.md) | Development and testing |
+| Section                                                                  | What it covers                                        |
+|--------------------------------------------------------------------------|-------------------------------------------------------|
+| [Overview](https://eseifert.github.io/altero/latest/motivation/)         | What altero is and why it exists                      |
+| [Get started](https://eseifert.github.io/altero/latest/getting-started/) | Install locally, connect Zotero, first sync           |
+| [Using altero](https://eseifert.github.io/altero/latest/web-interface/)  | Web interface, groups, sharing                        |
+| [Running altero](https://eseifert.github.io/altero/latest/deployment/)   | Deployment, configuration, administration, email      |
+| [Reference](https://eseifert.github.io/altero/latest/compatibility/)     | Compatibility, implementation status, database schema |
+| [Contributing](CONTRIBUTING.md)                                          | Development and testing                               |
 
 ## Project status
 
@@ -359,11 +359,11 @@ The immediate goal is not to maximize feature count. It is to build confidence t
 
 If altero solves a problem you have, the most helpful things you can do right now are:
 
-1. **try it with a test library;**
-2. **report what works and what does not;**
-3. **share your deployment experience;**
-4. **help another user when you can;**
-5. **star the repository if you want more people to discover it.**
+1. **try it with a test library**
+2. **report what works and what does not**
+3. **share your deployment experience**
+4. **help another user when you can**
+5. **star the repository if you want more people to discover it**
 
 ## Relationship to Zotero
 
