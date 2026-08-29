@@ -1129,6 +1129,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-device-with-no-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A device with no browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signing-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Signing out
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#id-tokens" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1623,6 +1645,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-device-with-no-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A device with no browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signing-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Signing out
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#id-tokens" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1725,6 +1769,10 @@ Both are bearer credentials sent exactly the way an API key is:</p>
 <td>The account's email address, and whether it has been confirmed.</td>
 </tr>
 <tr>
+<td><code>groups</code></td>
+<td>The names of the groups the account belongs to. Reaches no library.</td>
+</tr>
+<tr>
 <td><code>library.read</code></td>
 <td>Reading items, collections, saved searches and tags in the personal library.</td>
 </tr>
@@ -1734,11 +1782,11 @@ Both are bearer credentials sent exactly the way an API key is:</p>
 </tr>
 <tr>
 <td><code>notes.read</code></td>
-<td>Reading notes.</td>
+<td>Reading notes. Without it a note is not found, in every listing and by key.</td>
 </tr>
 <tr>
 <td><code>files.read</code></td>
-<td>Downloading attachment bytes.</td>
+<td>Downloading attachment bytes. Without it the file routes refuse; the attachment item is still readable.</td>
 </tr>
 <tr>
 <td><code>groups.read</code></td>
@@ -1750,10 +1798,23 @@ Both are bearer credentials sent exactly the way an API key is:</p>
 </tr>
 </tbody>
 </table>
-<p>These map one for one onto the permissions an API key already carries, which is
-what makes the mapping checkable: a token cannot express access that a key could
+<p><code>groups</code> and <code>groups.read</code> are next to each other on the consent screen and are
+not the same question. <code>groups</code> is an identity scope beside <code>profile</code> and
+<code>email</code>: it says <em>which</em> groups somebody is in, by name, and reaches nothing
+inside them. <code>groups.read</code> reads what is in them. An application mapping people
+onto roles wants the first and should not be given the second.</p>
+<p>The other identity scopes map onto nothing at all, and the rest map one for one
+onto the permissions an API key already carries, which is what makes the mapping
+checkable: a token cannot express access that a key could
 not, and every ceiling that applies to a key — the group's policy, the member's
 role, their own permission — applies unchanged to a token.</p>
+<p><code>notes.read</code> and <code>files.read</code> are narrowings of <code>library.read</code> rather than
+additions to it, and what they withhold is the object and not a field on it: a
+note the token may not read does not appear in a listing and is a 404 by key,
+and an attachment whose bytes the token may not have is still readable as an
+item. <a href="../compatibility/#a-credential-that-gave-up-notes-or-files">Compatibility notes</a>
+records the whole surface, including what happens on a public library and the
+two places altero deliberately differs from zotero.org.</p>
 <p>Some scopes are useless alone and are refused rather than quietly granted.
 Write access implies read access throughout altero, so <code>library.write</code> without
 <code>library.read</code> would be issued and then do nothing; asking for it is an error
@@ -1778,6 +1839,9 @@ and is a ceiling: the application may ask for these or fewer, never more.</p>
 <p>For an application that runs on a server and can keep a secret, add
 <code>--confidential</code>. The secret is printed once and stored only as a hash, the same
 bargain <code>altero key add</code> makes.</p>
+<p><code>--post-logout-redirect-uri</code> is repeatable too, and is the separate list of
+addresses somebody may be sent to after signing out — see
+<a href="#signing-out">Signing out</a> below. Most applications register none.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>list<span class="w">                </span><span class="c1"># what is registered, and what it may ask for</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>disable<span class="w"> </span>notebook<span class="w">    </span><span class="c1"># stop it working, keeping the record</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>rotate-key<span class="w">          </span><span class="c1"># sign ID tokens with a new key from now on</span>
@@ -1878,13 +1942,115 @@ same happens if an authorization code is presented twice.</p>
 <td><code>/oauth/jwks.json</code></td>
 <td>The keys ID tokens are verified against</td>
 </tr>
+<tr>
+<td><code>/oauth/logout</code></td>
+<td>RP-initiated logout, as OpenID Connect names <code>end_session_endpoint</code></td>
+</tr>
+<tr>
+<td><code>/oauth/device_authorization</code></td>
+<td>Where a device with no browser starts, RFC 8628</td>
+</tr>
 </tbody>
 </table>
+<h2 id="a-device-with-no-browser">A device with no browser<a class="headerlink" href="#a-device-with-no-browser" title="Permanent link">&para;</a></h2>
+<p>A machine that cannot show a browser — a terminal on a server, a reader, a box
+plugged into a television — asks here instead:</p>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="err">POST /oauth/device_authorization</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="err">client_id=notebook&amp;scope=openid%20library.read</span>
+</span></code></pre></div>
+<p>and is handed a long <code>device_code</code> it keeps, a short <code>user_code</code> it shows, the
+<code>verification_uri</code> to show beside it, an <code>expires_in</code> of ten minutes and the
+<code>interval</code> in seconds at which it may poll. Somebody types the short code into
+that address — or follows <code>verification_uri_complete</code>, which carries it — and is
+shown <strong>the same consent screen every other application gets</strong>. A second consent
+screen written for devices would be a second place for the two to disagree about
+what is being granted.</p>
+<p>Meanwhile the device polls the token endpoint:</p>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="err">POST /oauth/token</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="err">grant_type=urn:ietf:params:oauth:grant-type:device_code</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="err">&amp;client_id=notebook&amp;device_code=…</span>
+</span></code></pre></div>
+<p>Four of the five answers are errors, and they are different errors on purpose:</p>
+<table>
+<thead>
+<tr>
+<th>Answer</th>
+<th>What the device does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>authorization_pending</code></td>
+<td>Keep asking. Nobody has answered yet.</td>
+</tr>
+<tr>
+<td><code>slow_down</code></td>
+<td>Keep asking, less often. It polled inside the interval.</td>
+</tr>
+<tr>
+<td><code>access_denied</code></td>
+<td>Stop. Somebody said no.</td>
+</tr>
+<tr>
+<td><code>expired_token</code></td>
+<td>Stop. The code lived ten minutes and nobody answered.</td>
+</tr>
+<tr>
+<td>the tokens</td>
+<td>Done, and the device code is spent.</td>
+</tr>
+</tbody>
+</table>
+<p>There is no redirect URI and no PKCE here, because there is nothing for either
+to bind to: no authorization code travels through a browser. What takes their
+place is the device code, which is long, random and known only to the device
+that asked for it. The user code is eight characters of a twenty-consonant
+alphabet — no vowels, so no code is a word anybody would rather read out, and
+none of <code>0</code>/<code>O</code>, <code>1</code>/<code>I</code> or <code>5</code>/<code>S</code> to mistype — which is about 34 bits for a
+code that lives ten minutes. Case and the dash are decoration: <code>wdjb mjht</code> is
+the same code as <code>WDJB-MJHT</code>.</p>
+<p>A confidential client still presents its secret when it polls. Registration is
+the same <code>altero oauth add</code>, and a client needs a redirect URI registered even
+if it only ever uses this flow — the two are not exclusive.</p>
+<h2 id="signing-out">Signing out<a class="headerlink" href="#signing-out" title="Permanent link">&para;</a></h2>
+<p>An application can send somebody here to end their altero browser session:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>GET /oauth/logout
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>      ?id_token_hint=eyJhbGciOiJSUzI1NiIs…
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>      &amp;post_logout_redirect_uri=https://notebook.example.com/signed-out
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>      &amp;state=opaque
+</span></code></pre></div>
+<p><code>POST</code> works the same way. Three things about it are decided rather than
+defaulted:</p>
+<p><strong><code>id_token_hint</code> is required</strong>, where OpenID Connect RP-Initiated Logout 1.0
+only recommends it. This endpoint is a navigation, so any page on the internet
+can send a browser to it; without something the caller could only have received
+from this server, a hidden image on somebody else's site would sign people out
+of their library all day. An ID token is that thing — it was handed to an
+application at the token endpoint, over TLS.</p>
+<p>Its signature is checked against altero's own keys and its issuer against
+altero's own name. Its <strong>expiry is not checked</strong>: an ID token lives an hour and
+somebody signs out whenever they decide to. If its <code>sub</code> is not the account the
+browser is signed in as, nothing is ended — an application holding a stale token
+for one person does not sign out whoever is at the browser now.</p>
+<p><strong><code>post_logout_redirect_uri</code> must be registered</strong>, exactly, for the client the
+ID token was issued to. An unregistered address is refused <em>on this server</em> and
+not redirected to, the same rule the authorization endpoint follows: bouncing
+anything off an unverified address is how an open redirector is built. With no
+address given, the browser lands on the interface.</p>
+<p><strong>The session ends; the grant does not.</strong> The application keeps the tokens it
+was issued, because signing out of a browser is not withdrawing consent. Taking
+an application's access away is <strong>Settings → Connected applications</strong>, or
+<code>/oauth/revoke</code> for one token.</p>
 <h2 id="id-tokens">ID tokens<a class="headerlink" href="#id-tokens" title="Permanent link">&para;</a></h2>
 <p>Signed with <strong>RS256</strong>, verifiable against <code>/oauth/jwks.json</code>. The claims are
 <code>iss</code>, <code>sub</code>, <code>aud</code>, <code>iat</code>, <code>exp</code>, <code>auth_time</code> and <code>at_hash</code>, plus <code>nonce</code> when
-the request carried one, and the <code>profile</code> and <code>email</code> claims when those scopes
-were granted.</p>
+the request carried one, and the <code>profile</code>, <code>email</code> and <code>groups</code> claims when
+those scopes were granted.</p>
+<p><code>groups</code> is a list of group names, present and empty for an account in no group
+rather than absent — an application mapping roles has to be able to tell
+"belongs to nothing" from "this server did not say". Group names are <strong>not
+unique</strong> on an altero instance, so a deployment that maps roles from them has to
+keep them distinct; nothing checks that for you.</p>
 <p><code>sub</code> is the account's numeric id as a string. It is stable and it is the only
 thing that identifies somebody: an email address is not an identity, for the
 reasons <code>services/federation.py</code> sets out at length from the other side of this

@@ -1474,6 +1474,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#a-credential-that-gave-up-notes-or-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A credential that gave up notes or files
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#what-the-desktop-client-actually-sends" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2400,6 +2411,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Obtaining a key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-credential-that-gave-up-notes-or-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A credential that gave up notes or files
       </span>
     </span>
   </a>
@@ -3460,6 +3482,81 @@ pages. altero has the same thing under <code>/web/account/keys</code>, reached w
 same kind of credential — a session cookie — plus <code>altero key add</code> and
 <code>altero key revoke</code> for an operator. What an API key can do to itself is what
 upstream lets it do: read <code>/keys/current</code> and delete it.</p>
+<h3 id="a-credential-that-gave-up-notes-or-files">A credential that gave up notes or files<a class="headerlink" href="#a-credential-that-gave-up-notes-or-files" title="Permanent link">&para;</a></h3>
+<p>Four things a credential can say about a library, not two. An API key carries
+<code>library</code>, <code>write</code>, <code>notes</code> and <code>files</code>, and <code>/keys/current</code> reports all four; an
+OAuth token says the same things as <code>library.read</code>, <code>library.write</code>, <code>notes.read</code>
+and <code>files.read</code>, and the consent screen names them one by one. <code>notes</code> and
+<code>files</code> are narrowings of reading, never a way in of their own: a credential that
+may not read the library may not read its notes or its files either.</p>
+<p><strong>A note is hidden, not emptied.</strong> Without <code>notes</code>, a note is 404 by key and
+absent from every listing — <code>/items</code>, <code>/items/top</code>, <code>/items/trash</code>,
+<code>/items/&lt;key&gt;/children</code>, a collection's items, <code>format=keys</code>, <code>format=versions</code>,
+<code>format=atom</code> and the export formats, all of which come off one query. Upstream
+does the same two things: <code>Zotero_Permissions::canAccessObject</code> sends a note
+through the <code>notes</code> permission and <code>ItemsController</code> answers <code>e404</code> for it, and
+<code>Zotero_Items::search</code> adds <code>AND I.itemTypeID != 1</code> to the listing. Serving an
+item whose <code>note</code> field had been blanked would be a third behavior neither
+server has, and would tell the caller the note is there.</p>
+<p><code>numChildren</code> is counted the same way, because a count that still says three
+when only two children can be fetched is the one thing left saying a note is
+there. Upstream counts attachments instead of children for that reason. So is a
+tag listing scoped to items (<code>/items/tags</code> and the collection forms): upstream
+proxies the item parameters into <code>Zotero_Items::search</code> there and hands it the
+same permissions, so a tag carried by nothing but a hidden note stops being
+reachable. The library-wide <code>/tags</code> is <em>not</em> scoped and is left alone, which is
+also upstream's behavior.</p>
+<p><strong>Without <code>files</code>, the bytes are 403 and the attachment is not.</strong>
+<code>&lt;library&gt;/items/&lt;key&gt;/file</code>, <code>/file/content</code> and <code>/file/view</code> refuse;
+<code>/items/&lt;key&gt;</code> still answers with the attachment, its <code>md5</code>, its <code>filename</code> and
+its <code>contentType</code>. What an item says about a file is metadata, and only the file
+itself is withheld. This is <code>ItemsController::_handleFileRequest</code>, which answers
+<code>e403</code> before it looks at the item at all.</p>
+<p>Two rules come from <code>Zotero_Permissions::canAccess</code> and are worth stating because
+neither is guessable:</p>
+<ul>
+<li><strong>An anonymous reader of a public library reads its notes and none of its
+  files.</strong> Upstream resolves both against the owner's privacy settings, which
+  have a key for notes and none for files, so files fall through to the default
+  and are refused. A public group is the same, said the other way round in
+  upstream's own comment: <em>only members have file access</em>.</li>
+<li><strong>A credential never sees less of a published library than a stranger with no
+  credential at all.</strong> Upstream consults the privacy settings when a key states
+  no permission of its own, so what has been published stays published. altero
+  has one <code>public</code> flag for the whole library, so that flag is the fallback:
+  <code>notes</code> is granted on a public library whatever the credential says. Files are
+  not, for the reason above.</li>
+</ul>
+<p><strong>What <code>files</code> does not cover: the full-text index.</strong>
+<code>GET &lt;library&gt;/items/&lt;key&gt;/fulltext</code> answers with the words extracted from an
+attachment, and it is gated on reading the library alone — upstream's
+<code>FullTextController</code> checks <code>canAccess($libraryID)</code> and nothing else. altero
+copies that. It is worth knowing rather than hidden in a footnote: a credential
+that may not download a PDF can still read the text of one, and the consent
+screen's <em>Download your attachments</em> is about the bytes. Changing it would be a
+one-line divergence and is not one altero has taken.</p>
+<p>Two deliberate differences from upstream:</p>
+<ul>
+<li><strong>The permissions apply to group libraries too.</strong> Upstream records <code>notes</code> and
+  <code>files</code> for the personal library and grants both wholesale to a key with
+  all-groups access. altero applies the credential's own flags to every library
+  it reaches, because a consent screen that says <em>Read your notes</em> and then does
+  not mean it in a group library is the same defect this fixes. The
+  member-only rule for files still applies on top, as the fourth ceiling in
+  <code>access_for</code>.</li>
+<li><strong>Uploading is gated on writing, not on <code>files</code>.</strong> Upstream's single <code>files</code>
+  permission covers <code>_handleFileRequest</code> in both directions, so a key without it
+  cannot upload either. altero's column is <code>files_read</code> and its scope is
+  <code>files.read</code>, both named for reading, and the consent screen offers <em>Download
+  your attachments</em>; granting an upload on the strength of that would be the
+  wrong lie in the other direction. <code>library.write</code> and the group's own
+  <code>fileEditing</code> policy already decide who may put bytes in a library.</li>
+</ul>
+<p>Nothing here changes what the desktop client sees. A key made by
+<code>altero login approve</code> grants all four, as upstream's
+<code>createAPIKeyFromCredentials</code> does, and neither <code>altero key add</code> nor
+<code>/web/account/keys</code> can make a key without them — the only credential that can
+lack them today is an OAuth token that did not ask.</p>
 <h3 id="what-the-desktop-client-actually-sends">What the desktop client actually sends<a class="headerlink" href="#what-the-desktop-client-actually-sends" title="Permanent link">&para;</a></h3>
 <p>Two of these were found by running the real client, not by reading the
 documentation, and neither is described there.</p>
@@ -4449,16 +4546,21 @@ it — and a token has no row there, is not what a person revokes, and would lea
 <code>DELETE /keys/current</code> with nothing to delete.</p>
 <h3 id="signing-id-tokens-while-still-not-verifying-them">Signing ID tokens while still not verifying them<a class="headerlink" href="#signing-id-tokens-while-still-not-verifying-them" title="Permanent link">&para;</a></h3>
 <p>These two decisions look contradictory, but they are not:</p>
-<p>As a <em>client</em>, altero does not verify the signature on an ID token it receives —
-see <a href="#not-verifying-the-id-tokens-signature">below</a>. As a <em>provider</em>, it signs
-the ID tokens it issues, with RS256, and publishes the key at
-<code>/oauth/jwks.json</code>.</p>
+<p>As a <em>client</em>, altero does not verify the signature on an ID token it receives
+from somebody else's provider — see
+<a href="#not-verifying-the-id-tokens-signature">below</a>. As a <em>provider</em>, it signs the
+ID tokens it issues, with RS256, publishes the key at <code>/oauth/jwks.json</code>, and
+verifies its own signature on one that comes back as the <code>id_token_hint</code> of a
+logout request.</p>
 <p>The earlier decision was about verification, and every reason given for it is a
 verification problem: <code>alg: none</code>, HMAC-versus-RSA confusion, a key chosen by an
 attacker-supplied <code>kid</code>, a JWKS fetch that is itself a request to get right.
 Each is a decision made about input somebody else controls. Signing has none of
 them — the algorithm is fixed, the key is this server's own, and nothing reads a
-header — so <code>services/jws.py</code> writes it directly rather than bringing in a
+header — and neither does <code>jws.verify</code>: it is handed the keys, so a <code>kid</code>
+selects among this server's own and fetches nothing, and <code>alg</code> is compared
+against RS256 rather than read out of the header to choose with. So
+<code>services/jws.py</code> writes both directly rather than bringing in a
 library, and <code>tests/test_jws.py</code> holds it against RFC 7515 Appendix A.2 and
 RFC 7638 §3.1. A published test vector is what makes hand-writing one of these
 defensible, which is the same bargain <code>services/totp.py</code> takes with RFC 6238 and
