@@ -52,6 +52,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Bagefter vil Zotero på din computer opdage, at den taler med en anden konto, og tilbyde at nulstille sine lokale data. Lad den gøre det: alt, den skal bruge, ligger nu på denne server.',
   'All items': 'Alle elementer',
+  'All of it': 'Det hele',
   'Allow': 'Tillad',
   'Allow adaptations of your work to be shared?': 'Må bearbejdelser af dit værk deles?',
   'Allow changes (Zotero needs this to sync)':
@@ -112,7 +113,11 @@ export default {
   'Choose a Creative Commons license': 'Vælg en Creative Commons-licens',
   'Choose a library and an archive first.': 'Vælg først et bibliotek og et arkiv.',
   'Choose a license': 'Vælg en licens',
+  'Choose at least one library or collection, or allow everything above.':
+    'Vælg mindst ét bibliotek eller én samling, eller tillad alt ovenfor.',
   'Choose how your work may be shared': 'Vælg, hvordan dit værk må deles',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Vælger du en samling, følger alt inde i den med. Programmet vil ikke kunne ændre dine samlinger, gemte søgninger, indstillinger eller mærker.',
   'Citation': 'Henvisning',
   'Citation style': 'Henvisningsstil',
   'Clear search': 'Ryd søgningen',
@@ -236,6 +241,7 @@ export default {
     'Alt i dit bibliotek her slettes først, filer inklusive, og der er ingen papirkurv omkring det.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Alt i {name} slettes først, filer inklusive, og der er ingen papirkurv omkring det.',
+  'Everything the permissions above cover': 'Alt det, rettighederne ovenfor dækker',
   'Expand': 'Fold ud',
   'Expires {when}.': 'Udløber {when}.',
   'Export': 'Eksportér',
@@ -297,6 +303,7 @@ export default {
   'Language and time zone': 'Sprog og tidszone',
   'Language and time zone saved.': 'Sprog og tidszone er gemt.',
   'Last opened {date}': 'Sidst åbnet {date}',
+  'Last time you limited it to:': 'Sidste gang begrænsede du den til:',
   'Last used {when}': 'Sidst brugt {when}',
   'Leave': 'Forlad',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -309,6 +316,7 @@ export default {
     'Forlad denne gruppe? Du mister adgangen til dens bibliotek.',
   'Libraries': 'Biblioteker',
   'Library': 'Bibliotek',
+  'Limited to:': 'Begrænset til:',
   'Link issued.': 'Linket er udstedt.',
   'Links to this collection': 'Links til denne samling',
   'Loading…': 'Indlæser…',
@@ -351,6 +359,7 @@ export default {
   'No': 'Nej',
   'No account yet?': 'Ingen konto endnu?',
   'No applications connected.': 'Ingen programmer forbundet.',
+  'No collections yet.': 'Ingen samlinger endnu.',
   'No items carry the selected tags.': 'Ingen elementer bærer de valgte mærker.',
   'No items match this search and the selected tags.':
     'Ingen elementer passer til denne søgning og de valgte mærker.',
@@ -396,6 +405,7 @@ export default {
   'One more step': 'Et skridt mere',
   'Only people signed in to this server can see this page.':
     'Kun personer, der er logget ind på denne server, kan se denne side.',
+  'Only the libraries and collections I choose': 'Kun de biblioteker og samlinger, jeg vælger',
   'Only their own items': 'Kun deres egne elementer',
   'Open file': 'Åbn filen',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -650,6 +660,7 @@ export default {
   'Whatever the group allows': 'Hvad gruppen nu tillader',
   'Where a request goes, over the HTTP-Redirect binding.':
     'Hvor en forespørgsel går hen, over HTTP-Redirect-bindingen.',
+  'Where it can reach:': 'Hvor langt den kan nå:',
   'Who can see it': 'Hvem der kan se den',
   'Who may add and change items': 'Hvem der må tilføje og ændre elementer',
   'Who may do what': 'Hvem der må hvad',

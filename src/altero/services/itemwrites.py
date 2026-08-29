@@ -14,7 +14,7 @@ from typing import Any
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.errors import InvalidInputError, NotFoundError
+from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
 from altero.keys import coerce_key, is_valid_key
 from altero.models import (
@@ -37,7 +37,7 @@ from altero.models import (
 from altero.services import itemdata
 from altero.services.auth import Access
 from altero.services.deletions import record_deletion
-from altero.services.items import get_item, tags_for
+from altero.services.items import get_item, in_collections, tags_for
 from altero.services.objectwrites import parse_relations, resolve_tag
 from altero.services.writes import check_object_version
 
@@ -360,6 +360,7 @@ async def _apply(
     version: int,
     *,
     replace: bool,
+    permit: Access | None = None,
 ) -> None:
     """Write ``parsed`` onto ``item``.
 
@@ -417,7 +418,7 @@ async def _apply(
         ]
 
     if parsed["parent_item"] is not None:
-        parent = await get_item(session, library, str(parsed["parent_item"]))
+        parent = await get_item(session, library, str(parsed["parent_item"]), permit=permit)
         item.parent_id = parent.id
     elif replace:
         item.parent_id = None
@@ -517,6 +518,13 @@ async def save_item(
         session.add(item)
     else:
         if permit is not None:
+            if permit.collections is not None and not await in_collections(
+                session, item, permit.collections
+            ):
+                # An item outside a resource-scoped grant is not found, exactly
+                # as it is on the way in -- so a write cannot be used to ask
+                # whether a key exists after a read was refused for saying so.
+                raise NotFoundError("Item does not exist")
             # Asked of the item as stored, before anything is applied to it.
             # Trashing is asked separately, because sending `deleted` on
             # something already in the trash is not a removal and re-sending an
@@ -528,7 +536,21 @@ async def save_item(
         if detect_unchanged:
             before = await _state(session, item)
 
-    await _apply(session, library, item, parsed, version, replace=replace)
+    await _apply(session, library, item, parsed, version, replace=replace, permit=permit)
+
+    if permit is not None and permit.collections is not None:
+        # Asked again of the item as written. A confined credential may move an
+        # item between the collections it was given and may not walk one out of
+        # them -- nor create one outside them, which is the same question asked
+        # of a row that did not exist a moment ago. `session.flush` has already
+        # run inside `_apply`, so the collection rows this reads are the new
+        # ones and the answer is about what the write actually produced.
+        await session.flush()
+        if not await in_collections(session, item, permit.collections):
+            raise ForbiddenError(
+                "This application was given access to particular collections, "
+                "and this item is not in any of them"
+            )
 
     if before is not None and before == await _state(session, item):
         return None
@@ -573,6 +595,10 @@ async def refile_item(
     anywhere.
     """
     if permit is not None:
+        if permit.collections is not None and not await in_collections(
+            session, item, permit.collections
+        ):
+            raise NotFoundError("Item does not exist")
         permit.require_change(item.created_by_user_id)
 
     collections = []
@@ -582,7 +608,21 @@ async def refile_item(
         )
         if collection is None:
             raise NotFoundError(f"Collection {key} not found")
+        # Filing is a write to the item, and the item has to stay inside the
+        # grant afterwards. A collection the caller cannot see is not found
+        # rather than refused, as it is everywhere else.
+        confined = permit.collections if permit is not None else None
+        if confined is not None and collection.id not in confined:
+            raise NotFoundError(f"Collection {key} not found")
         collections.append(collection)
+
+    if permit is not None and permit.collections is not None and not collections:
+        # Filing something nowhere takes it out of every collection, and out of
+        # the grant with them. Refused rather than allowed and then lost.
+        raise ForbiddenError(
+            "This application was given access to particular collections, "
+            "and this would take the item out of all of them"
+        )
 
     await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
     for collection in collections:
@@ -747,6 +787,12 @@ async def delete_items(
             # Deleting something already gone is not an error.
             continue
         if permit is not None:
+            if permit.collections is not None and not await in_collections(
+                session, item, permit.collections
+            ):
+                # Not found, not forbidden: a refusal here would say the key
+                # names something, which is what the grant was drawn to hide.
+                raise NotFoundError("Item does not exist")
             permit.require_remove(item.created_by_user_id)
         found.append(item)
 

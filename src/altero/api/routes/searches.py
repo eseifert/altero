@@ -63,13 +63,17 @@ def _timestamps(obj: SavedSearch) -> tuple[str, str]:
 @router.get("/users/{user_id}/searches")
 @router.get("/groups/{group_id}/searches")
 async def list_searches(
-    request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: ReadableLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
     query = search_query(request)
     if (response := not_modified(request, library.version)) is not None:
         return response
 
-    page = await searches_service.list_searches(session, library, query)
+    page = await searches_service.list_searches(session, library, query, permit=access)
 
     envelopes = [serializers.saved_search(search, library, base_url) for search in page.objects]
     objects: list[Any] = []
@@ -107,13 +111,14 @@ async def get_search(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     query = search_query(request, SINGLE_NAMED_FORMATS)
     if (response := not_modified(request, library.version)) is not None:
         return response
 
-    search = await searches_service.get_search(session, library, search_key)
+    search = await searches_service.get_search(session, library, search_key, permit=access)
     envelope = serializers.saved_search(search, library, base_url)
 
     if query.response_format is Format.ATOM:
@@ -235,7 +240,10 @@ async def delete_search(
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 
-    await searches_service.get_search(session, library, search_key)
+    # ``permit``, for the reason the settings delete takes one: a confined
+    # credential sees no saved searches, so a key it may not have answers the
+    # same 404 whether or not a search is stored under it.
+    await searches_service.get_search(session, library, search_key, permit=access)
     version = await writes.bump_library_version(session, library)
     await object_writes.delete_searches(session, library, [search_key], version, permit=access)
     await session.commit()

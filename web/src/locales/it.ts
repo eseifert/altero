@@ -53,6 +53,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Dopo, Zotero sul tuo computer si accorgerà di parlare con un altro account e proporrà di azzerare i suoi dati locali. Lascialo fare: tutto ciò che gli serve ora si trova su questo server.',
   'All items': 'Tutti gli elementi',
+  'All of it': 'Tutta quanta',
   'Allow': 'Consenti',
   'Allow adaptations of your work to be shared?':
     'Permettere la condivisione di opere derivate dalla tua?',
@@ -115,7 +116,11 @@ export default {
   'Choose a Creative Commons license': 'Scegli una licenza Creative Commons',
   'Choose a library and an archive first.': 'Scegli prima una biblioteca e un archivio.',
   'Choose a license': 'Scegli una licenza',
+  'Choose at least one library or collection, or allow everything above.':
+    'Scegli almeno una biblioteca o collezione, oppure consenti tutto quanto sopra.',
   'Choose how your work may be shared': 'Scegli il metodo di condivisione della tua opera',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Scegliere una collezione include anche tutto ciò che si trova al suo interno. L’applicazione non potrà modificare le tue collezioni, le ricerche salvate, le impostazioni né i tag.',
   'Citation': 'Citazione',
   'Citation style': 'Stile citazionale',
   'Clear search': 'Cancella la ricerca',
@@ -239,6 +244,7 @@ export default {
     'Tutto ciò che sta nella tua biblioteca qui viene eliminato prima, file compresi, e non c’è un cestino attorno.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Tutto ciò che sta in {name} viene eliminato prima, file compresi, e non c’è un cestino attorno.',
+  'Everything the permissions above cover': 'Tutto ciò che coprono le autorizzazioni qui sopra',
   'Expand': 'Espandi',
   'Expires {when}.': 'Scade {when}.',
   'Export': 'Esporta',
@@ -301,6 +307,7 @@ export default {
   'Language and time zone': 'Lingua e fuso orario',
   'Language and time zone saved.': 'Lingua e fuso orario salvati.',
   'Last opened {date}': 'Aperto l’ultima volta {date}',
+  'Last time you limited it to:': 'L’ultima volta l’hai limitata a:',
   'Last used {when}': 'Usato l’ultima volta {when}',
   'Leave': 'Abbandona',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -312,6 +319,7 @@ export default {
     'Abbandonare questo gruppo? Perderai l’accesso alla sua biblioteca.',
   'Libraries': 'Biblioteche',
   'Library': 'Biblioteca',
+  'Limited to:': 'Limitata a:',
   'Link issued.': 'Collegamento emesso.',
   'Links to this collection': 'Collegamenti a questa collezione',
   'Loading…': 'Caricamento…',
@@ -354,6 +362,7 @@ export default {
   'No': 'No',
   'No account yet?': 'Non hai ancora un account?',
   'No applications connected.': 'Nessuna applicazione collegata.',
+  'No collections yet.': 'Ancora nessuna collezione.',
   'No items carry the selected tags.': 'Nessun elemento porta i tag selezionati.',
   'No items match this search and the selected tags.':
     'Nessun elemento corrisponde a questa ricerca e ai tag selezionati.',
@@ -401,6 +410,8 @@ export default {
   'One more step': 'Ancora un passo',
   'Only people signed in to this server can see this page.':
     'Solo chi ha effettuato l’accesso a questo server può vedere questa pagina.',
+  'Only the libraries and collections I choose':
+    'Solo le biblioteche e le collezioni che scelgo io',
   'Only their own items': 'Soltanto i propri elementi',
   'Open file': 'Apri il file',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -659,6 +670,7 @@ export default {
   'Whatever the group allows': 'Quello che il gruppo consente',
   'Where a request goes, over the HTTP-Redirect binding.':
     'Dove va una richiesta, tramite il binding HTTP-Redirect.',
+  'Where it can reach:': 'Dove può arrivare:',
   'Who can see it': 'Chi può vederla',
   'Who may add and change items': 'Chi può aggiungere e modificare elementi',
   'Who may do what': 'Chi può fare che cosa',

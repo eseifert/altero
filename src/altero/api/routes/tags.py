@@ -35,10 +35,10 @@ from altero.query import (
     parse_list_query,
 )
 from altero.search import parse_expressions
+from altero.services import auth, writes
 from altero.services import items as items_service
 from altero.services import objectwrites as object_writes
 from altero.services import tags as tags_service
-from altero.services import writes
 from altero.services.items import Page, Scope
 from altero.services.tags import TagSummary
 
@@ -119,13 +119,17 @@ def tag_query(request: Request, formats: frozenset[Format] = OBJECT_FORMATS) -> 
 @router.get("/users/{user_id}/tags")
 @router.get("/groups/{group_id}/tags")
 async def list_tags(
-    request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: ReadableLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
     query = tag_query(request)
     if (response := not_modified(request, library.version)) is not None:
         return response
 
-    page = await tags_service.list_tags(session, library, query)
+    page = await tags_service.list_tags(session, library, query, permit=access)
     return _render_tags(request, query, page, library, base_url)
 
 
@@ -136,10 +140,11 @@ async def get_tag(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     query = tag_query(request, SINGLE_NAMED_FORMATS)
-    summary = await tags_service.get_tag(session, library, tag_name)
+    summary = await tags_service.get_tag(session, library, tag_name, permit=access)
     envelope = serializers.tag(summary.name, summary.type, summary.num_items, library, base_url)
 
     if query.response_format is Format.ATOM:
@@ -192,7 +197,13 @@ async def rename_tag(
     # Both before a version is spent: a tag that is not there is a 404 whatever
     # the body says, and a rename to the name it already has changes nothing, so
     # it must not move the library on. The client returns early on the same two.
-    summary = await tags_service.get_tag(session, library, tag_name)
+    #
+    # ``permit`` reaches this lookup, and has to. A tag carried only by items
+    # outside a resource-scoped grant is 404 here as it is on the read routes,
+    # so the refusal a confined credential gets does not depend on whether the
+    # tag exists -- which would otherwise let it enumerate the library's tags
+    # one guess at a time, by telling 403 from 404.
+    summary = await tags_service.get_tag(session, library, tag_name, permit=access)
     if new_name == summary.name:
         return Response(status_code=204, headers=library_headers(library.version))
 
@@ -211,14 +222,15 @@ async def _scoped_tags(
     scope: Scope,
     key: str | None = None,
     *,
-    include_notes: bool = True,
+    permit: auth.Access | None = None,
 ) -> Response:
     """List the tags carried by a scoped set of items.
 
-    ``include_notes`` narrows the *items* the tags are counted against, exactly
-    as it narrows a listing of them: upstream proxies the item parameters into
+    ``permit`` narrows the *items* the tags are counted against, exactly as it
+    narrows a listing of them: upstream proxies the item parameters into
     ``Zotero_Items::search`` here and hands it the same permissions. A tag
-    carried by nothing but a hidden note therefore stops being reachable.
+    carried by nothing but a hidden note therefore stops being reachable, and so
+    does one carried by nothing outside a resource-scoped grant.
     """
     from altero.api.routes.items import item_query
 
@@ -226,7 +238,7 @@ async def _scoped_tags(
     # The item scope is filtered by the item parameters, the tags by the tag
     # ones, which is why two queries are parsed from one request.
     item_scope = await items_service.item_ids_in_scope(
-        session, library, item_query(request), scope, key, include_notes=include_notes
+        session, library, item_query(request), scope, key, permit=permit
     )
     page = await tags_service.list_tags(session, library, query, item_scope=item_scope)
 
@@ -244,9 +256,7 @@ async def list_top_item_tags(
     access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    return await _scoped_tags(
-        request, session, library, base_url, Scope.TOP, include_notes=access.notes
-    )
+    return await _scoped_tags(request, session, library, base_url, Scope.TOP, permit=access)
 
 
 @router.get("/users/{user_id}/items/trash/tags")
@@ -258,9 +268,7 @@ async def list_trashed_item_tags(
     access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    return await _scoped_tags(
-        request, session, library, base_url, Scope.TRASH, include_notes=access.notes
-    )
+    return await _scoped_tags(request, session, library, base_url, Scope.TRASH, permit=access)
 
 
 @router.get("/users/{user_id}/items/tags")
@@ -272,9 +280,7 @@ async def list_all_item_tags(
     access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    return await _scoped_tags(
-        request, session, library, base_url, Scope.ALL, include_notes=access.notes
-    )
+    return await _scoped_tags(request, session, library, base_url, Scope.ALL, permit=access)
 
 
 @router.get("/users/{user_id}/collections/{collection_key}/items/top/tags")
@@ -294,7 +300,7 @@ async def list_top_collection_item_tags(
         base_url,
         Scope.COLLECTION_TOP,
         collection_key,
-        include_notes=access.notes,
+        permit=access,
     )
 
 
@@ -315,7 +321,7 @@ async def list_collection_item_tags(
         base_url,
         Scope.COLLECTION,
         collection_key,
-        include_notes=access.notes,
+        permit=access,
     )
 
 
@@ -337,7 +343,7 @@ async def list_collection_tags(
         base_url,
         Scope.COLLECTION,
         collection_key,
-        include_notes=access.notes,
+        permit=access,
     )
 
 

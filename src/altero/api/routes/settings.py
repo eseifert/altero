@@ -22,14 +22,14 @@ router = APIRouter(tags=["settings"])
 @router.get("/users/{user_id}/settings")
 @router.get("/groups/{group_id}/settings")
 async def list_settings(
-    request: Request, session: SessionDep, library: ReadableLibraryDep
+    request: Request, session: SessionDep, library: ReadableLibraryDep, access: AccessDep
 ) -> Response:
     """Return every setting, keyed by name."""
     if (response := not_modified(request, library.version)) is not None:
         return response
 
     since = request.query_params.get("since")
-    stored = await settings_service.list_settings(session, library, int(since or 0))
+    stored = await settings_service.list_settings(session, library, int(since or 0), permit=access)
 
     return JSONResponse(
         settings_service.render_all(stored), headers=library_headers(library.version)
@@ -38,9 +38,11 @@ async def list_settings(
 
 @router.get("/users/{user_id}/settings/{name}")
 @router.get("/groups/{group_id}/settings/{name}")
-async def get_setting(name: str, session: SessionDep, library: ReadableLibraryDep) -> Response:
+async def get_setting(
+    name: str, session: SessionDep, library: ReadableLibraryDep, access: AccessDep
+) -> Response:
     """Return one setting."""
-    setting = await settings_service.get_setting(session, library, name)
+    setting = await settings_service.get_setting(session, library, name, permit=access)
     return JSONResponse(settings_service.render(setting), headers=library_headers(library.version))
 
 
@@ -96,7 +98,10 @@ async def delete_setting(
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 
-    await settings_service.get_setting(session, library, name)
+    # ``permit`` reaches this lookup for the reason it reaches the tag rename's:
+    # a confined credential sees no settings at all, so every name must answer
+    # 404 rather than 404 for an absent one and 403 for a stored one.
+    await settings_service.get_setting(session, library, name, permit=access)
     version = await writes.bump_library_version(session, library)
     await settings_service.delete_settings(session, library, [name], version, permit=access)
     await session.commit()

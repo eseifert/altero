@@ -51,6 +51,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     '之后，你电脑上的 Zotero 会发现它在与另一个账户通信，并提议重置本地数据。让它这样做：它需要的一切现在都在这台服务器上。',
   'All items': '所有条目',
+  'All of it': '全部',
   'Allow': '允许',
   'Allow adaptations of your work to be shared?': '允许分享你作品的演绎版本吗？',
   'Allow changes (Zotero needs this to sync)': '允许修改（Zotero 同步需要）',
@@ -108,7 +109,11 @@ export default {
   'Choose a Creative Commons license': '选择一个知识共享许可协议',
   'Choose a library and an archive first.': '请先选择一个文库和一个存档。',
   'Choose a license': '选择许可协议',
+  'Choose at least one library or collection, or allow everything above.':
+    '请至少选择一个文库或分类，或者允许上面的全部内容。',
   'Choose how your work may be shared': '选择你分享作品的方式',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    '选择一个分类时，其下嵌套的内容也一并包含。该应用将无法更改您的分类、保存的搜索、设置或标签。',
   'Citation': '引注',
   'Citation style': '引注样式',
   'Clear search': '清除搜索',
@@ -230,6 +235,7 @@ export default {
     '你在这里的文库中的一切会先被删除，文件也包括在内，而且没有回收站可以找回。',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name} 中的一切会先被删除，文件也包括在内，而且没有回收站可以找回。',
+  'Everything the permissions above cover': '上述权限涵盖的全部内容',
   'Expand': '展开',
   'Expires {when}.': '{when} 到期。',
   'Export': '导出',
@@ -290,6 +296,7 @@ export default {
   'Language and time zone': '语言和时区',
   'Language and time zone saved.': '语言和时区已保存。',
   'Last opened {date}': '上次打开于 {date}',
+  'Last time you limited it to:': '上次您将它限制为：',
   'Last used {when}': '上次使用于 {when}',
   'Leave': '退出',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -300,6 +307,7 @@ export default {
     '退出此群组吗？你将失去对其文库的访问权限。',
   'Libraries': '文库',
   'Library': '文库',
+  'Limited to:': '限制为：',
   'Link issued.': '链接已签发。',
   'Links to this collection': '指向此分类的链接',
   'Loading…': '正在加载…',
@@ -340,6 +348,7 @@ export default {
   'No': '否',
   'No account yet?': '还没有账户？',
   'No applications connected.': '没有已连接的应用程序。',
+  'No collections yet.': '还没有分类。',
   'No items carry the selected tags.': '没有条目带有选中的标签。',
   'No items match this search and the selected tags.': '没有条目同时符合此搜索和选中的标签。',
   'No items match this search.': '没有条目符合此搜索。',
@@ -382,6 +391,7 @@ export default {
   'One more step': '还差一步',
   'Only people signed in to this server can see this page.':
     '只有登录到这台服务器的人才能看到此页面。',
+  'Only the libraries and collections I choose': '只限我选择的文库和分类',
   'Only their own items': '仅他们自己的条目',
   'Open file': '打开文件',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -624,6 +634,7 @@ export default {
   'Whatever the group allows': '群组允许的一切',
   'Where a request goes, over the HTTP-Redirect binding.':
     '请求发往何处，采用 HTTP-Redirect 绑定。',
+  'Where it can reach:': '它能访问的范围：',
   'Who can see it': '谁可以看到',
   'Who may add and change items': '谁可以添加和修改条目',
   'Who may do what': '谁可以做什么',

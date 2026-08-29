@@ -58,6 +58,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'После этого Zotero на вашем компьютере заметит, что говорит с другой учётной записью, и предложит сбросить локальные данные. Разрешите: всё, что ему нужно, теперь на этом сервере.',
   'All items': 'Все записи',
+  'All of it': 'Целиком',
   'Allow': 'Разрешить',
   'Allow adaptations of your work to be shared?':
     'Разрешить распространение переработок вашей работы?',
@@ -120,7 +121,11 @@ export default {
   'Choose a Creative Commons license': 'Выберите лицензию Creative Commons',
   'Choose a library and an archive first.': 'Сначала выберите библиотеку и архив.',
   'Choose a license': 'Выберите лицензию',
+  'Choose at least one library or collection, or allow everything above.':
+    'Выберите хотя бы одну библиотеку или коллекцию либо разрешите всё, что указано выше.',
   'Choose how your work may be shared': 'Выберите, как ваша работа будет распространяться',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Выбранная коллекция включает и всё, что вложено в неё. Приложение не сможет изменять ваши коллекции, сохранённые поиски, настройки и теги.',
   'Citation': 'Ссылка',
   'Citation style': 'Стиль ссылок',
   'Clear search': 'Очистить поиск',
@@ -244,6 +249,7 @@ export default {
     'Всё в вашей здешней библиотеке сначала удаляется, вместе с файлами, и корзины вокруг неё нет.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Всё в {name} сначала удаляется, вместе с файлами, и корзины вокруг этого нет.',
+  'Everything the permissions above cover': 'Всё, что охватывают разрешения выше',
   'Expand': 'Развернуть',
   'Expires {when}.': 'Истекает {when}.',
   'Export': 'Экспорт',
@@ -305,6 +311,7 @@ export default {
   'Language and time zone': 'Язык и часовой пояс',
   'Language and time zone saved.': 'Язык и часовой пояс сохранены.',
   'Last opened {date}': 'Последний раз открывалось {date}',
+  'Last time you limited it to:': 'В прошлый раз вы ограничили его:',
   'Last used {when}': 'Последний раз использовалось {when}',
   'Leave': 'Покинуть',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -316,6 +323,7 @@ export default {
     'Покинуть эту группу? Вы потеряете доступ к её библиотеке.',
   'Libraries': 'Библиотеки',
   'Library': 'Библиотека',
+  'Limited to:': 'Ограничено:',
   'Link issued.': 'Ссылка выдана.',
   'Links to this collection': 'Ссылки на эту коллекцию',
   'Loading…': 'Загрузка…',
@@ -358,6 +366,7 @@ export default {
   'No': 'Нет',
   'No account yet?': 'Ещё нет учётной записи?',
   'No applications connected.': 'Подключённых приложений нет.',
+  'No collections yet.': 'Коллекций пока нет.',
   'No items carry the selected tags.': 'Ни одна запись не несёт выбранных тегов.',
   'No items match this search and the selected tags.':
     'Ни одна запись не подходит под этот поиск и выбранные теги.',
@@ -404,6 +413,7 @@ export default {
   'One more step': 'Ещё один шаг',
   'Only people signed in to this server can see this page.':
     'Эту страницу видят только те, кто вошёл на этот сервер.',
+  'Only the libraries and collections I choose': 'Только выбранные мной библиотеки и коллекции',
   'Only their own items': 'Только собственные записи',
   'Open file': 'Открыть файл',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -658,6 +668,7 @@ export default {
   'Whatever the group allows': 'Что бы группа ни разрешала',
   'Where a request goes, over the HTTP-Redirect binding.':
     'Куда идёт запрос, по привязке HTTP-Redirect.',
+  'Where it can reach:': 'Куда оно может дотянуться:',
   'Who can see it': 'Кто это видит',
   'Who may add and change items': 'Кто может добавлять и изменять записи',
   'Who may do what': 'Кому что позволено',

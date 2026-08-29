@@ -11,7 +11,7 @@ needs. Nothing here relies on lazy relationship loading, which would otherwise
 fail whenever a key reached the check without having been loaded by a query.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,14 +20,59 @@ from altero.errors import ForbiddenError, NotFoundError
 from altero.models import (
     ApiKey,
     ApiKeyGroupAccess,
+    Collection,
     Group,
     GroupMember,
     Library,
     LibraryType,
     MemberPermission,
+    OAuthGrantResource,
     User,
 )
 from altero.services import oauthscopes, oauthserver
+
+
+@dataclass(frozen=True, slots=True)
+class ResourceGrant:
+    """Which libraries and collections a credential was confined to.
+
+    Present on a :class:`Credential` only when an OAuth grant was narrowed by
+    the person who made it -- ``restricted`` on the row. Its absence is the
+    common case and means exactly what it meant before this existed: the scopes
+    decide alone.
+
+    Both halves are stated in database ids rather than keys, because that is
+    what the row holds and what :func:`access_for` compares against. The
+    collection ids here are the ones *named*; the descendants they also grant
+    are worked out per library in :func:`confinement_for`, which is the one
+    place that reading is applied.
+    """
+
+    #: Every library this grant names. A library absent from it is refused
+    #: outright, which is what makes "group 42 and no other" one comparison
+    #: rather than a rule each endpoint has to remember.
+    libraries: frozenset[int] = frozenset()
+    #: The collections named per library. A library present in
+    #: :attr:`libraries` and absent here was granted entire.
+    collections: dict[int, frozenset[int]] = field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class Confinement:
+    """What a :class:`ResourceGrant` leaves of one particular library.
+
+    Three states, and the difference between the first two is the whole reason
+    this is a small object rather than a set: *unconfined* is the absence of a
+    restriction, and there is no set of collections that says it.
+    """
+
+    #: The library is not in the grant at all. Everything under its prefix is
+    #: refused, by :func:`access_for` returning an :class:`Access` that cannot
+    #: read -- so no endpoint has to know about this.
+    denied: bool = False
+    #: The collections reachable here, already widened to include everything
+    #: nested inside each. ``None`` means the whole library.
+    collections: frozenset[int] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,6 +107,11 @@ class Credential:
     #: The scopes an OAuth token was issued with, for ``/oauth/userinfo`` to
     #: decide which claims it may answer with. Empty for an API key.
     scopes: str = ""
+    #: Where this credential may reach, when its grant was narrowed to
+    #: particular libraries or collections. ``None`` -- every API key, and every
+    #: OAuth grant whose owner did not narrow it -- means the scopes decide
+    #: alone. See :class:`ResourceGrant`.
+    resources: ResourceGrant | None = None
 
     @classmethod
     def from_api_key(cls, api_key: ApiKey) -> Credential:
@@ -114,6 +164,25 @@ class Access:
     #: Whose access this is, or ``None`` for an anonymous read. What ``own``
     #: compares an object's author against.
     user_id: int | None = None
+    #: The collections this credential is confined to, already widened to
+    #: include everything nested inside each, or ``None`` for the whole
+    #: library. Set only by a resource-scoped OAuth grant --
+    #: :class:`ResourceGrant` -- and ``None`` everywhere else, which is what
+    #: keeps an API key, a cookie and an anonymous read behaving as before.
+    #:
+    #: The read services take this :class:`Access` as their ``permit`` and turn
+    #: it into one predicate, so a listing, a lookup by key, a count, a search,
+    #: an export and a tag count are all confined by the same clause rather than
+    #: by a rule each of them remembers.
+    collections: frozenset[int] | None = None
+
+    @property
+    def confined(self) -> bool:
+        """Whether this credential reaches only part of the library.
+
+        What the write paths ask before touching anything the library shares.
+        """
+        return self.collections is not None
 
     def may_change(self, created_by: int | None) -> bool:
         """Whether this credential may change an object ``created_by`` added.
@@ -147,8 +216,17 @@ class Access:
         records who made it. ``own`` therefore cannot tell one member's from
         another's and treats all of it as somebody else's; filing an item into
         a collection is a write to the *item* and stays allowed.
+
+        A credential confined to some collections may not either, and that is a
+        decision rather than a consequence: none of this structure is *in* a
+        collection. A saved search reaches wherever its conditions reach, a
+        setting is the library's, and renaming a tag rewrites every item
+        carrying it -- including the ones the confinement was drawn to exclude.
+        Confining those soundly would mean inventing a per-collection meaning
+        for objects that have none, so a resource-scoped grant writes items and
+        leaves the library's shape alone. ``docs/compatibility.md`` records it.
         """
-        return self.write and self.permission != MemberPermission.OWN
+        return self.write and self.permission != MemberPermission.OWN and not self.confined
 
     def may_remove_structure(self) -> bool:
         """Whether this credential may delete a collection, search or setting."""
@@ -167,12 +245,29 @@ class Access:
     def require_change_structure(self) -> None:
         """Raise unless :meth:`may_change_structure` allows it."""
         if not self.may_change_structure():
+            if self.write and self.confined:
+                raise ForbiddenError(_confinement_refusal())
             raise ForbiddenError(_refusal(self.permission, changing=True))
 
     def require_remove_structure(self) -> None:
         """Raise unless :meth:`may_remove_structure` allows it."""
         if not self.may_remove_structure():
+            if self.write and self.confined:
+                raise ForbiddenError(_confinement_refusal())
             raise ForbiddenError(_refusal(self.permission, changing=False))
+
+
+def _confinement_refusal() -> str:
+    """What a confined credential is told when it reaches the library's shape.
+
+    Said in words for the reason :func:`_refusal` is: a sync client has no
+    vocabulary for a resource-scoped grant and shows whatever comes back.
+    """
+    return (
+        "This application was given access to particular collections, "
+        "which does not include changing the library's collections, "
+        "saved searches, settings or tags"
+    )
 
 
 def _refusal(permission: str, *, changing: bool) -> str:
@@ -248,6 +343,12 @@ async def _authenticate_token(session: AsyncSession, credential: str) -> Credent
         raise ForbiddenError("This account has been suspended")
 
     granted = oauthscopes.capabilities(identity.scopes)
+    # Read off the grant rather than the token, which is what makes a refreshed
+    # token the same authorization: a restriction that lived on the access token
+    # would be one an application could wait out by refreshing.
+    resources = (
+        await resource_grant_for(session, identity.grant_id) if identity.restricted else None
+    )
     return Credential(
         user_id=identity.user_id,
         library_read=granted.library_read,
@@ -258,6 +359,7 @@ async def _authenticate_token(session: AsyncSession, credential: str) -> Credent
         all_groups_write=granted.all_groups_write,
         key_id=None,
         scopes=identity.scopes,
+        resources=resources,
     )
 
 
@@ -281,6 +383,7 @@ def access_for(
     override: ApiKeyGroupAccess | None = None,
     membership: GroupMember | None = None,
     group: Group | None = None,
+    confinement: Confinement | None = None,
 ) -> Access:
     """Return the access ``api_key`` has to ``library``.
 
@@ -300,12 +403,36 @@ def access_for(
     reserves editing for its administrators has already lost ``write`` by the
     time their permission is looked at, so it cannot give them anything.
 
+    A fifth ceiling joined the four in :class:`ResourceGrant`: where an OAuth
+    grant was narrowed to particular libraries or collections, ``confinement``
+    says what is left of *this* library. It is applied first and it only ever
+    subtracts -- a library the grant does not name is refused outright here, so
+    nothing below has to remember to ask, and a library it names by collection
+    keeps the collections on the answer for the read services to filter by.
+
     Args:
         override: The key's per-group access for this library, if any. Only
             meaningful for group libraries.
         membership: The key owner's membership of this group, if any.
         group: The group's metadata, which says who may edit it.
+        confinement: What a resource-scoped grant leaves of this library, or
+            ``None`` when the credential was not narrowed. See
+            :func:`confinement_for`.
     """
+    if confinement is not None and confinement.denied:
+        # A library the grant does not name. Refused before anything else is
+        # looked at, and refused the same way an unauthenticated caller is
+        # refused a private library, so a restricted token cannot use the
+        # difference between "forbidden" and "not found" to map an account's
+        # groups.
+        return Access(
+            read=False,
+            write=False,
+            notes=False,
+            files=False,
+            user_id=api_key.user_id if api_key is not None else None,
+        )
+
     if api_key is None:
         # Nothing is being withheld from an anonymous reader that is not already
         # withheld by `public`, except the files: upstream's privacy settings
@@ -323,6 +450,7 @@ def access_for(
                 notes=library.public,
                 files=False,
                 user_id=api_key.user_id,
+                collections=confinement.collections if confinement is not None else None,
             )
         return Access(
             read=api_key.library_read,
@@ -330,6 +458,7 @@ def access_for(
             notes=_may_read_notes(library, api_key, api_key.library_read),
             files=api_key.library_read and api_key.files_read,
             user_id=api_key.user_id,
+            collections=confinement.collections if confinement is not None else None,
         )
 
     if membership is None:
@@ -342,6 +471,7 @@ def access_for(
             notes=library.public,
             files=False,
             user_id=api_key.user_id,
+            collections=confinement.collections if confinement is not None else None,
         )
 
     if override is not None:
@@ -371,6 +501,7 @@ def access_for(
         files=read and api_key.files_read,
         permission=permission,
         user_id=api_key.user_id,
+        collections=confinement.collections if confinement is not None else None,
     )
 
 
@@ -456,15 +587,130 @@ async def get_group_context(
     return (row[0], row[1]) if row is not None else (None, None)
 
 
+async def confinement_for(
+    session: AsyncSession,
+    library: Library,
+    api_key: Credential | None,
+) -> Confinement | None:
+    """Return what a resource-scoped grant leaves of ``library``.
+
+    ``None`` when the credential carries no restriction, which is every API
+    key, every cookie session and every OAuth grant whose owner did not narrow
+    it -- and is why this costs an unrestricted request no query at all.
+
+    A restricted grant that names ``library`` by collection has those
+    collections widened here to include everything nested inside them. That
+    widening is a decision and it is the one the rest of altero already makes:
+    a shared collection means the branch, and so does the desktop client's
+    "Show Items from Subcollections". Naming a collection and meaning only its
+    direct contents would leave somebody who files a paper into a subcollection
+    quietly withdrawing it from an application they granted the parent to.
+    """
+    if api_key is None or api_key.resources is None:
+        return None
+
+    grant = api_key.resources
+    if library.id not in grant.libraries:
+        return Confinement(denied=True)
+
+    named = grant.collections.get(library.id)
+    if named is None:
+        return Confinement()
+
+    return Confinement(collections=await _with_descendants(session, library, named))
+
+
+async def _with_descendants(
+    session: AsyncSession, library: Library, named: frozenset[int]
+) -> frozenset[int]:
+    """Return ``named`` together with every collection nested inside any of them.
+
+    Walked a level at a time rather than with a recursive CTE, for the reason
+    :func:`altero.services.collections.subtree` is -- SQLite and PostgreSQL
+    spell one differently enough to be worth avoiding for a tree a handful of
+    levels deep. The walk is bounded by ``found``, so a cycle that somehow
+    reached the database cannot spin here.
+
+    The library is restated in the query. A collection id that belongs to
+    another library cannot widen this answer even if a grant somehow named one,
+    which matters because the ids come from a row rather than from a request.
+    """
+    found = set(
+        await session.scalars(
+            select(Collection.id).where(
+                Collection.library_id == library.id, Collection.id.in_(named)
+            )
+        )
+    )
+    frontier = list(found)
+
+    while frontier:
+        children = list(
+            await session.scalars(
+                select(Collection.id).where(
+                    Collection.library_id == library.id, Collection.parent_id.in_(frontier)
+                )
+            )
+        )
+        frontier = [child for child in children if child not in found]
+        found.update(frontier)
+
+    return frozenset(found)
+
+
 async def get_access(
     session: AsyncSession,
     library: Library,
     api_key: Credential | None,
 ) -> Access:
     """Return the access ``api_key`` has to ``library``, fetching what it needs."""
+    confinement = await confinement_for(session, library, api_key)
+    if confinement is not None and confinement.denied:
+        # Nothing else can widen a library the grant does not name, and asking
+        # would cost two queries on a request that is already refused.
+        return access_for(library, api_key, confinement=confinement)
+
     override = await get_group_override(session, library, api_key)
     membership, group = await get_group_context(session, library, api_key)
-    return access_for(library, api_key, override, membership, group)
+    return access_for(library, api_key, override, membership, group, confinement)
+
+
+async def resource_grant_for(session: AsyncSession, grant_id: int) -> ResourceGrant | None:
+    """Return the resources ``grant_id`` was narrowed to, or ``None`` if it was not.
+
+    Read off :class:`~altero.models.OAuthGrantResource` on every request a token
+    makes, which is one query and only for a restricted grant: the caller has
+    already read ``restricted`` off the grant row it had in hand.
+    """
+    rows = list(
+        await session.execute(
+            select(OAuthGrantResource.library_id, OAuthGrantResource.collection_id).where(
+                OAuthGrantResource.grant_id == grant_id
+            )
+        )
+    )
+
+    libraries: set[int] = set()
+    collections: dict[int, set[int]] = {}
+    whole: set[int] = set()
+    for library_id, collection_id in rows:
+        libraries.add(library_id)
+        if collection_id is None:
+            whole.add(library_id)
+        else:
+            collections.setdefault(library_id, set()).add(collection_id)
+
+    # A library named both entire and by collection is named entire: the wider
+    # row is the one its owner ticked, and narrowing it by the other would make
+    # the order the rows were written in decide what the grant means.
+    return ResourceGrant(
+        libraries=frozenset(libraries),
+        collections={
+            library_id: frozenset(ids)
+            for library_id, ids in collections.items()
+            if library_id not in whole
+        },
+    )
 
 
 async def require_read(

@@ -140,23 +140,33 @@ def _timestamps(obj: Collection) -> tuple[str, str]:
 @router.get("/users/{user_id}/collections")
 @router.get("/groups/{group_id}/collections")
 async def list_collections(
-    request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: ReadableLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
     query = collection_query(request)
     if (response := not_modified(request, library.version)) is not None:
         return response
 
-    page = await collections_service.list_collections(session, library, query)
+    page = await collections_service.list_collections(session, library, query, permit=access)
     return await _render_page(request, session, page, library, base_url, query)
 
 
 @router.get("/users/{user_id}/collections/top")
 @router.get("/groups/{group_id}/collections/top")
 async def list_top_collections(
-    request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: ReadableLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
     query = collection_query(request)
-    page = await collections_service.list_collections(session, library, query, top_only=True)
+    page = await collections_service.list_collections(
+        session, library, query, top_only=True, permit=access
+    )
     return await _render_page(request, session, page, library, base_url, query)
 
 
@@ -167,13 +177,16 @@ async def get_collection(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     query = collection_query(request, SINGLE_NAMED_FORMATS)
     if (response := not_modified(request, library.version)) is not None:
         return response
 
-    collection = await collections_service.get_collection(session, library, collection_key)
+    collection = await collections_service.get_collection(
+        session, library, collection_key, permit=access
+    )
     envelope = await render_collection(session, collection, library, base_url)
 
     if query.response_format is Format.ATOM:
@@ -193,15 +206,18 @@ async def list_subcollections(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     query = collection_query(request)
     page = await collections_service.list_collections(
-        session, library, query, parent_key=collection_key
+        session, library, query, parent_key=collection_key, permit=access
     )
     describes = ""
     if query.response_format is Format.ATOM:
-        parent = await collections_service.get_collection(session, library, collection_key)
+        parent = await collections_service.get_collection(
+            session, library, collection_key, permit=access
+        )
         describes = f"Child Collections of ‘{parent.name}’"  # noqa: RUF001
     return await _render_page(request, session, page, library, base_url, query, describes)
 
@@ -212,6 +228,7 @@ async def _collection_feed_title(
     query: ListQuery,
     scope: Scope,
     collection_key: str,
+    permit: auth.Access | None = None,
 ) -> str:
     """Return what a feed of a collection's items says it covers.
 
@@ -220,7 +237,9 @@ async def _collection_feed_title(
     """
     if query.response_format is not Format.ATOM:
         return ""
-    collection = await collections_service.get_collection(session, library, collection_key)
+    collection = await collections_service.get_collection(
+        session, library, collection_key, permit=permit
+    )
     return FEED_DESCRIPTIONS[scope].format(name=collection.name)
 
 
@@ -238,7 +257,7 @@ async def list_collection_items(
 
     query = item_query(request)
     page = await items_service.list_items(
-        session, library, query, Scope.COLLECTION, collection_key, include_notes=access.notes
+        session, library, query, Scope.COLLECTION, collection_key, permit=access
     )
     return await render_page(
         request,
@@ -247,8 +266,10 @@ async def list_collection_items(
         library,
         base_url,
         query,
-        await _collection_feed_title(session, library, query, Scope.COLLECTION, collection_key),
-        include_notes=access.notes,
+        await _collection_feed_title(
+            session, library, query, Scope.COLLECTION, collection_key, access
+        ),
+        permit=access,
     )
 
 
@@ -266,7 +287,7 @@ async def list_top_collection_items(
 
     query = item_query(request)
     page = await items_service.list_items(
-        session, library, query, Scope.COLLECTION_TOP, collection_key, include_notes=access.notes
+        session, library, query, Scope.COLLECTION_TOP, collection_key, permit=access
     )
     return await render_page(
         request,
@@ -275,8 +296,10 @@ async def list_top_collection_items(
         library,
         base_url,
         query,
-        await _collection_feed_title(session, library, query, Scope.COLLECTION_TOP, collection_key),
-        include_notes=access.notes,
+        await _collection_feed_title(
+            session, library, query, Scope.COLLECTION_TOP, collection_key, access
+        ),
+        permit=access,
     )
 
 
@@ -371,7 +394,7 @@ async def _write_single(
     if header_version is not None:
         payload = {"version": header_version, **payload}
 
-    await collections_service.get_collection(session, library, collection_key)
+    await collections_service.get_collection(session, library, collection_key, permit=access)
     version = await writes.bump_library_version(session, library)
     await object_writes.save_collection(
         session,
@@ -402,7 +425,7 @@ async def delete_collection(
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 
-    await collections_service.get_collection(session, library, collection_key)
+    await collections_service.get_collection(session, library, collection_key, permit=access)
     version = await writes.bump_library_version(session, library)
     await object_writes.delete_collections(
         session, library, [collection_key], version, permit=access

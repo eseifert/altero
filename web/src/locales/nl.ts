@@ -53,6 +53,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Daarna merkt Zotero op uw computer dat het met een ander account praat en biedt het aan zijn lokale gegevens te wissen. Laat het begaan: alles wat het nodig heeft staat nu op deze server.',
   'All items': 'Alle items',
+  'All of it': 'Alles ervan',
   'Allow': 'Toestaan',
   'Allow adaptations of your work to be shared?':
     'Toestaan dat bewerkingen van uw werk worden gedeeld?',
@@ -115,7 +116,11 @@ export default {
   'Choose a Creative Commons license': 'Kies een Creative Commons-licentie',
   'Choose a library and an archive first.': 'Kies eerst een bibliotheek en een archief.',
   'Choose a license': 'Kies een licentie',
+  'Choose at least one library or collection, or allow everything above.':
+    'Kies ten minste één bibliotheek of verzameling, of sta alles hierboven toe.',
   'Choose how your work may be shared': 'Kiezen hoe uw werk gedeeld mag worden',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Een gekozen verzameling omvat ook alles wat erin zit. De toepassing kan je verzamelingen, bewaarde zoekopdrachten, instellingen en labels niet wijzigen.',
   'Citation': 'Verwijzing',
   'Citation style': 'Verwijzingsstijl',
   'Clear search': 'Zoekopdracht wissen',
@@ -239,6 +244,7 @@ export default {
     'Alles in uw bibliotheek hier wordt eerst verwijderd, bestanden inbegrepen, en er is geen prullenbak omheen.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Alles in {name} wordt eerst verwijderd, bestanden inbegrepen, en er is geen prullenbak omheen.',
+  'Everything the permissions above cover': 'Alles wat de rechten hierboven dekken',
   'Expand': 'Uitklappen',
   'Expires {when}.': 'Verloopt {when}.',
   'Export': 'Exporteren',
@@ -300,6 +306,7 @@ export default {
   'Language and time zone': 'Taal en tijdzone',
   'Language and time zone saved.': 'Taal en tijdzone opgeslagen.',
   'Last opened {date}': 'Laatst geopend {date}',
+  'Last time you limited it to:': 'De vorige keer beperkte je het tot:',
   'Last used {when}': 'Laatst gebruikt {when}',
   'Leave': 'Verlaten',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -312,6 +319,7 @@ export default {
     'Deze groep verlaten? U verliest de toegang tot haar bibliotheek.',
   'Libraries': 'Bibliotheken',
   'Library': 'Bibliotheek',
+  'Limited to:': 'Beperkt tot:',
   'Link issued.': 'Link uitgegeven.',
   'Links to this collection': 'Links naar deze verzameling',
   'Loading…': 'Laden…',
@@ -354,6 +362,7 @@ export default {
   'No': 'Nee',
   'No account yet?': 'Nog geen account?',
   'No applications connected.': 'Geen applicaties verbonden.',
+  'No collections yet.': 'Nog geen verzamelingen.',
   'No items carry the selected tags.': 'Geen items dragen de geselecteerde labels.',
   'No items match this search and the selected tags.':
     'Geen items passen bij deze zoekopdracht en de geselecteerde labels.',
@@ -402,6 +411,8 @@ export default {
   'One more step': 'Nog één stap',
   'Only people signed in to this server can see this page.':
     'Alleen mensen die op deze server zijn aangemeld kunnen deze pagina zien.',
+  'Only the libraries and collections I choose':
+    'Alleen de bibliotheken en verzamelingen die ik kies',
   'Only their own items': 'Alleen hun eigen items',
   'Open file': 'Bestand openen',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -659,6 +670,7 @@ export default {
   'Whatever the group allows': 'Wat de groep ook toestaat',
   'Where a request goes, over the HTTP-Redirect binding.':
     'Waar een verzoek naartoe gaat, via de HTTP-Redirect-binding.',
+  'Where it can reach:': 'Waar het bij kan:',
   'Who can see it': 'Wie het kan zien',
   'Who may add and change items': 'Wie items mag toevoegen en wijzigen',
   'Who may do what': 'Wie wat mag',

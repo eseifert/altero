@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import FullText, Item, Library
 from altero.services.auth import Access
-from altero.services.items import get_item
+from altero.services.items import confined_to_collections, get_item
 
 #: Counts the client may report alongside the content. Only those it sends are
 #: stored, and only those stored are returned.
@@ -99,7 +99,7 @@ async def save_batch_entry(
     if not key:
         raise InvalidInputError("Item key not provided")
 
-    item = await get_item(session, library, str(key))
+    item = await get_item(session, library, str(key), permit=permit)
     await save_content(session, library, item, payload, version, permit=permit)
 
     # The client reads `.key` off every successful and unchanged entry, so this
@@ -107,16 +107,25 @@ async def save_batch_entry(
     return {"key": item.key}
 
 
-async def list_versions(session: AsyncSession, library: Library, since: int = 0) -> dict[str, int]:
+async def list_versions(
+    session: AsyncSession, library: Library, since: int = 0, *, permit: Access | None = None
+) -> dict[str, int]:
     """Return the version of every attachment's text, keyed by item key.
 
     A client syncs its search index from this the same way it syncs objects.
+
+    ``permit`` narrows it to what the caller may see. This answer is a list of
+    item keys and versions, so a resource-scoped grant has to reach it: leaving
+    it alone would hand an application the key of every indexed attachment in a
+    library it was given one collection of.
     """
     statement = (
         select(Item.key, FullText.version)
         .join(FullText, FullText.item_id == Item.id)
         .where(FullText.library_id == library.id)
     )
+    if permit is not None and permit.collections is not None:
+        statement = statement.where(confined_to_collections(permit.collections))
     if since:
         statement = statement.where(FullText.version > since)
 

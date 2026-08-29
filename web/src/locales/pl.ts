@@ -57,6 +57,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Potem Zotero na twoim komputerze zauważy, że rozmawia z innym kontem, i zaproponuje wyczyszczenie danych lokalnych. Pozwól na to: wszystko, czego potrzebuje, jest teraz na tym serwerze.',
   'All items': 'Wszystkie elementy',
+  'All of it': 'Wszystko z niej',
   'Allow': 'Zezwól',
   'Allow adaptations of your work to be shared?':
     'Pozwolić na udostępnianie opracowań twojej pracy?',
@@ -119,7 +120,11 @@ export default {
   'Choose a Creative Commons license': 'Wybierz licencję Creative Commons',
   'Choose a library and an archive first.': 'Najpierw wybierz bibliotekę i archiwum.',
   'Choose a license': 'Wybierz licencję',
+  'Choose at least one library or collection, or allow everything above.':
+    'Wybierz co najmniej jedną bibliotekę lub kolekcję albo zezwól na wszystko powyżej.',
   'Choose how your work may be shared': 'Wybierz sposób współdzielenia swojej pracy',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Wybranie kolekcji obejmuje też wszystko, co się w niej znajduje. Aplikacja nie będzie mogła zmieniać Twoich kolekcji, zapisanych wyszukiwań, ustawień ani etykiet.',
   'Citation': 'Cytowanie',
   'Citation style': 'Styl cytowania',
   'Clear search': 'Wyczyść wyszukiwanie',
@@ -243,6 +248,7 @@ export default {
     'Wszystko w twojej tutejszej bibliotece zostaje najpierw usunięte, razem z plikami, i nie ma wokół niej kosza.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Wszystko w {name} zostaje najpierw usunięte, razem z plikami, i nie ma wokół tego kosza.',
+  'Everything the permissions above cover': 'Wszystko, co obejmują powyższe uprawnienia',
   'Expand': 'Rozwiń',
   'Expires {when}.': 'Wygasa {when}.',
   'Export': 'Eksportuj',
@@ -304,6 +310,7 @@ export default {
   'Language and time zone': 'Język i strefa czasowa',
   'Language and time zone saved.': 'Język i strefa czasowa zostały zapisane.',
   'Last opened {date}': 'Ostatnio otwarte {date}',
+  'Last time you limited it to:': 'Ostatnim razem ograniczyłeś ją do:',
   'Last used {when}': 'Ostatnio użyte {when}',
   'Leave': 'Opuść',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -316,6 +323,7 @@ export default {
     'Opuścić tę grupę? Stracisz dostęp do jej biblioteki.',
   'Libraries': 'Biblioteki',
   'Library': 'Biblioteka',
+  'Limited to:': 'Ograniczono do:',
   'Link issued.': 'Odnośnik został wydany.',
   'Links to this collection': 'Odnośniki do tej kolekcji',
   'Loading…': 'Wczytywanie…',
@@ -358,6 +366,7 @@ export default {
   'No': 'Nie',
   'No account yet?': 'Nie masz jeszcze konta?',
   'No applications connected.': 'Brak połączonych aplikacji.',
+  'No collections yet.': 'Nie ma jeszcze kolekcji.',
   'No items carry the selected tags.': 'Żaden element nie ma wybranych etykiet.',
   'No items match this search and the selected tags.':
     'Żaden element nie pasuje do tego wyszukiwania i wybranych etykiet.',
@@ -405,6 +414,7 @@ export default {
   'One more step': 'Jeszcze jeden krok',
   'Only people signed in to this server can see this page.':
     'Tę stronę widzą tylko osoby zalogowane na tym serwerze.',
+  'Only the libraries and collections I choose': 'Tylko biblioteki i kolekcje, które wybiorę',
   'Only their own items': 'Tylko własne elementy',
   'Open file': 'Otwórz plik',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -660,6 +670,7 @@ export default {
   'Whatever the group allows': 'Cokolwiek grupa pozwala',
   'Where a request goes, over the HTTP-Redirect binding.':
     'Dokąd trafia żądanie, poprzez wiązanie HTTP-Redirect.',
+  'Where it can reach:': 'Dokąd może sięgnąć:',
   'Who can see it': 'Kto może to zobaczyć',
   'Who may add and change items': 'Kto może dodawać i zmieniać elementy',
   'Who may do what': 'Kto co może',

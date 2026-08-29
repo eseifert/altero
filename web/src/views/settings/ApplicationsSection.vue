@@ -22,6 +22,13 @@ import { message, usePanel } from './panel'
 
 const { t } = useI18n()
 
+interface GrantedResource {
+  library: string
+  libraryName: string
+  collectionKey: string | null
+  collectionName: string | null
+}
+
 interface Authorization {
   id: number
   clientId: string
@@ -30,6 +37,8 @@ interface Authorization {
   scopes: string[]
   approved: string
   activeTokens: number
+  restricted: boolean
+  resources: GrantedResource[]
 }
 
 const { attempt, failure } = usePanel()
@@ -64,6 +73,23 @@ const DESCRIPTIONS: Record<string, () => string> = {
 
 function describe(scopes: string[]): string {
   return scopes.map((scope) => DESCRIPTIONS[scope]?.() ?? scope).join(' · ')
+}
+
+/**
+ * Where a narrowed grant reaches, in the words a person picked it with.
+ *
+ * Shown beside the permissions rather than instead of them: the scopes say what
+ * the application may do, this says where, and a list that gave only one of the
+ * two would be the same half-truth in either direction.
+ */
+function describeResources(resources: GrantedResource[]): string {
+  return resources
+    .map((resource) =>
+      resource.collectionName === null
+        ? resource.libraryName
+        : `${resource.libraryName} → ${resource.collectionName}`,
+    )
+    .join(' · ')
 }
 
 const disconnect = (entry: Authorization) =>
@@ -103,6 +129,9 @@ const disconnect = (entry: Authorization) =>
           </p>
           <p class="settings__detail applications__grants">
             {{ describe(entry.scopes) }}
+          </p>
+          <p v-if="entry.restricted" class="settings__detail applications__grants">
+            {{ t('Limited to:') }} {{ describeResources(entry.resources) }}
           </p>
         </div>
         <AppButton variant="text" @click="disconnect(entry)">{{

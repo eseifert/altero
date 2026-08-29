@@ -3,12 +3,13 @@
 from collections.abc import Sequence
 from typing import Any
 
-from sqlalchemy import ColumnElement, Select, and_, func, select
+from sqlalchemy import ColumnElement, Select, and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import NotFoundError
 from altero.models import Collection, CollectionItem, Item, Library
 from altero.query import Direction, ListQuery
+from altero.services.auth import Access
 from altero.services.items import Page, count_matches, paginate
 
 #: Sort parameters that map straight onto a column of ``collections``.
@@ -28,12 +29,26 @@ def _apply_sort(statement: Select[Any], query: ListQuery) -> Select[Any]:
     return statement.order_by(ordering, Collection.key.asc())
 
 
-async def get_collection(session: AsyncSession, library: Library, key: str) -> Collection:
-    """Return one collection by key."""
+async def get_collection(
+    session: AsyncSession, library: Library, key: str, *, permit: Access | None = None
+) -> Collection:
+    """Return one collection by key.
+
+    A collection outside a resource-scoped grant is *not found*, the way a
+    withheld note is: a refusal that named it would confirm it exists, and the
+    key is the only thing the caller had. This is the one door every path to a
+    single collection goes through, its subcollections and its items included.
+    """
     collection = await session.scalar(
         select(Collection).where(Collection.library_id == library.id, Collection.key == key)
     )
     if collection is None:
+        raise NotFoundError("Collection not found")
+    if (
+        permit is not None
+        and permit.collections is not None
+        and collection.id not in permit.collections
+    ):
         raise NotFoundError("Collection not found")
     return collection
 
@@ -67,21 +82,40 @@ async def list_collections(
     *,
     top_only: bool = False,
     parent_key: str | None = None,
+    permit: Access | None = None,
 ) -> Page[Collection]:
     """Return one page of collections.
 
     Args:
         top_only: Restrict to collections without a parent.
         parent_key: Restrict to the direct children of this collection.
+        permit: What the caller may see. A resource-scoped grant is filtered
+            here, which covers the listing, the keys, the versions and the
+            totals in one clause.
     """
     filters: list[ColumnElement[bool]] = [
         Collection.library_id == library.id,
     ]
 
-    if top_only:
+    if permit is not None and permit.collections is not None:
+        filters.append(Collection.id.in_(permit.collections))
+        if top_only:
+            # "Top" means top *of what the caller can see*. A granted collection
+            # nested three deep would otherwise never appear in any listing: it
+            # has a parent, and its parent is not in the grant. So a collection
+            # is top-level here when its own parent is out of reach, which is
+            # what the caller's tree actually looks like.
+            filters.append(
+                or_(
+                    Collection.parent_id.is_(None),
+                    Collection.parent_id.not_in(permit.collections),
+                )
+            )
+    elif top_only:
         filters.append(Collection.parent_id.is_(None))
+
     if parent_key is not None:
-        parent = await get_collection(session, library, parent_key)
+        parent = await get_collection(session, library, parent_key, permit=permit)
         filters.append(Collection.parent_id == parent.id)
     if query.since:
         filters.append(Collection.version > query.since)

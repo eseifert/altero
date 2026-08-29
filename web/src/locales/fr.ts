@@ -48,6 +48,7 @@ export default {
   'Administration': 'Administration',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.': 'Ensuite, Zotero sur votre ordinateur remarquera qu’il parle à un autre compte et proposera de réinitialiser ses données locales. Acceptez : tout ce dont il a besoin se trouve désormais sur ce serveur.',
   'All items': 'Tous les documents',
+  'All of it': 'Tout entière',
   'Allow': 'Autoriser',
   'Allow adaptations of your work to be shared?':
     'Autoriser de modifier et partager votre travail ?',
@@ -105,7 +106,11 @@ export default {
   'Choose a Creative Commons license': 'Choisissez une licence Creative Commons',
   'Choose a library and an archive first.': 'Choisissez d’abord une bibliothèque et une archive.',
   'Choose a license': 'Choisir une licence',
+  'Choose at least one library or collection, or allow everything above.':
+    'Choisissez au moins une bibliothèque ou une collection, ou autorisez tout ce qui précède.',
   'Choose how your work may be shared': 'Choisissez comment votre travail peut être partagé',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Choisir une collection inclut aussi tout ce qu’elle contient. L’application ne pourra pas modifier vos collections, vos recherches enregistrées, vos paramètres ni vos marqueurs.',
   Citation: 'Citation',
   'Citation style': 'Style de citation',
   'Clear search': 'Effacer la recherche',
@@ -226,6 +231,7 @@ export default {
   'Everything in your library here is deleted first, files included, and there is no trash around it.': 'Tout ce que contient votre bibliothèque ici est supprimé d’abord, fichiers compris, et il n’y a pas de corbeille autour.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Tout ce que contient {name} est d’abord supprimé, fichiers compris, et il n’y a pas de corbeille autour d’une bibliothèque.',
+  'Everything the permissions above cover': 'Tout ce que couvrent les autorisations ci-dessus',
   Expand: 'Développer',
   'Expires {when}.': 'Expire le {when}.',
   'Export': 'Exporter',
@@ -285,6 +291,7 @@ export default {
   'Language and time zone': 'Langue et fuseau horaire',
   'Language and time zone saved.': 'Langue et fuseau horaire enregistrés.',
   'Last opened {date}': 'Ouvert pour la dernière fois {date}',
+  'Last time you limited it to:': 'La dernière fois, vous l’aviez limitée à :',
   'Last used {when}': 'Dernière utilisation {when}',
   Leave: 'Quitter',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.': 'Laissez vide pour permettre à tous de se connecter. Vérifié à chaque connexion.',
@@ -296,6 +303,7 @@ export default {
     'Quitter ce groupe ? Vous perdrez l’accès à sa bibliothèque.',
   Libraries: 'Bibliothèques',
   Library: 'Bibliothèque',
+  'Limited to:': 'Limitée à :',
   'Link issued.': 'Lien émis.',
   'Links to this collection': 'Liens vers cette collection',
   'Loading…': 'Chargement…',
@@ -337,6 +345,7 @@ export default {
   No: 'Non',
   'No account yet?': 'Pas encore de compte ?',
   'No applications connected.': 'Aucune application connectée.',
+  'No collections yet.': 'Aucune collection pour l’instant.',
   'No items carry the selected tags.': 'Aucun document ne porte les marqueurs sélectionnés.',
   'No items match this search and the selected tags.':
     'Aucun document ne correspond à cette recherche et aux marqueurs sélectionnés.',
@@ -382,6 +391,8 @@ export default {
   'One more step': 'Encore une étape',
   'Only people signed in to this server can see this page.':
     'Seules les personnes connectées à ce serveur voient cette page.',
+  'Only the libraries and collections I choose':
+    'Seulement les bibliothèques et collections que je choisis',
   'Only their own items': 'Seulement leurs propres documents',
   'Open file': 'Ouvrir le fichier',
   'Open zotero.org → Settings → Security → Applications and create a new private key.': 'Ouvrez zotero.org → Settings → Security → Applications et créez une nouvelle clé privée.',
@@ -622,6 +633,7 @@ export default {
   'What to export': 'Ce qui est exporté',
   'Whatever the group allows': 'Ce que le groupe autorise',
   'Where a request goes, over the HTTP-Redirect binding.': 'Où va une requête, via la liaison HTTP-Redirect.',
+  'Where it can reach:': 'Où elle peut aller :',
   'Who can see it': 'Qui peut la voir',
   'Who may add and change items': 'Qui peut ajouter et modifier des documents',
   'Who may do what': 'Qui peut faire quoi',

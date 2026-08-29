@@ -67,6 +67,65 @@ A scope this server does not issue — say `annotations.write` — is also refus
 rather than dropped. An application asking for it has a belief about what altero
 does, and handing back a token without it produces software that half works.
 
+## Where a grant reaches
+
+A scope says what an application may do. It does not say *where*, and by itself
+`library.read` means the whole personal library while `groups.read` means every
+group the account belongs to. On the consent screen the account holder can
+narrow that: **only the libraries and collections I choose**.
+
+The choice is theirs and not the application's. An application asks for scopes,
+as it always did; nothing it sends can name a library or a collection, and no
+parameter it adds widens what was picked. The default is unchanged — approving
+without touching the choice grants everything the scopes cover, which is what
+approving has always meant.
+
+What can be picked:
+
+- a whole library, personal or group — "group 42 and none of my others";
+- one or more collections within a library, in either kind of library.
+
+**A collection means the branch.** Choosing *Reading* also grants everything
+nested inside it, at any depth, and everything filed there later. That is the
+reading altero already gives a named collection: a [shared
+collection](web-interface.md) means the branch, and so does the desktop client's
+*Show Items from Subcollections*. The alternative would mean somebody who files
+a paper into a subcollection quietly withdraws it from an application they
+granted the parent to.
+
+What a collection grant reaches, exactly:
+
+- every item filed in one of the granted collections;
+- their child notes, attachments and annotations — a child item is never filed
+  in a collection itself, so a grant that reached only filed items would hand
+  an application a paper it could not open;
+- and nothing else. An unfiled item is out. An item filed only in a collection
+  that was not granted is out, and so are its children.
+
+A library that was not picked answers 403 to everything under its prefix, and
+`GET /groups/<id>` answers 404 — which private groups exist is not something a
+refusal should confirm. `GET /users/<id>/groups` lists only the granted group
+libraries, and so does the `groups` claim. A collection that was not picked is
+absent from every listing and a 404 by key, and so is an item inside one — by
+key, on its children, on its file, on its full text, and on a write that names
+it. Every count, key listing, version listing, search, export, full-text index
+and tag count is computed over what the token can see, so none of them says that
+something else is there.
+[Compatibility notes](compatibility.md#confining-a-grant-to-particular-resources)
+records what a narrowed grant does about the parts of a library that belong to
+no collection: saved searches, settings, the delete log, writing to the
+library's shape, and administering a group.
+
+The restriction lives on the grant rather than on a token, so a **refreshed
+token is the same authorization** — a restriction an application could refresh
+its way out of would not be one. Approving again replaces it rather than adding
+to it, so an application cannot accumulate collections by asking often, and
+**Settings → Connected applications** lists what each one is limited to.
+
+Existing grants are unaffected. A grant made before this existed is unrestricted
+and stays unrestricted until somebody narrows it. So is an API key: no key can
+carry a resource grant and none is changed by one.
+
 ## Registering an application
 
 An operator registers it. Nothing self-registers, and there is no dynamic client
@@ -309,16 +368,28 @@ of it. It names the application, says in sentences what it will be able to do �
 "Read everything in your library", not `library.read` — and marks what is new
 when an application that already has consent asks for more.
 
+Below that it asks **where** the application may reach, when the scopes reach a
+library at all: everything the permissions cover, which is the default, or only
+the libraries and collections the person ticks. The collections are drawn as a
+tree, since choosing one grants the branch under it. Turning the choice on and
+ticking nothing is refused rather than treated as everything. Where a standing
+grant is already narrowed, the screen says what it is narrowed to.
+
 Every application somebody has connected is listed under **Settings → Connected
-applications**, with what it may do and whether it is currently in use.
-Disconnecting one takes effect immediately: the tokens go with the grant rather
-than running out an hour later.
+applications**, with what it may do, where it may reach, and whether it is
+currently in use. Disconnecting one takes effect immediately: the tokens go with
+the grant rather than running out an hour later.
 
 ## Security notes
 
 - The v3 API accepts an access token *in addition to* an API key. It never
   accepts a browser cookie; see
   [the boundary](compatibility.md#a-second-credential-for-the-v3-api).
+- A resource grant only ever narrows. It is applied in `access_for` beside the
+  four ceilings already there — the credential's grants, group membership, the
+  group's policy, the member's own permission — so it can never let a token
+  reach something its owner could not, and a library its owner is not a member
+  of cannot be picked in the first place.
 - `/keys/current` and `/keys/{key}` refuse an access token. They are about an
   API key as an object, and a token is not one — what a person revokes is the
   application.

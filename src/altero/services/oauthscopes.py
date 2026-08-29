@@ -138,6 +138,21 @@ def capabilities(scopes: str) -> Capabilities:
     )
 
 
+#: The scopes that reach a library at all. What decides whether the consent
+#: screen offers a narrowing: an application asking for ``openid profile`` gets
+#: no library, so offering to confine it to a collection would be a promise
+#: about nothing. ``groups`` is not in here -- being told a group's name is an
+#: identity claim, which is the distinction :data:`GROUPS` exists to draw.
+LIBRARY_SCOPES = frozenset(
+    {LIBRARY_READ, LIBRARY_WRITE, NOTES_READ, FILES_READ, GROUPS_READ, GROUPS_WRITE}
+)
+
+
+def reaches_libraries(scopes: str) -> bool:
+    """Whether ``scopes`` reaches any library."""
+    return bool(set(scopes.split()) & LIBRARY_SCOPES)
+
+
 def covers(granted: str, requested: str) -> bool:
     """Return whether a standing grant already covers a fresh request.
 

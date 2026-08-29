@@ -25,6 +25,26 @@ import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
 
+interface OfferedCollection {
+  key: string
+  name: string
+  parentKey: string | null
+}
+
+interface OfferedLibrary {
+  id: string
+  name: string
+  type: string
+  collections: OfferedCollection[]
+}
+
+interface GrantedResource {
+  library: string
+  libraryName: string
+  collectionKey: string | null
+  collectionName: string | null
+}
+
 interface PendingAuthorization {
   handle: string
   clientId: string
@@ -33,6 +53,10 @@ interface PendingAuthorization {
   scopes: string[]
   newScopes: string[]
   alreadyGranted: boolean
+  reachesLibraries: boolean
+  libraries: OfferedLibrary[]
+  restricted: boolean
+  grantedResources: GrantedResource[]
 }
 
 const auth = useAuthStore()
@@ -85,6 +109,78 @@ function message(thrown: unknown): string {
   return thrown instanceof Error ? thrown.message : String(thrown)
 }
 
+/**
+ * Whether the person is narrowing this grant, and to what.
+ *
+ * `false` is the default and means everything the scopes name, which is what
+ * approving meant before this existed. Turning it on ticks nothing: an empty
+ * choice is refused rather than silently granting everything, so the screen
+ * cannot hand over a library because somebody stopped reading half way.
+ */
+const narrowing = ref(false)
+
+/**
+ * The resources ticked, each written the way the API addresses one:
+ * `users/<id>`, `groups/<id>` or `<library>/collections/<key>`.
+ */
+const chosen = ref<Set<string>>(new Set())
+
+function toggle(resource: string): void {
+  const next = new Set(chosen.value)
+  if (next.has(resource)) {
+    next.delete(resource)
+  } else {
+    next.add(resource)
+    // Ticking a whole library drops the collections picked inside it. The
+    // server would read the wider row as the answer anyway, but sending both
+    // would mean the screen said one thing and the request another.
+    if (!resource.includes('/collections/')) {
+      for (const entry of [...next]) {
+        if (entry.startsWith(`${resource}/collections/`)) {
+          next.delete(entry)
+        }
+      }
+    }
+  }
+  chosen.value = next
+}
+
+/**
+ * A library's collections in tree order, each with how deep it sits.
+ *
+ * Drawn as a tree because a granted collection means the branch under it, and
+ * a flat list of names would not say so. Depth is computed rather than stored
+ * so an orphaned collection — one whose parent this person cannot see — still
+ * appears, at the top, instead of vanishing.
+ */
+function tree(library: OfferedLibrary): { entry: OfferedCollection; depth: number }[] {
+  const byParent = new Map<string | null, OfferedCollection[]>()
+  const known = new Set(library.collections.map((entry) => entry.key))
+  for (const entry of library.collections) {
+    const parent = entry.parentKey !== null && known.has(entry.parentKey) ? entry.parentKey : null
+    byParent.set(parent, [...(byParent.get(parent) ?? []), entry])
+  }
+
+  const out: { entry: OfferedCollection; depth: number }[] = []
+  const walk = (parent: string | null, depth: number): void => {
+    for (const entry of byParent.get(parent) ?? []) {
+      out.push({ entry, depth })
+      walk(entry.key, depth + 1)
+    }
+  }
+  walk(null, 0)
+  return out
+}
+
+/** True when the person is narrowing but has ticked nothing. */
+const nothingChosen = computed(() => narrowing.value && chosen.value.size === 0)
+
+function describeGranted(resource: GrantedResource): string {
+  return resource.collectionName === null
+    ? resource.libraryName
+    : `${resource.libraryName} → ${resource.collectionName}`
+}
+
 onMounted(async () => {
   if (!handle.value) {
     failure.value = t('That link is missing its request.')
@@ -118,7 +214,16 @@ async function decide(approve: boolean): Promise<void> {
   try {
     const answer = await request<{ redirect: string }>(
       `/web/oauth/pending/${encodeURIComponent(handle.value)}`,
-      { method: 'POST', body: { approve } },
+      {
+        method: 'POST',
+        body: {
+          approve,
+          // Absent rather than empty when nothing is being narrowed, because an
+          // empty list and no list mean the same thing to the server and the
+          // absent one is the one that reads as "I did not narrow this".
+          ...(approve && narrowing.value ? { resources: [...chosen.value] } : {}),
+        },
+      },
     )
     state.value = 'leaving'
     window.location.assign(answer.redirect)
@@ -193,6 +298,77 @@ async function decide(approve: boolean): Promise<void> {
         {{ t('It cannot read your library, your notes or your attachments.') }}
       </p>
 
+      <!-- Where the grant reaches. Offered only when the scopes reach a library
+           at all: narrowing an application that asked to know who you are would
+           be a promise about nothing. The default is everything the scopes name,
+           which is what approving has always meant. -->
+      <template v-if="pending.reachesLibraries">
+        <p v-if="pending.restricted" class="authorize__note">
+          {{ t('Last time you limited it to:') }}
+          <span v-for="(resource, index) in pending.grantedResources" :key="index">
+            <template v-if="index > 0">, </template>{{ describeGranted(resource) }}
+          </span>
+        </p>
+
+        <p class="authorize__heading">{{ t('Where it can reach:') }}</p>
+        <div class="authorize__where">
+          <label class="authorize__choice">
+            <input v-model="narrowing" type="radio" :value="false" name="narrowing" />
+            <span>{{ t('Everything the permissions above cover') }}</span>
+          </label>
+          <label class="authorize__choice">
+            <input v-model="narrowing" type="radio" :value="true" name="narrowing" />
+            <span>{{ t('Only the libraries and collections I choose') }}</span>
+          </label>
+        </div>
+
+        <div v-if="narrowing" class="authorize__scope">
+          <fieldset
+            v-for="library in pending.libraries"
+            :key="library.id"
+            class="authorize__library"
+          >
+            <legend>{{ library.name }}</legend>
+            <label class="authorize__choice">
+              <input
+                type="checkbox"
+                :checked="chosen.has(library.id)"
+                @change="toggle(library.id)"
+              />
+              <span>{{ t('All of it') }}</span>
+            </label>
+            <label
+              v-for="row in tree(library)"
+              :key="row.entry.key"
+              class="authorize__choice"
+              :style="{ paddingLeft: `${row.depth * 16}px` }"
+            >
+              <input
+                type="checkbox"
+                :disabled="chosen.has(library.id)"
+                :checked="chosen.has(`${library.id}/collections/${row.entry.key}`)"
+                @change="toggle(`${library.id}/collections/${row.entry.key}`)"
+              />
+              <span>{{ row.entry.name }}</span>
+            </label>
+            <p v-if="library.collections.length === 0" class="authorize__note">
+              {{ t('No collections yet.') }}
+            </p>
+          </fieldset>
+
+          <p class="authorize__note">
+            {{
+              t(
+                'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.',
+              )
+            }}
+          </p>
+          <p v-if="nothingChosen" class="authorize__note" role="alert">
+            {{ t('Choose at least one library or collection, or allow everything above.') }}
+          </p>
+        </div>
+      </template>
+
       <p class="authorize__note">
         {{
           t('You can disconnect it at any time in Settings, under Connected applications.')
@@ -201,7 +377,13 @@ async function decide(approve: boolean): Promise<void> {
 
       <p v-if="failure" class="auth-form__error" role="alert">{{ failure }}</p>
 
-      <AppButton type="button" full-width :loading="busy" @click="decide(true)">
+      <AppButton
+        type="button"
+        full-width
+        :loading="busy"
+        :disabled="nothingChosen"
+        @click="decide(true)"
+      >
         {{ t('Allow') }}
       </AppButton>
       <AppButton
@@ -266,5 +448,36 @@ async function decide(approve: boolean): Promise<void> {
   margin: 0;
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-small-size);
+}
+
+.authorize__where,
+.authorize__scope {
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-spacing-2);
+}
+
+.authorize__choice {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-2);
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+.authorize__library {
+  margin: 0;
+  padding: var(--md-spacing-3);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-small);
+  display: flex;
+  flex-direction: column;
+  gap: var(--md-spacing-1);
+}
+
+.authorize__library legend {
+  padding: 0 var(--md-spacing-1);
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--md-sys-typescale-label-large-size);
 }
 </style>

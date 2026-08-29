@@ -16,8 +16,16 @@ from altero.services.writes import check_object_version
 MAX_NAME_LENGTH = 60
 
 
-async def get_setting(session: AsyncSession, library: Library, name: str) -> Setting:
-    """Return one setting by name."""
+async def get_setting(
+    session: AsyncSession, library: Library, name: str, *, permit: Access | None = None
+) -> Setting:
+    """Return one setting by name.
+
+    A confined credential finds none. See :func:`list_settings`.
+    """
+    if permit is not None and permit.collections is not None:
+        raise NotFoundError("Setting not found")
+
     setting = await session.scalar(
         select(Setting).where(Setting.library_id == library.id, Setting.name == name)
     )
@@ -26,8 +34,19 @@ async def get_setting(session: AsyncSession, library: Library, name: str) -> Set
     return setting
 
 
-async def list_settings(session: AsyncSession, library: Library, since: int = 0) -> list[Setting]:
-    """Return the library's settings, optionally only those newer than ``since``."""
+async def list_settings(
+    session: AsyncSession, library: Library, since: int = 0, *, permit: Access | None = None
+) -> list[Setting]:
+    """Return the library's settings, optionally only those newer than ``since``.
+
+    A credential confined to some collections sees none. A setting is the
+    library's -- tag colours, the feed list, what the client shows -- and none
+    of it belongs to a collection, so there is no part of it a grant to one
+    collection has been given.
+    """
+    if permit is not None and permit.collections is not None:
+        return []
+
     statement = select(Setting).where(Setting.library_id == library.id)
     if since:
         statement = statement.where(Setting.version > since)

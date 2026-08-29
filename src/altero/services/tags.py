@@ -14,7 +14,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.errors import NotFoundError
 from altero.models import Item, ItemTag, Library, Tag
 from altero.query import Direction, ListQuery, TagSearchMode
-from altero.services.items import Page, count_matches, paginate
+from altero.services.auth import Access
+from altero.services.items import (
+    Page,
+    confined_to_collections,
+    count_matches,
+    paginate,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,12 +58,20 @@ async def list_tags(
     query: ListQuery,
     *,
     item_scope: Select[Any] | None = None,
+    permit: Access | None = None,
 ) -> Page[TagSummary]:
     """Return one page of tags.
 
     Args:
         item_scope: A ``SELECT`` of item ids the tags must be attached to. When
             omitted, every tag in the library is considered.
+        permit: What the caller may see. A tag has no existence apart from the
+            items carrying it, so a resource-scoped grant narrows the *items*
+            the count runs over -- and a tag left carrying none of them stops
+            existing, which is what keeps the library's tag list from
+            describing the collections the grant excluded. The listing scoped
+            to an item set gets this through ``item_scope`` as well; both are
+            applied, and neither can widen the other.
     """
     filters: list[ColumnElement[bool]] = [Tag.library_id == library.id]
     if query.since:
@@ -68,6 +82,8 @@ async def list_tags(
     join_filters = list(filters)
     if item_scope is not None:
         join_filters.append(ItemTag.item_id.in_(item_scope))
+    if permit is not None and permit.collections is not None:
+        join_filters.append(confined_to_collections(permit.collections))
 
     count = func.count(ItemTag.item_id).label("num_items")
     statement = (
@@ -97,8 +113,20 @@ async def list_tags(
     )
 
 
-async def get_tag(session: AsyncSession, library: Library, name: str) -> TagSummary:
-    """Return one tag by name."""
+async def get_tag(
+    session: AsyncSession, library: Library, name: str, *, permit: Access | None = None
+) -> TagSummary:
+    """Return one tag by name.
+
+    A tag carried by nothing the caller may see is *not found*, which is the
+    same answer a tag nobody has typed gets: the count would otherwise be zero
+    and the tag would still be there, saying that something outside the grant
+    carries it.
+    """
+    filters: list[ColumnElement[bool]] = [Tag.library_id == library.id, Tag.name == name]
+    if permit is not None and permit.collections is not None:
+        filters.append(confined_to_collections(permit.collections))
+
     row = (
         await session.execute(
             select(
@@ -110,7 +138,7 @@ async def get_tag(session: AsyncSession, library: Library, name: str) -> TagSumm
             )
             .join(ItemTag, ItemTag.tag_id == Tag.id)
             .join(Item, Item.id == ItemTag.item_id)
-            .where(Tag.library_id == library.id, Tag.name == name)
+            .where(and_(*filters))
             .group_by(Tag.id, Tag.name, Tag.type, Tag.version)
         )
     ).first()

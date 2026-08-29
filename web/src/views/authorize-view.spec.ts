@@ -15,6 +15,20 @@ vi.mock('@/api/client', async (importOriginal) => ({
   request: requestMock,
 }))
 
+const LIBRARIES = [
+  {
+    id: 'users/1',
+    name: 'Ada Lovelace',
+    type: 'user',
+    collections: [
+      { key: 'READING1', name: 'Reading', parentKey: null },
+      { key: 'NESTED12', name: '2026', parentKey: 'READING1' },
+      { key: 'TEACHIN1', name: 'Teaching', parentKey: null },
+    ],
+  },
+  { id: 'groups/42', name: 'Allowed', type: 'group', collections: [] },
+]
+
 const PENDING = {
   handle: 'opaque',
   clientId: 'notebook',
@@ -23,6 +37,10 @@ const PENDING = {
   scopes: ['openid', 'library.read'],
   newScopes: ['openid', 'library.read'],
   alreadyGranted: false,
+  reachesLibraries: true,
+  libraries: LIBRARIES,
+  restricted: false,
+  grantedResources: [],
 }
 
 beforeEach(() => {
@@ -98,7 +116,12 @@ describe('the consent screen', () => {
   })
 
   it('says plainly when nothing on offer reaches a library', async () => {
-    requestMock.mockResolvedValue({ ...PENDING, scopes: ['openid', 'profile'] })
+    requestMock.mockResolvedValue({
+      ...PENDING,
+      scopes: ['openid', 'profile'],
+      reachesLibraries: false,
+      libraries: [],
+    })
 
     const wrapper = await open()
 
@@ -114,7 +137,12 @@ describe('the consent screen', () => {
   })
 
   it('counts the group list as identity, since it reaches no library', async () => {
-    requestMock.mockResolvedValue({ ...PENDING, scopes: ['openid', 'groups'] })
+    requestMock.mockResolvedValue({
+      ...PENDING,
+      scopes: ['openid', 'groups'],
+      reachesLibraries: false,
+      libraries: [],
+    })
 
     const wrapper = await open()
 
@@ -175,6 +203,140 @@ describe('the consent screen', () => {
       body: { approve: false },
     })
     expect(assign).toHaveBeenCalledWith('https://app.example.com/callback?error=access_denied')
+  })
+
+  it('offers everything the permissions cover by default', async () => {
+    /* Approving without touching the choice grants what it always granted.
+       Nothing about the request body changes for somebody who does not narrow. */
+    const assign = vi.fn()
+    Object.defineProperty(window, 'location', { value: { assign }, writable: true })
+    const wrapper = await open()
+    requestMock.mockResolvedValue({ redirect: 'https://app.example.com/callback?code=abc' })
+
+    await wrapper.findAll('button')[0].trigger('click')
+    await flush()
+
+    expect(requestMock).toHaveBeenLastCalledWith('/web/oauth/pending/opaque', {
+      method: 'POST',
+      body: { approve: true },
+    })
+  })
+
+  it('offers no narrowing when the request reaches no library', async () => {
+    /* Offering to confine an application that asked to know who you are would
+       be a promise about nothing. */
+    requestMock.mockResolvedValue({
+      ...PENDING,
+      scopes: ['openid'],
+      reachesLibraries: false,
+      libraries: [],
+    })
+
+    const wrapper = await open()
+
+    expect(wrapper.text()).not.toContain('Where it can reach:')
+  })
+
+  it('lists the libraries and their collections when it does', async () => {
+    const wrapper = await open()
+    await wrapper.findAll('input[type="radio"]')[1].setValue()
+
+    expect(wrapper.text()).toContain('Ada Lovelace')
+    expect(wrapper.text()).toContain('Reading')
+    expect(wrapper.text()).toContain('Teaching')
+    expect(wrapper.text()).toContain('Allowed')
+  })
+
+  it('nests a collection under the one it sits in', async () => {
+    const wrapper = await open()
+    await wrapper.findAll('input[type="radio"]')[1].setValue()
+
+    const nested = wrapper
+      .findAll('.authorize__choice')
+      .find((label) => label.text() === '2026')
+    expect(nested?.attributes('style')).toContain('padding-left: 16px')
+  })
+
+  it('sends what was ticked, addressed the way the API addresses it', async () => {
+    const assign = vi.fn()
+    Object.defineProperty(window, 'location', { value: { assign }, writable: true })
+    const wrapper = await open()
+    await wrapper.findAll('input[type="radio"]')[1].setValue()
+
+    const boxes = wrapper.findAll('input[type="checkbox"]')
+    // The personal library's "Reading", which is the second box under it.
+    await boxes[1].setValue(true)
+    requestMock.mockResolvedValue({ redirect: 'https://app.example.com/callback?code=abc' })
+
+    await wrapper.findAll('button')[0].trigger('click')
+    await flush()
+
+    expect(requestMock).toHaveBeenLastCalledWith('/web/oauth/pending/opaque', {
+      method: 'POST',
+      body: { approve: true, resources: ['users/1/collections/READING1'] },
+    })
+  })
+
+  it('will not approve a narrowing with nothing ticked', async () => {
+    /* An empty choice must not mean "everything": somebody who stopped reading
+       half way through would otherwise hand over the whole account. */
+    const wrapper = await open()
+    await wrapper.findAll('input[type="radio"]')[1].setValue()
+
+    expect(wrapper.text()).toContain('Choose at least one library or collection')
+    expect(wrapper.findAll('button')[0].attributes('disabled')).toBeDefined()
+  })
+
+  it('stops picking collections once the whole library is ticked', async () => {
+    const wrapper = await open()
+    await wrapper.findAll('input[type="radio"]')[1].setValue()
+
+    const boxes = wrapper.findAll('input[type="checkbox"]')
+    await boxes[0].setValue(true)
+
+    expect(wrapper.findAll('input[type="checkbox"]')[1].attributes('disabled')).toBeDefined()
+  })
+
+  it('drops the collections picked inside a library once the library is ticked', async () => {
+    /* The server reads the wider row as the answer, so sending both would mean
+       the screen said one thing and the request another. */
+    const assign = vi.fn()
+    Object.defineProperty(window, 'location', { value: { assign }, writable: true })
+    const wrapper = await open()
+    await wrapper.findAll('input[type="radio"]')[1].setValue()
+
+    const boxes = wrapper.findAll('input[type="checkbox"]')
+    await boxes[1].setValue(true)
+    await boxes[0].setValue(true)
+    requestMock.mockResolvedValue({ redirect: 'https://app.example.com/callback?code=abc' })
+
+    await wrapper.findAll('button')[0].trigger('click')
+    await flush()
+
+    expect(requestMock).toHaveBeenLastCalledWith('/web/oauth/pending/opaque', {
+      method: 'POST',
+      body: { approve: true, resources: ['users/1'] },
+    })
+  })
+
+  it('says what a standing grant is already limited to', async () => {
+    requestMock.mockResolvedValue({
+      ...PENDING,
+      restricted: true,
+      grantedResources: [
+        {
+          library: 'users/1',
+          libraryName: 'Ada Lovelace',
+          collectionKey: 'READING1',
+          collectionName: 'Reading',
+        },
+      ],
+    })
+
+    const wrapper = await open()
+
+    expect(wrapper.text()).toContain('Last time you limited it to:')
+    expect(wrapper.text()).toContain('Ada Lovelace → Reading')
   })
 
   it('says so when the link carries no request at all', async () => {

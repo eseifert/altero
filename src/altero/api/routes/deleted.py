@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import Response
 
-from altero.api.deps import ReadableLibraryDep, SessionDep
+from altero.api.deps import AccessDep, ReadableLibraryDep, SessionDep
 from altero.api.responses import object_response
 from altero.errors import InvalidInputError
 from altero.services import deletions
@@ -18,6 +18,7 @@ async def list_deleted(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Return everything removed from the library since a given version.
 
@@ -33,5 +34,5 @@ async def list_deleted(
     except ValueError:
         raise InvalidInputError(f"Invalid 'since' value '{raw}'") from None
 
-    grouped = await deletions.list_deletions(session, library, since)
+    grouped = await deletions.list_deletions(session, library, since, permit=access)
     return object_response(grouped, library.version)

@@ -27,6 +27,7 @@ from altero.pagination import UNLIMITED
 from altero.query import Direction, ListQuery, QuickSearchMode
 from altero.search import SearchExpression, parse_search_string
 from altero.services import duplicates
+from altero.services.auth import Access
 
 #: Fields consulted by a ``titleCreatorYear`` quick search, via the sort keys
 #: that already hold each item type's title, creator and date.
@@ -199,6 +200,56 @@ def _expression_filter(
     return clauses
 
 
+def confined_to_collections(collection_ids: frozenset[int]) -> ColumnElement[bool]:
+    """Return the predicate that keeps a listing inside ``collection_ids``.
+
+    The whole of what a resource-scoped OAuth grant means for items, in one
+    clause. It goes in beside the other filters rather than around the result,
+    for the reason ``include_notes`` does: filtering afterwards leaves an item
+    outside the grant able to surface a parent inside it, and leaves every
+    count, total and ``Last-Modified-Version`` computed over the wrong set.
+
+    Three ways an item is inside:
+
+    - it is filed in one of the collections;
+    - its parent is -- a note, an attachment or an annotation is never filed in
+      a collection itself, so a grant that reached only filed items would hand
+      an application a paper it could not open;
+    - its grandparent is, which is an annotation under an attachment under a
+      filed item, and is as deep as Zotero nests.
+
+    Nothing else is: an unfiled item is out, an item filed only in a collection
+    the grant does not name is out, and a child of one of those is out with it.
+    """
+    filed = select(CollectionItem.item_id).where(CollectionItem.collection_id.in_(collection_ids))
+    child = aliased(Item)
+    # The attachments of filed items, so that an annotation under one is reached
+    # without a second join on the outer query.
+    below = select(child.id).where(child.parent_id.in_(filed))
+    return or_(
+        Item.id.in_(filed),
+        Item.parent_id.in_(filed),
+        Item.parent_id.in_(below),
+    )
+
+
+def _confinement_filters(permit: Access | None) -> list[ColumnElement[bool]]:
+    """Return the confinement clauses ``permit`` asks for, if any."""
+    if permit is None or permit.collections is None:
+        return []
+    return [confined_to_collections(permit.collections)]
+
+
+def _may_read_notes(permit: Access | None) -> bool:
+    """Whether ``permit`` may read this library's notes.
+
+    ``None`` means a path with no credential to hold to -- a restore, an
+    import, the command line -- and those read everything, exactly as they did
+    when this was a bare ``include_notes=True``.
+    """
+    return permit is None or permit.notes
+
+
 def _has_tag(library_id: int) -> Any:
     def build(name: str) -> ColumnElement[bool]:
         return (
@@ -258,7 +309,7 @@ async def _scope_filters(
     scope: Scope,
     key: str | None,
     to_parents: bool,
-    include_notes: bool,
+    permit: Access | None,
 ) -> list[ColumnElement[bool]]:
     """Return the predicates that restrict a listing to ``scope``.
 
@@ -282,7 +333,7 @@ async def _scope_filters(
         # A note the credential cannot see has no children it can see either,
         # and answering an empty list where an unknown key answers 404 would
         # say the note is there.
-        parent = await get_item(session, library, key or "", include_notes=include_notes)
+        parent = await get_item(session, library, key or "", permit=permit)
         return [Item.parent_id == parent.id]
 
     if scope is Scope.UNFILED:
@@ -313,6 +364,13 @@ async def _scope_filters(
             select(Collection).where(Collection.library_id == library.id, Collection.key == key)
         )
         if collection is None:
+            raise NotFoundError("Collection not found")
+        # A collection outside the grant is *not found* rather than forbidden,
+        # the way a withheld note is: a refusal that named it would confirm the
+        # collection exists, which is the one thing a listing scoped to somebody
+        # else's collection must not do.
+        confined = permit.collections if permit is not None else None
+        if confined is not None and collection.id not in confined:
             raise NotFoundError("Collection not found")
 
         recursive = scope in (Scope.COLLECTION_TREE, Scope.COLLECTION_TREE_TOP)
@@ -416,25 +474,35 @@ async def build_item_query(
     scope: Scope = Scope.ALL,
     key: str | None = None,
     *,
-    include_notes: bool = True,
+    permit: Access | None = None,
 ) -> Select[Any]:
     """Return the ``SELECT`` matching ``query`` within ``scope``, unordered.
 
     Args:
-        include_notes: Whether the caller may read this library's notes. A
+        permit: What the caller may read, or ``None`` for a path with no
+            credential to hold to -- a restore, an import, the command line.
+            Two things are read off it and both narrow the same statement:
+
+            ``notes`` is whether the caller may read this library's notes. A
             credential can withhold that -- an API key's ``notes`` permission,
             an OAuth token's ``notes.read`` scope -- and what it withholds is
             the note itself rather than the text on it: upstream's
-            ``itemTypeID != 1`` clause in ``Zotero_Items::search``. The filter
-            goes in beside the others rather than around the result, so a note
-            cannot surface a parent it matched either.
+            ``itemTypeID != 1`` clause in ``Zotero_Items::search``.
+
+            ``collections`` is the resource-scoped OAuth grant, and is
+            :func:`confined_to_collections`.
+
+            Both filters go in beside the others rather than around the result,
+            so nothing outside can surface a parent it matched, and every count,
+            total and page boundary is computed over what the caller may see.
     """
     to_parents = scope in _TOP_SCOPES and _matches_child_items(query)
 
     filters: list[ColumnElement[bool]] = [Item.library_id == library.id]
-    filters += await _scope_filters(session, library, scope, key, to_parents, include_notes)
+    filters += await _scope_filters(session, library, scope, key, to_parents, permit)
+    filters += _confinement_filters(permit)
 
-    if not include_notes:
+    if not _may_read_notes(permit):
         filters.append(Item.item_type != "note")
 
     # The trash is excluded everywhere except in the trash itself.
@@ -472,7 +540,16 @@ async def build_item_query(
         .where(and_(*filters))
     )
 
-    statement = select(Item).where(Item.id.in_(matched))
+    # The parents themselves are held to the confinement too. A child inside the
+    # grant can hang under a parent outside it -- an attachment filed nowhere
+    # under an item filed nowhere -- and answering with that parent would be the
+    # confinement leaking out through the very mapping that finds it.
+    outer: list[ColumnElement[bool]] = [Item.id.in_(matched)]
+    outer += _confinement_filters(permit)
+    if not _may_read_notes(permit):
+        outer.append(Item.item_type != "note")
+
+    statement = select(Item).where(and_(*outer))
     if not query.include_trashed:
         # The match itself was untrashed, but its parent may not be, and a
         # listing that is not the trash should not surface it.
@@ -487,18 +564,17 @@ async def item_ids_in_scope(
     scope: Scope = Scope.ALL,
     key: str | None = None,
     *,
-    include_notes: bool = True,
+    permit: Access | None = None,
 ) -> Select[Any]:
     """Return a ``SELECT`` of the item ids matching ``scope``.
 
     The tag endpoints count tags against a set of items, so they reuse the same
-    filtering the item endpoints do rather than repeating it -- ``include_notes``
-    included, which is what keeps a tag carried only by a hidden note out of a
-    listing scoped to items.
+    filtering the item endpoints do rather than repeating it -- ``permit``
+    included, which is what keeps a tag carried only by a hidden note, or only
+    by an item outside a resource-scoped grant, out of a listing scoped to
+    items.
     """
-    statement = await build_item_query(
-        session, library, query, scope, key, include_notes=include_notes
-    )
+    statement = await build_item_query(session, library, query, scope, key, permit=permit)
     return statement.with_only_columns(Item.id)
 
 
@@ -509,12 +585,10 @@ async def list_items(
     scope: Scope = Scope.ALL,
     key: str | None = None,
     *,
-    include_notes: bool = True,
+    permit: Access | None = None,
 ) -> Page[Item]:
     """Return one page of items, together with the total number of matches."""
-    statement = await build_item_query(
-        session, library, query, scope, key, include_notes=include_notes
-    )
+    statement = await build_item_query(session, library, query, scope, key, permit=permit)
 
     by_author = await _has_authorship(session, library, query.sort)
     result = await session.scalars(
@@ -530,36 +604,57 @@ async def list_items(
 
 
 async def get_item(
-    session: AsyncSession, library: Library, key: str, *, include_notes: bool = True
+    session: AsyncSession, library: Library, key: str, *, permit: Access | None = None
 ) -> Item:
     """Return one item by key.
 
-    A note that ``include_notes`` withholds is *not found* rather than
-    forbidden, and says the same thing an absent key says: upstream's
-    ``canAccessObject`` sends a note through the ``notes`` permission and the
-    controller answers ``e404`` for it, so a refusal never confirms that the
-    note is there.
+    A note that ``permit`` withholds is *not found* rather than forbidden, and
+    says the same thing an absent key says: upstream's ``canAccessObject`` sends
+    a note through the ``notes`` permission and the controller answers ``e404``
+    for it, so a refusal never confirms that the note is there.
+
+    An item outside a resource-scoped grant answers the same way and for the
+    same reason. This is the single door every path to one item goes through --
+    the item itself, its children, its tags, its full text, its file, and every
+    write that names it -- so confining it here confines all of them.
     """
     item = await session.scalar(select(Item).where(Item.library_id == library.id, Item.key == key))
     if item is None:
         raise NotFoundError("Item does not exist")
-    if not include_notes and item.item_type == "note":
+    if not _may_read_notes(permit) and item.item_type == "note":
+        raise NotFoundError("Item does not exist")
+    confined = permit.collections if permit is not None else None
+    if confined is not None and not await in_collections(session, item, confined):
         raise NotFoundError("Item does not exist")
     return item
 
 
+async def in_collections(session: AsyncSession, item: Item, collection_ids: frozenset[int]) -> bool:
+    """Whether ``item`` is inside ``collection_ids``, by the same three rules.
+
+    :func:`confined_to_collections` in the form a single item can be asked. The
+    two are held together by ``tests/test_oauth_resources.py``, which asks both
+    of every item in a library and fails if they ever disagree.
+    """
+    found = await session.scalar(
+        select(Item.id).where(Item.id == item.id, confined_to_collections(collection_ids)).limit(1)
+    )
+    return found is not None
+
+
 async def count_children(
-    session: AsyncSession, items: Sequence[Item], *, include_notes: bool = True
+    session: AsyncSession, items: Sequence[Item], *, permit: Access | None = None
 ) -> dict[int, int]:
     """Return how many non-trashed children each of ``items`` has, by item id.
 
     Items with no children are absent from the mapping, so callers read it with
     a default of zero.
 
-    ``include_notes`` reaches here too, and has to: a count that still says
-    three when only two children can be fetched is the one thing left telling a
-    credential that a note is there. Upstream counts attachments instead of
-    children for exactly that reason.
+    ``permit`` reaches here too, and has to: a count that still says three when
+    only two children can be fetched is the one thing left telling a credential
+    that a note is there. Upstream counts attachments instead of children for
+    exactly that reason. A resource-scoped grant is counted the same way, though
+    it can only ever agree -- a child of an item inside the grant is inside it.
     """
     if not items:
         return {}
@@ -568,8 +663,9 @@ async def count_children(
         Item.parent_id.in_([item.id for item in items]),
         Item.deleted.is_(False),
     ]
-    if not include_notes:
+    if not _may_read_notes(permit):
         filters.append(Item.item_type != "note")
+    filters += _confinement_filters(permit)
 
     result = await session.execute(
         select(Item.parent_id, func.count()).where(and_(*filters)).group_by(Item.parent_id)

@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.errors import NotFoundError
 from altero.models import Library, SavedSearch
 from altero.query import Direction, ListQuery
+from altero.services.auth import Access
 from altero.services.items import Page, count_matches, paginate
 
 _COLUMN_SORTS = {
@@ -24,8 +25,16 @@ def _apply_sort(statement: Select[Any], query: ListQuery) -> Select[Any]:
     return statement.order_by(ordering, SavedSearch.key.asc())
 
 
-async def get_search(session: AsyncSession, library: Library, key: str) -> SavedSearch:
-    """Return one saved search by key."""
+async def get_search(
+    session: AsyncSession, library: Library, key: str, *, permit: Access | None = None
+) -> SavedSearch:
+    """Return one saved search by key.
+
+    A confined credential finds none. See :func:`list_searches`.
+    """
+    if permit is not None and permit.collections is not None:
+        raise NotFoundError("Search not found")
+
     search = await session.scalar(
         select(SavedSearch).where(SavedSearch.library_id == library.id, SavedSearch.key == key)
     )
@@ -35,9 +44,21 @@ async def get_search(session: AsyncSession, library: Library, key: str) -> Saved
 
 
 async def list_searches(
-    session: AsyncSession, library: Library, query: ListQuery
+    session: AsyncSession, library: Library, query: ListQuery, *, permit: Access | None = None
 ) -> Page[SavedSearch]:
-    """Return one page of saved searches."""
+    """Return one page of saved searches.
+
+    A credential confined to some collections sees no saved searches at all,
+    and that is a decision rather than an omission. A saved search is a set of
+    conditions over the whole library: its name and its terms describe items
+    the confinement was drawn to exclude, and altero does not run one server
+    side, so there is nothing to intersect with the grant. The honest answer to
+    "which of these does this application reach" is none of them.
+    ``docs/compatibility.md`` records it.
+    """
+    if permit is not None and permit.collections is not None:
+        return Page(objects=[], total=0, library_version=library.version)
+
     filters: list[ColumnElement[bool]] = [
         SavedSearch.library_id == library.id,
     ]

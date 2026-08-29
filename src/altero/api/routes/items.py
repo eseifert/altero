@@ -67,7 +67,11 @@ FEED_DESCRIPTIONS: dict[Scope, str] = {
 
 
 async def feed_description(
-    session: AsyncSession, library: Library, scope: Scope, key: str | None
+    session: AsyncSession,
+    library: Library,
+    scope: Scope,
+    key: str | None,
+    permit: auth.Access | None = None,
 ) -> str:
     """Return what an Atom feed of ``scope`` says it covers.
 
@@ -79,10 +83,10 @@ async def feed_description(
         return template
 
     if scope is Scope.CHILDREN:
-        parent = await items_service.get_item(session, library, key)
+        parent = await items_service.get_item(session, library, key, permit=permit)
         name = parent.field_values().get("title", "")
     else:
-        name = (await collections_service.get_collection(session, library, key)).name
+        name = (await collections_service.get_collection(session, library, key, permit=permit)).name
     return template.format(name=name)
 
 
@@ -146,7 +150,7 @@ async def render_items(
     base_url: str,
     query: ListQuery | None = None,
     *,
-    include_notes: bool = True,
+    permit: auth.Access | None = None,
 ) -> list[dict[str, Any]]:
     """Serialize items, gathering the related data their envelopes need.
 
@@ -155,12 +159,12 @@ async def render_items(
     trips, which is invisible against a local SQLite file and dominates the
     response against a networked database.
 
-    ``include_notes`` reaches only ``numChildren``. Everything else here is
-    about the items already chosen, and choosing them is the query's business.
+    ``permit`` reaches only ``numChildren``. Everything else here is about the
+    items already chosen, and choosing them is the query's business.
     """
     tags = await items_service.tags_for(session, items)
     collections = await items_service.collection_keys_for(session, items)
-    children = await items_service.count_children(session, items, include_notes=include_notes)
+    children = await items_service.count_children(session, items, permit=permit)
     parent_keys = await items_service.parent_keys_for(session, items)
     authors = await items_service.authors_for(session, items)
 
@@ -189,12 +193,10 @@ async def render_item(
     base_url: str,
     query: ListQuery | None = None,
     *,
-    include_notes: bool = True,
+    permit: auth.Access | None = None,
 ) -> dict[str, Any]:
     """Serialize one item."""
-    (rendered,) = await render_items(
-        session, [item], library, base_url, query, include_notes=include_notes
-    )
+    (rendered,) = await render_items(session, [item], library, base_url, query, permit=permit)
     return rendered
 
 
@@ -207,7 +209,7 @@ async def render_page(
     query: ListQuery,
     describes: str = "Items",
     *,
-    include_notes: bool = True,
+    permit: auth.Access | None = None,
 ) -> Response:
     """Render a page of items in the requested format."""
     objects: list[Any] = []
@@ -217,14 +219,12 @@ async def render_page(
     feed: AtomFeed | None = None
 
     if query.response_format is Format.JSON:
-        objects = await render_items(
-            session, page.objects, library, base_url, query, include_notes=include_notes
-        )
+        objects = await render_items(session, page.objects, library, base_url, query, permit=permit)
     elif query.response_format is Format.ATOM:
         # The same envelopes JSON is built from, so an item has one definition
         # whichever format asked for it.
         envelopes = await render_items(
-            session, page.objects, library, base_url, query, include_notes=include_notes
+            session, page.objects, library, base_url, query, permit=permit
         )
         feed = AtomFeed(
             describes=describes,
@@ -289,22 +289,20 @@ async def render_listing(
     scope: Scope,
     key: str | None = None,
     *,
-    include_notes: bool = True,
+    permit: auth.Access | None = None,
 ) -> Response:
     query = item_query(request)
     if (response := not_modified(request, library.version)) is not None:
         return response
 
     describes = (
-        await feed_description(session, library, scope, key)
+        await feed_description(session, library, scope, key, permit)
         if query.response_format is Format.ATOM
         else ""
     )
-    page = await items_service.list_items(
-        session, library, query, scope, key, include_notes=include_notes
-    )
+    page = await items_service.list_items(session, library, query, scope, key, permit=permit)
     return await render_page(
-        request, session, page, library, base_url, query, describes, include_notes=include_notes
+        request, session, page, library, base_url, query, describes, permit=permit
     )
 
 
@@ -317,9 +315,7 @@ async def list_items(
     access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    return await render_listing(
-        request, session, library, base_url, Scope.ALL, include_notes=access.notes
-    )
+    return await render_listing(request, session, library, base_url, Scope.ALL, permit=access)
 
 
 @router.get("/users/{user_id}/items/top")
@@ -331,9 +327,7 @@ async def list_top_items(
     access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    return await render_listing(
-        request, session, library, base_url, Scope.TOP, include_notes=access.notes
-    )
+    return await render_listing(request, session, library, base_url, Scope.TOP, permit=access)
 
 
 @router.get("/users/{user_id}/items/trash")
@@ -345,9 +339,7 @@ async def list_trashed_items(
     access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    return await render_listing(
-        request, session, library, base_url, Scope.TRASH, include_notes=access.notes
-    )
+    return await render_listing(request, session, library, base_url, Scope.TRASH, permit=access)
 
 
 @router.get("/users/{user_id}/items/{item_key}")
@@ -364,12 +356,10 @@ async def get_item(
     if (response := not_modified(request, library.version)) is not None:
         return response
 
-    item = await items_service.get_item(session, library, item_key, include_notes=access.notes)
+    item = await items_service.get_item(session, library, item_key, permit=access)
 
     if query.response_format is Format.ATOM:
-        envelope = await render_item(
-            session, item, library, base_url, query, include_notes=access.notes
-        )
+        envelope = await render_item(session, item, library, base_url, query, permit=access)
         return entry_response(
             atom.item_entry(envelope, query.content),
             atom.author_for(library, base_url),
@@ -388,9 +378,7 @@ async def get_item(
     elif query.response_format in EXPORT_FORMATS:
         payload = await export_items(session, [item], library, base_url, query.response_format)
     else:
-        payload = await render_item(
-            session, item, library, base_url, query, include_notes=access.notes
-        )
+        payload = await render_item(session, item, library, base_url, query, permit=access)
 
     return object_response(payload, library.version, query.response_format)
 
@@ -406,7 +394,7 @@ async def list_item_children(
     base_url: BaseUrlDep,
 ) -> Response:
     return await render_listing(
-        request, session, library, base_url, Scope.CHILDREN, item_key, include_notes=access.notes
+        request, session, library, base_url, Scope.CHILDREN, item_key, permit=access
     )
 
 

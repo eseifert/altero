@@ -26,16 +26,21 @@ router = APIRouter(tags=["fulltext"])
 @router.get("/users/{user_id}/fulltext")
 @router.get("/groups/{group_id}/fulltext")
 async def list_fulltext_versions(
-    request: Request, session: SessionDep, library: ReadableLibraryDep
+    request: Request, session: SessionDep, library: ReadableLibraryDep, access: AccessDep
 ) -> Response:
-    """Return the version of every attachment's text, keyed by item key."""
+    """Return the version of every attachment's text, keyed by item key.
+
+    A key and a version for every indexed attachment in the library, which is
+    exactly the shape a confinement has to reach: it names objects. It is
+    narrowed by the same ``permit`` an item listing is.
+    """
     raw = request.query_params.get("since")
     try:
         since = int(raw) if raw else 0
     except ValueError:
         raise InvalidInputError(f"Invalid 'since' value '{raw}'") from None
 
-    versions = await fulltext_service.list_versions(session, library, since)
+    versions = await fulltext_service.list_versions(session, library, since, permit=access)
     return JSONResponse(versions, headers=library_headers(library.version))
 
 
@@ -64,9 +69,11 @@ async def upload_fulltext(
 
 @router.get("/users/{user_id}/items/{item_key}/fulltext")
 @router.get("/groups/{group_id}/items/{item_key}/fulltext")
-async def get_fulltext(item_key: str, session: SessionDep, library: ReadableLibraryDep) -> Response:
+async def get_fulltext(
+    item_key: str, session: SessionDep, library: ReadableLibraryDep, access: AccessDep
+) -> Response:
     """Return the stored text of one attachment."""
-    item = await items_service.get_item(session, library, item_key)
+    item = await items_service.get_item(session, library, item_key, permit=access)
     stored = await fulltext_service.get_content(session, item)
 
     return JSONResponse(fulltext_service.render(stored), headers=library_headers(stored.version))
@@ -85,7 +92,7 @@ async def put_fulltext(
     payload = await request.json()
 
     library = await writes.lock_library(session, library)
-    item = await items_service.get_item(session, library, item_key)
+    item = await items_service.get_item(session, library, item_key, permit=access)
 
     version = await writes.bump_library_version(session, library)
     await fulltext_service.save_content(session, library, item, payload, version, permit=access)

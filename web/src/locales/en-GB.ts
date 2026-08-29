@@ -62,6 +62,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.',
   'All items': 'All items',
+  'All of it': 'All of it',
   Allow: 'Allow',
   'Allow adaptations of your work to be shared?': 'Allow adaptations of your work to be shared?',
   'Allow changes (Zotero needs this to sync)': 'Allow changes (Zotero needs this to sync)',
@@ -122,7 +123,11 @@ export default {
   'Choose a Creative Commons license': 'Choose a Creative Commons licence',
   'Choose a library and an archive first.': 'Choose a library and an archive first.',
   'Choose a license': 'Choose a licence',
+  'Choose at least one library or collection, or allow everything above.':
+    'Choose at least one library or collection, or allow everything above.',
   'Choose how your work may be shared': 'Choose how your work may be shared',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.',
   Citation: 'Citation',
   'Citation style': 'Citation style',
   'Clear search': 'Clear search',
@@ -246,6 +251,7 @@ export default {
     'Everything in your library here is deleted first, files included, and there is no bin around it.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Everything in {name} is deleted first, files included, and there is no bin around it.',
+  'Everything the permissions above cover': 'Everything the permissions above cover',
   Expand: 'Expand',
   'Expires {when}.': 'Expires {when}.',
   Export: 'Export',
@@ -308,6 +314,7 @@ export default {
   'Language and time zone': 'Language and time zone',
   'Language and time zone saved.': 'Language and time zone saved.',
   'Last opened {date}': 'Last opened {date}',
+  'Last time you limited it to:': 'Last time you limited it to:',
   'Last used {when}': 'Last used {when}',
   Leave: 'Leave',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -319,6 +326,7 @@ export default {
     'Leave this group? You will lose access to its library.',
   Libraries: 'Libraries',
   Library: 'Library',
+  'Limited to:': 'Limited to:',
   'Link issued.': 'Link issued.',
   'Links to this collection': 'Links to this collection',
   'Loading…': 'Loading…',
@@ -361,6 +369,7 @@ export default {
   No: 'No',
   'No account yet?': 'No account yet?',
   'No applications connected.': 'No applications connected.',
+  'No collections yet.': 'No collections yet.',
   'No items carry the selected tags.': 'No items carry the selected tags.',
   'No items match this search and the selected tags.':
     'No items match this search and the selected tags.',
@@ -405,6 +414,7 @@ export default {
   'One more step': 'One more step',
   'Only people signed in to this server can see this page.':
     'Only people signed in to this server can see this page.',
+  'Only the libraries and collections I choose': 'Only the libraries and collections I choose',
   'Only their own items': 'Only their own items',
   'Open file': 'Open file',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -661,6 +671,7 @@ export default {
   'Whatever the group allows': 'Whatever the group allows',
   'Where a request goes, over the HTTP-Redirect binding.':
     'Where a request goes, over the HTTP-Redirect binding.',
+  'Where it can reach:': 'Where it can reach:',
   'Who can see it': 'Who can see it',
   'Who may add and change items': 'Who may add and change items',
   'Who may do what': 'Who may do what',

@@ -63,6 +63,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Depois disso, o Zotero no seu computador vai notar que está falando com outra conta e oferecer redefinir os dados locais dele. Aceite: tudo de que ele precisa está agora neste servidor.',
   'All items': 'Todos os itens',
+  'All of it': 'Ela inteira',
   Allow: 'Permitir',
   'Allow adaptations of your work to be shared?':
     'Permitir que adaptações do seu trabalho sejam compartilhadas?',
@@ -125,7 +126,11 @@ export default {
   'Choose a Creative Commons license': 'Escolha uma licença Creative Commons',
   'Choose a library and an archive first.': 'Escolha primeiro uma biblioteca e um arquivo.',
   'Choose a license': 'Escolha uma licença',
+  'Choose at least one library or collection, or allow everything above.':
+    'Escolha pelo menos uma biblioteca ou coleção, ou permita tudo acima.',
   'Choose how your work may be shared': 'Escolha como o seu trabalho pode ser compartilhado',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Escolher uma coleção também inclui tudo o que está dentro dela. O aplicativo não vai poder mudar suas coleções, buscas salvas, configurações nem etiquetas.',
   Citation: 'Citação',
   'Citation style': 'Estilo de citação',
   'Clear search': 'Limpar a busca',
@@ -249,6 +254,7 @@ export default {
     'Tudo o que está na sua biblioteca aqui é excluído primeiro, arquivos incluídos, e não há lixeira em volta disso.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Tudo o que está em {name} é excluído primeiro, arquivos incluídos, e não há lixeira em volta disso.',
+  'Everything the permissions above cover': 'Tudo o que as permissões acima abrangem',
   Expand: 'Expandir',
   'Expires {when}.': 'Expira {when}.',
   Export: 'Exportar',
@@ -310,6 +316,7 @@ export default {
   'Language and time zone': 'Idioma e fuso horário',
   'Language and time zone saved.': 'Idioma e fuso horário salvos.',
   'Last opened {date}': 'Aberta pela última vez {date}',
+  'Last time you limited it to:': 'Da última vez você limitou a:',
   'Last used {when}': 'Último uso {when}',
   Leave: 'Sair',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -322,6 +329,7 @@ export default {
     'Sair deste grupo? Você perderá o acesso à biblioteca dele.',
   Libraries: 'Bibliotecas',
   Library: 'Biblioteca',
+  'Limited to:': 'Limitado a:',
   'Link issued.': 'Link emitido.',
   'Links to this collection': 'Links para esta coleção',
   'Loading…': 'Carregando…',
@@ -364,6 +372,7 @@ export default {
   No: 'Não',
   'No account yet?': 'Ainda não tem conta?',
   'No applications connected.': 'Nenhum aplicativo conectado.',
+  'No collections yet.': 'Nenhuma coleção ainda.',
   'No items carry the selected tags.': 'Nenhum item tem as etiquetas selecionadas.',
   'No items match this search and the selected tags.':
     'Nenhum item corresponde a esta busca e às etiquetas selecionadas.',
@@ -408,6 +417,7 @@ export default {
   'One more step': 'Mais um passo',
   'Only people signed in to this server can see this page.':
     'Só quem estiver conectado a este servidor pode ver esta página.',
+  'Only the libraries and collections I choose': 'Apenas as bibliotecas e coleções que eu escolher',
   'Only their own items': 'Apenas os próprios itens',
   'Open file': 'Abrir o arquivo',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -664,6 +674,7 @@ export default {
   'Whatever the group allows': 'O que o grupo permitir',
   'Where a request goes, over the HTTP-Redirect binding.':
     'Para onde vai uma requisição, pela vinculação HTTP-Redirect.',
+  'Where it can reach:': 'Até onde ele pode chegar:',
   'Who can see it': 'Quem pode vê-la',
   'Who may add and change items': 'Quem pode adicionar e alterar itens',
   'Who may do what': 'Quem pode fazer o quê',

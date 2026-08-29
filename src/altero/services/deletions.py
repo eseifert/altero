@@ -4,6 +4,12 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import DeletedObject, DeletedObjectType, Library
+from altero.services.auth import Access
+
+
+def _empty() -> dict[str, list[str]]:
+    """Return the shape of the answer, with nothing in it."""
+    return {"collections": [], "items": [], "searches": [], "settings": [], "tags": []}
 
 
 async def record_deletion(
@@ -69,25 +75,32 @@ async def list_deletions(
     session: AsyncSession,
     library: Library,
     since: int,
+    *,
+    permit: Access | None = None,
 ) -> dict[str, list[str]]:
     """Return everything removed since ``since``, grouped by object type.
 
     Every group is present even when empty, so a client can iterate the response
     without checking for missing keys.
+
+    A credential confined to some collections is told nothing was removed, and
+    that is the only sound answer this table can give one. What is left of a
+    deleted object is its key: the row that said which collections it was in
+    went with it, so there is no way to ask whether it was inside the grant.
+    Answering with the keys anyway would hand an application a running list of
+    everything removed from the parts of the library it was not given.
+    ``docs/compatibility.md`` records it.
     """
+    if permit is not None and permit.collections is not None:
+        return _empty()
+
     result = await session.scalars(
         select(DeletedObject)
         .where(DeletedObject.library_id == library.id, DeletedObject.version > since)
         .order_by(DeletedObject.key)
     )
 
-    grouped: dict[str, list[str]] = {
-        "collections": [],
-        "items": [],
-        "searches": [],
-        "settings": [],
-        "tags": [],
-    }
+    grouped = _empty()
     plural = {
         DeletedObjectType.COLLECTION: "collections",
         DeletedObjectType.ITEM: "items",

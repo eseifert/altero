@@ -15,19 +15,20 @@ serves one. See :func:`get_visible_library` and
 :mod:`altero.services.profiles`.
 """
 
+from dataclasses import replace
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from altero.api.deps import ApiKeyDep, BaseUrlDep, LibraryDep, SessionDep
+from altero.api.deps import AccessDep, ApiKeyDep, BaseUrlDep, LibraryDep, SessionDep
 from altero.api.responses import library_headers, not_modified, object_response
 from altero.api.routes.items import render_item, render_listing
 from altero.errors import ForbiddenError, NotFoundError
 from altero.models import Library
+from altero.services import auth, profiles
 from altero.services import items as items_service
-from altero.services import profiles
 from altero.services.items import Scope
 
 router = APIRouter(tags=["publications"])
@@ -56,19 +57,58 @@ async def get_visible_library(
 VisibleLibraryDep = Annotated[Library, Depends(get_visible_library)]
 
 
+def published_permit(access: auth.Access) -> auth.Access:
+    """Return what a caller may read *of My Publications*.
+
+    The confinement a resource-scoped OAuth grant carries, and nothing else.
+    The notes narrowing is deliberately dropped, and it has to be: these
+    endpoints answer with no credential at all, so an :class:`Access` computed
+    for the library says ``notes=library.public`` for an anonymous caller --
+    which for the ordinary private library is ``False``, and would take every
+    published note out of the public view.
+
+    It is the same rule ``_may_read_notes`` already applies from the other
+    side: what has been published is published, and withholding it from a
+    credential that could have it by presenting nothing at all would be theatre
+    rather than a permission. Found by ``test_publications_endpoints.py``, whose
+    anonymous ``format=versions`` read lost a published child note.
+    """
+    return replace(access, notes=True)
+
+
 @router.get("/users/{user_id}/publications/items")
 async def list_published_items(
-    request: Request, session: SessionDep, library: VisibleLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: VisibleLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
-    """List the items the owner has published, to anyone who asks."""
-    return await render_listing(request, session, library, base_url, Scope.PUBLICATIONS)
+    """List the items the owner has published, to anyone who asks.
+
+    ``permit`` reaches here too, which matters only for a resource-scoped OAuth
+    token: an anonymous caller carries no confinement, so the public view is
+    exactly what it was. A confined token sees the published items inside its
+    grant -- which is not the whole of what a public reader sees, and is the
+    right way round. An application asking for less than a stranger gets is not
+    a leak; the reverse would be.
+    """
+    return await render_listing(
+        request, session, library, base_url, Scope.PUBLICATIONS, permit=published_permit(access)
+    )
 
 
 @router.get("/users/{user_id}/publications/items/top")
 async def list_top_published_items(
-    request: Request, session: SessionDep, library: VisibleLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: VisibleLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
-    return await render_listing(request, session, library, base_url, Scope.PUBLICATIONS_TOP)
+    return await render_listing(
+        request, session, library, base_url, Scope.PUBLICATIONS_TOP, permit=published_permit(access)
+    )
 
 
 @router.get("/users/{user_id}/publications/items/{item_key}")
@@ -77,6 +117,7 @@ async def get_published_item(
     request: Request,
     session: SessionDep,
     library: VisibleLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     """Return one published item.
@@ -87,7 +128,7 @@ async def get_published_item(
     if (response := not_modified(request, library.version)) is not None:
         return response
 
-    item = await items_service.get_item(session, library, item_key)
+    item = await items_service.get_item(session, library, item_key, permit=published_permit(access))
     if not item.in_publications:
         raise NotFoundError("Item does not exist")
 

@@ -79,8 +79,15 @@ async def _writer(
         raise ForbiddenError("Forbidden")
     if library.type is not LibraryType.GROUP:
         raise InvalidInputError("Only a group library has members")
-    if not (await auth.get_access(session, library, api_key)).write:
+
+    access = await auth.get_access(session, library, api_key)
+    if not access.write:
         raise ForbiddenError("This key may not write to this group")
+    # A group's metadata and its membership are the group's shape, so a
+    # credential confined to some of its collections is held to the same line
+    # here as it is on the library's collections and saved searches: a grant to
+    # one collection is not a grant to decide who is in the group.
+    access.require_change_structure()
     return api_key
 
 
@@ -168,6 +175,14 @@ async def list_user_groups(
     await auth.get_user(session, user_id)
     memberships = await groups.list_groups_for_user(session, user_id)
 
+    if (resources := api_key.resources) is not None:
+        # A resource-scoped grant names the group libraries it reaches, so this
+        # lists those and no others. Without it an application given one group
+        # would still be handed the id, name and description of every group its
+        # owner belongs to -- which is the leak the grant was made to close, and
+        # it would happen on the first request of every sync.
+        memberships = [entry for entry in memberships if entry[0].id in resources.libraries]
+
     if request.query_params.get("format") == Format.VERSIONS:
         return JSONResponse(
             {str(library.owner_id): library.version for library, _, _ in memberships}
@@ -200,8 +215,13 @@ async def create_group(
         raise ForbiddenError("Forbidden")
 
     personal = await auth.get_library(session, LibraryType.USER, api_key.user_id)
-    if not (await auth.get_access(session, personal, api_key)).write:
+    access = await auth.get_access(session, personal, api_key)
+    if not access.write:
         raise ForbiddenError("This key may not create groups")
+    # Confined to some collections is confined: making a whole new library is
+    # the widest thing this credential could be asked to do, and it is not what
+    # a grant to a collection was given for.
+    access.require_change_structure()
 
     owner = await auth.get_user(session, api_key.user_id)
     library, group = await groups.create_group(session, owner=owner, payload=await _body(request))

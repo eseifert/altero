@@ -31,21 +31,24 @@ marked rather than deleted.
 
 import hashlib
 import secrets
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlencode, urlparse
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError, OAuthError
-from altero.models.library import User
+from altero.models.collection import Collection
+from altero.models.library import Group, Library, LibraryType, User
 from altero.models.oauth import (
     OAuthAuthorizationRequest,
     OAuthClient,
     OAuthCode,
     OAuthDeviceCode,
     OAuthGrant,
+    OAuthGrantResource,
     OAuthSigningKey,
     OAuthToken,
 )
@@ -285,6 +288,43 @@ async def begin(
 
 
 @dataclass(frozen=True, slots=True)
+class OfferedCollection:
+    """One collection somebody may narrow a grant to, as the screen lists it."""
+
+    key: str
+    name: str
+    #: The key of the collection this one sits in, or ``None`` at the top. The
+    #: screen draws the tree from this, so that choosing "Reading" reads as
+    #: choosing a branch rather than a name out of a flat list.
+    parent_key: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class OfferedLibrary:
+    """One library somebody may narrow a grant to, with its collections."""
+
+    #: ``users/<id>`` or ``groups/<id>``, as the rest of the API addresses a
+    #: library. What the decision sends back, so the screen never has to know
+    #: about database identifiers.
+    id: str
+    name: str
+    #: ``user`` or ``group``.
+    type: str
+    collections: list[OfferedCollection]
+
+
+@dataclass(frozen=True, slots=True)
+class GrantedResource:
+    """One library or collection a standing grant already reaches."""
+
+    library: str
+    library_name: str
+    #: ``None`` when the whole library was granted.
+    collection_key: str | None = None
+    collection_name: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class PendingAuthorization:
     """An authorization waiting on a decision, as the consent screen sees it."""
 
@@ -298,6 +338,21 @@ class PendingAuthorization:
     #: should not read like granting it everything afresh.
     new_scopes: list[str]
     already_granted: bool
+    #: Whether any of the scopes asked for reaches a library at all. The screen
+    #: offers a narrowing only when there is something to narrow: an
+    #: application asking for ``openid profile`` reaches no library, and
+    #: offering to confine it to a collection would be a promise about nothing.
+    reaches_libraries: bool = False
+    #: What may be picked from, when it does. The personal library first, then
+    #: every group this person is in -- the same list ``GET /users/<id>/groups``
+    #: answers with, because a grant cannot reach past membership either.
+    offered: list[OfferedLibrary] = field(default_factory=list)
+    #: What the standing grant is already confined to, if it is confined. Shown
+    #: so that returning to an application says what it has rather than
+    #: implying it has everything.
+    granted_resources: list[GrantedResource] = field(default_factory=list)
+    #: Whether the standing grant is confined at all.
+    restricted: bool = False
 
 
 async def pending(session: AsyncSession, handle: str, user: User) -> PendingAuthorization:
@@ -319,6 +374,7 @@ async def pending(session: AsyncSession, handle: str, user: User) -> PendingAuth
     grant = await _grant_for(session, user.id, client.id)
     granted = grant.scopes if grant else ""
     requested = request.scopes.split()
+    reaches = oauthscopes.reaches_libraries(request.scopes)
     return PendingAuthorization(
         handle=handle,
         client_name=client.name,
@@ -327,7 +383,104 @@ async def pending(session: AsyncSession, handle: str, user: User) -> PendingAuth
         scopes=requested,
         new_scopes=[scope for scope in requested if scope not in set(granted.split())],
         already_granted=bool(grant) and oauthscopes.covers(granted, request.scopes),
+        reaches_libraries=reaches,
+        offered=await offered_resources(session, user) if reaches else [],
+        granted_resources=(await granted_resources(session, grant) if grant is not None else []),
+        restricted=bool(grant) and grant.restricted,
     )
+
+
+async def offered_resources(session: AsyncSession, user: User) -> list[OfferedLibrary]:
+    """Return what this person may narrow a grant to.
+
+    Their own library and every group they are in, each with its collections.
+    Membership is the outer bound and it is applied here as well as in
+    :func:`altero.services.auth.access_for`: offering a library somebody cannot
+    reach would let them approve something that silently does nothing.
+    """
+    personal = await session.scalar(
+        select(Library).where(Library.type == LibraryType.USER, Library.owner_id == user.id)
+    )
+
+    offered: list[OfferedLibrary] = []
+    if personal is not None:
+        offered.append(
+            OfferedLibrary(
+                id=f"users/{personal.owner_id}",
+                name=user.display_name or user.username,
+                type="user",
+                collections=await _offered_collections(session, personal),
+            )
+        )
+
+    for library, group, _ in await groups.list_groups_for_user(session, user.id):
+        offered.append(
+            OfferedLibrary(
+                id=f"groups/{library.owner_id}",
+                name=group.name,
+                type="group",
+                collections=await _offered_collections(session, library),
+            )
+        )
+    return offered
+
+
+async def _offered_collections(session: AsyncSession, library: Library) -> list[OfferedCollection]:
+    """Return one library's collections, parents named so the screen can nest them."""
+    parent = aliased(Collection)
+    rows = await session.execute(
+        select(Collection.key, Collection.name, parent.key)
+        .outerjoin(parent, parent.id == Collection.parent_id)
+        .where(Collection.library_id == library.id, Collection.deleted.is_(False))
+        .order_by(Collection.name)
+    )
+    return [
+        OfferedCollection(key=key, name=name, parent_key=parent_key)
+        for key, name, parent_key in rows.all()
+    ]
+
+
+async def granted_resources(session: AsyncSession, grant: OAuthGrant) -> list[GrantedResource]:
+    """Return what a standing grant is confined to, named as a person reads it."""
+    if not grant.restricted:
+        return []
+
+    rows = await session.execute(
+        select(OAuthGrantResource, Library, Collection)
+        .join(Library, Library.id == OAuthGrantResource.library_id)
+        .outerjoin(Collection, Collection.id == OAuthGrantResource.collection_id)
+        .where(OAuthGrantResource.grant_id == grant.id)
+    )
+
+    described: list[GrantedResource] = []
+    for _, library, collection in rows.all():
+        described.append(
+            GrantedResource(
+                library=_library_address(library),
+                library_name=await _library_name(session, library),
+                collection_key=collection.key if collection is not None else None,
+                collection_name=collection.name if collection is not None else None,
+            )
+        )
+    return described
+
+
+def _library_address(library: Library) -> str:
+    """Return ``users/<id>`` or ``groups/<id>`` for ``library``."""
+    prefix = "users" if library.type is LibraryType.USER else "groups"
+    return f"{prefix}/{library.owner_id}"
+
+
+async def _library_name(session: AsyncSession, library: Library) -> str:
+    """Return what a person calls this library."""
+    if library.type is LibraryType.USER:
+        owner = await session.get(User, library.owner_id)
+        if owner is None:
+            return "Library"
+        return owner.display_name or owner.username
+
+    group = await session.scalar(select(Group).where(Group.library_id == library.id))
+    return group.name if group is not None else "Group"
 
 
 async def _grant_for(session: AsyncSession, user_id: int, client_id: int) -> OAuthGrant | None:
@@ -336,8 +489,21 @@ async def _grant_for(session: AsyncSession, user_id: int, client_id: int) -> OAu
     )
 
 
-async def approve(session: AsyncSession, handle: str, user: User) -> Redirect:
-    """Record consent and hand the browser back to the application with a code."""
+async def approve(
+    session: AsyncSession,
+    handle: str,
+    user: User,
+    resources: list[str] | None = None,
+) -> Redirect:
+    """Record consent and hand the browser back to the application with a code.
+
+    Args:
+        resources: What the person narrowed the grant to, each written as
+            ``users/<id>``, ``groups/<id>`` or ``<library>/collections/<key>``.
+            ``None`` -- and an empty list -- means they narrowed nothing, which
+            is the default and is what every approval meant before this
+            existed. See :func:`set_grant_resources`.
+    """
     request = await session.get(OAuthAuthorizationRequest, handle)
     if request is None or request.expires < _now():
         raise NotFoundError("This authorization has expired or was never started")
@@ -354,6 +520,12 @@ async def approve(session: AsyncSession, handle: str, user: User) -> Redirect:
     else:
         grant.scopes = oauthscopes.union(grant.scopes, request.scopes)
         grant.approved_at = _now()
+
+    # Replaced rather than added to, and replaced on every approval. A person
+    # answering the consent screen is answering it about the whole grant: what
+    # they leave unticked this time is not still granted from last time, and an
+    # application asking again cannot accumulate collections by asking often.
+    await set_grant_resources(session, user, grant, resources)
 
     if request.device_code_id is not None:
         return await _approve_device(session, request, grant)
@@ -382,6 +554,74 @@ async def approve(session: AsyncSession, handle: str, user: User) -> Redirect:
     await session.commit()
 
     return Redirect(_redirect_with(redirect_uri, code=raw_code, state=state))
+
+
+async def set_grant_resources(
+    session: AsyncSession,
+    user: User,
+    grant: OAuthGrant,
+    resources: list[str] | None,
+) -> None:
+    """Confine ``grant`` to ``resources``, or lift the confinement.
+
+    Each entry is ``users/<id>``, ``groups/<id>`` or ``<library>/collections/<key>``
+    -- the way the API already addresses a library and a collection, so nothing
+    the browser sends is a database identifier and nothing it sends can name a
+    row by guessing a number.
+
+    Every entry is resolved against what this person may actually reach. A
+    grant is a *narrowing* of what its owner can do and never a way past it:
+    naming a group they are not in, or a collection in somebody else's library,
+    is refused rather than stored and then quietly ignored by
+    :func:`~altero.services.auth.access_for`.
+    """
+    await session.execute(delete(OAuthGrantResource).where(OAuthGrantResource.grant_id == grant.id))
+
+    if not resources:
+        grant.restricted = False
+        return
+
+    reachable = {
+        _library_address(library): library for library in await _reachable_libraries(session, user)
+    }
+
+    rows: set[tuple[int, int | None]] = set()
+    for entry in resources:
+        library_address, _, collection_part = entry.partition("/collections/")
+        library = reachable.get(library_address.strip("/"))
+        if library is None:
+            raise InvalidInputError(f"{entry} is not a library you can grant access to")
+
+        if not collection_part:
+            rows.add((library.id, None))
+            continue
+
+        collection = await session.scalar(
+            select(Collection).where(
+                Collection.library_id == library.id, Collection.key == collection_part
+            )
+        )
+        if collection is None:
+            raise InvalidInputError(f"{entry} is not a collection you can grant access to")
+        rows.add((library.id, collection.id))
+
+    for library_id, collection_id in sorted(rows, key=lambda row: (row[0], row[1] or 0)):
+        session.add(
+            OAuthGrantResource(
+                grant_id=grant.id, library_id=library_id, collection_id=collection_id
+            )
+        )
+    grant.restricted = True
+
+
+async def _reachable_libraries(session: AsyncSession, user: User) -> list[Library]:
+    """Return every library ``user`` could grant some access to."""
+    personal = await session.scalar(
+        select(Library).where(Library.type == LibraryType.USER, Library.owner_id == user.id)
+    )
+    found = [personal] if personal is not None else []
+    found += [library for library, _, _ in await groups.list_groups_for_user(session, user.id)]
+    return found
 
 
 async def _approve_device(
@@ -623,6 +863,7 @@ async def exchange_device(
             authenticated_at=row.authenticated_at or row.approved_at or _now(),
             access_token=raw_access,
             public_url=public_url,
+            grant=grant,
         )
     await session.commit()
     return payload
@@ -781,8 +1022,16 @@ async def _burn_family(session: AsyncSession, family: str) -> None:
         token.revoked_at = now
 
 
-async def group_names(session: AsyncSession, user_id: int) -> list[str]:
+async def group_names(
+    session: AsyncSession, user_id: int, *, libraries: frozenset[int] | None = None
+) -> list[str]:
     """Return the names of the groups ``user_id`` belongs to.
+
+    ``libraries`` narrows it to a resource-scoped grant's group libraries. The
+    ``groups`` claim is what an application maps roles from, and a grant that
+    named one group has said which one: answering with the rest would name
+    every group its owner is in, on a claim the application then treats as the
+    truth about them.
 
     Names rather than identifiers, because the only thing this claim is for is
     a relying party's role mapping, and those are written by somebody in a
@@ -794,7 +1043,38 @@ async def group_names(session: AsyncSession, user_id: int) -> list[str]:
     Membership and nothing else. A public group somebody has never joined is
     not in the list, the same way it is not in ``GET /users/<id>/groups``.
     """
-    return [group.name for _, group, _ in await groups.list_groups_for_user(session, user_id)]
+    return [
+        group.name
+        for library, group, _ in await groups.list_groups_for_user(session, user_id)
+        if libraries is None or library.id in libraries
+    ]
+
+
+async def _granted_libraries(session: AsyncSession, grant: OAuthGrant) -> frozenset[int] | None:
+    """Return the libraries ``grant`` was narrowed to, or ``None`` if it was not."""
+    if not grant.restricted:
+        return None
+    rows = await session.scalars(
+        select(OAuthGrantResource.library_id).where(OAuthGrantResource.grant_id == grant.id)
+    )
+    return frozenset(rows)
+
+
+async def granted_libraries(
+    session: AsyncSession, identity: TokenIdentity
+) -> frozenset[int] | None:
+    """Return the libraries a resolved token's grant was narrowed to.
+
+    For ``/oauth/userinfo``, which has a token rather than a grant in hand.
+    """
+    if not identity.restricted:
+        return None
+    rows = await session.scalars(
+        select(OAuthGrantResource.library_id).where(
+            OAuthGrantResource.grant_id == identity.grant_id
+        )
+    )
+    return frozenset(rows)
 
 
 async def _id_token(
@@ -807,8 +1087,10 @@ async def _id_token(
     authenticated_at: datetime,
     access_token: str,
     public_url: str,
+    grant: OAuthGrant,
 ) -> str:
     key = await signing_key(session)
+    granted_libraries = await _granted_libraries(session, grant)
     now = _now()
     granted = set(scopes.split())
     claims: dict[str, object] = {
@@ -835,7 +1117,7 @@ async def _id_token(
         # Present and empty rather than omitted for an account in no group: a
         # relying party mapping roles has to tell "belongs to nothing" from
         # "this server did not say", and an absent claim is the second one.
-        claims["groups"] = await group_names(session, user.id)
+        claims["groups"] = await group_names(session, user.id, libraries=granted_libraries)
     return jws.sign(claims, key.private_pem, key.kid)
 
 
@@ -903,6 +1185,7 @@ async def exchange(
             authenticated_at=row.authenticated_at,
             access_token=raw_access,
             public_url=public_url,
+            grant=grant,
         )
     await session.commit()
     return payload
@@ -1008,6 +1291,11 @@ class TokenIdentity:
     user_id: int
     scopes: str
     grant_id: int
+    #: Whether the grant behind this token was narrowed to particular libraries
+    #: or collections. Carried here so that
+    #: :func:`altero.services.auth.authenticate` reads the resource rows only
+    #: for the grants that have any -- an unrestricted token costs no query.
+    restricted: bool = False
 
 
 async def resolve_access_token(session: AsyncSession, raw: str) -> TokenIdentity | None:
@@ -1034,7 +1322,12 @@ async def resolve_access_token(session: AsyncSession, raw: str) -> TokenIdentity
     grant = await session.get(OAuthGrant, row.grant_id)
     if grant is None:
         return None
-    return TokenIdentity(user_id=grant.user_id, scopes=row.scopes, grant_id=grant.id)
+    return TokenIdentity(
+        user_id=grant.user_id,
+        scopes=row.scopes,
+        grant_id=grant.id,
+        restricted=grant.restricted,
+    )
 
 
 # --------------------------------------------------------------------------
@@ -1055,6 +1348,12 @@ class Authorization:
     #: Live access tokens, so "this is in use" can be told from "this was
     #: authorized once and forgotten".
     active_tokens: int
+    #: Whether this grant was confined to particular libraries or collections.
+    restricted: bool = False
+    #: What it was confined to, when it was. Listed so that "Connected
+    #: applications" says what an application actually reaches rather than
+    #: implying it reaches everything the scopes name.
+    resources: list[GrantedResource] = field(default_factory=list)
 
 
 async def authorizations(session: AsyncSession, user: User) -> list[Authorization]:
@@ -1084,6 +1383,8 @@ async def authorizations(session: AsyncSession, user: User) -> list[Authorizatio
                 scopes=grant.scopes.split(),
                 approved=grant.approved_at,
                 active_tokens=len(list(live)),
+                restricted=grant.restricted,
+                resources=await granted_resources(session, grant),
             )
         )
     return listed

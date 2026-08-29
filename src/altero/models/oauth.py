@@ -22,6 +22,12 @@ application may do, which is what "Connected applications" lists and what
 revoking removes. Codes and tokens hang off it, so revoking a grant takes every
 credential issued under it with it.
 
+:class:`OAuthGrantResource` is *where* that consent reaches, when the person
+narrowed it: which libraries, and which collections within them. It hangs off
+the grant rather than off a token so that a refreshed token is the same
+authorization -- a restriction that expired with an access token would be a
+restriction an application could wait out.
+
 :class:`OAuthCode` is one authorization code, hashed, single use, bound to the
 PKCE challenge the request carried.
 
@@ -40,7 +46,7 @@ about it -- a client that cached the JWKS looks a ``kid`` up and has to find it.
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, func
+from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, false, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from altero.db import Base
@@ -152,6 +158,17 @@ class OAuthGrant(Base):
     #: Everything approved so far, space separated. Widened when a later
     #: request asks for more and is approved; never widened without asking.
     scopes: Mapped[str] = mapped_column(String(255), default="")
+    #: Whether the rows in ``oauth_grant_resources`` are the whole of what this
+    #: grant reaches. ``False`` -- every grant made before this existed, and
+    #: every one whose owner did not narrow it -- means the scopes decide alone,
+    #: which is what they meant on their own before.
+    #:
+    #: The flag is the authority rather than the row count, and that is the
+    #: point of having it: deleting the last collection a grant named leaves a
+    #: restricted grant with nothing in it, and a restricted grant with nothing
+    #: in it reaches nothing. Counting rows instead would turn that deletion
+    #: into a silent promotion to the whole account.
+    restricted: Mapped[bool] = mapped_column(default=False, server_default=false())
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     #: When consent was last given or added to, which is what the interface
     #: shows next to the application's name.
@@ -278,3 +295,38 @@ class OAuthSigningKey(Base):
     #: Set when a newer key took over. Still published, still verifying, no
     #: longer signing.
     retired_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+
+
+class OAuthGrantResource(Base):
+    """One library, or one collection, a restricted grant reaches.
+
+    Only meaningful when :attr:`OAuthGrant.restricted` is set. A row naming a
+    library and no collection is that library entire; a row naming a collection
+    is that collection **and everything nested inside it**, which is the reading
+    the rest of altero already gives a named collection -- a share of a branch
+    means the branch, and so does the desktop client's "Show Items from
+    Subcollections".
+
+    Both foreign keys cascade. A library or a collection that goes away takes
+    its grants with it, and because :attr:`OAuthGrant.restricted` outlives the
+    rows, what that leaves is a grant reaching less rather than a grant reaching
+    everything.
+    """
+
+    __tablename__ = "oauth_grant_resources"
+    __table_args__ = (
+        UniqueConstraint("grant_id", "library_id", "collection_id", name="uq_oauth_grant_resource"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    grant_id: Mapped[int] = mapped_column(
+        ForeignKey("oauth_grants.id", ondelete="CASCADE"), index=True
+    )
+    library_id: Mapped[int] = mapped_column(
+        ForeignKey("libraries.id", ondelete="CASCADE"), index=True
+    )
+    #: ``None`` for the whole library. A grant may hold both kinds of row for
+    #: different libraries -- all of one group, two collections of another.
+    collection_id: Mapped[int | None] = mapped_column(
+        ForeignKey("collections.id", ondelete="CASCADE"), default=None, index=True
+    )

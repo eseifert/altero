@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- An OAuth grant can be confined to particular libraries or collections.
 - A credential that gave up notes or file access is now held to it: without `notes` a note is a 404 and appears in no listing, and without `files` the attachment bytes are refused.
 - A device with no browser can be authorized from one somewhere else: RFC 8628, on the same consent screen every other application gets.
 - An application can send somebody to `/oauth/logout` to end their browser session, holding an ID token this server issued as proof it may ask.

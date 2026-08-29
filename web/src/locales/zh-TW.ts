@@ -60,6 +60,7 @@ export default {
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     '之後，你電腦上的 Zotero 會發現它在與另一個帳號通訊，並提議重設本機資料。讓它這樣做：它需要的一切現在都在這台伺服器上。',
   'All items': '所有項目',
+  'All of it': '全部',
   Allow: '允許',
   'Allow adaptations of your work to be shared?': '允許分享你作品的改作版本嗎？',
   'Allow changes (Zotero needs this to sync)': '允許修改（Zotero 同步需要）',
@@ -115,7 +116,11 @@ export default {
   'Choose a Creative Commons license': '選擇一個創用 CC 授權條款',
   'Choose a library and an archive first.': '請先選擇一個文獻庫和一個封存檔。',
   'Choose a license': '選擇授權條款',
+  'Choose at least one library or collection, or allow everything above.':
+    '請至少選擇一個文獻庫或文獻集，或者允許上面的全部內容。',
   'Choose how your work may be shared': '選擇你分享作品的方式',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    '選擇一個文獻集時，其下巢狀的內容也一併包含。該應用程式將無法更改你的文獻集、儲存的搜尋、設定或標籤。',
   Citation: '引用',
   'Citation style': '引用樣式',
   'Clear search': '清除搜尋',
@@ -233,6 +238,7 @@ export default {
     '你在這裡的文獻庫中的一切會先被刪除，檔案也包括在內，而且沒有垃圾筒可以找回。',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name} 中的一切會先被刪除，檔案也包括在內，而且沒有垃圾筒可以找回。',
+  'Everything the permissions above cover': '上述權限涵蓋的全部內容',
   Expand: '展開',
   'Expires {when}.': '{when} 到期。',
   Export: '匯出',
@@ -292,6 +298,7 @@ export default {
   'Language and time zone': '語言和時區',
   'Language and time zone saved.': '語言和時區已儲存。',
   'Last opened {date}': '上次開啟於 {date}',
+  'Last time you limited it to:': '上次你將它限制為：',
   'Last used {when}': '上次使用於 {when}',
   Leave: '退出',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.':
@@ -301,6 +308,7 @@ export default {
   'Leave this group? You will lose access to its library.': '退出此群組嗎？你將失去對其文獻庫的存取權限。',
   Libraries: '文獻庫',
   Library: '文獻庫',
+  'Limited to:': '限制為：',
   'Link issued.': '連結已簽發。',
   'Links to this collection': '指向此文獻集的連結',
   'Loading…': '正在載入…',
@@ -341,6 +349,7 @@ export default {
   No: '否',
   'No account yet?': '還沒有帳號？',
   'No applications connected.': '沒有已連接的應用程式。',
+  'No collections yet.': '還沒有文獻集。',
   'No items carry the selected tags.': '沒有項目帶有選取的標籤。',
   'No items match this search and the selected tags.': '沒有項目同時符合此搜尋和選取的標籤。',
   'No items match this search.': '沒有項目符合此搜尋。',
@@ -382,6 +391,7 @@ export default {
   'One is stored. Leave this empty to keep it.': '已儲存一個。留空即保留它。',
   'One more step': '還差一步',
   'Only people signed in to this server can see this page.': '只有登入到這台伺服器的人才能看到此頁面。',
+  'Only the libraries and collections I choose': '只限我選擇的文獻庫和文獻集',
   'Only their own items': '僅他們自己的項目',
   'Open file': '開啟檔案',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
@@ -614,6 +624,7 @@ export default {
   'What to export': '匯出什麼',
   'Whatever the group allows': '群組允許的一切',
   'Where a request goes, over the HTTP-Redirect binding.': '要求發往何處，採用 HTTP-Redirect 繫結。',
+  'Where it can reach:': '它能存取的範圍：',
   'Who can see it': '誰可以看到',
   'Who may add and change items': '誰可以新增和修改項目',
   'Who may do what': '誰可以做什麼',

@@ -40,9 +40,16 @@ class DeviceCode(BaseModel):
 
 
 class Decision(BaseModel):
-    """Yes or no to one authorization request."""
+    """Yes or no to one authorization request, and how far it reaches.
+
+    ``resources`` is what the person narrowed the grant to, each entry written
+    as ``users/<id>``, ``groups/<id>`` or ``<library>/collections/<key>``.
+    Omitted or empty means they narrowed nothing, which is what every approval
+    meant before this existed and is still the default the screen offers.
+    """
 
     approve: bool
+    resources: list[str] | None = None
 
 
 @router.get("/pending/{handle}")
@@ -64,8 +71,36 @@ async def read_pending(handle: str, session: SessionDep, user: CurrentUserDep) -
             "scopes": pending.scopes,
             "newScopes": pending.new_scopes,
             "alreadyGranted": pending.already_granted,
+            # What may be narrowed, and to what. Empty for a request that
+            # reaches no library, so the screen has nothing to draw and offers
+            # nothing -- the choice is only ever shown where it means something.
+            "reachesLibraries": pending.reaches_libraries,
+            "libraries": [
+                {
+                    "id": library.id,
+                    "name": library.name,
+                    "type": library.type,
+                    "collections": [
+                        {"key": entry.key, "name": entry.name, "parentKey": entry.parent_key}
+                        for entry in library.collections
+                    ],
+                }
+                for library in pending.offered
+            ],
+            "restricted": pending.restricted,
+            "grantedResources": [_resource(entry) for entry in pending.granted_resources],
         }
     )
+
+
+def _resource(entry: oauthserver.GrantedResource) -> dict[str, str | None]:
+    """Return one granted library or collection as the interface reads it."""
+    return {
+        "library": entry.library,
+        "libraryName": entry.library_name,
+        "collectionKey": entry.collection_key,
+        "collectionName": entry.collection_name,
+    }
 
 
 @router.post("/pending/{handle}")
@@ -86,7 +121,7 @@ async def decide(
     spinning.
     """
     redirect = (
-        await oauthserver.approve(session, handle, user)
+        await oauthserver.approve(session, handle, user, decision.resources)
         if decision.approve
         else await oauthserver.deny(session, handle)
     )
@@ -133,6 +168,8 @@ async def list_authorizations(session: SessionDep, user: CurrentUserDep) -> JSON
                 "scopes": entry.scopes,
                 "approved": entry.approved.isoformat() + "Z",
                 "activeTokens": entry.active_tokens,
+                "restricted": entry.restricted,
+                "resources": [_resource(resource) for resource in entry.resources],
             }
             for entry in await oauthserver.authorizations(session, user)
         ]

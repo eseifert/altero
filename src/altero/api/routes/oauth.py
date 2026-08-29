@@ -396,6 +396,8 @@ async def userinfo(request: Request, session: SessionDep) -> JSONResponse:
         claims["email"] = owner.email
         claims["email_verified"] = owner.email_verified is not None
     if oauthscopes.GROUPS in granted:
-        claims["groups"] = await oauthserver.group_names(session, owner.id)
+        claims["groups"] = await oauthserver.group_names(
+            session, owner.id, libraries=await oauthserver.granted_libraries(session, identity)
+        )
 
     return JSONResponse(claims, headers={"Cache-Control": "no-store"})

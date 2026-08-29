@@ -25,6 +25,7 @@ from altero.cite import exportitem, formats
 from altero.models import Item, Library
 from altero.query import Format, ListQuery
 from altero.services import items as items_service
+from altero.services.auth import Access
 
 #: Formats a set of items can be written out in: every export format, and CSL
 #: JSON. `bib` is not among them -- a rendered bibliography is a document to
@@ -94,6 +95,7 @@ async def write_items(
     query: ListQuery,
     scope: items_service.Scope = items_service.Scope.TOP,
     key: str | None = None,
+    permit: Access | None = None,
 ) -> int:
     """Write every item ``query`` matches to ``destination``; return how many.
 
@@ -101,6 +103,15 @@ async def write_items(
     is that it does not stop at the end of a page. Each batch is detached from
     the session once it has been written, so the cost of exporting a library is
     the cost of one batch rather than of the library.
+
+    ``permit`` is the same one a listing takes, so an export holds exactly the
+    items the screen held. No caller passes a confined one today -- the only
+    caller is ``/web``, whose access comes from a cookie and confines nothing,
+    and the v3 export formats are rendered by the item routes through
+    :func:`~altero.services.items.list_items`, which already takes it. It is
+    here so that a caller that *is* confined cannot reach the one item-reading
+    service with no way to say so: a file is where a leak would be hardest to
+    notice, since nobody reads the whole of one.
     """
     written = 0
     writer = formats.writer(response_format)
@@ -111,7 +122,12 @@ async def write_items(
         start = 0
         while True:
             page = await items_service.list_items(
-                session, library, replace(query, limit=BATCH, start=start), scope, key
+                session,
+                library,
+                replace(query, limit=BATCH, start=start),
+                scope,
+                key,
+                permit=permit,
             )
             if not page.objects:
                 break

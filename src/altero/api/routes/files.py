@@ -52,7 +52,7 @@ async def upload_file(
     form = {key: str(value) for key, value in (await request.form()).items()}
 
     library = await writes.lock_library(session, library)
-    item = await items_service.get_item(session, library, item_key)
+    item = await items_service.get_item(session, library, item_key, permit=access)
     # Putting bytes on an attachment is a change to that attachment, so a member
     # restricted to their own items is held to the same line here as anywhere
     # else. The group's own `fileEditing` policy has already been applied.
@@ -138,7 +138,11 @@ async def _file_response(item: Item, root: Path, *, expected_md5: str | None = N
 @router.get("/users/{user_id}/items/{item_key}/file")
 @router.get("/groups/{group_id}/items/{item_key}/file")
 async def download_file(
-    item_key: str, request: Request, session: SessionDep, library: FileReadableLibraryDep
+    item_key: str,
+    request: Request,
+    session: SessionDep,
+    library: FileReadableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Redirect to the file attached to an item, describing it in the headers.
 
@@ -160,7 +164,7 @@ async def download_file(
     URL. Upstream puts a presigned S3 URL there; altero grants one short-lived
     permission for this one file. See services/storage.authorize_download.
     """
-    item = await items_service.get_item(session, library, item_key)
+    item = await items_service.get_item(session, library, item_key, permit=access)
     path, fields = await storage.stored_file(item, _storage_root(request))
 
     compressed = storage.is_compressed(path, fields["md5"])
@@ -184,7 +188,11 @@ async def download_file(
 @router.get("/users/{user_id}/items/{item_key}/file/content")
 @router.get("/groups/{group_id}/items/{item_key}/file/content")
 async def download_file_content(
-    item_key: str, request: Request, session: SessionDep, library: FileReadableLibraryDep
+    item_key: str,
+    request: Request,
+    session: SessionDep,
+    library: FileReadableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Return the bytes of the file attached to an item, behind an API key.
 
@@ -193,7 +201,7 @@ async def download_file_content(
     that has a key and would rather ask for them directly, which is every
     caller that is not the desktop client's file sync.
     """
-    item = await items_service.get_item(session, library, item_key)
+    item = await items_service.get_item(session, library, item_key, permit=access)
     return await _file_response(item, _storage_root(request))
 
 
@@ -222,10 +230,14 @@ async def send_download(download_key: str, request: Request, session: SessionDep
 @router.get("/users/{user_id}/items/{item_key}/file/view")
 @router.get("/groups/{group_id}/items/{item_key}/file/view")
 async def view_file(
-    item_key: str, request: Request, session: SessionDep, library: FileReadableLibraryDep
+    item_key: str,
+    request: Request,
+    session: SessionDep,
+    library: FileReadableLibraryDep,
+    access: AccessDep,
 ) -> Response:
     """Return the file for display rather than download."""
-    item = await items_service.get_item(session, library, item_key)
+    item = await items_service.get_item(session, library, item_key, permit=access)
     path, fields = await storage.stored_file(item, _storage_root(request))
 
     content_type = fields.get("contentType") or "application/octet-stream"

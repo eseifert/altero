@@ -48,6 +48,7 @@ export default {
   'Administration': 'Administración',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.': 'Después, Zotero en tu ordenador notará que habla con otra cuenta y ofrecerá restablecer sus datos locales. Acéptalo: todo lo que necesita está ya en este servidor.',
   'All items': 'Todos los elementos',
+  'All of it': 'Toda ella',
   'Allow': 'Permitir',
   'Allow adaptations of your work to be shared?': '¿Permitir que se compartan adaptaciones de tu trabajo?',
   'Allow changes (Zotero needs this to sync)':
@@ -104,7 +105,11 @@ export default {
   'Choose a Creative Commons license': 'Elige una licencia Creative Commons',
   'Choose a library and an archive first.': 'Elige primero una biblioteca y un archivo.',
   'Choose a license': 'Elige una licencia',
+  'Choose at least one library or collection, or allow everything above.':
+    'Elija al menos una biblioteca o colección, o permita todo lo anterior.',
   'Choose how your work may be shared': 'Elige cómo se puede compartir tu trabajo',
+  'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
+    'Elegir una colección incluye también todo lo que hay dentro de ella. La aplicación no podrá cambiar sus colecciones, búsquedas guardadas, ajustes ni etiquetas.',
   Citation: 'Cita',
   'Citation style': 'Estilo de cita',
   'Clear search': 'Borrar la búsqueda',
@@ -225,6 +230,7 @@ export default {
   'Everything in your library here is deleted first, files included, and there is no trash around it.': 'Todo lo que hay en tu biblioteca aquí se elimina primero, archivos incluidos, y no hay papelera que lo recoja.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Todo lo que hay en {name} se elimina primero, ficheros incluidos, y no hay papelera alrededor de una biblioteca.',
+  'Everything the permissions above cover': 'Todo lo que abarcan los permisos anteriores',
   Expand: 'Expandir',
   'Expires {when}.': 'Caduca el {when}.',
   'Export': 'Exportar',
@@ -283,6 +289,7 @@ export default {
   'Language and time zone': 'Idioma y zona horaria',
   'Language and time zone saved.': 'Idioma y zona horaria guardados.',
   'Last opened {date}': 'Abierto por última vez {date}',
+  'Last time you limited it to:': 'La última vez la limitó a:',
   'Last used {when}': 'Último uso {when}',
   Leave: 'Salir',
   'Leave empty to let anyone at the provider sign in. Checked at every sign-in.': 'Déjelo vacío para que cualquiera del proveedor pueda entrar. Se comprueba en cada inicio de sesión.',
@@ -294,6 +301,7 @@ export default {
     '¿Salir de este grupo? Perderá el acceso a su biblioteca.',
   Libraries: 'Bibliotecas',
   Library: 'Biblioteca',
+  'Limited to:': 'Limitada a:',
   'Link issued.': 'Enlace emitido.',
   'Links to this collection': 'Enlaces a esta colección',
   'Loading…': 'Cargando…',
@@ -335,6 +343,7 @@ export default {
   No: 'No',
   'No account yet?': '¿Aún no tienes cuenta?',
   'No applications connected.': 'No hay aplicaciones conectadas.',
+  'No collections yet.': 'Aún no hay colecciones.',
   'No items carry the selected tags.': 'Ningún elemento lleva las etiquetas seleccionadas.',
   'No items match this search and the selected tags.':
     'Ningún elemento coincide con esta búsqueda y las etiquetas seleccionadas.',
@@ -379,6 +388,7 @@ export default {
   'One more step': 'Un paso más',
   'Only people signed in to this server can see this page.':
     'Solo quienes hayan iniciado sesión en este servidor pueden ver esta página.',
+  'Only the libraries and collections I choose': 'Solo las bibliotecas y colecciones que yo elija',
   'Only their own items': 'Solo sus propios elementos',
   'Open file': 'Abrir el archivo',
   'Open zotero.org → Settings → Security → Applications and create a new private key.': 'Abre zotero.org → Settings → Security → Applications y crea una nueva clave privada.',
@@ -616,6 +626,7 @@ export default {
   'What to export': 'Qué exportar',
   'Whatever the group allows': 'Lo que permita el grupo',
   'Where a request goes, over the HTTP-Redirect binding.': 'A dónde va una petición, mediante el enlace HTTP-Redirect.',
+  'Where it can reach:': 'Hasta dónde puede llegar:',
   'Who can see it': 'Quién puede verla',
   'Who may add and change items': 'Quién puede añadir y cambiar ítems',
   'Who may do what': 'Quién puede hacer qué',
