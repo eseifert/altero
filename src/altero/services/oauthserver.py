@@ -381,6 +381,97 @@ async def deny(session: AsyncSession, handle: str) -> Redirect:
 
 
 # --------------------------------------------------------------------------
+# Signing out because an application asked
+# --------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class Logout:
+    """A logout an application has asked for, once it has been believed."""
+
+    #: The account the hint was issued for. The session is ended only if it is
+    #: this one's -- OpenID Connect RP-Initiated Logout 1.0 §2 is explicit that
+    #: somebody else's must not be, and an application holding a stale token
+    #: for one account should not sign out whoever is at the browser now.
+    user_id: int
+    #: Where to send the browser afterwards, already matched against the
+    #: client's registration.
+    redirect: Redirect | None
+
+
+async def end_session(
+    session: AsyncSession,
+    *,
+    id_token_hint: str,
+    client_id: str,
+    post_logout_redirect_uri: str,
+    state: str,
+    public_url: str,
+) -> Logout:
+    """Check a logout request, or refuse it. Ends nothing itself.
+
+    **The hint is required**, which OpenID Connect RP-Initiated Logout 1.0 §3
+    only recommends. This endpoint is a navigation, so any page on the internet
+    can send a browser to it, and without something the caller could only have
+    got from this server it would be a way of signing strangers out of their
+    library from a hidden image. An ID token is exactly that thing: it was
+    issued to an application, over TLS, at the token endpoint.
+
+    Its signature is verified against this server's own keys and its issuer
+    against this server's own name. Expiry is *not* checked, per §2: an ID
+    token lives an hour and somebody signs out whenever they decide to.
+    """
+    issued_by = issuer(public_url)
+    keys = {row.kid: row.private_pem for row in await _all_signing_keys(session)}
+    if not id_token_hint:
+        raise InvalidInputError(
+            "id_token_hint is required to sign out here. Without it this address "
+            "would sign people out on any page's say-so."
+        )
+    try:
+        claims = jws.verify(id_token_hint, keys)
+    except ValueError as exc:
+        raise InvalidInputError(f"That is not an ID token this server issued: {exc}") from exc
+
+    if claims.get("iss") != issued_by:
+        raise InvalidInputError("That ID token was issued somewhere else")
+
+    audience = claims.get("aud")
+    named = client_id or (audience if isinstance(audience, str) else "")
+    if not isinstance(audience, str) or named != audience:
+        raise InvalidInputError("That ID token was issued for a different application")
+    client = await oauthclients.by_client_id(session, audience)
+    if client is None:
+        raise InvalidInputError(
+            "That ID token was issued for an application that is not registered"
+        )
+
+    try:
+        user_id = int(str(claims.get("sub", "")))
+    except ValueError as exc:
+        raise InvalidInputError("That ID token names nobody") from exc
+
+    if not post_logout_redirect_uri:
+        return Logout(user_id=user_id, redirect=None)
+    if not oauthclients.post_logout_uri_permitted(client, post_logout_redirect_uri):
+        # Refused here rather than obeyed, and deliberately not bounced off the
+        # address that was refused -- the same rule the authorization endpoint
+        # follows, and for the same reason.
+        raise InvalidInputError(
+            f"{post_logout_redirect_uri} is not a post-logout address registered for "
+            f"{client.client_id}. Ask whoever runs this server to add it."
+        )
+    return Logout(
+        user_id=user_id, redirect=Redirect(_redirect_with(post_logout_redirect_uri, state=state))
+    )
+
+
+async def _all_signing_keys(session: AsyncSession) -> list[OAuthSigningKey]:
+    """Return every key, retired included: a hint may outlive a rotation."""
+    return list(await session.scalars(select(OAuthSigningKey)))
+
+
+# --------------------------------------------------------------------------
 # Issuing tokens
 # --------------------------------------------------------------------------
 

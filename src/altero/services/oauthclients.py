@@ -78,8 +78,8 @@ def _without_port(uri: str) -> str:
     return urlunparse(parsed._replace(netloc=host or ""))
 
 
-def redirect_uri_permitted(client: OAuthClient, uri: str) -> bool:
-    """Return whether ``uri`` is one of ``client``'s registered addresses.
+def _matches(registered: list[str], uri: str) -> bool:
+    """Return whether ``uri`` is one of ``registered``.
 
     Exact string comparison, with one exception: where the registered address is
     on the loopback interface, the port is ignored on both sides. RFC 8252 §7.3
@@ -88,7 +88,6 @@ def redirect_uri_permitted(client: OAuthClient, uri: str) -> bool:
     scheme, host, path, query -- still has to match exactly, so the exception
     widens the loopback interface and nothing beyond it.
     """
-    registered = _split(client.redirect_uris)
     if uri in registered:
         return True
 
@@ -103,6 +102,26 @@ def redirect_uri_permitted(client: OAuthClient, uri: str) -> bool:
         and _without_port(candidate) == stripped
         for candidate in registered
     )
+
+
+def post_logout_uri_permitted(client: OAuthClient, uri: str) -> bool:
+    """Return whether ``uri`` is somewhere ``client`` may send a person after signing out.
+
+    Matched the same way a redirect URI is, loopback exception included, and
+    against its own list. A landing page receives no credential, so the stakes
+    are lower -- but an address accepted because it was presented is an open
+    redirector on this server's origin whatever it receives, and that is the
+    thing being refused.
+    """
+    registered = _split(client.post_logout_redirect_uris)
+    if not registered:
+        return False
+    return _matches(registered, uri)
+
+
+def redirect_uri_permitted(client: OAuthClient, uri: str) -> bool:
+    """Return whether ``uri`` is one of ``client``'s registered addresses."""
+    return _matches(_split(client.redirect_uris), uri)
 
 
 async def by_client_id(session: AsyncSession, client_id: str) -> OAuthClient | None:
@@ -132,6 +151,7 @@ async def create(
     scopes: str,
     description: str = "",
     confidential: bool = False,
+    post_logout_redirect_uris: list[str] | None = None,
 ) -> tuple[OAuthClient, str | None]:
     """Register an application, returning it and its secret if it has one.
 
@@ -147,6 +167,8 @@ async def create(
 
     for uri in redirect_uris:
         validate_redirect_uri(uri)
+    for uri in post_logout_redirect_uris or []:
+        validate_redirect_uri(uri)
     permitted = " ".join(oauthscopes.validate(scopes))
 
     raw_secret: str | None = None
@@ -160,6 +182,7 @@ async def create(
         name=name or client_id,
         secret_hash=secret_hash,
         redirect_uris="\n".join(redirect_uris),
+        post_logout_redirect_uris="\n".join(post_logout_redirect_uris or []),
         scopes=permitted,
         description=description,
     )

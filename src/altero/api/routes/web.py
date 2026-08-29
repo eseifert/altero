@@ -182,7 +182,7 @@ def _set_session_cookies(response: Response, request: Request, token: str) -> No
     )
 
 
-def _clear_session_cookies(response: Response) -> None:
+def clear_session_cookies(response: Response) -> None:
     """Drop the credential, keep the CSRF token.
 
     The token is a random per-browser value that authenticates nothing; what it
@@ -637,5 +637,5 @@ async def logout(session: SessionDep, request: Request, _csrf: CsrfDep) -> Respo
         await websessions.revoke(session, record)
 
     response = Response(status_code=204)
-    _clear_session_cookies(response)
+    clear_session_cookies(response)
     return response

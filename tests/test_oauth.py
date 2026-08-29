@@ -17,16 +17,17 @@ from pathlib import Path
 
 import httpx
 import pytest
-from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from fastapi import FastAPI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.app import create_app
+from altero.errors import InvalidInputError
 from altero.models import TotpCredential, User
 from altero.models.oauth import OAuthClient, OAuthCode, OAuthToken
-from altero.services import admin, oauthclients, oauthserver, webauth
+from altero.services import admin, jws, oauthclients, oauthserver, webauth
 from altero.settings import Settings
 from tests.factories import make_group, make_user
 
@@ -34,6 +35,7 @@ CSRF_HEADER = "X-CSRF-Token"
 PASSWORD = "correct horse battery staple"
 PUBLIC_URL = "https://library.example.org"
 REDIRECT = "https://app.example.com/callback"
+SIGNED_OUT = "https://app.example.com/signed-out"
 
 
 @pytest.fixture
@@ -76,6 +78,7 @@ async def make_client(
     redirect_uris: list[str] | None = None,
     scopes: str = "openid profile email groups library.read library.write files.read notes.read",
     confidential: bool = False,
+    post_logout_redirect_uris: list[str] | None = None,
 ) -> tuple[OAuthClient, str | None]:
     return await oauthclients.create(
         session,
@@ -85,6 +88,9 @@ async def make_client(
         scopes=scopes,
         description="Reads your library into a notebook",
         confidential=confidential,
+        post_logout_redirect_uris=(
+            [SIGNED_OUT] if post_logout_redirect_uris is None else post_logout_redirect_uris
+        ),
     )
 
 
@@ -1499,3 +1505,315 @@ class TestTheGroupsClaim:
 
         assert "groups" in document["scopes_supported"]
         assert "groups" in document["claims_supported"]
+
+
+async def hint_for(
+    session: AsyncSession, *, subject: str, audience: str = "notebook", issuer: str = PUBLIC_URL
+) -> str:
+    """Sign an ID token by hand, for the hints a flow cannot produce.
+
+    An expired one, one naming somebody else, one issued elsewhere. Signed with
+    this server's own key, so what each test varies is the claim under test and
+    not the signature.
+    """
+    key = await oauthserver.signing_key(session)
+    return jws.sign(
+        {
+            "iss": issuer,
+            "sub": subject,
+            "aud": audience,
+            "iat": 1000,
+            "exp": 2000,
+        },
+        key.private_pem,
+        key.kid,
+    )
+
+
+async def signed_in(client: httpx.AsyncClient) -> bool:
+    """Return whether the browser still holds a session."""
+    return (await client.get("/web/auth/session")).status_code == 200
+
+
+class TestRpInitiatedLogout:
+    """Signing out of altero because an application asked, and only then.
+
+    ``/oauth/logout`` is a navigation and therefore reachable from any page on
+    the internet, which is why the ID token this server issued is *required*
+    and its signature is checked. Without that, a hidden image on somebody
+    else's site would sign people out of their library all day.
+    """
+
+    async def test_it_is_advertised(self, client: httpx.AsyncClient) -> None:
+        document = (await client.get("/.well-known/openid-configuration")).json()
+
+        assert document["end_session_endpoint"] == f"{PUBLIC_URL}/oauth/logout"
+
+    async def test_it_ends_the_browser_session(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        tokens = await full_flow(client, session, scope="openid")
+        assert await signed_in(client)
+
+        await client.get(
+            "/oauth/logout",
+            params={"id_token_hint": tokens["id_token"]},
+            follow_redirects=False,
+        )
+
+        assert not await signed_in(client)
+
+    async def test_it_returns_to_the_registered_address_carrying_the_state(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        tokens = await full_flow(client, session, scope="openid")
+
+        response = await client.get(
+            "/oauth/logout",
+            params={
+                "id_token_hint": tokens["id_token"],
+                "post_logout_redirect_uri": SIGNED_OUT,
+                "state": "opaque-state",
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 303
+        assert response.headers["location"].startswith(SIGNED_OUT)
+        assert "state=opaque-state" in response.headers["location"]
+
+    async def test_with_nowhere_to_go_it_lands_on_the_interface(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        tokens = await full_flow(client, session, scope="openid")
+
+        response = await client.get(
+            "/oauth/logout",
+            params={"id_token_hint": tokens["id_token"]},
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 303
+        assert response.headers["location"] == "/app/"
+
+    async def test_post_works_as_well_as_get(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """RP-Initiated Logout 1.0 §2 allows either."""
+        tokens = await full_flow(client, session, scope="openid")
+
+        response = await client.post(
+            "/oauth/logout",
+            data={"id_token_hint": tokens["id_token"]},
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 303
+        assert not await signed_in(client)
+
+    async def test_an_unregistered_address_is_refused_and_not_redirected_to(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The same rule as the authorization endpoint: never bounce off an unverified address."""
+        tokens = await full_flow(client, session, scope="openid")
+
+        response = await client.get(
+            "/oauth/logout",
+            params={
+                "id_token_hint": tokens["id_token"],
+                "post_logout_redirect_uri": "https://attacker.example/landed",
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 400
+        assert "location" not in response.headers
+
+    async def test_a_forged_hint_signs_nobody_out(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        tokens = await full_flow(client, session, scope="openid")
+        header, _, signature = tokens["id_token"].split(".")
+        forged = (
+            base64.urlsafe_b64encode(
+                json.dumps({"iss": PUBLIC_URL, "sub": "1", "aud": "notebook"}).encode()
+            )
+            .decode()
+            .rstrip("=")
+        )
+
+        response = await client.get(
+            "/oauth/logout",
+            params={"id_token_hint": f"{header}.{forged}.{signature}"},
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 400
+        assert await signed_in(client)
+
+    async def test_a_hint_signed_by_somebody_else_signs_nobody_out(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await full_flow(client, session, scope="openid")
+        stranger = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        pem = stranger.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        ).decode("ascii")
+        key = await oauthserver.signing_key(session)
+
+        response = await client.get(
+            "/oauth/logout",
+            params={
+                "id_token_hint": jws.sign(
+                    {"iss": PUBLIC_URL, "sub": "1", "aud": "notebook"}, pem, key.kid
+                )
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 400
+        assert await signed_in(client)
+
+    async def test_without_a_hint_it_refuses_rather_than_signing_anybody_out(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """What keeps this from being a sign-out anybody can provoke."""
+        await full_flow(client, session, scope="openid")
+
+        response = await client.get("/oauth/logout", follow_redirects=False)
+
+        assert response.status_code == 400
+        assert await signed_in(client)
+
+    async def test_an_expired_hint_is_still_a_hint(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """An ID token lives an hour; signing out happens whenever somebody says so."""
+        await full_flow(client, session, scope="openid")
+        user = await only_user(session)
+
+        response = await client.get(
+            "/oauth/logout",
+            params={"id_token_hint": await hint_for(session, subject=str(user.id))},
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 303
+        assert not await signed_in(client)
+
+    async def test_a_hint_issued_elsewhere_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await full_flow(client, session, scope="openid")
+        user = await only_user(session)
+
+        response = await client.get(
+            "/oauth/logout",
+            params={
+                "id_token_hint": await hint_for(
+                    session, subject=str(user.id), issuer="https://elsewhere.example"
+                )
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 400
+        assert await signed_in(client)
+
+    async def test_a_hint_for_an_unregistered_client_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await full_flow(client, session, scope="openid")
+        user = await only_user(session)
+
+        response = await client.get(
+            "/oauth/logout",
+            params={
+                "id_token_hint": await hint_for(session, subject=str(user.id), audience="invented")
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 400
+        assert await signed_in(client)
+
+    async def test_it_does_not_sign_out_somebody_else(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """RP-Initiated Logout 1.0 §2: not the session, if it is not that subject's."""
+        await full_flow(client, session, scope="openid")
+        user = await only_user(session)
+
+        response = await client.get(
+            "/oauth/logout",
+            params={
+                "id_token_hint": await hint_for(session, subject=str(user.id + 1)),
+                "post_logout_redirect_uri": SIGNED_OUT,
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 303
+        assert await signed_in(client)
+
+    async def test_signing_out_of_the_browser_leaves_the_application_working(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """A session and a grant are different things, and this ends the session.
+
+        Stopping the application is ``Settings -> Connected applications``, and
+        `docs/oauth.md` says so rather than leaving somebody to find out.
+        """
+        tokens = await full_flow(client, session, scope="openid library.read")
+        user_id = (await only_user(session)).id
+
+        await client.get(
+            "/oauth/logout",
+            params={"id_token_hint": tokens["id_token"]},
+            follow_redirects=False,
+        )
+
+        assert (
+            await client.get(f"/users/{user_id}/items", headers=bearer(tokens["access_token"]))
+        ).status_code == 200
+
+    async def test_a_browser_that_was_never_signed_in_is_sent_on_its_way(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Nothing to end is not a failure: the RP wants its landing page either way."""
+        tokens = await full_flow(client, session, scope="openid")
+        await client.post("/web/auth/logout", headers=csrf(client))
+
+        response = await client.get(
+            "/oauth/logout",
+            params={
+                "id_token_hint": tokens["id_token"],
+                "post_logout_redirect_uri": SIGNED_OUT,
+            },
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 303
+        assert response.headers["location"].startswith(SIGNED_OUT)
+
+
+class TestPostLogoutRedirectUrisAreRegistered:
+    async def test_an_address_with_a_fragment_cannot_be_registered(
+        self, session: AsyncSession
+    ) -> None:
+        with pytest.raises(InvalidInputError):
+            await make_client(session, post_logout_redirect_uris=["https://app.example.com/#done"])
+
+    async def test_plain_http_to_the_open_internet_cannot_be_registered(
+        self, session: AsyncSession
+    ) -> None:
+        with pytest.raises(InvalidInputError):
+            await make_client(session, post_logout_redirect_uris=["http://app.example.com/done"])
+
+    async def test_a_client_may_register_none_at_all(self, session: AsyncSession) -> None:
+        """Most applications have no landing page and only want the session ended."""
+        registered, _ = await make_client(session, post_logout_redirect_uris=[])
+
+        assert registered.post_logout_redirect_uris == ""

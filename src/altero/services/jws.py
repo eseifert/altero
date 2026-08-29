@@ -1,21 +1,29 @@
 """Signing JSON Web Signatures, and publishing the key that verifies them.
 
-This module signs and never verifies, which is the whole reason it can be
-written here rather than brought in. ``docs/compatibility.md`` records at
-length why altero does not verify the signature on an ID token it receives:
-verification is where JWS goes wrong -- ``alg: none``, HMAC-versus-RSA
-confusion, a key chosen by an attacker-supplied ``kid``, a JWKS fetch that is
-itself a request to get right -- and every one of those is a decision made
-about input somebody else controls.
+This module signs, and verifies only what it signed itself. ``docs/compatibility.md``
+records at length why altero does not verify the signature on an ID token it
+*receives*: verification is where JWS goes wrong -- ``alg: none``,
+HMAC-versus-RSA confusion, a key chosen by an attacker-supplied ``kid``, a JWKS
+fetch that is itself a request to get right -- and every one of those is a
+decision made about input somebody else controls.
 
 Signing has none of them. The algorithm is fixed at RS256, the key is this
-server's own, and nothing here reads a header. What is left is RFC 7515's
-compact serialisation, which is two base64url segments, a signature over them,
-and a third: small enough to hold against the specification's own test vector,
-which ``tests/test_jws.py`` does with RFC 7515 Appendix A.2. That is the same
-bargain ``services/totp.py`` takes with RFC 6238 -- a published vector is what
-makes hand-writing one of these defensible, and the absence of one is why
-``services/saml.py`` does not hand-write its signatures.
+server's own, and nothing here reads a header to decide anything. What is left
+is RFC 7515's compact serialisation, which is two base64url segments, a
+signature over them, and a third: small enough to hold against the
+specification's own test vector, which ``tests/test_jws.py`` does with RFC 7515
+Appendix A.2. That is the same bargain ``services/totp.py`` takes with RFC 6238
+-- a published vector is what makes hand-writing one of these defensible, and
+the absence of one is why ``services/saml.py`` does not hand-write its
+signatures.
+
+:func:`verify` has none of them either, and that is the reason it is allowed to
+exist beside the decision not to verify somebody else's token. It is handed the
+keys, so a ``kid`` selects among *this server's* and nothing else and there is
+no fetch; the algorithm is compared against RS256 rather than read out of the
+header; and a token that fails any check raises. The only thing it is used for
+is the ``id_token_hint`` on the logout endpoint -- a token this server signed,
+coming back.
 
 RS256 rather than ES256 because OpenID Connect Core makes it the algorithm
 every client must support, and because PKCS#1 v1.5 is deterministic: the same
@@ -28,6 +36,7 @@ import hashlib
 import json
 from typing import Any
 
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
@@ -134,6 +143,57 @@ def sign_raw(signing_input: bytes, pem: str) -> str:
     """
     signature = load_private_key(pem).sign(signing_input, padding.PKCS1v15(), hashes.SHA256())
     return b64url(signature)
+
+
+def verify(token: str, keys: dict[str, str]) -> dict[str, Any]:
+    """Return the claims of a token *this server* signed, or raise ``ValueError``.
+
+    ``keys`` maps ``kid`` to the private PEM it names, and is the whole of what
+    may verify: the header selects among them and can introduce nothing. The
+    algorithm is not read from the header either -- it is compared against
+    RS256, so ``alg: none`` and an HMAC substituted for a signature are both
+    just a token that does not verify.
+
+    Nothing about the claims is checked here. Whether the issuer is this server,
+    the audience a registered client and the subject somebody who is signed in
+    is the caller's question, and keeping it there is what stops this from
+    becoming a second half-authenticator.
+    """
+    parts = token.split(".")
+    if len(parts) != 3:
+        raise ValueError("Not a JWS in compact serialisation")
+
+    header_segment, payload_segment, signature_segment = parts
+    try:
+        header = json.loads(_b64url_decode(header_segment))
+        payload = json.loads(_b64url_decode(payload_segment))
+        signature = _b64url_decode(signature_segment)
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise ValueError("This token is not readable") from exc
+
+    if not isinstance(header, dict) or not isinstance(payload, dict):
+        raise ValueError("This token is not readable")
+    if header.get("alg") != ALGORITHM:
+        raise ValueError(f"Only {ALGORITHM} is signed or accepted here")
+
+    pem = keys.get(str(header.get("kid", "")))
+    if pem is None:
+        raise ValueError("This token was not signed by a key this server holds")
+
+    try:
+        load_private_key(pem).public_key().verify(
+            signature,
+            f"{header_segment}.{payload_segment}".encode("ascii"),
+            padding.PKCS1v15(),
+            hashes.SHA256(),
+        )
+    except InvalidSignature as exc:
+        raise ValueError("This token's signature does not hold") from exc
+    return payload
+
+
+def _b64url_decode(segment: str) -> bytes:
+    return base64.urlsafe_b64decode(segment + "=" * (-len(segment) % 4))
 
 
 def access_token_hash(access_token: str) -> str:

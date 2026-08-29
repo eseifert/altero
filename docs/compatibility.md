@@ -1623,17 +1623,22 @@ it — and a token has no row there, is not what a person revokes, and would lea
 
 These two decisions look contradictory, but they are not:
 
-As a *client*, altero does not verify the signature on an ID token it receives —
-see [below](#not-verifying-the-id-tokens-signature). As a *provider*, it signs
-the ID tokens it issues, with RS256, and publishes the key at
-`/oauth/jwks.json`.
+As a *client*, altero does not verify the signature on an ID token it receives
+from somebody else's provider — see
+[below](#not-verifying-the-id-tokens-signature). As a *provider*, it signs the
+ID tokens it issues, with RS256, publishes the key at `/oauth/jwks.json`, and
+verifies its own signature on one that comes back as the `id_token_hint` of a
+logout request.
 
 The earlier decision was about verification, and every reason given for it is a
 verification problem: `alg: none`, HMAC-versus-RSA confusion, a key chosen by an
 attacker-supplied `kid`, a JWKS fetch that is itself a request to get right.
 Each is a decision made about input somebody else controls. Signing has none of
 them — the algorithm is fixed, the key is this server's own, and nothing reads a
-header — so `services/jws.py` writes it directly rather than bringing in a
+header — and neither does `jws.verify`: it is handed the keys, so a `kid`
+selects among this server's own and fetches nothing, and `alg` is compared
+against RS256 rather than read out of the header to choose with. So
+`services/jws.py` writes both directly rather than bringing in a
 library, and `tests/test_jws.py` holds it against RFC 7515 Appendix A.2 and
 RFC 7638 §3.1. A published test vector is what makes hand-writing one of these
 defensible, which is the same bargain `services/totp.py` takes with RFC 6238 and

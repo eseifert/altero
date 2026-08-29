@@ -192,9 +192,12 @@ async def _oauth_client_add(session: AsyncSession, args: argparse.Namespace) -> 
         scopes=" ".join(args.scope or ["openid"]),
         description=args.description,
         confidential=args.confidential,
+        post_logout_redirect_uris=args.post_logout_redirect_uri,
     )
     print(f"Registered '{client.name}' as {client.client_id}.")
     print(f"  redirect URIs: {', '.join(args.redirect_uri)}")
+    if args.post_logout_redirect_uri:
+        print(f"  after signing out: {', '.join(args.post_logout_redirect_uri)}")
     print(f"  scopes:        {client.scopes}")
     if secret is not None:
         # Printed once and never recoverable, the same bargain `key add` makes.
@@ -215,6 +218,8 @@ async def _oauth_client_list(session: AsyncSession, args: argparse.Namespace) ->
         print(f"{client.client_id}  {state}  {kind}  {client.name}")
         for uri in client.redirect_uris.splitlines():
             print(f"    -> {uri}")
+        for uri in client.post_logout_redirect_uris.splitlines():
+            print(f"    signed out -> {uri}")
         print(f"    scopes: {client.scopes}")
 
 
@@ -592,6 +597,13 @@ def build_parser() -> argparse.ArgumentParser:
         action="append",
         default=None,
         help="a scope the application may ask for; repeatable",
+    )
+    oauth_add.add_argument(
+        "--post-logout-redirect-uri",
+        action="append",
+        default=None,
+        help="where somebody may be sent after signing out at this application's asking; "
+        "repeatable, matched exactly",
     )
     oauth_add.add_argument("--description", default="", help="what it does with the library")
     oauth_add.add_argument(

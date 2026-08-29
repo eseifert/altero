@@ -67,6 +67,12 @@ class OAuthClient(Base):
     #: documented exception for loopback ports that RFC 8252 §7.3 requires for
     #: applications that listen on an ephemeral one.
     redirect_uris: Mapped[str] = mapped_column(Text, default="")
+    #: Where a person may be sent after signing out at this application's
+    #: asking, one per line, matched the same way ``redirect_uris`` is. A
+    #: separate list because it is a separate decision: the address an
+    #: authorization *code* goes to receives a credential, and a landing page
+    #: receives nothing at all. Most applications register none.
+    post_logout_redirect_uris: Mapped[str] = mapped_column(Text, default="", server_default="")
     #: The scopes this client may ever ask for, space separated. A ceiling: a
     #: request for more is refused rather than quietly narrowed, so an
     #: application discovers the misconfiguration instead of half working.

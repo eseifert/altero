@@ -244,6 +244,10 @@ EXPECTED = [
     ("/oauth/token", "POST"),
     ("/oauth/revoke", "POST"),
     ("/oauth/userinfo", "GET"),
+    # Signing out at an application's asking, which is a navigation like
+    # /oauth/authorize and is held up by the ID token it must carry.
+    ("/oauth/logout", "GET"),
+    ("/oauth/logout", "POST"),
     # Consent, and taking it back. Cookie-authenticated like the rest of /web,
     # which is what makes the second factor and passkeys apply to it.
     ("/web/oauth/pending/{handle}", "GET"),

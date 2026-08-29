@@ -81,6 +81,10 @@ For an application that runs on a server and can keep a secret, add
 `--confidential`. The secret is printed once and stored only as a hash, the same
 bargain `altero key add` makes.
 
+`--post-logout-redirect-uri` is repeatable too, and is the separate list of
+addresses somebody may be sent to after signing out — see
+[Signing out](#signing-out) below. Most applications register none.
+
 ```sh
 uv run altero oauth list                # what is registered, and what it may ask for
 uv run altero oauth disable notebook    # stop it working, keeping the record
@@ -173,6 +177,45 @@ same happens if an authorization code is presented twice.
 | `/oauth/revoke` | RFC 7009 revocation |
 | `/oauth/userinfo` | Claims the token's scopes allow |
 | `/oauth/jwks.json` | The keys ID tokens are verified against |
+| `/oauth/logout` | RP-initiated logout, as OpenID Connect names `end_session_endpoint` |
+
+## Signing out
+
+An application can send somebody here to end their altero browser session:
+
+```
+GET /oauth/logout
+      ?id_token_hint=eyJhbGciOiJSUzI1NiIs…
+      &post_logout_redirect_uri=https://notebook.example.com/signed-out
+      &state=opaque
+```
+
+`POST` works the same way. Three things about it are decided rather than
+defaulted:
+
+**`id_token_hint` is required**, where OpenID Connect RP-Initiated Logout 1.0
+only recommends it. This endpoint is a navigation, so any page on the internet
+can send a browser to it; without something the caller could only have received
+from this server, a hidden image on somebody else's site would sign people out
+of their library all day. An ID token is that thing — it was handed to an
+application at the token endpoint, over TLS.
+
+Its signature is checked against altero's own keys and its issuer against
+altero's own name. Its **expiry is not checked**: an ID token lives an hour and
+somebody signs out whenever they decide to. If its `sub` is not the account the
+browser is signed in as, nothing is ended — an application holding a stale token
+for one person does not sign out whoever is at the browser now.
+
+**`post_logout_redirect_uri` must be registered**, exactly, for the client the
+ID token was issued to. An unregistered address is refused *on this server* and
+not redirected to, the same rule the authorization endpoint follows: bouncing
+anything off an unverified address is how an open redirector is built. With no
+address given, the browser lands on the interface.
+
+**The session ends; the grant does not.** The application keeps the tokens it
+was issued, because signing out of a browser is not withdrawing consent. Taking
+an application's access away is **Settings → Connected applications**, or
+`/oauth/revoke` for one token.
 
 ## ID tokens
 

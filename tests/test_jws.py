@@ -10,6 +10,7 @@ the vector can be reproduced rather than merely accepted.
 import base64
 import json
 
+import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
 
 from altero.services import jws
@@ -227,3 +228,60 @@ class TestTheAccessTokenHash:
 
         assert jws.access_token_hash(token) == expected
         assert len(base64.urlsafe_b64decode(jws.access_token_hash(token) + "==")) == 16
+
+
+class TestVerifyingWhatThisServerSigned:
+    """The narrow verification the logout endpoint's ``id_token_hint`` needs.
+
+    Narrow is what makes it defensible next to the decision not to verify an ID
+    token from somebody else's provider: the keys are handed in, so a ``kid``
+    chooses among this server's own and fetches nothing, and the algorithm is
+    compared rather than read out. Each test below is one of the ways the
+    general problem goes wrong, shown not to arise here.
+    """
+
+    def test_a_token_this_server_signed_comes_back(self) -> None:
+        pem = jws.generate_private_key()
+        kid = jws.thumbprint(pem)
+
+        assert jws.verify(jws.sign({"sub": "1"}, pem, kid), {kid: pem}) == {"sub": "1"}
+
+    def test_a_tampered_payload_is_refused(self) -> None:
+        pem = jws.generate_private_key()
+        kid = jws.thumbprint(pem)
+        header, _, signature = jws.sign({"sub": "1"}, pem, kid).split(".")
+        forged = jws.b64url(json.dumps({"sub": "2"}).encode())
+
+        with pytest.raises(ValueError, match="signature does not hold"):
+            jws.verify(f"{header}.{forged}.{signature}", {kid: pem})
+
+    def test_another_key_is_refused_even_under_a_kid_this_server_knows(self) -> None:
+        """The attacker-chosen key, which is the classic way this is broken."""
+        ours = jws.generate_private_key()
+        theirs = jws.generate_private_key()
+        kid = jws.thumbprint(ours)
+
+        with pytest.raises(ValueError, match="signature does not hold"):
+            jws.verify(jws.sign({"sub": "1"}, theirs, kid), {kid: ours})
+
+    def test_an_unknown_kid_is_refused_rather_than_looked_up(self) -> None:
+        pem = jws.generate_private_key()
+
+        with pytest.raises(ValueError, match="not signed by a key"):
+            jws.verify(jws.sign({"sub": "1"}, pem, "invented"), {jws.thumbprint(pem): pem})
+
+    def test_alg_none_is_refused(self) -> None:
+        """``alg`` is compared, never obeyed."""
+        pem = jws.generate_private_key()
+        kid = jws.thumbprint(pem)
+        header = jws.b64url(json.dumps({"alg": "none", "typ": "JWT", "kid": kid}).encode())
+        payload = jws.b64url(json.dumps({"sub": "1"}).encode())
+
+        with pytest.raises(ValueError, match="Only RS256"):
+            jws.verify(f"{header}.{payload}.", {kid: pem})
+
+    def test_something_that_is_not_a_jws_at_all_is_refused(self) -> None:
+        pem = jws.generate_private_key()
+
+        with pytest.raises(ValueError, match="compact serialisation"):
+            jws.verify("not-a-token", {jws.thumbprint(pem): pem})

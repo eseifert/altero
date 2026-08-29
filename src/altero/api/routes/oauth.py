@@ -31,10 +31,11 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response
 
 from altero.api.deps import SessionDep, get_credential
+from altero.api.routes.web import SESSION_COOKIE, clear_session_cookies
 from altero.api.spa import MOUNT_PATH
 from altero.errors import ForbiddenError, OAuthError
 from altero.models.library import User
-from altero.services import oauthscopes, oauthserver
+from altero.services import oauthscopes, oauthserver, websessions
 
 router = APIRouter(tags=["oauth"])
 
@@ -58,6 +59,7 @@ def _metadata(request: Request) -> dict[str, Any]:
         "token_endpoint": f"{base}/oauth/token",
         "userinfo_endpoint": f"{base}/oauth/userinfo",
         "revocation_endpoint": f"{base}/oauth/revoke",
+        "end_session_endpoint": f"{base}/oauth/logout",
         "jwks_uri": f"{base}/oauth/jwks.json",
         "scopes_supported": list(oauthscopes.ALL),
         "response_types_supported": ["code"],
@@ -161,6 +163,88 @@ async def authorize(
         )
 
     return RedirectResponse(f"{MOUNT_PATH}/authorize?request={pending.handle}", status_code=303)
+
+
+@router.get("/oauth/logout")
+async def logout(
+    request: Request,
+    session: SessionDep,
+    id_token_hint: Annotated[str, Query()] = "",
+    client_id: Annotated[str, Query()] = "",
+    post_logout_redirect_uri: Annotated[str, Query()] = "",
+    state: Annotated[str, Query()] = "",
+) -> Response:
+    """End the browser session an application asked to end, and send it onward.
+
+    A navigation, like ``/oauth/authorize``, and it takes no CSRF token for the
+    reason the passkey routes take none: the browser this is for may hold
+    nothing at all. What stands in for one is the ``id_token_hint``, which
+    :func:`altero.services.oauthserver.end_session` requires and verifies --
+    a page on another origin cannot mint one, so it cannot provoke this.
+
+    What ends is the *session*, and not the grant. The application keeps the
+    tokens it was given, because signing out of a browser is not withdrawing
+    consent; that is **Settings -> Connected applications**, and
+    ``docs/oauth.md`` says so where somebody will read it.
+    """
+    return await _end_session(
+        request,
+        session,
+        id_token_hint=id_token_hint,
+        client_id=client_id,
+        post_logout_redirect_uri=post_logout_redirect_uri,
+        state=state,
+    )
+
+
+@router.post("/oauth/logout")
+async def logout_posted(
+    request: Request,
+    session: SessionDep,
+    id_token_hint: Annotated[str, Form()] = "",
+    client_id: Annotated[str, Form()] = "",
+    post_logout_redirect_uri: Annotated[str, Form()] = "",
+    state: Annotated[str, Form()] = "",
+) -> Response:
+    """The same thing as a form post, which RP-Initiated Logout 1.0 §2 allows."""
+    return await _end_session(
+        request,
+        session,
+        id_token_hint=id_token_hint,
+        client_id=client_id,
+        post_logout_redirect_uri=post_logout_redirect_uri,
+        state=state,
+    )
+
+
+async def _end_session(
+    request: Request,
+    session: SessionDep,
+    *,
+    id_token_hint: str,
+    client_id: str,
+    post_logout_redirect_uri: str,
+    state: str,
+) -> Response:
+    asked = await oauthserver.end_session(
+        session,
+        id_token_hint=id_token_hint,
+        client_id=client_id,
+        post_logout_redirect_uri=post_logout_redirect_uri,
+        state=state,
+        public_url=request.app.state.settings.public_url,
+    )
+
+    record = await websessions.lookup(session, request.cookies.get(SESSION_COOKIE))
+    ended = record is not None and record.user_id == asked.user_id
+    if record is not None and ended:
+        await websessions.revoke(session, record)
+
+    target = asked.redirect.url if asked.redirect else f"{MOUNT_PATH}/"
+    response = RedirectResponse(target, status_code=303)
+    if ended:
+        clear_session_cookies(response)
+    return response
 
 
 @router.post("/oauth/token")
