@@ -39,6 +39,10 @@ from altero.services import oauthscopes, oauthserver, websessions
 
 router = APIRouter(tags=["oauth"])
 
+#: RFC 8628's name for the device grant, which is a URN rather than a word
+#: because it was defined after the registry that would have held a word.
+DEVICE_GRANT = "urn:ietf:params:oauth:grant-type:device_code"
+
 
 def _issuer(request: Request) -> str:
     return oauthserver.issuer(request.app.state.settings.public_url)
@@ -59,12 +63,17 @@ def _metadata(request: Request) -> dict[str, Any]:
         "token_endpoint": f"{base}/oauth/token",
         "userinfo_endpoint": f"{base}/oauth/userinfo",
         "revocation_endpoint": f"{base}/oauth/revoke",
+        "device_authorization_endpoint": f"{base}/oauth/device_authorization",
         "end_session_endpoint": f"{base}/oauth/logout",
         "jwks_uri": f"{base}/oauth/jwks.json",
         "scopes_supported": list(oauthscopes.ALL),
         "response_types_supported": ["code"],
         "response_modes_supported": ["query"],
-        "grant_types_supported": ["authorization_code", "refresh_token"],
+        "grant_types_supported": [
+            "authorization_code",
+            "refresh_token",
+            DEVICE_GRANT,
+        ],
         "subject_types_supported": ["public"],
         "id_token_signing_alg_values_supported": ["RS256"],
         # S256 alone. `plain` makes the challenge equal to the verifier, which
@@ -165,6 +174,38 @@ async def authorize(
     return RedirectResponse(f"{MOUNT_PATH}/authorize?request={pending.handle}", status_code=303)
 
 
+@router.post("/oauth/device_authorization")
+async def device_authorization(
+    request: Request,
+    session: SessionDep,
+    client_id: Annotated[str, Form()],
+    scope: Annotated[str, Form()] = "openid",
+) -> JSONResponse:
+    """Start an authorization for a device that cannot show a browser.
+
+    RFC 8628. The device is handed a long code it keeps and a short one it
+    shows; a person types the short one into this server's interface at the
+    address in the answer. Nothing is authenticated here -- like
+    ``/oauth/authorize``, this only records what was asked for.
+    """
+    base = _issuer(request)
+    started = await oauthserver.begin_device(session, client_id=client_id, scope=scope)
+    return JSONResponse(
+        {
+            "device_code": started.device_code,
+            "user_code": started.user_code,
+            "verification_uri": f"{base}{MOUNT_PATH}/device",
+            # RFC 8628 §3.2 calls this optional. It is the difference between
+            # typing a code and following a link, wherever the device can show
+            # one -- a QR code on a screen, a line in a terminal.
+            "verification_uri_complete": f"{base}{MOUNT_PATH}/device?code={started.user_code}",
+            "expires_in": started.expires_in,
+            "interval": started.interval,
+        },
+        headers={"Cache-Control": "no-store"},
+    )
+
+
 @router.get("/oauth/logout")
 async def logout(
     request: Request,
@@ -258,6 +299,7 @@ async def token(
     code_verifier: Annotated[str, Form()] = "",
     redirect_uri: Annotated[str, Form()] = "",
     refresh_token: Annotated[str, Form()] = "",
+    device_code: Annotated[str, Form()] = "",
 ) -> JSONResponse:
     """Exchange an authorization code, or rotate a refresh token.
 
@@ -277,6 +319,14 @@ async def token(
             redirect_uri=redirect_uri,
             public_url=public_url,
         )
+    elif grant_type == DEVICE_GRANT:
+        payload = await oauthserver.exchange_device(
+            session,
+            client_id=client_id,
+            client_secret=client_secret,
+            device_code=device_code,
+            public_url=public_url,
+        )
     elif grant_type == "refresh_token":
         payload = await oauthserver.refresh(
             session,
@@ -288,7 +338,8 @@ async def token(
     else:
         raise OAuthError(
             "unsupported_grant_type",
-            f"This server issues tokens for authorization_code and refresh_token, not {grant_type}",
+            "This server issues tokens for authorization_code, refresh_token and "
+            f"{DEVICE_GRANT}, not {grant_type}",
         )
 
     return JSONResponse(payload, headers={"Cache-Control": "no-store", "Pragma": "no-cache"})

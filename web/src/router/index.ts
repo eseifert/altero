@@ -45,6 +45,16 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    // Where somebody types the code a device with no browser is showing, and
+    // where the consent screen sends them afterwards. Guarded like the consent
+    // screen itself: claiming a code is an account holder's decision, so it
+    // goes through whatever signing in here means for their account.
+    path: '/device/:done(done)?',
+    name: 'device',
+    component: () => import('@/views/DeviceView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     // Where the desktop client's loginURL sends the browser.
     path: '/link',
     name: 'link-client',

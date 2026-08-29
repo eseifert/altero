@@ -248,10 +248,14 @@ EXPECTED = [
     # /oauth/authorize and is held up by the ID token it must carry.
     ("/oauth/logout", "GET"),
     ("/oauth/logout", "POST"),
+    # Where a device with no browser asks, and then waits. It polls the token
+    # endpoint above with RFC 8628's grant type.
+    ("/oauth/device_authorization", "POST"),
     # Consent, and taking it back. Cookie-authenticated like the rest of /web,
     # which is what makes the second factor and passkeys apply to it.
     ("/web/oauth/pending/{handle}", "GET"),
     ("/web/oauth/pending/{handle}", "POST"),
+    ("/web/oauth/device", "POST"),
     ("/web/oauth/authorizations", "GET"),
     ("/web/oauth/authorizations/{grant_id}", "DELETE"),
 ]

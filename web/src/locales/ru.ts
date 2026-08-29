@@ -153,12 +153,14 @@ export default {
   'Confirming…': 'Подтверждение…',
   'Connect': 'Подключить',
   'Connect Zotero': 'Подключить Zotero',
+  'Connect a device': 'Подключить устройство',
   'Connect an application': 'Подключить приложение',
   'Connect {provider}': 'Подключить {provider}',
   'Connected accounts': 'Подключённые учётные записи',
   'Connected applications': 'Подключённые приложения',
   'Connected {when}': 'Подключено {when}',
   'Connecting to zotero.org…': 'Подключение к zotero.org…',
+  'Continue': 'Продолжить',
   'Continue with {provider}': 'Продолжить с {provider}',
   'Copied': 'Скопировано',
   'Copy': 'Копировать',
@@ -206,6 +208,7 @@ export default {
     'Их удаление нельзя отменить. Всё, что загружено за последние сутки, остаётся нетронутым, потому что файл попадает на диск раньше записи, которая на него ссылается.',
   'Description': 'Описание',
   'Detail width': 'Ширина панели подробностей',
+  'Device connected': 'Устройство подключено',
   'Disconnect': 'Отключить',
   'Display name': 'Отображаемое имя',
   'Display name claim': 'Атрибут отображаемого имени',
@@ -225,6 +228,7 @@ export default {
   'Email address (optional)': 'Адрес электронной почты (необязательно)',
   'Email claim': 'Атрибут адреса почты',
   'Empty the trash': 'Очистить корзину',
+  'Enter the code shown on your device.': 'Введите код, показанный на вашем устройстве.',
   'Enter the six-digit code from your authenticator app.':
     'Введите шестизначный код из приложения-аутентификатора.',
   'Enter the six-digit code we sent to your email address.':
@@ -675,6 +679,7 @@ export default {
   'You can change what is shown at any time from My Publications.':
     'Вы можете в любой момент изменить, что показывается, находясь в Моих публикациях.',
   'You can disconnect it at any time in Settings, under Connected applications.': 'Отключить его можно в любой момент в настройках, в разделе «Подключённые приложения».',
+  'You can go back to your device now.': 'Теперь можно вернуться к устройству.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Вы можете сохранить за собой все права на свою работу, выпустить её под лицензией Creative Commons или передать в общественное достояние. В любом случае сама работа публикуется здесь, чтобы её мог прочитать любой.',
   'You have already given this application these permissions.': 'Вы уже предоставили этому приложению эти разрешения.',

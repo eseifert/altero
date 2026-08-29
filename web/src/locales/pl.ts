@@ -152,12 +152,14 @@ export default {
   'Confirming…': 'Potwierdzanie…',
   'Connect': 'Połącz',
   'Connect Zotero': 'Połącz Zotero',
+  'Connect a device': 'Połącz urządzenie',
   'Connect an application': 'Połącz aplikację',
   'Connect {provider}': 'Połącz {provider}',
   'Connected accounts': 'Połączone konta',
   'Connected applications': 'Połączone aplikacje',
   'Connected {when}': 'Połączono {when}',
   'Connecting to zotero.org…': 'Łączenie z zotero.org…',
+  'Continue': 'Dalej',
   'Continue with {provider}': 'Kontynuuj z {provider}',
   'Copied': 'Skopiowano',
   'Copy': 'Kopiuj',
@@ -205,6 +207,7 @@ export default {
     'Ich usunięcia nie da się cofnąć. To, co wysłano w ciągu ostatniej doby, zostaje nietknięte, bo plik trafia na dysk wcześniej niż element, który się do niego odwołuje.',
   'Description': 'Opis',
   'Detail width': 'Szerokość panelu szczegółów',
+  'Device connected': 'Urządzenie połączone',
   'Disconnect': 'Rozłącz',
   'Display name': 'Nazwa wyświetlana',
   'Display name claim': 'Atrybut z nazwą wyświetlaną',
@@ -224,6 +227,7 @@ export default {
   'Email address (optional)': 'Adres poczty elektronicznej (opcjonalnie)',
   'Email claim': 'Atrybut z adresem poczty',
   'Empty the trash': 'Opróżnij kosz',
+  'Enter the code shown on your device.': 'Wpisz kod wyświetlony na urządzeniu.',
   'Enter the six-digit code from your authenticator app.':
     'Wpisz sześciocyfrowy kod ze swojej aplikacji uwierzytelniającej.',
   'Enter the six-digit code we sent to your email address.':
@@ -677,6 +681,7 @@ export default {
   'You can change what is shown at any time from My Publications.':
     'W każdej chwili możesz zmienić to, co jest pokazywane, z poziomu Moich publikacji.',
   'You can disconnect it at any time in Settings, under Connected applications.': 'Możesz ją odłączyć w każdej chwili w Ustawieniach, w sekcji Połączone aplikacje.',
+  'You can go back to your device now.': 'Możesz teraz wrócić do urządzenia.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Możesz zastrzec wszystkie prawa do swojej pracy, udostępnić ją na licencji Creative Commons albo przekazać do domeny publicznej. Tak czy inaczej sama praca jest publikowana tutaj, aby każdy mógł ją czytać.',
   'You have already given this application these permissions.': 'Już nadałeś tej aplikacji te uprawnienia.',

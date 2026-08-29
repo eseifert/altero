@@ -145,12 +145,14 @@ export default {
   'Confirming…': 'Bekræfter…',
   'Connect': 'Forbind',
   'Connect Zotero': 'Forbind Zotero',
+  'Connect a device': 'Forbind en enhed',
   'Connect an application': 'Forbind et program',
   'Connect {provider}': 'Forbind {provider}',
   'Connected accounts': 'Forbundne konti',
   'Connected applications': 'Forbundne programmer',
   'Connected {when}': 'Forbundet {when}',
   'Connecting to zotero.org…': 'Forbinder til zotero.org…',
+  'Continue': 'Fortsæt',
   'Continue with {provider}': 'Fortsæt med {provider}',
   'Copied': 'Kopieret',
   'Copy': 'Kopiér',
@@ -198,6 +200,7 @@ export default {
     'Det kan ikke fortrydes at slette dem. Alt, der er lagt op inden for det seneste døgn, får lov at ligge, for en fil når disken før det element, der henviser til den.',
   'Description': 'Beskrivelse',
   'Detail width': 'Bredde på detaljeruden',
+  'Device connected': 'Enhed forbundet',
   'Disconnect': 'Afbryd forbindelsen',
   'Display name': 'Vist navn',
   'Display name claim': 'Claim med vist navn',
@@ -217,6 +220,7 @@ export default {
   'Email address (optional)': 'E-mailadresse (valgfri)',
   'Email claim': 'E-mail-claim',
   'Empty the trash': 'Tøm papirkurven',
+  'Enter the code shown on your device.': 'Indtast koden, der vises på din enhed.',
   'Enter the six-digit code from your authenticator app.':
     'Indtast den sekscifrede kode fra din godkendelsesapp.',
   'Enter the six-digit code we sent to your email address.':
@@ -667,6 +671,7 @@ export default {
   'You can change what is shown at any time from My Publications.':
     'Du kan når som helst ændre, hvad der vises, fra Mine publikationer.',
   'You can disconnect it at any time in Settings, under Connected applications.': 'Du kan altid afbryde den under Indstillinger, i Forbundne programmer.',
+  'You can go back to your device now.': 'Du kan gå tilbage til din enhed nu.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Du kan forbeholde dig alle rettigheder til dit værk, give det en Creative Commons-licens eller overgive det til det offentlige domæne. Uanset hvad udgives selve værket her, så alle kan læse det.',
   'You have already given this application these permissions.': 'Du har allerede givet dette program disse tilladelser.',

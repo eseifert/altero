@@ -21,15 +21,22 @@ the same reason making a share does not -- see ``api/routes/webshares.py``.
 from typing import Annotated
 
 from fastapi import APIRouter, Body
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import SessionDep
 from altero.api.routes.web import CsrfDep, CurrentUserDep
+from altero.api.spa import MOUNT_PATH
 from altero.errors import InvalidInputError
 from altero.services import oauthserver
 
 router = APIRouter(prefix="/web/oauth", tags=["web"])
+
+
+class DeviceCode(BaseModel):
+    """A user code, as somebody typed it."""
+
+    user_code: str = Field(alias="userCode")
 
 
 class Decision(BaseModel):
@@ -83,7 +90,34 @@ async def decide(
         if decision.approve
         else await oauthserver.deny(session, handle)
     )
-    return JSONResponse({"redirect": redirect.url})
+    # A device authorization has no application address to return to, so what
+    # comes back is empty and the browser is sent to the page that says the
+    # device can be picked up again. Where the interface lives is this layer's
+    # business rather than the service's.
+    return JSONResponse({"redirect": redirect.url or f"{MOUNT_PATH}/device/done"})
+
+
+@router.post("/device")
+async def claim_device(
+    session: SessionDep,
+    _user: CurrentUserDep,
+    _csrf: CsrfDep,
+    body: Annotated[DeviceCode, Body()],
+) -> JSONResponse:
+    """Turn a code somebody typed into an authorization waiting for their answer.
+
+    Answers with the handle of an ordinary pending authorization, which the
+    interface then shows on the same consent screen every other application
+    gets. That reuse is why this route is four lines: a device asks for scopes
+    like anything else, and the only thing unusual about it is how the request
+    got here.
+
+    Under ``/web`` with a cookie and a CSRF token, because approving is a
+    decision by an account holder -- so the second factor, the passkey and the
+    single sign-on already guarding this door guard it here too.
+    """
+    handle = await oauthserver.claim_user_code(session, body.user_code)
+    return JSONResponse({"handle": handle})
 
 
 @router.get("/authorizations")

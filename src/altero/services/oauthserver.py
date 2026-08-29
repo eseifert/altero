@@ -44,6 +44,7 @@ from altero.models.oauth import (
     OAuthAuthorizationRequest,
     OAuthClient,
     OAuthCode,
+    OAuthDeviceCode,
     OAuthGrant,
     OAuthSigningKey,
     OAuthToken,
@@ -69,6 +70,23 @@ ACCESS_LIFETIME = timedelta(hours=1)
 #: use never sees the end of it; one abandoned for a month has to be authorized
 #: again, which is the right outcome.
 REFRESH_LIFETIME = timedelta(days=30)
+
+#: How long a device has to be authorized before its codes stop working. Ten
+#: minutes is RFC 8628's own example and about as long as somebody will hold a
+#: code in their head while they walk to another machine.
+DEVICE_CODE_LIFETIME = timedelta(minutes=10)
+
+#: How often a device may ask whether it has been authorized yet, in seconds.
+#: RFC 8628 §3.5's default, reported in the response so a device need not
+#: assume it.
+DEVICE_POLL_INTERVAL = 5
+
+#: What a user code is spelled with: twenty consonants, so no code is a word
+#: anybody would rather not read out, and none of ``0/O``, ``1/I`` or ``5/S``
+#: can be mistyped for another. Eight characters of it is about 34 bits, which
+#: is what RFC 8628 §5.1 asks for from a code that lives ten minutes.
+USER_CODE_ALPHABET = "BCDFGHJKLMNPQRSTVWXZ"
+USER_CODE_LENGTH = 8
 
 #: The prefix an access token carries. Not security -- the token is random
 #: either way -- but it makes one recognisable in a log or a bug report, and it
@@ -337,6 +355,9 @@ async def approve(session: AsyncSession, handle: str, user: User) -> Redirect:
         grant.scopes = oauthscopes.union(grant.scopes, request.scopes)
         grant.approved_at = _now()
 
+    if request.device_code_id is not None:
+        return await _approve_device(session, request, grant)
+
     # Read out before the row goes, since the redirect is built from it.
     redirect_uri, state = request.redirect_uri, request.state
 
@@ -363,11 +384,41 @@ async def approve(session: AsyncSession, handle: str, user: User) -> Redirect:
     return Redirect(_redirect_with(redirect_uri, code=raw_code, state=state))
 
 
+async def _approve_device(
+    session: AsyncSession, request: OAuthAuthorizationRequest, grant: OAuthGrant
+) -> Redirect:
+    """Record consent for a device, which has nowhere to be sent back to.
+
+    An empty :class:`Redirect`, because there is no application address here at
+    all -- the device is waiting on its own poll. Where the *browser* goes next
+    is a question about the interface, and the route answers it.
+    """
+    device = await session.get(OAuthDeviceCode, request.device_code_id)
+    if device is None or device.expires < _now():
+        raise NotFoundError("That device has stopped waiting")
+
+    now = _now()
+    device.grant_id = grant.id
+    device.approved_at = now
+    device.authenticated_at = now
+    await session.delete(request)
+    await session.commit()
+    return Redirect("")
+
+
 async def deny(session: AsyncSession, handle: str) -> Redirect:
     """Refuse an authorization and tell the application so, as RFC 6749 §4.1.2.1 asks."""
     request = await session.get(OAuthAuthorizationRequest, handle)
     if request is None or request.expires < _now():
         raise NotFoundError("This authorization has expired or was never started")
+
+    if request.device_code_id is not None:
+        device = await session.get(OAuthDeviceCode, request.device_code_id)
+        if device is not None:
+            device.denied_at = _now()
+        await session.delete(request)
+        await session.commit()
+        return Redirect("")
 
     target = _redirect_with(
         request.redirect_uri,
@@ -378,6 +429,203 @@ async def deny(session: AsyncSession, handle: str) -> Redirect:
     await session.delete(request)
     await session.commit()
     return Redirect(target)
+
+
+# --------------------------------------------------------------------------
+# A device with no browser
+# --------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class DeviceAuthorization:
+    """What a device is handed to show and to poll with.
+
+    The URIs are not in here. Building them means knowing where the interface
+    is mounted, and that is the web framework's business rather than this
+    module's -- see the layering rule in ``CLAUDE.md``.
+    """
+
+    device_code: str
+    user_code: str
+    expires_in: int
+    interval: int
+
+
+def normalise_user_code(raw: str) -> str:
+    """Return ``raw`` as it is stored: upper case, with the decoration dropped.
+
+    The dash and the case are there to be read, not to be typed. Somebody
+    copying a code off a screen should not have to know which of the two the
+    server cares about, so neither survives to the comparison.
+    """
+    return "".join(character for character in raw.upper() if character in USER_CODE_ALPHABET)
+
+
+def _user_code() -> str:
+    body = "".join(secrets.choice(USER_CODE_ALPHABET) for _ in range(USER_CODE_LENGTH))
+    return f"{body[: USER_CODE_LENGTH // 2]}-{body[USER_CODE_LENGTH // 2 :]}"
+
+
+async def begin_device(session: AsyncSession, *, client_id: str, scope: str) -> DeviceAuthorization:
+    """Start an authorization for a device that cannot show a browser.
+
+    No redirect URI and no PKCE, because neither has anything to bind to: there
+    is no authorization code travelling through a browser to intercept. What
+    takes their place is the device code itself, which is long, random, and
+    known only to the device that asked for it.
+    """
+    client = await oauthclients.by_client_id(session, client_id)
+    if client is None or client.disabled_at is not None:
+        raise OAuthError("invalid_client", "No such client")
+
+    try:
+        requested = oauthscopes.validate(scope)
+    except InvalidInputError as exc:
+        raise OAuthError("invalid_scope", exc.message) from exc
+
+    beyond = [item for item in requested if item not in set(client.scopes.split())]
+    if beyond:
+        raise OAuthError("invalid_scope", f"{client_id} is not registered for {' '.join(beyond)}")
+
+    await session.execute(delete(OAuthDeviceCode).where(OAuthDeviceCode.expires < _now()))
+
+    raw_device = secrets.token_urlsafe(32)
+    raw_user = _user_code()
+    session.add(
+        OAuthDeviceCode(
+            device_code_hash=_hash(raw_device),
+            user_code_hash=_hash(normalise_user_code(raw_user)),
+            client_id=client.id,
+            scopes=" ".join(requested),
+            expires=_now() + DEVICE_CODE_LIFETIME,
+        )
+    )
+    await session.commit()
+    return DeviceAuthorization(
+        device_code=raw_device,
+        user_code=raw_user,
+        expires_in=int(DEVICE_CODE_LIFETIME.total_seconds()),
+        interval=DEVICE_POLL_INTERVAL,
+    )
+
+
+async def claim_user_code(session: AsyncSession, code: str) -> str:
+    """Turn a typed user code into an authorization waiting for a decision.
+
+    Returns the handle of an ordinary :class:`~altero.models.oauth.OAuthAuthorizationRequest`,
+    so that what happens next is the consent screen every other application
+    gets. A second screen written for devices would be a second place for the
+    two to disagree about what is being granted.
+
+    A code that has expired, been answered already or been spent is not found,
+    in those words: which of them it was is nothing the person typing needs to
+    be told, and saying would let somebody sweep for live codes.
+    """
+    row = await session.scalar(
+        select(OAuthDeviceCode).where(
+            OAuthDeviceCode.user_code_hash == _hash(normalise_user_code(code))
+        )
+    )
+    if row is None or row.expires < _now():
+        raise NotFoundError("No device is waiting for that code")
+    if row.approved_at is not None or row.denied_at is not None or row.consumed_at is not None:
+        raise NotFoundError("No device is waiting for that code")
+
+    client = await session.get(OAuthClient, row.client_id)
+    if client is None or client.disabled_at is not None:
+        raise NotFoundError("No device is waiting for that code")
+
+    pending_request = OAuthAuthorizationRequest(
+        handle=secrets.token_urlsafe(32),
+        client_id=row.client_id,
+        # A device has no address to be sent back to, which is the point of the
+        # flow. Empty rather than absent so the column keeps its shape.
+        redirect_uri="",
+        scopes=row.scopes,
+        device_code_id=row.id,
+        expires=_now() + REQUEST_LIFETIME,
+    )
+    session.add(pending_request)
+    await session.commit()
+    return pending_request.handle
+
+
+async def exchange_device(
+    session: AsyncSession,
+    *,
+    client_id: str,
+    client_secret: str | None,
+    device_code: str,
+    public_url: str,
+) -> dict[str, object]:
+    """Answer a device asking whether it has been authorized yet.
+
+    Four of the five answers are errors, and they are different errors on
+    purpose: ``authorization_pending`` means keep asking, ``slow_down`` means
+    keep asking less often, and ``expired_token`` and ``access_denied`` both
+    mean stop. A device that cannot tell those apart either gives up on a
+    person who is still walking to their laptop or polls forever.
+    """
+    client = await _authenticated_client(session, client_id, client_secret)
+
+    row = await session.scalar(
+        select(OAuthDeviceCode).where(OAuthDeviceCode.device_code_hash == _hash(device_code))
+    )
+    if row is None or row.client_id != client.id:
+        raise OAuthError("invalid_grant", "No such device code")
+    if row.consumed_at is not None:
+        raise OAuthError("invalid_grant", "This device code has already been exchanged")
+    if row.expires < _now():
+        raise OAuthError("expired_token", "This device code has expired; ask for another")
+
+    asked_before, asking_now = row.last_polled, _now()
+    row.last_polled = asking_now
+    if asked_before is not None and (asking_now - asked_before).total_seconds() < (
+        DEVICE_POLL_INTERVAL
+    ):
+        # Committed before raising, or the note of this attempt is rolled back
+        # with the request and the next one looks like the first again.
+        await session.commit()
+        raise OAuthError("slow_down", f"Ask at most every {DEVICE_POLL_INTERVAL} seconds")
+
+    if row.denied_at is not None:
+        await session.commit()
+        raise OAuthError("access_denied", "The account holder refused this authorization")
+    if row.approved_at is None or row.grant_id is None:
+        await session.commit()
+        raise OAuthError("authorization_pending", "Nobody has answered yet")
+
+    grant = await session.get(OAuthGrant, row.grant_id)
+    if grant is None:
+        raise OAuthError("invalid_grant", "That authorization has been withdrawn")
+    user = await session.get(User, grant.user_id)
+    if user is None or user.disabled_at is not None:
+        raise OAuthError("invalid_grant", "This account is not active")
+
+    row.consumed_at = _now()
+    raw_access, raw_refresh = await _issue_pair(
+        session, grant, row.scopes, secrets.token_urlsafe(16)
+    )
+    payload: dict[str, object] = {
+        "access_token": raw_access,
+        "token_type": "Bearer",
+        "expires_in": int(ACCESS_LIFETIME.total_seconds()),
+        "refresh_token": raw_refresh,
+        "scope": row.scopes,
+    }
+    if oauthscopes.OPENID in row.scopes.split():
+        payload["id_token"] = await _id_token(
+            session,
+            user=user,
+            client=client,
+            scopes=row.scopes,
+            nonce="",
+            authenticated_at=row.authenticated_at or row.approved_at or _now(),
+            access_token=raw_access,
+            public_url=public_url,
+        )
+    await session.commit()
+    return payload
 
 
 # --------------------------------------------------------------------------
@@ -867,6 +1115,7 @@ async def prune(session: AsyncSession) -> int:
     for statement in (
         delete(OAuthAuthorizationRequest).where(OAuthAuthorizationRequest.expires < now),
         delete(OAuthCode).where(OAuthCode.expires < now),
+        delete(OAuthDeviceCode).where(OAuthDeviceCode.expires < now),
         delete(OAuthToken).where(OAuthToken.expires < now),
     ):
         result = await session.execute(statement)

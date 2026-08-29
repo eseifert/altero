@@ -178,6 +178,56 @@ same happens if an authorization code is presented twice.
 | `/oauth/userinfo` | Claims the token's scopes allow |
 | `/oauth/jwks.json` | The keys ID tokens are verified against |
 | `/oauth/logout` | RP-initiated logout, as OpenID Connect names `end_session_endpoint` |
+| `/oauth/device_authorization` | Where a device with no browser starts, RFC 8628 |
+
+## A device with no browser
+
+A machine that cannot show a browser — a terminal on a server, a reader, a box
+plugged into a television — asks here instead:
+
+```http
+POST /oauth/device_authorization
+client_id=notebook&scope=openid%20library.read
+```
+
+and is handed a long `device_code` it keeps, a short `user_code` it shows, the
+`verification_uri` to show beside it, an `expires_in` of ten minutes and the
+`interval` in seconds at which it may poll. Somebody types the short code into
+that address — or follows `verification_uri_complete`, which carries it — and is
+shown **the same consent screen every other application gets**. A second consent
+screen written for devices would be a second place for the two to disagree about
+what is being granted.
+
+Meanwhile the device polls the token endpoint:
+
+```http
+POST /oauth/token
+grant_type=urn:ietf:params:oauth:grant-type:device_code
+&client_id=notebook&device_code=…
+```
+
+Four of the five answers are errors, and they are different errors on purpose:
+
+| Answer | What the device does |
+| --- | --- |
+| `authorization_pending` | Keep asking. Nobody has answered yet. |
+| `slow_down` | Keep asking, less often. It polled inside the interval. |
+| `access_denied` | Stop. Somebody said no. |
+| `expired_token` | Stop. The code lived ten minutes and nobody answered. |
+| the tokens | Done, and the device code is spent. |
+
+There is no redirect URI and no PKCE here, because there is nothing for either
+to bind to: no authorization code travels through a browser. What takes their
+place is the device code, which is long, random and known only to the device
+that asked for it. The user code is eight characters of a twenty-consonant
+alphabet — no vowels, so no code is a word anybody would rather read out, and
+none of `0`/`O`, `1`/`I` or `5`/`S` to mistype — which is about 34 bits for a
+code that lives ten minutes. Case and the dash are decoration: `wdjb mjht` is
+the same code as `WDJB-MJHT`.
+
+A confidential client still presents its secret when it polls. Registration is
+the same `altero oauth add`, and a client needs a redirect URI registered even
+if it only ever uses this flow — the two are not exclusive.
 
 ## Signing out
 

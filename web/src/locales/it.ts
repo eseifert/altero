@@ -148,12 +148,14 @@ export default {
   'Confirming…': 'Conferma in corso…',
   'Connect': 'Collega',
   'Connect Zotero': 'Collega Zotero',
+  'Connect a device': 'Collega un dispositivo',
   'Connect an application': 'Collega un’applicazione',
   'Connect {provider}': 'Collega {provider}',
   'Connected accounts': 'Account collegati',
   'Connected applications': 'Applicazioni collegate',
   'Connected {when}': 'Collegata il {when}',
   'Connecting to zotero.org…': 'Collegamento a zotero.org…',
+  'Continue': 'Continua',
   'Continue with {provider}': 'Continua con {provider}',
   'Copied': 'Copiato',
   'Copy': 'Copia',
@@ -201,6 +203,7 @@ export default {
     'Eliminarli non si può annullare. Ciò che è stato caricato nell’ultimo giorno viene lasciato stare, perché un file arriva sul disco prima dell’elemento che vi fa riferimento.',
   'Description': 'Descrizione',
   'Detail width': 'Larghezza del riquadro dei dettagli',
+  'Device connected': 'Dispositivo collegato',
   'Disconnect': 'Scollega',
   'Display name': 'Nome visualizzato',
   'Display name claim': 'Claim del nome visualizzato',
@@ -220,6 +223,7 @@ export default {
   'Email address (optional)': 'Indirizzo email (facoltativo)',
   'Email claim': 'Claim dell’email',
   'Empty the trash': 'Svuota il cestino',
+  'Enter the code shown on your device.': 'Inserisci il codice mostrato sul tuo dispositivo.',
   'Enter the six-digit code from your authenticator app.':
     'Inserisci il codice di sei cifre della tua app di autenticazione.',
   'Enter the six-digit code we sent to your email address.':
@@ -676,6 +680,7 @@ export default {
   'You can change what is shown at any time from My Publications.':
     'Puoi cambiare che cosa viene mostrato in qualsiasi momento da Le mie pubblicazioni.',
   'You can disconnect it at any time in Settings, under Connected applications.': 'Puoi scollegarla in qualsiasi momento nelle impostazioni, sotto «Applicazioni collegate».',
+  'You can go back to your device now.': 'Ora puoi tornare al tuo dispositivo.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Puoi riservarti tutti i diritti sulla tua opera, concederla con una licenza Creative Commons, oppure destinarla al pubblico dominio. In ogni caso l’opera stessa viene pubblicata qui perché chiunque possa leggerla.',
   'You have already given this application these permissions.': 'Hai già concesso questi permessi a questa applicazione.',

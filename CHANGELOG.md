@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- A device with no browser can be authorized from one somewhere else: RFC 8628, on the same consent screen every other application gets.
 - An application can send somebody to `/oauth/logout` to end their browser session, holding an ID token this server issued as proof it may ask.
 - An application signing somebody in can be told which groups they belong to: a `groups` claim, behind an identity scope that reaches no library.
 - The interface splits English, Portuguese and Chinese by the territory they are read in, as Zotero does: fifteen catalogs, in the client's own words.

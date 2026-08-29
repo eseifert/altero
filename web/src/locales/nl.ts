@@ -148,12 +148,14 @@ export default {
   'Confirming…': 'Bevestigen…',
   'Connect': 'Verbinden',
   'Connect Zotero': 'Zotero verbinden',
+  'Connect a device': 'Een apparaat verbinden',
   'Connect an application': 'Een applicatie verbinden',
   'Connect {provider}': '{provider} verbinden',
   'Connected accounts': 'Verbonden accounts',
   'Connected applications': 'Verbonden applicaties',
   'Connected {when}': 'Verbonden op {when}',
   'Connecting to zotero.org…': 'Verbinding maken met zotero.org…',
+  'Continue': 'Doorgaan',
   'Continue with {provider}': 'Doorgaan met {provider}',
   'Copied': 'Gekopieerd',
   'Copy': 'Kopiëren',
@@ -201,6 +203,7 @@ export default {
     'Het verwijderen ervan kan niet ongedaan worden gemaakt. Wat in de afgelopen dag is geüpload blijft ongemoeid, want een bestand bereikt de schijf eerder dan het item dat ernaar verwijst.',
   'Description': 'Beschrijving',
   'Detail width': 'Breedte van het detailvenster',
+  'Device connected': 'Apparaat verbonden',
   'Disconnect': 'Verbinding verbreken',
   'Display name': 'Weergavenaam',
   'Display name claim': 'Claim met weergavenaam',
@@ -220,6 +223,7 @@ export default {
   'Email address (optional)': 'E-mailadres (optioneel)',
   'Email claim': 'E-mailclaim',
   'Empty the trash': 'Prullenbak legen',
+  'Enter the code shown on your device.': 'Voer de code in die op je apparaat staat.',
   'Enter the six-digit code from your authenticator app.':
     'Voer de zescijferige code uit uw authenticator-app in.',
   'Enter the six-digit code we sent to your email address.':
@@ -676,6 +680,7 @@ export default {
   'You can change what is shown at any time from My Publications.':
     'U kunt op elk moment vanuit Mijn publicaties wijzigen wat er wordt getoond.',
   'You can disconnect it at any time in Settings, under Connected applications.': 'Je kunt hem op elk moment loskoppelen in Instellingen, onder Verbonden applicaties.',
+  'You can go back to your device now.': 'Je kunt nu terug naar je apparaat.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'U kunt alle rechten op uw werk voorbehouden, het onder een Creative Commons-licentie brengen, of het aan het publieke domein prijsgeven. Hoe dan ook wordt het werk zelf hier gepubliceerd zodat iedereen het kan lezen.',
   'You have already given this application these permissions.': 'Je hebt deze applicatie deze rechten al gegeven.',

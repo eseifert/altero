@@ -5,7 +5,7 @@ client and somebody else's directory says who a person is; here altero is the
 authorization server and somebody else's application asks for a library. The
 two share no tables and only the vocabulary.
 
-Six tables, and the split between them is the point.
+Seven tables, and the split between them is the point.
 
 :class:`OAuthClient` is the operator's registration: which application, which
 redirect URIs, which scopes it may ever ask for. An administrator creates it
@@ -27,6 +27,11 @@ PKCE challenge the request carried.
 
 :class:`OAuthToken` is an access or refresh token, hashed, with the family a
 rotated refresh token stays in so that a replayed one can burn the lot.
+
+:class:`OAuthDeviceCode` is an authorization somebody is expected to approve
+somewhere else: the device shows a short code, a person types it into the
+interface here, and the same consent screen every other application gets draws
+it. The device holds the long half and never sees a browser.
 
 :class:`OAuthSigningKey` is the RSA key ID tokens are signed with. In the
 database rather than on disk so that two workers, and a restored backup, agree
@@ -115,6 +120,14 @@ class OAuthAuthorizationRequest(Base):
     code_challenge: Mapped[str] = mapped_column(String(128), default="")
     #: Echoed into the ID token, pinning it to this request.
     nonce: Mapped[str] = mapped_column(String(255), default="")
+    #: The device authorization this request was raised for, if it was raised by
+    #: somebody typing a code rather than by a browser being redirected here.
+    #: Set means there is no application to return to and a device to tell
+    #: instead, which is the whole of what the two flows do differently once
+    #: consent has been given.
+    device_code_id: Mapped[int | None] = mapped_column(
+        ForeignKey("oauth_device_codes.id", ondelete="CASCADE"), default=None, index=True
+    )
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires: Mapped[datetime] = mapped_column(DateTime, index=True)
 
@@ -199,6 +212,50 @@ class OAuthToken(Base):
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires: Mapped[datetime] = mapped_column(DateTime, index=True)
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+
+
+class OAuthDeviceCode(Base):
+    """One device waiting to be authorized somewhere else.
+
+    Two codes for one authorization, and the split is the point. The *device*
+    code is long, random and never seen by a person: it is the secret that lets
+    the device claim the tokens afterwards. The *user* code is short enough to
+    read off a television across a room, and is worth nothing on its own -- it
+    only ever reaches this server through somebody who is already signed in
+    here and is being asked to approve. Both are stored as hashes, as codes and
+    tokens are.
+    """
+
+    __tablename__ = "oauth_device_codes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    device_code_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    user_code_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    client_id: Mapped[int] = mapped_column(
+        ForeignKey("oauth_clients.id", ondelete="CASCADE"), index=True
+    )
+    scopes: Mapped[str] = mapped_column(String(255), default="")
+    #: The consent this became, once somebody gave it. ``None`` while nobody
+    #: has answered, which is what the device is told when it polls.
+    grant_id: Mapped[int | None] = mapped_column(
+        ForeignKey("oauth_grants.id", ondelete="CASCADE"), default=None, index=True
+    )
+    approved_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: Set when somebody said no. Distinct from never having answered, because
+    #: a device told ``access_denied`` can stop, and one told
+    #: ``authorization_pending`` cannot.
+    denied_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: When the person approving actually authenticated, for ``auth_time``.
+    authenticated_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: Set when the tokens were handed out. Single use, like an authorization
+    #: code, and for the same reason.
+    consumed_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: When the device last asked. RFC 8628 §3.5 lets the server tell a device
+    #: polling faster than the interval to slow down, which needs remembering
+    #: when it last did.
+    last_polled: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    expires: Mapped[datetime] = mapped_column(DateTime, index=True)
 
 
 class OAuthSigningKey(Base):

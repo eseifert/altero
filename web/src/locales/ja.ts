@@ -139,12 +139,14 @@ export default {
   'Confirming…': '確認しています…',
   Connect: '接続',
   'Connect Zotero': 'Zotero を接続',
+  'Connect a device': 'デバイスを接続',
   'Connect an application': 'アプリケーションを接続',
   'Connect {provider}': '{provider} を連携',
   'Connected accounts': '連携済みアカウント',
   'Connected applications': '接続済みのアプリケーション',
   'Connected {when}': '{when} に接続',
   'Connecting to zotero.org…': 'zotero.org に接続しています…',
+  Continue: '続ける',
   'Continue with {provider}': '{provider} で続行',
   'Copied': 'コピーしました',
   'Copy': 'コピー',
@@ -190,6 +192,7 @@ export default {
   'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.':
     '削除は取り消せません。直近 1 日以内にアップロードされたものはそのままにします。ファイルは、それを参照するアイテムより先にディスクに届くからです。',
   'Detail width': '詳細パネルの幅',
+  'Device connected': 'デバイスを接続しました',
   'Disconnect': '連携を解除',
   'Display name': '表示名',
   Done: '完了',
@@ -208,6 +211,7 @@ export default {
   'Email address (optional)': 'メールアドレス（任意）',
   'Email claim': 'メールアドレスのクレーム',
   'Empty the trash': 'ごみ箱を空にする',
+  'Enter the code shown on your device.': 'デバイスに表示されているコードを入力してください。',
   'Enter the six-digit code from your authenticator app.':
     '認証アプリの 6 桁のコードを入力してください。',
   'Enter the six-digit code we sent to your email address.': 'メールアドレスに送信した6桁のコードを入力してください。',
@@ -617,6 +621,7 @@ export default {
   'You are not in any groups yet.': 'まだどのグループにも参加していません。',
   'You can change what is shown at any time from My Publications.': '「私の出版物」から、表示するものをいつでも変更できます。',
   'You can disconnect it at any time in Settings, under Connected applications.': '設定の「接続済みのアプリケーション」からいつでも切断できます。',
+  'You can go back to your device now.': 'デバイスに戻って操作を続けられます。',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     '著作物のすべての権利を留保することも、クリエイティブ・コモンズ・ライセンスの下でライセンスすることも、パブリックドメインに捧げることも可能です。いずれの場合も、著作物そのものはここで誰でも読めるように公開されます。',
   'You have already given this application these permissions.': 'このアプリケーションにはすでにこれらの権限を与えています。',

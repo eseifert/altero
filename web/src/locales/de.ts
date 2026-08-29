@@ -137,12 +137,14 @@ export default {
   'Confirming…': 'Wird bestätigt …',
   Connect: 'Verbinden',
   'Connect Zotero': 'Zotero verbinden',
+  'Connect a device': 'Ein Gerät verbinden',
   'Connect an application': 'Eine Anwendung verbinden',
   'Connect {provider}': '{provider} verbinden',
   'Connected accounts': 'Verbundene Konten',
   'Connected applications': 'Verbundene Anwendungen',
   'Connected {when}': 'Verbunden am {when}',
   'Connecting to zotero.org…': 'Verbindung zu zotero.org…',
+  Continue: 'Weiter',
   'Continue with {provider}': 'Weiter mit {provider}',
   'Copied': 'Kopiert',
   'Copy': 'Kopieren',
@@ -191,6 +193,7 @@ export default {
   'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.':
     'Das Löschen lässt sich nicht rückgängig machen. Was am letzten Tag hochgeladen wurde, bleibt unangetastet: eine Datei liegt auf der Platte, bevor der Eintrag existiert, der auf sie zeigt.',
   'Detail width': 'Breite der Detailspalte',
+  'Device connected': 'Gerät verbunden',
   'Disconnect': 'Trennen',
   'Display name': 'Anzeigename',
   Done: 'Fertig',
@@ -210,6 +213,7 @@ export default {
   'Email address (optional)': 'E-Mail-Adresse (optional)',
   'Email claim': 'Claim für die E-Mail-Adresse',
   'Empty the trash': 'Papierkorb leeren',
+  'Enter the code shown on your device.': 'Geben Sie den Code ein, der auf Ihrem Gerät angezeigt wird.',
   'Enter the six-digit code from your authenticator app.':
     'Gib den sechsstelligen Code aus deiner Authenticator-App ein.',
   'Enter the six-digit code we sent to your email address.': 'Geben Sie den sechsstelligen Code ein, den wir an Ihre E-Mail-Adresse gesendet haben.',
@@ -636,6 +640,7 @@ export default {
   'You can change what is shown at any time from My Publications.':
     'Du kannst jederzeit über Meine Publikationen ändern, was angezeigt wird.',
   'You can disconnect it at any time in Settings, under Connected applications.': 'Sie können sie jederzeit in den Einstellungen unter „Verbundene Anwendungen“ trennen.',
+  'You can go back to your device now.': 'Sie können jetzt zu Ihrem Gerät zurückkehren.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Du kannst dir alle Rechte an deinem Werk vorbehalten, es unter eine Creative-Commons-Lizenz stellen oder es gemeinfrei machen. In jedem Fall wird das Werk selbst hier für alle lesbar veröffentlicht.',
   'You have already given this application these permissions.': 'Sie haben dieser Anwendung diese Berechtigungen bereits erteilt.',

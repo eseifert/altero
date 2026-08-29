@@ -137,12 +137,14 @@ export default {
   'Confirming…': 'A confirmar…',
   Connect: 'Ligar',
   'Connect Zotero': 'Ligar o Zotero',
+  'Connect a device': 'Ligar um dispositivo',
   'Connect an application': 'Ligar uma aplicação',
   'Connect {provider}': 'Ligar {provider}',
   'Connected accounts': 'Contas ligadas',
   'Connected applications': 'Aplicações ligadas',
   'Connected {when}': 'Ligada a {when}',
   'Connecting to zotero.org…': 'A ligar a zotero.org…',
+  Continue: 'Continuar',
   'Continue with {provider}': 'Continuar com {provider}',
   'Copied': 'Copiado',
   'Copy': 'Copiar',
@@ -190,6 +192,7 @@ export default {
   'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.':
     'Eliminá-los não pode ser desfeito. O que foi enviado no último dia fica intacto: um ficheiro chega ao disco antes do item que lhe faz referência.',
   'Detail width': 'Largura do painel de detalhes',
+  'Device connected': 'Dispositivo ligado',
   'Disconnect': 'Desligar',
   'Display name': 'Nome apresentado',
   Done: 'Concluído',
@@ -209,6 +212,7 @@ export default {
   'Email address (optional)': 'Endereço de e-mail (opcional)',
   'Email claim': 'Atributo do e-mail',
   'Empty the trash': 'Esvaziar o lixo',
+  'Enter the code shown on your device.': 'Introduza o código apresentado no seu dispositivo.',
   'Enter the six-digit code from your authenticator app.':
     'Introduza o código de seis dígitos da sua aplicação de autenticação.',
   'Enter the six-digit code we sent to your email address.': 'Introduza o código de seis dígitos que enviámos para o seu endereço de e-mail.',
@@ -633,6 +637,7 @@ export default {
   'You can change what is shown at any time from My Publications.':
     'Pode a qualquer momento ajustar o que é mostrado a partir de As Minhas Publicações.',
   'You can disconnect it at any time in Settings, under Connected applications.': 'Pode desligá-la a qualquer momento nas Definições, em «Aplicações ligadas».',
+  'You can go back to your device now.': 'Já pode voltar ao seu dispositivo.',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     'Pode reservar todos os direitos do seu trabalho, licenciá-lo sob uma licença Creative Commons ou colocá-lo no domínio público. Em qualquer dos casos, o trabalho é publicado aqui para qualquer pessoa ler.',
   'You have already given this application these permissions.': 'Já concedeu estas permissões a esta aplicação.',

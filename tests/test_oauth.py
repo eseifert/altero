@@ -26,7 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.app import create_app
 from altero.errors import InvalidInputError
 from altero.models import TotpCredential, User
-from altero.models.oauth import OAuthClient, OAuthCode, OAuthToken
+from altero.models.oauth import OAuthClient, OAuthCode, OAuthDeviceCode, OAuthToken
 from altero.services import admin, jws, oauthclients, oauthserver, webauth
 from altero.settings import Settings
 from tests.factories import make_group, make_user
@@ -1817,3 +1817,367 @@ class TestPostLogoutRedirectUrisAreRegistered:
         registered, _ = await make_client(session, post_logout_redirect_uris=[])
 
         assert registered.post_logout_redirect_uris == ""
+
+
+DEVICE_GRANT = "urn:ietf:params:oauth:grant-type:device_code"
+
+
+async def start_device(
+    client: httpx.AsyncClient,
+    *,
+    client_id: str = "notebook",
+    scope: str = "openid library.read",
+) -> httpx.Response:
+    return await client.post(
+        "/oauth/device_authorization", data={"client_id": client_id, "scope": scope}
+    )
+
+
+async def poll_device(
+    client: httpx.AsyncClient, device_code: str, *, client_id: str = "notebook", **extra: str
+) -> httpx.Response:
+    return await client.post(
+        "/oauth/token",
+        data={
+            "grant_type": DEVICE_GRANT,
+            "client_id": client_id,
+            "device_code": device_code,
+            **extra,
+        },
+    )
+
+
+async def enter_code(client: httpx.AsyncClient, user_code: str) -> httpx.Response:
+    return await client.post(
+        "/web/oauth/device", json={"userCode": user_code}, headers=csrf(client)
+    )
+
+
+class TestTheDeviceGrant:
+    """A machine with no browser, authorized at one somewhere else.
+
+    RFC 8628. The device never handles the credential that authorizes it: it
+    shows a code, somebody types that code into this server's own interface,
+    and the same consent screen as every other application draws it. That reuse
+    is the design -- a second consent screen would be a second place for the
+    two to disagree about what is being granted.
+    """
+
+    async def test_it_is_advertised(self, client: httpx.AsyncClient) -> None:
+        document = (await client.get("/.well-known/openid-configuration")).json()
+
+        assert (
+            document["device_authorization_endpoint"] == f"{PUBLIC_URL}/oauth/device_authorization"
+        )
+        assert DEVICE_GRANT in document["grant_types_supported"]
+
+    async def test_it_hands_out_a_code_and_says_where_to_type_it(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+
+        started = (await start_device(client)).json()
+
+        assert started["device_code"]
+        assert started["user_code"]
+        assert started["verification_uri"] == f"{PUBLIC_URL}/app/device"
+        assert started["user_code"] in started["verification_uri_complete"]
+        assert started["expires_in"] > 0
+        assert started["interval"] > 0
+
+    async def test_the_user_code_is_short_enough_to_read_out(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Somebody is copying this off a screen, possibly across a room."""
+        await make_client(session)
+
+        started = (await start_device(client)).json()
+
+        assert len(started["user_code"]) <= 12
+        assert set(started["user_code"]) <= set(oauthserver.USER_CODE_ALPHABET + "-")
+
+    async def test_two_devices_get_two_codes(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+
+        first = (await start_device(client)).json()
+        second = (await start_device(client)).json()
+
+        assert first["user_code"] != second["user_code"]
+        assert first["device_code"] != second["device_code"]
+
+    async def test_polling_before_anybody_has_answered_says_so(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        started = (await start_device(client)).json()
+
+        response = await poll_device(client, started["device_code"])
+
+        assert response.status_code == 400
+        assert response.json()["error"] == "authorization_pending"
+
+    async def test_polling_faster_than_the_interval_is_told_to_slow_down(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """RFC 8628 §3.5. A device in a tight loop is told, not merely refused."""
+        await make_client(session)
+        started = (await start_device(client)).json()
+
+        await poll_device(client, started["device_code"])
+        response = await poll_device(client, started["device_code"])
+
+        assert response.json()["error"] == "slow_down"
+
+    async def test_approving_at_the_browser_produces_a_working_token(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        user_id = await make_account(client)
+        started = (await start_device(client)).json()
+
+        entered = await enter_code(client, started["user_code"])
+        assert entered.status_code == 200, entered.text
+        await grant(client, entered.json()["handle"])
+        tokens = (await poll_device(client, started["device_code"])).json()
+
+        assert tokens["scope"] == "openid library.read"
+        assert "id_token" in tokens
+        assert (
+            await client.get(f"/users/{user_id}/items", headers=bearer(tokens["access_token"]))
+        ).status_code == 200
+
+    async def test_the_consent_screen_describes_what_the_device_asked_for(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client, scope="openid files.read library.read")).json()
+
+        handle = (await enter_code(client, started["user_code"])).json()["handle"]
+        described = (await client.get(f"/web/oauth/pending/{handle}")).json()
+
+        assert described["name"] == "Notebook"
+        assert described["scopes"] == ["openid", "library.read", "files.read"]
+
+    async def test_a_device_code_is_spent_once(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client)).json()
+        handle = (await enter_code(client, started["user_code"])).json()["handle"]
+        await grant(client, handle)
+        assert (await poll_device(client, started["device_code"])).status_code == 200
+
+        again = await poll_device(client, started["device_code"])
+
+        assert again.json()["error"] == "invalid_grant"
+
+    async def test_refusing_at_the_browser_tells_the_device(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client)).json()
+        handle = (await enter_code(client, started["user_code"])).json()["handle"]
+
+        await grant(client, handle, approve=False)
+        response = await poll_device(client, started["device_code"])
+
+        assert response.json()["error"] == "access_denied"
+
+    async def test_an_expired_device_code_says_expired_rather_than_pending(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """A device that polls forever should stop, and only this tells it to."""
+        await make_client(session)
+        started = (await start_device(client)).json()
+        row = await session.scalar(select(OAuthDeviceCode))
+        assert row is not None
+        row.expires = datetime.now(UTC).replace(tzinfo=None) - timedelta(seconds=1)
+        await session.commit()
+
+        response = await poll_device(client, started["device_code"])
+
+        assert response.json()["error"] == "expired_token"
+
+    async def test_an_unknown_device_code_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+
+        response = await poll_device(client, "invented")
+
+        assert response.json()["error"] == "invalid_grant"
+
+    async def test_another_client_cannot_spend_it(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await make_client(session, client_id="other", redirect_uris=["https://other.example/cb"])
+        await make_account(client)
+        started = (await start_device(client)).json()
+        handle = (await enter_code(client, started["user_code"])).json()["handle"]
+        await grant(client, handle)
+
+        response = await poll_device(client, started["device_code"], client_id="other")
+
+        assert response.json()["error"] == "invalid_grant"
+
+    async def test_a_confidential_client_still_presents_its_secret(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        _, secret = await make_client(session, confidential=True)
+        assert secret is not None
+        started = (await start_device(client)).json()
+
+        assert (await poll_device(client, started["device_code"])).json()["error"] == (
+            "invalid_client"
+        )
+        assert (await poll_device(client, started["device_code"], client_secret=secret)).json()[
+            "error"
+        ] == "authorization_pending"
+
+    async def test_a_scope_the_client_is_not_registered_for_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session, scopes="openid library.read")
+
+        response = await start_device(client, scope="openid library.read library.write")
+
+        assert response.json()["error"] == "invalid_scope"
+
+    async def test_a_disabled_client_cannot_start_one(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        registered, _ = await make_client(session)
+        registered.disabled_at = datetime.now(UTC).replace(tzinfo=None)
+        await session.commit()
+
+        assert (await start_device(client)).json()["error"] == "invalid_client"
+
+    async def test_the_code_is_read_however_it_was_typed(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Case and the dash are decoration; somebody typing it should not have to know."""
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client)).json()
+
+        entered = await enter_code(client, started["user_code"].lower().replace("-", " "))
+
+        assert entered.status_code == 200
+
+    async def test_an_unknown_user_code_is_not_found(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await make_account(client)
+
+        assert (await enter_code(client, "ZZZZ-ZZZZ")).status_code == 404
+
+    async def test_an_expired_user_code_is_not_found(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client)).json()
+        row = await session.scalar(select(OAuthDeviceCode))
+        assert row is not None
+        row.expires = datetime.now(UTC).replace(tzinfo=None) - timedelta(seconds=1)
+        await session.commit()
+
+        assert (await enter_code(client, started["user_code"])).status_code == 404
+
+    async def test_a_code_that_has_already_been_answered_is_not_found(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Approving is a one-time act. A code still live afterwards is a second grant."""
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client)).json()
+        handle = (await enter_code(client, started["user_code"])).json()["handle"]
+        await grant(client, handle)
+
+        assert (await enter_code(client, started["user_code"])).status_code == 404
+
+    async def test_a_code_that_was_refused_is_not_found(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client)).json()
+        handle = (await enter_code(client, started["user_code"])).json()["handle"]
+        await grant(client, handle, approve=False)
+
+        assert (await enter_code(client, started["user_code"])).status_code == 404
+
+    async def test_approving_after_the_device_has_given_up_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The consent screen outlives the device code, so it has to check."""
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client)).json()
+        handle = (await enter_code(client, started["user_code"])).json()["handle"]
+        row = await session.scalar(select(OAuthDeviceCode))
+        assert row is not None
+        row.expires = datetime.now(UTC).replace(tzinfo=None) - timedelta(seconds=1)
+        await session.commit()
+
+        response = await client.post(
+            f"/web/oauth/pending/{handle}", json={"approve": True}, headers=csrf(client)
+        )
+
+        assert response.status_code == 404
+
+    async def test_entering_a_code_takes_a_cookie(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """It is consent, so it happens where consent happens: signed in, under /web."""
+        await make_client(session)
+        started = (await start_device(client)).json()
+
+        assert (await enter_code(client, started["user_code"])).status_code == 401
+
+    async def test_entering_a_code_takes_the_csrf_token(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await make_account(client)
+        started = (await start_device(client)).json()
+
+        response = await client.post("/web/oauth/device", json={"userCode": started["user_code"]})
+
+        assert response.status_code == 403
+
+    async def test_the_device_never_sees_a_redirect_uri(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """What makes this flow worth having: no browser on the device, so no address.
+
+        PKCE has nothing to bind to here either -- there is no authorization
+        code travelling through a browser -- and the device code takes its place
+        as the secret only the device holds.
+        """
+        await make_client(session)
+        started = (await start_device(client)).json()
+
+        assert "redirect_uri" not in started
+        assert "code_challenge" not in started
+
+    async def test_expired_device_codes_are_swept(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        await start_device(client)
+        row = await session.scalar(select(OAuthDeviceCode))
+        assert row is not None
+        row.expires = datetime.now(UTC).replace(tzinfo=None) - timedelta(seconds=1)
+        await session.commit()
+
+        await oauthserver.prune(session)
+
+        assert await session.scalar(select(OAuthDeviceCode)) is None

@@ -141,12 +141,14 @@ export default {
   'Confirming…': '正在确认…',
   'Connect': '连接',
   'Connect Zotero': '连接 Zotero',
+  'Connect a device': '连接设备',
   'Connect an application': '连接应用程序',
   'Connect {provider}': '连接 {provider}',
   'Connected accounts': '已连接的账户',
   'Connected applications': '已连接的应用程序',
   'Connected {when}': '连接于 {when}',
   'Connecting to zotero.org…': '正在连接 zotero.org…',
+  'Continue': '继续',
   'Continue with {provider}': '使用 {provider} 继续',
   'Copied': '已复制',
   'Copy': '复制',
@@ -193,6 +195,7 @@ export default {
     '删除它们无法撤销。最近一天内上传的内容不会被触及，因为文件总是先于引用它的条目到达磁盘。',
   'Description': '描述',
   'Detail width': '详情栏宽度',
+  'Device connected': '设备已连接',
   'Disconnect': '断开连接',
   'Display name': '显示名称',
   'Display name claim': '显示名称声明',
@@ -211,6 +214,7 @@ export default {
   'Email address (optional)': '电子邮件地址（可选）',
   'Email claim': '电子邮件声明',
   'Empty the trash': '清空回收站',
+  'Enter the code shown on your device.': '请输入设备上显示的代码。',
   'Enter the six-digit code from your authenticator app.':
     '输入你的身份验证器应用中的六位验证码。',
   'Enter the six-digit code we sent to your email address.':
@@ -639,6 +643,7 @@ export default {
   'You can change what is shown at any time from My Publications.':
     '你随时可以在我的出版物中更改要显示的内容。',
   'You can disconnect it at any time in Settings, under Connected applications.': '您可以随时在设置的“已连接的应用程序”中断开它。',
+  'You can go back to your device now.': '现在可以回到您的设备了。',
   'You can reserve all rights to your work, license it under a Creative Commons license, or dedicate it to the public domain. Either way the work itself is published here for anyone to read.':
     '你可以保留作品的所有权利，以知识共享许可协议授权，或将其奉献到公有领域。无论哪种方式，作品本身都会在这里发布供所有人阅读。',
   'You have already given this application these permissions.': '您已经授予该应用程序这些权限。',
