@@ -1784,6 +1784,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#confining-a-grant-to-particular-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Confining a grant to particular resources
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#signing-id-tokens-while-still-not-verifying-them" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2721,6 +2732,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         A second credential for the v3 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confining-a-grant-to-particular-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Confining a grant to particular resources
       </span>
     </span>
   </a>
@@ -4544,6 +4566,114 @@ key still works, and a session cookie still does not.</p>
 Those endpoints are about an API key as an object — what it grants, and revoking
 it — and a token has no row there, is not what a person revokes, and would leave
 <code>DELETE /keys/current</code> with nothing to delete.</p>
+<h3 id="confining-a-grant-to-particular-resources">Confining a grant to particular resources<a class="headerlink" href="#confining-a-grant-to-particular-resources" title="Permanent link">&para;</a></h3>
+<p>A scope says what an application may do and never <em>where</em>. <code>library.read</code> on its
+own means the whole personal library and <code>groups.read</code> means every group the
+account belongs to, which is more than most applications need and more than most
+people want to hand over. On the consent screen the account holder can narrow a
+grant to particular libraries, or to particular collections within them —
+"group 42 and none of my others", "the <em>Reading</em> collection and nothing else".</p>
+<p>This has no counterpart upstream. zotero.org has no OAuth server of this shape
+at all, so there is no behaviour to copy and nothing about the v3 API changes
+for an API key: no key can carry a resource grant, and none is affected by one.
+A grant made before this existed is unrestricted and stays so.</p>
+<p><strong>Where it is enforced.</strong> One place. The restriction becomes a fifth ceiling in
+<code>services/auth.access_for</code>, beside the credential's grants, group membership,
+the group's policy and <code>MemberPermission</code>, and like them it only ever subtracts.
+A library the grant does not name resolves to an <code>Access</code> that cannot read, so
+every route under that prefix is already refused by the dependency that asks for
+read access. A library it names by collection puts those collections on the
+<code>Access</code>, and the read services take that same object as their <code>permit</code> — the
+one they already take for writes. The item filter is a single predicate,
+<code>items.confined_to_collections</code>, added beside the others in the query rather
+than applied to the result, so counts, totals, page boundaries and the
+parent-mapping a <code>/top</code> listing does are all computed over what the caller may
+see.</p>
+<p><strong>A collection means the branch.</strong> A granted collection also grants everything
+nested inside it, at any depth, and anything filed there afterwards. This is the
+reading altero already gives a named collection — a shared collection link means
+the branch, and so does the desktop client's <em>Show Items from Subcollections</em> —
+and the alternative would mean somebody filing a paper into a subcollection
+quietly withdraws it from an application they granted the parent to. The branch
+goes downwards only: granting a subcollection does not grant its parent.</p>
+<p><strong>What is inside a collection grant.</strong> An item filed in one of the granted
+collections; its child notes, attachments and annotations, because a child item
+is never filed in a collection itself and a grant that reached only filed items
+would hand an application a paper it could not open; and nothing else. An
+unfiled item is outside. An item filed only in a collection that was not granted
+is outside, and so are its children.</p>
+<p><strong>Refusals say as little as the reads do.</strong> A collection outside the grant is
+absent from every listing and answers 404 by key, and so does an item inside
+one — by key, on its children, on its file, on its full text, and on a write
+that names it. 404 rather than 403, the way a withheld note already is: a
+refusal that distinguished "not yours" from "not there" would let a token map
+the library it was kept out of, one key at a time. A whole library that was not
+granted is the exception and answers 403, because there is nothing to hide —
+the caller supplied the prefix.</p>
+<p><strong>My Publications keeps its notes.</strong> These endpoints answer with no credential
+at all, so the <code>Access</code> computed for the library says <code>notes=library.public</code> for
+an anonymous caller — <code>False</code> for an ordinary private library. Taking that as
+the answer would empty every published note out of a view whose whole point is
+that a stranger can read it, so the publications routes take the confinement
+from the <code>Access</code> and drop the notes narrowing. It is the rule
+<code>_may_read_notes</code> already applies from the other side: what has been published
+is published, and withholding it from a credential that could have it by
+presenting nothing at all would be theatre rather than a permission. The items
+themselves are still confined, so a narrowed token sees the published items
+inside its grant — less than a stranger sees, which is the right way round.</p>
+<p>That rule reaches the routes that look an object up before asking permission,
+and three of them had to be corrected for it: <code>PATCH &lt;prefix&gt;/tags/&lt;name&gt;</code>,
+<code>DELETE &lt;prefix&gt;/searches/&lt;key&gt;</code> and <code>DELETE &lt;prefix&gt;/settings/&lt;name&gt;</code> each
+resolved the object first and so answered 403 for one that exists and 404 for
+one that does not — which is the library's tag list, or its saved searches,
+one guess at a time. All three now resolve through the same <code>permit</code>, so a
+confined credential gets 404 either way. Found by driving a real server, not by
+the suite, which is the third time on this project that has been where a bug
+turned up; the tests that hold it were written afterwards and were watched
+failing first.</p>
+<p><strong>Four things a confined grant does not get</strong>, each because it belongs to no
+collection and there is nothing honest to intersect with the grant:</p>
+<ul>
+<li><strong>Saved searches.</strong> A saved search reaches wherever its conditions reach, and
+  altero does not run one server side. <code>/searches</code> answers with an empty page
+  and a key answers 404.</li>
+<li><strong>Settings.</strong> Tag colours and the feed list are the library's. <code>/settings</code>
+  answers with an empty object.</li>
+<li><strong>The delete log.</strong> What is left of a deleted object is its key; the row
+  saying which collections it was in went with it, so there is no way to ask
+  whether it was inside the grant. <code>/deleted</code> reports nothing removed. Serving
+  the keys anyway would hand an application a running list of everything
+  removed from the parts of the library it was not given.</li>
+<li><strong>Writing the library's shape.</strong> No collection created, renamed or deleted, no
+  saved search, no setting, and no tag renamed — renaming a tag rewrites every
+  item carrying it, including the ones the confinement was drawn to exclude.
+  A group's metadata and its membership go with them, and so does creating a
+  group at all: a grant to one collection is not a grant to decide who is in
+  the group. Items inside the grant stay writable when the scopes allow it.</li>
+</ul>
+<p>A confined grant can move an item between the collections it was given and
+cannot walk one out of them: a write is checked against the item as stored and
+again as written, and a new item must land in a granted collection. Both
+questions are asked in <code>itemwrites.save_item</code>, so every route that writes an
+item asks them.</p>
+<p><strong>Two consequences worth stating.</strong> <code>GET /users/&lt;id&gt;/groups</code> lists only the
+granted group libraries, because it is the first request of every sync and
+would otherwise name every group the account is in; and the <code>groups</code> claim in
+<code>/oauth/userinfo</code> and the ID token is narrowed the same way, since that claim is
+what an application maps roles from.</p>
+<p><strong>Where it is stored.</strong> On the grant, in <code>oauth_grant_resources</code>, with a
+<code>restricted</code> flag on <code>oauth_grants</code> saying whether those rows are the whole of
+what it reaches. On the grant rather than on a token, so a refreshed token is
+the same authorization — a restriction that expired with an access token would
+be one an application could wait out. The flag rather than the row count is the
+authority, because deleting the last collection a grant named must leave it
+reaching less rather than reaching everything.</p>
+<p><code>tests/test_oauth_resources.py</code> holds all of it, mostly by trying the other
+doors: a count, a key listing, a version listing, a search, an export, the
+full-text index, a child item, the trash, the delete log, the tag list, a write.
+It also holds the two shapes that must not change — an unrestricted grant
+behaves exactly as it did before this existed, and a refreshed token is still
+the same authorization.</p>
 <h3 id="signing-id-tokens-while-still-not-verifying-them">Signing ID tokens while still not verifying them<a class="headerlink" href="#signing-id-tokens-while-still-not-verifying-them" title="Permanent link">&para;</a></h3>
 <p>These two decisions look contradictory, but they are not:</p>
 <p>As a <em>client</em>, altero does not verify the signature on an ID token it receives
