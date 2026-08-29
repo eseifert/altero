@@ -1,0 +1,2298 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A self-hosted synchronization server for Zotero">
+      
+      
+        <meta name="author" content="Erich Seifert">
+      
+      
+        <link rel="canonical" href="https://eseifert.github.io/altero/1.0.0-alpha.2/oauth/">
+      
+      
+        <link rel="prev" href="../administration/">
+      
+      
+        <link rel="next" href="../email/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Connecting other applications - altero</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.812a03bb.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#connecting-other-applications" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="altero" class="md-header__button md-logo" aria-label="altero" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            altero
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Connecting other applications
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/eseifert/altero" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    eseifert/altero
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="./.." class="md-tabs__link">
+          
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+  Get started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../web-interface/" class="md-tabs__link">
+          
+  
+  Using altero
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../deployment/" class="md-tabs__link">
+          
+  
+  Running altero
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../status/" class="md-tabs__link">
+          
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../testing-two-clients/" class="md-tabs__link">
+          
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="altero" class="md-nav__button md-logo" aria-label="altero" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    altero
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/eseifert/altero" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    eseifert/altero
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="./.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Overview
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Overview
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../motivation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Why altero exists
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting a Zotero client
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Using altero
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Using altero
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web-interface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  The web interface
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/account/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Accounts and personal settings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Browsing and organizing a library
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Publishing and sharing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Groups, invitations and activity
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/data-transfer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving, importing and exporting data
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Running altero
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Running altero
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../administration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Administration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting other applications
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting other applications
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-an-application-gets" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What an application gets
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-a-grant-reaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Where a grant reaches
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registering-an-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Registering an application
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Registering an application">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#redirect-uris" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Redirect URIs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The flow
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Endpoints
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-device-with-no-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A device with no browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signing-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Signing out
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#id-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ID tokens
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-person-sees" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What a person sees
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Security notes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../email/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Email
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What works
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Compatibility reference
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Database schema
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Contributing
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing-two-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Syncing two desktop clients
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  The design system
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/implementation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Web interface implementation notes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-an-application-gets" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What an application gets
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-a-grant-reaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Where a grant reaches
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registering-an-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Registering an application
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Registering an application">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#redirect-uris" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Redirect URIs
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The flow
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Endpoints
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-device-with-no-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A device with no browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signing-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Signing out
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#id-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ID tokens
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-a-person-sees" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What a person sees
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Security notes
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/eseifert/altero/edit/master/docs/oauth.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="connecting-other-applications">Connecting other applications<a class="headerlink" href="#connecting-other-applications" title="Permanent link">&para;</a></h1>
+<p>altero can act as an OAuth 2.0 authorization server and OpenID Connect provider,
+so that a third-party application — a reading tool, an editor plugin, a script,
+a mobile app — can be given access to somebody's library without ever being
+handed their password or a long-lived API key.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This does not change how the Zotero desktop client connects. A desktop client
+still takes an API key from <strong>Settings → API keys</strong>, and the v3 API is still
+authenticated by a credential sent on the request and never by a browser
+cookie. What is new is a second kind of credential — a scoped, expiring access
+token — that the same v3 endpoints accept.</p>
+</div>
+<h2 id="what-an-application-gets">What an application gets<a class="headerlink" href="#what-an-application-gets" title="Permanent link">&para;</a></h2>
+<p>An access token, valid for one hour, and a refresh token to replace it with.
+Both are bearer credentials sent exactly the way an API key is:</p>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">GET</span> <span class="nn">/users/1/items</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer alt_at_…</span>
+</span></code></pre></div>
+<p>A token carries <strong>scopes</strong>, and a scope grants exactly what it says:</p>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>What it allows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openid</code></td>
+<td>Establishes who the person is. Reaches no library, no item and no file.</td>
+</tr>
+<tr>
+<td><code>profile</code></td>
+<td>The account's name and username, through <code>/oauth/userinfo</code> and the ID token.</td>
+</tr>
+<tr>
+<td><code>email</code></td>
+<td>The account's email address, and whether it has been confirmed.</td>
+</tr>
+<tr>
+<td><code>groups</code></td>
+<td>The names of the groups the account belongs to. Reaches no library.</td>
+</tr>
+<tr>
+<td><code>library.read</code></td>
+<td>Reading items, collections, saved searches and tags in the personal library.</td>
+</tr>
+<tr>
+<td><code>library.write</code></td>
+<td>Adding, changing and removing them.</td>
+</tr>
+<tr>
+<td><code>notes.read</code></td>
+<td>Reading notes. Without it a note is not found, in every listing and by key.</td>
+</tr>
+<tr>
+<td><code>files.read</code></td>
+<td>Downloading attachment bytes. Without it the file routes refuse; the attachment item is still readable.</td>
+</tr>
+<tr>
+<td><code>groups.read</code></td>
+<td>Reading the group libraries the account belongs to.</td>
+</tr>
+<tr>
+<td><code>groups.write</code></td>
+<td>Writing to them.</td>
+</tr>
+</tbody>
+</table>
+<p><code>groups</code> and <code>groups.read</code> are next to each other on the consent screen and are
+not the same question. <code>groups</code> is an identity scope beside <code>profile</code> and
+<code>email</code>: it says <em>which</em> groups somebody is in, by name, and reaches nothing
+inside them. <code>groups.read</code> reads what is in them. An application mapping people
+onto roles wants the first and should not be given the second.</p>
+<p>The other identity scopes map onto nothing at all, and the rest map one for one
+onto the permissions an API key already carries, which is what makes the mapping
+checkable: a token cannot express access that a key could
+not, and every ceiling that applies to a key — the group's policy, the member's
+role, their own permission — applies unchanged to a token.</p>
+<p><code>notes.read</code> and <code>files.read</code> are narrowings of <code>library.read</code> rather than
+additions to it, and what they withhold is the object and not a field on it: a
+note the token may not read does not appear in a listing and is a 404 by key,
+and an attachment whose bytes the token may not have is still readable as an
+item. <a href="../compatibility/#a-credential-that-gave-up-notes-or-files">Compatibility notes</a>
+records the whole surface, including what happens on a public library and the
+two places altero deliberately differs from zotero.org.</p>
+<p>Some scopes are useless alone and are refused rather than quietly granted.
+Write access implies read access throughout altero, so <code>library.write</code> without
+<code>library.read</code> would be issued and then do nothing; asking for it is an error
+with a message saying so. The same holds for <code>groups.write</code>, <code>notes.read</code> and
+<code>files.read</code>, each of which needs its corresponding read scope.</p>
+<p>A scope this server does not issue — say <code>annotations.write</code> — is also refused
+rather than dropped. An application asking for it has a belief about what altero
+does, and handing back a token without it produces software that half works.</p>
+<h2 id="where-a-grant-reaches">Where a grant reaches<a class="headerlink" href="#where-a-grant-reaches" title="Permanent link">&para;</a></h2>
+<p>A scope says what an application may do. It does not say <em>where</em>, and by itself
+<code>library.read</code> means the whole personal library while <code>groups.read</code> means every
+group the account belongs to. On the consent screen the account holder can
+narrow that: <strong>only the libraries and collections I choose</strong>.</p>
+<p>The choice is theirs and not the application's. An application asks for scopes,
+as it always did; nothing it sends can name a library or a collection, and no
+parameter it adds widens what was picked. The default is unchanged — approving
+without touching the choice grants everything the scopes cover, which is what
+approving has always meant.</p>
+<p>What can be picked:</p>
+<ul>
+<li>a whole library, personal or group — "group 42 and none of my others";</li>
+<li>one or more collections within a library, in either kind of library.</li>
+</ul>
+<p><strong>A collection means the branch.</strong> Choosing <em>Reading</em> also grants everything
+nested inside it, at any depth, and everything filed there later. That is the
+reading altero already gives a named collection: a <a href="../web-interface/">shared
+collection</a> means the branch, and so does the desktop client's
+<em>Show Items from Subcollections</em>. The alternative would mean somebody who files
+a paper into a subcollection quietly withdraws it from an application they
+granted the parent to.</p>
+<p>What a collection grant reaches, exactly:</p>
+<ul>
+<li>every item filed in one of the granted collections;</li>
+<li>their child notes, attachments and annotations — a child item is never filed
+  in a collection itself, so a grant that reached only filed items would hand
+  an application a paper it could not open;</li>
+<li>and nothing else. An unfiled item is out. An item filed only in a collection
+  that was not granted is out, and so are its children.</li>
+</ul>
+<p>A library that was not picked answers 403 to everything under its prefix, and
+<code>GET /groups/&lt;id&gt;</code> answers 404 — which private groups exist is not something a
+refusal should confirm. <code>GET /users/&lt;id&gt;/groups</code> lists only the granted group
+libraries, and so does the <code>groups</code> claim. A collection that was not picked is
+absent from every listing and a 404 by key, and so is an item inside one — by
+key, on its children, on its file, on its full text, and on a write that names
+it. Every count, key listing, version listing, search, export, full-text index
+and tag count is computed over what the token can see, so none of them says that
+something else is there.
+<a href="../compatibility/#confining-a-grant-to-particular-resources">Compatibility notes</a>
+records what a narrowed grant does about the parts of a library that belong to
+no collection: saved searches, settings, the delete log, writing to the
+library's shape, and administering a group.</p>
+<p>The restriction lives on the grant rather than on a token, so a <strong>refreshed
+token is the same authorization</strong> — a restriction an application could refresh
+its way out of would not be one. Approving again replaces it rather than adding
+to it, so an application cannot accumulate collections by asking often, and
+<strong>Settings → Connected applications</strong> lists what each one is limited to.</p>
+<p>Existing grants are unaffected. A grant made before this existed is unrestricted
+and stays unrestricted until somebody narrows it. So is an API key: no key can
+carry a resource grant and none is changed by one.</p>
+<h2 id="registering-an-application">Registering an application<a class="headerlink" href="#registering-an-application" title="Permanent link">&para;</a></h2>
+<p>An operator registers it. Nothing self-registers, and there is no dynamic client
+registration endpoint: the list of addresses an authorization code may be sent
+to is the whole security of the flow, and a list that accepts new entries from
+whoever asks is not a list.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>add<span class="w"> </span>notebook<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;Notebook&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>--description<span class="w"> </span><span class="s2">&quot;Reads your library into a notebook&quot;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span>--redirect-uri<span class="w"> </span>https://notebook.example.com/auth/callback<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span>--scope<span class="w"> </span>openid<span class="w"> </span>--scope<span class="w"> </span>profile<span class="w"> </span>--scope<span class="w"> </span>library.read<span class="w"> </span>--scope<span class="w"> </span>files.read
+</span></code></pre></div>
+<p><code>--redirect-uri</code> is repeatable and matched <strong>exactly</strong>. <code>--scope</code> is repeatable
+and is a ceiling: the application may ask for these or fewer, never more.</p>
+<p>For an application that runs on a server and can keep a secret, add
+<code>--confidential</code>. The secret is printed once and stored only as a hash, the same
+bargain <code>altero key add</code> makes.</p>
+<p><code>--post-logout-redirect-uri</code> is repeatable too, and is the separate list of
+addresses somebody may be sent to after signing out — see
+<a href="#signing-out">Signing out</a> below. Most applications register none.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>list<span class="w">                </span><span class="c1"># what is registered, and what it may ask for</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>disable<span class="w"> </span>notebook<span class="w">    </span><span class="c1"># stop it working, keeping the record</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>rotate-key<span class="w">          </span><span class="c1"># sign ID tokens with a new key from now on</span>
+</span></code></pre></div>
+<h3 id="redirect-uris">Redirect URIs<a class="headerlink" href="#redirect-uris" title="Permanent link">&para;</a></h3>
+<p>Three rules, each of which rules out a way this is broken in the wild:</p>
+<ul>
+<li><strong>No fragment.</strong> The fragment is where an implicit-flow response would go, and
+  altero has no implicit flow.</li>
+<li><strong>Absolute only.</strong> "The browser will work it out" is exactly the ambiguity
+  that lets a mistake resolve somewhere unintended.</li>
+<li><strong><code>https</code>, or the loopback interface.</strong> The authorization code is a
+  credential, and a network that can read it can spend it.</li>
+</ul>
+<p>A native application that listens on an ephemeral port is the documented
+exception RFC 8252 §7.3 requires: register <code>http://127.0.0.1:1/callback</code> and any
+port will match, while the scheme, host, path and query still have to match
+exactly. <code>localhost</code> and <code>[::1]</code> work the same way. A private-use scheme —
+<code>com.example.app:/callback</code> — is accepted for a mobile application.</p>
+<h2 id="the-flow">The flow<a class="headerlink" href="#the-flow" title="Permanent link">&para;</a></h2>
+<p>Authorization code with PKCE, and <strong>PKCE is required of every client, <code>S256</code>
+only</strong>. <code>plain</code> is neither advertised nor accepted: it makes the challenge equal
+to the verifier, which is the interception PKCE exists to prevent.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>GET /oauth/authorize
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>      ?client_id=notebook
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>      &amp;redirect_uri=https://notebook.example.com/auth/callback
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>      &amp;response_type=code
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>      &amp;scope=openid%20profile%20library.read
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>      &amp;state=&lt;the application&#39;s own random value&gt;
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>      &amp;code_challenge=&lt;BASE64URL(SHA256(verifier))&gt;
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>      &amp;code_challenge_method=S256
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>      &amp;nonce=&lt;optional, echoed into the ID token&gt;
+</span></code></pre></div>
+<p>altero checks the client and the redirect URI, stores the request, and sends the
+browser to its own interface at <code>/app/authorize</code>. The person signs in there the
+ordinary way — with the second factor, passkey or single sign-on their account
+actually has — sees what is being asked for in their own language, and answers.</p>
+<p>The browser comes back to the registered address with <code>code</code> and <code>state</code>, and
+the application exchanges the code on a back channel:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://library.example.org/oauth/token<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">grant_type</span><span class="o">=</span>authorization_code<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">client_id</span><span class="o">=</span>notebook<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">code</span><span class="o">=</span>…<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">code_verifier</span><span class="o">=</span>…<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">redirect_uri</span><span class="o">=</span>https://notebook.example.com/auth/callback
+</span></code></pre></div>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alt_at_…&quot;</span><span class="p">,</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">&quot;refresh_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alt_rt_…&quot;</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;openid profile library.read&quot;</span><span class="p">,</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&quot;id_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJSUzI1NiIsImtpZCI6…&quot;</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Refreshing rotates: the refresh token is replaced every time it is used.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://library.example.org/oauth/token<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>-d<span class="w"> </span><span class="nv">grant_type</span><span class="o">=</span>refresh_token<span class="w"> </span>-d<span class="w"> </span><span class="nv">client_id</span><span class="o">=</span>notebook<span class="w"> </span>-d<span class="w"> </span><span class="nv">refresh_token</span><span class="o">=</span>alt_rt_…
+</span></code></pre></div>
+<p>If a refresh token is ever presented <em>after</em> it was rotated away, somebody has a
+copy. There is no telling which of the two callers is the thief, so every token
+descended from that authorization is revoked and both have to start again. The
+same happens if an authorization code is presented twice.</p>
+<h2 id="endpoints">Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/.well-known/openid-configuration</code></td>
+<td>Discovery, as OpenID Connect names it</td>
+</tr>
+<tr>
+<td><code>/.well-known/oauth-authorization-server</code></td>
+<td>The same document, as RFC 8414 names it</td>
+</tr>
+<tr>
+<td><code>/oauth/authorize</code></td>
+<td>Where the browser starts</td>
+</tr>
+<tr>
+<td><code>/oauth/token</code></td>
+<td>Code exchange and refresh</td>
+</tr>
+<tr>
+<td><code>/oauth/revoke</code></td>
+<td>RFC 7009 revocation</td>
+</tr>
+<tr>
+<td><code>/oauth/userinfo</code></td>
+<td>Claims the token's scopes allow</td>
+</tr>
+<tr>
+<td><code>/oauth/jwks.json</code></td>
+<td>The keys ID tokens are verified against</td>
+</tr>
+<tr>
+<td><code>/oauth/logout</code></td>
+<td>RP-initiated logout, as OpenID Connect names <code>end_session_endpoint</code></td>
+</tr>
+<tr>
+<td><code>/oauth/device_authorization</code></td>
+<td>Where a device with no browser starts, RFC 8628</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a-device-with-no-browser">A device with no browser<a class="headerlink" href="#a-device-with-no-browser" title="Permanent link">&para;</a></h2>
+<p>A machine that cannot show a browser — a terminal on a server, a reader, a box
+plugged into a television — asks here instead:</p>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="err">POST /oauth/device_authorization</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="err">client_id=notebook&amp;scope=openid%20library.read</span>
+</span></code></pre></div>
+<p>and is handed a long <code>device_code</code> it keeps, a short <code>user_code</code> it shows, the
+<code>verification_uri</code> to show beside it, an <code>expires_in</code> of ten minutes and the
+<code>interval</code> in seconds at which it may poll. Somebody types the short code into
+that address — or follows <code>verification_uri_complete</code>, which carries it — and is
+shown <strong>the same consent screen every other application gets</strong>. A second consent
+screen written for devices would be a second place for the two to disagree about
+what is being granted.</p>
+<p>Meanwhile the device polls the token endpoint:</p>
+<div class="language-http highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="err">POST /oauth/token</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="err">grant_type=urn:ietf:params:oauth:grant-type:device_code</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="err">&amp;client_id=notebook&amp;device_code=…</span>
+</span></code></pre></div>
+<p>Four of the five answers are errors, and they are different errors on purpose:</p>
+<table>
+<thead>
+<tr>
+<th>Answer</th>
+<th>What the device does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>authorization_pending</code></td>
+<td>Keep asking. Nobody has answered yet.</td>
+</tr>
+<tr>
+<td><code>slow_down</code></td>
+<td>Keep asking, less often. It polled inside the interval.</td>
+</tr>
+<tr>
+<td><code>access_denied</code></td>
+<td>Stop. Somebody said no.</td>
+</tr>
+<tr>
+<td><code>expired_token</code></td>
+<td>Stop. The code lived ten minutes and nobody answered.</td>
+</tr>
+<tr>
+<td>the tokens</td>
+<td>Done, and the device code is spent.</td>
+</tr>
+</tbody>
+</table>
+<p>There is no redirect URI and no PKCE here, because there is nothing for either
+to bind to: no authorization code travels through a browser. What takes their
+place is the device code, which is long, random and known only to the device
+that asked for it. The user code is eight characters of a twenty-consonant
+alphabet — no vowels, so no code is a word anybody would rather read out, and
+none of <code>0</code>/<code>O</code>, <code>1</code>/<code>I</code> or <code>5</code>/<code>S</code> to mistype — which is about 34 bits for a
+code that lives ten minutes. Case and the dash are decoration: <code>wdjb mjht</code> is
+the same code as <code>WDJB-MJHT</code>.</p>
+<p>A confidential client still presents its secret when it polls. Registration is
+the same <code>altero oauth add</code>, and a client needs a redirect URI registered even
+if it only ever uses this flow — the two are not exclusive.</p>
+<h2 id="signing-out">Signing out<a class="headerlink" href="#signing-out" title="Permanent link">&para;</a></h2>
+<p>An application can send somebody here to end their altero browser session:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>GET /oauth/logout
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>      ?id_token_hint=eyJhbGciOiJSUzI1NiIs…
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>      &amp;post_logout_redirect_uri=https://notebook.example.com/signed-out
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>      &amp;state=opaque
+</span></code></pre></div>
+<p><code>POST</code> works the same way. Three things about it are decided rather than
+defaulted:</p>
+<p><strong><code>id_token_hint</code> is required</strong>, where OpenID Connect RP-Initiated Logout 1.0
+only recommends it. This endpoint is a navigation, so any page on the internet
+can send a browser to it; without something the caller could only have received
+from this server, a hidden image on somebody else's site would sign people out
+of their library all day. An ID token is that thing — it was handed to an
+application at the token endpoint, over TLS.</p>
+<p>Its signature is checked against altero's own keys and its issuer against
+altero's own name. Its <strong>expiry is not checked</strong>: an ID token lives an hour and
+somebody signs out whenever they decide to. If its <code>sub</code> is not the account the
+browser is signed in as, nothing is ended — an application holding a stale token
+for one person does not sign out whoever is at the browser now.</p>
+<p><strong><code>post_logout_redirect_uri</code> must be registered</strong>, exactly, for the client the
+ID token was issued to. An unregistered address is refused <em>on this server</em> and
+not redirected to, the same rule the authorization endpoint follows: bouncing
+anything off an unverified address is how an open redirector is built. With no
+address given, the browser lands on the interface.</p>
+<p><strong>The session ends; the grant does not.</strong> The application keeps the tokens it
+was issued, because signing out of a browser is not withdrawing consent. Taking
+an application's access away is <strong>Settings → Connected applications</strong>, or
+<code>/oauth/revoke</code> for one token.</p>
+<h2 id="id-tokens">ID tokens<a class="headerlink" href="#id-tokens" title="Permanent link">&para;</a></h2>
+<p>Signed with <strong>RS256</strong>, verifiable against <code>/oauth/jwks.json</code>. The claims are
+<code>iss</code>, <code>sub</code>, <code>aud</code>, <code>iat</code>, <code>exp</code>, <code>auth_time</code> and <code>at_hash</code>, plus <code>nonce</code> when
+the request carried one, and the <code>profile</code>, <code>email</code> and <code>groups</code> claims when
+those scopes were granted.</p>
+<p><code>groups</code> is a list of group names, present and empty for an account in no group
+rather than absent — an application mapping roles has to be able to tell
+"belongs to nothing" from "this server did not say". Group names are <strong>not
+unique</strong> on an altero instance, so a deployment that maps roles from them has to
+keep them distinct; nothing checks that for you.</p>
+<p><code>sub</code> is the account's numeric id as a string. It is stable and it is the only
+thing that identifies somebody: an email address is not an identity, for the
+reasons <code>services/federation.py</code> sets out at length from the other side of this
+protocol.</p>
+<p><code>iss</code> comes from <code>ALTERO_PUBLIC_URL</code> and there is <strong>no fallback</strong> to the address
+the request arrived on. An issuer a caller can choose with a <code>Host</code> header is
+not an issuer anybody can pin, so an instance without that setting refuses to
+serve these endpoints rather than guessing.</p>
+<p>Signing keys are generated on first use and kept in the database. Rotating with
+<code>altero oauth rotate-key</code> starts signing with a new key and keeps publishing the
+old one, so tokens issued before the rotation keep verifying until they expire.</p>
+<h2 id="what-a-person-sees">What a person sees<a class="headerlink" href="#what-a-person-sees" title="Permanent link">&para;</a></h2>
+<p>The consent screen is part of the web interface and is translated like the rest
+of it. It names the application, says in sentences what it will be able to do —
+"Read everything in your library", not <code>library.read</code> — and marks what is new
+when an application that already has consent asks for more.</p>
+<p>Below that it asks <strong>where</strong> the application may reach, when the scopes reach a
+library at all: everything the permissions cover, which is the default, or only
+the libraries and collections the person ticks. The collections are drawn as a
+tree, since choosing one grants the branch under it. Turning the choice on and
+ticking nothing is refused rather than treated as everything. Where a standing
+grant is already narrowed, the screen says what it is narrowed to.</p>
+<p>Every application somebody has connected is listed under <strong>Settings → Connected
+applications</strong>, with what it may do, where it may reach, and whether it is
+currently in use. Disconnecting one takes effect immediately: the tokens go with
+the grant rather than running out an hour later.</p>
+<h2 id="security-notes">Security notes<a class="headerlink" href="#security-notes" title="Permanent link">&para;</a></h2>
+<ul>
+<li>The v3 API accepts an access token <em>in addition to</em> an API key. It never
+  accepts a browser cookie; see
+  <a href="../compatibility/#a-second-credential-for-the-v3-api">the boundary</a>.</li>
+<li>A resource grant only ever narrows. It is applied in <code>access_for</code> beside the
+  four ceilings already there — the credential's grants, group membership, the
+  group's policy, the member's own permission — so it can never let a token
+  reach something its owner could not, and a library its owner is not a member
+  of cannot be picked in the first place.</li>
+<li><code>/keys/current</code> and <code>/keys/{key}</code> refuse an access token. They are about an
+  API key as an object, and a token is not one — what a person revokes is the
+  application.</li>
+<li>A suspended account stops both credentials at once, in
+  <code>services/auth.authenticate</code> and in <code>services/websessions.lookup</code>.</li>
+<li>Access tokens and refresh tokens are stored only as SHA-256 hashes, as
+  authorization codes are.</li>
+<li>Expired requests, codes and tokens are swept by
+  <code>altero retention run</code> along with everything else that carries its own expiry.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../administration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Administration">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Administration
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../email/" class="md-footer__link md-footer__link--next" aria-label="Next: Email">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Email
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Erich Seifert &middot; AGPL-3.0-or-later
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/eseifert/altero" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["content.action.edit","content.code.annotate","content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.tabs","navigation.top","navigation.tracking","search.highlight","toc.follow"],"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.49251538.min.js"></script>
+      
+    
+  </body>
+</html>

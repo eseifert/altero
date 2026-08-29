@@ -1,0 +1,2227 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A self-hosted synchronization server for Zotero">
+      
+      
+        <meta name="author" content="Erich Seifert">
+      
+      
+        <link rel="canonical" href="https://eseifert.github.io/altero/1.0.0-alpha.2/web/library/">
+      
+      
+        <link rel="prev" href="../account/">
+      
+      
+        <link rel="next" href="../sharing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Browsing and organizing a library - altero</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.812a03bb.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#browsing-and-organizing-a-library" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="altero" class="md-header__button md-logo" aria-label="altero" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            altero
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Browsing and organizing a library
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/eseifert/altero" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    eseifert/altero
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  Get started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../web-interface/" class="md-tabs__link">
+          
+  
+  Using altero
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../deployment/" class="md-tabs__link">
+          
+  
+  Running altero
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../status/" class="md-tabs__link">
+          
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../testing-two-clients/" class="md-tabs__link">
+          
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="altero" class="md-nav__button md-logo" aria-label="altero" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    altero
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/eseifert/altero" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    eseifert/altero
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Overview
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Overview
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../motivation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Why altero exists
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting a Zotero client
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Using altero
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Using altero
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../web-interface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  The web interface
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../account/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Accounts and personal settings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Browsing and organizing a library
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Browsing and organizing a library
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Common tasks
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Detailed behavior
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#browsing-a-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Browsing a library
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collections" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Collections
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Collections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sharing-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sharing one
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#items" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Items
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Items">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#writing-items-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Writing items out
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-touch" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        By touch
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tags
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Publishing and sharing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Groups, invitations and activity
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-transfer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving, importing and exporting data
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Running altero
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Running altero
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../administration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Administration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting other applications
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../email/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Email
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What works
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Compatibility reference
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Database schema
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Contributing
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../testing-two-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Syncing two desktop clients
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  The design system
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../implementation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Web interface implementation notes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#common-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Common tasks
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Detailed behavior
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#browsing-a-library" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Browsing a library
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#collections" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Collections
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Collections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sharing-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sharing one
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#items" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Items
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Items">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#writing-items-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Writing items out
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#by-touch" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        By touch
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tags
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/eseifert/altero/edit/master/docs/web/library.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="browsing-and-organizing-a-library">Browsing and organizing a library<a class="headerlink" href="#browsing-and-organizing-a-library" title="Permanent link">&para;</a></h1>
+<p>The browser interface is a companion to Zotero Desktop. It lets you browse, search and organize a library, but it is not intended to replace the desktop editor for bibliographic fields.</p>
+<h2 id="common-tasks">Common tasks<a class="headerlink" href="#common-tasks" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Browse collections, tags and search results from the library view.</li>
+<li>Create, rename, move and remove collections.</li>
+<li>File, trash, restore, delete or copy items without editing their bibliographic fields.</li>
+<li>Rename tags across a library.</li>
+<li>Use the same actions with mouse, keyboard or touch where the interface provides them.</li>
+</ul>
+<h2 id="detailed-behavior">Detailed behavior<a class="headerlink" href="#detailed-behavior" title="Permanent link">&para;</a></h2>
+<p>The sections below retain the technical and behavioral detail needed for troubleshooting and development. You can stop after the task summary if you only need to use the feature.</p>
+<h3 id="browsing-a-library">Browsing a library<a class="headerlink" href="#browsing-a-library" title="Permanent link">&para;</a></h3>
+<p>Three panes, as the desktop client has: what to show on the left, the items in
+the middle, the selected item on the right.</p>
+<p>The left is arranged as Zotero's own web library is, because somebody arriving
+from zotero.org should not have to learn a second arrangement of the same
+library. The personal library is <strong>My Library</strong> whatever the account is called
+— the row is the library, not its owner — and under it hang its collections,
+nested and expandable, then <strong>My Publications</strong>, then the <strong>Trash</strong>. Group
+libraries follow under a heading of their own, and a group has no My
+Publications, because publishing is something an account does with its own
+library.</p>
+<p>Beside those are the three rows the desktop client has and the web library does
+not: <strong>Recently Read</strong> above the collections, <strong>Duplicate Items</strong> and <strong>Unfiled
+Items</strong> below them, in the client's own order. None of the three is a scope the
+v3 API has — the client works each of them out in the copy of the library it
+holds — so altero answers them from the library itself, for the browser only,
+and <a href="../../compatibility/#the-desktop-clients-three-extra-views">compatibility.md</a>
+says what each one was taken to mean. The window Recently Read covers is a
+guess, and is marked as one there.</p>
+<p>The library's row <em>is</em> the whole library: pressing it shows everything at the
+top level, which is also how to get back out of a collection. There is no
+second row under the library for that, and none called "Everything" covering
+child notes and attachments: neither the desktop client nor the web library has
+either, and the row they would duplicate is already there.</p>
+<p>Under all of it is the tag list; picking tags narrows the middle pane, and
+picking several requires all of them.</p>
+<p>How wide the outer two columns are is the reader's to decide. Both divides can
+be dragged, and moved with the arrow keys once one has the focus — <code>Home</code> and
+<code>End</code> go to the extremes it will take, and a double-click puts it back where it
+started. Neither has a right answer to impose: a collection tree indents per
+level and a name is as long as whoever wrote it made it, and the detail pane
+holds three fields for a book and six hundred words of abstract for an article.
+The arrow keys move the divide rather than the pane, so <code>ArrowRight</code> always
+moves it rightwards — which widens the sidebar and narrows the item detail.</p>
+<p>Both widths are kept in the browser rather than on the account, because they
+belong to the window they were chosen in: the same person on a laptop and on a
+wide monitor does not want one answer for both.</p>
+<p>The middle pane searches title, creator, year and every field, sorts by title,
+creator or date in either direction, and pages fifty at a time. The search is
+the API's own, so it finds what the desktop client's quick search finds.</p>
+<p>Everything that acts on that list — <strong>Select</strong>, <strong>Export…</strong>, emptying the trash,
+the link to a public page — sits in one row at the end of its heading, next to
+the search, because a control that acts on the list belongs beside the one that
+narrows it. They are glyphs rather than words and each carries its name twice,
+as <code>aria-label</code> for a screen reader and as <code>title</code> for a pointer; a control with
+neither is a rebus. The search is one more glyph until it is pressed, and then
+it unfolds into the field — a library is read far more often than it is
+searched. It folds away again when it is left empty, never while it holds a
+term: the term is the only thing on screen that says why the list is short.
+Escape empties it, and a second Escape closes it.</p>
+<p>The right pane shows an item's fields under the names the schema gives them,
+its creators, tags and notes, and its attachments — which can be opened in the
+browser or downloaded. A citation can be rendered there in Chicago, APA, MLA,
+IEEE or Nature; the server renders it with the same CSL processor that answers
+<code>format=bib</code>, rather than a second implementation in the browser.</p>
+<h3 id="collections">Collections<a class="headerlink" href="#collections" title="Permanent link">&para;</a></h3>
+<p>Collections can be made, renamed, moved and removed here.</p>
+<p><strong>Where a collection goes is half of making one</strong>, so it is settled before the
+name is — and it is settled by which row you press. Every row that can hold
+collections carries a plus, drawn when the pointer or the keyboard reaches it:
+the row naming the library or the group makes one at its top level, since that
+is the row the collections hang from, and a collection's makes one inside that
+collection. Nothing depends on what happens to be selected, so there is no rule
+to remember about where a new collection lands.</p>
+<p>A dialog then opens, and it leads with where — the library, then every
+collection down to the one this will sit in — before the field for the name.
+That path is stated rather than offered as a choice: the sidebar lists one
+library's collections under that library, so the row you pressed has already
+said which library and which collection, and a picker here would be a second
+way to say it that can disagree with the first. A new collection is selected
+once it is made, and the branch it went into opens to show it, so it is where
+you can see it rather than somewhere you have to go and find.</p>
+<p><strong>Renaming, moving and removing are one dialog</strong>, because they are one thought
+— this collection's settings — and because a sidebar row has space for a pair
+of icons rather than a menu of them. The pencil beside the plus opens it: the
+name, the collection it sits inside, and Delete.</p>
+<p>Moving is a picker rather than a drag. A tree can be taller than the window,
+and a collection cannot be dropped on a parent that is scrolled out of sight;
+items are dragged, a collection is moved by naming where it goes. The list
+leads with the library, because "no parent" is not an absence to a reader — it
+is the row the top-level collections hang from. What it never offers is the
+collection itself or anything under it: a collection inside itself is a branch
+that still exists and that nothing reaches, since the tree is drawn from
+parents and neither end of the loop has one. The server refuses that write as
+well, walking the whole way up from the proposed parent rather than checking
+the one step <code>services/objectwrites.py</code> checks.</p>
+<p>Delete asks in place rather than in the dialog, under the collection it is
+about, where the tree can still be seen: it takes no answer beyond yes.</p>
+<p>The controls appear only where the server says this account may write to the
+library — a group that keeps editing to its administrators shows a member the
+tree and nothing else.</p>
+<p><strong>Removing a collection does not remove what is in it.</strong> The items stay in the
+library, the subcollections move up to where their parent was, and only the
+collection itself goes. That is what the v3 <code>DELETE</code> does, so a collection
+removed in the browser is a collection removed exactly as a syncing client
+would have removed it, down to the entry in the deletion log that tells every
+other client it went. Zotero also offers deleting a collection <em>with</em> its
+items; that is a write to items, which the browser does not do.</p>
+<p>There is no undo, because there is no trash around a collection here — the
+question is asked before the collection goes instead. The desktop client's own
+trash for collections is a client-side state that only it and the sync protocol
+maintain.</p>
+<p>Behind it is <code>services/objectwrites.py</code>, which is what the v3 endpoints write
+through as well: the same key format, the same validation, and one new library
+version per request, whichever door it came in by. A collection made or renamed
+in the browser appears in the desktop client at the next sync, in the right
+place in the tree.</p>
+<p>Changing one is a patch: a property that is not sent keeps what is stored, so
+a rename cannot silently move a collection to the top level. <code>parentCollection:
+null</code> is how the dialog asks for the top level; the stored form of that is
+<code>false</code>, which is the v3 shape and what comes back.</p>
+<h4 id="sharing-one">Sharing one<a class="headerlink" href="#sharing-one" title="Permanent link">&para;</a></h4>
+<p>"Share a collection, not an entire library?" has been open on the Zotero forums
+since 2008 and is the longest-running request in this space. The collection
+settings dialog answers it, and answers it as a <strong>page</strong> rather than as sync.</p>
+<p>As sync it is impossible. A Zotero client syncs a library; scoping below one
+means either telling a client that a library holds less than it does — which
+breaks <code>since</code> and every version comparison that depends on it — or patching
+clients, which altero does not do. So no API key reaches any of this, no
+library version moves when a link is made or revoked, and no syncing client
+ever learns that a share exists.</p>
+<p>As a page it is a link, at <code>/app/shared/&lt;token&gt;</code>, that shows the collection
+read-only to whoever opens it. It is the second part of the interface that
+answers with no cookie at all, after the profile pages, and for the same
+reason: it identifies nobody, and what it can reach was fixed when the link was
+made.</p>
+<p>Three questions, and they are the whole of the form:</p>
+<ul>
+<li><strong>How much of the tree.</strong> The branch, which is what the sidebar shows when
+  you click a collection, or the one collection alone.</li>
+<li><strong>Whether the files go.</strong> A reading list is not the same thing to hand out
+  as the PDFs, which is the same separation the publishing wizard makes.</li>
+<li><strong>How long.</strong> An expiry, or none. A link given to a seminar in March is not
+  one to leave working in November.</li>
+</ul>
+<p>The link itself is shown once, by the request that makes it. Nothing is stored
+that it could be rebuilt from, so a link that is lost is replaced rather than
+recovered — the rule the invitation links follow. Afterwards the dialog lists
+what a collection carries, when each was made, when it was last opened, and
+offers to revoke it; revoking is a delete, so there is nothing left to turn
+back on.</p>
+<p>Making a link takes <strong>write</strong> access to the library, not read: giving a
+collection away is a decision about the library rather than a use of it, and a
+member who may only read a group's items is not the person to make it.</p>
+<p>The page never shows the trash, and a reader cannot widen what they were given
+— the library and the collection come out of the token, and the one parameter
+that narrows anything is resolved against the shared subtree. A link that was
+revoked, one that has expired, one that never existed and one whose collection
+has been thrown away all answer <strong>404</strong>: they are the same fact from the
+reader's side, and telling them apart would turn the link into a way of asking
+which tokens are real. Deleting a collection deletes its links with it.</p>
+<p><code>api/routes/webshares.py</code> and <code>services/shares.py</code> are where this lives.</p>
+<h3 id="items">Items<a class="headerlink" href="#items" title="Permanent link">&para;</a></h3>
+<p>An item can be filed, trashed, restored, deleted and copied to another library
+— all of it by dragging rows of the item list somewhere, and all of it also
+without a pointer. What cannot be done here yet is editing an item's fields.</p>
+<p><strong>Several rows can be picked out and carried together.</strong> <code>Ctrl</code>-click — <code>Cmd</code>
+on a Mac — adds a row and takes one away, <code>Shift</code>-click takes everything
+between, and <code>Ctrl</code>-A takes the whole page: the conventions of every list
+anybody has used, and the desktop client's own. A drag that starts on a row
+already picked out carries all of them; one that starts anywhere else carries
+that row alone and leaves the selection where it was, because picking rows out
+is what a click is for and a drag that quietly changed the selection would hand
+back a different list than the reader had. What is under the pointer says which
+it is: a title, or a count.</p>
+<p>None of those exist on a touch screen, and none of them can be reached from a
+keyboard either — pressing a button fires a click with no modifier on it, so a
+row that is only a button can only ever be selected on its own. <strong>Select</strong> is
+what answers both. It draws a checkbox on every row and one on the heading line
+for the whole page, and a checkbox is a control a finger can hit and a keyboard
+reaches with <code>Tab</code> and <code>Space</code>. While it is on, pressing anywhere on a row
+toggles that row: in a mode whose whole purpose is picking rows out, a tap that
+opened the detail pane instead would be the mode failing to mean anything. A
+mouse is not made to use it — the modifiers work whether it is on or off.</p>
+<p><strong>A selection is one request and one new library version</strong>, whichever errand it
+is. Twenty rows dragged onto a collection is one thing the reader did; twenty
+requests would be twenty versions for it, twenty entries in a group's activity,
+and — if the tenth were refused — a selection half moved with nothing on screen
+to say which half. The server resolves every item before it writes any, so the
+whole selection lands or none of it does. Deleting for good is the same: it
+refuses the request outright if any one row is not in the trash, rather than
+taking the ones that are.</p>
+<p>The right-hand pane follows. One row picked out and it describes that item; more
+than one and it holds the count and the same errands — move or copy, move to
+trash, restore, delete, export — drawn with the same glyphs, since three rows
+picked out do not make trashing them a different errand. It does not show five
+items' fields side by side, and it does not offer to publish them: the wizard's
+questions are about the work in front of it — which of its files go, what its
+Rights field says — so a selection has no one set of answers to give it. The
+<strong>My Publications</strong> row refuses a drop of several for the same reason, and being
+a row that would refuse, it does not light up.</p>
+<p><strong>Dragging onto a collection files it there and leaves it where it was</strong>, which
+is Zotero's own rule: a collection is not a folder, and an item can be in
+several. Holding <code>Shift</code> while dropping moves it instead — out of the
+collection being shown and into the one it was dropped on, in one request and
+one library version. Dropping on the library's own row takes it out of the
+collection currently shown without trashing it, and dropping on the trash
+trashes it.</p>
+<p><strong>A collection can be carried too</strong>: onto another collection to sit inside it,
+onto the library's row to come back to the top level, onto the trash to be
+<em>asked</em> about deleting it — a collection carries subcollections, and a finger
+that landed on the wrong row should not be able to remove one. A row that would
+refuse a drop never lights up: a collection cannot go inside itself or anything
+under it, and it cannot cross into another library, which would be a copy of
+the collection and everything filed in it.</p>
+<p><strong>Dragging onto another library copies it</strong>, with its notes and attachments and
+tags. The original stays: a move would be a deletion nobody asked for on the
+far side of a drag that can be started by accident. The copy is a new item in
+the library it lands in — its own key, its own version — and the collections it
+was in do not come with it, because those collections are in the library it
+came from. An attached file is not copied at all: files are stored under their
+digest, so the copy names the same bytes.</p>
+<p><strong>Everything a drag does, the keyboard does too.</strong> <code>Delete</code> on a row trashes
+it — the whole selection if that row is part of it, and that row alone if it is
+not, which is the rule the drag follows. In the trash it asks first, because
+that is the one thing here that cannot be undone, and it names the item while
+there is one to name and counts them once there are several: five titles in a
+sentence is not a sentence anybody reads. The detail pane carries the same
+errands as controls of its own: “Move or copy…”, which opens one list holding
+this library's collections and the other libraries it could be copied to,
+“Move to trash”, and “Restore” and “Delete” for something already in the trash.
+A control only a pointer can reach is a control some readers do not have.</p>
+<p>They are glyphs, like the tools over the item list, and each carries its name
+twice — as <code>aria-label</code>, which is what a screen reader announces, and as
+<code>title</code>, which is what a pointer reveals. Two of them are drawn apart from their
+neighbours on purpose: deleting for good is a bin with a cross through it rather
+than the bin that means the trash, because it is the one act here that cannot be
+undone — and emptying the trash, over the list, carries that same glyph in that
+same red, since it is the same act on more of them. The other is publishing,
+which draws a plus where unpublishing draws a minus: a control that toggles has
+to show which way it is about to go.</p>
+<p>“Move or copy…” takes a selection as readily as one row, and asks the same two
+questions of it: where they go, and whether they come out of where they are.
+Only how it names what it is about changes, since a count is not a title.</p>
+<p>The <code>Delete</code> key works on a collection in the sidebar too, and asks the same
+question the settings dialog's Delete asks.</p>
+<p><strong>Deleting for good happens only out of the trash.</strong> Trashing sets <code>deleted</code> on
+the item, which is what the desktop client's own trash does and what makes it
+reversible; only an item already in the trash can be removed outright, and the
+server refuses the shortcut rather than trusting the browser to have asked
+first, and refusing the whole request rather than the rows it objects to.
+Emptying the trash is offered only while the trash is what is showing, asks
+before it goes ahead, and is the one errand here that reaches items nobody
+picked out — which is what the trash is: a list of things already thrown away.
+Trashed collections are left where they are — the browser never trashes one, so
+anything in there came from the desktop and is not shown here at all.</p>
+<h4 id="writing-items-out">Writing items out<a class="headerlink" href="#writing-items-out" title="Permanent link">&para;</a></h4>
+<p><strong>Export…</strong> writes items as a file for another program to read. The desktop
+client has three gestures for this — Export Library…, Export Collection… and
+Export Items… — and they are one errand with three ways of saying which items,
+so the interface has one dialog reached from three places: the list's header,
+which exports what the list is showing, and the detail and selection panes,
+which export the rows picked out.</p>
+<p><strong>Rows picked out are what it offers first.</strong> A selection is a decision somebody
+has just made, and an export that went on writing the whole library would be
+answering a question nobody asked — so the dialog asks which items, with the
+selection as the answer already given and the way back out to all of it beside
+it. Where the list is narrower than the library — a collection, the trash, a
+search, a tag — that view is offered as well, so the ladder reads: these rows,
+this view, the whole library. With nothing picked out and nothing narrowing the
+list there is only one answer, and the dialog states it rather than asking. The
+detail pane's Export… does not ask either: it sits beside one item and means
+that item.</p>
+<p>What the list is showing is exactly what the file holds. The export takes the
+same query the list took — the scope, the collection, the search, the tags — so
+a collection narrowed by a search exports that, and not the library behind it;
+“the whole library” drops all four rather than only the ones the screen happens
+to show. It does not stop at the end of the loaded page: an export over a
+library of nine thousand items writes nine thousand entries, which is what
+“export the library” has to mean. A selection is named item by item instead,
+and is the same selection every other errand acts on.</p>
+<p>Seventeen formats, which is every one the server can write and every one
+zotero.org serves: <strong>BibTeX</strong>, <strong>BibLaTeX</strong>, <strong>CSL JSON</strong>, <strong>RIS</strong>, <strong>CSV</strong>,
+<strong>MODS</strong>, <strong>TEI</strong>, <strong>EndNote XML</strong>, <strong>Zotero RDF</strong>, <strong>Bibliontology RDF</strong>,
+<strong>Unqualified Dublin Core RDF</strong>, <strong>Refer/BibIX</strong>, <strong>RefWorks Tagged</strong>,
+<strong>Bookmarks</strong>, <strong>COinS</strong>, <strong>Simple Evernote Export</strong> and <strong>Wikipedia citation
+templates</strong>. They are <code>altero/cite/formats/</code>, ports of the same Zotero
+translators the desktop client runs, and the same code the v3 API's
+<code>format=bibtex</code> and the citation in the detail pane go through. The order is the
+client's, which sorts its translator list by label, and the chosen one is
+remembered per device as the client remembers its last translator. There are no
+other questions: the client's export dialog also offers to export the attached
+files, to write notes as their own entries and to abbreviate journal titles, and
+all three are things a translator is asked about child items and files that an
+export over the API has neither of.</p>
+<p>Notes, attachments and annotations are left out, and the gesture is not offered
+where they are all there is. Most of the formats have no entry for them — the
+client's own BibTeX and RIS translators skip them by name — and offering an
+export that came back empty would be worse than not offering it. A CSL JSON file
+is a JSON array, which is what pandoc and citeproc read and what the client's
+CSL JSON translator writes; the <code>{"items": …}</code> wrapper the v3 API puts around
+the same objects is an API envelope, not a file format.</p>
+<p>Exporting is a <strong>read</strong>, which is why it is offered wherever a library can be
+read at all, including a group that reserves editing for its administrators and
+a note or attachment's own pane. It carries nothing that reader could not open
+item by item — unlike an archive, which is an administrator's affair.</p>
+<h3 id="by-touch">By touch<a class="headerlink" href="#by-touch" title="Permanent link">&para;</a></h3>
+<p>Dragging is not the browser's own drag and drop, and could not be: that API is
+a mouse API, and a touch never produces a <code>dragstart</code> at all. Carrying a row is
+built on pointer events instead, one code path for both — at the cost of doing
+what the browser used to do, which is deciding when a press has become a drag,
+finding what is underneath, and drawing what is being carried.</p>
+<p>The two gestures differ in one place, and they have to. A mouse starts carrying
+as soon as it has moved a few pixels with the button down, because a mouse has
+nothing else it could be doing. A finger that moves is usually scrolling, so a
+touch starts carrying only after it has stayed put for a third of a second —
+and moving before that cancels the carry and leaves the scroll alone. Once a
+carry has begun the page stops scrolling under it, and starts scrolling <em>for</em>
+it when the carry nears the top or bottom of the window, so a tree taller than
+a phone can still be dropped into. The click a browser fires after the gesture
+is swallowed, or every drag would also select the row it started from.</p>
+<p><code>Shift</code> to move rather than file has no equivalent on a touch screen, which is
+one of the reasons the dialog exists: “Move or copy…” carries a “take it out
+of” checkbox that says the same thing. <code>Ctrl</code> and <code>Shift</code> to pick out several
+rows have no equivalent either, and <strong>Select</strong> is the answer to that one — a
+checkbox on every row, which is a control a finger can hit. It is not only a
+touch affordance: a keyboard cannot press a row with a modifier held down
+either, so the same checkboxes are how somebody working without a pointer picks
+out more than one row.</p>
+<p><code>Shift</code> means two things and they do not collide: held while <em>dropping</em> it
+moves rather than files, and held while <em>clicking</em> it takes everything between.
+One needs the pointer to have moved and the other needs it not to have, so a
+gesture is only ever one of them.</p>
+<p>Everything a fingertip has to hit is sized for one — the controls on a sidebar
+row, the row itself, the buttons in a dialog and the two grips between the
+panes all grow where the browser reports a coarse pointer. Nothing anywhere is
+revealed by hovering alone, since a finger cannot hover: the controls that fade
+in under a pointer are simply drawn.</p>
+<h3 id="tags">Tags<a class="headerlink" href="#tags" title="Permanent link">&para;</a></h3>
+<p>A tag can be renamed here. It is the one thing the browser does that reaches
+items, and it reaches them the only way a tag can be changed at all: a tag has
+no existence apart from the items carrying it, so renaming one rewrites every
+one of them. Nothing here chooses <em>which</em> items, adds a tag or removes one —
+that is editing items, which the browser does not do.</p>
+<p>It is the pencil on the tag, beside its name in the panel, dimmed until the
+pointer or the keyboard reaches it. A dialog opens holding the name the tag
+has, selected: a rename is nearly always a correction to what is there — a
+misspelling, a capital, a stray space — rather than a different word, and
+starting from the old name saves retyping it. The dialog says what will happen,
+in Zotero's own words, and counts the items it will happen to. There is no undo.</p>
+<p><strong>Renaming onto a name already in use merges the two.</strong> The items carrying
+either one end up carrying the survivor, and the panel is left with one tag
+where it showed two. That is what the desktop client does, and it is usually
+the point: <code>whales</code> and <code>Whales</code> are two tags until somebody says they are not.</p>
+<p>The merge takes in every tag of the new name, not only the one that looks like
+the tag being renamed. A name can be two tags here — one added by hand and one
+by a translator — and a rename that absorbed only one of them would leave the
+panel listing the new name twice, with two chips that filter the list
+identically. An automatic tag also becomes a manual one when it is renamed or
+absorbed, which is again the client's own behavior.</p>
+<p>Behind it is <code>services/objectwrites.rename_tag</code>, the same call the v3
+<code>PATCH &lt;prefix&gt;/tags/&lt;name&gt;</code> makes, so a tag renamed in the browser is renamed
+exactly as a syncing client would have renamed it: one new library version, a
+new version on every item that carried it, and the old name in the deletion log
+for every other client to pick up. The controls appear only where the server
+says this account may write to the library.
+<a href="../../compatibility/#renaming-a-tag">compatibility.md</a> has the endpoint and why
+it is not upstream's.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../account/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Accounts and personal settings">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Accounts and personal settings
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../sharing/" class="md-footer__link md-footer__link--next" aria-label="Next: Publishing and sharing">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Publishing and sharing
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Erich Seifert &middot; AGPL-3.0-or-later
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/eseifert/altero" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.tabs","navigation.top","navigation.tracking","search.highlight","toc.follow"],"search":"../../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.49251538.min.js"></script>
+      
+    
+  </body>
+</html>
