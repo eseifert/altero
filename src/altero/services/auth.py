@@ -99,6 +99,15 @@ class Access:
 
     read: bool
     write: bool
+    #: Whether the notes in this library may be read. A narrowing of
+    #: :attr:`read` and never a way in of its own: a credential that may not
+    #: read the library may not read its notes either. Defaults to ``True``
+    #: because only a credential can withhold it -- a signed-in person has no
+    #: key to state it on, which is why :func:`user_access` leaves it alone.
+    notes: bool = True
+    #: Whether the bytes behind this library's attachments may be read. The
+    #: same narrowing, for files.
+    files: bool = True
     #: Which :class:`~altero.models.MemberPermission` applied. ``inherit``
     #: outside a group library, and for an administrator of one.
     permission: str = MemberPermission.INHERIT.value
@@ -298,23 +307,42 @@ def access_for(
         group: The group's metadata, which says who may edit it.
     """
     if api_key is None:
-        return Access(read=library.public, write=False)
+        # Nothing is being withheld from an anonymous reader that is not already
+        # withheld by `public`, except the files: upstream's privacy settings
+        # have no key for them at all, so `canAccess(files)` falls through to
+        # its default and refuses.
+        return Access(read=library.public, write=False, notes=library.public, files=False)
 
     if library.type is LibraryType.USER:
         # A key only ever grants write access to its own owner's library. Another
         # user's library is reachable only if it is public, and then read-only.
         if library.owner_id != api_key.user_id:
-            return Access(read=library.public, write=False, user_id=api_key.user_id)
+            return Access(
+                read=library.public,
+                write=False,
+                notes=library.public,
+                files=False,
+                user_id=api_key.user_id,
+            )
         return Access(
             read=api_key.library_read,
             write=api_key.library_read and api_key.library_write,
+            notes=_may_read_notes(library, api_key, api_key.library_read),
+            files=api_key.library_read and api_key.files_read,
             user_id=api_key.user_id,
         )
 
     if membership is None:
         # A stranger to the group. A public one is still readable, because that
-        # is what public means, and still not writable.
-        return Access(read=library.public, write=False, user_id=api_key.user_id)
+        # is what public means, and still not writable -- and its files stay
+        # shut, which is upstream's "only members have file access".
+        return Access(
+            read=library.public,
+            write=False,
+            notes=library.public,
+            files=False,
+            user_id=api_key.user_id,
+        )
 
     if override is not None:
         read, write = override.read, override.write
@@ -337,9 +365,25 @@ def access_for(
     return Access(
         read=read or library.public,
         write=read and write,
+        notes=_may_read_notes(library, api_key, read or library.public),
+        # Membership is established by now, which is the other half of the
+        # rule: a public group's files are its members' and no one else's.
+        files=read and api_key.files_read,
         permission=permission,
         user_id=api_key.user_id,
     )
+
+
+def _may_read_notes(library: Library, api_key: Credential, read: bool) -> bool:
+    """Whether ``api_key`` may read the notes in a library it may read.
+
+    The ``or library.public`` is upstream's privacy fallback, and it is there so
+    that a credential can never see less of a library than a stranger with no
+    credential at all: what has been published is published, and withholding it
+    from the account that published it would be theatre rather than a
+    permission.
+    """
+    return read and (api_key.notes_read or library.public)
 
 
 def member_permission(membership: GroupMember) -> str:

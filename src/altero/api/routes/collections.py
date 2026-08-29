@@ -231,12 +231,15 @@ async def list_collection_items(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     from altero.api.routes.items import item_query
 
     query = item_query(request)
-    page = await items_service.list_items(session, library, query, Scope.COLLECTION, collection_key)
+    page = await items_service.list_items(
+        session, library, query, Scope.COLLECTION, collection_key, include_notes=access.notes
+    )
     return await render_page(
         request,
         session,
@@ -245,6 +248,7 @@ async def list_collection_items(
         base_url,
         query,
         await _collection_feed_title(session, library, query, Scope.COLLECTION, collection_key),
+        include_notes=access.notes,
     )
 
 
@@ -255,13 +259,14 @@ async def list_top_collection_items(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     from altero.api.routes.items import item_query
 
     query = item_query(request)
     page = await items_service.list_items(
-        session, library, query, Scope.COLLECTION_TOP, collection_key
+        session, library, query, Scope.COLLECTION_TOP, collection_key, include_notes=access.notes
     )
     return await render_page(
         request,
@@ -271,6 +276,7 @@ async def list_top_collection_items(
         base_url,
         query,
         await _collection_feed_title(session, library, query, Scope.COLLECTION_TOP, collection_key),
+        include_notes=access.notes,
     )
 
 

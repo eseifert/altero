@@ -14,8 +14,8 @@ from starlette.responses import FileResponse, JSONResponse, Response
 from altero.api.deps import (
     AccessDep,
     BaseUrlDep,
+    FileReadableLibraryDep,
     FileWritableLibraryDep,
-    ReadableLibraryDep,
     SessionDep,
 )
 from altero.api.responses import library_headers
@@ -138,7 +138,7 @@ async def _file_response(item: Item, root: Path, *, expected_md5: str | None = N
 @router.get("/users/{user_id}/items/{item_key}/file")
 @router.get("/groups/{group_id}/items/{item_key}/file")
 async def download_file(
-    item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
+    item_key: str, request: Request, session: SessionDep, library: FileReadableLibraryDep
 ) -> Response:
     """Redirect to the file attached to an item, describing it in the headers.
 
@@ -184,7 +184,7 @@ async def download_file(
 @router.get("/users/{user_id}/items/{item_key}/file/content")
 @router.get("/groups/{group_id}/items/{item_key}/file/content")
 async def download_file_content(
-    item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
+    item_key: str, request: Request, session: SessionDep, library: FileReadableLibraryDep
 ) -> Response:
     """Return the bytes of the file attached to an item, behind an API key.
 
@@ -222,7 +222,7 @@ async def send_download(download_key: str, request: Request, session: SessionDep
 @router.get("/users/{user_id}/items/{item_key}/file/view")
 @router.get("/groups/{group_id}/items/{item_key}/file/view")
 async def view_file(
-    item_key: str, request: Request, session: SessionDep, library: ReadableLibraryDep
+    item_key: str, request: Request, session: SessionDep, library: FileReadableLibraryDep
 ) -> Response:
     """Return the file for display rather than download."""
     item = await items_service.get_item(session, library, item_key)

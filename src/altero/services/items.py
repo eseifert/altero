@@ -258,6 +258,7 @@ async def _scope_filters(
     scope: Scope,
     key: str | None,
     to_parents: bool,
+    include_notes: bool,
 ) -> list[ColumnElement[bool]]:
     """Return the predicates that restrict a listing to ``scope``.
 
@@ -278,7 +279,10 @@ async def _scope_filters(
         return published
 
     if scope is Scope.CHILDREN:
-        parent = await get_item(session, library, key or "")
+        # A note the credential cannot see has no children it can see either,
+        # and answering an empty list where an unknown key answers 404 would
+        # say the note is there.
+        parent = await get_item(session, library, key or "", include_notes=include_notes)
         return [Item.parent_id == parent.id]
 
     if scope is Scope.UNFILED:
@@ -411,12 +415,27 @@ async def build_item_query(
     query: ListQuery,
     scope: Scope = Scope.ALL,
     key: str | None = None,
+    *,
+    include_notes: bool = True,
 ) -> Select[Any]:
-    """Return the ``SELECT`` matching ``query`` within ``scope``, unordered."""
+    """Return the ``SELECT`` matching ``query`` within ``scope``, unordered.
+
+    Args:
+        include_notes: Whether the caller may read this library's notes. A
+            credential can withhold that -- an API key's ``notes`` permission,
+            an OAuth token's ``notes.read`` scope -- and what it withholds is
+            the note itself rather than the text on it: upstream's
+            ``itemTypeID != 1`` clause in ``Zotero_Items::search``. The filter
+            goes in beside the others rather than around the result, so a note
+            cannot surface a parent it matched either.
+    """
     to_parents = scope in _TOP_SCOPES and _matches_child_items(query)
 
     filters: list[ColumnElement[bool]] = [Item.library_id == library.id]
-    filters += await _scope_filters(session, library, scope, key, to_parents)
+    filters += await _scope_filters(session, library, scope, key, to_parents, include_notes)
+
+    if not include_notes:
+        filters.append(Item.item_type != "note")
 
     # The trash is excluded everywhere except in the trash itself.
     if scope is not Scope.TRASH and not query.include_trashed:
@@ -467,13 +486,19 @@ async def item_ids_in_scope(
     query: ListQuery,
     scope: Scope = Scope.ALL,
     key: str | None = None,
+    *,
+    include_notes: bool = True,
 ) -> Select[Any]:
     """Return a ``SELECT`` of the item ids matching ``scope``.
 
     The tag endpoints count tags against a set of items, so they reuse the same
-    filtering the item endpoints do rather than repeating it.
+    filtering the item endpoints do rather than repeating it -- ``include_notes``
+    included, which is what keeps a tag carried only by a hidden note out of a
+    listing scoped to items.
     """
-    statement = await build_item_query(session, library, query, scope, key)
+    statement = await build_item_query(
+        session, library, query, scope, key, include_notes=include_notes
+    )
     return statement.with_only_columns(Item.id)
 
 
@@ -483,9 +508,13 @@ async def list_items(
     query: ListQuery,
     scope: Scope = Scope.ALL,
     key: str | None = None,
+    *,
+    include_notes: bool = True,
 ) -> Page[Item]:
     """Return one page of items, together with the total number of matches."""
-    statement = await build_item_query(session, library, query, scope, key)
+    statement = await build_item_query(
+        session, library, query, scope, key, include_notes=include_notes
+    )
 
     by_author = await _has_authorship(session, library, query.sort)
     result = await session.scalars(
@@ -500,27 +529,50 @@ async def list_items(
     )
 
 
-async def get_item(session: AsyncSession, library: Library, key: str) -> Item:
-    """Return one item by key."""
+async def get_item(
+    session: AsyncSession, library: Library, key: str, *, include_notes: bool = True
+) -> Item:
+    """Return one item by key.
+
+    A note that ``include_notes`` withholds is *not found* rather than
+    forbidden, and says the same thing an absent key says: upstream's
+    ``canAccessObject`` sends a note through the ``notes`` permission and the
+    controller answers ``e404`` for it, so a refusal never confirms that the
+    note is there.
+    """
     item = await session.scalar(select(Item).where(Item.library_id == library.id, Item.key == key))
     if item is None:
+        raise NotFoundError("Item does not exist")
+    if not include_notes and item.item_type == "note":
         raise NotFoundError("Item does not exist")
     return item
 
 
-async def count_children(session: AsyncSession, items: Sequence[Item]) -> dict[int, int]:
+async def count_children(
+    session: AsyncSession, items: Sequence[Item], *, include_notes: bool = True
+) -> dict[int, int]:
     """Return how many non-trashed children each of ``items`` has, by item id.
 
     Items with no children are absent from the mapping, so callers read it with
     a default of zero.
+
+    ``include_notes`` reaches here too, and has to: a count that still says
+    three when only two children can be fetched is the one thing left telling a
+    credential that a note is there. Upstream counts attachments instead of
+    children for exactly that reason.
     """
     if not items:
         return {}
 
+    filters: list[ColumnElement[bool]] = [
+        Item.parent_id.in_([item.id for item in items]),
+        Item.deleted.is_(False),
+    ]
+    if not include_notes:
+        filters.append(Item.item_type != "note")
+
     result = await session.execute(
-        select(Item.parent_id, func.count())
-        .where(Item.parent_id.in_([item.id for item in items]), Item.deleted.is_(False))
-        .group_by(Item.parent_id)
+        select(Item.parent_id, func.count()).where(and_(*filters)).group_by(Item.parent_id)
     )
     return {parent_id: count for parent_id, count in result.all()}
 

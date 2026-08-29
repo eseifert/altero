@@ -125,6 +125,25 @@ async def get_readable_library(library: LibraryDep, access: AccessDep) -> Librar
 ReadableLibraryDep = Annotated[Library, Depends(get_readable_library)]
 
 
+async def get_file_readable_library(library: LibraryDep, access: AccessDep) -> Library:
+    """Return the addressed library, requiring the right to read files in it.
+
+    Separate from reading the library because a credential says separately
+    whether it may have the bytes: an API key carries a ``files`` permission and
+    an OAuth token asks for ``files.read``. The attachment *item* stays readable
+    either way -- what it says about a file is metadata, and only the file is
+    withheld.
+    """
+    if not access.read:
+        raise ForbiddenError("Forbidden")
+    if not access.files:
+        raise ForbiddenError("This credential cannot read files in this library")
+    return library
+
+
+FileReadableLibraryDep = Annotated[Library, Depends(get_file_readable_library)]
+
+
 async def get_writable_library(library: LibraryDep, access: AccessDep) -> Library:
     """Return the addressed library, requiring write access to it.
 

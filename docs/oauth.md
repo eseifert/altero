@@ -32,8 +32,8 @@ A token carries **scopes**, and a scope grants exactly what it says:
 | `groups` | The names of the groups the account belongs to. Reaches no library. |
 | `library.read` | Reading items, collections, saved searches and tags in the personal library. |
 | `library.write` | Adding, changing and removing them. |
-| `notes.read` | Reading notes. |
-| `files.read` | Downloading attachment bytes. |
+| `notes.read` | Reading notes. Without it a note is not found, in every listing and by key. |
+| `files.read` | Downloading attachment bytes. Without it the file routes refuse; the attachment item is still readable. |
 | `groups.read` | Reading the group libraries the account belongs to. |
 | `groups.write` | Writing to them. |
 
@@ -48,6 +48,14 @@ onto the permissions an API key already carries, which is what makes the mapping
 checkable: a token cannot express access that a key could
 not, and every ceiling that applies to a key — the group's policy, the member's
 role, their own permission — applies unchanged to a token.
+
+`notes.read` and `files.read` are narrowings of `library.read` rather than
+additions to it, and what they withhold is the object and not a field on it: a
+note the token may not read does not appear in a listing and is a 404 by key,
+and an attachment whose bytes the token may not have is still readable as an
+item. [Compatibility notes](compatibility.md#a-credential-that-gave-up-notes-or-files)
+records the whole surface, including what happens on a public library and the
+two places altero deliberately differs from zotero.org.
 
 Some scopes are useless alone and are refused rather than quietly granted.
 Write access implies read access throughout altero, so `library.write` without

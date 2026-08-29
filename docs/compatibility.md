@@ -663,6 +663,88 @@ same kind of credential — a session cookie — plus `altero key add` and
 `altero key revoke` for an operator. What an API key can do to itself is what
 upstream lets it do: read `/keys/current` and delete it.
 
+### A credential that gave up notes or files
+
+Four things a credential can say about a library, not two. An API key carries
+`library`, `write`, `notes` and `files`, and `/keys/current` reports all four; an
+OAuth token says the same things as `library.read`, `library.write`, `notes.read`
+and `files.read`, and the consent screen names them one by one. `notes` and
+`files` are narrowings of reading, never a way in of their own: a credential that
+may not read the library may not read its notes or its files either.
+
+**A note is hidden, not emptied.** Without `notes`, a note is 404 by key and
+absent from every listing — `/items`, `/items/top`, `/items/trash`,
+`/items/<key>/children`, a collection's items, `format=keys`, `format=versions`,
+`format=atom` and the export formats, all of which come off one query. Upstream
+does the same two things: `Zotero_Permissions::canAccessObject` sends a note
+through the `notes` permission and `ItemsController` answers `e404` for it, and
+`Zotero_Items::search` adds `AND I.itemTypeID != 1` to the listing. Serving an
+item whose `note` field had been blanked would be a third behavior neither
+server has, and would tell the caller the note is there.
+
+`numChildren` is counted the same way, because a count that still says three
+when only two children can be fetched is the one thing left saying a note is
+there. Upstream counts attachments instead of children for that reason. So is a
+tag listing scoped to items (`/items/tags` and the collection forms): upstream
+proxies the item parameters into `Zotero_Items::search` there and hands it the
+same permissions, so a tag carried by nothing but a hidden note stops being
+reachable. The library-wide `/tags` is *not* scoped and is left alone, which is
+also upstream's behavior.
+
+**Without `files`, the bytes are 403 and the attachment is not.**
+`<library>/items/<key>/file`, `/file/content` and `/file/view` refuse;
+`/items/<key>` still answers with the attachment, its `md5`, its `filename` and
+its `contentType`. What an item says about a file is metadata, and only the file
+itself is withheld. This is `ItemsController::_handleFileRequest`, which answers
+`e403` before it looks at the item at all.
+
+Two rules come from `Zotero_Permissions::canAccess` and are worth stating because
+neither is guessable:
+
+- **An anonymous reader of a public library reads its notes and none of its
+  files.** Upstream resolves both against the owner's privacy settings, which
+  have a key for notes and none for files, so files fall through to the default
+  and are refused. A public group is the same, said the other way round in
+  upstream's own comment: *only members have file access*.
+- **A credential never sees less of a published library than a stranger with no
+  credential at all.** Upstream consults the privacy settings when a key states
+  no permission of its own, so what has been published stays published. altero
+  has one `public` flag for the whole library, so that flag is the fallback:
+  `notes` is granted on a public library whatever the credential says. Files are
+  not, for the reason above.
+
+**What `files` does not cover: the full-text index.**
+`GET <library>/items/<key>/fulltext` answers with the words extracted from an
+attachment, and it is gated on reading the library alone — upstream's
+`FullTextController` checks `canAccess($libraryID)` and nothing else. altero
+copies that. It is worth knowing rather than hidden in a footnote: a credential
+that may not download a PDF can still read the text of one, and the consent
+screen's *Download your attachments* is about the bytes. Changing it would be a
+one-line divergence and is not one altero has taken.
+
+Two deliberate differences from upstream:
+
+- **The permissions apply to group libraries too.** Upstream records `notes` and
+  `files` for the personal library and grants both wholesale to a key with
+  all-groups access. altero applies the credential's own flags to every library
+  it reaches, because a consent screen that says *Read your notes* and then does
+  not mean it in a group library is the same defect this fixes. The
+  member-only rule for files still applies on top, as the fourth ceiling in
+  `access_for`.
+- **Uploading is gated on writing, not on `files`.** Upstream's single `files`
+  permission covers `_handleFileRequest` in both directions, so a key without it
+  cannot upload either. altero's column is `files_read` and its scope is
+  `files.read`, both named for reading, and the consent screen offers *Download
+  your attachments*; granting an upload on the strength of that would be the
+  wrong lie in the other direction. `library.write` and the group's own
+  `fileEditing` policy already decide who may put bytes in a library.
+
+Nothing here changes what the desktop client sees. A key made by
+`altero login approve` grants all four, as upstream's
+`createAPIKeyFromCredentials` does, and neither `altero key add` nor
+`/web/account/keys` can make a key without them — the only credential that can
+lack them today is an OAuth token that did not ask.
+
 ### What the desktop client actually sends
 
 Two of these were found by running the real client, not by reading the

@@ -25,11 +25,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.app import create_app
 from altero.errors import InvalidInputError
-from altero.models import TotpCredential, User
+from altero.models import LibraryType, TotpCredential, User
 from altero.models.oauth import OAuthClient, OAuthCode, OAuthDeviceCode, OAuthToken
 from altero.services import admin, jws, oauthclients, oauthserver, webauth
+from altero.services.auth import get_library
 from altero.settings import Settings
-from tests.factories import make_group, make_user
+from tests.factories import make_group, make_item, make_user
 
 CSRF_HEADER = "X-CSRF-Token"
 PASSWORD = "correct horse battery staple"
@@ -209,6 +210,24 @@ def claims_of(id_token: str) -> dict:
     """
     payload = id_token.split(".")[1]
     return json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+
+
+async def make_note(session: AsyncSession, user_id: int) -> None:
+    """Put a note in an account's personal library."""
+    library = await get_library(session, LibraryType.USER, user_id)
+    await make_item(
+        session,
+        library,
+        key="NOTE1234",
+        item_type="note",
+        fields={"note": "<p>confidential</p>"},
+    )
+
+
+async def make_attachment(session: AsyncSession, user_id: int) -> None:
+    """Put an attachment in an account's personal library."""
+    library = await get_library(session, LibraryType.USER, user_id)
+    await make_item(session, library, key="ATTA1234", item_type="attachment")
 
 
 async def only_user(session: AsyncSession) -> User:
@@ -542,6 +561,86 @@ class TestScopesGrantExactlyWhatTheySay:
             json=[{"itemType": "book", "title": "Refused"}],
         )
         assert wrote.status_code == 403
+
+    async def test_library_read_alone_reaches_no_note(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """``notes.read`` was named on the consent screen and enforced nowhere.
+
+        The note is *hidden* rather than emptied, which is upstream's shape:
+        ``canAccessObject`` sends a note through the ``notes`` permission, so
+        the item does not exist as far as this token is concerned. See
+        ``tests/test_notes_and_files.py`` for the whole surface.
+        """
+        tokens = await full_flow(client, session, scope="openid library.read")
+        user_id = (await only_user(session)).id
+        headers = bearer(tokens["access_token"])
+
+        await make_note(session, user_id)
+
+        single = await client.get(f"/users/{user_id}/items/NOTE1234", headers=headers)
+        listing = await client.get(f"/users/{user_id}/items", headers=headers)
+
+        assert single.status_code == 404
+        assert "confidential" not in listing.text
+
+    async def test_notes_read_reaches_the_note_it_names(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The teeth for the test above: the scope is what makes the difference."""
+        tokens = await full_flow(client, session, scope="openid library.read notes.read")
+        user_id = (await only_user(session)).id
+
+        await make_note(session, user_id)
+
+        single = await client.get(
+            f"/users/{user_id}/items/NOTE1234", headers=bearer(tokens["access_token"])
+        )
+
+        assert single.status_code == 200
+        assert single.json()["data"]["note"] == "<p>confidential</p>"
+
+    async def test_library_read_alone_reaches_no_file(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """``openid`` alone being refused above proved only that reading is gated."""
+        tokens = await full_flow(client, session, scope="openid library.read")
+        user_id = (await only_user(session)).id
+        headers = bearer(tokens["access_token"])
+
+        await make_attachment(session, user_id)
+
+        assert (
+            await client.get(f"/users/{user_id}/items/ATTA1234/file", headers=headers)
+        ).status_code == 403
+        assert (
+            await client.get(f"/users/{user_id}/items/ATTA1234/file/content", headers=headers)
+        ).status_code == 403
+        assert (
+            await client.get(f"/users/{user_id}/items/ATTA1234/file/view", headers=headers)
+        ).status_code == 403
+        # The attachment item is not the file. Only the bytes are withheld.
+        assert (
+            await client.get(f"/users/{user_id}/items/ATTA1234", headers=headers)
+        ).status_code == 200
+
+    async def test_files_read_reaches_the_attachment_it_names(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The teeth for the test above."""
+        tokens = await full_flow(client, session, scope="openid library.read files.read")
+        user_id = (await only_user(session)).id
+
+        await make_attachment(session, user_id)
+
+        response = await client.get(
+            f"/users/{user_id}/items/ATTA1234/file/content",
+            headers=bearer(tokens["access_token"]),
+        )
+
+        # No bytes were ever stored, so the file is missing rather than refused
+        # -- which is the distinction being tested.
+        assert response.status_code == 404
 
     async def test_library_write_reaches_the_library(
         self, client: httpx.AsyncClient, session: AsyncSession

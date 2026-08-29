@@ -210,15 +210,23 @@ async def _scoped_tags(
     base_url: str,
     scope: Scope,
     key: str | None = None,
+    *,
+    include_notes: bool = True,
 ) -> Response:
-    """List the tags carried by a scoped set of items."""
+    """List the tags carried by a scoped set of items.
+
+    ``include_notes`` narrows the *items* the tags are counted against, exactly
+    as it narrows a listing of them: upstream proxies the item parameters into
+    ``Zotero_Items::search`` here and hands it the same permissions. A tag
+    carried by nothing but a hidden note therefore stops being reachable.
+    """
     from altero.api.routes.items import item_query
 
     query = tag_query(request)
     # The item scope is filtered by the item parameters, the tags by the tag
     # ones, which is why two queries are parsed from one request.
     item_scope = await items_service.item_ids_in_scope(
-        session, library, item_query(request), scope, key
+        session, library, item_query(request), scope, key, include_notes=include_notes
     )
     page = await tags_service.list_tags(session, library, query, item_scope=item_scope)
 
@@ -230,25 +238,43 @@ async def _scoped_tags(
 @router.get("/users/{user_id}/items/top/tags")
 @router.get("/groups/{group_id}/items/top/tags")
 async def list_top_item_tags(
-    request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: ReadableLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
-    return await _scoped_tags(request, session, library, base_url, Scope.TOP)
+    return await _scoped_tags(
+        request, session, library, base_url, Scope.TOP, include_notes=access.notes
+    )
 
 
 @router.get("/users/{user_id}/items/trash/tags")
 @router.get("/groups/{group_id}/items/trash/tags")
 async def list_trashed_item_tags(
-    request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: ReadableLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
-    return await _scoped_tags(request, session, library, base_url, Scope.TRASH)
+    return await _scoped_tags(
+        request, session, library, base_url, Scope.TRASH, include_notes=access.notes
+    )
 
 
 @router.get("/users/{user_id}/items/tags")
 @router.get("/groups/{group_id}/items/tags")
 async def list_all_item_tags(
-    request: Request, session: SessionDep, library: ReadableLibraryDep, base_url: BaseUrlDep
+    request: Request,
+    session: SessionDep,
+    library: ReadableLibraryDep,
+    access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
-    return await _scoped_tags(request, session, library, base_url, Scope.ALL)
+    return await _scoped_tags(
+        request, session, library, base_url, Scope.ALL, include_notes=access.notes
+    )
 
 
 @router.get("/users/{user_id}/collections/{collection_key}/items/top/tags")
@@ -258,10 +284,17 @@ async def list_top_collection_item_tags(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     return await _scoped_tags(
-        request, session, library, base_url, Scope.COLLECTION_TOP, collection_key
+        request,
+        session,
+        library,
+        base_url,
+        Scope.COLLECTION_TOP,
+        collection_key,
+        include_notes=access.notes,
     )
 
 
@@ -272,9 +305,18 @@ async def list_collection_item_tags(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
-    return await _scoped_tags(request, session, library, base_url, Scope.COLLECTION, collection_key)
+    return await _scoped_tags(
+        request,
+        session,
+        library,
+        base_url,
+        Scope.COLLECTION,
+        collection_key,
+        include_notes=access.notes,
+    )
 
 
 @router.get("/users/{user_id}/collections/{collection_key}/tags")
@@ -284,10 +326,19 @@ async def list_collection_tags(
     request: Request,
     session: SessionDep,
     library: ReadableLibraryDep,
+    access: AccessDep,
     base_url: BaseUrlDep,
 ) -> Response:
     """List the tags used within one collection."""
-    return await _scoped_tags(request, session, library, base_url, Scope.COLLECTION, collection_key)
+    return await _scoped_tags(
+        request,
+        session,
+        library,
+        base_url,
+        Scope.COLLECTION,
+        collection_key,
+        include_notes=access.notes,
+    )
 
 
 @router.get("/users/{user_id}/items/{item_key}/tags")

@@ -192,3 +192,83 @@ async def test_require_write_raises_for_a_read_only_key(session: AsyncSession) -
     await require_read(session, library, Credential.from_api_key(api_key))
     with pytest.raises(ForbiddenError):
         await require_write(session, library, Credential.from_api_key(api_key))
+
+
+async def test_a_key_carries_its_notes_and_files_permissions(session: AsyncSession) -> None:
+    """The two permissions a key has always stored and nothing ever read."""
+    await make_user(session, user_id=1)
+    library = await get_library(session, LibraryType.USER, 1)
+    api_key = await make_api_key(session, user_id=1, notes_read=False, files_read=False)
+
+    access = await get_access(session, library, Credential.from_api_key(api_key))
+
+    assert access.read
+    assert not access.notes
+    assert not access.files
+
+
+async def test_notes_and_files_follow_read_access(session: AsyncSession) -> None:
+    """Neither is a way in of its own: both are narrowings of reading."""
+    await make_user(session, user_id=1)
+    library = await get_library(session, LibraryType.USER, 1)
+    api_key = await make_api_key(session, user_id=1, library_read=False, library_write=False)
+
+    access = await get_access(session, library, Credential.from_api_key(api_key))
+
+    assert not access.notes
+    assert not access.files
+
+
+async def test_a_published_library_keeps_its_notes_readable(session: AsyncSession) -> None:
+    """A key must not see less of a published library than a stranger does.
+
+    Upstream falls back to the owner's privacy settings when a key states no
+    permission of its own, so what has been published stays published. altero
+    has one flag for the whole library, so the fallback is that flag.
+    """
+    await make_user(session, user_id=1)
+    library = await get_library(session, LibraryType.USER, 1)
+    library.public = True
+    await session.commit()
+    api_key = await make_api_key(session, user_id=1, notes_read=False, files_read=False)
+
+    access = await get_access(session, library, Credential.from_api_key(api_key))
+
+    assert access.notes
+    # Files are not part of what publishing a library gives away: upstream's
+    # privacy settings have no key for them, so `canAccess(files)` is false.
+    assert not access.files
+
+
+async def test_an_anonymous_reader_gets_notes_but_no_files(session: AsyncSession) -> None:
+    library = await make_library(session, owner_id=5, public=True)
+
+    access = await get_access(session, library, None)
+
+    assert access.read
+    assert access.notes
+    assert not access.files
+
+
+async def test_a_stranger_to_a_public_group_gets_no_files(session: AsyncSession) -> None:
+    """ "Only members have file access" -- `Zotero_Permissions::canAccess`."""
+    await make_user(session, user_id=1)
+    await make_user(session, user_id=2, username="stranger")
+    group = await make_group(session, group_id=100, owner_id=1, public=True)
+    api_key = await make_api_key(session, user_id=2, all_groups_read=True, all_groups_write=True)
+
+    access = await get_access(session, group, Credential.from_api_key(api_key))
+
+    assert access.read
+    assert not access.files
+
+
+async def test_a_member_of_a_group_may_reach_its_files(session: AsyncSession) -> None:
+    await make_user(session, user_id=1)
+    group = await make_group(session, group_id=100, owner_id=1)
+    api_key = await make_api_key(session, user_id=1, all_groups_read=True, all_groups_write=True)
+
+    access = await get_access(session, group, Credential.from_api_key(api_key))
+
+    assert access.read
+    assert access.files
