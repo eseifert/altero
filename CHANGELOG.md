@@ -7,18 +7,17 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- A credential that gave up notes or file access is now held to it: without `notes` a note is a 404 and appears in no listing, and without `files` the attachment bytes are refused. Both were stored, reported and enforced nowhere.
+- A credential that gave up notes or file access is now held to it: without `notes` a note is a 404 and appears in no listing, and without `files` the attachment bytes are refused.
 - A device with no browser can be authorized from one somewhere else: RFC 8628, on the same consent screen every other application gets.
 - An application can send somebody to `/oauth/logout` to end their browser session, holding an ID token this server issued as proof it may ask.
 - An application signing somebody in can be told which groups they belong to: a `groups` claim, behind an identity scope that reaches no library.
-- The interface splits English, Portuguese and Chinese by the territory they are read in, as Zotero does: fifteen catalogs, in the client's own words.
+- The interface splits English, Portuguese and Chinese by the territory they are read in, as Zotero does.
 - Third-party applications get scoped, expiring access to a library instead of an API key: OAuth 2.0 with PKCE and OpenID Connect. By [@sadgen] in [PR#8].
 - Attachment downloads survive Zotero's April 2026 client rewrite: the redirect hands out a permission for the file, not the account key. By [@sadgen] in [PR#7].
 - The container image is published as `ghcr.io/eseifert/altero` for x86-64 and arm64, so running altero needs neither a checkout nor a build.
 - Deployment documents what a small instance costs in memory and disk, and carries reverse-proxy configurations for nginx, Caddy and Traefik.
 - citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialed name.
-- The documentation is written in one English throughout: American, which is what the interface speaks when nobody has chosen otherwise and what the API it describes is named in.
-- The documentation is reorganized around six sections: an index, a getting-started page, and the browser guide split into one page per part of the interface.
+- The documentation is written in American English throughout and reorganized around six sections.
 - The documentation is published as a site at https://eseifert.github.io/altero/, built by Zensical and deployed on every push, a version per release.
 
 ## [1.0.0-alpha.1] — 2026-08-19

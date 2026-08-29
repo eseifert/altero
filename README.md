@@ -14,13 +14,14 @@ It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v
 
 📖 **The documentation is at <https://eseifert.github.io/altero/>** — installation, connecting a client, deployment, administration and the compatibility reference.
 
-- **Use the normal Zotero desktop app** — no patched client or custom build.
-- **Self-host the whole sync service** — not only attachment files.
-- **Run a small stack** — one application, one database, one attachment store.
-- **Use SQLite or PostgreSQL** — from a personal installation to a shared server.
-- **Get a web interface** — libraries, groups, search, account settings, imports, exports and administration.
-- **Integrate institutional identity** — OpenID Connect and SAML 2.0 for browser sign-in.
-- **Stay in control** — altero is licensed under the GNU AGPL v3 or later.
+- **Use the normal Zotero desktop app** — no patched client or custom build
+- **Self-host the whole sync service** — not only attachment files
+- **Run a small stack** — one application, one database, one attachment store
+- **Use SQLite or PostgreSQL** — from a personal installation to a shared server
+- **Get a web interface** — libraries, groups, search, account settings, imports, exports and administration
+- **Integrate institutional identity** — OpenID Connect and SAML 2.0 for browser sign-in
+- **Connect other applications** — OAuth 2.0 and OpenID Connect provide access for extensions
+- **Stay in control** — altero is licensed under the GNU AGPL v3 or later
 
 > [!WARNING]
 > **altero is under active development. Do not yet use it as the only home of a library you care about.**
@@ -77,6 +78,7 @@ The goal is ordinary desktop Zotero synchronization, in both directions.
 | Zotero export formats | ✅ |
 | Browser interface | ✅ |
 | OIDC and SAML browser sign-in | ✅ |
+| OAuth 2.0 and OpenID Connect provider | ✅ |
 | Passkeys and optional second factors | ✅ |
 | Importing a personal library from zotero.org | ✅ |
 | Zotero iOS and Android apps | ❌ |
@@ -189,22 +191,25 @@ The browser application lives at `/app/`.
 
 It currently supports:
 
-- registration and sign-in;
-- account settings and API keys;
-- library browsing;
-- collections, tags and search;
-- item details and citations;
-- filing and trashing items;
-- group administration;
-- My Publications;
-- shared collection links;
-- tag renaming;
-- importing a personal library from zotero.org;
-- exporting a library backup;
-- administration screens;
-- passkeys;
-- optional authenticator-app or email second factors;
-- OpenID Connect and SAML 2.0 sign-in.
+- registration and sign-in
+- account settings and API keys
+- approving and disconnecting third-party applications
+- library browsing
+- collections, tags and search
+- item details and citations
+- filing and trashing items
+- group administration
+- My Publications
+- shared collection links
+- tag renaming
+- importing a personal library from zotero.org
+- exporting a library backup
+- administration screens
+- passkeys
+- optional authenticator-app or email second factors
+- OpenID Connect and SAML 2.0 sign-in
+
+It is translated into twelve languages, held in fifteen catalogs: English, Portuguese and Chinese are split by territory the way Zotero splits them, because there the words change and not only the shape of a date. Item types, fields and creator types come from Zotero's own schema translations, so the two applications read as one vocabulary.
 
 The web interface is not intended to replace Zotero Desktop as a full reference manager. Editing bibliographic fields remains the desktop client's job.
 
@@ -219,6 +224,10 @@ altero includes:
 ### Institutional sign-in
 
 Use **OpenID Connect** or **SAML 2.0** for browser authentication. Zotero Desktop continues to authenticate with an API key, as the client expects.
+
+### Scoped access for other applications
+
+altero is an **OAuth 2.0 and OpenID Connect authorization server**. This way its easy to connect third-party applications or extensions.
 
 ### Finer group permissions
 
