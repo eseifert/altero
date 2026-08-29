@@ -5,7 +5,10 @@ All notable changes to altero, newest first. Versions follow
 development history, tagged retroactively at the points where the server
 gained a capability worth naming.
 
-## [Unreleased]
+## [1.0.0-alpha.2] — 2026-08-29
+
+Still an alpha: the first one has not been used enough to say the server is
+ready, and this one adds to what has to be tried.
 
 - An OAuth grant can be confined to particular libraries or collections.
 - A credential that gave up notes or file access is now held to it: without `notes` a note is a 404 and appears in no listing, and without `files` the attachment bytes are refused.
@@ -100,6 +103,7 @@ The first release meant to be used by somebody other than its author.
 - Concurrent writes serialized, so one request produces exactly one new version.
 - A command line for provisioning, CI, and the documentation to go with it.
 
+[1.0.0-alpha.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.2
 [1.0.0-alpha.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.1
 [0.9.0]: https://github.com/eseifert/altero/releases/tag/v0.9.0
 [0.8.0]: https://github.com/eseifert/altero/releases/tag/v0.8.0

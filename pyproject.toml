@@ -1,6 +1,9 @@
 [project]
 name = "altero"
-version = "1.0.0a1"
+# Read out of `src/altero/__init__.py` by hatchling, below. That module is what
+# `/health`, the OpenAPI document and every library archive report, so it is the
+# copy that has to be right.
+dynamic = ["version"]
 description = "A Python implementation of the Zotero data server supporting version 3 of the Zotero Web API"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
@@ -85,6 +88,9 @@ docs = [
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/altero/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/altero"]

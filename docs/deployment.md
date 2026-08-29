@@ -31,7 +31,7 @@ docker compose exec altero altero user add <username>
 
 The stack contains PostgreSQL, altero and persistent attachment storage.
 
-`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: a version such as `1.0.0-alpha.1` pins one release, and `dev` follows master.
+`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: a version such as `1.0.0-alpha.2` pins one release, and `dev` follows master.
 
 The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
 

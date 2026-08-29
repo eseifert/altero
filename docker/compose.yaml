@@ -46,7 +46,7 @@ services:
   altero:
     # Pulled rather than built. `latest` is the newest release, prereleases
     # included, and moves when one is tagged; ALTERO_IMAGE_TAG pins a release
-    # (`1.0.0-alpha.1`) or follows master (`dev`) instead. An upgrade is
+    # (`1.0.0-alpha.2`) or follows master (`dev`) instead. An upgrade is
     # `docker compose pull && docker compose up -d`.
     image: ghcr.io/eseifert/altero:${ALTERO_IMAGE_TAG:-latest}
     # Migrations run on start, so this is also how an upgrade applies them.

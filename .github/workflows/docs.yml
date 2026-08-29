@@ -52,7 +52,7 @@ jobs:
               tag="${GITHUB_REF#refs/tags/}"
               version="${tag#v}"
               case "${version}" in
-                # 1.0.0a1, 1.0.0rc2. A prerelease is published under its own
+                # 1.0.0-alpha.2, 1.0.0-rc.1. A prerelease is published under its
                 # full version and never becomes `latest`: somebody who follows
                 # a link to the documentation wants the release, not the
                 # release candidate.
