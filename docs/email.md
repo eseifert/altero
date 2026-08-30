@@ -125,7 +125,7 @@ This matters especially behind a reverse proxy. Without a public URL, generated 
 
 ## Docker Compose
 
-The Compose file already passes the mail variables through. Put them in **`docker/.env`**:
+Put the mail settings in **`docker/.env`**, which the Compose file hands to the container along with everything else in it (see [Configuration](configuration.md#in-docker)):
 
 ```dotenv
 POSTGRES_PASSWORD=something-other-than-the-default

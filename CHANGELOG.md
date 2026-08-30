@@ -5,6 +5,11 @@ All notable changes to altero, newest first. Versions follow
 development history, tagged retroactively at the points where the server
 gained a capability worth naming.
 
+## Unreleased
+
+- Every `ALTERO_` setting in `docker/.env` now reaches the container, rather than only the handful `docker/compose.yaml` names.
+- The documentation lists every configuration setting with its default, and how to set it from `config.py`, the environment or Docker.
+
 ## [1.0.0-alpha.2] — 2026-08-29
 
 Still an alpha: the first one has not been used enough to say the server is

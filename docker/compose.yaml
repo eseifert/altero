@@ -53,13 +53,22 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Every ALTERO_ setting in docker/.env, not only the ones this file happens
+    # to name: a setting that has to be added here before it does anything is a
+    # setting people set and then report as broken. The whole file is handed to
+    # the container, so keep in it only what the application should hold.
+    # Optional, because an instance on the defaults never writes one.
+    # docs/configuration.md lists what can go in it.
+    env_file:
+      - path: .env
+        required: false
+    # These win over the file above, which is what makes a value exported in
+    # the shell -- a CI job, a systemd unit -- reach the container as well.
     environment:
       ALTERO_DATABASE_URL: postgresql+asyncpg://altero:${POSTGRES_PASSWORD:-altero}@db:5432/altero
-      # Outgoing mail. Named here with empty defaults so that configuring it is
-      # a docker/.env nobody has to merge, rather than an edit to this file
-      # that conflicts on the next pull. Empty is the working default: the
-      # messages go to the log, which is where the first account reads its own
-      # confirmation link. See docs/email.md.
+      # Outgoing mail. Empty is the working default: the messages go to the
+      # log, which is where the first account reads its own confirmation link.
+      # See docs/email.md.
       ALTERO_SMTP_URL: ${ALTERO_SMTP_URL:-}
       ALTERO_MAIL_FROM: ${ALTERO_MAIL_FROM:-altero@localhost}
       ALTERO_PUBLIC_URL: ${ALTERO_PUBLIC_URL:-}

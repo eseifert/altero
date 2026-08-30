@@ -32,40 +32,39 @@ ALTERO_PORT=9000 ALTERO_DEBUG=true uv run altero
 
 ## In Docker
 
-`docker/.env`, beside `docker/compose.yaml`, holds the settings the Compose file passes through:
+`docker/.env`, beside `docker/compose.yaml`, holds the settings for the Compose stack. Every `ALTERO_` setting in it reaches the container:
 
 ```sh
 POSTGRES_PASSWORD=a-real-password
 ALTERO_PUBLIC_URL=https://zotero.example.org
 ALTERO_SMTP_URL=smtp://mail.example.org:587
 ALTERO_MAIL_FROM=zotero@example.org
-ALTERO_IMAGE_TAG=1.0.0-alpha.2
-ALTERO_PUBLISH_PORT=8000
+ALTERO_OPEN_REGISTRATION=true
+ALTERO_RATE_LIMIT=600
 ```
 
-> [!WARNING]
-> Only those reach the container. Compose reads `.env` to fill in the variables the file itself mentions, so `ALTERO_RATE_LIMIT=600` in `docker/.env` changes nothing at all — and says nothing about it either.
+The file is handed to the container whole, so keep out of it anything the application should not hold. `ALTERO_IMAGE_TAG` and `ALTERO_PUBLISH_PORT` belong there too, though they are read by Compose rather than by altero.
 
-Anything else needs an entry in the service's `environment:`. Put it in a second Compose file rather than editing `compose.yaml`, which is replaced on upgrade:
+No `.env` is needed at all: an instance running on the defaults never writes one.
+
+A variable exported in the shell wins over the file for `ALTERO_DATABASE_URL`, `ALTERO_SMTP_URL`, `ALTERO_MAIL_FROM` and `ALTERO_PUBLIC_URL`, which `compose.yaml` names itself. `ALTERO_DATABASE_URL` is always the stack's own database; point altero at an external one with a second Compose file rather than with `.env`:
 
 ```yaml
 # docker/compose.settings.yaml
 services:
   altero:
     environment:
-      ALTERO_OPEN_REGISTRATION: "true"
-      ALTERO_RATE_LIMIT: "600"
-      ALTERO_FORWARDED_ALLOW_IPS: "172.18.0.2"
+      ALTERO_DATABASE_URL: postgresql+asyncpg://user:password@db.example.org:5432/altero
 ```
 
 ```sh
 docker compose -f docker/compose.yaml -f docker/compose.settings.yaml up -d
 ```
 
-`docker compose ... config` prints the merged result, which is the reliable way to see what the container will actually be given:
+`docker compose ... config` prints the merged result, which is how to see what the container will actually be given:
 
 ```sh
-docker compose -f docker/compose.yaml -f docker/compose.settings.yaml config
+docker compose -f docker/compose.yaml config
 ```
 
 The image sets `ALTERO_STORAGE_PATH=/data/storage`, `ALTERO_HOST=0.0.0.0` and `ALTERO_PORT=8000` itself. `/data` is the volume, so leave the storage path alone unless you also move the mount.
