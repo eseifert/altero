@@ -284,7 +284,10 @@ The migration preserves Zotero object keys and versions so an already-synchroniz
 
 If the local altero user ID differs from the zotero.org user ID, Zotero Desktop can require a reset and re-download because the client remembers which account number last synchronized that data directory.
 
-Only the personal library is imported. Attachment bytes that are not present on zotero.org cannot be downloaded.
+Only the personal library is imported. Attachment bytes that zotero.org does not hold cannot be downloaded; the migration lists those items and brings the attachments across without their files.
+
+> [!IMPORTANT]
+> If attachment files were synchronized over WebDAV, zotero.org holds none of them. It answers 404 for every one, so the whole library arrives without files. The metadata is complete: item keys, `md5` and `mtime` are all preserved. Either keep the WebDAV server for files, or move the files into altero from a client that still has them. See [File syncing](clients.md#file-syncing).
 
 ### After recreating the database
 
