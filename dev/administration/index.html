@@ -2245,7 +2245,7 @@
 <p><strong>For ordinary account settings:</strong> see <a href="../web-interface/">Web interface</a>.</p>
 <h2 id="what-an-instance-administrator-can-do">What an instance administrator can do<a class="headerlink" href="#what-an-instance-administrator-can-do" title="Permanent link">&para;</a></h2>
 <p>Most altero permissions belong to a library. The <strong>instance administrator</strong> role is different: it can operate the server itself.</p>
-<p>An instance administrator can manage accounts, retention, identity providers and storage information. The role does <strong>not</strong> grant automatic access to other users' library contents. An administrator can count and operate libraries without being allowed to read their items, notes or files.</p>
+<p>An instance administrator can manage accounts, retention, identity providers, registered applications and storage information. The role does <strong>not</strong> grant automatic access to other users' library contents. An administrator can count and operate libraries without being allowed to read their items, notes or files.</p>
 <p>The first account that claims a fresh instance becomes an administrator. The last administrator cannot demote, suspend or delete themselves, so a working instance cannot be left without one through normal administration.</p>
 <p>From the shell:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>admin<span class="w"> </span>&lt;username&gt;
@@ -2324,15 +2324,17 @@
 <p>The link is valid for 12 hours. If the account has a confirmed address and outgoing mail is configured, altero can email it. The administrator is also shown the link so an instance without mail can still recover an account.</p>
 <p>Optional self-service password reset is controlled by <code>ALTERO_PASSWORD_RESET</code> and requires an SMTP relay.</p>
 <h3 id="suspend-an-account">Suspend an account<a class="headerlink" href="#suspend-an-account" title="Permanent link">&para;</a></h3>
-<p>Suspension blocks both forms of access:</p>
+<p>Suspension blocks every form of access:</p>
 <ul>
-<li>browser sessions; and</li>
-<li>API keys used by Zotero Desktop.</li>
+<li>browser sessions;</li>
+<li>API keys used by Zotero Desktop; and</li>
+<li>OAuth access tokens held by connected applications.</li>
 </ul>
 <p>No library data is deleted. Re-enabling the account restores access with the existing credentials unless those credentials were separately revoked.</p>
 <h3 id="revoke-credentials">Revoke credentials<a class="headerlink" href="#revoke-credentials" title="Permanent link">&para;</a></h3>
 <p>Credential revocation signs out browser sessions and invalidates API keys without disabling or deleting the account.</p>
 <p>This is appropriate for a lost device or leaked credential. The user can continue using the account after creating or receiving new credentials.</p>
+<p>It does <strong>not</strong> disconnect third-party applications: their grants survive it. The account holder disconnects one under <strong>Settings → Connected applications</strong>, and an operator can stop a whole application for everybody with <code>altero oauth disable &lt;client-id&gt;</code>. Suspending the account stops its tokens along with everything else.</p>
 <h3 id="delete-an-account">Delete an account<a class="headerlink" href="#delete-an-account" title="Permanent link">&para;</a></h3>
 <p>Deleting an account removes its personal library. It is refused while the account owns a group, because altero will not guess who should inherit that group.</p>
 <p>Deletion is also refused for your own currently signed-in administrator account and where it would remove the last administrator.</p>
@@ -2366,6 +2368,7 @@
 <h2 id="third-party-applications">Third-party applications<a class="headerlink" href="#third-party-applications" title="Permanent link">&para;</a></h2>
 <p>Sign-in providers are how somebody proves who they are <em>to</em> altero. The authorization server is the other direction: how somebody else's application is given access to a library, without ever being handed a password or a long-lived API key.</p>
 <p>An application has to be registered before it can ask for anything. Nothing self-registers, because the list of addresses an authorization code may be sent to is the only thing that keeps the code from going somewhere else.</p>
+<p>Set <code>ALTERO_PUBLIC_URL</code> before registering anything. It decides the <code>iss</code> claim on every ID token, there is deliberately no fallback to the address a request arrived on, and without it these endpoints refuse to answer rather than guess.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>add<span class="w"> </span>notebook<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;Notebook&quot;</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>--redirect-uri<span class="w"> </span>https://notebook.example.com/auth/callback<span class="w"> </span><span class="se">\</span>
@@ -2374,7 +2377,6 @@
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>disable<span class="w"> </span>notebook
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>rotate-key
 </span></code></pre></div>
-<p>Set <code>ALTERO_PUBLIC_URL</code> first. It decides the <code>iss</code> claim on every ID token, and there is deliberately no fallback to the address a request arrived on: an issuer a caller can choose with a <code>Host</code> header is not one anybody can pin.</p>
 <p>A person approves an application in their browser and can disconnect it at any time under <strong>Settings → Connected applications</strong>. Disconnecting takes effect immediately.</p>
 <p>Full details, including the scope table and what a client developer needs: <a href="../oauth/">Connecting other applications</a>.</p>
 <h2 id="retention">Retention<a class="headerlink" href="#retention" title="Permanent link">&para;</a></h2>

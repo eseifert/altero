@@ -2907,7 +2907,8 @@
 <li>the official dataserver implementation; and</li>
 <li>read-only requests and observed exchanges from real Zotero libraries and clients where the first two sources are incomplete.</li>
 </ul>
-<p>Each section explains a concrete behavior, why altero implements it that way, and—where relevant—how altero deliberately differs.</p>
+<p>Each section explains a concrete behavior, why altero implements it that way, and — where relevant — how altero deliberately differs.</p>
+<p>The later sections cover ground the reference server does not: altero's own extensions, such as finer group roles, server-side tag rename and the authorization server. They record the same thing for those — what the behavior is, and why it was decided rather than defaulted.</p>
 <h2 id="api-queries-and-response-behavior">API queries and response behavior<a class="headerlink" href="#api-queries-and-response-behavior" title="Permanent link">&para;</a></h2>
 <h3 id="search-syntax">Search syntax<a class="headerlink" href="#search-syntax" title="Permanent link">&para;</a></h3>
 <p><code>Zotero_API::getSearchParamValues</code> (<code>model/API.inc.php</code>) is the authority for
@@ -4574,7 +4575,7 @@ people want to hand over. On the consent screen the account holder can narrow a
 grant to particular libraries, or to particular collections within them —
 "group 42 and none of my others", "the <em>Reading</em> collection and nothing else".</p>
 <p>This has no counterpart upstream. zotero.org has no OAuth server of this shape
-at all, so there is no behaviour to copy and nothing about the v3 API changes
+at all, so there is no behavior to copy and nothing about the v3 API changes
 for an API key: no key can carry a resource grant, and none is affected by one.
 A grant made before this existed is unrestricted and stays so.</p>
 <p><strong>Where it is enforced.</strong> One place. The restriction becomes a fifth ceiling in
@@ -4610,6 +4611,14 @@ refusal that distinguished "not yours" from "not there" would let a token map
 the library it was kept out of, one key at a time. A whole library that was not
 granted is the exception and answers 403, because there is nothing to hide —
 the caller supplied the prefix.</p>
+<p>That rule reaches the three routes that would otherwise look an object up
+before asking permission. <code>PATCH &lt;prefix&gt;/tags/&lt;name&gt;</code>,
+<code>DELETE &lt;prefix&gt;/searches/&lt;key&gt;</code> and <code>DELETE &lt;prefix&gt;/settings/&lt;name&gt;</code> resolve
+through the same <code>permit</code> as everything else, so a confined credential gets 404
+either way; resolving the object first answers 403 for one that exists and 404
+for one that does not, which is the library's tag list, or its saved searches,
+one guess at a time. Found by driving a real server rather than by the suite,
+and the tests that hold it were watched failing first.</p>
 <p><strong>My Publications keeps its notes.</strong> These endpoints answer with no credential
 at all, so the <code>Access</code> computed for the library says <code>notes=library.public</code> for
 an anonymous caller — <code>False</code> for an ordinary private library. Taking that as
@@ -4618,26 +4627,16 @@ that a stranger can read it, so the publications routes take the confinement
 from the <code>Access</code> and drop the notes narrowing. It is the rule
 <code>_may_read_notes</code> already applies from the other side: what has been published
 is published, and withholding it from a credential that could have it by
-presenting nothing at all would be theatre rather than a permission. The items
+presenting nothing at all would be theater rather than a permission. The items
 themselves are still confined, so a narrowed token sees the published items
 inside its grant — less than a stranger sees, which is the right way round.</p>
-<p>That rule reaches the routes that look an object up before asking permission,
-and three of them had to be corrected for it: <code>PATCH &lt;prefix&gt;/tags/&lt;name&gt;</code>,
-<code>DELETE &lt;prefix&gt;/searches/&lt;key&gt;</code> and <code>DELETE &lt;prefix&gt;/settings/&lt;name&gt;</code> each
-resolved the object first and so answered 403 for one that exists and 404 for
-one that does not — which is the library's tag list, or its saved searches,
-one guess at a time. All three now resolve through the same <code>permit</code>, so a
-confined credential gets 404 either way. Found by driving a real server, not by
-the suite, which is the third time on this project that has been where a bug
-turned up; the tests that hold it were written afterwards and were watched
-failing first.</p>
 <p><strong>Four things a confined grant does not get</strong>, each because it belongs to no
 collection and there is nothing honest to intersect with the grant:</p>
 <ul>
 <li><strong>Saved searches.</strong> A saved search reaches wherever its conditions reach, and
   altero does not run one server side. <code>/searches</code> answers with an empty page
   and a key answers 404.</li>
-<li><strong>Settings.</strong> Tag colours and the feed list are the library's. <code>/settings</code>
+<li><strong>Settings.</strong> Tag colors and the feed list are the library's. <code>/settings</code>
   answers with an empty object.</li>
 <li><strong>The delete log.</strong> What is left of a deleted object is its key; the row
   saying which collections it was in went with it, so there is no way to ask
@@ -4756,7 +4755,7 @@ before the flow could be offered.</p>
 <p>The same kind of decision as the one above, and the reason it is written down:
 the code looks like it is doing less than it should.</p>
 <p><code>signxml</code> verifies the XML signature; altero does not attempt to. Hand-rolling
-that is not on — canonicalisation is where implementations grow
+that is not on — canonicalization is where implementations grow
 signature-wrapping holes, and the defense is structural rather than a check.
 <code>XMLVerifier.verify</code> returns the <strong>signed subtree</strong>, and every claim
 <code>services/saml.py</code> reads comes out of that return value and never out of the

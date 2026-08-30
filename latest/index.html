@@ -1562,6 +1562,10 @@
 <td><a href="administration/">Administration</a></td>
 </tr>
 <tr>
+<td>Let another application reach a library</td>
+<td><a href="oauth/">Connecting other applications</a></td>
+</tr>
+<tr>
 <td>Configure outgoing email</td>
 <td><a href="email/">Email</a></td>
 </tr>
@@ -1609,6 +1613,7 @@
 <p>Then use:</p>
 <ul>
 <li><a href="administration/">Administration</a> for accounts, API keys, groups, retention, library moves and institutional sign-in.</li>
+<li><a href="oauth/">Connecting other applications</a> for registering a third-party application and giving it scoped access instead of an API key.</li>
 <li><a href="email/">Email</a> if you want confirmations, invitations, security messages or group digests delivered by mail.</li>
 <li><a href="web-interface/">Web interface</a> for what ordinary users and administrators can do in the browser.</li>
 </ul>
@@ -1633,6 +1638,8 @@ A Zotero personal library or group library.</p>
 A shared Zotero library with members and permissions.</p>
 <p><strong>API key</strong><br />
 The credential Zotero Desktop uses to synchronize with altero. Browser sessions and API keys are separate credentials.</p>
+<p><strong>Access token</strong><br />
+The other credential the v3 API accepts: scoped and expiring, issued to a third-party application the account holder approved.</p>
 <p><strong>Instance administrator</strong><br />
 An account allowed to manage the altero installation itself. This role does not automatically grant access to other users' library contents.</p>
 

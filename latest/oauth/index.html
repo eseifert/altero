@@ -1764,8 +1764,9 @@ cookie. What is new is a second kind of credential — a scoped, expiring access
 token — that the same v3 endpoints accept.</p>
 </div>
 <h2 id="what-an-application-gets">What an application gets<a class="headerlink" href="#what-an-application-gets" title="Permanent link">&para;</a></h2>
-<p>An access token, valid for one hour, and a refresh token to replace it with.
-Both are bearer credentials sent exactly the way an API key is:</p>
+<p>An access token, valid for one hour, and a refresh token to replace it with,
+valid for thirty days. Both are bearer credentials sent exactly the way an API
+key is:</p>
 <div class="language-http highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">GET</span> <span class="nn">/users/1/items</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="na">Authorization</span><span class="o">:</span> <span class="l">Bearer alt_at_…</span>
 </span></code></pre></div>
@@ -1840,8 +1841,9 @@ two places altero deliberately differs from zotero.org.</p>
 <p>Some scopes are useless alone and are refused rather than quietly granted.
 Write access implies read access throughout altero, so <code>library.write</code> without
 <code>library.read</code> would be issued and then do nothing; asking for it is an error
-with a message saying so. The same holds for <code>groups.write</code>, <code>notes.read</code> and
-<code>files.read</code>, each of which needs its corresponding read scope.</p>
+with a message saying so. <code>groups.write</code> needs <code>groups.read</code> for the same
+reason, and <code>notes.read</code> and <code>files.read</code> both need <code>library.read</code>, being
+narrowings of it rather than ways in of their own.</p>
 <p>A scope this server does not issue — say <code>annotations.write</code> — is also refused
 rather than dropped. An application asking for it has a belief about what altero
 does, and handing back a token without it produces software that half works.</p>
@@ -1862,7 +1864,7 @@ approving has always meant.</p>
 </ul>
 <p><strong>A collection means the branch.</strong> Choosing <em>Reading</em> also grants everything
 nested inside it, at any depth, and everything filed there later. That is the
-reading altero already gives a named collection: a <a href="../web-interface/">shared
+reading altero already gives a named collection: a <a href="../web/sharing/">shared
 collection</a> means the branch, and so does the desktop client's
 <em>Show Items from Subcollections</em>. The alternative would mean somebody who files
 a paper into a subcollection quietly withdraws it from an application they
@@ -2079,10 +2081,10 @@ what is being granted.</p>
 to bind to: no authorization code travels through a browser. What takes their
 place is the device code, which is long, random and known only to the device
 that asked for it. The user code is eight characters of a twenty-consonant
-alphabet — no vowels, so no code is a word anybody would rather read out, and
-none of <code>0</code>/<code>O</code>, <code>1</code>/<code>I</code> or <code>5</code>/<code>S</code> to mistype — which is about 34 bits for a
-code that lives ten minutes. Case and the dash are decoration: <code>wdjb mjht</code> is
-the same code as <code>WDJB-MJHT</code>.</p>
+alphabet — no vowels, so no code spells a word anybody would rather not read
+out, and no digits, so there is no <code>0</code> against <code>O</code> or <code>1</code> against <code>I</code> to
+mistype — which is about 34 bits for a code that lives ten minutes. Case and
+the dash are decoration: <code>wdjb mjht</code> is the same code as <code>WDJB-MJHT</code>.</p>
 <p>A confidential client still presents its secret when it polls. Registration is
 the same <code>altero oauth add</code>, and a client needs a redirect URI registered even
 if it only ever uses this flow — the two are not exclusive.</p>
@@ -2156,11 +2158,11 @@ the grant rather than running out an hour later.</p>
 <li>The v3 API accepts an access token <em>in addition to</em> an API key. It never
   accepts a browser cookie; see
   <a href="../compatibility/#a-second-credential-for-the-v3-api">the boundary</a>.</li>
-<li>A resource grant only ever narrows. It is applied in <code>access_for</code> beside the
-  four ceilings already there — the credential's grants, group membership, the
-  group's policy, the member's own permission — so it can never let a token
-  reach something its owner could not, and a library its owner is not a member
-  of cannot be picked in the first place.</li>
+<li>A resource grant only ever narrows. It is one more ceiling beside the
+  credential's grants, group membership, the group's policy and the member's own
+  permission, so it can never let a token reach something its owner could not,
+  and a library its owner is not a member of cannot be picked in the first
+  place.</li>
 <li><code>/keys/current</code> and <code>/keys/{key}</code> refuse an access token. They are about an
   API key as an object, and a token is not one — what a person revokes is the
   application.</li>
