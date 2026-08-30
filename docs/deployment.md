@@ -165,17 +165,16 @@ Because `/health` is unauthenticated, it intentionally does not expose the datab
 
 ## Configuration
 
-For a source installation, copy `config.example.py` to `config.py`.
-
-Every setting can also be supplied as an `ALTERO_`-prefixed environment variable. Environment variables take precedence over the configuration file.
-
-Example:
+Settings come from three places, in increasing order of precedence: the built-in defaults, a `config.py` module, and `ALTERO_`-prefixed environment variables.
 
 ```sh
-ALTERO_PORT=9000 ALTERO_DEBUG=true uv run altero
+cp config.example.py config.py                  # a source installation
+ALTERO_PORT=9000 ALTERO_DEBUG=true uv run altero  # or a one-off override
 ```
 
-Set `ALTERO_CONFIG` if the configuration module lives at another path.
+In the Compose stack, `docker/.env` sets the variables `docker/compose.yaml` names, and any other setting needs an entry in the service's `environment:`.
+
+[Configuration](configuration.md) lists every setting with its default, and how to set it in each of those places.
 
 ## Public URL
 

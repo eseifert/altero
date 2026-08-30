@@ -46,6 +46,14 @@ MAIL_FROM = "altero@localhost"
 # break quietly and much later. See docs/deployment.md.
 PUBLIC_URL = ""
 
+# Addresses of proxies whose X-Forwarded-For and X-Forwarded-Proto may be
+# believed, comma separated, or "*" to believe any peer. Empty trusts nothing
+# and reports the address the connection came from — behind a TLS terminator
+# that is the terminator, so the rate limiter and the record of where a key was
+# last used see one address for everybody until this is set. Only ever name a
+# proxy that overwrites the header it forwards. See docs/deployment.md.
+FORWARDED_ALLOW_IPS = ""
+
 # Group notifications. A member of a group library can ask to be told when it
 # changes; nobody is subscribed until they do, so an instance where nobody has
 # asked sends nothing regardless of these.

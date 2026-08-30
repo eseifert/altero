@@ -12,6 +12,7 @@ altero is a self-hosted synchronization server for Zotero Desktop.
 | Try altero locally                                   | [Getting started](getting-started.md)        |
 | Connect Zotero Desktop                               | [Connecting a Zotero client](clients.md)     |
 | Run or upgrade a server                              | [Deployment](deployment.md)                  |
+| Look up a configuration setting                      | [Configuration](configuration.md)            |
 | Manage users, groups, retention or sign-in providers | [Administration](administration.md)          |
 | Let another application reach a library              | [Connecting other applications](oauth.md)    |
 | Configure outgoing email                             | [Email](email.md)                            |
@@ -41,6 +42,7 @@ Start with [Deployment](deployment.md). It covers Docker Compose, source install
 
 Then use:
 
+- [Configuration](configuration.md) for every setting, its default, and how to set it from `config.py`, the environment or Docker.
 - [Administration](administration.md) for accounts, API keys, groups, retention, library moves and institutional sign-in.
 - [Connecting other applications](oauth.md) for registering a third-party application and giving it scoped access instead of an API key.
 - [Email](email.md) if you want confirmations, invitations, security messages or group digests delivered by mail.
