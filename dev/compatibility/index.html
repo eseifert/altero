@@ -3387,6 +3387,20 @@ documented still produces exactly the file.</p>
 <p>Uploaded bytes are checked against the declared MD5 and length before being
 stored, and <code>If-Match</code> or <code>If-None-Match</code> is required, so a client working from
 stale information cannot overwrite a newer file.</p>
+<p><strong>A claimed digest is not a file.</strong> The two preconditions ask different
+questions and altero answers them from different places. <code>If-None-Match: *</code>
+asks whether there is a file to protect, which is asked of the store: an
+attachment can name a digest this server has never held. A personal library
+migrated from zotero.org whose files were kept on WebDAV names one for every
+attachment, and a sweep of unreferenced files or a restore without them arrives
+at the same state from the other end. Reading the claim as the file refuses the
+upload that would repair it, with a <code>412</code> the client cannot act on: without
+<code>Last-Modified-Version</code> it raises "412 returned for request with
+If-None-Match", and with one it re-reads the item, finds the digest matches the
+file it was about to send, and marks the attachment in sync — so the bytes are
+never offered again. <code>If-Match</code> is still answered from the item, because the
+client's stored hash was taken from there and matching it is the proof that the
+client is not working from something stale.</p>
 <h4 id="downloading-is-a-redirect-and-has-to-be">Downloading is a redirect, and has to be<a class="headerlink" href="#downloading-is-a-redirect-and-has-to-be" title="Permanent link">&para;</a></h4>
 <p><code>GET &lt;prefix&gt;/items/&lt;key&gt;/file</code> answers <strong>302</strong>, carrying three headers:</p>
 <table>

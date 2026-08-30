@@ -1682,6 +1682,13 @@ items without their bytes, and are counted and named at the end rather than
 passed over quietly. The same is true of anything this server cannot store: an
 item is left behind and named, rather than stopping the rest of the library
 getting through.</p>
+<p><strong>Files synchronized over WebDAV are the case where that count is the whole
+library.</strong> zotero.org holds no copy of any of them, so every attachment arrives
+without its bytes while the migration itself succeeds. The summary says so
+where it is read, since the screen is where somebody looks first, and
+<a href="../../clients/#file-syncing">Connecting a Zotero client</a> has both ways on: keep
+the WebDAV server for files, or move them into altero from a client that still
+has them.</p>
 <p>The command line does the same thing, with the archive left on disk:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>migrate<span class="w"> </span>zotero<span class="w"> </span>&lt;username&gt;
 </span></code></pre></div>
