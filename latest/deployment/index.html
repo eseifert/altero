@@ -2137,7 +2137,7 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>cp<span class="w"> </span>config.example.py<span class="w"> </span>config.py<span class="w">                  </span><span class="c1"># a source installation</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="nv">ALTERO_PORT</span><span class="o">=</span><span class="m">9000</span><span class="w"> </span><span class="nv">ALTERO_DEBUG</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w">  </span><span class="c1"># or a one-off override</span>
 </span></code></pre></div>
-<p>In the Compose stack, <code>docker/.env</code> sets the variables <code>docker/compose.yaml</code> names, and any other setting needs an entry in the service's <code>environment:</code>.</p>
+<p>In the Compose stack, every <code>ALTERO_</code> setting in <code>docker/.env</code> reaches the container.</p>
 <p><a href="../configuration/">Configuration</a> lists every setting with its default, and how to set it in each of those places.</p>
 <h2 id="public-url">Public URL<a class="headerlink" href="#public-url" title="Permanent link">&para;</a></h2>
 <p><code>ALTERO_PUBLIC_URL</code> should be the stable external URL of the instance, for example:</p>

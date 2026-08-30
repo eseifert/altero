@@ -1789,31 +1789,27 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ALTERO_PORT</span><span class="o">=</span><span class="m">9000</span><span class="w"> </span><span class="nv">ALTERO_DEBUG</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
 </span></code></pre></div>
 <h2 id="in-docker">In Docker<a class="headerlink" href="#in-docker" title="Permanent link">&para;</a></h2>
-<p><code>docker/.env</code>, beside <code>docker/compose.yaml</code>, holds the settings the Compose file passes through:</p>
+<p><code>docker/.env</code>, beside <code>docker/compose.yaml</code>, holds the settings for the Compose stack. Every <code>ALTERO_</code> setting in it reaches the container:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>a-real-password
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">ALTERO_PUBLIC_URL</span><span class="o">=</span>https://zotero.example.org
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nv">ALTERO_SMTP_URL</span><span class="o">=</span>smtp://mail.example.org:587
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nv">ALTERO_MAIL_FROM</span><span class="o">=</span>zotero@example.org
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-alpha.2
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nv">ALTERO_PUBLISH_PORT</span><span class="o">=</span><span class="m">8000</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nv">ALTERO_OPEN_REGISTRATION</span><span class="o">=</span><span class="nb">true</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="nv">ALTERO_RATE_LIMIT</span><span class="o">=</span><span class="m">600</span>
 </span></code></pre></div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Only those reach the container. Compose reads <code>.env</code> to fill in the variables the file itself mentions, so <code>ALTERO_RATE_LIMIT=600</code> in <code>docker/.env</code> changes nothing at all — and says nothing about it either.</p>
-</div>
-<p>Anything else needs an entry in the service's <code>environment:</code>. Put it in a second Compose file rather than editing <code>compose.yaml</code>, which is replaced on upgrade:</p>
+<p>The file is handed to the container whole, so keep out of it anything the application should not hold. <code>ALTERO_IMAGE_TAG</code> and <code>ALTERO_PUBLISH_PORT</code> belong there too, though they are read by Compose rather than by altero.</p>
+<p>No <code>.env</code> is needed at all: an instance running on the defaults never writes one.</p>
+<p>A variable exported in the shell wins over the file for <code>ALTERO_DATABASE_URL</code>, <code>ALTERO_SMTP_URL</code>, <code>ALTERO_MAIL_FROM</code> and <code>ALTERO_PUBLIC_URL</code>, which <code>compose.yaml</code> names itself. <code>ALTERO_DATABASE_URL</code> is always the stack's own database; point altero at an external one with a second Compose file rather than with <code>.env</code>:</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># docker/compose.settings.yaml</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">services</span><span class="p">:</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">altero</span><span class="p">:</span>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="nt">ALTERO_OPEN_REGISTRATION</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="nt">ALTERO_RATE_LIMIT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;600&quot;</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">      </span><span class="nt">ALTERO_FORWARDED_ALLOW_IPS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;172.18.0.2&quot;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="nt">ALTERO_DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgresql+asyncpg://user:password@db.example.org:5432/altero</span>
 </span></code></pre></div>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>-f<span class="w"> </span>docker/compose.settings.yaml<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
-<p><code>docker compose ... config</code> prints the merged result, which is the reliable way to see what the container will actually be given:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>-f<span class="w"> </span>docker/compose.settings.yaml<span class="w"> </span>config
+<p><code>docker compose ... config</code> prints the merged result, which is how to see what the container will actually be given:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>config
 </span></code></pre></div>
 <p>The image sets <code>ALTERO_STORAGE_PATH=/data/storage</code>, <code>ALTERO_HOST=0.0.0.0</code> and <code>ALTERO_PORT=8000</code> itself. <code>/data</code> is the volume, so leave the storage path alone unless you also move the mount.</p>
 <h2 id="values">Values<a class="headerlink" href="#values" title="Permanent link">&para;</a></h2>

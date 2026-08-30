@@ -2031,7 +2031,7 @@
 <p>This matters especially behind a reverse proxy. Without a public URL, generated links can use an internal host or port from the request that reached altero.</p>
 <p><code>ALTERO_PUBLIC_URL</code> is separate from <code>ALTERO_FORWARDED_ALLOW_IPS</code>: the first controls generated public links and callback addresses, while the second controls which forwarded client address altero trusts.</p>
 <h2 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h2>
-<p>The Compose file already passes the mail variables through. Put them in <strong><code>docker/.env</code></strong>:</p>
+<p>Put the mail settings in <strong><code>docker/.env</code></strong>, which the Compose file hands to the container along with everything else in it (see <a href="../configuration/#in-docker">Configuration</a>):</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>POSTGRES_PASSWORD=something-other-than-the-default
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>ALTERO_SMTP_URL=smtps://altero%40example.org:s3cret@mail.example.org
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>ALTERO_MAIL_FROM=altero@example.org
