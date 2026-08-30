@@ -242,6 +242,8 @@ export default {
   'Export a library': '导出文库',
   'Exported Items': '导出的条目',
   'Export…': '导出…',
+  'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
+    '存放在 WebDAV 服务器上的文件不会保存在 zotero.org，因此迁移无法把它们带过来。可以继续用 WebDAV 同步文件，或者从仍然保存着这些文件的 Zotero 客户端上传。',
   'Finished.': '已完成。',
   'Follow this device ({name})': '跟随此设备（{name}）',
   'For example, my laptop': '例如，我的笔记本电脑',

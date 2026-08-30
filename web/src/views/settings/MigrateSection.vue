@@ -237,6 +237,13 @@ async function begin(): Promise<void> {
         <p v-if="summary.filesMissing.length" class="card__warning">
           {{ t('{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.', summary.filesMissing.length) }}
         </p>
+        <!-- The likeliest reason by far, and the one nobody guesses: WebDAV keeps
+             the files and zotero.org never had them, so a migration that worked
+             perfectly still arrives empty-handed. Said here rather than left to
+             the documentation, because this is where somebody is looking. -->
+        <p v-if="summary.filesMissing.length" class="settings__detail">
+          {{ t('Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.') }}
+        </p>
         <p v-if="summary.skipped.length" class="card__warning">
           {{ t('{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}', { count: summary.skipped.length, keys: summary.skipped.map((entry) => entry.key).join(', ') }, summary.skipped.length) }}
         </p>

@@ -236,6 +236,8 @@ export default {
   'Export a library': 'ライブラリーをエクスポート',
   'Exported Items': 'エクスポートされた項目',
   'Export…': 'エクスポート…',
+  'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
+    'WebDAV サーバーに置かれたファイルは zotero.org には保存されていないため、移行では取り込めません。ファイルは引き続き WebDAV で同期するか、まだファイルを持っている Zotero クライアントからアップロードしてください。',
   'Finished.': '完了しました。',
   'Follow this device ({name})': 'この端末に従う（{name}）',
   'For example, my laptop': '例: 自分のノート PC',

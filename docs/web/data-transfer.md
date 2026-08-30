@@ -65,6 +65,14 @@ passed over quietly. The same is true of anything this server cannot store: an
 item is left behind and named, rather than stopping the rest of the library
 getting through.
 
+**Files synchronized over WebDAV are the case where that count is the whole
+library.** zotero.org holds no copy of any of them, so every attachment arrives
+without its bytes while the migration itself succeeds. The summary says so
+where it is read, since the screen is where somebody looks first, and
+[Connecting a Zotero client](../clients.md#file-syncing) has both ways on: keep
+the WebDAV server for files, or move them into altero from a client that still
+has them.
+
 The command line does the same thing, with the archive left on disk:
 
 ```sh

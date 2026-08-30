@@ -248,6 +248,8 @@ export default {
   'Export a library': 'Eksportér et bibliotek',
   'Exported Items': 'Eksporterede elementer',
   'Export…': 'Eksportér…',
+  'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
+    'Filer, der ligger på en WebDAV-server, er ikke gemt hos zotero.org, så en migrering kan ikke tage dem med. Bliv ved med at synkronisere filerne via WebDAV, eller upload dem fra en Zotero-klient, der stadig har dem.',
   'Finished.': 'Færdig.',
   'Follow this device ({name})': 'Følg denne enhed ({name})',
   'For example, my laptop': 'For eksempel min bærbare',

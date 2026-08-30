@@ -255,6 +255,8 @@ export default {
   'Export a library': 'Eksportuj bibliotekę',
   'Exported Items': 'Wyeksportowane elementy',
   'Export…': 'Eksportuj…',
+  'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
+    'Pliki trzymane na serwerze WebDAV nie są przechowywane w zotero.org, więc migracja nie może ich przenieść. Synchronizuj pliki dalej przez WebDAV albo wyślij je z programu Zotero, który nadal je ma.',
   'Finished.': 'Zakończono.',
   'Follow this device ({name})': 'Zgodnie z tym urządzeniem ({name})',
   'For example, my laptop': 'Na przykład: mój laptop',

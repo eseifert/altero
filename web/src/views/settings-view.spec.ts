@@ -388,6 +388,16 @@ describe('moving a library in from zotero.org', () => {
 
     expect(wrapper.text()).toContain('2 attachments had no file stored at zotero.org')
     expect(wrapper.text()).toContain('CCCC2345')
+    /* The reason a whole library can arrive without a single file, said where
+       somebody is looking for it. */
+    expect(wrapper.text()).toContain('Files kept on a WebDAV server')
+  })
+
+  it('says nothing about WebDAV when every file came across', async () => {
+    polling([FINISHED])
+    const { wrapper } = await open('migrate')
+
+    expect(wrapper.text()).not.toContain('WebDAV')
   })
 
   it('hides the form while one is running, so a second cannot be started', async () => {
