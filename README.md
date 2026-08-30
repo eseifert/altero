@@ -32,66 +32,19 @@ It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v
 
 Zotero is excellent software, and zotero.org is the right sync service for most users. altero exists for people and institutions that need a different deployment model: one where the synchronization service itself runs on infrastructure they operate.
 
-That is different from using WebDAV.
+That is more than WebDAV offers. According to [Zotero's synchronization documentation](https://www.zotero.org/support/sync), WebDAV carries attachment files for a personal library; library data still goes through Zotero's service, and group libraries cannot use WebDAV at all. altero replaces the data and file synchronization endpoints themselves, for personal and group libraries alike, along with the accounts and authentication behind them.
 
-According to [Zotero's synchronization documentation](https://www.zotero.org/support/sync), WebDAV can sync attachment files in a personal library. Library data still uses Zotero's synchronization service, and group-library files cannot use WebDAV.
+Nothing else is required to run it: no cache, search cluster, queue or object store. Attachments live in a normal directory, so a backup is a database backup plus that directory.
 
-|                                                              | Zotero + WebDAV | altero  |
-|--------------------------------------------------------------|-----------------|---------|
-| Personal-library attachment files on your storage            | Yes             | **Yes** |
-| Library metadata on your infrastructure                      | No              | **Yes** |
-| Notes and annotations on your infrastructure                 | No              | **Yes** |
-| Group-library synchronization on your infrastructure         | No              | **Yes** |
-| Group attachment storage on your infrastructure              | No              | **Yes** |
-| Authentication and account administration under your control | No              | **Yes** |
-| Unmodified Zotero desktop client                             | Yes             | **Yes** |
+See [Why altero exists](https://eseifert.github.io/altero/latest/motivation/).
 
-altero is therefore not a WebDAV replacement. It is a replacement endpoint for the data and file synchronization services used by the desktop client.
+## What works
 
-## Who is altero for?
+Ordinary desktop synchronization in both directions: items, collections, tags, saved searches, notes, annotations, attachments and their files, full-text upload and search, group libraries, deleted objects, live updates through the streaming API, citations, bibliographies and Zotero's export formats. On top of that come a browser interface, OIDC and SAML sign-in, an OAuth 2.0 and OpenID Connect authorization server, passkeys and second factors, and importing a personal library from zotero.org.
 
-altero may be useful if you are:
+The official **iOS and Android applications are not supported**. They compile the Zotero API host into the application and offer no runtime setting to replace it, so supporting them would require patched mobile clients. The desktop application has hidden preferences for both the API and the streaming server, so it needs no patching.
 
-- a researcher who wants the library itself, not only PDFs, on a server you control;
-- a lab or research group that wants shared Zotero libraries on its own infrastructure;
-- a university, library or research organization with data-location or identity-management requirements;
-- a self-hoster looking for a practical Zotero synchronization service;
-- an administrator who wants OIDC or SAML browser sign-in, retention controls and storage reporting;
-- a developer interested in a compact, testable implementation of Zotero's synchronization protocol.
-
-## What works?
-
-The goal is ordinary desktop Zotero synchronization, in both directions.
-
-| Capability                                   | Status |
-|----------------------------------------------|:------:|
-| Zotero desktop synchronization               |   ✅   |
-| Items, collections, tags and saved searches  |   ✅   |
-| Notes and annotations                        |   ✅   |
-| Attachments and attachment file sync         |   ✅   |
-| Full-text upload and search                  |   ✅   |
-| Group libraries                              |   ✅   |
-| My Publications                              |   ✅   |
-| Deleted-object synchronization               |   ✅   |
-| Live updates through the streaming API       |   ✅   |
-| Citations and bibliographies                 |   ✅   |
-| Zotero export formats                        |   ✅   |
-| Browser interface                            |   ✅   |
-| OIDC and SAML browser sign-in                |   ✅   |
-| OAuth 2.0 and OIDC provider                  |   ✅   |
-| Passkeys and optional second factors         |   ✅   |
-| Importing a personal library from zotero.org |   ✅   |
-| Zotero iOS and Android apps                  |   ❌   |
-
-The [full implementation status](https://eseifert.github.io/altero/latest/status/) documents the API surface feature by feature, including deliberate differences and remaining omissions.
-
-### Desktop yes, mobile no
-
-The desktop application has hidden preferences for the API and streaming server, so it can be pointed at altero without modifying Zotero.
-
-The official iOS and Android applications compile the Zotero API host into the application and provide no runtime setting for replacing it. Supporting them would require patched mobile clients, which is outside altero's scope.
-
-See [Connecting a Zotero client](https://eseifert.github.io/altero/latest/clients/) for the details.
+The [implementation status](https://eseifert.github.io/altero/latest/status/) documents the API surface feature by feature, including deliberate differences and remaining omissions.
 
 ## Quick start with Docker
 
@@ -105,19 +58,15 @@ docker compose up -d
 docker compose exec altero altero user add <username>
 ```
 
-From a clone of the repository, the same stack is `docker compose -f docker/compose.yaml up -d`.
-
 The server is published on the loopback interface by default. An idle instance uses around 125 MB of memory; attachments are what grows.
 
 For anything beyond local testing, read [Deployment](https://eseifert.github.io/altero/latest/deployment/) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
 
+To run without Docker you need **Python 3.14 or newer** and [uv](https://docs.astral.sh/uv/); SQLite is the default database. See [Deployment](https://eseifert.github.io/altero/latest/deployment/#from-a-source-checkout).
+
 ### Point Zotero at altero
 
-In Zotero Desktop, open:
-
-**Settings → Advanced → Config Editor**
-
-Set both preferences:
+In Zotero Desktop, open **Settings → Advanced → Config Editor** and set both preferences:
 
 ```text
 extensions.zotero.api.url = http://localhost:8000/
@@ -129,141 +78,28 @@ The trailing slash on `api.url` matters.
 > [!IMPORTANT]
 > Set the streaming URL as well as the API URL. Zotero resolves the streaming service separately. Leaving it at the built-in default can send the altero API key to zotero.org, where it is not valid.
 
-Restart Zotero, then open:
+Restart Zotero, then open **Settings → Sync → Link Account**. Zotero opens altero in your browser; sign in and approve the client. The desktop application receives its API key and synchronization begins normally.
 
-**Settings → Sync → Link Account**
-
-Zotero opens altero in your browser. Sign in and approve the client. The desktop application receives its API key and synchronization begins normally.
-
-For a detailed walkthrough, including running two test clients at once, see [Connecting a Zotero client](https://eseifert.github.io/altero/latest/clients/).
-
-## Run from source
-
-If you prefer not to use Docker, altero requires **Python 3.14 or newer** and [uv](https://docs.astral.sh/uv/).
-
-SQLite is the default database.
-
-```bash
-uv sync
-cp config.example.py config.py
-uv run alembic upgrade head
-uv run altero user add <username>
-uv run altero
-```
-
-The server listens on:
-
-```text
-http://127.0.0.1:8000
-```
-
-For PostgreSQL outside Docker:
-
-```bash
-uv sync --extra postgres
-```
-
-See [Deployment](https://eseifert.github.io/altero/latest/deployment/) for configuration, health checks, reverse proxies, rate limiting, email and upgrades.
-
-## A deliberately small server
-
-altero is intended to be practical to operate.
-
-A basic installation is:
-
-```text
-Zotero Desktop
-      │
-      │ Zotero Web API + WebSocket
-      ▼
-   altero
-   ├── database
-   └── attachments
-```
-
-There is no required cache, search cluster, queue or object-storage service.
-
-For a personal installation, SQLite can be enough. For concurrent users, use PostgreSQL. Attachments live in a normal directory, and a backup is fundamentally a database backup plus that directory.
-
-## Web interface
-
-The browser application lives at `/app/`.
-
-It currently supports:
-
-- registration and sign-in
-- account settings and API keys
-- approving and disconnecting third-party applications
-- library browsing
-- collections, tags and search
-- item details and citations
-- filing and trashing items
-- group administration
-- My Publications
-- shared collection links
-- tag renaming
-- importing a personal library from zotero.org
-- exporting a library backup
-- administration screens
-- passkeys
-- optional authenticator-app or email second factors
-- OpenID Connect and SAML 2.0 sign-in
-
-It is translated into twelve languages, held in fifteen catalogs: English, Portuguese and Chinese are split by territory the way Zotero splits them, because there the words change and not only the shape of a date. Item types, fields and creator types come from Zotero's own schema translations, so the two applications read as one vocabulary.
-
-The web interface is not intended to replace Zotero Desktop as a full reference manager. Editing bibliographic fields remains the desktop client's job.
-
-See [The web interface](https://eseifert.github.io/altero/latest/web-interface/).
+For the full walkthrough, including running two test clients at once, see [Connecting a Zotero client](https://eseifert.github.io/altero/latest/clients/).
 
 ## More than a clone of zotero.org
 
-Compatibility comes first, but running your own server also makes features possible that are difficult or unavailable in the hosted service.
+Compatibility comes first, but running your own server also makes features possible that are difficult or unavailable in the hosted service:
 
-altero includes:
+- **[Institutional sign-in](https://eseifert.github.io/altero/latest/administration/#sign-in-providers)** with OpenID Connect or SAML 2.0, while Zotero Desktop keeps authenticating with an API key.
+- **[Scoped access for other applications](https://eseifert.github.io/altero/latest/oauth/)**: altero is an OAuth 2.0 and OpenID Connect authorization server, so a third-party application gets an expiring token confined to the libraries and collections the account holder chooses.
+- **[Finer group permissions](https://eseifert.github.io/altero/latest/compatibility/#finer-roles-for-one-member)** beyond owner and member: read-only, add without removing, or edit only your own items.
+- **[Shared collection links](https://eseifert.github.io/altero/latest/web/sharing/)**, exposing one collection without an entire library or an account for the recipient.
+- **[Group activity and notifications](https://eseifert.github.io/altero/latest/web/groups/)**, so members can see what changed and opt in to hearing about it.
+- **[Server-side tag rename](https://eseifert.github.io/altero/latest/compatibility/#renaming-a-tag)** across a library in one operation.
+- **[Retention and storage reporting](https://eseifert.github.io/altero/latest/administration/#retention)**: how long deleted objects and unfinished uploads are kept, and what libraries actually consume on disk.
+- **[Migration from zotero.org](https://eseifert.github.io/altero/latest/web/data-transfer/)** that preserves object keys and versions, so an already-synchronized client continues from the same state.
 
-### Institutional sign-in
+## Web interface
 
-Use **OpenID Connect** or **SAML 2.0** for browser authentication. Zotero Desktop continues to authenticate with an API key, as the client expects.
+The browser application at `/app/` covers registration and sign-in, account settings, API keys, connected applications, library browsing, search, item details and citations, groups, My Publications, shared links, imports and exports, and the administration screens. It is translated into twelve languages, held in fifteen catalogs, and takes item types, fields and creator types from Zotero's own schema translations so the two applications read as one vocabulary.
 
-### Scoped access for other applications
-
-altero is an **OAuth 2.0 and OpenID Connect authorization server**. A third-party application gets a scoped, expiring token instead of somebody's API key, and the account holder can confine a grant to the libraries and collections they choose.
-
-See [Connecting other applications](https://eseifert.github.io/altero/latest/oauth/).
-
-### Finer group permissions
-
-A group can go beyond the usual owner/member distinction. Individual members can be restricted to roles such as:
-
-- read only;
-- add without removing;
-- edit only their own items.
-
-### Share one collection
-
-Create a link to a collection without exposing an entire library or requiring the recipient to have an account.
-
-### Group activity and notifications
-
-Members can see what changed in a group library and can opt into notifications.
-
-### Server-side tag rename
-
-Rename a tag across a library in one operation.
-
-### Configurable retention
-
-Choose how long deleted objects, delivered group activity and unfinished uploads are kept.
-
-### Storage visibility
-
-See what libraries actually consume on disk, including physical versus nominal attachment usage.
-
-### Bring your library with you
-
-altero can copy a personal library from zotero.org while preserving object keys and versions so an already-synchronized desktop client can continue from the same state.
-
-See [Why altero exists](https://eseifert.github.io/altero/latest/motivation/) and [Compatibility](https://eseifert.github.io/altero/latest/compatibility/) for the design reasoning behind these features.
+It is not intended to replace Zotero Desktop as a full reference manager: editing bibliographic fields remains the desktop client's job. See [The web interface](https://eseifert.github.io/altero/latest/web-interface/).
 
 ## Compatibility over purity
 
@@ -271,53 +107,15 @@ altero reimplements a protocol spoken by software that already exists. That chan
 
 > The right behavior is the behavior the Zotero client expects.
 
-When the published API documentation, the reference data server and observed server behavior disagree, altero favors compatibility with the actual server behavior. Upstream quirks are copied deliberately when clients depend on them, and deliberate departures are documented.
-
-The compatibility work is recorded in:
-
-- [Compatibility](https://eseifert.github.io/altero/latest/compatibility/)
-- [Implementation status](https://eseifert.github.io/altero/latest/status/)
-- [Database schema](https://eseifert.github.io/altero/latest/schema/)
-
-This is one of the most useful places to contribute: if Zotero behaves differently against altero than it does against zotero.org, that is worth reporting.
+When the published API documentation, the reference data server and observed server behavior disagree, altero favors compatibility with the actual server behavior. Upstream quirks are copied deliberately when clients depend on them, and deliberate departures are documented in the [compatibility reference](https://eseifert.github.io/altero/latest/compatibility/).
 
 ## Help test altero
 
-**The project especially needs testers. You do not need to write Python to make a useful contribution.**
+**The project especially needs testers. You do not need to write Python to make a useful contribution.** A successful test on a configuration nobody has tried before is valuable evidence — a recent Zotero release, another operating system, two desktop installations sharing a library, group libraries with several accounts, PostgreSQL, a reverse proxy, your identity provider, or an installation on a platform nobody has documented yet. Reviewing the documentation as a first-time installer, and improving translations, help just as much.
 
-A successful test on a configuration nobody has tried before is valuable evidence.
+If something works against zotero.org but not against altero, [open an issue](https://github.com/eseifert/altero/issues/new). Include your Zotero version, operating system, database, how altero is deployed, what you expected, what happened instead, and logs or a reproduction with no private library data or API keys in them.
 
-Good ways to help include:
-
-- test synchronization with a recent Zotero desktop release
-- test Windows, macOS or Linux
-- sync the same test library between two desktop installations
-- exercise group libraries with several accounts
-- test attachments and full-text indexing
-- test PostgreSQL deployments
-- test nginx, Caddy, Traefik or another reverse proxy
-- test OIDC or SAML against your identity provider
-- review or improve translations
-- document an installation on NixOS, Unraid, TrueNAS, Kubernetes or another platform
-- review the documentation as a first-time installer
-- report anything that works against zotero.org but not against altero
-
-If you find a compatibility problem, [open an issue](https://github.com/eseifert/altero/issues/new) and include, where relevant:
-
-- your Zotero version
-- your operating system
-- SQLite or PostgreSQL
-- how altero is deployed
-- the operation you were performing
-- what you expected
-- what happened instead
-- logs or a minimal reproduction that do not contain private library data or API keys
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) before changing protocol behavior.
-
-## Contributing code
-
-Set up a development checkout with:
+For code, a development checkout is:
 
 ```bash
 uv sync
@@ -327,45 +125,20 @@ uv run alembic upgrade head
 uv run pytest
 ```
 
-Useful commands:
-
-```bash
-uv run pytest
-uv run ruff format
-uv run ruff check --fix
-uv run ty check
-```
-
-Concurrency tests require PostgreSQL; CI runs them against PostgreSQL rather than silently relying on SQLite's single-writer behavior.
-
-The core architectural rule is that the web framework stays at the API boundary. Domain behavior should remain testable without an HTTP request. See [CONTRIBUTING.md](CONTRIBUTING.md) for the code layout, testing approach and compatibility rules.
+The core architectural rule is that the web framework stays at the API boundary, so domain behavior remains testable without an HTTP request. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the code layout, the testing approach and the compatibility rules before changing protocol behavior.
 
 ## Documentation
 
 The documentation is published at **<https://eseifert.github.io/altero/>**.
 
-| Section                                                                  | What it covers                                        |
-|--------------------------------------------------------------------------|-------------------------------------------------------|
-| [Overview](https://eseifert.github.io/altero/latest/motivation/)         | What altero is and why it exists                      |
-| [Get started](https://eseifert.github.io/altero/latest/getting-started/) | Install locally, connect Zotero, first sync           |
-| [Using altero](https://eseifert.github.io/altero/latest/web-interface/)  | Web interface, groups, sharing                        |
-| [Running altero](https://eseifert.github.io/altero/latest/deployment/)   | Deployment, configuration, administration, email      |
-| [Reference](https://eseifert.github.io/altero/latest/compatibility/)     | Compatibility, implementation status, database schema |
-| [Contributing](CONTRIBUTING.md)                                          | Development and testing                               |
-
-## Project status
-
-altero already implements a substantial part of the Zotero v3 API and the synchronization behavior needed by the desktop client, but it should still be treated as **pre-stable software**.
-
-The immediate goal is not to maximize feature count. It is to build confidence that real Zotero desktop installations can synchronize reliably across different operating systems, databases and deployment environments.
-
-If altero solves a problem you have, the most helpful things you can do right now are:
-
-1. **try it with a test library**
-2. **report what works and what does not**
-3. **share your deployment experience**
-4. **help another user when you can**
-5. **star the repository if you want more people to discover it**
+| Section                                                                  | What it covers                                                 |
+|--------------------------------------------------------------------------|----------------------------------------------------------------|
+| [Overview](https://eseifert.github.io/altero/latest/motivation/)         | What altero is and why it exists                               |
+| [Get started](https://eseifert.github.io/altero/latest/getting-started/) | Install locally, connect Zotero, first sync                    |
+| [Using altero](https://eseifert.github.io/altero/latest/web-interface/)  | Web interface, groups, sharing                                 |
+| [Running altero](https://eseifert.github.io/altero/latest/deployment/)   | Deployment, configuration, administration, applications, email |
+| [Reference](https://eseifert.github.io/altero/latest/compatibility/)     | Compatibility, implementation status, database schema          |
+| [Contributing](CONTRIBUTING.md)                                          | Development and testing                                        |
 
 ## Relationship to Zotero
 
