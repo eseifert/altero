@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import Library, LibraryType, StorageDownload
 from altero.services.auth import get_library
+from altero.services.storage import file_path
 from altero.settings import Settings
 from tests.factories import make_api_key, make_item, make_user
 
@@ -131,6 +132,88 @@ class TestAuthorization:
 
         assert stale.status_code == 412
         assert current.status_code == 200
+
+    async def test_a_digest_with_no_bytes_is_not_a_file(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """An attachment can name a file this server has never held.
+
+        A library migrated out of zotero.org whose files were kept on WebDAV is
+        the ordinary way in: every attachment carries the digest and mtime the
+        WebDAV server recorded, and none of the bytes. The client that still
+        has them has to be able to send them, so the precondition has to read
+        the store rather than the claim.
+        """
+        await make_item(
+            session,
+            library,
+            key="WDAV2345",
+            item_type="attachment",
+            fields={"linkMode": "imported_file", "filename": "moby.txt", "md5": MD5},
+        )
+        await session.commit()
+
+        authorized = await client.post(
+            "/users/1/items/WDAV2345/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data=authorization(),
+        )
+
+        assert authorized.status_code == 200
+        assert "uploadKey" in authorized.json()
+
+    async def test_the_file_a_claim_outlived_can_still_be_sent(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """And the whole upload goes through, whichever precondition is used.
+
+        `If-Match` is what a client with a stored hash sends -- it took that
+        hash from the item, which is why it matches -- and `If-None-Match` what
+        one without sends. Both have to end with the bytes here, or the
+        attachment is one that can neither be downloaded nor repaired.
+        """
+        await make_item(
+            session,
+            library,
+            key="WDAV2345",
+            item_type="attachment",
+            fields={"linkMode": "imported_file", "filename": "moby.txt", "md5": MD5},
+        )
+        await session.commit()
+
+        matched = await client.post(
+            "/users/1/items/WDAV2345/file",
+            headers=AUTH | {"If-Match": MD5},
+            data=authorization(),
+        )
+        await upload(client, "WDAV2345")
+
+        assert matched.status_code == 200
+        assert (
+            await client.get("/users/1/items/WDAV2345/file", headers=AUTH, follow_redirects=True)
+        ).content == CONTENT
+
+    async def test_a_swept_file_can_be_uploaded_again(
+        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+    ) -> None:
+        """The same state reached from the other end: the bytes went away.
+
+        An administrator sweeping unreferenced files, a restore without them,
+        a disk replaced from an old backup. `stored_file` answers 404 for these
+        already; the precondition agrees rather than insisting the file is
+        there.
+        """
+        await upload(client, attachment)
+        file_path(Path(settings.storage_path), MD5).unlink()
+
+        response = await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data=authorization(),
+        )
+
+        assert response.status_code == 200
+        assert "uploadKey" in response.json()
 
     async def test_a_known_file_needs_no_upload(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library

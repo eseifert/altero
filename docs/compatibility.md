@@ -507,6 +507,21 @@ Uploaded bytes are checked against the declared MD5 and length before being
 stored, and `If-Match` or `If-None-Match` is required, so a client working from
 stale information cannot overwrite a newer file.
 
+**A claimed digest is not a file.** The two preconditions ask different
+questions and altero answers them from different places. `If-None-Match: *`
+asks whether there is a file to protect, which is asked of the store: an
+attachment can name a digest this server has never held. A personal library
+migrated from zotero.org whose files were kept on WebDAV names one for every
+attachment, and a sweep of unreferenced files or a restore without them arrives
+at the same state from the other end. Reading the claim as the file refuses the
+upload that would repair it, with a `412` the client cannot act on: without
+`Last-Modified-Version` it raises "412 returned for request with
+If-None-Match", and with one it re-reads the item, finds the digest matches the
+file it was about to send, and marks the attachment in sync — so the bytes are
+never offered again. `If-Match` is still answered from the item, because the
+client's stored hash was taken from there and matching it is the proof that the
+client is not working from something stale.
+
 #### Downloading is a redirect, and has to be
 
 `GET <prefix>/items/<key>/file` answers **302**, carrying three headers:

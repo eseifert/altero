@@ -61,28 +61,50 @@ def _require_attachment(item: Item) -> None:
 
 
 def current_md5(item: Item) -> str | None:
-    """Return the digest of the file currently attached, if there is one."""
+    """Return the digest the item claims, if it claims one."""
     return item.field_values().get("md5") or None
 
 
-def check_preconditions(item: Item, if_match: str | None, if_none_match: str | None) -> None:
+def stored_md5(item: Item, root: Path) -> str | None:
+    """Return the digest of the file the item actually has, if it has one.
+
+    An attachment can name a digest this server has never held. A library
+    migrated out of zotero.org whose files were kept on WebDAV is the ordinary
+    way in -- zotero.org serves the digest and mtime the WebDAV server recorded
+    and has none of the bytes -- and a sweep of unreferenced files or a restore
+    without them reaches the same place from the other end. `stored_file`
+    already answers 404 for those, and this is the same question asked before a
+    write.
+    """
+    md5 = current_md5(item)
+    return md5 if md5 is not None and file_path(root, md5).is_file() else None
+
+
+def check_preconditions(
+    item: Item, if_match: str | None, if_none_match: str | None, root: Path
+) -> None:
     """Fail unless the file the client believes is attached is the one that is.
 
     ``If-None-Match: *`` means "only if there is no file yet"; ``If-Match``
     names the digest being replaced. One or the other is required, so a client
     working from stale information cannot overwrite a newer file.
-    """
-    existing = current_md5(item)
 
+    They ask different questions of the same attachment, and both answers point
+    the same way when the bytes are missing. Whether there *is* a file is asked
+    of the store, so an item claiming a digest nothing backs is open to the
+    client holding the file. Which file is being replaced is asked of the item,
+    because a client's stored hash was taken from the item and matching it is
+    the proof that the client is not working from something stale.
+    """
     if if_none_match is not None:
         if if_none_match != "*":
             raise InvalidInputError("Only If-None-Match: * is supported")
-        if existing is not None:
+        if stored_md5(item, root) is not None:
             raise PreconditionFailedError("If-None-Match: * set but file exists")
         return
 
     if if_match is not None:
-        if existing != if_match:
+        if current_md5(item) != if_match:
             raise PreconditionFailedError("If-Match set but file does not match")
         return
 

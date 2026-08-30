@@ -68,7 +68,7 @@ async def upload_file(
         await session.commit()
         return Response(status_code=204, headers=library_headers(version))
 
-    storage.check_preconditions(item, if_match, if_none_match)
+    storage.check_preconditions(item, if_match, if_none_match, _storage_root(request))
     declared = storage.parse_authorization(form)
     if declared["filesize"] > MAX_UPLOAD_BYTES:
         raise RequestTooLargeError("File is too large")
