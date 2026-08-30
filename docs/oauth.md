@@ -14,8 +14,9 @@ handed their password or a long-lived API key.
 
 ## What an application gets
 
-An access token, valid for one hour, and a refresh token to replace it with.
-Both are bearer credentials sent exactly the way an API key is:
+An access token, valid for one hour, and a refresh token to replace it with,
+valid for thirty days. Both are bearer credentials sent exactly the way an API
+key is:
 
 ```http
 GET /users/1/items HTTP/1.1
@@ -24,18 +25,18 @@ Authorization: Bearer alt_at_…
 
 A token carries **scopes**, and a scope grants exactly what it says:
 
-| Scope | What it allows |
-| --- | --- |
-| `openid` | Establishes who the person is. Reaches no library, no item and no file. |
-| `profile` | The account's name and username, through `/oauth/userinfo` and the ID token. |
-| `email` | The account's email address, and whether it has been confirmed. |
-| `groups` | The names of the groups the account belongs to. Reaches no library. |
-| `library.read` | Reading items, collections, saved searches and tags in the personal library. |
-| `library.write` | Adding, changing and removing them. |
-| `notes.read` | Reading notes. Without it a note is not found, in every listing and by key. |
-| `files.read` | Downloading attachment bytes. Without it the file routes refuse; the attachment item is still readable. |
-| `groups.read` | Reading the group libraries the account belongs to. |
-| `groups.write` | Writing to them. |
+| Scope           | What it allows                                                                                          |
+|-----------------|---------------------------------------------------------------------------------------------------------|
+| `openid`        | Establishes who the person is. Reaches no library, no item and no file.                                 |
+| `profile`       | The account's name and username, through `/oauth/userinfo` and the ID token.                            |
+| `email`         | The account's email address, and whether it has been confirmed.                                         |
+| `groups`        | The names of the groups the account belongs to. Reaches no library.                                     |
+| `library.read`  | Reading items, collections, saved searches and tags in the personal library.                            |
+| `library.write` | Adding, changing and removing them.                                                                     |
+| `notes.read`    | Reading notes. Without it a note is not found, in every listing and by key.                             |
+| `files.read`    | Downloading attachment bytes. Without it the file routes refuse; the attachment item is still readable. |
+| `groups.read`   | Reading the group libraries the account belongs to.                                                     |
+| `groups.write`  | Writing to them.                                                                                        |
 
 `groups` and `groups.read` are next to each other on the consent screen and are
 not the same question. `groups` is an identity scope beside `profile` and
@@ -60,8 +61,9 @@ two places altero deliberately differs from zotero.org.
 Some scopes are useless alone and are refused rather than quietly granted.
 Write access implies read access throughout altero, so `library.write` without
 `library.read` would be issued and then do nothing; asking for it is an error
-with a message saying so. The same holds for `groups.write`, `notes.read` and
-`files.read`, each of which needs its corresponding read scope.
+with a message saying so. `groups.write` needs `groups.read` for the same
+reason, and `notes.read` and `files.read` both need `library.read`, being
+narrowings of it rather than ways in of their own.
 
 A scope this server does not issue — say `annotations.write` — is also refused
 rather than dropped. An application asking for it has a belief about what altero
@@ -88,7 +90,7 @@ What can be picked:
 **A collection means the branch.** Choosing *Reading* also grants everything
 nested inside it, at any depth, and everything filed there later. That is the
 reading altero already gives a named collection: a [shared
-collection](web-interface.md) means the branch, and so does the desktop client's
+collection](web/sharing.md) means the branch, and so does the desktop client's
 *Show Items from Subcollections*. The alternative would mean somebody who files
 a paper into a subcollection quietly withdraws it from an application they
 granted the parent to.
@@ -235,17 +237,17 @@ same happens if an authorization code is presented twice.
 
 ## Endpoints
 
-| Endpoint | What it is |
-| --- | --- |
-| `/.well-known/openid-configuration` | Discovery, as OpenID Connect names it |
-| `/.well-known/oauth-authorization-server` | The same document, as RFC 8414 names it |
-| `/oauth/authorize` | Where the browser starts |
-| `/oauth/token` | Code exchange and refresh |
-| `/oauth/revoke` | RFC 7009 revocation |
-| `/oauth/userinfo` | Claims the token's scopes allow |
-| `/oauth/jwks.json` | The keys ID tokens are verified against |
-| `/oauth/logout` | RP-initiated logout, as OpenID Connect names `end_session_endpoint` |
-| `/oauth/device_authorization` | Where a device with no browser starts, RFC 8628 |
+| Endpoint                                  | What it is                                                          |
+|-------------------------------------------|---------------------------------------------------------------------|
+| `/.well-known/openid-configuration`       | Discovery, as OpenID Connect names it                               |
+| `/.well-known/oauth-authorization-server` | The same document, as RFC 8414 names it                             |
+| `/oauth/authorize`                        | Where the browser starts                                            |
+| `/oauth/token`                            | Code exchange and refresh                                           |
+| `/oauth/revoke`                           | RFC 7009 revocation                                                 |
+| `/oauth/userinfo`                         | Claims the token's scopes allow                                     |
+| `/oauth/jwks.json`                        | The keys ID tokens are verified against                             |
+| `/oauth/logout`                           | RP-initiated logout, as OpenID Connect names `end_session_endpoint` |
+| `/oauth/device_authorization`             | Where a device with no browser starts, RFC 8628                     |
 
 ## A device with no browser
 
@@ -275,22 +277,22 @@ grant_type=urn:ietf:params:oauth:grant-type:device_code
 
 Four of the five answers are errors, and they are different errors on purpose:
 
-| Answer | What the device does |
-| --- | --- |
-| `authorization_pending` | Keep asking. Nobody has answered yet. |
-| `slow_down` | Keep asking, less often. It polled inside the interval. |
-| `access_denied` | Stop. Somebody said no. |
-| `expired_token` | Stop. The code lived ten minutes and nobody answered. |
-| the tokens | Done, and the device code is spent. |
+| Answer                  | What the device does                                    |
+|-------------------------|---------------------------------------------------------|
+| `authorization_pending` | Keep asking. Nobody has answered yet.                   |
+| `slow_down`             | Keep asking, less often. It polled inside the interval. |
+| `access_denied`         | Stop. Somebody said no.                                 |
+| `expired_token`         | Stop. The code lived ten minutes and nobody answered.   |
+| the tokens              | Done, and the device code is spent.                     |
 
 There is no redirect URI and no PKCE here, because there is nothing for either
 to bind to: no authorization code travels through a browser. What takes their
 place is the device code, which is long, random and known only to the device
 that asked for it. The user code is eight characters of a twenty-consonant
-alphabet — no vowels, so no code is a word anybody would rather read out, and
-none of `0`/`O`, `1`/`I` or `5`/`S` to mistype — which is about 34 bits for a
-code that lives ten minutes. Case and the dash are decoration: `wdjb mjht` is
-the same code as `WDJB-MJHT`.
+alphabet — no vowels, so no code spells a word anybody would rather not read
+out, and no digits, so there is no `0` against `O` or `1` against `I` to
+mistype — which is about 34 bits for a code that lives ten minutes. Case and
+the dash are decoration: `wdjb mjht` is the same code as `WDJB-MJHT`.
 
 A confidential client still presents its secret when it polls. Registration is
 the same `altero oauth add`, and a client needs a redirect URI registered even
@@ -385,11 +387,11 @@ the grant rather than running out an hour later.
 - The v3 API accepts an access token *in addition to* an API key. It never
   accepts a browser cookie; see
   [the boundary](compatibility.md#a-second-credential-for-the-v3-api).
-- A resource grant only ever narrows. It is applied in `access_for` beside the
-  four ceilings already there — the credential's grants, group membership, the
-  group's policy, the member's own permission — so it can never let a token
-  reach something its owner could not, and a library its owner is not a member
-  of cannot be picked in the first place.
+- A resource grant only ever narrows. It is one more ceiling beside the
+  credential's grants, group membership, the group's policy and the member's own
+  permission, so it can never let a token reach something its owner could not,
+  and a library its owner is not a member of cannot be picked in the first
+  place.
 - `/keys/current` and `/keys/{key}` refuse an access token. They are about an
   API key as an object, and a token is not one — what a person revokes is the
   application.

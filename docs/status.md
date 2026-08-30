@@ -54,8 +54,7 @@ These are not required for basic Zotero compatibility but are available on an al
 - browser-based account and API-key management;
 - instance administration without library-wide superuser access;
 - OpenID Connect and SAML 2.0 browser sign-in;
-- an OAuth 2.0 and OpenID Connect authorization server, so a third-party application can be given scoped, expiring access instead of an API key,
-  confinable to chosen libraries and collections, including sign-out at an application's asking and a device grant for a machine with no browser;
+- an OAuth 2.0 and OpenID Connect authorization server, so a third-party application can be given scoped, expiring access instead of an API key, confinable to chosen libraries and collections, with RP-initiated sign-out and a device grant for a machine that has no browser;
 - passkeys, authenticator-app second factors and email codes;
 - per-member group permissions such as read-only, add-without-remove and own-items-only;
 - group activity and opt-in notifications;

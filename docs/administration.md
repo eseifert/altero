@@ -8,7 +8,7 @@ This page covers operations that affect the altero instance, accounts, groups or
 
 Most altero permissions belong to a library. The **instance administrator** role is different: it can operate the server itself.
 
-An instance administrator can manage accounts, retention, identity providers and storage information. The role does **not** grant automatic access to other users' library contents. An administrator can count and operate libraries without being allowed to read their items, notes or files.
+An instance administrator can manage accounts, retention, identity providers, registered applications and storage information. The role does **not** grant automatic access to other users' library contents. An administrator can count and operate libraries without being allowed to read their items, notes or files.
 
 The first account that claims a fresh instance becomes an administrator. The last administrator cannot demote, suspend or delete themselves, so a working instance cannot be left without one through normal administration.
 
@@ -122,10 +122,11 @@ Optional self-service password reset is controlled by `ALTERO_PASSWORD_RESET` an
 
 ### Suspend an account
 
-Suspension blocks both forms of access:
+Suspension blocks every form of access:
 
-- browser sessions; and
-- API keys used by Zotero Desktop.
+- browser sessions;
+- API keys used by Zotero Desktop; and
+- OAuth access tokens held by connected applications.
 
 No library data is deleted. Re-enabling the account restores access with the existing credentials unless those credentials were separately revoked.
 
@@ -134,6 +135,8 @@ No library data is deleted. Re-enabling the account restores access with the exi
 Credential revocation signs out browser sessions and invalidates API keys without disabling or deleting the account.
 
 This is appropriate for a lost device or leaked credential. The user can continue using the account after creating or receiving new credentials.
+
+It does **not** disconnect third-party applications: their grants survive it. The account holder disconnects one under **Settings → Connected applications**, and an operator can stop a whole application for everybody with `altero oauth disable <client-id>`. Suspending the account stops its tokens along with everything else.
 
 ### Delete an account
 
@@ -189,6 +192,8 @@ Sign-in providers are how somebody proves who they are *to* altero. The authoriz
 
 An application has to be registered before it can ask for anything. Nothing self-registers, because the list of addresses an authorization code may be sent to is the only thing that keeps the code from going somewhere else.
 
+Set `ALTERO_PUBLIC_URL` before registering anything. It decides the `iss` claim on every ID token, there is deliberately no fallback to the address a request arrived on, and without it these endpoints refuse to answer rather than guess.
+
 ```sh
 uv run altero oauth add notebook \
     --name "Notebook" \
@@ -198,8 +203,6 @@ uv run altero oauth list
 uv run altero oauth disable notebook
 uv run altero oauth rotate-key
 ```
-
-Set `ALTERO_PUBLIC_URL` first. It decides the `iss` claim on every ID token, and there is deliberately no fallback to the address a request arrived on: an issuer a caller can choose with a `Host` header is not one anybody can pin.
 
 A person approves an application in their browser and can disconnect it at any time under **Settings → Connected applications**. Disconnecting takes effect immediately.
 
@@ -301,11 +304,11 @@ Raising the version does not recreate data that was lost with the database. Use 
 
 A group has three Zotero-compatible policy settings:
 
-| Setting | Values | Controls |
-| --- | --- | --- |
-| `libraryReading` | `members`, `all` | Who may read the library |
-| `libraryEditing` | `members`, `admins` | Who may edit objects |
-| `fileEditing` | `none`, `members`, `admins` | Who may upload attachment files |
+| Setting          | Values                      | Controls                        |
+|------------------|-----------------------------|---------------------------------|
+| `libraryReading` | `members`, `all`            | Who may read the library        |
+| `libraryEditing` | `members`, `admins`         | Who may edit objects            |
+| `fileEditing`    | `none`, `members`, `admins` | Who may upload attachment files |
 
 The group `type` is `Private`, `PublicOpen` or `PublicClosed`.
 
@@ -317,12 +320,12 @@ Membership remains a ceiling over key permissions: a key that grants access to a
 
 altero can apply an additional restriction to one member:
 
-| Permission | Meaning |
-| --- | --- |
-| `inherit` | Use the normal group policy |
-| `read` | Read only |
-| `add` | Create and change, but do not remove or trash |
-| `own` | Create freely; change or remove only items that member added |
+| Permission | Meaning                                                      |
+|------------|--------------------------------------------------------------|
+| `inherit`  | Use the normal group policy                                  |
+| `read`     | Read only                                                    |
+| `add`      | Create and change, but do not remove or trash                |
+| `own`      | Create freely; change or remove only items that member added |
 
 From the shell:
 

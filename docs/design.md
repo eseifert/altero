@@ -26,12 +26,12 @@ The page is `surface` — white in light, near-black in dark. Everything else
 steps *away* from the page in one direction, so depth reads the same in both
 schemes:
 
-| Layer | Token | Where |
-| --- | --- | --- |
-| The page | `surface` | behind everything |
-| A card, a pane, a block, a table's heading, the app bar | `surface-container` | `.card`, `.pane`, `.block`, `.table-head` |
-| Inside one of those, and every toolbar | `surface-container-high` | `.card__inset`, `.toolbar` |
-| Floating | `surface-container-high` + a shadow | dialogs and menus, in `dialog.css` |
+| Layer                                                   | Token                               | Where                                     |
+|---------------------------------------------------------|-------------------------------------|-------------------------------------------|
+| The page                                                | `surface`                           | behind everything                         |
+| A card, a pane, a block, a table's heading, the app bar | `surface-container`                 | `.card`, `.pane`, `.block`, `.table-head` |
+| Inside one of those, and every toolbar                  | `surface-container-high`            | `.card__inset`, `.toolbar`                |
+| Floating                                                | `surface-container-high` + a shadow | dialogs and menus, in `dialog.css`        |
 
 Three steps, and a component may not reach for a fourth. `surface-container-low`
 and `-lowest` exist in the token file because Material defines them; the

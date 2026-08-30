@@ -193,11 +193,11 @@ master and on every `v*` tag, using [mike][mike] — squidfunk's fork of it, whi
 drives Zensical rather than MkDocs. Zensical will grow versioning of its own, at
 which point this goes away.
 
-| What was pushed | Published as | `latest` |
-| --- | --- | --- |
-| master | `dev` | only until a release is published |
-| `v1.0.0`, `v1.2.3` | `1.0`, `1.2` | yes |
-| `v1.0.0-alpha.2`, `v1.0.0-rc.1` | `1.0.0-alpha.2`, `1.0.0-rc.1` | no |
+| What was pushed                 | Published as                  | `latest`                          |
+|---------------------------------|-------------------------------|-----------------------------------|
+| master                          | `dev`                         | only until a release is published |
+| `v1.0.0`, `v1.2.3`              | `1.0`, `1.2`                  | yes                               |
+| `v1.0.0-alpha.2`, `v1.0.0-rc.1` | `1.0.0-alpha.2`, `1.0.0-rc.1` | no                                |
 
 A patch release replaces the pages it corrects rather than adding a version
 nobody has a reason to choose between, so `v1.2.3` publishes as `1.2`. `latest`

@@ -4,29 +4,29 @@ This page covers running and operating altero. For a first local test, [Getting 
 
 ## Choose how to run altero
 
-| Method | Best for | Database |
-| --- | --- | --- |
-| Docker Compose | Easiest evaluation and normal self-hosting | PostgreSQL |
-| Source checkout | Development or direct Python deployment | SQLite by default; PostgreSQL optional |
+| Method          | Best for                                   | Database                               |
+|-----------------|--------------------------------------------|----------------------------------------|
+| Docker Compose  | Easiest evaluation and normal self-hosting | PostgreSQL                             |
+| Source checkout | Development or direct Python deployment    | SQLite by default; PostgreSQL optional |
 
 For a server used by several people, prefer PostgreSQL.
 
 ## Docker Compose
 
-The image is published as `ghcr.io/eseifert/altero`, so running altero needs no checkout and no build. From a repository checkout:
-
-```sh
-docker compose -f docker/compose.yaml up -d
-docker compose -f docker/compose.yaml exec altero altero user add <username>
-```
-
-Without one, the Compose file on its own is the deployment:
+The image is published as `ghcr.io/eseifert/altero`, so running altero needs no checkout and no build. The Compose file on its own is the deployment:
 
 ```sh
 mkdir altero && cd altero
 curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
 docker compose up -d
 docker compose exec altero altero user add <username>
+```
+
+From a repository checkout, name the file where it lives instead:
+
+```sh
+docker compose -f docker/compose.yaml up -d
+docker compose -f docker/compose.yaml exec altero altero user add <username>
 ```
 
 The stack contains PostgreSQL, altero and persistent attachment storage.
@@ -86,22 +86,6 @@ docker compose -f docker/compose.yaml -f docker/compose.build.yaml up -d --build
 
 It builds `altero:local`, deliberately not the published name, so that a later `docker compose pull` cannot replace a built image without saying so. Both files carry the same project name, so the built stack uses the volumes an earlier pulled one wrote.
 
-### What a small instance costs
-
-Measured on x86-64 from a source checkout, Python 3.14 and SQLite, with the interface built:
-
-| | |
-| --- | --- |
-| altero, idle after start | ~125 MB resident |
-| altero, after light API traffic | ~130 MB resident |
-| Peak during start-up and migration | ~133 MB resident |
-| An empty database, schema only | 0.7 MB |
-| The installed Python environment | ~380 MB |
-
-The container runs the same interpreter and the same packages, so the application's own use is the figure above. Two things sit on top of it and are **not** measured here: the PostgreSQL container in the Compose stack, and the image on disk.
-
-Attachments are what grows. They are stored once per digest, so a file two libraries hold is on disk once; a library's nominal and real usage are reported per library under **Administration → Storage**.
-
 ## From a source checkout
 
 Requirements:
@@ -138,6 +122,22 @@ uv run altero key add <username> --name laptop
 ```
 
 The key is printed once and cannot be displayed again.
+
+## What a small instance costs
+
+Measured on x86-64 from a source checkout, Python 3.14 and SQLite, with the interface built:
+
+| What                               | Size             |
+|------------------------------------|------------------|
+| altero, idle after start           | ~125 MB resident |
+| altero, after light API traffic    | ~130 MB resident |
+| Peak during start-up and migration | ~133 MB resident |
+| An empty database, schema only     | 0.7 MB           |
+| The installed Python environment   | ~380 MB          |
+
+The container runs the same interpreter and the same packages, so the application's own use is the figure above. Two things sit on top of it and are **not** measured here: the PostgreSQL container in the Compose stack, and the image on disk.
+
+Attachments are what grows. They are stored once per digest, so a file two libraries hold is on disk once; a library's nominal and real usage are reported per library under **Administration → Storage**.
 
 ## Health check
 
@@ -189,6 +189,7 @@ It becomes required in practice when you use features that generate callbacks or
 
 - OpenID Connect or SAML sign-in;
 - passkeys;
+- the authorization server, which refuses to serve its endpoints rather than guess the `iss` claim — see [Connecting other applications](oauth.md);
 - links in outgoing email.
 
 Changing the **host** of `ALTERO_PUBLIC_URL` invalidates existing passkeys. Changing only the scheme or port does not.

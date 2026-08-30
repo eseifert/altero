@@ -4,15 +4,15 @@ altero can run without an SMTP relay. Configure email only if your instance need
 
 ## Do you need a mail relay?
 
-| Feature | Without SMTP | With SMTP |
-| --- | --- | --- |
-| Email confirmation | Link written to log | Delivered by email |
-| Group invitations | Available in-app for existing accounts; link can be logged | Delivered by email |
-| Administrator-issued password link | Link shown to administrator | Also delivered by email when possible |
-| Self-service password reset | **Unavailable** | Available when enabled |
-| Email second-factor code | Not useful without delivery | Delivered by email |
-| Security notices | Not delivered | Delivered to confirmed addresses |
-| Group activity digests | In-app notification still exists | Optional email copy |
+| Feature                            | Without SMTP                                               | With SMTP                             |
+|------------------------------------|------------------------------------------------------------|---------------------------------------|
+| Email confirmation                 | Link written to log                                        | Delivered by email                    |
+| Group invitations                  | Available in-app for existing accounts; link can be logged | Delivered by email                    |
+| Administrator-issued password link | Link shown to administrator                                | Also delivered by email when possible |
+| Self-service password reset        | **Unavailable**                                            | Available when enabled                |
+| Email second-factor code           | Not useful without delivery                                | Delivered by email                    |
+| Security notices                   | Not delivered                                              | Delivered to confirmed addresses      |
+| Group activity digests             | In-app notification still exists                           | Optional email copy                   |
 
 Most messages fall back to the log when no relay is configured. Self-service password reset does **not**, because a password-setting link should not be exposed to anyone who can read server logs.
 
@@ -50,11 +50,11 @@ What you lose is external delivery: security notices, useful email-code authenti
 
 Set three values:
 
-| Setting | Environment variable | Purpose |
-| --- | --- | --- |
-| `SMTP_URL` | `ALTERO_SMTP_URL` | SMTP relay and optional credentials |
-| `MAIL_FROM` | `ALTERO_MAIL_FROM` | Sender address |
-| `PUBLIC_URL` | `ALTERO_PUBLIC_URL` | Base URL used in links |
+| Setting      | Environment variable | Purpose                             |
+|--------------|----------------------|-------------------------------------|
+| `SMTP_URL`   | `ALTERO_SMTP_URL`    | SMTP relay and optional credentials |
+| `MAIL_FROM`  | `ALTERO_MAIL_FROM`   | Sender address                      |
+| `PUBLIC_URL` | `ALTERO_PUBLIC_URL`  | Base URL used in links              |
 
 Example:
 
@@ -161,21 +161,21 @@ Group activity email is opt-in. Every member starts unsubscribed.
 
 A user can independently subscribe to these categories for each group:
 
-| Category | Examples |
-| --- | --- |
-| Items added or changed | New item, title edit |
-| Items deleted | Trashed or permanently removed |
-| People joining or leaving | Membership changes |
-| Collections added or changed | Group-library organization |
+| Category                     | Examples                       |
+|------------------------------|--------------------------------|
+| Items added or changed       | New item, title edit           |
+| Items deleted                | Trashed or permanently removed |
+| People joining or leaving    | Membership changes             |
+| Collections added or changed | Group-library organization     |
 
 ### Digest timing
 
 Zotero uploads can contain many writes. Sending mail for every write would create a flood, so altero waits until the group has been quiet and sends one digest for the accumulated activity.
 
-| Environment variable | Default | Meaning |
-| --- | ---: | --- |
-| `ALTERO_GROUP_DIGEST_QUIET_PERIOD` | `900` | Seconds the library must be quiet before a digest is ready |
-| `ALTERO_GROUP_DIGEST_INTERVAL` | `60` | How often the server looks for ready digests; `0` disables delivery |
+| Environment variable               | Default | Meaning                                                             |
+|------------------------------------|--------:|---------------------------------------------------------------------|
+| `ALTERO_GROUP_DIGEST_QUIET_PERIOD` |   `900` | Seconds the library must be quiet before a digest is ready          |
+| `ALTERO_GROUP_DIGEST_INTERVAL`     |    `60` | How often the server looks for ready digests; `0` disables delivery |
 
 A member does not receive a digest about changes they caused themselves.
 

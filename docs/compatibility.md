@@ -14,7 +14,9 @@ The evidence used here comes from three places:
 - the official dataserver implementation; and
 - read-only requests and observed exchanges from real Zotero libraries and clients where the first two sources are incomplete.
 
-Each section explains a concrete behavior, why altero implements it that way, and—where relevant—how altero deliberately differs.
+Each section explains a concrete behavior, why altero implements it that way, and — where relevant — how altero deliberately differs.
+
+The later sections cover ground the reference server does not: altero's own extensions, such as finer group roles, server-side tag rename and the authorization server. They record the same thing for those — what the behavior is, and why it was decided rather than defaulted.
 
 ## API queries and response behavior
 
@@ -236,16 +238,16 @@ changed objects hides all three; one with 309 does not.
 
 ### Parameter handling
 
-| Behavior | Source |
-| --- | --- |
+| Behavior                                                                                       | Source                             |
+|------------------------------------------------------------------------------------------------|------------------------------------|
 | `limit=0` or a negative limit falls back to the default, rather than erroring or clamping to 1 | `parseQueryParams`, `case 'limit'` |
-| A limit above the maximum is clamped, not rejected | same |
-| `sort=asc` / `sort=desc` is moved to `direction`, keeping the default sort | `parseQueryParams`, `case 'sort'` |
-| `qmode` is compared lowercased, so `startsWith` and `startswith` both work | `parseQueryParams`, `case 'qmode'` |
-| Any sort field whose name begins with `date` defaults to descending; everything else ascending | `getDefaultDirection` |
-| `itemType` may not be repeated | `Zotero_Items::search` |
-| `numItems` is a valid sort only for tag endpoints | `parseQueryParams`, `case 'sort'` |
-| `extra` and `serverDateModified` are valid item sort fields | same |
+| A limit above the maximum is clamped, not rejected                                             | same                               |
+| `sort=asc` / `sort=desc` is moved to `direction`, keeping the default sort                     | `parseQueryParams`, `case 'sort'`  |
+| `qmode` is compared lowercased, so `startsWith` and `startswith` both work                     | `parseQueryParams`, `case 'qmode'` |
+| Any sort field whose name begins with `date` defaults to descending; everything else ascending | `getDefaultDirection`              |
+| `itemType` may not be repeated                                                                 | `Zotero_Items::search`             |
+| `numItems` is a valid sort only for tag endpoints                                              | `parseQueryParams`, `case 'sort'`  |
+| `extra` and `serverDateModified` are valid item sort fields                                    | same                               |
 
 ### Response shapes
 
@@ -509,11 +511,11 @@ stale information cannot overwrite a newer file.
 
 `GET <prefix>/items/<key>/file` answers **302**, carrying three headers:
 
-| Header | What it says |
-| --- | --- |
-| `Zotero-File-Modification-Time` | the `mtime` the uploading client declared |
-| `Zotero-File-MD5` | the digest the item claims, not the digest of the bytes |
-| `Zotero-File-Compressed` | `Yes` when the bytes are an archive around that file |
+| Header                          | What it says                                            |
+|---------------------------------|---------------------------------------------------------|
+| `Zotero-File-Modification-Time` | the `mtime` the uploading client declared               |
+| `Zotero-File-MD5`               | the digest the item claims, not the digest of the bytes |
+| `Zotero-File-Compressed`        | `Yes` when the bytes are an archive around that file    |
 
 Upstream sends these on the redirect to S3, and the client reads them there and
 nowhere else, so a 200 carrying the bytes — however it is labeled — reaches
@@ -1123,11 +1125,11 @@ personal server is not a service — see
 on the account, `public` for every account that existed before it did, and it is
 enforced on the v3 endpoints as well as on the profile page:
 
-| Setting | Keyless | Any key this server issued | A key that may read the library |
-| --- | --- | --- | --- |
-| `public` (default) | 200 | 200 | 200 |
-| `users` | 403 | 200 | 200 |
-| `private` | 403 | 403 | 200 |
+| Setting            | Keyless | Any key this server issued | A key that may read the library |
+|--------------------|---------|----------------------------|---------------------------------|
+| `public` (default) | 200     | 200                        | 200                             |
+| `users`            | 403     | 200                        | 200                             |
+| `private`          | 403     | 403                        | 200                             |
 
 The last column is why the owner's desktop client is unaffected: it syncs My
 Publications with a key that can read the library it belongs to, so closing the
@@ -1170,16 +1172,16 @@ and sends them to endpoints of its own, `PUT` and `DELETE` on
 like everything under `/web` and never reachable with an API key. The rules
 they enforce are the client's:
 
-| Rule | Where it comes from |
-| --- | --- |
-| Child notes go only with `includeNotes` | `options.childNotes` |
-| Stored attachments go only with `includeFiles` | `options.childFileAttachments` |
-| Link attachments always go | the client's own drop passes `childLinks: true` |
-| Linked files never go | `LINK_MODE_LINKED_FILE` is skipped in the loop |
-| Annotations never go | the drop passes `annotations: false` |
+| Rule                                                                                          | Where it comes from                                      |
+|-----------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| Child notes go only with `includeNotes`                                                       | `options.childNotes`                                     |
+| Stored attachments go only with `includeFiles`                                                | `options.childFileAttachments`                           |
+| Link attachments always go                                                                    | the client's own drop passes `childLinks: true`          |
+| Linked files never go                                                                         | `LINK_MODE_LINKED_FILE` is skipped in the loop           |
+| Annotations never go                                                                          | the drop passes `annotations: false`                     |
 | The license is written into `rights` unless `keepRights` and the field already says something | `if (!options.keepRights \|\| !item.getField('rights'))` |
-| Removing takes the item's notes and attachments out with it, trashed ones included | `getNotes(true).concat(getAttachments(true))` |
-| Removing something that is not published is an error | `throw new Error(...is not in My Publications)` |
+| Removing takes the item's notes and attachments out with it, trashed ones included            | `getNotes(true).concat(getAttachments(true))`            |
+| Removing something that is not published is an error                                          | `throw new Error(...is not in My Publications)`          |
 
 Two deliberate differences:
 
@@ -1230,10 +1232,10 @@ therefore not say "trashed", it would say "gone".
 
 Their child counts follow upstream exactly, and the two differ:
 
-| Count | Upstream | Trashed children counted |
-| --- | --- | --- |
-| `numCollections` | `SELECT COUNT(*) FROM collections WHERE parentCollectionID=?` | yes |
-| `numItems` | joins `deletedItems` and requires `DI.itemID IS NULL` | no |
+| Count            | Upstream                                                      | Trashed children counted |
+|------------------|---------------------------------------------------------------|--------------------------|
+| `numCollections` | `SELECT COUNT(*) FROM collections WHERE parentCollectionID=?` | yes                      |
+| `numItems`       | joins `deletedItems` and requires `DI.itemID IS NULL`         | no                       |
 
 Items are unaffected throughout. They are the one type with real trash
 semantics upstream — their own endpoint and an `includeTrashed` parameter — and
@@ -1253,11 +1255,11 @@ rather than giving up.
 value that is true; a falsy one is accepted with no further questions, including
 in a group library.
 
-| Refused | Message |
-| --- | --- |
-| A group library | `Group items cannot be added to My Publications` |
+| Refused                        | Message                                                              |
+|--------------------------------|----------------------------------------------------------------------|
+| A group library                | `Group items cannot be added to My Publications`                     |
 | A top-level note or attachment | `Top-level notes and attachments cannot be added to My Publications` |
-| A `linked_file` attachment | `Linked-file attachments cannot be added to My Publications` |
+| A `linked_file` attachment     | `Linked-file attachments cannot be added to My Publications`         |
 
 A *child* note or attachment is allowed: that is what My Publications is for. A
 linked file is not, because the server does not hold its bytes and so could not
@@ -1306,10 +1308,10 @@ the last synced copy of each object in its `syncCache` and passes it to
 `Zotero.DataObjectUtilities.patch` as a base, so what goes up is the
 difference. Two shapes matter:
 
-| The user did | What the client uploads |
-| --- | --- |
+| The user did                   | What the client uploads         |
+|--------------------------------|---------------------------------|
 | Sent a collection to the trash | `{key, version, deleted: true}` |
-| Changed an item's type | `{key, version, itemType}` |
+| Changed an item's type         | `{key, version, itemType}`      |
 
 altero read both as replacements. The first was refused with `400 'name'
 property not provided`, and since the client stops on a rejection —
@@ -1394,15 +1396,15 @@ of altero's own, since upstream answers 403 to anything an API key can present.
 
 Who may do what:
 
-| | Requires |
-| --- | --- |
-| Create a group | a key that may write to its owner's own library |
-| Read one | membership, or a public group |
-| Write items to one | membership, plus `libraryEditing` |
-| Upload files to one | membership, plus `fileEditing` |
-| Change the metadata, add or remove members | administrator of the group |
-| Leave | nobody's permission but your own |
-| Hand it on, delete it | the owner |
+|                                            | Requires                                        |
+|--------------------------------------------|-------------------------------------------------|
+| Create a group                             | a key that may write to its owner's own library |
+| Read one                                   | membership, or a public group                   |
+| Write items to one                         | membership, plus `libraryEditing`               |
+| Upload files to one                        | membership, plus `fileEditing`                  |
+| Change the metadata, add or remove members | administrator of the group                      |
+| Leave                                      | nobody's permission but your own                |
+| Hand it on, delete it                      | the owner                                       |
 
 Two of those are new rules rather than copied ones. A key must be **allowed to
 write** to a group *and* its owner must **administer** it, because putting
@@ -1440,12 +1442,12 @@ group; a permission says how far they may go in what is in it. So an
 administrator can be an ordinary contributor, and a member can be held to
 reading without anybody's role changing.
 
-| Permission | Creates | Changes | Removes | Collections and searches |
-| --- | --- | --- | --- | --- |
-| `inherit` | ✓ | ✓ | ✓ | ✓ |
-| `read` | | | | |
-| `add` | ✓ | anything | | make and change, never remove |
-| `own` | ✓ | its own | its own | read-only |
+| Permission | Creates | Changes  | Removes | Collections and searches      |
+|------------|---------|----------|---------|-------------------------------|
+| `inherit`  | ✓      | ✓       | ✓      | ✓                            |
+| `read`     |         |          |         |                               |
+| `add`      | ✓      | anything |         | make and change, never remove |
+| `own`      | ✓      | its own  | its own | read-only                     |
 
 Four things decide how it behaves, and each is a decision rather than a
 derivation:
@@ -1631,11 +1633,11 @@ register a client with Zotero. So the key is pasted in, used, and dropped.
 
 **Three things the API does not serve**, and what altero puts in their place:
 
-| Missing | Instead |
-| --- | --- |
-| `serverDateModified` | The client's own `dateModified`, which is the same instant for anything the client last wrote |
-| Timestamps for collections, searches and tags | The moment of the migration. Neither server exposes them over the API |
-| Versions in `/deleted` | The library's current version, so a client asking what went since any earlier point is told about all of it |
+| Missing                                       | Instead                                                                                                     |
+|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| `serverDateModified`                          | The client's own `dateModified`, which is the same instant for anything the client last wrote               |
+| Timestamps for collections, searches and tags | The moment of the migration. Neither server exposes them over the API                                       |
+| Versions in `/deleted`                        | The library's current version, so a client asking what went since any earlier point is told about all of it |
 
 **Object URIs are rewritten by user id, and only by user id.** Relations —
 `dc:relation` between related items, `owl:sameAs`, the merge tracker's
@@ -1711,7 +1713,7 @@ grant to particular libraries, or to particular collections within them —
 "group 42 and none of my others", "the *Reading* collection and nothing else".
 
 This has no counterpart upstream. zotero.org has no OAuth server of this shape
-at all, so there is no behaviour to copy and nothing about the v3 API changes
+at all, so there is no behavior to copy and nothing about the v3 API changes
 for an API key: no key can carry a resource grant, and none is affected by one.
 A grant made before this existed is unrestricted and stays so.
 
@@ -1752,6 +1754,15 @@ the library it was kept out of, one key at a time. A whole library that was not
 granted is the exception and answers 403, because there is nothing to hide —
 the caller supplied the prefix.
 
+That rule reaches the three routes that would otherwise look an object up
+before asking permission. `PATCH <prefix>/tags/<name>`,
+`DELETE <prefix>/searches/<key>` and `DELETE <prefix>/settings/<name>` resolve
+through the same `permit` as everything else, so a confined credential gets 404
+either way; resolving the object first answers 403 for one that exists and 404
+for one that does not, which is the library's tag list, or its saved searches,
+one guess at a time. Found by driving a real server rather than by the suite,
+and the tests that hold it were watched failing first.
+
 **My Publications keeps its notes.** These endpoints answer with no credential
 at all, so the `Access` computed for the library says `notes=library.public` for
 an anonymous caller — `False` for an ordinary private library. Taking that as
@@ -1760,20 +1771,9 @@ that a stranger can read it, so the publications routes take the confinement
 from the `Access` and drop the notes narrowing. It is the rule
 `_may_read_notes` already applies from the other side: what has been published
 is published, and withholding it from a credential that could have it by
-presenting nothing at all would be theatre rather than a permission. The items
+presenting nothing at all would be theater rather than a permission. The items
 themselves are still confined, so a narrowed token sees the published items
 inside its grant — less than a stranger sees, which is the right way round.
-
-That rule reaches the routes that look an object up before asking permission,
-and three of them had to be corrected for it: `PATCH <prefix>/tags/<name>`,
-`DELETE <prefix>/searches/<key>` and `DELETE <prefix>/settings/<name>` each
-resolved the object first and so answered 403 for one that exists and 404 for
-one that does not — which is the library's tag list, or its saved searches,
-one guess at a time. All three now resolve through the same `permit`, so a
-confined credential gets 404 either way. Found by driving a real server, not by
-the suite, which is the third time on this project that has been where a bug
-turned up; the tests that hold it were written afterwards and were watched
-failing first.
 
 **Four things a confined grant does not get**, each because it belongs to no
 collection and there is nothing honest to intersect with the grant:
@@ -1781,7 +1781,7 @@ collection and there is nothing honest to intersect with the grant:
 - **Saved searches.** A saved search reaches wherever its conditions reach, and
   altero does not run one server side. `/searches` answers with an empty page
   and a key answers 404.
-- **Settings.** Tag colours and the feed list are the library's. `/settings`
+- **Settings.** Tag colors and the feed list are the library's. `/settings`
   answers with an empty object.
 - **The delete log.** What is left of a deleted object is its key; the row
   saying which collections it was in went with it, so there is no way to ask
@@ -1925,7 +1925,7 @@ The same kind of decision as the one above, and the reason it is written down:
 the code looks like it is doing less than it should.
 
 `signxml` verifies the XML signature; altero does not attempt to. Hand-rolling
-that is not on — canonicalisation is where implementations grow
+that is not on — canonicalization is where implementations grow
 signature-wrapping holes, and the defense is structural rather than a check.
 `XMLVerifier.verify` returns the **signed subtree**, and every claim
 `services/saml.py` reads comes out of that return value and never out of the
@@ -1936,14 +1936,14 @@ the forgery is simply not what is read.
 What `signxml` does not do is here, and each of these is a way a perfectly
 valid signature still means nothing:
 
-| Check | Why the signature does not cover it |
-| --- | --- |
-| `Status` is `Success` | A failed sign-in is signed too |
-| `Conditions` window, with skew | An assertion from last year is still signed |
-| `AudienceRestriction` | The directory signed it for a *different* service |
-| `Recipient` | It was minted for another address of ours |
-| `InResponseTo` | It answers a sign-in nobody here started |
-| Replay | Nothing in SAML stops one being presented twice |
+| Check                          | Why the signature does not cover it               |
+|--------------------------------|---------------------------------------------------|
+| `Status` is `Success`          | A failed sign-in is signed too                    |
+| `Conditions` window, with skew | An assertion from last year is still signed       |
+| `AudienceRestriction`          | The directory signed it for a *different* service |
+| `Recipient`                    | It was minted for another address of ours         |
+| `InResponseTo`                 | It answers a sign-in nobody here started          |
+| Replay                         | Nothing in SAML stops one being presented twice   |
 
 Three deliberate limits: **SP-initiated only**, because an unsolicited assertion
 has no `InResponseTo` to match and accepting one means accepting anything that

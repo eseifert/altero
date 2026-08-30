@@ -8,15 +8,15 @@ The web interface is a companion to Zotero Desktop, not a replacement for the fu
 
 ## What you can do
 
-| Area | Main capabilities | Detailed guide |
-| --- | --- | --- |
-| Accounts and settings | Sign in, password/email settings, API keys, language, time zone, second factors | [Accounts and personal settings](web/account.md) |
-| Library | Browse, search, collections, item actions, tags | [Browsing and organizing a library](web/library.md) |
-| Publishing and sharing | My Publications, profile pages, shared collections | [Publishing and sharing](web/sharing.md) |
-| Data transfer | Move from zotero.org, backup/restore archives, exports | [Moving, importing and exporting data](web/data-transfer.md) |
-| Groups | Membership, invitations, activity, notifications | [Groups, invitations and activity](web/groups.md) |
-| Instance administration | Accounts, storage, retention, sign-in providers | [Administration](administration.md) |
-| Contributor details | Build commands, design system, known browser gaps | [Web implementation notes](web/implementation.md) |
+| Area                    | Main capabilities                                                                                       | Detailed guide                                               |
+|-------------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
+| Accounts and settings   | Sign in, password/email settings, API keys, connected applications, language, time zone, second factors | [Accounts and personal settings](web/account.md)             |
+| Library                 | Browse, search, collections, item actions, tags                                                         | [Browsing and organizing a library](web/library.md)          |
+| Publishing and sharing  | My Publications, profile pages, shared collections                                                      | [Publishing and sharing](web/sharing.md)                     |
+| Data transfer           | Move from zotero.org, backup/restore archives, exports                                                  | [Moving, importing and exporting data](web/data-transfer.md) |
+| Groups                  | Membership, invitations, activity, notifications                                                        | [Groups, invitations and activity](web/groups.md)            |
+| Instance administration | Accounts, storage, retention, sign-in providers                                                         | [Administration](administration.md)                          |
+| Contributor details     | Build commands, design system, known browser gaps                                                       | [Web implementation notes](web/implementation.md)            |
 
 ## Accounts
 
@@ -31,6 +31,10 @@ Users can manage their own credentials, email address, second factors and signed
 ## API keys
 
 API keys used by Zotero Desktop can be reviewed and revoked from the browser. See [Accounts and personal settings](web/account.md).
+
+## Connected applications
+
+Third-party applications the account has approved are listed and can be disconnected from Settings, separately from API keys. See [Accounts and personal settings](web/account.md) for the screen and [Connecting other applications](oauth.md) for how an operator registers one.
 
 ## Language and time zone
 

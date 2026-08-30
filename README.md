@@ -20,7 +20,7 @@ It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v
 - **Use SQLite or PostgreSQL** — from a personal installation to a shared server
 - **Get a web interface** — libraries, groups, search, account settings, imports, exports and administration
 - **Integrate institutional identity** — OpenID Connect and SAML 2.0 for browser sign-in
-- **Connect other applications** — OAuth 2.0 and OpenID Connect provide access for extensions
+- **Connect other applications** — scoped, expiring OAuth 2.0 access instead of handing out an API key
 - **Stay in control** — altero is licensed under the GNU AGPL v3 or later
 
 > [!WARNING]
@@ -227,7 +227,9 @@ Use **OpenID Connect** or **SAML 2.0** for browser authentication. Zotero Deskto
 
 ### Scoped access for other applications
 
-altero is an **OAuth 2.0 and OpenID Connect authorization server**. This way its easy to connect third-party applications or extensions.
+altero is an **OAuth 2.0 and OpenID Connect authorization server**. A third-party application gets a scoped, expiring token instead of somebody's API key, and the account holder can confine a grant to the libraries and collections they choose.
+
+See [Connecting other applications](https://eseifert.github.io/altero/latest/oauth/).
 
 ### Finer group permissions
 
