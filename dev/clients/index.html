@@ -715,6 +715,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#file-syncing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        File syncing
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File syncing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#keeping-an-existing-webdav-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Keeping an existing WebDAV server
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moving-files-from-webdav-into-altero" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Moving files from WebDAV into altero
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#command-line-approval" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1576,6 +1615,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#file-syncing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        File syncing
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File syncing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#keeping-an-existing-webdav-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Keeping an existing WebDAV server
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moving-files-from-webdav-into-altero" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Moving files from WebDAV into altero
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#command-line-approval" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1666,6 +1744,24 @@
 </ol>
 <p>The key can access the personal and group libraries available to that account, as Zotero expects.</p>
 <p>Approving the client asks for the password again even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity.</p>
+<h2 id="file-syncing">File syncing<a class="headerlink" href="#file-syncing" title="Permanent link">&para;</a></h2>
+<p>Attachment files are configured separately from library data, in <strong>Settings → Sync → File Syncing</strong>. There, <em>Zotero</em> means altero, because <code>extensions.zotero.api.url</code> points at it. Group libraries always sync their files through altero; WebDAV cannot carry them.</p>
+<h3 id="keeping-an-existing-webdav-server">Keeping an existing WebDAV server<a class="headerlink" href="#keeping-an-existing-webdav-server" title="Permanent link">&para;</a></h3>
+<p>Leave <strong>Sync attachment files in My Library using WebDAV</strong> unchanged. altero then carries the library data and the WebDAV server keeps carrying the files.</p>
+<p>A personal library <a href="../administration/#move-a-personal-library-from-zoteroorg">migrated from zotero.org</a> keeps its item keys and each attachment's <code>md5</code> and <code>mtime</code>, so the <code>&lt;KEY&gt;.zip</code> and <code>&lt;KEY&gt;.prop</code> files already on the WebDAV server still match.</p>
+<h3 id="moving-files-from-webdav-into-altero">Moving files from WebDAV into altero<a class="headerlink" href="#moving-files-from-webdav-into-altero" title="Permanent link">&para;</a></h3>
+<p>Files stored on WebDAV are never present on zotero.org, so a migration cannot bring them across. Move them from a client whose Zotero data directory still holds them:</p>
+<ol>
+<li>Set <strong>Settings → Sync → File Syncing → Sync attachment files in My Library using Zotero</strong>.</li>
+<li>Open <strong>Settings → Sync → Sync Reset → Show Reset Options…</strong>, select the library, and run <strong>Reset File Sync History</strong>.</li>
+<li>Sync.</li>
+</ol>
+<p>Step 2 is required. Zotero otherwise treats the files as already synchronized, because the migrated attachments carry the same <code>md5</code> and <code>mtime</code> the WebDAV server recorded, and uploads nothing. The reset marks every attachment whose file is present locally for upload.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This uploads the whole attachment store in one sync. altero accepts up to 1 GB per file; a reverse proxy needs its own request-size limit raised, as described under <a href="../deployment/#behind-a-reverse-proxy">Behind a reverse proxy</a>.</p>
+</div>
+<p>An attachment whose file no longer exists anywhere stays a metadata-only item. altero answers 404 for its bytes, and Zotero records it as in sync rather than reporting an error.</p>
 <h2 id="command-line-approval">Command-line approval<a class="headerlink" href="#command-line-approval" title="Permanent link">&para;</a></h2>
 <p>If the browser interface is not built, the same login can be approved from the server shell:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>login<span class="w"> </span>list

@@ -2452,7 +2452,11 @@
 <p>The migration asks for a zotero.org API key with read access to the personal library. The key is prompted for rather than placed on the command line.</p>
 <p>The migration preserves Zotero object keys and versions so an already-synchronized desktop client can continue from the same state.</p>
 <p>If the local altero user ID differs from the zotero.org user ID, Zotero Desktop can require a reset and re-download because the client remembers which account number last synchronized that data directory.</p>
-<p>Only the personal library is imported. Attachment bytes that are not present on zotero.org cannot be downloaded.</p>
+<p>Only the personal library is imported. Attachment bytes that zotero.org does not hold cannot be downloaded; the migration lists those items and brings the attachments across without their files.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If attachment files were synchronized over WebDAV, zotero.org holds none of them. It answers 404 for every one, so the whole library arrives without files. The metadata is complete: item keys, <code>md5</code> and <code>mtime</code> are all preserved. Either keep the WebDAV server for files, or move the files into altero from a client that still has them. See <a href="../clients/#file-syncing">File syncing</a>.</p>
+</div>
 <h3 id="after-recreating-the-database">After recreating the database<a class="headerlink" href="#after-recreating-the-database" title="Permanent link">&para;</a></h3>
 <p>A newly recreated library begins at a low library version, while existing clients may remember a much higher version. Zotero refuses to move its stored version backwards.</p>
 <p>Raise the server library version above the version remembered by the client:</p>
