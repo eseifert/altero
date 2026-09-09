@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## Unreleased
 
+- A confidential OAuth client can present its secret as HTTP Basic, which RFC 6749 §2.3.1 requires a server to accept.
 - Every `ALTERO_` setting in `docker/.env` now reaches the container, rather than only the handful `docker/compose.yaml` names.
 - The documentation lists every configuration setting with its default, and how to set it from `config.py`, the environment or Docker.
 

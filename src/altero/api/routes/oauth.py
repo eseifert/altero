@@ -24,7 +24,10 @@ cannot cause a browser to authenticate a sync request. ``docs/compatibility.md``
 records the decision.
 """
 
+import base64
+import binascii
 from typing import Annotated, Any
+from urllib.parse import unquote
 
 from fastapi import APIRouter, Form, Query
 from starlette.requests import Request
@@ -80,7 +83,11 @@ def _metadata(request: Request) -> dict[str, Any]:
         # is the interception PKCE exists to prevent, so it is neither
         # advertised nor accepted.
         "code_challenge_methods_supported": ["S256"],
-        "token_endpoint_auth_methods_supported": ["none", "client_secret_post"],
+        "token_endpoint_auth_methods_supported": [
+            "none",
+            "client_secret_basic",
+            "client_secret_post",
+        ],
         "claims_supported": [
             "sub",
             "iss",
@@ -98,6 +105,64 @@ def _metadata(request: Request) -> dict[str, Any]:
         ],
         "service_documentation": "https://eseifert.github.io/altero/latest/oauth/",
     }
+
+
+def _client_credentials(
+    request: Request, client_id: str, client_secret: str | None
+) -> tuple[str, str | None]:
+    """Return the client credentials the token request presented, however it did.
+
+    RFC 6749 §2.3.1 gives a confidential client two ways to present its secret
+    and requires the server to support the first: HTTP Basic, where the pair is
+    in the ``Authorization`` header, and a ``client_secret`` form field. Both
+    end up in the same two values here, so nothing below this function knows
+    which was used.
+
+    **One method per request**, as §2.3 requires. A secret in the header *and*
+    in the body is refused rather than resolved: the two can disagree, and
+    choosing a winner is choosing which one the operator meant. Naming the
+    client in the body beside a Basic header is not a second method -- several
+    client libraries do exactly that -- but a body naming a *different* client
+    is the same contradiction and refused the same way.
+
+    The values are percent-decoded, since §2.3.1 form-encodes both before the
+    base64. ``unquote`` rather than ``unquote_plus``, which is the whole of the
+    difference between reading a client that followed that rule and one that
+    did not: ``+`` is a legal character in an identifier, so turning it into a
+    space would refuse a client whose only mistake was skipping an encoding
+    step that makes no difference to any identifier this server issues.
+    """
+    scheme, _, encoded = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() != "basic":
+        return client_id, client_secret
+
+    if client_secret:
+        raise OAuthError(
+            "invalid_request",
+            "The client secret was presented twice, in the Authorization header and in the "
+            "request body. RFC 6749 §2.3 allows one authentication method per request",
+        )
+
+    try:
+        decoded = base64.b64decode(encoded, validate=True).decode("utf-8")
+    except (binascii.Error, UnicodeDecodeError) as exc:
+        raise OAuthError(
+            "invalid_client", "The Authorization header is not valid Basic credentials"
+        ) from exc
+
+    name, colon, secret = decoded.partition(":")
+    if not colon:
+        raise OAuthError(
+            "invalid_client", "The Basic credentials do not separate a client from a secret"
+        )
+
+    name, secret = unquote(name), unquote(secret)
+    if client_id and client_id != name:
+        raise OAuthError(
+            "invalid_request",
+            f"The request body names {client_id} and the Authorization header names {name}",
+        )
+    return name, secret
 
 
 @router.get("/.well-known/openid-configuration")
@@ -308,6 +373,7 @@ async def token(
     """
     public_url = request.app.state.settings.public_url
     oauthserver.issuer(public_url)
+    client_id, client_secret = _client_credentials(request, client_id, client_secret)
 
     if grant_type == "authorization_code":
         payload = await oauthserver.exchange(

@@ -202,6 +202,17 @@ def bearer(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
+def basic(client_id: str, secret: str) -> dict[str, str]:
+    """Return the header a client presenting its secret as HTTP Basic sends."""
+    encoded = base64.b64encode(f"{client_id}:{secret}".encode()).decode()
+    return {"Authorization": f"Basic {encoded}"}
+
+
+def raw_basic(credentials: str) -> dict[str, str]:
+    """Return a Basic header carrying ``credentials`` exactly as given."""
+    return {"Authorization": f"Basic {base64.b64encode(credentials.encode()).decode()}"}
+
+
 def claims_of(id_token: str) -> dict:
     """Return an ID token's payload without verifying it.
 
@@ -1169,6 +1180,230 @@ class TestConfidentialClients:
         assert registered.secret_hash is not None
         assert secret not in registered.secret_hash
 
+    async def test_the_secret_may_be_presented_as_http_basic(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        _, secret = await make_client(session, confidential=True)
+        assert secret is not None
+        await make_account(client)
+        verifier, challenge = pkce()
+        started = await authorize(client, challenge=challenge)
+        handle = started.headers["location"].split("request=")[1]
+        redirect = await grant(client, handle)
+
+        response = await client.post(
+            "/oauth/token",
+            data={
+                "grant_type": "authorization_code",
+                "client_id": "notebook",
+                "code": code_from(redirect),
+                "code_verifier": verifier,
+                "redirect_uri": REDIRECT,
+            },
+            headers=basic("notebook", secret),
+        )
+
+        assert response.status_code == 200, response.text
+
+    async def test_basic_authenticates_a_refresh_as_well(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        _, secret = await make_client(session, confidential=True)
+        assert secret is not None
+        await make_account(client)
+        verifier, challenge = pkce()
+        started = await authorize(client, challenge=challenge)
+        handle = started.headers["location"].split("request=")[1]
+        redirect = await grant(client, handle)
+        first = await client.post(
+            "/oauth/token",
+            data={
+                "grant_type": "authorization_code",
+                "client_id": "notebook",
+                "code": code_from(redirect),
+                "code_verifier": verifier,
+                "redirect_uri": REDIRECT,
+            },
+            headers=basic("notebook", secret),
+        )
+        assert first.status_code == 200, first.text
+
+        response = await client.post(
+            "/oauth/token",
+            data={"grant_type": "refresh_token", "refresh_token": first.json()["refresh_token"]},
+            headers=basic("notebook", secret),
+        )
+
+        assert response.status_code == 200, response.text
+
+    async def test_a_wrong_secret_in_the_header_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session, confidential=True)
+
+        response = await client.post(
+            "/oauth/token",
+            data={"grant_type": "refresh_token", "refresh_token": "nonsense"},
+            headers=basic("notebook", "not the secret"),
+        )
+
+        assert response.status_code == 401
+        assert response.json()["error"] == "invalid_client"
+
+    async def test_presenting_the_secret_in_both_places_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """RFC 6749 §2.3: a client uses one authentication method per request.
+
+        Refused rather than resolved, because the two could disagree and
+        picking a winner is picking which of them the operator meant.
+        """
+        _, secret = await make_client(session, confidential=True)
+        assert secret is not None
+
+        response = await client.post(
+            "/oauth/token",
+            data={
+                "grant_type": "refresh_token",
+                "refresh_token": "nonsense",
+                "client_secret": secret,
+            },
+            headers=basic("notebook", secret),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["error"] == "invalid_request"
+
+    async def test_a_client_id_that_contradicts_the_header_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        _, secret = await make_client(session, confidential=True)
+        assert secret is not None
+
+        response = await client.post(
+            "/oauth/token",
+            data={
+                "grant_type": "refresh_token",
+                "refresh_token": "nonsense",
+                "client_id": "somebody-else",
+            },
+            headers=basic("notebook", secret),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["error"] == "invalid_request"
+
+    async def test_the_same_client_id_in_both_places_is_accepted(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Naming the client in the body as well is not a second method.
+
+        Which matters, because sending ``client_id`` in the form beside a Basic
+        header is what several client libraries do.
+        """
+        _, secret = await make_client(session, confidential=True)
+        assert secret is not None
+
+        response = await client.post(
+            "/oauth/token",
+            data={
+                "grant_type": "refresh_token",
+                "refresh_token": "nonsense",
+                "client_id": "notebook",
+            },
+            headers=basic("notebook", secret),
+        )
+
+        assert response.json()["error"] == "invalid_grant"
+
+    async def test_a_header_that_is_not_base64_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session, confidential=True)
+
+        response = await client.post(
+            "/oauth/token",
+            data={"grant_type": "refresh_token", "refresh_token": "nonsense"},
+            headers={"Authorization": "Basic not-base64-at-all!!"},
+        )
+
+        assert response.status_code == 401
+        assert response.json()["error"] == "invalid_client"
+        # The reason, not only the refusal: a header nobody could read and a
+        # secret that is merely wrong are both invalid_client, so asserting the
+        # status alone would pass just as well if the header were ignored.
+        assert "Basic credentials" in response.json()["error_description"]
+
+    async def test_a_header_with_no_colon_is_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session, confidential=True)
+
+        response = await client.post(
+            "/oauth/token",
+            data={"grant_type": "refresh_token", "refresh_token": "nonsense"},
+            headers=raw_basic("notebook-and-no-secret"),
+        )
+
+        assert response.status_code == 401
+        assert response.json()["error"] == "invalid_client"
+        assert "do not separate" in response.json()["error_description"]
+
+    async def test_the_credentials_are_percent_decoded(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """RFC 6749 §2.3.1 form-encodes both values before base64.
+
+        ``invalid_grant`` rather than ``invalid_client`` is the assertion: the
+        deliberately unusable refresh token is what the request fails on, which
+        means the client authenticated.
+        """
+        _, secret = await make_client(session, client_id="note+book", confidential=True)
+        assert secret is not None
+
+        response = await client.post(
+            "/oauth/token",
+            data={"grant_type": "refresh_token", "refresh_token": "nonsense"},
+            headers=raw_basic(f"note%2Bbook:{secret}"),
+        )
+
+        assert response.json()["error"] == "invalid_grant"
+
+    async def test_a_plus_is_not_read_as_a_space(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The other half of the decision above, and the reason it is not
+        ``unquote_plus``: a client that skipped the form-encoding still works,
+        where turning ``+`` into a space would refuse it.
+        """
+        _, secret = await make_client(session, client_id="note+book", confidential=True)
+        assert secret is not None
+
+        response = await client.post(
+            "/oauth/token",
+            data={"grant_type": "refresh_token", "refresh_token": "nonsense"},
+            headers=raw_basic(f"note+book:{secret}"),
+        )
+
+        assert response.json()["error"] == "invalid_grant"
+
+    async def test_a_public_client_needs_no_header(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """PKCE is what authenticates a public client, and it is required."""
+        await make_client(session)
+
+        response = await client.post(
+            "/oauth/token",
+            data={
+                "grant_type": "refresh_token",
+                "refresh_token": "nonsense",
+                "client_id": "notebook",
+            },
+        )
+
+        assert response.json()["error"] == "invalid_grant"
+
 
 class TestRevocation:
     async def test_revoking_an_access_token_stops_it(
@@ -1342,6 +1577,17 @@ class TestDiscovery:
         ):
             assert required in document, required
         assert document["id_token_signing_alg_values_supported"] == ["RS256"]
+
+    async def test_it_names_the_client_authentication_methods_it_accepts(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        document = (await client.get("/.well-known/openid-configuration")).json()
+
+        assert document["token_endpoint_auth_methods_supported"] == [
+            "none",
+            "client_secret_basic",
+            "client_secret_post",
+        ]
 
     async def test_the_key_set_holds_a_usable_key(self, client: httpx.AsyncClient) -> None:
         keys = (await client.get("/oauth/jwks.json")).json()["keys"]

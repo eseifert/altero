@@ -148,7 +148,8 @@ and is a ceiling: the application may ask for these or fewer, never more.
 
 For an application that runs on a server and can keep a secret, add
 `--confidential`. The secret is printed once and stored only as a hash, the same
-bargain `altero key add` makes.
+bargain `altero key add` makes. [Presenting a client
+secret](#presenting-a-client-secret) below says how it travels.
 
 `--post-logout-redirect-uri` is repeatable too, and is the separate list of
 addresses somebody may be sent to after signing out — see
@@ -221,6 +222,45 @@ curl -X POST https://library.example.org/oauth/token \
   "scope": "openid profile library.read",
   "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6…"
 }
+```
+
+### Presenting a client secret
+
+A public client has no secret and presents none: PKCE is what stands in for one,
+and it is required of every client either way. A **confidential** client — one
+registered with `--confidential` — presents its secret on every call to
+`/oauth/token`, in either of the two ways RFC 6749 §2.3.1 defines.
+
+HTTP Basic, where the header carries `client_id:client_secret` base64-encoded:
+
+```sh
+curl -X POST https://library.example.org/oauth/token \
+  -u notebook:s3cret \
+  -d grant_type=authorization_code -d code=… -d code_verifier=… \
+  -d redirect_uri=https://notebook.example.com/auth/callback
+```
+
+Or a `client_secret` form field:
+
+```sh
+curl -X POST https://library.example.org/oauth/token \
+  -d grant_type=authorization_code -d client_id=notebook -d client_secret=s3cret \
+  -d code=… -d code_verifier=… \
+  -d redirect_uri=https://notebook.example.com/auth/callback
+```
+
+> [!WARNING]
+> One or the other, never both. A request carrying a secret in the header *and*
+> in the body is refused with `invalid_request`, because the two can disagree
+> and picking a winner would be picking which one you meant. Naming the client
+> with `client_id` in the body beside a Basic header is fine — that is not a
+> second secret — as long as it names the same client.
+
+The discovery document says the same thing in machine-readable form, and a
+client library that reads it needs none of the above:
+
+```json
+"token_endpoint_auth_methods_supported": ["none", "client_secret_basic", "client_secret_post"]
 ```
 
 Refreshing rotates: the refresh token is replaced every time it is used.
