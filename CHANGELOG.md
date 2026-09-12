@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## Unreleased
 
+- Deployment cites a reader's NixOS configuration for Podman.
+- The image is published in the Docker format, so Podman reads the health check it carries.
 - Deployment documents running altero under Podman.
 - The Zotero linking screen is translated throughout.
 - The image's health check follows `ALTERO_PORT`.
