@@ -94,7 +94,7 @@ It builds `altero:local`, deliberately not the published name, so that a later `
 
 ## Podman
 
-The image runs under Podman unchanged. Two things differ from Docker.
+The image runs under Podman unchanged. Three things differ from Docker.
 
 **It runs as UID 10001.** `/data` inside the image belongs to that user. A named volume inherits the ownership; a bind mount arrives with the host's instead, and altero then cannot write attachments. Under rootless Podman, hand the directory to the mapped user before starting the container:
 
@@ -105,6 +105,18 @@ podman unshare chown -R 10001:10001 /srv/altero/storage
 On SELinux systems, mount it with `:Z` so the container gets a matching label.
 
 **The port is the one above.** The container's own health check follows `ALTERO_PORT`, so an instance that moves it stays healthy; publishing `8090:8000` on the host needs no `ALTERO_PORT` at all.
+
+**The health check needs the Docker image format.** Podman reads a health check out of an image only in that format; an OCI image carries no such field, and `podman healthcheck run` then answers `has no defined healthcheck`. The published image uses the Docker format, but an image built locally does not unless it is asked to:
+
+```sh
+podman build --format docker -f docker/Dockerfile .
+```
+
+Releases up to `1.0.0-alpha.2` were published as OCI images and define no health check under Podman. Where one is needed before upgrading, give it on the command line instead:
+
+```sh
+podman run --health-cmd 'python -c "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8000/health\", timeout=4).status == 200 else 1)"' ...
+```
 
 `podman-compose` runs `docker/compose.yaml` as it is. For Quadlet, a systemd unit or a NixOS `virtualisation.oci-containers` module, the settings are the ones [Configuration](configuration.md) lists, plus `ALTERO_DATABASE_URL` pointing at the PostgreSQL container over a shared network.
 

@@ -69,7 +69,17 @@ jobs:
           file: docker/Dockerfile
           platforms: ${{ matrix.platform }}
           push: true
-          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true
+          # `oci-mediatypes=false` publishes the Docker image format rather
+          # than OCI. A HEALTHCHECK is a Docker-format field that OCI has no
+          # equivalent for: buildx writes it into an OCI configuration anyway,
+          # Docker reads it back, and Podman -- whose parser has no such field
+          # -- reports that the image defines no health check. Both
+          # architectures being Docker-format is also what makes the merge job
+          # below produce a Docker manifest list rather than an OCI index.
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,oci-mediatypes=false
+          # Attestations can only be carried by an OCI index, so buildx refuses
+          # them alongside the line above. Nothing here consumed them.
+          provenance: false
           # Scoped per architecture: the two builds share no layers.
           cache-from: type=gha,scope=${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=${{ matrix.platform }}
