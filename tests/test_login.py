@@ -52,6 +52,26 @@ class TestCurrentKey:
             await client.get("/keys/current", headers={"Zotero-API-Key": KEY})
         ).status_code == 403
 
+    async def test_a_key_handed_out_by_the_login_flow_can_be_revoked(
+        self, client: httpx.AsyncClient, session: AsyncSession, user: None
+    ) -> None:
+        """Unlinking has to work for a key the handshake issued, which is every
+        key a desktop client holds.
+
+        The completed session points at the key, so deleting the key with that
+        row still referencing it is a foreign key violation and a 500. The
+        reference goes and the session, which is spent, reports itself
+        cancelled.
+        """
+        token = (await client.post("/keys/sessions")).json()["sessionToken"]
+        api_key = await admin.create_api_key(session, username="octocat", name="Zotero")
+        await login.approve_session(session, token, api_key)
+
+        response = await client.delete("/keys/current", headers={"Zotero-API-Key": api_key.key})
+
+        assert response.status_code == 204
+        assert (await client.get(f"/keys/sessions/{token}")).json() == {"status": "cancelled"}
+
 
 class TestLoginSession:
     async def test_a_session_returns_a_token_and_a_page(

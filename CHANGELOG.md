@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## Unreleased
 
+- Unlinking a client works again: revoking a key the login handshake handed out answered 500, which is every key a desktop client holds. Reported by [@ScatteredComet] in [Discussion#5].
 - Deployment cites a reader's NixOS configuration for Podman.
 - The image is published in the Docker format, so Podman reads the health check it carries.
 - Deployment documents running altero under Podman.
@@ -129,5 +130,7 @@ The first release meant to be used by somebody other than its author.
 [0.1.0]: https://github.com/eseifert/altero/releases/tag/v0.1.0
 
 [@sadgen]: https://github.com/sadgen
+[@ScatteredComet]: https://github.com/ScatteredComet
 [PR#7]: https://github.com/eseifert/altero/pull/7
 [PR#8]: https://github.com/eseifert/altero/pull/8
+[Discussion#5]: https://github.com/eseifert/altero/discussions/5

@@ -29,6 +29,9 @@ class LoginSession(Base):
     status: Mapped[str] = mapped_column(String(16), default="pending")
     #: The user id the client already knows, when it is re-authenticating.
     requested_user_id: Mapped[int | None] = mapped_column()
-    #: Set once approved: the key handed to the client.
-    api_key_id: Mapped[int | None] = mapped_column(ForeignKey("api_keys.id"))
+    #: Set once approved: the key handed to the client. Revoking that key --
+    #: which is what unlinking the client does -- clears this rather than being
+    #: refused, and :func:`~altero.services.login.render` then reports the
+    #: spent session as cancelled.
+    api_key_id: Mapped[int | None] = mapped_column(ForeignKey("api_keys.id", ondelete="SET NULL"))
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)

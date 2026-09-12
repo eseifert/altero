@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.errors import InvalidInputError, NotFoundError
 from altero.keys import API_KEY_ALPHABET, API_KEY_LENGTH, generate_api_key
 from altero.models import LibraryType
-from altero.services import admin
+from altero.services import admin, login
 from altero.services.auth import get_library
 
 
@@ -87,6 +87,22 @@ class TestApiKeys:
     async def test_a_key_can_be_revoked(self, session: AsyncSession) -> None:
         await admin.create_user(session, username="octocat")
         key = await admin.create_api_key(session, username="octocat", name="one")
+
+        await admin.revoke_api_key(session, key.key)
+
+        assert await admin.list_api_keys(session) == []
+
+    async def test_a_key_a_client_linked_with_can_be_revoked(self, session: AsyncSession) -> None:
+        """The completed login session pointing at the key must not block it.
+
+        Every key a desktop client holds was handed out by that handshake, so
+        this is the ordinary case rather than an edge one, on the command line
+        as much as on ``DELETE /keys/current``.
+        """
+        await admin.create_user(session, username="octocat")
+        key = await admin.create_api_key(session, username="octocat", name="Zotero")
+        session_token = (await login.start_session(session)).token
+        await login.approve_session(session, session_token, key)
 
         await admin.revoke_api_key(session, key.key)
 

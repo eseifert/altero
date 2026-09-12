@@ -154,7 +154,9 @@ async def render(session: AsyncSession, login: LoginSession) -> dict[str, object
         return {"status": login.status}
 
     api_key = await session.get(ApiKey, login.api_key_id) if login.api_key_id else None
-    if api_key is None:  # pragma: no cover - the key was revoked mid-login
+    if api_key is None:
+        # The key has been revoked since, which clears the reference. A spent
+        # session that can no longer hand anything over is a cancelled one.
         return {"status": CANCELLED}
 
     user = await session.get(User, api_key.user_id)
