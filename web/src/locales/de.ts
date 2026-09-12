@@ -565,6 +565,7 @@ export default {
   'That passkey was removed.': 'Dieser Passkey wurde entfernt.',
   'That provider could not be reached. Try again shortly.': 'Dieser Anbieter war nicht erreichbar. Versuchen Sie es gleich noch einmal.',
   'That provider was removed.': 'Dieser Anbieter wurde entfernt.',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.': 'Diese Anfrage ist abgelaufen oder existiert nicht. Starten Sie die Anmeldung in Zotero erneut.',
   'That request has expired or was never started. Start again in the application.': 'Diese Anfrage ist abgelaufen oder wurde nie gestellt. Beginnen Sie in der Anwendung von vorn.',
   'That session was signed out.': 'Diese Sitzung wurde abgemeldet.',
   'That sign-in took too long. Please try again.': 'Diese Anmeldung hat zu lange gedauert. Bitte erneut versuchen.',

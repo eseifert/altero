@@ -562,6 +562,7 @@ export default {
   'That passkey was removed.': 'Essa chave de acesso foi removida.',
   'That provider could not be reached. Try again shortly.': 'Não foi possível contactar esse fornecedor. Tente novamente em breve.',
   'That provider was removed.': 'Esse fornecedor foi removido.',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.': 'Esse pedido expirou ou não existe. Inicie sessão novamente a partir do Zotero.',
   'That request has expired or was never started. Start again in the application.': 'Esse pedido expirou ou nunca foi iniciado. Comece de novo na aplicação.',
   'That session was signed out.': 'Essa sessão foi terminada.',
   'That sign-in took too long. Please try again.': 'Esse início de sessão demorou demasiado. Tente novamente.',

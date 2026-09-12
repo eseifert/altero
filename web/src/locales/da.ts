@@ -589,6 +589,7 @@ export default {
   'That provider could not be reached. Try again shortly.':
     'Den udbyder kunne ikke nås. Prøv igen om lidt.',
   'That provider was removed.': 'Den udbyder blev fjernet.',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.': 'Den forespørgsel er udløbet eller findes ikke. Log ind igen fra Zotero.',
   'That request has expired or was never started. Start again in the application.': 'Den forespørgsel er udløbet eller blev aldrig startet. Start forfra i programmet.',
   'That session was signed out.': 'Den session blev logget ud.',
   'That sign-in took too long. Please try again.': 'Det login tog for lang tid. Prøv igen.',

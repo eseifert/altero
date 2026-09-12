@@ -598,6 +598,8 @@ export default {
   'That provider could not be reached. Try again shortly.':
     'That provider could not be reached. Try again shortly.',
   'That provider was removed.': 'That provider was removed.',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.':
+    'That request has expired or does not exist. Start the sign-in again in Zotero.',
   'That request has expired or was never started. Start again in the application.':
     'That request has expired or was never started. Start again in the application.',
   'That session was signed out.': 'That session was signed out.',

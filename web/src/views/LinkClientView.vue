@@ -31,7 +31,7 @@ const busy = ref(false)
 
 onMounted(async () => {
   if (!token.value) {
-    failure.value = 'That link is missing its request token.'
+    failure.value = t('That link is missing its token.')
     state.value = 'failed'
     return
   }
@@ -41,7 +41,7 @@ onMounted(async () => {
   } catch (thrown) {
     failure.value =
       thrown instanceof ApiError && thrown.status === 404
-        ? 'That request has expired or does not exist. Start the sign-in again in Zotero.'
+        ? t('That request has expired or does not exist. Start the sign-in again in Zotero.')
         : message(thrown)
     state.value = 'failed'
   }
@@ -92,14 +92,14 @@ async function decline(): Promise<void> {
         {{ t('Done. Zotero is picking up the connection now — you can close this page and go back to it.') }}
       </p>
       <AppButton full-width @click="$router.push({ name: 'library' })">
-        Go to your library
+        {{ t('Go to your library') }}
       </AppButton>
     </template>
 
     <template v-else-if="state === 'declined'">
       <p class="auth-form__lead">{{ t('Refused. Zotero has been told to stop waiting.') }}</p>
       <AppButton variant="text" full-width @click="$router.push({ name: 'library' })">
-        Go to your library
+        {{ t('Go to your library') }}
       </AppButton>
     </template>
 
@@ -110,7 +110,7 @@ async function decline(): Promise<void> {
     <template v-else-if="details && !details.canApprove">
       <p class="auth-form__error" role="alert">{{ details.reason }}</p>
       <AppButton variant="text" full-width @click="$router.push({ name: 'library' })">
-        Go to your library
+        {{ t('Go to your library') }}
       </AppButton>
     </template>
 

@@ -549,6 +549,7 @@ export default {
   'That passkey was removed.': 'そのパスキーを削除しました。',
   'That provider could not be reached. Try again shortly.': 'そのプロバイダーに接続できませんでした。しばらくしてからお試しください。',
   'That provider was removed.': 'そのプロバイダーを削除しました。',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.': 'このリクエストは期限切れであるか、存在しません。Zotero からサインインをやり直してください。',
   'That request has expired or was never started. Start again in the application.': 'このリクエストは期限切れであるか、開始されていません。アプリケーションからやり直してください。',
   'That session was signed out.': 'このセッションをサインアウトしました。',
   'That sign-in took too long. Please try again.': 'サインインに時間がかかりすぎました。もう一度お試しください。',

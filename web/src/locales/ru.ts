@@ -597,6 +597,7 @@ export default {
   'That provider could not be reached. Try again shortly.':
     'До этого поставщика не удалось достучаться. Попробуйте чуть позже.',
   'That provider was removed.': 'Этот поставщик удалён.',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.': 'Этот запрос истёк или не существует. Войдите снова из Zotero.',
   'That request has expired or was never started. Start again in the application.': 'Этот запрос истёк или никогда не начинался. Начните заново в приложении.',
   'That session was signed out.': 'Из этого сеанса выполнен выход.',
   'That sign-in took too long. Please try again.':

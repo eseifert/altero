@@ -599,6 +599,7 @@ export default {
   'That provider could not be reached. Try again shortly.':
     'Nie udało się połączyć z tym dostawcą. Spróbuj za chwilę.',
   'That provider was removed.': 'Ten dostawca został usunięty.',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.': 'To żądanie wygasło lub nie istnieje. Zaloguj się ponownie w programie Zotero.',
   'That request has expired or was never started. Start again in the application.': 'To żądanie wygasło lub nigdy nie zostało rozpoczęte. Zacznij ponownie w aplikacji.',
   'That session was signed out.': 'Ta sesja została wylogowana.',
   'That sign-in took too long. Please try again.': 'To logowanie trwało za długo. Spróbuj ponownie.',

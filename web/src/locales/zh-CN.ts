@@ -566,6 +566,7 @@ export default {
   'That passkey was removed.': '该通行密钥已移除。',
   'That provider could not be reached. Try again shortly.': '无法连接该提供方。请稍后再试。',
   'That provider was removed.': '该提供方已移除。',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.': '该请求已过期或不存在。请在 Zotero 中重新登录。',
   'That request has expired or was never started. Start again in the application.': '该请求已过期或从未开始。请在应用程序中重新开始。',
   'That session was signed out.': '该会话已登出。',
   'That sign-in took too long. Please try again.': '本次登录耗时过长。请重试。',

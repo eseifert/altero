@@ -603,6 +603,8 @@ export default {
   'That provider could not be reached. Try again shortly.':
     'Não foi possível falar com esse provedor. Tente de novo em instantes.',
   'That provider was removed.': 'Esse provedor foi removido.',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.':
+    'Essa requisição expirou ou não existe. Entre novamente a partir do Zotero.',
   'That request has expired or was never started. Start again in the application.':
     'Essa requisição expirou ou nunca foi iniciada. Comece de novo no aplicativo.',
   'That session was signed out.': 'Essa sessão foi desconectada.',

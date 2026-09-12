@@ -596,6 +596,7 @@ export default {
   'That provider could not be reached. Try again shortly.':
     'Die aanbieder was niet bereikbaar. Probeer het straks opnieuw.',
   'That provider was removed.': 'Die aanbieder is verwijderd.',
+  'That request has expired or does not exist. Start the sign-in again in Zotero.': 'Dat verzoek is verlopen of bestaat niet. Begin het aanmelden opnieuw in Zotero.',
   'That request has expired or was never started. Start again in the application.': 'Dat verzoek is verlopen of is nooit gestart. Begin opnieuw in de applicatie.',
   'That session was signed out.': 'Die sessie is afgemeld.',
   'That sign-in took too long. Please try again.':
