@@ -39,6 +39,8 @@ The stack contains PostgreSQL, altero and persistent attachment storage.
 
 The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
 
+There are two ports. altero listens on `ALTERO_PORT` inside the container, 8000 unless changed; `ALTERO_PUBLISH_PORT` is the host port Compose publishes it on, also 8000. To move the address clients use, change `ALTERO_PUBLISH_PORT` and leave `ALTERO_PORT` alone.
+
 ### Production settings to change first
 
 Before putting real data on the instance:

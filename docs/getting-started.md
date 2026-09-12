@@ -22,7 +22,7 @@ From a checkout of the repository, name the file where it lives instead:
 docker compose -f docker/compose.yaml up -d
 ```
 
-This starts PostgreSQL, altero and persistent attachment storage. The API is published on the loopback interface by default.
+This starts PostgreSQL, altero and persistent attachment storage. The API is published on the loopback interface, on port 8000.
 
 For a source installation instead, see [Deployment](deployment.md#from-a-source-checkout).
 
@@ -56,6 +56,8 @@ extensions.zotero.streaming.url = ws://localhost:8000/stream
 ```
 
 The trailing slash on `api.url` matters.
+
+8000 is the port altero listens on inside the container (`ALTERO_PORT`), and the Compose file publishes it on the host under `ALTERO_PUBLISH_PORT`, also 8000. Change either and both URLs above move with it.
 
 > [!IMPORTANT]
 > Set the streaming URL as well as the API URL. Zotero resolves the streaming service separately. If the streaming URL is left at its built-in default, Zotero can send the altero API key to zotero.org, where it is not valid.

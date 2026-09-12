@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## Unreleased
 
+- The image's health check follows `ALTERO_PORT`.
 - Linking a profile that synced elsewhere says what to do.
 - Creating an account now says how to give it a password.
 - A confidential OAuth client can present its secret as HTTP Basic, which RFC 6749 §2.3.1 requires a server to accept.

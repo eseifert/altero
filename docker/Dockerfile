@@ -61,9 +61,12 @@ EXPOSE 8000
 
 # The readiness probe an orchestrator polls; it opens a database connection, so
 # a container that cannot reach its database reports unhealthy rather than
-# accepting traffic it can only fail.
+# accepting traffic it can only fail. It follows ALTERO_PORT rather than the
+# 8000 above: a probe with the port written into it reports every container
+# that moved its port as permanently unhealthy, which is exactly the sort of
+# failure nothing depends on until something does.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4).status == 200 else 1)"
+    CMD python -c "import os, urllib.request, sys; port = os.environ.get('ALTERO_PORT', '8000'); sys.exit(0 if urllib.request.urlopen(f'http://127.0.0.1:{port}/health', timeout=4).status == 200 else 1)"
 
 COPY docker/entrypoint.sh /usr/local/bin/altero-entrypoint.sh
 ENTRYPOINT ["altero-entrypoint.sh"]
