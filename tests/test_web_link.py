@@ -87,6 +87,27 @@ class TestReadingTheRequest:
         assert body["requestedUserId"] == grace.id
         assert "grace" in body["reason"] or str(grace.id) in body["reason"]
 
+    async def test_a_profile_that_synced_elsewhere_is_told_what_to_do(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """The commonest way to reach the refusal, and the one that misled.
+
+        A Zotero data directory that has already synced with zotero.org sends
+        the user id it remembers, which is nobody here. Saying the request
+        belongs to another account named an owner who does not exist; the
+        message has to say what happened and how to get past it.
+        """
+        await register(client)
+        token = await start_session(client, user_id=7654321)
+
+        body = (await client.get(f"/web/link/{token}")).json()
+
+        assert body["canApprove"] is False
+        assert body["requestedUserId"] == 7654321
+        assert "not for yours" not in body["reason"]
+        assert "7654321" in body["reason"]
+        assert "--id 7654321" in body["reason"]
+
     async def test_it_reports_a_session_already_answered(self, client: httpx.AsyncClient) -> None:
         await register(client)
         token = await start_session(client)

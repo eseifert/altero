@@ -100,8 +100,20 @@ async def approve_session(session: AsyncSession, token: str, api_key: ApiKey) ->
     if login.requested_user_id is not None and login.requested_user_id != api_key.user_id:
         # The client said which account it expects; handing it a different
         # user's key would silently attach the library to the wrong account.
+        expected = await session.get(User, login.requested_user_id)
+        if expected is None:
+            # Nobody here has that number, which is what a Zotero data
+            # directory that has synced somewhere else sends. The remedy is
+            # named here as well as on the browser's page, this path having no
+            # page to put it on.
+            raise InvalidInputError(
+                f"The client last synced as user {login.requested_user_id}, which is not "
+                "an account on this server. Create it with "
+                f"'altero user add <name> --id {login.requested_user_id}', or link from a "
+                "Zotero data directory that has never synced."
+            )
         raise InvalidInputError(
-            f"Session expects user {login.requested_user_id}, "
+            f"Session expects user {login.requested_user_id} ({expected.username}), "
             f"but the key belongs to user {api_key.user_id}"
         )
 

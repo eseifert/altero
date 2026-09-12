@@ -154,6 +154,25 @@ class TestLoginSession:
         with pytest.raises(InvalidInputError, match="expects user 1"):
             await login.approve_session(session, token, other_key)
 
+    async def test_an_id_belonging_to_nobody_names_the_way_out(
+        self, client: httpx.AsyncClient, session: AsyncSession, user: None
+    ) -> None:
+        """What a data directory that has synced with zotero.org sends.
+
+        The id is nobody's here, so reporting it as another account's would
+        name an owner who does not exist. The shell has no page to put the
+        remedy on, so the error carries it.
+        """
+        token = (await client.post("/keys/sessions", json={"userID": 7654321})).json()[
+            "sessionToken"
+        ]
+        api_key = await admin.create_api_key(session, username="octocat", name="Zotero")
+
+        from altero.errors import InvalidInputError
+
+        with pytest.raises(InvalidInputError, match="--id 7654321"):
+            await login.approve_session(session, token, api_key)
+
     async def test_a_session_cannot_be_approved_twice(
         self, client: httpx.AsyncClient, session: AsyncSession, user: None
     ) -> None:

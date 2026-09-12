@@ -43,6 +43,17 @@ The key can access the personal and group libraries available to that account, a
 
 Approving the client asks for the password again even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity.
 
+### A profile that has synced before
+
+Zotero remembers the numeric account id its data directory last synced under, and sends it when linking. altero refuses to hand a key to a different account, because the desktop client reacts to a changed id by offering to reset the data directory and quitting.
+
+A profile that has synced with zotero.org, or with another altero instance, therefore asks for an account this server does not have. Linking is refused and the message names the id.
+
+Two ways past it:
+
+- **Create the account with that id.** `altero user add <username> --id <id>` gives the profile the account it is asking for, and it carries on. This is also what [moving a personal library from zotero.org](administration.md#move-a-personal-library-from-zoteroorg) relies on.
+- **Link from a data directory that has never synced.** A fresh Zotero profile sends no id. Nothing is carried over by doing this; the old library stays where it is.
+
 ## File syncing
 
 Attachment files are configured separately from library data, in **Settings → Sync → File Syncing**. There, *Zotero* means altero, because `extensions.zotero.api.url` points at it. Group libraries always sync their files through altero; WebDAV cannot carry them.

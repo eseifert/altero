@@ -70,6 +70,9 @@ Restart Zotero after changing these preferences.
 
 ## 4. Link the account
 
+> [!WARNING]
+> If this Zotero profile has synced before, with zotero.org or with another server, linking is refused: Zotero sends the account number its data directory remembers. See [A profile that has synced before](clients.md#a-profile-that-has-synced-before).
+
 Open:
 
 **Settings → Sync → Link Account**

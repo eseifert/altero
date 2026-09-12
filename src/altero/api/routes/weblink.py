@@ -69,8 +69,20 @@ async def _refusal(session: SessionDep, record: LoginSession, user: User) -> str
         # reset its data directory and quit -- so it is refused here rather
         # than turned into a support request.
         expected = await session.get(User, record.requested_user_id)
-        who = expected.username if expected else f"user {record.requested_user_id}"
-        return f"This request is for the account “{who}”, not for yours."
+        if expected is not None:
+            return f"This request is for the account “{expected.username}”, not for yours."
+
+        # Nothing here has that number, which is what a Zotero data directory
+        # that has already synced somewhere else -- zotero.org, usually --
+        # sends. "Not for yours" would name an owner who does not exist and
+        # leave the way out unsaid, which is how this arrives as a support
+        # request rather than as something the reader can act on.
+        return (
+            f"This Zotero profile last synced as user {record.requested_user_id}, which is "
+            "not an account on this server. Either create the account with "
+            f"“altero user add <name> --id {record.requested_user_id}”, or link from a "
+            "Zotero data directory that has never synced."
+        )
 
     return None
 
