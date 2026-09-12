@@ -712,6 +712,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Link the account">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-profile-that-has-synced-before" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A profile that has synced before
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1612,6 +1629,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Link the account">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-profile-that-has-synced-before" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A profile that has synced before
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1744,6 +1778,14 @@
 </ol>
 <p>The key can access the personal and group libraries available to that account, as Zotero expects.</p>
 <p>Approving the client asks for the password again even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity.</p>
+<h3 id="a-profile-that-has-synced-before">A profile that has synced before<a class="headerlink" href="#a-profile-that-has-synced-before" title="Permanent link">&para;</a></h3>
+<p>Zotero remembers the numeric account id its data directory last synced under, and sends it when linking. altero refuses to hand a key to a different account, because the desktop client reacts to a changed id by offering to reset the data directory and quitting.</p>
+<p>A profile that has synced with zotero.org, or with another altero instance, therefore asks for an account this server does not have. Linking is refused and the message names the id.</p>
+<p>Two ways past it:</p>
+<ul>
+<li><strong>Create the account with that id.</strong> <code>altero user add &lt;username&gt; --id &lt;id&gt;</code> gives the profile the account it is asking for, and it carries on. This is also what <a href="../administration/#move-a-personal-library-from-zoteroorg">moving a personal library from zotero.org</a> relies on.</li>
+<li><strong>Link from a data directory that has never synced.</strong> A fresh Zotero profile sends no id. Nothing is carried over by doing this; the old library stays where it is.</li>
+</ul>
 <h2 id="file-syncing">File syncing<a class="headerlink" href="#file-syncing" title="Permanent link">&para;</a></h2>
 <p>Attachment files are configured separately from library data, in <strong>Settings → Sync → File Syncing</strong>. There, <em>Zotero</em> means altero, because <code>extensions.zotero.api.url</code> points at it. Group libraries always sync their files through altero; WebDAV cannot carry them.</p>
 <h3 id="keeping-an-existing-webdav-server">Keeping an existing WebDAV server<a class="headerlink" href="#keeping-an-existing-webdav-server" title="Permanent link">&para;</a></h3>
