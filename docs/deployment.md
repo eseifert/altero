@@ -92,6 +92,22 @@ docker compose -f docker/compose.yaml -f docker/compose.build.yaml up -d --build
 
 It builds `altero:local`, deliberately not the published name, so that a later `docker compose pull` cannot replace a built image without saying so. Both files carry the same project name, so the built stack uses the volumes an earlier pulled one wrote.
 
+## Podman
+
+The image runs under Podman unchanged. Two things differ from Docker.
+
+**It runs as UID 10001.** `/data` inside the image belongs to that user. A named volume inherits the ownership; a bind mount arrives with the host's instead, and altero then cannot write attachments. Under rootless Podman, hand the directory to the mapped user before starting the container:
+
+```sh
+podman unshare chown -R 10001:10001 /srv/altero/storage
+```
+
+On SELinux systems, mount it with `:Z` so the container gets a matching label.
+
+**The port is the one above.** The container's own health check follows `ALTERO_PORT`, so an instance that moves it stays healthy; publishing `8090:8000` on the host needs no `ALTERO_PORT` at all.
+
+`podman-compose` runs `docker/compose.yaml` as it is. For Quadlet, a systemd unit or a NixOS `virtualisation.oci-containers` module, the settings are the ones [Configuration](configuration.md) lists, plus `ALTERO_DATABASE_URL` pointing at the PostgreSQL container over a shared network.
+
 ## From a source checkout
 
 Requirements:

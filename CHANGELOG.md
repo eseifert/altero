@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## Unreleased
 
+- Deployment documents running altero under Podman.
 - The Zotero linking screen is translated throughout.
 - The image's health check follows `ALTERO_PORT`.
 - Linking a profile that synced elsewhere says what to do.
