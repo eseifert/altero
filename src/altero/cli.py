@@ -72,6 +72,14 @@ async def _user_add(session: AsyncSession, args: argparse.Namespace) -> None:
         user_id=args.id,
     )
     print(f"Created user {user.username} with id {user.id} and a personal library.")
+    # The account has no password yet, and creating it shut the one door that
+    # needs none: the browser opens registration only while an instance has no
+    # accounts at all. Said at the moment somebody is about to go and sign in,
+    # rather than left to a page they may not read.
+    print(
+        f"Set a password with 'altero user password {user.username}' before signing in,\n"
+        "unless the account will sign in through single sign-on or a passkey."
+    )
 
 
 async def _user_password(session: AsyncSession, args: argparse.Namespace) -> None:

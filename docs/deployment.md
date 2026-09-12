@@ -20,6 +20,7 @@ mkdir altero && cd altero
 curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
 docker compose up -d
 docker compose exec altero altero user add <username>
+docker compose exec altero altero user password <username>
 ```
 
 From a repository checkout, name the file where it lives instead:
@@ -27,9 +28,12 @@ From a repository checkout, name the file where it lives instead:
 ```sh
 docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
+docker compose -f docker/compose.yaml exec altero altero user password <username>
 ```
 
 The stack contains PostgreSQL, altero and persistent attachment storage.
+
+`altero user add` creates the account without a password, so `altero user password` follows it. The alternative is to create the first account in the browser: registration is open while the instance has no accounts at all, and the account that claims it administers the instance. See [Accounts](web/account.md).
 
 `latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: a version such as `1.0.0-alpha.2` pins one release, and `dev` follows master.
 
@@ -106,6 +110,7 @@ uv sync
 cp config.example.py config.py
 uv run alembic upgrade head
 uv run altero user add <username>
+uv run altero user password <username>
 uv run altero
 ```
 

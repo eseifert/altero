@@ -2,6 +2,7 @@
 #
 #     docker compose -f docker/compose.yaml up -d
 #     docker compose -f docker/compose.yaml exec altero altero user add <name>
+#     docker compose -f docker/compose.yaml exec altero altero user password <name>
 #     docker compose -f docker/compose.yaml exec altero altero login list
 #
 # Run those from the repository root. `-f` is what the file living in docker/

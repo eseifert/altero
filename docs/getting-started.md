@@ -14,21 +14,35 @@ The image is published, so a checkout is optional. In an empty directory:
 ```sh
 curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
 docker compose up -d
-docker compose exec altero altero user add <username>
 ```
 
 From a checkout of the repository, name the file where it lives instead:
 
 ```sh
 docker compose -f docker/compose.yaml up -d
-docker compose -f docker/compose.yaml exec altero altero user add <username>
 ```
 
 This starts PostgreSQL, altero and persistent attachment storage. The API is published on the loopback interface by default.
 
 For a source installation instead, see [Deployment](deployment.md#from-a-source-checkout).
 
-## 2. Point Zotero Desktop at altero
+## 2. Create the first account
+
+The first account administers the instance. Create it either way.
+
+**In the browser.** Open <http://localhost:8000/app/> and register. Registration is open only while the instance has no accounts at all, so this works exactly once.
+
+**From a shell.** Two commands, because `altero user add` sets no password:
+
+```sh
+docker compose exec altero altero user add <username>
+docker compose exec altero altero user password <username>
+```
+
+> [!IMPORTANT]
+> `altero user add` creates the account without a password, and creating it also closes browser registration. Run `altero user password` as well, unless the account will sign in through [single sign-on](deployment.md#single-sign-on) or a passkey.
+
+## 3. Point Zotero Desktop at altero
 
 In Zotero Desktop, open:
 
@@ -54,7 +68,7 @@ extensions.zotero.streaming.enabled = false
 
 Restart Zotero after changing these preferences.
 
-## 3. Link the account
+## 4. Link the account
 
 Open:
 
@@ -64,7 +78,7 @@ Zotero opens altero in the browser. Sign in with the account you created and app
 
 The desktop client receives an API key and begins using altero for synchronization.
 
-## 4. Confirm that the instance is healthy
+## 5. Confirm that the instance is healthy
 
 The readiness endpoint is:
 
@@ -74,7 +88,7 @@ GET http://localhost:8000/health
 
 A healthy instance returns a JSON response with `status: "ok"` plus version and database-revision information.
 
-## 5. Test with disposable data
+## 6. Test with disposable data
 
 Create a few items, collections and attachments in the test profile and let them sync. For a stronger test, connect a second Zotero profile and follow [Syncing two desktop clients](testing-two-clients.md).
 

@@ -56,7 +56,10 @@ curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/comp
 
 docker compose up -d
 docker compose exec altero altero user add <username>
+docker compose exec altero altero user password <username>
 ```
+
+`user add` creates the account without a password, which is what `user password` then sets. The alternative is to open <http://localhost:8000/app/> and register: the browser opens registration while an instance has no accounts, and the account that claims it administers the instance.
 
 The server is published on the loopback interface by default. An idle instance uses around 125 MB of memory; attachments are what grows.
 
