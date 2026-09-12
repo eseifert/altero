@@ -120,6 +120,8 @@ podman run --health-cmd 'python -c "import urllib.request, sys; sys.exit(0 if ur
 
 `podman-compose` runs `docker/compose.yaml` as it is. For Quadlet, a systemd unit or a NixOS `virtualisation.oci-containers` module, the settings are the ones [Configuration](configuration.md) lists, plus `ALTERO_DATABASE_URL` pointing at the PostgreSQL container over a shared network.
 
+A worked NixOS example, with altero and PostgreSQL as `virtualisation.oci-containers` units on a shared Podman network, is posted in [Discussion #5](https://github.com/eseifert/altero/discussions/5#discussioncomment-18404764). It is one contributor's running configuration rather than a reference deployment.
+
 ## From a source checkout
 
 Requirements:
