@@ -35,7 +35,7 @@ The stack contains PostgreSQL, altero and persistent attachment storage.
 
 `altero user add` creates the account without a password, so `altero user password` follows it. The alternative is to create the first account in the browser: registration is open while the instance has no accounts at all, and the account that claims it administers the instance. See [Accounts](web/account.md).
 
-`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: a version such as `1.0.0-alpha.2` pins one release, and `dev` follows master.
+`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: a version such as `1.0.0-alpha.3` pins one release, and `dev` follows master.
 
 The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
 
@@ -110,12 +110,6 @@ On SELinux systems, mount it with `:Z` so the container gets a matching label.
 
 ```sh
 podman build --format docker -f docker/Dockerfile .
-```
-
-Releases up to `1.0.0-alpha.2` were published as OCI images and define no health check under Podman. Where one is needed before upgrading, give it on the command line instead:
-
-```sh
-podman run --health-cmd 'python -c "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8000/health\", timeout=4).status == 200 else 1)"' ...
 ```
 
 `podman-compose` runs `docker/compose.yaml` as it is. For Quadlet, a systemd unit or a NixOS `virtualisation.oci-containers` module, the settings are the ones [Configuration](configuration.md) lists, plus `ALTERO_DATABASE_URL` pointing at the PostgreSQL container over a shared network.

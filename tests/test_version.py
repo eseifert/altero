@@ -4,7 +4,7 @@
 OpenAPI document, and stamped into every library archive -- so it is the one
 that has to be right. `pyproject.toml` reads it from there, but the web
 interface's `package.json` cannot, and the two spell the same version
-differently: PEP 440 writes a prerelease `1.0.0a2`, npm writes `1.0.0-alpha.2`.
+differently: PEP 440 writes a prerelease `1.0.0a3`, npm writes `1.0.0-alpha.3`.
 They drifted once already, which is why this is a test rather than a habit.
 """
 

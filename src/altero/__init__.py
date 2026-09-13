@@ -4,7 +4,7 @@
 #: from here rather than carrying a second copy, because the two drifted once
 #: already -- and this is the one that is served, from `/health` and the OpenAPI
 #: document, and stamped into every library archive.
-__version__ = "1.0.0a2"
+__version__ = "1.0.0a3"
 
 #: Version of the Zotero Web API implemented by this server.
 API_VERSION = 3

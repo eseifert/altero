@@ -134,6 +134,6 @@ These are read by something other than the application's own configuration, so t
 |--------------------------|--------------------------|-------------------------------------------------------------------------------------------------|
 | `ALTERO_CONFIG`          | the application          | Path to the configuration module, if not `config.py` at the repository root.                    |
 | `ALTERO_SKIP_MIGRATIONS` | the container entrypoint | `1` starts the server without running `alembic upgrade head` first.                             |
-| `ALTERO_IMAGE_TAG`       | `docker/compose.yaml`    | Which published image to run: `latest`, a release such as `1.0.0-alpha.2`, or `dev` for master. |
+| `ALTERO_IMAGE_TAG`       | `docker/compose.yaml`    | Which published image to run: `latest`, a release such as `1.0.0-alpha.3`, or `dev` for master. |
 | `ALTERO_PUBLISH_PORT`    | `docker/compose.yaml`    | Loopback port the API is published on.                                                          |
 | `POSTGRES_PASSWORD`      | `docker/compose.yaml`    | Password for the bundled PostgreSQL, used by both containers.                                   |

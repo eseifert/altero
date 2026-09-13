@@ -5,7 +5,11 @@ All notable changes to altero, newest first. Versions follow
 development history, tagged retroactively at the points where the server
 gained a capability worth naming.
 
-## Unreleased
+## [1.0.0-alpha.3] — 2026-09-14
+
+Still an alpha, and the first release shaped by other people running it: two
+defects that stopped a desktop client dead are fixed, and the documentation
+answers what the readers who found them had to ask.
 
 - Unlinking a client works again: revoking a key the login handshake handed out answered 500, which is every key a desktop client holds. Reported by [@ScatteredComet] in [Discussion#5].
 - Deployment cites a reader's NixOS configuration for Podman.
@@ -16,6 +20,9 @@ gained a capability worth naming.
 - Linking a profile that synced elsewhere says what to do.
 - Creating an account now says how to give it a password.
 - A confidential OAuth client can present its secret as HTTP Basic, which RFC 6749 §2.3.1 requires a server to accept.
+- A file whose digest an attachment already claims can be uploaded: the question is asked of the store rather than of the item, so a library migrated from zotero.org with its files on WebDAV can send them at last.
+- The migration summary says why files are missing when they synced over WebDAV, in all twelve languages, and how to get them here.
+- The documentation says how attachment files sync, and what to do about a library whose files are on WebDAV.
 - Every `ALTERO_` setting in `docker/.env` now reaches the container, rather than only the handful `docker/compose.yaml` names.
 - The documentation lists every configuration setting with its default, and how to set it from `config.py`, the environment or Docker.
 
@@ -117,6 +124,7 @@ The first release meant to be used by somebody other than its author.
 - Concurrent writes serialized, so one request produces exactly one new version.
 - A command line for provisioning, CI, and the documentation to go with it.
 
+[1.0.0-alpha.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.3
 [1.0.0-alpha.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.2
 [1.0.0-alpha.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.1
 [0.9.0]: https://github.com/eseifert/altero/releases/tag/v0.9.0
