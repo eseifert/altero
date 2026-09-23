@@ -103,7 +103,7 @@ def _metadata(request: Request) -> dict[str, Any]:
             "email_verified",
             "groups",
         ],
-        "service_documentation": "https://eseifert.github.io/altero/latest/oauth/",
+        "service_documentation": "https://altero.run/latest/oauth/",
     }
 
 

@@ -142,7 +142,7 @@ supported deployment, so nothing may depend on features of one alone.
 ## Documentation
 
 The pages under `docs/` are the documentation site at
-<https://eseifert.github.io/altero/>, built by [Zensical](https://zensical.org)
+<https://altero.run/>, built by [Zensical](https://zensical.org)
 from `zensical.toml` in the repository root. They are also read on GitHub, which
 is why they keep GitHub's own callout syntax (`> [!WARNING]`) rather than
 Markdown admonitions: the `github-callouts` extension turns those into

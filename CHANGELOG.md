@@ -49,7 +49,7 @@ ready, and this one adds to what has to be tried.
 - Deployment documents what a small instance costs in memory and disk, and carries reverse-proxy configurations for nginx, Caddy and Traefik.
 - citeproc-py upgraded to 0.11.0 which allows to drop a workaround for a doubled full stop after an initialed name.
 - The documentation is written in American English throughout and reorganized around six sections.
-- The documentation is published as a site at https://eseifert.github.io/altero/, built by Zensical and deployed on every push, a version per release.
+- The documentation is published as a site at https://altero.run/, built by Zensical and deployed on every push, a version per release.
 
 ## [1.0.0-alpha.1] — 2026-08-19
 
