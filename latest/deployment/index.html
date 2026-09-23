@@ -1123,6 +1123,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#attachment-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Attachment storage
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#health-check" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1847,6 +1858,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#attachment-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Attachment storage
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#health-check" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2156,6 +2178,12 @@
 </table>
 <p>The container runs the same interpreter and the same packages, so the application's own use is the figure above. Two things sit on top of it and are <strong>not</strong> measured here: the PostgreSQL container in the Compose stack, and the image on disk.</p>
 <p>Attachments are what grows. They are stored once per digest, so a file two libraries hold is on disk once; a library's nominal and real usage are reported per library under <strong>Administration → Storage</strong>.</p>
+<h2 id="attachment-storage">Attachment storage<a class="headerlink" href="#attachment-storage" title="Permanent link">&para;</a></h2>
+<p>An attachment is written under a temporary name and then moved onto the path named after its digest, so an upload that fails leaves no file rather than a short one. That relies on the move being atomic, which it is on any ordinary filesystem, including NFS and SMB mounts.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Do not point <code>ALTERO_STORAGE_PATH</code> at object storage mounted as a filesystem. s3fs, goofys and rclone implement a rename as copy-then-delete, and some refuse to rename over an existing file at all. altero will not fall back to copying — a copy onto the final path is the torn write it is avoiding — so uploads fail there and clients retry them indefinitely. Keep the store on a block-backed filesystem and back <em>that</em> up to object storage instead.</p>
+</div>
 <h2 id="health-check">Health check<a class="headerlink" href="#health-check" title="Permanent link">&para;</a></h2>
 <p><code>GET /health</code> is the readiness endpoint and is also used by the container health check.</p>
 <p>A successful response includes the application version, API version, schema version and database migration revision, for example:</p>

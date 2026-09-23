@@ -3387,6 +3387,31 @@ documented still produces exactly the file.</p>
 <p>Uploaded bytes are checked against the declared MD5 and length before being
 stored, and <code>If-Match</code> or <code>If-None-Match</code> is required, so a client working from
 stale information cannot overwrite a newer file.</p>
+<p><strong>A file is in the store whole or not at all.</strong> The bytes are written under a
+name of their own and moved onto the digest path with <code>rename</code>, so an upload
+that stops part way — a full disk, a device error, a remote mount dropping
+out — leaves no file rather than a short one. The store is addressed by digest
+and nothing reads a stored file back before believing it, so a partial file
+spoils more than one download: it is answered <code>{"exists": 1}</code> to the next
+client holding those bytes, and each of them records the attachment as synced
+for good.</p>
+<p>Registration therefore reads the stored file back and checks it against
+<code>zipMD5</code> or <code>md5</code> before attaching it. A file that is not the one that was sent
+is removed and the registration refused, which leaves the attachment claiming a
+digest nothing backs — the repairable state described next, rather than a
+permanent one. The client treats the refusal as a file-sync error and sends the
+file again on its next sync. Upstream checks at registration too: it asks S3
+whether the object is there and refuses if it is not, while logging a size
+mismatch and attaching anyway. altero holds the bytes itself, so it can check
+the digest rather than the size, and refuses rather than logs — the same thing
+<code>Zotero_Storage::patchFile</code> does with a file it assembled.</p>
+<p>One mismatch is not damage, and the stored file survives it. Two clients
+zipping the same snapshot produce different archives under the same digest,
+since the digest is of the file inside, so the archive in place may be somebody
+else's. The registration is refused either way — the server cannot say that
+what it holds is what this client sent — but a file whose members are all
+intact is left where it is, because removing it would take the file out from
+under the attachment that registered it.</p>
 <p><strong>A claimed digest is not a file.</strong> The two preconditions ask different
 questions and altero answers them from different places. <code>If-None-Match: *</code>
 asks whether there is a file to protect, which is asked of the store: an
