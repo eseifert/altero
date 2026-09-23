@@ -49,7 +49,7 @@ Before putting real data on the instance:
 2. Set `ALTERO_PUBLIC_URL` to the URL users will actually open.
 3. Terminate TLS in front of altero.
 4. Decide whether outgoing email is required; see [Email](email.md).
-5. If a reverse proxy forwards client addresses, configure `ALTERO_FORWARDED_ALLOW_IPS` correctly.
+5. Name the reverse proxy in `ALTERO_FORWARDED_ALLOW_IPS`; see [Behind a reverse proxy](#behind-a-reverse-proxy).
 
 Container settings belong in **`docker/.env`**, beside `docker/compose.yaml`.
 
@@ -274,7 +274,12 @@ Three things have to be right, and a default configuration gets two of them wron
 
 **`/stream` is a WebSocket.** It needs the upgrade headers, and a read timeout longer than an idle connection. The connection is not silently idle — the server pings every 20 seconds — so a 60-second timeout is already enough, but a proxy that drops the upgrade entirely leaves Zotero without live updates. Worse, a streaming URL that does not resolve is why [Connecting a Zotero client](clients.md) insists on setting `extensions.zotero.streaming.url`: left at its default, the client sends the altero API key to zotero.org.
 
-**Forwarded addresses are believed only when a proxy is named.** Without `ALTERO_FORWARDED_ALLOW_IPS`, altero sees the proxy's address rather than the client's, and both rate limiting and the “last used from” shown for an API key report one address for everybody. Name only a proxy that **overwrites** the forwarded-address header. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it.
+**Forwarded headers are believed only when a proxy is named.** Set `ALTERO_FORWARDED_ALLOW_IPS` to the address the proxy connects from. Until then altero ignores `X-Forwarded-Proto` and `X-Forwarded-For`, which has two effects:
+
+- Behind a TLS terminator, the URLs altero returns start with `http://`. That includes the upload URL Zotero sends attachment files to, so attachments fail to sync. Links in API responses and upload URLs come from the request, not from `ALTERO_PUBLIC_URL`.
+- altero sees the proxy's address rather than the client's, and both rate limiting and the “last used from” shown for an API key report one address for everybody.
+
+Name only a proxy that **overwrites** `X-Forwarded-For`. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it. The host in generated URLs is the request's `Host` header, so the proxy must pass it through unchanged.
 
 In the Compose stack the proxy is a container, so the value is that container's address on the Docker network — not `127.0.0.1`, which is altero's own container.
 
@@ -342,6 +347,21 @@ labels:
 Traefik proxies the WebSocket without configuration and imposes no body limit. It replaces `X-Forwarded-For` with the address the connection came from unless `forwardedHeaders.trustedIPs` is set on the entry point, which is the behavior to keep.
 
 Reaching altero by container name means both containers share a network, and the `ports:` publication in `docker/compose.yaml` is then unnecessary — remove it rather than exposing the application port beside the proxy.
+
+### Tailscale
+
+```sh
+tailscale serve --bg 8000
+```
+
+`tailscale serve` terminates TLS for the machine's tailnet name, passes `Host` through, and sets `X-Forwarded-Proto` and `X-Forwarded-For` itself rather than appending to what the client sent. It connects from `127.0.0.1`, so:
+
+```sh
+ALTERO_FORWARDED_ALLOW_IPS=127.0.0.1
+ALTERO_PUBLIC_URL=https://<machine>.<tailnet>.ts.net
+```
+
+Under Docker Compose, altero sees the Docker network's gateway instead of `127.0.0.1`; the access log shows the address to name.
 
 ## Rate limiting
 

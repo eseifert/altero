@@ -121,7 +121,7 @@ https://altero.example.org
 
 This matters especially behind a reverse proxy. Without a public URL, generated links can use an internal host or port from the request that reached altero.
 
-`ALTERO_PUBLIC_URL` is separate from `ALTERO_FORWARDED_ALLOW_IPS`: the first controls generated public links and callback addresses, while the second controls which forwarded client address altero trusts.
+`ALTERO_PUBLIC_URL` is separate from `ALTERO_FORWARDED_ALLOW_IPS`: the first controls generated public links and callback addresses, while the second names the proxies whose forwarded client address and scheme altero believes.
 
 ## Docker Compose
 
