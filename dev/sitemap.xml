@@ -1,66 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
-        <loc>https://eseifert.github.io/altero/dev/</loc>
+        <loc>https://altero.run/dev/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/motivation/</loc>
+        <loc>https://altero.run/dev/motivation/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/getting-started/</loc>
+        <loc>https://altero.run/dev/getting-started/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/clients/</loc>
+        <loc>https://altero.run/dev/clients/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/web-interface/</loc>
+        <loc>https://altero.run/dev/web-interface/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/web/account/</loc>
+        <loc>https://altero.run/dev/web/account/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/web/library/</loc>
+        <loc>https://altero.run/dev/web/library/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/web/sharing/</loc>
+        <loc>https://altero.run/dev/web/sharing/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/web/groups/</loc>
+        <loc>https://altero.run/dev/web/groups/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/web/data-transfer/</loc>
+        <loc>https://altero.run/dev/web/data-transfer/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/deployment/</loc>
+        <loc>https://altero.run/dev/deployment/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/configuration/</loc>
+        <loc>https://altero.run/dev/configuration/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/administration/</loc>
+        <loc>https://altero.run/dev/administration/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/oauth/</loc>
+        <loc>https://altero.run/dev/oauth/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/email/</loc>
+        <loc>https://altero.run/dev/email/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/status/</loc>
+        <loc>https://altero.run/dev/status/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/compatibility/</loc>
+        <loc>https://altero.run/dev/compatibility/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/schema/</loc>
+        <loc>https://altero.run/dev/schema/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/testing-two-clients/</loc>
+        <loc>https://altero.run/dev/testing-two-clients/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/design/</loc>
+        <loc>https://altero.run/dev/design/</loc>
       </url>
       <url>
-        <loc>https://eseifert.github.io/altero/dev/web/implementation/</loc>
+        <loc>https://altero.run/dev/web/implementation/</loc>
       </url>
 </urlset>
