@@ -536,14 +536,15 @@ def is_compressed(path: Path, md5: str) -> bool:
 
 
 async def purge_stale_uploads(session: AsyncSession, before: Any) -> int:
-    """Delete authorizations whose bytes never arrived. Returns how many."""
-    stale = list(
-        await session.scalars(
-            select(StorageUpload).where(
-                StorageUpload.received.is_(False), StorageUpload.created < before
-            )
-        )
-    )
+    """Delete authorizations nobody finished. Returns how many.
+
+    Whichever half they stopped at. An upload is three requests, and a row
+    this old is not one any client is going to come back to: the bytes never
+    arrived, or they arrived and the registration never did, or it was refused
+    because the store no longer held what was sent. Any bytes left behind are
+    an orphan, which `storagestats.purge_orphans` is what removes.
+    """
+    stale = list(await session.scalars(select(StorageUpload).where(StorageUpload.created < before)))
     for upload in stale:
         await session.delete(upload)
     return len(stale)

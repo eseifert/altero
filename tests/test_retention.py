@@ -179,6 +179,40 @@ class TestHousekeeping:
         assert report.uploads == 1
         assert (await session.scalar(select(StorageUpload))) is None
 
+    async def test_an_upload_whose_bytes_arrived_is_forgotten_too(
+        self, session: AsyncSession
+    ) -> None:
+        """An upload is three requests, and any of them can be the last.
+
+        A registration that was refused -- because the store no longer held
+        what was sent -- rolls back with the row already marked received, and
+        the client starts again from the authorization rather than coming back
+        to this one.
+        """
+        await make_user(session)
+        library = await get_library(session, LibraryType.USER, 1)
+        item = await make_item(session, library, item_type="attachment")
+        session.add(
+            StorageUpload(
+                key="unregistered",
+                item_id=item.id,
+                library_id=library.id,
+                md5="0" * 32,
+                zip_md5=None,
+                filename="paper.pdf",
+                filesize=10,
+                mtime=0,
+                received=True,
+                created=now() - timedelta(hours=48),
+            )
+        )
+        await session.commit()
+
+        report = await retention.sweep(session, NOTHING | {"uploadRetentionHours": 24})
+
+        assert report.uploads == 1
+        assert (await session.scalar(select(StorageUpload))) is None
+
     async def test_delivered_activity_older_than_the_period_goes(
         self, session: AsyncSession
     ) -> None:

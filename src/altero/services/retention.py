@@ -194,11 +194,12 @@ async def _sweep_activity(session: AsyncSession, days: int, *, now: datetime, dr
 
 
 async def _sweep_uploads(session: AsyncSession, hours: int, *, now: datetime, dry_run: bool) -> int:
-    """Forget authorizations whose bytes never arrived.
+    """Forget authorizations nobody finished.
 
     Nothing is lost by forgetting one: the client asks permission again. The
     file protocol writes a row per authorization and only a completed upload
-    clears it, so without this the table keeps every abandoned one.
+    clears it, so without this the table keeps every abandoned one -- whether
+    the bytes never arrived, or arrived and were never registered.
     """
     if hours <= 0:
         return 0
@@ -208,9 +209,7 @@ async def _sweep_uploads(session: AsyncSession, hours: int, *, now: datetime, dr
         return len(
             list(
                 await session.scalars(
-                    select(StorageUpload.key).where(
-                        StorageUpload.received.is_(False), StorageUpload.created < before
-                    )
+                    select(StorageUpload.key).where(StorageUpload.created < before)
                 )
             )
         )
