@@ -50,6 +50,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["ja"] == "日本語"
         assert LANGUAGES["pl"] == "Polski"
         assert LANGUAGES["ru"] == "Русский"
+        assert LANGUAGES["uk"] == "Українська"
         assert LANGUAGES["zh-CN"] == "简体中文"
 
     def test_a_split_language_names_its_territory_in_itself_too(self) -> None:

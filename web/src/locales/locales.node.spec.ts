@@ -21,6 +21,7 @@ import pl from './pl'
 import ptBR from './pt-BR'
 import ptPT from './pt-PT'
 import ru from './ru'
+import uk from './uk'
 import zhCN from './zh-CN'
 import zhTW from './zh-TW'
 
@@ -46,6 +47,7 @@ const CATALOGUES = {
   da,
   pl,
   ru,
+  uk,
   ja,
   'zh-CN': zhCN,
   'zh-TW': zhTW,
@@ -59,7 +61,7 @@ const CATALOGUES = {
  * them. A Polish message with two branches would render "2 elementów" and
  * never fail a test that only counted English's forms.
  */
-const PLURAL_BRANCHES: Record<string, number> = { pl: 3, ru: 3 }
+const PLURAL_BRANCHES: Record<string, number> = { pl: 3, ru: 3, uk: 3 }
 
 const SOURCE = fileURLToPath(new URL('../', import.meta.url))
 

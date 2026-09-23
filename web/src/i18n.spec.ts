@@ -6,10 +6,10 @@ import { i18n, isLocale, LOCALES, matchLocale, PLURAL_RULES, resolveLocale } fro
  * Counting, in the languages that count in more than two ways.
  *
  * English separates one from many, and so does every catalogue that followed
- * it. Polish and Russian have a third form for the small counts: "2 elementy"
- * against "5 elementów", "2 записи" against "5 записей". These tests are what
- * makes `pluralRules` in `i18n.ts` more than a claim -- take the rules out and
- * every count from 2 to 4 renders the wrong word.
+ * it. Polish, Russian and Ukrainian have a third form for the small counts:
+ * "2 elementy" against "5 elementów", "2 записи" against "5 записей". These
+ * tests are what makes `pluralRules` in `i18n.ts` more than a claim -- take the
+ * rules out and every count from 2 to 4 renders the wrong word.
  */
 
 const ITEMS = '{count} item | {count} items'
@@ -40,6 +40,7 @@ describe('the languages on offer', () => {
         'da',
         'pl',
         'ru',
+        'uk',
         'ja',
         'zh-CN',
         'zh-TW',
@@ -133,6 +134,24 @@ describe('counting in Russian', () => {
     [111, '111 записей'],
   ])('renders %i', (count, expected) => {
     expect(items('ru', count)).toBe(expected)
+  })
+})
+
+describe('counting in Ukrainian', () => {
+  it.each([
+    [1, '1 документ'],
+    [2, '2 документи'],
+    [4, '4 документи'],
+    [5, '5 документів'],
+    [0, '0 документів'],
+    [11, '11 документів'],
+    [14, '14 документів'],
+    [21, '21 документ'],
+    [22, '22 документи'],
+    [25, '25 документів'],
+    [111, '111 документів'],
+  ])('renders %i', (count, expected) => {
+    expect(items('uk', count)).toBe(expected)
   })
 })
 

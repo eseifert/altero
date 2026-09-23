@@ -189,9 +189,9 @@ How an operator registers an application, and what a client developer needs:
 ### Language and time zone
 
 The interface speaks English, German, French, Spanish, Portuguese, Italian,
-Dutch, Danish, Polish, Russian, Japanese and Chinese — fifteen catalogs,
-because three of those are written differently in different places and are
-carried twice: American and British English, Brazilian and European Portuguese,
+Dutch, Danish, Polish, Russian, Ukrainian, Japanese and Chinese — sixteen
+catalogs, because three of those are written differently in different places
+and are carried twice: American and British English, Brazilian and European Portuguese,
 Simplified and Traditional Chinese. They are the same three Zotero splits.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
@@ -217,7 +217,7 @@ wrong tag being the failure that would otherwise show every reader English
 dates in a translated page.
 
 A tag is narrowed to the catalog that answers it, and what gets dropped
-depends on the language. For the twelve carried once, the region goes: `de-AT`
+depends on the language. For the ten carried once, the region goes: `de-AT`
 is German, and the region goes on reaching dates because the browser supplies
 that separately. For English, Portuguese and Chinese the region is what decides
 the words, so it is kept — a British reader empties the Bin rather than the
@@ -270,11 +270,16 @@ the sidebar, `recently-read` and `menu-restoreToLibrary` for the two the client
 keeps in Fluent. So the German sidebar says *Eintragsdubletten* and *Einträge
 ohne Sammlung*, which are not the phrases anybody would arrive at unprompted —
 and are what the desktop client next to it says. The gaps are the rows Zotero
-itself has not translated: *Recently Read* in Japanese, Danish and Dutch, and
-*Items* in Danish. Leaving English standing in those sidebars would be worse
-than translating them here, so altero does — 最近読んだ項目, *Læst for nylig*,
-*Onlangs gelezen*, *Elementer* — following the word the rest of that locale
-already uses.
+itself has not translated: *Recently Read* in Japanese, Danish, Dutch and
+Ukrainian, *Items* in Danish, and *My Publications* in Ukrainian. Leaving
+English standing in those sidebars would be worse than translating them here,
+so altero does — 最近読んだ項目, *Læst for nylig*, *Onlangs gelezen*,
+*Нещодавно прочитані*, *Elementer*, *Мої публікації* — following the word the
+rest of that locale already uses. Two Ukrainian rows depart from Zotero's word
+rather than filling a gap, because the word is wrong: *Групування бібіліотек*
+reads as "grouping of libraries" and carries a typo, and *Незаповнені
+документи* means "unfilled items", so altero says *Групові бібліотеки* and
+*Документи без колекції*.
 
 That vocabulary rule is also why "Restore to Library" has a message of its own:
 "Restore" alone is what the settings page calls putting an archive back, and
@@ -284,13 +289,13 @@ Counting is not the same everywhere, and a message with a number in it says so.
 English separates one from many, and German, French, Spanish, Portuguese,
 Italian, Dutch and Danish separate it the same way; Japanese and Chinese inflect
 nothing and write the one form twice, so the branch that gets picked does not
-matter. Polish and Russian have a third form for the small counts — *2 elementy*
-against *5 elementów*, *2 записи* against *5 записей* — so their catalogs
-carry three branches and `pluralRules` in `web/src/i18n.ts` chooses between
-them. A catalog written with English's two would be wrong on every count from
-2 to 4, so `locales.node.spec.ts` holds each catalog to the number of forms
-its own language has rather than to English's — a check against English would
-have called "2 elementów" correct.
+matter. Polish, Russian and Ukrainian have a third form for the small counts —
+*2 elementy* against *5 elementów*, *2 документи* against *5 документів* — so
+their catalogs carry three branches and `pluralRules` in `web/src/i18n.ts`
+chooses between them. A catalog written with English's two would be wrong on
+every count from 2 to 4, so `locales.node.spec.ts` holds each catalog to the
+number of forms its own language has rather than to English's — a check
+against English would have called "2 elementów" correct.
 
 The translations beyond American English are mine rather than a native
 speaker's, and are worth reviewing before an institution relies on them. That

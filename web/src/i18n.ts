@@ -13,6 +13,7 @@ import pl from './locales/pl'
 import ptBR from './locales/pt-BR'
 import ptPT from './locales/pt-PT'
 import ru from './locales/ru'
+import uk from './locales/uk'
 import zhCN from './locales/zh-CN'
 import zhTW from './locales/zh-TW'
 
@@ -52,6 +53,7 @@ export const MESSAGES = {
   da,
   pl,
   ru,
+  uk,
   ja,
   'zh-CN': zhCN,
   'zh-TW': zhTW,
@@ -61,17 +63,29 @@ export type Locale = keyof typeof MESSAGES
 
 export const LOCALES = Object.keys(MESSAGES) as Locale[]
 
+/* Ends in 1 but not 11; ends in 2-4 but not 12-14; everything else. Russian
+   and Ukrainian count alike. */
+function eastSlavic(choice: number, branches: number): number {
+  const tens = choice % 10
+  const hundreds = choice % 100
+  if (tens === 1 && hundreds !== 11) return 0
+  if (tens >= 2 && tens <= 4 && !(hundreds >= 12 && hundreds <= 14)) {
+    return Math.min(1, branches - 1)
+  }
+  return Math.min(2, branches - 1)
+}
+
 /**
  * Which branch of a plural message a number asks for, per language.
  *
  * English separates one from many and every catalogue followed, because that is
  * what German, French, Spanish, Portuguese, Danish, Dutch and Italian do too --
  * and Japanese and Chinese, which inflect nothing, write the one form twice
- * rather than pretend to a distinction. Polish and Russian have a third form
- * for the small counts, so "2 elementy" and "5 elementów" are different words:
- * their catalogues carry three branches and these rules choose between them. A
- * catalogue written with English's two would be wrong on every count from 2 to
- * 4, which is what `locales.node.spec.ts` now checks for.
+ * rather than pretend to a distinction. Polish, Russian and Ukrainian have a
+ * third form for the small counts, so "2 elementy" and "5 elementów" are
+ * different words: their catalogues carry three branches and these rules choose
+ * between them. A catalogue written with English's two would be wrong on every
+ * count from 2 to 4, which is what `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
@@ -88,16 +102,8 @@ export const PLURAL_RULES = {
     }
     return Math.min(2, branches - 1)
   },
-  /* Ends in 1 but not 11; ends in 2-4 but not 12-14; everything else. */
-  ru: (choice: number, branches: number) => {
-    const tens = choice % 10
-    const hundreds = choice % 100
-    if (tens === 1 && hundreds !== 11) return 0
-    if (tens >= 2 && tens <= 4 && !(hundreds >= 12 && hundreds <= 14)) {
-      return Math.min(1, branches - 1)
-    }
-    return Math.min(2, branches - 1)
-  },
+  ru: eastSlavic,
+  uk: eastSlavic,
 }
 
 export const i18n = createI18n({

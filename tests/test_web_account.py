@@ -770,6 +770,7 @@ class TestLanguageAndTimeZone:
             "da",
             "pl",
             "ru",
+            "uk",
             "ja",
             "zh-CN",
             "zh-TW",
