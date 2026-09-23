@@ -721,3 +721,97 @@ class TestAtomicWrites:
             storage.store_file(store, MD5, b"other bytes")
 
             assert reading.read() == CONTENT
+
+
+async def send(client: httpx.AsyncClient, key: str, content: bytes = CONTENT) -> str:
+    """Authorize an upload and send the bytes. Returns the key to register with."""
+    authorized = (
+        await client.post(
+            f"/users/1/items/{key}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data=authorization(),
+        )
+    ).json()
+    await client.post(authorized["url"], content=content)
+    return str(authorized["uploadKey"])
+
+
+async def finish(client: httpx.AsyncClient, key: str, upload_key: str) -> httpx.Response:
+    """Take the third step of an upload."""
+    return await client.post(
+        f"/users/1/items/{key}/file",
+        headers=AUTH | {"If-None-Match": "*"},
+        data={"upload": upload_key},
+    )
+
+
+class TestRegistrationChecksTheStoredFile:
+    """The bytes are read back before the attachment is said to have them.
+
+    The upload arrives whole or not at all, but a store can still take a write
+    and lose it -- which is what a network or FUSE mount does -- and this is
+    the last moment anything can be checked: a snapshot is stored under the
+    digest of the file inside its archive, and the archive's own digest goes
+    when the upload row does.
+    """
+
+    async def test_a_truncated_stored_file_is_refused(
+        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+    ) -> None:
+        upload_key = await send(client, attachment)
+        file_path(Path(settings.storage_path), MD5).write_bytes(CONTENT[:10])
+
+        assert (await finish(client, attachment, upload_key)).status_code == 400
+
+    async def test_bytes_that_changed_under_the_store_are_refused(
+        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+    ) -> None:
+        # Same length, so only reading them back catches it.
+        upload_key = await send(client, attachment)
+        file_path(Path(settings.storage_path), MD5).write_bytes(b"?" * len(CONTENT))
+
+        assert (await finish(client, attachment, upload_key)).status_code == 400
+
+    async def test_a_file_that_went_away_is_refused(
+        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+    ) -> None:
+        upload_key = await send(client, attachment)
+        file_path(Path(settings.storage_path), MD5).unlink()
+
+        assert (await finish(client, attachment, upload_key)).status_code == 400
+
+    async def test_a_refused_file_is_removed_so_it_can_be_sent_again(
+        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+    ) -> None:
+        """Which is the whole point of refusing.
+
+        Left where it is, the next upload of those bytes is answered
+        ``{"exists": 1}`` and the damage spreads to another attachment.
+        Removed, the item claims a digest nothing backs -- a state the client
+        can mend by sending the file again.
+        """
+        upload_key = await send(client, attachment)
+        path = file_path(Path(settings.storage_path), MD5)
+        path.write_bytes(CONTENT[:10])
+        await finish(client, attachment, upload_key)
+
+        assert not path.exists()
+
+        await upload(client, attachment)
+        assert (
+            await client.get(
+                f"/users/1/items/{attachment}/file", headers=AUTH, follow_redirects=True
+            )
+        ).content == CONTENT
+
+    async def test_a_refused_registration_attaches_nothing(
+        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+    ) -> None:
+        upload_key = await send(client, attachment)
+        file_path(Path(settings.storage_path), MD5).write_bytes(CONTENT[:10])
+        await finish(client, attachment, upload_key)
+
+        item = await client.get(f"/users/1/items/{attachment}", headers=AUTH)
+        assert "md5" not in item.json()["data"]
+        # And the library version the failed write took is given back.
+        assert item.headers["Last-Modified-Version"] == "10"

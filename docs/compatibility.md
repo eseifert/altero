@@ -516,6 +516,25 @@ spoils more than one download: it is answered `{"exists": 1}` to the next
 client holding those bytes, and each of them records the attachment as synced
 for good.
 
+Registration therefore reads the stored file back and checks it against
+`zipMD5` or `md5` before attaching it. A file that is not the one that was sent
+is removed and the registration refused, which leaves the attachment claiming a
+digest nothing backs — the repairable state described next, rather than a
+permanent one. The client treats the refusal as a file-sync error and sends the
+file again on its next sync. Upstream checks at registration too: it asks S3
+whether the object is there and refuses if it is not, while logging a size
+mismatch and attaching anyway. altero holds the bytes itself, so it can check
+the digest rather than the size, and refuses rather than logs — the same thing
+`Zotero_Storage::patchFile` does with a file it assembled.
+
+One mismatch is not damage, and the stored file survives it. Two clients
+zipping the same snapshot produce different archives under the same digest,
+since the digest is of the file inside, so the archive in place may be somebody
+else's. The registration is refused either way — the server cannot say that
+what it holds is what this client sent — but a file whose members are all
+intact is left where it is, because removing it would take the file out from
+under the attachment that registered it.
+
 **A claimed digest is not a file.** The two preconditions ask different
 questions and altero answers them from different places. `If-None-Match: *`
 asks whether there is a file to protect, which is asked of the store: an

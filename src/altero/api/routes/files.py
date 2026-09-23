@@ -64,7 +64,7 @@ async def upload_file(
     if upload_key := form.get("upload"):
         upload = await storage.get_upload(session, upload_key)
         version = await writes.bump_library_version(session, library)
-        await storage.register(session, item, upload, version)
+        await storage.register(session, item, upload, version, _storage_root(request))
         await session.commit()
         return Response(status_code=204, headers=library_headers(version))
 

@@ -10,10 +10,12 @@ attached twice is stored once, and a client that already knows the digest can be
 told the upload is unnecessary.
 """
 
+import asyncio
 import hashlib
 import logging
 import os
 import tempfile
+import zipfile
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
@@ -141,6 +143,21 @@ def store_file(root: Path, md5: str, body: bytes) -> None:
         raise
 
     _sync_directory(path.parent)
+
+
+def _discard(path: Path) -> None:
+    """Take a file out of the store, leaving the state a client can repair.
+
+    A stored file whose contents are not the digest it is named for backs
+    nothing correctly, for any item claiming that digest. Removing it is what
+    lets the damage be seen and mended: `stored_md5` answers ``None``,
+    `check_preconditions` lets whoever holds the bytes send them again,
+    `stored_file` answers 404 and the Storage screen counts it as missing.
+    """
+    try:
+        path.unlink(missing_ok=True)
+    except OSError:  # pragma: no cover - a file somebody else removed
+        logger.warning("Could not remove %s", path)
 
 
 def _require_attachment(item: Item) -> None:
@@ -378,17 +395,73 @@ async def attach(session: AsyncSession, item: Item, declared: dict[str, Any]) ->
     await session.flush()
 
 
+def _intact_archive(path: Path) -> bool:
+    """Whether the stored file is an archive with every member whole."""
+    try:
+        with zipfile.ZipFile(path) as archive:
+            return archive.testzip() is None
+    except zipfile.BadZipFile, OSError:
+        return False
+
+
+async def _confirm_stored_file(upload: StorageUpload, root: Path) -> None:
+    """Fail unless the store holds the file this upload sent.
+
+    The bytes were checked on the way in and put in place whole, so this is
+    about everything that can happen to them afterwards: a store that took a
+    write and lost it, which a network or FUSE mount does, and a file that
+    went away between the upload and this request. Attaching regardless is
+    what makes such a file permanent -- the client records the attachment as
+    synced and never offers the bytes again -- so a stored file that is not
+    the one that was sent is refused here, and the upload becomes one the
+    client repeats on its next sync.
+
+    Against ``zip_md5 or md5``, as the upload itself was: a snapshot is stored
+    under the digest of the file *inside* the archive, and the archive's own
+    digest lives on this row, which `register` is about to delete. This is the
+    last moment one can be checked at all.
+
+    The stat is not only a cheaper way to the common answer; it is also what
+    keeps a full read off the path when the file is simply gone. The hash
+    itself runs in a thread because `bump_library_version` holds the library's
+    row lock until the request commits.
+    """
+    path = file_path(root, upload.md5)
+    try:
+        described = path.stat()
+    except OSError:
+        raise InvalidInputError("The uploaded file is no longer in the store") from None
+
+    if described.st_size < upload.filesize:
+        _discard(path)
+        raise InvalidInputError("The stored file is shorter than the one that was uploaded")
+
+    digest = await asyncio.to_thread(_digest_of, path, described.st_size, described.st_mtime_ns)
+    if digest == (upload.zip_md5 or upload.md5):
+        return
+
+    # One mismatch is not damage: two clients zipping the same snapshot make
+    # different archives under one digest, so the other one's may be in place
+    # by now. It is kept if it is a whole archive of something -- the retry
+    # then finds it through `authorize` -- and a torn one fails its own CRCs.
+    if upload.zip_md5 is None or not await asyncio.to_thread(_intact_archive, path):
+        _discard(path)
+    raise InvalidInputError("The stored file is not the one that was uploaded")
+
+
 async def register(
     session: AsyncSession,
     item: Item,
     upload: StorageUpload,
     version: int,
+    root: Path,
 ) -> None:
     """Complete an upload, attaching the file to the item."""
     if not upload.received:
         raise InvalidInputError("Upload has not been received")
     if upload.item_id != item.id:
         raise InvalidInputError("Upload does not belong to this item")
+    await _confirm_stored_file(upload, root)
 
     await attach(
         session,

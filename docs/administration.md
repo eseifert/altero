@@ -96,6 +96,8 @@ The screen also identifies:
 - unreferenced files; and
 - attachments whose expected bytes are missing.
 
+An attachment can be missing its bytes because they were never here, because they were swept, or because the server removed a stored file that did not match what was uploaded. In each case the client offers the file again on its next sync.
+
 Removing unreferenced files is an explicit administrator action, not a timed retention rule. Recent files are left alone because an upload can temporarily exist on disk before the database row that references it is committed. The same action removes files a write into the store never finished, under the same grace period.
 
 ## Accounts

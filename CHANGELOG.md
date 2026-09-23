@@ -8,6 +8,7 @@ gained a capability worth naming.
 ## [Unreleased]
 
 - An upload that stops part way no longer leaves a file where a whole one should be: the bytes are written under a name of their own and moved onto their digest, so the store holds a file or does not. A restore writes the same way, and a file left half written is swept with the unreferenced ones. Reported by [@raphaelbahat] in [Issue#11].
+- Registering an upload reads the stored file back and refuses it unless it is the one that was sent, so a store that takes a write and loses it costs a retry rather than an attachment the client will never offer again.
 
 ## [1.0.0-alpha.3] — 2026-09-14
 

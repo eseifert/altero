@@ -7,7 +7,9 @@ things the published documentation does not mention.
 
 import gzip
 import hashlib
+import io
 import json
+import zipfile
 from pathlib import Path
 
 import httpx
@@ -16,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import Library, LibraryType
 from altero.services.auth import get_library
+from altero.services.storage import file_path
 from altero.settings import Settings
 from tests.factories import make_api_key, make_group, make_item, make_user
 
@@ -157,6 +160,10 @@ class TestZippedUploads:
     CONTENT = b"<html>a snapshot</html>"
     ZIPPED = b"PK\x03\x04 pretend this is a zip"
 
+    def original_md5(self) -> str:
+        """The digest the item claims, and the name the archive is stored under."""
+        return hashlib.md5(self.CONTENT, usedforsecurity=False).hexdigest()
+
     async def test_a_zipped_upload_is_validated_against_the_zip_digest(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
@@ -246,6 +253,87 @@ class TestZippedUploads:
         response = await client.post(authorized["url"], content=self.ZIPPED)
 
         assert response.status_code == 400
+
+    async def send(self, client: httpx.AsyncClient) -> str:
+        """Authorize a snapshot and send its archive. Returns the upload key."""
+        authorized = (
+            await client.post(
+                "/users/1/items/AAAA2345/file",
+                headers=AUTH | {"If-None-Match": "*"},
+                data={
+                    "md5": hashlib.md5(self.CONTENT, usedforsecurity=False).hexdigest(),
+                    "filename": "page.html",
+                    "filesize": str(len(self.ZIPPED)),
+                    "mtime": "1700000000000",
+                    "zipMD5": hashlib.md5(self.ZIPPED, usedforsecurity=False).hexdigest(),
+                    "zipFilename": "AAAA2345.zip",
+                },
+            )
+        ).json()
+        await client.post(authorized["url"], content=self.ZIPPED)
+        return str(authorized["uploadKey"])
+
+    async def test_a_damaged_archive_is_refused_at_registration(
+        self,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        settings: Settings,
+    ) -> None:
+        """And the check is against the archive, not the file inside it.
+
+        A snapshot is stored under the digest of the file the item claims, so
+        reading the stored bytes back against `md5` would refuse every
+        snapshot ever uploaded. `zipMD5` is the only thing that describes
+        them, and it goes when the upload row does.
+        """
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        upload_key = await self.send(client)
+        stored = file_path(Path(settings.storage_path), self.original_md5())
+        # Same length, so only reading the bytes back catches it.
+        stored.write_bytes(b"PK\x03\x04 PRETEND THIS IS A ZIP")
+
+        response = await client.post(
+            "/users/1/items/AAAA2345/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data={"upload": upload_key},
+        )
+
+        assert response.status_code == 400
+        assert not stored.exists()
+
+    async def test_another_clients_archive_of_the_same_page_is_kept(
+        self,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        settings: Settings,
+    ) -> None:
+        """Two clients zipping one snapshot make different archives.
+
+        They share a digest, because the digest is the file inside, so the
+        second to arrive replaces the first under a name both were promised.
+        The registration is still refused -- the server cannot say the bytes
+        it holds are the ones this client sent -- but a whole archive is not
+        damage, and removing it would take the file out from under the item
+        that registered it.
+        """
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        upload_key = await self.send(client)
+        stored = file_path(Path(settings.storage_path), self.original_md5())
+        somebody_elses = io.BytesIO()
+        with zipfile.ZipFile(somebody_elses, "w") as archive:
+            archive.writestr("page.html", self.CONTENT)
+        stored.write_bytes(somebody_elses.getvalue())
+
+        response = await client.post(
+            "/users/1/items/AAAA2345/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data={"upload": upload_key},
+        )
+
+        assert response.status_code == 400
+        assert stored.is_file()
 
 
 class TestGroupVersions:
