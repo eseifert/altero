@@ -1850,9 +1850,9 @@ would be a second place for the second factor to be forgotten.</p>
 <a href="../../oauth/">Connecting other applications</a>.</p>
 <h3 id="language-and-time-zone">Language and time zone<a class="headerlink" href="#language-and-time-zone" title="Permanent link">&para;</a></h3>
 <p>The interface speaks English, German, French, Spanish, Portuguese, Italian,
-Dutch, Danish, Polish, Russian, Japanese and Chinese — fifteen catalogs,
-because three of those are written differently in different places and are
-carried twice: American and British English, Brazilian and European Portuguese,
+Dutch, Danish, Polish, Russian, Ukrainian, Japanese and Chinese — sixteen
+catalogs, because three of those are written differently in different places
+and are carried twice: American and British English, Brazilian and European Portuguese,
 Simplified and Traditional Chinese. They are the same three Zotero splits.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
@@ -1875,7 +1875,7 @@ is the one thing that <em>is</em> ours: that each language reaches <code>Intl</c
 wrong tag being the failure that would otherwise show every reader English
 dates in a translated page.</p>
 <p>A tag is narrowed to the catalog that answers it, and what gets dropped
-depends on the language. For the twelve carried once, the region goes: <code>de-AT</code>
+depends on the language. For the ten carried once, the region goes: <code>de-AT</code>
 is German, and the region goes on reaching dates because the browser supplies
 that separately. For English, Portuguese and Chinese the region is what decides
 the words, so it is kept — a British reader empties the Bin rather than the
@@ -1922,11 +1922,16 @@ the sidebar, <code>recently-read</code> and <code>menu-restoreToLibrary</code> f
 keeps in Fluent. So the German sidebar says <em>Eintragsdubletten</em> and <em>Einträge
 ohne Sammlung</em>, which are not the phrases anybody would arrive at unprompted —
 and are what the desktop client next to it says. The gaps are the rows Zotero
-itself has not translated: <em>Recently Read</em> in Japanese, Danish and Dutch, and
-<em>Items</em> in Danish. Leaving English standing in those sidebars would be worse
-than translating them here, so altero does — 最近読んだ項目, <em>Læst for nylig</em>,
-<em>Onlangs gelezen</em>, <em>Elementer</em> — following the word the rest of that locale
-already uses.</p>
+itself has not translated: <em>Recently Read</em> in Japanese, Danish, Dutch and
+Ukrainian, <em>Items</em> in Danish, and <em>My Publications</em> in Ukrainian. Leaving
+English standing in those sidebars would be worse than translating them here,
+so altero does — 最近読んだ項目, <em>Læst for nylig</em>, <em>Onlangs gelezen</em>,
+<em>Нещодавно прочитані</em>, <em>Elementer</em>, <em>Мої публікації</em> — following the word the
+rest of that locale already uses. Two Ukrainian rows depart from Zotero's word
+rather than filling a gap, because the word is wrong: <em>Групування бібіліотек</em>
+reads as "grouping of libraries" and carries a typo, and <em>Незаповнені
+документи</em> means "unfilled items", so altero says <em>Групові бібліотеки</em> and
+<em>Документи без колекції</em>.</p>
 <p>That vocabulary rule is also why "Restore to Library" has a message of its own:
 "Restore" alone is what the settings page calls putting an archive back, and
 one message for both had German offering to replay an item from a backup.</p>
@@ -1934,13 +1939,13 @@ one message for both had German offering to replay an item from a backup.</p>
 English separates one from many, and German, French, Spanish, Portuguese,
 Italian, Dutch and Danish separate it the same way; Japanese and Chinese inflect
 nothing and write the one form twice, so the branch that gets picked does not
-matter. Polish and Russian have a third form for the small counts — <em>2 elementy</em>
-against <em>5 elementów</em>, <em>2 записи</em> against <em>5 записей</em> — so their catalogs
-carry three branches and <code>pluralRules</code> in <code>web/src/i18n.ts</code> chooses between
-them. A catalog written with English's two would be wrong on every count from
-2 to 4, so <code>locales.node.spec.ts</code> holds each catalog to the number of forms
-its own language has rather than to English's — a check against English would
-have called "2 elementów" correct.</p>
+matter. Polish, Russian and Ukrainian have a third form for the small counts —
+<em>2 elementy</em> against <em>5 elementów</em>, <em>2 документи</em> against <em>5 документів</em> — so
+their catalogs carry three branches and <code>pluralRules</code> in <code>web/src/i18n.ts</code>
+chooses between them. A catalog written with English's two would be wrong on
+every count from 2 to 4, so <code>locales.node.spec.ts</code> holds each catalog to the
+number of forms its own language has rather than to English's — a check
+against English would have called "2 elementów" correct.</p>
 <p>The translations beyond American English are mine rather than a native
 speaker's, and are worth reviewing before an institution relies on them. That
 includes British English: <code>en-US.ts</code> is the list every other catalog is
