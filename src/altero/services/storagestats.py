@@ -34,7 +34,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
 from altero.models import Collection, Item, ItemField, Library, LibraryType, Tag, User
-from altero.services.storage import file_path
+from altero.services.storage import STAGING_PREFIX, file_path
 
 logger = logging.getLogger("altero.storagestats")
 
@@ -146,6 +146,36 @@ async def _counts(
     return {library_id: count for library_id, count in await session.execute(statement)}
 
 
+def _sweep_staging(root: Path, cutoff: float) -> tuple[int, int]:
+    """Delete files a write into the store never finished.
+
+    `storage.store_file` writes under a name of its own and moves the file
+    onto its digest, so one left behind is a process that died between the two
+    -- or one still writing, which is why these are held to the same grace
+    period as an orphan. They are not stored files: `scan_store` passes over
+    anything not named like a digest, so nothing else would ever remove one.
+    """
+    if not root.is_dir():
+        return 0, 0
+
+    removed = freed = 0
+    for path in root.rglob(f"{STAGING_PREFIX}*"):
+        try:
+            if not path.is_file():
+                continue
+            described = path.stat()
+            if described.st_mtime >= cutoff:
+                continue
+            path.unlink()
+        except OSError:  # pragma: no cover - a file somebody else removed
+            logger.warning("Could not remove %s", path)
+            continue
+        removed += 1
+        freed += described.st_size
+
+    return removed, freed
+
+
 async def purge_orphans(session: AsyncSession, root: Path, *, grace: timedelta) -> tuple[int, int]:
     """Delete stored files no library references. Returns how many, and how big.
 
@@ -158,25 +188,29 @@ async def purge_orphans(session: AsyncSession, root: Path, *, grace: timedelta) 
     The references are read *after* the candidates are listed, so a file that
     became referenced in between is spared rather than deleted: the check that
     matters is the later one.
+
+    Files left half written are swept here too, under the same grace period.
+    They are the only other thing in the store that nothing else accounts for.
     """
+    cutoff = time.time() - grace.total_seconds()
+    removed, freed = _sweep_staging(root, cutoff)
+
     sizes = scan_store(root)
     if not sizes:
-        return 0, 0
+        return removed, freed
 
-    cutoff = time.time() - grace.total_seconds()
     old = {
         digest: size
         for digest, size in sizes.items()
         if (path := file_path(root, digest)).is_file() and path.stat().st_mtime < cutoff
     }
     if not old:
-        return 0, 0
+        return removed, freed
 
     referenced = {
         digest for digests in (await _digests_by_library(session)).values() for digest in digests
     }
 
-    removed = freed = 0
     for digest, size in old.items():
         if digest in referenced:
             continue

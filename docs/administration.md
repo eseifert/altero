@@ -96,7 +96,7 @@ The screen also identifies:
 - unreferenced files; and
 - attachments whose expected bytes are missing.
 
-Removing unreferenced files is an explicit administrator action, not a timed retention rule. Recent files are left alone because an upload can temporarily exist on disk before the database row that references it is committed.
+Removing unreferenced files is an explicit administrator action, not a timed retention rule. Recent files are left alone because an upload can temporarily exist on disk before the database row that references it is committed. The same action removes files a write into the store never finished, under the same grace period.
 
 ## Accounts
 

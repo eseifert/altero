@@ -227,3 +227,51 @@ class TestPurgingOrphans:
         files, _ = await storagestats.purge_orphans(session, store, grace=timedelta(hours=24))
 
         assert files == 0
+
+
+def stage(root: Path, digest: str, body: bytes) -> Path:
+    """Leave a half-written file where `store_file` would have put one."""
+    directory = storage.file_path(root, digest).parent
+    directory.mkdir(parents=True, exist_ok=True)
+    staged = directory / f"{storage.STAGING_PREFIX}whatever"
+    staged.write_bytes(body)
+    return staged
+
+
+class TestFilesLeftHalfWritten:
+    """A write into the store that never finished.
+
+    `store_file` writes under a name of its own and moves the file onto its
+    digest, so one of these is a process that died between the two. Nothing
+    else in here would ever see it: `scan_store` passes over anything not
+    named like a digest, which is what keeps an operator's own files out of a
+    list of things to delete.
+    """
+
+    def test_one_is_not_a_stored_file(self, store: Path) -> None:
+        put_file(store, DIGEST, b"x" * 100)
+        stage(store, DIGEST, b"half of something")
+
+        assert storagestats.scan_store(store) == {DIGEST: 100}
+
+    async def test_an_abandoned_one_is_swept(self, session: AsyncSession, store: Path) -> None:
+        await personal_library(session)
+        staged = stage(store, DIGEST, b"y" * 500)
+        os.utime(staged, (0, 0))
+
+        files, freed = await storagestats.purge_orphans(session, store, grace=timedelta(hours=24))
+
+        assert (files, freed) == (1, 500)
+        assert not staged.exists()
+
+    async def test_one_still_being_written_is_left_alone(
+        self, session: AsyncSession, store: Path
+    ) -> None:
+        """The same grace an upload in flight gets, and for the same reason."""
+        await personal_library(session)
+        staged = stage(store, DIGEST, b"y" * 500)
+
+        files, freed = await storagestats.purge_orphans(session, store, grace=timedelta(hours=24))
+
+        assert (files, freed) == (0, 0)
+        assert staged.exists()
