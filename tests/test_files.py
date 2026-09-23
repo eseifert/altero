@@ -1,8 +1,12 @@
 """The attachment file protocol."""
 
+import asyncio
+import errno
 import hashlib
+import os
 from datetime import datetime
 from pathlib import Path
+from typing import IO
 
 import httpx
 import pytest
@@ -10,6 +14,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import Library, LibraryType, StorageDownload
+from altero.services import storage
 from altero.services.auth import get_library
 from altero.services.storage import file_path
 from altero.settings import Settings
@@ -581,3 +586,138 @@ class TestDownloadPermission:
 
         assert await session.scalar(select(func.count()).select_from(StorageDownload)) == 0
         assert (await client.get(location)).status_code == 404
+
+
+@pytest.fixture
+def store(tmp_path: Path) -> Path:
+    """A file store of this test's own, where the settings fixture puts one."""
+    return tmp_path / "storage"
+
+
+class _HalfWritten:
+    """A file that takes half of what it is given and then gives up.
+
+    What a full disk looks like from inside `store_file`: what was written
+    stays written, and the failure arrives before anything is moved.
+    """
+
+    def __init__(self, handle: IO[bytes]) -> None:
+        self._handle = handle
+
+    def __enter__(self) -> _HalfWritten:
+        return self
+
+    def __exit__(self, *exception: object) -> None:
+        self._handle.close()
+
+    def fileno(self) -> int:
+        return self._handle.fileno()
+
+    def flush(self) -> None:
+        self._handle.flush()
+
+    def write(self, body: bytes) -> int:
+        self._handle.write(body[: len(body) // 2])
+        self._handle.flush()
+        raise OSError(errno.ENOSPC, "No space left on device")
+
+
+def half_writes(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Make every write into the store stop half way through."""
+    opened = os.fdopen
+
+    def fdopen(descriptor: int, mode: str) -> _HalfWritten:
+        return _HalfWritten(opened(descriptor, mode))
+
+    monkeypatch.setattr(storage.os, "fdopen", fdopen)
+
+
+def refuse(*arguments: object, **named: object) -> None:
+    """Fail the way a remote mount does: at the last step, having said nothing."""
+    raise OSError(errno.EIO, "Input/output error")
+
+
+class TestAtomicWrites:
+    """A file is in the store whole or not at all.
+
+    Everything downstream asks `Path.is_file` and believes the answer, so a
+    file that was never finished is worse than no file: `authorize` hands it
+    to every later upload of that digest as ``{"exists": 1}``, and the client
+    records the attachment as synced for good. Reported as issue #11.
+    """
+
+    def test_a_write_that_fails_part_way_leaves_nothing_behind(
+        self, store: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        half_writes(monkeypatch)
+
+        with pytest.raises(OSError, match="No space left"):
+            storage.store_file(store, MD5, CONTENT)
+
+        assert not file_path(store, MD5).exists()
+        # Including the half that was written: a name nothing sweeps would
+        # trade a torn file for a leak.
+        assert list(file_path(store, MD5).parent.iterdir()) == []
+
+    def test_a_write_that_cannot_be_synced_leaves_nothing_behind(
+        self, store: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # A network or FUSE mount reports a lost write at sync rather than at
+        # write, which is the deployment the report came from.
+        monkeypatch.setattr(storage.os, "fsync", refuse)
+
+        with pytest.raises(OSError, match="Input/output error"):
+            storage.store_file(store, MD5, CONTENT)
+
+        assert list(file_path(store, MD5).parent.iterdir()) == []
+
+    def test_a_move_that_is_refused_leaves_the_file_that_was_there(
+        self, store: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Several object-store mounts refuse to rename over an existing file.
+        # Copying instead would be the torn write this is here to prevent.
+        storage.store_file(store, MD5, CONTENT)
+        monkeypatch.setattr(storage.os, "replace", refuse)
+
+        with pytest.raises(OSError, match="Input/output error"):
+            storage.store_file(store, MD5, b"other bytes")
+
+        assert file_path(store, MD5).read_bytes() == CONTENT
+        assert len(list(file_path(store, MD5).parent.iterdir())) == 1
+
+    def test_a_stored_file_can_be_read_from_outside_the_server(self, store: Path) -> None:
+        # `mkstemp` creates 0600 and the store has always held 0644, which a
+        # backup running as somebody else depends on.
+        storage.store_file(store, MD5, CONTENT)
+
+        assert file_path(store, MD5).stat().st_mode & 0o777 == 0o644
+
+    async def test_two_writers_of_one_digest_leave_one_whole_file(self, store: Path) -> None:
+        """Each writes under a name of its own, so neither can see the other's.
+
+        Two clients zipping one snapshot send different archives under the
+        same digest, so this is not hypothetical: a shared staging name would
+        let one of them move a file the other was still writing.
+        """
+        first = b"a" * (1024 * 1024)
+        second = b"b" * len(first)
+
+        await asyncio.gather(
+            *(
+                asyncio.to_thread(storage.store_file, store, MD5, body)
+                for body in (first, second) * 4
+            )
+        )
+
+        assert file_path(store, MD5).read_bytes() in (first, second)
+        assert len(list(file_path(store, MD5).parent.iterdir())) == 1
+
+    def test_a_read_in_flight_survives_the_file_being_replaced(self, store: Path) -> None:
+        # `os.replace` unlinks the name, not the bytes: a download already
+        # under way reads the file it opened to the end.
+        storage.store_file(store, MD5, CONTENT)
+
+        with file_path(store, MD5).open("rb") as reading:
+            storage.store_file(store, MD5, b"other bytes")
+
+            assert reading.read() == CONTENT

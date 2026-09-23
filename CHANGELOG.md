@@ -5,6 +5,10 @@ All notable changes to altero, newest first. Versions follow
 development history, tagged retroactively at the points where the server
 gained a capability worth naming.
 
+## [Unreleased]
+
+- An upload that stops part way no longer leaves a file where a whole one should be: the bytes are written under a name of their own and moved onto their digest, so the store holds a file or does not. A restore writes the same way, and a file left half written is swept with the unreferenced ones. Reported by [@raphaelbahat] in [Issue#11].
+
 ## [1.0.0-alpha.3] — 2026-09-14
 
 Still an alpha, and the first release shaped by other people running it: two
@@ -137,8 +141,10 @@ The first release meant to be used by somebody other than its author.
 [0.2.0]: https://github.com/eseifert/altero/releases/tag/v0.2.0
 [0.1.0]: https://github.com/eseifert/altero/releases/tag/v0.1.0
 
+[@raphaelbahat]: https://github.com/raphaelbahat
 [@sadgen]: https://github.com/sadgen
 [@ScatteredComet]: https://github.com/ScatteredComet
 [PR#7]: https://github.com/eseifert/altero/pull/7
 [PR#8]: https://github.com/eseifert/altero/pull/8
 [Discussion#5]: https://github.com/eseifert/altero/discussions/5
+[Issue#11]: https://github.com/eseifert/altero/issues/11

@@ -170,6 +170,13 @@ The container runs the same interpreter and the same packages, so the applicatio
 
 Attachments are what grows. They are stored once per digest, so a file two libraries hold is on disk once; a library's nominal and real usage are reported per library under **Administration → Storage**.
 
+## Attachment storage
+
+An attachment is written under a temporary name and then moved onto the path named after its digest, so an upload that fails leaves no file rather than a short one. That relies on the move being atomic, which it is on any ordinary filesystem, including NFS and SMB mounts.
+
+> [!WARNING]
+> Do not point `ALTERO_STORAGE_PATH` at object storage mounted as a filesystem. s3fs, goofys and rclone implement a rename as copy-then-delete, and some refuse to rename over an existing file at all. altero will not fall back to copying — a copy onto the final path is the torn write it is avoiding — so uploads fail there and clients retry them indefinitely. Keep the store on a block-backed filesystem and back *that* up to object storage instead.
+
 ## Health check
 
 `GET /health` is the readiness endpoint and is also used by the container health check.

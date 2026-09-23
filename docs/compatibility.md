@@ -507,6 +507,15 @@ Uploaded bytes are checked against the declared MD5 and length before being
 stored, and `If-Match` or `If-None-Match` is required, so a client working from
 stale information cannot overwrite a newer file.
 
+**A file is in the store whole or not at all.** The bytes are written under a
+name of their own and moved onto the digest path with `rename`, so an upload
+that stops part way — a full disk, a device error, a remote mount dropping
+out — leaves no file rather than a short one. The store is addressed by digest
+and nothing reads a stored file back before believing it, so a partial file
+spoils more than one download: it is answered `{"exists": 1}` to the next
+client holding those bytes, and each of them records the attachment as synced
+for good.
+
 **A claimed digest is not a file.** The two preconditions ask different
 questions and altero answers them from different places. `If-None-Match: *`
 asks whether there is a file to protect, which is asked of the store: an

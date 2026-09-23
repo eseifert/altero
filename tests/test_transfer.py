@@ -11,6 +11,8 @@ full and compare. A table added to the schema and forgotten here shows up as a
 difference rather than as silence.
 """
 
+import errno
+import zipfile
 from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
@@ -340,6 +342,80 @@ class TestRoundTrip:
         )
 
         assert restored.version == 37
+
+
+class TestRestoringFiles:
+    """A restore writes bytes into the store, so it writes them the same way.
+
+    One writer, so a library coming back gets what an upload gets: a file
+    under its digest is whole or is not there.
+    """
+
+    async def make_archive(self, session: AsyncSession, tmp_path: Path) -> Path:
+        await make_user(session, user_id=1, username="octocat")
+        library = await get_library(session, LibraryType.USER, 1)
+        await populate(session, library, tmp_path / "source-storage")
+        return await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "source-storage",
+            destination=tmp_path / "library.zip",
+        )
+
+    async def test_a_restore_that_fails_part_way_leaves_no_partial_file(
+        self,
+        session: AsyncSession,
+        tmp_path: Path,
+        target: tuple[AsyncSession, Path],
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        archive = await self.make_archive(session, tmp_path)
+        target_session, target_storage = target
+        await make_user(target_session, user_id=1, username="octocat")
+
+        def refuse(*arguments: object) -> None:
+            raise OSError(errno.EIO, "Input/output error")
+
+        monkeypatch.setattr(storage.os, "replace", refuse)
+
+        with pytest.raises(OSError, match="Input/output error"):
+            await transfer.import_library(
+                target_session, archive=archive, storage_root=target_storage
+            )
+
+        assert [path for path in target_storage.rglob("*") if path.is_file()] == []
+
+    async def test_a_restored_file_is_kept_even_when_its_digest_disagrees(
+        self,
+        session: AsyncSession,
+        tmp_path: Path,
+        target: tuple[AsyncSession, Path],
+    ) -> None:
+        """Deliberate, and the opposite of what the upload path does.
+
+        An archive carries a snapshot under the digest of the file inside it,
+        and a library read out of zotero.org keeps files whose digest is not
+        the one the item claims -- a WebDAV library is full of them. Checking
+        an entry against its name would refuse exactly the files a migration
+        is trying to rescue.
+        """
+        archive = await self.make_archive(session, tmp_path)
+        digest = storage.file_digest(SNAPSHOT)
+        tampered = tmp_path / "tampered.zip"
+        with (
+            zipfile.ZipFile(archive) as source,
+            zipfile.ZipFile(tampered, "w") as rewritten,
+        ):
+            for entry in source.namelist():
+                body = source.read(entry)
+                rewritten.writestr(entry, b"something else" if entry.endswith(digest) else body)
+
+        target_session, target_storage = target
+        await make_user(target_session, user_id=1, username="octocat")
+        await transfer.import_library(target_session, archive=tampered, storage_root=target_storage)
+
+        assert storage.file_path(target_storage, digest).read_bytes() == b"something else"
 
 
 class TestRefusals:

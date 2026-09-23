@@ -11,6 +11,9 @@ told the upload is unnecessary.
 """
 
 import hashlib
+import logging
+import os
+import tempfile
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
@@ -27,6 +30,8 @@ from altero.errors import (
 )
 from altero.keys import generate_api_key
 from altero.models import Item, ItemField, Library, StorageDownload, StorageUpload
+
+logger = logging.getLogger("altero.storage")
 
 #: Fields an attachment carries once a file is attached to it.
 FILE_FIELDS = ("filename", "md5", "mtime", "contentType", "charset")
@@ -53,6 +58,89 @@ def file_path(root: Path, md5: str) -> Path:
     holding every file in the library.
     """
     return root / md5[:2] / md5
+
+
+#: What a file being written into the store is called until it is whole.
+#:
+#: Not a digest, so `storagestats.scan_store` passes it over the way it passes
+#: over anything else an operator left in the directory; one abandoned by a
+#: process that died mid-write is removed by `storagestats.purge_orphans`.
+STAGING_PREFIX = ".altero-"
+
+
+def _sync_directory(directory: Path) -> None:
+    """Force a directory entry to the device, where the platform allows it.
+
+    Without this the file can be whole and still nameless after a power loss,
+    while the row saying its bytes arrived was committed straight afterwards.
+    Best effort, because the failure it prevents is a *missing* file -- which
+    `check_preconditions` already treats as an upload waiting to happen -- and
+    refusing an upload because a mount will not sync a directory would trade a
+    repairable state for a broken one.
+    """
+    try:
+        descriptor = os.open(directory, os.O_RDONLY)
+    except OSError:  # pragma: no cover - a mount that will not open a directory
+        logger.debug("Could not open %s to sync it", directory)
+        return
+    try:
+        os.fsync(descriptor)
+    except OSError:  # pragma: no cover - a mount that will not sync a directory
+        logger.debug("Could not sync %s", directory)
+    finally:
+        os.close(descriptor)
+
+
+def store_file(root: Path, md5: str, body: bytes) -> None:
+    """Put ``body`` in the store under ``md5``, whole or not at all.
+
+    The store is addressed by digest, so a file's name is a promise about its
+    contents and nothing asks more than `Path.is_file` before believing it:
+    `authorize` answers ``{"exists": 1}`` and attaches the metadata without
+    receiving a byte, `check_preconditions` treats the attachment as backed,
+    and the desktop client counts an attachment it registered as synced for
+    good. Writing straight to the digest path therefore turns one bad
+    moment -- a crash, a full disk, a device error, a remote mount dropping
+    out -- into permanent corruption that `storagestats` cannot even see,
+    since it counts digests with *no* file.
+
+    So the bytes go to a name of their own in the destination directory and
+    are moved onto the digest path by `os.replace`, one step on POSIX: the
+    digest path holds the whole file or does not exist. A name of their own
+    because two clients zipping one snapshot produce different archives under
+    the same digest, and a shared staging name would let them write over each
+    other. In the destination directory because the move must not cross a
+    device.
+
+    The sync before the move is what turns a lost write into an error rather
+    than a shorter file: a network or FUSE mount commonly reports ENOSPC and
+    device errors at close or sync and not at write. There is deliberately no
+    fallback to copying where `os.replace` is refused or not atomic, which
+    happens on object-store mounts: a copy over the destination is exactly the
+    torn write this avoids, and a failed upload the client repeats is the
+    right outcome. The mode is set explicitly because `mkstemp` creates 0600
+    and the store has always held 0644, which anything reading it from outside
+    the server depends on.
+    """
+    path = file_path(root, md5)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    descriptor, name = tempfile.mkstemp(dir=path.parent, prefix=STAGING_PREFIX)
+    staged = Path(name)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            os.fchmod(handle.fileno(), 0o644)
+            handle.write(body)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(staged, path)
+    except BaseException:
+        # Not `Exception`: a client that goes away mid-write cancels the task,
+        # which is the very case this is here for.
+        staged.unlink(missing_ok=True)
+        raise
+
+    _sync_directory(path.parent)
 
 
 def _require_attachment(item: Item) -> None:
@@ -267,9 +355,7 @@ def store_bytes(root: Path, upload: StorageUpload, body: bytes) -> None:
     if digest != expected:
         raise InvalidInputError(f"Uploaded file has wrong md5 (expected {expected})")
 
-    path = file_path(root, upload.md5)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(body)
+    store_file(root, upload.md5, body)
 
 
 async def attach(session: AsyncSession, item: Item, declared: dict[str, Any]) -> None:

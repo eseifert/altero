@@ -599,9 +599,12 @@ async def import_library(
             # A digest, and nothing that could climb out of the store: checked
             # by read_manifest before a single row was written.
             digest = entry[len(FILE_PREFIX) :]
-            path = storage.file_path(storage_root, digest)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(bundle.read(entry))
+            # Whole or not at all, as an upload is. The bytes are not checked
+            # against the name: an archive carries a snapshot under the digest
+            # of the file inside it, and a library read out of zotero.org
+            # keeps files whose digest disagrees with what the item claims, so
+            # a mismatch here is the ordinary case rather than damage.
+            storage.store_file(storage_root, digest, bundle.read(entry))
 
     await session.commit()
     return library
