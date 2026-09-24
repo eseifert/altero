@@ -1661,7 +1661,7 @@
 
 <h1 id="what-works">What works<a class="headerlink" href="#what-works" title="Permanent link">&para;</a></h1>
 <p>This page is the feature-level status of altero's Zotero v3 compatibility.</p>
-<p><strong>Short version:</strong> ordinary Zotero Desktop synchronization is the target; the official mobile apps are not supported.</p>
+<p><strong>Short version:</strong> ordinary Zotero Desktop synchronization is the target; the official mobile apps work through a build of your own, unofficially but supported.</p>
 <h2 id="user-facing-capabilities">User-facing capabilities<a class="headerlink" href="#user-facing-capabilities" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1739,8 +1739,8 @@
 </tr>
 <tr>
 <td>Zotero iOS and Android apps</td>
-<td style="text-align: center;">❌</td>
-<td>No runtime alternate API host in the official apps</td>
+<td style="text-align: center;">⚠️</td>
+<td>Unofficial: needs a build pointed at altero; Android sync reported working, the rest untested</td>
 </tr>
 </tbody>
 </table>
@@ -1785,7 +1785,6 @@
 <h2 id="not-implemented">Not implemented<a class="headerlink" href="#not-implemented" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Zotero's <strong>Note HTML</strong> and <strong>Note Markdown</strong> translators. These create a note rather than an ordinary bibliography/export response.</li>
-<li>The official Zotero iOS and Android clients, because they cannot be pointed at an alternate API host at runtime.</li>
 </ul>
 <h2 id="client-requests-without-a-reference-server-implementation">Client requests without a reference server implementation<a class="headerlink" href="#client-requests-without-a-reference-server-implementation" title="Permanent link">&para;</a></h2>
 <p>Two client behaviors do not have a corresponding implementation in the public dataserver source:</p>

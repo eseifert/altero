@@ -3206,6 +3206,15 @@ rejects the server's own <code>/items/new</code> template.</p>
 annotation set from the client's data model. A field outside both the schema and
 that table is still rejected, so a storage field on a <code>book</code> is an error.</p>
 <p>If a write is refused with <code>Invalid field</code>, this is the first place to look.</p>
+<p><strong><code>md5</code> and <code>mtime</code> are null until a file is registered.</strong> On an
+<code>imported_file</code>, <code>imported_url</code> or <code>embedded_image</code> attachment, upstream serves
+both keys whether or not a file exists (<code>Zotero_Item::toJSON</code> is called with
+<code>$includeEmpty</code>), and <code>null</code> until one does. A write naming either as empty is
+skipped rather than stored (<code>Zotero_Items::updateFromJSON</code>), so an empty value
+never replaces a registered file's. altero does both, and serves an empty value
+stored before it did as <code>null</code> too. The Android application depends on it: it
+repairs a stored digest only when it reads <code>"null"</code> and skips an attachment
+whose <code>mtime</code> does not parse, so an empty string left the file never uploaded.</p>
 <h3 id="timestamps">Timestamps<a class="headerlink" href="#timestamps" title="Permanent link">&para;</a></h3>
 <p><code>dateAdded</code> and <code>dateModified</code> come from the client and round-trip unchanged, so
 uploading an existing library keeps its history instead of rewriting every item
@@ -3384,6 +3393,14 @@ POST. A self-hosted server has no S3, so the authorization step points back at
 altero and both are empty strings, meaning the client sends the file with
 nothing wrapped around it. A client that concatenates prefix, file and suffix as
 documented still produces exactly the file.</p>
+<p><strong>The mobile applications ask for a form.</strong> The iOS and Android applications
+add <code>params=1</code> to the authorization. Upstream then answers
+<code>{url, params, uploadKey}</code>, <code>params</code> being the fields of an S3 POST form, and
+the apps send <code>multipart/form-data</code>: those fields, then the file in a part named
+<code>file</code>. altero answers that shape with <code>params</code> empty, and
+<code>/storage/upload/&lt;key&gt;</code> takes the <code>file</code> part of a multipart body and the body
+itself otherwise. Given the desktop shape, the apps fail twice over: both
+require <code>params</code>, and the multipart envelope arrives as the file.</p>
 <p>Uploaded bytes are checked against the declared MD5 and length before being
 stored, and <code>If-Match</code> or <code>If-None-Match</code> is required, so a client working from
 stale information cannot overwrite a newer file.</p>
@@ -3548,6 +3565,12 @@ being pointed at a URL. Confirming therefore takes the password again, the way
 every other credential change in the account does; the CSRF token stops the
 form being submitted from another origin, and the password stops a prepared
 link being worth sending to somebody.</p>
+<p><strong><code>loginURL</code> carries a query, as upstream's does.</strong> Upstream's is
+<code>login?session=&lt;token&gt;</code>, and the Android application appends <code>&amp;app=1</code> to it as
+text. altero's is <code>/keys/sessions/&lt;token&gt;/login?session=&lt;token&gt;</code>; without the
+query the appended text landed in the path and the app opened a 404. The iOS
+application adds a proper query item and works either way. Both then wait on
+the same poll and <code>login-session</code> topic as the desktop client.</p>
 <p>The command line still works and is still the way in when the interface has not
 been built — <code>loginURL</code> then serves the <code>altero login approve</code> instructions as
 it always did, because the API is entirely usable in that state and redirecting

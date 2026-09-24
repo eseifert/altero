@@ -793,10 +793,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mobile-apps-are-not-supported" class="md-nav__link">
+  <a href="#mobile-apps" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Mobile apps are not supported
+        Mobile apps
       </span>
     </span>
   </a>
@@ -1710,10 +1710,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mobile-apps-are-not-supported" class="md-nav__link">
+  <a href="#mobile-apps" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Mobile apps are not supported
+        Mobile apps
       </span>
     </span>
   </a>
@@ -1813,10 +1813,28 @@
 <h2 id="test-with-two-desktop-clients">Test with two desktop clients<a class="headerlink" href="#test-with-two-desktop-clients" title="Permanent link">&para;</a></h2>
 <p>Two Zotero installations on one machine can use separate profiles and data directories. This is useful for testing whether changes really travel through the server rather than only exercising one side of sync.</p>
 <p>See <a href="../testing-two-clients/">Syncing two desktop clients</a>.</p>
-<h2 id="mobile-apps-are-not-supported">Mobile apps are not supported<a class="headerlink" href="#mobile-apps-are-not-supported" title="Permanent link">&para;</a></h2>
-<p>altero currently works with Zotero Desktop only.</p>
-<p>The official Zotero iOS and Android applications compile <code>https://api.zotero.org</code> into the application and expose no runtime setting for another API host. Supporting them would require patched mobile builds, which is outside altero's scope.</p>
-<p>For the reasoning and evidence behind that boundary, see <a href="../motivation/">Why altero exists</a>.</p>
+<h2 id="mobile-apps">Mobile apps<a class="headerlink" href="#mobile-apps" title="Permanent link">&para;</a></h2>
+<p>The official Zotero iOS and Android applications compile <code>https://api.zotero.org</code> and <code>wss://stream.zotero.org</code> into the application and have no setting for another host. To use one with altero, you need a build of your own that sends both to your server. altero does not provide one.</p>
+<p>With such a build, the app signs in, syncs and uploads files as the desktop client does. This is <strong>unofficial but supported</strong>: neither Zotero nor altero publishes such a build, but altero serves the protocol the apps speak, and an app that fails against altero where it works against zotero.org is a bug worth <a href="https://github.com/eseifert/altero/issues">reporting</a>.</p>
+<table>
+<thead>
+<tr>
+<th>App</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Android</td>
+<td>Sync reported working on a device; sign-in and file uploads checked against the app's source, not yet on a device</td>
+</tr>
+<tr>
+<td>iOS</td>
+<td>Checked against the app's source, not yet on a device</td>
+</tr>
+</tbody>
+</table>
+<p>Sign-in works as on the desktop: the app opens altero's sign-in page and receives an API key once you approve it. For what the apps require of the server, see <a href="../compatibility/#the-file-protocol">The file protocol</a> and <a href="../compatibility/#obtaining-a-key">Obtaining a key</a>.</p>
 
 
 
