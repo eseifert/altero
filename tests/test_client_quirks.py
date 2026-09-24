@@ -675,6 +675,113 @@ class TestAttachmentModificationTime:
         assert data["mtime"] == "whenever"
 
 
+class TestAttachmentWithoutAFile:
+    """A stored-file attachment with no file yet serves `md5` and `mtime` as null.
+
+    Upstream renders item JSON with every attachment property present, so an
+    `imported_file`, `imported_url` or `embedded_image` attachment carries both
+    keys whether a file was registered or not (`Zotero_Item::toJSON`, called
+    with `$includeEmpty`). It never stores them empty either: a write naming an
+    empty `md5` or `mtime` is skipped (`Zotero_Items::updateFromJSON`).
+
+    The Android application depends on the null. It repairs a stored digest only
+    when it reads as `"null"` and drops an attachment whose `mtime` does not
+    parse, so an empty string in either leaves the file never uploaded, and
+    only an upload could have filled them in. Reported in issue 13.
+    """
+
+    async def test_both_are_null_before_a_file_arrives(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment", fields=SCRAMBLED)
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+
+        assert data["md5"] is None
+        assert data["mtime"] is None
+        keys = list(data)
+        assert keys.index("filename") < keys.index("md5") < keys.index("mtime")
+
+    async def test_an_empty_value_already_stored_is_served_as_null(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        # What a library written to before this was fixed holds.
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            item_type="attachment",
+            fields=SCRAMBLED | {"md5": "", "mtime": ""},
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+
+        assert data["md5"] is None
+        assert data["mtime"] is None
+
+    async def test_a_linked_attachment_carries_neither(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            item_type="attachment",
+            fields={"linkMode": "linked_url", "url": "https://example.invalid/", "title": "Link"},
+        )
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+
+        assert "md5" not in data
+        assert "mtime" not in data
+
+    async def test_writing_them_empty_stores_nothing(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        written = await client.post(
+            "/users/1/items",
+            headers=AUTH,
+            json=[
+                {
+                    "itemType": "attachment",
+                    "linkMode": "imported_file",
+                    "title": "Empty",
+                    "filename": "empty.pdf",
+                    "md5": "",
+                    "mtime": "",
+                }
+            ],
+        )
+        key = written.json()["success"]["0"]
+
+        data = (await client.get(f"/users/1/items/{key}", headers=AUTH)).json()["data"]
+
+        assert data["md5"] is None
+        assert data["mtime"] is None
+
+    async def test_writing_them_empty_leaves_a_registered_file_alone(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            item_type="attachment",
+            fields=SCRAMBLED | {"md5": "0" * 32, "mtime": "1785701798544"},
+        )
+
+        written = await client.patch(
+            "/users/1/items/AAAA2345",
+            headers=AUTH | {"If-Unmodified-Since-Version": str(item.version)},
+            json={"md5": "", "mtime": ""},
+        )
+        assert written.status_code == 204
+
+        data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        assert data["md5"] == "0" * 32
+        assert data["mtime"] == 1785701798544
+
+
 class TestErrorBodies:
     async def test_an_unexpected_failure_does_not_leak_a_traceback(
         self, client: httpx.AsyncClient, library: Library

@@ -304,6 +304,16 @@ that table is still rejected, so a storage field on a `book` is an error.
 
 If a write is refused with `Invalid field`, this is the first place to look.
 
+**`md5` and `mtime` are null until a file is registered.** On an
+`imported_file`, `imported_url` or `embedded_image` attachment, upstream serves
+both keys whether or not a file exists (`Zotero_Item::toJSON` is called with
+`$includeEmpty`), and `null` until one does. A write naming either as empty is
+skipped rather than stored (`Zotero_Items::updateFromJSON`), so an empty value
+never replaces a registered file's. altero does both, and serves an empty value
+stored before it did as `null` too. The Android application depends on it: it
+repairs a stored digest only when it reads `"null"` and skips an attachment
+whose `mtime` does not parse, so an empty string left the file never uploaded.
+
 ### Timestamps
 
 `dateAdded` and `dateModified` come from the client and round-trip unchanged, so

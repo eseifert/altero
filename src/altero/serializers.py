@@ -21,7 +21,11 @@ from altero.models import (
     User,
 )
 from altero.services.itemdata import creator_summary, parsed_date
-from altero.services.itemwrites import UNLISTED_FIELDS
+from altero.services.itemwrites import (
+    FILE_STATE_FIELDS,
+    STORED_FILE_LINK_MODES,
+    UNLISTED_FIELDS,
+)
 
 #: Path segment used in URLs for each library type.
 _PREFIX = {LibraryType.USER: "users", LibraryType.GROUP: "groups"}
@@ -207,7 +211,7 @@ def _authorship(obj: Item, library: Library, authors: Mapping[int, User]) -> dic
     return rendered
 
 
-def ordered_fields(item_type: str, fields: Mapping[str, str]) -> dict[str, str]:
+def ordered_fields[V](item_type: str, fields: Mapping[str, V]) -> dict[str, V]:
     """Return an item's fields in the order the API emits them.
 
     The order is not cosmetic. ``Zotero.Item.fromJSON``
@@ -254,7 +258,16 @@ def item(
             costs one query instead of two hundred. Missing ids are simply not
             rendered, which is what upstream does for an account that has gone.
     """
-    fields = ordered_fields(obj.item_type, obj.field_values())
+    fields: dict[str, Any] = ordered_fields(obj.item_type, obj.field_values())
+    if fields.get("linkMode") in STORED_FILE_LINK_MODES:
+        # Upstream serves both keys on an attachment that stores a file, as
+        # null until one is registered. `setdefault` would not do: an absent
+        # key has to land in its place in the order, and an empty one written
+        # before writes stopped storing it still has to read as null.
+        fields = ordered_fields(
+            obj.item_type,
+            fields | {name: fields.get(name) or None for name in FILE_STATE_FIELDS},
+        )
 
     data: dict[str, Any] = {"key": obj.key, "version": obj.version, "itemType": obj.item_type}
     if parent_key:

@@ -79,6 +79,14 @@ NOTE_BEARING_TYPES = frozenset({"note", "attachment"})
 #:
 #: Ordered rather than sets, because the order is the one the API emits these in
 #: and the client depends on it: see :func:`altero.serializers.ordered_fields`.
+#: What an attachment says about the file it holds, set when one is registered.
+#: Upstream skips a write naming either empty and serves both as null until then,
+#: on the link modes that store a file (:data:`STORED_FILE_LINK_MODES`).
+FILE_STATE_FIELDS = ("md5", "mtime")
+
+#: The link modes whose attachment has a file on the server.
+STORED_FILE_LINK_MODES = frozenset({"imported_file", "imported_url", "embedded_image"})
+
 UNLISTED_FIELDS: dict[str, tuple[str, ...]] = {
     "attachment": (
         "linkMode",
@@ -242,8 +250,9 @@ def validate_item(
             continue
         if name in unlisted:
             # `md5` and `mtime` are null in an empty template, and null means
-            # absent rather than the string "None".
-            if value is not None:
+            # absent rather than the string "None". Upstream skips them empty as
+            # well, so they are never stored as "" and are served as null.
+            if value is not None and not (name in FILE_STATE_FIELDS and value == ""):
                 fields[name] = str(value)
             continue
         if name not in schema.all_field_names:

@@ -8,6 +8,7 @@ gained a capability worth naming.
 ## [Unreleased]
 
 - The Zotero iOS and Android applications can upload files: an authorization asking for `params=1` is answered with the form they expect, and the upload takes the multipart body they send. Reported by [@raphaelbahat] in [Issue#13].
+- An attachment with no file yet serves `md5` and `mtime` as null, as upstream does, and a write naming either empty is skipped. The Android application never uploaded a file for an attachment that carried them as empty strings. Reported by [@raphaelbahat] in [Issue#13].
 - An upload that stops part way no longer leaves a file where a whole one should be: the bytes are written under a name of their own and moved onto their digest, so the store holds a file or does not. A restore writes the same way, and a file left half written is swept with the unreferenced ones. Reported by [@raphaelbahat] in [Issue#11].
 - Ukrainian joins the interface languages, counting in three forms as Russian and Polish do and taking its words from Zotero's own Ukrainian.
 - Registering an upload reads the stored file back and refuses it unless it is the one that was sent, so a store that takes a write and loses it costs a retry rather than an attachment the client will never offer again.
