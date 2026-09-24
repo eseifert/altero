@@ -1815,6 +1815,7 @@
 <p>See <a href="../testing-two-clients/">Syncing two desktop clients</a>.</p>
 <h2 id="mobile-apps">Mobile apps<a class="headerlink" href="#mobile-apps" title="Permanent link">&para;</a></h2>
 <p>The official Zotero iOS and Android applications compile <code>https://api.zotero.org</code> and <code>wss://stream.zotero.org</code> into the application and have no setting for another host. To use one with altero, you need a build of your own that sends both to your server. altero does not provide one.</p>
+<p>For Android, <a href="https://github.com/raphaelbahat/zotero-self-hosted-sync">zotero-self-hosted-sync</a> is a patch bundle for <a href="https://morphe.software/">Morphe</a> that rewrites both addresses to a server you name when patching. It is a third-party project, not maintained or reviewed here, and it supports specific app versions only (1.0.0-247 at the time of writing); check its README for the current list. The patched app holds your API key, so treat it as you would any client you give one to.</p>
 <p>With such a build, the app signs in, syncs and uploads files as the desktop client does. This is <strong>unofficial but supported</strong>: neither Zotero nor altero publishes such a build, but altero serves the protocol the apps speak, and an app that fails against altero where it works against zotero.org is a bug worth <a href="https://github.com/eseifert/altero/issues">reporting</a>.</p>
 <table>
 <thead>
@@ -1826,7 +1827,7 @@
 <tbody>
 <tr>
 <td>Android</td>
-<td>Sync reported working on a device; sign-in and file uploads checked against the app's source, not yet on a device</td>
+<td>Sync in both directions, including file uploads, reported working on a device (app 1.0.0-247)</td>
 </tr>
 <tr>
 <td>iOS</td>
