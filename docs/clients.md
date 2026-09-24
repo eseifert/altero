@@ -100,11 +100,13 @@ See [Syncing two desktop clients](testing-two-clients.md).
 
 The official Zotero iOS and Android applications compile `https://api.zotero.org` and `wss://stream.zotero.org` into the application and have no setting for another host. To use one with altero, you need a build of your own that sends both to your server. altero does not provide one.
 
+For Android, [zotero-self-hosted-sync](https://github.com/raphaelbahat/zotero-self-hosted-sync) is a patch bundle for [Morphe](https://morphe.software/) that rewrites both addresses to a server you name when patching. It is a third-party project, not maintained or reviewed here, and it supports specific app versions only (1.0.0-247 at the time of writing); check its README for the current list. The patched app holds your API key, so treat it as you would any client you give one to.
+
 With such a build, the app signs in, syncs and uploads files as the desktop client does. This is **unofficial but supported**: neither Zotero nor altero publishes such a build, but altero serves the protocol the apps speak, and an app that fails against altero where it works against zotero.org is a bug worth [reporting](https://github.com/eseifert/altero/issues).
 
 | App     | Status                                                                                                            |
 |---------|-------------------------------------------------------------------------------------------------------------------|
-| Android | Sync reported working on a device; sign-in and file uploads checked against the app's source, not yet on a device |
+| Android | Sync in both directions, including file uploads, reported working on a device (app 1.0.0-247)                     |
 | iOS     | Checked against the app's source, not yet on a device                                                             |
 
 Sign-in works as on the desktop: the app opens altero's sign-in page and receives an API key once you approve it. For what the apps require of the server, see [The file protocol](compatibility.md#the-file-protocol) and [Obtaining a key](compatibility.md#obtaining-a-key).

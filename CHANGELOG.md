@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The documentation points Android users at [zotero-self-hosted-sync], a third-party patch bundle by [@raphaelbahat] that points the app at altero, and records Android sync as working on a device.
 - The documentation says how the iOS and Android applications reach altero: through a build of your own, unofficially but supported.
 - The Zotero iOS and Android applications can sign in: the login page's address carries a query, as upstream's does, so the `&app=1` the Android application appends to it no longer names a page that does not exist.
 - An attachment with no file yet serves `md5` and `mtime` as null, as upstream does, and a write naming either empty is skipped. The Android application never uploaded a file for an attachment that carried them as empty strings. Reported by [@raphaelbahat] in [Issue#13].
@@ -148,6 +149,7 @@ The first release meant to be used by somebody other than its author.
 [0.1.0]: https://github.com/eseifert/altero/releases/tag/v0.1.0
 
 [@raphaelbahat]: https://github.com/raphaelbahat
+[zotero-self-hosted-sync]: https://github.com/raphaelbahat/zotero-self-hosted-sync
 [@sadgen]: https://github.com/sadgen
 [@ScatteredComet]: https://github.com/ScatteredComet
 [PR#7]: https://github.com/eseifert/altero/pull/7

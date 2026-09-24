@@ -21,7 +21,7 @@ This page is the feature-level status of altero's Zotero v3 compatibility.
 | OAuth 2.0 and OIDC provider               |   ✅   | Scoped tokens for third-party applications, confinable to chosen libraries and collections; requires a stable public URL |
 | Passkeys and optional second factors      |   ✅   | Passkeys require a stable public URL                                                                                     |
 | Import a personal library from zotero.org |   ✅   | Preserves object keys and versions                                                                                       |
-| Zotero iOS and Android apps               |   ⚠️   | Unofficial: needs a build pointed at altero; Android sync reported working, the rest untested                            |
+| Zotero iOS and Android apps               |   ⚠️   | Unofficial: needs a build pointed at altero; Android reported working on a device, iOS untested                          |
 
 ## Synchronization and API behavior implemented
 
