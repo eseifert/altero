@@ -294,6 +294,100 @@ class TestAuthorization:
         assert response.status_code == 403
 
 
+class TestFormUpload:
+    """The upload the mobile clients make, asking for a form with ``params=1``.
+
+    Upstream answers that request with an S3 form, ``{url, params, uploadKey}``,
+    and the Zotero iOS and Android applications send it as ``multipart/form-data``
+    with the file in a part named ``file``. Neither reads ``prefix`` or ``suffix``.
+    """
+
+    async def authorize(self, client: httpx.AsyncClient, key: str) -> dict:
+        response = await client.post(
+            f"/users/1/items/{key}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data=authorization(params=1),
+        )
+        assert response.status_code == 200
+        return response.json()
+
+    async def test_asking_for_params_answers_with_a_form(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        body = await self.authorize(client, attachment)
+
+        # Upstream's keys, in upstream's order. The form is empty because
+        # there is no storage service here asking for fields of its own.
+        assert list(body) == ["url", "params", "uploadKey"]
+        assert body["params"] == {}
+
+    async def test_a_known_file_still_needs_no_upload(
+        self, client: httpx.AsyncClient, attachment: str, session: AsyncSession, library: Library
+    ) -> None:
+        await upload(client, attachment)
+        await make_item(session, library, key="BBBB2345", item_type="attachment")
+
+        body = await self.authorize(client, "BBBB2345")
+
+        assert body == {"exists": 1}
+
+    async def test_a_multipart_upload_round_trips(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        body = await self.authorize(client, attachment)
+
+        sent = await client.post(body["url"], files={"file": ("moby.txt", CONTENT, "text/plain")})
+        assert sent.status_code == 201
+        registered = await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data={"upload": body["uploadKey"]},
+        )
+        assert registered.status_code == 204
+
+        response = await client.get(
+            f"/users/1/items/{attachment}/file", headers=AUTH, follow_redirects=True
+        )
+        assert response.content == CONTENT
+
+    async def test_the_form_fields_are_sent_back_beside_the_file(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        body = await self.authorize(client, attachment)
+
+        # The clients post every field of `params` before the file, as S3
+        # requires. There are none today, but a field is not the file.
+        sent = await client.post(
+            body["url"],
+            data={"key": "ignored"},
+            files={"file": ("moby.txt", CONTENT, "text/plain")},
+        )
+
+        assert sent.status_code == 201
+
+    async def test_a_multipart_upload_is_checked_like_any_other(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        body = await self.authorize(client, attachment)
+
+        sent = await client.post(
+            body["url"], files={"file": ("moby.txt", b"x" * len(CONTENT), "text/plain")}
+        )
+
+        assert sent.status_code == 400
+
+    async def test_a_multipart_upload_without_a_file_is_refused(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        body = await self.authorize(client, attachment)
+
+        sent = await client.post(
+            body["url"], data={"file": CONTENT.decode()}, files={"other": ("x", b"", "text/plain")}
+        )
+
+        assert sent.status_code == 400
+
+
 class TestUploadAndRegistration:
     async def test_a_file_round_trips(self, client: httpx.AsyncClient, attachment: str) -> None:
         await upload(client, attachment)

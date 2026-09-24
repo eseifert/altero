@@ -8,6 +8,7 @@ authorization step points back here.
 from pathlib import Path
 
 from fastapi import APIRouter
+from starlette.datastructures import UploadFile
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
@@ -19,7 +20,7 @@ from altero.api.deps import (
     SessionDep,
 )
 from altero.api.responses import library_headers
-from altero.errors import NotFoundError, RequestTooLargeError
+from altero.errors import InvalidInputError, NotFoundError, RequestTooLargeError
 from altero.models import Item
 from altero.services import items as items_service
 from altero.services import storage, writes
@@ -74,7 +75,13 @@ async def upload_file(
         raise RequestTooLargeError("File is too large")
 
     result = await storage.authorize(
-        session, library, item, declared, _storage_root(request), base_url
+        session,
+        library,
+        item,
+        declared,
+        _storage_root(request),
+        base_url,
+        as_form=form.get("params") == "1",
     )
 
     if "exists" in result:
@@ -98,7 +105,7 @@ async def receive_upload(upload_key: str, request: Request, session: SessionDep)
     """
     upload = await storage.get_upload(session, upload_key)
 
-    body = await request.body()
+    body = await _upload_body(request)
     if len(body) > MAX_UPLOAD_BYTES:
         raise RequestTooLargeError("File is too large")
 
@@ -107,6 +114,24 @@ async def receive_upload(upload_key: str, request: Request, session: SessionDep)
     await session.commit()
 
     return Response(status_code=201)
+
+
+async def _upload_body(request: Request) -> bytes:
+    """Return the bytes of the file being uploaded.
+
+    The desktop client sends them as the body. The mobile applications, having
+    asked for a form with ``params=1``, send ``multipart/form-data`` with the
+    file in a part named ``file``, beside the form's fields.
+    """
+    content_type = request.headers.get("Content-Type", "")
+    if not content_type.lower().startswith("multipart/form-data"):
+        return await request.body()
+
+    async with request.form(max_part_size=MAX_UPLOAD_BYTES) as form:
+        file = form.get("file")
+        if not isinstance(file, UploadFile):
+            raise InvalidInputError("No file provided")
+        return await file.read()
 
 
 async def _file_response(item: Item, root: Path, *, expected_md5: str | None = None) -> Response:

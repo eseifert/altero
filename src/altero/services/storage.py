@@ -260,10 +260,16 @@ async def authorize(
     declared: dict[str, Any],
     root: Path,
     base_url: str = "",
+    *,
+    as_form: bool = False,
 ) -> dict[str, Any]:
     """Authorize an upload, or report that the bytes are already held.
 
     Returns either ``{"exists": 1}`` or the instructions for sending the file.
+    Those come in the shape the client asked for: ``prefix`` and ``suffix`` to
+    wrap the file in, which the desktop client reads, or with ``as_form`` --
+    ``params=1`` on the request -- the fields of a multipart form, which is what
+    the iOS and Android applications ask for and send.
     """
     _require_attachment(item)
 
@@ -288,10 +294,17 @@ async def authorize(
     session.add(upload)
     await session.flush()
 
+    # Absolute: the client hands this straight to XMLHttpRequest.open(),
+    # which rejects a bare path.
+    url = f"{base_url}/storage/upload/{upload.key}"
+
+    if as_form:
+        # Upstream fills `params` with the S3 policy fields. There are none
+        # here, so the form carries the file alone.
+        return {"url": url, "params": {}, "uploadKey": upload.key}
+
     return {
-        # Absolute: the client hands this straight to XMLHttpRequest.open(),
-        # which rejects a bare path.
-        "url": f"{base_url}/storage/upload/{upload.key}",
+        "url": url,
         "contentType": declared["content_type"] or "application/octet-stream",
         # Upstream fills these with the S3 form envelope. There is none here, so
         # the client sends the file with nothing wrapped around it.
