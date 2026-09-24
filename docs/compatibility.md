@@ -513,6 +513,15 @@ altero and both are empty strings, meaning the client sends the file with
 nothing wrapped around it. A client that concatenates prefix, file and suffix as
 documented still produces exactly the file.
 
+**The mobile applications ask for a form.** The iOS and Android applications
+add `params=1` to the authorization. Upstream then answers
+`{url, params, uploadKey}`, `params` being the fields of an S3 POST form, and
+the apps send `multipart/form-data`: those fields, then the file in a part named
+`file`. altero answers that shape with `params` empty, and
+`/storage/upload/<key>` takes the `file` part of a multipart body and the body
+itself otherwise. Given the desktop shape, the apps fail twice over: both
+require `params`, and the multipart envelope arrives as the file.
+
 Uploaded bytes are checked against the declared MD5 and length before being
 stored, and `If-Match` or `If-None-Match` is required, so a client working from
 stale information cannot overwrite a newer file.

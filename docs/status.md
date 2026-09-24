@@ -2,7 +2,7 @@
 
 This page is the feature-level status of altero's Zotero v3 compatibility.
 
-**Short version:** ordinary Zotero Desktop synchronization is the target; the official mobile apps are not supported.
+**Short version:** ordinary Zotero Desktop synchronization is the target; the official mobile apps work through a build of your own, unofficially but supported.
 
 ## User-facing capabilities
 
@@ -21,7 +21,7 @@ This page is the feature-level status of altero's Zotero v3 compatibility.
 | OAuth 2.0 and OIDC provider               |   ✅   | Scoped tokens for third-party applications, confinable to chosen libraries and collections; requires a stable public URL |
 | Passkeys and optional second factors      |   ✅   | Passkeys require a stable public URL                                                                                     |
 | Import a personal library from zotero.org |   ✅   | Preserves object keys and versions                                                                                       |
-| Zotero iOS and Android apps               |   ❌   | No runtime alternate API host in the official apps                                                                       |
+| Zotero iOS and Android apps               |   ⚠️   | Unofficial: needs a build pointed at altero; Android sync reported working, the rest untested                            |
 
 ## Synchronization and API behavior implemented
 
@@ -67,7 +67,6 @@ These are not required for basic Zotero compatibility but are available on an al
 ## Not implemented
 
 - Zotero's **Note HTML** and **Note Markdown** translators. These create a note rather than an ordinary bibliography/export response.
-- The official Zotero iOS and Android clients, because they cannot be pointed at an alternate API host at runtime.
 
 ## Client requests without a reference server implementation
 

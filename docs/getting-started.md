@@ -106,4 +106,4 @@ Create a few items, collections and attachments in the test profile and let them
 
 ## What this setup does not support
 
-The official Zotero iOS and Android applications cannot be pointed at an alternate API host at runtime. altero therefore targets the unmodified desktop application, not the official mobile apps. See [Connecting a Zotero client](clients.md#mobile-apps-are-not-supported).
+The official Zotero iOS and Android applications cannot be pointed at another API host at runtime, so this guide covers the desktop application. The apps reach altero only through a build of your own; see [Mobile apps](clients.md#mobile-apps).

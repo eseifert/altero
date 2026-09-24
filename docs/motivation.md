@@ -62,7 +62,7 @@ These are secondary to reliable synchronization. A useful feature that breaks a 
 
 - **Replace zotero.org for everybody.** Hosted Zotero sync is convenient and supports Zotero's development.
 - **Fork Zotero Desktop.** If altero requires a patched desktop client, the main compatibility goal has failed.
-- **Ship patched mobile apps.** The official mobile clients do not expose an alternate API host at runtime.
+- **Ship patched mobile apps.** The official mobile clients do not expose an alternate API host at runtime. altero serves a build pointed at it, but does not make or distribute one.
 - **Change the API simply because a different design would be cleaner.** Compatibility comes first at the protocol boundary.
 
 ## What success looks like
