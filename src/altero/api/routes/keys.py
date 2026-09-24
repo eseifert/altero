@@ -96,7 +96,10 @@ async def start_login_session(
     return JSONResponse(
         {
             "sessionToken": login.token,
-            "loginURL": f"{base_url}/keys/sessions/{login.token}/login",
+            # With a query, as upstream's `login?session=<token>` has: the
+            # Android application appends `&app=1` to the string, which on a
+            # URL with no query lands in the path and names no page at all.
+            "loginURL": f"{base_url}/keys/sessions/{login.token}/login?session={login.token}",
         },
         status_code=201,
     )

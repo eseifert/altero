@@ -686,6 +686,13 @@ every other credential change in the account does; the CSRF token stops the
 form being submitted from another origin, and the password stops a prepared
 link being worth sending to somebody.
 
+**`loginURL` carries a query, as upstream's does.** Upstream's is
+`login?session=<token>`, and the Android application appends `&app=1` to it as
+text. altero's is `/keys/sessions/<token>/login?session=<token>`; without the
+query the appended text landed in the path and the app opened a 404. The iOS
+application adds a proper query item and works either way. Both then wait on
+the same poll and `login-session` topic as the desktop client.
+
 The command line still works and is still the way in when the interface has not
 been built — `loginURL` then serves the `altero login approve` instructions as
 it always did, because the API is entirely usable in that state and redirecting

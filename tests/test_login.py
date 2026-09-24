@@ -82,7 +82,27 @@ class TestLoginSession:
         assert response.status_code == 201
         body = response.json()
         assert body["sessionToken"]
-        assert body["loginURL"].endswith(f"/keys/sessions/{body['sessionToken']}/login")
+        assert f"/keys/sessions/{body['sessionToken']}/login?" in body["loginURL"]
+
+    async def test_the_page_survives_what_the_mobile_apps_append(
+        self, client: httpx.AsyncClient, user: None, as_if_built: object
+    ) -> None:
+        """The Android application appends ``&app=1`` to the URL as text.
+
+        Upstream's `loginURL` already carries a query, ``login?session=<token>``,
+        so that makes a second parameter. On a URL with none it lands in the
+        path and names a page that does not exist. The iOS application adds a
+        proper query item, which works either way.
+        """
+        body = (await client.post("/keys/sessions")).json()
+        url = httpx.URL(body["loginURL"])
+
+        # Android's string concatenation, then iOS's `appendingQueryItem`.
+        for opened in (f"{url}&app=1", str(url.copy_add_param("app", "1"))):
+            response = await client.get(opened)
+
+            assert response.status_code == 303
+            assert response.headers["location"] == f"/app/link?token={body['sessionToken']}"
 
     async def test_a_fresh_session_is_pending(self, client: httpx.AsyncClient, user: None) -> None:
         token = (await client.post("/keys/sessions")).json()["sessionToken"]
