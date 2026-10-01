@@ -39,6 +39,7 @@ def main() -> int:
     parser.add_argument("--desktop-version")
     parser.add_argument("--xvfb", action="store_true")
     parser.add_argument("--schema-corpus", action="store_true")
+    parser.add_argument("--scenario", action="append", help="Run only a named desktop scenario")
     parser.add_argument("--markdown", type=Path)
     parser.add_argument("--evidence", type=Path, help="Write the bounded automated-review input")
     parser.add_argument(
@@ -60,6 +61,7 @@ def main() -> int:
                     args.state_dir,
                     xvfb=args.xvfb,
                     corpus=args.schema_corpus,
+                    scenarios=args.scenario,
                 )
             )
             return 0

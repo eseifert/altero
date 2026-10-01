@@ -55,7 +55,7 @@ def item_state(snapshot: dict) -> dict:
     return {item["key"]: item for item in snapshot["items"]}
 
 
-async def run_acceptance(
+async def run_baseline(
     executable: Path, version: str, root: Path, *, xvfb=False, corpus=False
 ) -> dict:
     """Keep every phase result and profile for review; refuse existing state."""
@@ -171,4 +171,43 @@ async def run_acceptance(
             (root / "acceptance.json").write_text(json.dumps(report, indent=2) + "\n")
             raise
     (root / "acceptance.json").write_text(json.dumps(report, indent=2) + "\n")
+    return report
+
+
+SCENARIOS = ("baseline", "conflicts")
+
+
+async def run_acceptance(
+    executable: Path, version: str, root: Path, *, xvfb=False, corpus=False, scenarios=None
+) -> dict:
+    """Each scenario gets two profiles and its own server; retain failures."""
+    from tools.compatibility.acceptance_conflicts import conflicts
+
+    selected = tuple(scenarios or SCENARIOS)
+    if not selected or any(name not in SCENARIOS for name in selected):
+        raise CompatibilityError("Unknown or empty acceptance scenario selection")
+    root.mkdir(parents=True, exist_ok=False)
+    report: dict = dict(passed=False, desktop_version=version, scenarios={})
+    try:
+        async with display(root, xvfb):
+            for name in selected:
+                scenario_root = root / name
+                if name == "baseline":
+                    result = await run_baseline(executable, version, scenario_root, corpus=corpus)
+                else:
+                    scenario_root.mkdir()
+                    async with disposable_server(scenario_root / "server") as server:
+                        runner = AcceptanceRun(executable, version, scenario_root, server)
+                        try:
+                            await conflicts(runner)
+                        finally:
+                            report["scenarios"][name] = dict(phases=runner.phases)
+                    result = dict(passed=True, phases=runner.phases)
+                report["scenarios"][name] = result
+        report["passed"] = True
+    except Exception as error:
+        report["error"] = str(error)
+        raise
+    finally:
+        (root / "acceptance.json").write_text(json.dumps(report, indent=2) + "\n")
     return report

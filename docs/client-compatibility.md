@@ -323,7 +323,22 @@ convergence, trash/restore propagation, deletion of parent and children, and
 all 40 schema types serialized by desktop A and downloaded into desktop B.
 The schema phase disables file transfer because its generated attachment has
 metadata only; the preceding file scenario checks real byte transfer.
-Same-field conflict dialogs and group-removal prompts remain runtime gaps.
+The acceptance command also runs same-field conflicts in a separate pair of
+profiles. It selects the local and remote panes in the actual merge dialog and
+clicks Finish, checks both desktops against the server and requires another sync to
+leave the library watermark unchanged. Unexpected or missing dialogs fail the
+phase; prompt/reconciliation methods are never replaced. Group-removal prompts
+remain runtime gaps.
+
+Each desktop has its own temporary directory and waits for schema/bundled-file
+initialization before running operations. This avoids shared translator staging
+files and shutdown racing unfinished startup work.
+
+Use `--scenario baseline` or `--scenario conflicts` to run one scenario; repeat
+the flag to select several. The default runs every implemented scenario, each
+with its own profiles and server under the new state directory. The top-level
+`acceptance.json` records scenario results and each subdirectory retains its
+phase snapshots and desktop logs.
 
 Acceptance phase snapshots also record collections, saved searches, pending
 object uploads and group permissions. `AcceptanceRun` compares persisted objects

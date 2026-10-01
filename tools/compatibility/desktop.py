@@ -36,6 +36,7 @@ def prepare_profile(root: Path, server_url: str) -> Path:
     with ZipFile(extensions / f"{PLUGIN_ID}.xpi", "w") as archive:
         archive.writestr("manifest.json", json.dumps(manifest))
         archive.write(BOOTSTRAP, "bootstrap.js")
+        archive.write(BOOTSTRAP.with_name("desktop_dialogs.js"), "dialogs.js")
     preferences = {
         "app.update.enabled": False,
         "extensions.update.enabled": False,
@@ -80,6 +81,7 @@ async def run_phase(
     user_id: int = 1,
     username: str = "compatibility",
     group_id: int | None = None,
+    dialogs: list[dict] | None = None,
 ) -> dict:
     result_path = root / "result.json"
     result_path.unlink(missing_ok=True)
@@ -94,11 +96,14 @@ async def run_phase(
                 user_id=user_id,
                 username=username,
                 group_id=group_id,
+                dialogs=dialogs or [],
                 result=str(result_path.resolve()),
             )
         )
     )
-    environment = os.environ | {"MOZ_NO_REMOTE": "1"}
+    temporary = root / "tmp"
+    temporary.mkdir(exist_ok=True)
+    environment = os.environ | {"MOZ_NO_REMOTE": "1", "TMPDIR": str(temporary.resolve())}
     log = (root / "desktop.log").open("ab")
     try:
         process = await asyncio.create_subprocess_exec(

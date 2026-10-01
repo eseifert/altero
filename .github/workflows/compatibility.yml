@@ -212,11 +212,13 @@ jobs:
         with:
           name: desktop-acceptance
           path: |
-            .compatibility/desktop-run/*.json
+            .compatibility/desktop-run/acceptance.json
+            .compatibility/desktop-run/*/acceptance.json
+            .compatibility/desktop-run/*/phase-*.json
             .compatibility/desktop-run/xvfb.log
-            .compatibility/desktop-run/A/desktop.log
-            .compatibility/desktop-run/B/desktop.log
-            .compatibility/desktop-run/A/data/zotero.sqlite
-            .compatibility/desktop-run/B/data/zotero.sqlite
+            .compatibility/desktop-run/*/A/desktop.log
+            .compatibility/desktop-run/*/B/desktop.log
+            .compatibility/desktop-run/*/A/data/zotero.sqlite
+            .compatibility/desktop-run/*/B/data/zotero.sqlite
           retention-days: 14
           if-no-files-found: ignore

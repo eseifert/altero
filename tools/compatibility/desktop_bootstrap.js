@@ -1,5 +1,6 @@
 // Installed only in disposable acceptance profiles. No hooks change sync behavior.
-function startup() {
+function startup(data) {
+  Services.scriptloader.loadSubScript(data.rootURI + "dialogs.js", globalThis);
   Zotero.initializationPromise.then(runAcceptance).catch(writeFailure);
 }
 function shutdown() {}
@@ -14,11 +15,13 @@ async function writeFailure(error) {
 
 async function runAcceptance() {
   await Zotero.uiReadyPromise;
+  await Zotero.Schema.schemaUpdatePromise;
   const config = JSON.parse(await IOUtils.readUTF8(Services.prefs.getStringPref("extensions.altero.acceptance.config")));
   if (Zotero.version !== config.version) throw new Error(`Expected desktop ${config.version}, got ${Zotero.version}`);
   await Zotero.Users.setCurrentUserID(config.user_id ?? 1);
   await Zotero.Users.setCurrentUsername(config.username ?? "compatibility");
   await Zotero.Sync.Data.Local.setAPIKey(config.key);
+  const dialogs = watchAcceptanceDialogs(config.dialogs ?? []);
   const selectedLibrary = () => config.group_id
     ? Zotero.Groups.get(config.group_id)?.libraryID : Zotero.Libraries.userLibraryID;
   let libraryID = selectedLibrary();
@@ -90,8 +93,9 @@ async function runAcceptance() {
     id: group.id, name: group.name, editable: group.editable,
     filesEditable: group.filesEditable, archived: group.archived
   }));
+  dialogs.finish();
   await IOUtils.writeUTF8(config.result, JSON.stringify({ version: Zotero.version,
     items: snapshot, files, collections: collections.map(value => value.toJSON()),
-    searches: searches.map(value => value.toJSON()), unsynced, groups }));
+    searches: searches.map(value => value.toJSON()), unsynced, groups, dialogs: dialogs.trace }));
   Services.startup.quit(Services.startup.eForceQuit);
 }

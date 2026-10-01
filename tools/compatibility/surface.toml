@@ -74,6 +74,11 @@ operation = "convergence"
 status = "executable"
 tests = ["compatibility_tests/test_sequences.py"]
 
+[scenarios.same_field_conflicts]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_conflicts.py"]
+
 [scenarios.streaming]
 operation = "streaming"
 status = "executable"
