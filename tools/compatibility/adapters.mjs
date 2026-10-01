@@ -1,6 +1,31 @@
 // Fixtures replace persistence and HTTP, while original functions make decisions.
 export function adapterScript(name) {
   if (name === "pure") return "selected(...args)";
+  if (name === "streamer") return `(async () => {
+    const syncs = [], errors = [], delays = [];
+    class WebSocket { constructor() {} }
+    globalThis.WebSocket = WebSocket;
+    globalThis.Zotero = {
+      debug() {}, logError: error => errors.push(error),
+      URI: {getPathLibrary: topic => fixtures.libraries[topic]},
+      Sync: {Runner: {sync: async options => syncs.push(options)},
+        Data: {Local: {filterSkippedLibraries: libraries => libraries.filter(l => !l.skipped)}}},
+      Schema: {onUpdateNotification: async () => {}},
+      Utilities: {Internal: {delayGenerator: function* (intervals) {
+        for (const ms of intervals) { delays.push(ms); yield Promise.resolve(); }
+      }}},
+    };
+    const receiver = {url: 'ws://disposable.invalid', _subscriptions: new Set(),
+      _topicListeners: new Map(), _hideAPIKey: dependencies.streamer_hide_key, updates: 0,
+      _update() { this.updates++; }};
+    await selected.call(receiver);
+    for (const message of fixtures.messages) {
+      await receiver._socket.onmessage({data: JSON.stringify(message)});
+    }
+    if (fixtures.close) await receiver._socket.onclose(fixtures.close);
+    return {syncs, errors, delays, updates: receiver.updates,
+      ready: receiver._ready, subscriptions: [...receiver._subscriptions]};
+  })()`;
   if (name === "api_versions") return `(async () => {
     const requests = [];
     let params;

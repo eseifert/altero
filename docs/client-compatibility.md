@@ -295,3 +295,9 @@ all 40 schema types serialized by desktop A and downloaded into desktop B.
 The schema phase disables file transfer because its generated attachment has
 metadata only; the preceding file scenario checks real byte transfer.
 Same-field conflict dialogs and group-removal prompts remain runtime gaps.
+
+Streaming scenarios subscribe over a real WebSocket, make a live write and feed
+the greeting, subscription changes and notification into the original `_connect`
+message handler. They check sync scheduling, already-current and skipped libraries,
+and reconnect delays. The replay supplies a socket facade and virtual clock;
+actual desktop reconnect timing and UI scheduling are not exercised.

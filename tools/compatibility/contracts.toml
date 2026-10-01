@@ -147,3 +147,17 @@ source = "chrome/content/zotero/xpcom/storage/zfs.js"
 selector = "_uploadFile"
 sha256 = "4d4f57b5130ee3102ce6bddfa2294b28815a2034504b6cd7067a655ffdcb7ac5"
 tests = ["compatibility_tests/test_storage_replay.py"]
+
+[contracts.streamer_connect]
+source = "chrome/content/zotero/xpcom/streamer.js"
+selector = "_connect"
+sha256 = "fa5ff34f46a979032107f0aef102364fd3054a1fcc01ff1b93d96b393edb0502"
+adapter = "streamer"
+dependencies = ["streamer_hide_key"]
+tests = ["compatibility_tests/test_streamer_replay.py"]
+
+
+[contracts.streamer_hide_key]
+source = "chrome/content/zotero/xpcom/streamer.js"
+selector = "_hideAPIKey"
+sha256 = "fa5ff34f46a979032107f0aef102364fd3054a1fcc01ff1b93d96b393edb0502"

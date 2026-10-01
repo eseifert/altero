@@ -76,8 +76,8 @@ tests = ["compatibility_tests/test_sequences.py"]
 
 [scenarios.streaming]
 operation = "streaming"
-status = "pending"
-reason = "Original streamer message decisions and live socket notifications need scenarios."
+status = "executable"
+tests = ["compatibility_tests/test_streamer_replay.py"]
 
 [scenarios.group_removal_prompts]
 operation = "groups"
