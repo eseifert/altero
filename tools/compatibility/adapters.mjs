@@ -1,6 +1,29 @@
 // Fixtures replace persistence and HTTP, while original functions make decisions.
 export function adapterScript(name) {
   if (name === "pure") return "selected(...args)";
+  if (name === "api_versions") return `(async () => {
+    const requests = [];
+    let params;
+    globalThis.Zotero = {
+      debug() {},
+      DataObjectUtilities: {
+        getObjectTypePlural: type => ({item: 'items', collection: 'collections', search: 'searches'})[type],
+      },
+    };
+    const receiver = {
+      buildRequestURI: value => { params = value; return '/captured-response'; },
+      _parseJSON: dependencies.parse_json,
+      makeRequest: async (method, uri, options) => {
+        requests.push({method, uri, options, params});
+        return {
+          status: fixtures.status, responseText: fixtures.text,
+          getResponseHeader: name => fixtures.headers[name.toLowerCase()] ?? null,
+        };
+      },
+    };
+    const value = await selected.call(receiver, ...args);
+    return {value, requests};
+  })()`;
   if (name !== "group_refresh") throw new Error(`Unknown adapter: ${name}`);
   return `(async () => {
     const known = new Map();

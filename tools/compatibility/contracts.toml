@@ -19,3 +19,15 @@ dependencies = ["group_permissions", "group_from_json"]
 source = "chrome/content/zotero/xpcom/data/group.js"
 selector = "Zotero.Group.prototype.fromJSON"
 sha256 = "3d46ab3c324d78f737ecb362a5afb1d9e03b5938ea29d9e7a807000ea9cedc10"
+
+[contracts.sync_versions]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getVersions"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+adapter = "api_versions"
+dependencies = ["parse_json"]
+
+[contracts.parse_json]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "_parseJSON"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
