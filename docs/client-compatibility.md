@@ -325,6 +325,13 @@ The schema phase disables file transfer because its generated attachment has
 metadata only; the preceding file scenario checks real byte transfer.
 Same-field conflict dialogs and group-removal prompts remain runtime gaps.
 
+Acceptance phase snapshots also record collections, saved searches, pending
+object uploads and group permissions. `AcceptanceRun` compares persisted objects
+on both desktops with server responses, normalizing omitted empty/default
+properties while retaining keys and versions. Matching item titles alone cannot
+claim convergence. Its group selector requires discovery before local edits;
+each profile's account identity is explicit.
+
 Streaming scenarios subscribe over a real WebSocket, make a live write and feed
 the greeting, subscription changes and notification into the original `_connect`
 message handler. They check sync scheduling, already-current and skipped libraries,

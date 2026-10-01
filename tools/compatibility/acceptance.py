@@ -8,9 +8,9 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from tools.compatibility.acceptance_runtime import AcceptanceRun
 from tools.compatibility.client import CompatibilityError
 from tools.compatibility.corpus import schema_corpus
-from tools.compatibility.desktop import prepare_profile, run_phase
 from tools.compatibility.runtime import disposable_server
 
 
@@ -62,22 +62,17 @@ async def run_acceptance(
     root.mkdir(parents=True, exist_ok=False)
     phases = []
     async with display(root, xvfb), disposable_server(root / "server") as server:
-        for name in ("A", "B"):
-            prepare_profile(root / name, server.url)
+        runner = AcceptanceRun(executable, version, root, server)
 
         async def phase(name, operations=(), *, sync=True, files=True):
-            snapshot = await run_phase(
-                executable,
-                root / name,
-                version=version,
-                key=server.key,
-                operations=list(operations),
+            snapshot = await runner.phase(
+                name,
+                operations,
                 sync=sync,
                 files=files,
             )
             number = len(phases) + 1
             path = root / f"phase-{number}-{name}.json"
-            path.write_text(json.dumps(snapshot, ensure_ascii=False, indent=2) + "\n")
             phases.append(
                 {
                     "client": name,
@@ -112,6 +107,7 @@ async def run_acceptance(
             )
             second = await phase("B")
             assert item_state(first) == item_state(second), "Initial desktop states differ"
+            await runner.converged(first, second)
             expected_file = base64.b64encode(content).decode()
             assert list(first["files"].values()) == [expected_file]
             assert second["files"] == first["files"], "Attachment bytes did not reach desktop B"
@@ -135,6 +131,7 @@ async def run_acceptance(
             merged = await phase("B")
             converged = await phase("A")
             assert item_state(merged) == item_state(converged), "Offline clients did not converge"
+            await runner.converged(merged, converged)
             item = item_state(converged)["ABCD2345"]
             assert item["title"] == "Offline A 東京"
             assert item["abstractNote"] == "Offline B Über"

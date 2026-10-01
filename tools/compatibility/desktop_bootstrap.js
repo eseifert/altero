@@ -16,11 +16,14 @@ async function runAcceptance() {
   await Zotero.uiReadyPromise;
   const config = JSON.parse(await IOUtils.readUTF8(Services.prefs.getStringPref("extensions.altero.acceptance.config")));
   if (Zotero.version !== config.version) throw new Error(`Expected desktop ${config.version}, got ${Zotero.version}`);
-  await Zotero.Users.setCurrentUserID(1);
-  await Zotero.Users.setCurrentUsername("compatibility");
+  await Zotero.Users.setCurrentUserID(config.user_id ?? 1);
+  await Zotero.Users.setCurrentUsername(config.username ?? "compatibility");
   await Zotero.Sync.Data.Local.setAPIKey(config.key);
-  const libraryID = Zotero.Libraries.userLibraryID;
-  await Zotero.Libraries.userLibrary.waitForDataLoad("item");
+  const selectedLibrary = () => config.group_id
+    ? Zotero.Groups.get(config.group_id)?.libraryID : Zotero.Libraries.userLibraryID;
+  let libraryID = selectedLibrary();
+  if (libraryID) await Zotero.Libraries.get(libraryID).waitForDataLoad("item");
+  if (!libraryID && config.operations.length) throw new Error("Group must be discovered before editing");
   for (const operation of config.operations) {
     if (operation.action === "create") {
       const item = new Zotero.Item();
@@ -58,23 +61,37 @@ async function runAcceptance() {
   }
   if (config.sync) {
     const errors = [];
-    await Zotero.Sync.Runner.sync({ background: true, libraries: [libraryID],
+    await Zotero.Sync.Runner.sync({ background: true, ...(libraryID ? {libraries: [libraryID]} : {}),
       ...(config.files ? {} : {fileLibraries: []}),
       fullTextLibraries: [], onError: error => errors.push(error.message) });
     if (errors.length) throw new Error(errors.join("; "));
   }
-  const items = await Zotero.Items.getAll(libraryID, false, true);
+  libraryID = selectedLibrary();
+  if (libraryID) await Zotero.Libraries.get(libraryID).waitForDataLoad("item");
+  const items = libraryID ? await Zotero.Items.getAll(libraryID, false, true) : [];
   const snapshot = [];
   const files = {};
   for (const item of items) {
     if (item.isFeedItem) continue;
-    snapshot.push(item.toJSON());
+    snapshot.push(item.toJSON({mode: "full", syncedStorageProperties: true}));
     if (config.files && item.isStoredFileAttachment()) {
       const path = await item.getFilePathAsync();
       files[item.key] = path && await IOUtils.exists(path)
         ? btoa(String.fromCharCode(...await IOUtils.read(path))) : null;
     }
   }
-  await IOUtils.writeUTF8(config.result, JSON.stringify({ version: Zotero.version, items: snapshot, files }));
+  const collections = libraryID ? await Zotero.Collections.getByLibrary(libraryID, true) : [];
+  const searches = libraryID ? await Zotero.Searches.getAll(libraryID) : [];
+  const unsynced = {};
+  if (libraryID) for (const type of ["item", "collection", "search"]) {
+    unsynced[type] = await Zotero.Sync.Data.Local.getUnsynced(type, libraryID);
+  }
+  const groups = Zotero.Groups.getAll().map(group => ({
+    id: group.id, name: group.name, editable: group.editable,
+    filesEditable: group.filesEditable, archived: group.archived
+  }));
+  await IOUtils.writeUTF8(config.result, JSON.stringify({ version: Zotero.version,
+    items: snapshot, files, collections: collections.map(value => value.toJSON()),
+    searches: searches.map(value => value.toJSON()), unsynced, groups }));
   Services.startup.quit(Services.startup.eForceQuit);
 }

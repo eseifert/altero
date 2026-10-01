@@ -77,6 +77,9 @@ async def run_phase(
     sync: bool = True,
     timeout: float = 120,
     files: bool = True,
+    user_id: int = 1,
+    username: str = "compatibility",
+    group_id: int | None = None,
 ) -> dict:
     result_path = root / "result.json"
     result_path.unlink(missing_ok=True)
@@ -88,6 +91,9 @@ async def run_phase(
                 operations=operations,
                 sync=sync,
                 files=files,
+                user_id=user_id,
+                username=username,
+                group_id=group_id,
                 result=str(result_path.resolve()),
             )
         )
