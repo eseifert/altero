@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://altero.run/dev/testing-two-clients/">
       
       
-        <link rel="prev" href="../schema/">
+        <link rel="prev" href="../client-compatibility/">
       
       
         <link rel="next" href="../design/">
@@ -381,12 +381,14 @@
       
         
       
+        
+      
     
     
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="././" class="md-tabs__link">
+        <a href="../client-compatibility/" class="md-tabs__link">
           
   
   Contributing
@@ -1252,6 +1254,8 @@
       
         
       
+        
+      
     
     
     
@@ -1295,6 +1299,33 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../client-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Checking desktop compatibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1849,6 +1880,8 @@
 
 <h1 id="syncing-two-desktop-clients">Syncing two desktop clients<a class="headerlink" href="#syncing-two-desktop-clients" title="Permanent link">&para;</a></h1>
 <p>This is the strongest manual test of altero synchronization: two real Zotero Desktop installations use the same library through the server and are compared afterwards.</p>
+<p>For automated checks of desktop decisions and source expectations, see
+<a href="../client-compatibility/">Desktop compatibility checks</a>.</p>
 <p><strong>Use disposable data:</strong> a failed run should be thrown away, not repaired in place.</p>
 <h2 id="what-this-test-proves">What this test proves<a class="headerlink" href="#what-this-test-proves" title="Permanent link">&para;</a></h2>
 <p>A single client can show that requests succeed. Two clients can show whether changes actually travel through the server and converge on the same state.</p>
@@ -1968,7 +2001,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../schema/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Database schema">
+          <a href="../client-compatibility/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Checking desktop compatibility">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -1978,7 +2011,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Database schema
+                Checking desktop compatibility
               </div>
             </div>
           </a>
