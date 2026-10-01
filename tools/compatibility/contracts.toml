@@ -7,3 +7,15 @@ revision = "4118f47bc3d915fcff906e2377f06a95ddaaaf12"
 source = "chrome/content/zotero/xpcom/data/groups.js"
 selector = "this.getPermissionsFromJSON"
 sha256 = "24b12b88ec8b4021dcc5db85c7fbb6d5d3343cc64bc9139a9f376014929e4651"
+
+[contracts.group_refresh]
+source = "chrome/content/zotero/xpcom/sync/syncRunner.js"
+selector = "this.checkLibraries"
+sha256 = "4fd3c097723de9f5edd723ecff79edc7b7e50989c99b5fa7a6bbcab8eaf7a084"
+adapter = "group_refresh"
+dependencies = ["group_permissions", "group_from_json"]
+
+[contracts.group_from_json]
+source = "chrome/content/zotero/xpcom/data/group.js"
+selector = "Zotero.Group.prototype.fromJSON"
+sha256 = "3d46ab3c324d78f737ecb362a5afb1d9e03b5938ea29d9e7a807000ea9cedc10"

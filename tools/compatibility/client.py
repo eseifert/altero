@@ -104,13 +104,20 @@ class ZoteroClient:
             {"operation": "extract", "source": source, "selector": contract["selector"]}
         )
 
-    def call(self, name: str, args: list[Any]) -> Any:
+    def call(self, name: str, args: list[Any], *, fixtures: dict[str, Any] | None = None) -> Any:
         contract, source = self.source(name)
+        dependencies = {}
+        for dependency in contract.get("dependencies", []):
+            declaration, body = self.source(dependency)
+            dependencies[dependency] = {"source": body, "selector": declaration["selector"]}
         return run_node(
             {
                 "operation": "call",
                 "source": source,
                 "selector": contract["selector"],
                 "args": args,
+                "adapter": contract.get("adapter", "pure"),
+                "fixtures": fixtures or {},
+                "dependencies": dependencies,
             }
         )

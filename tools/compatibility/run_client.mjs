@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { extractFunction } from "./javascript.mjs";
+import { adapterScript } from "./adapters.mjs";
 
 try {
   const request = JSON.parse(readFileSync(0, "utf8"));
@@ -10,9 +11,19 @@ try {
     result = selected;
   } else if (request.operation === "call") {
     // vm isolates fixture globals. The process timeout also covers pending promises.
-    const context = vm.createContext({ serializedArgs: JSON.stringify(request.args) });
+    const dependencies = Object.entries(request.dependencies ?? {}).map(([name, definition]) =>
+      `${JSON.stringify(name)}: (${extractFunction(definition.source, definition.selector).source})`,
+    ).join(",");
+    const context = vm.createContext({
+      serializedArgs: JSON.stringify(request.args),
+      serializedFixtures: JSON.stringify(request.fixtures ?? {}),
+    });
     result = await vm.runInContext(
-      `(${selected.source})(...JSON.parse(serializedArgs))`, context, { timeout: 1000 },
+      `const selected = (${selected.source});
+       const args = JSON.parse(serializedArgs);
+       const fixtures = JSON.parse(serializedFixtures);
+       const dependencies = {${dependencies}};
+       ${adapterScript(request.adapter ?? "pure")}`, context, { timeout: 1000 },
     );
   } else {
     throw new Error(`Unknown operation: ${request.operation}`);
