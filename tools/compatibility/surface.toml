@@ -61,8 +61,8 @@ tests = ["compatibility_tests/test_storage_replay.py", "compatibility_tests/test
 
 [scenarios.retry_policy]
 operation = "http"
-status = "pending"
-reason = "Backoff, 429, 503 and interrupted requests need a controllable transport and clock."
+status = "executable"
+tests = ["compatibility_tests/test_live_api.py", "compatibility_tests/test_retry_policy.py", "compatibility_tests/test_writes.py"]
 
 [scenarios.offline_conflicts]
 operation = "convergence"

@@ -53,6 +53,7 @@ The ignored `.compatibility/` directory holds checkouts and generated reports.
 | Live sync reads | API key, settings, deletion, keys, versions and object-download methods | Personal and group libraries, restricted key flags, Unicode, incremental reads, trash, parent/child objects, missing keys and 99/100/101-object download batches |
 | Live sync writes | Object/settings uploads and deletions | Mixed successful/unchanged/failed results, stale library and object versions, absent versus empty properties, trash/restore/delete sequences, deletion logs, 49/50/51-object writes and recovery after a committed write loses its response |
 | Schema corpus | Generated from the vendored schema, through original API downloads | All 40 item types, every listed field and creator role, Unicode, client timestamps, notes, attachments and annotations |
+| HTTP policy | Original request and retry methods | Backoff, numeric and invalid Retry-After, increasing 429 delays, terminal errors and connection loss after a committed write; delays use a virtual clock |
 | Full text | Full-text upload, read and version methods | Empty and Unicode content, client-selected gzip, missing content, incremental versions and stale writes |
 | Files | Original ZFS transfer methods | Authorization, unauthenticated byte upload, registration, absolute download locations, MD5/mtime/compression metadata, ZIP snapshots and unchanged-file download avoidance |
 
@@ -234,3 +235,8 @@ retains one library version per changed request, while this dataserver revision
 bumps per object and commits a bump for unchanged objects. Full-text versioning
 already has the same documented per-request distinction. Compare object state
 and monotonic watermarks rather than expecting equal counter values.
+
+The reusable `LibraryReplay` helper and `disposable_server` support standalone
+sequence and desktop acceptance commands. The latter creates a new database and
+file store, binds only loopback, seeds a disposable test credential, and closes
+the server when the run finishes. It refuses an existing state directory.
