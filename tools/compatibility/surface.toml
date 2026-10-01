@@ -86,8 +86,13 @@ tests = ["compatibility_tests/test_streamer_replay.py"]
 
 [scenarios.group_removal_prompts]
 operation = "groups"
-status = "desktop-runtime"
-reason = "Removed access with unsynced local data requires the real prompt and database."
+status = "executable"
+tests = ["tools/compatibility/acceptance_groups.py"]
+
+[scenarios.group_permission_transitions]
+operation = "groups"
+status = "executable"
+tests = ["tools/compatibility/acceptance_groups.py"]
 
 [scenarios.retractions]
 operation = "auxiliary"

@@ -117,3 +117,11 @@ file = "model/Group.inc.php"
 line = 811
 end_line = 852
 claim = "Group response includes owner and nonempty member/admin lists required by desktop permission decisions."
+
+[[checks]]
+name = "group-policy-transitions"
+status = "consistent"
+file = "model/Group.inc.php"
+line = 440
+end_line = 485
+claim = "Owners/admins may edit; members follow libraryEditing. fileEditing none denies everyone, otherwise admins or members follow the file policy. Real desktop scenarios exercise refreshed roles and policies; archival/removal prompts are client behavior."

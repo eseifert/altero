@@ -174,7 +174,7 @@ async def run_baseline(
     return report
 
 
-SCENARIOS = ("baseline", "conflicts")
+SCENARIOS = ("baseline", "conflicts", "groups")
 
 
 async def run_acceptance(
@@ -182,6 +182,9 @@ async def run_acceptance(
 ) -> dict:
     """Each scenario gets two profiles and its own server; retain failures."""
     from tools.compatibility.acceptance_conflicts import conflicts
+    from tools.compatibility.acceptance_groups import groups
+
+    drivers = dict(conflicts=conflicts, groups=groups)
 
     selected = tuple(scenarios or SCENARIOS)
     if not selected or any(name not in SCENARIOS for name in selected):
@@ -196,10 +199,12 @@ async def run_acceptance(
                     result = await run_baseline(executable, version, scenario_root, corpus=corpus)
                 else:
                     scenario_root.mkdir()
-                    async with disposable_server(scenario_root / "server") as server:
+                    async with disposable_server(
+                        scenario_root / "server", accounts=2 if name == "groups" else 1
+                    ) as server:
                         runner = AcceptanceRun(executable, version, scenario_root, server)
                         try:
-                            await conflicts(runner)
+                            await drivers[name](runner)
                         finally:
                             report["scenarios"][name] = dict(phases=runner.phases)
                     result = dict(passed=True, phases=runner.phases)

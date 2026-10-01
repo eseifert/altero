@@ -327,8 +327,7 @@ The acceptance command also runs same-field conflicts in a separate pair of
 profiles. It selects the local and remote panes in the actual merge dialog and
 clicks Finish, checks both desktops against the server and requires another sync to
 leave the library watermark unchanged. Unexpected or missing dialogs fail the
-phase; prompt/reconciliation methods are never replaced. Group-removal prompts
-remain runtime gaps.
+phase; prompt/reconciliation methods are never replaced.
 
 Each desktop has its own temporary directory and waits for schema/bundled-file
 initialization before running operations. This avoids shared translator staging
@@ -339,6 +338,18 @@ the flag to select several. The default runs every implemented scenario, each
 with its own profiles and server under the new state directory. The top-level
 `acceptance.json` records scenario results and each subdirectory retains its
 phase snapshots and desktop logs.
+
+`--scenario groups` uses an owner and a member account. It checks member/admin
+promotion and demotion, editing/file-policy changes and server denial after a
+restriction. With pending local edits, the real permission-loss prompt's Skip
+retains work and Reset restores server state. Membership removal exercises Keep
+Group (archive locally, retaining unsynced data), rejoining and Remove Group.
+The runner verifies both the dialog and the resulting persisted state. Policies
+are cross-checked against `Group.inc.php` in the pinned dataserver; the prompts
+and archival choices come from desktop `checkLibraries` and `checkLibraryForAccess`.
+Group phases use the runner's ordinary all-library sync: explicitly forcing a
+group library into its input list can make this client attempt an upload even
+after Skip Group. The group selector scopes local operations and snapshots.
 
 Acceptance phase snapshots also record collections, saved searches, pending
 object uploads and group permissions. `AcceptanceRun` compares persisted objects

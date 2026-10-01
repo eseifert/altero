@@ -64,7 +64,7 @@ async function runAcceptance() {
   }
   if (config.sync) {
     const errors = [];
-    await Zotero.Sync.Runner.sync({ background: true, ...(libraryID ? {libraries: [libraryID]} : {}),
+    await Zotero.Sync.Runner.sync({ background: true, ...(!config.group_id && libraryID ? {libraries: [libraryID]} : {}),
       ...(config.files ? {} : {fileLibraries: []}),
       fullTextLibraries: [], onError: error => errors.push(error.message) });
     if (errors.length) throw new Error(errors.join("; "));
