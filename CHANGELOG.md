@@ -7,6 +7,9 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Fix group-list pagination and missing Link headers that prevented Zotero's
+  account preferences from reading groups, found by the expanded desktop tests.
+
 - Desktop compatibility checks execute original Zotero functions on altero responses, covering group permissions, cached group versions and sync watermarks. Source discovery reports possible omissions and unmapped consumers, with CI artifacts and an optional automated-review interface.
 - Members of a group can edit it from Zotero desktop as the group's policy allows, where until now everybody but the owner synced a read-only library: a group's JSON carries the `admins` and `members` arrays the client looks itself up in, shown to members only. Upgrading moves every group library's version once, so clients already holding a group fetch it again. Found by [@alpichlabs] in [PR#14].
 - The documentation points Android users at [zotero-self-hosted-sync], a third-party patch bundle by [@raphaelbahat] that points the app at altero, and records Android sync as working on a device.

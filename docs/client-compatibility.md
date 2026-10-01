@@ -48,6 +48,7 @@ The ignored `.compatibility/` directory holds checkouts and generated reports.
 |---|---|---|
 | Group permissions | `getPermissionsFromJSON` | Members, administrators, group policies, files and read-only restrictions, through both group endpoints |
 | Group refresh | `checkLibraries` and `Group.fromJSON` | A cached client fetches changed permissions after an API or command-line change moves the advertised version |
+| Group listing | `getGroups`, `getPaginatedResults`, `_parseLinkHeader` | Empty, single-page and multiple-page results remain readable in account preferences |
 | Sync versions | `getVersions` and `_parseJSON` | A version listing carries its watermark, and a 304 is accepted without a body |
 
 Functions are selected by JavaScript syntax nodes and executed in a Node

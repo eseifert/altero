@@ -39,7 +39,8 @@ from altero.models import (
     MemberPermission,
     User,
 )
-from altero.query import Format
+from altero.pagination import build_page_links, format_link_header
+from altero.query import Direction, Format, parse_list_query
 from altero.services import auth, groups, writes
 
 router = APIRouter(tags=["groups"])
@@ -190,9 +191,26 @@ async def list_user_groups(
         # it would happen on the first request of every sync.
         memberships = [entry for entry in memberships if entry[0].id in resources.libraries]
 
-    if request.query_params.get("format") == Format.VERSIONS:
+    query = parse_list_query(
+        list(request.query_params.multi_items()),
+        sort_fields=frozenset({"id", "title"}),
+        default_sort="id",
+        formats=frozenset({Format.JSON, Format.VERSIONS}),
+    )
+    memberships.sort(
+        key=lambda entry: entry[1].name if query.sort == "title" else entry[0].owner_id,
+        reverse=query.direction == Direction.DESCENDING,
+    )
+    total = len(memberships)
+    links = {"self": str(request.url)} | build_page_links(
+        str(request.url).split("?")[0], query.raw, query.start, query.limit, total
+    )
+    headers = {"Total-Results": str(total), "Link": format_link_header(links)}
+    memberships = memberships[query.start : query.start + query.limit if query.limit else None]
+    if query.response_format is Format.VERSIONS:
         return JSONResponse(
-            {str(library.owner_id): library.version for library, _, _ in memberships}
+            {str(library.owner_id): library.version for library, _, _ in memberships},
+            headers=headers,
         )
 
     rosters = await groups.rosters(session, [library.id for library, _, _ in memberships])
@@ -206,7 +224,8 @@ async def list_user_groups(
                 roster=rosters[library.id],
             )
             for library, group, member in memberships
-        ]
+        ],
+        headers=headers,
     )
 
 

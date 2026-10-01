@@ -1497,6 +1497,14 @@ noticed it was demoted is one that still believes it may write.
 
 #### Who the client finds in a group
 
+**Group listings always carry a `Link` header**, including an empty listing
+and a single page. The desktop's account preferences call `getGroups()`, which
+uses `getPaginatedResults()` and parses that header unconditionally. Omitting
+it raises an error before preferences can display the groups. The dataserver's
+`Zotero_API::multiResponse()` supplies a `self` link and pagination links;
+altero now does the same for JSON group listings. The default page holds 25
+groups; `format=versions` remains unlimited by default.
+
 A group's JSON carries `admins` and `members`, arrays of user ids, and the
 desktop client cannot do without them. `Zotero.Groups.getPermissionsFromJSON`
 makes a group library editable for its `owner`, for an id in `admins`, and for
