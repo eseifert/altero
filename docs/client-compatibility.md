@@ -69,6 +69,19 @@ and `members` when given altero's actual pre-fix serializer.
 
 ## Discover contracts from source
 
+Inspect the scenario inventory before extending coverage:
+
+```sh
+uv run python -m tools.compatibility coverage \
+  --output .compatibility/coverage.json --markdown .compatibility/coverage.md
+```
+
+`tools/compatibility/surface.toml` records executable, pending, desktop-runtime
+and deliberately unsupported scenarios. Executable means test code exists;
+the test run supplies the result. Counts describe scenarios, not a percentage
+of API compatibility. Discovery also scans item, collection and search
+serialization and the streaming client.
+
 ```sh
 uv run python -m tools.compatibility analyze \
   --zotero-source .compatibility/zotero \

@@ -1,0 +1,90 @@
+# Status describes available scenario tests, never proof that a run passed.
+[scenarios.group_roles]
+operation = "groups"
+status = "executable"
+tests = ["compatibility_tests/test_groups.py"]
+
+[scenarios.group_cache]
+operation = "groups"
+status = "executable"
+tests = ["compatibility_tests/test_groups.py"]
+
+[scenarios.version_watermark]
+operation = "sync-reads"
+status = "executable"
+tests = ["compatibility_tests/test_sync_headers.py"]
+
+[scenarios.identity_and_pagination]
+operation = "identity"
+status = "pending"
+reason = "Key information, restricted credentials and paginated groups need live API replay."
+
+[scenarios.incremental_reads]
+operation = "sync-reads"
+status = "pending"
+reason = "Settings, keys, versions, deletion logs and conditional reads need live replay."
+
+[scenarios.object_downloads]
+operation = "objects"
+status = "pending"
+reason = "Batch boundaries, parent/child downloads and missing keys need live replay."
+
+[scenarios.object_writes]
+operation = "objects"
+status = "pending"
+reason = "Success, unchanged, failed and stale writes need original client consumers."
+
+[scenarios.partial_fields]
+operation = "objects"
+status = "pending"
+reason = "Absent and empty properties need explicit transition assertions."
+
+[scenarios.settings_and_deletions]
+operation = "sync-writes"
+status = "pending"
+reason = "Settings writes and deletion logs need operation sequences."
+
+[scenarios.schema_payloads]
+operation = "serialization"
+status = "pending"
+reason = "Every item type and valid field needs generated round-trip scenarios."
+
+[scenarios.fulltext]
+operation = "fulltext"
+status = "pending"
+reason = "Read/write versions, gzip and missing content need live replay."
+
+[scenarios.storage]
+operation = "files"
+status = "pending"
+reason = "Authorize, upload, register, download, ZIP and metadata need desktop consumers."
+
+[scenarios.retry_policy]
+operation = "http"
+status = "pending"
+reason = "Backoff, 429, 503 and interrupted requests need a controllable transport and clock."
+
+[scenarios.offline_conflicts]
+operation = "convergence"
+status = "desktop-runtime"
+reason = "Two desktop databases and the real sync engine are required."
+
+[scenarios.generated_sequences]
+operation = "convergence"
+status = "pending"
+reason = "Seeded valid operation sequences need an independent state oracle and replay."
+
+[scenarios.streaming]
+operation = "streaming"
+status = "pending"
+reason = "Original streamer message decisions and live socket notifications need scenarios."
+
+[scenarios.group_removal_prompts]
+operation = "groups"
+status = "desktop-runtime"
+reason = "Removed access with unsynced local data requires the real prompt and database."
+
+[scenarios.retractions]
+operation = "auxiliary"
+status = "unsupported"
+reason = "GET /retractions/list deliberately answers 404; see docs/status.md."

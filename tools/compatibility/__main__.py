@@ -10,12 +10,14 @@ from tools.compatibility.analyze import analyze
 from tools.compatibility.client import DEFAULT_MANIFEST, CompatibilityError, ZoteroClient
 from tools.compatibility.report import markdown
 from tools.compatibility.review import evidence, review
+from tools.compatibility.surface import inventory
+from tools.compatibility.surface import markdown as surface_markdown
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["verify", "analyze"])
-    parser.add_argument("--zotero-source", type=Path, required=True)
+    parser.add_argument("command", choices=["verify", "analyze", "coverage"])
+    parser.add_argument("--zotero-source", type=Path)
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--server-root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--allow-source-drift", action="store_true")
@@ -27,6 +29,18 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
+        if args.command == "coverage":
+            result = inventory(root=args.server_root)
+            serialized = json.dumps(result, indent=2) + "\n"
+            if args.output:
+                args.output.write_text(serialized)
+            else:
+                print(serialized, end="")
+            if args.markdown:
+                args.markdown.write_text(surface_markdown(result))
+            return 0
+        if args.zotero_source is None:
+            raise CompatibilityError("--zotero-source is required for verify and analyze")
         client = ZoteroClient(args.zotero_source, args.manifest)
         if args.command == "verify":
             client.verify_revision()

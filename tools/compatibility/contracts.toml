@@ -8,6 +8,10 @@ client_globs = [
     "chrome/content/zotero/xpcom/sync/*.js",
     "chrome/content/zotero/xpcom/storage/zfs.js",
     "chrome/content/zotero/xpcom/data/group*.js",
+    "chrome/content/zotero/xpcom/data/item.js",
+    "chrome/content/zotero/xpcom/data/collection.js",
+    "chrome/content/zotero/xpcom/data/search.js",
+    "chrome/content/zotero/xpcom/streamer.js",
 ]
 server_globs = ["src/altero/api/routes/*.py"]
 
