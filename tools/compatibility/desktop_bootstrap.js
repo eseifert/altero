@@ -43,20 +43,38 @@ async function runAcceptance() {
     } else if (operation.action === "attach") {
       const item = await Zotero.Items.getByLibraryAndKeyAsync(libraryID, operation.key);
       await Zotero.Attachments.importFromFile({ file: operation.path, parentItemID: item.id });
+    } else if (operation.action === "collection") {
+      const collection = new Zotero.Collection();
+      collection.libraryID = libraryID;
+      collection.key = operation.key;
+      await collection.loadPrimaryData();
+      collection.name = operation.name;
+      await collection.saveTx();
+    } else if (operation.action === "file") {
+      const item = await Zotero.Items.getByLibraryAndKeyAsync(libraryID, operation.key);
+      item.setCollections(operation.collections);
+      await item.saveTx();
     } else throw new Error(`Unknown acceptance action ${operation.action}`);
   }
   if (config.sync) {
     const errors = [];
     await Zotero.Sync.Runner.sync({ background: true, libraries: [libraryID],
+      ...(config.files ? {} : {fileLibraries: []}),
       fullTextLibraries: [], onError: error => errors.push(error.message) });
     if (errors.length) throw new Error(errors.join("; "));
   }
   const items = await Zotero.Items.getAll(libraryID, false, true);
   const snapshot = [];
+  const files = {};
   for (const item of items) {
     if (item.isFeedItem) continue;
     snapshot.push(item.toJSON());
+    if (config.files && item.isStoredFileAttachment()) {
+      const path = await item.getFilePathAsync();
+      files[item.key] = path && await IOUtils.exists(path)
+        ? btoa(String.fromCharCode(...await IOUtils.read(path))) : null;
+    }
   }
-  await IOUtils.writeUTF8(config.result, JSON.stringify({ version: Zotero.version, items: snapshot }));
+  await IOUtils.writeUTF8(config.result, JSON.stringify({ version: Zotero.version, items: snapshot, files }));
   Services.startup.quit(Services.startup.eForceQuit);
 }

@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from types import SimpleNamespace
 
 from tools.compatibility import sequence_runner
+from tools.compatibility.client import ZoteroClient
 
 
 async def test_runner_shrinks_only_the_original_invariant(monkeypatch, tmp_path):
@@ -24,7 +25,7 @@ async def test_runner_shrinks_only_the_original_invariant(monkeypatch, tmp_path)
         {"action": "create", "key": "ABCD2345", "title": "old"},
         {"action": "edit", "key": "ABCD2345", "title": "trigger"},
     ]
-    report = await sequence_runner.run_sequence(None, steps, tmp_path / "run")
+    report = await sequence_runner.run_sequence(ZoteroClient(tmp_path), steps, tmp_path / "run")
     assert report["passed"] is False
     assert report["failure"]["invariant"] == "title"
     assert report["minimized"] == steps[1:]

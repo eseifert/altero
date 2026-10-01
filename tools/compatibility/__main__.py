@@ -18,7 +18,9 @@ from tools.compatibility.surface import markdown as surface_markdown
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["verify", "analyze", "coverage", "sequence"])
+    parser.add_argument(
+        "command", choices=["verify", "analyze", "coverage", "sequence", "acceptance"]
+    )
     parser.add_argument("--zotero-source", type=Path)
     parser.add_argument(
         "--dataserver-source",
@@ -33,6 +35,10 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=14)
     parser.add_argument("--steps", type=int, default=12)
     parser.add_argument("--replay", type=Path, help="Replay operations from a sequence JSON report")
+    parser.add_argument("--desktop-executable", type=Path)
+    parser.add_argument("--desktop-version")
+    parser.add_argument("--xvfb", action="store_true")
+    parser.add_argument("--schema-corpus", action="store_true")
     parser.add_argument("--markdown", type=Path)
     parser.add_argument("--evidence", type=Path, help="Write the bounded automated-review input")
     parser.add_argument(
@@ -40,6 +46,23 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
+        if args.command == "acceptance":
+            from tools.compatibility.acceptance import run_acceptance
+
+            if not args.desktop_executable or not args.desktop_version or not args.state_dir:
+                raise CompatibilityError(
+                    "acceptance requires --desktop-executable, --desktop-version and --state-dir"
+                )
+            asyncio.run(
+                run_acceptance(
+                    args.desktop_executable.resolve(),
+                    args.desktop_version,
+                    args.state_dir,
+                    xvfb=args.xvfb,
+                    corpus=args.schema_corpus,
+                )
+            )
+            return 0
         if args.command == "coverage":
             result = inventory(root=args.server_root)
             serialized = json.dumps(result, indent=2) + "\n"
@@ -96,7 +119,7 @@ def main() -> int:
         if args.markdown:
             args.markdown.write_text(markdown(result))
         return 0
-    except (CompatibilityError, OSError) as error:
+    except (CompatibilityError, OSError, TimeoutError, AssertionError) as error:
         print(str(error), file=sys.stderr)
         return 2
 

@@ -66,8 +66,8 @@ tests = ["compatibility_tests/test_live_api.py", "compatibility_tests/test_retry
 
 [scenarios.offline_conflicts]
 operation = "convergence"
-status = "desktop-runtime"
-reason = "Two desktop databases and the real sync engine are required."
+status = "executable"
+tests = ["tools/compatibility/acceptance.py"]
 
 [scenarios.generated_sequences]
 operation = "convergence"

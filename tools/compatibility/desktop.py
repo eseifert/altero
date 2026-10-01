@@ -48,6 +48,9 @@ def prepare_profile(root: Path, server_url: str) -> Path:
         "extensions.zotero.api.url": server_url.rstrip("/") + "/",
         "extensions.zotero.streaming.enabled": False,
         "extensions.zotero.sync.autoSync": False,
+        "extensions.zotero.sync.storage.enabled": True,
+        "extensions.zotero.sync.storage.protocol": "zotero",
+        "extensions.zotero.sync.storage.downloadMode.personal": "on-sync",
         "extensions.zotero.automaticScraperUpdates": False,
         "extensions.zotero.firstRunGuidance": False,
         "extensions.zotero.firstRun2": False,
@@ -73,6 +76,7 @@ async def run_phase(
     operations: list[dict],
     sync: bool = True,
     timeout: float = 120,
+    files: bool = True,
 ) -> dict:
     result_path = root / "result.json"
     result_path.unlink(missing_ok=True)
@@ -83,6 +87,7 @@ async def run_phase(
                 key=key,
                 operations=operations,
                 sync=sync,
+                files=files,
                 result=str(result_path.resolve()),
             )
         )

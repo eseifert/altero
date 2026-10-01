@@ -273,3 +273,25 @@ phase enforces the requested application version and a timeout, and preserves
 the desktop log on failure. The installed Zotero 10.0.1 completed a real
 create-and-upload smoke test; its binary version is separate from the pinned
 source revision used by Node replay.
+
+## Run two real desktop profiles
+
+```sh
+uv run python -m tools.compatibility acceptance \
+  --desktop-executable /opt/zotero/zotero --desktop-version 10.0.1 \
+  --xvfb --schema-corpus --state-dir .compatibility/desktop-10.0.1
+```
+
+This requires an installed Zotero binary and Xvfb (or omit `--xvfb` to use an
+existing display). The version is checked by the running application. The
+command creates two isolated profiles and a loopback server, drives the actual
+sync engine and ZFS filesystem path, and preserves phase snapshots, databases
+and logs. It refuses an existing state directory.
+
+The 15-phase run passed locally with Zotero 10.0.1: parent/note/file download,
+collection filing, persisted attachment bytes, disjoint offline edits and
+convergence, trash/restore propagation, deletion of parent and children, and
+all 40 schema types serialized by desktop A and downloaded into desktop B.
+The schema phase disables file transfer because its generated attachment has
+metadata only; the preceding file scenario checks real byte transfer.
+Same-field conflict dialogs and group-removal prompts remain runtime gaps.
