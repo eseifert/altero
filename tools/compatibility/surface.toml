@@ -51,8 +51,8 @@ reason = "Every item type and valid field needs generated round-trip scenarios."
 
 [scenarios.fulltext]
 operation = "fulltext"
-status = "pending"
-reason = "Read/write versions, gzip and missing content need live replay."
+status = "executable"
+tests = ["compatibility_tests/test_fulltext_replay.py"]
 
 [scenarios.storage]
 operation = "files"
