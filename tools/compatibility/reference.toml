@@ -1,0 +1,119 @@
+# Reviewed source evidence; statuses are source comparisons, not live API tests.
+[dataserver]
+revision = "6e091852b8a3e369056f390ba69e5de90cda1134"
+
+[files]
+"controllers/DeletedController.php" = "a97dec96d00cc76a20211425edb9621235af3badc4246fe494af5299929f558d"
+"controllers/GroupsController.php" = "fbb9fb4da3b79b5b058d9a4ad4010c44c0682385512d5f92a41a224ce63443de"
+"controllers/ItemsController.php" = "bea01bbb7e729b960f0496313fb9445f0302416369ae9d3b58edb2b97fab9ea1"
+"controllers/SettingsController.php" = "0b5f083de594065ccc6801779ed61365f60dc9d93de05cb0d51a5edb8a5b9a50"
+"model/API.inc.php" = "58261aba801227074432e6da127e7cc235d43c977cc3dba110dbf66532b28b91"
+"model/DataObjects.inc.php" = "ff5602b0e0eb7cf3863128d84e64e652ec6a31173e64c8d7f579ec82ad56e3dc"
+"model/FullText.inc.php" = "8588013fd937925aef48f0db45a5aa46d6d29b8dd091f5688bae17c8b4519f17"
+"model/Group.inc.php" = "22951a88934ef9c90c75db44e038adc6339244ec62ec919a3f17175dd302ea5f"
+"model/Results.inc.php" = "68d3cbca0d2375768aec09f11e8521bcc5ac3255225f71c97a0fa1971bf18b9e"
+"model/Storage.inc.php" = "ced5599e6be66f65768658bc54439432bea40176c2f96e941976706bf3b1abfb"
+
+[[checks]]
+name = "group-listing"
+status = "documented-difference"
+file = "controllers/GroupsController.php"
+line = 223
+end_line = 294
+claim = "JSON groups use multiResponse pagination. Its alternate Link keeps even empty pages parseable; altero uses self because zotero.org alternate links are deliberately omitted."
+
+[[checks]]
+name = "pagination"
+status = "consistent"
+file = "model/API.inc.php"
+line = 125
+end_line = 155
+claim = "Default limit is 25 for JSON and zero for keys/versions."
+
+[[checks]]
+name = "group-links"
+status = "documented-difference"
+file = "model/API.inc.php"
+line = 1008
+end_line = 1070
+claim = "Upstream always emits alternate, never self in the Link header. Altero substitutes self and emits pagination relations."
+
+[[checks]]
+name = "write-results"
+status = "consistent"
+file = "model/Results.inc.php"
+line = 62
+end_line = 100
+claim = "successful, unchanged and failed are indexed result maps; successful entries carry object response JSON."
+
+[[checks]]
+name = "partial-batches"
+status = "documented-difference"
+file = "model/DataObjects.inc.php"
+line = 316
+end_line = 392
+claim = "Each object is applied as a partial update in its own transaction. Upstream bumps the library version per object, including unchanged; altero retains one version per changed request and no bump for unchanged-only batches."
+
+[[checks]]
+name = "write-limit"
+status = "consistent"
+file = "model/DataObjects.inc.php"
+line = 402
+end_line = 452
+claim = "Version 3 accepts an array with at most 50 items, collections or searches."
+
+[[checks]]
+name = "deletion-log"
+status = "consistent"
+file = "controllers/DeletedController.php"
+line = 32
+end_line = 92
+claim = "The since parameter is required; the log carries collections, items, searches, tags and settings."
+
+[[checks]]
+name = "settings"
+status = "consistent"
+file = "controllers/SettingsController.php"
+line = 30
+end_line = 120
+claim = "Settings reads are versioned and writes apply the library version precondition."
+
+[[checks]]
+name = "fulltext"
+status = "documented-difference"
+file = "model/FullText.inc.php"
+line = 93
+end_line = 149
+claim = "Content and indexing statistics are stored with a version; upstream bumps per item and altero per request, as already documented."
+
+[[checks]]
+name = "download-metadata"
+status = "consistent"
+file = "controllers/ItemsController.php"
+line = 802
+end_line = 877
+claim = "File downloads redirect to a storage URL and supply mtime, MD5 and compression metadata."
+
+[[checks]]
+name = "download-url"
+status = "consistent"
+file = "model/Storage.inc.php"
+line = 62
+end_line = 110
+claim = "getDownloadURL builds an absolute S3 URL; the desktop passes it directly to HTTP.download."
+
+[[checks]]
+name = "upload-preconditions"
+status = "consistent"
+file = "controllers/ItemsController.php"
+line = 880
+end_line = 981
+claim = "A new upload requires If-None-Match *, an existing one If-Match; matching MD5 can skip transfer. ZIP digest describes the original file."
+
+[[checks]]
+name = "group-roster"
+status = "consistent"
+file = "model/Group.inc.php"
+line = 811
+end_line = 852
+claim = "Group response includes owner and nonempty member/admin lists required by desktop permission decisions."

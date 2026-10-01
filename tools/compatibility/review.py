@@ -10,6 +10,15 @@ from tools.compatibility.client import CompatibilityError
 
 def evidence(report: dict[str, Any], *, source_budget: int = 64_000) -> dict[str, Any]:
     """Bound source text; retain positions and explicitly mark clipping."""
+    reference = copy.deepcopy(report.get("reference"))
+    if reference:
+        reference_budget = min(20_000, source_budget // 3)
+        for block in reference["checks"]:
+            original = block["code"]
+            block["code"] = original[:reference_budget]
+            block["truncated"] = len(original) > reference_budget
+            reference_budget -= len(block["code"])
+            source_budget -= len(block["code"])
     contracts = copy.deepcopy([c for c in report["contracts"] if "client" in c])
     unmapped = copy.deepcopy(report["unmapped"])
     for item in [*contracts, *unmapped]:
@@ -43,6 +52,7 @@ def evidence(report: dict[str, Any], *, source_budget: int = 64_000) -> dict[str
         },
         "contracts": contracts,
         "unmapped": unmapped,
+        "reference": reference,
     }
 
 

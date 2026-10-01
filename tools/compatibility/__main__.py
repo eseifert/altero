@@ -8,6 +8,7 @@ from pathlib import Path
 
 from tools.compatibility.analyze import analyze
 from tools.compatibility.client import DEFAULT_MANIFEST, CompatibilityError, ZoteroClient
+from tools.compatibility.reference import reference_evidence
 from tools.compatibility.report import markdown
 from tools.compatibility.review import evidence, review
 from tools.compatibility.surface import inventory
@@ -18,6 +19,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=["verify", "analyze", "coverage"])
     parser.add_argument("--zotero-source", type=Path)
+    parser.add_argument(
+        "--dataserver-source",
+        type=Path,
+        help="Cross-check the separately pinned reference checkout",
+    )
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--server-root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--allow-source-drift", action="store_true")
@@ -42,6 +48,7 @@ def main() -> int:
         if args.zotero_source is None:
             raise CompatibilityError("--zotero-source is required for verify and analyze")
         client = ZoteroClient(args.zotero_source, args.manifest)
+        reference = reference_evidence(args.dataserver_source) if args.dataserver_source else None
         if args.command == "verify":
             client.verify_revision()
             for name in client.manifest["contracts"]:
@@ -49,6 +56,8 @@ def main() -> int:
             print(f"Verified {len(client.manifest['contracts'])} client functions")
             return 0
         result = analyze(client, args.server_root, allow_drift=args.allow_source_drift)
+        if reference:
+            result["reference"] = reference
         packet = evidence(result)
         if args.evidence:
             args.evidence.write_text(json.dumps(packet, ensure_ascii=False, indent=2) + "\n")

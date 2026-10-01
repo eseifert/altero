@@ -1439,6 +1439,13 @@ object is discarded by rolling that back — the same mechanism a rejected objec
 uses. A batch in which nothing changed leaves the library version where it was,
 because nothing succeeded and the whole request rolls back.
 
+The reference checkout at `6e091852b8a3e369056f390ba69e5de90cda1134`
+now bumps the library version inside each object transaction, before checking
+whether it changed, and commits that bump even for an unchanged object. Altero
+retains its established one-version-per-changed-request policy. Object versions
+and the result report still agree; library watermarks can differ. The desktop
+contracts verify altero's policy, not identical version numbers across servers.
+
 Two places deliberately do not do this. A key-based `PUT` or `PATCH` has no
 report to put the answer in, and upstream's controller ignores the flag there
 too. The full-text batch is a different upstream code path (`Zotero_FullText`)
@@ -1506,8 +1513,9 @@ noticed it was demoted is one that still believes it may write.
 and a single page. The desktop's account preferences call `getGroups()`, which
 uses `getPaginatedResults()` and parses that header unconditionally. Omitting
 it raises an error before preferences can display the groups. The dataserver's
-`Zotero_API::multiResponse()` supplies a `self` link and pagination links;
-altero now does the same for JSON group listings. The default page holds 25
+`Zotero_API::multiResponse()` supplies pagination links and always an
+`alternate` link. Altero deliberately omits links to zotero.org, so it supplies
+a `self` link to keep the header present even for empty and single-page listings. The default page holds 25
 groups; `format=versions` remains unlimited by default.
 
 A group's JSON carries `admins` and `members`, arrays of user ids, and the

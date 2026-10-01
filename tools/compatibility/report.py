@@ -46,4 +46,20 @@ def markdown(report: dict[str, Any]) -> str:
                     f"  Reproduction: {finding['reproduction']}",
                 ]
             )
+    if "reference" in report:
+        reference = report["reference"]
+        lines.extend(
+            [
+                "",
+                "## Dataserver source cross-check",
+                "",
+                f"Revision: `{reference['revision']}`. Source reviewed; PHP was not executed.",
+                "",
+            ]
+        )
+        for check in reference["checks"]:
+            lines.append(
+                f"- {check['name']}: {check['status']}. {check['claim']} "
+                f"(`{check['file']}:{check['line']}`)."
+            )
     return "\n".join(lines) + "\n"

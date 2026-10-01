@@ -212,3 +212,21 @@ work rather than reproduced failures.
 A weekly and manually dispatched job also inspects Zotero's current `main`
 with source drift allowed and uploads a separate upstream report. It does not
 change the supported baseline or run an external review provider.
+
+## Cross-check the dataserver reference
+
+Pass `--dataserver-source /path/to/dataserver` to `verify` and `analyze`.
+`tools/compatibility/reference.toml` pins the independent reference revision,
+complete source hashes and reviewed PHP spans for group pagination, write
+results and limits, partial batches, deletions, settings, full text and storage.
+Verification fails on revision, tracked changes, hashes or invalid spans.
+The report includes the source comparison and the review packet includes bounded
+reference evidence. PHP is inspected, not executed; this is not a live
+api.zotero.org differential test.
+
+The comparison records two deliberate differences relevant to these scenarios:
+altero substitutes a `self` Link for upstream's zotero.org `alternate`, and
+retains one library version per changed request, while this dataserver revision
+bumps per object and commits a bump for unchanged objects. Full-text versioning
+already has the same documented per-request distinction. Compare object state
+and monotonic watermarks rather than expecting equal counter values.
