@@ -26,6 +26,7 @@ from tests.conftest import (
 )
 
 from tools.compatibility.client import CompatibilityError, ZoteroClient
+from tools.compatibility.live import DesktopAPI
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -65,3 +66,22 @@ async def socket_client(app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
     finally:
         server.should_exit = True
         await task
+
+
+@pytest.fixture(params=["user", "group"])
+async def desktop(request, session, socket_client, zotero_client):
+    """Run the same protocol scenarios against personal and group libraries."""
+    from tests.factories import make_api_key, make_group, make_user
+
+    from compatibility_tests.helpers import KEY, LibraryReplay
+
+    await make_user(session)
+    await make_api_key(session, all_groups_read=True, all_groups_write=True)
+    kind = request.param
+    if kind == "group":
+        await make_group(session)
+    return LibraryReplay(
+        DesktopAPI(zotero_client, str(socket_client.base_url), KEY),
+        kind,
+        1 if kind == "user" else 100,
+    )

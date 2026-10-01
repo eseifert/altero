@@ -81,3 +81,51 @@ tests = ["compatibility_tests/test_sync_headers.py"]
 source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
 selector = "_parseJSON"
 sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+
+[contracts.key_info]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getKeyInfo"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_reads.py"]
+
+[contracts.group_versions]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getGroupVersions"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_group_pagination.py"]
+
+[contracts.group_listing]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getGroups"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_group_pagination.py"]
+
+[contracts.group_lookup]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getGroup"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_group_pagination.py"]
+
+[contracts.sync_settings]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getSettings"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_reads.py"]
+
+[contracts.sync_deleted]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getDeleted"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_reads.py"]
+
+[contracts.sync_keys]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getKeys"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_reads.py"]
+
+[contracts.object_downloads]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "downloadObjects"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_reads.py"]

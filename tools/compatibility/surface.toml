@@ -16,18 +16,18 @@ tests = ["compatibility_tests/test_sync_headers.py"]
 
 [scenarios.identity_and_pagination]
 operation = "identity"
-status = "pending"
-reason = "Key information, restricted credentials and paginated groups need live API replay."
+status = "executable"
+tests = ["compatibility_tests/test_reads.py", "compatibility_tests/test_group_pagination.py"]
 
 [scenarios.incremental_reads]
 operation = "sync-reads"
-status = "pending"
-reason = "Settings, keys, versions, deletion logs and conditional reads need live replay."
+status = "executable"
+tests = ["compatibility_tests/test_reads.py"]
 
 [scenarios.object_downloads]
 operation = "objects"
-status = "pending"
-reason = "Batch boundaries, parent/child downloads and missing keys need live replay."
+status = "executable"
+tests = ["compatibility_tests/test_reads.py"]
 
 [scenarios.object_writes]
 operation = "objects"
