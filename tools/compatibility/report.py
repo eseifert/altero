@@ -37,4 +37,13 @@ def markdown(report: dict[str, Any]) -> str:
     lines.extend(f"- {entry}" for entry in report["errors"])
     if report["revision_error"]:
         lines.extend(["", str(report["revision_error"])])
+    if "review_findings" in report:
+        lines.extend(["", "## Automated review hypotheses", ""])
+        for finding in report["review_findings"]:
+            lines.extend(
+                [
+                    f"- {finding['summary']} Unverified.",
+                    f"  Reproduction: {finding['reproduction']}",
+                ]
+            )
     return "\n".join(lines) + "\n"

@@ -17,6 +17,12 @@ selector = "this.getPermissionsFromJSON"
 sha256 = "24b12b88ec8b4021dcc5db85c7fbb6d5d3343cc64bc9139a9f376014929e4651"
 tests = ["compatibility_tests/test_groups.py"]
 routes = ["GET /groups/{group_id}", "GET /users/{user_id}/groups"]
+notes = """
+Roster IDs are withheld from nonmembers of public groups, who never sync them.
+READ narrows libraryEditing for that requester. ADD and OWN restrictions are
+enforced on the server and intentionally surface as sync errors in the desktop.
+See docs/compatibility.md#finer-roles-for-one-member.
+"""
 
 [contracts.group_permissions.server]
 source = "src/altero/serializers.py"

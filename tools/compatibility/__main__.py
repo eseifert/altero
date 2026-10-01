@@ -2,12 +2,14 @@
 
 import argparse
 import json
+import shlex
 import sys
 from pathlib import Path
 
 from tools.compatibility.analyze import analyze
 from tools.compatibility.client import DEFAULT_MANIFEST, CompatibilityError, ZoteroClient
 from tools.compatibility.report import markdown
+from tools.compatibility.review import evidence, review
 
 
 def main() -> int:
@@ -19,6 +21,10 @@ def main() -> int:
     parser.add_argument("--allow-source-drift", action="store_true")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--markdown", type=Path)
+    parser.add_argument("--evidence", type=Path, help="Write the bounded automated-review input")
+    parser.add_argument(
+        "--review-command", help="Program reading evidence JSON and writing findings JSON"
+    )
     args = parser.parse_args()
     try:
         client = ZoteroClient(args.zotero_source, args.manifest)
@@ -29,6 +35,15 @@ def main() -> int:
             print(f"Verified {len(client.manifest['contracts'])} client functions")
             return 0
         result = analyze(client, args.server_root, allow_drift=args.allow_source_drift)
+        packet = evidence(result)
+        if args.evidence:
+            args.evidence.write_text(json.dumps(packet, ensure_ascii=False, indent=2) + "\n")
+        if args.review_command:
+            try:
+                command = shlex.split(args.review_command)
+            except ValueError as error:
+                raise CompatibilityError(f"Invalid review command: {error}") from error
+            result["review_findings"] = review(packet, command)
         serialized = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
         if args.output:
             args.output.write_text(serialized)

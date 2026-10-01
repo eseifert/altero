@@ -1,6 +1,7 @@
 """Compare mapped contracts and report consumers that have no mapping yet."""
 
 import hashlib
+import re
 from pathlib import Path
 from typing import Any
 
@@ -52,6 +53,9 @@ def analyze(client: ZoteroClient, server: Path, *, allow_drift: bool = False) ->
             entries = run_node({"operation": "index", "source": source})
             for entry in entries:
                 entry["file"] = file
+                entry["code"] = "\n".join(
+                    source.splitlines()[entry["line"] - 1 : entry["end_line"]]
+                )
             inventory[file] = entries
             report["inventory"].extend(entries)
         except CompatibilityError as error:
@@ -59,7 +63,10 @@ def analyze(client: ZoteroClient, server: Path, *, allow_drift: bool = False) ->
 
     for name, declaration in declarations.items():
         entry: dict[str, Any] = dict(
-            name=name, status="execution-only", tests=declaration.get("tests", [])
+            name=name,
+            status="execution-only",
+            tests=declaration.get("tests", []),
+            notes=declaration.get("notes", ""),
         )
         report["contracts"].append(entry)
         try:
@@ -137,7 +144,7 @@ def analyze(client: ZoteroClient, server: Path, *, allow_drift: bool = False) ->
 
     mapped = {(c["source"], c["selector"]) for c in declarations.values()}
     report["unmapped"] = [
-        dict(file=e["file"], selector=e["selector"], line=e["line"])
+        dict(e)
         for e in report["inventory"]
         if (e["file"], e["selector"]) not in mapped
         and (e["requests"] or e["headers"] or any(r["root"] == "json" for r in e["reads"]))
@@ -145,8 +152,21 @@ def analyze(client: ZoteroClient, server: Path, *, allow_drift: bool = False) ->
     for file in source_files(server, discovery.get("server_globs", []), []):
         try:
             report["routes"].extend(
-                dict(file=file, **route) for route in routes(read_inside(server, file))
+                dict(file=file, **route)
+                for route in routes(read_inside(server, file), include_source=True)
             )
         except (CompatibilityError, SyntaxError) as error:
             report["errors"].append(dict(file=file, error=str(error)))
+
+    def route_key(path: str) -> str:
+        path = path.removeprefix("{this.baseURL}").split("?", 1)[0]
+        return "/" + re.sub(r"\{[^}]*\}", "{}", path).strip("/")
+
+    for consumer in report["unmapped"]:
+        requested = {(r["method"], route_key(r["uri"])) for r in consumer["requests"]}
+        consumer["server_evidence"] = [
+            route
+            for route in report["routes"]
+            if (route["method"], route_key(route["path"])) in requested
+        ]
     return report

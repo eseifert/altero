@@ -139,7 +139,7 @@ def response_shape(source: str, function: str, path: str) -> dict[str, Any]:
     }
 
 
-def routes(source: str) -> list[dict[str, Any]]:
+def routes(source: str, *, include_source: bool = False) -> list[dict[str, Any]]:
     result = []
     for node in ast.walk(ast.parse(source)):
         if not isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
@@ -154,7 +154,12 @@ def routes(source: str) -> list[dict[str, Any]]:
                 continue
             path = decorator.args[0]
             if isinstance(path, ast.Constant) and isinstance(path.value, str):
-                result.append(
-                    dict(method=method, path=path.value, function=node.name, line=node.lineno)
+                entry: dict[str, Any] = dict(
+                    method=method, path=path.value, function=node.name, line=node.lineno
                 )
+                if include_source:
+                    entry.update(
+                        end_line=node.end_lineno, source=ast.get_source_segment(source, node)
+                    )
+                result.append(entry)
     return result

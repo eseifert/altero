@@ -82,3 +82,22 @@ def test_a_present_field_clears_the_static_candidate(project) -> None:
 
     assert report["findings"] == []
     assert report["contracts"][0]["status"] == "no-static-gap"
+
+
+def test_a_constructed_request_is_linked_to_its_server_route(project) -> None:
+    client, server = project
+    (client.root / "new.js").write_text(
+        "this.getGroup = async function(id) {"
+        "const uri = this.baseURL + 'groups/' + id;"
+        "return await this.makeRequest('GET', uri);};"
+    )
+    (server / "routes.py").write_text(
+        "@router.get('/groups/{group_id}')\n"
+        "async def get_group(group_id):\n    return {'members': [2]}\n"
+    )
+
+    report = analyze(client, server, allow_drift=True)
+
+    provider = report["unmapped"][0]["server_evidence"][0]
+    assert provider["function"] == "get_group"
+    assert "'members': [2]" in provider["source"]
