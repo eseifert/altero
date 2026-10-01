@@ -1701,6 +1701,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Groups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#who-the-client-finds-in-a-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Who the client finds in a group
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2655,6 +2672,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Groups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#who-the-client-finds-in-a-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Who the client finds in a group
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -4372,6 +4406,30 @@ alike. Upstream keeps a group version apart from the library's; altero reports
 the library's as both, so a role change costs connected clients one sync poll
 that finds nothing new. That is the cheaper mistake: a client that has not
 noticed it was demoted is one that still believes it may write.</p>
+<h4 id="who-the-client-finds-in-a-group">Who the client finds in a group<a class="headerlink" href="#who-the-client-finds-in-a-group" title="Permanent link">&para;</a></h4>
+<p>A group's JSON carries <code>admins</code> and <code>members</code>, arrays of user ids, and the
+desktop client cannot do without them. <code>Zotero.Groups.getPermissionsFromJSON</code>
+makes a group library editable for its <code>owner</code>, for an id in <code>admins</code>, and for
+an id in <code>members</code> when <code>libraryEditing</code> is <code>members</code> — and for nobody else,
+<code>libraryEditing</code> being read only for somebody already found in <code>members</code>. A
+member found in neither syncs the library read-only.</p>
+<p>They are written as upstream's <code>Zotero_Group::toJSON</code> writes them: the owner in
+neither, because upstream gives the owner a role of its own where altero stores
+it as an administrator, and an empty array left out. They are output only — a
+<code>PUT</code> or <code>PATCH</code> of what was read drops them, membership having endpoints of
+its own.</p>
+<p><strong>Only a member is shown them.</strong> Upstream hands the ids to anyone who can read
+the group, which for a public one is anyone at all. Nobody outside a group
+syncs it — the client syncs the groups in its own <code>/users/&lt;id&gt;/groups</code> — so the
+arrays would serve a stranger only as a list of who belongs. This is the second
+property of the group that differs between requesters, beside the
+<code>libraryEditing</code> <a href="#one-library-version-two-representations">below</a>.</p>
+<p>The client fetches a group again only when its version in
+<code>/users/&lt;id&gt;/groups?format=versions</code> has moved, which is why every membership
+change moves it — through the v3 API, the browser, the command line, or an
+accepted invitation. Upgrading to the release that added the arrays moves every
+group library's version once, so clients already holding a group fetch it again
+on their next sync.</p>
 <h3 id="finer-roles-for-one-member">Finer roles for one member<a class="headerlink" href="#finer-roles-for-one-member" title="Permanent link">&para;</a></h3>
 <p>A Zotero group decides who may edit as a property of the group — <code>members</code> or
 <code>admins</code>, the same answer for everybody in it. A read-only member, one who may
