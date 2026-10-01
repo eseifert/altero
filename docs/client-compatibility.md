@@ -263,3 +263,13 @@ and preserving the failing invariant. The JSON keeps the seed, original operatio
 failure and independently confirmed minimized sequence. Exit 1 is a reproduced
 assertion failure; prerequisites and runner errors remain exit 2. Replays require
 a new state directory.
+
+`desktop.prepare_profile` installs a small acceptance add-on in a new profile
+and data directory. It points the desktop at a disposable server, disables
+automatic sync, streaming, updates and word-processor installation, and leaves
+sync logic intact. `run_phase` applies explicit operations through Zotero's
+item APIs, runs the real sync runner, exports a JSON snapshot and exits. Each
+phase enforces the requested application version and a timeout, and preserves
+the desktop log on failure. The installed Zotero 10.0.1 completed a real
+create-and-upload smoke test; its binary version is separate from the pinned
+source revision used by Node replay.
