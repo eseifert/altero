@@ -86,6 +86,16 @@ class ZoteroClient:
         expected = self.manifest["zotero"]["revision"]
         if actual != expected:
             raise CompatibilityError(f"Zotero revision {actual} differs from pinned {expected}")
+        dirty = subprocess.run(
+            ["git", "-C", str(self.root), "diff", "--quiet", "HEAD"],
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+        if dirty.returncode:
+            raise CompatibilityError(
+                "The pinned Zotero checkout has tracked changes; review its source"
+            )
 
     def source(self, name: str, *, allow_drift: bool = False) -> tuple[dict[str, Any], str]:
         try:

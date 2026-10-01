@@ -3,10 +3,34 @@
 repository = "https://github.com/zotero/zotero"
 revision = "4118f47bc3d915fcff906e2377f06a95ddaaaf12"
 
+[discovery]
+client_globs = [
+    "chrome/content/zotero/xpcom/sync/*.js",
+    "chrome/content/zotero/xpcom/storage/zfs.js",
+    "chrome/content/zotero/xpcom/data/group*.js",
+]
+server_globs = ["src/altero/api/routes/*.py"]
+
 [contracts.group_permissions]
 source = "chrome/content/zotero/xpcom/data/groups.js"
 selector = "this.getPermissionsFromJSON"
 sha256 = "24b12b88ec8b4021dcc5db85c7fbb6d5d3343cc64bc9139a9f376014929e4651"
+tests = ["compatibility_tests/test_groups.py"]
+routes = ["GET /groups/{group_id}", "GET /users/{user_id}/groups"]
+
+[contracts.group_permissions.server]
+source = "src/altero/serializers.py"
+function = "group"
+object = "data"
+input = "json"
+
+[[contracts.group_permissions.evidence]]
+source = "src/altero/api/routes/groups.py"
+function = "_rendered"
+
+[[contracts.group_permissions.evidence]]
+source = "src/altero/api/routes/groups.py"
+function = "list_user_groups"
 
 [contracts.group_refresh]
 source = "chrome/content/zotero/xpcom/sync/syncRunner.js"
@@ -14,11 +38,26 @@ selector = "this.checkLibraries"
 sha256 = "4fd3c097723de9f5edd723ecff79edc7b7e50989c99b5fa7a6bbcab8eaf7a084"
 adapter = "group_refresh"
 dependencies = ["group_permissions", "group_from_json"]
+tests = ["compatibility_tests/test_groups.py"]
+
+[[contracts.group_refresh.evidence]]
+source = "src/altero/services/admin.py"
+function = "set_group_member_permission"
+
+[[contracts.group_refresh.evidence]]
+source = "src/altero/api/routes/groups.py"
+function = "set_group_user_role"
 
 [contracts.group_from_json]
 source = "chrome/content/zotero/xpcom/data/group.js"
 selector = "Zotero.Group.prototype.fromJSON"
 sha256 = "3d46ab3c324d78f737ecb362a5afb1d9e03b5938ea29d9e7a807000ea9cedc10"
+
+[contracts.group_from_json.server]
+source = "src/altero/serializers.py"
+function = "group"
+object = "data"
+input = "json"
 
 [contracts.sync_versions]
 source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
@@ -26,6 +65,7 @@ selector = "getVersions"
 sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
 adapter = "api_versions"
 dependencies = ["parse_json"]
+tests = ["compatibility_tests/test_sync_headers.py"]
 
 [contracts.parse_json]
 source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
