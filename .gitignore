@@ -20,6 +20,8 @@ CLAUDE.md
 .pytest_cache/
 .coverage
 htmlcov/
+# A desktop checkout and reports used by the optional compatibility toolchain.
+/.compatibility/
 
 # IntelliJ
 .idea/

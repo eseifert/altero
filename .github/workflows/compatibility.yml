@@ -1,0 +1,144 @@
+name: Desktop compatibility
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  UV_PYTHON: "3.14"
+
+jobs:
+  contracts:
+    name: Replay pinned client contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --locked
+
+      - name: Read the pinned revision
+        id: pin
+        run: |
+          uv run python - <<'PY' >> "$GITHUB_OUTPUT"
+          import tomllib
+          from pathlib import Path
+          manifest = tomllib.loads(Path("tools/compatibility/contracts.toml").read_text())
+          print("revision=" + manifest["zotero"]["revision"])
+          PY
+
+      - uses: actions/checkout@v7
+        id: source
+        with:
+          repository: zotero/zotero
+          ref: ${{ steps.pin.outputs.revision }}
+          path: .compatibility/zotero
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/compatibility/package-lock.json
+
+      - name: Install the JavaScript parser
+        id: harness
+        working-directory: tools/compatibility
+        run: npm ci
+
+      - name: Verify the source and function selectors
+        run: uv run python -m tools.compatibility verify --zotero-source .compatibility/zotero
+
+      - name: Replay contracts
+        run: |
+          uv run pytest -q -rs compatibility_tests --zotero-source .compatibility/zotero --junitxml=.compatibility/results.xml
+          uv run python - <<'PY'
+          import xml.etree.ElementTree as ET
+          if ET.parse(".compatibility/results.xml").findall(".//skipped"):
+              raise SystemExit("Every desktop compatibility check must run; tests were skipped")
+          PY
+
+      - name: Discover source gaps
+        if: always() && steps.source.outcome == 'success' && steps.harness.outcome == 'success'
+        run: |
+          uv run python -m tools.compatibility analyze \
+            --zotero-source .compatibility/zotero \
+            --output .compatibility/report.json \
+            --markdown .compatibility/report.md \
+            --evidence .compatibility/evidence.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-compatibility
+          path: |
+            .compatibility/*.json
+            .compatibility/*.md
+            .compatibility/results.xml
+          retention-days: 14
+          if-no-files-found: ignore
+
+  upstream:
+    name: Inspect upstream changes
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --locked
+
+      - uses: actions/checkout@v7
+        with:
+          repository: zotero/zotero
+          ref: main
+          path: .compatibility/zotero
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: web/.nvmrc
+          cache: npm
+          cache-dependency-path: tools/compatibility/package-lock.json
+
+      - name: Install the JavaScript parser
+        working-directory: tools/compatibility
+        run: npm ci
+
+      # Upstream is discovery input, not a silently changed supported baseline.
+      - name: Inspect the current upstream client
+        run: |
+          uv run python -m tools.compatibility analyze \
+            --zotero-source .compatibility/zotero --allow-source-drift \
+            --output .compatibility/upstream.json \
+            --markdown .compatibility/upstream.md \
+            --evidence .compatibility/upstream-evidence.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-compatibility-upstream
+          path: |
+            .compatibility/upstream*.json
+            .compatibility/upstream.md
+          retention-days: 14
+          if-no-files-found: ignore
