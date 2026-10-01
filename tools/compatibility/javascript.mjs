@@ -2,7 +2,12 @@
 import { parse } from "acorn";
 
 export function parseSource(source) {
-  return parse(source, { ecmaVersion: "latest", sourceType: "script", locations: true });
+  const options = { ecmaVersion: "latest", locations: true };
+  try {
+    return parse(source, { ...options, sourceType: "script" });
+  } catch {
+    return parse(source, { ...options, sourceType: "module" });
+  }
 }
 
 export function* walk(node) {
@@ -19,6 +24,8 @@ export function* walk(node) {
 }
 
 export function memberPath(node) {
+  if (!node) return null;
+  if (node.type === "ChainExpression") return memberPath(node.expression);
   if (node.type === "Identifier") return node.name;
   if (node.type === "ThisExpression") return "this";
   if (node.type === "MemberExpression") {

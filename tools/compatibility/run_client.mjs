@@ -2,14 +2,17 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { extractFunction } from "./javascript.mjs";
 import { adapterScript } from "./adapters.mjs";
+import { indexSource } from "./index_client.mjs";
 
 try {
   const request = JSON.parse(readFileSync(0, "utf8"));
-  const selected = extractFunction(request.source, request.selector);
   let result;
-  if (request.operation === "extract") {
-    result = selected;
+  if (request.operation === "index") {
+    result = indexSource(request.source);
+  } else if (request.operation === "extract") {
+    result = extractFunction(request.source, request.selector);
   } else if (request.operation === "call") {
+    const selected = extractFunction(request.source, request.selector);
     // vm isolates fixture globals. The process timeout also covers pending promises.
     const dependencies = Object.entries(request.dependencies ?? {}).map(([name, definition]) =>
       `${JSON.stringify(name)}: (${extractFunction(definition.source, definition.selector).source})`,
