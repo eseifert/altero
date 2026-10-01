@@ -351,7 +351,11 @@ def group_payload(payload: Any) -> dict[str, Any]:
     # Reported by the server and not settable: writing them would be a client
     # renumbering a library or moving its version counter. Dropped rather than
     # refused, so that a round trip of what GET returned is accepted.
-    payload = {name: value for name, value in payload.items() if name not in ("id", "version")}
+    payload = {
+        name: value
+        for name, value in payload.items()
+        if name not in ("id", "version", "admins", "members")
+    }
 
     unknown = set(payload) - set(_PROPERTIES) - {"owner"}
     if unknown:

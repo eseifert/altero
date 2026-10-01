@@ -20,6 +20,24 @@ The later sections cover ground the reference server does not: altero's own exte
 
 ## API queries and response behavior
 
+### Group membership and desktop editing
+
+Zotero Desktop's `Zotero.Groups.getPermissionsFromJSON` checks `owner`,
+`admins` and `members` before enabling edits. Reporting `libraryEditing` alone
+leaves every non-owner read-only. Group metadata includes integer user IDs in
+separate `admins` and `members` arrays, excluding the owner, matching the roles
+in the reference server's
+[`Zotero_Group::toJSON`](https://github.com/zotero/dataserver/blob/master/model/Group.inc.php).
+Both the single-group response and the user's group listing include them.
+
+Altero keeps the roster private: non-members reading public group metadata get
+empty arrays. The requester-specific `libraryEditing` restriction still applies
+to read-only members. The arrays are output-only; round-trip metadata writes
+ignore them, and membership changes use the membership endpoints.
+
+The upgrade increments existing group library versions once so clients fetch
+the corrected metadata on their next sync.
+
 ### Search syntax
 
 `Zotero_API::getSearchParamValues` (`model/API.inc.php`) is the authority for

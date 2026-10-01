@@ -14,6 +14,7 @@ from altero.models import (
     ApiKey,
     Collection,
     Group,
+    GroupMember,
     Item,
     Library,
     LibraryType,
@@ -56,7 +57,12 @@ def library_block(library: Library, base_url: str) -> dict[str, Any]:
 
 
 def group(
-    library: Library, group: Group, base_url: str, *, library_editing: str | None = None
+    library: Library,
+    group: Group,
+    base_url: str,
+    *,
+    library_editing: str | None = None,
+    members: Sequence[GroupMember] = (),
 ) -> dict[str, Any]:
     """Render a group library.
 
@@ -64,6 +70,8 @@ def group(
     ``numItems`` values need object timestamps that do not exist so far.
 
     Args:
+        members: Memberships visible to the requester. The owner is reported
+            separately, even though altero stores them with the admin role.
         library_editing: What to report as ``libraryEditing``, when the caller
             has worked out that this requester sees something narrower than the
             stored policy -- see :func:`altero.services.groups.editing_for`.
@@ -78,6 +86,12 @@ def group(
             "version": library.version,
             "name": group.name,
             "owner": group.owner_id,
+            "admins": [
+                member.user_id
+                for member in members
+                if member.role == "admin" and member.user_id != group.owner_id
+            ],
+            "members": [member.user_id for member in members if member.role == "member"],
             "type": group.type,
             "description": group.description,
             "url": group.url,

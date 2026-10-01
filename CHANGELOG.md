@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Group administrators and members can edit in Zotero Desktop according to their permissions: group metadata now includes the membership arrays the client requires. Upgrading refreshes cached group metadata on the next sync.
 - The documentation points Android users at [zotero-self-hosted-sync], a third-party patch bundle by [@raphaelbahat] that points the app at altero, and records Android sync as working on a device.
 - The documentation says how the iOS and Android applications reach altero: through a build of your own, unofficially but supported.
 - The Zotero iOS and Android applications can sign in: the login page's address carries a query, as upstream's does, so the `&app=1` the Android application appends to it no longer names a page that does not exist.

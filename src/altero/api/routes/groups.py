@@ -23,6 +23,7 @@ the group as its members know it.
 from typing import Any
 
 from fastapi import APIRouter
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
@@ -52,10 +53,9 @@ def _member_payload(user: User, member: GroupMember) -> dict[str, Any]:
     key can present, so there is nothing to copy. It names the account the way
     ``/keys/<key>`` does, so the two read alike.
 
-    ``permission`` is altero's too, and the group JSON beside it says nothing
-    about anybody's -- ``libraryEditing`` there is what *the requester* may do,
-    not a roster. This is the roster, and only a member of the group can read
-    it.
+    ``permission`` is altero's too. Group metadata reports role IDs for desktop
+    compatibility, while this roster also names accounts and their finer
+    permissions. Only a member of the group can read it.
     """
     return {
         "id": user.id,
@@ -107,7 +107,7 @@ async def _rendered(
 ) -> dict[str, Any]:
     """Render the group as *this* requester sees it.
 
-    ``libraryEditing`` is the one property that differs between requesters --
+    ``libraryEditing`` can differ between requesters --
     :func:`altero.services.groups.editing_for` says why -- so every route that
     renders a group has to say who is asking.
     """
@@ -116,7 +116,15 @@ async def _rendered(
         await groups.membership(session, library, api_key.user_id) if api_key is not None else None
     )
     return serializers.group(
-        library, group, base_url, library_editing=groups.editing_for(group, member)
+        library,
+        group,
+        base_url,
+        library_editing=groups.editing_for(group, member),
+        members=(
+            [entry for _, entry in await groups.list_members(session, library)]
+            if member is not None
+            else []
+        ),
     )
 
 
@@ -188,10 +196,24 @@ async def list_user_groups(
             {str(library.owner_id): library.version for library, _, _ in memberships}
         )
 
+    # Fetch the rosters together rather than issuing a query for every group.
+    rosters: dict[int, list[GroupMember]] = {library.id: [] for library, _, _ in memberships}
+    if rosters:
+        for member in await session.scalars(
+            select(GroupMember)
+            .where(GroupMember.library_id.in_(rosters))
+            .order_by(GroupMember.user_id)
+        ):
+            rosters[member.library_id].append(member)
+
     return JSONResponse(
         [
             serializers.group(
-                library, group, base_url, library_editing=groups.editing_for(group, member)
+                library,
+                group,
+                base_url,
+                library_editing=groups.editing_for(group, member),
+                members=rosters[library.id],
             )
             for library, group, member in memberships
         ]

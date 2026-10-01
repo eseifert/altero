@@ -516,3 +516,35 @@ class TestDeleting:
         await client.delete(f"/groups/{group['id']}", headers=AS_ALICE)
 
         assert (await client.get("/users/2/groups", headers=AS_BOB)).json() == []
+
+
+class TestDesktopMembership:
+    @pytest.mark.parametrize("role", ["member", "admin"])
+    @pytest.mark.parametrize("listing", [False, True])
+    async def test_group_metadata_identifies_non_owner_members(
+        self, people, client: httpx.AsyncClient, role: str, listing: bool
+    ) -> None:
+        group = await make(client)
+        group_id = group["id"]
+        await client.post(
+            f"/groups/{group_id}/users",
+            json={"userID": 2, "role": role},
+            headers=AS_ALICE,
+        )
+        path = "/users/2/groups" if listing else f"/groups/{group_id}"
+        response = await client.get(path, headers=AS_BOB)
+        assert response.status_code == 200
+        data = (response.json()[0] if listing else response.json())["data"]
+        assert data["admins"] == ([2] if role == "admin" else [])
+        assert data["members"] == ([2] if role == "member" else [])
+        assert data["owner"] == 1
+
+    async def test_public_metadata_does_not_disclose_the_roster(
+        self, people, client: httpx.AsyncClient
+    ) -> None:
+        group = await make(client, type="PublicClosed", libraryReading="all")
+        await client.post(f"/groups/{group['id']}/users", json={"userID": 2}, headers=AS_ALICE)
+        for headers in ({}, AS_CAROL):
+            data = (await client.get(f"/groups/{group['id']}", headers=headers)).json()["data"]
+            assert not data.get("admins")
+            assert not data.get("members")
