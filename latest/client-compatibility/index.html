@@ -1431,6 +1431,50 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#cross-check-the-dataserver-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Cross-check the dataserver reference
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generated-sequences-and-replay" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Generated sequences and replay
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-two-real-desktop-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Run two real desktop profiles
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prove-the-checks-detect-omissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Prove the checks detect omissions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1661,6 +1705,50 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#cross-check-the-dataserver-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Cross-check the dataserver reference
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generated-sequences-and-replay" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Generated sequences and replay
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-two-real-desktop-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Run two real desktop profiles
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prove-the-checks-detect-omissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Prove the checks detect omissions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1744,32 +1832,97 @@ The ignored <code>.compatibility/</code> directory holds checkouts and generated
 <td>A cached client fetches changed permissions after an API or command-line change moves the advertised version</td>
 </tr>
 <tr>
+<td>Group listing</td>
+<td><code>getGroups</code>, <code>getPaginatedResults</code>, <code>_parseLinkHeader</code></td>
+<td>Empty, single-page and multiple-page results remain readable in account preferences</td>
+</tr>
+<tr>
 <td>Sync versions</td>
 <td><code>getVersions</code> and <code>_parseJSON</code></td>
 <td>A version listing carries its watermark, and a 304 is accepted without a body</td>
 </tr>
+<tr>
+<td>Live sync reads</td>
+<td>API key, settings, deletion, keys, versions and object-download methods</td>
+<td>Personal and group libraries, restricted key flags, Unicode, incremental reads, trash, parent/child objects, missing keys and 99/100/101-object download batches</td>
+</tr>
+<tr>
+<td>Live sync writes</td>
+<td>Object/settings uploads and deletions</td>
+<td>Mixed successful/unchanged/failed results, stale library and object versions, absent versus empty properties, trash/restore/delete sequences, deletion logs, 49/50/51-object writes and recovery after a committed write loses its response</td>
+</tr>
+<tr>
+<td>Schema corpus</td>
+<td>Generated from the vendored schema, through original API downloads</td>
+<td>All 40 item types, every listed field and creator role, Unicode, client timestamps, notes, attachments and annotations</td>
+</tr>
+<tr>
+<td>HTTP policy</td>
+<td>Original request and retry methods</td>
+<td>Backoff, numeric and invalid Retry-After, increasing 429 delays, terminal errors and connection loss after a committed write; delays use a virtual clock</td>
+</tr>
+<tr>
+<td>Full text</td>
+<td>Full-text upload, read and version methods</td>
+<td>Empty and Unicode content, client-selected gzip, missing content, incremental versions and stale writes</td>
+</tr>
+<tr>
+<td>Files</td>
+<td>Original ZFS transfer methods</td>
+<td>Authorization, unauthenticated byte upload, registration, absolute download locations, MD5/mtime/compression metadata, ZIP snapshots and unchanged-file download avoidance</td>
+</tr>
 </tbody>
 </table>
+<p>The desktop sends partial object changes inside a <code>POST</code> batch. Its API helper
+also accepts a <code>PATCH</code> method argument, but the sync engine uses <code>POST</code> and the
+dataserver does not accept <code>PATCH</code> on the collection endpoint for items.
+The field-clearing scenarios therefore exercise partial <code>POST</code> bodies.</p>
 <p>Functions are selected by JavaScript syntax nodes and executed in a Node
 subprocess. Their decision logic keeps JavaScript's types, defaults and branch
 order. The adapters provide HTTP response facades, in-memory persistence, and
 small runtime helpers. The sync-version adapter substitutes the URI builder;
 it checks the original response handling and request parameters. The group
 refresh tests capture responses over a real HTTP socket.</p>
-<p>The adapters do not run Zotero's database, application UI or full sync engine.
-Group-removal prompts require the desktop runtime and raise an explicit error.
-Continue to use <a href="../testing-two-clients/">two-client testing</a> for complete
-synchronization and convergence.</p>
+<p><code>tools.compatibility.live.DesktopAPI</code> executes the complete original
+<code>syncAPIClient.js</code>, including URL construction, headers, gzip decisions and
+retry policy, against a local HTTP server. Its async Python subprocess leaves
+the server event loop free to answer requests. The transport supplies an XHR
+response facade; the scheduler records requested delays without sleeping.
+This layer checks the API scheduler; generic retry behavior inside
+<code>Zotero.HTTP.request</code> is provided by the facade and is not exercised here.
+Request traces omit the API key. Injected responses and response mutations
+exercise error handling without changing the pinned source.</p>
+<p><code>DesktopStorage</code> runs the original ZFS authorization, upload, registration and
+download methods through the same transport. In-memory facades supply file
+attributes, bytes and persistence; downloaded metadata and bytes are captured
+at the <code>processDownload</code> boundary. This does not test writing or unpacking files
+in a desktop profile. A missing remote file exercises ZFS's settled-file path.</p>
+<p>The schema corpus checks server wire round trips. Actual desktop serialization
+and persistence belong to the disposable-profile acceptance runner.</p>
+<p>Source replay adapters provide facades for the database and application UI.
+The real acceptance runner below exercises complete synchronization separately.
+Group-removal prompts raise an explicit error in source replay; continue to use
+<a href="../testing-two-clients/">two-client testing</a> for interactive conflict dialogs
+and removal prompts.</p>
 <p>The harness was checked against PR #14's failure: removing the roster arrays
 makes the permission checks fail, and omitting the command-line version
 increment makes the refresh check fail. Source discovery also reports <code>admins</code>
 and <code>members</code> when given altero's actual pre-fix serializer.</p>
 <h2 id="discover-contracts-from-source">Discover contracts from source<a class="headerlink" href="#discover-contracts-from-source" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>analyze<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--zotero-source<span class="w"> </span>.compatibility/zotero<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/report.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span>--markdown<span class="w"> </span>.compatibility/report.md<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span>--evidence<span class="w"> </span>.compatibility/evidence.json
+<p>Inspect the scenario inventory before extending coverage:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>coverage<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/coverage.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/coverage.md
+</span></code></pre></div>
+<p><code>tools/compatibility/surface.toml</code> records executable, pending, desktop-runtime
+and deliberately unsupported scenarios. Executable means test code exists;
+the test run supplies the result. Counts describe scenarios, not a percentage
+of API compatibility. Discovery also scans item, collection and search
+serialization and the streaming client.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>analyze<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>--zotero-source<span class="w"> </span>.compatibility/zotero<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/report.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span>--markdown<span class="w"> </span>.compatibility/report.md<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span>--evidence<span class="w"> </span>.compatibility/evidence.json
 </span></code></pre></div>
 <p>The manifest maps selected consumers to server functions and defines the file
 globs to inspect. The inventory includes direct input reads and simple aliases,
@@ -1821,22 +1974,22 @@ mapped consumer/provider code, conditions, known exceptions, and unmapped
 consumers with any matched routes. Source bodies share a 64,000-character
 budget; clipped blocks are marked <code>truncated</code>.</p>
 <p>To invoke a reviewer of your choosing:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>analyze<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span>--zotero-source<span class="w"> </span>.compatibility/zotero<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span>--review-command<span class="w"> </span><span class="s1">&#39;your-review-program&#39;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/review.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span>--markdown<span class="w"> </span>.compatibility/review.md
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>analyze<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>--zotero-source<span class="w"> </span>.compatibility/zotero<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span>--review-command<span class="w"> </span><span class="s1">&#39;your-review-program&#39;</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/review.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span>--markdown<span class="w"> </span>.compatibility/review.md
 </span></code></pre></div>
 <p>The program reads one JSON object from stdin and writes this shape to stdout:</p>
-<div class="language-json highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;findings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;contract&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;group_permissions&quot;</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A hypothesis about the client and server behavior&quot;</span><span class="p">,</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">    </span><span class="nt">&quot;client&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chrome/content/zotero/xpcom/data/groups.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;line&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">138</span><span class="p">},</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="nt">&quot;server&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;src/altero/serializers.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;line&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">109</span><span class="p">},</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">    </span><span class="nt">&quot;reproduction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Setup, action, and expected client behavior&quot;</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="p">}]</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="p">}</span>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;findings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">&quot;contract&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;group_permissions&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;summary&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A hypothesis about the client and server behavior&quot;</span><span class="p">,</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;client&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chrome/content/zotero/xpcom/data/groups.js&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;line&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">138</span><span class="p">},</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="nt">&quot;server&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;src/altero/serializers.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;line&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">109</span><span class="p">},</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">&quot;reproduction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Setup, action, and expected client behavior&quot;</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="p">}]</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>Use <code>contract: null</code> for an unmapped consumer. References must fall within the
 supplied source spans. Invalid output and process failures are reported; every
@@ -1868,9 +2021,117 @@ This flag is for discovery; executable checks always enforce their fingerprints.
 to master and pull requests. It fails if a test skips and uploads the test
 results, source report and review evidence. Static candidates remain review
 work rather than reproduced failures.</p>
-<p>A weekly and manually dispatched job also inspects Zotero's current <code>main</code>
+<p>A nightly and manually dispatched job also inspects Zotero's current <code>main</code>
 with source drift allowed and uploads a separate upstream report. It does not
 change the supported baseline or run an external review provider.</p>
+<p>CI now verifies the pinned dataserver checkout alongside the desktop source and
+attaches the reviewed reference spans to its reports. It uploads the scenario
+inventory beside JUnit, and runs the mutation catalogue nightly and on manual
+dispatch. Write, full-text, pagination, HTTP-policy and storage-registration
+consumers now have explicit manifest selectors as well as live scenario tests.</p>
+<p>The real desktop CI job is opt-in: configure repository variables
+<code>ZOTERO_DESKTOP_URL</code>, <code>ZOTERO_DESKTOP_SHA256</code> and <code>ZOTERO_DESKTOP_VERSION</code> for a
+pinned official Linux archive. It checks the archive hash and running version,
+runs under Xvfb, and uploads snapshots, logs and desktop databases even on failure.
+The variables are deliberately unset by default. The local installed 10.0.1
+binary was tested; its proposed official archive URL returned 403, so no download
+URL or checksum is presented as verified. The GitHub jobs themselves have not
+been executed locally.</p>
+<h2 id="cross-check-the-dataserver-reference">Cross-check the dataserver reference<a class="headerlink" href="#cross-check-the-dataserver-reference" title="Permanent link">&para;</a></h2>
+<p>Pass <code>--dataserver-source /path/to/dataserver</code> to <code>verify</code> and <code>analyze</code>.
+<code>tools/compatibility/reference.toml</code> pins the independent reference revision,
+complete source hashes and reviewed PHP spans for group pagination, write
+results and limits, partial batches, deletions, settings, full text and storage.
+Verification fails on revision, tracked changes, hashes or invalid spans.
+The report includes the source comparison and the review packet includes bounded
+reference evidence. PHP is inspected, not executed; this is not a live
+api.zotero.org differential test.</p>
+<p>The comparison records two deliberate differences relevant to these scenarios:
+altero substitutes a <code>self</code> Link for upstream's zotero.org <code>alternate</code>, and
+retains one library version per changed request, while this dataserver revision
+bumps per object and commits a bump for unchanged objects. Full-text versioning
+already has the same documented per-request distinction. Compare object state
+and monotonic watermarks rather than expecting equal counter values.</p>
+<h2 id="generated-sequences-and-replay">Generated sequences and replay<a class="headerlink" href="#generated-sequences-and-replay" title="Permanent link">&para;</a></h2>
+<p>The reusable <code>LibraryReplay</code> helper and <code>disposable_server</code> support standalone
+sequence and desktop acceptance commands. The latter creates a new database and
+file store, binds only loopback, seeds a disposable test credential, and closes
+the server when the run finishes. It refuses an existing state directory.</p>
+<p><code>generate_sequence(seed, steps)</code> produces valid create/edit/file/unfile,
+trash/restore and delete operations. Tests run seeds 4, 14 and 91 in personal
+and group libraries, checking an independent state model after every step.
+<code>minimize</code> removes chunks while preserving a caller-defined failure predicate;
+invalid sequences must be rejected rather than treated as reproductions.
+Validity includes an actual state change: removing a trash step must not turn
+a later restore into a no-op that is mistaken for the original failure. Empty
+or ineffective replay input is rejected before creating a server.</p>
+<p>Run and replay a standalone sequence with preserved disposable databases:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>sequence<span class="w"> </span>--zotero-source<span class="w"> </span>.compatibility/zotero<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>--seed<span class="w"> </span><span class="m">14</span><span class="w"> </span>--steps<span class="w"> </span><span class="m">30</span><span class="w"> </span>--state-dir<span class="w"> </span>.compatibility/sequence-14<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/sequence-14.json
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>sequence<span class="w"> </span>--zotero-source<span class="w"> </span>.compatibility/zotero<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span>--replay<span class="w"> </span>.compatibility/sequence-14.json<span class="w"> </span>--state-dir<span class="w"> </span>.compatibility/replay-14<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/replay-14.json
+</span></code></pre></div>
+<p>Failures automatically shrink against fresh servers, rejecting invalid operations
+and preserving the failing invariant. The JSON keeps the seed, original operations,
+failure and independently confirmed minimized sequence. Exit 1 is a reproduced
+assertion failure; prerequisites and runner errors remain exit 2. Replays require
+a new state directory.</p>
+<p>A live check injected a frozen watermark into seed 14 with six operations.
+The runner reduced it to one create operation and confirmed the same invariant
+on a fresh server in four trials.</p>
+<h2 id="run-two-real-desktop-profiles">Run two real desktop profiles<a class="headerlink" href="#run-two-real-desktop-profiles" title="Permanent link">&para;</a></h2>
+<p><code>desktop.prepare_profile</code> installs a small acceptance add-on in a new profile
+and data directory. It points the desktop at a disposable server, disables
+automatic sync, streaming, updates and word-processor installation, and leaves
+sync logic intact. <code>run_phase</code> applies explicit operations through Zotero's
+item APIs, runs the real sync runner, exports a JSON snapshot and exits. Each
+phase enforces the requested application version and a timeout, and preserves
+the desktop log on failure. The installed Zotero 10.0.1 completed a real
+create-and-upload smoke test; its binary version is separate from the pinned
+source revision used by Node replay.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>acceptance<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span>--desktop-executable<span class="w"> </span>/opt/zotero/zotero<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.1<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>--xvfb<span class="w"> </span>--schema-corpus<span class="w"> </span>--state-dir<span class="w"> </span>.compatibility/desktop-10.0.1
+</span></code></pre></div>
+<p>This requires an installed Zotero binary and Xvfb (or omit <code>--xvfb</code> to use an
+existing display). The version is checked by the running application. The
+command creates two isolated profiles and a loopback server, drives the actual
+sync engine and ZFS filesystem path, and preserves phase snapshots, databases
+and logs. It refuses an existing state directory.</p>
+<p>The 15-phase run passed locally with Zotero 10.0.1: parent/note/file download,
+collection filing, persisted attachment bytes, disjoint offline edits and
+convergence, trash/restore propagation, deletion of parent and children, and
+all 40 schema types serialized by desktop A and downloaded into desktop B.
+The schema phase disables file transfer because its generated attachment has
+metadata only; the preceding file scenario checks real byte transfer.
+Same-field conflict dialogs and group-removal prompts remain runtime gaps.</p>
+<p>Streaming scenarios subscribe over a real WebSocket, make a live write and feed
+the greeting, subscription changes and notification into the original <code>_connect</code>
+message handler. They check sync scheduling, already-current and skipped libraries,
+and reconnect delays. The replay supplies a socket facade and virtual clock;
+actual desktop reconnect timing and UI scheduling are not exercised.</p>
+<h2 id="prove-the-checks-detect-omissions">Prove the checks detect omissions<a class="headerlink" href="#prove-the-checks-detect-omissions" title="Permanent link">&para;</a></h2>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>mutations<span class="w"> </span>--zotero-source<span class="w"> </span>.compatibility/zotero<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span>--state-dir<span class="w"> </span>.compatibility/mutations<span class="w"> </span>--output<span class="w"> </span>.compatibility/mutations.json
+</span></code></pre></div>
+<p>Seven named mutations remove a watermark, truncate versions, omit a successful
+write result, omit a deletion, ignore empty clearing properties, freeze the
+watermark or remove the group roster. Every canary first has to pass intact,
+then fail by assertion in every parametrized case. Setup errors, skips and
+unrelated exceptions are rejected. JUnit and logs are preserved for each run.
+All seven were detected locally, including PR #14's missing-roster class.</p>
+<p>These are controlled protocol mutations at the transport boundary. The clearing
+mutation removes empty properties before sending the request, simulating a writer
+that ignores them; the others alter responses. They establish assertion strength,
+not a mutation score for production source. <code>ALTERO_COMPAT_MUTATION</code> selects only
+a catalogue entry and is normally unset.</p>
+<p>The expanded local validation passed 146 compatibility tests and 231 architecture
+checks under Node 24, with no skips. Ruff formatting/lint, type checking and the
+strict documentation build passed. The source report verifies 30 client selectors
+and 13 reviewed dataserver spans; its 21 unmapped consumers remain visible.
+Those counts describe this baseline and do not certify the whole desktop surface.</p>
 
 
 

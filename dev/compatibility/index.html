@@ -3556,6 +3556,10 @@ accepted. It expires after five minutes, it is checked against the digest the
 the redirect carries <code>Cache-Control: no-store</code> so no shared cache keeps it. It
 is deliberately <em>not</em> one-shot — <code>Zotero.HTTP.download</code> retries the same URL
 after a 5xx or a dropped connection.</p>
+<p>The location is absolute. <code>zfs.js</code> passes it directly to <code>HTTP.download()</code>,
+which accepts only HTTP(S) URLs. A relative location works with an HTTP client
+that follows redirects automatically but fails in the desktop's two-request
+flow. The original ZFS replay checks both ordinary files and ZIP snapshots.</p>
 <p>The obvious alternative, appending the caller's API key to the location as
 <code>?key=…</code>, works and was rejected. An API key grants the whole account and never
 expires, and a reverse proxy writes every request line to its access log; altero
@@ -4357,6 +4361,12 @@ multi-object path already gives each object its own savepoint, so an unchanged
 object is discarded by rolling that back — the same mechanism a rejected object
 uses. A batch in which nothing changed leaves the library version where it was,
 because nothing succeeded and the whole request rolls back.</p>
+<p>The reference checkout at <code>6e091852b8a3e369056f390ba69e5de90cda1134</code>
+now bumps the library version inside each object transaction, before checking
+whether it changed, and commits that bump even for an unchanged object. Altero
+retains its established one-version-per-changed-request policy. Object versions
+and the result report still agree; library watermarks can differ. The desktop
+contracts verify altero's policy, not identical version numbers across servers.</p>
 <p>Two places deliberately do not do this. A key-based <code>PUT</code> or <code>PATCH</code> has no
 report to put the answer in, and upstream's controller ignores the flag there
 too. The full-text batch is a different upstream code path (<code>Zotero_FullText</code>)
@@ -4438,6 +4448,14 @@ the library's as both, so a role change costs connected clients one sync poll
 that finds nothing new. That is the cheaper mistake: a client that has not
 noticed it was demoted is one that still believes it may write.</p>
 <h4 id="who-the-client-finds-in-a-group">Who the client finds in a group<a class="headerlink" href="#who-the-client-finds-in-a-group" title="Permanent link">&para;</a></h4>
+<p><strong>Group listings always carry a <code>Link</code> header</strong>, including an empty listing
+and a single page. The desktop's account preferences call <code>getGroups()</code>, which
+uses <code>getPaginatedResults()</code> and parses that header unconditionally. Omitting
+it raises an error before preferences can display the groups. The dataserver's
+<code>Zotero_API::multiResponse()</code> supplies pagination links and always an
+<code>alternate</code> link. Altero deliberately omits links to zotero.org, so it supplies
+a <code>self</code> link to keep the header present even for empty and single-page listings. The default page holds 25
+groups; <code>format=versions</code> remains unlimited by default.</p>
 <p>A group's JSON carries <code>admins</code> and <code>members</code>, arrays of user ids, and the
 desktop client cannot do without them. <code>Zotero.Groups.getPermissionsFromJSON</code>
 makes a group library editable for its <code>owner</code>, for an id in <code>admins</code>, and for
