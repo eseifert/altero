@@ -1,0 +1,9 @@
+# The revision and complete file hashes must be reviewed together on an update.
+[zotero]
+repository = "https://github.com/zotero/zotero"
+revision = "4118f47bc3d915fcff906e2377f06a95ddaaaf12"
+
+[contracts.group_permissions]
+source = "chrome/content/zotero/xpcom/data/groups.js"
+selector = "this.getPermissionsFromJSON"
+sha256 = "24b12b88ec8b4021dcc5db85c7fbb6d5d3343cc64bc9139a9f376014929e4651"

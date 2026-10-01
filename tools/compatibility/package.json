@@ -1,0 +1,7 @@
+{
+  "name": "altero-client-compatibility",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "dependencies": { "acorn": "8.18.0" }
+}
