@@ -2,6 +2,7 @@
 
 import math
 import random
+import re
 from collections.abc import Awaitable, Callable
 from typing import Any
 
@@ -35,22 +36,40 @@ def generate_sequence(seed: int, steps: int) -> list[dict]:
 
 
 def valid_sequence(operations: list[dict]) -> bool:
-    keys, collection = set(), False
+    if not isinstance(operations, list) or not operations:
+        return False
+    state, seen, collection = {}, set(), False
     for operation in operations:
-        action, key = operation["action"], operation["key"]
+        if not isinstance(operation, dict):
+            return False
+        action, key = operation.get("action"), operation.get("key")
+        if not isinstance(key, str) or not re.fullmatch(
+            r"[23456789ABCDEFGHIJKLMNPQRSTUVWXYZ]{8}", key
+        ):
+            return False
         if action == "collection":
-            if collection:
+            if collection or key != "CNLLECT2":
                 return False
             collection = True
         elif action == "create":
-            if key in keys:
+            if key in seen or not isinstance(operation.get("title"), str):
                 return False
-            keys.add(key)
-        else:
-            if key not in keys or (action == "file" and not collection):
+            seen.add(key)
+            state[key] = {"title": operation["title"], "filed": False, "deleted": False}
+        elif action in {"edit", "file", "trash", "delete"}:
+            if key not in state or (action == "file" and not collection):
                 return False
             if action == "delete":
-                keys.remove(key)
+                del state[key]
+                continue
+            field = {"edit": "title", "file": "filed", "trash": "deleted"}[action]
+            value = operation.get("title" if action == "edit" else "value")
+            expected_type = str if action == "edit" else bool
+            if not isinstance(value, expected_type) or state[key][field] == value:
+                return False
+            state[key][field] = value
+        else:
+            return False
     return True
 
 

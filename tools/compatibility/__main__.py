@@ -74,7 +74,7 @@ def main() -> int:
                 args.markdown.write_text(surface_markdown(result))
             return 0
         if args.zotero_source is None:
-            raise CompatibilityError("--zotero-source is required for verify and analyze")
+            raise CompatibilityError("--zotero-source is required for this command")
         client = ZoteroClient(args.zotero_source, args.manifest)
         if args.command == "mutations":
             from tools.compatibility.mutations import run_mutations
@@ -128,7 +128,7 @@ def main() -> int:
         if args.markdown:
             args.markdown.write_text(markdown(result))
         return 0
-    except (CompatibilityError, OSError, TimeoutError, AssertionError) as error:
+    except (ValueError, OSError, TimeoutError, AssertionError) as error:
         print(str(error), file=sys.stderr)
         return 2
 

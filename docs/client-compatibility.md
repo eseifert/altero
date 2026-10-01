@@ -74,6 +74,8 @@ refresh tests capture responses over a real HTTP socket.
 retry policy, against a local HTTP server. Its async Python subprocess leaves
 the server event loop free to answer requests. The transport supplies an XHR
 response facade; the scheduler records requested delays without sleeping.
+This layer checks the API scheduler; generic retry behavior inside
+`Zotero.HTTP.request` is provided by the facade and is not exercised here.
 Request traces omit the API key. Injected responses and response mutations
 exercise error handling without changing the pinned source.
 
@@ -219,6 +221,22 @@ A nightly and manually dispatched job also inspects Zotero's current `main`
 with source drift allowed and uploads a separate upstream report. It does not
 change the supported baseline or run an external review provider.
 
+
+CI now verifies the pinned dataserver checkout alongside the desktop source and
+attaches the reviewed reference spans to its reports. It uploads the scenario
+inventory beside JUnit, and runs the mutation catalogue nightly and on manual
+dispatch. Write, full-text, pagination, HTTP-policy and storage-registration
+consumers now have explicit manifest selectors as well as live scenario tests.
+
+The real desktop CI job is opt-in: configure repository variables
+`ZOTERO_DESKTOP_URL`, `ZOTERO_DESKTOP_SHA256` and `ZOTERO_DESKTOP_VERSION` for a
+pinned official Linux archive. It checks the archive hash and running version,
+runs under Xvfb, and uploads snapshots, logs and desktop databases even on failure.
+The variables are deliberately unset by default. The local installed 10.0.1
+binary was tested; its proposed official archive URL returned 403, so no download
+URL or checksum is presented as verified. The GitHub jobs themselves have not
+been executed locally.
+
 ## Cross-check the dataserver reference
 
 Pass `--dataserver-source /path/to/dataserver` to `verify` and `analyze`.
@@ -237,6 +255,8 @@ bumps per object and commits a bump for unchanged objects. Full-text versioning
 already has the same documented per-request distinction. Compare object state
 and monotonic watermarks rather than expecting equal counter values.
 
+## Generated sequences and replay
+
 The reusable `LibraryReplay` helper and `disposable_server` support standalone
 sequence and desktop acceptance commands. The latter creates a new database and
 file store, binds only loopback, seeds a disposable test credential, and closes
@@ -247,6 +267,9 @@ trash/restore and delete operations. Tests run seeds 4, 14 and 91 in personal
 and group libraries, checking an independent state model after every step.
 `minimize` removes chunks while preserving a caller-defined failure predicate;
 invalid sequences must be rejected rather than treated as reproductions.
+Validity includes an actual state change: removing a trash step must not turn
+a later restore into a no-op that is mistaken for the original failure. Empty
+or ineffective replay input is rejected before creating a server.
 
 Run and replay a standalone sequence with preserved disposable databases:
 
@@ -265,6 +288,12 @@ failure and independently confirmed minimized sequence. Exit 1 is a reproduced
 assertion failure; prerequisites and runner errors remain exit 2. Replays require
 a new state directory.
 
+A live check injected a frozen watermark into seed 14 with six operations.
+The runner reduced it to one create operation and confirmed the same invariant
+on a fresh server in four trials.
+
+## Run two real desktop profiles
+
 `desktop.prepare_profile` installs a small acceptance add-on in a new profile
 and data directory. It points the desktop at a disposable server, disables
 automatic sync, streaming, updates and word-processor installation, and leaves
@@ -275,7 +304,6 @@ the desktop log on failure. The installed Zotero 10.0.1 completed a real
 create-and-upload smoke test; its binary version is separate from the pinned
 source revision used by Node replay.
 
-## Run two real desktop profiles
 
 ```sh
 uv run python -m tools.compatibility acceptance \
@@ -323,17 +351,8 @@ that ignores them; the others alter responses. They establish assertion strength
 not a mutation score for production source. `ALTERO_COMPAT_MUTATION` selects only
 a catalogue entry and is normally unset.
 
-CI now verifies the pinned dataserver checkout alongside the desktop source and
-attaches the reviewed reference spans to its reports. It uploads the scenario
-inventory beside JUnit, and runs the mutation catalogue nightly and on manual
-dispatch. Write, full-text, pagination, HTTP-policy and storage-registration
-consumers now have explicit manifest selectors as well as live scenario tests.
-
-The real desktop CI job is opt-in: configure repository variables
-`ZOTERO_DESKTOP_URL`, `ZOTERO_DESKTOP_SHA256` and `ZOTERO_DESKTOP_VERSION` for a
-pinned official Linux archive. It checks the archive hash and running version,
-runs under Xvfb, and uploads snapshots, logs and desktop databases even on failure.
-The variables are deliberately unset by default. The local installed 10.0.1
-binary was tested; its proposed official archive URL returned 403, so no download
-URL or checksum is presented as verified. The GitHub jobs themselves have not
-been executed locally.
+The expanded local validation passed 146 compatibility tests and 231 architecture
+checks under Node 24, with no skips. Ruff formatting/lint, type checking and the
+strict documentation build passed. The source report verifies 30 client selectors
+and 13 reviewed dataserver spans; its 21 unmapped consumers remain visible.
+Those counts describe this baseline and do not certify the whole desktop surface.

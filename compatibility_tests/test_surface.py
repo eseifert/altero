@@ -8,7 +8,9 @@ from tools.compatibility.surface import inventory
 
 def test_untested_scenarios_remain_visible() -> None:
     result = inventory()
-    assert result["counts"]["pending"] > 0
+    gaps = [s for s in result["scenarios"] if s["status"] != "executable"]
+    assert any(s["name"] == "group_removal_prompts" for s in gaps)
+    assert all(s["reason"] for s in gaps)
     assert result["counts"]["executable"] > 0
     assert any(s["operation"] == "streaming" for s in result["scenarios"])
     assert sum(result["counts"].values()) == len(result["scenarios"])

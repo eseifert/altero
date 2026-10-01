@@ -16,3 +16,15 @@ async def test_shrinking_preserves_the_failure_and_removes_noise():
 
     reduced = await minimize(list(range(10)), fails)
     assert reduced == [2, 7]
+
+
+def test_shrinking_rejects_steps_that_became_noops():
+    from tools.compatibility.sequences import valid_sequence
+
+    create = {"action": "create", "key": "ABCD2345", "title": "old"}
+    trash = {"action": "trash", "key": "ABCD2345", "value": True}
+    restore = {"action": "trash", "key": "ABCD2345", "value": False}
+    assert valid_sequence([create, trash, restore])
+    assert not valid_sequence([create, restore])
+    assert not valid_sequence([create, {"action": "edit", "key": "ABCD2345", "title": "old"}])
+    assert not valid_sequence([])

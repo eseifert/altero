@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from tools.compatibility.client import ZoteroClient
+from tools.compatibility.client import CompatibilityError, ZoteroClient
 from tools.compatibility.library import LibraryReplay
 from tools.compatibility.live import DesktopAPI
 from tools.compatibility.runtime import disposable_server
@@ -10,6 +10,8 @@ from tools.compatibility.sequences import check_sequence, minimize, valid_sequen
 
 
 async def run_sequence(client: ZoteroClient, operations: list[dict], root: Path) -> dict:
+    if not valid_sequence(operations):
+        raise CompatibilityError("Cannot replay an invalid or ineffective operation sequence")
     root.mkdir(parents=True, exist_ok=False)
     trial = 0
 
