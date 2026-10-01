@@ -31,18 +31,18 @@ tests = ["compatibility_tests/test_reads.py"]
 
 [scenarios.object_writes]
 operation = "objects"
-status = "pending"
-reason = "Success, unchanged, failed and stale writes need original client consumers."
+status = "executable"
+tests = ["compatibility_tests/test_writes.py"]
 
 [scenarios.partial_fields]
 operation = "objects"
-status = "pending"
-reason = "Absent and empty properties need explicit transition assertions."
+status = "executable"
+tests = ["compatibility_tests/test_writes.py"]
 
 [scenarios.settings_and_deletions]
 operation = "sync-writes"
-status = "pending"
-reason = "Settings writes and deletion logs need operation sequences."
+status = "executable"
+tests = ["compatibility_tests/test_writes.py"]
 
 [scenarios.schema_payloads]
 operation = "serialization"
