@@ -240,3 +240,9 @@ The reusable `LibraryReplay` helper and `disposable_server` support standalone
 sequence and desktop acceptance commands. The latter creates a new database and
 file store, binds only loopback, seeds a disposable test credential, and closes
 the server when the run finishes. It refuses an existing state directory.
+
+`generate_sequence(seed, steps)` produces valid create/edit/file/unfile,
+trash/restore and delete operations. Tests run seeds 4, 14 and 91 in personal
+and group libraries, checking an independent state model after every step.
+`minimize` removes chunks while preserving a caller-defined failure predicate;
+invalid sequences must be rejected rather than treated as reproductions.

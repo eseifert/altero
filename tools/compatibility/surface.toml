@@ -71,8 +71,8 @@ reason = "Two desktop databases and the real sync engine are required."
 
 [scenarios.generated_sequences]
 operation = "convergence"
-status = "pending"
-reason = "Seeded valid operation sequences need an independent state oracle and replay."
+status = "executable"
+tests = ["compatibility_tests/test_sequences.py"]
 
 [scenarios.streaming]
 operation = "streaming"
