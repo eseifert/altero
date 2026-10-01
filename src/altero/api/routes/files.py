@@ -168,6 +168,7 @@ async def download_file(
     session: SessionDep,
     library: FileReadableLibraryDep,
     access: AccessDep,
+    base_url: BaseUrlDep,
 ) -> Response:
     """Redirect to the file attached to an item, describing it in the headers.
 
@@ -199,7 +200,7 @@ async def download_file(
     return Response(
         status_code=302,
         headers={
-            "Location": f"/storage/download/{permission.key}",
+            "Location": f"{base_url}/storage/download/{permission.key}",
             "Zotero-File-Modification-Time": fields.get("mtime") or "0",
             "Zotero-File-MD5": fields["md5"],
             "Zotero-File-Compressed": "Yes" if compressed else "No",

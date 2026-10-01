@@ -608,6 +608,11 @@ the redirect carries `Cache-Control: no-store` so no shared cache keeps it. It
 is deliberately *not* one-shot — `Zotero.HTTP.download` retries the same URL
 after a 5xx or a dropped connection.
 
+The location is absolute. `zfs.js` passes it directly to `HTTP.download()`,
+which accepts only HTTP(S) URLs. A relative location works with an HTTP client
+that follows redirects automatically but fails in the desktop's two-request
+flow. The original ZFS replay checks both ordinary files and ZIP snapshots.
+
 The obvious alternative, appending the caller's API key to the location as
 `?key=…`, works and was rejected. An API key grants the whole account and never
 expires, and a reverse proxy writes every request line to its access log; altero

@@ -56,8 +56,8 @@ tests = ["compatibility_tests/test_fulltext_replay.py"]
 
 [scenarios.storage]
 operation = "files"
-status = "pending"
-reason = "Authorize, upload, register, download, ZIP and metadata need desktop consumers."
+status = "executable"
+tests = ["compatibility_tests/test_storage_replay.py", "compatibility_tests/test_storage_redirect.py"]
 
 [scenarios.retry_policy]
 operation = "http"

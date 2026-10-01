@@ -7,6 +7,9 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Return absolute attachment download locations, required by Zotero's separate
+  download request, found by replaying its original ZFS transfer code.
+
 - Fix group-list pagination and missing Link headers that prevented Zotero's
   account preferences from reading groups, found by the expanded desktop tests.
 
