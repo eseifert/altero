@@ -6,7 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
   schedule:
-    - cron: "23 4 * * 1"
+    - cron: "23 4 * * *"
 
 permissions:
   contents: read
@@ -40,6 +40,8 @@ jobs:
           from pathlib import Path
           manifest = tomllib.loads(Path("tools/compatibility/contracts.toml").read_text())
           print("revision=" + manifest["zotero"]["revision"])
+          reference = tomllib.loads(Path("tools/compatibility/reference.toml").read_text())
+          print("reference=" + reference["dataserver"]["revision"])
           PY
 
       - uses: actions/checkout@v7
@@ -48,6 +50,14 @@ jobs:
           repository: zotero/zotero
           ref: ${{ steps.pin.outputs.revision }}
           path: .compatibility/zotero
+          persist-credentials: false
+
+      - uses: actions/checkout@v7
+        id: reference
+        with:
+          repository: zotero/dataserver
+          ref: ${{ steps.pin.outputs.reference }}
+          path: .compatibility/dataserver
           persist-credentials: false
 
       - uses: actions/setup-node@v6
@@ -62,7 +72,7 @@ jobs:
         run: npm ci
 
       - name: Verify the source and function selectors
-        run: uv run python -m tools.compatibility verify --zotero-source .compatibility/zotero
+        run: uv run python -m tools.compatibility verify --zotero-source .compatibility/zotero --dataserver-source .compatibility/dataserver
 
       - name: Replay contracts
         run: |
@@ -73,14 +83,24 @@ jobs:
               raise SystemExit("Every desktop compatibility check must run; tests were skipped")
           PY
 
+      - name: Prove known protocol defects are detected
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: |
+          uv run python -m tools.compatibility mutations \
+            --zotero-source .compatibility/zotero \
+            --state-dir .compatibility/mutations --output .compatibility/mutations.json
+
       - name: Discover source gaps
-        if: always() && steps.source.outcome == 'success' && steps.harness.outcome == 'success'
+        if: always() && steps.source.outcome == 'success' && steps.reference.outcome == 'success' && steps.harness.outcome == 'success'
         run: |
           uv run python -m tools.compatibility analyze \
             --zotero-source .compatibility/zotero \
+            --dataserver-source .compatibility/dataserver \
             --output .compatibility/report.json \
             --markdown .compatibility/report.md \
             --evidence .compatibility/evidence.json
+          uv run python -m tools.compatibility coverage \
+            --output .compatibility/coverage.json --markdown .compatibility/coverage.md
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -90,6 +110,8 @@ jobs:
             .compatibility/*.json
             .compatibility/*.md
             .compatibility/results.xml
+            .compatibility/mutations/*.xml
+            .compatibility/mutations/*.log
           retention-days: 14
           if-no-files-found: ignore
 
@@ -140,5 +162,61 @@ jobs:
           path: |
             .compatibility/upstream*.json
             .compatibility/upstream.md
+          retention-days: 14
+          if-no-files-found: ignore
+
+  desktop:
+    name: Converge two real desktop profiles
+    if: >-
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      vars.ZOTERO_DESKTOP_URL != '' && vars.ZOTERO_DESKTOP_SHA256 != '' &&
+      vars.ZOTERO_DESKTOP_VERSION != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DESKTOP_URL: ${{ vars.ZOTERO_DESKTOP_URL }}
+      DESKTOP_SHA256: ${{ vars.ZOTERO_DESKTOP_SHA256 }}
+      DESKTOP_VERSION: ${{ vars.ZOTERO_DESKTOP_VERSION }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
+      - name: Install Python and desktop runtime dependencies
+        run: |
+          uv sync --locked
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgtk-3-0t64 libdbus-glib-1-2 libasound2t64 libnss3 libxt6
+
+      - name: Fetch the configured pinned Linux desktop
+        run: |
+          [[ "$DESKTOP_URL" == https://download.zotero.org/* ]]
+          [[ "$DESKTOP_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          mkdir -p .compatibility
+          curl --fail --location --proto '=https' --tlsv1.2 \
+            --output .compatibility/desktop.tar.bz2 "$DESKTOP_URL"
+          printf '%s  %s\n' "$DESKTOP_SHA256" .compatibility/desktop.tar.bz2 | sha256sum --check --strict
+          tar -xjf .compatibility/desktop.tar.bz2 -C .compatibility
+
+      - name: Run real data, file and schema convergence
+        run: |
+          uv run python -m tools.compatibility acceptance \
+            --desktop-executable .compatibility/Zotero_linux-x86_64/zotero \
+            --desktop-version "$DESKTOP_VERSION" --xvfb --schema-corpus \
+            --state-dir .compatibility/desktop-run
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: desktop-acceptance
+          path: |
+            .compatibility/desktop-run/*.json
+            .compatibility/desktop-run/xvfb.log
+            .compatibility/desktop-run/A/desktop.log
+            .compatibility/desktop-run/B/desktop.log
+            .compatibility/desktop-run/A/data/zotero.sqlite
+            .compatibility/desktop-run/B/data/zotero.sqlite
           retention-days: 14
           if-no-files-found: ignore

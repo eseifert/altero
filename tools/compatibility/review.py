@@ -34,6 +34,7 @@ def evidence(report: dict[str, Any], *, source_budget: int = 64_000) -> dict[str
         "schema": 1,
         "task": (
             "Compare client decisions with server behavior. "
+            "Use the pinned dataserver evidence as the reference when supplied. "
             "Report hypotheses with source references "
             "and a concrete reproduction. Missing optional fields are not automatically bugs. "
             "Respect documented exceptions. Propose tests for defaults, types and cached versions. "

@@ -86,10 +86,11 @@ in a desktop profile. A missing remote file exercises ZFS's settled-file path.
 The schema corpus checks server wire round trips. Actual desktop serialization
 and persistence belong to the disposable-profile acceptance runner.
 
-The adapters do not run Zotero's database, application UI or full sync engine.
-Group-removal prompts require the desktop runtime and raise an explicit error.
-Continue to use [two-client testing](testing-two-clients.md) for complete
-synchronization and convergence.
+Source replay adapters provide facades for the database and application UI.
+The real acceptance runner below exercises complete synchronization separately.
+Group-removal prompts raise an explicit error in source replay; continue to use
+[two-client testing](testing-two-clients.md) for interactive conflict dialogs
+and removal prompts.
 
 The harness was checked against PR #14's failure: removing the roster arrays
 makes the permission checks fail, and omitting the command-line version
@@ -214,7 +215,7 @@ to master and pull requests. It fails if a test skips and uploads the test
 results, source report and review evidence. Static candidates remain review
 work rather than reproduced failures.
 
-A weekly and manually dispatched job also inspects Zotero's current `main`
+A nightly and manually dispatched job also inspects Zotero's current `main`
 with source drift allowed and uploads a separate upstream report. It does not
 change the supported baseline or run an external review provider.
 
@@ -321,3 +322,18 @@ mutation removes empty properties before sending the request, simulating a write
 that ignores them; the others alter responses. They establish assertion strength,
 not a mutation score for production source. `ALTERO_COMPAT_MUTATION` selects only
 a catalogue entry and is normally unset.
+
+CI now verifies the pinned dataserver checkout alongside the desktop source and
+attaches the reviewed reference spans to its reports. It uploads the scenario
+inventory beside JUnit, and runs the mutation catalogue nightly and on manual
+dispatch. Write, full-text, pagination, HTTP-policy and storage-registration
+consumers now have explicit manifest selectors as well as live scenario tests.
+
+The real desktop CI job is opt-in: configure repository variables
+`ZOTERO_DESKTOP_URL`, `ZOTERO_DESKTOP_SHA256` and `ZOTERO_DESKTOP_VERSION` for a
+pinned official Linux archive. It checks the archive hash and running version,
+runs under Xvfb, and uploads snapshots, logs and desktop databases even on failure.
+The variables are deliberately unset by default. The local installed 10.0.1
+binary was tested; its proposed official archive URL returned 403, so no download
+URL or checksum is presented as verified. The GitHub jobs themselves have not
+been executed locally.

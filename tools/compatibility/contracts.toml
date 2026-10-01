@@ -161,3 +161,75 @@ tests = ["compatibility_tests/test_streamer_replay.py"]
 source = "chrome/content/zotero/xpcom/streamer.js"
 selector = "_hideAPIKey"
 sha256 = "fa5ff34f46a979032107f0aef102364fd3054a1fcc01ff1b93d96b393edb0502"
+
+[contracts.objects_upload]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "uploadObjects"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_writes.py"]
+
+[contracts.objects_delete]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "uploadDeletions"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_writes.py"]
+
+[contracts.settings_upload]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "uploadSettings"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_writes.py"]
+
+[contracts.settings_delete]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "deleteSettings"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_writes.py"]
+
+[contracts.fulltext_versions]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getFullTextVersions"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_fulltext_replay.py"]
+
+[contracts.fulltext_read]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getFullTextForItem"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_fulltext_replay.py"]
+
+[contracts.fulltext_upload]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "setFullTextForItems"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_fulltext_replay.py"]
+
+[contracts.http_backoff]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "_checkBackoff"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_retry_policy.py"]
+
+[contracts.http_retry]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "_checkRetry"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_retry_policy.py"]
+
+[contracts.http_throttle]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "_check429"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_retry_policy.py"]
+
+[contracts.pagination]
+source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
+selector = "getPaginatedResults"
+sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
+tests = ["compatibility_tests/test_group_pagination.py"]
+
+[contracts.storage_registration]
+source = "chrome/content/zotero/xpcom/storage/zfs.js"
+selector = "_onUploadComplete"
+sha256 = "4d4f57b5130ee3102ce6bddfa2294b28815a2034504b6cd7067a655ffdcb7ac5"
+tests = ["compatibility_tests/test_storage_redirect.py"]

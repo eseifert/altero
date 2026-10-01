@@ -240,3 +240,10 @@ uploads discovery reports; its scheduled job also inspects upstream changes.
 If you changed observable behavior, say in the pull request how you established
 what the behavior should be. "The documentation says so" is not sufficient on
 its own — see above.
+
+The optional desktop suite now includes generated schema payloads, seeded
+transition sequences with replay/shrinking, storage and full-text transfers,
+streaming decisions and known protocol mutations. See
+[the compatibility commands](docs/client-compatibility.md) for the pinned
+dataserver cross-check and the disposable two-profile desktop runner. Every
+compatibility batch should update the documented scenario inventory and limits.

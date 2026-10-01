@@ -124,3 +124,9 @@ When a run fails, record:
 Discard the disposable instance and test profiles unless they are needed for a minimal reproduction.
 
 A clean two-client run is stronger evidence than replaying captured HTTP traffic because it exercises the real client's local synchronization state in both directions.
+
+The [automated acceptance runner](client-compatibility.md#run-two-real-desktop-profiles)
+creates disposable profiles and checks disjoint offline edits, file bytes,
+trash/restore, child deletion and schema serialization using the real sync engine.
+Keep this manual procedure for same-field conflict dialogs and group-removal
+prompts, which the automated runner does not yet drive.
