@@ -57,6 +57,14 @@ small runtime helpers. The sync-version adapter substitutes the URI builder;
 it checks the original response handling and request parameters. The group
 refresh tests capture responses over a real HTTP socket.
 
+`tools.compatibility.live.DesktopAPI` executes the complete original
+`syncAPIClient.js`, including URL construction, headers, gzip decisions and
+retry policy, against a local HTTP server. Its async Python subprocess leaves
+the server event loop free to answer requests. The transport supplies an XHR
+response facade; the scheduler records requested delays without sleeping.
+Request traces omit the API key. Injected responses and response mutations
+exercise error handling without changing the pinned source.
+
 The adapters do not run Zotero's database, application UI or full sync engine.
 Group-removal prompts require the desktop runtime and raise an explicit error.
 Continue to use [two-client testing](testing-two-clients.md) for complete
