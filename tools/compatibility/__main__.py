@@ -1,6 +1,7 @@
 """Run with ``python -m tools.compatibility`` from the repository root."""
 
 import argparse
+import asyncio
 import json
 import shlex
 import sys
@@ -17,7 +18,7 @@ from tools.compatibility.surface import markdown as surface_markdown
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["verify", "analyze", "coverage"])
+    parser.add_argument("command", choices=["verify", "analyze", "coverage", "sequence"])
     parser.add_argument("--zotero-source", type=Path)
     parser.add_argument(
         "--dataserver-source",
@@ -28,6 +29,10 @@ def main() -> int:
     parser.add_argument("--server-root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--allow-source-drift", action="store_true")
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--state-dir", type=Path, help="New disposable state directory")
+    parser.add_argument("--seed", type=int, default=14)
+    parser.add_argument("--steps", type=int, default=12)
+    parser.add_argument("--replay", type=Path, help="Replay operations from a sequence JSON report")
     parser.add_argument("--markdown", type=Path)
     parser.add_argument("--evidence", type=Path, help="Write the bounded automated-review input")
     parser.add_argument(
@@ -48,6 +53,22 @@ def main() -> int:
         if args.zotero_source is None:
             raise CompatibilityError("--zotero-source is required for verify and analyze")
         client = ZoteroClient(args.zotero_source, args.manifest)
+        if args.command == "sequence":
+            from tools.compatibility.sequence_runner import run_sequence
+            from tools.compatibility.sequences import generate_sequence
+
+            if args.state_dir is None or args.output is None:
+                raise CompatibilityError("sequence requires --state-dir and --output")
+            client.verify_revision()
+            if args.replay:
+                previous = json.loads(args.replay.read_text())
+                operations = previous.get("minimized", previous["operations"])
+            else:
+                operations = generate_sequence(args.seed, args.steps)
+            result = asyncio.run(run_sequence(client, operations, args.state_dir))
+            result["seed"] = args.seed if not args.replay else previous.get("seed")
+            args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+            return 0 if result["passed"] else 1
         reference = reference_evidence(args.dataserver_source) if args.dataserver_source else None
         if args.command == "verify":
             client.verify_revision()

@@ -246,3 +246,20 @@ trash/restore and delete operations. Tests run seeds 4, 14 and 91 in personal
 and group libraries, checking an independent state model after every step.
 `minimize` removes chunks while preserving a caller-defined failure predicate;
 invalid sequences must be rejected rather than treated as reproductions.
+
+Run and replay a standalone sequence with preserved disposable databases:
+
+```sh
+uv run python -m tools.compatibility sequence --zotero-source .compatibility/zotero \
+  --seed 14 --steps 30 --state-dir .compatibility/sequence-14 \
+  --output .compatibility/sequence-14.json
+uv run python -m tools.compatibility sequence --zotero-source .compatibility/zotero \
+  --replay .compatibility/sequence-14.json --state-dir .compatibility/replay-14 \
+  --output .compatibility/replay-14.json
+```
+
+Failures automatically shrink against fresh servers, rejecting invalid operations
+and preserving the failing invariant. The JSON keeps the seed, original operations,
+failure and independently confirmed minimized sequence. Exit 1 is a reproduced
+assertion failure; prerequisites and runner errors remain exit 2. Replays require
+a new state directory.
