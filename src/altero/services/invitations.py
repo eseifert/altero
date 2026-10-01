@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.models import GroupMember, Invitation, Library, LibraryType, MemberPermission, User
-from altero.services import emailverify, groups, notifications
+from altero.services import emailverify, groups, notifications, writes
 from altero.services.groups import MEMBER_PERMISSIONS
 
 PENDING = "pending"
@@ -262,6 +262,10 @@ async def accept(session: AsyncSession, invitation: Invitation, user: User) -> G
         )
     )
     if existing is None:
+        library = await session.get(Library, invitation.library_id)
+        if library is None:  # pragma: no cover - defensive
+            raise NotFoundError("No such library")
+        library = await writes.lock_library(session, library)
         existing = GroupMember(
             library_id=invitation.library_id,
             user_id=user.id,
@@ -269,6 +273,9 @@ async def accept(session: AsyncSession, invitation: Invitation, user: User) -> G
             permission=invitation.permission,
         )
         session.add(existing)
+        # A membership change like any other, so the roster every member's
+        # client reads comes with a version of its own.
+        await writes.bump_library_version(session, library)
 
     invitation.status = ACCEPTED
     invitation.user_id = user.id

@@ -14,6 +14,7 @@ from altero.models import (
     ApiKey,
     Collection,
     Group,
+    GroupMember,
     Item,
     Library,
     LibraryType,
@@ -56,35 +57,64 @@ def library_block(library: Library, base_url: str) -> dict[str, Any]:
 
 
 def group(
-    library: Library, group: Group, base_url: str, *, library_editing: str | None = None
+    library: Library,
+    group: Group,
+    base_url: str,
+    *,
+    library_editing: str | None = None,
+    roster: Sequence[GroupMember] = (),
 ) -> dict[str, Any]:
     """Render a group library.
 
     ``meta`` is not emitted yet: its ``created``, ``lastModified`` and
     ``numItems`` values need object timestamps that do not exist so far.
 
+    ``admins`` and ``members`` are not decoration. The desktop client's
+    ``Zotero.Groups.getPermissionsFromJSON`` makes a library editable for the
+    owner, for an id in ``admins``, and for an id in ``members`` when
+    ``libraryEditing`` allows it -- for nobody else. Without them every member
+    but the owner syncs a read-only library. They are written as upstream's
+    ``Zotero_Group::toJSON`` writes them: the owner in neither, upstream giving
+    it a role of its own where altero stores it as an admin, and an empty one
+    left out.
+
     Args:
         library_editing: What to report as ``libraryEditing``, when the caller
             has worked out that this requester sees something narrower than the
             stored policy -- see :func:`altero.services.groups.editing_for`.
             ``None`` reports what is stored.
+        roster: The group's memberships, for a requester who is one of them.
+            Upstream shows them to anyone who can read the group; altero only
+            to its members, since nobody else syncs it.
     """
+    data: dict[str, Any] = {
+        "id": library.owner_id,
+        "version": library.version,
+        "name": group.name,
+        "owner": group.owner_id,
+        "type": group.type,
+        "description": group.description,
+        "url": group.url,
+        "libraryEditing": library_editing or group.library_editing,
+        "libraryReading": group.library_reading,
+        "fileEditing": group.file_editing,
+    }
+    admins = [
+        member.user_id
+        for member in roster
+        if member.role == "admin" and member.user_id != group.owner_id
+    ]
+    if admins:
+        data["admins"] = admins
+    members = [member.user_id for member in roster if member.role == "member"]
+    if members:
+        data["members"] = members
+
     return {
         "id": library.owner_id,
         "version": library.version,
         "links": {"self": json_link(f"{base_url}/groups/{library.owner_id}")},
-        "data": {
-            "id": library.owner_id,
-            "version": library.version,
-            "name": group.name,
-            "owner": group.owner_id,
-            "type": group.type,
-            "description": group.description,
-            "url": group.url,
-            "libraryEditing": library_editing or group.library_editing,
-            "libraryReading": group.library_reading,
-            "fileEditing": group.file_editing,
-        },
+        "data": data,
     }
 
 

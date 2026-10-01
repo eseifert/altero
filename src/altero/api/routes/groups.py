@@ -54,8 +54,9 @@ def _member_payload(user: User, member: GroupMember) -> dict[str, Any]:
 
     ``permission`` is altero's too, and the group JSON beside it says nothing
     about anybody's -- ``libraryEditing`` there is what *the requester* may do,
-    not a roster. This is the roster, and only a member of the group can read
-    it.
+    and its ``admins`` and ``members`` are bare ids, there for the client to
+    find itself in. This is the roster with names, and only a member of the
+    group can read it.
     """
     return {
         "id": user.id,
@@ -107,16 +108,22 @@ async def _rendered(
 ) -> dict[str, Any]:
     """Render the group as *this* requester sees it.
 
-    ``libraryEditing`` is the one property that differs between requesters --
-    :func:`altero.services.groups.editing_for` says why -- so every route that
-    renders a group has to say who is asking.
+    Two properties differ between requesters, so every route that renders a
+    group has to say who is asking: ``libraryEditing`` --
+    :func:`altero.services.groups.editing_for` says why -- and the roster, which
+    only a member is shown.
     """
     group = group or await groups.get_group(session, library)
     member = (
         await groups.membership(session, library, api_key.user_id) if api_key is not None else None
     )
+    roster = (await groups.rosters(session, [library.id]))[library.id] if member else []
     return serializers.group(
-        library, group, base_url, library_editing=groups.editing_for(group, member)
+        library,
+        group,
+        base_url,
+        library_editing=groups.editing_for(group, member),
+        roster=roster,
     )
 
 
@@ -188,10 +195,15 @@ async def list_user_groups(
             {str(library.owner_id): library.version for library, _, _ in memberships}
         )
 
+    rosters = await groups.rosters(session, [library.id for library, _, _ in memberships])
     return JSONResponse(
         [
             serializers.group(
-                library, group, base_url, library_editing=groups.editing_for(group, member)
+                library,
+                group,
+                base_url,
+                library_editing=groups.editing_for(group, member),
+                roster=rosters[library.id],
             )
             for library, group, member in memberships
         ]

@@ -19,6 +19,7 @@ what lets a group have an administrator who is not its owner and a member who
 may only add -- the two axes upstream collapses into one property of the group.
 """
 
+from collections.abc import Iterable
 from typing import Any
 
 from sqlalchemy import delete, func, select
@@ -226,6 +227,27 @@ async def list_members(session: AsyncSession, library: Library) -> list[tuple[Us
     return [(user, member) for user, member in result.all()]
 
 
+async def rosters(
+    session: AsyncSession, library_ids: Iterable[int]
+) -> dict[int, list[GroupMember]]:
+    """Return the memberships of each library, keyed by library id.
+
+    One query for any number of groups, because the group listing every sync
+    starts from renders a roster per group -- see :func:`altero.serializers.group`
+    for why the client needs one at all.
+    """
+    found: dict[int, list[GroupMember]] = {library_id: [] for library_id in library_ids}
+    if found:
+        result = await session.scalars(
+            select(GroupMember)
+            .where(GroupMember.library_id.in_(found))
+            .order_by(GroupMember.user_id)
+        )
+        for member in result:
+            found[member.library_id].append(member)
+    return found
+
+
 async def add_member(
     session: AsyncSession,
     library: Library,
@@ -349,9 +371,14 @@ def group_payload(payload: Any) -> dict[str, Any]:
         payload = payload["data"]
 
     # Reported by the server and not settable: writing them would be a client
-    # renumbering a library or moving its version counter. Dropped rather than
-    # refused, so that a round trip of what GET returned is accepted.
-    payload = {name: value for name, value in payload.items() if name not in ("id", "version")}
+    # renumbering a library, moving its version counter or rewriting its
+    # membership, which has endpoints of its own. Dropped rather than refused,
+    # so that a round trip of what GET returned is accepted.
+    payload = {
+        name: value
+        for name, value in payload.items()
+        if name not in ("id", "version", "admins", "members")
+    }
 
     unknown = set(payload) - set(_PROPERTIES) - {"owner"}
     if unknown:

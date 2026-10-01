@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Members of a group can edit it from Zotero desktop as the group's policy allows, where until now everybody but the owner synced a read-only library: a group's JSON carries the `admins` and `members` arrays the client looks itself up in, shown to members only. Upgrading moves every group library's version once, so clients already holding a group fetch it again. Found by [@alpichlabs] in [PR#14].
 - The documentation points Android users at [zotero-self-hosted-sync], a third-party patch bundle by [@raphaelbahat] that points the app at altero, and records Android sync as working on a device.
 - The documentation says how the iOS and Android applications reach altero: through a build of your own, unofficially but supported.
 - The Zotero iOS and Android applications can sign in: the login page's address carries a query, as upstream's does, so the `&app=1` the Android application appends to it no longer names a page that does not exist.
@@ -150,10 +151,12 @@ The first release meant to be used by somebody other than its author.
 
 [@raphaelbahat]: https://github.com/raphaelbahat
 [zotero-self-hosted-sync]: https://github.com/raphaelbahat/zotero-self-hosted-sync
+[@alpichlabs]: https://github.com/alpichlabs
 [@sadgen]: https://github.com/sadgen
 [@ScatteredComet]: https://github.com/ScatteredComet
 [PR#7]: https://github.com/eseifert/altero/pull/7
 [PR#8]: https://github.com/eseifert/altero/pull/8
+[PR#14]: https://github.com/eseifert/altero/pull/14
 [Discussion#5]: https://github.com/eseifert/altero/discussions/5
 [Issue#11]: https://github.com/eseifert/altero/issues/11
 [Issue#13]: https://github.com/eseifert/altero/issues/13

@@ -28,7 +28,7 @@ from altero.models import (
     WebSession,
     WriteToken,
 )
-from altero.services import groups, streaming, websessions
+from altero.services import groups, streaming, websessions, writes
 from altero.services.transfer import clear_library
 
 
@@ -346,9 +346,16 @@ async def add_group_member(
     role: str = "member",
     permission: str = "inherit",
 ) -> GroupMember:
-    """Add a user to a group library."""
+    """Add a user to a group library.
+
+    This and the three below move the library version, as the routes do for
+    every membership change: a client fetches a group, and the roster that
+    says what it may do there, only when the version has moved.
+    """
     user = await get_user_by_name(session, username)
+    library = await writes.lock_library(session, library)
     member = await groups.add_member(session, library, user, role, permission)
+    await writes.bump_library_version(session, library)
     await session.commit()
     return member
 
@@ -358,7 +365,9 @@ async def set_group_member_role(
 ) -> GroupMember:
     """Change whether a member helps run a group library."""
     user = await get_user_by_name(session, username)
+    library = await writes.lock_library(session, library)
     member = await groups.set_role(session, library, user, role)
+    await writes.bump_library_version(session, library)
     await session.commit()
     return member
 
@@ -368,7 +377,9 @@ async def set_group_member_permission(
 ) -> GroupMember:
     """Change how far a member of a group library may go."""
     user = await get_user_by_name(session, username)
+    library = await writes.lock_library(session, library)
     member = await groups.set_permission(session, library, user, permission)
+    await writes.bump_library_version(session, library)
     await session.commit()
     return member
 
@@ -376,7 +387,9 @@ async def set_group_member_permission(
 async def remove_group_member(session: AsyncSession, library: Library, *, username: str) -> None:
     """Take a user out of a group library."""
     user = await get_user_by_name(session, username)
+    library = await writes.lock_library(session, library)
     await groups.remove_member(session, library, user)
+    await writes.bump_library_version(session, library)
     await session.commit()
 
 
