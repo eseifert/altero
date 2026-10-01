@@ -33,6 +33,17 @@ async function httpRequest(method, uri, options = {}) {
   const fault = request.faults.find(f => (!f.path || f.path === url.pathname) && (f.occurrence ?? 1) === count);
   const headers = { ...options.headers };
   let body = options.body;
+  if (fault?.mutation === "empty-as-absent" && typeof body === "string") {
+    const objects = JSON.parse(body);
+    for (const object of objects) {
+      for (const field of ["tags", "creators", "collections", "relations"]) {
+        const value = object[field];
+        if (value && typeof value === "object" && !Object.keys(value).length) delete object[field];
+      }
+    }
+    body = JSON.stringify(objects);
+  }
+  const uncompressedBody = body;
   if (options.compressBody) {
     body = gzipSync(body);
     headers["Content-Encoding"] = "gzip";
@@ -40,7 +51,7 @@ async function httpRequest(method, uri, options = {}) {
   const trace = {
     method, url: uri, authenticated: !!headers["Zotero-API-Key"],
     headers: Object.fromEntries(Object.entries(headers).filter(([name]) => name.toLowerCase() !== "zotero-api-key")),
-    body: typeof options.body === "string" ? options.body : null,
+    body: typeof uncompressedBody === "string" ? uncompressedBody : null,
   };
   requests.push(trace);
   let status, text, responseHeaders, bytes;
@@ -54,6 +65,7 @@ async function httpRequest(method, uri, options = {}) {
     responseHeaders = Object.fromEntries(response.headers);
   }
   if (fault?.mutation === "drop-watermark") delete responseHeaders["last-modified-version"];
+  if (fault?.mutation === "set-watermark") responseHeaders["last-modified-version"] = fault.value;
   if (fault?.mutation === "truncate-list") {
     const json = JSON.parse(text);
     text = JSON.stringify(Array.isArray(json) ? json.slice(0, 1) : Object.fromEntries(Object.entries(json).slice(0, 1)));
@@ -61,6 +73,11 @@ async function httpRequest(method, uri, options = {}) {
   if (fault?.mutation === "drop-field") {
     const json = JSON.parse(text);
     delete json[fault.field];
+    text = JSON.stringify(json);
+  }
+  if (fault?.mutation === "drop-data-field") {
+    const json = JSON.parse(text);
+    delete json.data[fault.field];
     text = JSON.stringify(json);
   }
   trace.status = status;

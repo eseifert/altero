@@ -301,3 +301,23 @@ the greeting, subscription changes and notification into the original `_connect`
 message handler. They check sync scheduling, already-current and skipped libraries,
 and reconnect delays. The replay supplies a socket facade and virtual clock;
 actual desktop reconnect timing and UI scheduling are not exercised.
+
+## Prove the checks detect omissions
+
+```sh
+uv run python -m tools.compatibility mutations --zotero-source .compatibility/zotero \
+  --state-dir .compatibility/mutations --output .compatibility/mutations.json
+```
+
+Seven named mutations remove a watermark, truncate versions, omit a successful
+write result, omit a deletion, ignore empty clearing properties, freeze the
+watermark or remove the group roster. Every canary first has to pass intact,
+then fail by assertion in every parametrized case. Setup errors, skips and
+unrelated exceptions are rejected. JUnit and logs are preserved for each run.
+All seven were detected locally, including PR #14's missing-roster class.
+
+These are controlled protocol mutations at the transport boundary. The clearing
+mutation removes empty properties before sending the request, simulating a writer
+that ignores them; the others alter responses. They establish assertion strength,
+not a mutation score for production source. `ALTERO_COMPAT_MUTATION` selects only
+a catalogue entry and is normally unset.

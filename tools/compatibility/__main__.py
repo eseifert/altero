@@ -19,7 +19,7 @@ from tools.compatibility.surface import markdown as surface_markdown
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=["verify", "analyze", "coverage", "sequence", "acceptance"]
+        "command", choices=["verify", "analyze", "coverage", "sequence", "acceptance", "mutations"]
     )
     parser.add_argument("--zotero-source", type=Path)
     parser.add_argument(
@@ -76,6 +76,15 @@ def main() -> int:
         if args.zotero_source is None:
             raise CompatibilityError("--zotero-source is required for verify and analyze")
         client = ZoteroClient(args.zotero_source, args.manifest)
+        if args.command == "mutations":
+            from tools.compatibility.mutations import run_mutations
+
+            if args.state_dir is None or args.output is None:
+                raise CompatibilityError("mutations requires --state-dir and --output")
+            client.verify_revision()
+            result = asyncio.run(run_mutations(args.zotero_source.resolve(), args.state_dir))
+            args.output.write_text(json.dumps(result, indent=2) + "\n")
+            return 0
         if args.command == "sequence":
             from tools.compatibility.sequence_runner import run_sequence
             from tools.compatibility.sequences import generate_sequence

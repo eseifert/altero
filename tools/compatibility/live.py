@@ -7,6 +7,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from tools.compatibility.client import CompatibilityError, ZoteroClient
+from tools.compatibility.mutations import injected_faults
 
 RUNNER = Path(__file__).with_name("live_api.mjs")
 
@@ -36,7 +37,7 @@ class DesktopAPI:
             key=self.key,
             method=method,
             args=args,
-            faults=faults or [],
+            faults=[*injected_faults(method), *(faults or [])],
             storage=storage,
         )
         try:
