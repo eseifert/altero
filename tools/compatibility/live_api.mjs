@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import vm from "node:vm";
+import { runStorage } from "./storage_runtime.mjs";
 
 const request = JSON.parse(readFileSync(0, "utf8"));
-const requests = [], pauses = [];
+const requests = [], pauses = [], diagnostics = [];
 const occurrences = new Map();
 const base = new URL(request.baseURL);
 
@@ -11,6 +12,7 @@ class UnexpectedStatusException extends Error {
   constructor(xhr) {
     super(`HTTP ${xhr.status}`);
     this.xmlhttp = xhr;
+    this.status = xhr.status;
   }
   is4xx() { return this.xmlhttp.status >= 400 && this.xmlhttp.status < 500; }
 }
@@ -18,7 +20,8 @@ class BrowserOfflineException extends Error {}
 
 function responseFacade(status, text, headers) {
   const normalized = Object.fromEntries(Object.entries(headers).map(([k, v]) => [k.toLowerCase(), String(v)]));
-  return { status, responseText: text, getResponseHeader: name => normalized[name.toLowerCase()] ?? null };
+  return { status, responseText: text, getResponseHeader: name => normalized[name.toLowerCase()] ?? null,
+    getAllResponseHeaders: () => JSON.stringify(normalized) };
 }
 
 async function httpRequest(method, uri, options = {}) {
@@ -37,16 +40,17 @@ async function httpRequest(method, uri, options = {}) {
   const trace = {
     method, url: uri, authenticated: !!headers["Zotero-API-Key"],
     headers: Object.fromEntries(Object.entries(headers).filter(([name]) => name.toLowerCase() !== "zotero-api-key")),
-    body: options.body ?? null,
+    body: typeof options.body === "string" ? options.body : null,
   };
   requests.push(trace);
-  let status, text, responseHeaders;
+  let status, text, responseHeaders, bytes;
   if (fault?.status) {
     ({ status, text = "", headers: responseHeaders = {} } = fault);
   } else {
     const response = await fetch(uri, { method, headers, body, redirect: "manual", signal: AbortSignal.timeout(10000) });
     status = response.status;
-    text = await response.text();
+    bytes = new Uint8Array(await response.arrayBuffer());
+    text = new TextDecoder().decode(bytes);
     responseHeaders = Object.fromEntries(response.headers);
   }
   if (fault?.mutation === "drop-watermark") delete responseHeaders["last-modified-version"];
@@ -63,13 +67,14 @@ async function httpRequest(method, uri, options = {}) {
   trace.responseHeaders = responseHeaders;
   if (fault?.mutation === "disconnect-after-write") throw new Error("Injected connection loss after server response");
   const xhr = responseFacade(status, text, responseHeaders);
+  xhr.bytes = bytes;
   const accepted = options.successCodes ?? Array.from({ length: 100 }, (_, i) => i + 200);
   if (!accepted.includes(status)) throw new UnexpectedStatusException(xhr);
   return xhr;
 }
 
 const Zotero = {
-  debug() {}, logError() {}, Sync: {}, Schema: { globalSchemaVersion: 32 },
+  debug() {}, logError: error => diagnostics.push(error?.message ?? String(error)), Sync: {}, Schema: { globalSchemaVersion: 32 },
   Prefs: { get: name => name === "sync.server.compressData" },
   DataObjectUtilities: { getObjectTypePlural: type => ({ item: "items", collection: "collections", search: "searches", tag: "tags" })[type] },
   HTTP: { request: httpRequest, UnexpectedStatusException, BrowserOfflineException,
@@ -83,11 +88,15 @@ try {
     baseURL: request.baseURL, apiVersion: 3, apiKey: request.key,
     caller: { start: fn => fn(), pause: ms => pauses.push(ms) },
   });
+  if (request.storage) {
+    value = await runStorage(request.storage, context, client, httpRequest);
+  } else {
   if (!Object.hasOwn(Zotero.Sync.APIClient.prototype, request.method)
       || typeof client[request.method] !== "function") throw new Error("Unknown API method");
   value = await client[request.method](...request.args);
   if (Array.isArray(value)) value = await Promise.all(value);
+  }
 } catch (e) {
   error = { message: e.message, status: e.xmlhttp?.status ?? null };
 }
-process.stdout.write(JSON.stringify({ value, error, requests, pauses }));
+process.stdout.write(JSON.stringify({ value, error, requests, pauses, diagnostics }));

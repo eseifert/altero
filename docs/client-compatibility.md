@@ -74,6 +74,12 @@ response facade; the scheduler records requested delays without sleeping.
 Request traces omit the API key. Injected responses and response mutations
 exercise error handling without changing the pinned source.
 
+`DesktopStorage` runs the original ZFS authorization, upload, registration and
+download methods through the same transport. In-memory facades supply file
+attributes, bytes and persistence; downloaded metadata and bytes are captured
+at the `processDownload` boundary. This does not test writing or unpacking files
+in a desktop profile. A missing remote file exercises ZFS's settled-file path.
+
 The adapters do not run Zotero's database, application UI or full sync engine.
 Group-removal prompts require the desktop runtime and raise an explicit error.
 Continue to use [two-client testing](testing-two-clients.md) for complete

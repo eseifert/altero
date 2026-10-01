@@ -23,7 +23,12 @@ class DesktopAPI:
         self.key = key
 
     async def call(
-        self, method: str, args: list[Any], *, faults: list[dict[str, Any]] | None = None
+        self,
+        method: str,
+        args: list[Any],
+        *,
+        faults: list[dict[str, Any]] | None = None,
+        storage: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         request = dict(
             source=self.source,
@@ -32,6 +37,7 @@ class DesktopAPI:
             method=method,
             args=args,
             faults=faults or [],
+            storage=storage,
         )
         try:
             process = await asyncio.create_subprocess_exec(

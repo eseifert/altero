@@ -129,3 +129,21 @@ source = "chrome/content/zotero/xpcom/sync/syncAPIClient.js"
 selector = "downloadObjects"
 sha256 = "297b3a1fc81ecabe9ebdb3def66fdf1d1873043f2b381b11cba96aae191ed55f"
 tests = ["compatibility_tests/test_reads.py"]
+
+[contracts.storage_download]
+source = "chrome/content/zotero/xpcom/storage/zfs.js"
+selector = "downloadFile"
+sha256 = "4d4f57b5130ee3102ce6bddfa2294b28815a2034504b6cd7067a655ffdcb7ac5"
+tests = ["compatibility_tests/test_storage_replay.py"]
+
+[contracts.storage_authorize]
+source = "chrome/content/zotero/xpcom/storage/zfs.js"
+selector = "_getFileUploadParameters"
+sha256 = "4d4f57b5130ee3102ce6bddfa2294b28815a2034504b6cd7067a655ffdcb7ac5"
+tests = ["compatibility_tests/test_storage_replay.py"]
+
+[contracts.storage_upload]
+source = "chrome/content/zotero/xpcom/storage/zfs.js"
+selector = "_uploadFile"
+sha256 = "4d4f57b5130ee3102ce6bddfa2294b28815a2034504b6cd7067a655ffdcb7ac5"
+tests = ["compatibility_tests/test_storage_replay.py"]
