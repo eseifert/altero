@@ -46,8 +46,8 @@ tests = ["compatibility_tests/test_writes.py"]
 
 [scenarios.schema_payloads]
 operation = "serialization"
-status = "pending"
-reason = "Every item type and valid field needs generated round-trip scenarios."
+status = "executable"
+tests = ["compatibility_tests/test_schema_corpus.py"]
 
 [scenarios.fulltext]
 operation = "fulltext"

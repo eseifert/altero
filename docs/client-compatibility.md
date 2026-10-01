@@ -52,6 +52,7 @@ The ignored `.compatibility/` directory holds checkouts and generated reports.
 | Sync versions | `getVersions` and `_parseJSON` | A version listing carries its watermark, and a 304 is accepted without a body |
 | Live sync reads | API key, settings, deletion, keys, versions and object-download methods | Personal and group libraries, restricted key flags, Unicode, incremental reads, trash, parent/child objects, missing keys and 99/100/101-object download batches |
 | Live sync writes | Object/settings uploads and deletions | Mixed successful/unchanged/failed results, stale library and object versions, absent versus empty properties, trash/restore/delete sequences, deletion logs, 49/50/51-object writes and recovery after a committed write loses its response |
+| Schema corpus | Generated from the vendored schema, through original API downloads | All 40 item types, every listed field and creator role, Unicode, client timestamps, notes, attachments and annotations |
 | Full text | Full-text upload, read and version methods | Empty and Unicode content, client-selected gzip, missing content, incremental versions and stale writes |
 | Files | Original ZFS transfer methods | Authorization, unauthenticated byte upload, registration, absolute download locations, MD5/mtime/compression metadata, ZIP snapshots and unchanged-file download avoidance |
 
@@ -80,6 +81,9 @@ download methods through the same transport. In-memory facades supply file
 attributes, bytes and persistence; downloaded metadata and bytes are captured
 at the `processDownload` boundary. This does not test writing or unpacking files
 in a desktop profile. A missing remote file exercises ZFS's settled-file path.
+
+The schema corpus checks server wire round trips. Actual desktop serialization
+and persistence belong to the disposable-profile acceptance runner.
 
 The adapters do not run Zotero's database, application UI or full sync engine.
 Group-removal prompts require the desktop runtime and raise an explicit error.
