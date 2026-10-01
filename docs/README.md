@@ -18,6 +18,7 @@ altero is a self-hosted synchronization server for Zotero Desktop.
 | Configure outgoing email                             | [Email](email.md)                            |
 | Use the browser interface                            | [Web interface](web-interface.md)            |
 | Test synchronization with two real clients           | [Two-client testing](testing-two-clients.md) |
+| Check desktop decisions against server responses     | [Desktop compatibility checks](client-compatibility.md) |
 | Check whether a feature is implemented               | [Implementation status](status.md)           |
 | Understand why altero exists                         | [Motivation](motivation.md)                  |
 | Investigate Zotero protocol behavior                 | [Compatibility reference](compatibility.md)  |
@@ -60,6 +61,7 @@ Use:
 
 - [Implementation status](status.md) for the supported API surface.
 - [Compatibility reference](compatibility.md) for behavior copied from or deliberately different from zotero.org.
+- [Desktop compatibility checks](client-compatibility.md) for executable client contracts and automated source discovery.
 - [Two-client testing](testing-two-clients.md) for end-to-end synchronization with real Zotero installations.
 - [Database schema](schema.md) for persistence and concurrency rules.
 - [Design system](design.md) for browser UI work.

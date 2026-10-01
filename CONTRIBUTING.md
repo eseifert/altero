@@ -90,6 +90,12 @@ server and use it.
 **Name the behavior, not the function.** `test_negation_covers_every_alternative`
 survives a refactor; `test_parse_expression_2` does not.
 
+**Check what the desktop decides.** The optional
+[desktop compatibility suite](docs/client-compatibility.md) executes original
+Zotero functions on altero responses and inventories missing source contracts.
+Use it when changing a client-consumed response or version. Its Node dependency
+and pinned desktop checkout are separate from the normal Python tests.
+
 ## Commits
 
 One change per commit, with a message that explains **why**. The diff already
@@ -228,6 +234,8 @@ uv run pytest
 CI runs the same checks, plus PostgreSQL for the concurrency tests and
 `alembic check` for schema drift. It fails if any test skipped, so a green run
 locally without `ALTERO_TEST_POSTGRES_URL` set is weaker evidence than it looks.
+The separate Desktop compatibility workflow runs the optional contracts and
+uploads discovery reports; its scheduled job also inspects upstream changes.
 
 If you changed observable behavior, say in the pull request how you established
 what the behavior should be. "The documentation says so" is not sufficient on

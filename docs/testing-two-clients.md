@@ -2,6 +2,9 @@
 
 This is the strongest manual test of altero synchronization: two real Zotero Desktop installations use the same library through the server and are compared afterwards.
 
+For automated checks of desktop decisions and source expectations, see
+[Desktop compatibility checks](client-compatibility.md).
+
 **Use disposable data:** a failed run should be thrown away, not repaired in place.
 
 ## What this test proves

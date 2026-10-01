@@ -48,6 +48,7 @@ nav = [
     "schema.md",
   ] },
   { "Contributing" = [
+    "client-compatibility.md",
     "testing-two-clients.md",
     "design.md",
     "web/implementation.md",
