@@ -41,3 +41,31 @@ async def test_convergence_rejects_divergent_state(tmp_path, failure):
         other["unsynced"]["item"] = [1]
     with pytest.raises(AssertionError):
         await runner.converged(snapshot, other)
+
+
+async def test_collection_membership_order_is_not_a_conflict(tmp_path):
+    runner = AcceptanceRun(
+        Path("/unused"), "10.0.1", tmp_path, DisposableServer("http://localhost")
+    )
+    snapshot: dict = dict(
+        items=[
+            dict(key="ABCD2345", version=1, itemType="book", collections=["BBBB2345", "AAAA2345"])
+        ],
+        collections=[],
+        searches=[],
+        files={},
+        unsynced=dict(item=[], collection=[], search=[]),
+    )
+
+    async def request(method, path, **options):
+        return httpx.Response(
+            200, json=[{"data": value} for value in snapshot[path.split("/")[-1]]]
+        )
+
+    runner.request = AsyncMock(side_effect=request)
+    other = deepcopy(snapshot)
+    other["items"][0]["collections"].reverse()
+    await runner.converged(snapshot, other)
+    other["items"][0]["collections"].pop()
+    with pytest.raises(AssertionError):
+        await runner.converged(snapshot, other)

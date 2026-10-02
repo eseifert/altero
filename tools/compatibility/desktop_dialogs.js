@@ -21,6 +21,11 @@ function watchAcceptanceDialogs(rules) {
               throw new Error("Merge dialog does not contain the expected object");
             }
             const group = window.document.querySelector("merge-group");
+            if (rule.side === "cancel") {
+              trace.push({kind: "merge", key: rule.key, side: "cancel", type: io.dataIn.type ?? group.type});
+              window.document.getElementById("merge-window").getButton("cancel").click();
+              return;
+            }
             const pane = rule.side === "local" ? group.leftPane : group.rightPane;
             pane.groupbox.dispatchEvent(new window.MouseEvent("click", {bubbles: true}));
             if (pane.getAttribute("selected") !== "true") throw new Error("Merge pane was not selected");

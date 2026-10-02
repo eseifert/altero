@@ -339,6 +339,17 @@ clicks Finish, checks both desktops against the server and requires another sync
 leave the library watermark unchanged. Unexpected or missing dialogs fail the
 phase; prompt/reconciliation methods are never replaced.
 
+The conflict scenario also covers an offline edit against a remote deletion.
+Zotero 10.0.1's
+local choice for the deletion conflict retains the old object version, so the
+server's correct 404 triggers full sync and a repeated prompt. Cancelling that
+prompt must preserve the pending edit. Choosing local on the next sync lets
+full sync reset its version and recreate it; a second edit/delete race chooses
+the remote deletion. Both outcomes must settle both desktops.
+`--scenario filing` runs
+concurrent tag and collection membership additions in a fresh pair of profiles;
+both desktops' additions must survive without a conflict dialog.
+
 Each desktop has its own temporary directory and waits for schema/bundled-file
 initialization before running operations. This avoids shared translator staging
 files and shutdown racing unfinished startup work.
@@ -384,7 +395,8 @@ that ZIP transfer restores its HTML and CSS on disk.
 Acceptance phase snapshots also record collections, saved searches, pending
 object uploads and group permissions. `AcceptanceRun` compares persisted objects
 on both desktops with server responses, normalizing omitted empty/default
-properties while retaining keys and versions. Matching item titles alone cannot
+properties and collection membership order while retaining keys and versions.
+Creator and saved-search condition order remain significant. Matching item titles alone cannot
 claim convergence. Its group selector requires discovery before local edits;
 each profile's account identity is explicit.
 
@@ -442,8 +454,16 @@ that ignores them; the others alter responses. They establish assertion strength
 not a mutation score for production source. `ALTERO_COMPAT_MUTATION` selects only
 a catalogue entry and is normally unset.
 
-The expanded local validation passed 146 compatibility tests and 231 architecture
-checks under Node 24, with no skips. Ruff formatting/lint, type checking and the
-strict documentation build passed. The source report verifies 30 client selectors
-and 13 reviewed dataserver spans; its 21 unmapped consumers remain visible.
-Those counts describe this baseline and do not certify the whole desktop surface.
+Validation uses Node 24, Zotero 10.0.1 and the running PostgreSQL 18.4 container.
+The eight desktop scenarios passed individually against PostgreSQL, totaling
+114 phases. Baseline and desktop/download recovery also passed with SQLite.
+The full compatibility suite passed 152 tests; the subsequent membership-order
+regression and all convergence-validator tests passed separately. Backend
+validation passed 283 file/architecture checks, 150 write/restore checks and six
+PostgreSQL concurrency checks. Formatting, lint, types and the strict docs build
+passed. Neither the PHP dataserver nor browser sign-in UI was executed.
+The source report verifies 30 client selectors and 20 reviewed dataserver spans;
+its unmapped consumers remain visible. The inventory distinguishes executable
+scenarios from the remaining server-crash, upload-interruption, reader-rendering,
+credential-expiry/scoping and desktop streaming gaps. Those declarations are
+not a test result and do not certify the whole desktop surface.

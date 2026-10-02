@@ -79,6 +79,16 @@ operation = "convergence"
 status = "executable"
 tests = ["tools/compatibility/acceptance_conflicts.py"]
 
+[scenarios.edit_delete_conflicts]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_conflicts.py::conflicts"]
+
+[scenarios.concurrent_tags_and_filing]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_conflicts.py::filing"]
+
 [scenarios.attachment_transitions]
 operation = "files"
 status = "executable"
@@ -118,3 +128,28 @@ reason = "GET /retractions/list deliberately answers 404; see docs/status.md."
 operation = "identity"
 status = "executable"
 tests = ["tools/compatibility/acceptance_credentials.py"]
+
+[scenarios.server_process_restart]
+operation = "convergence"
+status = "pending"
+reason = "Desktop process recovery is exercised; the server remains running at interruption boundaries."
+
+[scenarios.upload_interruption]
+operation = "files"
+status = "pending"
+reason = "Actual partial-download recovery is exercised; killing a desktop during upload remains uncovered."
+
+[scenarios.annotation_rendering]
+operation = "objects"
+status = "desktop-runtime"
+reason = "Persisted annotation transitions are exercised; the reader's rendered image cache is not opened."
+
+[scenarios.credential_expiry_and_scoping]
+operation = "identity"
+status = "pending"
+reason = "Real desktops exercise revocation/relinking and account-switch cancellation, not expired sessions or reduced credential scopes."
+
+[scenarios.desktop_streaming_reconnect]
+operation = "streaming"
+status = "desktop-runtime"
+reason = "Source replay tests scheduling and retry delays; actual desktop reconnect timing remains uncovered."

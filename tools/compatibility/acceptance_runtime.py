@@ -47,7 +47,7 @@ class AcceptanceRun:
         def by_key(values):
             return {
                 value["key"]: {
-                    field: content
+                    field: sorted(content) if field == "collections" else content
                     for field, content in value.items()
                     if field in {"key", "version"} or content not in (None, "", [], {}, False)
                 }

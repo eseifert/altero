@@ -177,7 +177,16 @@ async def run_baseline(
     return report
 
 
-SCENARIOS = ("baseline", "conflicts", "groups", "files", "relationships", "recovery", "credentials")
+SCENARIOS = (
+    "baseline",
+    "conflicts",
+    "filing",
+    "groups",
+    "files",
+    "relationships",
+    "recovery",
+    "credentials",
+)
 
 
 async def run_acceptance(
@@ -191,7 +200,7 @@ async def run_acceptance(
     postgres_url=None,
 ) -> dict:
     """Each scenario gets two profiles and its own server; retain failures."""
-    from tools.compatibility.acceptance_conflicts import conflicts
+    from tools.compatibility.acceptance_conflicts import conflicts, filing
     from tools.compatibility.acceptance_credentials import credentials
     from tools.compatibility.acceptance_files import files
     from tools.compatibility.acceptance_groups import groups
@@ -200,6 +209,7 @@ async def run_acceptance(
 
     drivers = dict(
         conflicts=conflicts,
+        filing=filing,
         groups=groups,
         files=files,
         relationships=relationships,

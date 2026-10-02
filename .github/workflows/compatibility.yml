@@ -176,7 +176,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [baseline, conflicts, groups, files, relationships, recovery, credentials]
+        scenario: [baseline, conflicts, filing, groups, files, relationships, recovery, credentials]
     services:
       postgres:
         image: postgres:18-alpine
