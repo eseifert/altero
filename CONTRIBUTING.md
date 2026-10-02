@@ -251,6 +251,7 @@ The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
    npm --prefix web test
    npm --prefix web run build
    uv build
+   uv run python tools/release.py --tag v1.0.0-beta.1 --artifacts dist
    ```
 
    Install the docs group for Zensical and put Node 24 on PATH for the web
@@ -259,6 +260,11 @@ The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
    `uv run alembic upgrade head` and `uv run alembic check`. Review
    [desktop compatibility results and limits](docs/client-compatibility.md);
    API and source replay tests alone do not establish real desktop acceptance.
+
+   The artifact check verifies that the wheel's browser index and its referenced
+   files are present, that the source archive carries the same browser files,
+   and that the archive includes only the project's declared public paths.
+   A metadata check alone does not prove the built package is usable.
 4. Commit the release preparation in small batches, including the relevant
    docs. Push master and wait for its CI checks before pushing the tag:
 
