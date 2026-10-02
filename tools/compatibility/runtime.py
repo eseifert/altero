@@ -11,6 +11,8 @@ import uvicorn
 from altero.app import create_app
 from altero.models import ApiKey, Library, LibraryType, User
 from altero.settings import Settings
+from tools.compatibility.barriers import HTTPBarrier
+from tools.compatibility.databases import fresh_database
 
 KEY = "CompatibilityTestKey23456"
 
@@ -21,15 +23,23 @@ class TestServer:
     key: str = KEY
     user_id: int = 1
     keys: dict[int, str] = field(default_factory=lambda: {1: KEY})
+    barrier: HTTPBarrier = field(default_factory=HTTPBarrier)
 
 
 @asynccontextmanager
-async def disposable_server(root: Path, *, accounts: int = 1) -> AsyncIterator[TestServer]:
-    """All database and storage writes stay under a newly created directory."""
+async def disposable_server(
+    root: Path, *, accounts: int = 1, postgres_url: str | None = None
+) -> AsyncIterator[TestServer]:
+    """Use a fresh SQLite file or a newly created, isolated PostgreSQL database."""
     root.mkdir(parents=True, exist_ok=False)
+    database_url = (
+        await fresh_database(root, postgres_url)
+        if postgres_url
+        else f"sqlite+aiosqlite:///{root / 'server.sqlite'}"
+    )
     app = create_app(
         Settings(
-            database_url=f"sqlite+aiosqlite:///{root / 'server.sqlite'}",
+            database_url=database_url,
             storage_path=root / "storage",
         )
     )
@@ -59,8 +69,11 @@ async def disposable_server(root: Path, *, accounts: int = 1) -> AsyncIterator[T
                 )
             )
         await session.commit()
+    control = HTTPBarrier()
     server = uvicorn.Server(
-        uvicorn.Config(app, host="127.0.0.1", port=0, log_level="error", access_log=False)
+        uvicorn.Config(
+            control.wrap(app), host="127.0.0.1", port=0, log_level="error", access_log=False
+        )
     )
     task = asyncio.create_task(server.serve())
     try:
@@ -71,8 +84,9 @@ async def disposable_server(root: Path, *, accounts: int = 1) -> AsyncIterator[T
                     raise RuntimeError("Disposable server exited before binding")
                 await asyncio.sleep(0.01)
         port = server.servers[0].sockets[0].getsockname()[1]
-        yield TestServer(f"http://127.0.0.1:{port}", keys=keys)
+        yield TestServer(f"http://127.0.0.1:{port}", keys=keys, barrier=control)
     finally:
+        control.release.set()
         server.should_exit = True
         await task
         await app.state.database.dispose()

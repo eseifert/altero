@@ -56,12 +56,15 @@ def item_state(snapshot: dict) -> dict:
 
 
 async def run_baseline(
-    executable: Path, version: str, root: Path, *, xvfb=False, corpus=False
+    executable: Path, version: str, root: Path, *, xvfb=False, corpus=False, postgres_url=None
 ) -> dict:
     """Keep every phase result and profile for review; refuse existing state."""
     root.mkdir(parents=True, exist_ok=False)
     phases = []
-    async with display(root, xvfb), disposable_server(root / "server") as server:
+    async with (
+        display(root, xvfb),
+        disposable_server(root / "server", postgres_url=postgres_url) as server,
+    ):
         runner = AcceptanceRun(executable, version, root, server)
 
         async def phase(name, operations=(), *, sync=True, files=True):
@@ -178,7 +181,14 @@ SCENARIOS = ("baseline", "conflicts", "groups")
 
 
 async def run_acceptance(
-    executable: Path, version: str, root: Path, *, xvfb=False, corpus=False, scenarios=None
+    executable: Path,
+    version: str,
+    root: Path,
+    *,
+    xvfb=False,
+    corpus=False,
+    scenarios=None,
+    postgres_url=None,
 ) -> dict:
     """Each scenario gets two profiles and its own server; retain failures."""
     from tools.compatibility.acceptance_conflicts import conflicts
@@ -196,11 +206,15 @@ async def run_acceptance(
             for name in selected:
                 scenario_root = root / name
                 if name == "baseline":
-                    result = await run_baseline(executable, version, scenario_root, corpus=corpus)
+                    result = await run_baseline(
+                        executable, version, scenario_root, corpus=corpus, postgres_url=postgres_url
+                    )
                 else:
                     scenario_root.mkdir()
                     async with disposable_server(
-                        scenario_root / "server", accounts=2 if name == "groups" else 1
+                        scenario_root / "server",
+                        accounts=2 if name == "groups" else 1,
+                        postgres_url=postgres_url,
                     ) as server:
                         runner = AcceptanceRun(executable, version, scenario_root, server)
                         try:

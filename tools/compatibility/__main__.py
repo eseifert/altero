@@ -40,6 +40,10 @@ def main() -> int:
     parser.add_argument("--xvfb", action="store_true")
     parser.add_argument("--schema-corpus", action="store_true")
     parser.add_argument("--scenario", action="append", help="Run only a named desktop scenario")
+    parser.add_argument(
+        "--postgres-url",
+        help="PostgreSQL admin URL; create and preserve a fresh database per desktop scenario",
+    )
     parser.add_argument("--markdown", type=Path)
     parser.add_argument("--evidence", type=Path, help="Write the bounded automated-review input")
     parser.add_argument(
@@ -62,6 +66,7 @@ def main() -> int:
                     xvfb=args.xvfb,
                     corpus=args.schema_corpus,
                     scenarios=args.scenario,
+                    postgres_url=args.postgres_url,
                 )
             )
             return 0

@@ -317,6 +317,16 @@ command creates two isolated profiles and a loopback server, drives the actual
 sync engine and ZFS filesystem path, and preserves phase snapshots, databases
 and logs. It refuses an existing state directory.
 
+To exercise PostgreSQL, add
+`--postgres-url postgresql+asyncpg://altero:altero@localhost:55432/altero`.
+The existing container can supply this connection. The account must be allowed
+to create databases: every scenario creates its own `altero_acceptance_<uuid>`
+database and leaves the database named in the URL untouched. Each scenario's
+`server/database.json` records the generated name without credentials. Databases
+are retained on success and failure for inspection; drop those generated
+databases explicitly when finished. Desktop profiles and files remain under
+the new state directory. Without the flag the server uses SQLite there.
+
 The 15-phase run passed locally with Zotero 10.0.1: parent/note/file download,
 collection filing, persisted attachment bytes, disjoint offline edits and
 convergence, trash/restore propagation, deletion of parent and children, and
