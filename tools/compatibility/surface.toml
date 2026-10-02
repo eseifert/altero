@@ -84,6 +84,11 @@ operation = "files"
 status = "executable"
 tests = ["tools/compatibility/acceptance_files.py"]
 
+[scenarios.object_relationship_transitions]
+operation = "objects"
+status = "executable"
+tests = ["tools/compatibility/acceptance_relationships.py"]
+
 [scenarios.streaming]
 operation = "streaming"
 status = "executable"

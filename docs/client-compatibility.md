@@ -385,6 +385,14 @@ properties while retaining keys and versions. Matching item titles alone cannot
 claim convergence. Its group selector requires discovery before local edits;
 each profile's account identity is explicit.
 
+`--scenario relationships` moves and renames a collection branch, reparents a
+note and a file attachment, changes a book into an article, replaces a saved
+search's conditions, edits an annotation's comment, color and position, and
+clears tags and collection membership. Both desktops' persisted objects must
+match server responses after each transition. The annotation's parent is a
+file attachment, as both desktop and dataserver require. This checks sync data
+and caches; it does not open the reader or test rendered annotation images.
+
 Streaming scenarios subscribe over a real WebSocket, make a live write and feed
 the greeting, subscription changes and notification into the original `_connect`
 message handler. They check sync scheduling, already-current and skipped libraries,

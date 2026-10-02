@@ -3,6 +3,9 @@
 revision = "6e091852b8a3e369056f390ba69e5de90cda1134"
 
 [files]
+"model/Collection.inc.php" = "a5a0112d7484993d59b2494d264fc226f2ea65ae534cb5c8b04b24cad0256247"
+"model/Search.inc.php" = "ddcb263b4a5a0b196e275fe4cec0aa7594e3469eadcf38c6d54b114c07f2f914"
+"model/Item.inc.php" = "aeac10223e2408b2123ac8280297c5d988797255257c80082741ada407bca9d1"
 "controllers/DeletedController.php" = "a97dec96d00cc76a20211425edb9621235af3badc4246fe494af5299929f558d"
 "controllers/GroupsController.php" = "fbb9fb4da3b79b5b058d9a4ad4010c44c0682385512d5f92a41a224ce63443de"
 "controllers/ItemsController.php" = "bea01bbb7e729b960f0496313fb9445f0302416369ae9d3b58edb2b97fab9ea1"
@@ -133,3 +136,27 @@ file = "controllers/ItemsController.php"
 line = 904
 end_line = 925
 claim = "A stale If-Match or If-None-Match against an existing digest returns 412 with the item's version; a missing digest omits the version. ZFS requires this distinction to resolve competing files."
+
+[[checks]]
+name = "collection-parent-transition"
+status = "consistent"
+file = "model/Collection.inc.php"
+line = 715
+end_line = 729
+claim = "Collections carry their current parent key, or false at the root; moving a branch preserves its children's parent keys."
+
+[[checks]]
+name = "saved-search-conditions"
+status = "consistent"
+file = "model/Search.inc.php"
+line = 258
+end_line = 281
+claim = "Search JSON carries name, key, version and ordered condition/operator/value entries, with the optional mode joined to the condition name."
+
+[[checks]]
+name = "annotation-parent-and-fields"
+status = "consistent"
+file = "model/Item.inc.php"
+line = 1490
+end_line = 1565
+claim = "An annotation requires a file-attachment parent and persists text, comment, color, page label, sort index and position. The desktop transition scenario compares these persisted values after editing."
