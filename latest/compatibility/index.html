@@ -3469,6 +3469,14 @@ require <code>params</code>, and the multipart envelope arrives as the file.</p>
 <p>Uploaded bytes are checked against the declared MD5 and length before being
 stored, and <code>If-Match</code> or <code>If-None-Match</code> is required, so a client working from
 stale information cannot overwrite a newer file.</p>
+<p>A conflicting upload answers 412 with <code>Last-Modified-Version</code> naming the
+attachment's version, even when another item has moved the library forward.
+Both a stale <code>If-Match</code> and an <code>If-None-Match: *</code> against an existing file
+carry it; a missing remote digest omits it. Zotero's ZFS client uses that
+distinction to open its file-conflict dialog. This mirrors
+<code>controllers/ItemsController.php</code> in the dataserver; omitting the header made
+two actual desktops retry as though the file were missing and fail to resolve
+competing uploads.</p>
 <p><strong>A file is in the store whole or not at all.</strong> The bytes are written under a
 name of their own and moved onto the digest path with <code>rename</code>, so an upload
 that stops part way — a full disk, a device error, a remote mount dropping
@@ -4284,6 +4292,14 @@ key.</p>
 Putting an item into that list from the browser, with the options the desktop
 client's wizard offers, is <em>Publishing from the browser</em> below.</p>
 <h3 id="a-posted-batch-is-a-batch-of-patches">A POSTed batch is a batch of patches<a class="headerlink" href="#a-posted-batch-is-a-batch-of-patches" title="Permanent link">&para;</a></h3>
+<p>A positive object version also says the object must already exist. A batch
+entry naming a missing item, collection or saved search therefore fails with
+404 before its fields are validated, even if it carries a complete object.
+An incomplete entry must not become a 400, and a complete one must not recreate
+the object silently. Zotero needs the 404 to reconcile an edit against a remote
+deletion. This follows the
+dataserver's <code>Zotero_API::checkJSONObjectVersion</code>; a two-desktop edit/delete
+scenario exposed the missing check. Creation uses version 0 or omits it.</p>
 <p><code>Zotero_DataObjects::updateMultipleFromJSON</code> passes <code>$partialUpdate = true</code> for
 every object in the batch, and each type's validator is then called with
 <code>$partialUpdate &amp;&amp; $exists</code>. So in a <code>POST</code> to <code>/items</code>, <code>/collections</code> or

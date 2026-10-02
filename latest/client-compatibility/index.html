@@ -2100,13 +2100,110 @@ existing display). The version is checked by the running application. The
 command creates two isolated profiles and a loopback server, drives the actual
 sync engine and ZFS filesystem path, and preserves phase snapshots, databases
 and logs. It refuses an existing state directory.</p>
+<p>To exercise PostgreSQL, add
+<code>--postgres-url postgresql+asyncpg://altero:altero@localhost:55432/altero</code>.
+The existing container can supply this connection. The account must be allowed
+to create databases: every scenario creates its own <code>altero_acceptance_&lt;uuid&gt;</code>
+database and leaves the database named in the URL untouched. Each scenario's
+<code>server/database.json</code> records the generated name without credentials. Databases
+are retained on success and failure for inspection; drop those generated
+databases explicitly when finished. Desktop profiles and files remain under
+the new state directory. Without the flag the server uses SQLite there.</p>
 <p>The 15-phase run passed locally with Zotero 10.0.1: parent/note/file download,
 collection filing, persisted attachment bytes, disjoint offline edits and
 convergence, trash/restore propagation, deletion of parent and children, and
 all 40 schema types serialized by desktop A and downloaded into desktop B.
 The schema phase disables file transfer because its generated attachment has
 metadata only; the preceding file scenario checks real byte transfer.
-Same-field conflict dialogs and group-removal prompts remain runtime gaps.</p>
+The acceptance command also runs same-field conflicts in a separate pair of
+profiles. It selects the local and remote panes in the actual merge dialog and
+clicks Finish, checks both desktops against the server and requires another sync to
+leave the library watermark unchanged. Unexpected or missing dialogs fail the
+phase; prompt/reconciliation methods are never replaced.</p>
+<p>The conflict scenario also covers an offline edit against a remote deletion.
+Zotero 10.0.1's
+local choice for the deletion conflict retains the old object version, so the
+server's correct 404 triggers full sync and a repeated prompt. Cancelling that
+prompt must preserve the pending edit. Choosing local on the next sync lets
+full sync reset its version and recreate it; a second edit/delete race chooses
+the remote deletion. Both outcomes must settle both desktops.
+<code>--scenario filing</code> runs
+concurrent tag and collection membership additions in a fresh pair of profiles;
+both desktops' additions must survive without a conflict dialog.</p>
+<p>Each desktop has its own temporary directory and waits for schema/bundled-file
+initialization before running operations. This avoids shared translator staging
+files and shutdown racing unfinished startup work.</p>
+<p>Use <code>--scenario baseline</code> or <code>--scenario conflicts</code> to run one scenario; repeat
+the flag to select several. The default runs every implemented scenario, each
+with its own profiles and server under the new state directory. The top-level
+<code>acceptance.json</code> records scenario results and each subdirectory retains its
+phase snapshots and desktop logs.
+The optional desktop CI job runs a matrix with one scenario per job against
+PostgreSQL 18, so a longer scenario cannot consume another's timeout. Artifacts
+have the scenario's name and include the generated database name for diagnosis.</p>
+<p><code>--scenario groups</code> uses an owner and a member account. It checks member/admin
+promotion and demotion, editing/file-policy changes and server denial after a
+restriction. With pending local edits, the real permission-loss prompt's Skip
+retains work and Reset restores server state. Membership removal exercises Keep
+Group (archive locally, retaining unsynced data), rejoining and Remove Group.
+The runner verifies both the dialog and the resulting persisted state. Policies
+are cross-checked against <code>Group.inc.php</code> in the pinned dataserver; the prompts
+and archival choices come from desktop <code>checkLibraries</code> and <code>checkLibraryForAccess</code>.
+Group phases use the runner's ordinary all-library sync: explicitly forcing a
+group library into its input list can make this client attempt an upload even
+after Skip Group. The group selector scopes local operations and snapshots.</p>
+<p><code>--scenario files</code> replaces bytes of an existing attachment, exercises both file
+conflict choices, removes a local file and calls the original on-demand download
+to recover it after verifying that its missing state persisted.
+It checks disk bytes, server downloads, synced hashes and settled storage states.
+Offline edits run the original file-change scan before exiting the profile, so
+pending uploads are persisted before incoming metadata arrives. File conflicts
+overlap real syncs: B pauses just before upload authorization, A commits its file,
+then B continues with its stale hash. No response or sync method is mocked.
+The files have a one-hour timestamp offset, which Zotero's timestamp check
+tolerates, keeping the local file until ZFS compares hashes. After selecting
+the local side, A's stale copy is removed and downloaded on demand. This
+explicitly covers recovery rather than claiming the client
+detects every timestamp collision. Exactly equal displayed dates exposed a
+Zotero 10.0.1 bug: choosing Remote can keep and upload the local bytes.
+<code>Zotero.Sync.Storage.Local.resolveConflicts</code> identifies the selected side by its
+date instead of a side identifier, so either choice matches the local side.
+This was reproduced in an actual desktop; it remains unfixed upstream. The
+passing scenario uses distinct displayed dates to verify both working choices.
+A multi-file HTML snapshot also checks that ZIP transfer restores its HTML
+and CSS on disk.</p>
+<p>Acceptance phase snapshots also record collections, saved searches, pending
+object uploads and group permissions. <code>AcceptanceRun</code> compares persisted objects
+on both desktops with server responses, normalizing omitted empty/default
+properties and collection membership order while retaining keys and versions.
+Creator and saved-search condition order remain significant. Matching item titles alone cannot
+claim convergence. Its group selector requires discovery before local edits;
+each profile's account identity is explicit.</p>
+<p><code>--scenario relationships</code> moves and renames a collection branch, reparents a
+note and a file attachment, changes a book into an article, replaces a saved
+search's conditions, edits an annotation's comment, color and position, and
+clears tags and collection membership. Both desktops' persisted objects must
+match server responses after each transition. The annotation's parent is a
+file attachment, as both desktop and dataserver require. This checks sync data
+and caches; it does not open the reader or test rendered annotation images.</p>
+<p><code>--scenario recovery</code> kills desktop A after the server has committed an item
+but before it sends the response. Restarting the same profile must settle the
+pending upload without duplicating the commit. Both real runners then upload
+disjoint pending work simultaneously, converge and leave the watermark unchanged
+on another sync. Finally B is killed after receiving part of an attachment
+download; restarting must recover all bytes and leave its storage state synced.
+The HTTP barriers pause genuine requests and preserve their responses. The
+server remains running: server-process crashes and interrupted uploads are
+separate gaps. This scenario passed locally on PostgreSQL 18.4.</p>
+<p><code>--scenario credentials</code> starts and polls a login session through the original
+desktop runner helpers. The disposable server approves it through the same
+service the administrator's CLI uses; this is not browser sign-in UI coverage.
+After revocation through the original API client, the next sync must report the
+specific invalid-key error and retain an offline edit. Relinking must upload
+that work to both desktops. Switching B to a second account opens the real
+account-mismatch confirmation; Cancel must retain the original owner and data
+and leave the second account's library empty. Login handoffs live outside the
+uploaded phase artifacts, and phase snapshots contain no issued API key.</p>
 <p>Streaming scenarios subscribe over a real WebSocket, make a live write and feed
 the greeting, subscription changes and notification into the original <code>_connect</code>
 message handler. They check sync scheduling, already-current and skipped libraries,
@@ -2127,11 +2224,19 @@ mutation removes empty properties before sending the request, simulating a write
 that ignores them; the others alter responses. They establish assertion strength,
 not a mutation score for production source. <code>ALTERO_COMPAT_MUTATION</code> selects only
 a catalogue entry and is normally unset.</p>
-<p>The expanded local validation passed 146 compatibility tests and 231 architecture
-checks under Node 24, with no skips. Ruff formatting/lint, type checking and the
-strict documentation build passed. The source report verifies 30 client selectors
-and 13 reviewed dataserver spans; its 21 unmapped consumers remain visible.
-Those counts describe this baseline and do not certify the whole desktop surface.</p>
+<p>Validation uses Node 24, Zotero 10.0.1 and the running PostgreSQL 18.4 container.
+The eight desktop scenarios passed individually against PostgreSQL, totaling
+114 phases. Baseline and desktop/download recovery also passed with SQLite.
+The full compatibility suite passed 152 tests; the subsequent membership-order
+regression and all convergence-validator tests passed separately. Backend
+validation passed 283 file/architecture checks, 150 write/restore checks and six
+PostgreSQL concurrency checks. Formatting, lint, types and the strict docs build
+passed. Neither the PHP dataserver nor browser sign-in UI was executed.
+The source report verifies 30 client selectors and 20 reviewed dataserver spans;
+its unmapped consumers remain visible. The inventory distinguishes executable
+scenarios from the remaining server-crash, upload-interruption, reader-rendering,
+credential-expiry/scoping and desktop streaming gaps. Those declarations are
+not a test result and do not certify the whole desktop surface.</p>
 
 
 

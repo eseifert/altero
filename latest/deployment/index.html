@@ -1284,6 +1284,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#backups" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Backups
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2059,6 +2070,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#backups" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Backups
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2116,19 +2138,19 @@
 <h2 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h2>
 <p>The image is published as <code>ghcr.io/eseifert/altero</code>, so running altero needs no checkout and no build. The Compose file on its own is the deployment:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkdir<span class="w"> </span>altero<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>altero
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.1/docker/compose.yaml
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.1<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>password<span class="w"> </span>&lt;username&gt;
 </span></code></pre></div>
 <p>From a repository checkout, name the file where it lives instead:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.1<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>password<span class="w"> </span>&lt;username&gt;
 </span></code></pre></div>
 <p>The stack contains PostgreSQL, altero and persistent attachment storage.</p>
 <p><code>altero user add</code> creates the account without a password, so <code>altero user password</code> follows it. The alternative is to create the first account in the browser: registration is open while the instance has no accounts at all, and the account that claims it administers the instance. See <a href="../web/account/">Accounts</a>.</p>
-<p><code>latest</code> is the newest release, prereleases included. <code>ALTERO_IMAGE_TAG</code> selects another: a version such as <code>1.0.0-alpha.3</code> pins one release, and <code>dev</code> follows master.</p>
+<p><code>latest</code> is the newest release, prereleases included. <code>ALTERO_IMAGE_TAG</code> selects another: <code>1.0.0-beta.1</code> pins this beta, and <code>dev</code> follows master. Persist the pin in <code>.env</code> beside a downloaded Compose file, or in <code>docker/.env</code> for a checkout. The matching beta documentation is at <a href="https://altero.run/1.0.0-beta.1/">https://altero.run/1.0.0-beta.1/</a>; the docs site's <code>latest</code> alias is managed separately from the container tag.</p>
 <p>The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.</p>
 <p>There are two ports. altero listens on <code>ALTERO_PORT</code> inside the container, 8000 unless changed; <code>ALTERO_PUBLISH_PORT</code> is the host port Compose publishes it on, also 8000. To move the address clients use, change <code>ALTERO_PUBLISH_PORT</code> and leave <code>ALTERO_PORT</code> alone.</p>
 <h3 id="production-settings-to-change-first">Production settings to change first<a class="headerlink" href="#production-settings-to-change-first" title="Permanent link">&para;</a></h3>
@@ -2145,6 +2167,12 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>config
 </span></code></pre></div>
 <h3 id="upgrade-altero">Upgrade altero<a class="headerlink" href="#upgrade-altero" title="Permanent link">&para;</a></h3>
+<p>Back up the database and attachment storage together before upgrading; see
+<a href="#backups">Backups</a>. This beta includes a migration that advances group-library
+versions once, so existing desktops refresh their cached group permissions.
+It does not change personal-library versions. Desktop compatibility checks
+found two fixed sync bugs; <a href="../client-compatibility/">the coverage and remaining gaps</a>
+describe what was verified.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>pull<span class="w"> </span>altero
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
@@ -2177,18 +2205,23 @@
 <p>Requirements:</p>
 <ul>
 <li>Python 3.14 or newer;</li>
-<li><a href="https://docs.astral.sh/uv/">uv</a>.</li>
+<li><a href="https://docs.astral.sh/uv/">uv</a>; and</li>
+<li>Node 24 and npm to build the browser interface.</li>
 </ul>
 <p>SQLite is the default. For PostgreSQL outside Docker, install the extra dependency:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>postgres
 </span></code></pre></div>
 <p>For a basic SQLite installation:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>sync
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>cp<span class="w"> </span>config.example.py<span class="w"> </span>config.py
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
-</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>password<span class="w"> </span>&lt;username&gt;
-</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>uv<span class="w"> </span>run<span class="w"> </span>altero
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span>v1.0.0-beta.1<span class="w"> </span>https://github.com/eseifert/altero.git
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nb">cd</span><span class="w"> </span>altero
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--locked
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>npm<span class="w"> </span>--prefix<span class="w"> </span>web<span class="w"> </span>ci
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>npm<span class="w"> </span>--prefix<span class="w"> </span>web<span class="w"> </span>run<span class="w"> </span>build
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>cp<span class="w"> </span>config.example.py<span class="w"> </span>config.py
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>uv<span class="w"> </span>run<span class="w"> </span>alembic<span class="w"> </span>upgrade<span class="w"> </span>head
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>password<span class="w"> </span>&lt;username&gt;
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>uv<span class="w"> </span>run<span class="w"> </span>altero
 </span></code></pre></div>
 <p>The default address is:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>http://127.0.0.1:8000
@@ -2242,10 +2275,10 @@
 <p>A successful response includes the application version, API version, schema version and database migration revision, for example:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span><span class="p">,</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0b1&quot;</span><span class="p">,</span>
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">  </span><span class="nt">&quot;apiVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
 </span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">  </span><span class="nt">&quot;schemaVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
-</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="nt">&quot;revision&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;c1b573deea88&quot;</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">  </span><span class="nt">&quot;revision&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d7cd57abc8a4&quot;</span>
 </span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>If the database is unavailable, the endpoint returns <code>503</code> with:</p>
@@ -2373,6 +2406,16 @@
 <p>The limiter is process-local. With several application workers, each process has its own allowance. Use the reverse proxy or another edge component if you need a deployment-wide defensive limit.</p>
 <h2 id="moving-or-restoring-data">Moving or restoring data<a class="headerlink" href="#moving-or-restoring-data" title="Permanent link">&para;</a></h2>
 <p>For whole-library export/import, migration from zotero.org and recovery after recreating a database, see <a href="../administration/#library-transfer-and-recovery">Administration</a>.</p>
+<h2 id="backups">Backups<a class="headerlink" href="#backups" title="Permanent link">&para;</a></h2>
+<p>Keep the database and attachment storage as one consistent backup. Stop altero
+and other writers while taking it; for Compose, stop the application with
+<code>docker compose -f docker/compose.yaml stop altero</code> and leave PostgreSQL running.
+Use <code>pg_dump</code> for PostgreSQL, or copy the SQLite database while altero is stopped,
+and copy the attachment storage before restarting the application.</p>
+<p>Keep configuration and the secrets needed to operate the instance with the
+backup. Test a restore in a separate instance before relying on it. A
+<a href="../administration/#library-transfer-and-recovery">library archive</a> preserves
+one library's data and files; it does not contain instance accounts or API keys.</p>
 
 
 
