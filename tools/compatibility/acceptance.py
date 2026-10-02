@@ -177,7 +177,7 @@ async def run_baseline(
     return report
 
 
-SCENARIOS = ("baseline", "conflicts", "groups")
+SCENARIOS = ("baseline", "conflicts", "groups", "files")
 
 
 async def run_acceptance(
@@ -192,9 +192,10 @@ async def run_acceptance(
 ) -> dict:
     """Each scenario gets two profiles and its own server; retain failures."""
     from tools.compatibility.acceptance_conflicts import conflicts
+    from tools.compatibility.acceptance_files import files
     from tools.compatibility.acceptance_groups import groups
 
-    drivers = dict(conflicts=conflicts, groups=groups)
+    drivers = dict(conflicts=conflicts, groups=groups, files=files)
 
     selected = tuple(scenarios or SCENARIOS)
     if not selected or any(name not in SCENARIOS for name in selected):

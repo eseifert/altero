@@ -79,6 +79,11 @@ operation = "convergence"
 status = "executable"
 tests = ["tools/compatibility/acceptance_conflicts.py"]
 
+[scenarios.attachment_transitions]
+operation = "files"
+status = "executable"
+tests = ["tools/compatibility/acceptance_files.py"]
+
 [scenarios.streaming]
 operation = "streaming"
 status = "executable"

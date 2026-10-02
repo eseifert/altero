@@ -23,7 +23,8 @@ function watchAcceptanceDialogs(rules) {
             const pane = rule.side === "local" ? group.leftPane : group.rightPane;
             pane.groupbox.dispatchEvent(new window.MouseEvent("click", {bubbles: true}));
             if (pane.getAttribute("selected") !== "true") throw new Error("Merge pane was not selected");
-            trace.push({kind: "merge", key: rule.key, side: rule.side, type: group.type});
+            trace.push({kind: "merge", key: rule.key, side: rule.side,
+              type: io.dataIn.type ?? group.type});
             window.document.getElementById("merge-window").getButton("finish").click();
           } else if (rule.kind === "prompt") {
             const text = window.document.getElementById("infoBody").textContent;

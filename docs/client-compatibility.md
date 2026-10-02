@@ -361,6 +361,23 @@ Group phases use the runner's ordinary all-library sync: explicitly forcing a
 group library into its input list can make this client attempt an upload even
 after Skip Group. The group selector scopes local operations and snapshots.
 
+`--scenario files` replaces bytes of an existing attachment, exercises both file
+conflict choices, removes a local file and calls the original on-demand download
+to recover it after verifying that its missing state persisted.
+It checks disk bytes, server downloads, synced hashes and settled storage states.
+Offline edits run the original file-change scan before exiting the profile, so
+pending uploads are persisted before incoming metadata arrives. File conflicts
+overlap real syncs: B pauses just before upload authorization, A commits its file,
+then B continues with its stale hash. No response or sync method is mocked.
+The files have a one-hour timestamp offset, which Zotero's timestamp check
+tolerates, keeping the local file until ZFS compares hashes. After selecting
+the local side, A's stale copy is removed and downloaded on demand. This
+explicitly covers recovery rather than claiming the client
+detects every timestamp collision. With exactly equal displayed dates, the
+client identifies either selection as local; that upstream ambiguity remains
+unverified as a resolvable remote choice. A multi-file HTML snapshot also checks
+that ZIP transfer restores its HTML and CSS on disk.
+
 Acceptance phase snapshots also record collections, saved searches, pending
 object uploads and group permissions. `AcceptanceRun` compares persisted objects
 on both desktops with server responses, normalizing omitted empty/default
