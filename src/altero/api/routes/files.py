@@ -10,7 +10,7 @@ from pathlib import Path
 from fastapi import APIRouter
 from starlette.datastructures import UploadFile
 from starlette.requests import Request
-from starlette.responses import FileResponse, JSONResponse, Response
+from starlette.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 
 from altero.api.deps import (
     AccessDep,
@@ -20,7 +20,12 @@ from altero.api.deps import (
     SessionDep,
 )
 from altero.api.responses import library_headers
-from altero.errors import InvalidInputError, NotFoundError, RequestTooLargeError
+from altero.errors import (
+    InvalidInputError,
+    NotFoundError,
+    PreconditionFailedError,
+    RequestTooLargeError,
+)
 from altero.models import Item
 from altero.services import items as items_service
 from altero.services import storage, writes
@@ -69,7 +74,13 @@ async def upload_file(
         await session.commit()
         return Response(status_code=204, headers=library_headers(version))
 
-    storage.check_preconditions(item, if_match, if_none_match, _storage_root(request))
+    try:
+        storage.check_preconditions(item, if_match, if_none_match, _storage_root(request))
+    except PreconditionFailedError as error:
+        # ZFS distinguishes a competing upload from a missing remote file by
+        # this header. Upstream names the attachment's version, not the library.
+        headers = library_headers(item.version) if storage.current_md5(item) else {}
+        return PlainTextResponse(error.message, status_code=412, headers=headers)
     declared = storage.parse_authorization(form)
     if declared["filesize"] > MAX_UPLOAD_BYTES:
         raise RequestTooLargeError("File is too large")

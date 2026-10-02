@@ -526,6 +526,15 @@ Uploaded bytes are checked against the declared MD5 and length before being
 stored, and `If-Match` or `If-None-Match` is required, so a client working from
 stale information cannot overwrite a newer file.
 
+A conflicting upload answers 412 with `Last-Modified-Version` naming the
+attachment's version, even when another item has moved the library forward.
+Both a stale `If-Match` and an `If-None-Match: *` against an existing file
+carry it; a missing remote digest omits it. Zotero's ZFS client uses that
+distinction to open its file-conflict dialog. This mirrors
+`controllers/ItemsController.php` in the dataserver; omitting the header made
+two actual desktops retry as though the file were missing and fail to resolve
+competing uploads.
+
 **A file is in the store whole or not at all.** The bytes are written under a
 name of their own and moved onto the digest path with `rename`, so an upload
 that stops part way — a full disk, a device error, a remote mount dropping

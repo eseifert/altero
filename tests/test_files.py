@@ -81,6 +81,35 @@ async def upload(client: httpx.AsyncClient, key: str, content: bytes = CONTENT) 
 
 
 class TestAuthorization:
+    @pytest.mark.parametrize("precondition", [{"If-Match": "0" * 32}, {"If-None-Match": "*"}])
+    async def test_conflicting_file_names_its_item_version(
+        self, client: httpx.AsyncClient, attachment: str, precondition: dict[str, str]
+    ) -> None:
+        await upload(client, attachment)
+        item = (await client.get(f"/users/1/items/{attachment}", headers=AUTH)).json()["data"]
+        changed = await client.post(
+            "/users/1/items", headers=AUTH, json=[{"key": "BKKK2345", "itemType": "book"}]
+        )
+        assert int(changed.headers["Last-Modified-Version"]) > item["version"]
+        response = await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | precondition,
+            data=authorization(md5="1" * 32),
+        )
+        assert response.status_code == 412
+        assert response.headers.get("Last-Modified-Version") == str(item["version"])
+
+    async def test_missing_file_precondition_has_no_version(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        response = await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | {"If-Match": MD5},
+            data=authorization(),
+        )
+        assert response.status_code == 412
+        assert "Last-Modified-Version" not in response.headers
+
     async def test_authorization_returns_upload_instructions(
         self, client: httpx.AsyncClient, attachment: str
     ) -> None:

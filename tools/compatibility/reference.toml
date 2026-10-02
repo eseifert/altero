@@ -125,3 +125,11 @@ file = "model/Group.inc.php"
 line = 440
 end_line = 485
 claim = "Owners/admins may edit; members follow libraryEditing. fileEditing none denies everyone, otherwise admins or members follow the file policy. Real desktop scenarios exercise refreshed roles and policies; archival/removal prompts are client behavior."
+
+[[checks]]
+name = "upload-conflict-version"
+status = "consistent"
+file = "controllers/ItemsController.php"
+line = 904
+end_line = 925
+claim = "A stale If-Match or If-None-Match against an existing digest returns 412 with the item's version; a missing digest omits the version. ZFS requires this distinction to resolve competing files."
