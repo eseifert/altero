@@ -295,6 +295,31 @@ The web CI job builds both Python artifacts after building the interface and
 checks their actual contents, including rebuilding the wheel through the source
 archive.
 
+### Beta.1 validation
+
+Local release checks on 2026-10-02 passed:
+
+- The full Python suite: 2,700 tests, no skips, including PostgreSQL concurrency.
+  Seven artifact tests added afterwards also passed separately.
+- The web interface: 823 tests, types and production build with Node 24 and
+  dependencies installed from the lockfile.
+- The optional desktop compatibility suite: 153 tests, no skips; pinned source
+  verification also passed.
+- Ruff formatting/lint, Ty, the locked dependency check and strict documentation
+  build.
+- SQLite and PostgreSQL migrations, including an alpha.3 upgrade with populated
+  libraries: the personal version stayed unchanged, the group advanced once,
+  another upgrade made no further change, and no schema drift remained.
+- The wheel built through the source archive: all 329 browser files survived,
+  unrelated workspace files were excluded, and real HTTP served `/health`,
+  `/app/`, the index's assets, a font and the API from the extracted wheel.
+
+The eight actual-desktop scenarios and their 114 phases were verified before
+release preparation; [their results and limits](docs/client-compatibility.md)
+remain the desktop evidence. Remote CI and multi-architecture image publication
+must still be checked after pushing; local artifact checks do not execute those
+workflows.
+
 ## Before opening a pull request
 
 ```sh
