@@ -871,6 +871,14 @@ Upstream advances the library version once per item in this batch. altero keeps
 its one-version-per-request rule, which the client cannot tell apart: it uses
 only the final `Last-Modified-Version` as a watermark.
 
+**Recreating a setting removes its deletion record.** The desktop downloads
+settings before processing deletions. Leaving an old `tagColors` tombstone when
+the setting was recreated would therefore discard the newly downloaded colors.
+`Zotero_Setting::save` in `model/Setting.inc.php` explicitly removes that row
+from `syncDeleteLogKeys`; `services.settings.save_setting` now does the same.
+The PUT and batch-POST regressions fail without the fix, and the real desktop
+settings scenario checks offline deletion/recreation and its color cache.
+
 **Tag deletions arrive with no tag named.** The client builds them as
 `tags=a||b` — plural, and joined with a bare `||` rather than the spaced form
 the search syntax uses. Its own parameter filter then drops the name, because

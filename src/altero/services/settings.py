@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import DeletedObjectType, Library, Setting
 from altero.services.auth import Access
-from altero.services.deletions import record_deletion
+from altero.services.deletions import forget_deletion, record_deletion
 from altero.services.writes import check_object_version
 
 #: Longest a setting name may be, matching the column the dataserver uses.
@@ -106,6 +106,7 @@ async def save_setting(
 
     setting.version = version
     await session.flush()
+    await forget_deletion(session, library, DeletedObjectType.SETTING, name)
     return setting
 
 

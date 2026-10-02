@@ -151,6 +151,25 @@ class TestWriting:
 
 
 class TestDeleting:
+    @pytest.mark.parametrize("method", ["PUT", "POST"])
+    async def test_recreated_setting_leaves_the_delete_log(self, client, library, method):
+        await client.put("/users/1/settings/tagColors", headers=JSON, json={"value": TAG_COLORS})
+        deleted = await client.delete(
+            "/users/1/settings/tagColors", headers=AUTH | {"If-Unmodified-Since-Version": "11"}
+        )
+        assert deleted.status_code == 204
+        if method == "PUT":
+            recreated = await client.put(
+                "/users/1/settings/tagColors", headers=JSON, json={"value": TAG_COLORS}
+            )
+        else:
+            recreated = await client.post(
+                "/users/1/settings", headers=JSON, json={"tagColors": {"value": TAG_COLORS}}
+            )
+        assert recreated.status_code == 204
+        log = (await client.get("/users/1/deleted?since=11", headers=AUTH)).json()
+        assert log["settings"] == [], "A stale deletion would remove the recreated desktop setting"
+
     async def test_a_setting_is_deleted(self, client: httpx.AsyncClient, library: Library) -> None:
         await client.put("/users/1/settings/thing", headers=JSON, json={"value": 1})
 
