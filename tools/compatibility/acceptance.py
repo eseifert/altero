@@ -191,7 +191,10 @@ SCENARIOS = (
     "read-races",
     "settings",
     "partial-failures",
+    "graphs",
     "http-policy",
+    "server-writes",
+    "resync",
 )
 
 
@@ -211,12 +214,15 @@ async def run_acceptance(
     from tools.compatibility.acceptance_credentials import credentials
     from tools.compatibility.acceptance_files import files
     from tools.compatibility.acceptance_fulltext import fulltext
+    from tools.compatibility.acceptance_graphs import graphs
     from tools.compatibility.acceptance_groups import groups
     from tools.compatibility.acceptance_http import http_policy
     from tools.compatibility.acceptance_partial import partial_failures
     from tools.compatibility.acceptance_races import read_races
     from tools.compatibility.acceptance_recovery import recovery
     from tools.compatibility.acceptance_relationships import relationships
+    from tools.compatibility.acceptance_resync import resync
+    from tools.compatibility.acceptance_server_writes import server_writes
     from tools.compatibility.acceptance_settings import settings
     from tools.compatibility.process_server import process_server
 
@@ -230,10 +236,13 @@ async def run_acceptance(
         credentials=credentials,
         fulltext=fulltext,
         settings=settings,
+        graphs=graphs,
+        resync=resync,
     )
     drivers["read-races"] = read_races
     drivers["partial-failures"] = partial_failures
     drivers["http-policy"] = http_policy
+    drivers["server-writes"] = server_writes
 
     selected = tuple(scenarios or SCENARIOS)
     if not selected or any(name not in SCENARIOS for name in selected):
