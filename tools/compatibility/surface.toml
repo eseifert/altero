@@ -131,13 +131,13 @@ tests = ["tools/compatibility/acceptance_credentials.py"]
 
 [scenarios.server_process_restart]
 operation = "convergence"
-status = "pending"
-reason = "Desktop process recovery is exercised; the server remains running at interruption boundaries."
+status = "executable"
+tests = ["tools/compatibility/acceptance_server_crash.py"]
 
 [scenarios.upload_interruption]
 operation = "files"
-status = "pending"
-reason = "Actual partial-download recovery is exercised; killing a desktop during upload remains uncovered."
+status = "executable"
+tests = ["tools/compatibility/acceptance_uploads.py"]
 
 [scenarios.annotation_rendering]
 operation = "objects"
@@ -153,3 +153,73 @@ reason = "Real desktops exercise revocation/relinking and account-switch cancell
 operation = "streaming"
 status = "desktop-runtime"
 reason = "Source replay tests scheduling and retry delays; actual desktop reconnect timing remains uncovered."
+
+[scenarios.desktop_fulltext_index]
+operation = "fulltext"
+status = "executable"
+tests = ["tools/compatibility/acceptance_fulltext.py"]
+
+[scenarios.watermark_changes_during_downloads]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_races.py"]
+
+[scenarios.desktop_setting_conflicts]
+operation = "sync-writes"
+status = "executable"
+tests = ["tools/compatibility/acceptance_settings.py"]
+
+[scenarios.partial_upload_permissions]
+operation = "objects"
+status = "executable"
+tests = ["tools/compatibility/acceptance_partial.py"]
+
+[scenarios.merge_copy_and_publications]
+operation = "objects"
+status = "executable"
+tests = ["tools/compatibility/acceptance_graphs.py"]
+
+[scenarios.desktop_http_rate_limit_retry]
+operation = "http"
+status = "executable"
+tests = ["tools/compatibility/acceptance_http.py"]
+
+[scenarios.browser_writes_and_retention]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_server_writes.py"]
+
+[scenarios.library_resets_and_backup_recovery]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_resync.py"]
+
+[scenarios.file_rename_deduplication_and_stale_redirects]
+operation = "files"
+status = "executable"
+tests = ["tools/compatibility/acceptance_file_lifecycle.py"]
+
+[scenarios.concurrent_graph_deletion_and_reparenting]
+operation = "convergence"
+status = "pending"
+reason = "Read barriers exercise concurrent field edits and pending uploads; graph deletion and reparenting during those reads remain uncovered."
+
+[scenarios.new_parent_upload_rejection]
+operation = "objects"
+status = "pending"
+reason = "Mixed batches retain forbidden parent and child edits, but rejection of a newly created parent and dependent child remains uncovered."
+
+[scenarios.desktop_transient_server_errors]
+operation = "http"
+status = "pending"
+reason = "Real 429 retries are exercised; generic transient 5xx retries and user cancellation remain uncovered."
+
+[scenarios.backup_rewind_of_synced_profiles]
+operation = "convergence"
+status = "pending"
+reason = "Backup recovery restores a surviving client to the server after lifting its watermark; automatic rewind of already synced profiles to an older archive is not claimed."
+
+[scenarios.concurrent_zipped_digest_reuse]
+operation = "files"
+status = "pending"
+reason = "Sequential reuse of a stored digest is exercised; simultaneous different ZIP archives with the same underlying file digest remain uncovered."

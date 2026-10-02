@@ -19,7 +19,8 @@ from tools.compatibility.surface import markdown as surface_markdown
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=["verify", "analyze", "coverage", "sequence", "acceptance", "mutations"]
+        "command",
+        choices=["verify", "analyze", "coverage", "sequence", "acceptance", "mutations", "matrix"],
     )
     parser.add_argument("--zotero-source", type=Path)
     parser.add_argument(
@@ -44,6 +45,9 @@ def main() -> int:
         "--postgres-url",
         help="PostgreSQL admin URL; create and preserve a fresh database per desktop scenario",
     )
+    parser.add_argument(
+        "--report", type=Path, action="append", help="Retained acceptance report for matrix"
+    )
     parser.add_argument("--markdown", type=Path)
     parser.add_argument("--evidence", type=Path, help="Write the bounded automated-review input")
     parser.add_argument(
@@ -51,6 +55,21 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
+        if args.command == "matrix":
+            from tools.compatibility.matrix import collect
+            from tools.compatibility.matrix import markdown as matrix_markdown
+
+            if not args.report or not args.desktop_version:
+                raise CompatibilityError("matrix requires --report and --desktop-version")
+            result = collect(args.report, args.desktop_version)
+            serialized = json.dumps(result, indent=2) + "\n"
+            if args.output:
+                args.output.write_text(serialized)
+            else:
+                print(serialized, end="")
+            if args.markdown:
+                args.markdown.write_text(matrix_markdown(result))
+            return 0
         if args.command == "acceptance":
             from tools.compatibility.acceptance import run_acceptance
 
