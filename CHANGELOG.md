@@ -7,6 +7,13 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-beta.1] — 2026-10-02
+
+The first beta adds automated checks against the original desktop code and two
+real Zotero profiles. All eight desktop scenarios passed with Zotero 10.0.1 and
+PostgreSQL 18.4, across 114 phases. Coverage is not exhaustive; keep a separate
+backup and use a test profile while evaluating this release.
+
 - Two real desktop profiles exercise item and file conflict dialogs, group permission and membership transitions, collection and annotation changes, interrupted-download recovery, concurrent writers and credential relinking. PostgreSQL acceptance runs create isolated databases, and CI runs each scenario separately. See [the commands and remaining gaps](docs/client-compatibility.md).
 - A write naming a missing item's, collection's or saved search's previous version returns an object-level 404, allowing Zotero to reconcile an edit against a remote deletion. Found by two real desktops; complete stale objects no longer recreate themselves silently.
 - Competing attachment uploads carry the attachment version on their 412 response, allowing Zotero to resolve the file conflict. Found by synchronizing two real desktops concurrently.
@@ -143,6 +150,7 @@ The first release meant to be used by somebody other than its author.
 - Concurrent writes serialized, so one request produces exactly one new version.
 - A command line for provisioning, CI, and the documentation to go with it.
 
+[1.0.0-beta.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.1
 [1.0.0-alpha.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.3
 [1.0.0-alpha.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.2
 [1.0.0-alpha.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.1

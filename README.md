@@ -24,9 +24,11 @@ It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v
 - **Stay in control** — altero is licensed under the GNU AGPL v3 or later
 
 > [!WARNING]
-> **altero is under active development. Do not yet use it as the only home of a library you care about.**
+> **altero 1.0.0-beta.1 is a beta release. Do not yet use it as the only home of a library you care about.**
 >
 > Test it with a separate Zotero profile or a library you can recreate. Synchronization writes client data to the server, and Zotero does not officially support third-party sync servers.
+
+This beta passed eight scenarios across two real Zotero 10.0.1 profiles against PostgreSQL, covering conflicts, permissions, files, recovery and account changes. See [the changelog](CHANGELOG.md) and [coverage and remaining gaps](docs/client-compatibility.md).
 
 ## Why altero?
 
