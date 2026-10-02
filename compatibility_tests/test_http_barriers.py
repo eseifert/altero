@@ -41,3 +41,32 @@ async def test_response_barrier_holds_only_the_selected_request():
         await pending
     assert len(sent) == 6
     assert barrier.trace[0]["status"] == 204
+
+
+async def test_download_barrier_preserves_bytes_and_completion():
+    barrier = HTTPBarrier()
+    barrier.arm("GET", "/storage/download/", "download", prefix=True)
+    sent = []
+
+    async def app(scope, receive, send):
+        await send(dict(type="http.response.start", status=200))
+        await send(dict(type="http.response.body", body=b"complete", more_body=False))
+
+    async def send(message):
+        sent.append(message)
+
+    pending = asyncio.create_task(
+        barrier.wrap(app)(
+            dict(type="http", method="GET", path="/storage/download/token"), None, send
+        )
+    )
+    try:
+        async with asyncio.timeout(2):
+            await barrier.reached.wait()
+        assert sent[-1] == dict(type="http.response.body", body=b"comp", more_body=True)
+        assert not pending.done()
+    finally:
+        barrier.release.set()
+        await pending
+    assert b"".join(message.get("body", b"") for message in sent) == b"complete"
+    assert sent[-1]["more_body"] is False

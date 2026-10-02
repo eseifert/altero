@@ -393,6 +393,16 @@ match server responses after each transition. The annotation's parent is a
 file attachment, as both desktop and dataserver require. This checks sync data
 and caches; it does not open the reader or test rendered annotation images.
 
+`--scenario recovery` kills desktop A after the server has committed an item
+but before it sends the response. Restarting the same profile must settle the
+pending upload without duplicating the commit. Both real runners then upload
+disjoint pending work simultaneously, converge and leave the watermark unchanged
+on another sync. Finally B is killed after receiving part of an attachment
+download; restarting must recover all bytes and leave its storage state synced.
+The HTTP barriers pause genuine requests and preserve their responses. The
+server remains running: server-process crashes and interrupted uploads are
+separate gaps. This scenario passed locally on PostgreSQL 18.4.
+
 Streaming scenarios subscribe over a real WebSocket, make a live write and feed
 the greeting, subscription changes and notification into the original `_connect`
 message handler. They check sync scheduling, already-current and skipped libraries,

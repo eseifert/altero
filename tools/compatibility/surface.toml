@@ -89,6 +89,11 @@ operation = "objects"
 status = "executable"
 tests = ["tools/compatibility/acceptance_relationships.py"]
 
+[scenarios.desktop_restart_and_concurrent_writes]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_recovery.py"]
+
 [scenarios.streaming]
 operation = "streaming"
 status = "executable"

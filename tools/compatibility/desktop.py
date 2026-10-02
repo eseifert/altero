@@ -82,6 +82,7 @@ async def run_phase(
     username: str = "compatibility",
     group_id: int | None = None,
     dialogs: list[dict] | None = None,
+    interrupt: asyncio.Event | None = None,
 ) -> dict:
     result_path = root / "result.json"
     result_path.unlink(missing_ok=True)
@@ -118,7 +119,23 @@ async def run_phase(
         )
         try:
             async with asyncio.timeout(timeout):
-                await process.wait()
+                if interrupt is None:
+                    await process.wait()
+                else:
+                    exited = asyncio.create_task(process.wait())
+                    stopped = asyncio.create_task(interrupt.wait())
+                    try:
+                        done, _ = await asyncio.wait(
+                            (exited, stopped), return_when=asyncio.FIRST_COMPLETED
+                        )
+                        if stopped in done and process.returncode is None:
+                            process.kill()
+                            await exited
+                            return dict(interrupted=True, exit_status=process.returncode)
+                    finally:
+                        stopped.cancel()
+                        exited.cancel()
+                        await asyncio.gather(stopped, exited, return_exceptions=True)
         except BaseException:
             if process.returncode is None:
                 process.kill()
