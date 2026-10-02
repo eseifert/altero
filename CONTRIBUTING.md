@@ -230,7 +230,8 @@ The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
    Set the matching SemVer version (`1.0.0-beta.1`) in `web/package.json` and
    both the top-level and root-package entries of `web/package-lock.json`.
    `pyproject.toml` reads the Python version dynamically; `uv.lock` carries no
-   project version to change.
+   project version to change. Keep the development-status classifier in
+   `pyproject.toml` consistent with the release stage.
 2. Move the unreleased changes into a dated section of `CHANGELOG.md`, leaving
    an empty `Unreleased` heading above it. Add its release link at the bottom.
    Keep consecutive list items without blank lines. Update the README, release
