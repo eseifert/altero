@@ -3,6 +3,7 @@
 revision = "6e091852b8a3e369056f390ba69e5de90cda1134"
 
 [files]
+"controllers/KeysController.php" = "009092436e662242060e35f97886e7d96a18fc52ff30c4855f63a4cfc979ed73"
 "model/Collection.inc.php" = "a5a0112d7484993d59b2494d264fc226f2ea65ae534cb5c8b04b24cad0256247"
 "model/Search.inc.php" = "ddcb263b4a5a0b196e275fe4cec0aa7594e3469eadcf38c6d54b114c07f2f914"
 "model/Item.inc.php" = "aeac10223e2408b2123ac8280297c5d988797255257c80082741ada407bca9d1"
@@ -160,3 +161,19 @@ file = "model/Item.inc.php"
 line = 1490
 end_line = 1565
 claim = "An annotation requires a file-attachment parent and persists text, comment, color, page label, sort index and position. The desktop transition scenario compares these persisted values after editing."
+
+[[checks]]
+name = "current-key-revocation"
+status = "consistent"
+file = "controllers/KeysController.php"
+line = 33
+end_line = 156
+claim = "The current alias resolves to the presented API key; DELETE erases it, commits and returns 204. Session linking is checked against the real desktop helpers, not this older PHP controller."
+
+[[checks]]
+name = "missing-versioned-object"
+status = "consistent"
+file = "model/API.inc.php"
+line = 1250
+end_line = 1285
+claim = "A positive supplied version requires an existing object and returns 404 when it is missing; this precondition is checked before item-field validation."

@@ -497,6 +497,8 @@ async def save_item(
             select(Item).where(Item.library_id == library.id, Item.key == str(target_key))
         )
 
+    if item is None and target_key:
+        check_object_version(0, payload.get("version"), required=False)
     parsed = validate_item(payload, item, library.type)
 
     # An object that addresses an existing item without restating its type is a
@@ -517,8 +519,6 @@ async def save_item(
     before = None
     creating = item is None
     if item is None:
-        if require_version and parsed["version"]:
-            raise NotFoundError("Not found")
         item = Item(
             library_id=library.id,
             key=coerce_key(str(target_key) if target_key else None),

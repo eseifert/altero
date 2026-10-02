@@ -31,6 +31,30 @@ async def library(session: AsyncSession) -> Library:
 
 
 class TestCreate:
+    @pytest.mark.parametrize("kind", ["items", "collections", "searches"])
+    @pytest.mark.parametrize("complete", [False, True])
+    async def test_a_missing_versioned_object_is_not_recreated(
+        self, client: httpx.AsyncClient, library: Library, kind: str, complete: bool
+    ) -> None:
+        data = {
+            "items": {"itemType": "book", "title": "Former item"},
+            "collections": {"name": "Former collection"},
+            "searches": {
+                "name": "Former search",
+                "conditions": [{"condition": "title", "operator": "contains", "value": "Former"}],
+            },
+        }
+        payload = {"key": "MISSING2", "version": 5}
+        if complete:
+            payload.update(data[kind])
+        response = await client.post(f"/users/1/{kind}", headers=JSON, json=[payload])
+        assert response.status_code == 200
+        body = response.json()
+        assert body["successful"] == {}
+        assert body["failed"]["0"]["code"] == 404
+        assert response.headers["Last-Modified-Version"] == "10"
+        assert (await client.get(f"/users/1/{kind}/MISSING2", headers=AUTH)).status_code == 404
+
     async def test_an_item_is_created(self, client: httpx.AsyncClient, library: Library) -> None:
         response = await client.post(
             "/users/1/items", headers=JSON, json=[{"itemType": "book", "title": "Moby-Dick"}]

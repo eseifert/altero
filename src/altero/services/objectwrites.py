@@ -152,6 +152,8 @@ async def save_collection(
     before = None
     partial = not replace and collection is not None
     if collection is None:
+        if target_key:
+            check_object_version(0, payload.get("version"), required=False)
         collection = Collection(library_id=library.id, key=coerce_key(target_key), version=version)
         session.add(collection)
     else:
@@ -275,6 +277,8 @@ async def save_search(
     before = None
     partial = not replace and search is not None
     if search is None:
+        if target_key:
+            check_object_version(0, payload.get("version"), required=False)
         search = SavedSearch(library_id=library.id, key=coerce_key(target_key), version=version)
         session.add(search)
     else:

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- A write naming a missing item's, collection's or saved search's previous version returns an object-level 404, allowing Zotero to reconcile an edit against a remote deletion. Found by two real desktops; complete stale objects no longer recreate themselves silently.
 - Competing attachment uploads carry the attachment version on their 412 response, allowing Zotero to resolve the file conflict. Found by synchronizing two real desktops concurrently.
 - Extend desktop compatibility checks to live reads and writes, files, full text, streaming, every schema type, seeded sequences with shrinking, and two real desktop profiles. Record a pinned dataserver cross-check and prove that seven protocol mutations are detected. See [the commands](docs/client-compatibility.md).
 - Return absolute attachment download locations, required by Zotero's separate download request, found by replaying its original ZFS transfer code.

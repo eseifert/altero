@@ -1374,6 +1374,15 @@ client's wizard offers, is *Publishing from the browser* below.
 
 ### A POSTed batch is a batch of patches
 
+A positive object version also says the object must already exist. A batch
+entry naming a missing item, collection or saved search therefore fails with
+404 before its fields are validated, even if it carries a complete object.
+An incomplete entry must not become a 400, and a complete one must not recreate
+the object silently. Zotero needs the 404 to reconcile an edit against a remote
+deletion. This follows the
+dataserver's `Zotero_API::checkJSONObjectVersion`; a two-desktop edit/delete
+scenario exposed the missing check. Creation uses version 0 or omits it.
+
 `Zotero_DataObjects::updateMultipleFromJSON` passes `$partialUpdate = true` for
 every object in the batch, and each type's validator is then called with
 `$partialUpdate && $exists`. So in a `POST` to `/items`, `/collections` or

@@ -211,6 +211,9 @@ def check_object_version(
             )
         return
 
+    if current == 0 and isinstance(supplied, int) and supplied > 0:
+        raise NotFoundError(f"Object doesn't exist (expected version {supplied}; use 0 instead)")
+
     if supplied != current:
         raise PreconditionFailedError(
             f"Item has been modified since specified version (expected {supplied}, found {current})"
