@@ -265,6 +265,13 @@ The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
    files are present, that the source archive carries the same browser files,
    and that the archive includes only the project's declared public paths.
    A metadata check alone does not prove the built package is usable.
+
+   Both Hatch build targets explicitly include the generated interface as
+   [build artifacts](https://hatch.pypa.io/latest/config/build/#artifacts),
+   because `uv build` builds its wheel through the source archive. Source
+   archives select public project inputs; they do not select every workspace
+   file. Keep that selection and the artifact check's public-path inventory
+   aligned when adding a new top-level directory.
 4. Commit the release preparation in small batches, including the relevant
    docs. Push master and wait for its CI checks before pushing the tag:
 

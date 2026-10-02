@@ -100,6 +100,16 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 path = "src/altero/__init__.py"
 
+[tool.hatch.build.targets.sdist]
+# Explicit public inputs keep local notes and unrelated workspace files out.
+# uv builds the wheel through this archive, so it also needs the frontend output.
+include = [
+    "/src", "/migrations", "/web", "/tools", "/tests", "/compatibility_tests",
+    "/docs", "/docker", "/.github", "/.pre-commit-config.yaml", "/alembic.ini",
+    "/config.example.py", "/CONTRIBUTING.md", "/CHANGELOG.md", "/zensical.toml", "/uv.lock",
+]
+artifacts = ["src/altero/web/static/**"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/altero"]
 # The built web interface is gitignored -- it is produced by `npm run build`,
