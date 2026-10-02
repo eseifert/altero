@@ -274,6 +274,10 @@ separate from the image's `latest` tag. A tag does not create a GitHub Release
 or upload Python packages. If creating a GitHub Release, mark it as a prerelease
 and use the matching changelog section as its notes.
 
+CI checks the release metadata on every change. Both tag publication workflows
+also verify the pushed tag against the package, web manifests and changelog
+before publishing an image or documentation. A mismatched tag fails publication.
+
 ## Before opening a pull request
 
 ```sh

@@ -34,6 +34,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check the release tag
+        if: github.ref_type == 'tag'
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 tools/release.py --tag "$RELEASE_TAG"
+
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
       - uses: astral-sh/setup-uv@v9.0.0
@@ -52,7 +58,7 @@ jobs:
               tag="${GITHUB_REF#refs/tags/}"
               version="${tag#v}"
               case "${version}" in
-                # 1.0.0-alpha.3, 1.0.0-rc.1. A prerelease is published under its
+                # 1.0.0-beta.1, 1.0.0-rc.1. A prerelease is published under its
                 # full version and never becomes `latest`: somebody who follows
                 # a link to the documentation wants the release, not the
                 # release candidate.
