@@ -203,7 +203,7 @@ which point this goes away.
 |---------------------------------|-------------------------------|-----------------------------------|
 | master                          | `dev`                         | only until a release is published |
 | `v1.0.0`, `v1.2.3`              | `1.0`, `1.2`                  | yes                               |
-| `v1.0.0-alpha.3`, `v1.0.0-rc.1` | `1.0.0-alpha.3`, `1.0.0-rc.1` | no                                |
+| `v1.0.0-beta.1`, `v1.0.0-rc.1`  | `1.0.0-beta.1`, `1.0.0-rc.1`  | no                                |
 
 A patch release replaces the pages it corrects rather than adding a version
 nobody has a reason to choose between, so `v1.2.3` publishes as `1.2`. `latest`
@@ -221,6 +221,58 @@ to build a branch that contains one; identical files are a single git object, so
 the copies cost nothing.
 
 [mike]: https://github.com/squidfunk/mike
+
+## Preparing a release
+
+The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
+
+1. Set the package version in `src/altero/__init__.py` (`1.0.0b1` in PEP 440).
+   Set the matching SemVer version (`1.0.0-beta.1`) in `web/package.json` and
+   both the top-level and root-package entries of `web/package-lock.json`.
+   `pyproject.toml` reads the Python version dynamically; `uv.lock` carries no
+   project version to change.
+2. Move the unreleased changes into a dated section of `CHANGELOG.md`, leaving
+   an empty `Unreleased` heading above it. Add its release link at the bottom.
+   Keep consecutive list items without blank lines. Update the README, release
+   status and version examples in the deployment and configuration guides.
+3. Check the release metadata and run the checks below, with PostgreSQL set up
+   as described above. The concurrency fixtures drop and recreate tables: use
+   a disposable test database, never an existing library database.
+
+   ```sh
+   uv run python tools/release.py --tag v1.0.0-beta.1
+   uv run ruff format --check .
+   uv run ruff check .
+   uv run ty check
+   uv run pytest -q -rs
+   uv run zensical build --strict
+   npm --prefix web run typecheck
+   npm --prefix web test
+   npm --prefix web run build
+   uv build
+   ```
+
+   Install the docs group for Zensical and put Node 24 on PATH for the web
+   commands. Build the web interface before the Python artifacts so the wheel
+   contains `/app/`. Verify migrations on an empty disposable database with
+   `uv run alembic upgrade head` and `uv run alembic check`. Review
+   [desktop compatibility results and limits](docs/client-compatibility.md);
+   API and source replay tests alone do not establish real desktop acceptance.
+4. Commit the release preparation in small batches, including the relevant
+   docs. Push master and wait for its CI checks before pushing the tag:
+
+   ```sh
+   git push origin master
+   git tag -a v1.0.0-beta.1 -m "altero 1.0.0-beta.1"
+   git push origin v1.0.0-beta.1
+   ```
+
+The tag publishes multi-architecture container images under `1.0.0-beta.1` and
+`latest`, and documentation under `https://altero.run/1.0.0-beta.1/`. Prerelease
+documentation does not take the docs site's `latest` alias; that policy is
+separate from the image's `latest` tag. A tag does not create a GitHub Release
+or upload Python packages. If creating a GitHub Release, mark it as a prerelease
+and use the matching changelog section as its notes.
 
 ## Before opening a pull request
 
