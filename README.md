@@ -24,7 +24,7 @@ It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v
 - **Stay in control** — altero is licensed under the GNU AGPL v3 or later
 
 > [!WARNING]
-> **altero 1.0.0-beta.1 is a beta release. Do not yet use it as the only home of a library you care about.**
+> **altero 1.0.0-beta.1 is a beta release. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.**
 >
 > Test it with a separate Zotero profile or a library you can recreate. Synchronization writes client data to the server, and Zotero does not officially support third-party sync servers.
 
@@ -54,9 +54,9 @@ Docker Compose is the easiest way to try altero. It starts PostgreSQL, altero an
 
 ```bash
 mkdir altero && cd altero
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.1/docker/compose.yaml
 
-docker compose up -d
+ALTERO_IMAGE_TAG=1.0.0-beta.1 docker compose up -d
 docker compose exec altero altero user add <username>
 docker compose exec altero altero user password <username>
 ```
@@ -64,6 +64,8 @@ docker compose exec altero altero user password <username>
 `user add` creates the account without a password, which is what `user password` then sets. The alternative is to open <http://localhost:8000/app/> and register: the browser opens registration while an instance has no accounts, and the account that claims it administers the instance.
 
 The server is published on the loopback interface by default. An idle instance uses around 125 MB of memory; attachments are what grows.
+
+Put `ALTERO_IMAGE_TAG=1.0.0-beta.1` in `.env` beside the Compose file to keep the beta pinned for later upgrades. Without a pin, Compose follows `latest`, including future prereleases. The matching release documentation is at <https://altero.run/1.0.0-beta.1/>.
 
 For anything beyond local testing, read [Deployment](https://altero.run/latest/deployment/) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
 

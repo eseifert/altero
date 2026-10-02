@@ -11,8 +11,9 @@ gained a capability worth naming.
 
 The first beta adds automated checks against the original desktop code and two
 real Zotero profiles. All eight desktop scenarios passed with Zotero 10.0.1 and
-PostgreSQL 18.4, across 114 phases. Coverage is not exhaustive; keep a separate
-backup and use a test profile while evaluating this release.
+PostgreSQL 18.4, across 114 phases. Coverage is not exhaustive.
+Keep a current backup of important libraries and don’t rely on altero as your
+only copy yet.
 
 - Two real desktop profiles exercise item and file conflict dialogs, group permission and membership transitions, collection and annotation changes, interrupted-download recovery, concurrent writers and credential relinking. PostgreSQL acceptance runs create isolated databases, and CI runs each scenario separately. See [the commands and remaining gaps](docs/client-compatibility.md).
 - A write naming a missing item's, collection's or saved search's previous version returns an object-level 404, allowing Zotero to reconcile an edit against a remote deletion. Found by two real desktops; complete stale objects no longer recreate themselves silently.

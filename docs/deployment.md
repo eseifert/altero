@@ -17,8 +17,8 @@ The image is published as `ghcr.io/eseifert/altero`, so running altero needs no 
 
 ```sh
 mkdir altero && cd altero
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
-docker compose up -d
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.1/docker/compose.yaml
+ALTERO_IMAGE_TAG=1.0.0-beta.1 docker compose up -d
 docker compose exec altero altero user add <username>
 docker compose exec altero altero user password <username>
 ```
@@ -26,7 +26,7 @@ docker compose exec altero altero user password <username>
 From a repository checkout, name the file where it lives instead:
 
 ```sh
-docker compose -f docker/compose.yaml up -d
+ALTERO_IMAGE_TAG=1.0.0-beta.1 docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 docker compose -f docker/compose.yaml exec altero altero user password <username>
 ```
@@ -35,7 +35,7 @@ The stack contains PostgreSQL, altero and persistent attachment storage.
 
 `altero user add` creates the account without a password, so `altero user password` follows it. The alternative is to create the first account in the browser: registration is open while the instance has no accounts at all, and the account that claims it administers the instance. See [Accounts](web/account.md).
 
-`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: a version such as `1.0.0-alpha.3` pins one release, and `dev` follows master.
+`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: `1.0.0-beta.1` pins this beta, and `dev` follows master. Persist the pin in `.env` beside a downloaded Compose file, or in `docker/.env` for a checkout. The matching beta documentation is at <https://altero.run/1.0.0-beta.1/>; the docs site's `latest` alias is managed separately from the container tag.
 
 The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
 
@@ -60,6 +60,13 @@ docker compose -f docker/compose.yaml config
 ```
 
 ### Upgrade altero
+
+Back up the database and attachment storage together before upgrading; see
+[Backups](#backups). This beta includes a migration that advances group-library
+versions once, so existing desktops refresh their cached group permissions.
+It does not change personal-library versions. Desktop compatibility checks
+found two fixed sync bugs; [the coverage and remaining gaps](client-compatibility.md)
+describe what was verified.
 
 ```sh
 docker compose -f docker/compose.yaml pull altero
@@ -121,7 +128,8 @@ A worked NixOS example, with altero and PostgreSQL as `virtualisation.oci-contai
 Requirements:
 
 - Python 3.14 or newer;
-- [uv](https://docs.astral.sh/uv/).
+- [uv](https://docs.astral.sh/uv/); and
+- Node 24 and npm to build the browser interface.
 
 SQLite is the default. For PostgreSQL outside Docker, install the extra dependency:
 
@@ -132,7 +140,11 @@ uv sync --extra postgres
 For a basic SQLite installation:
 
 ```sh
-uv sync
+git clone --branch v1.0.0-beta.1 https://github.com/eseifert/altero.git
+cd altero
+uv sync --locked
+npm --prefix web ci
+npm --prefix web run build
 cp config.example.py config.py
 uv run alembic upgrade head
 uv run altero user add <username>
@@ -186,10 +198,10 @@ A successful response includes the application version, API version, schema vers
 ```json
 {
   "status": "ok",
-  "version": "0.1.0",
+  "version": "1.0.0b1",
   "apiVersion": 3,
   "schemaVersion": 42,
-  "revision": "c1b573deea88"
+  "revision": "d7cd57abc8a4"
 }
 ```
 
@@ -382,3 +394,16 @@ The limiter is process-local. With several application workers, each process has
 ## Moving or restoring data
 
 For whole-library export/import, migration from zotero.org and recovery after recreating a database, see [Administration](administration.md#library-transfer-and-recovery).
+
+## Backups
+
+Keep the database and attachment storage as one consistent backup. Stop altero
+and other writers while taking it; for Compose, stop the application with
+`docker compose -f docker/compose.yaml stop altero` and leave PostgreSQL running.
+Use `pg_dump` for PostgreSQL, or copy the SQLite database while altero is stopped,
+and copy the attachment storage before restarting the application.
+
+Keep configuration and the secrets needed to operate the instance with the
+backup. Test a restore in a separate instance before relying on it. A
+[library archive](administration.md#library-transfer-and-recovery) preserves
+one library's data and files; it does not contain instance accounts or API keys.

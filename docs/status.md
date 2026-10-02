@@ -2,6 +2,11 @@
 
 This page is the feature-level status of altero's Zotero v3 compatibility.
 
+**Release:** 1.0.0-beta.1. Eight scenarios passed across two real Zotero 10.0.1
+profiles and PostgreSQL 18.4, across 114 phases. This verifies the recorded
+transitions, not every client path or platform. See
+[desktop compatibility coverage and gaps](client-compatibility.md).
+
 **Short version:** ordinary Zotero Desktop synchronization is the target; the official mobile apps work through a build of your own, unofficially but supported.
 
 ## User-facing capabilities
