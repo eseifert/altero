@@ -88,7 +88,7 @@ async def files(run: AcceptanceRun) -> None:
             else [],
         )
         await verify(resolved, settled, local if side == "local" else remote)
-    missing = await run.phase("B", [dict(action="remove-file", key=key)])
+    missing = await run.phase("B", [dict(action="remove-file", key=key)], sync=False)
     assert missing["files"][key] is None
     assert missing["storage_states"][key] == "to_download"
     recovered = await run.phase("B", [dict(action="download-file", key=key)])

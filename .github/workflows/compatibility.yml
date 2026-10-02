@@ -173,7 +173,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        scenario: [baseline, conflicts, filing, groups, files, relationships, recovery, credentials]
+        scenario:
+          - baseline
+          - conflicts
+          - filing
+          - groups
+          - files
+          - relationships
+          - recovery
+          - credentials
+          - fulltext
+          - read-races
+          - settings
+          - partial-failures
+          - graphs
+          - http-policy
+          - server-writes
+          - resync
+          - file-lifecycle
+          - upload-interruption
+          - server-crash
     services:
       postgres:
         image: postgres:18-alpine
@@ -214,9 +233,9 @@ jobs:
               print("DESKTOP_" + field.upper() + "=" + pin[field])
           PY
           cat .desktop-env >> "$GITHUB_ENV"
-          set -a
-          source .desktop-env
-          set +a
+          while IFS="=" read -r name value; do
+            export "$name=$value"
+          done < .desktop-env
           [[ "$DESKTOP_URL" == https://www.zotero.org/download/client/dl\?* ]]
           [[ "$DESKTOP_SHA256" =~ ^[a-f0-9]{64}$ ]]
           mkdir -p .compatibility
@@ -242,6 +261,9 @@ jobs:
             .compatibility/desktop-run/*/acceptance.json
             .compatibility/desktop-run/*/phase-*.json
             .compatibility/desktop-run/*/server/database.json
+            .compatibility/desktop-run/*/server/seed/database.json
+            .compatibility/desktop-run/*/http-trace.json
+            .compatibility/desktop-run/*/server/worker-*.log
             .compatibility/desktop-run/xvfb.log
             .compatibility/desktop-run/*/A/desktop.log
             .compatibility/desktop-run/*/B/desktop.log

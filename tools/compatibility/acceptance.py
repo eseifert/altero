@@ -195,6 +195,9 @@ SCENARIOS = (
     "http-policy",
     "server-writes",
     "resync",
+    "file-lifecycle",
+    "upload-interruption",
+    "server-crash",
 )
 
 
@@ -212,6 +215,7 @@ async def run_acceptance(
     root = root.resolve()
     from tools.compatibility.acceptance_conflicts import conflicts, filing
     from tools.compatibility.acceptance_credentials import credentials
+    from tools.compatibility.acceptance_file_lifecycle import file_lifecycle
     from tools.compatibility.acceptance_files import files
     from tools.compatibility.acceptance_fulltext import fulltext
     from tools.compatibility.acceptance_graphs import graphs
@@ -222,8 +226,10 @@ async def run_acceptance(
     from tools.compatibility.acceptance_recovery import recovery
     from tools.compatibility.acceptance_relationships import relationships
     from tools.compatibility.acceptance_resync import resync
+    from tools.compatibility.acceptance_server_crash import server_crash
     from tools.compatibility.acceptance_server_writes import server_writes
     from tools.compatibility.acceptance_settings import settings
+    from tools.compatibility.acceptance_uploads import upload_interruption
     from tools.compatibility.process_server import process_server
 
     drivers = dict(
@@ -243,6 +249,9 @@ async def run_acceptance(
     drivers["partial-failures"] = partial_failures
     drivers["http-policy"] = http_policy
     drivers["server-writes"] = server_writes
+    drivers["file-lifecycle"] = file_lifecycle
+    drivers["upload-interruption"] = upload_interruption
+    drivers["server-crash"] = server_crash
 
     selected = tuple(scenarios or SCENARIOS)
     if not selected or any(name not in SCENARIOS for name in selected):
