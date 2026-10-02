@@ -167,10 +167,7 @@ jobs:
 
   desktop:
     name: Desktop transitions (${{ matrix.scenario }})
-    if: >-
-      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
-      vars.ZOTERO_DESKTOP_URL != '' && vars.ZOTERO_DESKTOP_SHA256 != '' &&
-      vars.ZOTERO_DESKTOP_VERSION != ''
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -192,9 +189,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DESKTOP_URL: ${{ vars.ZOTERO_DESKTOP_URL }}
-      DESKTOP_SHA256: ${{ vars.ZOTERO_DESKTOP_SHA256 }}
-      DESKTOP_VERSION: ${{ vars.ZOTERO_DESKTOP_VERSION }}
       ACCEPTANCE_POSTGRES_URL: postgresql+asyncpg://altero:altero@localhost:5432/altero
     steps:
       - uses: actions/checkout@v7
@@ -210,8 +204,20 @@ jobs:
           sudo apt-get install -y xvfb libgtk-3-0t64 libdbus-glib-1-2 libasound2t64 libnss3 libxt6
 
       - name: Fetch the configured pinned Linux desktop
+        id: desktop
         run: |
-          [[ "$DESKTOP_URL" == https://download.zotero.org/* ]]
+          uv run python - <<'PY' > .desktop-env
+          import tomllib
+          from pathlib import Path
+          pin = tomllib.loads(Path("tools/compatibility/desktop.toml").read_text())["desktop"]
+          for field in ("url", "sha256", "version"):
+              print("DESKTOP_" + field.upper() + "=" + pin[field])
+          PY
+          cat .desktop-env >> "$GITHUB_ENV"
+          set -a
+          source .desktop-env
+          set +a
+          [[ "$DESKTOP_URL" == https://www.zotero.org/download/client/dl\?* ]]
           [[ "$DESKTOP_SHA256" =~ ^[a-f0-9]{64}$ ]]
           mkdir -p .compatibility
           curl --fail --location --proto '=https' --tlsv1.2 \

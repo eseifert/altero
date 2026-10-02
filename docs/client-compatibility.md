@@ -228,14 +228,14 @@ inventory beside JUnit, and runs the mutation catalogue nightly and on manual
 dispatch. Write, full-text, pagination, HTTP-policy and storage-registration
 consumers now have explicit manifest selectors as well as live scenario tests.
 
-The real desktop CI job is opt-in: configure repository variables
-`ZOTERO_DESKTOP_URL`, `ZOTERO_DESKTOP_SHA256` and `ZOTERO_DESKTOP_VERSION` for a
-pinned official Linux archive. It checks the archive hash and running version,
-runs under Xvfb, and uploads snapshots, logs and desktop databases even on failure.
-The variables are deliberately unset by default. The local installed 10.0.1
-binary was tested; its proposed official archive URL returned 403, so no download
-URL or checksum is presented as verified. The GitHub jobs themselves have not
-been executed locally.
+The real desktop CI job runs nightly and on manual dispatch. Its official Linux
+archive, SHA-256 and version are pinned in `tools/compatibility/desktop.toml`.
+The 10.0.5 archive was downloaded through Zotero's official download endpoint
+and its application metadata inspected on 2026-10-02. CI checks the archive hash
+and running version, runs under Xvfb, and uploads snapshots, logs and desktop
+databases even on failure. A successful download is not a successful acceptance
+run; the test matrix below records runs separately. The GitHub jobs themselves
+have not been executed locally.
 
 ## Cross-check the dataserver reference
 
@@ -307,8 +307,8 @@ source revision used by Node replay.
 
 ```sh
 uv run python -m tools.compatibility acceptance \
-  --desktop-executable /opt/zotero/zotero --desktop-version 10.0.1 \
-  --xvfb --schema-corpus --state-dir .compatibility/desktop-10.0.1
+  --desktop-executable /path/to/Zotero_linux-x86_64/zotero --desktop-version 10.0.5 \
+  --xvfb --schema-corpus --state-dir .compatibility/desktop-10.0.5
 ```
 
 This requires an installed Zotero binary and Xvfb (or omit `--xvfb` to use an

@@ -1,7 +1,7 @@
 # The revision and complete file hashes must be reviewed together on an update.
 [zotero]
 repository = "https://github.com/zotero/zotero"
-revision = "4118f47bc3d915fcff906e2377f06a95ddaaaf12"
+revision = "ca61760225d25191d0c65acbfd0c4f12a172d263"
 
 [discovery]
 client_globs = [
@@ -45,7 +45,7 @@ function = "list_user_groups"
 [contracts.group_refresh]
 source = "chrome/content/zotero/xpcom/sync/syncRunner.js"
 selector = "this.checkLibraries"
-sha256 = "4fd3c097723de9f5edd723ecff79edc7b7e50989c99b5fa7a6bbcab8eaf7a084"
+sha256 = "f9170a064868228773c1f9f7577a9ab7b397cf41403cd4f999f2f64bf820ee3c"
 adapter = "group_refresh"
 dependencies = ["group_permissions", "group_from_json"]
 tests = ["compatibility_tests/test_groups.py"]
