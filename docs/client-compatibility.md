@@ -387,10 +387,14 @@ The files have a one-hour timestamp offset, which Zotero's timestamp check
 tolerates, keeping the local file until ZFS compares hashes. After selecting
 the local side, A's stale copy is removed and downloaded on demand. This
 explicitly covers recovery rather than claiming the client
-detects every timestamp collision. With exactly equal displayed dates, the
-client identifies either selection as local; that upstream ambiguity remains
-unverified as a resolvable remote choice. A multi-file HTML snapshot also checks
-that ZIP transfer restores its HTML and CSS on disk.
+detects every timestamp collision. Exactly equal displayed dates exposed a
+Zotero 10.0.1 bug: choosing Remote can keep and upload the local bytes.
+`Zotero.Sync.Storage.Local.resolveConflicts` identifies the selected side by its
+date instead of a side identifier, so either choice matches the local side.
+This was reproduced in an actual desktop; it remains unfixed upstream. The
+passing scenario uses distinct displayed dates to verify both working choices.
+A multi-file HTML snapshot also checks that ZIP transfer restores its HTML
+and CSS on disk.
 
 Acceptance phase snapshots also record collections, saved searches, pending
 object uploads and group permissions. `AcceptanceRun` compares persisted objects

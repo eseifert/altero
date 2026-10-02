@@ -45,7 +45,7 @@ jobs:
         run: uv run ty check
 
   web:
-    name: Web interface
+    name: Web interface and release artifacts
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -79,6 +79,18 @@ jobs:
       # otherwise reach master with the unit tests green.
       - name: Build
         run: npm run build
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+
+      - name: Build Python release artifacts
+        working-directory: .
+        run: uv build
+
+      - name: Check release artifacts
+        working-directory: .
+        run: python3 tools/release.py --artifacts dist
 
   test:
     name: Tests

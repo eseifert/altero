@@ -7,6 +7,10 @@ profiles and PostgreSQL 18.4, across 114 phases. This verifies the recorded
 transitions, not every client path or platform. See
 [desktop compatibility coverage and gaps](client-compatibility.md).
 
+One confirmed issue remains in Zotero 10.0.1 itself: when file-conflict sides
+have equal displayed modification dates, choosing Remote can retain the local
+bytes. See [the reproduced client behavior](client-compatibility.md#run-two-real-desktop-profiles).
+
 **Short version:** ordinary Zotero Desktop synchronization is the target; the official mobile apps work through a build of your own, unofficially but supported.
 
 ## User-facing capabilities

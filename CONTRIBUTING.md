@@ -291,6 +291,9 @@ and use the matching changelog section as its notes.
 CI checks the release metadata on every change. Both tag publication workflows
 also verify the pushed tag against the package, web manifests and changelog
 before publishing an image or documentation. A mismatched tag fails publication.
+The web CI job builds both Python artifacts after building the interface and
+checks their actual contents, including rebuilding the wheel through the source
+archive.
 
 ## Before opening a pull request
 
