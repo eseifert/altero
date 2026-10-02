@@ -14,7 +14,7 @@ from tools.compatibility.runtime import TestServer as DisposableServer
 @pytest.mark.parametrize("failure", ["server-title", "server-version", "desktop-title", "pending"])
 async def test_convergence_rejects_divergent_state(tmp_path, failure):
     runner = AcceptanceRun(
-        Path("/unused"), "10.0.1", tmp_path, DisposableServer("http://localhost")
+        Path("/unused"), "10.0.5", tmp_path, DisposableServer("http://localhost")
     )
     snapshot: dict = dict(
         items=[dict(key="ABCD2345", version=1, itemType="book", title="Kept", creators=[])],
@@ -45,7 +45,7 @@ async def test_convergence_rejects_divergent_state(tmp_path, failure):
 
 async def test_collection_membership_order_is_not_a_conflict(tmp_path):
     runner = AcceptanceRun(
-        Path("/unused"), "10.0.1", tmp_path, DisposableServer("http://localhost")
+        Path("/unused"), "10.0.5", tmp_path, DisposableServer("http://localhost")
     )
     snapshot: dict = dict(
         items=[
@@ -67,5 +67,80 @@ async def test_collection_membership_order_is_not_a_conflict(tmp_path):
     other["items"][0]["collections"].reverse()
     await runner.converged(snapshot, other)
     other["items"][0]["collections"].pop()
+    with pytest.raises(AssertionError):
+        await runner.converged(snapshot, other)
+
+
+async def test_convergence_reads_past_the_first_server_page(tmp_path):
+    runner = AcceptanceRun(
+        Path("/unused"), "10.0.5", tmp_path, DisposableServer("http://localhost")
+    )
+    items = [dict(key=f"KEY{i:05d}", version=1, itemType="book") for i in range(101)]
+    snapshot = dict(items=items, collections=[], searches=[], files={}, unsynced={})
+    starts = []
+
+    async def request(method, path, **options):
+        values = items if path.endswith("/items") else []
+        start = options["params"].get("start", 0)
+        starts.append((path, start))
+        return httpx.Response(200, json=[dict(data=value) for value in values[start : start + 100]])
+
+    runner.request = AsyncMock(side_effect=request)
+    await runner.converged(snapshot, deepcopy(snapshot))
+    assert ("/users/1/items", 100) in starts
+
+
+async def test_single_relation_wire_and_desktop_shapes_are_equivalent(tmp_path):
+    runner = AcceptanceRun(
+        Path("/unused"), "10.0.5", tmp_path, DisposableServer("http://localhost")
+    )
+    snapshot = dict(
+        items=[
+            dict(
+                key="ABCD2345",
+                version=1,
+                itemType="book",
+                relations={"dc:relation": ["https://example.org/item"]},
+            )
+        ],
+        collections=[],
+        searches=[],
+        files={},
+        unsynced={},
+    )
+    server: dict = deepcopy(snapshot)
+    server["items"][0]["relations"]["dc:relation"] = "https://example.org/item"
+
+    async def request(method, path, **options):
+        return httpx.Response(200, json=[dict(data=value) for value in server[path.split("/")[-1]]])
+
+    runner.request = AsyncMock(side_effect=request)
+    await runner.converged(snapshot, deepcopy(snapshot))
+    server["items"][0]["relations"]["dc:relation"] = "https://example.org/lost"
+    with pytest.raises(AssertionError):
+        await runner.converged(snapshot, deepcopy(snapshot))
+
+
+async def test_unchanged_upload_can_record_a_higher_desktop_object_version(tmp_path):
+    runner = AcceptanceRun(
+        Path("/unused"), "10.0.5", tmp_path, DisposableServer("http://localhost")
+    )
+    snapshot: dict = dict(
+        items=[dict(key="ABCD2345", version=7, itemType="book", title="Kept")],
+        collections=[],
+        searches=[],
+        files={},
+        unsynced={},
+    )
+    stored: dict = deepcopy(snapshot)
+    stored["items"][0]["version"] = 2
+    other = deepcopy(stored)
+
+    async def request(method, path, **options):
+        return httpx.Response(200, json=[dict(data=value) for value in stored[path.split("/")[-1]]])
+
+    runner.request = AsyncMock(side_effect=request)
+    await runner.converged(snapshot, other)
+    stored["items"][0]["version"] = 8
     with pytest.raises(AssertionError):
         await runner.converged(snapshot, other)

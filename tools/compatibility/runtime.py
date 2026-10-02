@@ -8,10 +8,12 @@ from pathlib import Path
 from uuid import uuid4
 
 import uvicorn
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from altero.app import create_app
 from altero.models import ApiKey, Library, LibraryType, User
 from altero.services import login
+from altero.services.ratelimit import RateLimiter
 from altero.settings import Settings
 from tools.compatibility.barriers import HTTPBarrier
 from tools.compatibility.databases import fresh_database
@@ -27,6 +29,12 @@ class TestServer:
     keys: dict[int, str] = field(default_factory=lambda: {1: KEY})
     barrier: HTTPBarrier = field(default_factory=HTTPBarrier)
     approve_login: Callable[[str], Awaitable[None]] | None = None
+    session_factory: async_sessionmaker[AsyncSession] | None = None
+    storage_path: Path | None = None
+    limiter: RateLimiter | None = None
+    database_url: str | None = field(default=None, repr=False)
+    crash: Callable[[], Awaitable[int]] | None = None
+    restart: Callable[[], Awaitable[int]] | None = None
 
 
 @asynccontextmanager
@@ -104,7 +112,14 @@ async def disposable_server(
                 await asyncio.sleep(0.01)
         port = server.servers[0].sockets[0].getsockname()[1]
         yield TestServer(
-            f"http://127.0.0.1:{port}", keys=keys, barrier=control, approve_login=approve_login
+            f"http://127.0.0.1:{port}",
+            keys=keys,
+            barrier=control,
+            approve_login=approve_login,
+            session_factory=app.state.database.session_factory,
+            storage_path=root / "storage",
+            limiter=app.state.rate_limiter,
+            database_url=database_url,
         )
     finally:
         control.release.set()

@@ -3,6 +3,7 @@
 import asyncio
 import json
 import os
+import signal
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -84,6 +85,12 @@ async def run_phase(
     dialogs: list[dict] | None = None,
     interrupt: asyncio.Event | None = None,
     expected_error: str | None = None,
+    expected_file_sync_error: bool = False,
+    fulltext: bool = False,
+    fulltext_terms: tuple[str, ...] = (),
+    expected_upload_errors: list[dict] | None = None,
+    all_libraries: bool = False,
+    reset: str | None = None,
 ) -> dict:
     result_path = root / "result.json"
     result_path.unlink(missing_ok=True)
@@ -100,6 +107,12 @@ async def run_phase(
                 group_id=group_id,
                 dialogs=dialogs or [],
                 expected_error=expected_error,
+                expected_file_sync_error=expected_file_sync_error,
+                fulltext=fulltext,
+                fulltext_terms=fulltext_terms,
+                expected_upload_errors=expected_upload_errors,
+                all_libraries=all_libraries,
+                reset=reset,
                 result=str(result_path.resolve()),
             )
         )
@@ -118,6 +131,7 @@ async def run_phase(
             stdout=log,
             stderr=log,
             env=environment,
+            start_new_session=True,
         )
         try:
             async with asyncio.timeout(timeout):
@@ -131,16 +145,20 @@ async def run_phase(
                             (exited, stopped), return_when=asyncio.FIRST_COMPLETED
                         )
                         if stopped in done and process.returncode is None:
-                            process.kill()
+                            os.killpg(process.pid, signal.SIGKILL)
                             await exited
-                            return dict(interrupted=True, exit_status=process.returncode)
+                            return dict(
+                                interrupted=True,
+                                exit_status=process.returncode,
+                                process_group=process.pid,
+                            )
                     finally:
                         stopped.cancel()
                         exited.cancel()
                         await asyncio.gather(stopped, exited, return_exceptions=True)
         except BaseException:
             if process.returncode is None:
-                process.kill()
+                os.killpg(process.pid, signal.SIGKILL)
             await process.wait()
             raise
     finally:

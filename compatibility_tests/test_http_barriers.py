@@ -70,3 +70,64 @@ async def test_download_barrier_preserves_bytes_and_completion():
         await pending
     assert b"".join(message.get("body", b"") for message in sent) == b"complete"
     assert sent[-1]["more_body"] is False
+
+
+async def test_query_barrier_does_not_catch_a_different_sync_stage():
+    barrier = HTTPBarrier()
+    barrier.arm("GET", "/items", query={"format": "versions", "top": "1"})
+    visited = []
+
+    async def app(scope, receive, send):
+        visited.append(scope["query_string"])
+        await send(dict(type="http.response.start", status=200))
+        await send(dict(type="http.response.body", body=b""))
+
+    async def send(message):
+        pass
+
+    wrapped = barrier.wrap(app)
+    scope = dict(type="http", method="GET", path="/items")
+    await wrapped(scope | dict(query_string=b"format=versions"), None, send)
+    assert barrier.active
+    assert not barrier.reached.is_set()
+    pending = asyncio.create_task(
+        wrapped(scope | dict(query_string=b"top=1&format=versions&since=2"), None, send)
+    )
+    try:
+        async with asyncio.timeout(2):
+            await barrier.reached.wait()
+        assert visited == [b"format=versions"]
+    finally:
+        barrier.release.set()
+        await pending
+
+
+async def test_upload_barrier_stops_after_partial_body_was_consumed():
+    barrier = HTTPBarrier()
+    barrier.arm("POST", "/storage/upload/token", "upload")
+    received = []
+
+    async def app(scope, receive, send):
+        while True:
+            message = await receive()
+            received.append(message["body"])
+            if not message.get("more_body"):
+                break
+
+    async def receive():
+        return dict(type="http.request", body=b"complete", more_body=False)
+
+    pending = asyncio.create_task(
+        barrier.wrap(app)(
+            dict(type="http", method="POST", path="/storage/upload/token"), receive, None
+        )
+    )
+    try:
+        async with asyncio.timeout(2):
+            await barrier.reached.wait()
+        assert received == [b"comp"]
+        assert not pending.done()
+    finally:
+        barrier.release.set()
+        await pending
+    assert b"".join(received) == b"complete"

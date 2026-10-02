@@ -6,6 +6,7 @@ import json
 import os
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from pathlib import Path
 
 from tools.compatibility.acceptance_runtime import AcceptanceRun
@@ -200,12 +201,14 @@ async def run_acceptance(
     postgres_url=None,
 ) -> dict:
     """Each scenario gets two profiles and its own server; retain failures."""
+    root = root.resolve()
     from tools.compatibility.acceptance_conflicts import conflicts, filing
     from tools.compatibility.acceptance_credentials import credentials
     from tools.compatibility.acceptance_files import files
     from tools.compatibility.acceptance_groups import groups
     from tools.compatibility.acceptance_recovery import recovery
     from tools.compatibility.acceptance_relationships import relationships
+    from tools.compatibility.process_server import process_server
 
     drivers = dict(
         conflicts=conflicts,
@@ -221,7 +224,13 @@ async def run_acceptance(
     if not selected or any(name not in SCENARIOS for name in selected):
         raise CompatibilityError("Unknown or empty acceptance scenario selection")
     root.mkdir(parents=True, exist_ok=False)
-    report: dict = dict(passed=False, desktop_version=version, scenarios={})
+    report: dict = dict(
+        passed=False,
+        desktop_version=version,
+        database_backend="postgresql" if postgres_url else "sqlite",
+        started_at=datetime.now(UTC).isoformat(),
+        scenarios={},
+    )
     try:
         async with display(root, xvfb):
             for name in selected:
@@ -232,16 +241,29 @@ async def run_acceptance(
                     )
                 else:
                     scenario_root.mkdir()
-                    async with disposable_server(
+                    server_context = process_server if name == "server-crash" else disposable_server
+                    async with server_context(
                         scenario_root / "server",
-                        accounts=2 if name in {"groups", "credentials"} else 1,
+                        accounts=2
+                        if name in {"groups", "credentials", "partial-failures", "graphs"}
+                        else 1,
                         postgres_url=postgres_url,
                     ) as server:
                         runner = AcceptanceRun(executable, version, scenario_root, server)
                         try:
                             await drivers[name](runner)
                         finally:
-                            report["scenarios"][name] = dict(phases=runner.phases)
+                            report["scenarios"][name] = dict(passed=False, phases=runner.phases)
+                            (scenario_root / "http-trace.json").write_text(
+                                json.dumps(
+                                    dict(
+                                        requests=server.barrier.requests,
+                                        barriers=server.barrier.trace,
+                                    ),
+                                    indent=2,
+                                )
+                                + "\n"
+                            )
                     result = dict(passed=True, phases=runner.phases)
                 report["scenarios"][name] = result
         report["passed"] = True
@@ -249,5 +271,6 @@ async def run_acceptance(
         report["error"] = str(error)
         raise
     finally:
+        report["finished_at"] = datetime.now(UTC).isoformat()
         (root / "acceptance.json").write_text(json.dumps(report, indent=2) + "\n")
     return report
