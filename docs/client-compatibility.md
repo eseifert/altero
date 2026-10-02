@@ -348,6 +348,9 @@ the flag to select several. The default runs every implemented scenario, each
 with its own profiles and server under the new state directory. The top-level
 `acceptance.json` records scenario results and each subdirectory retains its
 phase snapshots and desktop logs.
+The optional desktop CI job runs a matrix with one scenario per job against
+PostgreSQL 18, so a longer scenario cannot consume another's timeout. Artifacts
+have the scenario's name and include the generated database name for diagnosis.
 
 `--scenario groups` uses an owner and a member account. It checks member/admin
 promotion and demotion, editing/file-policy changes and server denial after a

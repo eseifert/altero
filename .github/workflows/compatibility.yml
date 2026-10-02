@@ -166,17 +166,36 @@ jobs:
           if-no-files-found: ignore
 
   desktop:
-    name: Converge two real desktop profiles
+    name: Desktop transitions (${{ matrix.scenario }})
     if: >-
       (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
       vars.ZOTERO_DESKTOP_URL != '' && vars.ZOTERO_DESKTOP_SHA256 != '' &&
       vars.ZOTERO_DESKTOP_VERSION != ''
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [baseline, conflicts, groups, files, relationships, recovery, credentials]
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: altero
+          POSTGRES_PASSWORD: altero
+          POSTGRES_DB: altero
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U altero"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       DESKTOP_URL: ${{ vars.ZOTERO_DESKTOP_URL }}
       DESKTOP_SHA256: ${{ vars.ZOTERO_DESKTOP_SHA256 }}
       DESKTOP_VERSION: ${{ vars.ZOTERO_DESKTOP_VERSION }}
+      ACCEPTANCE_POSTGRES_URL: postgresql+asyncpg://altero:altero@localhost:5432/altero
     steps:
       - uses: actions/checkout@v7
 
@@ -205,16 +224,18 @@ jobs:
           uv run python -m tools.compatibility acceptance \
             --desktop-executable .compatibility/Zotero_linux-x86_64/zotero \
             --desktop-version "$DESKTOP_VERSION" --xvfb --schema-corpus \
+            --scenario "${{ matrix.scenario }}" --postgres-url "$ACCEPTANCE_POSTGRES_URL" \
             --state-dir .compatibility/desktop-run
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: desktop-acceptance
+          name: desktop-acceptance-${{ matrix.scenario }}
           path: |
             .compatibility/desktop-run/acceptance.json
             .compatibility/desktop-run/*/acceptance.json
             .compatibility/desktop-run/*/phase-*.json
+            .compatibility/desktop-run/*/server/database.json
             .compatibility/desktop-run/xvfb.log
             .compatibility/desktop-run/*/A/desktop.log
             .compatibility/desktop-run/*/B/desktop.log
