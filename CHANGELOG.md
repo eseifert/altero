@@ -7,6 +7,10 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Recreating a deleted library setting removes its old deletion record, so Zotero keeps newly downloaded tag colors instead of discarding them during sync.
+- Pin desktop compatibility checks to Zotero 10.0.5, rerun all eight existing scenarios and add eleven covering full-text indexing, read races, settings, partial writes, object graphs, retries, server-side changes, library resets, attachment lifecycle, interrupted uploads and server crashes. All nineteen pass on PostgreSQL and twelve on SQLite, across 392 desktop phases; the [test matrix](docs/client-compatibility.md#successfully-tested-matrix) records successful combinations and remaining gaps.
+- Desktop interruption checks terminate Zotero's entire process group, preventing a child process from continuing to sync after its launcher is killed.
+
 ## [1.0.0-beta.1] — 2026-10-02
 
 The first beta adds automated checks against the original desktop code and two
