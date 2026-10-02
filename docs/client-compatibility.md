@@ -403,6 +403,16 @@ The HTTP barriers pause genuine requests and preserve their responses. The
 server remains running: server-process crashes and interrupted uploads are
 separate gaps. This scenario passed locally on PostgreSQL 18.4.
 
+`--scenario credentials` starts and polls a login session through the original
+desktop runner helpers. The disposable server approves it through the same
+service the administrator's CLI uses; this is not browser sign-in UI coverage.
+After revocation through the original API client, the next sync must report the
+specific invalid-key error and retain an offline edit. Relinking must upload
+that work to both desktops. Switching B to a second account opens the real
+account-mismatch confirmation; Cancel must retain the original owner and data
+and leave the second account's library empty. Login handoffs live outside the
+uploaded phase artifacts, and phase snapshots contain no issued API key.
+
 Streaming scenarios subscribe over a real WebSocket, make a live write and feed
 the greeting, subscription changes and notification into the original `_connect`
 message handler. They check sync scheduling, already-current and skipped libraries,

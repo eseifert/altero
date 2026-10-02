@@ -113,3 +113,8 @@ tests = ["tools/compatibility/acceptance_groups.py"]
 operation = "auxiliary"
 status = "unsupported"
 reason = "GET /retractions/list deliberately answers 404; see docs/status.md."
+
+[scenarios.desktop_credential_transitions]
+operation = "identity"
+status = "executable"
+tests = ["tools/compatibility/acceptance_credentials.py"]

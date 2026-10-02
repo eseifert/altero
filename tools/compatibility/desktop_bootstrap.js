@@ -18,9 +18,11 @@ async function runAcceptance() {
   await Zotero.Schema.schemaUpdatePromise;
   const config = JSON.parse(await IOUtils.readUTF8(Services.prefs.getStringPref("extensions.altero.acceptance.config")));
   if (Zotero.version !== config.version) throw new Error(`Expected desktop ${config.version}, got ${Zotero.version}`);
-  await Zotero.Users.setCurrentUserID(config.user_id ?? 1);
-  await Zotero.Users.setCurrentUsername(config.username ?? "compatibility");
-  await Zotero.Sync.Data.Local.setAPIKey(config.key);
+  if (!Zotero.Users.getCurrentUserID()) {
+    await Zotero.Users.setCurrentUserID(config.user_id ?? 1);
+    await Zotero.Users.setCurrentUsername(config.username ?? "compatibility");
+  }
+  if (config.key !== null) await Zotero.Sync.Data.Local.setAPIKey(config.key);
   const dialogs = watchAcceptanceDialogs(config.dialogs ?? []);
   const selectedLibrary = () => config.group_id
     ? Zotero.Groups.get(config.group_id)?.libraryID : Zotero.Libraries.userLibraryID;
@@ -28,7 +30,17 @@ async function runAcceptance() {
   if (libraryID) await Zotero.Libraries.get(libraryID).waitForDataLoad("item");
   if (!libraryID && config.operations.length) throw new Error("Group must be discovered before editing");
   for (const operation of config.operations) {
-    if (operation.action === "create") {
+    if (operation.action === "login-start") {
+      const session = await Zotero.Sync.Runner.startLoginSession();
+      await IOUtils.writeUTF8(operation.path, JSON.stringify(session));
+    } else if (operation.action === "login-finish") {
+      const session = JSON.parse(await IOUtils.readUTF8(operation.path));
+      const result = await Zotero.Sync.Runner.checkLoginSession(session.sessionToken);
+      if (result.status !== "completed" || !result.apiKey) throw new Error("Login did not hand out a key");
+    } else if (operation.action === "revoke-key") {
+      const client = Zotero.Sync.Runner.getAPIClient({apiKey: await Zotero.Sync.Data.Local.getAPIKey()});
+      await client.deleteAPIKey();
+    } else if (operation.action === "create") {
       const item = new Zotero.Item();
       item.libraryID = libraryID;
       item.key = operation.key;
@@ -102,8 +114,12 @@ async function runAcceptance() {
     const errors = [];
     await Zotero.Sync.Runner.sync({ background: true, ...(!config.group_id && libraryID ? {libraries: [libraryID]} : {}),
       ...(config.files ? {} : {fileLibraries: []}),
-      fullTextLibraries: [], onError: error => errors.push(error.message) });
-    if (errors.length) throw new Error(errors.join("; "));
+      fullTextLibraries: [], onError: error => errors.push(error) });
+    if (config.expected_error) {
+      if (errors.length !== 1 || errors[0].error !== Zotero.Error[config.expected_error]) {
+        throw new Error(`Expected ${config.expected_error}, got ${errors.map(error => error.message)}`);
+      }
+    } else if (errors.length) throw new Error(errors.map(error => error.message).join("; "));
   }
   libraryID = selectedLibrary();
   if (libraryID) await Zotero.Libraries.get(libraryID).waitForDataLoad("item");
@@ -160,6 +176,6 @@ async function runAcceptance() {
   await IOUtils.writeUTF8(config.result, JSON.stringify({ version: Zotero.version,
     items: snapshot, files, collections: collections.map(value => value.toJSON()),
     searches: searches.map(value => value.toJSON()), unsynced, groups, dialogs: dialogs.trace,
-    storage_states, file_entries }));
+    storage_states, file_entries, user_id: Zotero.Users.getCurrentUserID() }));
   Services.startup.quit(Services.startup.eForceQuit);
 }

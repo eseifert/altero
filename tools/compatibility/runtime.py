@@ -1,15 +1,17 @@
 """A disposable live server shared by generated and desktop acceptance runs."""
 
 import asyncio
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
+from uuid import uuid4
 
 import uvicorn
 
 from altero.app import create_app
 from altero.models import ApiKey, Library, LibraryType, User
+from altero.services import login
 from altero.settings import Settings
 from tools.compatibility.barriers import HTTPBarrier
 from tools.compatibility.databases import fresh_database
@@ -24,6 +26,7 @@ class TestServer:
     user_id: int = 1
     keys: dict[int, str] = field(default_factory=lambda: {1: KEY})
     barrier: HTTPBarrier = field(default_factory=HTTPBarrier)
+    approve_login: Callable[[str], Awaitable[None]] | None = None
 
 
 @asynccontextmanager
@@ -70,6 +73,22 @@ async def disposable_server(
             )
         await session.commit()
     control = HTTPBarrier()
+
+    async def approve_login(token: str) -> None:
+        async with app.state.database.session_factory() as session:
+            key = ApiKey(
+                key=uuid4().hex[:24],
+                user_id=1,
+                name="Disposable desktop linking",
+                library_read=True,
+                library_write=True,
+                notes_read=True,
+                files_read=True,
+            )
+            session.add(key)
+            await session.flush()
+            await login.approve_session(session, token, key)
+
     server = uvicorn.Server(
         uvicorn.Config(
             control.wrap(app), host="127.0.0.1", port=0, log_level="error", access_log=False
@@ -84,7 +103,9 @@ async def disposable_server(
                     raise RuntimeError("Disposable server exited before binding")
                 await asyncio.sleep(0.01)
         port = server.servers[0].sockets[0].getsockname()[1]
-        yield TestServer(f"http://127.0.0.1:{port}", keys=keys, barrier=control)
+        yield TestServer(
+            f"http://127.0.0.1:{port}", keys=keys, barrier=control, approve_login=approve_login
+        )
     finally:
         control.release.set()
         server.should_exit = True

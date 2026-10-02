@@ -73,7 +73,7 @@ async def run_phase(
     root: Path,
     *,
     version: str,
-    key: str,
+    key: str | None,
     operations: list[dict],
     sync: bool = True,
     timeout: float = 120,
@@ -83,6 +83,7 @@ async def run_phase(
     group_id: int | None = None,
     dialogs: list[dict] | None = None,
     interrupt: asyncio.Event | None = None,
+    expected_error: str | None = None,
 ) -> dict:
     result_path = root / "result.json"
     result_path.unlink(missing_ok=True)
@@ -98,6 +99,7 @@ async def run_phase(
                 username=username,
                 group_id=group_id,
                 dialogs=dialogs or [],
+                expected_error=expected_error,
                 result=str(result_path.resolve()),
             )
         )

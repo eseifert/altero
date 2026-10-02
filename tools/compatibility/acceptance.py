@@ -177,7 +177,7 @@ async def run_baseline(
     return report
 
 
-SCENARIOS = ("baseline", "conflicts", "groups", "files", "relationships", "recovery")
+SCENARIOS = ("baseline", "conflicts", "groups", "files", "relationships", "recovery", "credentials")
 
 
 async def run_acceptance(
@@ -192,6 +192,7 @@ async def run_acceptance(
 ) -> dict:
     """Each scenario gets two profiles and its own server; retain failures."""
     from tools.compatibility.acceptance_conflicts import conflicts
+    from tools.compatibility.acceptance_credentials import credentials
     from tools.compatibility.acceptance_files import files
     from tools.compatibility.acceptance_groups import groups
     from tools.compatibility.acceptance_recovery import recovery
@@ -203,6 +204,7 @@ async def run_acceptance(
         files=files,
         relationships=relationships,
         recovery=recovery,
+        credentials=credentials,
     )
 
     selected = tuple(scenarios or SCENARIOS)
@@ -222,7 +224,7 @@ async def run_acceptance(
                     scenario_root.mkdir()
                     async with disposable_server(
                         scenario_root / "server",
-                        accounts=2 if name == "groups" else 1,
+                        accounts=2 if name in {"groups", "credentials"} else 1,
                         postgres_url=postgres_url,
                     ) as server:
                         runner = AcceptanceRun(executable, version, scenario_root, server)

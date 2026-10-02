@@ -8,7 +8,8 @@ function watchAcceptanceDialogs(rules) {
       if (topic !== "domwindowopened") return;
       window.addEventListener("load", () => window.setTimeout(() => {
         const uri = window.location.href;
-        if (uri !== "chrome://zotero/content/merge.xhtml" && !uri.includes("commonDialog.xhtml")) return;
+        if (uri !== "chrome://zotero/content/merge.xhtml" && !uri.includes("commonDialog.xhtml")
+            && !uri.includes("hardConfirmationDialog.xhtml")) return;
         const rule = remaining.shift();
         try {
           if (!rule) throw new Error(`Unexpected dialog ${uri}`);
