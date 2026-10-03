@@ -201,6 +201,7 @@ jobs:
           - graph-races
           - credential-limits
           - transient-errors
+          - streaming-reconnect
     services:
       postgres:
         image: postgres:18-alpine

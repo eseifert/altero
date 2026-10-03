@@ -1,6 +1,7 @@
 // Installed only in disposable acceptance profiles. No hooks change sync behavior.
 function startup(data) {
   Services.scriptloader.loadSubScript(data.rootURI + "dialogs.js", globalThis);
+  Services.scriptloader.loadSubScript(data.rootURI + "streaming.js", globalThis);
   Zotero.initializationPromise.then(runAcceptance).catch(writeFailure);
 }
 function shutdown() {}
@@ -27,10 +28,13 @@ async function runAcceptance() {
   const selectedLibrary = () => config.group_id
     ? Zotero.Groups.get(config.group_id)?.libraryID : Zotero.Libraries.userLibraryID;
   let libraryID = selectedLibrary();
+  let streaming;
   if (libraryID) await Zotero.Libraries.get(libraryID).waitForDataLoad("item");
   if (!libraryID && config.operations.length) throw new Error("Group must be discovered before editing");
   for (const operation of config.operations) {
-    if (operation.action === "login-start") {
+    if (operation.action === "stream-watch") {
+      streaming = await watchAcceptanceStreaming(operation, libraryID);
+    } else if (operation.action === "login-start") {
       const session = await Zotero.Sync.Runner.startLoginSession();
       await IOUtils.writeUTF8(operation.path, JSON.stringify(session));
     } else if (operation.action === "login-finish") {
@@ -292,6 +296,6 @@ async function runAcceptance() {
   await IOUtils.writeUTF8(config.result, JSON.stringify({ version: Zotero.version,
     items: snapshot, files, collections: collections.map(value => value.toJSON()),
     searches: searches.map(value => value.toJSON()), unsynced, groups, dialogs: dialogs.trace,
-    storage_states, file_entries, fulltext, settings, tag_colors, user_id: Zotero.Users.getCurrentUserID() }));
+    storage_states, file_entries, fulltext, settings, tag_colors, streaming, user_id: Zotero.Users.getCurrentUserID() }));
   Services.startup.quit(Services.startup.eForceQuit);
 }

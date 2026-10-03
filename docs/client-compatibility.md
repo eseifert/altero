@@ -494,6 +494,7 @@ The final settled sync checks convergence and an unchanged server watermark.
 | `graph-races` | Reparent a note and delete its former parent while top-version, object-batch and deletion responses are held; preserve unrelated pending work and converge without resurrecting the parent. |
 | `credential-limits` | Expire and cancel actual login sessions through original desktop methods; remove a key's personal-library read access while offline work is pending, restore access and upload that work. |
 | `transient-errors` | Real 503s before and after a write, a lost commit response, a truncated object read, and user cancellation through the original sync runner; recover without duplicates or extra versions. |
+| `streaming-reconnect` | Close the actual WebSocket with 1012, observe the original two-second reconnect delay and resubscription, then send a notification that drives automatic desktop sync without an explicit sync call. |
 
 HTTP barriers preserve the actual request and response bodies. Upload barriers
 require a first chunk with more bytes still expected. Killing only Zotero's
@@ -511,6 +512,9 @@ deliver a disconnect after the first portion has been consumed. A subsequent
 request runs intact. Socket tests distinguish an uncommitted write from a lost
 commit response and verify retry recovery without duplicate objects or versions.
 These faults live only in the disposable compatibility harness, not the API.
+Independent barriers can hold two concurrent requests and release each separately.
+Streaming controls close actual accepted sockets; traces retain event names and
+close codes without subscription credential payloads.
 
 The storage-error allowance in `file-lifecycle` requires exactly one original
 `Zotero.Sync.Storage.defaultError` and a real stale-token 404. Other errors still
@@ -530,7 +534,10 @@ credential transition.
 
 Remaining separate gaps include rejection of a new parent and its dependent
 child, simultaneous different ZIP archives under one digest, automatic rewind
-after restoring an older backup, reader rendering and actual streaming reconnect.
+after restoring an older backup and reader rendering. Streaming reconnect passed
+against Zotero 10.0.5 with SQLite on 2026-10-03, with a measured 2013 ms delay and
+notification-driven synchronization (`implementation-streaming-1`, six phases).
+PostgreSQL is unverified for this addition.
 
 ## Prove the checks detect omissions
 

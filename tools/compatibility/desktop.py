@@ -38,6 +38,7 @@ def prepare_profile(root: Path, server_url: str) -> Path:
         archive.writestr("manifest.json", json.dumps(manifest))
         archive.write(BOOTSTRAP, "bootstrap.js")
         archive.write(BOOTSTRAP.with_name("desktop_dialogs.js"), "dialogs.js")
+        archive.write(BOOTSTRAP.with_name("desktop_streaming.js"), "streaming.js")
     preferences = {
         "app.update.enabled": False,
         "extensions.update.enabled": False,

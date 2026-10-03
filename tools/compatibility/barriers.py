@@ -1,7 +1,9 @@
 """Pause one real HTTP request at a specified boundary, without changing data."""
 
 import asyncio
+import json
 import re
+from collections.abc import Awaitable, Callable
 from urllib.parse import parse_qs
 
 
@@ -12,6 +14,51 @@ class HTTPBarrier:
         self.active = False
         self.trace: list[dict] = []
         self.requests: list[dict] = []
+        self.children: list[HTTPBarrier] = []
+        self.websocket_events: list[dict] = []
+        self.sockets: dict[object, Callable[[dict], Awaitable[None]]] = {}
+        self.record_requests = True
+
+    def fork(self):
+        """An independent boundary on the same server and canonical trace."""
+        child = HTTPBarrier()
+        child.trace = self.trace
+        child.requests = self.requests
+        child.record_requests = False
+        self.children.append(child)
+        return child
+
+    def release_all(self):
+        self.release.set()
+        for child in self.children:
+            child.release_all()
+
+    async def disconnect_websockets(self, code=1012):
+        """Close accepted network connections; the desktop handles reconnection."""
+        for send in list(self.sockets.values()):
+            await send(dict(type="websocket.close", code=code))
+
+    async def websocket(self, app, scope, receive, send):
+        token = object()
+        closed = False
+
+        async def traced_send(message):
+            nonlocal closed
+            if message["type"] == "websocket.accept":
+                self.sockets[token] = traced_send
+                self.websocket_events.append(dict(event="accepted", path=scope["path"]))
+            elif message["type"] == "websocket.send":
+                payload = json.loads(message.get("text") or message.get("bytes", b"{}"))
+                self.websocket_events.append(dict(event=payload.get("event")))
+            elif message["type"] == "websocket.close" and not closed:
+                closed = True
+                self.websocket_events.append(dict(event="closed", code=message.get("code")))
+            await send(message)
+
+        try:
+            await app(scope, receive, traced_send)
+        finally:
+            self.sockets.pop(token, None)
 
     def arm(
         self,
@@ -52,7 +99,11 @@ class HTTPBarrier:
         self.trace.append(
             dict(
                 method=self.method,
-                path=self.path,
+                path=re.sub(
+                    r"(/(?:keys/sessions|storage/(?:upload|download))/)[^/]+",
+                    r"\1{token}",
+                    self.path,
+                ),
                 point=self.point,
                 status=status,
                 fault=self.fault,
@@ -65,8 +116,13 @@ class HTTPBarrier:
 
     def wrap(self, app):
         async def wrapped(scope, receive, send):
+            target = app
+            for child in self.children:
+                target = child.wrap(target)
+            if scope["type"] == "websocket" and self.record_requests:
+                return await self.websocket(target, scope, receive, send)
             if scope["type"] != "http":
-                return await app(scope, receive, send)
+                return await target(scope, receive, send)
             query = parse_qs(scope.get("query_string", b"").decode())
             # Only protocol selectors are retained; credentials never enter the trace.
             entry = dict(
@@ -85,7 +141,8 @@ class HTTPBarrier:
                     if key in {"format", "since", "top", "itemKey"}
                 },
             )
-            self.requests.append(entry)
+            if self.record_requests:
+                self.requests.append(entry)
             original_send = send
 
             async def traced_send(message):
@@ -115,7 +172,7 @@ class HTTPBarrier:
                     for key, value in self.query.items()
                 )
             ):
-                return await app(scope, receive, send)
+                return await target(scope, receive, send)
             self.active = False
             point = self.point
             fault, fault_status = self.fault, self.fault_status
@@ -197,6 +254,6 @@ class HTTPBarrier:
                     message = message | dict(body=body[middle:])
                 await send(message)
 
-            await app(scope, upload_receive if point == "upload" else receive, response)
+            await target(scope, upload_receive if point == "upload" else receive, response)
 
         return wrapped

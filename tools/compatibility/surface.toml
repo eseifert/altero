@@ -166,8 +166,8 @@ tests = ["tools/compatibility/acceptance_credential_limits.py"]
 
 [scenarios.desktop_streaming_reconnect]
 operation = "streaming"
-status = "desktop-runtime"
-reason = "Source replay tests scheduling and retry delays; actual desktop reconnect timing remains uncovered."
+status = "executable"
+tests = ["tools/compatibility/acceptance_streaming.py"]
 
 [scenarios.desktop_fulltext_index]
 operation = "fulltext"

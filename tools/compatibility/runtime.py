@@ -122,7 +122,7 @@ async def disposable_server(
             database_url=database_url,
         )
     finally:
-        control.release.set()
+        control.release_all()
         server.should_exit = True
         await task
         await app.state.database.dispose()
