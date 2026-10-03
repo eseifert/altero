@@ -70,6 +70,7 @@ class HTTPBarrier:
         query=None,
         fault=None,
         status=503,
+        rewrite_item=None,
     ) -> None:
         if self.active or (self.reached.is_set() and not self.release.is_set()):
             raise ValueError("An HTTP barrier is already armed")
@@ -80,6 +81,11 @@ class HTTPBarrier:
         if fault == "status" and (point not in {"before", "response"} or not 400 <= status <= 599):
             raise ValueError("Status faults require an error code at a request/response boundary")
         self.fault, self.fault_status = fault, status
+        if rewrite_item is not None and (
+            point != "before" or method != "POST" or "key" not in rewrite_item
+        ):
+            raise ValueError("Item corruption needs a keyed POST before application execution")
+        self.rewrite_item = rewrite_item
         self.method, self.path, self.point = method, path, point
         self.prefix = prefix
         self.query = query or {}
@@ -200,6 +206,41 @@ class HTTPBarrier:
                         )
                     )
                     raise ConnectionResetError("Injected interruption before request execution")
+                if self.rewrite_item:
+                    body = bytearray()
+                    while True:
+                        message = await receive()
+                        if message["type"] != "http.request":
+                            raise AssertionError("Corruption encountered a disconnected request")
+                        body.extend(message.get("body", b""))
+                        if not message.get("more_body"):
+                            break
+                    payload = json.loads(body)
+                    matches = [
+                        item for item in payload if item.get("key") == self.rewrite_item["key"]
+                    ]
+                    assert len(matches) == 1, "Selected parent absent or duplicated in request"
+                    matches[0].update(self.rewrite_item)
+                    changed = json.dumps(payload).encode()
+                    scope = scope | {
+                        "headers": [
+                            (k, v)
+                            for k, v in scope.get("headers", [])
+                            if k.lower() != b"content-length"
+                        ]
+                        + [(b"content-length", str(len(changed)).encode())]
+                    }
+                    consumed = False
+                    original_body_receive = receive
+
+                    async def rewritten_receive():
+                        nonlocal consumed
+                        if consumed:
+                            return await original_body_receive()
+                        consumed = True
+                        return dict(type="http.request", body=changed, more_body=False)
+
+                    receive = rewritten_receive
 
             remainder = None
             original_receive = receive

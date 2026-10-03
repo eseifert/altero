@@ -202,6 +202,10 @@ jobs:
           - credential-limits
           - transient-errors
           - streaming-reconnect
+          - parent-rejection
+          - reader-rendering
+          - zipped-digest-race
+          - backup-rewind
     services:
       postgres:
         image: postgres:18-alpine

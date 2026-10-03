@@ -462,10 +462,10 @@
     },
     "chrome/content/zotero/xpcom/sync/syncAPIClient.js::cancelLoginSession": {
       "sha256": "63e9515ef1130e70890461137b5696d080736abda6fdf02b85237ea4859bb182",
-      "status": "pending",
-      "reason": "Backend cancellation is tested, but an original desktop cancellation contract still needs evidence.",
+      "status": "supported",
+      "reason": "The original desktop cancels a real login session and observes its cancelled outcome.",
       "tests": [
-        "tests/test_login.py"
+        "tools/compatibility/acceptance_credential_limits.py"
       ]
     },
     "chrome/content/zotero/xpcom/sync/syncAPIClient.js::deleteAPIKey": {

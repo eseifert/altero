@@ -200,6 +200,10 @@ SCENARIOS = (
     "server-crash",
     "transient-errors",
     "streaming-reconnect",
+    "parent-rejection",
+    "reader-rendering",
+    "zipped-digest-race",
+    "backup-rewind",
     "graph-races",
     "credential-limits",
 )
@@ -217,6 +221,7 @@ async def run_acceptance(
 ) -> dict:
     """Each scenario gets two profiles and its own server; retain failures."""
     root = root.resolve()
+    from tools.compatibility.acceptance_backup_rewind import backup_rewind
     from tools.compatibility.acceptance_conflicts import conflicts, filing
     from tools.compatibility.acceptance_credential_limits import credential_limits
     from tools.compatibility.acceptance_credentials import credentials
@@ -227,8 +232,10 @@ async def run_acceptance(
     from tools.compatibility.acceptance_graphs import graphs
     from tools.compatibility.acceptance_groups import groups
     from tools.compatibility.acceptance_http import http_policy
+    from tools.compatibility.acceptance_parent_rejection import parent_rejection
     from tools.compatibility.acceptance_partial import partial_failures
     from tools.compatibility.acceptance_races import read_races
+    from tools.compatibility.acceptance_reader import reader_rendering
     from tools.compatibility.acceptance_recovery import recovery
     from tools.compatibility.acceptance_relationships import relationships
     from tools.compatibility.acceptance_resync import resync
@@ -238,6 +245,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_streaming import streaming_reconnect
     from tools.compatibility.acceptance_transient import transient_errors
     from tools.compatibility.acceptance_uploads import upload_interruption
+    from tools.compatibility.acceptance_zip_race import zipped_digest_race
     from tools.compatibility.process_server import process_server
 
     drivers = dict(
@@ -262,6 +270,10 @@ async def run_acceptance(
     drivers["server-crash"] = server_crash
     drivers["transient-errors"] = transient_errors
     drivers["streaming-reconnect"] = streaming_reconnect
+    drivers["parent-rejection"] = parent_rejection
+    drivers["reader-rendering"] = reader_rendering
+    drivers["zipped-digest-race"] = zipped_digest_race
+    drivers["backup-rewind"] = backup_rewind
     drivers["graph-races"] = graph_races
     drivers["credential-limits"] = credential_limits
 

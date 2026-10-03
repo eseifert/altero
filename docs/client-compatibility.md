@@ -560,12 +560,25 @@ credential scenario passed in its separate run. PostgreSQL has not been run for
 these additions. Login expiry and personal-library read scope do not cover every
 credential transition.
 
-Remaining separate gaps include rejection of a new parent and its dependent
-child, simultaneous different ZIP archives under one digest, automatic rewind
-after restoring an older backup and reader rendering. Streaming reconnect passed
-against Zotero 10.0.5 with SQLite on 2026-10-03, with a measured 2013 ms delay and
-notification-driven synchronization (`implementation-streaming-1`, six phases).
-PostgreSQL is unverified for this addition.
+Streaming reconnect passed against Zotero 10.0.5 with SQLite on 2026-10-03,
+with a measured 2013 ms delay and notification-driven synchronization
+(`implementation-streaming-1`, six phases). Four further scenarios cover the
+remaining declared transitions:
+
+| Scenario | Assertions |
+|---|---|
+| `parent-rejection` | Corrupt only a new parent type in one outgoing batch; the real validator refuses it and the dependent child, preserves unrelated success, and the original desktop retries and recovers both objects. Inspect the rejected batch before releasing its response. |
+| `reader-rendering` | Open the shipped PDF reader; check the fixture geometry in actual canvas pixels; compare generated PNG caches across profiles; change the crop, require different PNG bytes, and preserve regenerated output across restart. |
+| `zipped-digest-race` | Hold two actual uploads independently; prove their main-file digests match while ZIP digests differ; overwrite the stored archive before the second registration, observe the expected storage failure and recover complete files and unpacked auxiliary resources. |
+| `backup-rewind` | Restore an older archive after both profiles synced newer objects; show that an increased library watermark preserves newer desktop copies while the server remains older; explicitly restore the surviving authoritative desktop and converge. |
+
+These scenarios passed locally with SQLite (7, 12, 13 and 10 phases). The
+automatic rewind entry is explicitly unsupported: an increased library counter
+cannot make older object versions replace already synced desktop caches. The
+separate recovery scenario proves the supported procedure. No inventory count
+certifies every interaction; additional platforms, credential combinations,
+reader formats and arbitrary failure schedules still need separate evidence.
+PostgreSQL is unverified for these additions.
 
 The convergence oracle compares `lastRead` numerically: the desktop persists an
 integer and the API serves text. Setting values and finished queues must agree,

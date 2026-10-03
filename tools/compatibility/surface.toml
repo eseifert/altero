@@ -156,8 +156,8 @@ tests = ["tools/compatibility/acceptance_uploads.py"]
 
 [scenarios.annotation_rendering]
 operation = "objects"
-status = "desktop-runtime"
-reason = "Persisted annotation transitions are exercised; the reader's rendered image cache is not opened."
+status = "executable"
+tests = ["tools/compatibility/acceptance_reader.py"]
 
 [scenarios.credential_expiry_and_scoping]
 operation = "identity"
@@ -221,8 +221,8 @@ tests = ["tools/compatibility/acceptance_graph_races.py"]
 
 [scenarios.new_parent_upload_rejection]
 operation = "objects"
-status = "pending"
-reason = "Mixed batches retain forbidden parent and child edits, but rejection of a newly created parent and dependent child remains uncovered."
+status = "executable"
+tests = ["tools/compatibility/acceptance_parent_rejection.py"]
 
 [scenarios.desktop_transient_server_errors]
 operation = "http"
@@ -231,10 +231,15 @@ tests = ["tools/compatibility/acceptance_transient.py"]
 
 [scenarios.backup_rewind_of_synced_profiles]
 operation = "convergence"
-status = "pending"
-reason = "Backup recovery restores a surviving client to the server after lifting its watermark; automatic rewind of already synced profiles to an older archive is not claimed."
+status = "unsupported"
+reason = "The original desktop does not automatically rewind already synced objects to older versions. Explicit surviving-client recovery is tested separately."
+
+[scenarios.backup_rewind_recovery]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_backup_rewind.py"]
 
 [scenarios.concurrent_zipped_digest_reuse]
 operation = "files"
-status = "pending"
-reason = "Sequential reuse of a stored digest is exercised; simultaneous different ZIP archives with the same underlying file digest remain uncovered."
+status = "executable"
+tests = ["tools/compatibility/acceptance_zip_race.py"]

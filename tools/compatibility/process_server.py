@@ -31,9 +31,27 @@ class ParentBarrier(HTTPBarrier):
         self.tasks: list[asyncio.Task] = []
 
     def arm(
-        self, method, path, point="before", *, prefix=False, query=None, fault=None, status=503
+        self,
+        method,
+        path,
+        point="before",
+        *,
+        prefix=False,
+        query=None,
+        fault=None,
+        status=503,
+        rewrite_item=None,
     ):
-        super().arm(method, path, point, prefix=prefix, query=query, fault=fault, status=status)
+        super().arm(
+            method,
+            path,
+            point,
+            prefix=prefix,
+            query=query,
+            fault=fault,
+            status=status,
+            rewrite_item=rewrite_item,
+        )
         token = uuid4().hex
         write_json(
             self.root / "arm.json",
@@ -46,6 +64,7 @@ class ParentBarrier(HTTPBarrier):
                 query=query,
                 fault=fault,
                 status=status,
+                rewrite_item=rewrite_item,
             ),
         )
 

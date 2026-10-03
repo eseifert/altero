@@ -2,6 +2,7 @@
 function startup(data) {
   Services.scriptloader.loadSubScript(data.rootURI + "dialogs.js", globalThis);
   Services.scriptloader.loadSubScript(data.rootURI + "streaming.js", globalThis);
+  Services.scriptloader.loadSubScript(data.rootURI + "reader.js", globalThis);
   Zotero.initializationPromise.then(runAcceptance).catch(writeFailure);
 }
 function shutdown() {}
@@ -29,10 +30,13 @@ async function runAcceptance() {
     ? Zotero.Groups.get(config.group_id)?.libraryID : Zotero.Libraries.userLibraryID;
   let libraryID = selectedLibrary();
   let streaming;
+  let reader;
   if (libraryID) await Zotero.Libraries.get(libraryID).waitForDataLoad("item");
   if (!libraryID && config.operations.length) throw new Error("Group must be discovered before editing");
   for (const operation of config.operations) {
-    if (operation.action === "stream-watch") {
+    if (operation.action === "reader-open") {
+      reader = await observeAcceptanceReader(operation, libraryID);
+    } else if (operation.action === "stream-watch") {
       streaming = await watchAcceptanceStreaming(operation, libraryID);
     } else if (operation.action === "login-start") {
       const session = await Zotero.Sync.Runner.startLoginSession();
@@ -296,6 +300,6 @@ async function runAcceptance() {
   await IOUtils.writeUTF8(config.result, JSON.stringify({ version: Zotero.version,
     items: snapshot, files, collections: collections.map(value => value.toJSON()),
     searches: searches.map(value => value.toJSON()), unsynced, groups, dialogs: dialogs.trace,
-    storage_states, file_entries, fulltext, settings, tag_colors, streaming, user_id: Zotero.Users.getCurrentUserID() }));
+    storage_states, file_entries, fulltext, settings, tag_colors, streaming, reader, user_id: Zotero.Users.getCurrentUserID() }));
   Services.startup.quit(Services.startup.eForceQuit);
 }
