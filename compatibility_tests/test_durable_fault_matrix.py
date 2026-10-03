@@ -44,7 +44,7 @@ async def check_write_boundary(tmp_path, family, point, *, corrupt_watermark=Fal
         assert not seeded.json()["failed"]
         method = "POST"
         path = "/users/1/" + family
-        options = dict(headers={"If-Unmodified-Since-Version": "1"})
+        options: dict = dict(headers={"If-Unmodified-Since-Version": "1"})
         if family == "collections":
             options["json"] = [dict(key="FAULT234", name="Durable collection")]
         elif family == "searches":

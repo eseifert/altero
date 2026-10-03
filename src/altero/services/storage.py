@@ -446,7 +446,9 @@ async def _confirm_stored_file(upload: StorageUpload, root: Path) -> None:
         raise InvalidInputError("The uploaded file is no longer in the store") from None
 
     if described.st_size < upload.filesize:
-        _discard(path)
+        # Another client's whole ZIP can be smaller due to metadata/compression.
+        if upload.zip_md5 is None or not await asyncio.to_thread(_intact_archive, path):
+            _discard(path)
         raise InvalidInputError("The stored file is shorter than the one that was uploaded")
 
     digest = await asyncio.to_thread(_digest_of, path, described.st_size, described.st_mtime_ns)

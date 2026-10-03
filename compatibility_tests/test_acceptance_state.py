@@ -174,7 +174,7 @@ async def test_unchanged_setting_records_batch_version_and_still_checks_value(tm
     runner = AcceptanceRun(
         Path("/unused"), "10.0.5", tmp_path, DisposableServer("http://localhost")
     )
-    snapshot = dict(
+    snapshot: dict = dict(
         items=[],
         collections=[],
         searches=[],

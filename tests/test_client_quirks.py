@@ -302,12 +302,14 @@ class TestZippedUploads:
         assert response.status_code == 400
         assert not stored.exists()
 
+    @pytest.mark.parametrize("smaller_replacement", [False, True])
     async def test_another_clients_archive_of_the_same_page_is_kept(
         self,
         client: httpx.AsyncClient,
         session: AsyncSession,
         library: Library,
         settings: Settings,
+        smaller_replacement: bool,
     ) -> None:
         """Two clients zipping one snapshot make different archives.
 
@@ -318,12 +320,20 @@ class TestZippedUploads:
         damage, and removing it would take the file out from under the item
         that registered it.
         """
+        if smaller_replacement:
+            original = io.BytesIO()
+            with zipfile.ZipFile(original, "w") as archive:
+                archive.writestr("page.html", self.CONTENT)
+                archive.comment = b"Different ZIP metadata" * 100
+            self.ZIPPED = original.getvalue()
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         upload_key = await self.send(client)
         stored = file_path(Path(settings.storage_path), self.original_md5())
         somebody_elses = io.BytesIO()
         with zipfile.ZipFile(somebody_elses, "w") as archive:
             archive.writestr("page.html", self.CONTENT)
+        if smaller_replacement:
+            assert len(somebody_elses.getvalue()) < len(self.ZIPPED)
         stored.write_bytes(somebody_elses.getvalue())
 
         response = await client.post(

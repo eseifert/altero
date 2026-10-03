@@ -30,6 +30,17 @@ This applies to both note and attachment items. Replacement writes still replace
 the fields. The generated protocol sequence caught an omitted note being cleared
 when reparenting; the focused regression covers both partial write routes.
 
+### Racing ZIP archives of different sizes
+
+Snapshot uploads identify the underlying main file by `md5` and the transferred
+archive by `zipMD5`; archive sizes can differ for identical main-file bytes.
+altero refuses registration when the stored archive differs from that upload,
+but preserves another intact archive even when it is smaller. Deleting it would
+break the other upload's registration or an attachment already referencing it.
+Raw truncated files and ZIPs with broken CRCs are still removed. This follows
+altero's existing digest-store recovery policy; the live HTTP regression races
+two authorized archives through upload and registration and downloads the survivor.
+
 ### Search syntax
 
 `Zotero_API::getSearchParamValues` (`model/API.inc.php`) is the authority for
