@@ -316,6 +316,12 @@ failure and independently confirmed minimized sequence. Exit 1 is a reproduced
 assertion failure; prerequisites and runner errors remain exit 2. Replays require
 a new state directory.
 
+`ProtocolModel` and `generate_protocol_sequence` model all sync object families,
+settings, file bytes, full text, credential write access and two offline queues.
+Expected state is independent of server responses. A hundred seeds verify valid,
+effective operations and eventual queue recovery; parent dependencies and collection
+cycles constrain shrinking candidates. Original-method replay is added separately.
+
 A live check injected a frozen watermark into seed 14 with six operations.
 The runner reduced it to one create operation and confirmed the same invariant
 on a fresh server in four trials.
