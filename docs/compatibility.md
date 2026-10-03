@@ -20,6 +20,16 @@ The later sections cover ground the reference server does not: altero's own exte
 
 ## API queries and response behavior
 
+### Omitted note content in partial writes
+
+A POST batch or PATCH that changes a note's parent, or an attachment's metadata,
+preserves the existing note text when `note` is omitted. An explicit `note: ""`
+clears it. `Zotero_Items::updateFromJSON` in `model/Items.inc.php` iterates the
+supplied properties and calls `setNote` only for a supplied `note` property.
+This applies to both note and attachment items. Replacement writes still replace
+the fields. The generated protocol sequence caught an omitted note being cleared
+when reparenting; the focused regression covers both partial write routes.
+
 ### Search syntax
 
 `Zotero_API::getSearchParamValues` (`model/API.inc.php`) is the authority for

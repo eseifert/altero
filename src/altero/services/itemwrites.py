@@ -263,7 +263,10 @@ def validate_item(
 
     # Notes carry their content outside the schema's field list.
     if item_type in NOTE_BEARING_TYPES:
-        fields["note"] = str(payload.get("note", ""))
+        # Items::updateFromJSON calls setNote only for a supplied property.
+        # An omitted note in a partial upload must not erase its stored text.
+        if "note" in payload or existing is None:
+            fields["note"] = str(payload.get("note", ""))
     elif "note" in payload:
         raise InvalidInputError(f"'note' is not a valid field for type '{item_type}'")
 

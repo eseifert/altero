@@ -897,6 +897,49 @@ class TestPartialUploads:
     and the client stops with "Made no progress during upload".
     """
 
+    @pytest.mark.parametrize("item_type", ["note", "attachment"])
+    @pytest.mark.parametrize("method", ["POST", "PATCH"])
+    async def test_reparenting_preserves_omitted_note_content(
+        self,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        item_type: str,
+        method: str,
+    ) -> None:
+        await make_item(session, library, key="PARENT23")
+        await make_item(
+            session,
+            library,
+            key="CHILD234",
+            version=10,
+            item_type=item_type,
+            fields={"note": "<p>研究</p>"},
+        )
+        payload = {"key": "CHILD234", "version": 10, "parentItem": "PARENT23"}
+        response = await client.request(
+            method,
+            "/users/1/items" if method == "POST" else "/users/1/items/CHILD234",
+            headers=JSON,
+            json=[payload] if method == "POST" else payload,
+        )
+        assert response.status_code in (200, 204)
+        if method == "POST":
+            assert response.json()["failed"] == {}
+        data = (await client.get("/users/1/items/CHILD234", headers=AUTH)).json()["data"]
+        assert data["parentItem"] == "PARENT23"
+        assert data["note"] == "<p>研究</p>"
+
+        response = await client.patch(
+            "/users/1/items/CHILD234",
+            headers=JSON,
+            json={"version": data["version"], "note": ""},
+        )
+        assert response.status_code == 204
+        assert (await client.get("/users/1/items/CHILD234", headers=AUTH)).json()["data"][
+            "note"
+        ] == ""
+
     async def test_a_partial_object_updates_the_stored_item(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
