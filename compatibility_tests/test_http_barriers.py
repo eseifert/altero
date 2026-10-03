@@ -131,3 +131,39 @@ async def test_upload_barrier_stops_after_partial_body_was_consumed():
         barrier.release.set()
         await pending
     assert b"".join(received) == b"complete"
+
+
+async def test_runtime_inventory_keeps_protocol_headers_but_redacts_credentials():
+    barrier = HTTPBarrier()
+
+    async def app(scope, receive, send):
+        await send(
+            dict(
+                type="http.response.start",
+                status=200,
+                headers=[(b"last-modified-version", b"12"), (b"set-cookie", b"secret-cookie")],
+            )
+        )
+        await send(dict(type="http.response.body", body=b""))
+
+    async def send(message):
+        pass
+
+    await barrier.wrap(app)(
+        dict(
+            type="http",
+            method="GET",
+            path="/keys/sessions/private-token",
+            query_string=b"key=secret-key&since=3",
+            headers=[(b"zotero-api-key", b"secret-key")],
+        ),
+        None,
+        send,
+    )
+    trace = barrier.requests[0]
+    assert trace["path"] == "/keys/sessions/{token}"
+    assert trace["request_headers"] == ["zotero-api-key"]
+    assert trace["response_headers"] == ["last-modified-version", "set-cookie"]
+    assert trace["version"] == "12"
+    assert "secret" not in str(trace)
+    assert "private-token" not in str(trace)

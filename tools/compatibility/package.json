@@ -2,6 +2,11 @@
   "name": "altero-client-compatibility",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24" },
-  "dependencies": { "acorn": "8.18.0" }
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "acorn": "8.18.0",
+    "acorn-jsx": "5.3.2"
+  }
 }

@@ -76,6 +76,9 @@ These are not required for basic Zotero compatibility but are available on an al
 ## Not implemented
 
 - Zotero's **Note HTML** and **Note Markdown** translators. These create a note rather than an ordinary bibliography/export response.
+- Zotero-hosted read-aloud speech synthesis and credit services (`/tts/...`).
+- Legacy password-to-key creation (`POST /keys`); use desktop browser linking or an API key.
+- Legacy `removestoragefiles`; synced attachment removal follows item deletion.
 
 ## Client requests without a reference server implementation
 

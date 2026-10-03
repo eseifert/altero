@@ -20,7 +20,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "command",
-        choices=["verify", "analyze", "coverage", "sequence", "acceptance", "mutations", "matrix"],
+        choices=[
+            "verify",
+            "analyze",
+            "interactions",
+            "coverage",
+            "sequence",
+            "acceptance",
+            "mutations",
+            "matrix",
+        ],
     )
     parser.add_argument("--zotero-source", type=Path)
     parser.add_argument(
@@ -31,6 +40,11 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST)
     parser.add_argument("--server-root", type=Path, default=Path(__file__).resolve().parents[2])
     parser.add_argument("--allow-source-drift", action="store_true")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Require every network consumer to have a current review",
+    )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--state-dir", type=Path, help="New disposable state directory")
     parser.add_argument("--seed", type=int, default=14)
@@ -102,6 +116,20 @@ def main() -> int:
         if args.zotero_source is None:
             raise CompatibilityError("--zotero-source is required for this command")
         client = ZoteroClient(args.zotero_source, args.manifest)
+        if args.command == "interactions":
+            from tools.compatibility.interactions import interactions, require_reviewed
+            from tools.compatibility.interactions import markdown as interaction_markdown
+
+            result = interactions(client, server_root=args.server_root)
+            if args.output:
+                args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+            else:
+                print(json.dumps(result, ensure_ascii=False, indent=2))
+            if args.markdown:
+                args.markdown.write_text(interaction_markdown(result))
+            if args.check:
+                require_reviewed(result)
+            return 0
         if args.command == "mutations":
             from tools.compatibility.mutations import run_mutations
 

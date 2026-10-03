@@ -102,6 +102,11 @@ jobs:
           uv run python -m tools.compatibility coverage \
             --output .compatibility/coverage.json --markdown .compatibility/coverage.md
 
+      - name: Require reviewed desktop network consumers
+        run: |
+          uv run python -m tools.compatibility interactions --zotero-source .compatibility/zotero \
+            --check --output .compatibility/interactions.json --markdown .compatibility/interactions.md
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:

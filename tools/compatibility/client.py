@@ -27,7 +27,7 @@ def read_inside(root: Path, relative: str) -> str:
         raise CompatibilityError(f"Cannot read {path}: {error}") from error
 
 
-def run_node(request: dict[str, Any]) -> Any:
+def run_node(request: dict[str, Any], *, timeout: int = 10) -> Any:
     """JSON is the boundary; neither arguments nor source enter a shell command."""
     try:
         process = subprocess.run(
@@ -35,13 +35,13 @@ def run_node(request: dict[str, Any]) -> Any:
             input=json.dumps(request),
             text=True,
             capture_output=True,
-            timeout=10,
+            timeout=timeout,
             check=False,
         )
     except FileNotFoundError as error:
         raise CompatibilityError("Node 24+ is required for client compatibility checks") from error
     except subprocess.TimeoutExpired as error:
-        raise CompatibilityError("Client invocation timed out after 10 seconds") from error
+        raise CompatibilityError(f"Client invocation timed out after {timeout} seconds") from error
     if process.returncode:
         raise CompatibilityError(process.stderr.strip() or "Client runner failed")
     try:

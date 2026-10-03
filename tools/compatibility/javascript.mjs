@@ -1,12 +1,13 @@
 // Select syntax nodes rather than guessing where a function's braces end.
-import { parse } from "acorn";
+import { Parser, parse } from "acorn";
+import jsx from "acorn-jsx";
 
 export function parseSource(source) {
   const options = { ecmaVersion: "latest", locations: true };
   try {
     return parse(source, { ...options, sourceType: "script" });
   } catch {
-    return parse(source, { ...options, sourceType: "module" });
+    return Parser.extend(jsx()).parse(source, { ...options, sourceType: "module" });
   }
 }
 

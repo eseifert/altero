@@ -1,6 +1,7 @@
 """Pause one real HTTP request at a specified boundary, without changing data."""
 
 import asyncio
+import re
 from urllib.parse import parse_qs
 
 
@@ -46,7 +47,14 @@ class HTTPBarrier:
             # Only protocol selectors are retained; credentials never enter the trace.
             entry = dict(
                 method=scope["method"],
-                path=scope["path"],
+                path=re.sub(
+                    r"(/(?:keys/sessions|storage/(?:upload|download))/)[^/]+",
+                    r"\1{token}",
+                    scope["path"],
+                ),
+                request_headers=sorted(
+                    {name.decode("latin-1").lower() for name, _ in scope.get("headers", [])}
+                ),
                 query={
                     key: value
                     for key, value in query.items()
@@ -59,6 +67,13 @@ class HTTPBarrier:
             async def traced_send(message):
                 if message["type"] == "http.response.start":
                     entry["status"] = message["status"]
+                    headers = {
+                        name.decode("latin-1").lower(): value.decode("latin-1")
+                        for name, value in message.get("headers", [])
+                    }
+                    entry["response_headers"] = sorted(headers)
+                    if "last-modified-version" in headers:
+                        entry["version"] = headers["last-modified-version"]
                 await original_send(message)
 
             send = traced_send

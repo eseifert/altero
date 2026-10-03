@@ -124,6 +124,21 @@ operation = "auxiliary"
 status = "unsupported"
 reason = "GET /retractions/list deliberately answers 404; see docs/status.md."
 
+[scenarios.read_aloud_services]
+operation = "auxiliary"
+status = "unsupported"
+reason = "Zotero speech synthesis and credit endpoints under /tts are not supplied by altero."
+
+[scenarios.legacy_password_key_creation]
+operation = "identity"
+status = "unsupported"
+reason = "Legacy POST /keys password sign-in is not exposed; desktop linking uses /keys/sessions."
+
+[scenarios.legacy_storage_purge]
+operation = "files"
+status = "unsupported"
+reason = "Legacy POST removestoragefiles is not implemented; synced attachment removal follows item deletion."
+
 [scenarios.desktop_credential_transitions]
 operation = "identity"
 status = "executable"

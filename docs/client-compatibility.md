@@ -101,6 +101,34 @@ and `members` when given altero's actual pre-fix serializer.
 
 ## Discover contracts from source
 
+The network inventory scans all JavaScript and modules under the pinned desktop's
+`chrome/content` and `resource` trees, including JSX, anonymous callbacks and
+file-level requests. It includes HTTP helpers, file downloads, fetch, XHR and
+WebSocket construction. Every discovered consumer has a fingerprinted review in
+`tools/compatibility/interactions.json`: supported with test references, pending,
+unsupported, external service, or general transport. A changed source file,
+removed consumer, parse error or new consumer fails the review gate:
+
+```sh
+.venv/bin/python -m tools.compatibility interactions \
+  --zotero-source .compatibility/zotero-10.0.5 --check \
+  --output .compatibility/interactions.json --markdown .compatibility/interactions.md
+```
+
+The initial inventory identifies 109 transport call sites in 88 consumers across
+324 source files, with no parse errors. A review records scope, not a passing run.
+Expressions retain unresolved dynamic URLs and request options for inspection;
+this is not whole-program call-graph analysis. Runtime acceptance traces record
+methods, paths, protocol query selectors, header names, response codes and library
+versions. Login/storage tokens in paths and credential header values are omitted.
+Source replay and actual desktop evidence remain separate.
+
+Library sync is the supported scope. Zotero speech synthesis/credits, legacy
+password-to-key creation and legacy `removestoragefiles` are explicitly unsupported,
+alongside retractions. WebDAV, publisher downloads, metadata recognition and
+repository updates target separate services. Their exclusion is recorded rather
+than allowing absence from the scan to imply coverage.
+
 Inspect the scenario inventory before extending coverage:
 
 ```sh

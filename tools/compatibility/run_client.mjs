@@ -3,11 +3,14 @@ import vm from "node:vm";
 import { extractFunction } from "./javascript.mjs";
 import { adapterScript } from "./adapters.mjs";
 import { indexSource } from "./index_client.mjs";
+import { networkInventory } from "./network.mjs";
 
 try {
   const request = JSON.parse(readFileSync(0, "utf8"));
   let result;
-  if (request.operation === "index") {
+  if (request.operation === "network") {
+    result = networkInventory(request.files);
+  } else if (request.operation === "index") {
     result = indexSource(request.source);
   } else if (request.operation === "extract") {
     result = extractFunction(request.source, request.selector);

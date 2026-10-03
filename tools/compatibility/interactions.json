@@ -1,0 +1,532 @@
+{
+  "revision": "ca61760225d25191d0c65acbfd0c4f12a172d263",
+  "consumers": {
+    "chrome/content/zotero/actors/translation/http.js::this.request": {
+      "sha256": "de12ec4a2c843ccd82fefacf508e8c55746f65a510c6b2729ec30b0c258c2170",
+      "status": "external",
+      "reason": "Translator network access targets the captured web page or translator URL, not the configured sync API."
+    },
+    "chrome/content/zotero/actors/translation/http.js::this.doGet": {
+      "sha256": "e3661e1fa2cf4e7468727b98d4287214a482eaa0f884424d7864a088b4627967",
+      "status": "external",
+      "reason": "Translator network access targets the captured web page or translator URL, not the configured sync API."
+    },
+    "chrome/content/zotero/actors/translation/http.js::this.doPost": {
+      "sha256": "f89e9eb35d531ce25403ed19702e93173e1c6458c3be899e1817ef915ddafbe4",
+      "status": "external",
+      "reason": "Translator network access targets the captured web page or translator URL, not the configured sync API."
+    },
+    "chrome/content/zotero/actors/translation/http.js::this.processDocuments": {
+      "sha256": "55e8e653a15282044915f4238e2902035d4fa1096dbd60292bc5724b10724d3e",
+      "status": "external",
+      "reason": "Translator network access targets the captured web page or translator URL, not the configured sync API."
+    },
+    "chrome/content/zotero/debugViewer.js::submit": {
+      "sha256": "3b55fb1c6366cfc7bc2062fbd281e75362ec9cae8cdb059d4710b6ef07835ef6",
+      "status": "external",
+      "reason": "Debug report submission uses REPOSITORY_URL."
+    },
+    "chrome/content/zotero/import/mendeley/mendeleyAPIUtils.js::getTokens": {
+      "sha256": "243782f4eae762e55a3f4eb2a594af032696551e2778da42dafd081cfb0c2f1a",
+      "status": "external",
+      "reason": "Mendeley OAuth and import target Mendeley services."
+    },
+    "chrome/content/zotero/import/mendeley/mendeleyAPIUtils.js::apiFetchUrl": {
+      "sha256": "d24e30524673c8c62c4ba32c89b1a1a02b8fd8f2dd43dffe8bbd6f6f434ff38e",
+      "status": "external",
+      "reason": "Mendeley OAuth and import target Mendeley services."
+    },
+    "chrome/content/zotero/standalone/standalone.js::submit": {
+      "sha256": "293821869f068578e3af8aef3c05e102da271be431999f4dcc68d0bdfa9280b9",
+      "status": "external",
+      "reason": "Debug report submission uses REPOSITORY_URL."
+    },
+    "chrome/content/zotero/xpcom/attachments.js::this.importFromDocument": {
+      "sha256": "85b642a134d2088b7654681573d4b6c763716bb37be393f0e039ed34828788d2",
+      "status": "external",
+      "reason": "Attachment discovery downloads original publisher/resolver URLs; ZFS transfer is separately inventoried."
+    },
+    "chrome/content/zotero/xpcom/attachments.js::this.downloadFile": {
+      "sha256": "497b2a4b6ab1dddf18968e86da80fcaba8efa6bb6c4dfa41830caa2640fd4e0b",
+      "status": "external",
+      "reason": "Attachment discovery downloads original publisher/resolver URLs; ZFS transfer is separately inventoried."
+    },
+    "chrome/content/zotero/xpcom/attachments.js::this.getFileResolvers": {
+      "sha256": "b8f38815a2c8d0c8cf6a4c7523a84c6e09b24c7ca4a584be9429ff129411ce03",
+      "status": "external",
+      "reason": "Attachment discovery downloads original publisher/resolver URLs; ZFS transfer is separately inventoried."
+    },
+    "chrome/content/zotero/xpcom/attachments.js::this.downloadFirstAvailableFile": {
+      "sha256": "fa40f9c04997310a09407ff693f8216c3df6d61ebaff85478df77de2ba7be095",
+      "status": "external",
+      "reason": "Attachment discovery downloads original publisher/resolver URLs; ZFS transfer is separately inventoried."
+    },
+    "chrome/content/zotero/xpcom/citeproc.js::DOMParser.prototype.parseFromString": {
+      "sha256": "cc4e20c16ea7954b5010c6a88fdc412ade00820c1e8b7a98a90ee66e26e0b9b9",
+      "status": "external",
+      "reason": "Vendored XML parser constructs an XHR fallback; this is not a Zotero API operation."
+    },
+    "chrome/content/zotero/xpcom/citeprocRsBridge.js::init": {
+      "sha256": "287c9bd08adf71ea0c1f55f5468f446a8e14e7682ea72ba15120270ec78a4dd8",
+      "status": "external",
+      "reason": "Loads the packaged resource:// citation processor."
+    },
+    "chrome/content/zotero/xpcom/dictionaries.js::this.fetchDictionariesList": {
+      "sha256": "094c86f3fdf3f35715a1722681137390a95200872b5717a462ba114da5bf472e",
+      "status": "external",
+      "reason": "Dictionary downloads use dictionaries.url or the Zotero dictionary repository."
+    },
+    "chrome/content/zotero/xpcom/dictionaries.js::this.install": {
+      "sha256": "2f1d10101248dad7f92e9dd6fc30d5e650fd6bd3022bd10a256eacd5f13abd25",
+      "status": "external",
+      "reason": "Dictionary downloads use dictionaries.url or the Zotero dictionary repository."
+    },
+    "chrome/content/zotero/xpcom/editorInstance.js::<top-level>": {
+      "sha256": "82b221f646254c9e10584df77dd31f2b1c7fdd8c1cca08502aeb03194ebb251a",
+      "status": "external",
+      "reason": "Editor downloads embedded image source URLs."
+    },
+    "chrome/content/zotero/xpcom/feedReader.js::Zotero.FeedReader": {
+      "sha256": "f954d49d7e5fac59b1cb23f56487fb6b4915e81b38d3120719f579c173745aad",
+      "status": "external",
+      "reason": "Feed downloads use the user-configured feed URL."
+    },
+    "chrome/content/zotero/xpcom/file.js::this.getContentsAsync": {
+      "sha256": "dfea608bbc79aed7ef9096d89245990d2539c8a22caa79f2767cff77d1caec55",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/file.js::getContentsFromURL": {
+      "sha256": "f68e560300650c21ce5f744309615700effd80bfd2f2b675f3fdcf1d299a21ea",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/file.js::this.getResourceAsync": {
+      "sha256": "2d11438b7ad51b3a39c672818f1cbad201cc02156c8573acde6d523a9efe2c60",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/file.js::getContentsFromURLAsync": {
+      "sha256": "278ad8be579cbf7fb9041b8ef658c2f58a44c55eba48d808c3fee65c1753720a",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/file.js::this.download": {
+      "sha256": "f437ca82658b65c0bc5ce8196f6d879db9d8fccfe5886fa11a46c0c392090005",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/fulltext.js::getPageData": {
+      "sha256": "f6eecda4b59df8eb0873e7e585b4f9a12602aea982b8c52d7fbfa6aa656657f6",
+      "status": "external",
+      "reason": "Full-text extraction fetches a local file URI."
+    },
+    "chrome/content/zotero/xpcom/http.js::this._requestInternal": {
+      "sha256": "2cace321a40156016eb03de99b3db01521dcdbf9264977c6707deba255ae8a1f",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/http.js::_downloadInternal": {
+      "sha256": "89314c1b0173535e814847e55065f17c589f3731e5322855f05410a5f518dcbc",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/http.js::this.doGet": {
+      "sha256": "0b1c099c5cc9caf2c8e915103d9d91c558c2d20e187306077cb6cedbefe71e4a",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/http.js::this.doPost": {
+      "sha256": "8db6d272122b70af65c621a84e86b4d2e082348c5b569532ca32a347ecd9117c",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/http.js::this.doHead": {
+      "sha256": "4dcf63159393539d5c7a603f7d6e10e6bb89df5a2447909585f00b10d73f5bd5",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/http.js::this.doOptions": {
+      "sha256": "26ed497665f053779cb3840704bd91685e54e2d0e78aeb034de2248ff3ab54ee",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/http.js::this.triggerProxyAuth": {
+      "sha256": "3776fad6a8dfa3f76c65b08b71ae3d4d013475497f42d85be828ad19f870a51c",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/http.js::this.processDocuments": {
+      "sha256": "9a4e7eb4ddcb491feb7b4ebc0aae794a6cd2a2573340394e6030e140cb090703",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    },
+    "chrome/content/zotero/xpcom/locateManager.js::this.addEngine": {
+      "sha256": "9c84651556d1890c25577c49deb690558d0218f54f557213e53e2f3abc64f6d8",
+      "status": "external",
+      "reason": "Search engine definitions and icons use engine-provided URLs."
+    },
+    "chrome/content/zotero/xpcom/locateManager.js::_updateIcon": {
+      "sha256": "0a5b3aa1bd1368d7355e9e8c29c4ddeef31f1b490b32607931e7ed39f76086b8",
+      "status": "external",
+      "reason": "Search engine definitions and icons use engine-provided URLs."
+    },
+    "chrome/content/zotero/xpcom/mime.js::this.getMIMETypeFromURL": {
+      "sha256": "575eb5300aaaef67d8b40a2eae3bc5d229bedcf991d76edc006adb036c8eeb0f",
+      "status": "external",
+      "reason": "MIME discovery probes the supplied document URL."
+    },
+    "chrome/content/zotero/xpcom/pdfWorker/manager.js::<top-level>": {
+      "sha256": "a9ec7a18bcb2a46267bbe8cf6c9d1bec4a105f2b7601e18d1680d6082c6b221e",
+      "status": "external",
+      "reason": "PDF worker fetches packaged assets."
+    },
+    "chrome/content/zotero/xpcom/recognizeDocument.js::this.report": {
+      "sha256": "11d2e00cf85ff9a0fe644261874745da68cd92ddf4df140635181684f2713013",
+      "status": "external",
+      "reason": "Metadata recognition uses services.url or SERVICES_URL, separate from api.url."
+    },
+    "chrome/content/zotero/xpcom/recognizeDocument.js::_query": {
+      "sha256": "2eea68f6a007e6109e18387b24e339a2fed53e8d1e667fbd95a5475ca25b1af5",
+      "status": "external",
+      "reason": "Metadata recognition uses services.url or SERVICES_URL, separate from api.url."
+    },
+    "chrome/content/zotero/xpcom/retractions.js::<top-level>": {
+      "sha256": "074794a3d589586d3c6d4f4ae5cd7ae6e3a331512bc921c0d00de069bad9f5e1",
+      "status": "unsupported",
+      "reason": "Retraction list/search services are not implemented; sync continues after the missing list response."
+    },
+    "chrome/content/zotero/xpcom/retractions.js::_downloadPossibleMatches": {
+      "sha256": "2d97bc4d93e33680fbd998edb73bc823294a5481fa943f1b1ececa4023242c3d",
+      "status": "unsupported",
+      "reason": "Retraction list/search services are not implemented; sync continues after the missing list response."
+    },
+    "chrome/content/zotero/xpcom/schema.js::this.updateFromRepository": {
+      "sha256": "b1799f13a41ffea3c4dcebcd2185568e37e393db1743c86ae031bdab33e7abb8",
+      "status": "external",
+      "reason": "Schema/translator updates use REPOSITORY_URL."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::cacheCredentials": {
+      "sha256": "694fb9dfb06ab83deb8699d8b9072b2c16abbefbdfadefa3023f9459be1f07e3",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::downloadFile": {
+      "sha256": "392dbb3d867eb143e841c9acfb753341259a9b887ee3a2ea4944d3c0cb0c73c9",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::uploadFile": {
+      "sha256": "516a3cdb7296e666344c8527f5058e160cd75e7a0fdb0670a1f11b546f31e714",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::checkServer": {
+      "sha256": "65f3df1746ceeab2e3a14ba5c2cab20023811904f0532971c6adeb1debd037f3",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::purgeOrphanedStorageFiles": {
+      "sha256": "157802663efea46b7e258bfe4a06b0a265fe6596a0b56046e74f4eac7847d052",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::_getStorageFileMetadata": {
+      "sha256": "7c31fd403ab65e1099aa364a841ffe9d683c4ea03a44a72532d36b7301ebbaaf",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::_setStorageFileMetadata": {
+      "sha256": "58b514ba3742a8640ae5676d5f9e2a57b20cc9df11f2b3e8f9b18ef0a559d564",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::_createServerDirectory": {
+      "sha256": "eb82a546d9c35c30e3b3c29e4ea1a14d459656047164bdc4d0f6ac363c5a8caf",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/webdav.js::_deleteStorageFiles": {
+      "sha256": "1c2bdd81c0c515c32370734d66ab3fc053a158e5f403e966c23a9f9e9fa1bebc",
+      "status": "external",
+      "reason": "WebDAV targets the user-configured WebDAV server, not altero ZFS."
+    },
+    "chrome/content/zotero/xpcom/storage/zfs.js::downloadFile": {
+      "sha256": "66c814fe0db0a6da09c5890ad151e075bbf080858481d8af1f8e32026da6d43c",
+      "status": "supported",
+      "reason": "Original ZFS authorization, registration, file metadata and transfer paths.",
+      "tests": [
+        "compatibility_tests/test_storage_replay.py",
+        "compatibility_tests/test_storage_redirect.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/storage/zfs.js::purgeDeletedStorageFiles": {
+      "sha256": "0541a3254e947003151f94da7842d768b12e8cb09d5d9b5b55cdd11a78535be8",
+      "status": "unsupported",
+      "reason": "Legacy POST removestoragefiles is not implemented; deletion of synced attachments follows item deletion."
+    },
+    "chrome/content/zotero/xpcom/storage/zfs.js::_getFileUploadParameters": {
+      "sha256": "57fd5013eeb81251c4c2505bd3d079ca1ff64b802ff9625f6a0d95d8c57bf71d",
+      "status": "supported",
+      "reason": "Original ZFS authorization, registration, file metadata and transfer paths.",
+      "tests": [
+        "compatibility_tests/test_storage_replay.py",
+        "compatibility_tests/test_storage_redirect.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/storage/zfs.js::_uploadFile": {
+      "sha256": "945c9379729805cc9e8e8a020f263a76678dbfc2dbe183f8cc604330b6bef45b",
+      "status": "supported",
+      "reason": "Original ZFS authorization, registration, file metadata and transfer paths.",
+      "tests": [
+        "compatibility_tests/test_storage_replay.py",
+        "compatibility_tests/test_storage_redirect.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/storage/zfs.js::_onUploadComplete": {
+      "sha256": "357f3f46ffd582e8f6ee7fca3b9854c74aa2ec6ac39004291f3d6b831b0c587d",
+      "status": "supported",
+      "reason": "Original ZFS authorization, registration, file metadata and transfer paths.",
+      "tests": [
+        "compatibility_tests/test_storage_replay.py",
+        "compatibility_tests/test_storage_redirect.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/storage/zfs.js::_getStorageFileInfo": {
+      "sha256": "b90032ccde86d73f2e7be1b564451489176cfab1750d411c2a6497a00ad32763",
+      "status": "supported",
+      "reason": "Original ZFS authorization, registration, file metadata and transfer paths.",
+      "tests": [
+        "compatibility_tests/test_storage_replay.py",
+        "compatibility_tests/test_storage_redirect.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/streamer.js::_connect": {
+      "sha256": "fe4c4eea8e2bc86395e1561ce9d8a1b8ad05f93a9bf13f2fab3dde4b99247a1c",
+      "status": "supported",
+      "reason": "Original message handler is replayed over real WebSocket evidence; actual desktop reconnect has a separate scenario gap.",
+      "tests": [
+        "compatibility_tests/test_streamer_replay.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/style.js::_install": {
+      "sha256": "5348ea118a75cfaf8d49981dd9b980a3bc928b6afbf3bfa9003119bdd2aa8009",
+      "status": "external",
+      "reason": "CSL installation downloads the selected style source."
+    },
+    "chrome/content/zotero/xpcom/sync.js::clear": {
+      "sha256": "5ec5f689b017d23fea41f8793279a78ab788119b23b70189f36644c18e9260ae",
+      "status": "external",
+      "reason": "Legacy XML sync clear targets sync.serverURL, not the v3 API."
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getKeyInfo": {
+      "sha256": "187c0c0908aa4466ef85bc967f02b2cf7ce464351bb81a1e794d7930706c2e6e",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_reads.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getGroupVersions": {
+      "sha256": "239a6e8a146aee3ad69ac82f8fe870de7c4173fb683485127b42872a67645f20",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_group_pagination.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getGroup": {
+      "sha256": "66d4e40258ae0ef364073a918836bf7bb65000080b9c1f045dca164e7d3ec9e5",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_groups.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getSettings": {
+      "sha256": "db2a2351794aac0a7a7678b446e8efdba06be124f9c43ac907e76f80c8aebfef",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_reads.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getDeleted": {
+      "sha256": "896e637751555d8f816105d4977e3df755c4c41bf7c2afa54daef5267ac55d48",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_reads.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getKeys": {
+      "sha256": "bada8ddb1781e66d265c3c7705fb0fe7b53b470f23151d003d6576cbdc2993e5",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_reads.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getVersions": {
+      "sha256": "e3739ec7ebd3d28c8d4f727ffcb4974296b98f64eed33a8c3e8dd768eecf5212",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_sync_headers.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::downloadObjects": {
+      "sha256": "4a1876081777571c248f647d97e1566f2ea634d0c1a040970570e3e189f31eda",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_reads.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::deleteSettings": {
+      "sha256": "5531efe13e2c9cfb478027c7579a519c5926ae1849ef06637f7dc4283f0206d6",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_writes.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::uploadSettings": {
+      "sha256": "d048feb5c5a51445fa37e3bb8eee4e15b78d29ce560dc2981c02b3907f9bbbac",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_writes.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::uploadObjects": {
+      "sha256": "084ab2e482effa0c321bf057babd387129037ebfa342f89ca88577164d2d7f13",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_writes.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::uploadDeletions": {
+      "sha256": "9e77a9538f301a7b14ac262d0624a450498dbcaad30ac537bd994538ae1da73e",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_writes.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getFullTextVersions": {
+      "sha256": "375e457ff2324904240e1fc022868e2c9a0bae6c9961af8d7d0fbd79483f0974",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_fulltext_replay.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getFullTextForItem": {
+      "sha256": "80d00dbcee07a2805b1e98261dc6a684e3bf0b69e95d13a236605a8423562560",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_fulltext_replay.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::setFullTextForItems": {
+      "sha256": "99b1c8d4b62bcb2fdcafedabd3841fa3a66da1800a343d9d4d7c8a9fce9d1ec6",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_fulltext_replay.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::createAPIKeyFromCredentials": {
+      "sha256": "b8b75fdf5d4a0bdd7e24f08396016169285e45ceec08213d3fd2bc7336620929",
+      "status": "unsupported",
+      "reason": "Legacy password-to-key POST /keys is not exposed. Use browser session linking or an explicitly created API key."
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::createLoginSession": {
+      "sha256": "1cc09e7ac4c065a755667d742850ecf17cdc57fc84aa05605bb4332a2be5b7b0",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "tools/compatibility/acceptance_credentials.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::checkLoginSession": {
+      "sha256": "7c35e203139c47399d4214e60e33a3834d39badf123cdadebb99b5d64016f496",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "tools/compatibility/acceptance_credentials.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::cancelLoginSession": {
+      "sha256": "63e9515ef1130e70890461137b5696d080736abda6fdf02b85237ea4859bb182",
+      "status": "pending",
+      "reason": "Backend cancellation is tested, but an original desktop cancellation contract still needs evidence.",
+      "tests": [
+        "tests/test_login.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::deleteAPIKey": {
+      "sha256": "5c1f1bea7d221c72512fca78ce1d9f08e905434c13af9fe2a0db92ac8c1df74b",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "tools/compatibility/acceptance_credentials.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getReadAloudVoices": {
+      "sha256": "93649d56002def158f361f01282c56d7c12bfcbc017875a8f24b4e7b06eea59a",
+      "status": "unsupported",
+      "reason": "Zotero-hosted speech synthesis and credits are not supplied by altero; these services are outside library synchronization."
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getReadAloudAudio": {
+      "sha256": "13f0274a7da3058f0b01cf472ab5d1801dc9029fb137e03d0e26a93fd82a03bc",
+      "status": "unsupported",
+      "reason": "Zotero-hosted speech synthesis and credits are not supplied by altero; these services are outside library synchronization."
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getReadAloudCreditsRemaining": {
+      "sha256": "c84f71bf4d403eff92c069dc2aed52336dc022f9ba365b9e68d9f67d4ac1838c",
+      "status": "unsupported",
+      "reason": "Zotero-hosted speech synthesis and credits are not supplied by altero; these services are outside library synchronization."
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::resetReadAloudCredits": {
+      "sha256": "9a2abf3da19ff33601ee740c7e74eacc14c239a2aacab88701128017cde0340c",
+      "status": "unsupported",
+      "reason": "Zotero-hosted speech synthesis and credits are not supplied by altero; these services are outside library synchronization."
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::makeRequest": {
+      "sha256": "265686377828cbef87a2c0f10f69ddb35ab821884f0444d06976c1b026620897",
+      "status": "transport",
+      "reason": "Common authenticated HTTP transport; callers define the endpoint.",
+      "tests": [
+        "compatibility_tests/test_retry_policy.py",
+        "compatibility_tests/test_live_api.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/sync/syncAPIClient.js::getPaginatedResults": {
+      "sha256": "c1a938c43f32cfb71aa56fd6577f4e02b233054fb7f3968b03ebdf28209d1dd1",
+      "status": "supported",
+      "reason": "Original desktop API consumer; evidence exercises its protocol or real sync path.",
+      "tests": [
+        "compatibility_tests/test_group_pagination.py"
+      ]
+    },
+    "chrome/content/zotero/xpcom/utilities_internal.js::getOpenAccessPDFURLs": {
+      "sha256": "a1f9b967899f035f16088d3dd8e5ab19a48da282ea233b2900cbf0604fe26f16",
+      "status": "external",
+      "reason": "Open-access discovery uses SERVICES_URL; OpenURL resolver listing uses zotero.org/support."
+    },
+    "chrome/content/zotero/xpcom/utilities_internal.js::getResolvers": {
+      "sha256": "23f66edbe24ba324591dc5c141fd649e732e62b0bd54cdde93ebd09dc75df5d1",
+      "status": "external",
+      "reason": "Open-access discovery uses SERVICES_URL; OpenURL resolver listing uses zotero.org/support."
+    },
+    "resource/loader.sys.mjs::readURI": {
+      "sha256": "ed3b60b7c9abac3164c85ff62ece9d139563ed2dddb8f0d33a913ed124ba1a2d",
+      "status": "transport",
+      "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
+    }
+  }
+}
