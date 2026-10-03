@@ -72,7 +72,12 @@ tests = ["tools/compatibility/acceptance.py"]
 [scenarios.generated_sequences]
 operation = "convergence"
 status = "executable"
-tests = ["compatibility_tests/test_sequences.py"]
+tests = ["compatibility_tests/test_sequences.py", "compatibility_tests/test_protocol_sequences.py", "compatibility_tests/test_protocol_model.py"]
+
+[scenarios.durable_write_fault_matrix]
+operation = "convergence"
+status = "executable"
+tests = ["compatibility_tests/test_durable_fault_matrix.py"]
 
 [scenarios.same_field_conflicts]
 operation = "convergence"

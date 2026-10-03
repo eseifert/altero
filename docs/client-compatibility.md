@@ -540,6 +540,14 @@ deliver a disconnect after the first portion has been consumed. A subsequent
 request runs intact. Socket tests distinguish an uncommitted write from a lost
 commit response and verify retry recovery without duplicate objects or versions.
 These faults live only in the disposable compatibility harness, not the API.
+The durable-write matrix injects a 503 before execution or after the committed
+response for collections, saved searches, settings, deletions, full text and
+file registration. It then kills and restarts the actual server process on the
+same database and checks persisted state, watermark and retry preconditions.
+A consumed registration token answers 404 on replay; current file metadata and
+downloaded bytes prove recovery. Thirteen tests passed locally on SQLite, including
+an intact baseline followed by deliberate committed-watermark loss that must fail
+by assertion. These socket tests do not substitute for desktop acceptance.
 Independent barriers can hold two concurrent requests and release each separately.
 Streaming controls close actual accepted sockets; traces retain event names and
 close codes without subscription credential payloads.
