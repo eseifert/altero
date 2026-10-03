@@ -198,6 +198,9 @@ SCENARIOS = (
     "file-lifecycle",
     "upload-interruption",
     "server-crash",
+    "transient-errors",
+    "graph-races",
+    "credential-limits",
 )
 
 
@@ -214,10 +217,12 @@ async def run_acceptance(
     """Each scenario gets two profiles and its own server; retain failures."""
     root = root.resolve()
     from tools.compatibility.acceptance_conflicts import conflicts, filing
+    from tools.compatibility.acceptance_credential_limits import credential_limits
     from tools.compatibility.acceptance_credentials import credentials
     from tools.compatibility.acceptance_file_lifecycle import file_lifecycle
     from tools.compatibility.acceptance_files import files
     from tools.compatibility.acceptance_fulltext import fulltext
+    from tools.compatibility.acceptance_graph_races import graph_races
     from tools.compatibility.acceptance_graphs import graphs
     from tools.compatibility.acceptance_groups import groups
     from tools.compatibility.acceptance_http import http_policy
@@ -229,6 +234,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_server_crash import server_crash
     from tools.compatibility.acceptance_server_writes import server_writes
     from tools.compatibility.acceptance_settings import settings
+    from tools.compatibility.acceptance_transient import transient_errors
     from tools.compatibility.acceptance_uploads import upload_interruption
     from tools.compatibility.process_server import process_server
 
@@ -252,6 +258,9 @@ async def run_acceptance(
     drivers["file-lifecycle"] = file_lifecycle
     drivers["upload-interruption"] = upload_interruption
     drivers["server-crash"] = server_crash
+    drivers["transient-errors"] = transient_errors
+    drivers["graph-races"] = graph_races
+    drivers["credential-limits"] = credential_limits
 
     selected = tuple(scenarios or SCENARIOS)
     if not selected or any(name not in SCENARIOS for name in selected):

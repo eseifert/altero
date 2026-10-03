@@ -85,12 +85,14 @@ async def run_phase(
     dialogs: list[dict] | None = None,
     interrupt: asyncio.Event | None = None,
     expected_error: str | None = None,
+    expected_error_message: str | None = None,
     expected_file_sync_error: bool = False,
     fulltext: bool = False,
     fulltext_terms: tuple[str, ...] = (),
     expected_upload_errors: list[dict] | None = None,
     all_libraries: bool = False,
     reset: str | None = None,
+    cancel_path: Path | None = None,
 ) -> dict:
     result_path = root / "result.json"
     result_path.unlink(missing_ok=True)
@@ -107,12 +109,14 @@ async def run_phase(
                 group_id=group_id,
                 dialogs=dialogs or [],
                 expected_error=expected_error,
+                expected_error_message=expected_error_message,
                 expected_file_sync_error=expected_file_sync_error,
                 fulltext=fulltext,
                 fulltext_terms=fulltext_terms,
                 expected_upload_errors=expected_upload_errors,
                 all_libraries=all_libraries,
                 reset=reset,
+                cancel_path=str(cancel_path) if cancel_path else None,
                 result=str(result_path.resolve()),
             )
         )

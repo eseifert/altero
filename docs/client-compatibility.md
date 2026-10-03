@@ -491,6 +491,9 @@ The final settled sync checks convergence and an unchanged server watermark.
 | `file-lifecycle` | Rename Unicode filenames; reuse a stored digest and delete one reference; recover a missing local file; refuse a stale download redirect with 404, observe the expected storage failure, then recover current bytes and hashes. |
 | `upload-interruption` | Kill the desktop process group while the server has consumed only part of a large incompressible upload; assert no premature registration; restart and compare complete bytes and settled storage states. |
 | `server-crash` | SIGKILL a separate serving process after an item commit but before its response; kill the waiting desktop, restart the server on the same database and URL, and recover without duplicate objects or versions. |
+| `graph-races` | Reparent a note and delete its former parent while top-version, object-batch and deletion responses are held; preserve unrelated pending work and converge without resurrecting the parent. |
+| `credential-limits` | Expire and cancel actual login sessions through original desktop methods; remove a key's personal-library read access while offline work is pending, restore access and upload that work. |
+| `transient-errors` | Real 503s before and after a write, a lost commit response, a truncated object read, and user cancellation through the original sync runner; recover without duplicates or extra versions. |
 
 HTTP barriers preserve the actual request and response bodies. Upload barriers
 require a first chunk with more bytes still expected. Killing only Zotero's
@@ -516,11 +519,18 @@ browser sign-in UI. Archive recovery follows the documented surviving-client
 procedure; it does not claim that raising a watermark rewinds synced desktops
 to an older archive.
 
-The inventory keeps separate gaps for graph deletion/reparenting during reads,
-rejection of a newly created parent and its dependent child, generic HTTP 5xx
-retry/cancellation, simultaneous different ZIP archives under one file digest,
-and automatic rewind after restoring an older backup. Reader rendering,
-credential expiry/scoping and actual streaming reconnect timing remain uncovered.
+The three additional scenarios above passed against the verified Zotero 10.0.5
+archive with SQLite on 2026-10-03 (19, 12 and 22 phases respectively).
+Their preserved reports are under `.compatibility/implementation-limits-1`,
+`implementation-limits-2` and `implementation-transient-5`. The first limits run
+passed graph races and failed the initial credential assertion; the corrected
+credential scenario passed in its separate run. PostgreSQL has not been run for
+these additions. Login expiry and personal-library read scope do not cover every
+credential transition.
+
+Remaining separate gaps include rejection of a new parent and its dependent
+child, simultaneous different ZIP archives under one digest, automatic rewind
+after restoring an older backup, reader rendering and actual streaming reconnect.
 
 ## Prove the checks detect omissions
 

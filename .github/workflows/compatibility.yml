@@ -198,6 +198,9 @@ jobs:
           - file-lifecycle
           - upload-interruption
           - server-crash
+          - graph-races
+          - credential-limits
+          - transient-errors
     services:
       postgres:
         image: postgres:18-alpine

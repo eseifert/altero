@@ -161,8 +161,8 @@ reason = "Persisted annotation transitions are exercised; the reader's rendered 
 
 [scenarios.credential_expiry_and_scoping]
 operation = "identity"
-status = "pending"
-reason = "Real desktops exercise revocation/relinking and account-switch cancellation, not expired sessions or reduced credential scopes."
+status = "executable"
+tests = ["tools/compatibility/acceptance_credential_limits.py"]
 
 [scenarios.desktop_streaming_reconnect]
 operation = "streaming"
@@ -216,8 +216,8 @@ tests = ["tools/compatibility/acceptance_file_lifecycle.py"]
 
 [scenarios.concurrent_graph_deletion_and_reparenting]
 operation = "convergence"
-status = "pending"
-reason = "Read barriers exercise concurrent field edits and pending uploads; graph deletion and reparenting during those reads remain uncovered."
+status = "executable"
+tests = ["tools/compatibility/acceptance_graph_races.py"]
 
 [scenarios.new_parent_upload_rejection]
 operation = "objects"
@@ -226,8 +226,8 @@ reason = "Mixed batches retain forbidden parent and child edits, but rejection o
 
 [scenarios.desktop_transient_server_errors]
 operation = "http"
-status = "pending"
-reason = "Real 429 retries are exercised; generic transient 5xx retries and user cancellation remain uncovered."
+status = "executable"
+tests = ["tools/compatibility/acceptance_transient.py"]
 
 [scenarios.backup_rewind_of_synced_profiles]
 operation = "convergence"

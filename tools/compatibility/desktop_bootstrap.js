@@ -37,6 +37,19 @@ async function runAcceptance() {
       const session = JSON.parse(await IOUtils.readUTF8(operation.path));
       const result = await Zotero.Sync.Runner.checkLoginSession(session.sessionToken);
       if (result.status !== "completed" || !result.apiKey) throw new Error("Login did not hand out a key");
+    } else if (operation.action === "login-cancel") {
+      const session = JSON.parse(await IOUtils.readUTF8(operation.path));
+      const client = Zotero.Sync.Runner.getAPIClient();
+      await client.cancelLoginSession(session.sessionToken);
+    } else if (operation.action === "login-check") {
+      const session = JSON.parse(await IOUtils.readUTF8(operation.path));
+      let expired = false;
+      let result;
+      try {result = await Zotero.Sync.Runner.checkLoginSession(session.sessionToken);}
+      catch (error) {if (error.expired) expired = true; else throw error;}
+      if (operation.expected === "expired" ? !expired : expired || result.status !== operation.expected) {
+        throw new Error("Login session outcome differed from the expected desktop decision");
+      }
     } else if (operation.action === "revoke-key") {
       const client = Zotero.Sync.Runner.getAPIClient({apiKey: await Zotero.Sync.Data.Local.getAPIKey()});
       await client.deleteAPIKey();
@@ -147,13 +160,37 @@ async function runAcceptance() {
   }
   if (config.sync) {
     const errors = [];
+    let completed = false;
+    let cancelled = false;
+    const cancellation = (async () => {
+      if (!config.cancel_path) return;
+      while (!completed) {
+        if (await IOUtils.exists(config.cancel_path)) {
+          Zotero.Sync.Runner.stop();
+          cancelled = true;
+          await IOUtils.writeUTF8(config.cancel_path + ".ack", "stopped");
+          return;
+        }
+        await Zotero.Promise.delay(50);
+      }
+    })();
     if (config.reset && !["from-server", "to-server"].includes(config.reset)) throw new Error("Unknown sync reset mode");
     if (config.reset === "from-server") await Zotero.Sync.Data.Local.resetUnsyncedLibraryData(libraryID);
-    await Zotero.Sync.Runner.sync({ background: true, ...(!config.group_id && !config.all_libraries && libraryID ? {libraries: [libraryID]} : {}),
+    try {
+      await Zotero.Sync.Runner.sync({ background: true, ...(!config.group_id && !config.all_libraries && libraryID ? {libraries: [libraryID]} : {}),
       ...(config.reset === "to-server" ? {resetMode: Zotero.Sync.Runner.RESET_MODE_TO_SERVER} : {}),
       ...(config.files ? {} : {fileLibraries: []}),
       ...(config.fulltext ? {} : {fullTextLibraries: []}), onError: error => errors.push(error) });
-    if (config.expected_error) {
+    } finally {
+      completed = true;
+      await cancellation;
+    }
+    if (config.cancel_path && !cancelled) throw new Error("Requested user cancellation never stopped a real sync");
+    if (config.expected_error_message) {
+      if (errors.length !== 1 || errors[0].message !== config.expected_error_message) {
+        throw new Error(`Expected ${config.expected_error_message}, got ${errors.map(error => error.message)}`);
+      }
+    } else if (config.expected_error) {
       if (typeof Zotero.Error[config.expected_error] !== "number" || errors.length !== 1 || errors[0].error !== Zotero.Error[config.expected_error]) {
         throw new Error(`Expected ${config.expected_error}, got ${errors.map(error => error.message)}`);
       }
