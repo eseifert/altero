@@ -30,12 +30,23 @@ class ParentBarrier(HTTPBarrier):
         self.root = root
         self.tasks: list[asyncio.Task] = []
 
-    def arm(self, method, path, point="before", *, prefix=False, query=None):
-        super().arm(method, path, point, prefix=prefix, query=query)
+    def arm(
+        self, method, path, point="before", *, prefix=False, query=None, fault=None, status=503
+    ):
+        super().arm(method, path, point, prefix=prefix, query=query, fault=fault, status=status)
         token = uuid4().hex
         write_json(
             self.root / "arm.json",
-            dict(token=token, method=method, path=path, point=point, prefix=prefix, query=query),
+            dict(
+                token=token,
+                method=method,
+                path=path,
+                point=point,
+                prefix=prefix,
+                query=query,
+                fault=fault,
+                status=status,
+            ),
         )
 
         async def relay():
@@ -59,11 +70,18 @@ class ChildBarrier(HTTPBarrier):
         self.root = root
 
     async def pause(self, status=None):
+        self.trace.append(
+            dict(
+                method=self.method,
+                path=self.path,
+                point=self.point,
+                status=status,
+                fault=self.fault,
+            )
+        )
         self.root.joinpath("arm.json").unlink()
         marker = self.root / f"reached-{self.token}.json"
-        write_json(
-            marker, dict(method=self.method, path=self.path, point=self.point, status=status)
-        )
+        write_json(marker, self.trace[-1])
         while not self.root.joinpath(f"release-{self.token}").exists():
             await asyncio.sleep(0.01)
 

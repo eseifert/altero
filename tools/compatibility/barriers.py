@@ -13,11 +13,26 @@ class HTTPBarrier:
         self.trace: list[dict] = []
         self.requests: list[dict] = []
 
-    def arm(self, method: str, path: str, point="before", *, prefix=False, query=None) -> None:
+    def arm(
+        self,
+        method: str,
+        path: str,
+        point="before",
+        *,
+        prefix=False,
+        query=None,
+        fault=None,
+        status=503,
+    ) -> None:
         if self.active or (self.reached.is_set() and not self.release.is_set()):
             raise ValueError("An HTTP barrier is already armed")
         if point not in {"before", "response", "download", "upload"}:
             raise ValueError("Unknown HTTP barrier point")
+        if fault not in {None, "status", "disconnect"}:
+            raise ValueError("Unknown HTTP fault")
+        if fault == "status" and (point not in {"before", "response"} or not 400 <= status <= 599):
+            raise ValueError("Status faults require an error code at a request/response boundary")
+        self.fault, self.fault_status = fault, status
         self.method, self.path, self.point = method, path, point
         self.prefix = prefix
         self.query = query or {}
@@ -26,6 +41,13 @@ class HTTPBarrier:
         self.active = True
         self.upload_boundary: dict = {}
 
+    def inject(self, method, path, point="before", **options) -> None:
+        """A one-shot fault without a coordinating pause; the next request runs intact."""
+        if not options.get("fault"):
+            raise ValueError("An injected boundary needs a fault")
+        self.arm(method, path, point, **options)
+        self.release.set()
+
     async def pause(self, status=None):
         self.trace.append(
             dict(
@@ -33,6 +55,8 @@ class HTTPBarrier:
                 path=self.path,
                 point=self.point,
                 status=status,
+                fault=self.fault,
+                fault_status=self.fault_status if self.fault == "status" else None,
                 **self.upload_boundary,
             )
         )
@@ -94,8 +118,31 @@ class HTTPBarrier:
                 return await app(scope, receive, send)
             self.active = False
             point = self.point
+            fault, fault_status = self.fault, self.fault_status
+
+            async def refusal():
+                await send(
+                    dict(
+                        type="http.response.start",
+                        status=fault_status,
+                        headers=[(b"content-length", b"0")],
+                    )
+                )
+                await send(dict(type="http.response.body", body=b""))
+
             if self.point == "before":
                 await self.pause()
+                if fault == "status":
+                    return await refusal()
+                if fault == "disconnect":
+                    await send(
+                        dict(
+                            type="http.response.start",
+                            status=200,
+                            headers=[(b"content-length", b"1")],
+                        )
+                    )
+                    raise ConnectionResetError("Injected interruption before request execution")
 
             remainder = None
             original_receive = receive
@@ -104,6 +151,9 @@ class HTTPBarrier:
                 nonlocal remainder, point
                 if remainder is not None:
                     await self.pause()
+                    if fault == "disconnect":
+                        point = "done"
+                        return dict(type="http.disconnect")
                     message, remainder = remainder, None
                     point = "done"
                     return message
@@ -118,10 +168,20 @@ class HTTPBarrier:
                     return message | dict(body=body[:middle], more_body=True)
                 return message
 
+            replaced = False
+
             async def response(message):
-                nonlocal point
+                nonlocal point, replaced
+                if replaced:
+                    return
                 if point == "response" and message["type"] == "http.response.start":
                     await self.pause(message["status"])
+                    if fault == "status":
+                        replaced = True
+                        return await refusal()
+                    if fault == "disconnect":
+                        await send(message)
+                        raise ConnectionResetError("Injected interruption after request execution")
                 if (
                     point == "download"
                     and message["type"] == "http.response.body"
@@ -131,6 +191,8 @@ class HTTPBarrier:
                     middle = max(1, len(body) // 2)
                     await send(message | dict(body=body[:middle], more_body=True))
                     await self.pause()
+                    if fault == "disconnect":
+                        raise ConnectionResetError("Injected truncated response body")
                     point = "done"
                     message = message | dict(body=body[middle:])
                 await send(message)

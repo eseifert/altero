@@ -499,6 +499,16 @@ terminate the whole isolated process group. A regression test proves the child
 stops. Server-crash controls use files outside the HTTP API; worker logs and
 barrier traces are preserved.
 
+Barriers can also inject one-shot `status` or `disconnect` failures at the
+`before`, `response`, `download` or `upload` boundary. Status injection is confined
+to request/response boundaries and error codes. Before-request failures execute
+no application write; response failures happen after the application has run.
+Partial download failures send a real incomplete HTTP body; upload interruptions
+deliver a disconnect after the first portion has been consumed. A subsequent
+request runs intact. Socket tests distinguish an uncommitted write from a lost
+commit response and verify retry recovery without duplicate objects or versions.
+These faults live only in the disposable compatibility harness, not the API.
+
 The storage-error allowance in `file-lifecycle` requires exactly one original
 `Zotero.Sync.Storage.defaultError` and a real stale-token 404. Other errors still
 fail. Browser writes use real sessions and CSRF tokens, but do not exercise the
