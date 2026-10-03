@@ -2,9 +2,10 @@
 
 This page is the feature-level status of altero's Zotero v3 compatibility.
 
-**Release:** 1.0.0-beta.1. Eight scenarios passed across two real Zotero 10.0.1
-profiles and PostgreSQL 18.4, across 114 phases. This verifies the recorded
-transitions, not every client path or platform. See
+**Release:** 1.0.0-beta.1. Two real Zotero 10.0.5 profiles passed 47
+database/scenario combinations and 594 phases on Linux, across SQLite and
+PostgreSQL 18.4. This verifies the recorded transitions, not every client path
+or platform. See
 [desktop compatibility coverage and gaps](client-compatibility.md).
 
 One confirmed issue remains in Zotero 10.0.1 itself: when file-conflict sides

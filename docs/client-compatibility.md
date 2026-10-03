@@ -566,9 +566,9 @@ archive with SQLite on 2026-10-03 (19, 12 and 22 phases respectively).
 Their preserved reports are under `.compatibility/implementation-limits-1`,
 `implementation-limits-2` and `implementation-transient-5`. The first limits run
 passed graph races and failed the initial credential assertion; the corrected
-credential scenario passed in its separate run. PostgreSQL has not been run for
-these additions. Login expiry and personal-library read scope do not cover every
-credential transition.
+credential scenario passed in its separate run. All three also passed on
+PostgreSQL in `implementation-postgres-1`. Login expiry and personal-library
+read scope do not cover every credential transition.
 
 Streaming reconnect passed against Zotero 10.0.5 with SQLite on 2026-10-03,
 with a measured 2013 ms delay and notification-driven synchronization
@@ -588,7 +588,8 @@ cannot make older object versions replace already synced desktop caches. The
 separate recovery scenario proves the supported procedure. No inventory count
 certifies every interaction; additional platforms, credential combinations,
 reader formats and arbitrary failure schedules still need separate evidence.
-PostgreSQL is unverified for these additions.
+Streaming and all four further scenarios also passed on PostgreSQL in
+`implementation-postgres-1`, with the same phase counts as SQLite.
 
 The convergence oracle compares `lastRead` numerically: the desktop persists an
 integer and the API serves text. Setting values and finished queues must agree,
@@ -645,12 +646,20 @@ Zotero 10.0.5 Linux x86-64; actual desktop profiles.
 | `file-lifecycle` | Passed (16 phases) | Passed (16 phases) |
 | `upload-interruption` | Passed (8 phases) | Passed (8 phases) |
 | `server-crash` | Passed (7 phases) | Passed (7 phases) |
+| `transient-errors` | Passed (22 phases) | Passed (22 phases) |
+| `streaming-reconnect` | Passed (6 phases) | Passed (6 phases) |
+| `parent-rejection` | Passed (7 phases) | Passed (7 phases) |
+| `reader-rendering` | Passed (12 phases) | Passed (12 phases) |
+| `zipped-digest-race` | Passed (13 phases) | Passed (13 phases) |
+| `backup-rewind` | Passed (10 phases) | Passed (10 phases) |
+| `graph-races` | Passed (19 phases) | Passed (19 phases) |
+| `credential-limits` | Passed (12 phases) | Passed (12 phases) |
 
 <!-- /desktop-matrix -->
 
 Results above are local executions with the pinned Linux x86-64 Zotero 10.0.5
-archive on 2026-10-02. PostgreSQL uses the existing 18.4 container, with a fresh
-database per scenario. **Not run** means there is no successful result recorded
+archive on 2026-10-02 and 2026-10-03. PostgreSQL uses the existing 18.4 container,
+with a fresh database per scenario. **Not run** means there is no successful result recorded
 for that combination; executable inventory entries and scheduled CI jobs do
 not count as passes. A successful scenario in a run that later failed is
 reported independently.
@@ -674,16 +683,23 @@ or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.
 
-The matrix records 31 successful database/scenario combinations and 392
-actual desktop phases: all eight previous and all eleven new scenarios passed
-on PostgreSQL; the eleven new scenarios and desktop recovery also passed on
-SQLite. The baseline includes all 40 schema types. The complete compatibility
-suite passed 172 tests with no skips using the pinned 10.0.5 sources and Node
-26.3.0 (CI uses Node 24). All seven mutation canaries passed intact and were
-detected by assertion, and the generated seed-14 sequence passed again.
+The matrix records 47 successful database/scenario combinations and 594
+actual desktop phases. All 27 scenarios passed on PostgreSQL; 20 also passed
+on SQLite. The baseline includes all 40 schema types. The eight additions
+described above passed 101 phases per database. The broad compatibility run
+passed 310 tests with no skips and six longer protocol replays deselected;
+those six replays passed separately with the pinned 10.0.5 sources. Subsequent
+focused checks passed all 106 generation/validity tests and the live unequal-ZIP
+regression. Node was 26.3.0 locally (CI uses Node 24). All seven mutation
+canaries passed intact and were detected by assertion.
 
 The setting regressions and architecture checks passed 250 tests. Removing the
 setting fix made both recreation regressions fail before it was restored.
+The added item/file regressions and architecture checks also passed. Two
+production regressions first failed against the old implementation: omitted note
+content on partial writes, and competing unequal ZIP registrations deleting the
+intact archive. Removing the ZIP fix made its live HTTP regression fail again.
 Formatting, lint, types and the strict docs build passed. The full ordinary
-backend suite was not rerun. The PHP dataserver, browser sign-in UI and the
-remaining declared desktop gaps were not executed.
+backend suite was not rerun. The PHP dataserver and browser sign-in UI were not
+executed. The desktop evidence is Linux-only; exhaustive credential combinations,
+reader formats and failure schedules remain unverified.
