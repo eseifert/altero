@@ -333,8 +333,10 @@ uv run python -m tools.compatibility sequence --zotero-source .compatibility/zot
 ```
 
 Reports persist the model selection and replay chooses it automatically.
-Shrinking rejects missing parents, collection cycles, stranded pending work,
-denied writes and ineffective operations. A hundred model-only seeds check
+Shrinking rejects missing or non-regular note parents, child collection membership,
+collection cycles, stranded pending work, denied writes, malformed operations and
+ineffective operations. Generated filing operations target top-level items;
+child detachment is explicit. A hundred model-only seeds check
 generation validity and eventual queue recovery. A canary passes intact and
 then fails by assertion when a returned version list loses an object.
 

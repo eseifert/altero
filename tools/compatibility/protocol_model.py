@@ -153,6 +153,21 @@ class ProtocolModel:
             parent = value.get("parentItem")
             if parent and parent not in self.objects["item"]:
                 raise ValueError("Missing item parent")
+            if (
+                parent
+                and (
+                    value["itemType"] == "note"
+                    or (
+                        value["itemType"] == "attachment"
+                        and value.get("linkMode") != "embedded_image"
+                    )
+                )
+                and self.objects["item"][parent].get("itemType")
+                in {"note", "attachment", "annotation"}
+            ):
+                raise ValueError("Note/attachment parent must be a regular item")
+            if parent and value.get("collections"):
+                raise ValueError("Child items cannot be assigned to collections")
             if value["itemType"] == "annotation" and (
                 not parent or self.objects["item"][parent].get("itemType") != "attachment"
             ):
@@ -177,6 +192,8 @@ def valid_protocol_sequence(operations):
     model = ProtocolModel()
     try:
         for operation in operations:
+            if not isinstance(operation, dict):
+                return False
             model.apply(operation)
     except ValueError, KeyError, TypeError:
         return False
