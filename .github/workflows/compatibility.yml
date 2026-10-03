@@ -240,9 +240,10 @@ jobs:
           [[ "$DESKTOP_SHA256" =~ ^[a-f0-9]{64}$ ]]
           mkdir -p .compatibility
           curl --fail --location --proto '=https' --tlsv1.2 \
-            --output .compatibility/desktop.tar.bz2 "$DESKTOP_URL"
-          printf '%s  %s\n' "$DESKTOP_SHA256" .compatibility/desktop.tar.bz2 | sha256sum --check --strict
-          tar -xjf .compatibility/desktop.tar.bz2 -C .compatibility
+            --output .compatibility/desktop.tar "$DESKTOP_URL"
+          printf '%s  %s\n' "$DESKTOP_SHA256" .compatibility/desktop.tar | sha256sum --check --strict
+          # Detect compression from the archive: Zotero 10.0.5 uses XZ.
+          tar -xf .compatibility/desktop.tar -C .compatibility
 
       - name: Run real data, file and schema convergence
         run: |
