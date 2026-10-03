@@ -7,9 +7,15 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Recreating a deleted library setting removes its old deletion record, so Zotero keeps newly downloaded tag colors instead of discarding them during sync.
-- Pin desktop compatibility checks to Zotero 10.0.5, rerun all eight existing scenarios and add eleven covering full-text indexing, read races, settings, partial writes, object graphs, retries, server-side changes, library resets, attachment lifecycle, interrupted uploads and server crashes. All nineteen pass on PostgreSQL and twelve on SQLite, across 392 desktop phases; the [test matrix](docs/client-compatibility.md#successfully-tested-matrix) records successful combinations and remaining gaps.
-- Desktop interruption checks terminate Zotero's entire process group, preventing a child process from continuing to sync after its launcher is killed.
+- Preserve existing note and attachment note text when partial item writes omit the note field.
+- Refusing a competing ZIP upload registration preserves another upload's intact, smaller archive.
+- Inventory desktop network consumers, record reviewed dispositions and reject unreviewed API changes in CI.
+- Replay generated graph, file and credential sequences with two offline clients; shrink only valid reproductions.
+- Inject transport failures before and after commits, then restart the server to verify durable recovery.
+- Add eight desktop scenarios covering graph races, credentials, reader caches, ZIP races and streaming reconnects.
+- Pin checks to [Zotero 10.0.5][desktop-matrix]: 47 SQLite/PostgreSQL combinations pass across 594 desktop phases.
+- Recreating a deleted library setting clears its old deletion record so Zotero retains downloaded tag colors.
+- Desktop interruption checks kill Zotero's entire process group so child processes cannot continue synchronizing.
 
 ## [1.0.0-beta.1] — 2026-10-02
 
@@ -19,24 +25,24 @@ PostgreSQL 18.4, across 114 phases. Coverage is not exhaustive.
 Keep a current backup of important libraries and don’t rely on altero as your
 only copy yet.
 
-- Python source archives include the built web interface, so the wheel produced by `uv build` serves `/app/`; archive contents are limited to public project inputs instead of unrelated workspace files. Release checks inspect the resulting archives.
-- Document a reproduced Zotero 10.0.1 file-conflict bug: equal displayed modification dates can make Remote select the local bytes. This client bug remains unfixed upstream.
-- Two real desktop profiles exercise item and file conflict dialogs, group permission and membership transitions, collection and annotation changes, interrupted-download recovery, concurrent writers and credential relinking. PostgreSQL acceptance runs create isolated databases, and CI runs each scenario separately. See [the commands and remaining gaps](docs/client-compatibility.md).
-- A write naming a missing item's, collection's or saved search's previous version returns an object-level 404, allowing Zotero to reconcile an edit against a remote deletion. Found by two real desktops; complete stale objects no longer recreate themselves silently.
-- Competing attachment uploads carry the attachment version on their 412 response, allowing Zotero to resolve the file conflict. Found by synchronizing two real desktops concurrently.
-- Extend desktop compatibility checks to live reads and writes, files, full text, streaming, every schema type, seeded sequences with shrinking, and two real desktop profiles. Record a pinned dataserver cross-check and prove that seven protocol mutations are detected. See [the commands](docs/client-compatibility.md).
-- Return absolute attachment download locations, required by Zotero's separate download request, found by replaying its original ZFS transfer code.
-- Fix group-list pagination and missing Link headers that prevented Zotero's account preferences from reading groups, found by the expanded desktop tests.
-- Desktop compatibility checks execute original Zotero functions on altero responses, covering group permissions, cached group versions and sync watermarks. Source discovery reports possible omissions and unmapped consumers, with CI artifacts and an optional automated-review interface.
-- Members of a group can edit it from Zotero desktop as the group's policy allows, where until now everybody but the owner synced a read-only library: a group's JSON carries the `admins` and `members` arrays the client looks itself up in, shown to members only. Upgrading moves every group library's version once, so clients already holding a group fetch it again. Found by [@alpichlabs] in [PR#14].
-- The documentation points Android users at [zotero-self-hosted-sync], a third-party patch bundle by [@raphaelbahat] that points the app at altero, and records Android sync as working on a device.
-- The documentation says how the iOS and Android applications reach altero: through a build of your own, unofficially but supported.
-- The Zotero iOS and Android applications can sign in: the login page's address carries a query, as upstream's does, so the `&app=1` the Android application appends to it no longer names a page that does not exist.
-- An attachment with no file yet serves `md5` and `mtime` as null, as upstream does, and a write naming either empty is skipped. The Android application never uploaded a file for an attachment that carried them as empty strings. Reported by [@raphaelbahat] in [Issue#13].
-- The Zotero iOS and Android applications can upload files: an authorization asking for `params=1` is answered with the form they expect, and the upload takes the multipart body they send. Reported by [@raphaelbahat] in [Issue#13].
-- An upload that stops part way no longer leaves a file where a whole one should be: the bytes are written under a name of their own and moved onto their digest, so the store holds a file or does not. A restore writes the same way, and a file left half written is swept with the unreferenced ones. Reported by [@raphaelbahat] in [Issue#11].
-- Ukrainian joins the interface languages, counting in three forms as Russian and Polish do and taking its words from Zotero's own Ukrainian.
-- Registering an upload reads the stored file back and refuses it unless it is the one that was sent, so a store that takes a write and loses it costs a retry rather than an attachment the client will never offer again.
+- Include built web assets in source archives so wheels serve `/app/`; release checks verify public archive contents.
+- Document Zotero 10.0.1's file-conflict bug: equal displayed dates can make Remote retain local bytes.
+- Two real desktops test conflict dialogs, groups, object graphs, download recovery, concurrent writes and credential relinking.
+- Return object-level 404s for versioned writes to deleted items, collections and searches so Zotero reconciles remote deletions.
+- Include the attachment version in competing uploads' 412 responses so Zotero can resolve file conflicts.
+- Expand checks to every schema type, files, full text, streaming and seeded replay; detect all seven protocol mutations.
+- Return absolute attachment download locations, verified with Zotero's original ZFS transfer code.
+- Fix group pagination and missing Link headers so Zotero's account preferences can read groups.
+- Execute original Zotero functions to check permissions, cached versions and watermarks; report unmapped source consumers.
+- Honor desktop group edit permissions via `admins`/`members` and refresh cached groups. Found by [@alpichlabs] in [PR#14].
+- Document working Android sync via [zotero-self-hosted-sync], a patch bundle by [@raphaelbahat].
+- Document unofficial, supported iOS and Android use through custom builds pointed at altero.
+- Fix mobile sign-in by including a query in the login URL before Android appends `&app=1`.
+- Serve missing file digests and mtimes as null so Android can upload attachments. Reported by [@raphaelbahat] in [Issue#13].
+- Support mobile file uploads with `params=1` authorization and multipart bodies. Reported by [@raphaelbahat] in [Issue#13].
+- Write uploads and restores atomically so interrupted transfers leave no partial files. Reported by [@raphaelbahat] in [Issue#11].
+- Add Ukrainian interface translations with three plural forms and Zotero's terminology.
+- Verify stored bytes when registering uploads, refusing incomplete or lost writes so clients can retry.
 
 ## [1.0.0-alpha.3] — 2026-09-14
 
@@ -157,6 +163,7 @@ The first release meant to be used by somebody other than its author.
 - Concurrent writes serialized, so one request produces exactly one new version.
 - A command line for provisioning, CI, and the documentation to go with it.
 
+[desktop-matrix]: docs/client-compatibility.md#successfully-tested-matrix
 [1.0.0-beta.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.1
 [1.0.0-alpha.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.3
 [1.0.0-alpha.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.2
