@@ -8,6 +8,7 @@ import es from './locales/es'
 import fr from './locales/fr'
 import it from './locales/it'
 import ja from './locales/ja'
+import ko from './locales/ko'
 import nl from './locales/nl'
 import pl from './locales/pl'
 import ptBR from './locales/pt-BR'
@@ -55,6 +56,7 @@ export const MESSAGES = {
   ru,
   uk,
   ja,
+  ko,
   'zh-CN': zhCN,
   'zh-TW': zhTW,
 }
@@ -80,8 +82,8 @@ function eastSlavic(choice: number, branches: number): number {
  *
  * English separates one from many and every catalogue followed, because that is
  * what German, French, Spanish, Portuguese, Danish, Dutch and Italian do too --
- * and Japanese and Chinese, which inflect nothing, write the one form twice
- * rather than pretend to a distinction. Polish, Russian and Ukrainian have a
+ * and Japanese, Korean and Chinese, which inflect nothing, write the one form
+ * twice rather than pretend to a distinction. Polish, Russian and Ukrainian have a
  * third form for the small counts, so "2 elementy" and "5 elementów" are
  * different words: their catalogues carry three branches and these rules choose
  * between them. A catalogue written with English's two would be wrong on every

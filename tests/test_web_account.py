@@ -772,6 +772,7 @@ class TestLanguageAndTimeZone:
             "ru",
             "uk",
             "ja",
+            "ko",
             "zh-CN",
             "zh-TW",
         }

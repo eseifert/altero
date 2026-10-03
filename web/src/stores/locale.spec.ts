@@ -156,6 +156,7 @@ describe('formatting a date in each language on offer', () => {
     ['ru', 'апреля'],
     ['uk', 'квітня'],
     ['ja', '4月'],
+    ['ko', '4월'],
     ['zh-CN', '4月'],
     ['zh-TW', '4月'],
   ])('%s names the month in its own words', (language, month) => {

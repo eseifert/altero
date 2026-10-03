@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add Korean interface translations using Zotero’s domain terminology.
 - Preserve existing note and attachment note text when partial item writes omit the note field.
 - Refusing a competing ZIP upload registration preserves another upload's intact, smaller archive.
 - Inventory desktop network consumers, record reviewed dispositions and reject unreviewed API changes in CI.

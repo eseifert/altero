@@ -48,6 +48,7 @@ class TestTheOfferedLanguages:
         """A language list in one language is only useful to people who read it."""
         assert LANGUAGES["de"] == "Deutsch"
         assert LANGUAGES["ja"] == "日本語"
+        assert LANGUAGES["ko"] == "한국어"
         assert LANGUAGES["pl"] == "Polski"
         assert LANGUAGES["ru"] == "Русский"
         assert LANGUAGES["uk"] == "Українська"
@@ -110,6 +111,10 @@ class TestTheBrowserAgreesAboutThem:
 
 
 class TestNormalisingALanguage:
+    @pytest.mark.parametrize("tag", ["ko", "ko-KR", "ko_KR", "KO-kr"])
+    def test_korean_tags_use_the_korean_catalogue(self, tag: str) -> None:
+        assert normalise_language(tag) == "ko"
+
     def test_none_means_follow_the_browser(self) -> None:
         assert normalise_language(None) is None
         assert normalise_language("") is None

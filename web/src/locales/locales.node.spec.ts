@@ -16,6 +16,7 @@ import fr from './fr'
 // goes back to its tag in `CATALOGUES` below.
 import italian from './it'
 import ja from './ja'
+import ko from './ko'
 import nl from './nl'
 import pl from './pl'
 import ptBR from './pt-BR'
@@ -49,6 +50,7 @@ const CATALOGUES = {
   ru,
   uk,
   ja,
+  ko,
   'zh-CN': zhCN,
   'zh-TW': zhTW,
 }
