@@ -47,6 +47,8 @@ class AcceptanceRun:
 
         def by_key(values):
             def normalize(field, content):
+                if field == "lastRead":
+                    return int(content or 0)
                 if field == "collections":
                     return sorted(content)
                 if field == "relations":
@@ -94,9 +96,19 @@ class AcceptanceRun:
             assert not any(snapshot["unsynced"].values()), "Desktop still has unsynced objects"
         assert left["files"] == right["files"], "Persisted attachment bytes differ"
         if "settings" in left or "settings" in right:
-            assert left["settings"] == right["settings"], "Desktop settings differ"
             stored = (await self.request("GET", f"{prefix}/settings")).json()
-            assert left["settings"] == stored, "Server settings differ from desktop persistence"
+            expected = {key: value["value"] for key, value in stored.items()}
+            for snapshot in (left, right):
+                assert {
+                    key: value["value"] for key, value in snapshot["settings"].items()
+                } == expected, "Desktop settings differ from server persistence"
+                for key, value in stored.items():
+                    # SyncedSettings.set returns early for an equal primitive,
+                    # so even a later remote version can leave local metadata older.
+                    assert value["version"] > 0, "Server setting version is invalid"
+                    assert snapshot["settings"][key]["version"] > 0, (
+                        "Desktop setting was never synced"
+                    )
 
     async def settled(self, *, prefix="/users/1", **options) -> None:
         """A further real sync must preserve state and the server watermark."""

@@ -567,6 +567,14 @@ against Zotero 10.0.5 with SQLite on 2026-10-03, with a measured 2013 ms delay a
 notification-driven synchronization (`implementation-streaming-1`, six phases).
 PostgreSQL is unverified for this addition.
 
+The convergence oracle compares `lastRead` numerically: the desktop persists an
+integer and the API serves text. Setting values and finished queues must agree,
+but setting version metadata can differ in either direction. Original
+`SyncedSettings.set` skips metadata updates for an equal primitive value, and
+`markAsSynced` stamps uploads with the batch watermark. Regression tests first
+failed on these differences and still reject changed values or unfinished work.
+Item version bounds remain checked separately.
+
 ## Prove the checks detect omissions
 
 ```sh

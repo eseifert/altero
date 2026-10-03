@@ -144,3 +144,55 @@ async def test_unchanged_upload_can_record_a_higher_desktop_object_version(tmp_p
     stored["items"][0]["version"] = 8
     with pytest.raises(AssertionError):
         await runner.converged(snapshot, other)
+
+
+async def test_last_read_wire_text_matches_desktop_integer_without_losing_changes(tmp_path):
+    runner = AcceptanceRun(
+        Path("/unused"), "10.0.5", tmp_path, DisposableServer("http://localhost")
+    )
+    snapshot = dict(
+        items=[dict(key="ABCD2345", version=1, itemType="attachment", lastRead=1785701798)],
+        collections=[],
+        searches=[],
+        files={},
+        unsynced={},
+    )
+    stored = deepcopy(snapshot)
+    stored["items"][0]["lastRead"] = "1785701798"
+
+    async def request(method, path, **options):
+        return httpx.Response(200, json=[dict(data=value) for value in stored[path.split("/")[-1]]])
+
+    runner.request = AsyncMock(side_effect=request)
+    await runner.converged(snapshot, deepcopy(snapshot))
+    stored["items"][0]["lastRead"] = "1785701799"
+    with pytest.raises(AssertionError, match="Server items"):
+        await runner.converged(snapshot, deepcopy(snapshot))
+
+
+async def test_unchanged_setting_records_batch_version_and_still_checks_value(tmp_path):
+    runner = AcceptanceRun(
+        Path("/unused"), "10.0.5", tmp_path, DisposableServer("http://localhost")
+    )
+    snapshot = dict(
+        items=[],
+        collections=[],
+        searches=[],
+        files={},
+        unsynced={},
+        settings={"lastPageIndex_u_ABCD2345": dict(value=0, version=4)},
+    )
+    other = deepcopy(snapshot)
+    other["settings"]["lastPageIndex_u_ABCD2345"]["version"] = 6
+    stored = deepcopy(snapshot["settings"])
+
+    async def request(method, path, **options):
+        return httpx.Response(200, json=stored if path.endswith("settings") else [])
+
+    runner.request = AsyncMock(side_effect=request)
+    await runner.converged(snapshot, other)
+    stored["lastPageIndex_u_ABCD2345"]["version"] = 6
+    await runner.converged(snapshot, other)
+    stored["lastPageIndex_u_ABCD2345"]["value"] = 1
+    with pytest.raises(AssertionError, match="settings"):
+        await runner.converged(snapshot, other)
