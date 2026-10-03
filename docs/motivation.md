@@ -75,7 +75,7 @@ These are secondary to reliable synchronization. A useful feature that breaks a 
 
 ## Current state
 
-The implementation already covers a substantial part of the Zotero v3 API and desktop synchronization behavior. Version 1.0.0-beta.1 passed eight scenarios across two real desktop profiles; [the compatibility checks](client-compatibility.md) record the coverage and remaining gaps. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
+The implementation already covers a substantial part of the Zotero v3 API and desktop synchronization behavior. Two real Zotero 10.0.5 profiles passed 47 scenario/database combinations across SQLite and PostgreSQL; [the compatibility checks](client-compatibility.md) record the coverage and remaining gaps. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
 
 The most important remaining evidence is broad real-world testing across operating systems, Zotero releases, databases and deployment environments.
 

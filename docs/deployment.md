@@ -17,8 +17,8 @@ The image is published as `ghcr.io/eseifert/altero`, so running altero needs no 
 
 ```sh
 mkdir altero && cd altero
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.1/docker/compose.yaml
-ALTERO_IMAGE_TAG=1.0.0-beta.1 docker compose up -d
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.2/docker/compose.yaml
+ALTERO_IMAGE_TAG=1.0.0-beta.2 docker compose up -d
 docker compose exec altero altero user add <username>
 docker compose exec altero altero user password <username>
 ```
@@ -26,7 +26,7 @@ docker compose exec altero altero user password <username>
 From a repository checkout, name the file where it lives instead:
 
 ```sh
-ALTERO_IMAGE_TAG=1.0.0-beta.1 docker compose -f docker/compose.yaml up -d
+ALTERO_IMAGE_TAG=1.0.0-beta.2 docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 docker compose -f docker/compose.yaml exec altero altero user password <username>
 ```
@@ -35,7 +35,7 @@ The stack contains PostgreSQL, altero and persistent attachment storage.
 
 `altero user add` creates the account without a password, so `altero user password` follows it. The alternative is to create the first account in the browser: registration is open while the instance has no accounts at all, and the account that claims it administers the instance. See [Accounts](web/account.md).
 
-`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: `1.0.0-beta.1` pins this beta, and `dev` follows master. Persist the pin in `.env` beside a downloaded Compose file, or in `docker/.env` for a checkout. The matching beta documentation is at <https://altero.run/1.0.0-beta.1/>; the docs site's `latest` alias is managed separately from the container tag.
+`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: `1.0.0-beta.2` pins this version, and `dev` follows master. Persist the pin in `.env` beside a downloaded Compose file, or in `docker/.env` for a checkout. The matching release documentation is at <https://altero.run/1.0.0-beta.2/>; the docs site's `latest` alias is managed separately from the container tag.
 
 The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
 
@@ -62,11 +62,11 @@ docker compose -f docker/compose.yaml config
 ### Upgrade altero
 
 Back up the database and attachment storage together before upgrading; see
-[Backups](#backups). This beta includes a migration that advances group-library
+[Backups](#backups). Upgrading from alpha.3 or earlier advances group-library
 versions once, so existing desktops refresh their cached group permissions.
-It does not change personal-library versions. Desktop compatibility checks
-found two fixed sync bugs; [the coverage and remaining gaps](client-compatibility.md)
-describe what was verified.
+It does not change personal-library versions. An upgrade from beta.1 needs no
+new schema migration. See [desktop compatibility coverage and remaining gaps](client-compatibility.md)
+for the verified sync behavior.
 
 ```sh
 docker compose -f docker/compose.yaml pull altero
@@ -140,7 +140,7 @@ uv sync --extra postgres
 For a basic SQLite installation:
 
 ```sh
-git clone --branch v1.0.0-beta.1 https://github.com/eseifert/altero.git
+git clone --branch v1.0.0-beta.2 https://github.com/eseifert/altero.git
 cd altero
 uv sync --locked
 npm --prefix web ci
@@ -198,7 +198,7 @@ A successful response includes the application version, API version, schema vers
 ```json
 {
   "status": "ok",
-  "version": "1.0.0b1",
+  "version": "1.0.0b2",
   "apiVersion": 3,
   "schemaVersion": 42,
   "revision": "d7cd57abc8a4"

@@ -203,7 +203,7 @@ which point this goes away.
 |---------------------------------|-------------------------------|-----------------------------------|
 | master                          | `dev`                         | only until a release is published |
 | `v1.0.0`, `v1.2.3`              | `1.0`, `1.2`                  | yes                               |
-| `v1.0.0-beta.1`, `v1.0.0-rc.1`  | `1.0.0-beta.1`, `1.0.0-rc.1`  | no                                |
+| `v1.0.0-beta.2`, `v1.0.0-rc.1`  | `1.0.0-beta.2`, `1.0.0-rc.1`  | no                                |
 
 A patch release replaces the pages it corrects rather than adding a version
 nobody has a reason to choose between, so `v1.2.3` publishes as `1.2`. `latest`
@@ -224,10 +224,10 @@ the copies cost nothing.
 
 ## Preparing a release
 
-The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
+The release version is **1.0.0-beta.2**, with tag `v1.0.0-beta.2`.
 
-1. Set the package version in `src/altero/__init__.py` (`1.0.0b1` in PEP 440).
-   Set the matching SemVer version (`1.0.0-beta.1`) in `web/package.json` and
+1. Set the package version in `src/altero/__init__.py` (`1.0.0b2` in PEP 440).
+   Set the matching SemVer version (`1.0.0-beta.2`) in `web/package.json` and
    both the top-level and root-package entries of `web/package-lock.json`.
    `pyproject.toml` reads the Python version dynamically; `uv.lock` carries no
    project version to change. Keep the development-status classifier in
@@ -241,7 +241,7 @@ The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
    a disposable test database, never an existing library database.
 
    ```sh
-   uv run python tools/release.py --tag v1.0.0-beta.1
+   uv run python tools/release.py --tag v1.0.0-beta.2
    uv run ruff format --check .
    uv run ruff check .
    uv run ty check
@@ -250,8 +250,9 @@ The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
    npm --prefix web run typecheck
    npm --prefix web test
    npm --prefix web run build
-   uv build
-   uv run python tools/release.py --tag v1.0.0-beta.1 --artifacts dist
+   release_artifacts=$(mktemp -d /tmp/altero-release.XXXXXX)
+   uv build --out-dir "$release_artifacts"
+   uv run python tools/release.py --tag v1.0.0-beta.2 --artifacts "$release_artifacts"
    ```
 
    Install the docs group for Zensical and put Node 24 on PATH for the web
@@ -265,6 +266,11 @@ The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
    files are present, that the source archive carries the same browser files,
    and that the archive includes only the project's declared public paths.
    A metadata check alone does not prove the built package is usable.
+   Extract the wheel into an isolated directory and put it first on `PYTHONPATH`,
+   ahead of the editable checkout. Start it against a disposable database and
+   verify `/health`, `/app/`, the index's assets, a font and authenticated API
+   reads and writes over real HTTP. Keep artifacts and disposable state under
+   `/tmp` or ignored paths.
 
    Both Hatch build targets explicitly include the generated interface as
    [build artifacts](https://hatch.pypa.io/latest/config/build/#artifacts),
@@ -277,12 +283,12 @@ The current release is **1.0.0-beta.1**, tagged as `v1.0.0-beta.1`.
 
    ```sh
    git push origin master
-   git tag -a v1.0.0-beta.1 -m "altero 1.0.0-beta.1"
-   git push origin v1.0.0-beta.1
+   git tag -a v1.0.0-beta.2 -m "altero 1.0.0-beta.2"
+   git push origin v1.0.0-beta.2
    ```
 
-The tag publishes multi-architecture container images under `1.0.0-beta.1` and
-`latest`, and documentation under `https://altero.run/1.0.0-beta.1/`. Prerelease
+The tag publishes multi-architecture container images under `1.0.0-beta.2` and
+`latest`, and documentation under `https://altero.run/1.0.0-beta.2/`. Prerelease
 documentation does not take the docs site's `latest` alias; that policy is
 separate from the image's `latest` tag. A tag does not create a GitHub Release
 or upload Python packages. If creating a GitHub Release, mark it as a prerelease
@@ -295,30 +301,34 @@ The web CI job builds both Python artifacts after building the interface and
 checks their actual contents, including rebuilding the wheel through the source
 archive.
 
-### Beta.1 validation
+### Beta.2 validation
 
-Local release checks on 2026-10-02 passed:
+Local release checks on 2026-10-03 passed:
 
-- The full Python suite: 2,700 tests, no skips, including PostgreSQL concurrency.
-  Seven artifact tests added afterwards also passed separately.
-- The web interface: 823 tests, types and production build with Node 24 and
-  dependencies installed from the lockfile.
-- The optional desktop compatibility suite: 153 tests, no skips; pinned source
-  verification also passed.
+- The full Python suite: 2,718 tests, no skips, including concurrency checks
+  against a fresh disposable PostgreSQL database.
+- The optional desktop source-replay suite: 321 tests, no skips, against the
+  pinned Zotero 10.0.5 source with Node 24.19.0.
+- The web interface: 838 tests, types and production build with Node 24.19.0;
+  installed dependency versions matched the lockfile.
+- Pinned Zotero and dataserver source verification, plus the network-consumer
+  review gate: 324 files, 88 consumers, no parse errors or stale reviews.
 - Ruff formatting/lint, Ty, the locked dependency check and strict documentation
   build.
-- SQLite and PostgreSQL migrations, including an alpha.3 upgrade with populated
-  libraries: the personal version stayed unchanged, the group advanced once,
-  another upgrade made no further change, and no schema drift remained.
+- Fresh SQLite and PostgreSQL migrations, with no schema drift. Beta.2 adds no
+  migration beyond beta.1.
 - The wheel built through the source archive: all 329 browser files survived,
   unrelated workspace files were excluded, and real HTTP served `/health`,
-  `/app/`, the index's assets, a font and the API from the extracted wheel.
+  `/app/`, the index's assets and a font from the extracted wheel. Authenticated
+  API reads and writes also passed, and health reported `1.0.0b2`.
 
-The eight actual-desktop scenarios and their 114 phases were verified before
-release preparation; [their results and limits](docs/client-compatibility.md)
-remain the desktop evidence. Remote CI and multi-architecture image publication
-must still be checked after pushing; local artifact checks do not execute those
-workflows.
+The [recorded desktop matrix](docs/client-compatibility.md#successfully-tested-matrix)
+has 47 SQLite/PostgreSQL combinations and 594 phases with Zotero 10.0.5 on Linux.
+Release preparation rechecked retained report and snapshot hashes for 43
+combinations and 532 phases; four earlier PostgreSQL results survive only in the
+summary because their original temporary report is no longer available. Actual
+desktop scenarios were not rerun during release preparation. Remote CI and
+multi-architecture image publication must still be checked after pushing.
 
 ## Before opening a pull request
 

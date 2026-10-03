@@ -7,13 +7,16 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-beta.2] — 2026-10-03
+
+- Clarify the edit pencil and move interface icons into reusable SVG files.
 - Add Korean interface translations using Zotero’s domain terminology.
 - Preserve existing note and attachment note text when partial item writes omit the note field.
 - Refusing a competing ZIP upload registration preserves another upload's intact, smaller archive.
 - Inventory desktop network consumers, record reviewed dispositions and reject unreviewed API changes in CI.
 - Replay generated graph, file and credential sequences with two offline clients; shrink only valid reproductions.
 - Inject transport failures before and after commits, then restart the server to verify durable recovery.
-- Add eight desktop scenarios covering graph races, credentials, reader caches, ZIP races and streaming reconnects.
+- Expand desktop acceptance to 27 scenarios covering graph races, credentials, crashes, reader caches and ZIP races.
 - Pin checks to [Zotero 10.0.5][desktop-matrix]: 47 SQLite/PostgreSQL combinations pass across 594 desktop phases.
 - Recreating a deleted library setting clears its old deletion record so Zotero retains downloaded tag colors.
 - Desktop interruption checks kill Zotero's entire process group so child processes cannot continue synchronizing.
@@ -165,6 +168,7 @@ The first release meant to be used by somebody other than its author.
 - A command line for provisioning, CI, and the documentation to go with it.
 
 [desktop-matrix]: docs/client-compatibility.md#successfully-tested-matrix
+[1.0.0-beta.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.2
 [1.0.0-beta.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.1
 [1.0.0-alpha.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.3
 [1.0.0-alpha.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.2

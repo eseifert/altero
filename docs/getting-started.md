@@ -5,26 +5,26 @@ This guide gets a local altero instance running and connects a **test** Zotero D
 **Result:** Zotero Desktop is linked to a local altero server and can begin syncing.
 
 > [!WARNING]
-> altero 1.0.0-beta.1 is beta software. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
+> Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
 
 ## 1. Start altero with Docker Compose
 
 The image is published, so a checkout is optional. In an empty directory:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.1/docker/compose.yaml
-ALTERO_IMAGE_TAG=1.0.0-beta.1 docker compose up -d
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.2/docker/compose.yaml
+ALTERO_IMAGE_TAG=1.0.0-beta.2 docker compose up -d
 ```
 
 From a checkout of the repository, name the file where it lives instead:
 
 ```sh
-ALTERO_IMAGE_TAG=1.0.0-beta.1 docker compose -f docker/compose.yaml up -d
+ALTERO_IMAGE_TAG=1.0.0-beta.2 docker compose -f docker/compose.yaml up -d
 ```
 
 This starts PostgreSQL, altero and persistent attachment storage. The API is published on the loopback interface, on port 8000.
 
-To keep the beta pinned for later upgrades, put `ALTERO_IMAGE_TAG=1.0.0-beta.1`
+To keep this version pinned for later upgrades, put `ALTERO_IMAGE_TAG=1.0.0-beta.2`
 in `.env` beside the downloaded Compose file, or in `docker/.env` for a checkout.
 Without a pin, Compose follows `latest`, including future prereleases.
 

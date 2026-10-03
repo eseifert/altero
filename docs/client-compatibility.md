@@ -666,9 +666,13 @@ reported independently.
 
 The machine-readable evidence summary is
 [`compatibility-10.0.5.json`](assets/compatibility-10.0.5.json). It records
-phase counts and SHA-256 hashes of each report and its phase snapshots. Full
-reports, profiles, files and failed attempts remain in ignored local run
-directories. Regenerate a matrix from retained reports with:
+phase counts and SHA-256 hashes of each report and its phase snapshots. Retained
+reports, profiles, files and failed attempts live in ignored local run
+directories or `/tmp`. During beta.2 preparation, report and snapshot hashes
+were rechecked for 43 combinations and 532 phases. The original temporary
+report for PostgreSQL `baseline`, `conflicts`, `filing` and `groups` is no longer
+available; those four results (62 phases) remain historical records in the
+summary and were not rerun. Regenerate a matrix from retained reports with:
 
 ```sh
 uv run python -m tools.compatibility matrix --desktop-version 10.0.5 \
@@ -699,7 +703,9 @@ The added item/file regressions and architecture checks also passed. Two
 production regressions first failed against the old implementation: omitted note
 content on partial writes, and competing unequal ZIP registrations deleting the
 intact archive. Removing the ZIP fix made its live HTTP regression fail again.
-Formatting, lint, types and the strict docs build passed. The full ordinary
-backend suite was not rerun. The PHP dataserver and browser sign-in UI were not
-executed. The desktop evidence is Linux-only; exhaustive credential combinations,
+Beta.2 preparation reran the full backend suite (2,718 tests, including
+PostgreSQL concurrency), the pinned source-replay suite (321 tests) and web
+tests (838), with no skips. Formatting, lint, types and the strict docs build
+also passed. The PHP dataserver and browser sign-in UI were not executed.
+The desktop evidence is Linux-only; exhaustive credential combinations,
 reader formats and failure schedules remain unverified.
