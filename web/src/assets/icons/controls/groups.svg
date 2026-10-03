@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <title>Groups</title>
+  <path d="M16 19v-1.5a3 3 0 00-3-3H6a3 3 0 00-3 3V19" />
+  <circle cx="9.5" cy="7.5" r="3" />
+  <path d="M21 19v-1.5a3 3 0 00-2.25-2.9" />
+  <path d="M15.5 4.6a3 3 0 010 5.8" />
+</svg>

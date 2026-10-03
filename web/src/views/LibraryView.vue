@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import AppIcon from '@/components/AppIcon.vue'
 import { placesFor } from '@/collectionplaces'
 import AppButton from '@/components/AppButton.vue'
 import CollectionDialog from '@/components/CollectionDialog.vue'
@@ -1205,11 +1206,11 @@ function sortLabel(column: { field: string; label: string }): string {
               :aria-expanded="entry.id === library.libraryId"
               @click="library.openLibrary(entry.id)"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
-                   :class="['library__chevron', { 'library__chevron--open': entry.id === library.libraryId }]">
-                <path d="M9 6l6 6-6 6" />
-              </svg>
+              <AppIcon
+                name="chevron-right"
+                :size="14"
+                :class="['library__chevron', { 'library__chevron--open': entry.id === library.libraryId }]"
+              />
             </button>
 
             <button
@@ -1241,10 +1242,7 @@ function sortLabel(column: { field: string; label: string }): string {
                 :title="t('New collection')"
                 @click="startNew(null)"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" aria-hidden="true">
-                  <path d="M12 5v14M5 12h14" />
-                </svg>
+                <AppIcon name="plus" :size="14" />
               </button>
             </span>
           </div>
@@ -1405,10 +1403,7 @@ function sortLabel(column: { field: string; label: string }): string {
               :title="t('Rename tag')"
               @click="startRename(tag)"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z" />
-              </svg>
+              <AppIcon name="edit" :size="12" />
             </button>
           </li>
         </ul>
@@ -1535,17 +1530,14 @@ function sortLabel(column: { field: string; label: string }): string {
               :title="t('Search this library')"
               @click="openSearch"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-                <path d="M10.75 4.75a6 6 0 100 12 6 6 0 000-12z M15.25 15.25l4 4" />
-              </svg>
+              <AppIcon name="search" :size="18" />
             </button>
             <template v-else>
-              <svg class="library__search-icon" width="16" height="16" viewBox="0 0 24 24"
-                   fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                   aria-hidden="true">
-                <path d="M10.75 4.75a6 6 0 100 12 6 6 0 000-12z M15.25 15.25l4 4" />
-              </svg>
+              <AppIcon
+                name="search"
+                :size="16"
+                class="library__search-icon"
+              />
               <input
                 ref="searchField"
                 v-model="searchText"
@@ -1563,10 +1555,7 @@ function sortLabel(column: { field: string; label: string }): string {
                 :aria-label="t('Clear search')"
                 @click="clearSearch"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
+                <AppIcon name="close" :size="16" />
               </button>
             </template>
           </div>

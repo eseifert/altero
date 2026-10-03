@@ -4,7 +4,10 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
+import AppIcon from '@/components/AppIcon.vue'
+import SvgIcon from '@/components/SvgIcon.vue'
 import ThemeMenu from '@/components/ThemeMenu.vue'
+import { sidebarIcon } from '@/items/sidebaricons'
 import { useAuthStore } from '@/stores/auth'
 import { useGroupStore } from '@/stores/groups'
 import { useNotificationStore } from '@/stores/notifications'
@@ -105,11 +108,7 @@ async function signOut(): Promise<void> {
               : t('Notifications')
           "
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M18 8.5a6 6 0 10-12 0c0 6-2.25 7.5-2.25 7.5h16.5S18 14.5 18 8.5z" />
-            <path d="M13.75 19.5a2 2 0 01-3.5 0" />
-          </svg>
+          <AppIcon name="notifications" :size="20" />
           <span v-if="notifications.hasUnread" class="shell__badge">
             {{ notifications.unread > 9 ? '9+' : notifications.unread }}
           </span>
@@ -120,13 +119,7 @@ async function signOut(): Promise<void> {
           :to="{ name: 'groups' }"
           :aria-label="t('Groups')"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M16 19v-1.5a3 3 0 00-3-3H6a3 3 0 00-3 3V19" />
-            <circle cx="9.5" cy="7.5" r="3" />
-            <path d="M21 19v-1.5a3 3 0 00-2.25-2.9" />
-            <path d="M15.5 4.6a3 3 0 010 5.8" />
-          </svg>
+          <AppIcon name="groups" :size="20" />
         </RouterLink>
         <!-- Only for the account that administers the instance, which is
              usually nobody on a personal server. The server refuses these
@@ -140,13 +133,7 @@ async function signOut(): Promise<void> {
         >
           <!-- Two racked units with a light apiece, matching the sidebar's
                own `server` glyph. -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M5.75 5.25h12.5a1 1 0 011 1v3.5a1 1 0 01-1 1H5.75a1 1 0 01-1-1v-3.5a1 1 0 011-1z" />
-            <path d="M5.75 13.25h12.5a1 1 0 011 1v3.5a1 1 0 01-1 1H5.75a1 1 0 01-1-1v-3.5a1 1 0 011-1z" />
-            <path d="M8 8h.01" />
-            <path d="M8 16h.01" />
-          </svg>
+          <SvgIcon :icon="sidebarIcon('server')" :size="20" />
         </RouterLink>
         <RouterLink
           v-if="auth.isAuthenticated"
@@ -154,19 +141,7 @@ async function signOut(): Promise<void> {
           :to="{ name: 'settings' }"
           :aria-label="t('Settings')"
         >
-          <!--
-            Six teeth of radius 1.7 on a circle of radius 7.6 about (12, 12),
-            joined by fillets of radius 2.7 that dip to 6.1. Every arc is a
-            reflection of another in both axes, so the gear is symmetric
-            whichever way you fold it. The outline reaches 9.3 and the valleys
-            stop at 6.1, which puts the same white between valley and hub as
-            the bell and the group icon leave between their strokes.
-          -->
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M19.61 10.3A2.7 2.7 0 0 1 17.28 6.26A1.7 1.7 0 0 0 14.33 4.56A2.7 2.7 0 0 1 9.67 4.56A1.7 1.7 0 0 0 6.72 6.26A2.7 2.7 0 0 1 4.39 10.3A1.7 1.7 0 0 0 4.39 13.7A2.7 2.7 0 0 1 6.72 17.74A1.7 1.7 0 0 0 9.67 19.44A2.7 2.7 0 0 1 14.33 19.44A1.7 1.7 0 0 0 17.28 17.74A2.7 2.7 0 0 1 19.61 13.7A1.7 1.7 0 0 0 19.61 10.3Z" />
-            <circle cx="12" cy="12" r="2.5" />
-          </svg>
+          <AppIcon name="settings" :size="20" />
         </RouterLink>
           <ThemeMenu />
         </div>

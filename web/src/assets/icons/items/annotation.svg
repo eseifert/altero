@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <title>Annotation</title>
+  <path d="M6 2.75h7L18.25 8v13.25H6z M13 2.75V8h5.25" />
+  <path d="M8.75 12.5h6.5 M8.75 15.5h3 M14 17l2 2 4-4.5" />
+</svg>

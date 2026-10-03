@@ -54,7 +54,7 @@ const SCHEMA_ITEM_TYPES = [
 
 describe('item type icons', () => {
   it.each(SCHEMA_ITEM_TYPES)('has an icon for %s', (itemType) => {
-    expect(iconFor(itemType).paths.length).toBeGreaterThan(0)
+    expect(iconFor(itemType).markup.length).toBeGreaterThan(0)
   })
 
   it.each(SCHEMA_ITEM_TYPES)('gives %s a label for assistive technology', (itemType) => {
@@ -70,7 +70,7 @@ describe('item type icons', () => {
   it('distinguishes the types people actually look at in a list', () => {
     const distinct = new Set(
       ['book', 'journalArticle', 'webpage', 'note', 'attachment', 'thesis', 'film'].map(
-        (type) => JSON.stringify(iconFor(type).paths),
+        (type) => iconFor(type).markup,
       ),
     )
 
@@ -79,12 +79,13 @@ describe('item type icons', () => {
 
   it('reads a book and a book section as related but not identical', () => {
     expect(iconFor('bookSection').label).not.toBe(iconFor('book').label)
-    expect(iconFor('bookSection').paths).not.toEqual(iconFor('book').paths)
+    expect(iconFor('bookSection').markup).not.toEqual(iconFor('book').markup)
   })
 
   it('draws every glyph on the same 24-unit grid', () => {
     for (const icon of Object.values(ITEM_TYPE_ICONS)) {
-      expect(icon.paths.every((path) => path.trim().length > 0)).toBe(true)
+      expect(icon.markup.trim()).not.toBe('')
+      expect(icon.attributes.viewBox).toBe('0 0 24 24')
     }
   })
 

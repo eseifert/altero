@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import AppIcon from '@/components/AppIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import type { CollectionNode } from '@/stores/library'
 
@@ -105,11 +106,11 @@ function toggle(key: string): void {
           :aria-expanded="expanded.has(node.key)"
           @click="toggle(node.key)"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
-               :class="['tree__chevron', { 'tree__chevron--open': expanded.has(node.key) }]">
-            <path d="M9 6l6 6-6 6" />
-          </svg>
+          <AppIcon
+            name="chevron-right"
+            :size="14"
+            :class="['tree__chevron', { 'tree__chevron--open': expanded.has(node.key) }]"
+          />
         </button>
         <span v-else class="tree__twisty tree__twisty--empty" aria-hidden="true"></span>
 
@@ -146,10 +147,7 @@ function toggle(key: string): void {
             :title="t('New subcollection inside “{name}”', { name: node.data.name })"
             @click="emit('add', node)"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
+            <AppIcon name="plus" :size="14" />
           </button>
           <button
             class="tree__action"
@@ -158,10 +156,7 @@ function toggle(key: string): void {
             :title="t('Settings for “{name}”', { name: node.data.name })"
             @click="emit('settings', node)"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z" />
-            </svg>
+            <AppIcon name="edit" :size="14" />
           </button>
         </span>
       </div>

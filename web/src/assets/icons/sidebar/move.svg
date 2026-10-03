@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <title>Move or copy</title>
+  <path d="M3.75 12.5h6.5" />
+  <path d="M8.25 10.25l2.25 2.25-2.25 2.25" />
+  <path d="M13.25 7.25h2.4l1.1 1.4h3a.9.9 0 01.9.9v6.9a.9.9 0 01-.9.9h-6.5a.9.9 0 01-.9-.9V8.15a.9.9 0 01.9-.9z" />
+</svg>

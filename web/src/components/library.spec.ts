@@ -473,7 +473,7 @@ describe('sidebar icons', () => {
     /* A tag has no glyph: it is drawn as a pill, which is what says it is one. */
     const drawn = new Set(
       ['library', 'group', 'everything', 'collection', 'trash'].map((name) =>
-        sidebarIcon(name).paths.join(' '),
+        sidebarIcon(name).markup,
       ),
     )
 

@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import AppIcon from '@/components/AppIcon.vue'
 import { useThemeStore, type ThemePreference } from '@/stores/theme'
 
 const { t } = useI18n()
@@ -17,14 +18,10 @@ const { t } = useI18n()
  */
 const theme = useThemeStore()
 
-const OPTIONS: Array<{ value: ThemePreference; label: string; path: string }> = [
-  {
-    value: 'light',
-    label: 'Light',
-    path: 'M12 5.5v-2 M12 20.5v-2 M5.5 12h-2 M20.5 12h-2 M7.3 7.3L5.9 5.9 M18.1 18.1l-1.4-1.4 M7.3 16.7l-1.4 1.4 M18.1 5.9l-1.4 1.4 M15.5 12a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z',
-  },
-  { value: 'dark', label: 'Dark', path: 'M20 13.5A8.5 8.5 0 1110.5 4a6.8 6.8 0 009.5 9.5z' },
-  { value: 'system', label: 'System', path: 'M3.75 5.75h16.5v10H3.75z M8.5 19.25h7 M12 15.75v3.5' },
+const OPTIONS: Array<{ value: ThemePreference; label: string }> = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System' },
 ]
 
 const open = ref(false)
@@ -125,10 +122,7 @@ onBeforeUnmount(() => {
       :aria-expanded="open"
       @click="toggle"
     >
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path :d="current.path" />
-      </svg>
+      <AppIcon :name="`theme-${current.value}`" :size="20" />
     </button>
 
     <ul v-if="open" class="theme-menu__list" role="menu" :aria-label="t('Color theme')">
@@ -142,19 +136,14 @@ onBeforeUnmount(() => {
           @click="choose(option.value)"
           @keydown="onKeydown($event, index)"
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-               stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path :d="option.path" />
-          </svg>
+          <AppIcon :name="`theme-${option.value}`" :size="18" />
           <span class="theme-menu__label">{{ t(option.label) }}</span>
-          <svg
+          <AppIcon
             v-if="theme.preference === option.value"
+            name="check"
             class="theme-menu__check"
-            width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
-          >
-            <path d="M5 12.5l4.5 4.5L19 7.5" />
-          </svg>
+            :size="16"
+          />
         </button>
       </li>
     </ul>

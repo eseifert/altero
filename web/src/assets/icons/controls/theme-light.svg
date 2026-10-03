@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <title>Light</title>
+  <path d="M12 5.5v-2 M12 20.5v-2 M5.5 12h-2 M20.5 12h-2 M7.3 7.3L5.9 5.9 M18.1 18.1l-1.4-1.4 M7.3 16.7l-1.4 1.4 M18.1 5.9l-1.4 1.4 M15.5 12a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0z" />
+</svg>

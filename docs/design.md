@@ -140,10 +140,19 @@ becoming six filled circles competing with the content they act on.
 ## Icons
 
 Single-weight line glyphs on a 24-unit grid, `stroke-width: 1.5`, round caps and
-joins, no fill — `web/src/items/icons.ts` and `sidebaricons.ts`. The library's
+joins, no fill. Small controls use slightly heavier strokes. The library's
 are drawn to read like the desktop client's sidebar; the ones with no
 counterpart there follow the same rules so they sit with them. They are drawn
 rather than copied: Zotero's assets are the client's and carry its license.
+
+Edit the SVG files in `web/src/assets/icons/`: `items/` is named by schema item
+type, `sidebar/` by row or action, and `controls/` holds the remaining controls.
+`controls/edit.svg` is the pencil shared by tag, collection and licence editing.
+Keep each file's `viewBox`, `currentColor` and descriptive `<title>`; its root
+attributes and shapes are rendered directly, including groups, circles and
+rectangles. The title supplies the label when needed; the component supplies
+the displayed size. SVG files are bundled locally and can be opened in a vector
+editor or changed by hand. Logos and favicons remain in `web/src/assets/`.
 
 A glyph that is the only thing in a control carries a label
 (`aria-label`); one that sits beside text is `aria-hidden`, because a screen

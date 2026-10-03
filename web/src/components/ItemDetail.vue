@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
+import AppIcon from '@/components/AppIcon.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import { exportable } from '@/exportformats'
@@ -226,10 +227,7 @@ function childTitle(child: ItemEnvelope): string {
         <p class="detail__type">{{ itemTypeLabel(item.data.itemType) }}</p>
       </div>
       <button class="icon-button detail__close" type="button" :aria-label="t('Close details')" @click="emit('close')">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
+        <AppIcon name="close" :size="18" />
       </button>
     </header>
 
@@ -381,10 +379,7 @@ function childTitle(child: ItemEnvelope): string {
               :title="t('Change the rights')"
               @click="emit('rights')"
             >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M4 20h4L19 9a2.8 2.8 0 10-4-4L4 16z" />
-              </svg>
+              <AppIcon name="edit" :size="12" />
             </button>
           </template>
           <span v-else>{{ field.value }}</span>

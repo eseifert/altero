@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <title>Sign-in and security</title>
+  <path d="M6.75 10.75h10.5a1.25 1.25 0 011.25 1.25v6a1.25 1.25 0 01-1.25 1.25H6.75A1.25 1.25 0 015.5 18v-6a1.25 1.25 0 011.25-1.25z" />
+  <path d="M8.75 10.75V8.25a3.25 3.25 0 016.5 0v2.5" />
+</svg>

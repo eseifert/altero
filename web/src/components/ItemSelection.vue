@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
+import AppIcon from '@/components/AppIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 
 /**
@@ -59,10 +60,7 @@ const { t } = useI18n()
         :aria-label="t('Clear the selection')"
         @click="emit('close')"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
+        <AppIcon name="close" :size="18" />
       </button>
     </header>
 

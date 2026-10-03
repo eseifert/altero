@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import SvgIcon from '@/components/SvgIcon.vue'
 import { sidebarIcon } from '@/items/sidebaricons'
 
 /**
@@ -19,23 +20,7 @@ const icon = computed(() => sidebarIcon(props.name))
 </script>
 
 <template>
-  <svg
-    class="sidebar-icon"
-    :width="size"
-    :height="size"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="1.5"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    :role="labelled ? 'img' : 'presentation'"
-    :aria-hidden="labelled ? undefined : 'true'"
-    :aria-label="labelled ? icon.label : undefined"
-  >
-    <title v-if="labelled">{{ icon.label }}</title>
-    <path v-for="(d, index) in icon.paths" :key="index" :d="d" />
-  </svg>
+  <SvgIcon class="sidebar-icon" :icon="icon" :size="size" :labelled="labelled" />
 </template>
 
 <style scoped>
