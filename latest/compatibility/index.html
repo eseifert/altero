@@ -1268,6 +1268,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#omitted-note-content-in-partial-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Omitted note content in partial writes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#racing-zip-archives-of-different-sizes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Racing ZIP archives of different sizes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#search-syntax" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2269,6 +2291,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#omitted-note-content-in-partial-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Omitted note content in partial writes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#racing-zip-archives-of-different-sizes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Racing ZIP archives of different sizes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#search-syntax" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3006,6 +3050,23 @@
 <p>Each section explains a concrete behavior, why altero implements it that way, and — where relevant — how altero deliberately differs.</p>
 <p>The later sections cover ground the reference server does not: altero's own extensions, such as finer group roles, server-side tag rename and the authorization server. They record the same thing for those — what the behavior is, and why it was decided rather than defaulted.</p>
 <h2 id="api-queries-and-response-behavior">API queries and response behavior<a class="headerlink" href="#api-queries-and-response-behavior" title="Permanent link">&para;</a></h2>
+<h3 id="omitted-note-content-in-partial-writes">Omitted note content in partial writes<a class="headerlink" href="#omitted-note-content-in-partial-writes" title="Permanent link">&para;</a></h3>
+<p>A POST batch or PATCH that changes a note's parent, or an attachment's metadata,
+preserves the existing note text when <code>note</code> is omitted. An explicit <code>note: ""</code>
+clears it. <code>Zotero_Items::updateFromJSON</code> in <code>model/Items.inc.php</code> iterates the
+supplied properties and calls <code>setNote</code> only for a supplied <code>note</code> property.
+This applies to both note and attachment items. Replacement writes still replace
+the fields. The generated protocol sequence caught an omitted note being cleared
+when reparenting; the focused regression covers both partial write routes.</p>
+<h3 id="racing-zip-archives-of-different-sizes">Racing ZIP archives of different sizes<a class="headerlink" href="#racing-zip-archives-of-different-sizes" title="Permanent link">&para;</a></h3>
+<p>Snapshot uploads identify the underlying main file by <code>md5</code> and the transferred
+archive by <code>zipMD5</code>; archive sizes can differ for identical main-file bytes.
+altero refuses registration when the stored archive differs from that upload,
+but preserves another intact archive even when it is smaller. Deleting it would
+break the other upload's registration or an attachment already referencing it.
+Raw truncated files and ZIPs with broken CRCs are still removed. This follows
+altero's existing digest-store recovery policy; the live HTTP regression races
+two authorized archives through upload and registration and downloads the survivor.</p>
 <h3 id="search-syntax">Search syntax<a class="headerlink" href="#search-syntax" title="Permanent link">&para;</a></h3>
 <p><code>Zotero_API::getSearchParamValues</code> (<code>model/API.inc.php</code>) is the authority for
 the <code>itemType</code> and <code>tag</code> parameters, and it differs from the prose documentation

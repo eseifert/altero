@@ -1692,9 +1692,10 @@
 
 <h1 id="what-works">What works<a class="headerlink" href="#what-works" title="Permanent link">&para;</a></h1>
 <p>This page is the feature-level status of altero's Zotero v3 compatibility.</p>
-<p><strong>Release:</strong> 1.0.0-beta.1. Eight scenarios passed across two real Zotero 10.0.1
-profiles and PostgreSQL 18.4, across 114 phases. This verifies the recorded
-transitions, not every client path or platform. See
+<p><strong>Release:</strong> 1.0.0-beta.1. Two real Zotero 10.0.5 profiles passed 47
+database/scenario combinations and 594 phases on Linux, across SQLite and
+PostgreSQL 18.4. This verifies the recorded transitions, not every client path
+or platform. See
 <a href="../client-compatibility/">desktop compatibility coverage and gaps</a>.</p>
 <p>One confirmed issue remains in Zotero 10.0.1 itself: when file-conflict sides
 have equal displayed modification dates, choosing Remote can retain the local
@@ -1823,6 +1824,9 @@ bytes. See <a href="../client-compatibility/#run-two-real-desktop-profiles">the 
 <h2 id="not-implemented">Not implemented<a class="headerlink" href="#not-implemented" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Zotero's <strong>Note HTML</strong> and <strong>Note Markdown</strong> translators. These create a note rather than an ordinary bibliography/export response.</li>
+<li>Zotero-hosted read-aloud speech synthesis and credit services (<code>/tts/...</code>).</li>
+<li>Legacy password-to-key creation (<code>POST /keys</code>); use desktop browser linking or an API key.</li>
+<li>Legacy <code>removestoragefiles</code>; synced attachment removal follows item deletion.</li>
 </ul>
 <h2 id="client-requests-without-a-reference-server-implementation">Client requests without a reference server implementation<a class="headerlink" href="#client-requests-without-a-reference-server-implementation" title="Permanent link">&para;</a></h2>
 <p>Two client behaviors do not have a corresponding implementation in the public dataserver source:</p>
