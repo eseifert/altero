@@ -39,6 +39,8 @@ function watchAcceptanceDialogs(rules) {
             const button = ["accept", "cancel", "extra1", "extra2"].map(name => dialog.getButton(name))
               .find(button => button && !button.hidden && button.label === rule.button);
             if (!button) throw new Error(`Missing prompt button ${rule.button}`);
+            // Gecko starts the destructive-button delay only in an active window.
+            window.focus();
             const started = Date.now();
             const timer = window.setInterval(() => {
               if (button.disabled && Date.now() - started < 10000) return;
