@@ -1465,10 +1465,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#additional-desktop-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Additional desktop scenarios
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prove-the-checks-detect-omissions" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         Prove the checks detect omissions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#successfully-tested-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Successfully tested matrix
       </span>
     </span>
   </a>
@@ -1739,10 +1761,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#additional-desktop-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Additional desktop scenarios
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prove-the-checks-detect-omissions" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
         Prove the checks detect omissions
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#successfully-tested-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Successfully tested matrix
       </span>
     </span>
   </a>
@@ -2029,14 +2073,14 @@ attaches the reviewed reference spans to its reports. It uploads the scenario
 inventory beside JUnit, and runs the mutation catalogue nightly and on manual
 dispatch. Write, full-text, pagination, HTTP-policy and storage-registration
 consumers now have explicit manifest selectors as well as live scenario tests.</p>
-<p>The real desktop CI job is opt-in: configure repository variables
-<code>ZOTERO_DESKTOP_URL</code>, <code>ZOTERO_DESKTOP_SHA256</code> and <code>ZOTERO_DESKTOP_VERSION</code> for a
-pinned official Linux archive. It checks the archive hash and running version,
-runs under Xvfb, and uploads snapshots, logs and desktop databases even on failure.
-The variables are deliberately unset by default. The local installed 10.0.1
-binary was tested; its proposed official archive URL returned 403, so no download
-URL or checksum is presented as verified. The GitHub jobs themselves have not
-been executed locally.</p>
+<p>The real desktop CI job runs nightly and on manual dispatch. Its official Linux
+archive, SHA-256 and version are pinned in <code>tools/compatibility/desktop.toml</code>.
+The 10.0.5 archive was downloaded through Zotero's official download endpoint
+and its application metadata inspected on 2026-10-02. CI checks the archive hash
+and running version, runs under Xvfb, and uploads snapshots, logs and desktop
+databases even on failure. A successful download is not a successful acceptance
+run; the test matrix below records runs separately. The GitHub jobs themselves
+have not been executed locally.</p>
 <h2 id="cross-check-the-dataserver-reference">Cross-check the dataserver reference<a class="headerlink" href="#cross-check-the-dataserver-reference" title="Permanent link">&para;</a></h2>
 <p>Pass <code>--dataserver-source /path/to/dataserver</code> to <code>verify</code> and <code>analyze</code>.
 <code>tools/compatibility/reference.toml</code> pins the independent reference revision,
@@ -2088,12 +2132,12 @@ automatic sync, streaming, updates and word-processor installation, and leaves
 sync logic intact. <code>run_phase</code> applies explicit operations through Zotero's
 item APIs, runs the real sync runner, exports a JSON snapshot and exits. Each
 phase enforces the requested application version and a timeout, and preserves
-the desktop log on failure. The installed Zotero 10.0.1 completed a real
-create-and-upload smoke test; its binary version is separate from the pinned
-source revision used by Node replay.</p>
+the desktop log on failure. The verified Zotero 10.0.5 binary and the Node
+replay source both use the 10.0.5 release; archive and source hashes are
+independent pins.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>acceptance<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span>--desktop-executable<span class="w"> </span>/opt/zotero/zotero<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.1<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>--xvfb<span class="w"> </span>--schema-corpus<span class="w"> </span>--state-dir<span class="w"> </span>.compatibility/desktop-10.0.1
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span>--desktop-executable<span class="w"> </span>/path/to/Zotero_linux-x86_64/zotero<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.5<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span>--xvfb<span class="w"> </span>--schema-corpus<span class="w"> </span>--state-dir<span class="w"> </span>.compatibility/desktop-10.0.5
 </span></code></pre></div>
 <p>This requires an installed Zotero binary and Xvfb (or omit <code>--xvfb</code> to use an
 existing display). The version is checked by the running application. The
@@ -2109,7 +2153,7 @@ database and leaves the database named in the URL untouched. Each scenario's
 are retained on success and failure for inspection; drop those generated
 databases explicitly when finished. Desktop profiles and files remain under
 the new state directory. Without the flag the server uses SQLite there.</p>
-<p>The 15-phase run passed locally with Zotero 10.0.1: parent/note/file download,
+<p>The 15-phase baseline passed again with Zotero 10.0.5: parent/note/file download,
 collection filing, persisted attachment bytes, disjoint offline edits and
 convergence, trash/restore propagation, deletion of parent and children, and
 all 40 schema types serialized by desktop A and downloaded into desktop B.
@@ -2121,7 +2165,7 @@ clicks Finish, checks both desktops against the server and requires another sync
 leave the library watermark unchanged. Unexpected or missing dialogs fail the
 phase; prompt/reconciliation methods are never replaced.</p>
 <p>The conflict scenario also covers an offline edit against a remote deletion.
-Zotero 10.0.1's
+Zotero 10.0.5's
 local choice for the deletion conflict retains the old object version, so the
 server's correct 404 triggers full sync and a repeated prompt. Cancelling that
 prompt must preserve the pending edit. Choosing local on the next sync lets
@@ -2168,14 +2212,19 @@ detects every timestamp collision. Exactly equal displayed dates exposed a
 Zotero 10.0.1 bug: choosing Remote can keep and upload the local bytes.
 <code>Zotero.Sync.Storage.Local.resolveConflicts</code> identifies the selected side by its
 date instead of a side identifier, so either choice matches the local side.
-This was reproduced in an actual desktop; it remains unfixed upstream. The
-passing scenario uses distinct displayed dates to verify both working choices.
+This was reproduced with 10.0.1; the equal-date failure has not been rerun
+with 10.0.5. The passing 10.0.5 scenario uses distinct displayed dates to
+verify both working choices.
 A multi-file HTML snapshot also checks that ZIP transfer restores its HTML
 and CSS on disk.</p>
 <p>Acceptance phase snapshots also record collections, saved searches, pending
 object uploads and group permissions. <code>AcceptanceRun</code> compares persisted objects
 on both desktops with server responses, normalizing omitted empty/default
-properties and collection membership order while retaining keys and versions.
+properties, collection membership order and scalar/list relation shapes. It
+retains keys and checks that both desktops hold positive object versions at
+least as high as the server. The original engine deliberately records the
+batch watermark on unchanged objects, so a desktop version can exceed that
+object's server version. All server pages are read, including beyond 100 objects.
 Creator and saved-search condition order remain significant. Matching item titles alone cannot
 claim convergence. Its group selector requires discovery before local edits;
 each profile's account identity is explicit.</p>
@@ -2193,8 +2242,8 @@ disjoint pending work simultaneously, converge and leave the watermark unchanged
 on another sync. Finally B is killed after receiving part of an attachment
 download; restarting must recover all bytes and leave its storage state synced.
 The HTTP barriers pause genuine requests and preserve their responses. The
-server remains running: server-process crashes and interrupted uploads are
-separate gaps. This scenario passed locally on PostgreSQL 18.4.</p>
+server remains running. Server-process crashes and interrupted uploads are
+covered by separate scenarios below.</p>
 <p><code>--scenario credentials</code> starts and polls a login session through the original
 desktop runner helpers. The disposable server approves it through the same
 service the administrator's CLI uses; this is not browser sign-in UI coverage.
@@ -2209,6 +2258,81 @@ the greeting, subscription changes and notification into the original <code>_con
 message handler. They check sync scheduling, already-current and skipped libraries,
 and reconnect delays. The replay supplies a socket facade and virtual clock;
 actual desktop reconnect timing and UI scheduling are not exercised.</p>
+<h2 id="additional-desktop-scenarios">Additional desktop scenarios<a class="headerlink" href="#additional-desktop-scenarios" title="Permanent link">&para;</a></h2>
+<p>Each scenario uses two actual 10.0.5 profiles, original desktop operations,
+real HTTP, persistent databases and files. Unexpected sync errors fail the run.
+The final settled sync checks convergence and an unchanged server watermark.</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Assertions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fulltext</code></td>
+<td>Index an isolated HTML snapshot; upload and download the index; search ASCII, Unicode and CJK terms in B without downloading the attachment; preserve the index across restart.</td>
+</tr>
+<tr>
+<td><code>read-races</code></td>
+<td>Hold actual settings, top-version, object-batch and deletion responses; edit remotely while B has pending local work; verify download-cycle restart, unseen edits and pending uploads.</td>
+</tr>
+<tr>
+<td><code>settings</code></td>
+<td>Concurrent tag-color edits and ordering; original settings conflict policy; deletion followed by recreation while B is offline; persisted values and the tag-color cache.</td>
+</tr>
+<tr>
+<td><code>partial-failures</code></td>
+<td>A mixed group upload succeeds for one object and refuses owner-created parent and child edits with exactly two 403 errors; pending work survives and uploads after permission is restored.</td>
+</tr>
+<tr>
+<td><code>graphs</code></td>
+<td>Merge duplicate parents and retain children and relations; publish with CC0 and withdraw; copy notes and attachment bytes into a group; repeat the original copy without duplicates.</td>
+</tr>
+<tr>
+<td><code>http-policy</code></td>
+<td>Induce a real server 429; let the original desktop HTTP policy retry; upload once and converge without continued version changes.</td>
+</tr>
+<tr>
+<td><code>server-writes</code></td>
+<td>Make collection, filing, tag and trash changes through the browser's authenticated HTTP routes; execute the real retention sweep; observe changes and deletion logs in both desktops.</td>
+</tr>
+<tr>
+<td><code>resync</code></td>
+<td>Discard pending edits through the original reset helper; replace the server from a desktop; restore an older server archive, lift its watermark and recover from the surviving authoritative desktop.</td>
+</tr>
+<tr>
+<td><code>file-lifecycle</code></td>
+<td>Rename Unicode filenames; reuse a stored digest and delete one reference; recover a missing local file; refuse a stale download redirect with 404, observe the expected storage failure, then recover current bytes and hashes.</td>
+</tr>
+<tr>
+<td><code>upload-interruption</code></td>
+<td>Kill the desktop process group while the server has consumed only part of a large incompressible upload; assert no premature registration; restart and compare complete bytes and settled storage states.</td>
+</tr>
+<tr>
+<td><code>server-crash</code></td>
+<td>SIGKILL a separate serving process after an item commit but before its response; kill the waiting desktop, restart the server on the same database and URL, and recover without duplicate objects or versions.</td>
+</tr>
+</tbody>
+</table>
+<p>HTTP barriers preserve the actual request and response bodies. Upload barriers
+require a first chunk with more bytes still expected. Killing only Zotero's
+shell launcher leaves its child running, so interruption and timeout handling
+terminate the whole isolated process group. A regression test proves the child
+stops. Server-crash controls use files outside the HTTP API; worker logs and
+barrier traces are preserved.</p>
+<p>The storage-error allowance in <code>file-lifecycle</code> requires exactly one original
+<code>Zotero.Sync.Storage.defaultError</code> and a real stale-token 404. Other errors still
+fail. Browser writes use real sessions and CSRF tokens, but do not exercise the
+browser sign-in UI. Archive recovery follows the documented surviving-client
+procedure; it does not claim that raising a watermark rewinds synced desktops
+to an older archive.</p>
+<p>The inventory keeps separate gaps for graph deletion/reparenting during reads,
+rejection of a newly created parent and its dependent child, generic HTTP 5xx
+retry/cancellation, simultaneous different ZIP archives under one file digest,
+and automatic rewind after restoring an older backup. Reader rendering,
+credential expiry/scoping and actual streaming reconnect timing remain uncovered.</p>
 <h2 id="prove-the-checks-detect-omissions">Prove the checks detect omissions<a class="headerlink" href="#prove-the-checks-detect-omissions" title="Permanent link">&para;</a></h2>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>mutations<span class="w"> </span>--zotero-source<span class="w"> </span>.compatibility/zotero<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span>--state-dir<span class="w"> </span>.compatibility/mutations<span class="w"> </span>--output<span class="w"> </span>.compatibility/mutations.json
@@ -2224,19 +2348,151 @@ mutation removes empty properties before sending the request, simulating a write
 that ignores them; the others alter responses. They establish assertion strength,
 not a mutation score for production source. <code>ALTERO_COMPAT_MUTATION</code> selects only
 a catalogue entry and is normally unset.</p>
-<p>Validation uses Node 24, Zotero 10.0.1 and the running PostgreSQL 18.4 container.
-The eight desktop scenarios passed individually against PostgreSQL, totaling
-114 phases. Baseline and desktop/download recovery also passed with SQLite.
-The full compatibility suite passed 152 tests; the subsequent membership-order
-regression and all convergence-validator tests passed separately. Backend
-validation passed 283 file/architecture checks, 150 write/restore checks and six
-PostgreSQL concurrency checks. Formatting, lint, types and the strict docs build
-passed. Neither the PHP dataserver nor browser sign-in UI was executed.
-The source report verifies 30 client selectors and 20 reviewed dataserver spans;
-its unmapped consumers remain visible. The inventory distinguishes executable
-scenarios from the remaining server-crash, upload-interruption, reader-rendering,
-credential-expiry/scoping and desktop streaming gaps. Those declarations are
-not a test result and do not certify the whole desktop surface.</p>
+<h2 id="successfully-tested-matrix">Successfully tested matrix<a class="headerlink" href="#successfully-tested-matrix" title="Permanent link">&para;</a></h2>
+<!-- desktop-matrix -->
+
+<p>Zotero 10.0.5 Linux x86-64; actual desktop profiles.</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>SQLite</th>
+<th>PostgreSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>baseline</code></td>
+<td>Not run</td>
+<td>Passed (15 phases)</td>
+</tr>
+<tr>
+<td><code>conflicts</code></td>
+<td>Not run</td>
+<td>Passed (21 phases)</td>
+</tr>
+<tr>
+<td><code>filing</code></td>
+<td>Not run</td>
+<td>Passed (7 phases)</td>
+</tr>
+<tr>
+<td><code>groups</code></td>
+<td>Not run</td>
+<td>Passed (19 phases)</td>
+</tr>
+<tr>
+<td><code>files</code></td>
+<td>Not run</td>
+<td>Passed (20 phases)</td>
+</tr>
+<tr>
+<td><code>relationships</code></td>
+<td>Not run</td>
+<td>Passed (6 phases)</td>
+</tr>
+<tr>
+<td><code>recovery</code></td>
+<td>Passed (16 phases)</td>
+<td>Passed (16 phases)</td>
+</tr>
+<tr>
+<td><code>credentials</code></td>
+<td>Not run</td>
+<td>Passed (12 phases)</td>
+</tr>
+<tr>
+<td><code>fulltext</code></td>
+<td>Passed (9 phases)</td>
+<td>Passed (9 phases)</td>
+</tr>
+<tr>
+<td><code>read-races</code></td>
+<td>Passed (24 phases)</td>
+<td>Passed (24 phases)</td>
+</tr>
+<tr>
+<td><code>settings</code></td>
+<td>Passed (11 phases)</td>
+<td>Passed (11 phases)</td>
+</tr>
+<tr>
+<td><code>partial-failures</code></td>
+<td>Passed (10 phases)</td>
+<td>Passed (10 phases)</td>
+</tr>
+<tr>
+<td><code>graphs</code></td>
+<td>Passed (17 phases)</td>
+<td>Passed (17 phases)</td>
+</tr>
+<tr>
+<td><code>http-policy</code></td>
+<td>Passed (7 phases)</td>
+<td>Passed (7 phases)</td>
+</tr>
+<tr>
+<td><code>server-writes</code></td>
+<td>Passed (8 phases)</td>
+<td>Passed (8 phases)</td>
+</tr>
+<tr>
+<td><code>resync</code></td>
+<td>Passed (13 phases)</td>
+<td>Passed (13 phases)</td>
+</tr>
+<tr>
+<td><code>file-lifecycle</code></td>
+<td>Passed (16 phases)</td>
+<td>Passed (16 phases)</td>
+</tr>
+<tr>
+<td><code>upload-interruption</code></td>
+<td>Passed (8 phases)</td>
+<td>Passed (8 phases)</td>
+</tr>
+<tr>
+<td><code>server-crash</code></td>
+<td>Passed (7 phases)</td>
+<td>Passed (7 phases)</td>
+</tr>
+</tbody>
+</table>
+<!-- /desktop-matrix -->
+
+<p>Results above are local executions with the pinned Linux x86-64 Zotero 10.0.5
+archive on 2026-10-02. PostgreSQL uses the existing 18.4 container, with a fresh
+database per scenario. <strong>Not run</strong> means there is no successful result recorded
+for that combination; executable inventory entries and scheduled CI jobs do
+not count as passes. A successful scenario in a run that later failed is
+reported independently.</p>
+<p>The machine-readable evidence summary is
+<a href="../assets/compatibility-10.0.5.json"><code>compatibility-10.0.5.json</code></a>. It records
+phase counts and SHA-256 hashes of each report and its phase snapshots. Full
+reports, profiles, files and failed attempts remain in ignored local run
+directories. Regenerate a matrix from retained reports with:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>matrix<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.5<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.5/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.5-postgres/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/results.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/matrix.md
+</span></code></pre></div>
+<p>The command verifies scenario completion, nonempty phases, snapshot existence,
+the requested desktop version and recorded database backend. It rejects missing
+or mismatched evidence. Interrupted phases retain their process exit status;
+completed phases identify their running binary. Summary hashes are evidence
+identifiers, not signatures or a certification of the whole desktop surface.</p>
+<p>The matrix records 31 successful database/scenario combinations and 392
+actual desktop phases: all eight previous and all eleven new scenarios passed
+on PostgreSQL; the eleven new scenarios and desktop recovery also passed on
+SQLite. The baseline includes all 40 schema types. The complete compatibility
+suite passed 172 tests with no skips using the pinned 10.0.5 sources and Node
+26.3.0 (CI uses Node 24). All seven mutation canaries passed intact and were
+detected by assertion, and the generated seed-14 sequence passed again.</p>
+<p>The setting regressions and architecture checks passed 250 tests. Removing the
+setting fix made both recreation regressions fail before it was restored.
+Formatting, lint, types and the strict docs build passed. The full ordinary
+backend suite was not rerun. The PHP dataserver, browser sign-in UI and the
+remaining declared desktop gaps were not executed.</p>
 
 
 
