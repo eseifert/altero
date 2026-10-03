@@ -16,6 +16,7 @@ class DesktopAPI:
     """A call returns its value, sanitized HTTP trace, delays and any client error."""
 
     def __init__(self, client: ZoteroClient, base_url: str, key: str) -> None:
+        self.client = client
         _, self.source = client.source("sync_versions")
         parsed = urlsplit(base_url)
         if parsed.scheme != "http" or parsed.hostname not in ("localhost", "127.0.0.1", "::1"):

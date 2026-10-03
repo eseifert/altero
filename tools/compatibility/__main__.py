@@ -49,6 +49,7 @@ def main() -> int:
     parser.add_argument("--state-dir", type=Path, help="New disposable state directory")
     parser.add_argument("--seed", type=int, default=14)
     parser.add_argument("--steps", type=int, default=12)
+    parser.add_argument("--model", choices=("items", "protocol"), default="items")
     parser.add_argument("--replay", type=Path, help="Replay operations from a sequence JSON report")
     parser.add_argument("--desktop-executable", type=Path)
     parser.add_argument("--desktop-version")
@@ -149,9 +150,15 @@ def main() -> int:
             if args.replay:
                 previous = json.loads(args.replay.read_text())
                 operations = previous.get("minimized", previous["operations"])
+                args.model = previous.get("model", "items")
             else:
-                operations = generate_sequence(args.seed, args.steps)
-            result = asyncio.run(run_sequence(client, operations, args.state_dir))
+                if args.model == "protocol":
+                    from tools.compatibility.protocol_sequences import generate_protocol_sequence
+
+                    operations = generate_protocol_sequence(args.seed, args.steps)
+                else:
+                    operations = generate_sequence(args.seed, args.steps)
+            result = asyncio.run(run_sequence(client, operations, args.state_dir, model=args.model))
             result["seed"] = args.seed if not args.replay else previous.get("seed")
             args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
             return 0 if result["passed"] else 1

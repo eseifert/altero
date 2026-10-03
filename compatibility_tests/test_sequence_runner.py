@@ -7,6 +7,14 @@ from tools.compatibility import sequence_runner
 from tools.compatibility.client import ZoteroClient
 
 
+def test_protocol_failure_identity_preserves_family_key_and_field():
+    identity = sequence_runner.invariant_identity
+    original = identity((8, "item", "CHILD234", "note", "object-state"), "protocol")
+    assert original == identity((2, "item", "CHILD234", "note", "object-state"), "protocol")
+    assert original != identity((2, "item", "CHILD234", "parentItem", "object-state"), "protocol")
+    assert original != identity((2, "item", "OTHER234", "note", "object-state"), "protocol")
+
+
 async def test_runner_shrinks_only_the_original_invariant(monkeypatch, tmp_path):
     @asynccontextmanager
     async def server(_root):

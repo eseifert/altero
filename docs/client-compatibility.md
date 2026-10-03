@@ -316,11 +316,33 @@ failure and independently confirmed minimized sequence. Exit 1 is a reproduced
 assertion failure; prerequisites and runner errors remain exit 2. Replays require
 a new state directory.
 
-`ProtocolModel` and `generate_protocol_sequence` model all sync object families,
-settings, file bytes, full text, credential write access and two offline queues.
-Expected state is independent of server responses. A hundred seeds verify valid,
-effective operations and eventual queue recovery; parent dependencies and collection
-cycles constrain shrinking candidates. Original-method replay is added separately.
+`--model protocol --steps 60` selects the broader independent graph model.
+It covers bibliographic items, notes, attachments, annotations, collections,
+saved searches, settings, files, full text, cascade deletion and credential write
+permissions. Two original API clients retain offline field patches, encounter
+stale preconditions and retry after access is restored. Every step checks object
+fields and versions, the library watermark, deletion logs, settings, full text
+and downloaded bytes against the model. This is source-method replay: the
+queued-patch policy belongs to the harness; actual desktop conflict and offline
+recovery are tested by acceptance scenarios.
+
+```sh
+uv run python -m tools.compatibility sequence --zotero-source .compatibility/zotero \
+  --model protocol --seed 14 --steps 60 --state-dir .compatibility/protocol-14 \
+  --output .compatibility/protocol-14.json
+```
+
+Reports persist the model selection and replay chooses it automatically.
+Shrinking rejects missing parents, collection cycles, stranded pending work,
+denied writes and ineffective operations. A hundred model-only seeds check
+generation validity and eventual queue recovery. A canary passes intact and
+then fails by assertion when a returned version list loses an object.
+
+The source replay passed seeds 4, 14 and 91 in personal and group libraries
+on 2026-10-03. A standalone protocol replay also passed; its report is preserved
+in `.compatibility/implementation-protocol-14b.json`. Failure identity retains
+the object family, key and field when shrinking, rather than accepting any
+other object-state failure as the same reproduction.
 
 A live check injected a frozen watermark into seed 14 with six operations.
 The runner reduced it to one create operation and confirmed the same invariant
