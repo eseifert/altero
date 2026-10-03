@@ -1949,10 +1949,18 @@ becoming six filled circles competing with the content they act on.</p>
 </ul>
 <h2 id="icons">Icons<a class="headerlink" href="#icons" title="Permanent link">&para;</a></h2>
 <p>Single-weight line glyphs on a 24-unit grid, <code>stroke-width: 1.5</code>, round caps and
-joins, no fill — <code>web/src/items/icons.ts</code> and <code>sidebaricons.ts</code>. The library's
+joins, no fill. Small controls use slightly heavier strokes. The library's
 are drawn to read like the desktop client's sidebar; the ones with no
 counterpart there follow the same rules so they sit with them. They are drawn
 rather than copied: Zotero's assets are the client's and carry its license.</p>
+<p>Edit the SVG files in <code>web/src/assets/icons/</code>: <code>items/</code> is named by schema item
+type, <code>sidebar/</code> by row or action, and <code>controls/</code> holds the remaining controls.
+<code>controls/edit.svg</code> is the pencil shared by tag, collection and licence editing.
+Keep each file's <code>viewBox</code>, <code>currentColor</code> and descriptive <code>&lt;title&gt;</code>; its root
+attributes and shapes are rendered directly, including groups, circles and
+rectangles. The title supplies the label when needed; the component supplies
+the displayed size. SVG files are bundled locally and can be opened in a vector
+editor or changed by hand. Logos and favicons remain in <code>web/src/assets/</code>.</p>
 <p>A glyph that is the only thing in a control carries a label
 (<code>aria-label</code>); one that sits beside text is <code>aria-hidden</code>, because a screen
 reader saying "trash trash" is worse than silence.</p>

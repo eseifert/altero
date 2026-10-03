@@ -1739,18 +1739,18 @@
 <p><strong>Result:</strong> Zotero Desktop is linked to a local altero server and can begin syncing.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>altero 1.0.0-beta.1 is beta software. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.</p>
+<p>Keep a current backup of important libraries and don’t rely on altero as your only copy yet.</p>
 </div>
 <h2 id="1-start-altero-with-docker-compose">1. Start altero with Docker Compose<a class="headerlink" href="#1-start-altero-with-docker-compose" title="Permanent link">&para;</a></h2>
 <p>The image is published, so a checkout is optional. In an empty directory:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.1/docker/compose.yaml
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.1<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.2/docker/compose.yaml
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.2<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
 <p>From a checkout of the repository, name the file where it lives instead:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.1<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.2<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
 <p>This starts PostgreSQL, altero and persistent attachment storage. The API is published on the loopback interface, on port 8000.</p>
-<p>To keep the beta pinned for later upgrades, put <code>ALTERO_IMAGE_TAG=1.0.0-beta.1</code>
+<p>To keep this version pinned for later upgrades, put <code>ALTERO_IMAGE_TAG=1.0.0-beta.2</code>
 in <code>.env</code> beside the downloaded Compose file, or in <code>docker/.env</code> for a checkout.
 Without a pin, Compose follows <code>latest</code>, including future prereleases.</p>
 <p>For a source installation instead, see <a href="../deployment/#from-a-source-checkout">Deployment</a>.</p>

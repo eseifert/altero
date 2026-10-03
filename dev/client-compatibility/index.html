@@ -2640,9 +2640,13 @@ not count as passes. A successful scenario in a run that later failed is
 reported independently.</p>
 <p>The machine-readable evidence summary is
 <a href="../assets/compatibility-10.0.5.json"><code>compatibility-10.0.5.json</code></a>. It records
-phase counts and SHA-256 hashes of each report and its phase snapshots. Full
-reports, profiles, files and failed attempts remain in ignored local run
-directories. Regenerate a matrix from retained reports with:</p>
+phase counts and SHA-256 hashes of each report and its phase snapshots. Retained
+reports, profiles, files and failed attempts live in ignored local run
+directories or <code>/tmp</code>. During beta.2 preparation, report and snapshot hashes
+were rechecked for 43 combinations and 532 phases. The original temporary
+report for PostgreSQL <code>baseline</code>, <code>conflicts</code>, <code>filing</code> and <code>groups</code> is no longer
+available; those four results (62 phases) remain historical records in the
+summary and were not rerun. Regenerate a matrix from retained reports with:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>matrix<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.5<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.5/acceptance.json<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.5-postgres/acceptance.json<span class="w"> </span><span class="se">\</span>
@@ -2668,9 +2672,11 @@ The added item/file regressions and architecture checks also passed. Two
 production regressions first failed against the old implementation: omitted note
 content on partial writes, and competing unequal ZIP registrations deleting the
 intact archive. Removing the ZIP fix made its live HTTP regression fail again.
-Formatting, lint, types and the strict docs build passed. The full ordinary
-backend suite was not rerun. The PHP dataserver and browser sign-in UI were not
-executed. The desktop evidence is Linux-only; exhaustive credential combinations,
+Beta.2 preparation reran the full backend suite (2,718 tests, including
+PostgreSQL concurrency), the pinned source-replay suite (321 tests) and web
+tests (838), with no skips. Formatting, lint, types and the strict docs build
+also passed. The PHP dataserver and browser sign-in UI were not executed.
+The desktop evidence is Linux-only; exhaustive credential combinations,
 reader formats and failure schedules remain unverified.</p>
 
 
