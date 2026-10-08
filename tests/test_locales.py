@@ -51,6 +51,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["ko"] == "한국어"
         assert LANGUAGES["pl"] == "Polski"
         assert LANGUAGES["ru"] == "Русский"
+        assert LANGUAGES["sv"] == "Svenska"
         assert LANGUAGES["uk"] == "Українська"
         assert LANGUAGES["zh-CN"] == "简体中文"
 
@@ -127,6 +128,15 @@ class TestNormalisingALanguage:
         """German is carried once, so the region reaches the shape of a date and
         nothing else, and the browser supplies that separately."""
         assert normalise_language(tag) == "de"
+
+    @pytest.mark.parametrize(
+        ("tag", "expected"),
+        [
+            ("sv-FI", "sv"),
+        ],
+    )
+    def test_a_language_carried_once_drops_its_territory(self, tag: str, expected: str) -> None:
+        assert normalise_language(tag) == expected
 
     @pytest.mark.parametrize(
         ("tag", "expected"),

@@ -14,6 +14,7 @@ import pl from './locales/pl'
 import ptBR from './locales/pt-BR'
 import ptPT from './locales/pt-PT'
 import ru from './locales/ru'
+import sv from './locales/sv'
 import uk from './locales/uk'
 import zhCN from './locales/zh-CN'
 import zhTW from './locales/zh-TW'
@@ -52,6 +53,7 @@ export const MESSAGES = {
   it,
   nl,
   da,
+  sv,
   pl,
   ru,
   uk,
@@ -81,10 +83,10 @@ function eastSlavic(choice: number, branches: number): number {
  * Which branch of a plural message a number asks for, per language.
  *
  * English separates one from many and every catalogue followed, because that is
- * what German, French, Spanish, Portuguese, Danish, Dutch and Italian do too --
- * and Japanese, Korean and Chinese, which inflect nothing, write the one form
- * twice rather than pretend to a distinction. Polish, Russian and Ukrainian have a
- * third form for the small counts, so "2 elementy" and "5 elementów" are
+ * what German, French, Spanish, Portuguese, Danish, Swedish, Dutch and Italian
+ * do too -- and Japanese, Korean and Chinese, which inflect nothing, write the
+ * one form twice rather than pretend to a distinction. Polish, Russian and
+ * Ukrainian have a third form for the small counts, so "2 elementy" and "5 elementów" are
  * different words: their catalogues carry three branches and these rules choose
  * between them. A catalogue written with English's two would be wrong on every
  * count from 2 to 4, which is what `locales.node.spec.ts` now checks for.

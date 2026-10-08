@@ -38,6 +38,7 @@ describe('the languages on offer', () => {
         'it',
         'nl',
         'da',
+        'sv',
         'pl',
         'ru',
         'uk',
@@ -62,6 +63,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['fr-CA'])).toBe('fr')
     expect(resolveLocale(null, ['ko-KR'])).toBe('ko')
     expect(matchLocale('ko_KR')).toBe('ko')
+    expect(resolveLocale(null, ['sv-FI'])).toBe('sv')
   })
 
   it('keeps the region where the words depend on it', () => {

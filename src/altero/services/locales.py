@@ -37,6 +37,7 @@ LANGUAGES: dict[str, str] = {
     "it": "Italiano",
     "nl": "Nederlands",
     "da": "Dansk",
+    "sv": "Svenska",
     "pl": "Polski",
     "ru": "Русский",
     "uk": "Українська",

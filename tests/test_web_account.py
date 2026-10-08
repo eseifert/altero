@@ -768,6 +768,7 @@ class TestLanguageAndTimeZone:
             "it",
             "nl",
             "da",
+            "sv",
             "pl",
             "ru",
             "uk",

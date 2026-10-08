@@ -22,6 +22,7 @@ import pl from './pl'
 import ptBR from './pt-BR'
 import ptPT from './pt-PT'
 import ru from './ru'
+import sv from './sv'
 import uk from './uk'
 import zhCN from './zh-CN'
 import zhTW from './zh-TW'
@@ -46,6 +47,7 @@ const CATALOGUES = {
   it: italian,
   nl,
   da,
+  sv,
   pl,
   ru,
   uk,
