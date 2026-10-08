@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import bn from './bn'
 import cs from './cs'
 import da from './da'
 import de from './de'
@@ -65,6 +66,7 @@ const CATALOGUES = {
   ru,
   uk,
   tr,
+  bn,
   ja,
   ko,
   vi,

@@ -162,6 +162,7 @@ describe('formatting a date in each language on offer', () => {
     ['ru', 'апреля'],
     ['uk', 'квітня'],
     ['tr', 'Nisan'],
+    ['bn', 'এপ্রিল'],
     ['ja', '4月'],
     ['ko', '4월'],
     ['vi', 'tháng 4'],

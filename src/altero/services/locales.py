@@ -47,6 +47,7 @@ LANGUAGES: dict[str, str] = {
     "ru": "Русский",
     "uk": "Українська",
     "tr": "Türkçe",
+    "bn": "বাংলা",
     "ja": "日本語",
     "ko": "한국어",
     "vi": "Tiếng Việt",

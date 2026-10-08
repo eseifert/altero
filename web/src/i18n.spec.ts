@@ -49,6 +49,7 @@ describe('the languages on offer', () => {
         'ru',
         'uk',
         'tr',
+        'bn',
         'ja',
         'ko',
         'vi',
@@ -81,6 +82,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['nb-NO'])).toBe('nb')
     expect(resolveLocale(null, ['id-ID'])).toBe('id')
     expect(resolveLocale(null, ['tr-TR'])).toBe('tr')
+    expect(resolveLocale(null, ['bn-BD'])).toBe('bn')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -132,6 +134,18 @@ describe('counting in a language with two forms', () => {
 describe('counting in Korean', () => {
   it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
     expect(items('ko', count)).toBe(`항목 ${count}개`)
+  })
+})
+
+describe('counting in Bengali', () => {
+  it.each([0, 1, 2, 5, 21])('renders %i with the classifier and no plural', (count) => {
+    expect(items('bn', count)).toBe(`${count}টি আইটেম`)
+  })
+
+  it('counts zero with one rather than with many', () => {
+    expect(PLURAL_RULES.bn(0, 2)).toBe(0)
+    expect(PLURAL_RULES.bn(1, 2)).toBe(0)
+    expect(PLURAL_RULES.bn(2, 2)).toBe(1)
   })
 })
 
