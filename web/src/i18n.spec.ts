@@ -6,11 +6,11 @@ import { i18n, isLocale, LOCALES, matchLocale, PLURAL_RULES, resolveLocale } fro
  * Counting, in the languages that count in more than two ways.
  *
  * English separates one from many, and so does every catalogue that followed
- * it. Polish, Russian and Ukrainian have a third form for the small counts:
- * "2 elementy" against "5 elementów", "2 записи" against "5 записей", and
- * Slovenian a dual besides: "2 vnosa", "3 vnosi", "5 vnosov". These
- * tests are what makes `pluralRules` in `i18n.ts` more than a claim -- take the
- * rules out and every count from 2 to 4 renders the wrong word.
+ * it. Polish, Czech, Russian and Ukrainian have a third form for the small
+ * counts: "2 elementy" against "5 elementów", "2 записи" against "5 записей",
+ * and Slovenian a dual besides: "2 vnosa", "3 vnosi", "5 vnosov". These tests
+ * are what makes `pluralRules` in `i18n.ts` more than a claim -- take the rules
+ * out and every count from 2 to 4 renders the wrong word.
  */
 
 const ITEMS = '{count} item | {count} items'
@@ -42,6 +42,7 @@ describe('the languages on offer', () => {
         'sv',
         'fi',
         'pl',
+        'cs',
         'sl',
         'ru',
         'uk',
@@ -69,6 +70,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['sv-FI'])).toBe('sv')
     expect(resolveLocale(null, ['sl-SI'])).toBe('sl')
     expect(resolveLocale(null, ['fi-FI'])).toBe('fi')
+    expect(resolveLocale(null, ['cs-CZ'])).toBe('cs')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -132,6 +134,24 @@ describe('counting in Polish', () => {
     [102, '102 elementy'],
   ])('renders %i', (count, expected) => {
     expect(items('pl', count)).toBe(expected)
+  })
+})
+
+describe('counting in Czech', () => {
+  /* The middle form is for two to four alone: 22 takes the last, where Polish
+     goes back to the middle one. */
+  it.each([
+    [1, '1 položka'],
+    [2, '2 položky'],
+    [4, '4 položky'],
+    [5, '5 položek'],
+    [0, '0 položek'],
+    [12, '12 položek'],
+    [21, '21 položek'],
+    [22, '22 položek'],
+    [101, '101 položek'],
+  ])('renders %i', (count, expected) => {
+    expect(items('cs', count)).toBe(expected)
   })
 })
 
@@ -199,12 +219,13 @@ describe('a message with fewer branches than the language has forms', () => {
   it.each([
     ['pl', 5, 1],
     ['pl', 2, 1],
+    ['cs', 5, 1],
     ['ru', 5, 1],
     ['ru', 11, 1],
     ['sl', 2, 1],
     ['sl', 5, 1],
   ])('%s asks for no branch beyond the last', (locale, count, expected) => {
-    expect(PLURAL_RULES[locale as 'pl' | 'ru' | 'sl'](count, 2)).toBe(expected)
+    expect(PLURAL_RULES[locale as 'pl' | 'cs' | 'ru' | 'sl'](count, 2)).toBe(expected)
   })
 
   it('still picks the singular for one', () => {

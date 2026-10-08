@@ -46,6 +46,7 @@ class TestTheOfferedLanguages:
 
     def test_each_is_named_in_itself(self) -> None:
         """A language list in one language is only useful to people who read it."""
+        assert LANGUAGES["cs"] == "Čeština"
         assert LANGUAGES["de"] == "Deutsch"
         assert LANGUAGES["fi"] == "Suomi"
         assert LANGUAGES["ja"] == "日本語"
@@ -137,6 +138,7 @@ class TestNormalisingALanguage:
             ("sv-FI", "sv"),
             ("sl-SI", "sl"),
             ("fi-FI", "fi"),
+            ("cs-CZ", "cs"),
         ],
     )
     def test_a_language_carried_once_drops_its_territory(self, tag: str, expected: str) -> None:
