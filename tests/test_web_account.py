@@ -772,6 +772,7 @@ class TestLanguageAndTimeZone:
             "fi",
             "pl",
             "cs",
+            "sk",
             "sl",
             "ru",
             "uk",

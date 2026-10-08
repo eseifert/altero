@@ -6,11 +6,11 @@ import { i18n, isLocale, LOCALES, matchLocale, PLURAL_RULES, resolveLocale } fro
  * Counting, in the languages that count in more than two ways.
  *
  * English separates one from many, and so does every catalogue that followed
- * it. Polish, Czech, Russian and Ukrainian have a third form for the small
- * counts: "2 elementy" against "5 elementów", "2 записи" against "5 записей",
- * and Slovenian a dual besides: "2 vnosa", "3 vnosi", "5 vnosov". These tests
- * are what makes `pluralRules` in `i18n.ts` more than a claim -- take the rules
- * out and every count from 2 to 4 renders the wrong word.
+ * it. Polish, Czech, Slovak, Russian and Ukrainian have a third form for the
+ * small counts: "2 elementy" against "5 elementów", "2 записи" against
+ * "5 записей", and Slovenian a dual besides: "2 vnosa", "3 vnosi", "5 vnosov".
+ * These tests are what makes `pluralRules` in `i18n.ts` more than a claim --
+ * take the rules out and every count from 2 to 4 renders the wrong word.
  */
 
 const ITEMS = '{count} item | {count} items'
@@ -43,6 +43,7 @@ describe('the languages on offer', () => {
         'fi',
         'pl',
         'cs',
+        'sk',
         'sl',
         'ru',
         'uk',
@@ -71,6 +72,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['sl-SI'])).toBe('sl')
     expect(resolveLocale(null, ['fi-FI'])).toBe('fi')
     expect(resolveLocale(null, ['cs-CZ'])).toBe('cs')
+    expect(resolveLocale(null, ['sk-SK'])).toBe('sk')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -152,6 +154,20 @@ describe('counting in Czech', () => {
     [101, '101 položek'],
   ])('renders %i', (count, expected) => {
     expect(items('cs', count)).toBe(expected)
+  })
+})
+
+describe('counting in Slovak', () => {
+  it.each([
+    [1, '1 záznam'],
+    [2, '2 záznamy'],
+    [4, '4 záznamy'],
+    [5, '5 záznamov'],
+    [0, '0 záznamov'],
+    [21, '21 záznamov'],
+    [22, '22 záznamov'],
+  ])('renders %i', (count, expected) => {
+    expect(items('sk', count)).toBe(expected)
   })
 })
 
