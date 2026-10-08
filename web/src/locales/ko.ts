@@ -139,6 +139,8 @@ export default {
   'Color theme: {name}': '색상 테마: {name}',
   'Configuration not read yet': '아직 구성을 읽지 않았습니다',
   'Configuration read {when}': '구성을 읽은 시점: {when}',
+  'Confirm it is you by signing in again.': '다시 로그인하여 본인임을 확인하세요.',
+  'Confirm with {provider}': '{provider} 계정으로 확인',
   'Confirm your email address first, so the codes go somewhere you can read.':
     '코드를 받을 수 있도록 먼저 이메일 주소를 확인하세요.',
   'Confirm your password': '비밀번호 확인',
@@ -590,6 +592,8 @@ export default {
   'The two passwords do not match': '두 비밀번호가 일치하지 않습니다',
   'The work you add to My Publications is shown on your public page.':
     '내 출판물에 추가한 저작물은 공개 페이지에 표시됩니다.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    '이 계정에는 본인 확인에 쓸 비밀번호나 로그인 서비스가 없습니다. 관리자가 비밀번호를 설정할 수 있습니다.',
   'This can take a while. You can leave this page open or come back to it.':
     '시간이 걸릴 수 있습니다. 이 페이지를 열어 두거나 나중에 다시 방문하세요.',
   'This cannot be undone.': '되돌릴 수 없습니다.',
@@ -662,6 +666,7 @@ export default {
     '저작물의 모든 권리를 보유하거나 Creative Commons 라이선스를 적용하거나 퍼블릭 도메인으로 기증할 수 있습니다. 어떤 방식을 선택하든 저작물은 누구나 읽을 수 있도록 이 서버에 공개됩니다.',
   'You have already given this application these permissions.': '이미 이 애플리케이션에 해당 권한을 부여했습니다.',
   'You have joined the group.': '그룹에 가입했습니다.',
+  'You have just confirmed it is you.': '방금 본인 확인을 마쳤습니다.',
   'Your account there is not permitted to use this server.': '해당 서비스의 계정에는 이 서버를 사용할 권한이 없습니다.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     '페이지를 숨겼습니다. 항목은 내 출판물에 유지되므로 다시 공개할 수 있습니다.',

@@ -7,13 +7,14 @@ here it is this interface.
 What gets handed over is a full-access API key -- a credential that reads and
 writes every library the account can reach, and that outlives the browser
 session entirely. That is a larger grant than signing in to read one's own
-library, which is why approving takes the password again rather than trusting
-the cookie: otherwise anyone who could get a signed-in person to open a link
-they prepared would walk away with a permanent key. The CSRF token stops the
-page being submitted from elsewhere; the password stops the link being useful
-even if it is opened.
+library, which is why approving takes a fresh proof rather than trusting the
+cookie: otherwise anyone who could get a signed-in person to open a link they
+prepared would walk away with a permanent key. The proof is the password, or for
+an account that has none, a recent trip back through its identity provider --
+see :mod:`altero.services.reauth`. The CSRF token stops the page being submitted
+from elsewhere; the proof stops the link being useful even if it is opened.
 
-Declining takes no password. Refusing to grant something should never be harder
+Declining takes no proof. Refusing to grant something should never be harder
 than granting it.
 """
 

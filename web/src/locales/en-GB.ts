@@ -148,6 +148,8 @@ export default {
   'Color theme: {name}': 'Colour theme: {name}',
   'Configuration not read yet': 'Configuration not read yet',
   'Configuration read {when}': 'Configuration read {when}',
+  'Confirm it is you by signing in again.': 'Confirm it is you by signing in again.',
+  'Confirm with {provider}': 'Confirm with {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.':
     'Confirm your email address first, so the codes go somewhere you can read.',
   'Confirm your password': 'Confirm your password',
@@ -624,6 +626,8 @@ export default {
   'The two passwords do not match': 'The two passwords do not match',
   'The work you add to My Publications is shown on your public page.':
     'The work you add to My Publications is shown on your public page.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.',
   'This can take a while. You can leave this page open or come back to it.':
     'This can take a while. You can leave this page open or come back to it.',
   'This cannot be undone.': 'This cannot be undone.',
@@ -703,6 +707,7 @@ export default {
   'You have already given this application these permissions.':
     'You have already given this application these permissions.',
   'You have joined the group.': 'You have joined the group.',
+  'You have just confirmed it is you.': 'You have just confirmed it is you.',
   'Your account there is not permitted to use this server.':
     'Your account there is not permitted to use this server.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':

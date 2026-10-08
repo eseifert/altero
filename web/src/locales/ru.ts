@@ -146,6 +146,8 @@ export default {
   'Color theme: {name}': 'Цветовая тема: {name}',
   'Configuration not read yet': 'Конфигурация ещё не прочитана',
   'Configuration read {when}': 'Конфигурация прочитана {when}',
+  'Confirm it is you by signing in again.': 'Подтвердите, что это вы, войдя ещё раз.',
+  'Confirm with {provider}': 'Подтвердить через {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.':
     'Сначала подтвердите свой адрес почты, чтобы коды приходили туда, где вы их прочтёте.',
   'Confirm your password': 'Подтвердите свой пароль',
@@ -621,6 +623,8 @@ export default {
   'The two passwords do not match': 'Пароли не совпадают',
   'The work you add to My Publications is shown on your public page.':
     'Работы, добавленные в Мои публикации, показываются на вашей открытой странице.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'У этой учётной записи нет ни пароля, ни службы входа, чтобы подтвердить, что это вы. Администратор может задать для неё пароль.',
   'This can take a while. You can leave this page open or come back to it.':
     'Это может занять время. Можно оставить эту страницу открытой или вернуться к ней позже.',
   'This cannot be undone.': 'Это нельзя отменить.',
@@ -698,6 +702,7 @@ export default {
     'Вы можете сохранить за собой все права на свою работу, выпустить её под лицензией Creative Commons или передать в общественное достояние. В любом случае сама работа публикуется здесь, чтобы её мог прочитать любой.',
   'You have already given this application these permissions.': 'Вы уже предоставили этому приложению эти разрешения.',
   'You have joined the group.': 'Вы вступили в группу.',
+  'You have just confirmed it is you.': 'Вы только что подтвердили, что это вы.',
   'Your account there is not permitted to use this server.':
     'Вашей тамошней учётной записи не разрешено пользоваться этим сервером.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':

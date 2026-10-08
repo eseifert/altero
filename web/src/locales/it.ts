@@ -141,6 +141,8 @@ export default {
   'Color theme: {name}': 'Tema dei colori: {name}',
   'Configuration not read yet': 'Configurazione non ancora letta',
   'Configuration read {when}': 'Configurazione letta {when}',
+  'Confirm it is you by signing in again.': 'Conferma la tua identità accedendo di nuovo.',
+  'Confirm with {provider}': 'Conferma con {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.':
     'Conferma prima il tuo indirizzo email, così i codici arrivano dove puoi leggerli.',
   'Confirm your password': 'Conferma la tua password',
@@ -622,6 +624,8 @@ export default {
   'The two passwords do not match': 'Le due password non coincidono',
   'The work you add to My Publications is shown on your public page.':
     'Le opere che aggiungi a Le mie pubblicazioni compaiono sulla tua pagina pubblica.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'Questo account non ha né una password né un servizio di accesso con cui confermare la tua identità. Un amministratore può impostargli una password.',
   'This can take a while. You can leave this page open or come back to it.':
     'Può volerci un po’. Puoi lasciare aperta questa pagina oppure tornarci più tardi.',
   'This cannot be undone.': 'Questa operazione non si può annullare.',
@@ -700,6 +704,7 @@ export default {
     'Puoi riservarti tutti i diritti sulla tua opera, concederla con una licenza Creative Commons, oppure destinarla al pubblico dominio. In ogni caso l’opera stessa viene pubblicata qui perché chiunque possa leggerla.',
   'You have already given this application these permissions.': 'Hai già concesso questi permessi a questa applicazione.',
   'You have joined the group.': 'Sei entrato nel gruppo.',
+  'You have just confirmed it is you.': 'Hai appena confermato la tua identità.',
   'Your account there is not permitted to use this server.':
     'Il tuo account là non è autorizzato a usare questo server.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':

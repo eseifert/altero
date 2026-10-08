@@ -7,7 +7,9 @@ same exchange, answered in the interface instead.
 The thing being handed over is a full-access API key, which is a larger grant
 than reading one's own library, so it is not something a signed-in tab should
 be able to do by being pointed at a URL. Approving therefore takes the password
-again, the way every other credential change in the account does.
+again, the way every other credential change in the account does. An account
+with no password proves itself through its directory instead, which is in
+`test_web_identity.py` beside the stand-in directory it needs.
 """
 
 import httpx

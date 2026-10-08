@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router'
 
 import { ApiError, request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
-import AppTextField from '@/components/AppTextField.vue'
+import ConfirmIdentity from '@/components/ConfirmIdentity.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
@@ -25,6 +25,8 @@ const token = computed(() => (typeof route.query.token === 'string' ? route.quer
 
 const details = ref<LinkRequest | null>(null)
 const password = ref('')
+const confirmed = ref(false)
+const identity = ref<InstanceType<typeof ConfirmIdentity> | null>(null)
 const state = ref<'loading' | 'asking' | 'approved' | 'declined' | 'failed'>('loading')
 const failure = ref<string | null>(null)
 const busy = ref(false)
@@ -62,6 +64,8 @@ async function approve(): Promise<void> {
     state.value = 'approved'
   } catch (thrown) {
     failure.value = message(thrown)
+    // The refusal may be a proof that lapsed while the page stood open.
+    await identity.value?.refresh()
   } finally {
     password.value = ''
     busy.value = false
@@ -134,18 +138,13 @@ async function decline(): Promise<void> {
         }}
       </p>
 
-      <AppTextField
-        v-model="password"
-        :label="t('Confirm your password')"
-        type="password"
-        autocomplete="current-password"
-        required
-        autofocus
-      />
+      <ConfirmIdentity ref="identity" v-model="password" v-model:ready="confirmed" />
 
       <p v-if="failure" class="auth-form__error" role="alert">{{ failure }}</p>
 
-      <AppButton type="button" full-width :loading="busy" @click="approve">{{ t('Connect') }}</AppButton>
+      <AppButton type="button" full-width :loading="busy" :disabled="!confirmed" @click="approve">
+        {{ t('Connect') }}
+      </AppButton>
       <AppButton variant="text" full-width :disabled="busy" @click="decline">
         {{ t('Not now') }}
       </AppButton>

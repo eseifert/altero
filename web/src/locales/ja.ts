@@ -133,6 +133,8 @@ export default {
   'Color theme: {name}': '配色テーマ: {name}',
   'Configuration not read yet': '設定はまだ読み込まれていません',
   'Configuration read {when}': '設定を読み込みました {when}',
+  'Confirm it is you by signing in again.': 'もう一度サインインして本人確認をしてください。',
+  'Confirm with {provider}': '{provider} で確認',
   'Confirm your email address first, so the codes go somewhere you can read.': 'まずメールアドレスを確認してください。読み取れる場所にコードが届くようにするためです。',
   'Confirm your password': 'パスワードを確認',
   'Confirm {address} to receive security notifications and invitations. Your library works either way.':
@@ -570,6 +572,8 @@ export default {
   'The two passwords do not match': 'パスワードが一致しません',
   'The work you add to My Publications is shown on your public page.':
     '「私の出版物」に追加した著作物は、公開ページに表示されます。',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'このアカウントには、本人確認に使えるパスワードもサインインサービスもありません。管理者がパスワードを設定できます。',
   'This can take a while. You can leave this page open or come back to it.': 'しばらく時間がかかります。このページを開いたままにするか、後で戻ってきてください。',
   'This cannot be undone.': 'この操作は取り消せません。',
   'This collection is empty.': 'このコレクションは空です。',
@@ -640,6 +644,7 @@ export default {
     '著作物のすべての権利を留保することも、クリエイティブ・コモンズ・ライセンスの下でライセンスすることも、パブリックドメインに捧げることも可能です。いずれの場合も、著作物そのものはここで誰でも読めるように公開されます。',
   'You have already given this application these permissions.': 'このアプリケーションにはすでにこれらの権限を与えています。',
   'You have joined the group.': 'グループに参加しました。',
+  'You have just confirmed it is you.': '本人確認が完了しました。',
   'Your account there is not permitted to use this server.': 'そちらのアカウントはこのサーバーの利用を許可されていません。',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     'ページは非表示です。アイテムは「私の出版物」に残るため、いつでも再び公開できます。',

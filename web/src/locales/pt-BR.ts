@@ -151,6 +151,8 @@ export default {
   'Color theme: {name}': 'Tema de cores: {name}',
   'Configuration not read yet': 'Configuração ainda não lida',
   'Configuration read {when}': 'Configuração lida {when}',
+  'Confirm it is you by signing in again.': 'Confirme sua identidade entrando novamente.',
+  'Confirm with {provider}': 'Confirmar com {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.':
     'Confirme primeiro o seu endereço de e-mail, para que os códigos cheguem onde você possa lê-los.',
   'Confirm your password': 'Confirme a sua senha',
@@ -629,6 +631,8 @@ export default {
   'The two passwords do not match': 'As duas senhas não coincidem',
   'The work you add to My Publications is shown on your public page.':
     'O que você adiciona a Minhas Publicações aparece na sua página pública.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'Esta conta não tem senha nem serviço de login para confirmar sua identidade. Um administrador pode definir uma senha para ela.',
   'This can take a while. You can leave this page open or come back to it.':
     'Isto pode demorar. Você pode deixar esta página aberta ou voltar a ela depois.',
   'This cannot be undone.': 'Isto não pode ser desfeito.',
@@ -706,6 +710,7 @@ export default {
   'You have already given this application these permissions.':
     'Você já concedeu estas permissões a este aplicativo.',
   'You have joined the group.': 'Você entrou no grupo.',
+  'You have just confirmed it is you.': 'Você acabou de confirmar sua identidade.',
   'Your account there is not permitted to use this server.':
     'A sua conta lá não tem permissão para usar este servidor.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':

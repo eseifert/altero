@@ -138,6 +138,8 @@ export default {
   'Color theme: {name}': 'Farvetema: {name}',
   'Configuration not read yet': 'Konfigurationen er ikke læst endnu',
   'Configuration read {when}': 'Konfigurationen blev læst {when}',
+  'Confirm it is you by signing in again.': 'Bekræft, at det er dig, ved at logge ind igen.',
+  'Confirm with {provider}': 'Bekræft med {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.':
     'Bekræft først din e-mailadresse, så koderne havner et sted, du kan læse.',
   'Confirm your password': 'Bekræft din adgangskode',
@@ -613,6 +615,8 @@ export default {
   'The two passwords do not match': 'De to adgangskoder er ikke ens',
   'The work you add to My Publications is shown on your public page.':
     'De værker, du føjer til Mine publikationer, vises på din offentlige side.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'Denne konto har hverken en adgangskode eller en logintjeneste, du kan bekræfte din identitet med. En administrator kan angive en adgangskode til den.',
   'This can take a while. You can leave this page open or come back to it.':
     'Det kan tage et stykke tid. Du kan lade denne side stå åben eller vende tilbage til den.',
   'This cannot be undone.': 'Dette kan ikke fortrydes.',
@@ -690,6 +694,7 @@ export default {
     'Du kan forbeholde dig alle rettigheder til dit værk, give det en Creative Commons-licens eller overgive det til det offentlige domæne. Uanset hvad udgives selve værket her, så alle kan læse det.',
   'You have already given this application these permissions.': 'Du har allerede givet dette program disse tilladelser.',
   'You have joined the group.': 'Du er kommet med i gruppen.',
+  'You have just confirmed it is you.': 'Du har lige bekræftet, at det er dig.',
   'Your account there is not permitted to use this server.':
     'Din konto dér har ikke lov til at bruge denne server.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':

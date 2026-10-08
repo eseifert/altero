@@ -27,7 +27,16 @@ from altero.api.routes.web import (
 )
 from altero.errors import NotFoundError
 from altero.models import ApiKey, Invitation, Library, Notification, ProfileVisibility, User
-from altero.services import account, invitations, locales, logincodes, notifications
+from altero.services import (
+    account,
+    federation,
+    identityproviders,
+    invitations,
+    locales,
+    logincodes,
+    notifications,
+    reauth,
+)
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -175,6 +184,32 @@ async def read_account(
             "sessions": [
                 _serialise_session(entry, record.id)
                 for entry in await account.list_sessions(session, user)
+            ],
+        }
+    )
+
+
+@router.get("/account/proof")
+async def read_proof(
+    session: SessionDep, user: CurrentUserDep, record: AuthenticatedDep
+) -> Response:
+    """How this browser can prove itself, and whether it recently has.
+
+    What a confirmation screen draws from: a password field only for an
+    account that has one, and a way back through each directory the account
+    signs in with -- the only proof an account the directory created can give.
+    A directory is offered only where the account is connected to it, since
+    re-authenticating anywhere else ends at "that is not yours".
+    """
+    linked = {entry.provider_id for entry in await federation.identities_for(session, user)}
+    return JSONResponse(
+        {
+            "password": reauth.has_password(user),
+            "fresh": reauth.is_fresh(record),
+            "providers": [
+                {"slug": provider.slug, "displayName": provider.display_name}
+                for provider in await identityproviders.list_enabled(session)
+                if provider.id in linked
             ],
         }
     )

@@ -145,6 +145,8 @@ export default {
   'Color theme: {name}': 'Motyw kolorystyczny: {name}',
   'Configuration not read yet': 'Konfiguracja jeszcze nie odczytana',
   'Configuration read {when}': 'Konfigurację odczytano {when}',
+  'Confirm it is you by signing in again.': 'Potwierdź swoją tożsamość, logując się ponownie.',
+  'Confirm with {provider}': 'Potwierdź przez {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.':
     'Najpierw potwierdź swój adres poczty, żeby kody trafiały tam, gdzie możesz je przeczytać.',
   'Confirm your password': 'Potwierdź swoje hasło',
@@ -623,6 +625,8 @@ export default {
   'The two passwords do not match': 'Oba hasła nie są takie same',
   'The work you add to My Publications is shown on your public page.':
     'Prace dodane do Moich publikacji są pokazywane na twojej stronie publicznej.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'To konto nie ma hasła ani usługi logowania, za pomocą której można potwierdzić tożsamość. Administrator może ustawić dla niego hasło.',
   'This can take a while. You can leave this page open or come back to it.':
     'To może chwilę potrwać. Możesz zostawić tę stronę otwartą albo wrócić do niej później.',
   'This cannot be undone.': 'Tego nie da się cofnąć.',
@@ -700,6 +704,7 @@ export default {
     'Możesz zastrzec wszystkie prawa do swojej pracy, udostępnić ją na licencji Creative Commons albo przekazać do domeny publicznej. Tak czy inaczej sama praca jest publikowana tutaj, aby każdy mógł ją czytać.',
   'You have already given this application these permissions.': 'Już nadałeś tej aplikacji te uprawnienia.',
   'You have joined the group.': 'Dołączyłeś do grupy.',
+  'You have just confirmed it is you.': 'Właśnie potwierdzono Twoją tożsamość.',
   'Your account there is not permitted to use this server.':
     'Twoje tamtejsze konto nie ma prawa korzystać z tego serwera.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':

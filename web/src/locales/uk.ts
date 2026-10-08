@@ -146,6 +146,8 @@ export default {
   'Color theme: {name}': 'Колірна тема: {name}',
   'Configuration not read yet': 'Конфігурацію ще не прочитано',
   'Configuration read {when}': 'Конфігурацію прочитано {when}',
+  'Confirm it is you by signing in again.': 'Підтвердьте, що це ви, увійшовши ще раз.',
+  'Confirm with {provider}': 'Підтвердити через {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.':
     'Спершу підтвердьте свою адресу пошти, щоб коди надходили туди, де ви їх прочитаєте.',
   'Confirm your password': 'Підтвердьте свій пароль',
@@ -621,6 +623,8 @@ export default {
   'The two passwords do not match': 'Паролі не збігаються',
   'The work you add to My Publications is shown on your public page.':
     'Роботи, додані до Моїх публікацій, показуються на вашій відкритій сторінці.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'Цей обліковий запис не має ні пароля, ні служби входу, щоб підтвердити, що це ви. Адміністратор може встановити для нього пароль.',
   'This can take a while. You can leave this page open or come back to it.':
     'Це може забрати трохи часу. Можна залишити цю сторінку відкритою або повернутися до неї пізніше.',
   'This cannot be undone.': 'Це не можна скасувати.',
@@ -698,6 +702,7 @@ export default {
     'Ви можете залишити за собою всі права на свою роботу, випустити її за ліцензією Creative Commons або передати в суспільне надбання. У будь-якому разі сама робота публікується тут, щоб її міг прочитати будь-хто.',
   'You have already given this application these permissions.': 'Ви вже надали цьому застосунку ці дозволи.',
   'You have joined the group.': 'Ви приєдналися до групи.',
+  'You have just confirmed it is you.': 'Ви щойно підтвердили, що це ви.',
   'Your account there is not permitted to use this server.':
     'Вашому тамтешньому обліковому запису не дозволено користуватися цим сервером.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':

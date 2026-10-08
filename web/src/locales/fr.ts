@@ -131,6 +131,8 @@ export default {
   'Color theme: {name}': 'Thème de couleurs : {name}',
   'Configuration not read yet': 'Configuration pas encore lue',
   'Configuration read {when}': 'Configuration lue {when}',
+  'Confirm it is you by signing in again.': 'Confirmez votre identité en vous reconnectant.',
+  'Confirm with {provider}': 'Confirmer avec {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.': 'Confirmez d’abord votre adresse e-mail, pour que les codes arrivent là où vous pouvez les lire.',
   'Confirm your password': 'Confirmez votre mot de passe',
   'Confirm {address} to receive security notifications and invitations. Your library works either way.':
@@ -588,6 +590,8 @@ export default {
   'The two passwords do not match': 'Les deux mots de passe ne correspondent pas',
   'The work you add to My Publications is shown on your public page.':
     'Ce que vous ajoutez à Mes publications apparaît sur votre page publique.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'Ce compte n’a ni mot de passe ni service de connexion permettant de confirmer votre identité. Un administrateur peut lui attribuer un mot de passe.',
   'This can take a while. You can leave this page open or come back to it.': 'Cela peut prendre un moment. Vous pouvez laisser cette page ouverte ou y revenir plus tard.',
   'This cannot be undone.': 'Cette action est irréversible.',
   'This collection is empty.': 'Cette collection est vide.',
@@ -664,6 +668,7 @@ export default {
     'Vous pouvez vous réserver tous les droits sur votre travail, le publier sous licence Creative Commons, ou le placer dans le domaine public. Dans tous les cas, le travail lui-même est publié ici et lisible par tous.',
   'You have already given this application these permissions.': 'Vous avez déjà accordé ces autorisations à cette application.',
   'You have joined the group.': 'Vous avez rejoint le groupe.',
+  'You have just confirmed it is you.': 'Vous venez de confirmer votre identité.',
   'Your account there is not permitted to use this server.': 'Votre compte là-bas n’est pas autorisé à utiliser ce serveur.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     'Votre page est masquée. Vos documents restent dans Mes publications : la page peut donc être rouverte.',

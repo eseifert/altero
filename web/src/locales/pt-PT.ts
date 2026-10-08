@@ -131,6 +131,8 @@ export default {
   'Color theme: {name}': 'Tema de cores: {name}',
   'Configuration not read yet': 'Configuração ainda não lida',
   'Configuration read {when}': 'Configuração lida {when}',
+  'Confirm it is you by signing in again.': 'Confirme a sua identidade iniciando sessão novamente.',
+  'Confirm with {provider}': 'Confirmar com {provider}',
   'Confirm your email address first, so the codes go somewhere you can read.': 'Confirme primeiro o seu endereço de e-mail, para que os códigos cheguem onde os possa ler.',
   'Confirm your password': 'Confirme a sua palavra-passe',
   'Confirm {address} to receive security notifications and invitations. Your library works either way.':
@@ -583,6 +585,8 @@ export default {
   'The two passwords do not match': 'As duas palavras-passe não coincidem',
   'The work you add to My Publications is shown on your public page.':
     'O que adicionar a As Minhas Publicações aparece na sua página pública.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'Esta conta não tem palavra-passe nem serviço de início de sessão para confirmar a sua identidade. Um administrador pode definir-lhe uma palavra-passe.',
   'This can take a while. You can leave this page open or come back to it.': 'Isto pode demorar. Pode deixar esta página aberta ou voltar mais tarde.',
   'This cannot be undone.': 'Isto não pode ser anulado.',
   'This collection is empty.': 'Esta coleção está vazia.',
@@ -656,6 +660,7 @@ export default {
     'Pode reservar todos os direitos do seu trabalho, licenciá-lo sob uma licença Creative Commons ou colocá-lo no domínio público. Em qualquer dos casos, o trabalho é publicado aqui para qualquer pessoa ler.',
   'You have already given this application these permissions.': 'Já concedeu estas permissões a esta aplicação.',
   'You have joined the group.': 'Juntou-se ao grupo.',
+  'You have just confirmed it is you.': 'Acabou de confirmar a sua identidade.',
   'Your account there is not permitted to use this server.': 'A sua conta lá não tem permissão para usar este servidor.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     'A sua página está oculta. Os seus itens permanecem em As Minhas Publicações, por isso pode voltar a abri-la.',

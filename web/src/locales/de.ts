@@ -131,6 +131,9 @@ export default {
   'Color theme: {name}': 'Farbschema: {name}',
   'Configuration not read yet': 'Konfiguration noch nicht gelesen',
   'Configuration read {when}': 'Konfiguration gelesen {when}',
+  'Confirm it is you by signing in again.':
+    'Bestätigen Sie, dass Sie es sind, indem Sie sich erneut anmelden.',
+  'Confirm with {provider}': 'Mit {provider} bestätigen',
   'Confirm your email address first, so the codes go somewhere you can read.': 'Bestätigen Sie zuerst Ihre E-Mail-Adresse, damit die Codes dorthin gehen, wo Sie sie lesen können.',
   'Confirm your password': 'Passwort bestätigen',
   'Confirm {address} to receive security notifications and invitations. Your library works either way.':
@@ -586,6 +589,8 @@ export default {
   'The two passwords do not match': 'Die beiden Passwörter stimmen nicht überein',
   'The work you add to My Publications is shown on your public page.':
     'Was du zu Meine Publikationen hinzufügst, erscheint auf deiner öffentlichen Seite.',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    'Dieses Konto hat weder ein Passwort noch einen Anmeldedienst, mit dem Sie bestätigen könnten, dass Sie es sind. Eine Administratorin oder ein Administrator kann ein Passwort dafür festlegen.',
   'This can take a while. You can leave this page open or come back to it.': 'Das kann eine Weile dauern. Du kannst diese Seite offen lassen oder später zurückkommen.',
   'This cannot be undone.': 'Das kann nicht rückgängig gemacht werden.',
   'This collection is empty.': 'Diese Sammlung ist leer.',
@@ -660,6 +665,7 @@ export default {
     'Du kannst dir alle Rechte an deinem Werk vorbehalten, es unter eine Creative-Commons-Lizenz stellen oder es gemeinfrei machen. In jedem Fall wird das Werk selbst hier für alle lesbar veröffentlicht.',
   'You have already given this application these permissions.': 'Sie haben dieser Anwendung diese Berechtigungen bereits erteilt.',
   'You have joined the group.': 'Du bist der Gruppe beigetreten.',
+  'You have just confirmed it is you.': 'Sie haben gerade bestätigt, dass Sie es sind.',
   'Your account there is not permitted to use this server.': 'Ihr dortiges Konto darf diesen Server nicht nutzen.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     'Deine Seite ist verborgen. Deine Einträge bleiben in Meine Publikationen, die Seite lässt sich also wieder öffnen.',

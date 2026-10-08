@@ -141,6 +141,8 @@ export default {
   'Color theme: {name}': '配色主題：{name}',
   'Configuration not read yet': '尚未讀取組態',
   'Configuration read {when}': '組態讀取於 {when}',
+  'Confirm it is you by signing in again.': '請重新登入以確認身分。',
+  'Confirm with {provider}': '使用 {provider} 確認',
   'Confirm your email address first, so the codes go somewhere you can read.':
     '請先確認你的電子郵件位址，這樣驗證碼才會寄到你能讀到的地方。',
   'Confirm your password': '確認你的密碼',
@@ -583,6 +585,8 @@ export default {
   'The trash is empty.': '垃圾筒是空的。',
   'The two passwords do not match': '兩次輸入的密碼不一致',
   'The work you add to My Publications is shown on your public page.': '你新增到我的著作的作品會顯示在你的公開頁面上。',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    '此帳戶既沒有密碼，也沒有可用來確認身分的登入服務。管理員可以為其設定密碼。',
   'This can take a while. You can leave this page open or come back to it.':
     '這可能需要一段時間。你可以讓此頁面開著，也可以稍後再回來。',
   'This cannot be undone.': '此操作無法復原。',
@@ -653,6 +657,7 @@ export default {
     '你可以保留作品的所有權利，以創用 CC 授權條款授權，或將其奉獻到公有領域。無論哪種方式，作品本身都會在這裡發布供所有人閱讀。',
   'You have already given this application these permissions.': '你已經授予該應用程式這些權限。',
   'You have joined the group.': '你已加入該群組。',
+  'You have just confirmed it is you.': '你剛剛確認了身分。',
   'Your account there is not permitted to use this server.': '你在那邊的帳號沒有獲准使用這台伺服器。',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
     '你的頁面已隱藏。你的項目仍留在我的著作中，因此可以再次開放。',

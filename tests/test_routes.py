@@ -69,6 +69,7 @@ EXPECTED = [
     ("/web/account/keys/{key_id}", "DELETE"),
     # The directories this account can sign in through, and detaching one.
     ("/web/account/identities", "GET"),
+    ("/web/account/proof", "GET"),
     ("/web/account/identities/{identity_id}", "DELETE"),
     # The passkeys on this account.
     ("/web/account/passkeys", "GET"),

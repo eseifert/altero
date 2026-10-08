@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Accounts without a password approve Zotero clients by signing in again at their provider. Reported by [@mweber0] in [Discussion#18].
+
 ## [1.0.0-beta.2] — 2026-10-03
 
 - Clarify the edit pencil and move interface icons into reusable SVG files.
@@ -188,9 +190,11 @@ The first release meant to be used by somebody other than its author.
 [@alpichlabs]: https://github.com/alpichlabs
 [@sadgen]: https://github.com/sadgen
 [@ScatteredComet]: https://github.com/ScatteredComet
+[@mweber0]: https://github.com/mweber0
 [PR#7]: https://github.com/eseifert/altero/pull/7
 [PR#8]: https://github.com/eseifert/altero/pull/8
 [PR#14]: https://github.com/eseifert/altero/pull/14
 [Discussion#5]: https://github.com/eseifert/altero/discussions/5
+[Discussion#18]: https://github.com/eseifert/altero/discussions/18
 [Issue#11]: https://github.com/eseifert/altero/issues/11
 [Issue#13]: https://github.com/eseifert/altero/issues/13

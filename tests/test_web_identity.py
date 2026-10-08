@@ -20,7 +20,8 @@ from fastapi import FastAPI
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.models import ApiKey, AuthRequest, User
+from altero.models import ApiKey, AuthRequest, IdentityProvider, User
+from tests.test_web_link import start_session
 from tests.test_web_routes import PASSWORD, csrf_headers, register
 
 ISSUER = "https://sso.example.org"
@@ -461,6 +462,136 @@ class TestAnAccountsOwnConnections:
 
         assert removed.status_code == 204
         assert (await client.get("/web/account/identities")).json()["identities"] == []
+
+
+async def reauthenticate(
+    client: httpx.AsyncClient, directory: Directory, next_path: str = "/library"
+) -> httpx.Response:
+    """Go back through the directory to prove this browser again."""
+    started = await client.get(
+        "/web/auth/sso/campus/start", params={"purpose": "reauth", "next": next_path}
+    )
+    parameters = parse_qs(urlparse(started.headers["location"]).query)
+    directory.nonce = parameters["nonce"][0]
+    return await client.get(f"/web/auth/sso/campus/callback?code=a&state={parameters['state'][0]}")
+
+
+async def signed_in_through_the_directory(
+    client: httpx.AsyncClient, directory: Directory, session: AsyncSession
+) -> None:
+    """Leave the client signed in as an account the directory created, which
+    has never had a password."""
+    await register(client)
+    await add_provider(client)
+    client.cookies.clear()
+    await follow(client, directory, session)
+
+
+class TestWhatABrowserCanProveItselfWith:
+    """`/web/account/proof`, which tells a confirmation screen what to offer."""
+
+    async def test_an_account_with_a_password_is_asked_for_it(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        await register(client)
+
+        body = (await client.get("/web/account/proof")).json()
+
+        assert body == {"password": True, "fresh": False, "providers": []}
+
+    async def test_an_account_the_directory_made_is_offered_the_directory(
+        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+    ) -> None:
+        await signed_in_through_the_directory(client, directory, session)
+
+        body = (await client.get("/web/account/proof")).json()
+
+        assert body == {
+            "password": False,
+            "fresh": False,
+            "providers": [{"slug": "campus", "displayName": "Campus"}],
+        }
+
+    async def test_going_back_through_the_directory_makes_it_fresh(
+        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+    ) -> None:
+        await signed_in_through_the_directory(client, directory, session)
+
+        await reauthenticate(client, directory)
+
+        assert (await client.get("/web/account/proof")).json()["fresh"] is True
+
+    async def test_a_directory_the_account_is_not_connected_to_is_not_offered(
+        self, client: httpx.AsyncClient, directory: Directory
+    ) -> None:
+        """Re-authenticating there would only end at "not yours"."""
+        await register(client)
+        await add_provider(client)
+
+        assert (await client.get("/web/account/proof")).json()["providers"] == []
+
+    async def test_a_disabled_directory_is_not_offered(
+        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+    ) -> None:
+        await signed_in_through_the_directory(client, directory, session)
+        provider = await session.scalar(select(IdentityProvider))
+        assert provider is not None
+        provider.enabled = False
+        await session.commit()
+
+        assert (await client.get("/web/account/proof")).json()["providers"] == []
+
+    async def test_it_needs_a_session(self, client: httpx.AsyncClient) -> None:
+        assert (await client.get("/web/account/proof")).status_code == 401
+
+
+class TestAnAccountWithNoPasswordConnectsZotero:
+    """The desktop client's sign-in, for an account the directory created.
+
+    Discussion #18: the Connect page asked for a password the account never
+    had, and signing in again did not help.
+    """
+
+    async def test_signing_in_again_is_not_proof(
+        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+    ) -> None:
+        """An ordinary sign-in can be answered from the directory's own session
+        without asking anybody anything, so it does not stand in for proof."""
+        await signed_in_through_the_directory(client, directory, session)
+        token = await start_session(client)
+
+        response = await client.post(
+            f"/web/link/{token}/approve", json={}, headers=csrf_headers(client)
+        )
+
+        assert response.status_code == 403
+        assert (await client.get(f"/keys/sessions/{token}")).json()["status"] == "pending"
+
+    async def test_going_back_through_the_directory_returns_to_the_request(
+        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+    ) -> None:
+        await signed_in_through_the_directory(client, directory, session)
+        token = await start_session(client)
+
+        response = await reauthenticate(client, directory, f"/link?token={token}")
+
+        assert response.headers["location"].endswith(f"/app/link?token={token}")
+
+    async def test_it_is_approved_after_going_back_through_the_directory(
+        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+    ) -> None:
+        await signed_in_through_the_directory(client, directory, session)
+        token = await start_session(client)
+        await reauthenticate(client, directory, f"/link?token={token}")
+
+        approved = await client.post(
+            f"/web/link/{token}/approve", json={}, headers=csrf_headers(client)
+        )
+
+        assert approved.status_code == 204
+        polled = (await client.get(f"/keys/sessions/{token}")).json()
+        assert polled["status"] == "completed"
+        assert polled["username"] == "grace"
 
 
 class TestTheV3ApiIsStillUntouched:

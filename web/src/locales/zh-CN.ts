@@ -134,6 +134,8 @@ export default {
   'Color theme: {name}': '配色主题：{name}',
   'Configuration not read yet': '尚未读取配置',
   'Configuration read {when}': '配置读取于 {when}',
+  'Confirm it is you by signing in again.': '请重新登录以确认身份。',
+  'Confirm with {provider}': '使用 {provider} 确认',
   'Confirm your email address first, so the codes go somewhere you can read.':
     '请先确认你的电子邮件地址，这样验证码才会发到你能读到的地方。',
   'Confirm your password': '确认你的密码',
@@ -589,6 +591,8 @@ export default {
   'The two passwords do not match': '两次输入的密码不一致',
   'The work you add to My Publications is shown on your public page.':
     '你添加到我的出版物的作品会显示在你的公开页面上。',
+  'This account has no password and no sign-in service to confirm it is you with. An administrator can set a password for it.':
+    '此账户既没有密码，也没有可用于确认身份的登录服务。管理员可以为其设置密码。',
   'This can take a while. You can leave this page open or come back to it.':
     '这可能需要一段时间。你可以让此页面开着，也可以稍后再回来。',
   'This cannot be undone.': '此操作无法撤销。',
@@ -662,6 +666,7 @@ export default {
     '你可以保留作品的所有权利，以知识共享许可协议授权，或将其奉献到公有领域。无论哪种方式，作品本身都会在这里发布供所有人阅读。',
   'You have already given this application these permissions.': '您已经授予该应用程序这些权限。',
   'You have joined the group.': '你已加入该群组。',
+  'You have just confirmed it is you.': '你刚刚确认了身份。',
   'Your account there is not permitted to use this server.':
     '你在那边的账户没有获准使用这台服务器。',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':

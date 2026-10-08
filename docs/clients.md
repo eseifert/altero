@@ -41,7 +41,12 @@ The client then:
 
 The key can access the personal and group libraries available to that account, as Zotero expects.
 
-Approving the client asks for the password again even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity.
+Approving the client asks you to prove who you are again, even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity:
+
+- an account with a password enters it;
+- an account created through a [sign-in provider](administration.md#sign-in-providers) has no password, so the page offers **Confirm with <provider>**. The provider asks you to sign in again and returns you to the approval page, where **Connect** works for five minutes.
+
+Signing out and in again does not count, because a provider can answer an ordinary sign-in from its own session without asking anything.
 
 ### A profile that has synced before
 

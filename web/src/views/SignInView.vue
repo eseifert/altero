@@ -148,34 +148,6 @@ async function submit(): Promise<void> {
 <style scoped>
 @import '@/styles/auth-form.css';
 
-/* Shaped like an outlined AppButton rather than being one: this is a
-   navigation to another origin, and an anchor is what a browser expects to
-   hand a redirect to. */
-.auth-form__provider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 0 var(--md-spacing-5);
-  border-radius: var(--md-sys-shape-corner-full);
-  box-shadow: inset 0 0 0 1px var(--md-sys-color-outline);
-  color: var(--md-sys-color-primary);
-  font-size: var(--md-sys-typescale-label-large-size);
-  font-weight: var(--md-sys-typescale-weight-medium);
-  text-decoration: none;
-}
-
-/* A fingertip needs about a centimetre, as AppButton says. */
-@media (pointer: coarse) {
-  .auth-form__provider {
-    min-height: 2.75rem;
-  }
-}
-
-.auth-form__provider:hover {
-  background: color-mix(in srgb, currentColor 8%, transparent);
-}
-
 .auth-form__divider {
   display: flex;
   align-items: center;

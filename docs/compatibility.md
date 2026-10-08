@@ -725,10 +725,12 @@ The concern that kept this at the command line for a while is answered rather
 than dropped. What is handed over is a full-access key that outlives the
 browser session, which is a larger grant than signing in to read one's own
 library, so it is not something a signed-in tab should be able to do merely by
-being pointed at a URL. Confirming therefore takes the password again, the way
-every other credential change in the account does; the CSRF token stops the
-form being submitted from another origin, and the password stops a prepared
-link being worth sending to somebody.
+being pointed at a URL. Confirming therefore takes a fresh proof, the way every
+other credential change in the account does: the password, or for an account
+with none, a trip back through its identity provider with `prompt=login` in the
+last five minutes (`services/reauth.py`). The CSRF token stops the form being
+submitted from another origin, and the proof stops a prepared link being worth
+sending to somebody.
 
 **`loginURL` carries a query, as upstream's does.** Upstream's is
 `login?session=<token>`, and the Android application appends `&app=1` to it as
