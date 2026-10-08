@@ -8,6 +8,7 @@ import enUS from './locales/en-US'
 import es from './locales/es'
 import fi from './locales/fi'
 import fr from './locales/fr'
+import id from './locales/id'
 import it from './locales/it'
 import ja from './locales/ja'
 import ko from './locales/ko'
@@ -71,6 +72,7 @@ export const MESSAGES = {
   ja,
   ko,
   vi,
+  id,
   'zh-CN': zhCN,
   'zh-TW': zhTW,
 }
@@ -103,15 +105,15 @@ function czechSlovak(choice: number, branches: number): number {
  * Which branch of a plural message a number asks for, per language.
  *
  * English separates one from many and every catalogue followed, because that
- * is what German, French, Spanish, Portuguese, Danish, Swedish, Finnish,
- * Dutch and Italian do too -- and Japanese, Korean, Vietnamese and Chinese,
- * which inflect nothing, write the one form twice rather than pretend to a
- * distinction. Polish, Czech, Slovak, Russian and Ukrainian have a third
- * form for the small counts, so "2 elementy" and "5 elementów" are different
- * words: their catalogues carry three branches and these rules choose
- * between them. Slovenian has a dual as well, and so four: "1 vnos",
- * "2 vnosa", "3 vnosi", "5 vnosov". A catalogue written with English's two
- * would be wrong on every count from 2 to 4, which is what
+ * is what German, French, Spanish, Portuguese, Danish, Norwegian, Swedish,
+ * Finnish, Dutch and Italian do too -- and Japanese, Korean, Vietnamese,
+ * Indonesian and Chinese, which inflect nothing, write the one form twice
+ * rather than pretend to a distinction. Polish, Czech, Slovak, Russian and
+ * Ukrainian have a third form for the small counts, so "2 elementy" and
+ * "5 elementów" are different words: their catalogues carry three branches
+ * and these rules choose between them. Slovenian has a dual as well, and so
+ * four: "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". A catalogue written with
+ * English's two would be wrong on every count from 2 to 4, which is what
  * `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a

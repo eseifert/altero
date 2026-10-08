@@ -780,6 +780,7 @@ class TestLanguageAndTimeZone:
             "ja",
             "ko",
             "vi",
+            "id",
             "zh-CN",
             "zh-TW",
         }

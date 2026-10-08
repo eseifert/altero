@@ -183,6 +183,16 @@ describe('formatting a date in each language on offer', () => {
     expect(formatDateTime('2019-04-03T22:30:00Z')).toContain('00.30')
   })
 
+  it('separates the hour with a full stop in Indonesian too', () => {
+    /* Indonesian names April as English does, so the month cannot tell the two
+       apart; the hour can. */
+    const store = browser(['en-GB'], 'UTC')
+
+    store.adopt({ language: 'id', timeZone: 'Asia/Jakarta' })
+
+    expect(formatDateTime('2019-04-03T22:30:00Z')).toContain('05.30')
+  })
+
   it('keeps a region the account never chose', () => {
     /* An account set to Simplified Chinese on a machine in Taipei gets
        Simplified words -- that is what it asked for -- but its dates stay

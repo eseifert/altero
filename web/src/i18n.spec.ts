@@ -51,6 +51,7 @@ describe('the languages on offer', () => {
         'ja',
         'ko',
         'vi',
+        'id',
         'zh-CN',
         'zh-TW',
       ]),
@@ -77,6 +78,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['sk-SK'])).toBe('sk')
     expect(resolveLocale(null, ['vi-VN'])).toBe('vi')
     expect(resolveLocale(null, ['nb-NO'])).toBe('nb')
+    expect(resolveLocale(null, ['id-ID'])).toBe('id')
   })
 
   it('keeps the region where the words depend on it', () => {
