@@ -5,6 +5,7 @@ import de from './locales/de'
 import enGB from './locales/en-GB'
 import enUS from './locales/en-US'
 import es from './locales/es'
+import fi from './locales/fi'
 import fr from './locales/fr'
 import it from './locales/it'
 import ja from './locales/ja'
@@ -55,6 +56,7 @@ export const MESSAGES = {
   nl,
   da,
   sv,
+  fi,
   pl,
   sl,
   ru,
@@ -85,9 +87,9 @@ function eastSlavic(choice: number, branches: number): number {
  * Which branch of a plural message a number asks for, per language.
  *
  * English separates one from many and every catalogue followed, because that is
- * what German, French, Spanish, Portuguese, Danish, Swedish, Dutch and Italian
- * do too -- and Japanese, Korean and Chinese, which inflect nothing, write the
- * one form twice rather than pretend to a distinction. Polish, Russian and
+ * what German, French, Spanish, Portuguese, Danish, Swedish, Finnish, Dutch and
+ * Italian do too -- and Japanese, Korean and Chinese, which inflect nothing,
+ * write the one form twice rather than pretend to a distinction. Polish, Russian and
  * Ukrainian have a third form for the small counts, so "2 elementy" and "5
  * elementów" are different words: their catalogues carry three branches and
  * these rules choose between them. Slovenian has a dual as well, and so four:

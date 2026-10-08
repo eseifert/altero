@@ -11,6 +11,7 @@ import de from './de'
 import enGB from './en-GB'
 import en from './en-US'
 import es from './es'
+import fi from './fi'
 import fr from './fr'
 // `it` is vitest's, so the Italian catalogue comes in under another name and
 // goes back to its tag in `CATALOGUES` below.
@@ -49,6 +50,7 @@ const CATALOGUES = {
   nl,
   da,
   sv,
+  fi,
   pl,
   sl,
   ru,
