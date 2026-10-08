@@ -20,6 +20,7 @@ import sk from './locales/sk'
 import sl from './locales/sl'
 import sv from './locales/sv'
 import uk from './locales/uk'
+import vi from './locales/vi'
 import zhCN from './locales/zh-CN'
 import zhTW from './locales/zh-TW'
 
@@ -67,6 +68,7 @@ export const MESSAGES = {
   uk,
   ja,
   ko,
+  vi,
   'zh-CN': zhCN,
   'zh-TW': zhTW,
 }
@@ -100,8 +102,8 @@ function czechSlovak(choice: number, branches: number): number {
  *
  * English separates one from many and every catalogue followed, because that
  * is what German, French, Spanish, Portuguese, Danish, Swedish, Finnish,
- * Dutch and Italian do too -- and Japanese, Korean and Chinese, which
- * inflect nothing, write the one form twice rather than pretend to a
+ * Dutch and Italian do too -- and Japanese, Korean, Vietnamese and Chinese,
+ * which inflect nothing, write the one form twice rather than pretend to a
  * distinction. Polish, Czech, Slovak, Russian and Ukrainian have a third
  * form for the small counts, so "2 elementy" and "5 elementów" are different
  * words: their catalogues carry three branches and these rules choose

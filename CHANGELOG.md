@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add Czech, Finnish, Slovak, Slovenian, Swedish and Vietnamese interface translations using Zotero’s domain terminology.
 - Accounts without a password approve Zotero clients by signing in again at their provider. Reported by [@mweber0] in [Discussion#18].
 - Re-authenticating through a SAML provider sends `ForceAuthn`, so the directory asks again instead of reusing its session.
 

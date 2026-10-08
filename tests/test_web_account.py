@@ -778,6 +778,7 @@ class TestLanguageAndTimeZone:
             "uk",
             "ja",
             "ko",
+            "vi",
             "zh-CN",
             "zh-TW",
         }

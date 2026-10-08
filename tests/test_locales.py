@@ -57,6 +57,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["sl"] == "Slovenščina"
         assert LANGUAGES["sv"] == "Svenska"
         assert LANGUAGES["uk"] == "Українська"
+        assert LANGUAGES["vi"] == "Tiếng Việt"
         assert LANGUAGES["zh-CN"] == "简体中文"
 
     def test_a_split_language_names_its_territory_in_itself_too(self) -> None:
@@ -141,6 +142,7 @@ class TestNormalisingALanguage:
             ("fi-FI", "fi"),
             ("cs-CZ", "cs"),
             ("sk-SK", "sk"),
+            ("vi-VN", "vi"),
         ],
     )
     def test_a_language_carried_once_drops_its_territory(self, tag: str, expected: str) -> None:

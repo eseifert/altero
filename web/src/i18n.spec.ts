@@ -49,6 +49,7 @@ describe('the languages on offer', () => {
         'uk',
         'ja',
         'ko',
+        'vi',
         'zh-CN',
         'zh-TW',
       ]),
@@ -73,6 +74,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['fi-FI'])).toBe('fi')
     expect(resolveLocale(null, ['cs-CZ'])).toBe('cs')
     expect(resolveLocale(null, ['sk-SK'])).toBe('sk')
+    expect(resolveLocale(null, ['vi-VN'])).toBe('vi')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -118,6 +120,12 @@ describe('counting in a language with two forms', () => {
 describe('counting in Korean', () => {
   it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
     expect(items('ko', count)).toBe(`항목 ${count}개`)
+  })
+})
+
+describe('counting in Vietnamese', () => {
+  it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
+    expect(items('vi', count)).toBe(`${count} mục`)
   })
 })
 
