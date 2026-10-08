@@ -29,6 +29,7 @@ import ru from './ru'
 import sk from './sk'
 import sl from './sl'
 import sv from './sv'
+import tr from './tr'
 import uk from './uk'
 import vi from './vi'
 import zhCN from './zh-CN'
@@ -63,6 +64,7 @@ const CATALOGUES = {
   sl,
   ru,
   uk,
+  tr,
   ja,
   ko,
   vi,

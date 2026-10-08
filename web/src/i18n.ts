@@ -21,6 +21,7 @@ import ru from './locales/ru'
 import sk from './locales/sk'
 import sl from './locales/sl'
 import sv from './locales/sv'
+import tr from './locales/tr'
 import uk from './locales/uk'
 import vi from './locales/vi'
 import zhCN from './locales/zh-CN'
@@ -69,6 +70,7 @@ export const MESSAGES = {
   sl,
   ru,
   uk,
+  tr,
   ja,
   ko,
   vi,
@@ -108,12 +110,13 @@ function czechSlovak(choice: number, branches: number): number {
  * is what German, French, Spanish, Portuguese, Danish, Norwegian, Swedish,
  * Finnish, Dutch and Italian do too -- and Japanese, Korean, Vietnamese,
  * Indonesian and Chinese, which inflect nothing, write the one form twice
- * rather than pretend to a distinction. Polish, Czech, Slovak, Russian and
- * Ukrainian have a third form for the small counts, so "2 elementy" and
- * "5 elementów" are different words: their catalogues carry three branches
- * and these rules choose between them. Slovenian has a dual as well, and so
- * four: "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". A catalogue written with
- * English's two would be wrong on every count from 2 to 4, which is what
+ * rather than pretend to a distinction; Turkish, which counts with the
+ * singular, does the same. Polish, Czech, Slovak, Russian and Ukrainian have
+ * a third form for the small counts, so "2 elementy" and "5 elementów" are
+ * different words: their catalogues carry three branches and these rules
+ * choose between them. Slovenian has a dual as well, and so four: "1 vnos",
+ * "2 vnosa", "3 vnosi", "5 vnosov". A catalogue written with English's two
+ * would be wrong on every count from 2 to 4, which is what
  * `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
