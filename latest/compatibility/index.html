@@ -3699,10 +3699,13 @@ exactly as before.</p>
 than dropped. What is handed over is a full-access key that outlives the
 browser session, which is a larger grant than signing in to read one's own
 library, so it is not something a signed-in tab should be able to do merely by
-being pointed at a URL. Confirming therefore takes the password again, the way
-every other credential change in the account does; the CSRF token stops the
-form being submitted from another origin, and the password stops a prepared
-link being worth sending to somebody.</p>
+being pointed at a URL. Confirming therefore takes a fresh proof, the way every
+other credential change in the account does: the password, or for an account
+with none, a trip back through its identity provider in the last five minutes,
+asked with <code>prompt=login</code> (OIDC) or <code>ForceAuthn</code> (SAML) to authenticate again
+(<code>services/reauth.py</code>). The CSRF token stops the form being
+submitted from another origin, and the proof stops a prepared link being worth
+sending to somebody.</p>
 <p><strong><code>loginURL</code> carries a query, as upstream's does.</strong> Upstream's is
 <code>login?session=&lt;token&gt;</code>, and the Android application appends <code>&amp;app=1</code> to it as
 text. altero's is <code>/keys/sessions/&lt;token&gt;/login?session=&lt;token&gt;</code>; without the

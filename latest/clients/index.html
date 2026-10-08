@@ -1808,7 +1808,12 @@
 <li>receives an API key for synchronization.</li>
 </ol>
 <p>The key can access the personal and group libraries available to that account, as Zotero expects.</p>
-<p>Approving the client asks for the password again even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity.</p>
+<p>Approving the client asks you to prove who you are again, even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity:</p>
+<ul>
+<li>an account with a password enters it;</li>
+<li>an account created through a <a href="../administration/#sign-in-providers">sign-in provider</a> has no password, so the page offers <strong>Confirm with <provider></strong>. The provider asks you to sign in again and returns you to the approval page, where <strong>Connect</strong> works for five minutes.</li>
+</ul>
+<p>Signing out and in again does not count, because a provider can answer an ordinary sign-in from its own session without asking anything.</p>
 <h3 id="a-profile-that-has-synced-before">A profile that has synced before<a class="headerlink" href="#a-profile-that-has-synced-before" title="Permanent link">&para;</a></h3>
 <p>Zotero remembers the numeric account id its data directory last synced under, and sends it when linking. altero refuses to hand a key to a different account, because the desktop client reacts to a changed id by offering to reset the data directory and quitting.</p>
 <p>A profile that has synced with zotero.org, or with another altero instance, therefore asks for an account this server does not have. Linking is refused and the message names the id.</p>
