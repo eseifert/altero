@@ -50,6 +50,7 @@ describe('the languages on offer', () => {
         'uk',
         'tr',
         'bn',
+        'ta',
         'ja',
         'ko',
         'vi',
@@ -83,6 +84,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['id-ID'])).toBe('id')
     expect(resolveLocale(null, ['tr-TR'])).toBe('tr')
     expect(resolveLocale(null, ['bn-BD'])).toBe('bn')
+    expect(resolveLocale(null, ['ta-IN'])).toBe('ta')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -126,6 +128,8 @@ describe('counting in a language with two forms', () => {
     ['en-GB', 2, '2 items'],
     ['de', 1, '1 Eintrag'],
     ['de', 5, '5 Einträge'],
+    ['ta', 1, '1 உருப்படி'],
+    ['ta', 5, '5 உருப்படிகள்'],
   ])('%s renders %i', (locale, count, expected) => {
     expect(items(locale, count)).toBe(expected)
   })

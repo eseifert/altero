@@ -22,6 +22,7 @@ import ru from './locales/ru'
 import sk from './locales/sk'
 import sl from './locales/sl'
 import sv from './locales/sv'
+import ta from './locales/ta'
 import tr from './locales/tr'
 import uk from './locales/uk'
 import vi from './locales/vi'
@@ -73,6 +74,7 @@ export const MESSAGES = {
   uk,
   tr,
   bn,
+  ta,
   ja,
   ko,
   vi,
@@ -116,16 +118,17 @@ function zeroAsOne(choice: number, branches: number): number {
  *
  * English separates one from many and every catalogue followed, because that
  * is what German, French, Spanish, Portuguese, Danish, Norwegian, Swedish,
- * Finnish, Dutch and Italian do too -- and Japanese, Korean, Vietnamese,
- * Indonesian, Bengali and Chinese, which inflect nothing, write the one form
- * twice rather than pretend to a distinction; Turkish, which counts with the
- * singular, does the same. Polish, Czech, Slovak, Russian and Ukrainian have
- * a third form for the small counts, so "2 elementy" and "5 elementów" are
- * different words: their catalogues carry three branches and these rules
- * choose between them. Slovenian has a dual as well, and so four: "1 vnos",
- * "2 vnosa", "3 vnosi", "5 vnosov". Bengali counts zero with one rather than
- * with many. A catalogue written with English's two would be wrong on every
- * count from 2 to 4, which is what `locales.node.spec.ts` now checks for.
+ * Finnish, Dutch, Italian and Tamil do too -- and Japanese, Korean,
+ * Vietnamese, Indonesian, Bengali and Chinese, which inflect nothing, write
+ * the one form twice rather than pretend to a distinction; Turkish, which
+ * counts with the singular, does the same. Polish, Czech, Slovak, Russian
+ * and Ukrainian have a third form for the small counts, so "2 elementy" and
+ * "5 elementów" are different words: their catalogues carry three branches
+ * and these rules choose between them. Slovenian has a dual as well, and so
+ * four: "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". Bengali counts zero with
+ * one rather than with many. A catalogue written with English's two would be
+ * wrong on every count from 2 to 4, which is what `locales.node.spec.ts` now
+ * checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
