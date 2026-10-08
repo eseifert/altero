@@ -727,8 +727,9 @@ browser session, which is a larger grant than signing in to read one's own
 library, so it is not something a signed-in tab should be able to do merely by
 being pointed at a URL. Confirming therefore takes a fresh proof, the way every
 other credential change in the account does: the password, or for an account
-with none, a trip back through its identity provider with `prompt=login` in the
-last five minutes (`services/reauth.py`). The CSRF token stops the form being
+with none, a trip back through its identity provider in the last five minutes,
+asked with `prompt=login` (OIDC) or `ForceAuthn` (SAML) to authenticate again
+(`services/reauth.py`). The CSRF token stops the form being
 submitted from another origin, and the proof stops a prepared link being worth
 sending to somebody.
 

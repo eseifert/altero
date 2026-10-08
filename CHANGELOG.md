@@ -8,6 +8,7 @@ gained a capability worth naming.
 ## [Unreleased]
 
 - Accounts without a password approve Zotero clients by signing in again at their provider. Reported by [@mweber0] in [Discussion#18].
+- Re-authenticating through a SAML provider sends `ForceAuthn`, so the directory asks again instead of reusing its session.
 
 ## [1.0.0-beta.2] — 2026-10-03
 

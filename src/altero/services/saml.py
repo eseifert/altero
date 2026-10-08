@@ -138,6 +138,7 @@ def authn_request_url(
     entity_id: str,
     request_id: str,
     relay_state: str = "",
+    force_authn: bool = False,
 ) -> str:
     """Return where to send the browser, over the HTTP-Redirect binding.
 
@@ -145,12 +146,17 @@ def authn_request_url(
     signed: altero has no signing key, and an unsigned AuthnRequest is what the
     binding permits and what directories accept by default. Nothing in it is a
     secret, and the *response* is what has to be signed.
+
+    ``force_authn`` is for re-authentication, and is OIDC's ``prompt=login`` in
+    SAML: without it the directory may answer from a session it still holds,
+    and the browser would have proved nothing by going there.
     """
     issued = _now().replace(microsecond=0).isoformat() + "Z"
+    forced = ' ForceAuthn="true"' if force_authn else ""
     document = (
         '<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"'
         ' xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"'
-        f' ID="{request_id}" Version="2.0" IssueInstant="{issued}"'
+        f' ID="{request_id}" Version="2.0" IssueInstant="{issued}"{forced}'
         f' Destination="{_escape(provider.sso_url)}"'
         ' ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"'
         f' AssertionConsumerServiceURL="{_escape(acs_url)}">'

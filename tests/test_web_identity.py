@@ -545,6 +545,31 @@ class TestWhatABrowserCanProveItselfWith:
         assert (await client.get("/web/account/proof")).status_code == 401
 
 
+class TestReauthenticatingThroughSaml:
+    async def test_the_directory_is_made_to_ask_again(self, client: httpx.AsyncClient) -> None:
+        """Without ForceAuthn a SAML directory answers from its own session,
+        and the trip proves no more than the sign-in it followed."""
+        from tests.test_saml import CERTIFICATE, authn_request
+
+        await register(client)
+        await add_provider(
+            client,
+            kind="saml",
+            issuer=None,
+            clientId=None,
+            clientSecret=None,
+            idpEntityId="https://idp.example.org",
+            ssoUrl="https://idp.example.org/saml",
+            certificates=CERTIFICATE,
+        )
+
+        reauth = await client.get("/web/auth/sso/campus/start?purpose=reauth")
+        login = await client.get("/web/auth/sso/campus/start")
+
+        assert 'ForceAuthn="true"' in authn_request(reauth.headers["location"])
+        assert "ForceAuthn" not in authn_request(login.headers["location"])
+
+
 class TestAnAccountWithNoPasswordConnectsZotero:
     """The desktop client's sign-in, for an account the directory created.
 

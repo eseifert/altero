@@ -407,6 +407,16 @@ class TestTheParserIsNotAWayIn:
             saml.in_response_to(base64.b64encode(huge).decode())
 
 
+def authn_request(url: str) -> str:
+    """Return the AuthnRequest document a redirect URL carries."""
+    import base64
+    import zlib
+    from urllib.parse import parse_qs, urlparse
+
+    packed = parse_qs(urlparse(url).query)["SAMLRequest"][0]
+    return zlib.decompress(base64.b64decode(packed), -zlib.MAX_WBITS).decode()
+
+
 class TestTheAuthnRequest:
     async def test_it_goes_to_the_configured_endpoint(self) -> None:
         url = saml.authn_request_url(provider(), acs_url=ACS, entity_id=SP, request_id=REQUEST_ID)
@@ -426,6 +436,20 @@ class TestTheAuthnRequest:
         assert f'ID="{REQUEST_ID}"' in document
         assert f"<saml:Issuer>{SP}</saml:Issuer>" in document
         assert f'AssertionConsumerServiceURL="{ACS}"' in document
+
+    async def test_an_ordinary_sign_in_lets_the_directory_use_its_session(self) -> None:
+        url = saml.authn_request_url(provider(), acs_url=ACS, entity_id=SP, request_id=REQUEST_ID)
+
+        assert "ForceAuthn" not in authn_request(url)
+
+    async def test_reauthenticating_makes_the_directory_ask_again(self) -> None:
+        """The SAML counterpart of OIDC's `prompt=login`: a proof the directory
+        could give from its own session without asking proves nothing."""
+        url = saml.authn_request_url(
+            provider(), acs_url=ACS, entity_id=SP, request_id=REQUEST_ID, force_authn=True
+        )
+
+        assert 'ForceAuthn="true"' in authn_request(url)
 
     async def test_a_generated_id_is_one_xml_will_accept(self) -> None:
         """xsd:ID may not begin with a digit, and a hex token frequently does."""

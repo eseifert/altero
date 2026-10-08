@@ -220,6 +220,8 @@ async def start_sign_in(
                 acs_url=acs_url(request, provider.slug),
                 entity_id=entity_id(request),
                 request_id=pending.state,
+                # As `prompt=login` below: the directory must ask again.
+                force_authn=purpose == "reauth",
             ),
             status_code=303,
         )
