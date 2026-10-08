@@ -39,6 +39,7 @@ describe('the languages on offer', () => {
         'it',
         'nl',
         'da',
+        'nb',
         'sv',
         'fi',
         'pl',
@@ -75,6 +76,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['cs-CZ'])).toBe('cs')
     expect(resolveLocale(null, ['sk-SK'])).toBe('sk')
     expect(resolveLocale(null, ['vi-VN'])).toBe('vi')
+    expect(resolveLocale(null, ['nb-NO'])).toBe('nb')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -89,6 +91,12 @@ describe('the languages on offer', () => {
     expect(matchLocale('en')).toBe('en-US')
     expect(matchLocale('pt')).toBe('pt-BR')
     expect(matchLocale('zh')).toBe('zh-CN')
+  })
+
+  it('reads Norwegian naming no written standard as Bokmål, and Nynorsk as neither', () => {
+    expect(matchLocale('no')).toBe('nb')
+    expect(matchLocale('no-NO')).toBe('nb')
+    expect(matchLocale('nn-NO')).toBeNull()
   })
 
   it('sends a territory with no catalogue to the one it reads', () => {

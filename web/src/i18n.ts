@@ -11,6 +11,7 @@ import fr from './locales/fr'
 import it from './locales/it'
 import ja from './locales/ja'
 import ko from './locales/ko'
+import nb from './locales/nb'
 import nl from './locales/nl'
 import pl from './locales/pl'
 import ptBR from './locales/pt-BR'
@@ -58,6 +59,7 @@ export const MESSAGES = {
   it,
   nl,
   da,
+  nb,
   sv,
   fi,
   pl,
@@ -159,7 +161,8 @@ export function isLocale(value: unknown): value is Locale {
 }
 
 /**
- * Where a bare `en`, `pt` or `zh` goes, following CLDR's likely subtags.
+ * Where a bare `en`, `pt` or `zh` goes, following CLDR's likely subtags, and
+ * where `no` goes: Norwegian naming no written standard is read as Bokmål.
  *
  * The same answer the server gives in `services/locales.py`, and
  * `tests/test_locales.py` fails if the two tables disagree -- the browser has
@@ -168,6 +171,7 @@ export function isLocale(value: unknown): value is Locale {
  */
 export const DEFAULT_VARIANTS: Record<string, Locale> = {
   en: 'en-US',
+  no: 'nb',
   pt: 'pt-BR',
   zh: 'zh-CN',
 }
@@ -191,6 +195,7 @@ export const VARIANT_SUBTAGS: Record<string, Record<string, Locale>> = {
     uk: 'en-GB',
     za: 'en-GB',
   },
+  no: {}, // One catalogue, Bokmål; see `DEFAULT_VARIANTS`.
   pt: {
     br: 'pt-BR',
     ao: 'pt-PT',

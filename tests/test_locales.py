@@ -51,6 +51,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["fi"] == "Suomi"
         assert LANGUAGES["ja"] == "日本語"
         assert LANGUAGES["ko"] == "한국어"
+        assert LANGUAGES["nb"] == "Norsk bokmål"
         assert LANGUAGES["pl"] == "Polski"
         assert LANGUAGES["ru"] == "Русский"
         assert LANGUAGES["sk"] == "Slovenčina"
@@ -143,6 +144,7 @@ class TestNormalisingALanguage:
             ("cs-CZ", "cs"),
             ("sk-SK", "sk"),
             ("vi-VN", "vi"),
+            ("nb-NO", "nb"),
         ],
     )
     def test_a_language_carried_once_drops_its_territory(self, tag: str, expected: str) -> None:
@@ -174,6 +176,14 @@ class TestNormalisingALanguage:
     )
     def test_a_bare_language_goes_where_cldr_sends_it(self, tag: str, expected: str) -> None:
         assert normalise_language(tag) == expected
+
+    @pytest.mark.parametrize("tag", ["no", "no-NO", "NO_no"])
+    def test_norwegian_naming_no_standard_reads_bokmal(self, tag: str) -> None:
+        assert normalise_language(tag) == "nb"
+
+    def test_nynorsk_is_not_taken_for_bokmal(self) -> None:
+        with pytest.raises(InvalidInputError, match="Unsupported language"):
+            normalise_language("nn-NO")
 
     @pytest.mark.parametrize(
         ("tag", "expected"),

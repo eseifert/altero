@@ -37,6 +37,7 @@ LANGUAGES: dict[str, str] = {
     "it": "Italiano",
     "nl": "Nederlands",
     "da": "Dansk",
+    "nb": "Norsk bokmål",
     "sv": "Svenska",
     "fi": "Suomi",
     "pl": "Polski",
@@ -56,7 +57,11 @@ LANGUAGES: dict[str, str] = {
 #: name no territory, and CLDR's likely subtags say which one they imply.
 #: Following CLDR rather than picking is what makes this answerable rather than
 #: an opinion about who owns a language.
-DEFAULT_VARIANTS: dict[str, str] = {"en": "en-US", "pt": "pt-BR", "zh": "zh-CN"}
+#:
+#: `no` is the one exception, a language rather than a territory left open: it
+#: is Norwegian without naming a written standard, and goes to Bokmål, which
+#: most Norwegians write. Nynorsk (`nn`) has no catalogue and is not sent there.
+DEFAULT_VARIANTS: dict[str, str] = {"en": "en-US", "no": "nb", "pt": "pt-BR", "zh": "zh-CN"}
 
 #: The region and script subtags that pick a variant, lowercased.
 #:
@@ -76,6 +81,7 @@ VARIANT_SUBTAGS: dict[str, dict[str, str]] = {
         "uk": "en-GB",
         "za": "en-GB",
     },
+    "no": {},  # One catalogue, Bokmål; see `DEFAULT_VARIANTS`.
     "pt": {
         "br": "pt-BR",
         "ao": "pt-PT",

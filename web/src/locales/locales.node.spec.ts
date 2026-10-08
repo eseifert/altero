@@ -19,6 +19,7 @@ import fr from './fr'
 import italian from './it'
 import ja from './ja'
 import ko from './ko'
+import nb from './nb'
 import nl from './nl'
 import pl from './pl'
 import ptBR from './pt-BR'
@@ -52,6 +53,7 @@ const CATALOGUES = {
   it: italian,
   nl,
   da,
+  nb,
   sv,
   fi,
   pl,
