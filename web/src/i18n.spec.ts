@@ -49,6 +49,7 @@ describe('the languages on offer', () => {
         'ru',
         'uk',
         'tr',
+        'hi',
         'bn',
         'ta',
         'ja',
@@ -85,6 +86,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['tr-TR'])).toBe('tr')
     expect(resolveLocale(null, ['bn-BD'])).toBe('bn')
     expect(resolveLocale(null, ['ta-IN'])).toBe('ta')
+    expect(resolveLocale(null, ['hi-IN'])).toBe('hi')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -150,6 +152,19 @@ describe('counting in Bengali', () => {
     expect(PLURAL_RULES.bn(0, 2)).toBe(0)
     expect(PLURAL_RULES.bn(1, 2)).toBe(0)
     expect(PLURAL_RULES.bn(2, 2)).toBe(1)
+  })
+})
+
+describe('counting in Hindi', () => {
+  /* The noun stays as it is and the verb agrees, with zero counted as one. */
+  it.each([
+    [0, '0 आइटम हटाया गया'],
+    [1, '1 आइटम हटाया गया'],
+    [2, '2 आइटम हटाए गए'],
+    [5, '5 आइटम हटाए गए'],
+  ])('renders %i', (count, expected) => {
+    i18n.global.locale.value = 'hi'
+    expect(i18n.global.t('{count} item deleted | {count} items deleted', count)).toBe(expected)
   })
 })
 

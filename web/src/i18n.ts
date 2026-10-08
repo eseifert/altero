@@ -9,6 +9,7 @@ import enUS from './locales/en-US'
 import es from './locales/es'
 import fi from './locales/fi'
 import fr from './locales/fr'
+import hi from './locales/hi'
 import id from './locales/id'
 import it from './locales/it'
 import ja from './locales/ja'
@@ -73,6 +74,7 @@ export const MESSAGES = {
   ru,
   uk,
   tr,
+  hi,
   bn,
   ta,
   ja,
@@ -125,10 +127,10 @@ function zeroAsOne(choice: number, branches: number): number {
  * and Ukrainian have a third form for the small counts, so "2 elementy" and
  * "5 elementów" are different words: their catalogues carry three branches
  * and these rules choose between them. Slovenian has a dual as well, and so
- * four: "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". Bengali counts zero with
- * one rather than with many. A catalogue written with English's two would be
- * wrong on every count from 2 to 4, which is what `locales.node.spec.ts` now
- * checks for.
+ * four: "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". Bengali and Hindi count
+ * zero with one rather than with many. A catalogue written with English's
+ * two would be wrong on every count from 2 to 4, which is what
+ * `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
@@ -148,6 +150,7 @@ export const PLURAL_RULES = {
   cs: czechSlovak,
   sk: czechSlovak,
   bn: zeroAsOne,
+  hi: zeroAsOne,
   ru: eastSlavic,
   uk: eastSlavic,
   /* By the last two digits: 1, 2, 3-4, everything else. */

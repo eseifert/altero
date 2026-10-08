@@ -778,6 +778,7 @@ class TestLanguageAndTimeZone:
             "ru",
             "uk",
             "tr",
+            "hi",
             "bn",
             "ta",
             "ja",
