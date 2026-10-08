@@ -770,6 +770,7 @@ class TestLanguageAndTimeZone:
             "da",
             "sv",
             "pl",
+            "sl",
             "ru",
             "uk",
             "ja",

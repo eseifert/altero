@@ -14,6 +14,7 @@ import pl from './locales/pl'
 import ptBR from './locales/pt-BR'
 import ptPT from './locales/pt-PT'
 import ru from './locales/ru'
+import sl from './locales/sl'
 import sv from './locales/sv'
 import uk from './locales/uk'
 import zhCN from './locales/zh-CN'
@@ -55,6 +56,7 @@ export const MESSAGES = {
   da,
   sv,
   pl,
+  sl,
   ru,
   uk,
   ja,
@@ -86,10 +88,12 @@ function eastSlavic(choice: number, branches: number): number {
  * what German, French, Spanish, Portuguese, Danish, Swedish, Dutch and Italian
  * do too -- and Japanese, Korean and Chinese, which inflect nothing, write the
  * one form twice rather than pretend to a distinction. Polish, Russian and
- * Ukrainian have a third form for the small counts, so "2 elementy" and "5 elementów" are
- * different words: their catalogues carry three branches and these rules choose
- * between them. A catalogue written with English's two would be wrong on every
- * count from 2 to 4, which is what `locales.node.spec.ts` now checks for.
+ * Ukrainian have a third form for the small counts, so "2 elementy" and "5
+ * elementów" are different words: their catalogues carry three branches and
+ * these rules choose between them. Slovenian has a dual as well, and so four:
+ * "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". A catalogue written with
+ * English's two would be wrong on every count from 2 to 4, which is what
+ * `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
@@ -108,6 +112,14 @@ export const PLURAL_RULES = {
   },
   ru: eastSlavic,
   uk: eastSlavic,
+  /* By the last two digits: 1, 2, 3-4, everything else. */
+  sl: (choice: number, branches: number) => {
+    const hundreds = choice % 100
+    if (hundreds === 1) return 0
+    if (hundreds === 2) return Math.min(1, branches - 1)
+    if (hundreds === 3 || hundreds === 4) return Math.min(2, branches - 1)
+    return Math.min(3, branches - 1)
+  },
 }
 
 export const i18n = createI18n({

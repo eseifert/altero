@@ -7,7 +7,8 @@ import { i18n, isLocale, LOCALES, matchLocale, PLURAL_RULES, resolveLocale } fro
  *
  * English separates one from many, and so does every catalogue that followed
  * it. Polish, Russian and Ukrainian have a third form for the small counts:
- * "2 elementy" against "5 elementów", "2 записи" against "5 записей". These
+ * "2 elementy" against "5 elementów", "2 записи" against "5 записей", and
+ * Slovenian a dual besides: "2 vnosa", "3 vnosi", "5 vnosov". These
  * tests are what makes `pluralRules` in `i18n.ts` more than a claim -- take the
  * rules out and every count from 2 to 4 renders the wrong word.
  */
@@ -40,6 +41,7 @@ describe('the languages on offer', () => {
         'da',
         'sv',
         'pl',
+        'sl',
         'ru',
         'uk',
         'ja',
@@ -64,6 +66,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['ko-KR'])).toBe('ko')
     expect(matchLocale('ko_KR')).toBe('ko')
     expect(resolveLocale(null, ['sv-FI'])).toBe('sv')
+    expect(resolveLocale(null, ['sl-SI'])).toBe('sl')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -166,6 +169,27 @@ describe('counting in Ukrainian', () => {
   })
 })
 
+describe('counting in Slovenian', () => {
+  /* A dual between the singular and the small counts, decided by the last two
+     digits, so 101 is singular and 102 dual again. */
+  it.each([
+    [1, '1 vnos'],
+    [2, '2 vnosa'],
+    [3, '3 vnosi'],
+    [4, '4 vnosi'],
+    [5, '5 vnosov'],
+    [0, '0 vnosov'],
+    [11, '11 vnosov'],
+    [21, '21 vnosov'],
+    [101, '101 vnos'],
+    [102, '102 vnosa'],
+    [103, '103 vnosi'],
+    [111, '111 vnosov'],
+  ])('renders %i', (count, expected) => {
+    expect(items('sl', count)).toBe(expected)
+  })
+})
+
 describe('a message with fewer branches than the language has forms', () => {
   /* An English message reached by fallback has two branches while these rules
      count three, so each one clamps to what it was handed rather than indexing
@@ -175,8 +199,10 @@ describe('a message with fewer branches than the language has forms', () => {
     ['pl', 2, 1],
     ['ru', 5, 1],
     ['ru', 11, 1],
+    ['sl', 2, 1],
+    ['sl', 5, 1],
   ])('%s asks for no branch beyond the last', (locale, count, expected) => {
-    expect(PLURAL_RULES[locale as 'pl' | 'ru'](count, 2)).toBe(expected)
+    expect(PLURAL_RULES[locale as 'pl' | 'ru' | 'sl'](count, 2)).toBe(expected)
   })
 
   it('still picks the singular for one', () => {
