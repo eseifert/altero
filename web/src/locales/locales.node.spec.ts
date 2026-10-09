@@ -10,6 +10,7 @@ import bn from './bn'
 import cs from './cs'
 import da from './da'
 import de from './de'
+import el from './el'
 import enGB from './en-GB'
 import en from './en-US'
 import es from './es'
@@ -74,6 +75,7 @@ const CATALOGUES = {
   lt,
   ru,
   uk,
+  el,
   ka,
   tr,
   hi,
