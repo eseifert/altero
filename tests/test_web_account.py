@@ -777,6 +777,7 @@ class TestLanguageAndTimeZone:
             "sl",
             "hu",
             "ro",
+            "lt",
             "ru",
             "uk",
             "ka",

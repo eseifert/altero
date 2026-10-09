@@ -56,6 +56,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["ja"] == "日本語"
         assert LANGUAGES["ka"] == "ქართული"
         assert LANGUAGES["ko"] == "한국어"
+        assert LANGUAGES["lt"] == "Lietuvių"
         assert LANGUAGES["nb"] == "Norsk bokmål"
         assert LANGUAGES["pl"] == "Polski"
         assert LANGUAGES["ro"] == "Română"
@@ -159,6 +160,7 @@ class TestNormalisingALanguage:
             ("ta-IN", "ta"),
             ("hi-IN", "hi"),
             ("ka-GE", "ka"),
+            ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
         ],

@@ -48,6 +48,7 @@ describe('the languages on offer', () => {
         'sl',
         'hu',
         'ro',
+        'lt',
         'ru',
         'uk',
         'ka',
@@ -91,6 +92,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['ta-IN'])).toBe('ta')
     expect(resolveLocale(null, ['hi-IN'])).toBe('hi')
     expect(resolveLocale(null, ['ka-GE'])).toBe('ka')
+    expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
   })
@@ -249,6 +251,25 @@ describe('counting in Slovak', () => {
     [22, '22 záznamov'],
   ])('renders %i', (count, expected) => {
     expect(items('sk', count)).toBe(expected)
+  })
+})
+
+describe('counting in Lithuanian', () => {
+  /* The teens all take the last form, whatever their last digit. */
+  it.each([
+    [1, '1 įrašas'],
+    [2, '2 įrašai'],
+    [9, '9 įrašai'],
+    [10, '10 įrašų'],
+    [0, '0 įrašų'],
+    [11, '11 įrašų'],
+    [19, '19 įrašų'],
+    [21, '21 įrašas'],
+    [22, '22 įrašai'],
+    [101, '101 įrašas'],
+    [111, '111 įrašų'],
+  ])('renders %i', (count, expected) => {
+    expect(items('lt', count)).toBe(expected)
   })
 })
 
