@@ -21,6 +21,7 @@ import id from './id'
 // goes back to its tag in `CATALOGUES` below.
 import italian from './it'
 import ja from './ja'
+import ka from './ka'
 import ko from './ko'
 import nb from './nb'
 import nl from './nl'
@@ -67,6 +68,7 @@ const CATALOGUES = {
   sl,
   ru,
   uk,
+  ka,
   tr,
   hi,
   bn,

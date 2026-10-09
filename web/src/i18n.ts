@@ -13,6 +13,7 @@ import hi from './locales/hi'
 import id from './locales/id'
 import it from './locales/it'
 import ja from './locales/ja'
+import ka from './locales/ka'
 import ko from './locales/ko'
 import nb from './locales/nb'
 import nl from './locales/nl'
@@ -73,6 +74,7 @@ export const MESSAGES = {
   sl,
   ru,
   uk,
+  ka,
   tr,
   hi,
   bn,
@@ -122,8 +124,8 @@ function zeroAsOne(choice: number, branches: number): number {
  * is what German, French, Spanish, Portuguese, Danish, Norwegian, Swedish,
  * Finnish, Dutch, Italian and Tamil do too -- and Japanese, Korean,
  * Vietnamese, Indonesian, Bengali and Chinese, which inflect nothing, write
- * the one form twice rather than pretend to a distinction; Turkish, which
- * counts with the singular, does the same. Polish, Czech, Slovak, Russian
+ * the one form twice rather than pretend to a distinction; Turkish and
+ * Georgian, which count with the singular, do the same. Polish, Czech, Slovak, Russian
  * and Ukrainian have a third form for the small counts, so "2 elementy" and
  * "5 elementów" are different words: their catalogues carry three branches
  * and these rules choose between them. Slovenian has a dual as well, and so

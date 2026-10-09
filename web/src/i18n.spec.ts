@@ -48,6 +48,7 @@ describe('the languages on offer', () => {
         'sl',
         'ru',
         'uk',
+        'ka',
         'tr',
         'hi',
         'bn',
@@ -87,6 +88,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['bn-BD'])).toBe('bn')
     expect(resolveLocale(null, ['ta-IN'])).toBe('ta')
     expect(resolveLocale(null, ['hi-IN'])).toBe('hi')
+    expect(resolveLocale(null, ['ka-GE'])).toBe('ka')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -175,6 +177,12 @@ describe('counting in Turkish', () => {
     [0, '0 eser'],
   ])('renders %i with the singular, as Turkish counts', (count, expected) => {
     expect(items('tr', count)).toBe(expected)
+  })
+})
+
+describe('counting in Georgian', () => {
+  it.each([0, 1, 2, 5, 21])('renders %i with the singular, as Georgian counts', (count) => {
+    expect(items('ka', count)).toBe(`${count} ჩანაწერი`)
   })
 })
 
