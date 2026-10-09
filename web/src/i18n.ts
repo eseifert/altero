@@ -21,6 +21,7 @@ import nl from './locales/nl'
 import pl from './locales/pl'
 import ptBR from './locales/pt-BR'
 import ptPT from './locales/pt-PT'
+import ro from './locales/ro'
 import ru from './locales/ru'
 import sk from './locales/sk'
 import sl from './locales/sl'
@@ -74,6 +75,7 @@ export const MESSAGES = {
   sk,
   sl,
   hu,
+  ro,
   ru,
   uk,
   ka,
@@ -131,10 +133,11 @@ function zeroAsOne(choice: number, branches: number): number {
  * and Ukrainian have a third form for the small counts, so "2 elementy" and
  * "5 elementów" are different words: their catalogues carry three branches and
  * these rules choose between them. Slovenian has a dual as well, and so four:
- * "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". Bengali and Hindi count zero with
- * one rather than with many. A catalogue written with English's two would be
- * wrong on every count from 2 to 4, which is what `locales.node.spec.ts` now
- * checks for.
+ * "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". Romanian's third form is for
+ * twenty and over, which take "de": "19 înregistrări" but "20 de înregistrări".
+ * Bengali and Hindi count zero with one rather than with many. A catalogue
+ * written with English's two would be wrong on every count from 2 to 4, which
+ * is what `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
@@ -157,6 +160,14 @@ export const PLURAL_RULES = {
   hi: zeroAsOne,
   ru: eastSlavic,
   uk: eastSlavic,
+  /* Exactly one; nought and anything ending in 1-19; everything else, which
+     takes "de". */
+  ro: (choice: number, branches: number) => {
+    const hundreds = choice % 100
+    if (choice === 1) return 0
+    if (choice === 0 || (hundreds >= 1 && hundreds <= 19)) return Math.min(1, branches - 1)
+    return Math.min(2, branches - 1)
+  },
   /* By the last two digits: 1, 2, 3-4, everything else. */
   sl: (choice: number, branches: number) => {
     const hundreds = choice % 100

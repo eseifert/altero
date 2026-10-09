@@ -47,6 +47,7 @@ describe('the languages on offer', () => {
         'sk',
         'sl',
         'hu',
+        'ro',
         'ru',
         'uk',
         'ka',
@@ -90,6 +91,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['ta-IN'])).toBe('ta')
     expect(resolveLocale(null, ['hi-IN'])).toBe('hi')
     expect(resolveLocale(null, ['ka-GE'])).toBe('ka')
+    expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
   })
 
@@ -247,6 +249,25 @@ describe('counting in Slovak', () => {
     [22, '22 záznamov'],
   ])('renders %i', (count, expected) => {
     expect(items('sk', count)).toBe(expected)
+  })
+})
+
+describe('counting in Romanian', () => {
+  /* Twenty and over take "de", and a hundred and one goes back to the middle
+     form, the last two digits being what counts. */
+  it.each([
+    [1, '1 înregistrare'],
+    [2, '2 înregistrări'],
+    [0, '0 înregistrări'],
+    [19, '19 înregistrări'],
+    [20, '20 de înregistrări'],
+    [21, '21 de înregistrări'],
+    [100, '100 de înregistrări'],
+    [101, '101 înregistrări'],
+    [119, '119 înregistrări'],
+    [120, '120 de înregistrări'],
+  ])('renders %i', (count, expected) => {
+    expect(items('ro', count)).toBe(expected)
   })
 })
 

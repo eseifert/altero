@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Translate the web interface into 14 more languages, 28 in all.
+- Translate the web interface into 15 more languages, 29 in all.
 - Accounts without a password approve Zotero clients by signing in again at their provider. Reported by [@mweber0] in [Discussion#18].
 - Re-authenticating through a SAML provider sends `ForceAuthn`, so the directory asks again instead of reusing its session.
 
