@@ -46,6 +46,7 @@ describe('the languages on offer', () => {
         'cs',
         'sk',
         'sl',
+        'hu',
         'ru',
         'uk',
         'ka',
@@ -89,6 +90,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['ta-IN'])).toBe('ta')
     expect(resolveLocale(null, ['hi-IN'])).toBe('hi')
     expect(resolveLocale(null, ['ka-GE'])).toBe('ka')
+    expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
   })
 
   it('keeps the region where the words depend on it', () => {
@@ -177,6 +179,12 @@ describe('counting in Turkish', () => {
     [0, '0 eser'],
   ])('renders %i with the singular, as Turkish counts', (count, expected) => {
     expect(items('tr', count)).toBe(expected)
+  })
+})
+
+describe('counting in Hungarian', () => {
+  it.each([0, 1, 2, 5, 21])('renders %i with the singular, as Hungarian counts', (count) => {
+    expect(items('hu', count)).toBe(`${count} elem`)
   })
 })
 

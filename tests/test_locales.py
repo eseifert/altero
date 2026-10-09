@@ -51,6 +51,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["de"] == "Deutsch"
         assert LANGUAGES["fi"] == "Suomi"
         assert LANGUAGES["hi"] == "हिन्दी"
+        assert LANGUAGES["hu"] == "Magyar"
         assert LANGUAGES["id"] == "Bahasa Indonesia"
         assert LANGUAGES["ja"] == "日本語"
         assert LANGUAGES["ka"] == "ქართული"
@@ -157,6 +158,7 @@ class TestNormalisingALanguage:
             ("ta-IN", "ta"),
             ("hi-IN", "hi"),
             ("ka-GE", "ka"),
+            ("hu-HU", "hu"),
         ],
     )
     def test_a_language_carried_once_drops_its_territory(self, tag: str, expected: str) -> None:

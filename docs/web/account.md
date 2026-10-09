@@ -190,10 +190,10 @@ How an operator registers an application, and what a client developer needs:
 
 The interface speaks English, German, French, Spanish, Portuguese, Italian,
 Dutch, Danish, Norwegian Bokmål, Swedish, Finnish, Polish, Czech, Slovak,
-Slovenian, Russian, Ukrainian, Georgian, Turkish, Hindi, Bengali, Tamil,
-Japanese, Korean, Vietnamese, Indonesian and Chinese — 30 catalogs, because
-three of those are written differently in different places and are carried
-twice: American and British English, Brazilian and European Portuguese,
+Slovenian, Hungarian, Russian, Ukrainian, Georgian, Turkish, Hindi, Bengali,
+Tamil, Japanese, Korean, Vietnamese, Indonesian and Chinese — 31 catalogs,
+because three of those are written differently in different places and are
+carried twice: American and British English, Brazilian and European Portuguese,
 Simplified and Traditional Chinese. They are the same three Zotero splits.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,

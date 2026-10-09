@@ -44,6 +44,7 @@ LANGUAGES: dict[str, str] = {
     "cs": "Čeština",
     "sk": "Slovenčina",
     "sl": "Slovenščina",
+    "hu": "Magyar",
     "ru": "Русский",
     "uk": "Українська",
     "ka": "ქართული",
