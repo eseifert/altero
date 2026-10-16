@@ -27,7 +27,12 @@ from altero.api.responses import (
     not_modified,
     object_response,
 )
-from altero.api.routes.items import FEED_DESCRIPTIONS, render_page
+from altero.api.routes.items import (
+    FEED_DESCRIPTIONS,
+    KEY_FORMATS,
+    render_key_listing,
+    render_page,
+)
 from altero.errors import InvalidInputError, RequestTooLargeError
 from altero.models import ActivityKind, Collection, Library
 from altero.query import (
@@ -256,6 +261,10 @@ async def list_collection_items(
     from altero.api.routes.items import item_query
 
     query = item_query(request)
+    if query.response_format in KEY_FORMATS:
+        return await render_key_listing(
+            request, session, library, query, Scope.COLLECTION, collection_key, permit=access
+        )
     page = await items_service.list_items(
         session, library, query, Scope.COLLECTION, collection_key, permit=access
     )
@@ -286,6 +295,10 @@ async def list_top_collection_items(
     from altero.api.routes.items import item_query
 
     query = item_query(request)
+    if query.response_format in KEY_FORMATS:
+        return await render_key_listing(
+            request, session, library, query, Scope.COLLECTION_TOP, collection_key, permit=access
+        )
     page = await items_service.list_items(
         session, library, query, Scope.COLLECTION_TOP, collection_key, permit=access
     )

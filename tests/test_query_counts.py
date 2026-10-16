@@ -207,3 +207,26 @@ class TestUnpaginatedFormats:
         assert response.headers["Total-Results"] == "10"
         assert len(response.json()) == 10
         assert [statement for statement in statements if "count(" in statement.lower()] == []
+
+    @pytest.mark.parametrize("response_format", ["keys", "versions"])
+    async def test_a_key_listing_loads_nothing_but_keys(
+        self, app: FastAPI, client: httpx.AsyncClient, populated: Library, response_format: str
+    ) -> None:
+        """A full sync asks for every key and version, and nothing else of an item.
+
+        Loading each item whole made this the slowest request a desktop client
+        sends: every field, creator and relation of the library, to read two
+        columns.
+        """
+        with capture_sql(app) as statements:
+            response = await client.get(f"/users/1/items?format={response_format}", headers=AUTH)
+
+        assert response.status_code == 200
+        related = [
+            statement
+            for statement in statements
+            if any(
+                table in statement for table in ("item_fields", "item_creators", "item_relations")
+            )
+        ]
+        assert related == [], f"a key listing loaded the items themselves: {related}"

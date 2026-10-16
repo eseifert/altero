@@ -603,6 +603,38 @@ async def list_items(
     )
 
 
+async def list_item_versions(
+    session: AsyncSession,
+    library: Library,
+    query: ListQuery,
+    scope: Scope = Scope.ALL,
+    key: str | None = None,
+    *,
+    permit: Access | None = None,
+) -> Page[tuple[str, int]]:
+    """Return the ``(key, version)`` pairs of :func:`list_items`, in its order.
+
+    What ``format=keys`` and ``format=versions`` need, read as two columns. A
+    desktop client asks for every key in the library this way when it syncs, and
+    loading each item whole -- every field, creator and relation -- to read two
+    of its columns made that the slowest request it sends.
+    """
+    statement = await build_item_query(session, library, query, scope, key, permit=permit)
+
+    by_author = await _has_authorship(session, library, query.sort)
+    ordered = _apply_sort(statement, query, by_author=by_author)
+    result = await session.execute(
+        paginate(ordered.with_only_columns(Item.key, Item.version), query)
+    )
+    objects = [(item_key, version) for item_key, version in result.all()]
+
+    return Page(
+        objects=objects,
+        total=await count_matches(session, statement, query, len(objects)),
+        library_version=library.version,
+    )
+
+
 async def get_item(
     session: AsyncSession, library: Library, key: str, *, permit: Access | None = None
 ) -> Item:

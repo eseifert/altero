@@ -281,6 +281,35 @@ async def export_items(
     )
 
 
+#: Formats that need nothing of an item but its key and version.
+KEY_FORMATS = frozenset({Format.KEYS, Format.VERSIONS})
+
+
+async def render_key_listing(
+    request: Request,
+    session: AsyncSession,
+    library: Library,
+    query: ListQuery,
+    scope: Scope,
+    key: str | None = None,
+    *,
+    permit: auth.Access | None = None,
+) -> Response:
+    """Answer ``format=keys`` or ``format=versions`` without loading any item."""
+    page = await items_service.list_item_versions(
+        session, library, query, scope, key, permit=permit
+    )
+    return listing_response(
+        request,
+        query,
+        version=page.library_version,
+        total=page.total,
+        objects=[],
+        keys=[item_key for item_key, _ in page.objects],
+        versions=dict(page.objects),
+    )
+
+
 async def render_listing(
     request: Request,
     session: AsyncSession,
@@ -294,6 +323,8 @@ async def render_listing(
     query = item_query(request)
     if (response := not_modified(request, library.version)) is not None:
         return response
+    if query.response_format in KEY_FORMATS:
+        return await render_key_listing(request, session, library, query, scope, key, permit=permit)
 
     describes = (
         await feed_description(session, library, scope, key, permit)
