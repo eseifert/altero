@@ -79,19 +79,34 @@ async def list_tags(
     if (name_filter := _name_filter(query)) is not None:
         filters.append(name_filter)
 
-    join_filters = list(filters)
+    # The items are counted per tag first and the tags joined to the counts
+    # afterwards. Joined the other way, with the item scope as an IN list, SQLite
+    # loops over the tags and probes every scoped item for each one -- a minute
+    # on a library of 30k items, until the planner happens to have statistics.
+    # The tag filters stay outside: handed to the count as a list of tag ids,
+    # they send SQLite back to probing every item for each tag.
+    item_filters: list[ColumnElement[bool]] = [Item.library_id == library.id]
     if item_scope is not None:
-        join_filters.append(ItemTag.item_id.in_(item_scope))
+        item_filters.append(ItemTag.item_id.in_(item_scope))
     if permit is not None and permit.collections is not None:
-        join_filters.append(confined_to_collections(permit.collections))
+        item_filters.append(confined_to_collections(permit.collections))
 
-    count = func.count(ItemTag.item_id).label("num_items")
-    statement = (
-        select(Tag.name, Tag.type, count, Tag.version, func.max(Item.server_date_modified))
-        .join(ItemTag, ItemTag.tag_id == Tag.id)
+    counts = (
+        select(
+            ItemTag.tag_id,
+            func.count(ItemTag.item_id).label("num_items"),
+            func.max(Item.server_date_modified).label("modified"),
+        )
         .join(Item, Item.id == ItemTag.item_id)
-        .where(and_(*join_filters))
-        .group_by(Tag.id, Tag.name, Tag.type, Tag.version)
+        .where(and_(*item_filters))
+        .group_by(ItemTag.tag_id)
+        .subquery()
+    )
+    count = counts.c.num_items
+    statement = (
+        select(Tag.name, Tag.type, count, Tag.version, counts.c.modified)
+        .join(counts, counts.c.tag_id == Tag.id)
+        .where(and_(*filters))
     )
 
     result = await session.execute(paginate(_apply_sort(statement, query, count), query))
