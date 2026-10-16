@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Tag filters and collection item listings match a list of item ids instead of a per-item subquery, about twice as fast.
 - `sort=serverDateModified` orders items by the server's modification time instead of by key alone.
 - Full syncs answer `format=keys` and `format=versions` from two columns instead of loading every item: 17 s to 0.3 s at 34k items.
 - Translate the web interface into 17 more languages, 31 in all.

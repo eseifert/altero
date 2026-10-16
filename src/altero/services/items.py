@@ -253,15 +253,14 @@ def _may_read_notes(permit: Access | None) -> bool:
 
 def _has_tag(library_id: int) -> Any:
     def build(name: str) -> ColumnElement[bool]:
-        return (
+        # A list of item ids rather than a correlated EXISTS: SQLite runs the
+        # EXISTS once per item in the library, where the list is one index walk
+        # from the tag. `item_id` is never NULL, so a negated filter's NOT IN
+        # means what NOT EXISTS meant.
+        return Item.id.in_(
             select(ItemTag.item_id)
             .join(Tag, Tag.id == ItemTag.tag_id)
-            .where(
-                ItemTag.item_id == Item.id,
-                Tag.library_id == library_id,
-                Tag.name == name,
-            )
-            .exists()
+            .where(Tag.library_id == library_id, Tag.name == name)
         )
 
     return build
@@ -382,13 +381,10 @@ async def _scope_filters(
         else:
             ids = [collection.id]
 
-        member = (
-            select(CollectionItem.item_id)
-            .where(
-                CollectionItem.collection_id.in_(ids),
-                CollectionItem.item_id == Item.id,
-            )
-            .exists()
+        # A list rather than a correlated EXISTS, for the reason `_has_tag`
+        # gives.
+        member = Item.id.in_(
+            select(CollectionItem.item_id).where(CollectionItem.collection_id.in_(ids))
         )
         filters: list[ColumnElement[bool]] = [member]
         if scope in (Scope.COLLECTION_TOP, Scope.COLLECTION_TREE_TOP) and not to_parents:
