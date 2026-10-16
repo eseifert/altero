@@ -1,6 +1,6 @@
 """Reading items out of a library."""
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum, auto
@@ -100,6 +100,33 @@ async def count_matches(
 
     total = await session.scalar(select(func.count()).select_from(statement.subquery()))
     return total or 0
+
+
+async def counted_page(
+    session: AsyncSession,
+    statement: Select[Any],
+    query: ListQuery,
+    order: Callable[[Select[Any]], Select[Any]],
+) -> tuple[list[tuple[Any, ...]], int]:
+    """Return one page of ``statement``'s rows with the total it matches.
+
+    For a statement whose filter costs more than the page it selects -- a quick
+    search over every title, a tag listing that aggregates the library's tags
+    -- the total rides on the page as ``count(*) OVER ()``, so the filter is
+    evaluated once. A cheap filter is better served by :func:`count_matches`:
+    SQLite buffers every matching row to evaluate the window, which made an
+    ordinary item listing three times slower.
+    """
+    if query.limit == UNLIMITED:
+        rows = (await session.execute(paginate(order(statement), query))).all()
+        return [tuple(row) for row in rows], query.start + len(rows)
+
+    counted = statement.add_columns(func.count().over())
+    rows = (await session.execute(paginate(order(counted), query))).all()
+    if not rows:
+        # A page past the last match has no row to carry the total.
+        return [], await count_matches(session, statement, query, 0)
+    return [tuple(row)[:-1] for row in rows], rows[0][-1]
 
 
 @dataclass(frozen=True, slots=True)
@@ -588,16 +615,18 @@ async def list_items(
     statement = await build_item_query(session, library, query, scope, key, permit=permit)
 
     by_author = await _has_authorship(session, library, query.sort)
-    result = await session.scalars(
-        paginate(_apply_sort(statement, query, by_author=by_author), query)
-    )
-    objects = list(result)
 
-    return Page(
-        objects=objects,
-        total=await count_matches(session, statement, query, len(objects)),
-        library_version=library.version,
-    )
+    def order(statement: Select[Any]) -> Select[Any]:
+        return _apply_sort(statement, query, by_author=by_author)
+
+    if query.q:
+        rows, total = await counted_page(session, statement, query, order)
+        objects = [row[0] for row in rows]
+    else:
+        objects = list(await session.scalars(paginate(order(statement), query)))
+        total = await count_matches(session, statement, query, len(objects))
+
+    return Page(objects=objects, total=total, library_version=library.version)
 
 
 async def list_item_versions(

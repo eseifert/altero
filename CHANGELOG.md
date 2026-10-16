@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Quick searches and tag listings take their `Total-Results` from the page instead of filtering a second time.
 - Tag listings scoped to items count per tag before joining tags: `/items/top/tags` from 26 s to 0.4 s on 34k items.
 - Collection listings count each collection's items from its memberships: 100 collections in 34k items from 1.4 s to 0.12 s.
 - Tag filters and collection item listings match a list of item ids instead of a per-item subquery, about twice as fast.

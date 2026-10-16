@@ -15,12 +15,7 @@ from altero.errors import NotFoundError
 from altero.models import Item, ItemTag, Library, Tag
 from altero.query import Direction, ListQuery, TagSearchMode
 from altero.services.auth import Access
-from altero.services.items import (
-    Page,
-    confined_to_collections,
-    count_matches,
-    paginate,
-)
+from altero.services.items import Page, confined_to_collections, counted_page
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,8 +104,9 @@ async def list_tags(
         .where(and_(*filters))
     )
 
-    result = await session.execute(paginate(_apply_sort(statement, query, count), query))
-
+    rows, total = await counted_page(
+        session, statement, query, lambda statement: _apply_sort(statement, query, count)
+    )
     summaries = [
         TagSummary(
             name=name,
@@ -119,13 +115,9 @@ async def list_tags(
             version=version,
             last_modified=modified,
         )
-        for name, tag_type, num_items, version, modified in result.all()
+        for name, tag_type, num_items, version, modified in rows
     ]
-    return Page(
-        objects=summaries,
-        total=await count_matches(session, statement, query, len(summaries)),
-        library_version=library.version,
-    )
+    return Page(objects=summaries, total=total, library_version=library.version)
 
 
 async def get_tag(

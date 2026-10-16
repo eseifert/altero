@@ -230,3 +230,49 @@ class TestUnpaginatedFormats:
             )
         ]
         assert related == [], f"a key listing loaded the items themselves: {related}"
+
+
+class TestExpensiveFilters:
+    """A filter that costs more than the page it selects is evaluated once.
+
+    The total then comes from the page itself. Cheap filters keep a separate
+    count, which on SQLite is cheaper than the window: evaluating it buffers
+    every matching row.
+    """
+
+    @pytest.mark.parametrize(
+        "path",
+        ["/users/1/items?q=Item&limit=3", "/users/1/tags?limit=3", "/users/1/items/tags?limit=3"],
+    )
+    async def test_the_total_comes_with_the_page(
+        self,
+        app: FastAPI,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        path: str,
+    ) -> None:
+        for index in range(5):
+            item = await make_item(session, library, fields={"title": f"Item {index}"})
+            await tag_item(session, library, item, f"tag {index}")
+
+        with capture_sql(app) as statements:
+            response = await client.get(path, headers=AUTH)
+
+        assert len(response.json()) == 3
+        assert response.headers["Total-Results"] == "5"
+        counts = [s for s in statements if s.lstrip().lower().startswith("select count(")]
+        assert counts == [], f"the filter was evaluated twice: {counts}"
+
+    @pytest.mark.parametrize("path", ["/users/1/items?q=Item&start=10", "/users/1/tags?start=10"])
+    async def test_a_page_past_the_end_still_reports_the_total(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library, path: str
+    ) -> None:
+        for index in range(5):
+            item = await make_item(session, library, fields={"title": f"Item {index}"})
+            await tag_item(session, library, item, f"tag {index}")
+
+        response = await client.get(path, headers=AUTH)
+
+        assert response.json() == []
+        assert response.headers["Total-Results"] == "5"
