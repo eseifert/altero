@@ -1,5 +1,7 @@
 """Database engine, session factory and ORM base class."""
 
+import logging
+import sqlite3
 from collections.abc import AsyncIterator
 from datetime import datetime
 from typing import Any
@@ -14,6 +16,8 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from altero.settings import Settings
+
+logger = logging.getLogger("altero.db")
 
 
 class Base(DeclarativeBase):
@@ -36,6 +40,16 @@ class Timestamped:
     )
 
 
+#: Rows each index is sampled for when SQLite gathers statistics. SQLite's own
+#: recommendation for a statistics pass that has to stay cheap.
+ANALYSIS_LIMIT = 400
+
+#: Analyse every table whose statistics are missing or out of date -- not only
+#: those this connection has queried, which on a pooled connection would often
+#: be none. The mask SQLite recommends running when a connection opens.
+OPTIMIZE = "PRAGMA optimize=0x10002"
+
+
 def _configure_sqlite(engine: AsyncEngine) -> None:
     """Apply the settings SQLite needs to behave under concurrent writes.
 
@@ -45,6 +59,10 @@ def _configure_sqlite(engine: AsyncEngine) -> None:
       and only surfaces on a backend that does check.
     - The rollback journal blocks readers while a write is in progress. WAL lets
       them run alongside it.
+    - The planner has no statistics until somebody runs ``ANALYZE``, and guesses
+      badly without them: a tag listing on a library of 30k items took 25 s. A
+      connection gathers them when it opens, and :meth:`Database.optimize`
+      keeps them current as the library grows.
     What is deliberately not done here is beginning every transaction with
     ``BEGIN IMMEDIATE``. It would close the remaining hole — a transaction that
     reads and then writes can fail outright when it upgrades its lock, which
@@ -64,6 +82,17 @@ def _configure_sqlite(engine: AsyncEngine) -> None:
         # An in-memory database has no journal to switch.
         cursor.execute("PRAGMA journal_mode=WAL")
         cursor.execute("PRAGMA busy_timeout=5000")
+        # Analysed from a sample of each index, so a large database pays a
+        # bounded cost, and only where statistics are missing or a table has
+        # grown or shrunk enough to make them misleading -- usually nothing.
+        cursor.execute(f"PRAGMA analysis_limit={ANALYSIS_LIMIT}")
+        try:
+            cursor.execute(OPTIMIZE)
+        except sqlite3.OperationalError:
+            # Statistics are written, so this can find a long write holding the
+            # database. A connection without them still works; the next one, or
+            # the periodic run, catches up.
+            logger.warning("Could not refresh SQLite's planner statistics", exc_info=True)
         cursor.close()
 
 
@@ -85,6 +114,20 @@ class Database:
         """Yield a session, rolling back if the caller raises."""
         async with self.session_factory() as session:
             yield session
+
+    async def optimize(self) -> int:
+        """Refresh SQLite's planner statistics where a table has outgrown them.
+
+        Run on a timer, because a pooled connection gathers statistics once
+        when it opens and may then live as long as the process. Nothing for
+        any other backend: PostgreSQL's autovacuum does this already.
+
+        Returns zero, for :class:`~altero.services.groupsweeper.Sweeper`.
+        """
+        if self.engine.dialect.name == "sqlite":
+            async with self.engine.connect() as connection:
+                await connection.exec_driver_sql(OPTIMIZE)
+        return 0
 
     async def create_all(self) -> None:
         """Create every table. Intended for tests; production uses Alembic."""

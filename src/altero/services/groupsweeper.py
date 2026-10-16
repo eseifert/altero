@@ -33,8 +33,12 @@ class Sweeper:
     switch, and produces an object that starts nothing.
     """
 
-    def __init__(self, sweep: Sweep, *, interval: timedelta) -> None:
+    def __init__(
+        self, sweep: Sweep, *, interval: timedelta, name: str = "Group digest sweep"
+    ) -> None:
         self._sweep = sweep
+        #: What a failure is logged as.
+        self._name = name
         self._interval = interval.total_seconds()
         self._task: asyncio.Task[None] | None = None
         #: The sweep currently running, if one is. Held separately from the
@@ -105,7 +109,7 @@ class Sweeper:
         except asyncio.CancelledError:
             raise
         except Exception:
-            logger.exception("Group digest sweep failed; will try again")
+            logger.exception("%s failed; will try again", self._name)
         else:
             if sent:
                 logger.info("Sent %d group digest(s)", sent)

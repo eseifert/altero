@@ -65,6 +65,10 @@ from altero.settings import Settings, get_settings
 
 logger = logging.getLogger("altero.app")
 
+#: How often SQLite's planner statistics are checked against the tables. Cheap
+#: when nothing has changed much, which is nearly every time.
+STATISTICS_INTERVAL = timedelta(hours=1)
+
 
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Build the Zotero Web API application."""
@@ -103,6 +107,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             async with (
                 Sweeper(sweep_digests, interval=timedelta(seconds=settings.group_digest_interval)),
                 Sweeper(sweep_retention, interval=timedelta(seconds=settings.retention_interval)),
+                Sweeper(
+                    database.optimize,
+                    interval=STATISTICS_INTERVAL,
+                    name="Refreshing SQLite's planner statistics",
+                ),
             ):
                 yield
         finally:

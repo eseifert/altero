@@ -13,21 +13,27 @@ class Item(Base, Timestamped):
     __table_args__ = (
         UniqueConstraint("library_id", "key", name="uq_items_library_key"),
         Index("ix_items_library_version", "library_id", "version"),
+        # Every listing's slice of a library: the top level, the trash, and the
+        # untrashed rows a total counts. The flags are indexed only behind
+        # `library_id`. Indexed on their own they span every library, and once
+        # SQLite has statistics it prefers them over the library -- reading
+        # every untrashed item in the instance to count one item's children.
+        Index("ix_items_library_deleted_parent", "library_id", "deleted", "parent_id"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
     key: Mapped[str] = mapped_column(String(8))
     #: Library version at which this item last changed; drives ``since``.
-    version: Mapped[int] = mapped_column(default=1, index=True)
-    item_type: Mapped[str] = mapped_column(String(32), index=True)
+    version: Mapped[int] = mapped_column(default=1)
+    item_type: Mapped[str] = mapped_column(String(32))
     #: Parent of a note or attachment, expressed as ``parentItem`` in JSON.
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("items.id"), index=True)
     #: Whether the item sits in the trash.
-    deleted: Mapped[bool] = mapped_column(default=False, index=True)
+    deleted: Mapped[bool] = mapped_column(default=False)
     #: Whether the item is in the owner's My Publications, which only a personal
-    #: library has. Indexed because the publications listing filters on it.
-    in_publications: Mapped[bool] = mapped_column(default=False, index=True)
+    #: library has.
+    in_publications: Mapped[bool] = mapped_column(default=False)
 
     # Who wrote this, in a group library. Both are null in a personal library:
     # it has one author, and upstream keeps these in a `groupItems` table that
