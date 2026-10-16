@@ -41,6 +41,7 @@ _COLUMN_SORTS = {
     "title": Item.sort_title,
     "creator": Item.sort_creator,
     "date": Item.sort_date,
+    "serverDateModified": Item.server_date_modified,
 }
 
 

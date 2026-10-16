@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- `sort=serverDateModified` orders items by the server's modification time instead of by key alone.
 - Full syncs answer `format=keys` and `format=versions` from two columns instead of loading every item: 17 s to 0.3 s at 34k items.
 - Translate the web interface into 17 more languages, 31 in all.
 - Accounts without a password approve Zotero clients by signing in again at their provider. Reported by [@mweber0] in [Discussion#18].

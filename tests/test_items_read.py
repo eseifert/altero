@@ -1,5 +1,7 @@
 """Reading items."""
 
+from datetime import datetime
+
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -356,6 +358,24 @@ class TestSortingAndPaging:
         body = (await client.get("/users/1/items?sort=title&direction=desc", headers=AUTH)).json()
 
         assert [i["data"]["title"] for i in body] == ["Zebra", "Apple"]
+
+    async def test_sorting_by_server_date_modified(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """The server's own timestamp, not a field: it was once sorted by key alone."""
+        newer = await make_item(session, library, key="AAAA2345")
+        older = await make_item(session, library, key="BBBB2345")
+        newer.server_date_modified = datetime(2026, 5, 1)
+        older.server_date_modified = datetime(2026, 1, 1)
+        await session.commit()
+
+        ascending = await client.get("/users/1/items?sort=serverDateModified", headers=AUTH)
+        descending = await client.get(
+            "/users/1/items?sort=serverDateModified&direction=desc", headers=AUTH
+        )
+
+        assert [i["key"] for i in ascending.json()] == ["BBBB2345", "AAAA2345"]
+        assert [i["key"] for i in descending.json()] == ["AAAA2345", "BBBB2345"]
 
     async def test_an_unknown_sort_field_is_rejected(
         self, client: httpx.AsyncClient, library: Library
