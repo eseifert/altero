@@ -160,13 +160,23 @@ async def count_items(session: AsyncSession, collections: Sequence[Collection]) 
     if not collections:
         return {}
 
-    result = await session.execute(
-        select(CollectionItem.collection_id, func.count())
-        .join(Item, Item.id == CollectionItem.item_id)
+    # The memberships drive and each one looks its item up by primary key. A
+    # join leaves the planner free to start from `items` instead, and SQLite
+    # does: it walks every untrashed item in the library once per request.
+    counted = (
+        select(Item.id)
         .where(
-            CollectionItem.collection_id.in_([collection.id for collection in collections]),
+            Item.id == CollectionItem.item_id,
             Item.deleted.is_(False),
             Item.parent_id.is_(None),
+        )
+        .exists()
+    )
+    result = await session.execute(
+        select(CollectionItem.collection_id, func.count())
+        .where(
+            CollectionItem.collection_id.in_([collection.id for collection in collections]),
+            counted,
         )
         .group_by(CollectionItem.collection_id)
     )

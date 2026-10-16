@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Collection listings count each collection's items from its memberships: 100 collections in 34k items from 1.4 s to 0.12 s.
 - Tag filters and collection item listings match a list of item ids instead of a per-item subquery, about twice as fast.
 - `sort=serverDateModified` orders items by the server's modification time instead of by key alone.
 - Full syncs answer `format=keys` and `format=versions` from two columns instead of loading every item: 17 s to 0.3 s at 34k items.

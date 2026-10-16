@@ -85,6 +85,18 @@ class TestCollections:
 
         assert body["meta"] == {"numCollections": 1, "numItems": 1}
 
+    async def test_trashed_and_child_items_are_not_counted(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        kept = await make_item(session, library)
+        trashed = await make_item(session, library, deleted=True)
+        child = await make_item(session, library, item_type="note", parent=kept)
+        await make_collection(session, library, key="AAAA2345", items=[kept, trashed, child])
+
+        body = (await client.get("/users/1/collections/AAAA2345", headers=AUTH)).json()
+
+        assert body["meta"]["numItems"] == 1
+
     async def test_collections_sort_by_name_by_default(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
