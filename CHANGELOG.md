@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Compressed request bodies are capped at 128 MiB before and after inflating, read without quadratic copying and inflated off the event loop.
 - SQLite gathers planner statistics on connect and hourly; item flags are indexed behind their library, not across every library.
 - Quick searches and tag listings take their `Total-Results` from the page instead of filtering a second time.
 - Tag listings scoped to items count per tag before joining tags: `/items/top/tags` from 26 s to 0.4 s on 34k items.

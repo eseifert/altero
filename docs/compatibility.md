@@ -921,6 +921,11 @@ byte of the gzip magic number. Bodies are therefore decompressed before anything
 else looks at them, and a body that does not decompress is a `400` rather than
 an unhandled failure.
 
+That happens before authentication, so a compressed body, and what it inflates to,
+are both limited to 128 MiB and answered `413` beyond that. The client gzips
+every write above a small size, and its largest is 50 notes at upstream's
+500,000-character limit, about 100 MB at four bytes per character.
+
 **A snapshot is uploaded as a ZIP, and the digests differ.** When the connector
 saves a page, the client zips the attachment directory and sends `zipMD5` and
 `zipFilename` alongside the usual parameters. In that case `md5` describes the

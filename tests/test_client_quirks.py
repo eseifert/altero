@@ -10,12 +10,14 @@ import hashlib
 import io
 import json
 import zipfile
+import zlib
 from pathlib import Path
 
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from altero.api import compression
 from altero.models import Library, LibraryType
 from altero.services.auth import get_library
 from altero.services.storage import file_path
@@ -122,6 +124,101 @@ class TestGzippedRequests:
         )
 
         assert response.status_code == 400
+
+    async def test_a_truncated_gzip_body_is_a_400(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        body = json.dumps([{"key": "AAAA2345", "content": "Some text"}]).encode()
+
+        response = await client.post(
+            "/users/1/fulltext",
+            headers=AUTH | {"Content-Encoding": "gzip", "If-Unmodified-Since-Version": "10"},
+            content=gzip.compress(body)[:-12],
+        )
+
+        assert response.status_code == 400
+
+    async def test_a_deflated_body_is_accepted(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        body = json.dumps([{"key": "AAAA2345", "content": "Some text"}]).encode()
+
+        response = await client.post(
+            "/users/1/fulltext",
+            headers=AUTH | {"Content-Encoding": "deflate", "If-Unmodified-Since-Version": "10"},
+            content=zlib.compress(body),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["failed"] == {}
+
+    async def test_a_gzip_body_of_several_members_is_read_whole(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Concatenated members are one gzip stream, as RFC 1952 has it."""
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        body = json.dumps([{"key": "AAAA2345", "content": "Some text"}]).encode()
+
+        response = await client.post(
+            "/users/1/fulltext",
+            headers=AUTH | {"Content-Encoding": "gzip", "If-Unmodified-Since-Version": "10"},
+            content=gzip.compress(body[:10]) + gzip.compress(body[10:]),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["failed"] == {}
+
+
+class TestCompressedBodyLimits:
+    """A compressed body is read and inflated before anybody is authenticated.
+
+    So it is bounded both ways: a body larger than the limit is refused before
+    it is all read, and one that inflates past the limit is refused before it is
+    all inflated. A few hundred kilobytes of gzip otherwise became gigabytes in
+    memory, at the request of anybody able to reach the port.
+    """
+
+    @pytest.fixture(autouse=True)
+    def small_limit(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(compression, "MAX_BODY_BYTES", 1000)
+
+    async def test_a_body_inflating_past_the_limit_is_refused(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        response = await client.post(
+            "/users/1/fulltext",
+            headers={"Content-Encoding": "gzip"},
+            content=gzip.compress(b"[" + b" " * 100_000 + b"]"),
+        )
+
+        assert response.status_code == 413
+
+    async def test_a_compressed_body_past_the_limit_is_refused_unread(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        response = await client.post(
+            "/users/1/fulltext",
+            headers={"Content-Encoding": "gzip"},
+            content=bytes(range(256)) * 20,
+        )
+
+        assert response.status_code == 413
+
+    async def test_a_body_inside_the_limit_is_untouched(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        body = json.dumps([{"key": "AAAA2345", "content": "x" * 800}]).encode()
+
+        response = await client.post(
+            "/users/1/fulltext",
+            headers=AUTH | {"Content-Encoding": "gzip", "If-Unmodified-Since-Version": "10"},
+            content=gzip.compress(body),
+        )
+
+        assert response.status_code == 200
 
 
 class TestUploadUrl:
