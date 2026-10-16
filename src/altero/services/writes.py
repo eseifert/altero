@@ -85,9 +85,21 @@ async def lock_library(session: AsyncSession, library: Library) -> Library:
     and lose one side's changes. Holding the lock from before the precondition
     check until commit makes a write request atomic with respect to the library.
 
-    ``FOR UPDATE`` is emitted on backends that have it and dropped on SQLite,
-    which serializes writers anyway.
+    ``FOR UPDATE`` is emitted on backends that have it. SQLite has no row locks
+    and drops it, and serializes writers only from a transaction's first write
+    -- which, without the statement below, came after the precondition had been
+    checked. Two requests from the same version then both passed it, and the
+    second was applied over changes its client had never seen. Writing first
+    takes the database's write lock before the version is read, waiting for
+    any writer ahead as ``busy_timeout`` allows.
     """
+    if session.get_bind().dialect.name == "sqlite":
+        await session.execute(
+            update(Library)
+            .where(Library.id == library.id)
+            .values(version=Library.version)
+            .execution_options(synchronize_session=False)
+        )
     locked = await session.scalar(
         select(Library)
         .where(Library.id == library.id)

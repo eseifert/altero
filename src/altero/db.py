@@ -68,9 +68,11 @@ def _configure_sqlite(engine: AsyncEngine) -> None:
     reads and then writes can fail outright when it upgrades its lock, which
     ``busy_timeout`` does not cover — but it takes the write lock for read-only
     transactions too, so a single long read blocks every writer. That is a worse
-    trade than the hole it fills. A deployment serving more than one client at a
-    time should use PostgreSQL, where the row lock in the write path does the
-    job properly.
+    trade than the hole it fills. The writes to a library close it themselves:
+    ``services.writes.lock_library`` writes before it reads, taking the lock at
+    the start of the request rather than partway through. A deployment serving
+    more than one client at a time should still use PostgreSQL, where the row
+    lock in the write path does the job properly.
     """
     if engine.dialect.name != "sqlite":
         return

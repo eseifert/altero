@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- On SQLite, two writes from the same library version can no longer both pass `If-Unmodified-Since-Version`; the second answers 412.
 - Compressed request bodies are capped at 128 MiB before and after inflating, read without quadratic copying and inflated off the event loop.
 - SQLite gathers planner statistics on connect and hourly; item flags are indexed behind their library, not across every library.
 - Quick searches and tag listings take their `Total-Results` from the page instead of filtering a second time.
