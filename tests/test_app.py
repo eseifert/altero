@@ -24,3 +24,20 @@ async def test_unknown_routes_return_404() -> None:
         response = await client.get("/no/such/endpoint")
 
     assert response.status_code == 404
+
+
+def test_no_middleware_relays_responses_through_a_task() -> None:
+    """``BaseHTTPMiddleware`` copies every body through a memory stream of its own.
+
+    Two of them cost a quarter of a large download's throughput, so every
+    middleware here is plain ASGI.
+    """
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    app = create_app(Settings(database_url="sqlite+aiosqlite:///:memory:"))
+
+    assert app.user_middleware
+    for middleware in app.user_middleware:
+        assert not (
+            isinstance(middleware.cls, type) and issubclass(middleware.cls, BaseHTTPMiddleware)
+        ), middleware

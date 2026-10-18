@@ -5,11 +5,9 @@ many seconds, and discards the value unless ``parseInt(value) == value`` -- so
 the header is whole seconds or it is worse than useless.
 """
 
-from collections.abc import Awaitable, Callable
-
 from starlette.requests import Request
-from starlette.responses import PlainTextResponse, Response
-from starlette.types import ASGIApp
+from starlette.responses import PlainTextResponse
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from altero.api.deps import get_credential
 from altero.services.ratelimit import RateLimiter
@@ -20,27 +18,32 @@ EXEMPT = frozenset({"/health"})
 
 
 class RateLimitMiddleware:
-    """Refuse a caller that has used up its allowance for the window."""
+    """Refuse a caller that has used up its allowance for the window.
+
+    Plain ASGI, for the reason :mod:`altero.api.apiversion` gives, and a
+    pass-through when no limit is configured -- which is the default.
+    """
 
     def __init__(self, app: ASGIApp, limiter: RateLimiter) -> None:
         self.app = app
         self.limiter = limiter
 
-    async def __call__(
-        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
-    ) -> Response:
-        if not self.limiter.enabled or request.url.path in EXEMPT:
-            return await call_next(request)
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http" or not self.limiter.enabled or scope["path"] in EXEMPT:
+            await self.app(scope, receive, send)
+            return
 
-        if (wait := self.limiter.check(self._caller(request))) is not None:
-            return PlainTextResponse(
+        if (wait := self.limiter.check(self._caller(Request(scope)))) is not None:
+            refusal = PlainTextResponse(
                 "Too many requests",
                 status_code=429,
                 # Whole seconds: the client throws away anything else.
                 headers={"Retry-After": str(wait)},
             )
+            await refusal(scope, receive, send)
+            return
 
-        return await call_next(request)
+        await self.app(scope, receive, send)
 
     @staticmethod
     def _caller(request: Request) -> str:
