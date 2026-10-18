@@ -344,6 +344,63 @@ class TestRoundTrip:
         assert restored.version == 37
 
 
+class TestTheCostOfARestore:
+    async def _restore(self, tmp_path: Path, count: int) -> int:
+        """Export a library of ``count`` items, restore it elsewhere, and count the statements."""
+        from sqlalchemy import event
+
+        source = Database(Settings(database_url=f"sqlite+aiosqlite:///{tmp_path}/s{count}.sqlite"))
+        target = Database(Settings(database_url=f"sqlite+aiosqlite:///{tmp_path}/t{count}.sqlite"))
+        for database in (source, target):
+            await database.create_all()
+        async with source.session_factory() as session:
+            await make_user(session, user_id=1, username="octocat")
+            library = await get_library(session, LibraryType.USER, 1)
+            items = []
+            for index in range(count):
+                item = await make_item(
+                    session,
+                    library,
+                    fields={"title": f"Item {index}"},
+                    creators=[("author", "A", "B")],
+                )
+                await make_item(
+                    session, library, item_type="note", parent=item, fields={"note": "n"}
+                )
+                await tag_item(session, library, item, f"tag {index}")
+                items.append(item)
+            await make_collection(session, library, items=items)
+            archive = await transfer.export_library(
+                session,
+                library_type=LibraryType.USER,
+                owner_id=1,
+                storage_root=tmp_path / "storage",
+                destination=tmp_path / f"library{count}.zip",
+            )
+
+        statements: list[str] = []
+        event.listen(
+            target.engine.sync_engine,
+            "before_cursor_execute",
+            lambda _c, _cur, statement, *_rest: statements.append(statement),
+        )
+        async with target.session_factory() as session:
+            await make_user(session, user_id=1, username="octocat")
+            statements.clear()
+            restored = await transfer.import_library(
+                session, archive=archive, storage_root=tmp_path / "target-storage"
+            )
+            snapshot_of = await snapshot(session, restored)
+        assert len(snapshot_of["items"]) == 2 * count
+        await source.dispose()
+        await target.dispose()
+        return len(statements)
+
+    async def test_more_items_cost_no_more_statements(self, tmp_path: Path) -> None:
+        """Rows go in a batch at a time, not an item at a time."""
+        assert await self._restore(tmp_path, 25) == await self._restore(tmp_path, 5)
+
+
 class TestRestoringFiles:
     """A restore writes bytes into the store, so it writes them the same way.
 

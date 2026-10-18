@@ -23,7 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import bindparam, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero import __version__
@@ -463,79 +463,131 @@ async def import_library(
                 )
             await clear_library(session, library)
 
+        # A batch at a time rather than an object at a time: a library is tens
+        # of thousands of items, and a flush each was most of a restore's time.
         # Items first and parents second: a child cannot name a row that does
         # not exist yet, and the archive stores parents by key.
-        item_ids: dict[str, int] = {}
-        for record in documents["items.json"]:
-            item = Item(
-                library_id=library.id,
-                key=record["key"],
-                version=record["version"],
-                item_type=record["itemType"],
-                deleted=record["deleted"],
-                # Older archives predate the flag, so absence means false.
-                in_publications=record.get("inPublications", False),
-                sort_title=record["sortTitle"],
-                sort_creator=record["sortCreator"],
-                sort_date=record["sortDate"],
-                date_added=_parse(record["dateAdded"]),
-                date_modified=_parse(record["dateModified"]),
-                server_date_modified=_parse(record["serverDateModified"]),
-            )
-            item.fields = [ItemField(field=f["field"], value=f["value"]) for f in record["fields"]]
-            item.creators = [
-                ItemCreator(
-                    position=c["position"],
-                    creator_type=c["creatorType"],
-                    first_name=c["firstName"],
-                    last_name=c["lastName"],
-                    name=c["name"],
-                )
+        item_records = documents["items.json"]
+        item_ids = await _insert_returning_ids(
+            session,
+            Item,
+            [
+                {
+                    "library_id": library.id,
+                    "key": record["key"],
+                    "version": record["version"],
+                    "item_type": record["itemType"],
+                    "deleted": record["deleted"],
+                    # Older archives predate the flag, so absence means false.
+                    "in_publications": record.get("inPublications", False),
+                    "sort_title": record["sortTitle"],
+                    "sort_creator": record["sortCreator"],
+                    "sort_date": record["sortDate"],
+                    "date_added": _parse(record["dateAdded"]),
+                    "date_modified": _parse(record["dateModified"]),
+                    "server_date_modified": _parse(record["serverDateModified"]),
+                }
+                for record in item_records
+            ],
+        )
+        await _insert_all(
+            session,
+            ItemField,
+            [
+                {"item_id": item_ids[record["key"]], "field": f["field"], "value": f["value"]}
+                for record in item_records
+                for f in record["fields"]
+            ],
+        )
+        await _insert_all(
+            session,
+            ItemCreator,
+            [
+                {
+                    "item_id": item_ids[record["key"]],
+                    "position": c["position"],
+                    "creator_type": c["creatorType"],
+                    "first_name": c["firstName"],
+                    "last_name": c["lastName"],
+                    "name": c["name"],
+                }
+                for record in item_records
                 for c in record["creators"]
-            ]
-            item.relations = [
-                ItemRelation(predicate=r["predicate"], object=r["object"])
+            ],
+        )
+        await _insert_all(
+            session,
+            ItemRelation,
+            [
+                {
+                    "item_id": item_ids[record["key"]],
+                    "predicate": r["predicate"],
+                    "object": r["object"],
+                }
+                for record in item_records
                 for r in record["relations"]
-            ]
-            session.add(item)
-            await session.flush()
-            item_ids[item.key] = item.id
+            ],
+        )
+        await _set_parents(
+            session,
+            Item,
+            [
+                (item_ids[record["key"]], item_ids[record["parent"]])
+                for record in item_records
+                if record["parent"]
+            ],
+        )
 
-        for record in documents["items.json"]:
-            if record["parent"]:
-                child = await session.get(Item, item_ids[record["key"]])
-                if child is not None:
-                    child.parent_id = item_ids[record["parent"]]
-
-        collection_ids: dict[str, int] = {}
-        for record in documents["collections.json"]:
-            collection = Collection(
-                library_id=library.id,
-                key=record["key"],
-                version=record["version"],
-                name=record["name"],
-                deleted=record["deleted"],
-                date_added=_parse(record["dateAdded"]),
-                date_modified=_parse(record["dateModified"]),
-                server_date_modified=_parse(record["serverDateModified"]),
-            )
-            # Older archives predate collection relations.
-            collection.relations = [
-                CollectionRelation(predicate=r["predicate"], object=r["object"])
+        collection_records = documents["collections.json"]
+        collection_ids = await _insert_returning_ids(
+            session,
+            Collection,
+            [
+                {
+                    "library_id": library.id,
+                    "key": record["key"],
+                    "version": record["version"],
+                    "name": record["name"],
+                    "deleted": record["deleted"],
+                    "date_added": _parse(record["dateAdded"]),
+                    "date_modified": _parse(record["dateModified"]),
+                    "server_date_modified": _parse(record["serverDateModified"]),
+                }
+                for record in collection_records
+            ],
+        )
+        await _insert_all(
+            session,
+            CollectionRelation,
+            [
+                {
+                    "collection_id": collection_ids[record["key"]],
+                    "predicate": r["predicate"],
+                    "object": r["object"],
+                }
+                for record in collection_records
+                # Older archives predate collection relations.
                 for r in record.get("relations", [])
-            ]
-            session.add(collection)
-            await session.flush()
-            collection_ids[collection.key] = collection.id
-
-        for record in documents["collections.json"]:
-            stored = await session.get(Collection, collection_ids[record["key"]])
-            if stored is None:  # pragma: no cover - just inserted
-                continue
-            if record["parent"]:
-                stored.parent_id = collection_ids[record["parent"]]
-            for item_key in record["items"]:
-                session.add(CollectionItem(collection_id=stored.id, item_id=item_ids[item_key]))
+            ],
+        )
+        await _set_parents(
+            session,
+            Collection,
+            [
+                (collection_ids[record["key"]], collection_ids[record["parent"]])
+                for record in collection_records
+                if record["parent"]
+            ],
+        )
+        await _insert_all(
+            session,
+            CollectionItem,
+            [
+                {"collection_id": collection_ids[record["key"]], "item_id": item_ids[item_key]}
+                for record in collection_records
+                for item_key in record["items"]
+            ],
+        )
 
         for record in documents["searches.json"]:
             search = SavedSearch(
@@ -559,56 +611,78 @@ async def import_library(
             ]
             session.add(search)
 
-        for record in documents["tags.json"]:
-            tag = Tag(
-                library_id=library.id,
-                key=record["key"],
-                name=record["name"],
-                type=record["type"],
-                version=record["version"],
-                date_added=_parse(record["dateAdded"]),
-                date_modified=_parse(record["dateModified"]),
-                server_date_modified=_parse(record["serverDateModified"]),
-            )
-            session.add(tag)
-            await session.flush()
-            for item_key in record["items"]:
-                session.add(ItemTag(tag_id=tag.id, item_id=item_ids[item_key]))
+        tag_records = documents["tags.json"]
+        tag_ids = await _insert_returning_ids(
+            session,
+            Tag,
+            [
+                {
+                    "library_id": library.id,
+                    "key": record["key"],
+                    "name": record["name"],
+                    "type": record["type"],
+                    "version": record["version"],
+                    "date_added": _parse(record["dateAdded"]),
+                    "date_modified": _parse(record["dateModified"]),
+                    "server_date_modified": _parse(record["serverDateModified"]),
+                }
+                for record in tag_records
+            ],
+        )
+        await _insert_all(
+            session,
+            ItemTag,
+            [
+                {"tag_id": tag_ids[record["key"]], "item_id": item_ids[item_key]}
+                for record in tag_records
+                for item_key in record["items"]
+            ],
+        )
 
-        for record in documents["settings.json"]:
-            session.add(
-                Setting(
-                    library_id=library.id,
-                    name=record["name"],
-                    value=record["value"],
-                    version=record["version"],
-                )
-            )
-
-        for record in documents["fulltext.json"]:
-            session.add(
-                FullText(
-                    library_id=library.id,
-                    item_id=item_ids[record["item"]],
-                    content=record["content"],
-                    version=record["version"],
-                    indexed_chars=record["indexedChars"],
-                    total_chars=record["totalChars"],
-                    indexed_pages=record["indexedPages"],
-                    total_pages=record["totalPages"],
-                )
-            )
-
-        for record in documents["deleted.json"]:
-            session.add(
-                DeletedObject(
-                    library_id=library.id,
-                    object_type=record["objectType"],
-                    key=record["key"],
-                    version=record["version"],
-                    deleted=_parse(record["deleted"]),
-                )
-            )
+        await _insert_all(
+            session,
+            Setting,
+            [
+                {
+                    "library_id": library.id,
+                    "name": record["name"],
+                    "value": record["value"],
+                    "version": record["version"],
+                }
+                for record in documents["settings.json"]
+            ],
+        )
+        await _insert_all(
+            session,
+            FullText,
+            [
+                {
+                    "library_id": library.id,
+                    "item_id": item_ids[record["item"]],
+                    "content": record["content"],
+                    "version": record["version"],
+                    "indexed_chars": record["indexedChars"],
+                    "total_chars": record["totalChars"],
+                    "indexed_pages": record["indexedPages"],
+                    "total_pages": record["totalPages"],
+                }
+                for record in documents["fulltext.json"]
+            ],
+        )
+        await _insert_all(
+            session,
+            DeletedObject,
+            [
+                {
+                    "library_id": library.id,
+                    "object_type": record["objectType"],
+                    "key": record["key"],
+                    "version": record["version"],
+                    "deleted": _parse(record["deleted"]),
+                }
+                for record in documents["deleted.json"]
+            ],
+        )
 
         # Last, and the point of the exercise: the version clients remember.
         library.version = described["version"]
@@ -620,18 +694,64 @@ async def import_library(
         if into is None:
             library.name = manifest.get("name", library.name)
 
-        for entry in bundle.namelist():
-            if not entry.startswith(FILE_PREFIX):
-                continue
-            # A digest, and nothing that could climb out of the store: checked
-            # by read_manifest before a single row was written.
-            digest = entry[len(FILE_PREFIX) :]
-            # Whole or not at all, as an upload is. The bytes are not checked
-            # against the name: an archive carries a snapshot under the digest
-            # of the file inside it, and a library read out of zotero.org
-            # keeps files whose digest disagrees with what the item claims, so
-            # a mismatch here is the ordinary case rather than damage.
-            storage.store_file(storage_root, digest, bundle.read(entry))
+        # In a thread, a file at a time and a chunk at a time: an archive can
+        # carry gigabytes of attachments.
+        await asyncio.to_thread(_unpack_files, bundle, storage_root)
 
     await session.commit()
     return library
+
+
+#: Rows sent to the database in one statement when a library is restored.
+_BATCH = 1000
+
+
+async def _insert_all(session: AsyncSession, model: type[Any], rows: list[dict[str, Any]]) -> None:
+    """Insert ``rows`` into ``model``'s table a batch at a time."""
+    for start in range(0, len(rows), _BATCH):
+        await session.execute(insert(model), rows[start : start + _BATCH])
+
+
+async def _insert_returning_ids(
+    session: AsyncSession, model: type[Any], rows: list[dict[str, Any]]
+) -> dict[str, int]:
+    """Insert ``rows`` and return the id each was given, by its key."""
+    ids: dict[str, int] = {}
+    for start in range(0, len(rows), _BATCH):
+        inserted = await session.execute(
+            insert(model).returning(model.id, model.key), rows[start : start + _BATCH]
+        )
+        ids.update((key, row_id) for row_id, key in inserted.tuples())
+    return ids
+
+
+async def _set_parents(
+    session: AsyncSession, model: type[Any], pairs: list[tuple[int, int]]
+) -> None:
+    """Point each child row at its parent, ``(child, parent)``, a batch at a time."""
+    table = model.__table__
+    statement = (
+        update(table).where(table.c.id == bindparam("child")).values(parent_id=bindparam("parent"))
+    )
+    for start in range(0, len(pairs), _BATCH):
+        await session.execute(
+            statement,
+            [{"child": child, "parent": parent} for child, parent in pairs[start : start + _BATCH]],
+        )
+
+
+def _unpack_files(bundle: zipfile.ZipFile, storage_root: Path) -> None:
+    """Put every file the archive carries into the store."""
+    for entry in bundle.namelist():
+        if not entry.startswith(FILE_PREFIX):
+            continue
+        # A digest, and nothing that could climb out of the store: checked by
+        # read_manifest before a single row was written.
+        digest = entry[len(FILE_PREFIX) :]
+        # Whole or not at all, as an upload is. The bytes are not checked
+        # against the name: an archive carries a snapshot under the digest of
+        # the file inside it, and a library read out of zotero.org keeps files
+        # whose digest disagrees with what the item claims, so a mismatch here
+        # is the ordinary case rather than damage.
+        with bundle.open(entry) as source:
+            storage.store_stream(storage_root, digest, source)

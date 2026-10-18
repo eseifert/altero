@@ -14,13 +14,14 @@ import asyncio
 import hashlib
 import logging
 import os
+import shutil
 import tempfile
 import zipfile
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, BinaryIO
+from typing import IO, Any, BinaryIO
 
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -134,6 +135,18 @@ def store_file(root: Path, md5: str, body: bytes) -> None:
     except BaseException:
         # Not `Exception`: a client that goes away mid-write cancels the task,
         # which is the very case this is here for.
+        _abandon(handle, staged)
+        raise
+
+
+def store_stream(root: Path, md5: str, source: IO[bytes]) -> None:
+    """:func:`store_file` for bytes read from ``source`` rather than held in memory."""
+    path = file_path(root, md5)
+    handle, staged = _staging_file(path)
+    try:
+        shutil.copyfileobj(source, handle, WRITE_BUFFER_BYTES)
+        _put_in_place(handle, staged, path)
+    except BaseException:
         _abandon(handle, staged)
         raise
 
