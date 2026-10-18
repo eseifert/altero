@@ -1282,3 +1282,45 @@ class TestASelection:
 
         activity = (await session.scalars(select(GroupActivity))).all()
         assert [entry.count for entry in activity] == [3]
+
+
+class TestTheCostOfASelection:
+    """A selection costs the same few statements whether it is three rows or fifteen."""
+
+    async def _errand(
+        self, app: Any, ada: httpx.AsyncClient, session: AsyncSession, count: int, errand: dict
+    ) -> int:
+        from tests.test_query_counts import capture_sql
+
+        library_id = await personal_library(ada)
+        papers = await make_collection(ada, library_id, f"Papers {count}")
+        key = await admin.create_api_key(session, username="ada", name=f"seed {count}")
+        created = await ada.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key.key},
+            json=[{"itemType": "book", "title": f"Book {n}"} for n in range(count)],
+        )
+        items = [entry["key"] for entry in created.json()["successful"].values()]
+        body = {"items": items, **errand}
+        if "addCollections" in body:
+            body["addCollections"] = [papers]
+
+        with capture_sql(app) as statements:
+            response = await ada.patch(
+                f"/web/libraries/{library_id}/items", json=body, headers=csrf_headers(ada)
+            )
+
+        assert response.status_code == 200, response.text
+        assert len(response.json()["items"]) == count
+        return len(statements)
+
+    @pytest.mark.parametrize(
+        "errand", [{"addCollections": []}, {"deleted": True}], ids=["filing", "trashing"]
+    )
+    async def test_more_rows_cost_no_more_statements(
+        self, app: Any, ada: httpx.AsyncClient, session: AsyncSession, errand: dict
+    ) -> None:
+        few = await self._errand(app, ada, session, 3, errand)
+        many = await self._errand(app, ada, session, 15, errand)
+
+        assert many == few

@@ -1,13 +1,14 @@
 """Creating, updating, filing, copying and deleting items.
 
 Every path that writes an item passes through :func:`save_item`,
-:func:`refile_item` or :func:`delete_items`, which is why the finer group
+:func:`refile_items` or :func:`delete_items`, which is why the finer group
 permissions are enforced in those three rather than in the eight routes that
 call them. A ``permit`` of ``None`` means an unrestricted write -- a restore, a
 migration, the command line -- and every route hands its caller's
 :class:`~altero.services.auth.Access` instead.
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import Any, NamedTuple
@@ -490,7 +491,8 @@ async def _apply(
         links: The tags and collections the item carries, if already read. A
             new item carries none.
     """
-    if links is None:
+    relinking = replace or bool({"tags", "collections"} & parsed["mentioned"])
+    if links is None and relinking:
         links = _Links({}, {}) if item.id is None else await _links(session, item)
     session.add(item)
 
@@ -552,6 +554,12 @@ async def _apply(
     item.sort_title = itemdata.derive_sort_title(item.item_type, values)
     item.sort_creator = itemdata.derive_sort_creator(item.creators)
     item.sort_date = itemdata.derive_sort_date(item.item_type, values)
+
+    # An update that rewrites no links can wait for whatever flushes next, so a
+    # selection's worth of them goes out together. A new item always has its
+    # links written, if only as none.
+    if links is None:
+        return
 
     await session.flush()
 
@@ -631,6 +639,7 @@ async def save_item(
     detect_unchanged: bool = False,
     actor_id: int | None = None,
     permit: Access | None = None,
+    stored: Item | None = None,
 ) -> Item | None:
     """Create or update one item and return it.
 
@@ -645,13 +654,14 @@ async def save_item(
             say who added it and who last changed it.
         permit: What the caller may write. ``None`` for a path with no
             credential to hold to -- a restore, an import, the command line.
+        stored: The item ``key`` names, when the caller already holds it.
     """
     # The item has to be resolved before validation, because an object naming an
     # existing item may omit properties that a new one must carry.
     target_key = key or (payload.get("key") if is_valid_key(str(payload.get("key", ""))) else None)
 
-    item = None
-    if target_key:
+    item = stored
+    if item is None and target_key:
         item = await session.scalar(
             select(Item).where(Item.library_id == library.id, Item.key == str(target_key))
         )
@@ -756,74 +766,122 @@ async def save_item(
     return item
 
 
-async def refile_item(
+async def refile_items(
     session: AsyncSession,
     library: Library,
-    item: Item,
-    keys: list[str],
+    items: Sequence[Item],
     version: int,
     *,
+    add: Sequence[str] = (),
+    remove: Sequence[str] = (),
     actor_id: int | None = None,
     permit: Access | None = None,
 ) -> None:
-    """Put ``item`` in exactly the collections named by ``keys``.
+    """File ``items`` into the collections ``add`` and out of those in ``remove``.
 
     Filing is an add-and-remove errand computed from what is stored, so it
     states no version and restates none of the item: :func:`save_item` would
     take the caller's whole idea of the item and write that, and the browser's
-    idea of it may be minutes stale.
+    idea of it may be minutes stale. Where each item is filed now is read here
+    for the same reason: a collection added from the desktop since the page was
+    drawn must not disappear because the browser did not know about it.
 
-    Everything else about the item is left alone, ``deleted`` included: filing
+    Everything else about the items is left alone, ``deleted`` included: filing
     something is not untrashing it.
 
     Filing is a change to the *item*, not to the collections, which is why a
     member restricted to their own items may file one of theirs into a
     collection somebody else made -- and may not file somebody else's item
     anywhere.
+
+    A statement per kind of row for the whole selection, not per item.
     """
+    ids = [item.id for item in items]
+    confined = permit.collections if permit is not None else None
     if permit is not None:
-        if permit.collections is not None and not await in_collections(
-            session, item, permit.collections
-        ):
-            raise NotFoundError("Item does not exist")
-        permit.require_change(item.created_by_user_id)
+        inside: set[int] = set()
+        if confined is not None:
+            for chunk in chunked(ids):
+                inside.update(
+                    await session.scalars(
+                        select(Item.id).where(Item.id.in_(chunk), confined_to_collections(confined))
+                    )
+                )
+        for item in items:
+            if confined is not None and item.id not in inside:
+                raise NotFoundError("Item does not exist")
+            permit.require_change(item.created_by_user_id)
 
-    collections = []
-    for key in keys:
-        collection = await session.scalar(
-            select(Collection).where(Collection.library_id == library.id, Collection.key == key)
+    filed: dict[int, dict[str, int]] = {item_id: {} for item_id in ids}
+    for chunk in chunked(ids):
+        rows = await session.execute(
+            select(CollectionItem.item_id, Collection.key, Collection.id)
+            .join(Collection, Collection.id == CollectionItem.collection_id)
+            .where(CollectionItem.item_id.in_(chunk))
         )
-        if collection is None:
-            raise NotFoundError(f"Collection {key} not found")
-        # Filing is a write to the item, and the item has to stay inside the
-        # grant afterwards. A collection the caller cannot see is not found
-        # rather than refused, as it is everywhere else.
-        confined = permit.collections if permit is not None else None
-        if confined is not None and collection.id not in confined:
-            raise NotFoundError(f"Collection {key} not found")
-        collections.append(collection)
+        for item_id, key, collection_id in rows.tuples():
+            filed[item_id][key] = collection_id
 
-    if permit is not None and permit.collections is not None and not collections:
-        # Filing something nowhere takes it out of every collection, and out of
-        # the grant with them. Refused rather than allowed and then lost.
-        raise ForbiddenError(
-            "This application was given access to particular collections, "
-            "and this would take the item out of all of them"
+    adding = list(dict.fromkeys(add))
+    found: dict[str, int] = {}
+    if adding:
+        rows = await session.execute(
+            select(Collection.key, Collection.id).where(
+                Collection.library_id == library.id, Collection.key.in_(adding)
+            )
         )
+        found = dict(rows.tuples().all())
 
-    await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
-    for collection in collections:
-        session.add(CollectionItem(collection_id=collection.id, item_id=item.id))
+    for item in items:
+        keep = {key: cid for key, cid in filed[item.id].items() if key not in remove}
+        for key in adding:
+            if key in keep:
+                continue
+            if key not in found:
+                raise NotFoundError(f"Collection {key} not found")
+            keep[key] = found[key]
+        if confined is not None:
+            # Filing is a write to the item, and the item has to stay inside
+            # the grant afterwards. A collection the caller cannot see is not
+            # found rather than refused, as it is everywhere else.
+            for key, collection_id in keep.items():
+                if collection_id not in confined:
+                    raise NotFoundError(f"Collection {key} not found")
+            if not keep:
+                # Filing something nowhere takes it out of every collection,
+                # and out of the grant with them. Refused rather than allowed
+                # and then lost.
+                raise ForbiddenError(
+                    "This application was given access to particular collections, "
+                    "and this would take the item out of all of them"
+                )
+        for key, collection_id in keep.items():
+            if key not in filed[item.id]:
+                session.add(CollectionItem(collection_id=collection_id, item_id=item.id))
 
-    # The item changed, so it takes the new version and a fresh timestamp: a
-    # client that has it must hear about this, and where an item is filed is
+    # Named on both sides, a collection ends up filed, as it does above.
+    removing = [key for key in dict.fromkeys(remove) if key not in found]
+    if removing:
+        removed = select(Collection.id).where(
+            Collection.library_id == library.id, Collection.key.in_(removing)
+        )
+        for chunk in chunked(ids):
+            await session.execute(
+                delete(CollectionItem).where(
+                    CollectionItem.item_id.in_(chunk), CollectionItem.collection_id.in_(removed)
+                )
+            )
+
+    # The items changed, so they take the new version and a fresh timestamp: a
+    # client that has them must hear about this, and where an item is filed is
     # part of what it syncs.
     now = datetime.now(UTC).replace(tzinfo=None, microsecond=0)
-    item.version = version
-    item.date_modified = now
-    item.server_date_modified = now
-    if library.type is LibraryType.GROUP and actor_id is not None:
-        item.last_modified_by_user_id = actor_id
+    for item in items:
+        item.version = version
+        item.date_modified = now
+        item.server_date_modified = now
+        if library.type is LibraryType.GROUP and actor_id is not None:
+            item.last_modified_by_user_id = actor_id
 
     await session.flush()
 

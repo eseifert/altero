@@ -10,7 +10,7 @@ from sqlalchemy import ColumnElement, Select, and_, distinct, func, not_, or_, s
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, aliased, lazyload
 
-from altero.db import id_list
+from altero.db import chunked, id_list
 from altero.errors import InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
 from altero.models import (
@@ -701,6 +701,29 @@ async def get_item(
     if confined is not None and not await in_collections(session, item, confined):
         raise NotFoundError("Item does not exist")
     return item
+
+
+async def get_items(
+    session: AsyncSession, library: Library, keys: Sequence[str], *, permit: Access | None = None
+) -> list[Item]:
+    """Return the items ``keys`` name, in that order, as :func:`get_item` would one by one.
+
+    One statement per chunk of keys rather than one per key. The first key that
+    names nothing -- or nothing ``permit`` may see -- is not found.
+    """
+    found: dict[str, Item] = {}
+    for chunk in chunked(list(keys)):
+        statement = select(Item).where(Item.library_id == library.id, Item.key.in_(chunk))
+        if not _may_read_notes(permit):
+            statement = statement.where(Item.item_type != "note")
+        confined = permit.collections if permit is not None else None
+        if confined is not None:
+            statement = statement.where(confined_to_collections(confined))
+        found.update((item.key, item) for item in await session.scalars(statement))
+    for key in keys:
+        if key not in found:
+            raise NotFoundError("Item does not exist")
+    return [found[key] for key in keys]
 
 
 async def in_collections(session: AsyncSession, item: Item, collection_ids: frozenset[int]) -> bool:

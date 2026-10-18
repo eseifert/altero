@@ -81,6 +81,7 @@ from starlette.responses import JSONResponse, Response
 from altero.api.deps import BaseUrlDep, SessionDep
 from altero.api.responses import library_headers
 from altero.api.routes.web import CsrfDep, CurrentUserDep
+from altero.db import chunked
 from altero.errors import (
     ForbiddenError,
     InvalidInputError,
@@ -196,8 +197,12 @@ async def _rendered_all(
     one of these helpers takes a list already, because the item list is drawn
     fifty rows at a time by the same means.
     """
-    for item in items:
-        await session.refresh(item)
+    # Read again as stored, in one statement per chunk rather than a refresh
+    # per item.
+    for chunk in chunked([item.id for item in items]):
+        await session.scalars(
+            select(Item).where(Item.id.in_(chunk)).execution_options(populate_existing=True)
+        )
     tags = await items_service.tags_for(session, items)
     collections = await items_service.collection_keys_for(session, items)
     parents = await items_service.parent_keys_for(session, items)
@@ -259,23 +264,21 @@ async def update_items(
     # request nobody's interface would send, and writing an item twice would
     # give it two timestamps for one errand.
     keys = list(dict.fromkeys(body.items))
-    items = [await items_service.get_item(session, library, key) for key in keys]
+    items = await items_service.get_items(session, library, keys)
 
     version = await writes.bump_library_version(session, library)
 
     if refiling:
-        # Read here rather than taken from the request: the page may be minutes
-        # old, and a collection added from the desktop since it was drawn must
-        # not disappear because the browser did not know about it. Per item,
-        # because "take it out of where it is" is a different answer for each.
-        current = await items_service.collection_keys_for(session, items)
-        for item in items:
-            filed = current.get(item.id, [])
-            keep = [key for key in filed if key not in body.remove_collections]
-            keep += [key for key in body.add_collections if key not in keep]
-            await itemwrites.refile_item(
-                session, library, item, keep, version, actor_id=user.id, permit=access
-            )
+        await itemwrites.refile_items(
+            session,
+            library,
+            items,
+            version,
+            add=body.add_collections,
+            remove=body.remove_collections,
+            actor_id=user.id,
+            permit=access,
+        )
 
     if trashing:
         # Through `save_item` so that trashing from the browser is the write a
@@ -290,6 +293,7 @@ async def update_items(
                 replace=False,
                 actor_id=user.id,
                 permit=access,
+                stored=item,
             )
 
     rendered = await _rendered_all(session, items, library, base_url)
