@@ -300,6 +300,27 @@ describe('the auth store', () => {
       expect(auth.registrationOpen).toBe(true)
     })
 
+    it('is asked for once however many screens want it', async () => {
+      requestMock.mockResolvedValue({ registrationOpen: true })
+      const auth = useAuthStore()
+
+      await Promise.all([auth.loadConfig(), auth.loadConfig()])
+      await auth.loadConfig()
+
+      expect(requestMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('is asked for again once somebody signs out, when it may have changed', async () => {
+      requestMock.mockResolvedValue({ registrationOpen: true })
+      const auth = useAuthStore()
+      await auth.loadConfig()
+
+      await auth.logout()
+      await auth.loadConfig()
+
+      expect(requestMock.mock.calls.filter(([path]) => path === '/web/config')).toHaveLength(2)
+    })
+
     it('assumes registration is closed when the server cannot be asked', async () => {
       requestMock.mockRejectedValue(new ApiError('Could not reach the server', 0))
       const auth = useAuthStore()

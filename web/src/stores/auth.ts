@@ -121,6 +121,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => user.value !== null)
 
   function adopt(response: AuthResponse): void {
+    config = null
     user.value = response.user
     adoptLocale(response.user)
     needsFactor.value = response.needsFactor
@@ -162,7 +163,18 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function loadConfig(): Promise<void> {
+  /* The answer to `/web/config`, shared by everybody who asks during one page
+     load: the shell asks on mounting and the router again for a signed-out
+     visitor, and they were two requests for one answer. Forgotten whenever an
+     account signs in, registers or signs out, which is when it can change. */
+  let config: Promise<void> | null = null
+
+  function loadConfig(): Promise<void> {
+    config ??= fetchConfig()
+    return config
+  }
+
+  async function fetchConfig(): Promise<void> {
     try {
       const config = await request<ServerConfig>('/web/config')
       registrationOpen.value = config.registrationOpen
@@ -275,6 +287,7 @@ export const useAuthStore = defineStore('auth', () => {
       // regardless, and keeping the interface populated because the sign-out
       // request failed would leave someone's library on screen.
     } finally {
+      config = null
       user.value = null
       adoptLocale(null)
       needsFactor.value = null

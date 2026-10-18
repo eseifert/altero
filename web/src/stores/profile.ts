@@ -71,8 +71,12 @@ export const useProfileStore = defineStore('profile', () => {
     reset()
     busy.value = true
     try {
-      profile.value = await request<Profile>(`/web/profiles/${encodeURIComponent(username)}`)
-      await fetchPage(username, 0)
+      // Side by side: the page of items does not need the profile's answer.
+      const [described] = await Promise.all([
+        request<Profile>(`/web/profiles/${encodeURIComponent(username)}`),
+        fetchPage(username, 0),
+      ])
+      profile.value = described
     } catch (thrown) {
       record(thrown)
     } finally {

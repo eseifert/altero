@@ -154,6 +154,25 @@ export const router = createRouter({
   routes,
 })
 
+/** Start loading the components a route will render, without waiting for them. */
+function preload(to: RouteLocationNormalized): void {
+  for (const record of to.matched) {
+    for (const component of Object.values(record.components ?? {})) {
+      // Every route here names its view as `() => import(...)`; anything else
+      // is left for the router to resolve as usual.
+      if (typeof component !== 'function' || 'setup' in component || 'render' in component) {
+        continue
+      }
+      try {
+        const loading = (component as () => unknown)()
+        if (loading instanceof Promise) loading.catch(() => undefined)
+      } catch {
+        // Not a loader after all; the router will deal with it.
+      }
+    }
+  }
+}
+
 router.beforeEach(async (to: RouteLocationNormalized) => {
   const auth = useAuthStore()
 
@@ -161,6 +180,10 @@ router.beforeEach(async (to: RouteLocationNormalized) => {
   // decides anything -- otherwise a reload on /library bounces to sign-in for
   // as long as that request is in flight.
   if (!auth.ready) {
+    // The page's own code is fetched while the session is checked rather than
+    // after: the router would otherwise only ask for it once this guard has
+    // finished, and the two round trips would follow one another.
+    preload(to)
     await auth.restore()
   }
 

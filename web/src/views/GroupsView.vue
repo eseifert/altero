@@ -106,9 +106,11 @@ function describe(entry: ActivityEntry): string {
 }
 
 async function show(group: Group): Promise<void> {
-  open.value = (await store.read(group.id)) ?? null
+  // Both at once: the activity is the same group's, asked for by the same id.
+  const [read, activity] = await Promise.all([store.read(group.id), store.readActivity(group.id)])
+  open.value = read ?? null
   confirming.value = null
-  log.value = open.value ? ((await store.readActivity(open.value.id))?.activity ?? []) : []
+  log.value = open.value ? (activity?.activity ?? []) : []
 }
 
 function close(): void {

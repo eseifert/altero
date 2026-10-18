@@ -81,11 +81,15 @@ export const useSharedStore = defineStore('shared', () => {
     reset()
     busy.value = true
     try {
-      shared.value = await request<SharedCollection>(base(token))
-      collections.value = (
-        await request<{ collections: CollectionEnvelope[] }>(`${base(token)}/collections`)
-      ).collections
-      await fetchPage(token, 0)
+      // Side by side rather than one after another: none needs another's answer,
+      // and in turn they were three round trips before the page could draw.
+      const [described, listed] = await Promise.all([
+        request<SharedCollection>(base(token)),
+        request<{ collections: CollectionEnvelope[] }>(`${base(token)}/collections`),
+        fetchPage(token, 0),
+      ])
+      shared.value = described
+      collections.value = listed.collections
     } catch (thrown) {
       record(thrown)
     } finally {
