@@ -12,6 +12,7 @@ import json
 import zipfile
 import zlib
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
@@ -593,6 +594,34 @@ class TestFileDownloads:
         response = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
 
         assert response.headers["Zotero-File-Compressed"] == "Yes"
+
+    async def test_telling_a_wrapper_apart_happens_off_the_event_loop(
+        self,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """It hashes the whole archive, which for a large snapshot takes a while."""
+        import threading
+
+        from altero.services import storage
+
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        await self._upload(client, "AAAA2345", self.ZIPPED, filename="page.html", zipped=True)
+        hashed_on: list[str] = []
+        digest_of = storage._digest_of
+
+        def recording(*args: Any) -> str:
+            hashed_on.append(threading.current_thread().name)
+            return digest_of(*args)
+
+        monkeypatch.setattr(storage, "_digest_of", recording)
+        redirect = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
+        await client.get(redirect.headers["Location"])
+
+        assert len(hashed_on) == 2
+        assert threading.main_thread().name not in hashed_on
 
     async def test_an_attachment_that_is_itself_a_zip_is_not_compressed(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library

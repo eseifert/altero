@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Telling a zipped snapshot apart on download hashes the archive in a worker thread rather than on the event loop.
 - The storage report and orphan purge walk the file store once, in a worker thread, rather than twice on the event loop.
 - Exporting items as a file finds the matching items once instead of counting and skipping them again for every batch.
 - Restoring a library archive inserts rows in batches and unpacks files in a worker thread: 40,000 items in 16 s instead of 287 s.

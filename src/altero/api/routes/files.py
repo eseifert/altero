@@ -5,6 +5,7 @@ hands out an S3 URL for the middle step; altero takes the bytes itself, so the
 authorization step points back here.
 """
 
+import asyncio
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -202,7 +203,8 @@ async def _file_response(item: Item, root: Path, *, expected_md5: str | None = N
         # new bytes would break the promise the 302 made in `Zotero-File-MD5`.
         raise NotFoundError("File not found")
 
-    if storage.is_compressed(path, fields["md5"]):
+    # Off the event loop: telling a wrapper apart hashes the whole archive.
+    if await asyncio.to_thread(storage.is_compressed, path, fields["md5"]):
         # Describing the archive as the file it holds would be a lie in the one
         # header a browser acts on.
         return FileResponse(path, media_type="application/zip", filename=f"{item.key}.zip")
@@ -247,7 +249,7 @@ async def download_file(
     item = await items_service.get_item(session, library, item_key, permit=access)
     path, fields = await storage.stored_file(item, _storage_root(request))
 
-    compressed = storage.is_compressed(path, fields["md5"])
+    compressed = await asyncio.to_thread(storage.is_compressed, path, fields["md5"])
     permission = await storage.authorize_download(session, library, item, fields["md5"])
     await session.commit()
 
