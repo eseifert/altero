@@ -378,12 +378,25 @@ async def _apply(
     replace: bool,
     permit: Access | None = None,
 ) -> None:
-    """Write ``parsed`` onto ``item``.
+    """Write ``parsed`` onto ``item``, adding it to the session if it is new.
+
+    Everything stored on the item's own row is settled before the first query
+    that could flush it, so a new item is one INSERT and a changed one one
+    UPDATE, rather than an INSERT or UPDATE followed by another for the parent
+    and another for the sort keys.
 
     Args:
         replace: Whether omitted properties are cleared. ``PUT`` replaces,
             ``PATCH`` leaves anything it does not mention alone.
     """
+    # Looked up first: the query flushes, and anything already assigned would
+    # be written by it and then written again.
+    parent_id = None
+    if parsed["parent_item"] is not None:
+        parent = await get_item(session, library, str(parsed["parent_item"]), permit=permit)
+        parent_id = parent.id
+    session.add(item)
+
     item.item_type = parsed["item_type"]
     item.version = version
     # A partial update leaves alone what it did not mention -- `validate_item`
@@ -433,11 +446,15 @@ async def _apply(
             ItemRelation(predicate=predicate, object=obj) for predicate, obj in parsed["relations"]
         ]
 
-    if parsed["parent_item"] is not None:
-        parent = await get_item(session, library, str(parsed["parent_item"]), permit=permit)
-        item.parent_id = parent.id
-    elif replace:
-        item.parent_id = None
+    if parent_id is not None or replace:
+        item.parent_id = parent_id
+
+    # Sort keys are recomputed from whatever the item now holds, so a PATCH that
+    # changes only the title still reorders correctly.
+    values = item.field_values()
+    item.sort_title = itemdata.derive_sort_title(item.item_type, values)
+    item.sort_creator = itemdata.derive_sort_creator(item.creators)
+    item.sort_date = itemdata.derive_sort_date(item.item_type, values)
 
     await session.flush()
 
@@ -457,13 +474,6 @@ async def _apply(
             if collection is None:
                 raise InvalidInputError(f"Collection {key} not found")
             session.add(CollectionItem(collection_id=collection.id, item_id=item.id))
-
-    # Sort keys are recomputed from whatever the item now holds, so a PATCH that
-    # changes only the title still reorders correctly.
-    values = item.field_values()
-    item.sort_title = itemdata.derive_sort_title(item.item_type, values)
-    item.sort_creator = itemdata.derive_sort_creator(item.creators)
-    item.sort_date = itemdata.derive_sort_date(item.item_type, values)
 
 
 async def save_item(
@@ -526,12 +536,12 @@ async def save_item(
     before = None
     creating = item is None
     if item is None:
+        # Added by `_apply`, once the parent is known.
         item = Item(
             library_id=library.id,
             key=coerce_key(str(target_key) if target_key else None),
             version=version,
         )
-        session.add(item)
     else:
         if permit is not None:
             if permit.collections is not None and not await in_collections(
@@ -552,6 +562,18 @@ async def save_item(
         if detect_unchanged:
             before = await _state(session, item)
 
+    # Who wrote it is stamped with everything else, so it is not an UPDATE of
+    # its own. Re-sending an item exactly as stored still does not rewrite who
+    # last touched it: `detect_unchanged` answers `None` below, and its caller
+    # rolls the whole write back. Upstream reaches the same place from the other
+    # direction: nothing is written, so its `groupItems` update never runs.
+    if library.type is LibraryType.GROUP and actor_id is not None:
+        if creating:
+            # Upstream inserts both columns on create, and its serialiser then
+            # collapses them because they are equal.
+            item.created_by_user_id = actor_id
+        item.last_modified_by_user_id = actor_id
+
     await _apply(session, library, item, parsed, version, replace=replace, permit=permit)
 
     if permit is not None and permit.collections is not None:
@@ -570,18 +592,6 @@ async def save_item(
 
     if before is not None and before == await _state(session, item):
         return None
-
-    # After the unchanged check, so re-sending an item exactly as stored does
-    # not rewrite who last touched it. Upstream reaches the same place from the
-    # other direction: nothing is written, so its `groupItems` update never
-    # runs.
-    if library.type is LibraryType.GROUP and actor_id is not None:
-        if creating:
-            # Upstream inserts both columns on create, and its serialiser then
-            # collapses them because they are equal.
-            item.created_by_user_id = actor_id
-        item.last_modified_by_user_id = actor_id
-
     return item
 
 

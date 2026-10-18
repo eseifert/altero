@@ -383,3 +383,34 @@ class TestDeleting:
         many = await self._delete(app, client, session, library, 25)
 
         assert len(many) == len(few), "\n\n".join(many)
+
+
+class TestCreating:
+    """A new object is one INSERT, not an INSERT and then UPDATEs of the same row."""
+
+    async def test_an_item_is_written_once(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        parent = await make_item(session, library, key="PARENT23")
+        children = [
+            {"itemType": "note", "note": f"<p>{index}</p>", "parentItem": parent.key}
+            for index in range(3)
+        ]
+
+        with capture_sql(app) as statements:
+            response = await client.post("/users/1/items", headers=AUTH, json=children)
+
+        assert len(response.json()["successful"]) == 3
+        assert not [s for s in statements if s.startswith("UPDATE items")], "\n\n".join(statements)
+
+    async def test_a_collection_is_written_once(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_collection(session, library, key="PARENT23")
+        nested = [{"name": f"Shelf {index}", "parentCollection": "PARENT23"} for index in range(3)]
+
+        with capture_sql(app) as statements:
+            response = await client.post("/users/1/collections", headers=AUTH, json=nested)
+
+        assert len(response.json()["successful"]) == 3
+        assert not [s for s in statements if s.startswith("UPDATE collections")]

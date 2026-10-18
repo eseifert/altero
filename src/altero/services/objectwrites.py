@@ -188,7 +188,10 @@ async def save_collection(
         if parent:
             if str(parent) == collection.key:
                 raise InvalidInputError("Collection cannot be its own parent")
-            parent_collection = await get_collection(session, library, str(parent))
+            # Without flushing what is assigned above, which would write the
+            # collection here and again with its parent below.
+            with session.no_autoflush:
+                parent_collection = await get_collection(session, library, str(parent))
             collection.parent_id = parent_collection.id
         else:
             collection.parent_id = None
