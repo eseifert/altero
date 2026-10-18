@@ -28,7 +28,13 @@ async def get_session(request: Request) -> AsyncIterator[AsyncSession]:
         yield session
 
 
-SessionDep = Annotated[AsyncSession, Depends(get_session)]
+#: Closed when the route returns rather than once the response has been sent.
+#: A response that streams -- an attachment of up to a gigabyte, an archive --
+#: would otherwise hold a pooled connection, and on PostgreSQL an open
+#: transaction, for as long as the client takes to read it. Nothing reads the
+#: session after the route: every response body is built from plain values or
+#: a file.
+SessionDep = Annotated[AsyncSession, Depends(get_session, scope="function")]
 
 
 def get_credential(request: Request) -> str | None:

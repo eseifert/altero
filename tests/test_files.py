@@ -655,6 +655,38 @@ class TestTheBytesOnTheWayIn:
         assert (first.status_code, again.status_code) == (204, 404)
 
 
+class TestTheConnectionIsNotHeldForTheDownload:
+    async def test_the_session_is_closed_before_the_bytes_are_sent(
+        self,
+        app: Any,
+        client: httpx.AsyncClient,
+        attachment: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A gigabyte download would otherwise hold a pooled connection for as long
+        as it takes -- on PostgreSQL idle in a transaction, on SQLite pinning a
+        snapshot -- and fifteen slow ones would stall every other request."""
+        from starlette.responses import FileResponse
+
+        await upload(client, attachment)
+        held: list[int] = []
+        send = FileResponse.__call__
+
+        async def sending(self: FileResponse, *args: Any, **kwargs: Any) -> None:
+            held.append(app.state.database.engine.sync_engine.pool.checkedout())
+            await send(self, *args, **kwargs)
+
+        monkeypatch.setattr(FileResponse, "__call__", sending)
+        # The test's own session holds whatever it holds; the request may add none.
+        before = app.state.database.engine.sync_engine.pool.checkedout()
+        response = await client.get(
+            f"/users/1/items/{attachment}/file", headers=AUTH, follow_redirects=True
+        )
+
+        assert response.content == CONTENT
+        assert held == [before]
+
+
 class TestDownload:
     async def test_an_item_without_a_file_is_a_404(
         self, client: httpx.AsyncClient, attachment: str

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- A request returns its database connection when the route finishes, not after a file download has been sent.
 - Uploads stream to disk in a worker thread instead of being read whole, and registration checks the file before locking the library.
 - Exporting a library archive groups its links in one pass, stores attachment files undeflated and writes the ZIP off the event loop.
 - Citations render on a worker thread and are remembered per item, so a bibliography page no longer stalls every other request.
