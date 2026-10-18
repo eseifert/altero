@@ -285,6 +285,14 @@ Summaries are the bare name for one creator, `"Smith and Myers"` for two, and
 `"Ranganathan et al."` from three. `parsedDate` emits only the parts present:
 `2016`, `2018-05` or `2018-06-20`.
 
+**A write response renders each object as it was written.** Upstream serialises
+each object right after its own write (`DataObjects.inc.php`), so a parent
+created in the same batch as its children reports the `numChildren` it had at
+that moment. altero does the same, which costs three to five statements per
+object. The desktop would not notice the difference: `syncEngine.js` reads
+`data` out of `successful` and caches the envelope, and no sync code reads
+`meta.numChildren`. It is kept for other API clients.
+
 **Error bodies name the object.** A missing item answers `Item does not exist`,
 a collection `Collection not found`, a search `Search not found`. An
 unrecognized filter value answers `Invalid itemType 'bogus'`, and an
