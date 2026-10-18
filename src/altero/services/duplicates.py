@@ -27,7 +27,7 @@ hide it.
 
 import re
 import unicodedata
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -73,6 +73,31 @@ def _year(date: str) -> str | None:
     return found[0] if found else None
 
 
+#: Duplicate sets already worked out, by library and library version. The
+#: version moves with every write to the library, so an entry is exact for as
+#: long as it is asked for; paging through the view no longer redoes the whole
+#: comparison for every page. Per process, like the streaming broker.
+_FOUND: OrderedDict[tuple[int, int], frozenset[int]] = OrderedDict()
+
+#: How many libraries' sets are kept.
+_KEPT = 16
+
+
+def forget(library_id: int) -> None:
+    """Drop what is remembered for ``library_id``.
+
+    For a restore, which sets the version counter from the archive: a version
+    the library had before can come back with different items behind it.
+    """
+    for found in [entry for entry in _FOUND if entry[0] == library_id]:
+        del _FOUND[found]
+
+
+def reset() -> None:
+    """Forget every library, for a test whose database is new."""
+    _FOUND.clear()
+
+
 async def duplicate_item_ids(session: AsyncSession, library: Library) -> set[int]:
     """Return the ids of every item in ``library`` that has a duplicate.
 
@@ -80,6 +105,18 @@ async def duplicate_item_ids(session: AsyncSession, library: Library) -> set[int
     comparison is between items, so there is no predicate to hand a database
     that would not first have to read the same three columns of every row.
     """
+    remembered = (library.id, library.version)
+    if (found := _FOUND.get(remembered)) is not None:
+        _FOUND.move_to_end(remembered)
+        return set(found)
+    found = frozenset(await _find(session, library))
+    _FOUND[remembered] = found
+    while len(_FOUND) > _KEPT:
+        _FOUND.popitem(last=False)
+    return set(found)
+
+
+async def _find(session: AsyncSession, library: Library) -> set[int]:
     compared = select(Item.id).where(
         Item.library_id == library.id,
         Item.parent_id.is_(None),

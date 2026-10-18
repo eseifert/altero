@@ -83,3 +83,15 @@ def _forget_key_usage_throttle() -> None:
     from altero.services import keyusage
 
     keyusage.reset()
+
+
+@pytest.fixture(autouse=True)
+def _forget_duplicates() -> None:
+    """Start every test with no duplicate sets remembered.
+
+    They are kept per process by library id and version, which a new database
+    hands out again from the start.
+    """
+    from altero.services import duplicates
+
+    duplicates.reset()

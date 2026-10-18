@@ -49,7 +49,7 @@ from altero.models import (
     StorageUpload,
     Tag,
 )
-from altero.services import storage
+from altero.services import duplicates, storage
 
 #: Bumped when the archive layout changes in a way an older altero cannot read.
 FORMAT_VERSION = 1
@@ -362,6 +362,7 @@ async def clear_library(session: AsyncSession, library: Library) -> None:
     Public because deleting a group needs exactly this, plus the rows that only
     a group has -- see :func:`altero.services.groups.delete_group`.
     """
+    duplicates.forget(library.id)
     items = select(Item.id).where(Item.library_id == library.id)
     collections = select(Collection.id).where(Collection.library_id == library.id)
 
@@ -686,6 +687,7 @@ async def import_library(
 
         # Last, and the point of the exercise: the version clients remember.
         library.version = described["version"]
+        duplicates.forget(library.id)
         # The name belongs to the library rather than to what is in it. Taking
         # the archive's is right when a library is restored over itself, since
         # that is its own name coming back, and wrong when the caller chose the

@@ -583,3 +583,39 @@ class TestTheCostOfTheLibraryList:
 
         assert len(response.json()) == 4
         assert len([s for s in statements if "FROM groups" in s]) == 1, "\n\n".join(statements)
+
+
+class TestDuplicatesArePagedNotRecomputed:
+    async def test_a_second_page_reuses_the_first_pages_answer(
+        self,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        monkeypatch: Any,
+    ) -> None:
+        """The comparison reads the whole library; a write is what makes it stale."""
+        from altero.services import admin, duplicates
+        from tests.test_web_routes import register
+
+        assert (await register(client)).status_code == 201
+        library_id = int((await client.get("/web/libraries")).json()[0]["id"])
+        key = (await admin.create_api_key(session, username="ada", name="seed")).key
+        books = [{"itemType": "book", "title": "Moby-Dick", "date": "1851"} for _ in range(3)]
+        await client.post("/users/1/items", headers={"Zotero-API-Key": key}, json=books)
+
+        computed = 0
+        find = duplicates._find
+
+        async def counting(*args: Any) -> set[int]:
+            nonlocal computed
+            computed += 1
+            return await find(*args)
+
+        monkeypatch.setattr(duplicates, "_find", counting)
+        listing = f"/web/libraries/{library_id}/items?scope=duplicates&limit=2"
+        first = await client.get(listing)
+        second = await client.get(listing + "&start=2")
+        assert (len(first.json()["items"]), len(second.json()["items"]), computed) == (2, 1, 1)
+
+        await client.post("/users/1/items", headers={"Zotero-API-Key": key}, json=books[:1])
+        again = await client.get(f"/web/libraries/{library_id}/items?scope=duplicates")
+        assert (len(again.json()["items"]), computed) == (4, 2)
