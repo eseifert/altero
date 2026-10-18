@@ -7,58 +7,32 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Full-text search is indexed: a rare word takes 0.8 s, not 2.4. SQLite needs FTS5, PostgreSQL `pg_trgm` and `btree_gin` ([requirements][db-req]).
-- `/web/schema` carries an ETag, so a browser that already holds the display names gets 304 instead of them again.
-- The library screen no longer redraws every row and tag on each drag frame or keystroke: 200 ms to 8 ms with 500 rows and 1,000 tags.
-- The browser interface fetches a page's code while it checks the session, and loads a share or profile page in one round of requests.
-- The Japanese font rules load after the first paint: the stylesheet a page waits for is 5 kB gzipped instead of 86 kB.
-- The browser interface's scripts and stylesheets are sent Brotli- or gzip-compressed from copies written at build time.
-- The browser interface fetches only the translation it shows: its entry script is 35 kB gzipped instead of 560 kB.
-- Expired download permissions are cleared as new ones are handed out, at most once a minute, rather than kept until a retention sweep.
-- The rate limiter counts a key that has not authenticated against its address too, and prunes its table once per window.
-- A key used from two addresses in turn has its use recorded once per address per minute, not on every request.
-- A streaming connection passes over a change to another account's access instead of re-authenticating every subscription.
-- The duplicates view works out a library's duplicates once per library version rather than on every page: 1 s to 5 ms per later page.
-- The browser's library and link lists ask about every group and collection at once, and reading through a link no longer counts a listing.
-- `/deleted` reads two columns of the delete log instead of whole rows: 5,000 entries in 36–39 ms instead of about 100 ms.
-- Routes that need only an item's row, such as its full text or tags, no longer load its fields, creators and relations.
-- Foreign keys get the indexes they lacked, and indexes that only duplicated another's prefix are gone; item sorts are indexed per library.
-- On PostgreSQL, searching everything in a small library no longer reads every library's fields and full text: 4.6 s to 0.26 s.
-- A library read out of zotero.org streams each attachment to disk and writes the archive in worker threads, storing files undeflated.
-- Telling a zipped snapshot apart on download hashes the archive in a worker thread rather than on the event loop.
-- The storage report and orphan purge walk the file store once, in a worker thread, rather than twice on the event loop.
-- Exporting items as a file finds the matching items once instead of counting and skipping them again for every batch.
-- Restoring a library archive inserts rows in batches and unpacks files in a worker thread: 40,000 items in 16 s instead of 287 s.
-- The API version and rate-limit middleware are plain ASGI: a large download runs at 250–300 MB/s instead of 150–180.
-- A request returns its database connection when the route finishes, not after a file download has been sent.
-- Uploads stream to disk in a worker thread instead of being read whole, and registration checks the file before locking the library.
-- Exporting a library archive groups its links in one pass, stores attachment files undeflated and writes the ZIP off the event loop.
-- Citations render on a worker thread and are remembered per item, so a bibliography page no longer stalls every other request.
-- Filing or trashing a selection in the browser costs a fixed number of statements: 200 items take 0.1 s instead of 3–4 s.
-- An item sent again unchanged is recognised before anything is written: re-sending 50 costs 0.5 s instead of 1.1–1.3 s.
-- Writing an item touches only the tag and collection links that changed and finds its tags in one query: a 50-item POST costs 40% less.
-- SQLite connections read through a memory mapping, and the connection pool's size is configurable.
-- Settings sent again unchanged keep their version, and a request changing none leaves the library version where it was, as upstream.
-- A write no longer reads back the library version it was just given, nor names items for activity in a personal library.
-- Creating an item or a nested collection writes its row once, rather than inserting it and updating its parent and sort keys.
-- On SQLite, a write that times out waiting for the lock answers 503 with `Retry-After: 5`, which the desktop client retries.
-- Deleting many items is set-based: 1,000 items and their children go in 0.5 s on SQLite and 2.6 s on PostgreSQL, not 90–100 s.
-- Authenticating a request costs one statement fewer, an OAuth token two fewer; the owner is read in the same lookup.
-- Item writes no longer rebuild the schema's field-name sets for every field they validate.
-- Duplicates, tag renames, trash emptying and retention sweeps no longer fail on libraries past ~32k objects.
-- An item naming the same tag twice carries it once instead of failing with 500, as upstream does.
-- On SQLite, two writes from the same library version can no longer both pass `If-Unmodified-Since-Version`; the second answers 412.
-- Compressed request bodies are capped at 128 MiB before and after inflating, read without quadratic copying and inflated off the event loop.
-- SQLite gathers planner statistics on connect and hourly; item flags are indexed behind their library, not across every library.
-- Quick searches and tag listings take their `Total-Results` from the page instead of filtering a second time.
-- Tag listings scoped to items count per tag before joining tags: `/items/top/tags` from 26 s to 0.4 s on 34k items.
-- Collection listings count each collection's items from its memberships: 100 collections in 34k items from 1.4 s to 0.12 s.
-- Tag filters and collection item listings match a list of item ids instead of a per-item subquery, about twice as fast.
-- `sort=serverDateModified` orders items by the server's modification time instead of by key alone.
-- Full syncs answer `format=keys` and `format=versions` from two columns instead of loading every item: 17 s to 0.3 s at 34k items.
-- Translate the web interface into 17 more languages, 31 in all.
+This version is mostly about speed: large libraries sync, search, import and
+export much faster, and the browser interface starts sooner. Upgrading builds a
+search index once, about a minute per 30,000 attachments with text; check the
+[database requirements][db-req] first.
+
+- The browser interface is translated into 17 more languages, 31 in all.
+- Searching everything, attachments' text included, is up to three times faster, and on PostgreSQL a small library no longer waits on a large one.
+- The first sync of a large library starts much sooner: listing what a library of 34,000 items holds takes 0.3 s instead of 17 s.
+- Tags and collections list faster in large libraries: the tags of 34,000 items take 0.4 s instead of 26 s.
+- Saving and deleting items is faster: deleting 1,000 items takes seconds instead of a minute and a half.
+- Restoring a library archive is about 18 times faster; exports, imports from zotero.org and file downloads are quicker too.
+- A long bibliography, a large upload or an export no longer holds up everyone else's requests while it runs.
+- Many smaller changes make everyday syncing lighter on the server, especially with several accounts.
+- The browser interface loads much less before showing the first page, and only the language it displays.
+- The browser interface stays responsive while dragging or typing in large libraries; filing or trashing 200 items takes 0.1 s, not 3–4 s.
+- The duplicates view opens later pages at once instead of searching the library again for each one.
 - Accounts without a password approve Zotero clients by signing in again at their provider. Reported by [@mweber0] in [Discussion#18].
-- Re-authenticating through a SAML provider sends `ForceAuthn`, so the directory asks again instead of reusing its session.
+- Confirming who you are through a SAML provider makes it ask again instead of reusing an earlier sign-in.
+- Finding duplicates, renaming tags and emptying the trash no longer fail in libraries of more than about 32,000 objects.
+- An item carrying the same tag twice is saved with it once instead of failing, as on zotero.org.
+- On SQLite, two clients changing a library at the same moment can no longer both succeed; the second syncs again first.
+- When SQLite is busy for too long, the Zotero client is told to retry instead of reporting an error.
+- Sending settings that did not change no longer makes other devices sync, as on zotero.org.
+- Sorting items by the server's modification date works; it used to sort by item key.
+- Compressed uploads are capped at 128 MiB, and made-up API keys share their address's rate limit.
+- Administrators can size the database connection pool ([configuration][config]).
 
 ## [1.0.0-beta.2] — 2026-10-03
 
@@ -222,6 +196,7 @@ The first release meant to be used by somebody other than its author.
 
 [desktop-matrix]: docs/client-compatibility.md#successfully-tested-matrix
 [db-req]: docs/deployment.md#database-requirements
+[config]: docs/configuration.md
 [1.0.0-beta.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.2
 [1.0.0-beta.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.1
 [1.0.0-alpha.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.3
