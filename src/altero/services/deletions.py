@@ -1,8 +1,11 @@
 """The delete log behind ``/deleted?since=``."""
 
-from sqlalchemy import delete, select
+from collections.abc import Sequence
+
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from altero.db import chunked
 from altero.models import DeletedObject, DeletedObjectType, Library
 from altero.services.auth import Access
 
@@ -44,6 +47,50 @@ async def record_deletion(
             version=version,
         )
     )
+
+
+async def record_deletions(
+    session: AsyncSession,
+    library: Library,
+    object_type: DeletedObjectType,
+    keys: Sequence[str],
+    version: int,
+) -> None:
+    """:func:`record_deletion` for many keys, in a few statements rather than a few per key."""
+    for chunk in chunked(keys):
+        known = set(
+            await session.scalars(
+                select(DeletedObject.key).where(
+                    DeletedObject.library_id == library.id,
+                    DeletedObject.object_type == object_type,
+                    DeletedObject.key.in_(chunk),
+                )
+            )
+        )
+        if known:
+            await session.execute(
+                update(DeletedObject)
+                .where(
+                    DeletedObject.library_id == library.id,
+                    DeletedObject.object_type == object_type,
+                    DeletedObject.key.in_(known),
+                )
+                .values(version=version)
+            )
+        fresh = [key for key in chunk if key not in known]
+        if fresh:
+            await session.execute(
+                insert(DeletedObject),
+                [
+                    {
+                        "library_id": library.id,
+                        "object_type": str(object_type),
+                        "key": key,
+                        "version": version,
+                    }
+                    for key in fresh
+                ],
+            )
 
 
 async def forget_deletion(

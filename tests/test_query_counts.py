@@ -338,3 +338,48 @@ class TestAuthentication:
         overrides = [s for s in statements if "FROM api_key_group_access" in s]
         policies = [s for s in statements if "FROM groups" in s]
         assert (len(overrides), len(policies)) == (1, 2), "\n\n".join(statements)
+
+
+class TestDeleting:
+    async def _delete(
+        self,
+        app: FastAPI,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        count: int,
+    ) -> list[str]:
+        keys = []
+        for index in range(count):
+            item = await make_item(session, library, fields={"title": f"Item {index}"})
+            await make_item(session, library, item_type="note", parent=item)
+            await tag_item(session, library, item, f"tag {index}")
+            keys.append(item.key)
+        version = (await client.get("/users/1/items?limit=1", headers=AUTH)).headers[
+            "Last-Modified-Version"
+        ]
+
+        with capture_sql(app) as statements:
+            response = await client.delete(
+                f"/users/1/items?itemKey={','.join(keys)}",
+                headers=AUTH | {"If-Unmodified-Since-Version": version},
+            )
+
+        assert response.status_code == 204, response.text
+        assert (await client.get("/users/1/items", headers=AUTH)).json() == []
+        deleted = await client.get(f"/users/1/deleted?since={version}", headers=AUTH)
+        assert len(deleted.json()["items"]) == 2 * count
+        return statements
+
+    async def test_more_items_cost_no_more_statements(
+        self,
+        app: FastAPI,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+    ) -> None:
+        """Deleting is a statement per table, not several per item and its children."""
+        few = await self._delete(app, client, session, library, 5)
+        many = await self._delete(app, client, session, library, 25)
+
+        assert len(many) == len(few), "\n\n".join(many)

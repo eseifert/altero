@@ -14,6 +14,7 @@ from typing import Any
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from altero.db import chunked
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
 from altero.keys import coerce_key, is_valid_key
@@ -36,8 +37,8 @@ from altero.models import (
 )
 from altero.services import itemdata
 from altero.services.auth import Access
-from altero.services.deletions import record_deletion
-from altero.services.items import get_item, in_collections, tags_for
+from altero.services.deletions import record_deletions
+from altero.services.items import confined_to_collections, get_item, in_collections, tags_for
 from altero.services.objectwrites import parse_relations, resolve_tag
 from altero.services.writes import check_object_version
 
@@ -734,34 +735,73 @@ async def copy_item(
     return copy
 
 
-async def _delete_one(session: AsyncSession, library: Library, item: Item, version: int) -> None:
-    """Remove one item, its children, and the rows that point at it."""
+#: How deep the walk below the named items goes before it gives up. Zotero
+#: nests three levels at most -- an annotation under an attachment under an
+#: item -- so anything deeper is a loop in the parent column, not a library.
+_DEEPEST = 16
+
+
+async def _remove(
+    session: AsyncSession, library: Library, named: dict[int, str], version: int
+) -> None:
+    """Remove the items ``named`` by id, everything below them, and the rows that point at them.
+
+    A statement per table per chunk rather than several per item: the trash a
+    reader empties can hold thousands.
+    """
     # A note or attachment cannot outlive its parent: it has nothing left to
-    # attach to, and the row it points at would be gone.
-    children = await session.scalars(select(Item).where(Item.parent_id == item.id))
-    for child in list(children):
-        await _delete_one(session, library, child, version)
+    # attach to, and the row it points at would be gone. Each item is deleted
+    # at the deepest level it is found at, so that whatever is below it goes
+    # first -- including an item that was named and is also below another.
+    depth = dict.fromkeys(named, 0)
+    keys = dict(named)
+    frontier = list(named)
+    for level in range(1, _DEEPEST + 1):
+        below: list[int] = []
+        for chunk in chunked(frontier):
+            rows = await session.execute(select(Item.id, Item.key).where(Item.parent_id.in_(chunk)))
+            for item_id, key in rows.tuples():
+                depth[item_id] = level
+                keys[item_id] = key
+                below.append(item_id)
+        if not below:
+            break
+        frontier = below
+    else:
+        raise InvalidInputError("Items nest deeper than any library can")
 
-    tag_ids = list(await session.scalars(select(ItemTag.tag_id).where(ItemTag.item_id == item.id)))
-    await session.execute(delete(ItemTag).where(ItemTag.item_id == item.id))
-    await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
+    everything = list(depth)
+    tag_ids: set[int] = set()
+    for chunk in chunked(everything):
+        tag_ids.update(
+            await session.scalars(select(ItemTag.tag_id).where(ItemTag.item_id.in_(chunk)))
+        )
+        # An attachment's indexed text, any upload it had authorized and any
+        # download it had permitted name the item by id as well, so leaving one
+        # behind fails the foreign key on the way out -- which is what deleting
+        # a PDF the client had indexed used to do. The stored bytes stay: files
+        # are shared by digest, and another item may be the same file.
+        for model in (
+            ItemTag,
+            CollectionItem,
+            FullText,
+            StorageUpload,
+            StorageDownload,
+            ItemField,
+            ItemCreator,
+            ItemRelation,
+        ):
+            await session.execute(delete(model).where(model.item_id.in_(chunk)))
 
-    # An attachment's indexed text, any upload it had authorized and any
-    # download it had permitted. All three name the item by id, so leaving one
-    # behind fails the foreign key on the way out -- which is what deleting a
-    # PDF the client had indexed used to do.
-    # The stored bytes stay: files are shared by digest, and another item may
-    # be the same file.
-    await session.execute(delete(FullText).where(FullText.item_id == item.id))
-    await session.execute(delete(StorageUpload).where(StorageUpload.item_id == item.id))
-    await session.execute(delete(StorageDownload).where(StorageDownload.item_id == item.id))
+    for level in sorted(set(depth.values()), reverse=True):
+        at_level = [item_id for item_id, found in depth.items() if found == level]
+        for chunk in chunked(at_level):
+            await session.execute(delete(Item).where(Item.id.in_(chunk)))
 
-    key = item.key
-    await session.delete(item)
-    await session.flush()
-
-    await _drop_unused_tags(session, tag_ids)
-    await record_deletion(session, library, DeletedObjectType.ITEM, key, version)
+    await _drop_unused_tags(session, sorted(tag_ids))
+    await record_deletions(
+        session, library, DeletedObjectType.ITEM, [keys[item_id] for item_id in everything], version
+    )
 
 
 async def _drop_unused_tags(session: AsyncSession, tag_ids: list[int]) -> None:
@@ -770,12 +810,13 @@ async def _drop_unused_tags(session: AsyncSession, tag_ids: list[int]) -> None:
     A tag exists only through its items, so one left with none is invisible over
     the API; without this the row would linger.
     """
-    for tag_id in tag_ids:
-        still_used = await session.scalar(
-            select(ItemTag.item_id).where(ItemTag.tag_id == tag_id).limit(1)
+    for chunk in chunked(tag_ids):
+        await session.execute(
+            delete(Tag).where(
+                Tag.id.in_(chunk),
+                ~select(ItemTag.item_id).where(ItemTag.tag_id == Tag.id).exists(),
+            )
         )
-        if still_used is None:
-            await session.execute(delete(Tag).where(Tag.id == tag_id))
 
 
 async def delete_items(
@@ -793,23 +834,41 @@ async def delete_items(
     alternative is a request that half succeeds and leaves nobody able to say
     which half.
     """
-    found = []
-    for key in keys:
-        item = await session.scalar(
-            select(Item).where(Item.library_id == library.id, Item.key == key)
+    named = list(dict.fromkeys(keys))
+    found: dict[str, tuple[int, int | None]] = {}
+    for chunk in chunked(named):
+        rows = await session.execute(
+            select(Item.key, Item.id, Item.created_by_user_id).where(
+                Item.library_id == library.id, Item.key.in_(chunk)
+            )
         )
-        if item is None:
+        found.update((key, (item_id, author)) for key, item_id, author in rows.tuples())
+
+    if permit is not None:
+        inside: set[str] | None = None
+        if permit.collections is not None:
+            inside = set()
+            for chunk in chunked(list(found)):
+                inside.update(
+                    await session.scalars(
+                        select(Item.key).where(
+                            Item.library_id == library.id,
+                            Item.key.in_(chunk),
+                            confined_to_collections(permit.collections),
+                        )
+                    )
+                )
+        for key in named:
             # Deleting something already gone is not an error.
-            continue
-        if permit is not None:
-            if permit.collections is not None and not await in_collections(
-                session, item, permit.collections
-            ):
+            if key not in found:
+                continue
+            if inside is not None and key not in inside:
                 # Not found, not forbidden: a refusal here would say the key
                 # names something, which is what the grant was drawn to hide.
                 raise NotFoundError("Item does not exist")
-            permit.require_remove(item.created_by_user_id)
-        found.append(item)
+            permit.require_remove(found[key][1])
 
-    for item in found:
-        await _delete_one(session, library, item, version)
+    if found:
+        await _remove(
+            session, library, {item_id: key for key, (item_id, _author) in found.items()}, version
+        )

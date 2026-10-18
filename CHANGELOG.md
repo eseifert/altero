@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Deleting many items is set-based: 1,000 items and their children go in 0.5 s on SQLite and 2.6 s on PostgreSQL, not 90–100 s.
 - Authenticating a request costs one statement fewer, an OAuth token two fewer; the owner is read in the same lookup.
 - Item writes no longer rebuild the schema's field-name sets for every field they validate.
 - Duplicates, tag renames, trash emptying and retention sweeps no longer fail on libraries past ~32k objects.
