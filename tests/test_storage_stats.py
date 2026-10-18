@@ -9,6 +9,7 @@ what the instance is paying, and an operator asked to plan for disk needs both.
 import os
 from datetime import timedelta
 from pathlib import Path
+from typing import Any
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -275,3 +276,37 @@ class TestFilesLeftHalfWritten:
 
         assert (files, freed) == (0, 0)
         assert staged.exists()
+
+
+class TestTheWalk:
+    """Reading the store is a walk of every file, so it happens off the event loop."""
+
+    @pytest.mark.parametrize("operation", ["collect", "purge"])
+    async def test_the_store_is_read_in_a_thread(
+        self,
+        session: AsyncSession,
+        store: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        operation: str,
+    ) -> None:
+        import threading
+
+        put_file(store, "a" * 32, b"orphan")
+        age(store, "a" * 32, hours=48)
+        scanned_on: list[str] = []
+        scandir = os.scandir
+
+        def recording(path: Any) -> Any:
+            scanned_on.append(threading.current_thread().name)
+            return scandir(path)
+
+        monkeypatch.setattr(os, "scandir", recording)
+        if operation == "collect":
+            usage = await storagestats.collect(session, store)
+            assert usage.orphan_files == 1
+        else:
+            files, _ = await storagestats.purge_orphans(session, store, grace=timedelta(hours=24))
+            assert files == 1
+
+        assert scanned_on
+        assert threading.main_thread().name not in scanned_on

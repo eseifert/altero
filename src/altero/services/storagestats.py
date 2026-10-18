@@ -22,9 +22,12 @@ of what an instance administrator is entitled to — see
 :mod:`altero.api.routes.webadmin`.
 """
 
+import asyncio
 import logging
+import os
 import time
 from collections import defaultdict
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from datetime import timedelta
 from pathlib import Path
@@ -106,15 +109,34 @@ def scan_store(root: Path) -> dict[str, int]:
     directory. Counting those as orphans would put somebody else's file on a
     list of things to delete.
     """
-    if not root.is_dir():
-        return {}
+    return {digest: described.st_size for digest, (_path, described) in _stored(root).items()}
 
-    sizes: dict[str, int] = {}
-    for path in root.rglob("*"):
-        # Named by digest; see altero.services.storage.file_path.
-        if path.is_file() and _is_digest(path.name):
-            sizes[path.name] = path.stat().st_size
-    return sizes
+
+def _stored(root: Path) -> dict[str, tuple[str, os.stat_result]]:
+    """Return what the store says about every file named like a digest.
+
+    Walked with ``os.scandir``, which hands each entry's type over with its
+    name, so a file costs one ``stat`` rather than the two ``rglob`` and
+    ``Path.stat`` took. Blocking, so the callers run it in a thread: a store of
+    a hundred thousand files is a walk of seconds.
+    """
+    # Named by digest; see altero.services.storage.file_path.
+    return {
+        entry.name: (entry.path, entry.stat()) for entry in _files(root) if _is_digest(entry.name)
+    }
+
+
+def _files(directory: Path | str) -> Iterator[os.DirEntry[str]]:
+    """Every file below ``directory``, at any depth, as ``rglob`` found them."""
+    try:
+        entries = list(os.scandir(directory))
+    except FileNotFoundError, NotADirectoryError:
+        return
+    for entry in entries:
+        if entry.is_dir(follow_symlinks=False):
+            yield from _files(entry.path)
+        elif entry.is_file():
+            yield entry
 
 
 async def _digests_by_library(session: AsyncSession) -> dict[int, set[str]]:
@@ -155,20 +177,17 @@ def _sweep_staging(root: Path, cutoff: float) -> tuple[int, int]:
     period as an orphan. They are not stored files: `scan_store` passes over
     anything not named like a digest, so nothing else would ever remove one.
     """
-    if not root.is_dir():
-        return 0, 0
-
     removed = freed = 0
-    for path in root.rglob(f"{STAGING_PREFIX}*"):
+    for entry in _files(root):
+        if not entry.name.startswith(STAGING_PREFIX):
+            continue
         try:
-            if not path.is_file():
-                continue
-            described = path.stat()
+            described = entry.stat()
             if described.st_mtime >= cutoff:
                 continue
-            path.unlink()
+            os.unlink(entry.path)
         except OSError:  # pragma: no cover - a file somebody else removed
-            logger.warning("Could not remove %s", path)
+            logger.warning("Could not remove %s", entry.path)
             continue
         removed += 1
         freed += described.st_size
@@ -193,16 +212,14 @@ async def purge_orphans(session: AsyncSession, root: Path, *, grace: timedelta) 
     They are the only other thing in the store that nothing else accounts for.
     """
     cutoff = time.time() - grace.total_seconds()
-    removed, freed = _sweep_staging(root, cutoff)
+    removed, freed = await asyncio.to_thread(_sweep_staging, root, cutoff)
 
-    sizes = scan_store(root)
-    if not sizes:
-        return removed, freed
-
+    stored = await asyncio.to_thread(_stored, root)
     old = {
-        digest: size
-        for digest, size in sizes.items()
-        if (path := file_path(root, digest)).is_file() and path.stat().st_mtime < cutoff
+        digest: described.st_size
+        for digest, (path, described) in stored.items()
+        # Only a file where the store keeps that digest is the stored file.
+        if described.st_mtime < cutoff and path == str(file_path(root, digest))
     }
     if not old:
         return removed, freed
@@ -211,9 +228,16 @@ async def purge_orphans(session: AsyncSession, root: Path, *, grace: timedelta) 
         digest for digests in (await _digests_by_library(session)).values() for digest in digests
     }
 
-    for digest, size in old.items():
-        if digest in referenced:
-            continue
+    gone, size = await asyncio.to_thread(
+        _remove, root, {digest: size for digest, size in old.items() if digest not in referenced}
+    )
+    return removed + gone, freed + size
+
+
+def _remove(root: Path, doomed: dict[str, int]) -> tuple[int, int]:
+    """Delete the stored files ``doomed`` names, by digest; return how many and how big."""
+    removed = freed = 0
+    for digest, size in doomed.items():
         path = file_path(root, digest)
         try:
             path.unlink()
@@ -222,7 +246,6 @@ async def purge_orphans(session: AsyncSession, root: Path, *, grace: timedelta) 
             continue
         removed += 1
         freed += size
-
     return removed, freed
 
 
@@ -234,7 +257,7 @@ async def collect(session: AsyncSession, root: Path) -> Usage:
     maintained on every upload is a thing that can drift from the disk it
     claims to describe — which is exactly the failure this is meant to catch.
     """
-    sizes = scan_store(root)
+    sizes = await asyncio.to_thread(scan_store, root)
     digests = await _digests_by_library(session)
 
     items = await _counts(session, Item.library_id)
