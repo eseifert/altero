@@ -306,7 +306,7 @@ includes British English: `en-US.ts` is the list every other catalog is
 checked against, and `en-GB.ts` is a translation of it like any other, written
 out in full rather than left to fall back so that a sentence reworded in English
 is caught there too. Adding another language is one file in `web/src/locales`,
-plus its tag in `services/locales.py` and in `MESSAGES` in `web/src/i18n.ts` —
+plus its tag in `services/locales.py` and in `LOCALES` in `web/src/i18n.ts` —
 and a plural rule beside it if the language needs more than two forms.
 `tests/test_locales.py` and `web/src/locales/locales.node.spec.ts` fail if the
 server's list and the catalogs ever disagree, or if a catalog drifts from

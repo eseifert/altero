@@ -1,6 +1,15 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
 
-import { i18n, isLocale, LOCALES, matchLocale, PLURAL_RULES, resolveLocale } from './i18n'
+import {
+  i18n,
+  isLocale,
+  loadLocale,
+  LOCALES,
+  matchLocale,
+  PLURAL_RULES,
+  resolveLocale,
+  setLocale,
+} from './i18n'
 
 /**
  * Counting, in the languages that count in more than two ways.
@@ -20,6 +29,11 @@ function items(locale: string, count: number): string {
   i18n.global.locale.value = locale as never
   return i18n.global.t(ITEMS, count)
 }
+
+beforeAll(async () => {
+  // Fetched on demand in the application; every one is wanted here.
+  await Promise.all(LOCALES.map(loadLocale))
+})
 
 afterEach(() => {
   i18n.global.locale.value = 'en-US'
@@ -372,5 +386,29 @@ describe('a message with fewer branches than the language has forms', () => {
   it('still picks the singular for one', () => {
     expect(PLURAL_RULES.pl(1, 2)).toBe(0)
     expect(PLURAL_RULES.ru(21, 2)).toBe(0)
+  })
+})
+
+describe('fetching a catalogue', () => {
+  it('finds one for every language on offer', () => {
+    // Fetched by name, so a tag with no file would load nothing and say nothing.
+    for (const locale of LOCALES) {
+      expect(Object.keys(i18n.global.getLocaleMessage(locale)).length).toBeGreaterThan(100)
+    }
+  })
+
+  it('switches once the words are there', async () => {
+    await setLocale('fr')
+
+    expect(i18n.global.locale.value).toBe('fr')
+    expect(document.documentElement.lang).toBe('fr')
+  })
+
+  it('lets a later switch win over an earlier one still fetching', async () => {
+    const earlier = setLocale('ja')
+    const later = setLocale('de')
+    await Promise.all([earlier, later])
+
+    expect(i18n.global.locale.value).toBe('de')
   })
 })

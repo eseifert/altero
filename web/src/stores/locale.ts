@@ -75,7 +75,7 @@ export const useLocaleStore = defineStore('locale', () => {
   }
 
   function apply(): void {
-    setLocale(active.value)
+    void setLocale(active.value)
   }
 
   return {

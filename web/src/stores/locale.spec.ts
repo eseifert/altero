@@ -92,10 +92,11 @@ describe('the locale store', () => {
     expect(store.formatting).toBe('de')
   })
 
-  it('sets the document language, which assistive technology reads', () => {
+  it('sets the document language, which assistive technology reads', async () => {
     browser(['fr-FR'], 'Europe/Paris')
 
-    expect(document.documentElement.lang).toBe('fr')
+    // Once the catalogue has arrived, so the words and the tag change together.
+    await vi.waitFor(() => expect(document.documentElement.lang).toBe('fr'))
   })
 })
 

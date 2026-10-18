@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 
 import { ApiError } from '@/api/client'
-import { i18n } from '@/i18n'
+import { i18n, loadLocale } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 
 import AdminView from './AdminView.vue'
@@ -315,6 +315,7 @@ describe('the retention screen', () => {
   })
 
   it('reports a sweep in the reader’s own language, not the server’s sentence', async () => {
+    await loadLocale('de')
     i18n.global.locale.value = 'de'
     const wrapper = await open('retention')
 

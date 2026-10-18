@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface fetches only the translation it shows: its entry script is 35 kB gzipped instead of 560 kB.
 - Expired download permissions are cleared as new ones are handed out, at most once a minute, rather than kept until a retention sweep.
 - The rate limiter counts a key that has not authenticated against its address too, and prunes its table once per window.
 - A key used from two addresses in turn has its use recorded once per address per minute, not on every request.

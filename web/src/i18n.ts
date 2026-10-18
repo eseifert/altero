@@ -1,39 +1,6 @@
 import { createI18n } from 'vue-i18n'
 
-import bn from './locales/bn'
-import cs from './locales/cs'
-import da from './locales/da'
-import de from './locales/de'
-import el from './locales/el'
-import enGB from './locales/en-GB'
 import enUS from './locales/en-US'
-import es from './locales/es'
-import fi from './locales/fi'
-import fr from './locales/fr'
-import hi from './locales/hi'
-import hu from './locales/hu'
-import id from './locales/id'
-import it from './locales/it'
-import ja from './locales/ja'
-import ka from './locales/ka'
-import ko from './locales/ko'
-import lt from './locales/lt'
-import nb from './locales/nb'
-import nl from './locales/nl'
-import pl from './locales/pl'
-import ptBR from './locales/pt-BR'
-import ptPT from './locales/pt-PT'
-import ro from './locales/ro'
-import ru from './locales/ru'
-import sk from './locales/sk'
-import sl from './locales/sl'
-import sv from './locales/sv'
-import ta from './locales/ta'
-import tr from './locales/tr'
-import uk from './locales/uk'
-import vi from './locales/vi'
-import zhCN from './locales/zh-CN'
-import zhTW from './locales/zh-TW'
 
 /**
  * The interface's languages.
@@ -58,46 +25,56 @@ import zhTW from './locales/zh-TW'
  * first, then what the browser asks for, then American English.
  */
 
-export const MESSAGES = {
-  'en-US': enUS,
-  'en-GB': enGB,
-  de,
-  fr,
-  es,
-  'pt-BR': ptBR,
-  'pt-PT': ptPT,
-  it,
-  nl,
-  da,
-  nb,
-  sv,
-  fi,
-  pl,
-  cs,
-  sk,
-  sl,
-  hu,
-  ro,
-  lt,
-  ru,
-  uk,
-  el,
-  ka,
-  tr,
-  hi,
-  bn,
-  ta,
-  ja,
-  ko,
-  vi,
-  id,
-  'zh-CN': zhCN,
-  'zh-TW': zhTW,
-}
+export const LOCALES = [
+  'en-US',
+  'en-GB',
+  'de',
+  'fr',
+  'es',
+  'pt-BR',
+  'pt-PT',
+  'it',
+  'nl',
+  'da',
+  'nb',
+  'sv',
+  'fi',
+  'pl',
+  'cs',
+  'sk',
+  'sl',
+  'hu',
+  'ro',
+  'lt',
+  'ru',
+  'uk',
+  'el',
+  'ka',
+  'tr',
+  'hi',
+  'bn',
+  'ta',
+  'ja',
+  'ko',
+  'vi',
+  'id',
+  'zh-CN',
+  'zh-TW',
+] as const
 
-export type Locale = keyof typeof MESSAGES
+export type Locale = (typeof LOCALES)[number]
 
-export const LOCALES = Object.keys(MESSAGES) as Locale[]
+/**
+ * Every catalogue but the American English one, each fetched when it is first
+ * needed rather than shipped with the page: together they were nineteen
+ * twentieths of the entry script, for a reader who reads one of them.
+ */
+const CATALOGUES = import.meta.glob<Record<string, string>>(
+  ['./locales/*.ts', '!./locales/*.spec.ts', '!./locales/en-US.ts'],
+  { import: 'default' },
+)
+
+const loaded = new Set<Locale>(['en-US'])
 
 /* Ends in 1 but not 11; ends in 2-4 but not 12-14; everything else. Russian
    and Ukrainian count alike. */
@@ -197,7 +174,9 @@ export const i18n = createI18n({
   legacy: false,
   locale: 'en-US',
   fallbackLocale: 'en-US',
-  messages: MESSAGES,
+  // Typed as a map of catalogues rather than inferred from the one loaded up
+  // front, which would admit only American English as a locale.
+  messages: { 'en-US': enUS } as Record<string, Record<string, string>>,
   pluralRules: PLURAL_RULES,
   // A missing key renders as the key, which is the English text. That is a
   // usable result rather than an error, so it is not worth a console warning
@@ -207,7 +186,7 @@ export const i18n = createI18n({
 })
 
 export function isLocale(value: unknown): value is Locale {
-  return typeof value === 'string' && (LOCALES as string[]).includes(value)
+  return typeof value === 'string' && (LOCALES as readonly string[]).includes(value)
 }
 
 /**
@@ -307,8 +286,29 @@ export function resolveLocale(preference: string | null, browser: readonly strin
   return 'en-US'
 }
 
-/** Switch the interface, and tell assistive technology what it is reading. */
-export function setLocale(locale: Locale): void {
+/** Fetch a catalogue, if it has not been already. */
+export async function loadLocale(locale: Locale): Promise<void> {
+  if (loaded.has(locale)) return
+  const load = CATALOGUES[`./locales/${locale}.ts`]
+  if (!load) return
+  i18n.global.setLocaleMessage(locale, await load())
+  loaded.add(locale)
+}
+
+let requested: Locale = 'en-US'
+
+/**
+ * Switch the interface, and tell assistive technology what it is reading.
+ *
+ * The catalogue is fetched first, so the words change once rather than to
+ * English and back. A switch asked for while an earlier one is still fetching
+ * wins: the earlier one finds it has been overtaken and leaves the language
+ * alone.
+ */
+export async function setLocale(locale: Locale): Promise<void> {
+  requested = locale
+  await loadLocale(locale)
+  if (requested !== locale) return
   i18n.global.locale.value = locale
   document.documentElement.lang = locale
 }
