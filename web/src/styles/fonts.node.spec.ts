@@ -13,7 +13,7 @@ const HERE = fileURLToPath(new URL('./', import.meta.url))
 const WEB = fileURLToPath(new URL('../../', import.meta.url))
 
 const TOKENS = readFileSync(`${HERE}tokens.css`, 'utf8')
-const FONTS = readFileSync(`${HERE}fonts.css`, 'utf8')
+const FONTS = readFileSync(`${HERE}fonts.css`, 'utf8') + readFileSync(`${HERE}fonts-jp.css`, 'utf8')
 
 /** Every stylesheet and template that could name a font, read as text. */
 function stylesheets(): [string, string][] {

@@ -19,6 +19,10 @@
  * from elsewhere and arrives with `<b>` and `<i>` in it. Japanese has 400 and
  * 500; a Japanese `<b>` is emboldened by the browser rather than costing
  * another 3 MB for a weight that only note text would reach.
+ *
+ * The Japanese faces are in `fonts-jp.css`, fetched once the page is on screen:
+ * their 248 `@font-face` rules were nine tenths of this stylesheet, and a
+ * stylesheet holds up the first paint until it has arrived.
  */
 
 @import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-Regular.css';
@@ -26,6 +30,3 @@
 @import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-Medium.css';
 @import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-Bold.css';
 @import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-BoldItalic.css';
-
-@import '@ibm/plex-sans-jp/fonts/split/woff2/hinted/IBMPlexSansJP-Regular.css';
-@import '@ibm/plex-sans-jp/fonts/split/woff2/hinted/IBMPlexSansJP-Medium.css';

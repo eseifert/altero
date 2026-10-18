@@ -1,0 +1,11 @@
+/*
+ * IBM Plex Sans JP, loaded after the first paint by `main.ts`.
+ *
+ * Kept apart from `fonts.css` because these 248 `@font-face` rules were nine
+ * tenths of the stylesheet the page waits for. Until they arrive, Japanese text
+ * is drawn in the system fallback the type stack names after Plex, and swapped
+ * when they do, as with every other face here.
+ */
+
+@import '@ibm/plex-sans-jp/fonts/split/woff2/hinted/IBMPlexSansJP-Regular.css';
+@import '@ibm/plex-sans-jp/fonts/split/woff2/hinted/IBMPlexSansJP-Medium.css';

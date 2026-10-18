@@ -16,4 +16,8 @@ const guessed = resolveLocale(null, navigator.languages ?? [navigator.language])
 const app = createApp(App).use(createPinia()).use(i18n).use(router)
 void loadLocale(guessed)
   .catch(() => undefined)
-  .finally(() => app.mount('#app'))
+  .finally(() => {
+    app.mount('#app')
+    // After the first paint rather than before it; see `styles/fonts-jp.css`.
+    void import('./styles/fonts-jp.css')
+  })
