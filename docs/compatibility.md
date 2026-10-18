@@ -94,8 +94,10 @@ matches, not the item it hangs under.
 
 altero has no Elasticsearch and will not acquire one — a search cluster is
 exactly the operational dependency `motivation.md` rules out — so it matches the
-stored text with `LIKE` instead. Three differences follow, and only the first is
-a narrowing:
+stored text as a substring instead, answered from a trigram index: an FTS5 table
+on SQLite, a GIN index from `pg_trgm` on PostgreSQL (see
+[Database requirements](deployment.md#database-requirements)). Three differences
+follow, and only the first is a narrowing:
 
 - **Characters rather than tokens.** The index maps `content` as a plain `text`
   field (`misc/elasticsearch/item_fulltext/mapping.json`), so it gets the
@@ -119,15 +121,22 @@ a narrowing:
   `test_fulltext.py::TestSearching`. The analyzer's composition is read from
   Elasticsearch's documented default rather than observed — no instance was run.
 
-  Case-insensitivity comes from `ILIKE` on PostgreSQL and from
-  `lower(content) LIKE lower(?)` on SQLite, which SQLAlchemy emits because
-  SQLite has no `ILIKE`. **Case folding outside ASCII is therefore not a
-  property altero has.** It depends on how the SQLite in use was built:
-  `lower()` is ASCII-only unless compiled with ICU. `Übung` matches `übung` on
-  a Gentoo build of SQLite 3.53.1 with ICU and does not on the SQLite that
-  GitHub Actions runs, which is where a test asserting it failed. altero does
-  nothing to make the two agree, so nothing should be built on either answer;
-  `test_fulltext.py` pins only ASCII case folding, which holds everywhere.
+  Case-insensitivity comes from `ILIKE` on PostgreSQL. On SQLite the
+  attachments' text is matched by FTS5's trigram tokenizer, which folds case
+  across Unicode itself, so `über` reaches `ÜBER` on every SQLite
+  (`test_fulltext_search.py`). The item's other fields are not: they go through
+  `lower(value) LIKE lower(?)`, which SQLAlchemy emits because SQLite has no
+  `ILIKE`, and `lower()` is ASCII-only unless SQLite was compiled with ICU.
+  `Übung` matches `übung` in a title on a Gentoo build of SQLite 3.53.1 with
+  ICU and does not on the SQLite that GitHub Actions runs. **Case folding
+  outside ASCII in the fields is therefore not a property altero has on
+  SQLite**, so nothing should be built on either answer; `test_fulltext.py` pins
+  only ASCII case folding in fields, which holds everywhere.
+
+  A part shorter than three characters has no trigram to look up, so it reads
+  every text, as before the index. `%` and `_` in a part are `LIKE`'s wildcards
+  in the text as in the fields: `q=col_ur` reaches *colour*. Upstream has no
+  wildcards; altero never escaped them, and keeps the two consistent.
 - **No 300-result cap.** Upstream asks Elasticsearch for `'size' => 300` and
   silently drops the rest, so a library where 400 PDFs mention a word answers
   for 300 of them and gives no sign of it. altero has no cap. This is a

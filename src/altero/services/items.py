@@ -24,6 +24,8 @@ from altero.models import (
     Tag,
     User,
 )
+from altero.models.fulltext import SEARCH_TABLE
+from altero.models.fulltext import search_table as fulltext_search
 from altero.pagination import UNLIMITED
 from altero.query import Direction, ListQuery, QuickSearchMode
 from altero.search import SearchExpression, parse_search_string
@@ -294,18 +296,16 @@ def _has_tag(library_id: int) -> Any:
     return build
 
 
-def _quick_search(
-    query: ListQuery, library_id: int, *, confine_fields: bool
-) -> ColumnElement[bool]:
+def _quick_search(query: ListQuery, library_id: int, *, dialect: str) -> ColumnElement[bool]:
     """Return the predicate for the ``q`` parameter.
 
     The query is split into parts, each of which must match something: upstream
     emits one `AND (...)` per part and ORs the fields together inside it, so
     ``q=quantum computing`` wants both words and not the phrase.
 
-    ``LIKE`` is used rather than a full-text index so the same query works on
-    SQLite and PostgreSQL; a dialect-specific backend can replace this without
-    the callers noticing.
+    Every part is a substring, ``%part%``, matched without regard to case. The
+    full text is matched through the index each backend keeps for it -- see
+    ``models/fulltext.py`` -- and everything else by ``ILIKE``.
     """
     clauses: list[ColumnElement[bool]] = []
     for part in parse_search_string(query.q or ""):
@@ -319,34 +319,54 @@ def _quick_search(
             # PostgreSQL evaluates these once as a hashed subplan rather than
             # per row, and without the library that subplan reads every field
             # and every full text of the instance: 4.5 s for a library of 200
-            # items beside one of 20,000. SQLite looks each one up per row,
-            # where the full text's own column costs nothing but the join a
-            # field needs to reach its library made a large library's search
-            # 5% slower -- so a field is held to it only where it helps.
+            # items beside one of 20,000. SQLite looks a field up per row,
+            # where the join it needs to reach its library made a large
+            # library's search 5% slower -- so it is held only where it helps.
             fields = select(ItemField.item_id).where(
                 ItemField.item_id == Item.id, ItemField.value.ilike(pattern)
             )
-            if confine_fields:
+            if dialect == "postgresql":
                 owner = aliased(Item)
                 fields = fields.join(owner, owner.id == ItemField.item_id).where(
                     owner.library_id == library_id
                 )
             alternatives.append(fields.exists())
-            alternatives.append(
-                select(FullText.item_id)
-                .where(
-                    FullText.item_id == Item.id,
-                    FullText.library_id == library_id,
-                    FullText.content.ilike(pattern),
-                )
-                .exists()
-            )
+            alternatives.append(_full_text_matches(part, library_id, dialect=dialect))
 
         clauses.append(or_(*alternatives))
 
     # Every part can drop out -- `q=0` is upstream's case -- and a search with
     # nothing left to ask for restricts nothing.
     return and_(*clauses) if clauses else true()
+
+
+def _full_text_matches(part: str, library_id: int, *, dialect: str) -> ColumnElement[bool]:
+    """Whether an item's full text holds ``part``, through the backend's index.
+
+    PostgreSQL answers ``ILIKE`` from the trigram GIN index on the library and
+    the text. SQLite asks its FTS5 trigram table for the part as a phrase,
+    which is the same substring folded across Unicode: a ``LIKE`` there is
+    answered from the index as well, but every row it finds is then read
+    again and checked -- 0.8 s against 0.05 s for a word in 30,000 texts. A
+    part too short for a trigram, or holding ``LIKE``'s own wildcards, which
+    a phrase would take literally, is left to the ``LIKE``.
+    """
+    pattern = f"%{part}%"
+    if dialect == "sqlite":
+        if len(part) >= 3 and not ("%" in part or "_" in part):
+            found = fulltext_search.c[SEARCH_TABLE].match('"' + part.replace('"', '""') + '"')
+        else:
+            found = fulltext_search.c.content.like(pattern)
+        return Item.id.in_(select(fulltext_search.c.rowid).where(found))
+    return (
+        select(FullText.item_id)
+        .where(
+            FullText.item_id == Item.id,
+            FullText.library_id == library_id,
+            FullText.content.ilike(pattern),
+        )
+        .exists()
+    )
 
 
 async def _scope_filters(
@@ -566,8 +586,8 @@ async def build_item_query(
     filters += _expression_filter(query.tags, _has_tag(library.id))
 
     if query.q:
-        postgresql = session.get_bind().dialect.name == "postgresql"
-        filters.append(_quick_search(query, library.id, confine_fields=postgresql))
+        dialect = session.get_bind().dialect.name
+        filters.append(_quick_search(query, library.id, dialect=dialect))
 
     if not to_parents:
         return select(Item).where(and_(*filters))

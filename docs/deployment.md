@@ -11,6 +11,35 @@ This page covers running and operating altero. For a first local test, [Getting 
 
 For a server used by several people, prefer PostgreSQL.
 
+## Database requirements
+
+Full-text search is answered from an index each database builds with features that are not always installed. altero requires them:
+
+| Database   | Requires                                                                                                                  |
+|------------|---------------------------------------------------------------------------------------------------------------------------|
+| SQLite     | 3.34 or newer, built with FTS5. It is the SQLite Python links: `python3 -c "import sqlite3; print(sqlite3.sqlite_version)"`. |
+| PostgreSQL | The `pg_trgm` and `btree_gin` extensions, from PostgreSQL's contrib modules. Some distributions package those separately, for example as `postgresql-contrib`. |
+
+The Docker image and the Compose stack meet both.
+
+The migration creates the two PostgreSQL extensions itself. Both are trusted since PostgreSQL 13, so the database's owner may create them. If altero's database user does not own the database, or PostgreSQL is 12 or older, have a superuser run this in altero's database first:
+
+```sql
+CREATE EXTENSION pg_trgm;
+CREATE EXTENSION btree_gin;
+```
+
+Without either requirement the migration stops and names what is missing; altero does not start against the old schema.
+
+The index costs disk, and building it costs time once. Measured with 30,000 attachment texts holding 180 MB of text:
+
+| Database   | Index on disk                          | Built by the migration in |
+|------------|----------------------------------------|---------------------------|
+| SQLite     | 477 MB, about 2.6 times the text       | ~65 s                     |
+| PostgreSQL | 90 MB, about half the text             | ~70 s                     |
+
+Each later full-text upload takes a few milliseconds longer to index.
+
 ## Docker Compose
 
 The image is published as `ghcr.io/eseifert/altero`, so running altero needs no checkout and no build. The Compose file on its own is the deployment:
@@ -77,6 +106,8 @@ An instance pinned with `ALTERO_IMAGE_TAG` upgrades when that value changes, not
 
 Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.
 
+Upgrading from beta.2 builds the full-text search index once: about a minute per 30,000 attachment texts, and more disk. Check the [database requirements](#database-requirements) first.
+
 To update only the PostgreSQL image within the currently compatible major version:
 
 ```sh
@@ -128,6 +159,7 @@ A worked NixOS example, with altero and PostgreSQL as `virtualisation.oci-contai
 Requirements:
 
 - Python 3.14 or newer;
+- a database meeting the [database requirements](#database-requirements);
 - [uv](https://docs.astral.sh/uv/); and
 - Node 24 and npm to build the browser interface.
 

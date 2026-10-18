@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Full-text search is indexed: a rare word takes 0.8 s, not 2.4. SQLite needs FTS5, PostgreSQL `pg_trgm` and `btree_gin` ([requirements][db-req]).
 - `/web/schema` carries an ETag, so a browser that already holds the display names gets 304 instead of them again.
 - The library screen no longer redraws every row and tag on each drag frame or keystroke: 200 ms to 8 ms with 500 rows and 1,000 tags.
 - The browser interface fetches a page's code while it checks the session, and loads a share or profile page in one round of requests.
@@ -220,6 +221,7 @@ The first release meant to be used by somebody other than its author.
 - A command line for provisioning, CI, and the documentation to go with it.
 
 [desktop-matrix]: docs/client-compatibility.md#successfully-tested-matrix
+[db-req]: docs/deployment.md#database-requirements
 [1.0.0-beta.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.2
 [1.0.0-beta.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.1
 [1.0.0-alpha.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.3
