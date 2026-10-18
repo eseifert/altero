@@ -1986,7 +1986,7 @@ includes British English: <code>en-US.ts</code> is the list every other catalog 
 checked against, and <code>en-GB.ts</code> is a translation of it like any other, written
 out in full rather than left to fall back so that a sentence reworded in English
 is caught there too. Adding another language is one file in <code>web/src/locales</code>,
-plus its tag in <code>services/locales.py</code> and in <code>MESSAGES</code> in <code>web/src/i18n.ts</code> —
+plus its tag in <code>services/locales.py</code> and in <code>LOCALES</code> in <code>web/src/i18n.ts</code> —
 and a plural rule beside it if the language needs more than two forms.
 <code>tests/test_locales.py</code> and <code>web/src/locales/locales.node.spec.ts</code> fail if the
 server's list and the catalogs ever disagree, or if a catalog drifts from

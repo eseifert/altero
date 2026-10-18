@@ -1861,6 +1861,16 @@
 <td>SQLAlchemy URL. The driver must be an async one: <code>sqlite+aiosqlite</code> or <code>postgresql+asyncpg</code>.</td>
 </tr>
 <tr>
+<td><code>ALTERO_DATABASE_POOL_SIZE</code></td>
+<td><code>5</code></td>
+<td>Database connections kept open for requests to share.</td>
+</tr>
+<tr>
+<td><code>ALTERO_DATABASE_MAX_OVERFLOW</code></td>
+<td><code>10</code></td>
+<td>Further connections opened when the pool is exhausted. A request waiting longer than 30 s for one fails.</td>
+</tr>
+<tr>
 <td><code>ALTERO_HOST</code></td>
 <td><code>127.0.0.1</code></td>
 <td>Interface to bind. The container sets <code>0.0.0.0</code>.</td>
