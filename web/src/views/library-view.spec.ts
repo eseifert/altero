@@ -3063,3 +3063,36 @@ describe('exporting', () => {
     expect(link(wrapper)).not.toContain('NNNN2345')
   })
 })
+
+describe('drawing the list again', () => {
+  it('leaves the rows alone when only a pane width changes', async () => {
+    /* A splitter drag re-renders the view on every frame. The rows do not
+       depend on the width, and at five hundred of them drawing each again was
+       most of the frame. */
+    let reads = 0
+    contents = [
+      {
+        ...ITEM,
+        meta: {
+          get creatorSummary() {
+            reads += 1
+            return 'Abelson and Sussman'
+          },
+        },
+      },
+    ]
+    const wrapper = await open()
+    const drawn = reads
+    expect(drawn).toBeGreaterThan(0)
+
+    wrapper
+      .get('.library__grip--sidebar')
+      .element.dispatchEvent(new MouseEvent('pointerdown', { clientX: 300, bubbles: true }))
+    window.dispatchEvent(new MouseEvent('pointermove', { clientX: 340 }))
+    window.dispatchEvent(new MouseEvent('pointerup', { clientX: 340 }))
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('.library').attributes('style')).toMatch(/--sidebar-width/)
+    expect(reads).toBe(drawn)
+  })
+})

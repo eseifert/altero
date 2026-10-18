@@ -34,7 +34,7 @@ import {
 import { useLocaleStore } from '@/stores/locale'
 import { useShareStore } from '@/stores/shares'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const library = useLibraryStore()
 const locales = useLocaleStore()
@@ -530,6 +530,11 @@ const carry = useCarry<Cargo>()
 const itemError = ref<string | null>(null)
 
 /** The keys of the rows being carried, so they can be shown leaving. */
+/* Looked up per row and per pill, so a set rather than a scan of a list. */
+const selectedKeys = computed(() => new Set(library.selection))
+const selectedTagNames = computed(() => new Set(library.selectedTags))
+const renameTagLabel = computed(() => t('Rename tag'))
+
 const carriedKeys = computed(() => {
   const cargo = carry.carrying.value?.data
   if (!cargo) return new Set<string>()
@@ -1382,15 +1387,19 @@ function sortLabel(column: { field: string; label: string }): string {
           outline so the pair still reads as one tag.
         -->
         <ul class="library__tags">
+          <!-- Memoised, like the item rows: up to five thousand pills, each with
+               two translated labels, were rendered again on every keystroke
+               and every frame of a drag elsewhere on the screen. -->
           <li
             v-for="tag in library.tags"
             :key="tag.tag"
-            :class="['library__tag', { 'library__tag--on': library.selectedTags.includes(tag.tag) }]"
+            v-memo="[tag, selectedTagNames.has(tag.tag), library.writable, locale]"
+            :class="['library__tag', { 'library__tag--on': selectedTagNames.has(tag.tag) }]"
           >
             <button
               type="button"
               class="library__tag-name"
-              :aria-pressed="library.selectedTags.includes(tag.tag)"
+              :aria-pressed="selectedTagNames.has(tag.tag)"
               @click="library.toggleTag(tag.tag)"
             >
               <span class="library__label">{{ tag.tag }}</span>
@@ -1400,7 +1409,7 @@ function sortLabel(column: { field: string; label: string }): string {
               class="library__tag-action"
               type="button"
               :aria-label="t('Rename “{name}”', { name: tag.tag })"
-              :title="t('Rename tag')"
+              :title="renameTagLabel"
               @click="startRename(tag)"
             >
               <AppIcon name="edit" :size="12" />
@@ -1676,14 +1685,25 @@ function sortLabel(column: { field: string; label: string }): string {
           @keydown.a="selectAllKey"
           @keydown.esc="library.clearSelection()"
         >
-          <li v-for="item in library.items" :key="item.key" class="library__line">
+          <!-- Memoised on what a row shows: the item, whether it is picked out
+               or being carried, whether checkboxes are drawn, and the language.
+               Without it a splitter drag or a keystroke in the search field
+               rendered every row again, which at five hundred rows was most of
+               a frame. The store replaces an item rather than editing it, so a
+               changed item is a different object. -->
+          <li
+            v-for="item in library.items"
+            :key="item.key"
+            v-memo="[item, selectedKeys.has(item.key), carriedKeys.has(item.key), selecting, locale]"
+            class="library__line"
+          >
             <!-- The checkbox is a sibling of the row rather than inside it: a
                  checkbox within a button is neither, and a reader tabbing
                  through would find one control where there are two. -->
             <span v-if="selecting" class="library__cell library__cell--check">
               <input
                 type="checkbox"
-                :checked="library.selection.includes(item.key)"
+                :checked="selectedKeys.has(item.key)"
                 :aria-label="t('Select “{name}”', { name: titleOf(item) })"
                 @change="library.toggleSelected(item)"
               />
@@ -1700,11 +1720,11 @@ function sortLabel(column: { field: string; label: string }): string {
               :class="[
                 'library__row',
                 {
-                  'library__row--selected row--current': library.selection.includes(item.key),
+                  'library__row--selected row--current': selectedKeys.has(item.key),
                   'library__row--carried': carriedKeys.has(item.key),
                 },
               ]"
-              :aria-pressed="library.selection.includes(item.key)"
+              :aria-pressed="selectedKeys.has(item.key)"
               @click="pressRow(item, $event)"
               @pointerdown="carryItem(item, $event)"
               @keydown.delete.prevent="removeKey(item)"
@@ -1838,7 +1858,9 @@ function sortLabel(column: { field: string; label: string }): string {
     <div
       v-if="carry.carrying.value"
       class="library__cargo"
-      :style="{ left: `${carry.position.value.x}px`, top: `${carry.position.value.y}px` }"
+      :style="{
+        transform: `translate(${carry.position.value.x}px, ${carry.position.value.y}px)`,
+      }"
       aria-hidden="true"
     >
       {{ carry.carrying.value.label }}
@@ -2145,6 +2167,11 @@ function sortLabel(column: { field: string; label: string }): string {
  */
 .library__cargo {
   position: fixed;
+  /* Placed by `transform`, which moves it without laying the page out again
+     on every frame of a drag. */
+  top: 0;
+  left: 0;
+  will-change: transform;
   z-index: 10;
   max-width: 16rem;
   margin: 0.75rem 0 0 0.75rem;

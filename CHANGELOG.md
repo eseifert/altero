@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The library screen no longer redraws every row and tag on each drag frame or keystroke: 200 ms to 8 ms with 500 rows and 1,000 tags.
 - The browser interface fetches a page's code while it checks the session, and loads a share or profile page in one round of requests.
 - The Japanese font rules load after the first paint: the stylesheet a page waits for is 5 kB gzipped instead of 86 kB.
 - The browser interface's scripts and stylesheets are sent Brotli- or gzip-compressed from copies written at build time.
