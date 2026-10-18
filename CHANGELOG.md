@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- A write no longer reads back the library version it was just given, nor names items for activity in a personal library.
 - Creating an item or a nested collection writes its row once, rather than inserting it and updating its parent and sort keys.
 - On SQLite, a write that times out waiting for the lock answers 503 with `Retry-After: 5`, which the desktop client retries.
 - Deleting many items is set-based: 1,000 items and their children go in 0.5 s on SQLite and 2.6 s on PostgreSQL, not 90–100 s.

@@ -414,3 +414,16 @@ class TestCreating:
 
         assert len(response.json()["successful"]) == 3
         assert not [s for s in statements if s.startswith("UPDATE collections")]
+
+    async def test_the_new_version_is_not_read_back(
+        self, app: FastAPI, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """RETURNING gave the version, and a personal library records no activity."""
+        with capture_sql(app) as statements:
+            response = await client.post(
+                "/users/1/items", headers=AUTH, json=[{"itemType": "book"}]
+            )
+
+        assert response.status_code == 200
+        assert not [s for s in statements if s.startswith("SELECT libraries.version")]
+        assert not [s for s in statements if "items.sort_title" in s and "FROM items" in s]

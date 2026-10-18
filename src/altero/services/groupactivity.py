@@ -35,8 +35,11 @@ async def name_items(session: AsyncSession, library: Library, keys: Sequence[str
     item type -- including a note, which has no title and is shown by the start
     of its text. Deriving it a second time here would be a second answer to
     drift against the item list.
+
+    Nothing for a library only its owner sees, which :func:`record` would
+    discard anyway.
     """
-    if not keys:
+    if not keys or library.type is not LibraryType.GROUP:
         return []
 
     names: dict[str, str] = {}
@@ -53,8 +56,11 @@ async def name_items(session: AsyncSession, library: Library, keys: Sequence[str
 async def name_collections(
     session: AsyncSession, library: Library, keys: Sequence[str]
 ) -> list[Named]:
-    """Return ``keys`` with the name each collection currently carries."""
-    if not keys:
+    """Return ``keys`` with the name each collection currently carries.
+
+    Nothing for a library only its owner sees, as :func:`name_items`.
+    """
+    if not keys or library.type is not LibraryType.GROUP:
         return []
 
     names: dict[str, str] = {}

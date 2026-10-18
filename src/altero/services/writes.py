@@ -13,6 +13,7 @@ from typing import Any
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm.attributes import set_committed_value
 
 from altero.errors import (
     InvalidInputError,
@@ -124,12 +125,14 @@ async def bump_library_version(session: AsyncSession, library: Library) -> int:
         .where(Library.id == library.id)
         .values(version=Library.version + 1)
         .returning(Library.version)
+        .execution_options(synchronize_session=False)
     )
     if version is None:  # pragma: no cover - the library was just resolved
         raise NotFoundError("Library not found")
 
-    # Keep the in-memory object in step with the row we just changed.
-    await session.refresh(library, ["version"])
+    # Keep the in-memory object in step with the row just changed, from the
+    # value RETURNING already gave rather than by reading it again.
+    set_committed_value(library, "version", version)
 
     # Noted rather than sent: the streaming API announces it once the
     # transaction commits, so a write that rolls back announces nothing.

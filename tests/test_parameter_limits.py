@@ -161,10 +161,11 @@ class TestWrites:
     async def test_naming_items(
         self, app: FastAPI, session: AsyncSession, library: Library
     ) -> None:
-        keys = [item.key for item in await many_items(session, library)]
+        group = await make_group(session, owner_id=1)
+        keys = [item.key for item in await many_items(session, group)]
 
         with widest_statement(app) as seen:
-            named = await groupactivity.name_items(session, library, keys)
+            named = await groupactivity.name_items(session, group, keys)
 
         assert [key for key, _name in named] == keys
         assert_bounded(seen)
