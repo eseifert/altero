@@ -141,8 +141,10 @@ async def list_deletions(
     if permit is not None and permit.collections is not None:
         return _empty()
 
-    result = await session.scalars(
-        select(DeletedObject)
+    # Two columns rather than the rows: a library's log runs to thousands of
+    # entries, and building an object for each was most of the request.
+    result = await session.execute(
+        select(DeletedObject.object_type, DeletedObject.key)
         .where(DeletedObject.library_id == library.id, DeletedObject.version > since)
         .order_by(DeletedObject.key)
     )
@@ -155,8 +157,8 @@ async def list_deletions(
         DeletedObjectType.SETTING: "settings",
         DeletedObjectType.TAG: "tags",
     }
-    for entry in result:
-        group = plural.get(DeletedObjectType(entry.object_type))
+    for object_type, key in result.tuples():
+        group = plural.get(DeletedObjectType(object_type))
         if group:
-            grouped[group].append(entry.key)
+            grouped[group].append(key)
     return grouped

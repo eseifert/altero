@@ -534,3 +534,26 @@ class TestLookingAnItemUp:
         assert response.status_code == 200
         related = [s for s in statements if re.search(r"FROM item_(fields|creators|relations)", s)]
         assert not related, "\n\n".join(related)
+
+
+class TestTheDeleteLog:
+    async def test_it_reads_two_columns(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """A sync reads the whole log; building a row object for each entry was most of it."""
+        from altero.models import DeletedObject
+
+        session.add(
+            DeletedObject(library_id=library.id, object_type="item", key="GONE2345", version=5)
+        )
+        await session.commit()
+
+        with capture_sql(app) as statements:
+            response = await client.get("/users/1/deleted?since=0", headers=AUTH)
+
+        assert response.json()["items"] == ["GONE2345"]
+        read = [s for s in statements if "FROM deleted_objects" in s]
+        assert len(read) == 1
+        assert re.match(
+            r"SELECT deleted_objects\.object_type, deleted_objects\.\"key\"\s+FROM", read[0]
+        ), read[0]
