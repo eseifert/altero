@@ -23,7 +23,7 @@ from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
-from altero import cite, serializers
+from altero import __version__, cite, serializers
 from altero.api.deps import BaseUrlDep, SessionDep
 from altero.api.responses import CONTENT_TYPES
 from altero.api.routes.web import CurrentUserDep
@@ -490,14 +490,24 @@ async def render_item_citation(
 
 
 @router.get("/schema")
-async def get_display_names(locale: str | None = None) -> Response:
+async def get_display_names(request: Request, locale: str | None = None) -> Response:
     """Return the display names for item types, fields and creator types.
 
     Public, like the v3 schema endpoints it mirrors: the item type schema is the
     same for everyone and describes no library. It is served here so the
     interface has one origin to talk to.
+
+    Asked for on every page load and on every change of language, and changed
+    only by an upgrade, so it carries a validator: the schema's version, the
+    language it is in and altero's own version. A browser holding it is told
+    304 and keeps it.
     """
-    return JSONResponse(get_schema().display_names(locale))
+    schema = get_schema()
+    tag = f'"{schema.version}-{schema.resolve_locale(locale)}-{__version__}"'
+    headers = {"ETag": tag, "Cache-Control": "no-cache"}
+    if request.headers.get("If-None-Match") == tag:
+        return Response(status_code=304, headers=headers)
+    return JSONResponse(schema.display_names(locale), headers=headers)
 
 
 @router.get("/libraries/{library_id}/tags")

@@ -219,9 +219,10 @@ export const useLibraryStore = defineStore('library', () => {
    * order everything downstream means: "these three" reads top to bottom, and a
    * key whose row has gone simply is not here.
    */
-  const selectedItems = computed(() =>
-    items.value.filter((entry) => selection.value.includes(entry.key)),
-  )
+  const selectedItems = computed(() => {
+    const chosen = new Set(selection.value)
+    return items.value.filter((entry) => chosen.has(entry.key))
+  })
   const selectionKeys = computed(() => selectedItems.value.map((entry) => entry.key))
 
   /* A selection is one errand, so it is offered only when every row in it may

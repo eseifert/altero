@@ -619,3 +619,27 @@ class TestDuplicatesArePagedNotRecomputed:
         await client.post("/users/1/items", headers={"Zotero-API-Key": key}, json=books[:1])
         again = await client.get(f"/web/libraries/{library_id}/items?scope=duplicates")
         assert (len(again.json()["items"]), computed) == (4, 2)
+
+
+class TestTheDisplayNames:
+    async def test_a_browser_holding_them_is_told_they_have_not_changed(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """Asked for on every page load, and changed only by an upgrade."""
+        first = await client.get("/web/schema?locale=de")
+        again = await client.get(
+            "/web/schema?locale=de", headers={"If-None-Match": first.headers["etag"]}
+        )
+
+        assert first.status_code == 200
+        assert again.status_code == 304
+        assert again.content == b""
+
+    async def test_another_language_is_another_answer(self, client: httpx.AsyncClient) -> None:
+        german = await client.get("/web/schema?locale=de")
+        french = await client.get(
+            "/web/schema?locale=fr", headers={"If-None-Match": german.headers["etag"]}
+        )
+
+        assert french.status_code == 200
+        assert french.headers["etag"] != german.headers["etag"]
