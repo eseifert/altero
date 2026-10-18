@@ -4,9 +4,10 @@ import asyncio
 import errno
 import hashlib
 import os
+from collections.abc import AsyncIterator
 from datetime import datetime
 from pathlib import Path
-from typing import IO
+from typing import IO, Any
 
 import httpx
 import pytest
@@ -534,6 +535,126 @@ class TestUploadAndRegistration:
         assert after["version"] > before["version"]
 
 
+class TestTheBytesOnTheWayIn:
+    """A file is written as it arrives, and checked before the library is locked."""
+
+    async def _authorized(self, client: httpx.AsyncClient, key: str) -> dict:
+        response = await client.post(
+            f"/users/1/items/{key}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data=authorization(),
+        )
+        return dict(response.json())
+
+    async def test_the_body_is_never_read_whole(
+        self,
+        client: httpx.AsyncClient,
+        settings: Settings,
+        attachment: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A gigabyte upload held in memory is a gigabyte of memory per client."""
+        from starlette.requests import Request
+
+        async def whole(self: Request) -> bytes:
+            raise AssertionError("the upload was read into memory whole")
+
+        authorized = await self._authorized(client, attachment)
+        monkeypatch.setattr(Request, "body", whole)
+
+        async def chunks() -> AsyncIterator[bytes]:
+            for index in range(0, len(CONTENT), 7):
+                yield CONTENT[index : index + 7]
+
+        response = await client.post(authorized["url"], content=chunks())
+
+        assert response.status_code == 201
+        assert file_path(settings.storage_path, MD5).read_bytes() == CONTENT
+
+    async def test_a_declared_size_over_the_limit_is_refused_unread(
+        self, client: httpx.AsyncClient, attachment: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from altero.api.routes import files
+
+        authorized = await self._authorized(client, attachment)
+        monkeypatch.setattr(files, "MAX_UPLOAD_BYTES", 10)
+        sent: list[bytes] = []
+
+        async def body() -> AsyncIterator[bytes]:
+            for chunk in (CONTENT[:20], CONTENT[20:]):
+                sent.append(chunk)
+                yield chunk
+
+        response = await client.post(
+            authorized["url"],
+            content=body(),
+            headers={"Content-Length": str(len(CONTENT))},
+        )
+
+        assert response.status_code == 413
+        assert len(sent) <= 1
+
+    async def test_too_many_bytes_leave_nothing_behind(
+        self, client: httpx.AsyncClient, settings: Settings, attachment: str
+    ) -> None:
+        authorized = await self._authorized(client, attachment)
+
+        response = await client.post(authorized["url"], content=CONTENT + b"and then some")
+
+        assert response.status_code == 400
+        assert f"got {len(CONTENT) + 13}" in response.text
+        directory = file_path(settings.storage_path, MD5).parent
+        assert not directory.exists() or not list(directory.iterdir())
+
+    async def test_the_stored_file_is_checked_before_the_library_is_locked(
+        self, client: httpx.AsyncClient, attachment: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Hashing a large file under the lock holds up every other writer."""
+        from altero.services import writes
+
+        order: list[str] = []
+        authorized = await self._authorized(client, attachment)
+        await client.post(authorized["url"], content=CONTENT)
+
+        lock, confirm = writes.lock_library, storage._confirm_stored_file
+
+        async def locking(*args: Any, **kwargs: Any) -> Any:
+            order.append("lock")
+            return await lock(*args, **kwargs)
+
+        async def confirming(*args: Any, **kwargs: Any) -> Any:
+            order.append("confirm")
+            return await confirm(*args, **kwargs)
+
+        monkeypatch.setattr(writes, "lock_library", locking)
+        monkeypatch.setattr(storage, "_confirm_stored_file", confirming)
+        response = await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data={"upload": authorized["uploadKey"]},
+        )
+
+        assert response.status_code == 204
+        assert order == ["confirm", "lock"]
+
+    async def test_a_consumed_registration_is_not_found(
+        self, client: httpx.AsyncClient, attachment: str
+    ) -> None:
+        authorized = await self._authorized(client, attachment)
+        await client.post(authorized["url"], content=CONTENT)
+        register = {"upload": authorized["uploadKey"]}
+        headers = AUTH | {"If-None-Match": "*"}
+
+        first = await client.post(
+            f"/users/1/items/{attachment}/file", headers=headers, data=register
+        )
+        again = await client.post(
+            f"/users/1/items/{attachment}/file", headers=headers, data=register
+        )
+
+        assert (first.status_code, again.status_code) == (204, 404)
+
+
 class TestDownload:
     async def test_an_item_without_a_file_is_a_404(
         self, client: httpx.AsyncClient, attachment: str
@@ -731,6 +852,9 @@ class _HalfWritten:
         return self
 
     def __exit__(self, *exception: object) -> None:
+        self._handle.close()
+
+    def close(self) -> None:
         self._handle.close()
 
     def fileno(self) -> int:

@@ -5,9 +5,11 @@ hands out an S3 URL for the middle step; altero takes the bytes itself, so the
 authorization step points back here.
 """
 
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 from fastapi import APIRouter
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.datastructures import UploadFile
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, PlainTextResponse, Response
@@ -26,14 +28,17 @@ from altero.errors import (
     PreconditionFailedError,
     RequestTooLargeError,
 )
-from altero.models import Item
+from altero.models import Item, Library
+from altero.services import auth, storage, writes
 from altero.services import items as items_service
-from altero.services import storage, writes
 
 router = APIRouter(tags=["files"])
 
 #: Largest upload accepted, so a stray request cannot fill the disk.
 MAX_UPLOAD_BYTES = 1024 * 1024 * 1024
+
+#: How much of a form's file part is read at a time.
+UPLOAD_CHUNK_BYTES = 1024 * 1024
 
 
 def _storage_root(request: Request) -> Path:
@@ -57,22 +62,30 @@ async def upload_file(
     """
     form = {key: str(value) for key, value in (await request.form()).items()}
 
+    if upload_key := form.get("upload"):
+        item = await _attachment(session, library, item_key, access)
+        # The stored file is read back before the library is locked rather than
+        # under the lock: for a large file that takes long enough that every
+        # other writer to the library -- on SQLite, to the database -- would
+        # wait on it. The store is addressed by digest and written whole, so
+        # nothing it concludes can be undone in between.
+        upload = await storage.get_upload(session, upload_key)
+        await storage.confirm_upload(upload, item, _storage_root(request))
+
+        library = await writes.lock_library(session, library)
+        # Asked again under the lock: a registration that finished meanwhile
+        # consumed the token, and a retry of it is told so.
+        upload = await storage.get_upload(session, upload_key, fresh=True)
+        version = await writes.bump_library_version(session, library)
+        await storage.register(session, item, upload, version)
+        await session.commit()
+        return Response(status_code=204, headers=library_headers(version))
+
     library = await writes.lock_library(session, library)
-    item = await items_service.get_item(session, library, item_key, permit=access)
-    # Putting bytes on an attachment is a change to that attachment, so a member
-    # restricted to their own items is held to the same line here as anywhere
-    # else. The group's own `fileEditing` policy has already been applied.
-    access.require_change(item.created_by_user_id)
+    item = await _attachment(session, library, item_key, access)
 
     if_match = request.headers.get("If-Match")
     if_none_match = request.headers.get("If-None-Match")
-
-    if upload_key := form.get("upload"):
-        upload = await storage.get_upload(session, upload_key)
-        version = await writes.bump_library_version(session, library)
-        await storage.register(session, item, upload, version, _storage_root(request))
-        await session.commit()
-        return Response(status_code=204, headers=library_headers(version))
 
     try:
         storage.check_preconditions(item, if_match, if_none_match, _storage_root(request))
@@ -106,6 +119,20 @@ async def upload_file(
     return JSONResponse(result, headers=library_headers(library.version))
 
 
+async def _attachment(
+    session: AsyncSession, library: Library, item_key: str, access: auth.Access
+) -> Item:
+    """The attachment a file is being put on, if the caller may change it.
+
+    Putting bytes on an attachment is a change to that attachment, so a member
+    restricted to their own items is held to the same line here as anywhere
+    else. The group's own `fileEditing` policy has already been applied.
+    """
+    item = await items_service.get_item(session, library, item_key, permit=access)
+    access.require_change(item.created_by_user_id)
+    return item
+
+
 @router.post("/storage/upload/{upload_key}")
 async def receive_upload(upload_key: str, request: Request, session: SessionDep) -> Response:
     """Take the bytes of an authorized upload.
@@ -116,33 +143,49 @@ async def receive_upload(upload_key: str, request: Request, session: SessionDep)
     """
     upload = await storage.get_upload(session, upload_key)
 
-    body = await _upload_body(request)
-    if len(body) > MAX_UPLOAD_BYTES:
+    multipart = _is_multipart(request)
+    declared = request.headers.get("Content-Length", "")
+    if not multipart and declared.isdigit() and int(declared) > MAX_UPLOAD_BYTES:
+        # Refused before a byte is read.
         raise RequestTooLargeError("File is too large")
 
-    storage.store_bytes(_storage_root(request), upload, body)
+    if multipart:
+        async with request.form(max_part_size=MAX_UPLOAD_BYTES) as form:
+            file = form.get("file")
+            if not isinstance(file, UploadFile):
+                raise InvalidInputError("No file provided")
+            await storage.receive_file(
+                _storage_root(request), upload, _read_part(file), limit=MAX_UPLOAD_BYTES
+            )
+    else:
+        await storage.receive_file(
+            _storage_root(request), upload, _read_body(request), limit=MAX_UPLOAD_BYTES
+        )
     upload.received = True
     await session.commit()
 
     return Response(status_code=201)
 
 
-async def _upload_body(request: Request) -> bytes:
-    """Return the bytes of the file being uploaded.
+def _is_multipart(request: Request) -> bool:
+    """Whether the file comes as a form rather than as the body.
 
-    The desktop client sends them as the body. The mobile applications, having
-    asked for a form with ``params=1``, send ``multipart/form-data`` with the
-    file in a part named ``file``, beside the form's fields.
+    The desktop client sends the bytes as the body. The mobile applications,
+    having asked for a form with ``params=1``, send ``multipart/form-data``
+    with the file in a part named ``file``, beside the form's fields.
     """
-    content_type = request.headers.get("Content-Type", "")
-    if not content_type.lower().startswith("multipart/form-data"):
-        return await request.body()
+    return request.headers.get("Content-Type", "").lower().startswith("multipart/form-data")
 
-    async with request.form(max_part_size=MAX_UPLOAD_BYTES) as form:
-        file = form.get("file")
-        if not isinstance(file, UploadFile):
-            raise InvalidInputError("No file provided")
-        return await file.read()
+
+async def _read_body(request: Request) -> AsyncIterator[bytes]:
+    async for chunk in request.stream():
+        if chunk:
+            yield chunk
+
+
+async def _read_part(file: UploadFile) -> AsyncIterator[bytes]:
+    while chunk := await file.read(UPLOAD_CHUNK_BYTES):
+        yield chunk
 
 
 async def _file_response(item: Item, root: Path, *, expected_md5: str | None = None) -> Response:

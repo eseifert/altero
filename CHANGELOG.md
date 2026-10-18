@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Uploads stream to disk in a worker thread instead of being read whole, and registration checks the file before locking the library.
 - Exporting a library archive groups its links in one pass, stores attachment files undeflated and writes the ZIP off the event loop.
 - Citations render on a worker thread and are remembered per item, so a bibliography page no longer stalls every other request.
 - Filing or trashing a selection in the browser costs a fixed number of statements: 200 items take 0.1 s instead of 3–4 s.

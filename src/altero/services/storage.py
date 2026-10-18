@@ -16,10 +16,11 @@ import logging
 import os
 import tempfile
 import zipfile
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO
 
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,6 +30,7 @@ from altero.errors import (
     NotFoundError,
     PreconditionFailedError,
     PreconditionRequiredError,
+    RequestTooLargeError,
 )
 from altero.keys import generate_api_key
 from altero.models import Item, ItemField, Library, StorageDownload, StorageUpload
@@ -125,24 +127,104 @@ def store_file(root: Path, md5: str, body: bytes) -> None:
     the server depends on.
     """
     path = file_path(root, md5)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    descriptor, name = tempfile.mkstemp(dir=path.parent, prefix=STAGING_PREFIX)
-    staged = Path(name)
+    handle, staged = _staging_file(path)
     try:
-        with os.fdopen(descriptor, "wb") as handle:
-            os.fchmod(handle.fileno(), 0o644)
-            handle.write(body)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(staged, path)
+        handle.write(body)
+        _put_in_place(handle, staged, path)
     except BaseException:
         # Not `Exception`: a client that goes away mid-write cancels the task,
         # which is the very case this is here for.
-        staged.unlink(missing_ok=True)
+        _abandon(handle, staged)
         raise
 
+
+def _staging_file(path: Path) -> tuple[BinaryIO, Path]:
+    """Open a file of its own beside ``path`` for bytes on their way there."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor, name = tempfile.mkstemp(dir=path.parent, prefix=STAGING_PREFIX)
+    handle = os.fdopen(descriptor, "wb")
+    os.fchmod(handle.fileno(), 0o644)
+    return handle, Path(name)
+
+
+def _put_in_place(handle: BinaryIO, staged: Path, path: Path) -> None:
+    """Sync the staged bytes and move them onto ``path`` in one step."""
+    with handle:
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(staged, path)
     _sync_directory(path.parent)
+
+
+def _abandon(handle: BinaryIO, staged: Path) -> None:
+    handle.close()
+    staged.unlink(missing_ok=True)
+
+
+#: How much of an upload is gathered before it goes to a thread to be hashed and
+#: written. A trip per 64 KB network chunk cost a third of the throughput; at
+#: this size it is within a tenth of reading the body whole.
+WRITE_BUFFER_BYTES = 4 * 1024 * 1024
+
+
+def _absorb(handle: BinaryIO, digest: Any, chunk: bytes) -> None:
+    digest.update(chunk)
+    handle.write(chunk)
+
+
+async def receive_file(
+    root: Path, upload: StorageUpload, chunks: AsyncIterator[bytes], *, limit: int
+) -> None:
+    """Write an upload's bytes into the store as they arrive, checking they are what was promised.
+
+    A wrong size or digest means the transfer went wrong or the client described
+    a different file, and the store holds the file whole or not at all, as
+    :func:`store_file` explains. The bytes go to a staging file a
+    chunk at a time, hashed on the way, and the writing, hashing and syncing
+    happen in threads -- so neither memory nor the event loop has to hold a
+    file of up to a gigabyte.
+
+    Raises:
+        RequestTooLargeError: As soon as more than ``limit`` bytes arrive.
+        InvalidInputError: If the size or the digest is not the one promised.
+    """
+    path = file_path(root, upload.md5)
+    handle, staged = await asyncio.to_thread(_staging_file, path)
+    digest = hashlib.md5(usedforsecurity=False)
+    size = 0
+    pending: list[bytes] = []
+    pending_size = 0
+    try:
+        async for chunk in chunks:
+            size += len(chunk)
+            if size > limit:
+                raise RequestTooLargeError("File is too large")
+            if size > upload.filesize:
+                # Past the promised size the rest is only counted, so the
+                # refusal can say how much arrived.
+                continue
+            pending.append(chunk)
+            pending_size += len(chunk)
+            if pending_size >= WRITE_BUFFER_BYTES:
+                await asyncio.to_thread(_absorb, handle, digest, b"".join(pending))
+                pending, pending_size = [], 0
+        if pending:
+            await asyncio.to_thread(_absorb, handle, digest, b"".join(pending))
+        if size != upload.filesize:
+            raise InvalidInputError(
+                f"Uploaded file has wrong size (expected {upload.filesize}, got {size})"
+            )
+        # For a zipped upload the bytes are the archive, so they are checked
+        # against its digest; `md5` still identifies the original file.
+        expected = upload.zip_md5 or upload.md5
+        if digest.hexdigest() != expected:
+            raise InvalidInputError(f"Uploaded file has wrong md5 (expected {expected})")
+        await asyncio.to_thread(_put_in_place, handle, staged, path)
+    except BaseException:
+        # A close and an unlink, done here rather than awaited: a cancelled
+        # task should not have to wait for a thread to clean up after it.
+        _abandon(handle, staged)
+        raise
 
 
 def _discard(path: Path) -> None:
@@ -314,9 +396,13 @@ async def authorize(
     }
 
 
-async def get_upload(session: AsyncSession, key: str) -> StorageUpload:
-    """Return an authorized upload by its key."""
-    upload = await session.get(StorageUpload, key)
+async def get_upload(session: AsyncSession, key: str, *, fresh: bool = False) -> StorageUpload:
+    """Return an authorized upload by its key.
+
+    ``fresh`` reads the row again even if the session already holds it, which
+    is how a registration finds out another one consumed the token meanwhile.
+    """
+    upload = await session.get(StorageUpload, key, populate_existing=fresh)
     if upload is None:
         raise NotFoundError("Upload not found")
     return upload
@@ -364,28 +450,6 @@ async def open_download(session: AsyncSession, key: str) -> StorageDownload:
     if permission is None or permission.expires < _now():
         raise NotFoundError("File not found")
     return permission
-
-
-def store_bytes(root: Path, upload: StorageUpload, body: bytes) -> None:
-    """Write the uploaded bytes, checking they are what was promised.
-
-    A digest that does not match means the transfer went wrong or the client
-    described a different file; either way storing it would leave the attachment
-    pointing at contents nobody expects.
-    """
-    if len(body) != upload.filesize:
-        raise InvalidInputError(
-            f"Uploaded file has wrong size (expected {upload.filesize}, got {len(body)})"
-        )
-
-    # For a zipped upload the bytes are the archive, so they are checked
-    # against its digest; `md5` still identifies the original file.
-    expected = upload.zip_md5 or upload.md5
-    digest = hashlib.md5(body, usedforsecurity=False).hexdigest()
-    if digest != expected:
-        raise InvalidInputError(f"Uploaded file has wrong md5 (expected {expected})")
-
-    store_file(root, upload.md5, body)
 
 
 async def attach(session: AsyncSession, item: Item, declared: dict[str, Any]) -> None:
@@ -436,8 +500,8 @@ async def _confirm_stored_file(upload: StorageUpload, root: Path) -> None:
 
     The stat is not only a cheaper way to the common answer; it is also what
     keeps a full read off the path when the file is simply gone. The hash
-    itself runs in a thread because `bump_library_version` holds the library's
-    row lock until the request commits.
+    itself runs in a thread, off the event loop, and the route asks before it
+    locks the library, so no other writer waits on it.
     """
     path = file_path(root, upload.md5)
     try:
@@ -464,20 +528,17 @@ async def _confirm_stored_file(upload: StorageUpload, root: Path) -> None:
     raise InvalidInputError("The stored file is not the one that was uploaded")
 
 
-async def register(
-    session: AsyncSession,
-    item: Item,
-    upload: StorageUpload,
-    version: int,
-    root: Path,
-) -> None:
-    """Complete an upload, attaching the file to the item."""
+async def confirm_upload(upload: StorageUpload, item: Item, root: Path) -> None:
+    """Fail unless ``upload`` arrived, is for ``item``, and the store still holds it."""
     if not upload.received:
         raise InvalidInputError("Upload has not been received")
     if upload.item_id != item.id:
         raise InvalidInputError("Upload does not belong to this item")
     await _confirm_stored_file(upload, root)
 
+
+async def register(session: AsyncSession, item: Item, upload: StorageUpload, version: int) -> None:
+    """Complete an upload :func:`confirm_upload` accepted, attaching the file to the item."""
     await attach(
         session,
         item,
