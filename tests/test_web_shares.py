@@ -22,6 +22,7 @@ the library rather than a use of it.
 """
 
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import httpx
 import pytest
@@ -544,3 +545,39 @@ class TestTheV3ApiIsUntouched:
                 path, headers={"Zotero-API-Key": "P9NiFoyLeZu2bZNvvuQPDWsd"}
             )
             assert response.status_code in (401, 403, 405), path
+
+
+class TestTheCostOfALink:
+    async def test_reading_through_a_link_counts_nothing(
+        self, app: Any, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Whether a link reaches an item is a membership test, not a listing with a total."""
+        from tests.test_query_counts import capture_sql
+
+        library_id = await personal_library(ada)
+        key = await make_collection(ada, library_id, "Papers")
+        item_key = await TestFiles().attach(ada, session, library_id, key)
+        token = token_of(await share(ada, library_id, key))
+
+        with capture_sql(app) as statements:
+            response = await ada.get(f"/web/shared/{token}/items/{item_key}")
+
+        assert response.status_code == 200
+        # The rendering counts the item's children; nothing counts a listing.
+        totals = [s for s in statements if "count(" in s.lower() and "FROM (SELECT" in s]
+        assert not totals, "\n\n".join(totals)
+
+    async def test_listing_links_reads_their_collections_once(
+        self, app: Any, ada: httpx.AsyncClient
+    ) -> None:
+        from tests.test_query_counts import capture_sql
+
+        library_id = await personal_library(ada)
+        for name in ("One", "Two", "Three"):
+            await share(ada, library_id, await make_collection(ada, library_id, name))
+
+        with capture_sql(app) as statements:
+            response = await ada.get(f"/web/libraries/{library_id}/shares")
+
+        assert len(response.json()["shares"]) == 3
+        assert len([s for s in statements if "FROM collections" in s]) == 1

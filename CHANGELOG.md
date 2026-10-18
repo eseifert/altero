@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser's library and link lists ask about every group and collection at once, and reading through a link no longer counts a listing.
 - `/deleted` reads two columns of the delete log instead of whole rows: 5,000 entries in 36–39 ms instead of about 100 ms.
 - Routes that need only an item's row, such as its full text or tags, no longer load its fields, creators and relations.
 - Foreign keys get the indexes they lacked, and indexes that only duplicated another's prefix are gone; item sorts are indexed per library.

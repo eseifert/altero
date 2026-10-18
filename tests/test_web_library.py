@@ -1,5 +1,7 @@
 """Reading a library through the web interface's own endpoints."""
 
+from typing import Any
+
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -561,3 +563,23 @@ class TestFiles:
         assert response.status_code == 200
         assert response.content == CONTENT
         assert response.headers["content-type"].startswith("text/plain")
+
+
+class TestTheCostOfTheLibraryList:
+    async def test_every_group_is_asked_about_at_once(
+        self, app: Any, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """What an account may do in each library is one statement, not one per group."""
+        from tests.factories import make_group
+        from tests.test_query_counts import capture_sql
+        from tests.test_web_routes import register
+
+        assert (await register(client)).status_code == 201
+        for number in range(3):
+            await make_group(session, group_id=200 + number, owner_id=1, name=f"Group {number}")
+
+        with capture_sql(app) as statements:
+            response = await client.get("/web/libraries")
+
+        assert len(response.json()) == 4
+        assert len([s for s in statements if "FROM groups" in s]) == 1, "\n\n".join(statements)

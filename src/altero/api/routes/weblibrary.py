@@ -114,9 +114,10 @@ async def list_libraries(
 
     visible = ([personal] if personal is not None else []) + groups
 
+    accesses = await auth.user_accesses(session, visible, user.id)
     payload = []
     for library in visible:
-        access = await auth.user_access(session, library, user.id)
+        access = accesses[library.id]
         payload.append(
             {
                 "id": library.id,

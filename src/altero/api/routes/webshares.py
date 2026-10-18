@@ -37,6 +37,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, HTTPException, Query
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
@@ -159,9 +160,19 @@ async def list_library_shares(
     """
     library, _ = await _writable(session, user, library_id)
 
+    links = await shares.list_library_shares(session, library)
+    collections = {
+        collection.id: collection
+        for collection in await session.scalars(
+            select(Collection).where(
+                Collection.library_id == library.id,
+                Collection.id.in_({share.collection_id for share in links}),
+            )
+        )
+    }
     payload = []
-    for share in await shares.list_library_shares(session, library):
-        collection = await session.get(Collection, share.collection_id)
+    for share in links:
+        collection = collections.get(share.collection_id)
         if collection is None:  # pragma: no cover - deleted with its collection
             continue
         payload.append(_rendered(share, collection, base_url))
@@ -293,33 +304,27 @@ async def _in_share(
 ) -> Item:
     """Return one item, if this link reaches it.
 
-    Asked as a listing of one rather than by walking the item's collections,
-    because that is the same question the page's own list answers and one
-    implementation of it cannot disagree with itself. A child item is reached
-    through its parent, which is why the scope here is the non-top one.
+    Asked of the same scope the page's own list uses rather than by walking the
+    item's collections, so that one implementation of the question cannot
+    disagree with itself -- but as a membership test, not as a listing with a
+    count. A child item is reached through its parent, which is why the scope
+    here is the non-top one.
     """
-    query = ListQuery(limit=1, item_keys=(item_key,))
-    page = await items.list_items(
-        session, library, query, scope=_scope(share, top=False), key=collection.key
-    )
-    if page.objects:
-        return page.objects[0]
+    item = await items.get_item(session, library, item_key)
+    if item.deleted:
+        raise NotFoundError("Item does not exist")
 
     # A note or an attachment is not filed anywhere itself; it belongs to the
     # item it hangs off, and the link reaches it exactly when it reaches that.
-    item = await items.get_item(session, library, item_key)
-    if item.parent_id is not None and not item.deleted:
-        parent = await session.get(Item, item.parent_id)
-        if parent is not None:
-            reachable = await items.list_items(
-                session,
-                library,
-                ListQuery(limit=1, item_keys=(parent.key,)),
-                scope=_scope(share, top=False),
-                key=collection.key,
-            )
-            if reachable.objects:
-                return item
+    candidates = [item.id] if item.parent_id is None else [item.id, item.parent_id]
+    inside = await items.item_ids_in_scope(
+        session, library, ListQuery(), scope=_scope(share, top=False), key=collection.key
+    )
+    reached = await session.scalar(
+        select(Item.id).where(Item.id.in_(candidates), Item.id.in_(inside)).limit(1)
+    )
+    if reached is not None:
+        return item
 
     raise NotFoundError("Item does not exist")
 

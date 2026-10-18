@@ -11,12 +11,13 @@ needs. Nothing here relies on lazy relationship loading, which would otherwise
 fail whenever a key reached the check without having been loaded by a query.
 """
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.db import hold
+from altero.db import chunked, hold
 from altero.errors import ForbiddenError, NotFoundError
 from altero.models import (
     ApiKey,
@@ -779,9 +780,7 @@ async def user_access(session: AsyncSession, library: Library, user_id: int) -> 
     whatever endpoint happened to need it first.
     """
     if library.type is LibraryType.USER:
-        if library.owner_id == user_id:
-            return Access(read=True, write=True, user_id=user_id)
-        return Access(read=library.public, write=False, user_id=user_id)
+        return _person_access(library, user_id, None, None)
 
     row = (
         await session.execute(
@@ -798,6 +797,43 @@ async def user_access(session: AsyncSession, library: Library, user_id: int) -> 
         )
     ).first()
     membership, group = (row[0], row[1]) if row is not None else (None, None)
+    return _person_access(library, user_id, membership, group)
+
+
+async def user_accesses(
+    session: AsyncSession, libraries: Sequence[Library], user_id: int
+) -> dict[int, Access]:
+    """:func:`user_access` for several libraries, by library id, in one statement."""
+    groups = [library.id for library in libraries if library.type is LibraryType.GROUP]
+    found: dict[int, tuple[GroupMember | None, Group]] = {}
+    for chunk in chunked(groups):
+        rows = await session.execute(
+            select(GroupMember, Group)
+            .select_from(Group)
+            .outerjoin(
+                GroupMember,
+                and_(
+                    GroupMember.library_id == Group.library_id,
+                    GroupMember.user_id == user_id,
+                ),
+            )
+            .where(Group.library_id.in_(chunk))
+        )
+        found.update((group.library_id, (membership, group)) for membership, group in rows.tuples())
+    return {
+        library.id: _person_access(library, user_id, *found.get(library.id, (None, None)))
+        for library in libraries
+    }
+
+
+def _person_access(
+    library: Library, user_id: int, membership: GroupMember | None, group: Group | None
+) -> Access:
+    """The rules :func:`user_access` describes, given what it read."""
+    if library.type is LibraryType.USER:
+        if library.owner_id == user_id:
+            return Access(read=True, write=True, user_id=user_id)
+        return Access(read=library.public, write=False, user_id=user_id)
 
     if membership is None:
         # A stranger to the group. A public one is still readable, and still
