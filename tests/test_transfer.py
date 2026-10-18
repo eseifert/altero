@@ -526,6 +526,65 @@ class TestArchive:
         assert manifest["counts"]["items"] == 3
         assert manifest["counts"]["files"] == 1
 
+    async def test_each_collection_and_tag_lists_its_own_items(
+        self, session: AsyncSession, tmp_path: Path
+    ) -> None:
+        """Each collection and tag names exactly the items filed under it."""
+        import json
+
+        await make_user(session, user_id=1, username="octocat")
+        library = await get_library(session, LibraryType.USER, 1)
+        first = await make_item(session, library, key="FIRST234")
+        second = await make_item(session, library, key="SECOND23")
+        both = await make_item(session, library, key="BOTH2345")
+        await make_collection(session, library, key="COLLA234", items=[first, both])
+        await make_collection(session, library, key="COLLB234", items=[second, both])
+        await make_collection(session, library, key="EMPTY234")
+        for item, name in ((first, "red"), (both, "red"), (second, "blue"), (both, "blue")):
+            await tag_item(session, library, item, name)
+
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "storage",
+            destination=tmp_path / "library.zip",
+        )
+
+        with zipfile.ZipFile(archive) as bundle:
+            collections = json.loads(bundle.read("collections.json"))
+            tags = json.loads(bundle.read("tags.json"))
+        assert {c["key"]: c["items"] for c in collections} == {
+            "COLLA234": ["BOTH2345", "FIRST234"],
+            "COLLB234": ["BOTH2345", "SECOND23"],
+            "EMPTY234": [],
+        }
+        assert {t["name"]: t["items"] for t in tags} == {
+            "red": ["BOTH2345", "FIRST234"],
+            "blue": ["BOTH2345", "SECOND23"],
+        }
+
+    async def test_attachment_files_are_stored_as_they_are(
+        self, session: AsyncSession, tmp_path: Path
+    ) -> None:
+        """A PDF barely compresses, and deflating it is most of an export's time."""
+        await make_user(session, user_id=1, username="octocat")
+        library = await get_library(session, LibraryType.USER, 1)
+        await populate(session, library, tmp_path / "storage")
+
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "storage",
+            destination=tmp_path / "library.zip",
+        )
+
+        with zipfile.ZipFile(archive) as bundle:
+            files = [info for info in bundle.infolist() if info.filename.startswith("files/")]
+        assert files
+        assert {info.compress_type for info in files} == {zipfile.ZIP_STORED}
+
     async def test_an_archive_from_the_future_is_refused(
         self, session: AsyncSession, tmp_path: Path
     ) -> None:

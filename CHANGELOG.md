@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Exporting a library archive groups its links in one pass, stores attachment files undeflated and writes the ZIP off the event loop.
 - Citations render on a worker thread and are remembered per item, so a bibliography page no longer stalls every other request.
 - Filing or trashing a selection in the browser costs a fixed number of statements: 200 items take 0.1 s instead of 3–4 s.
 - An item sent again unchanged is recognised before anything is written: re-sending 50 costs 0.5 s instead of 1.1–1.3 s.

@@ -14,9 +14,11 @@ not a user: it can be restored under a different account on a different server,
 and it cannot leak an API key by being copied around.
 """
 
+import asyncio
 import json
 import re
 import zipfile
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -111,24 +113,24 @@ async def export_library(
     tags = list(
         await session.scalars(select(Tag).where(Tag.library_id == library.id).order_by(Tag.id))
     )
-    tag_keys = {tag.id: tag.key for tag in tags}
 
     # Joined rather than named by id: a library can have more collections or
-    # tags than one statement can bind.
-    membership = [
-        (collection_keys[row.collection_id], keys_by_id[row.item_id])
-        for row in await session.scalars(
-            select(CollectionItem)
-            .join(Collection, Collection.id == CollectionItem.collection_id)
-            .where(Collection.library_id == library.id)
-        )
-    ]
-    item_tags = [
-        (tag_keys[row.tag_id], keys_by_id[row.item_id])
-        for row in await session.scalars(
-            select(ItemTag).join(Tag, Tag.id == ItemTag.tag_id).where(Tag.library_id == library.id)
-        )
-    ]
+    # tags than one statement can bind. Grouped in one pass, so each collection
+    # and tag below finds its items without reading every row again.
+    membership: defaultdict[int, list[str]] = defaultdict(list)
+    for collection_id, item_id in await session.execute(
+        select(CollectionItem.collection_id, CollectionItem.item_id)
+        .join(Collection, Collection.id == CollectionItem.collection_id)
+        .where(Collection.library_id == library.id)
+    ):
+        membership[collection_id].append(keys_by_id[item_id])
+    item_tags: defaultdict[int, list[str]] = defaultdict(list)
+    for tag_id, item_id in await session.execute(
+        select(ItemTag.tag_id, ItemTag.item_id)
+        .join(Tag, Tag.id == ItemTag.tag_id)
+        .where(Tag.library_id == library.id)
+    ):
+        item_tags[tag_id].append(keys_by_id[item_id])
 
     settings = list(await session.scalars(select(Setting).where(Setting.library_id == library.id)))
     fulltext = list(
@@ -182,7 +184,7 @@ async def export_library(
                 "dateAdded": _moment(collection.date_added),
                 "dateModified": _moment(collection.date_modified),
                 "serverDateModified": _moment(collection.server_date_modified),
-                "items": sorted(item for name, item in membership if name == collection.key),
+                "items": sorted(membership[collection.id]),
                 "relations": [
                     {"predicate": r.predicate, "object": r.object} for r in collection.relations
                 ],
@@ -219,7 +221,7 @@ async def export_library(
                 "dateAdded": _moment(tag.date_added),
                 "dateModified": _moment(tag.date_modified),
                 "serverDateModified": _moment(tag.server_date_modified),
-                "items": sorted(item for key, item in item_tags if key == tag.key),
+                "items": sorted(item_tags[tag.id]),
             }
             for tag in tags
         ],
@@ -260,8 +262,7 @@ async def export_library(
             if field == "md5" and value
         }
     )
-    present = [(digest, storage.file_path(storage_root, digest)) for digest in digests]
-    present = [(digest, path) for digest, path in present if path.is_file()]
+    present = await asyncio.to_thread(_present, storage_root, digests)
 
     manifest = {
         "format": FORMAT_VERSION,
@@ -284,15 +285,35 @@ async def export_library(
         },
     }
 
+    # Written in a thread: an archive is megabytes of JSON and every attached
+    # file, and on the event loop it would stall every other request for as
+    # long as that takes.
+    await asyncio.to_thread(_write_archive, destination, manifest, documents, present)
+    return destination
+
+
+def _present(storage_root: Path, digests: list[str]) -> list[tuple[str, Path]]:
+    """The stored files among ``digests``, with where each one is."""
+    found = [(digest, storage.file_path(storage_root, digest)) for digest in digests]
+    return [(digest, path) for digest, path in found if path.is_file()]
+
+
+def _write_archive(
+    destination: Path,
+    manifest: dict[str, Any],
+    documents: dict[str, Any],
+    present: list[tuple[str, Path]],
+) -> None:
+    """Write the archive. The documents are deflated; the files are stored as
+    they are, because a PDF or a snapshot ZIP barely compresses and deflating
+    them was most of an export's time."""
     destination.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as bundle:
         bundle.writestr(MANIFEST, json.dumps(manifest, indent=2))
         for name, document in documents.items():
             bundle.writestr(name, json.dumps(document, indent=2))
         for digest, path in present:
-            bundle.write(path, f"{FILE_PREFIX}{digest}")
-
-    return destination
+            bundle.write(path, f"{FILE_PREFIX}{digest}", compress_type=zipfile.ZIP_STORED)
 
 
 def read_manifest(archive: Path) -> dict[str, Any]:
