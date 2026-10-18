@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- On PostgreSQL, searching everything in a small library no longer reads every library's fields and full text: 4.6 s to 0.26 s.
 - A library read out of zotero.org streams each attachment to disk and writes the archive in worker threads, storing files undeflated.
 - Telling a zipped snapshot apart on download hashes the archive in a worker thread rather than on the event loop.
 - The storage report and orphan purge walk the file store once, in a worker thread, rather than twice on the event loop.

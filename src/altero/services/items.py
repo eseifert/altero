@@ -294,7 +294,9 @@ def _has_tag(library_id: int) -> Any:
     return build
 
 
-def _quick_search(query: ListQuery) -> ColumnElement[bool]:
+def _quick_search(
+    query: ListQuery, library_id: int, *, confine_fields: bool
+) -> ColumnElement[bool]:
     """Return the predicate for the ``q`` parameter.
 
     The query is split into parts, each of which must match something: upstream
@@ -313,14 +315,30 @@ def _quick_search(query: ListQuery) -> ColumnElement[bool]:
         ]
 
         if query.qmode == QuickSearchMode.EVERYTHING:
-            alternatives.append(
-                select(ItemField.item_id)
-                .where(ItemField.item_id == Item.id, ItemField.value.ilike(pattern))
-                .exists()
+            # Held to the library as well as to the item. Inside an OR,
+            # PostgreSQL evaluates these once as a hashed subplan rather than
+            # per row, and without the library that subplan reads every field
+            # and every full text of the instance: 4.5 s for a library of 200
+            # items beside one of 20,000. SQLite looks each one up per row,
+            # where the full text's own column costs nothing but the join a
+            # field needs to reach its library made a large library's search
+            # 5% slower -- so a field is held to it only where it helps.
+            fields = select(ItemField.item_id).where(
+                ItemField.item_id == Item.id, ItemField.value.ilike(pattern)
             )
+            if confine_fields:
+                owner = aliased(Item)
+                fields = fields.join(owner, owner.id == ItemField.item_id).where(
+                    owner.library_id == library_id
+                )
+            alternatives.append(fields.exists())
             alternatives.append(
                 select(FullText.item_id)
-                .where(FullText.item_id == Item.id, FullText.content.ilike(pattern))
+                .where(
+                    FullText.item_id == Item.id,
+                    FullText.library_id == library_id,
+                    FullText.content.ilike(pattern),
+                )
                 .exists()
             )
 
@@ -548,7 +566,8 @@ async def build_item_query(
     filters += _expression_filter(query.tags, _has_tag(library.id))
 
     if query.q:
-        filters.append(_quick_search(query))
+        postgresql = session.get_bind().dialect.name == "postgresql"
+        filters.append(_quick_search(query, library.id, confine_fields=postgresql))
 
     if not to_parents:
         return select(Item).where(and_(*filters))
@@ -558,10 +577,13 @@ async def build_item_query(
     # as Zotero goes, so one join reaches the top from anywhere.
     parent = aliased(Item)
     top_level_id = func.coalesce(parent.parent_id, Item.parent_id, Item.id)
+    # The library is restated on the parent and on the outer query although
+    # every match is in it already: without it the planner joins and scans the
+    # items of every library in the instance to map a handful of matches.
     matched = (
         select(distinct(top_level_id))
         .select_from(Item)
-        .outerjoin(parent, parent.id == Item.parent_id)
+        .outerjoin(parent, and_(parent.id == Item.parent_id, parent.library_id == library.id))
         .where(and_(*filters))
     )
 
@@ -569,7 +591,7 @@ async def build_item_query(
     # grant can hang under a parent outside it -- an attachment filed nowhere
     # under an item filed nowhere -- and answering with that parent would be the
     # confinement leaking out through the very mapping that finds it.
-    outer: list[ColumnElement[bool]] = [Item.id.in_(matched)]
+    outer: list[ColumnElement[bool]] = [Item.library_id == library.id, Item.id.in_(matched)]
     outer += _confinement_filters(permit)
     if not _may_read_notes(permit):
         outer.append(Item.item_type != "note")
