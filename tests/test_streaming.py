@@ -10,6 +10,7 @@ testing here.
 import json
 import threading
 from collections.abc import Iterator
+from typing import Any, cast
 
 import pytest
 from fastapi import FastAPI
@@ -490,3 +491,30 @@ class TestTheBroker:
         with broker.attach():
             during = broker.connections
         assert (before, during, broker.connections) == (before, before + 1, before)
+
+
+async def test_a_change_to_somebody_elses_access_opens_nothing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Every connection hears every access change; one for another account is passed over.
+
+    Re-authenticating every subscription of every connection, for a change
+    that concerns one account, cost each connection a session.
+    """
+    from types import SimpleNamespace
+
+    from altero.api.routes.streaming import Connection, Subscription
+    from altero.services.streaming import AccessChanged
+
+    def opened() -> Any:
+        raise AssertionError("a session was opened")
+
+    connection = Connection(cast(Any, SimpleNamespace()))
+    monkeypatch.setattr(connection, "_session", opened)
+    subscription = Subscription(api_key="K" * 24, topics={"/users/1"}, automatic=True)
+    subscription.user_id = 1
+    connection.subscriptions["K" * 24] = subscription
+
+    await connection._resync(AccessChanged(user_id=2))
+
+    assert subscription.topics == {"/users/1"}

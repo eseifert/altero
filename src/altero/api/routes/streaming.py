@@ -92,6 +92,10 @@ class Subscription:
     api_key: str | None
     topics: set[str] = field(default_factory=set)
     automatic: bool = False
+    #: Whose key it is, as it was when the subscription was made: ``None`` for
+    #: a subscription with no key. Read to pass over a change to somebody
+    #: else's access without authenticating anything.
+    user_id: int | None = None
 
     def rendered(self) -> dict[str, Any]:
         payload: dict[str, Any] = {"topics": sorted(self.topics)}
@@ -243,7 +247,9 @@ class Connection:
 
         existing = self.subscriptions.get(key_value)
         if existing is None:
-            existing = Subscription(api_key=key_value)
+            existing = Subscription(
+                api_key=key_value, user_id=api_key.user_id if api_key is not None else None
+            )
             self.subscriptions[key_value] = existing
         existing.topics |= topics
         existing.automatic = existing.automatic or automatic
@@ -322,10 +328,19 @@ class Connection:
         chose them, and adding one it did not ask for would be this server
         deciding what it watches.
         """
+        # Every connection hears every change, so the ones that cannot concern
+        # it are passed over before anything is opened or authenticated: a
+        # change for one account used to cost every connection a session.
+        concerned = [
+            entry
+            for entry in self.subscriptions.values()
+            if entry.automatic and entry.user_id in (None, message.user_id)
+        ]
+        if not concerned:
+            return
+
         async with self._session() as session:
-            for entry in self.subscriptions.values():
-                if not entry.automatic:
-                    continue
+            for entry in concerned:
                 api_key = (
                     await auth.authenticate(session, entry.api_key)
                     if entry.api_key is not None
@@ -375,7 +390,10 @@ async def stream(websocket: WebSocket) -> None:
             topics = await _readable_topics(session, api_key)
 
         connection.subscriptions[credential] = Subscription(
-            api_key=credential, topics=topics, automatic=True
+            api_key=credential,
+            topics=topics,
+            automatic=True,
+            user_id=api_key.user_id if api_key is not None else None,
         )
         # In single-key mode the topics belong to the connection rather than to
         # a named subscription, so they are listed on the greeting itself.
