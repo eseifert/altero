@@ -630,6 +630,26 @@ async def list_items(
     return Page(objects=objects, total=total, library_version=library.version)
 
 
+async def ordered_item_ids(
+    session: AsyncSession,
+    library: Library,
+    query: ListQuery,
+    scope: Scope = Scope.ALL,
+    key: str | None = None,
+    *,
+    permit: Access | None = None,
+) -> list[int]:
+    """Return the ids of every item :func:`list_items` would page through, in its order.
+
+    One column, with neither a count nor an offset: for a caller that wants
+    every match and fetches the items itself, a batch at a time.
+    """
+    statement = await build_item_query(session, library, query, scope, key, permit=permit)
+    by_author = await _has_authorship(session, library, query.sort)
+    ordered = _apply_sort(statement, query, by_author=by_author)
+    return list(await session.scalars(ordered.with_only_columns(Item.id)))
+
+
 async def list_item_versions(
     session: AsyncSession,
     library: Library,

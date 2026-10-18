@@ -14,11 +14,12 @@ batches would otherwise start over at each one and hand out ``lovelace1994`` a
 dozen times.
 """
 
+import asyncio
 import re
 from collections.abc import Sequence
-from dataclasses import replace
 from pathlib import Path
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.cite import exportitem, formats
@@ -82,7 +83,10 @@ async def _batch(
 
     stored = await items_service.tags_for(session, exportable)
     views = exportitem.export_items(exportable, library, base_url, stored)
-    return writer.write(views), len(views)
+    # Rendering is most of an export's time, so it happens off the event loop.
+    # The writer keeps state across batches -- the citation keys a file has
+    # used -- and batches are written one after another, never at once.
+    return await asyncio.to_thread(writer.write, views), len(views)
 
 
 async def write_items(
@@ -119,29 +123,27 @@ async def write_items(
     with destination.open("w", encoding="utf-8") as sink:
         sink.write(writer.begin())
 
-        start = 0
-        while True:
-            page = await items_service.list_items(
-                session,
-                library,
-                replace(query, limit=BATCH, start=start),
-                scope,
-                key,
-                permit=permit,
-            )
-            if not page.objects:
-                break
+        # Found once and in order, then fetched a batch at a time by id: paging
+        # through them counted every match and skipped every earlier batch
+        # again for each one.
+        ids = await items_service.ordered_item_ids(
+            session, library, query, scope, key, permit=permit
+        )
+        for start in range(0, len(ids), BATCH):
+            wanted = ids[start : start + BATCH]
+            loaded = {
+                item.id: item
+                for item in await session.scalars(select(Item).where(Item.id.in_(wanted)))
+            }
+            # An item deleted since the ids were read is simply not written.
+            batch = [loaded[item_id] for item_id in wanted if item_id in loaded]
 
-            text, count = await _batch(session, page.objects, library, base_url, writer)
+            text, count = await _batch(session, batch, library, base_url, writer)
             sink.write(text)
             written += count
 
-            fetched = len(page.objects)
-            start += fetched
-            for item in page.objects:
+            for item in batch:
                 session.expunge(item)
-            if fetched < BATCH:
-                break
 
         sink.write(writer.end())
 

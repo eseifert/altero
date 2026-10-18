@@ -9,6 +9,7 @@ one citation key per item.
 """
 
 import json
+from typing import Any
 
 import httpx
 import pytest
@@ -359,3 +360,34 @@ class TestWhatItRefuses:
         response = await export(ada, group, format="ris", scope="publications")
 
         assert response.status_code == 400
+
+
+class TestTheCostOfAnExport:
+    async def test_batches_neither_count_nor_skip(
+        self,
+        app: Any,
+        ada: httpx.AsyncClient,
+        session: AsyncSession,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """The matching items are found once, in order, and fetched a batch at a time.
+
+        Paging through them with ``list_items`` counted the whole match and
+        skipped over every earlier batch again for each one.
+        """
+        from altero.services import itemexport
+        from tests.test_query_counts import capture_sql
+
+        monkeypatch.setattr(itemexport, "BATCH", 3)
+        library = await personal_library(session)
+        for index in range(10):
+            await factories.make_item(session, library, fields={"title": f"Item {index:02}"})
+
+        with capture_sql(app) as statements:
+            text = (await export(ada, library, format="ris", scope="all", sort="title")).text
+
+        assert [line for line in text.splitlines() if line.startswith("TI  -")] == [
+            f"TI  - Item {index:02}" for index in range(10)
+        ]
+        assert not [s for s in statements if "count(" in s.lower()], "\n\n".join(statements)
+        assert not [s for s in statements if "OFFSET" in s]

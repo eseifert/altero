@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Exporting items as a file finds the matching items once instead of counting and skipping them again for every batch.
 - Restoring a library archive inserts rows in batches and unpacks files in a worker thread: 40,000 items in 16 s instead of 287 s.
 - The API version and rate-limit middleware are plain ASGI: a large download runs at 250–300 MB/s instead of 150–180.
 - A request returns its database connection when the route finishes, not after a file download has been sent.
