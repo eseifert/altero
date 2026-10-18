@@ -10,6 +10,10 @@ is touched at most once per interval -- and immediately when the address
 changes, because that is the part somebody would want to see straight away.
 """
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+from typing import Any
+
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -54,6 +58,23 @@ class TestTheService:
 
         await session.refresh(key)
         assert key.last_address == "198.51.100.7"
+
+    async def test_two_addresses_in_turn_are_written_once_each(
+        self, session: AsyncSession, app: Any
+    ) -> None:
+        """A dual-stack host or a laptop on two networks alternates between them."""
+
+        await admin.create_user(session, username="ada")
+        key = await admin.create_api_key(session, username="ada", name="laptop")
+
+        with capture_sql_including_bookkeeping(app) as statements:
+            for moment in range(6):
+                address = ("192.0.2.10", "2001:db8::1")[moment % 2]
+                await keyusage.record(
+                    session, key.id, address=address, user_agent="Zotero", now=float(moment)
+                )
+
+        assert len([s for s in statements if s.startswith("UPDATE api_keys")]) == 2
 
     async def test_the_interval_can_pass(self, session: AsyncSession) -> None:
         await admin.create_user(session, username="ada")
@@ -157,3 +178,21 @@ class TestThroughTheApi:
         stored = await session.get(ApiKey, key.id)
         assert stored is not None
         assert stored.last_used is None
+
+
+@contextmanager
+def capture_sql_including_bookkeeping(app: Any) -> Iterator[list[str]]:
+    """Every statement, the key-usage write that ``capture_sql`` leaves out included."""
+    from sqlalchemy import event
+
+    statements: list[str] = []
+    engine = app.state.database.engine.sync_engine
+
+    def record(_connection: Any, _cursor: Any, statement: str, *_rest: Any) -> None:
+        statements.append(statement)
+
+    event.listen(engine, "before_cursor_execute", record)
+    try:
+        yield statements
+    finally:
+        event.remove(engine, "before_cursor_execute", record)

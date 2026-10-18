@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- A key used from two addresses in turn has its use recorded once per address per minute, not on every request.
 - A streaming connection passes over a change to another account's access instead of re-authenticating every subscription.
 - The duplicates view works out a library's duplicates once per library version rather than on every page: 1 s to 5 ms per later page.
 - The browser's library and link lists ask about every group and collection at once, and reading through a link no longer counts a listing.

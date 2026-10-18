@@ -8,8 +8,11 @@ safe course is to leave them all.
 Deliberately not an audit log. A syncing client makes a great many requests,
 and writing on each would put a write in front of every read for a piece of
 information nobody needs to the second. So a key is touched at most once per
-:data:`INTERVAL_SECONDS` -- except when the address changes, which is the one
-case somebody would want to see immediately.
+:data:`INTERVAL_SECONDS` -- except when it shows up from an address not
+written in that time, which is the one case somebody would want to see
+immediately. An address written within the interval waits like any other, or a
+key used from two addresses in turn -- a dual-stack host, a laptop on two
+networks -- would be written on every request.
 
 The throttle is per process and in memory. Several workers may therefore each
 write once per interval, which is a handful of rows a minute and buys not
@@ -39,8 +42,9 @@ MAX_USER_AGENT = 255
 #: Longest address stored. An IPv6 address with an embedded IPv4 one is 45.
 MAX_ADDRESS = 45
 
-#: key id -> (monotonic time of last write, address written).
-_seen: dict[int, tuple[float, str | None]] = {}
+#: key id -> (monotonic time of the last write, and of the last write of
+#: each address written within the interval).
+_seen: dict[int, tuple[float, dict[str | None, float]]] = {}
 
 
 def reset() -> None:
@@ -52,12 +56,12 @@ def _should_write(key_id: int, address: str | None, now: float) -> bool:
     previous = _seen.get(key_id)
     if previous is None:
         return True
-    written_at, written_address = previous
-    if address != written_address:
-        # A key showing up from somewhere new is the whole reason to look at
-        # this column, so it is never delayed.
+    written_at, addresses = previous
+    if now - written_at >= INTERVAL_SECONDS:
         return True
-    return now - written_at >= INTERVAL_SECONDS
+    # A key showing up from somewhere new is the whole reason to look at this
+    # column, so it is never delayed.
+    return now - addresses.get(address, -INTERVAL_SECONDS) >= INTERVAL_SECONDS
 
 
 async def record(
@@ -99,4 +103,7 @@ async def record(
         await session.rollback()
         return
 
-    _seen[key_id] = (moment, trimmed_address)
+    _, addresses = _seen.get(key_id, (moment, {}))
+    recent = {written: at for written, at in addresses.items() if moment - at < INTERVAL_SECONDS}
+    recent[trimmed_address] = moment
+    _seen[key_id] = (moment, recent)
