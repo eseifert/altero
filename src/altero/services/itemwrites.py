@@ -173,7 +173,10 @@ def _validate_tags(tags: Any) -> list[tuple[str, int]]:
         tag_type = int(tag.get("type", TagType.MANUAL))
         if tag_type not in (TagType.MANUAL, TagType.AUTOMATIC):
             raise InvalidInputError(f"Invalid tag type '{tag_type}'")
-        result.append((name, tag_type))
+        # A tag named twice is carried once, as upstream's `Zotero_Tag::addItem`
+        # skips an item the tag already has. A name under two types is two tags.
+        if (name, tag_type) not in result:
+            result.append((name, tag_type))
     return result
 
 

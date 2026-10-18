@@ -158,6 +158,20 @@ class TestCreate:
         assert {t["tag"] for t in data["tags"]} == {"fiction", "auto"}
         assert data["collections"] == ["COLL2345"]
 
+    async def test_a_tag_named_twice_is_carried_once(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """Upstream's `Zotero_Tag::addItem` skips an item the tag already has."""
+        tags = [{"tag": "a"}, {"tag": "a"}, {"tag": "a", "type": 1}, {"tag": "a", "type": 1}]
+        response = await client.post(
+            "/users/1/items", headers=JSON, json=[{"itemType": "book", "tags": tags}]
+        )
+
+        assert response.status_code == 200
+        assert response.json()["failed"] == {}
+        stored = response.json()["successful"]["0"]["data"]["tags"]
+        assert sorted((t["tag"], t.get("type", 0)) for t in stored) == [("a", 0), ("a", 1)]
+
     async def test_a_single_field_creator_is_stored(
         self, client: httpx.AsyncClient, library: Library
     ) -> None:
