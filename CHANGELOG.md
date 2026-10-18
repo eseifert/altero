@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Settings sent again unchanged keep their version, and a request changing none leaves the library version where it was, as upstream.
 - A write no longer reads back the library version it was just given, nor names items for activity in a personal library.
 - Creating an item or a nested collection writes its row once, rather than inserting it and updating its parent and sort keys.
 - On SQLite, a write that times out waiting for the lock answers 503 with `Retry-After: 5`, which the desktop client retries.

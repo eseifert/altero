@@ -1501,6 +1501,12 @@ object is discarded by rolling that back — the same mechanism a rejected objec
 uses. A batch in which nothing changed leaves the library version where it was,
 because nothing succeeded and the whole request rolls back.
 
+Settings follow the same rule. `Zotero_Setting::__set` marks a setting changed
+only when its value differs — `!=` for an array or object, `!==` for anything
+else, so `3` and `3.0` differ — and `save` writes nothing otherwise. A `POST`
+or `PUT` that changes no setting answers 204 with the library's version as it
+was; in a batch, only the settings whose values differ take the new version.
+
 The reference checkout at `6e091852b8a3e369056f390ba69e5de90cda1134`
 now bumps the library version inside each object transaction, before checking
 whether it changed, and commits that bump even for an unchanged object. Altero

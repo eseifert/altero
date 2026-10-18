@@ -7,6 +7,7 @@ alongside items, so a library is not fully in step without them.
 from typing import Any
 
 from fastapi import APIRouter
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
@@ -60,12 +61,15 @@ async def replace_settings(
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=False)
 
+    previous = library.version
     version = await writes.bump_library_version(session, library)
+    changed = False
     for name, value in payload.items():
-        await settings_service.save_setting(session, library, name, value, version, permit=access)
-    await session.commit()
-
-    return Response(status_code=204, headers=library_headers(version))
+        saved = await settings_service.save_setting(
+            session, library, name, value, version, permit=access
+        )
+        changed = changed or saved is not None
+    return await _finish(session, changed, previous, version)
 
 
 @router.put("/users/{user_id}/settings/{name}")
@@ -81,10 +85,25 @@ async def replace_setting(
     if isinstance(payload, dict) and header_version is not None:
         payload = {"version": header_version, **payload}
 
+    previous = library.version
     version = await writes.bump_library_version(session, library)
-    await settings_service.save_setting(session, library, name, payload, version, permit=access)
-    await session.commit()
+    saved = await settings_service.save_setting(
+        session, library, name, payload, version, permit=access
+    )
+    return await _finish(session, saved is not None, previous, version)
 
+
+async def _finish(session: AsyncSession, changed: bool, previous: int, version: int) -> Response:
+    """Commit a settings write, or undo it and keep the version if it changed nothing.
+
+    Upstream rolls back and answers the library's original version when no
+    setting differed, so a client re-sending what it already sent does not
+    send every other client into a sync.
+    """
+    if not changed:
+        await session.rollback()
+        return Response(status_code=204, headers=library_headers(previous))
+    await session.commit()
     return Response(status_code=204, headers=library_headers(version))
 
 

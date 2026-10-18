@@ -72,11 +72,13 @@ async def save_setting(
     *,
     require_version: bool = False,
     permit: Access | None = None,
-) -> Setting:
-    """Create or replace one setting.
+) -> Setting | None:
+    """Create or replace one setting, returning ``None`` if it already held the value.
 
     The body is ``{"value": ...}``; anything JSON-encodable is accepted, since
-    the server never interprets what a setting means.
+    the server never interprets what a setting means. A value equal to the one
+    stored is not written and the setting keeps its version, as upstream's
+    ``Zotero_Setting::save`` does.
 
     A setting belongs to the library rather than to whoever wrote it -- tag
     colours are the one the desktop client uses -- so it follows the same rule
@@ -100,14 +102,30 @@ async def save_setting(
         check_object_version(setting.version, payload.get("version"), required=require_version)
 
     try:
-        setting.value = json.dumps(payload["value"])
+        value = json.dumps(payload["value"])
     except TypeError, ValueError:
         raise InvalidInputError(f"Value of setting '{name}' is not JSON") from None
 
+    if setting.value is not None and _same(json.loads(setting.value), payload["value"]):
+        return None
+
+    setting.value = value
     setting.version = version
     await session.flush()
     await forget_deletion(session, library, DeletedObjectType.SETTING, name)
     return setting
+
+
+def _same(stored: Any, sent: Any) -> bool:
+    """Whether ``sent`` is the value already stored, by upstream's comparison.
+
+    `Zotero_Setting::__set` compares an array or object with ``!=`` and
+    anything else with ``!==``: a list or a mapping is the same if its contents
+    are, while a scalar must also be of the same type, so 3 and 3.0 differ.
+    """
+    if isinstance(stored, (list, dict)) or isinstance(sent, (list, dict)):
+        return bool(stored == sent)
+    return type(stored) is type(sent) and stored == sent
 
 
 async def delete_settings(

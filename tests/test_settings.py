@@ -150,6 +150,77 @@ class TestWriting:
         assert response.status_code == 403
 
 
+class TestUnchanged:
+    """A setting written as it is stored changes nothing, as upstream.
+
+    `Zotero_Setting::__set` marks a setting changed only when the value
+    differs, `save` writes nothing for one that did not, and the controller
+    rolls back and answers the library's original version when nothing in the
+    request changed. Moving the version anyway sends every other client and
+    stream subscriber into a sync for nothing.
+    """
+
+    async def test_a_batch_that_changes_nothing_keeps_the_version(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = {"tagColors": {"value": TAG_COLORS}, "feeds": {"value": {}}}
+        await client.post("/users/1/settings", headers=JSON, json=body)
+
+        response = await client.post("/users/1/settings", headers=JSON, json=body)
+
+        assert response.status_code == 204
+        assert response.headers["Last-Modified-Version"] == "11"
+        listed = await client.get("/users/1/settings", headers=AUTH)
+        assert listed.headers["Last-Modified-Version"] == "11"
+
+    async def test_only_what_changed_takes_the_new_version(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        await client.post(
+            "/users/1/settings",
+            headers=JSON,
+            json={"tagColors": {"value": TAG_COLORS}, "feeds": {"value": {}}},
+        )
+
+        response = await client.post(
+            "/users/1/settings",
+            headers=JSON,
+            json={"tagColors": {"value": TAG_COLORS}, "feeds": {"value": {"a": 1}}},
+        )
+
+        assert response.headers["Last-Modified-Version"] == "12"
+        body = (await client.get("/users/1/settings", headers=AUTH)).json()
+        assert (body["tagColors"]["version"], body["feeds"]["version"]) == (11, 12)
+
+    async def test_putting_the_same_value_keeps_the_version(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        await client.put(
+            "/users/1/settings/lastPageIndex_u_ABCD2345", headers=JSON, json={"value": 3}
+        )
+
+        response = await client.put(
+            "/users/1/settings/lastPageIndex_u_ABCD2345", headers=JSON, json={"value": 3}
+        )
+
+        assert response.status_code == 204
+        assert response.headers["Last-Modified-Version"] == "11"
+
+    async def test_a_number_of_another_type_is_a_change(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """Upstream compares scalars with `!==`, so 3 and 3.0 differ."""
+        await client.put(
+            "/users/1/settings/lastPageIndex_u_ABCD2345", headers=JSON, json={"value": 3}
+        )
+
+        response = await client.put(
+            "/users/1/settings/lastPageIndex_u_ABCD2345", headers=JSON, json={"value": 3.0}
+        )
+
+        assert response.headers["Last-Modified-Version"] == "12"
+
+
 class TestDeleting:
     @pytest.mark.parametrize("method", ["PUT", "POST"])
     async def test_recreated_setting_leaves_the_delete_log(self, client, library, method):
