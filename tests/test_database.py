@@ -76,16 +76,14 @@ class TestPlannerStatistics:
 
 
 class TestConnectionSettings:
-    async def test_a_sqlite_connection_may_use_memory(self, tmp_path: Path) -> None:
-        """A 2 MB cache and sorting on disk are SQLite's defaults, sized for a phone."""
+    async def test_a_sqlite_connection_reads_through_a_memory_mapping(self, tmp_path: Path) -> None:
+        """Shared through the OS page cache, so no memory per connection."""
         database = Database(Settings(database_url=f"sqlite+aiosqlite:///{tmp_path / 'db.sqlite'}"))
         async with database.engine.connect() as connection:
-            cache = await connection.scalar(text("PRAGMA cache_size"))
-            temp_store = await connection.scalar(text("PRAGMA temp_store"))
             mmap = await connection.scalar(text("PRAGMA mmap_size"))
         await database.dispose()
 
-        assert (cache, temp_store, mmap) == (-16384, 2, 268435456)
+        assert mmap == 268435456
 
     def test_the_pool_takes_its_size_from_the_settings(self, tmp_path: Path) -> None:
         database = Database(

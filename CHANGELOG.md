@@ -36,7 +36,7 @@ gained a capability worth naming.
 - Filing or trashing a selection in the browser costs a fixed number of statements: 200 items take 0.1 s instead of 3–4 s.
 - An item sent again unchanged is recognised before anything is written: re-sending 50 costs 0.5 s instead of 1.1–1.3 s.
 - Writing an item touches only the tag and collection links that changed and finds its tags in one query: a 50-item POST costs 40% less.
-- SQLite connections get a 16 MiB cache, in-memory sorting and memory mapping; the pool size is configurable.
+- SQLite connections read through a memory mapping, and the connection pool's size is configurable.
 - Settings sent again unchanged keep their version, and a request changing none leaves the library version where it was, as upstream.
 - A write no longer reads back the library version it was just given, nor names items for activity in a personal library.
 - Creating an item or a nested collection writes its row once, rather than inserting it and updating its parent and sort keys.

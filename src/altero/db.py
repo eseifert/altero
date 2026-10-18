@@ -78,17 +78,16 @@ def hold(session: AsyncSession, *rows: object) -> None:
 #: client retries -- see :mod:`altero.api.errors`.
 BUSY_TIMEOUT_MS = 5000
 
-#: How much memory a connection may use to avoid reading the disk. SQLite's
-#: defaults are sized for a phone: a 2 MB page cache, temporary B-trees for
-#: sorting on disk, and no memory mapping. With these a deep page of a 35,000
-#: item library took 212 ms instead of 310. The cache is per connection, so the
-#: pool's size multiplies it; the mapping is shared through the OS page cache.
-#: ``synchronous`` is deliberately left alone -- see ``services/writes.py``.
-MEMORY_PRAGMAS = (
-    "cache_size=-16384",
-    "temp_store=MEMORY",
-    "mmap_size=268435456",
-)
+#: Reading the database through a memory mapping rather than through SQLite's
+#: own reads into a 2 MB cache: the mapping is shared through the OS page cache,
+#: so it costs no memory per connection. Collections and tag listings of a
+#: 35,000-item library answered in 60 and 280 ms instead of 85 and 365.
+#:
+#: Measured and left out: a 16 MB cache per connection gained nothing beside
+#: the mapping, and ``temp_store=MEMORY`` made a deep page 30% faster but every
+#: tag listing 7-12% slower. ``synchronous`` is deliberately left alone -- see
+#: ``services/writes.py``.
+MEMORY_PRAGMAS = ("mmap_size=268435456",)
 
 #: Rows each index is sampled for when SQLite gathers statistics. SQLite's own
 #: recommendation for a statistics pass that has to stay cheap.
