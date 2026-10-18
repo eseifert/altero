@@ -427,3 +427,53 @@ class TestCreating:
         assert response.status_code == 200
         assert not [s for s in statements if s.startswith("SELECT libraries.version")]
         assert not [s for s in statements if "items.sort_title" in s and "FROM items" in s]
+
+
+class TestFilingAndTagging:
+    async def test_a_new_items_tags_and_collections_are_found_together(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """One lookup for all of an item's tags and one for its collections.
+
+        A new item has no links yet, so nothing is deleted on the way in.
+        """
+        other = await make_item(session, library)
+        for name in ("a", "b", "c", "d"):
+            await tag_item(session, library, other, name)
+        await make_collection(session, library, key="SHELF234")
+        await make_collection(session, library, key="SHELF567")
+        payload = {
+            "itemType": "book",
+            "tags": [{"tag": name} for name in ("a", "b", "c", "d")],
+            "collections": ["SHELF234", "SHELF567"],
+        }
+
+        with capture_sql(app) as statements:
+            response = await client.post("/users/1/items", headers=AUTH, json=[payload])
+
+        data = response.json()["successful"]["0"]["data"]
+        assert (len(data["tags"]), len(data["collections"])) == (4, 2)
+        tag_lookups = [s for s in statements if re.match(r"SELECT tags\.id\b", s)]
+        filing_lookups = [s for s in statements if re.match(r"SELECT collections\.(id|\"key\")", s)]
+        assert (len(tag_lookups), len(filing_lookups)) == (1, 1), "\n\n".join(statements)
+        assert not [s for s in statements if s.startswith("DELETE")]
+
+    async def test_changing_one_tag_rewrites_one_link(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        item = await make_item(session, library, key="TAGGED23", version=5)
+        for name in ("a", "b"):
+            await tag_item(session, library, item, name)
+
+        with capture_sql(app) as statements:
+            response = await client.post(
+                "/users/1/items",
+                headers=AUTH,
+                json=[{"key": "TAGGED23", "version": 5, "tags": [{"tag": "a"}, {"tag": "c"}]}],
+            )
+
+        data = response.json()["successful"]["0"]["data"]
+        assert sorted(tag["tag"] for tag in data["tags"]) == ["a", "c"]
+        removed = [s for s in statements if s.startswith("DELETE FROM item_tags")]
+        added = [s for s in statements if s.startswith("INSERT INTO item_tags")]
+        assert (len(removed), len(added)) == (1, 1), "\n\n".join(statements)

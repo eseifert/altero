@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Writing an item touches only the tag and collection links that changed and finds its tags in one query: a 50-item POST costs 40% less.
 - SQLite connections get a 16 MiB cache, in-memory sorting and memory mapping; the pool size is configurable.
 - Settings sent again unchanged keep their version, and a request changing none leaves the library version where it was, as upstream.
 - A write no longer reads back the library version it was just given, nor names items for activity in a personal library.

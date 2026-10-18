@@ -8,7 +8,7 @@ from typing import Any
 
 from sqlalchemy import ColumnElement, Select, and_, distinct, func, not_, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import InstrumentedAttribute, aliased
+from sqlalchemy.orm import InstrumentedAttribute, aliased, lazyload
 
 from altero.db import id_list
 from altero.errors import InvalidInputError, NotFoundError
@@ -663,7 +663,12 @@ async def list_item_versions(
 
 
 async def get_item(
-    session: AsyncSession, library: Library, key: str, *, permit: Access | None = None
+    session: AsyncSession,
+    library: Library,
+    key: str,
+    *,
+    permit: Access | None = None,
+    related: bool = True,
 ) -> Item:
     """Return one item by key.
 
@@ -676,8 +681,18 @@ async def get_item(
     same reason. This is the single door every path to one item goes through --
     the item itself, its children, its tags, its full text, its file, and every
     write that names it -- so confining it here confines all of them.
+
+    ``related=False`` leaves the fields, creators and relations unloaded, which
+    saves three statements for a caller that needs only the row -- a parent
+    being named, an existence check. Reading one of them afterwards fails
+    loudly rather than querying.
     """
-    item = await session.scalar(select(Item).where(Item.library_id == library.id, Item.key == key))
+    statement = select(Item).where(Item.library_id == library.id, Item.key == key)
+    if not related:
+        statement = statement.options(
+            lazyload(Item.fields), lazyload(Item.creators), lazyload(Item.relations)
+        )
+    item = await session.scalar(statement)
     if item is None:
         raise NotFoundError("Item does not exist")
     if not _may_read_notes(permit) and item.item_type == "note":

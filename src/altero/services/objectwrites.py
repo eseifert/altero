@@ -9,6 +9,7 @@ to tell their own from anybody else's -- filing one of their items into a
 collection somebody else made is a write to the item and stays allowed.
 """
 
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import Any
 
@@ -17,6 +18,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
+from altero.db import chunked
 from altero.errors import InvalidInputError, NotFoundError
 from altero.keys import coerce_key, is_valid_key
 from altero.models import (
@@ -397,12 +399,37 @@ async def resolve_tag(session: AsyncSession, library: Library, name: str, type_:
     (library, name, type) decides: whoever loses the race reads back the row the
     winner wrote.
     """
-    lookup = select(Tag).where(Tag.library_id == library.id, Tag.name == name, Tag.type == type_)
-
-    tag = await session.scalar(lookup)
+    tag = await session.scalar(
+        select(Tag).where(Tag.library_id == library.id, Tag.name == name, Tag.type == type_)
+    )
     if tag is not None:
         return tag
+    return await _create_tag(session, library, name, type_)
 
+
+async def resolve_tags(
+    session: AsyncSession, library: Library, wanted: Sequence[tuple[str, int]]
+) -> dict[tuple[str, int], Tag]:
+    """:func:`resolve_tag` for several ``(name, type)`` pairs at once.
+
+    The ones that exist are found by one statement per chunk of names rather
+    than one per tag; only those that do not are created one at a time.
+    """
+    found: dict[tuple[str, int], Tag] = {}
+    for chunk in chunked(sorted({name for name, _type in wanted})):
+        existing = await session.scalars(
+            select(Tag).where(Tag.library_id == library.id, Tag.name.in_(chunk))
+        )
+        found.update(((tag.name, tag.type), tag) for tag in existing)
+    for name, type_ in wanted:
+        if (name, type_) not in found:
+            found[(name, type_)] = await _create_tag(session, library, name, type_)
+    return found
+
+
+async def _create_tag(session: AsyncSession, library: Library, name: str, type_: int) -> Tag:
+    """Create a tag that was not there a moment ago, or read back the one that now is."""
+    lookup = select(Tag).where(Tag.library_id == library.id, Tag.name == name, Tag.type == type_)
     try:
         async with session.begin_nested():
             tag = Tag(library_id=library.id, key=coerce_key(None), name=name, type=type_)

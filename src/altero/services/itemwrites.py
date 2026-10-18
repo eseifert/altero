@@ -39,7 +39,7 @@ from altero.services import itemdata
 from altero.services.auth import Access
 from altero.services.deletions import record_deletions
 from altero.services.items import confined_to_collections, get_item, in_collections, tags_for
-from altero.services.objectwrites import parse_relations, resolve_tag
+from altero.services.objectwrites import parse_relations, resolve_tags
 from altero.services.writes import check_object_version
 
 #: Keys of the item JSON that are not field values.
@@ -393,8 +393,13 @@ async def _apply(
     # be written by it and then written again.
     parent_id = None
     if parsed["parent_item"] is not None:
-        parent = await get_item(session, library, str(parsed["parent_item"]), permit=permit)
+        parent = await get_item(
+            session, library, str(parsed["parent_item"]), permit=permit, related=False
+        )
         parent_id = parent.id
+    # A new item has no tags or collections yet, so there is nothing to read
+    # before writing them.
+    new = item.id is None
     session.add(item)
 
     item.item_type = parsed["item_type"]
@@ -459,21 +464,84 @@ async def _apply(
     await session.flush()
 
     if replace or "tags" in parsed["mentioned"]:
-        await session.execute(delete(ItemTag).where(ItemTag.item_id == item.id))
-        for name, tag_type in parsed["tags"]:
-            tag = await resolve_tag(session, library, name, tag_type)
-            tag.version = version
-            session.add(ItemTag(item_id=item.id, tag_id=tag.id))
+        await _retag(session, library, item, parsed["tags"], version, new=new)
 
     if replace or "collections" in parsed["mentioned"]:
-        await session.execute(delete(CollectionItem).where(CollectionItem.item_id == item.id))
-        for key in parsed["collections"]:
-            collection = await session.scalar(
-                select(Collection).where(Collection.library_id == library.id, Collection.key == key)
+        await _refile(session, library, item, parsed["collections"], new=new)
+
+
+async def _retag(
+    session: AsyncSession,
+    library: Library,
+    item: Item,
+    wanted: list[tuple[str, int]],
+    version: int,
+    *,
+    new: bool,
+) -> None:
+    """Give ``item`` exactly the tags ``wanted``, touching only the links that differ.
+
+    Every tag named takes ``version``, whether its link is new or not.
+    """
+    current: dict[tuple[str, int], int] = {}
+    if not new:
+        rows = await session.execute(
+            select(Tag.name, Tag.type, Tag.id)
+            .join(ItemTag, ItemTag.tag_id == Tag.id)
+            .where(ItemTag.item_id == item.id)
+        )
+        current = {(name, type_): tag_id for name, type_, tag_id in rows.tuples()}
+
+    named = set(wanted)
+    gone = [tag_id for pair, tag_id in current.items() if pair not in named]
+    if gone:
+        await session.execute(
+            delete(ItemTag).where(ItemTag.item_id == item.id, ItemTag.tag_id.in_(gone))
+        )
+
+    tags = await resolve_tags(session, library, wanted)
+    for pair in wanted:
+        tags[pair].version = version
+        if pair not in current:
+            session.add(ItemTag(item_id=item.id, tag_id=tags[pair].id))
+
+
+async def _refile(
+    session: AsyncSession, library: Library, item: Item, keys: list[str], *, new: bool
+) -> None:
+    """Put ``item`` in exactly the collections ``keys``, touching only the links that differ."""
+    wanted = list(dict.fromkeys(keys))
+    ids: dict[str, int] = {}
+    if wanted:
+        rows = await session.execute(
+            select(Collection.key, Collection.id).where(
+                Collection.library_id == library.id, Collection.key.in_(wanted)
             )
-            if collection is None:
-                raise InvalidInputError(f"Collection {key} not found")
-            session.add(CollectionItem(collection_id=collection.id, item_id=item.id))
+        )
+        ids = dict(rows.tuples().all())
+    for key in wanted:
+        if key not in ids:
+            raise InvalidInputError(f"Collection {key} not found")
+
+    current: set[int] = set()
+    if not new:
+        current = set(
+            await session.scalars(
+                select(CollectionItem.collection_id).where(CollectionItem.item_id == item.id)
+            )
+        )
+
+    filed = [ids[key] for key in wanted]
+    gone = current - set(filed)
+    if gone:
+        await session.execute(
+            delete(CollectionItem).where(
+                CollectionItem.item_id == item.id, CollectionItem.collection_id.in_(gone)
+            )
+        )
+    for collection_id in filed:
+        if collection_id not in current:
+            session.add(CollectionItem(collection_id=collection_id, item_id=item.id))
 
 
 async def save_item(
