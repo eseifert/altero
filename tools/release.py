@@ -99,8 +99,14 @@ def check_artifacts(directory: Path, tag: str) -> None:
         if not any(asset.endswith(".js") for asset in assets):
             raise ValueError("Wheel browser index has no application script")
         for asset in assets:
-            if f"altero/web/static/{asset.removeprefix('/app/')}" not in names:
+            path = f"altero/web/static/{asset.removeprefix('/app/')}"
+            if path not in names:
                 raise ValueError(f"Wheel browser index references missing asset {asset}")
+            # Written by the build's precompress plugin and served by api/spa.py.
+            if path.endswith((".js", ".css")):
+                for suffix in (".br", ".gz"):
+                    if path + suffix not in names:
+                        raise ValueError(f"Wheel browser asset {asset} has no compressed copy")
         with tarfile.open(directory / f"altero-{version}.tar.gz") as source:
             members = {member.name: member for member in source.getmembers() if member.isfile()}
             prefix = f"altero-{version}/"

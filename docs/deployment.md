@@ -297,6 +297,8 @@ In the Compose stack the proxy is a container, so the value is that container's 
 
 Set `ALTERO_PUBLIC_URL` to the URL people actually open. See [Public URL](#public-url); passkeys in particular are bound to that host.
 
+The proxy need not compress anything. altero sends the browser interface's scripts and stylesheets in the Brotli or gzip copies its build writes, and leaves API responses as they are.
+
 ### nginx
 
 ```nginx

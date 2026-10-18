@@ -108,6 +108,74 @@ class TestWhenBuilt:
         assert (await built_client.get("/web/config")).status_code == 200
 
 
+class TestCompressedAssets:
+    """The build writes Brotli and gzip copies beside each asset; the server picks one."""
+
+    SOURCE = "console.log('altero');\n" * 200
+
+    @pytest.fixture
+    def compressed(self, built: Path) -> Path:
+        import gzip
+
+        asset = built / "assets" / "index-def456.js"
+        asset.write_text(self.SOURCE)
+        (built / "assets" / "index-def456.js.gz").write_bytes(gzip.compress(self.SOURCE.encode()))
+        (built / "assets" / "index-def456.js.br").write_bytes(b"pretend brotli")
+        return asset
+
+    async def test_brotli_is_sent_to_a_browser_that_takes_it(
+        self, built_client: httpx.AsyncClient, compressed: Path
+    ) -> None:
+        response = await built_client.get(
+            "/app/assets/index-def456.js", headers={"Accept-Encoding": "gzip, br"}
+        )
+
+        assert response.headers["content-encoding"] == "br"
+        assert response.headers["content-type"].startswith("text/javascript")
+        assert response.headers["vary"] == "Accept-Encoding"
+        assert response.headers["cache-control"] == spa.ASSET_CACHE
+
+    async def test_gzip_is_the_second_choice(
+        self, built_client: httpx.AsyncClient, compressed: Path
+    ) -> None:
+        response = await built_client.get(
+            "/app/assets/index-def456.js", headers={"Accept-Encoding": "gzip"}
+        )
+
+        assert response.headers["content-encoding"] == "gzip"
+        assert response.text == self.SOURCE
+
+    async def test_an_encoding_refused_with_q_0_is_not_sent(
+        self, built_client: httpx.AsyncClient, compressed: Path
+    ) -> None:
+        response = await built_client.get(
+            "/app/assets/index-def456.js", headers={"Accept-Encoding": "br;q=0, gzip"}
+        )
+
+        assert response.headers["content-encoding"] == "gzip"
+
+    async def test_a_browser_that_takes_neither_gets_the_file(
+        self, built_client: httpx.AsyncClient, compressed: Path
+    ) -> None:
+        response = await built_client.get(
+            "/app/assets/index-def456.js", headers={"Accept-Encoding": "identity"}
+        )
+
+        assert "content-encoding" not in response.headers
+        assert response.text == self.SOURCE
+        assert response.headers["vary"] == "Accept-Encoding"
+
+    async def test_an_asset_with_no_copy_is_sent_as_it_is(
+        self, built_client: httpx.AsyncClient
+    ) -> None:
+        response = await built_client.get(
+            "/app/assets/index-abc123.js", headers={"Accept-Encoding": "br, gzip"}
+        )
+
+        assert "content-encoding" not in response.headers
+        assert "altero" in response.text
+
+
 class TestWhenNotBuilt:
     async def test_the_server_still_starts_and_the_api_works(
         self, unbuilt_client: httpx.AsyncClient

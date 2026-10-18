@@ -10,9 +10,13 @@ file has to return ``index.html`` and let the application work out what it
 means. Without that, reloading the page on /app/sign-in is a 404.
 """
 
+import asyncio
+import mimetypes
+import stat
 from pathlib import Path
 
 from fastapi import FastAPI
+from starlette.datastructures import Headers
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import FileResponse, PlainTextResponse, Response
@@ -35,6 +39,30 @@ def is_built(root: Path | None = None) -> bool:
 ASSET_CACHE = "public, max-age=31536000, immutable"
 
 
+#: Precompressed copies the build writes beside an asset, best first: the
+#: ``Content-Encoding`` each is sent with, and the suffix it is stored under.
+PRECOMPRESSED = (("br", ".br"), ("gzip", ".gz"))
+
+
+def _accepted(header: str) -> set[str]:
+    """The content codings an ``Accept-Encoding`` header admits.
+
+    A coding listed with ``q=0`` is one the client refuses, not one it lists
+    last, so it is left out.
+    """
+    accepted = set()
+    for entry in header.split(","):
+        coding, _, parameters = entry.strip().partition(";")
+        quality = parameters.strip().removeprefix("q=").strip()
+        try:
+            refused = parameters.strip().startswith("q=") and float(quality) == 0
+        except ValueError:
+            refused = False
+        if coding and not refused:
+            accepted.add(coding.strip().lower())
+    return accepted
+
+
 class SinglePageApp(StaticFiles):
     """Static files, falling back to ``index.html`` for unknown paths.
 
@@ -44,6 +72,10 @@ class SinglePageApp(StaticFiles):
     """
 
     async def get_response(self, path: str, scope) -> Response:  # type: ignore[no-untyped-def]
+        if path.startswith("assets/"):
+            response = await self._compressed(path, scope)
+            if response is not None:
+                return response
         try:
             response = await super().get_response(path, scope)
         except HTTPException as missing:
@@ -60,7 +92,35 @@ class SinglePageApp(StaticFiles):
         # deliberately not in here: it is what names the current assets.
         if path.startswith("assets/") and response.status_code == 200:
             response.headers["cache-control"] = ASSET_CACHE
+            # The same URL answers differently by encoding, so a cache in
+            # between must not hand one browser's answer to another.
+            response.headers["vary"] = "Accept-Encoding"
         return response
+
+    async def _compressed(self, path: str, scope) -> Response | None:  # type: ignore[no-untyped-def]
+        """The precompressed copy of an asset this browser accepts, if the build wrote one.
+
+        Written once, at build time, rather than compressed per request by a
+        middleware -- which would also have compressed the API's responses and
+        ``/web``'s JSON beside the cookies.
+        """
+        accepted = _accepted(Headers(scope=scope).get("accept-encoding", ""))
+        for coding, suffix in PRECOMPRESSED:
+            if coding not in accepted:
+                continue
+            full_path, stat_result = await asyncio.to_thread(self.lookup_path, path + suffix)
+            if stat_result is None or not stat.S_ISREG(stat_result.st_mode):
+                continue
+            response = self.file_response(full_path, stat_result, scope)
+            media_type = mimetypes.guess_type(path)[0] or "application/octet-stream"
+            if media_type.startswith("text/"):
+                media_type += "; charset=utf-8"
+            response.headers["content-type"] = media_type
+            response.headers["content-encoding"] = coding
+            response.headers["vary"] = "Accept-Encoding"
+            response.headers["cache-control"] = ASSET_CACHE
+            return response
+        return None
 
 
 def mount_web_interface(app: FastAPI, root: Path | None = None) -> bool:

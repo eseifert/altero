@@ -1,7 +1,9 @@
 import { fileURLToPath, URL } from 'node:url'
+import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib'
 
 import vue from '@vitejs/plugin-vue'
 import type { AtRule, Plugin as PostcssPlugin } from 'postcss'
+import type { Plugin as VitePlugin } from 'vite'
 // From vitest/config rather than vite: it is the same function widened to
 // accept the `test` block below, which vite's own types do not describe.
 import { defineConfig } from 'vitest/config'
@@ -26,8 +28,46 @@ export const swapFontDisplay: PostcssPlugin = {
   },
 }
 
+/** What is worth compressing: text. Fonts and images are compressed already. */
+const COMPRESSIBLE = /\.(js|css|svg|json|txt)$/
+
+/**
+ * Write a Brotli and a gzip copy beside every compressible asset.
+ *
+ * The server sends whichever the browser accepts (`api/spa.py`), so the
+ * interface arrives compressed without compressing anything per request -- and
+ * without compressing the API's responses or `/web`'s JSON, which a global
+ * middleware would also have done. Brotli at its slowest setting, which costs
+ * nothing at runtime since it happens once, here.
+ */
+export function precompress(): VitePlugin {
+  return {
+    name: 'altero-precompress',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      for (const [fileName, output] of Object.entries(bundle)) {
+        if (!COMPRESSIBLE.test(fileName)) continue
+        const source = Buffer.from(output.type === 'chunk' ? output.code : output.source)
+        if (source.length < 1024) continue
+        this.emitFile({
+          type: 'asset',
+          fileName: `${fileName}.br`,
+          source: brotliCompressSync(source, {
+            params: { [zlibConstants.BROTLI_PARAM_QUALITY]: zlibConstants.BROTLI_MAX_QUALITY },
+          }),
+        })
+        this.emitFile({
+          type: 'asset',
+          fileName: `${fileName}.gz`,
+          source: gzipSync(source, { level: 9 }),
+        })
+      }
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), precompress()],
   css: { postcss: { plugins: [swapFontDisplay] } },
   resolve: {
     alias: {

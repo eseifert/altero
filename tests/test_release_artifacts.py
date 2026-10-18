@@ -27,6 +27,8 @@ def artifacts(
     files = {
         INDEX: b'<script type="module" src="/app/assets/index-example.js"></script>',
         SCRIPT: b"console.log('application')",
+        f"{SCRIPT}.br": b"brotli",
+        f"{SCRIPT}.gz": b"gzip",
     }
     with zipfile.ZipFile(root / f"altero-{VERSION}-py3-none-any.whl", "w") as wheel:
         wheel.writestr(f"altero-{VERSION}.dist-info/METADATA", f"Version: {metadata_version}\n")
@@ -60,6 +62,14 @@ def test_a_wheel_without_the_browser_is_rejected(tmp_path: Path) -> None:
 def test_a_browser_index_with_a_missing_script_is_rejected(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="references missing asset"):
         check_artifacts(artifacts(tmp_path, missing_wheel=SCRIPT), TAG)
+
+
+@pytest.mark.parametrize("suffix", [".br", ".gz"])
+def test_a_script_without_its_compressed_copies_is_rejected(tmp_path: Path, suffix: str) -> None:
+    """The server sends them to every browser that takes them; a build without
+    them would serve the interface uncompressed and nobody would notice."""
+    with pytest.raises(ValueError, match="no compressed copy"):
+        check_artifacts(artifacts(tmp_path, missing_wheel=SCRIPT + suffix), TAG)
 
 
 def test_a_source_archive_that_cannot_rebuild_the_browser_is_rejected(tmp_path: Path) -> None:
