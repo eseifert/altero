@@ -1495,11 +1495,12 @@ live in link tables and so are read before those rows are rewritten. The version
 and `serverDateModified` are excluded, being the server's own; the sort keys are
 excluded as well, since they are derived from the fields.
 
-Finding out costs applying the payload, which stamps a version on the way. The
-multi-object path already gives each object its own savepoint, so an unchanged
-object is discarded by rolling that back — the same mechanism a rejected object
-uses. A batch in which nothing changed leaves the library version where it was,
-because nothing succeeded and the whole request rolls back.
+Finding out writes nothing: the stored item and its links are compared with what
+applying the payload would produce, following the rules the write itself
+follows (`_predict` in `services/itemwrites.py`; `tests/test_unchanged.py` puts
+every payload shape both ways and requires the answers to agree). A batch in
+which nothing changed leaves the library version where it was, because nothing
+succeeded and the whole request rolls back.
 
 Settings follow the same rule. `Zotero_Setting::__set` marks a setting changed
 only when its value differs — `!=` for an array or object, `!==` for anything

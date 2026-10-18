@@ -8,8 +8,9 @@ migration, the command line -- and every route hands its caller's
 :class:`~altero.services.auth.Access` instead.
 """
 
+from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, NamedTuple
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -321,38 +322,64 @@ def validate_item(
     return parsed
 
 
-async def _state(session: AsyncSession, item: Item) -> tuple[Any, ...]:
+@dataclass(frozen=True, slots=True)
+class _Links:
+    """An item's tag and collection links as stored, by what they name."""
+
+    tags: dict[tuple[str, int], int]
+    collections: dict[str, int]
+
+
+async def _links(session: AsyncSession, item: Item) -> _Links:
+    """Read the tags and collections ``item`` carries, one statement each."""
+    tags = await session.execute(
+        select(Tag.name, Tag.type, Tag.id)
+        .join(ItemTag, ItemTag.tag_id == Tag.id)
+        .where(ItemTag.item_id == item.id)
+    )
+    collections = await session.execute(
+        select(Collection.key, Collection.id)
+        .join(CollectionItem, CollectionItem.collection_id == Collection.id)
+        .where(CollectionItem.item_id == item.id)
+    )
+    return _Links(
+        tags={(name, type_): tag_id for name, type_, tag_id in tags.tuples()},
+        collections=dict(collections.tuples().all()),
+    )
+
+
+class _State(NamedTuple):
     """Everything about an item that a client can change.
 
     Deliberately excludes the version and ``serverDateModified``, which the
     server sets: comparing those would make every object look different. The
     sort keys are excluded too, being derived from the fields.
-
-    The tags and collections come out of their link tables, so this has to be
-    taken before those rows are rewritten -- an item whose tags were replaced
-    but whose fields match is a change, and comparing only the scalars would
-    miss it.
     """
-    tags = await session.execute(
-        select(Tag.name, Tag.type)
-        .join(ItemTag, ItemTag.tag_id == Tag.id)
-        .where(ItemTag.item_id == item.id)
-    )
-    collections = await session.execute(
-        select(Collection.key)
-        .join(CollectionItem, CollectionItem.collection_id == Collection.id)
-        .where(CollectionItem.item_id == item.id)
-    )
 
-    return (
-        item.item_type,
-        item.deleted,
-        item.in_publications,
-        item.date_added,
-        item.date_modified,
-        item.parent_id,
-        tuple(sorted((field.field, field.value) for field in item.fields)),
-        tuple(
+    item_type: str
+    deleted: bool
+    in_publications: bool
+    date_added: datetime | None
+    date_modified: datetime | None
+    parent_id: int | None
+    fields: tuple[tuple[str, str], ...]
+    creators: tuple[tuple[Any, ...], ...]
+    relations: tuple[tuple[str, str], ...]
+    tags: tuple[tuple[str, int], ...]
+    collections: tuple[str, ...]
+
+
+def _state(item: Item, links: _Links) -> _State:
+    """``item`` as stored, with the links it carries."""
+    return _State(
+        item_type=item.item_type,
+        deleted=item.deleted,
+        in_publications=item.in_publications,
+        date_added=item.date_added,
+        date_modified=item.date_modified,
+        parent_id=item.parent_id,
+        fields=tuple(sorted((entry.field, entry.value) for entry in item.fields)),
+        creators=tuple(
             (
                 creator.position,
                 creator.creator_type,
@@ -362,10 +389,77 @@ async def _state(session: AsyncSession, item: Item) -> tuple[Any, ...]:
             )
             for creator in sorted(item.creators, key=lambda c: c.position)
         ),
-        tuple(sorted((relation.predicate, relation.object) for relation in item.relations)),
-        tuple(sorted(tags.all())),
-        tuple(sorted(key for (key,) in collections.all())),
+        relations=tuple(
+            sorted((relation.predicate, relation.object) for relation in item.relations)
+        ),
+        tags=tuple(sorted(links.tags)),
+        collections=tuple(sorted(links.collections)),
     )
+
+
+def _predict(
+    before: _State, parsed: dict[str, Any], *, replace: bool, parent_id: int | None, now: datetime
+) -> _State:
+    """The state :func:`_apply` would leave ``before`` in, worked out without writing.
+
+    Each line is the rule ``_apply`` follows for the same property, and
+    ``tests/test_unchanged.py`` holds the two together by putting every payload
+    shape both ways.
+    """
+    mentioned = parsed["mentioned"]
+    fields = dict(parsed["fields"]) if replace else dict(before.fields) | parsed["fields"]
+    return _State(
+        item_type=parsed["item_type"],
+        deleted=(
+            parsed.get("deleted", False) if replace or "deleted" in parsed else before.deleted
+        ),
+        in_publications=(
+            parsed.get("in_publications", False)
+            if replace or "in_publications" in parsed
+            else before.in_publications
+        ),
+        date_added=parsed["date_added"] or before.date_added or now,
+        date_modified=parsed["date_modified"] or now,
+        parent_id=parent_id if parent_id is not None or replace else before.parent_id,
+        fields=tuple(sorted(fields.items())),
+        creators=(
+            tuple(
+                (
+                    index,
+                    creator["creatorType"],
+                    creator.get("firstName"),
+                    creator.get("lastName"),
+                    creator.get("name"),
+                )
+                for index, creator in enumerate(parsed["creators"])
+            )
+            if replace or "creators" in mentioned
+            else before.creators
+        ),
+        relations=(
+            tuple(sorted(parsed["relations"]))
+            if replace or "relations" in mentioned
+            else before.relations
+        ),
+        tags=tuple(sorted(parsed["tags"])) if replace or "tags" in mentioned else before.tags,
+        collections=(
+            tuple(sorted(set(parsed["collections"])))
+            if replace or "collections" in mentioned
+            else before.collections
+        ),
+    )
+
+
+async def _parent_id(
+    session: AsyncSession, library: Library, parsed: dict[str, Any], permit: Access | None
+) -> int | None:
+    """The id of the parent ``parsed`` names, or ``None`` if it names none."""
+    if parsed["parent_item"] is None:
+        return None
+    parent = await get_item(
+        session, library, str(parsed["parent_item"]), permit=permit, related=False
+    )
+    return parent.id
 
 
 async def _apply(
@@ -377,6 +471,8 @@ async def _apply(
     *,
     replace: bool,
     permit: Access | None = None,
+    parent_id: int | None = None,
+    links: _Links | None = None,
 ) -> None:
     """Write ``parsed`` onto ``item``, adding it to the session if it is new.
 
@@ -388,18 +484,14 @@ async def _apply(
     Args:
         replace: Whether omitted properties are cleared. ``PUT`` replaces,
             ``PATCH`` leaves anything it does not mention alone.
+        parent_id: The parent ``parsed`` names, already looked up -- the lookup
+            flushes, and anything assigned before it would be written by it and
+            then written again.
+        links: The tags and collections the item carries, if already read. A
+            new item carries none.
     """
-    # Looked up first: the query flushes, and anything already assigned would
-    # be written by it and then written again.
-    parent_id = None
-    if parsed["parent_item"] is not None:
-        parent = await get_item(
-            session, library, str(parsed["parent_item"]), permit=permit, related=False
-        )
-        parent_id = parent.id
-    # A new item has no tags or collections yet, so there is nothing to read
-    # before writing them.
-    new = item.id is None
+    if links is None:
+        links = _Links({}, {}) if item.id is None else await _links(session, item)
     session.add(item)
 
     item.item_type = parsed["item_type"]
@@ -464,10 +556,10 @@ async def _apply(
     await session.flush()
 
     if replace or "tags" in parsed["mentioned"]:
-        await _retag(session, library, item, parsed["tags"], version, new=new)
+        await _retag(session, library, item, parsed["tags"], version, links.tags)
 
     if replace or "collections" in parsed["mentioned"]:
-        await _refile(session, library, item, parsed["collections"], new=new)
+        await _refile(session, library, item, parsed["collections"], links.collections)
 
 
 async def _retag(
@@ -476,22 +568,12 @@ async def _retag(
     item: Item,
     wanted: list[tuple[str, int]],
     version: int,
-    *,
-    new: bool,
+    current: dict[tuple[str, int], int],
 ) -> None:
     """Give ``item`` exactly the tags ``wanted``, touching only the links that differ.
 
     Every tag named takes ``version``, whether its link is new or not.
     """
-    current: dict[tuple[str, int], int] = {}
-    if not new:
-        rows = await session.execute(
-            select(Tag.name, Tag.type, Tag.id)
-            .join(ItemTag, ItemTag.tag_id == Tag.id)
-            .where(ItemTag.item_id == item.id)
-        )
-        current = {(name, type_): tag_id for name, type_, tag_id in rows.tuples()}
-
     named = set(wanted)
     gone = [tag_id for pair, tag_id in current.items() if pair not in named]
     if gone:
@@ -507,7 +589,7 @@ async def _retag(
 
 
 async def _refile(
-    session: AsyncSession, library: Library, item: Item, keys: list[str], *, new: bool
+    session: AsyncSession, library: Library, item: Item, keys: list[str], stored: dict[str, int]
 ) -> None:
     """Put ``item`` in exactly the collections ``keys``, touching only the links that differ."""
     wanted = list(dict.fromkeys(keys))
@@ -523,14 +605,7 @@ async def _refile(
         if key not in ids:
             raise InvalidInputError(f"Collection {key} not found")
 
-    current: set[int] = set()
-    if not new:
-        current = set(
-            await session.scalars(
-                select(CollectionItem.collection_id).where(CollectionItem.item_id == item.id)
-            )
-        )
-
+    current = set(stored.values())
     filed = [ids[key] for key in wanted]
     gone = current - set(filed)
     if gone:
@@ -564,9 +639,8 @@ async def save_item(
         key: Key of the item being addressed, for key-based writes.
         replace: Whether omitted properties are cleared.
         require_version: Whether the payload must state the version it replaces.
-        detect_unchanged: Return ``None`` when the payload describes what is
-            already stored. The caller is expected to discard the work by
-            rolling back, since applying it stamped a version onto the item.
+        detect_unchanged: Return ``None``, writing nothing, when the payload
+            describes what is already stored.
         actor_id: Who is writing. Recorded in a group library so the item can
             say who added it and who last changed it.
         permit: What the caller may write. ``None`` for a path with no
@@ -601,7 +675,7 @@ async def save_item(
     if item is None:
         replace = True
 
-    before = None
+    links = None
     creating = item is None
     if item is None:
         # Added by `_apply`, once the parent is known.
@@ -627,14 +701,25 @@ async def save_item(
             if parsed.get("deleted") and not item.deleted:
                 permit.require_remove(item.created_by_user_id)
         check_object_version(item.version, parsed["version"], required=require_version)
-        if detect_unchanged:
-            before = await _state(session, item)
+
+    # Looked up before anything is assigned: see `_apply`.
+    parent_id = await _parent_id(session, library, parsed, permit)
+
+    if detect_unchanged and not creating:
+        # Decided by what writing would produce rather than by writing it and
+        # looking: the comparison upstream makes, at the cost of reading the
+        # links, which writing would have read anyway.
+        links = await _links(session, item)
+        before = _state(item, links)
+        now = datetime.now(UTC).replace(tzinfo=None, microsecond=0)
+        if before == _predict(before, parsed, replace=replace, parent_id=parent_id, now=now):
+            return None
 
     # Who wrote it is stamped with everything else, so it is not an UPDATE of
-    # its own. Re-sending an item exactly as stored still does not rewrite who
-    # last touched it: `detect_unchanged` answers `None` below, and its caller
-    # rolls the whole write back. Upstream reaches the same place from the other
-    # direction: nothing is written, so its `groupItems` update never runs.
+    # its own, and only once the write is known to change something: re-sending
+    # an item exactly as stored does not rewrite who last touched it. Upstream
+    # reaches the same place from the other direction: nothing is written, so
+    # its `groupItems` update never runs.
     if library.type is LibraryType.GROUP and actor_id is not None:
         if creating:
             # Upstream inserts both columns on create, and its serialiser then
@@ -642,7 +727,17 @@ async def save_item(
             item.created_by_user_id = actor_id
         item.last_modified_by_user_id = actor_id
 
-    await _apply(session, library, item, parsed, version, replace=replace, permit=permit)
+    await _apply(
+        session,
+        library,
+        item,
+        parsed,
+        version,
+        replace=replace,
+        permit=permit,
+        parent_id=parent_id,
+        links=links,
+    )
 
     if permit is not None and permit.collections is not None:
         # Asked again of the item as written. A confined credential may move an
@@ -658,8 +753,6 @@ async def save_item(
                 "and this item is not in any of them"
             )
 
-    if before is not None and before == await _state(session, item):
-        return None
     return item
 
 

@@ -11,7 +11,7 @@ The realistic case is the one these tests use: take what the server returned and
 send it straight back, which is what a client does out of its sync cache.
 """
 
-from typing import Any
+from typing import Any, ClassVar
 
 import httpx
 import pytest
@@ -236,3 +236,220 @@ class TestMixedBatches:
 
         assert again.json()["unchanged"] == {"0": stored["key"]}
         assert set(again.json()["failed"]) == {"1"}
+
+
+class TestTheComparisonAgreesWithWriting:
+    """Whether an item is unchanged is decided before anything is written.
+
+    The answer must be the one writing it and comparing would give, so every
+    payload shape here is put both ways: applied inside a savepoint and the
+    rows read back (the oracle), and through ``save_item(detect_unchanged=True)``
+    -- and the two must agree, as well as match what each case expects.
+    """
+
+    @pytest.fixture
+    async def stored(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> dict[str, dict[str, Any]]:
+        collections = await send(client, "/users/1/collections", [{"name": "One"}, {"name": "Two"}])
+        keys = [entry["key"] for entry in collections.json()["successful"].values()]
+        parent = {
+            "itemType": "book",
+            "title": "Dune",
+            "date": "1965",
+            "creators": [
+                {"creatorType": "author", "firstName": "Frank", "lastName": "Herbert"},
+                {"creatorType": "editor", "name": "Chilton Books"},
+            ],
+            "tags": [{"tag": "fiction"}, {"tag": "auto", "type": 1}],
+            "collections": keys,
+            "relations": {"dc:relation": "http://zotero.org/users/1/items/AAAA2345"},
+            # In the past, so that "now" -- what a write without one stamps --
+            # cannot happen to equal it.
+            "dateModified": "2020-01-01T00:00:00Z",
+        }
+        created = (await send(client, "/users/1/items", [parent])).json()["successful"]["0"]
+        note = {
+            "itemType": "note",
+            "note": "<p>Spice</p>",
+            "parentItem": created["key"],
+            "dateModified": "2020-01-01T00:00:00Z",
+        }
+        child = (await send(client, "/users/1/items", [note])).json()["successful"]["0"]
+        other = await send(client, "/users/1/items", [{"itemType": "book", "title": "Other"}])
+        return {
+            "parent": created["data"],
+            "child": child["data"],
+            "other": other.json()["successful"]["0"]["data"],
+        }
+
+    CASES: ClassVar[list[tuple[str, str, Any, bool]]] = [
+        # (name, which item, how to change what was stored, expected unchanged)
+        ("verbatim", "parent", lambda d, o: d, True),
+        ("verbatim child", "child", lambda d, o: d, True),
+        ("no dateModified", "parent", lambda d, o: _without(d, "dateModified"), False),
+        ("title", "parent", lambda d, o: {**d, "title": "Dune Messiah"}, False),
+        ("only key and dates", "parent", lambda d, o: _only(d, "dateModified"), True),
+        ("tags reordered", "parent", lambda d, o: {**d, "tags": d["tags"][::-1]}, True),
+        ("tag twice", "parent", lambda d, o: {**d, "tags": d["tags"] + d["tags"][:1]}, True),
+        ("tags emptied", "parent", lambda d, o: {**d, "tags": []}, False),
+        ("tags left out", "parent", lambda d, o: _without(d, "tags"), True),
+        ("tag type", "parent", lambda d, o: {**d, "tags": [{"tag": "fiction", "type": 1}]}, False),
+        (
+            "creators reordered",
+            "parent",
+            lambda d, o: {**d, "creators": d["creators"][::-1]},
+            False,
+        ),
+        ("creators left out", "parent", lambda d, o: _without(d, "creators"), True),
+        ("creators emptied", "parent", lambda d, o: {**d, "creators": []}, False),
+        (
+            "collections reordered",
+            "parent",
+            lambda d, o: {**d, "collections": d["collections"][::-1]},
+            True,
+        ),
+        (
+            "collection twice",
+            "parent",
+            lambda d, o: {**d, "collections": d["collections"] * 2},
+            True,
+        ),
+        ("collections emptied", "parent", lambda d, o: {**d, "collections": []}, False),
+        ("relations emptied", "parent", lambda d, o: {**d, "relations": {}}, False),
+        ("relations left out", "parent", lambda d, o: _without(d, "relations"), True),
+        ("trashed", "parent", lambda d, o: {**d, "deleted": True}, False),
+        ("not trashed, said so", "parent", lambda d, o: {**d, "deleted": False}, True),
+        ("not published, said so", "parent", lambda d, o: {**d, "inPublications": False}, True),
+        ("empty field added", "parent", lambda d, o: {**d, "volume": ""}, False),
+        ("null field added", "parent", lambda d, o: {**d, "volume": None}, False),
+        ("field emptied", "parent", lambda d, o: {**d, "date": ""}, False),
+        (
+            "item type",
+            "parent",
+            lambda d, o: {**d, "itemType": "bookSection"},
+            False,
+        ),
+        ("dateAdded", "parent", lambda d, o: {**d, "dateAdded": "2001-01-01T00:00:00Z"}, False),
+        ("note text", "child", lambda d, o: {**d, "note": "<p>Melange</p>"}, False),
+        ("note left out", "child", lambda d, o: _without(d, "note"), True),
+        ("same parent", "child", lambda d, o: d, True),
+        ("other parent", "child", lambda d, o: {**d, "parentItem": o["key"]}, False),
+        ("parent left out", "child", lambda d, o: _without(d, "parentItem"), True),
+    ]
+
+    @pytest.mark.parametrize(
+        ("name", "which", "change", "expected"), CASES, ids=[c[0] for c in CASES]
+    )
+    async def test_the_two_agree(
+        self,
+        session: AsyncSession,
+        library: Library,
+        stored: dict[str, dict[str, Any]],
+        name: str,
+        which: str,
+        change: Any,
+        expected: bool,
+    ) -> None:
+        from altero.services.itemwrites import save_item
+
+        payload = change(dict(stored[which]), stored["other"])
+        item_id = (await _rows(session, stored[which]["key"]))["id"]
+
+        before = await _observed(session, item_id)
+        savepoint = await session.begin_nested()
+        await save_item(session, library, dict(payload), 99, replace=False)
+        await session.flush()
+        written = await _observed(session, item_id)
+        await savepoint.rollback()
+        session.expunge_all()
+
+        savepoint = await session.begin_nested()
+        answer = await save_item(
+            session, library, dict(payload), 99, replace=False, detect_unchanged=True
+        )
+        await savepoint.rollback()
+        session.expunge_all()
+
+        assert (before == written) == expected, "the oracle disagrees with the case"
+        assert (answer is None) == expected
+
+
+def _without(data: dict[str, Any], name: str) -> dict[str, Any]:
+    return {key: value for key, value in data.items() if key != name}
+
+
+def _only(data: dict[str, Any], *names: str) -> dict[str, Any]:
+    return {key: data[key] for key in ("key", "version", *names)}
+
+
+async def _rows(session: AsyncSession, key: str) -> dict[str, Any]:
+    from sqlalchemy import select
+
+    from altero.models import Item
+
+    row = (await session.execute(select(Item.__table__).where(Item.key == key))).mappings().one()
+    return dict(row)
+
+
+async def _observed(session: AsyncSession, item_id: int) -> tuple[Any, ...]:
+    """What is stored for an item, read from its rows rather than its ORM object."""
+    from sqlalchemy import select
+
+    from altero.models import (
+        Collection,
+        CollectionItem,
+        Item,
+        ItemCreator,
+        ItemField,
+        ItemRelation,
+        ItemTag,
+        Tag,
+    )
+
+    item = (
+        (await session.execute(select(Item.__table__).where(Item.id == item_id))).mappings().one()
+    )
+    scalars = tuple(
+        item[name]
+        for name in (
+            "item_type",
+            "deleted",
+            "in_publications",
+            "date_added",
+            "date_modified",
+            "parent_id",
+        )
+    )
+
+    async def rows(statement: Any) -> tuple[Any, ...]:
+        return tuple(sorted(tuple(row) for row in (await session.execute(statement)).all()))
+
+    return (
+        scalars,
+        await rows(select(ItemField.field, ItemField.value).where(ItemField.item_id == item_id)),
+        await rows(
+            select(
+                ItemCreator.position,
+                ItemCreator.creator_type,
+                ItemCreator.first_name,
+                ItemCreator.last_name,
+                ItemCreator.name,
+            ).where(ItemCreator.item_id == item_id)
+        ),
+        await rows(
+            select(ItemRelation.predicate, ItemRelation.object).where(
+                ItemRelation.item_id == item_id
+            )
+        ),
+        await rows(
+            select(Tag.name, Tag.type)
+            .join(ItemTag, ItemTag.tag_id == Tag.id)
+            .where(ItemTag.item_id == item_id)
+        ),
+        await rows(
+            select(Collection.key)
+            .join(CollectionItem, CollectionItem.collection_id == Collection.id)
+            .where(CollectionItem.item_id == item_id)
+        ),
+    )

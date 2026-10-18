@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- An item sent again unchanged is recognised before anything is written: re-sending 50 costs 0.5 s instead of 1.1–1.3 s.
 - Writing an item touches only the tag and collection links that changed and finds its tags in one query: a 50-item POST costs 40% less.
 - SQLite connections get a 16 MiB cache, in-memory sorting and memory mapping; the pool size is configurable.
 - Settings sent again unchanged keep their version, and a request changing none leaves the library version where it was, as upstream.

@@ -477,3 +477,29 @@ class TestFilingAndTagging:
         removed = [s for s in statements if s.startswith("DELETE FROM item_tags")]
         added = [s for s in statements if s.startswith("INSERT INTO item_tags")]
         assert (len(removed), len(added)) == (1, 1), "\n\n".join(statements)
+
+    async def test_an_unchanged_item_is_not_written(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Deciding it is unchanged writes nothing, rather than writing and rolling back."""
+        await make_collection(session, library, key="SHELF234")
+        payload = {
+            "itemType": "book",
+            "title": "Dune",
+            "creators": [{"creatorType": "author", "firstName": "F", "lastName": "H"}],
+            "tags": [{"tag": "a"}, {"tag": "b"}],
+            "collections": ["SHELF234"],
+        }
+        created = await client.post("/users/1/items", headers=AUTH, json=[payload])
+        stored = created.json()["successful"]["0"]["data"]
+
+        with capture_sql(app) as statements:
+            again = await client.post("/users/1/items", headers=AUTH, json=[stored])
+
+        assert again.json()["unchanged"] == {"0": stored["key"]}
+        written = [
+            s
+            for s in statements
+            if s.split()[0] in ("INSERT", "UPDATE", "DELETE") and "libraries" not in s.split()[:4]
+        ]
+        assert not written, "\n\n".join(written)
