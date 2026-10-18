@@ -75,13 +75,15 @@ Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. D
 
 ## Server and storage
 
-| Setting               | Default                             | What it does                                                                                 |
-|-----------------------|-------------------------------------|----------------------------------------------------------------------------------------------|
-| `ALTERO_DATABASE_URL` | `sqlite+aiosqlite:///altero.sqlite` | SQLAlchemy URL. The driver must be an async one: `sqlite+aiosqlite` or `postgresql+asyncpg`. |
-| `ALTERO_HOST`         | `127.0.0.1`                         | Interface to bind. The container sets `0.0.0.0`.                                             |
-| `ALTERO_PORT`         | `8000`                              | Port to bind, 1–65535.                                                                       |
-| `ALTERO_STORAGE_PATH` | `./storage`                         | Directory holding attachment files. The container sets `/data/storage`.                      |
-| `ALTERO_DEBUG`        | `false`                             | Debug behavior, SQL echoing and auto-reload. Never enable in production.                     |
+| Setting                        | Default                             | What it does                                                                                             |
+|--------------------------------|-------------------------------------|----------------------------------------------------------------------------------------------------------|
+| `ALTERO_DATABASE_URL`          | `sqlite+aiosqlite:///altero.sqlite` | SQLAlchemy URL. The driver must be an async one: `sqlite+aiosqlite` or `postgresql+asyncpg`.             |
+| `ALTERO_DATABASE_POOL_SIZE`    | `5`                                 | Database connections kept open for requests to share.                                                    |
+| `ALTERO_DATABASE_MAX_OVERFLOW` | `10`                                | Further connections opened when the pool is exhausted. A request waiting longer than 30 s for one fails. |
+| `ALTERO_HOST`                  | `127.0.0.1`                         | Interface to bind. The container sets `0.0.0.0`.                                                         |
+| `ALTERO_PORT`                  | `8000`                              | Port to bind, 1–65535.                                                                                   |
+| `ALTERO_STORAGE_PATH`          | `./storage`                         | Directory holding attachment files. The container sets `/data/storage`.                                  |
+| `ALTERO_DEBUG`                 | `false`                             | Debug behavior, SQL echoing and auto-reload. Never enable in production.                                 |
 
 ## Accounts
 

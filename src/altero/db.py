@@ -6,7 +6,7 @@ from collections.abc import AsyncIterator, Collection, Iterator, Sequence
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BindParameter, DateTime, Integer, bindparam, event, func
+from sqlalchemy import BindParameter, DateTime, Integer, bindparam, event, func, make_url
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -80,6 +80,18 @@ def hold(session: AsyncSession, *rows: object) -> None:
 #: client retries -- see :mod:`altero.api.errors`.
 BUSY_TIMEOUT_MS = 5000
 
+#: How much memory a connection may use to avoid reading the disk. SQLite's
+#: defaults are sized for a phone: a 2 MB page cache, temporary B-trees for
+#: sorting on disk, and no memory mapping. With these a deep page of a 35,000
+#: item library took 212 ms instead of 310. The cache is per connection, so the
+#: pool's size multiplies it; the mapping is shared through the OS page cache.
+#: ``synchronous`` is deliberately left alone -- see ``services/writes.py``.
+MEMORY_PRAGMAS = (
+    "cache_size=-16384",
+    "temp_store=MEMORY",
+    "mmap_size=268435456",
+)
+
 #: Rows each index is sampled for when SQLite gathers statistics. SQLite's own
 #: recommendation for a statistics pass that has to stay cheap.
 ANALYSIS_LIMIT = 400
@@ -124,6 +136,8 @@ def _configure_sqlite(engine: AsyncEngine) -> None:
         # An in-memory database has no journal to switch.
         cursor.execute("PRAGMA journal_mode=WAL")
         cursor.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS}")
+        for pragma in MEMORY_PRAGMAS:
+            cursor.execute(f"PRAGMA {pragma}")
         # Analysed from a sample of each index, so a large database pays a
         # bounded cost, and only where statistics are missing or a table has
         # grown or shrunk enough to make them misleading -- usually nothing.
@@ -138,6 +152,28 @@ def _configure_sqlite(engine: AsyncEngine) -> None:
         cursor.close()
 
 
+def _pool_options(settings: Settings) -> dict[str, Any]:
+    """Return the connection pool's configuration for ``settings``.
+
+    The size applies to any database held in a file or on a server. An
+    in-memory SQLite database has a pool of exactly one connection, which takes
+    no size.
+
+    Connections are not pinged before use. A ping is a round trip on every
+    request -- 1.1 to 1.5 ms of an 11.5 ms one against a local PostgreSQL --
+    and what it would spare after a server restart is small: the first request
+    to find its connection gone fails, and SQLAlchemy then discards every
+    connection the pool held from before, so the rest reconnect.
+    """
+    url = make_url(settings.database_url)
+    if url.get_backend_name() == "sqlite" and url.database in (None, "", ":memory:"):
+        return {}
+    return {
+        "pool_size": settings.database_pool_size,
+        "max_overflow": settings.database_max_overflow,
+    }
+
+
 class Database:
     """Owns the async engine and hands out sessions."""
 
@@ -145,6 +181,7 @@ class Database:
         self.engine: AsyncEngine = create_async_engine(
             settings.database_url,
             echo=settings.debug,
+            **_pool_options(settings),
         )
         _configure_sqlite(self.engine)
         self.session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(

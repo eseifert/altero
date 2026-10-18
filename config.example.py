@@ -11,6 +11,11 @@ Every setting can also be supplied as an ``ALTERO_``-prefixed environment variab
 # SQLAlchemy database URL. The driver must be an asynchronous one.
 DATABASE_URL = "sqlite+aiosqlite:///altero.sqlite"
 
+# Database connections kept open for requests to share, and how many more may
+# be opened when they are all in use.
+DATABASE_POOL_SIZE = 5
+DATABASE_MAX_OVERFLOW = 10
+
 # Interface and port the server binds to.
 HOST = "127.0.0.1"
 PORT = 8000

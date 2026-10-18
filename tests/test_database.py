@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from sqlalchemy import text
+from sqlalchemy import QueuePool, text
 
 from altero.db import Database
 from altero.models import LibraryType
@@ -73,3 +73,45 @@ class TestPlannerStatistics:
             assert await _item_statistics(database) == 205
         finally:
             await database.dispose()
+
+
+class TestConnectionSettings:
+    async def test_a_sqlite_connection_may_use_memory(self, tmp_path: Path) -> None:
+        """A 2 MB cache and sorting on disk are SQLite's defaults, sized for a phone."""
+        database = Database(Settings(database_url=f"sqlite+aiosqlite:///{tmp_path / 'db.sqlite'}"))
+        async with database.engine.connect() as connection:
+            cache = await connection.scalar(text("PRAGMA cache_size"))
+            temp_store = await connection.scalar(text("PRAGMA temp_store"))
+            mmap = await connection.scalar(text("PRAGMA mmap_size"))
+        await database.dispose()
+
+        assert (cache, temp_store, mmap) == (-16384, 2, 268435456)
+
+    def test_the_pool_takes_its_size_from_the_settings(self, tmp_path: Path) -> None:
+        database = Database(
+            Settings(
+                database_url=f"sqlite+aiosqlite:///{tmp_path / 'db.sqlite'}",
+                database_pool_size=3,
+                database_max_overflow=4,
+            )
+        )
+        pool = database.engine.sync_engine.pool
+
+        assert isinstance(pool, QueuePool)
+        assert (pool.size(), pool._max_overflow) == (3, 4)
+
+    def test_a_postgresql_pool_is_sized_the_same_way(self) -> None:
+        database = Database(
+            Settings(
+                database_url="postgresql+asyncpg://altero:altero@localhost:1/altero",
+                database_pool_size=8,
+            )
+        )
+
+        pool = database.engine.sync_engine.pool
+
+        assert isinstance(pool, QueuePool)
+        assert pool.size() == 8
+
+    def test_an_in_memory_database_keeps_its_single_connection(self) -> None:
+        Database(Settings(database_url="sqlite+aiosqlite:///:memory:"))

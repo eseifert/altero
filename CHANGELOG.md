@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- SQLite connections get a 16 MiB cache, in-memory sorting and memory mapping; the pool size is configurable.
 - Settings sent again unchanged keep their version, and a request changing none leaves the library version where it was, as upstream.
 - A write no longer reads back the library version it was just given, nor names items for activity in a personal library.
 - Creating an item or a nested collection writes its row once, rather than inserting it and updating its parent and sort keys.

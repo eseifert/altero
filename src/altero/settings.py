@@ -34,6 +34,16 @@ class Settings(BaseSettings):
         default="sqlite+aiosqlite:///altero.sqlite",
         description="SQLAlchemy database URL. Must use an async driver.",
     )
+    database_pool_size: int = Field(
+        default=5,
+        ge=1,
+        description="Database connections kept open for requests to share.",
+    )
+    database_max_overflow: int = Field(
+        default=10,
+        ge=0,
+        description="Further connections opened beyond the pool when it is exhausted.",
+    )
     host: str = Field(default="127.0.0.1", description="Interface the server binds to.")
     port: int = Field(default=8000, ge=1, le=65535, description="Port the server binds to.")
     debug: bool = Field(default=False, description="Enable debug behaviour and SQL echoing.")
