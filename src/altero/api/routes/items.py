@@ -98,7 +98,7 @@ def item_query(request: Request, formats: frozenset[Format] = ITEM_FORMATS) -> L
     )
 
 
-def _with_included(
+async def _with_included(
     envelopes: list[dict[str, Any]],
     items: Sequence[Item],
     library: Library,
@@ -117,22 +117,34 @@ def _with_included(
     if query.include == frozenset({"data"}):
         return envelopes
 
-    for envelope, item in zip(envelopes, items, strict=True):
+    csl = (
+        [cite.csl_item(item, library) for item in items]
+        if query.include & {"bib", "citation", "csljson"}
+        else []
+    )
+    rendered: list[tuple[str | None, str | None]] = []
+    if query.include & {"bib", "citation"}:
+        rendered = await cite.render_entries(
+            csl,
+            bib="bib" in query.include,
+            cite="citation" in query.include,
+            style=query.style,
+            locale=query.locale,
+            linkwrap=query.linkwrap,
+        )
+
+    for index, (envelope, item) in enumerate(zip(envelopes, items, strict=True)):
         data = envelope.pop("data")
         if "data" in query.include:
             envelope["data"] = data
-        if query.include & {"bib", "citation", "csljson"}:
-            csl = cite.csl_item(item, library)
-            if "csljson" in query.include:
-                envelope["csljson"] = csl
+        if "csljson" in query.include:
+            envelope["csljson"] = csl[index]
+        if rendered:
+            bib, citation = rendered[index]
             if "citation" in query.include:
-                envelope["citation"] = cite.citation(
-                    csl, style=query.style, locale=query.locale, linkwrap=query.linkwrap
-                )
+                envelope["citation"] = citation
             if "bib" in query.include:
-                envelope["bib"] = cite.bibliography(
-                    [csl], style=query.style, locale=query.locale, linkwrap=query.linkwrap
-                )
+                envelope["bib"] = bib
         wanted = query.include & {str(entry) for entry in EXPORT_FORMATS}
         if wanted:
             # One item on its own, in each format asked for: a document per
@@ -183,7 +195,7 @@ async def render_items(
     ]
     if query is None:
         return envelopes
-    return _with_included(envelopes, items, library, base_url, query, tags)
+    return await _with_included(envelopes, items, library, base_url, query, tags)
 
 
 async def render_item(
@@ -235,7 +247,7 @@ async def render_page(
     elif query.response_format is Format.CSLJSON:
         csljson = cite.csl_items(list(page.objects), library)
     elif query.response_format is Format.BIB:
-        bibliography = cite.bibliography(
+        bibliography = await cite.render_bibliography(
             cite.csl_items(list(page.objects), library),
             style=query.style,
             locale=query.locale,
@@ -400,7 +412,7 @@ async def get_item(
     if query.response_format is Format.CSLJSON:
         payload: Any = cite.csl_item(item, library)
     elif query.response_format is Format.BIB:
-        payload = cite.bibliography(
+        payload = await cite.render_bibliography(
             [cite.csl_item(item, library)],
             style=query.style,
             locale=query.locale,

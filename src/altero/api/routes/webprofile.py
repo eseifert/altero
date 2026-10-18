@@ -216,10 +216,7 @@ async def cite_published_item(
     _, library = await _profile(session, viewer, username)
     item = await profiles.published_item(session, library, item_key)
 
-    csl = cite.csl_item(item, library)
-    return JSONResponse(
-        {
-            "bib": cite.bibliography([csl], style=style, locale=locale),
-            "citation": cite.citation(csl, style=style, locale=locale),
-        }
+    ((bib, citation),) = await cite.render_entries(
+        [cite.csl_item(item, library)], style=style, locale=locale
     )
+    return JSONResponse({"bib": bib, "citation": citation})

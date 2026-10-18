@@ -526,10 +526,7 @@ async def cite_shared_item(
     share, library, collection = await _shared(session, token)
     item = await _in_share(session, share, library, collection, item_key)
 
-    csl = cite.csl_item(item, library)
-    return JSONResponse(
-        {
-            "bib": cite.bibliography([csl], style=style, locale=locale),
-            "citation": cite.citation(csl, style=style, locale=locale),
-        }
+    ((bib, citation),) = await cite.render_entries(
+        [cite.csl_item(item, library)], style=style, locale=locale
     )
+    return JSONResponse({"bib": bib, "citation": citation})

@@ -498,3 +498,62 @@ class TestExportFormats:
         response = await client.get("/users/1/collections?format=ris", headers=AUTH)
 
         assert response.status_code == 400
+
+
+class TestTheRenderer:
+    """Rendering is slow, so it happens once per item and off the event loop."""
+
+    @pytest.fixture
+    def renders(self, monkeypatch: pytest.MonkeyPatch) -> list[str]:
+        """Record the thread each render ran on, with nothing remembered yet."""
+        import threading
+
+        from altero.cite import render
+
+        render._bibliography_of.cache_clear()
+        render._citation_of.cache_clear()
+        seen: list[str] = []
+        original = render._render
+
+        def counted(*args: object, **kwargs: object) -> object:
+            seen.append(threading.current_thread().name)
+            return original(*args, **kwargs)
+
+        monkeypatch.setattr(render, "_render", counted)
+        return seen
+
+    async def test_the_same_item_is_not_rendered_twice(
+        self, client: httpx.AsyncClient, article: Item, renders: list[str]
+    ) -> None:
+        for _ in range(2):
+            response = await client.get(
+                "/users/1/items?include=bib,citation&itemKey=AAAA2345", headers=AUTH
+            )
+            assert "Doe" in response.json()[0]["bib"]
+
+        assert len(renders) == 2  # a bibliography entry and a citation, once each
+
+    async def test_a_changed_item_is_rendered_again(
+        self,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        article: Item,
+        renders: list[str],
+    ) -> None:
+        await client.get("/users/1/items/AAAA2345?format=bib", headers=AUTH)
+        stored = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
+        await client.post(
+            "/users/1/items", headers=AUTH, json=[{**stored, "title": "A study of other things"}]
+        )
+
+        response = await client.get("/users/1/items/AAAA2345?format=bib", headers=AUTH)
+
+        assert "Other Things" in response.text
+        assert len(renders) == 2
+
+    async def test_rendering_leaves_the_event_loop_free(
+        self, client: httpx.AsyncClient, article: Item, renders: list[str]
+    ) -> None:
+        await client.get("/users/1/items/AAAA2345?format=bib", headers=AUTH)
+
+        assert renders == ["altero-cite_0"]

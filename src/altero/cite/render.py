@@ -7,13 +7,25 @@ wrapper markup below reproduces what the reference implementation adds around
 them -- line height, hanging indent and entry spacing read from the style, as
 the desktop client's own ``makeFormattedBibliography`` does.
 
-Rendering runs on the event loop rather than in a worker thread on purpose: a
-parsed style is cached and reused, and citeproc-py hangs the output formatter
-off that shared style, so two renders must not overlap.
+Rendering takes tens of milliseconds an item, so it runs on one dedicated
+worker thread rather than on the event loop, where a page of a hundred froze
+every other request for seconds. One thread and no more: a parsed style is
+cached and reused, and citeproc-py hangs the output formatter off that shared
+style, so two renders must not overlap. :func:`render_entries` and
+:func:`render_bibliography` are the way in; the functions they wrap are for the
+worker and for tests.
+
+What comes out is decided entirely by the CSL JSON and the three options, so
+it is remembered by exactly those: an item rendered again unchanged is not
+rendered again, and an item that changed is different JSON.
 """
 
+import asyncio
 import html
+import json
 import re
+from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from typing import Any
 
@@ -154,3 +166,73 @@ def citation(
     text = str(rendered.cite(citations[0], lambda _: None))
     markup = f"<span>{text}</span>"
     return _linkwrap(markup) if linkwrap else markup
+
+
+#: The one thread every render runs on. See the module docstring.
+_RENDERER = ThreadPoolExecutor(max_workers=1, thread_name_prefix="altero-cite")
+
+#: How many rendered entries are remembered. An entry is a few hundred bytes.
+CACHE_SIZE = 4096
+
+
+@lru_cache(maxsize=CACHE_SIZE)
+def _bibliography_of(payload: str, style: str, locale: str, linkwrap: bool) -> str:
+    return bibliography(json.loads(payload), style=style, locale=locale, linkwrap=linkwrap)
+
+
+@lru_cache(maxsize=CACHE_SIZE)
+def _citation_of(payload: str, style: str, locale: str, linkwrap: bool) -> str:
+    return citation(json.loads(payload), style=style, locale=locale, linkwrap=linkwrap)
+
+
+def _key(value: Any) -> str:
+    """The JSON a render is remembered by: the same item always reads the same."""
+    return json.dumps(value, sort_keys=True, ensure_ascii=False)
+
+
+def _entries(
+    payloads: list[str], bib: bool, cite: bool, style: str, locale: str, linkwrap: bool
+) -> list[tuple[str | None, str | None]]:
+    return [
+        (
+            _bibliography_of(f"[{payload}]", style, locale, linkwrap) if bib else None,
+            _citation_of(payload, style, locale, linkwrap) if cite else None,
+        )
+        for payload in payloads
+    ]
+
+
+async def render_entries(
+    items: Sequence[dict[str, Any]],
+    *,
+    bib: bool = True,
+    cite: bool = True,
+    style: str = DEFAULT_STYLE,
+    locale: str = DEFAULT_LOCALE,
+    linkwrap: bool = False,
+) -> list[tuple[str | None, str | None]]:
+    """Return each item's own bibliography entry and in-text citation, in order.
+
+    ``None`` stands for whichever of the two was not asked for. One trip to the
+    renderer for the lot, so a page of them waits behind no other request's
+    renders but its own.
+    """
+    payloads = [_key(item) for item in items]
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(
+        _RENDERER, _entries, payloads, bib, cite, style, locale, linkwrap
+    )
+
+
+async def render_bibliography(
+    items: Sequence[dict[str, Any]],
+    *,
+    style: str = DEFAULT_STYLE,
+    locale: str = DEFAULT_LOCALE,
+    linkwrap: bool = False,
+) -> str:
+    """Return ``items`` as one HTML bibliography, as :func:`bibliography` does."""
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(
+        _RENDERER, _bibliography_of, _key(list(items)), style, locale, linkwrap
+    )

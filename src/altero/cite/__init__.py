@@ -7,7 +7,7 @@ items and plain values and know nothing about requests.
 from altero.cite.csljson import csl_item, csl_items
 from altero.cite.dates import csl_date
 from altero.cite.export import bibtex, ris
-from altero.cite.render import bibliography, citation
+from altero.cite.render import bibliography, citation, render_bibliography, render_entries
 from altero.cite.styles import DEFAULT_LOCALE, DEFAULT_STYLE, style_path
 
 __all__ = [
@@ -19,6 +19,8 @@ __all__ = [
     "csl_date",
     "csl_item",
     "csl_items",
+    "render_bibliography",
+    "render_entries",
     "ris",
     "style_path",
 ]

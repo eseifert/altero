@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Citations render on a worker thread and are remembered per item, so a bibliography page no longer stalls every other request.
 - Filing or trashing a selection in the browser costs a fixed number of statements: 200 items take 0.1 s instead of 3–4 s.
 - An item sent again unchanged is recognised before anything is written: re-sending 50 costs 0.5 s instead of 1.1–1.3 s.
 - Writing an item touches only the tag and collection links that changed and finds its tags in one query: a 50-item POST costs 40% less.
