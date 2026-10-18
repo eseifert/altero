@@ -29,8 +29,9 @@ error.
 import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from typing import Any
 
-from sqlalchemy import delete, select
+from sqlalchemy import ColumnElement, and_, delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import (
@@ -161,6 +162,21 @@ async def _sweep_trash(
     return deleted, len(by_library)
 
 
+async def _remove(
+    session: AsyncSession, model: type[Any], condition: ColumnElement[bool], *, dry_run: bool
+) -> int:
+    """Delete the rows of ``model`` matching ``condition``, or count them on a dry run.
+
+    One statement either way. Collecting the ids first and naming them would
+    bind one value per row, which past a few tens of thousands is more than a
+    statement can carry.
+    """
+    if dry_run:
+        return await session.scalar(select(func.count()).select_from(model).where(condition)) or 0
+    result = await session.execute(delete(model).where(condition))
+    return getattr(result, "rowcount", 0) or 0
+
+
 async def _sweep_activity(session: AsyncSession, days: int, *, now: datetime, dry_run: bool) -> int:
     """Remove delivered group activity older than ``days``.
 
@@ -172,25 +188,20 @@ async def _sweep_activity(session: AsyncSession, days: int, *, now: datetime, dr
         return 0
 
     cutoff = now - timedelta(days=days)
-    doomed = list(
-        await session.scalars(
-            select(GroupActivity.id).where(
-                GroupActivity.flushed.is_not(None), GroupActivity.created < cutoff
+    settled = and_(GroupActivity.flushed.is_not(None), GroupActivity.created < cutoff)
+    if not dry_run:
+        # By hand rather than by cascade: a bulk delete does not load the rows,
+        # so the ORM's delete-orphan on `objects` never runs and the names would
+        # be left pointing at activity that had gone.
+        await session.execute(
+            delete(GroupActivityObject).where(
+                GroupActivityObject.activity_id.in_(select(GroupActivity.id).where(settled))
             )
         )
-    )
-    if dry_run or not doomed:
-        return len(doomed)
-
-    # By hand rather than by cascade: a bulk delete does not load the rows, so
-    # the ORM's delete-orphan on `objects` never runs and the names would be
-    # left pointing at activity that had gone.
-    await session.execute(
-        delete(GroupActivityObject).where(GroupActivityObject.activity_id.in_(doomed))
-    )
-    await session.execute(delete(GroupActivity).where(GroupActivity.id.in_(doomed)))
-    await session.commit()
-    return len(doomed)
+    removed = await _remove(session, GroupActivity, settled, dry_run=dry_run)
+    if not dry_run:
+        await session.commit()
+    return removed
 
 
 async def _sweep_uploads(session: AsyncSession, hours: int, *, now: datetime, dry_run: bool) -> int:
@@ -206,13 +217,7 @@ async def _sweep_uploads(session: AsyncSession, hours: int, *, now: datetime, dr
 
     before = now - timedelta(hours=hours)
     if dry_run:
-        return len(
-            list(
-                await session.scalars(
-                    select(StorageUpload.key).where(StorageUpload.created < before)
-                )
-            )
-        )
+        return await _remove(session, StorageUpload, StorageUpload.created < before, dry_run=True)
 
     purged = await storage.purge_stale_uploads(session, before)
     await session.commit()
@@ -228,78 +233,33 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
     Only *unanswered* invitations go — one that was accepted or declined is
     kept on purpose, so that re-inviting somebody who said no is a visible act.
     """
-    sessions = list(await session.scalars(select(WebSession.id).where(WebSession.expires < now)))
-    codes = list(await session.scalars(select(LoginCode.id).where(LoginCode.expires < now)))
-    federated = list(
-        await session.scalars(select(AuthRequest.state).where(AuthRequest.expires < now))
-    )
-    assertions = list(
-        await session.scalars(
-            select(ConsumedAssertion.assertion_id).where(ConsumedAssertion.expires < now)
-        )
-    )
-    ceremonies = list(
-        await session.scalars(
-            select(WebAuthnChallenge.challenge).where(WebAuthnChallenge.expires < now)
-        )
-    )
-    verifications = list(
-        await session.scalars(select(EmailVerification.id).where(EmailVerification.expires < now))
-    )
-    invitations = list(
-        await session.scalars(
-            select(Invitation.id).where(Invitation.status == "pending", Invitation.expires < now)
-        )
-    )
-    downloads = list(
-        await session.scalars(select(StorageDownload.key).where(StorageDownload.expires < now))
-    )
+    counts: dict[str, int] = {}
+    for name, model, condition in (
+        # Codes first: they cascade from the sessions below, and deleting the
+        # sessions would take them without the count reflecting it.
+        ("codes", LoginCode, LoginCode.expires < now),
+        ("sessions", WebSession, WebSession.expires < now),
+        ("verifications", EmailVerification, EmailVerification.expires < now),
+        (
+            "invitations",
+            Invitation,
+            and_(Invitation.status == "pending", Invitation.expires < now),
+        ),
+        ("federated", AuthRequest, AuthRequest.expires < now),
+        ("ceremonies", WebAuthnChallenge, WebAuthnChallenge.expires < now),
+        ("assertions", ConsumedAssertion, ConsumedAssertion.expires < now),
+        ("downloads", StorageDownload, StorageDownload.expires < now),
+    ):
+        counts[name] = await _remove(session, model, condition, dry_run=dry_run)
+
     authorizations = 0
     for model in (OAuthAuthorizationRequest, OAuthCode, OAuthToken):
-        authorizations += len(
-            list(await session.scalars(select(model.expires).where(model.expires < now)))
-        )
+        authorizations += await _remove(session, model, model.expires < now, dry_run=dry_run)
 
     if not dry_run:
-        for model, doomed in (
-            # Codes first: they cascade from the sessions below, and deleting
-            # the sessions would take them without the count reflecting it.
-            (LoginCode, codes),
-            (WebSession, sessions),
-            (EmailVerification, verifications),
-            (Invitation, invitations),
-        ):
-            if doomed:
-                await session.execute(delete(model).where(model.id.in_(doomed)))
-        if federated:
-            # Keyed by state rather than by an id column, so it does not fit
-            # the loop above.
-            await session.execute(delete(AuthRequest).where(AuthRequest.state.in_(federated)))
-        if ceremonies:
-            await session.execute(
-                delete(WebAuthnChallenge).where(WebAuthnChallenge.challenge.in_(ceremonies))
-            )
-        if assertions:
-            await session.execute(
-                delete(ConsumedAssertion).where(ConsumedAssertion.assertion_id.in_(assertions))
-            )
-        if downloads:
-            await session.execute(delete(StorageDownload).where(StorageDownload.key.in_(downloads)))
-        for model in (OAuthAuthorizationRequest, OAuthCode, OAuthToken):
-            await session.execute(delete(model).where(model.expires < now))
         await session.commit()
 
-    return Report(
-        sessions=len(sessions),
-        codes=len(codes),
-        federated=len(federated),
-        assertions=len(assertions),
-        ceremonies=len(ceremonies),
-        verifications=len(verifications),
-        invitations=len(invitations),
-        downloads=len(downloads),
-        authorizations=authorizations,
-    )
+    return Report(**counts, authorizations=authorizations)
 
 
 async def sweep(

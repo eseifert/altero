@@ -12,6 +12,7 @@ from collections.abc import Sequence
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from altero.db import chunked
 from altero.models import (
     ActivityKind,
     Collection,
@@ -38,12 +39,14 @@ async def name_items(session: AsyncSession, library: Library, keys: Sequence[str
     if not keys:
         return []
 
-    found = await session.execute(
-        select(Item.key, Item.sort_title).where(
-            Item.library_id == library.id, Item.key.in_(list(keys))
+    names: dict[str, str] = {}
+    for chunk in chunked(list(keys)):
+        found = await session.execute(
+            select(Item.key, Item.sort_title).where(
+                Item.library_id == library.id, Item.key.in_(chunk)
+            )
         )
-    )
-    names = {key: title for key, title in found.all()}
+        names.update(found.tuples().all())
     return [(key, names.get(key, "")) for key in keys if key in names]
 
 
@@ -54,12 +57,14 @@ async def name_collections(
     if not keys:
         return []
 
-    found = await session.execute(
-        select(Collection.key, Collection.name).where(
-            Collection.library_id == library.id, Collection.key.in_(list(keys))
+    names: dict[str, str] = {}
+    for chunk in chunked(list(keys)):
+        found = await session.execute(
+            select(Collection.key, Collection.name).where(
+                Collection.library_id == library.id, Collection.key.in_(chunk)
+            )
         )
-    )
-    names = {key: name for key, name in found.all()}
+        names.update(found.tuples().all())
     return [(key, names.get(key, "")) for key in keys if key in names]
 
 

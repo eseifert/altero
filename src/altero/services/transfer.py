@@ -113,15 +113,21 @@ async def export_library(
     )
     tag_keys = {tag.id: tag.key for tag in tags}
 
+    # Joined rather than named by id: a library can have more collections or
+    # tags than one statement can bind.
     membership = [
         (collection_keys[row.collection_id], keys_by_id[row.item_id])
         for row in await session.scalars(
-            select(CollectionItem).where(CollectionItem.collection_id.in_(collection_keys))
+            select(CollectionItem)
+            .join(Collection, Collection.id == CollectionItem.collection_id)
+            .where(Collection.library_id == library.id)
         )
     ]
     item_tags = [
         (tag_keys[row.tag_id], keys_by_id[row.item_id])
-        for row in await session.scalars(select(ItemTag).where(ItemTag.tag_id.in_(tag_keys)))
+        for row in await session.scalars(
+            select(ItemTag).join(Tag, Tag.id == ItemTag.tag_id).where(Tag.library_id == library.id)
+        )
     ]
 
     settings = list(await session.scalars(select(Setting).where(Setting.library_id == library.id)))

@@ -10,6 +10,7 @@ from sqlalchemy import ColumnElement, Select, and_, distinct, func, not_, or_, s
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, aliased
 
+from altero.db import id_list
 from altero.errors import InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
 from altero.models import (
@@ -376,10 +377,10 @@ async def _scope_filters(
         found = await duplicates.duplicate_item_ids(session, library)
         # `in_(())` is a valid empty predicate, so a library with no duplicates
         # answers with an empty page rather than with everything.
-        return [Item.id.in_(found)]
+        return [Item.id.in_(id_list(found))]
 
     if scope is Scope.RECENTLY_READ:
-        return [Item.id.in_(await _recently_read_ids(session, library))]
+        return [Item.id.in_(id_list(await _recently_read_ids(session, library)))]
 
     if scope in (
         Scope.COLLECTION,

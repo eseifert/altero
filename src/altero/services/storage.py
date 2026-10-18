@@ -21,7 +21,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import (
@@ -559,7 +559,5 @@ async def purge_stale_uploads(session: AsyncSession, before: Any) -> int:
     because the store no longer held what was sent. Any bytes left behind are
     an orphan, which `storagestats.purge_orphans` is what removes.
     """
-    stale = list(await session.scalars(select(StorageUpload).where(StorageUpload.created < before)))
-    for upload in stale:
-        await session.delete(upload)
-    return len(stale)
+    result = await session.execute(delete(StorageUpload).where(StorageUpload.created < before))
+    return getattr(result, "rowcount", 0) or 0

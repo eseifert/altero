@@ -12,9 +12,10 @@ collection somebody else made is a write to the item and stays allowed.
 from datetime import UTC, datetime
 from typing import Any
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, insert, literal, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from altero.errors import InvalidInputError, NotFoundError
 from altero.keys import coerce_key, is_valid_key
@@ -475,31 +476,39 @@ async def rename_tag(
     target.version = version
     absorbed = [tag for tag in tags if tag.id != target.id]
 
-    item_ids = sorted(
-        set(
-            await session.scalars(
-                select(ItemTag.item_id).where(ItemTag.tag_id.in_([tag.id for tag in absorbed]))
-            )
-        )
-    )
-    already = set(await session.scalars(select(ItemTag.item_id).where(ItemTag.tag_id == target.id)))
-
-    for tag in absorbed:
-        await session.execute(delete(ItemTag).where(ItemTag.tag_id == tag.id))
-        await session.delete(tag)
-    await session.flush()
-
-    for item_id in item_ids:
-        if item_id not in already:
-            session.add(ItemTag(item_id=item_id, tag_id=target.id))
+    # Every statement below names the items by the tags they carry rather than
+    # by their ids, which for a tag on a large library are more than one
+    # statement can bind.
+    absorbed_ids = [tag.id for tag in absorbed]
+    carrying = select(ItemTag.item_id).where(ItemTag.tag_id.in_(absorbed_ids))
+    item_ids = sorted(set(await session.scalars(carrying)))
 
     if item_ids:
         now = datetime.now(UTC).replace(tzinfo=None, microsecond=0)
         await session.execute(
             update(Item)
-            .where(Item.id.in_(item_ids))
+            .where(Item.id.in_(carrying))
             .values(version=version, server_date_modified=now)
+            .execution_options(synchronize_session="fetch")
         )
+        already = aliased(ItemTag)
+        await session.execute(
+            insert(ItemTag).from_select(
+                ["item_id", "tag_id"],
+                select(ItemTag.item_id, literal(target.id))
+                .where(
+                    ItemTag.tag_id.in_(absorbed_ids),
+                    ~select(already.item_id)
+                    .where(already.item_id == ItemTag.item_id, already.tag_id == target.id)
+                    .exists(),
+                )
+                .distinct(),
+            )
+        )
+
+    for tag in absorbed:
+        await session.execute(delete(ItemTag).where(ItemTag.tag_id == tag.id))
+        await session.delete(tag)
     await session.flush()
 
     # The old name is gone from the library, and a client that syncs by asking

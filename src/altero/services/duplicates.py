@@ -80,20 +80,21 @@ async def duplicate_item_ids(session: AsyncSession, library: Library) -> set[int
     comparison is between items, so there is no predicate to hand a database
     that would not first have to read the same three columns of every row.
     """
-    rows = await session.execute(
-        select(Item.id, Item.item_type).where(
-            Item.library_id == library.id,
-            Item.parent_id.is_(None),
-            Item.deleted.is_(False),
-        )
+    compared = select(Item.id).where(
+        Item.library_id == library.id,
+        Item.parent_id.is_(None),
+        Item.deleted.is_(False),
+        Item.item_type.not_in(UNCOMPARED),
     )
-    candidates = {item_id: kind for item_id, kind in rows.all() if kind not in UNCOMPARED}
+    candidates = list(await session.scalars(compared))
     if len(candidates) < 2:
         return set()
 
+    # The candidates are named by the query that found them rather than by
+    # their ids, which in a large library are more than a statement can bind.
     field_rows = await session.execute(
         select(ItemField.item_id, ItemField.field, ItemField.value).where(
-            ItemField.item_id.in_(candidates), ItemField.field.in_(_FIELDS)
+            ItemField.item_id.in_(compared), ItemField.field.in_(_FIELDS)
         )
     )
     fields: dict[int, dict[str, str]] = defaultdict(dict)
@@ -102,7 +103,7 @@ async def duplicate_item_ids(session: AsyncSession, library: Library) -> set[int
 
     creator_rows = await session.execute(
         select(ItemCreator.item_id, ItemCreator.last_name, ItemCreator.name).where(
-            ItemCreator.item_id.in_(candidates)
+            ItemCreator.item_id.in_(compared)
         )
     )
     surnames: dict[int, set[str]] = defaultdict(set)

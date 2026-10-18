@@ -2,11 +2,11 @@
 
 import logging
 import sqlite3
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Collection, Iterator, Sequence
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, event, func
+from sqlalchemy import BindParameter, DateTime, Integer, bindparam, event, func
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -38,6 +38,30 @@ class Timestamped:
     server_date_modified: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), index=True
     )
+
+
+#: The most values one statement takes from a list that grows with a library.
+#: SQLite refuses a statement binding more than 32,766 values and asyncpg one
+#: binding more than 32,767, so such a list is sent in pieces this size: well
+#: below either, with room for whatever else the statement binds.
+CHUNK = 10_000
+
+
+def chunked[T](values: Sequence[T]) -> Iterator[Sequence[T]]:
+    """Yield ``values`` in pieces of at most :data:`CHUNK`."""
+    for start in range(0, len(values), CHUNK):
+        yield values[start : start + CHUNK]
+
+
+def id_list(ids: Collection[int]) -> BindParameter[Any]:
+    """``ids`` for an ``IN`` that has to be one predicate, however many there are.
+
+    Written into the statement as literals rather than bound, so no limit on
+    bound values applies. Only for integers, which cannot carry anything but a
+    number into the SQL text; a list of strings is sent in :func:`chunked`
+    pieces instead.
+    """
+    return bindparam(None, sorted(ids), type_=Integer, expanding=True, literal_execute=True)
 
 
 #: Rows each index is sampled for when SQLite gathers statistics. SQLite's own
