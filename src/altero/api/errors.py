@@ -4,10 +4,13 @@ The Zotero API answers with a plain-text reason rather than a JSON body, so all
 handlers here render ``text/plain``.
 """
 
+import logging
+import sqlite3
 from collections.abc import Mapping
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy.exc import OperationalError
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import JSONResponse, PlainTextResponse, Response
@@ -23,10 +26,18 @@ from altero.errors import (
     RequestTooLargeError,
 )
 
+logger = logging.getLogger("altero.api")
+
 #: Path prefix served for the web interface. Everything under it answers JSON;
 #: everything outside it is the v3 API, which answers a plain-text reason and
 #: whose response shape is not ours to change.
 WEB_PREFIX = "/web"
+
+#: SQLite's primary result codes for "another connection holds the lock".
+_SQLITE_BUSY = frozenset({sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED})
+
+#: Seconds a client is asked to wait after losing the race for SQLite's lock.
+BUSY_RETRY_AFTER = 5
 
 #: Status code used for each domain error. Subclasses fall back to 500.
 STATUS_CODES: dict[type[AlteroError], int] = {
@@ -98,6 +109,29 @@ async def handle_validation_error(request: Request, exc: Exception) -> Response:
     return PlainTextResponse(f"Invalid parameter: {invalid}", status_code=400)
 
 
+async def handle_operational_error(request: Request, exc: Exception) -> Response:
+    """Answer a write that could not get SQLite's lock with a retryable 503.
+
+    SQLite serialises writers, and a writer that waits longer than the busy
+    timeout fails with "database is locked". Nothing was written -- the write
+    path takes the lock before anything else -- so the request can simply be
+    sent again, and saying so is the difference between the desktop client
+    retrying (``_checkRetry`` honours an integer ``Retry-After`` on a 503) and
+    it reporting a sync error. Every other database failure stays a 500.
+    """
+    assert isinstance(exc, OperationalError)
+    code = getattr(exc.orig, "sqlite_errorcode", None)
+    if code is None or code & 0xFF not in _SQLITE_BUSY:
+        raise exc
+    logger.warning("SQLite was busy for %s %s; answering 503", request.method, request.url.path)
+    return _reply(
+        request,
+        "The database is busy. Try again shortly.",
+        503,
+        {"Retry-After": str(BUSY_RETRY_AFTER)},
+    )
+
+
 def register_error_handlers(app: FastAPI) -> None:
     # Registered before the base class, since Starlette picks the most
     # specific handler by walking the exception's own class hierarchy.
@@ -105,3 +139,4 @@ def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(AlteroError, handle_domain_error)
     app.add_exception_handler(HTTPException, handle_http_exception)
     app.add_exception_handler(RequestValidationError, handle_validation_error)
+    app.add_exception_handler(OperationalError, handle_operational_error)

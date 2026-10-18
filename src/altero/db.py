@@ -75,6 +75,11 @@ def hold(session: AsyncSession, *rows: object) -> None:
     session.info.setdefault("held", []).extend(rows)
 
 
+#: How long a connection waits for another's write lock before giving up. A
+#: write that gives up answers 503 with ``Retry-After``, which the desktop
+#: client retries -- see :mod:`altero.api.errors`.
+BUSY_TIMEOUT_MS = 5000
+
 #: Rows each index is sampled for when SQLite gathers statistics. SQLite's own
 #: recommendation for a statistics pass that has to stay cheap.
 ANALYSIS_LIMIT = 400
@@ -118,7 +123,7 @@ def _configure_sqlite(engine: AsyncEngine) -> None:
         cursor.execute("PRAGMA foreign_keys=ON")
         # An in-memory database has no journal to switch.
         cursor.execute("PRAGMA journal_mode=WAL")
-        cursor.execute("PRAGMA busy_timeout=5000")
+        cursor.execute(f"PRAGMA busy_timeout={BUSY_TIMEOUT_MS}")
         # Analysed from a sample of each index, so a large database pays a
         # bounded cost, and only where statistics are missing or a table has
         # grown or shrunk enough to make them misleading -- usually nothing.

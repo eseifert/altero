@@ -1204,6 +1204,13 @@ altero refuses with 429 and a whole-second `Retry-After`, never below 1. It does
 not send `Backoff`: that header asks a client to slow down while the server is
 still answering, which needs a load signal this server does not have.
 
+On SQLite, a write that waits longer than five seconds for another writer's lock
+answers **503 with `Retry-After: 5`** rather than 500. Nothing was written: the
+write path takes the lock before anything else. The desktop client retries a 503
+that carries an integer `Retry-After` (`syncAPIClient.js`, `_checkRetry`) and
+reports any other 5xx as a sync error. PostgreSQL waits on its row lock instead
+and does not produce this answer.
+
 ## Libraries, groups and altero extensions
 
 ### My Publications

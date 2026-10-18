@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- On SQLite, a write that times out waiting for the lock answers 503 with `Retry-After: 5`, which the desktop client retries.
 - Deleting many items is set-based: 1,000 items and their children go in 0.5 s on SQLite and 2.6 s on PostgreSQL, not 90–100 s.
 - Authenticating a request costs one statement fewer, an OAuth token two fewer; the owner is read in the same lookup.
 - Item writes no longer rebuild the schema's field-name sets for every field they validate.
