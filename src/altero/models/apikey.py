@@ -44,9 +44,11 @@ class ApiKey(Base):
     all_groups_read: Mapped[bool] = mapped_column(default=False)
     all_groups_write: Mapped[bool] = mapped_column(default=False)
 
+    #: Read by nothing but the cascade that removes the overrides with the key,
+    #: which loads them inside the flush. Eager, it cost every authenticated
+    #: request a statement.
     group_access: Mapped[list[ApiKeyGroupAccess]] = relationship(
         back_populates="api_key",
-        lazy="selectin",
         cascade="all, delete-orphan",
     )
 

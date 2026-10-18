@@ -39,6 +39,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
+from altero.db import hold
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError, OAuthError
 from altero.models.collection import Collection
 from altero.models.library import Group, Library, LibraryType, User
@@ -1308,25 +1309,31 @@ async def resolve_access_token(session: AsyncSession, raw: str) -> TokenIdentity
     if not raw.startswith(ACCESS_PREFIX):
         return None
 
-    row = await session.scalar(
-        select(OAuthToken).where(
-            OAuthToken.token_hash == _hash(raw),
-            OAuthToken.kind == "access",
-            OAuthToken.revoked_at.is_(None),
-            OAuthToken.expires > _now(),
+    # The grant and its owner in the same statement: every caller asks for
+    # the owner next, and held, that is answered without another.
+    row = (
+        await session.execute(
+            select(OAuthToken.scopes, OAuthGrant.id, OAuthGrant.restricted, User)
+            .join(OAuthGrant, OAuthGrant.id == OAuthToken.grant_id)
+            .join(User, User.id == OAuthGrant.user_id)
+            .where(
+                OAuthToken.token_hash == _hash(raw),
+                OAuthToken.kind == "access",
+                OAuthToken.revoked_at.is_(None),
+                OAuthToken.expires > _now(),
+            )
         )
-    )
+    ).first()
     if row is None:
         return None
 
-    grant = await session.get(OAuthGrant, row.grant_id)
-    if grant is None:
-        return None
+    scopes, grant_id, restricted, owner = row
+    hold(session, owner)
     return TokenIdentity(
-        user_id=grant.user_id,
-        scopes=row.scopes,
-        grant_id=grant.id,
-        restricted=grant.restricted,
+        user_id=owner.id,
+        scopes=scopes,
+        grant_id=grant_id,
+        restricted=restricted,
     )
 
 

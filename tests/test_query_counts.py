@@ -6,6 +6,7 @@ other end of a network. A page that costs one query per item looks fine against
 a local SQLite file and falls over against PostgreSQL.
 """
 
+import re
 from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
@@ -276,3 +277,64 @@ class TestExpensiveFilters:
 
         assert response.json() == []
         assert response.headers["Total-Results"] == "5"
+
+
+class TestAuthentication:
+    """Who is asking costs one statement, and the rest of the request reuses it."""
+
+    async def test_a_key_is_read_with_its_owner(
+        self, app: FastAPI, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """The key and its owner in one statement, and the overrides in one more.
+
+        Nothing reads a key's per-group overrides off the key itself, so loading
+        them with every authenticated request was a statement spent on nothing.
+        The owner is the same row the route reads again, and is not asked twice.
+        """
+        with capture_sql(app) as statements:
+            response = await client.get("/keys/current", headers=AUTH)
+
+        assert response.status_code == 200
+        assert len(statements) == 2, "\n\n".join(statements)
+
+    async def test_a_browser_session_is_read_with_its_owner(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        from altero.services import admin
+        from tests.test_web_routes import register
+
+        assert (await register(client)).status_code == 201
+        await admin.create_api_key(session, username="ada", name="Desktop")
+
+        with capture_sql(app) as statements:
+            response = await client.get("/web/account/keys")
+
+        assert response.status_code == 200
+        assert len(response.json()["keys"]) == 1
+        reading_users = [s for s in statements if re.search(r"\b(FROM|JOIN) users\b", s)]
+        assert len(reading_users) == 1, "\n\n".join(statements)
+        assert not [s for s in statements if "api_key_group_access" in s]
+
+    async def test_an_upload_to_a_group_resolves_access_once(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The upload dependency reuses the access the request already has."""
+        from tests.factories import make_group
+
+        await make_user(session, user_id=1)
+        await make_api_key(session, key=KEY, user_id=1, all_groups_read=True, all_groups_write=True)
+        group = await make_group(session, owner_id=1)
+        await make_item(session, group, key="AAAA2345", item_type="attachment")
+        form = {"md5": "0" * 32, "filename": "a.txt", "filesize": "1", "mtime": "1"}
+
+        with capture_sql(app) as statements:
+            response = await client.post(
+                f"/groups/{group.owner_id}/items/AAAA2345/file",
+                headers=AUTH | {"If-None-Match": "*"},
+                data=form,
+            )
+
+        assert response.status_code == 200, response.text
+        overrides = [s for s in statements if "FROM api_key_group_access" in s]
+        policies = [s for s in statements if "FROM groups" in s]
+        assert (len(overrides), len(policies)) == (1, 2), "\n\n".join(statements)

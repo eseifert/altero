@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Authenticating a request costs one statement fewer, an OAuth token two fewer; the owner is read in the same lookup.
 - Item writes no longer rebuild the schema's field-name sets for every field they validate.
 - Duplicates, tag renames, trash emptying and retention sweeps no longer fail on libraries past ~32k objects.
 - An item naming the same tag twice carries it once instead of failing with 500, as upstream does.

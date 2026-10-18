@@ -17,6 +17,7 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from altero.db import hold
 from altero.models import User, WebSession
 
 #: How long a session lives before it must be created again.
@@ -83,7 +84,7 @@ async def lookup(session: AsyncSession, token: str | None) -> WebSession | None:
 
     row = (
         await session.execute(
-            select(WebSession, User.disabled_at)
+            select(WebSession, User)
             .join(User, User.id == WebSession.user_id)
             .where(WebSession.token_hash == hash_token(token))
         )
@@ -91,9 +92,11 @@ async def lookup(session: AsyncSession, token: str | None) -> WebSession | None:
     if row is None:
         return None
 
-    record, disabled_at = row
-    if disabled_at is not None or record.expires < _now():
+    record, owner = row
+    if owner.disabled_at is not None or record.expires < _now():
         return None
+    # Every route behind a session reads its owner next.
+    hold(session, owner)
     return record
 
 

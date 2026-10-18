@@ -544,6 +544,20 @@ class TestScopesGrantExactlyWhatTheySay:
 
         assert set(claims) == {"sub"}
 
+    async def test_a_token_is_read_with_its_grant_and_owner(
+        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """One statement for the token, and none more for whose it is."""
+        from tests.test_query_counts import capture_sql
+
+        tokens = await full_flow(client, session, scope="openid profile")
+
+        with capture_sql(app) as statements:
+            response = await client.get("/oauth/userinfo", headers=bearer(tokens["access_token"]))
+
+        assert response.json()["preferred_username"] == "ada"
+        assert len(statements) == 1, "\n\n".join(statements)
+
     async def test_profile_adds_a_name_and_email_adds_an_address(
         self, client: httpx.AsyncClient, session: AsyncSession
     ) -> None:

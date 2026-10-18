@@ -64,6 +64,17 @@ def id_list(ids: Collection[int]) -> BindParameter[Any]:
     return bindparam(None, sorted(ids), type_=Integer, expanding=True, literal_execute=True)
 
 
+def hold(session: AsyncSession, *rows: object) -> None:
+    """Keep ``rows`` in ``session``'s identity map for as long as the session lives.
+
+    The identity map holds rows weakly, so one read while authenticating and
+    then dropped -- the key, its owner -- is gone again by the time the route
+    asks :meth:`AsyncSession.get` for it, and is read a second time. Held here,
+    that ``get`` is answered without a statement.
+    """
+    session.info.setdefault("held", []).extend(rows)
+
+
 #: Rows each index is sampled for when SQLite gathers statistics. SQLite's own
 #: recommendation for a statistics pass that has to stay cheap.
 ANALYSIS_LIMIT = 400

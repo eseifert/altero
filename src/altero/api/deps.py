@@ -167,9 +167,7 @@ async def get_file_writable_library(
     Separate from write access because a group says separately who may upload
     -- see :func:`altero.services.auth.require_file_write`.
     """
-    if not access.write:
-        raise ForbiddenError("Forbidden")
-    await auth.require_file_write(session, library, api_key)
+    await auth.require_file_write(session, library, api_key, access)
     return library
 
 

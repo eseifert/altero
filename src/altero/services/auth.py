@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from altero.db import hold
 from altero.errors import ForbiddenError, NotFoundError
 from altero.models import (
     ApiKey,
@@ -316,7 +317,7 @@ async def authenticate(session: AsyncSession, credential: str | None) -> Credent
 
     row = (
         await session.execute(
-            select(ApiKey, User.disabled_at)
+            select(ApiKey, User)
             .join(User, User.id == ApiKey.user_id)
             .where(ApiKey.key == credential)
         )
@@ -324,9 +325,11 @@ async def authenticate(session: AsyncSession, credential: str | None) -> Credent
     if row is None:
         raise ForbiddenError("Invalid key")
 
-    api_key, disabled_at = row
-    if disabled_at is not None:
+    api_key, owner = row
+    if owner.disabled_at is not None:
         raise ForbiddenError("This account has been suspended")
+    # A route that reads either again gets them without a statement.
+    hold(session, api_key, owner)
     return Credential.from_api_key(api_key)
 
 
@@ -737,6 +740,7 @@ async def require_file_write(
     session: AsyncSession,
     library: Library,
     api_key: Credential | None,
+    access: Access,
 ) -> None:
     """Raise unless ``api_key`` may put files in ``library``.
 
@@ -744,8 +748,12 @@ async def require_file_write(
     edit the library: a group can let every member add items and still keep the
     attachments -- which is where the disk goes -- to its administrators, or
     forbid them outright. A personal library has no such distinction.
+
+    ``access`` is what the request already resolved for ``api_key``, taken
+    rather than asked again.
     """
-    await require_write(session, library, api_key)
+    if not access.write:
+        raise ForbiddenError("Forbidden")
 
     membership, group = await get_group_context(session, library, api_key)
     if group is None or membership is None:
