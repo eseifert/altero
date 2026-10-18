@@ -1,5 +1,7 @@
 """CSL JSON, bibliographies and citations."""
 
+from typing import Any
+
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -515,7 +517,7 @@ class TestTheRenderer:
         seen: list[str] = []
         original = render._render
 
-        def counted(*args: object, **kwargs: object) -> object:
+        def counted(*args: Any, **kwargs: Any) -> Any:
             seen.append(threading.current_thread().name)
             return original(*args, **kwargs)
 
