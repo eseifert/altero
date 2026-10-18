@@ -421,6 +421,47 @@ class TestAttachments:
         with zipfile.ZipFile(tmp_path / "out.zip") as bundle:
             assert bundle.read(f"files/{digest}") == body
 
+    async def test_a_file_is_never_held_whole(
+        self,
+        remote: httpx.AsyncClient,
+        zotero: httpx.AsyncClient,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """It streams to disk and goes into the archive as it is: a PDF does not deflate."""
+        from altero.services.storage import file_digest
+
+        body = b"%PDF-1.4 " + b"a longer paper " * 1000
+        await seed(
+            zotero,
+            [
+                {
+                    "itemType": "attachment",
+                    "linkMode": "imported_file",
+                    "title": "Paper",
+                    "key": "AAAA2345",
+                    "filename": "paper.pdf",
+                }
+            ],
+        )
+        await _store(zotero, "AAAA2345", body)
+        read_whole = httpx.Response.aread
+
+        async def reading(self: httpx.Response) -> bytes:
+            # The bytes come from where the redirect points; the 302 itself
+            # has an empty body that httpx reads on its way past.
+            path = self.request.url.path
+            assert not path.startswith("/storage/download/"), "a file was read whole"
+            return await read_whole(self)
+
+        monkeypatch.setattr(httpx.Response, "aread", reading)
+        await fetch_archive(api(remote), destination=tmp_path / "out.zip", target_user_id=4711)
+
+        with zipfile.ZipFile(tmp_path / "out.zip") as bundle:
+            entry = bundle.getinfo(f"files/{file_digest(body)}")
+            assert entry.compress_type == zipfile.ZIP_STORED
+            assert bundle.read(entry) == body
+
     async def test_an_attachment_with_no_file_is_named_rather_than_fatal(
         self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
     ) -> None:

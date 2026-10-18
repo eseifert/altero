@@ -49,6 +49,7 @@ survives in them. Attachment bytes are downloaded into the file store, so no
 address at their storage provider is kept either.
 """
 
+import asyncio
 import json
 import logging
 import re
@@ -67,7 +68,6 @@ from altero.keys import generate_key
 from altero.models import ItemCreator, LibraryType
 from altero.services import itemdata
 from altero.services.itemwrites import validate_item
-from altero.services.storage import file_digest
 from altero.services.transfer import FILE_PREFIX, FORMAT_VERSION, MANIFEST
 from altero.services.zoteroapi import ZoteroApi, ZoteroApiError
 
@@ -236,6 +236,10 @@ class _Assembler:
 
         if fields.get("linkMode") in STORED_LINK_MODES and fields.get("md5"):
             self.files.append((key, fields["md5"]))
+
+
+def _write_document(bundle: zipfile.ZipFile, name: str, document: Any) -> None:
+    bundle.writestr(name, json.dumps(document, indent=2))
 
 
 async def fetch_archive(
@@ -467,27 +471,41 @@ async def fetch_archive(
     }
 
     destination.parent.mkdir(parents=True, exist_ok=True)
+    # The archive is written in threads, a piece at a time, and each file goes
+    # through a temporary file of its own beside it rather than through memory:
+    # documents can be megabytes of JSON and attachments hundreds of megabytes.
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as bundle:
         for name, document in documents.items():
-            bundle.writestr(name, json.dumps(document, indent=2))
+            await asyncio.to_thread(_write_document, bundle, name, document)
 
         say("files", done=0, total=len(assembler.files))
         written: set[str] = set()
-        for position, (item_key, digest) in enumerate(assembler.files, start=1):
-            say("files", done=position, total=len(assembler.files), detail=item_key)
-            if digest in written:
-                continue
-            body = await api.file(prefix, item_key)
-            if body is None:
-                summary.files_missing.append(item_key)
-                continue
-            if file_digest(body) != digest:
-                # The item says one thing and the bytes another. Kept anyway --
-                # it is the file that was there -- but the item is named so
-                # somebody can look.
-                logger.warning("digest of %s does not match what the item claims", item_key)
-            bundle.writestr(f"{FILE_PREFIX}{digest}", body)
-            written.add(digest)
+        received = destination.with_name(f"{destination.name}.file")
+        try:
+            for position, (item_key, digest) in enumerate(assembler.files, start=1):
+                say("files", done=position, total=len(assembler.files), detail=item_key)
+                if digest in written:
+                    continue
+                actual = await api.save_file(prefix, item_key, received)
+                if actual is None:
+                    summary.files_missing.append(item_key)
+                    continue
+                if actual != digest:
+                    # The item says one thing and the bytes another. Kept anyway
+                    # -- it is the file that was there -- but the item is named
+                    # so somebody can look.
+                    logger.warning("digest of %s does not match what the item claims", item_key)
+                # Stored rather than deflated: a PDF or a snapshot ZIP barely
+                # compresses, as in an archive `library export` writes.
+                await asyncio.to_thread(
+                    bundle.write,
+                    received,
+                    f"{FILE_PREFIX}{digest}",
+                    compress_type=zipfile.ZIP_STORED,
+                )
+                written.add(digest)
+        finally:
+            received.unlink(missing_ok=True)
         summary.files = len(written)
 
         bundle.writestr(

@@ -27,10 +27,12 @@ finishing a minute sooner.
 """
 
 import asyncio
+import hashlib
 import logging
 from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
-from typing import Any
+from pathlib import Path
+from typing import Any, BinaryIO
 
 import httpx
 
@@ -60,6 +62,19 @@ MAX_DELAY = 300.0
 
 class ZoteroApiError(Exception):
     """api.zotero.org could not be read, and the migration cannot continue."""
+
+
+#: How much of a download is gathered before it is hashed and written.
+WRITE_BUFFER_BYTES = 4 * 1024 * 1024
+
+
+def _create(path: Path) -> BinaryIO:
+    return path.open("wb")
+
+
+def _absorb(sink: BinaryIO, digest: Any, chunk: bytes) -> None:
+    digest.update(chunk)
+    sink.write(chunk)
 
 
 def _seconds(headers: httpx.Headers, name: str) -> float | None:
@@ -119,6 +134,14 @@ class ZoteroApi:
             ZoteroApiError: for a refusal that will not improve by being
                 repeated, and for one that has been repeated enough.
         """
+        return await self._send(path, params, stream=False)
+
+    async def _send(self, path: str, params: dict[str, Any], *, stream: bool) -> httpx.Response:
+        """:meth:`get`, leaving the body of what it returns unread if ``stream``.
+
+        The caller then reads it and closes it. Every answer that is not handed
+        back is closed here.
+        """
         url = f"{self.base_url.rstrip('/')}{path}"
         delay = 1.0
 
@@ -127,9 +150,8 @@ class ZoteroApi:
             self._pending = 0.0
 
             try:
-                response = await self.client.get(
-                    url, params=params, headers=self.headers, follow_redirects=True
-                )
+                request = self.client.build_request("GET", url, params=params, headers=self.headers)
+                response = await self.client.send(request, stream=stream, follow_redirects=True)
             except httpx.HTTPError as thrown:
                 if attempt == MAX_ATTEMPTS:
                     raise ZoteroApiError(f"Could not reach {url}: {thrown}") from thrown
@@ -141,6 +163,10 @@ class ZoteroApi:
             # rather than served now, so a page that arrived is used.
             if (backoff := _seconds(response.headers, "Backoff")) is not None:
                 self._pending = backoff
+
+            if stream and (response.status_code == 429 or response.status_code >= 400):
+                # Nothing but the status is read of a refusal.
+                await response.aclose()
 
             if response.status_code == 429:
                 if attempt == MAX_ATTEMPTS:
@@ -209,15 +235,37 @@ class ZoteroApi:
         response.raise_for_status()
         return int(response.headers.get("Last-Modified-Version", 0))
 
-    async def file(self, prefix: str, item_key: str) -> bytes | None:
-        """Return an attachment's bytes, or ``None`` if the server has none.
+    async def save_file(self, prefix: str, item_key: str, target: Path) -> str | None:
+        """Write an attachment's bytes to ``target`` and return their digest.
 
-        A ``404`` is the ordinary case rather than a failure: a linked file was
-        never uploaded, and a stored one is only there if the account had the
-        storage to keep it.
+        ``None``, with nothing written, if the server has none. A ``404`` is the
+        ordinary case rather than a failure: a linked file was never uploaded,
+        and a stored one is only there if the account had the storage to keep
+        it.
+
+        Streamed to disk a piece at a time, hashed on the way, and written in a
+        thread: an attachment can be hundreds of megabytes.
         """
-        response = await self.get(f"{prefix}/items/{item_key}/file")
-        if response.status_code in (403, 404):
-            return None
-        response.raise_for_status()
-        return response.content
+        response = await self._send(f"{prefix}/items/{item_key}/file", {}, stream=True)
+        try:
+            if response.status_code in (403, 404):
+                return None
+            response.raise_for_status()
+            digest = hashlib.md5(usedforsecurity=False)
+            sink = await asyncio.to_thread(_create, target)
+            try:
+                pending: list[bytes] = []
+                size = 0
+                async for chunk in response.aiter_bytes():
+                    pending.append(chunk)
+                    size += len(chunk)
+                    if size >= WRITE_BUFFER_BYTES:
+                        await asyncio.to_thread(_absorb, sink, digest, b"".join(pending))
+                        pending, size = [], 0
+                if pending:
+                    await asyncio.to_thread(_absorb, sink, digest, b"".join(pending))
+            finally:
+                await asyncio.to_thread(sink.close)
+            return digest.hexdigest()
+        finally:
+            await response.aclose()
