@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Item writes no longer rebuild the schema's field-name sets for every field they validate.
 - Duplicates, tag renames, trash emptying and retention sweeps no longer fail on libraries past ~32k objects.
 - An item naming the same tag twice carries it once instead of failing with 500, as upstream does.
 - On SQLite, two writes from the same library version can no longer both pass `If-Unmodified-Since-Version`; the second answers 412.

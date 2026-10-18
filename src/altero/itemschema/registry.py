@@ -252,14 +252,14 @@ class Schema:
     def is_valid_item_type(self, name: str) -> bool:
         return name in self.item_types
 
-    @property
+    @cached_property
     def field_names(self) -> frozenset[str]:
         """Every field name that some item type accepts directly."""
         return frozenset(
             field.name for item_type in self.item_types.values() for field in item_type.fields
         )
 
-    @property
+    @cached_property
     def base_field_names(self) -> frozenset[str]:
         """Names that only ever appear as the base of another field, such as ``medium``."""
         bases = {
@@ -270,7 +270,7 @@ class Schema:
         }
         return frozenset(bases) - self.field_names
 
-    @property
+    @cached_property
     def all_field_names(self) -> frozenset[str]:
         """Every field name, including base fields. Writes accept both forms."""
         return self.field_names | self.base_field_names
