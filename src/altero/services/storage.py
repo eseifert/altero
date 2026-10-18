@@ -16,6 +16,7 @@ import logging
 import os
 import shutil
 import tempfile
+import time
 import zipfile
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
@@ -435,6 +436,7 @@ async def authorize_download(
     that one answer into something the client can put in a URL, so that the API
     key does not have to go there. What comes back names one file and expires.
     """
+    await _forget_spent_downloads(session)
     permission = StorageDownload(
         key=generate_api_key(),
         item_id=item.id,
@@ -445,6 +447,29 @@ async def authorize_download(
     session.add(permission)
     await session.flush()
     return permission
+
+
+#: How often handing out a download permission also clears the expired ones.
+PURGE_INTERVAL_SECONDS = 60
+
+#: When this process last did, by the monotonic clock.
+_purged_at = float("-inf")
+
+
+async def _forget_spent_downloads(session: AsyncSession) -> None:
+    """Delete download permissions past their expiry, at most once a minute.
+
+    A sync writes one per file it fetches, and only the retention sweep removed
+    them -- which is off unless configured -- so the table grew for as long as
+    the instance ran. Done here, in a transaction that is writing anyway, but
+    not on every redirect: a sync asks for hundreds.
+    """
+    global _purged_at
+    moment = time.monotonic()
+    if moment - _purged_at < PURGE_INTERVAL_SECONDS:
+        return
+    _purged_at = moment
+    await session.execute(delete(StorageDownload).where(StorageDownload.expires < _now()))
 
 
 async def open_download(session: AsyncSession, key: str) -> StorageDownload:

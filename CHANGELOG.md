@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Expired download permissions are cleared as new ones are handed out, at most once a minute, rather than kept until a retention sweep.
 - The rate limiter counts a key that has not authenticated against its address too, and prunes its table once per window.
 - A key used from two addresses in turn has its use recorded once per address per minute, not on every request.
 - A streaming connection passes over a change to another account's access instead of re-authenticating every subscription.

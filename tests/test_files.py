@@ -750,6 +750,37 @@ class TestDownloadPermission:
         assert bytes_response.status_code == 200
         assert bytes_response.content == CONTENT
 
+    async def test_handing_one_out_clears_the_expired_ones(
+        self,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        attachment: str,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """One is written per file a sync fetches, and retention is off by default."""
+        from datetime import UTC, timedelta
+
+        await upload(client, attachment)
+        item = await make_item(session, library, key="SPENT234", item_type="attachment")
+        session.add(
+            StorageDownload(
+                key="spent",
+                item_id=item.id,
+                library_id=library.id,
+                md5=MD5,
+                expires=datetime.now(UTC).replace(tzinfo=None) - timedelta(minutes=1),
+            )
+        )
+        await session.commit()
+        monkeypatch.setattr(storage, "_purged_at", float("-inf"))
+
+        await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)
+
+        keys = set(await session.scalars(select(StorageDownload.key)))
+        assert "spent" not in keys
+        assert len(keys) == 1
+
     async def test_the_location_carries_no_api_key(
         self, client: httpx.AsyncClient, attachment: str
     ) -> None:
