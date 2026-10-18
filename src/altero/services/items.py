@@ -379,7 +379,7 @@ async def _scope_filters(
         # A note the credential cannot see has no children it can see either,
         # and answering an empty list where an unknown key answers 404 would
         # say the note is there.
-        parent = await get_item(session, library, key or "", permit=permit)
+        parent = await get_item(session, library, key or "", permit=permit, related=False)
         return [Item.parent_id == parent.id]
 
     if scope is Scope.UNFILED:

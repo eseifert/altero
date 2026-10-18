@@ -503,3 +503,34 @@ class TestFilingAndTagging:
             if s.split()[0] in ("INSERT", "UPDATE", "DELETE") and "libraries" not in s.split()[:4]
         ]
         assert not written, "\n\n".join(written)
+
+
+class TestLookingAnItemUp:
+    @pytest.mark.parametrize("path", ["fulltext", "tags"])
+    async def test_a_route_needing_only_the_row_loads_nothing_else(
+        self,
+        app: FastAPI,
+        client: httpx.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        path: str,
+    ) -> None:
+        """Reading the text or the tags of an item needs the item's row, not its fields."""
+        from tests.factories import index_fulltext
+
+        item = await make_item(
+            session,
+            library,
+            key="ATTACH23",
+            item_type="attachment",
+            fields={"title": "Paper"},
+            creators=[("author", "A", "B")],
+        )
+        await index_fulltext(session, library, item, "Call me Ishmael")
+
+        with capture_sql(app) as statements:
+            response = await client.get(f"/users/1/items/ATTACH23/{path}", headers=AUTH)
+
+        assert response.status_code == 200
+        related = [s for s in statements if re.search(r"FROM item_(fields|creators|relations)", s)]
+        assert not related, "\n\n".join(related)

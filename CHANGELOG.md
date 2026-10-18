@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Routes that need only an item's row, such as its full text or tags, no longer load its fields, creators and relations.
 - Foreign keys get the indexes they lacked, and indexes that only duplicated another's prefix are gone; item sorts are indexed per library.
 - On PostgreSQL, searching everything in a small library no longer reads every library's fields and full text: 4.6 s to 0.26 s.
 - A library read out of zotero.org streams each attachment to disk and writes the archive in worker threads, storing files undeflated.

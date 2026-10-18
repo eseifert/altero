@@ -571,7 +571,7 @@ async def delete_item(
     expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
     writes.check_library_version(library, expected, required=True)
 
-    await items_service.get_item(session, library, item_key)
+    await items_service.get_item(session, library, item_key, related=False)
     version = await writes.bump_library_version(session, library)
     # Named first: after the delete there is nothing left to read a name from,
     # and an entry saying only that something was deleted is the one the log

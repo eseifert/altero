@@ -73,7 +73,7 @@ async def get_fulltext(
     item_key: str, session: SessionDep, library: ReadableLibraryDep, access: AccessDep
 ) -> Response:
     """Return the stored text of one attachment."""
-    item = await items_service.get_item(session, library, item_key, permit=access)
+    item = await items_service.get_item(session, library, item_key, permit=access, related=False)
     stored = await fulltext_service.get_content(session, item)
 
     return JSONResponse(fulltext_service.render(stored), headers=library_headers(stored.version))
@@ -92,7 +92,7 @@ async def put_fulltext(
     payload = await request.json()
 
     library = await writes.lock_library(session, library)
-    item = await items_service.get_item(session, library, item_key, permit=access)
+    item = await items_service.get_item(session, library, item_key, permit=access, related=False)
 
     version = await writes.bump_library_version(session, library)
     await fulltext_service.save_content(session, library, item, payload, version, permit=access)

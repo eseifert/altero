@@ -403,8 +403,7 @@ async def delete_items(
         raise InvalidInputError("'itemKey' parameter not provided")
 
     library = await writes.lock_library(session, library)
-    for key in keys:
-        item = await items_service.get_item(session, library, key)
+    for item in await items_service.get_items(session, library, keys):
         if not item.deleted:
             raise InvalidInputError("Move the item to the trash before deleting it")
 

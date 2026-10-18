@@ -380,7 +380,7 @@ async def list_item_children(
 ) -> Response:
     """Return an item's notes and attachments, in the order the client shows them."""
     library = await _readable_library(session, user, library_id)
-    await items.get_item(session, library, item_key)
+    await items.get_item(session, library, item_key, related=False)
 
     query = ListQuery(limit=MAX_LIMIT, sort="title", direction=Direction.ASCENDING)
     page = await items.list_items(session, library, query, scope=items.Scope.CHILDREN, key=item_key)

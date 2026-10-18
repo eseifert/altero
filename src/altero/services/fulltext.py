@@ -99,7 +99,7 @@ async def save_batch_entry(
     if not key:
         raise InvalidInputError("Item key not provided")
 
-    item = await get_item(session, library, str(key), permit=permit)
+    item = await get_item(session, library, str(key), permit=permit, related=False)
     await save_content(session, library, item, payload, version, permit=permit)
 
     # The client reads `.key` off every successful and unchanged entry, so this

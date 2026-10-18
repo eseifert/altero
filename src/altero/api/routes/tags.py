@@ -358,7 +358,7 @@ async def list_item_tags(
 ) -> Response:
     """List the tags carried by one item."""
     query = tag_query(request)
-    item = await items_service.get_item(session, library, item_key)
+    item = await items_service.get_item(session, library, item_key, related=False)
     scope = select(Item.id).where(Item.id == item.id)
 
     page = await tags_service.list_tags(session, library, query, item_scope=scope)
