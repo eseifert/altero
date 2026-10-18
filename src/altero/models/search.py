@@ -16,9 +16,9 @@ class SavedSearch(Base, Timestamped):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
     key: Mapped[str] = mapped_column(String(8))
-    version: Mapped[int] = mapped_column(default=1, index=True)
+    version: Mapped[int] = mapped_column(default=1)
     name: Mapped[str] = mapped_column(String(255), default="")
     deleted: Mapped[bool] = mapped_column(default=False, index=True)
 

@@ -114,7 +114,7 @@ class WebAuthnChallenge(Base):
     #: proving an account again. ``None`` is a sign-in that has not said who it
     #: is yet.
     user_id: Mapped[int | None] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), default=None
+        ForeignKey("users.id", ondelete="CASCADE"), default=None, index=True
     )
     #: ``register``, ``login`` or ``reauth``.
     purpose: Mapped[str] = mapped_column(String(8), default="login")
@@ -213,7 +213,7 @@ class PasswordReset(Base):
     #: Who issued it. Kept because this is somebody changing somebody else's
     #: credential, which is a thing worth being able to account for.
     issued_by: Mapped[int | None] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL"), default=None
+        ForeignKey("users.id", ondelete="SET NULL"), default=None, index=True
     )
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires: Mapped[datetime] = mapped_column(DateTime, index=True)
@@ -240,7 +240,7 @@ class Notification(Base):
     #: The invitation this is about, when there is one. Nulled rather than
     #: cascaded when that invitation goes, so the notice survives as history.
     invitation_id: Mapped[int | None] = mapped_column(
-        ForeignKey("invitations.id", ondelete="SET NULL"), default=None
+        ForeignKey("invitations.id", ondelete="SET NULL"), default=None, index=True
     )
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)
     read: Mapped[datetime | None] = mapped_column(DateTime, default=None)
@@ -269,7 +269,7 @@ class Invitation(Base):
     #: with this" are different invitations and the person accepting should be
     #: told which one they were sent.
     permission: Mapped[str] = mapped_column(String(16), default="inherit", server_default="inherit")
-    invited_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    invited_by: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     #: SHA-256 of the token in the emailed link, for accepting without an
     #: account to sign in to first.
     token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)

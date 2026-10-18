@@ -38,12 +38,12 @@ class DeletedObject(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
     object_type: Mapped[str] = mapped_column(String(16))
     #: The object's key, or the name for tags and settings.
     key: Mapped[str] = mapped_column(String(255))
     #: Library version at which the deletion happened.
-    version: Mapped[int] = mapped_column(default=1, index=True)
+    version: Mapped[int] = mapped_column(default=1)
     deleted: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
@@ -60,6 +60,6 @@ class WriteToken(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
     token: Mapped[str] = mapped_column(String(32))
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)

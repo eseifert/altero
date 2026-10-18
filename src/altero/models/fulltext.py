@@ -17,9 +17,9 @@ class FullText(Base):
     __table_args__ = (Index("ix_item_fulltext_library_version", "library_id", "version"),)
 
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
     content: Mapped[str] = mapped_column(Text, default="")
-    version: Mapped[int] = mapped_column(default=1, index=True)
+    version: Mapped[int] = mapped_column(default=1)
 
     #: How much of the document was indexed. Which pair applies depends on the
     #: document: pages for paginated formats, characters otherwise.

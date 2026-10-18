@@ -151,7 +151,8 @@ class OAuthGrant(Base):
     __table_args__ = (UniqueConstraint("user_id", "client_id", name="uq_oauth_grant"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    # Indexed by `uq_oauth_grant`, which starts with it.
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     client_id: Mapped[int] = mapped_column(
         ForeignKey("oauth_clients.id", ondelete="CASCADE"), index=True
     )
@@ -319,9 +320,8 @@ class OAuthGrantResource(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    grant_id: Mapped[int] = mapped_column(
-        ForeignKey("oauth_grants.id", ondelete="CASCADE"), index=True
-    )
+    # Indexed by `uq_oauth_grant_resource`, which starts with it.
+    grant_id: Mapped[int] = mapped_column(ForeignKey("oauth_grants.id", ondelete="CASCADE"))
     library_id: Mapped[int] = mapped_column(
         ForeignKey("libraries.id", ondelete="CASCADE"), index=True
     )

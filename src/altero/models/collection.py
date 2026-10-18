@@ -18,9 +18,9 @@ class Collection(Base, Timestamped):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
     key: Mapped[str] = mapped_column(String(8))
-    version: Mapped[int] = mapped_column(default=1, index=True)
+    version: Mapped[int] = mapped_column(default=1)
     name: Mapped[str] = mapped_column(String(255), default="")
     #: ``parentCollection`` in JSON; null for a top-level collection.
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("collections.id"), index=True)
@@ -76,7 +76,7 @@ class CollectionShare(Base):
     collection_id: Mapped[int] = mapped_column(ForeignKey("collections.id"))
     #: Who made the link. Kept so the list can say so, and so that a share
     #: outliving its author's membership is visible rather than anonymous.
-    created_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    created_by_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     created: Mapped[datetime] = mapped_column(DateTime)
     #: When the link stops working, or null for one that never does. An expired
     #: share answers exactly as a revoked one does.

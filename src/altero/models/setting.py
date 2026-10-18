@@ -21,8 +21,8 @@ class Setting(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
     name: Mapped[str] = mapped_column(String(60))
     #: The setting's value, encoded as JSON.
     value: Mapped[str] = mapped_column(Text, default="null")
-    version: Mapped[int] = mapped_column(default=1, index=True)
+    version: Mapped[int] = mapped_column(default=1)

@@ -33,5 +33,7 @@ class LoginSession(Base):
     #: which is what unlinking the client does -- clears this rather than being
     #: refused, and :func:`~altero.services.login.render` then reports the
     #: spent session as cancelled.
-    api_key_id: Mapped[int | None] = mapped_column(ForeignKey("api_keys.id", ondelete="SET NULL"))
+    api_key_id: Mapped[int | None] = mapped_column(
+        ForeignKey("api_keys.id", ondelete="SET NULL"), index=True
+    )
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now(), index=True)

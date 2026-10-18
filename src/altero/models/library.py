@@ -155,7 +155,7 @@ class Group(Base):
     __tablename__ = "groups"
 
     library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), primary_key=True)
-    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     name: Mapped[str] = mapped_column(String(255), default="")
     type: Mapped[str] = mapped_column(String(32), default="Private")
     description: Mapped[str] = mapped_column(String, default="")
@@ -171,7 +171,9 @@ class GroupMember(Base):
     __tablename__ = "group_members"
 
     library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    # Indexed on its own as well: the key leads with the library, and "which
+    # groups is this person in" is asked on every page that lists libraries.
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True, index=True)
     role: Mapped[str] = mapped_column(String(16), default="member")
 
     #: How far this member may go, one of :class:`MemberPermission`. Separate

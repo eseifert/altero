@@ -32,11 +32,11 @@ class Tag(Base, Timestamped):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
     key: Mapped[str] = mapped_column(String(8))
     name: Mapped[str] = mapped_column(String(255))
     type: Mapped[int] = mapped_column(default=int(TagType.MANUAL))
-    version: Mapped[int] = mapped_column(default=1, index=True)
+    version: Mapped[int] = mapped_column(default=1)
 
 
 class ItemTag(Base):

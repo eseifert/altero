@@ -1,6 +1,6 @@
 """Items and everything hanging off them."""
 
-from sqlalchemy import ForeignKey, Index, String, Text, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from altero.db import Base, Timestamped
@@ -19,6 +19,21 @@ class Item(Base, Timestamped):
         # SQLite has statistics it prefers them over the library -- reading
         # every untrashed item in the instance to count one item's children.
         Index("ix_items_library_deleted_parent", "library_id", "deleted", "parent_id"),
+        Index("ix_items_server_date_modified", "server_date_modified"),
+        # Each sort behind its library rather than across every library: the
+        # same speed for one library's listing, and no chance of the planner
+        # walking the whole instance's titles to find a small library's page.
+        Index("ix_items_library_sort_title", "library_id", "sort_title"),
+        Index("ix_items_library_sort_creator", "library_id", "sort_creator"),
+        Index("ix_items_library_sort_date", "library_id", "sort_date"),
+        # Only group libraries record who changed an item; this is what lets
+        # deleting an account find the rows to null without scanning them all.
+        Index(
+            "ix_items_last_modified_by_user_id",
+            "last_modified_by_user_id",
+            postgresql_where=text("last_modified_by_user_id IS NOT NULL"),
+            sqlite_where=text("last_modified_by_user_id IS NOT NULL"),
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -53,9 +68,9 @@ class Item(Base, Timestamped):
     # Sort keys derived from the item's data whenever it is written. Each item
     # type names its title, creator and date differently, so sorting straight
     # off `item_fields` would need a per-type join; these keep it to a column.
-    sort_title: Mapped[str] = mapped_column(String(500), default="", index=True)
-    sort_creator: Mapped[str] = mapped_column(String(255), default="", index=True)
-    sort_date: Mapped[str] = mapped_column(String(32), default="", index=True)
+    sort_title: Mapped[str] = mapped_column(String(500), default="")
+    sort_creator: Mapped[str] = mapped_column(String(255), default="")
+    sort_date: Mapped[str] = mapped_column(String(32), default="")
 
     fields: Mapped[list[ItemField]] = relationship(
         back_populates="item", lazy="selectin", cascade="all, delete-orphan"

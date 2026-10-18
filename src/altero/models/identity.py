@@ -120,8 +120,9 @@ class FederatedIdentity(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    # Indexed by `uq_identity_subject`, which starts with it.
     provider_id: Mapped[int] = mapped_column(
-        ForeignKey("identity_providers.id", ondelete="CASCADE"), index=True
+        ForeignKey("identity_providers.id", ondelete="CASCADE")
     )
     #: The ``sub`` claim. Opaque, stable for the life of the account at the
     #: provider, and the only thing here that decides who somebody is.
@@ -187,7 +188,7 @@ class AuthRequest(Base):
     #: Set when this trip is to prove an already signed-in browser again, or to
     #: attach a new identity to it, rather than to sign somebody in.
     user_id: Mapped[int | None] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"), default=None
+        ForeignKey("users.id", ondelete="CASCADE"), default=None, index=True
     )
     #: ``login``, ``link`` or ``reauth`` -- what the callback should do with a
     #: successful assertion. Carried here rather than guessed at from whether a

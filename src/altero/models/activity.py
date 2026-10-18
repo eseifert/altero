@@ -50,7 +50,7 @@ class GroupActivity(Base):
     #: naming a person. Nulled rather than cascaded if the account goes, so the
     #: record of the change survives the departure of whoever made it.
     actor_id: Mapped[int | None] = mapped_column(
-        ForeignKey("users.id", ondelete="SET NULL"), default=None
+        ForeignKey("users.id", ondelete="SET NULL"), default=None, index=True
     )
     kind: Mapped[str] = mapped_column(String(32))
     #: How many objects the request touched. Summed across rows when rendered,

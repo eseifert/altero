@@ -35,9 +35,7 @@ class Timestamped:
 
     date_added: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     date_modified: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
-    server_date_modified: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now(), index=True
-    )
+    server_date_modified: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
 
 #: The most values one statement takes from a list that grows with a library.

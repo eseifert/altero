@@ -59,7 +59,9 @@ class ApiKeyGroupAccess(Base):
     __tablename__ = "api_key_group_access"
 
     api_key_id: Mapped[int] = mapped_column(ForeignKey("api_keys.id"), primary_key=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), primary_key=True)
+    library_id: Mapped[int] = mapped_column(
+        ForeignKey("libraries.id"), primary_key=True, index=True
+    )
     read: Mapped[bool] = mapped_column(default=False)
     write: Mapped[bool] = mapped_column(default=False)
 

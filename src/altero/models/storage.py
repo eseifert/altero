@@ -21,7 +21,7 @@ class StorageUpload(Base):
 
     key: Mapped[str] = mapped_column(String(32), primary_key=True)
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), index=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
 
     md5: Mapped[str] = mapped_column(String(32))
     #: Digest of the archive, when the client zipped the file before sending.
@@ -70,7 +70,7 @@ class StorageDownload(Base):
 
     key: Mapped[str] = mapped_column(String(32), primary_key=True)
     item_id: Mapped[int] = mapped_column(ForeignKey("items.id"), index=True)
-    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"))
+    library_id: Mapped[int] = mapped_column(ForeignKey("libraries.id"), index=True)
 
     #: The digest the redirect promised, in the header the client reads.
     md5: Mapped[str] = mapped_column(String(32))
