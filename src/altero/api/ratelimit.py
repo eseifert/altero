@@ -33,7 +33,7 @@ class RateLimitMiddleware:
             await self.app(scope, receive, send)
             return
 
-        if (wait := self.limiter.check(self._caller(Request(scope)))) is not None:
+        if (wait := self.limiter.check(*self._callers(Request(scope)))) is not None:
             refusal = PlainTextResponse(
                 "Too many requests",
                 status_code=429,
@@ -45,14 +45,20 @@ class RateLimitMiddleware:
 
         await self.app(scope, receive, send)
 
-    @staticmethod
-    def _caller(request: Request) -> str:
+    def _callers(self, request: Request) -> list[str]:
         """Identify who is asking.
 
         The API key when there is one, so two clients of the same person are
         counted apart; otherwise the address, which is all an anonymous
-        publications reader offers.
+        publications reader offers. A key that has not authenticated yet is
+        counted against the address as well -- this runs before anybody is
+        authenticated, and a made-up key per request would otherwise be a fresh
+        allowance per request.
         """
-        if credential := get_credential(request):
-            return f"key:{credential}"
-        return f"host:{request.client.host if request.client else 'unknown'}"
+        host = f"host:{request.client.host if request.client else 'unknown'}"
+        credential = get_credential(request)
+        if not credential:
+            return [host]
+        if self.limiter.vouched(credential):
+            return [f"key:{credential}"]
+        return [f"key:{credential}", host]

@@ -92,6 +92,19 @@ class TestTheLimiter:
 
         assert limiter.tracked() == 1
 
+    def test_the_table_is_not_rebuilt_on_every_request(self) -> None:
+        # Rebuilding it cost milliseconds per request at tens of thousands of
+        # callers, and nothing in it can lapse sooner than a window.
+        clock = FakeClock()
+        limiter = RateLimiter(limit=5, window=60, now=clock)
+        limiter.check("first")
+        table = limiter._windows
+
+        clock.advance(30)
+        limiter.check("second")
+
+        assert limiter._windows is table
+
 
 class FakeClock:
     """A clock the tests move by hand."""
@@ -166,6 +179,16 @@ class TestOverHttp:
         response = await get(limited, "/users/1/items", {"Zotero-API-Key": OTHER_KEY})
 
         assert response.status_code == 200
+
+    async def test_made_up_keys_share_their_addresses_allowance(self, limited: FastAPI) -> None:
+        """The limit applies before anybody is authenticated, so a key nobody
+        issued must not be a fresh allowance per request."""
+        for number in range(2):
+            await get(limited, "/users/1/items", {"Zotero-API-Key": f"{number:024d}"})
+
+        response = await get(limited, "/users/1/items", {"Zotero-API-Key": "9" * 24})
+
+        assert response.status_code == 429
 
     async def test_the_health_probe_is_never_limited(self, limited: FastAPI) -> None:
         # An orchestrator polls it on a fixed interval and would take the

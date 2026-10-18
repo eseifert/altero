@@ -57,9 +57,14 @@ async def get_api_key(request: Request, session: SessionDep) -> auth.Credential 
     :class:`~altero.services.auth.Credential`, so nothing downstream has to know
     which was presented -- see :func:`altero.services.auth.authenticate`.
     """
-    credential = await auth.authenticate(session, get_credential(request))
+    presented = get_credential(request)
+    credential = await auth.authenticate(session, presented)
     if credential is not None:
         await _record_use(request, credential)
+        if presented:
+            # From now on it is counted on its own rather than with every
+            # request from its address; see altero.api.ratelimit.
+            request.app.state.rate_limiter.vouch(presented)
     return credential
 
 

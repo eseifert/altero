@@ -387,7 +387,7 @@ ALTERO_RATE_LIMIT=600 ALTERO_RATE_LIMIT_WINDOW=60 uv run altero
 
 Requests over the limit receive `429` with a whole-second `Retry-After`, which Zotero understands.
 
-Unauthenticated requests are counted per client address. `/health` is never rate limited.
+Unauthenticated requests are counted per client address. So are requests with a key that has not authenticated in the current window, as well as per key: made-up keys share their address's allowance. `/health` is never rate limited.
 
 The limiter is process-local. With several application workers, each process has its own allowance. Use the reverse proxy or another edge component if you need a deployment-wide defensive limit.
 
