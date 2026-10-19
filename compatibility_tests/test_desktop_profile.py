@@ -18,3 +18,16 @@ def test_the_interface_is_english_whatever_the_system_language(tmp_path, monkeyp
 
     preferences = (profile / "user.js").read_text()
     assert re.search(r'^user_pref\("intl\.locale\.requested", "en-US"\);$', preferences, re.M)
+
+
+def test_the_desktop_does_not_update_itself(tmp_path):
+    """A pinned binary must stay the pinned binary for every phase.
+
+    Zotero's defaults set ``app.update.auto``, so a 10.0.5 install downloaded
+    10.0.6 while a scenario ran and replaced itself at the next launch; only
+    the per-phase version check noticed.
+    """
+    profile = prepare_profile(tmp_path / "A", "http://127.0.0.1:1/")
+
+    preferences = (profile / "user.js").read_text()
+    assert re.search(r'^user_pref\("app\.update\.auto", false\);$', preferences, re.M)

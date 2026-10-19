@@ -42,6 +42,8 @@ def prepare_profile(root: Path, server_url: str) -> Path:
         archive.write(BOOTSTRAP.with_name("desktop_reader.js"), "reader.js")
     preferences = {
         "app.update.enabled": False,
+        # Zotero's own default is true, and app.update.enabled no longer stops it.
+        "app.update.auto": False,
         "extensions.update.enabled": False,
         "extensions.zoteroOpenOfficeIntegration.skipInstallation": True,
         "extensions.zoteroWinWordIntegration.skipInstallation": True,

@@ -12,7 +12,13 @@ async function observeAcceptanceReader(operation, libraryID) {
     canvas = window.document.querySelector('.page[data-page-number="1"] canvas');
     if (canvas?.width && canvas.height && window.PDFViewerApplication?.pdfViewer.getPageView(0)?.renderingState === 3
       && await Zotero.Annotations.hasCacheImage(annotation)) break;
-    if (Date.now() > deadline) throw new Error("Reader did not render the page and cache an image annotation");
+    if (Date.now() > deadline) {
+      const view = window.PDFViewerApplication?.pdfViewer.getPageView(0);
+      const state = `canvas ${canvas ? `${canvas.width}x${canvas.height}` : "missing"}, `
+        + `renderingState ${view?.renderingState}, `
+        + `cached image ${await Zotero.Annotations.hasCacheImage(annotation)}`;
+      throw new Error(`Reader did not render the page and cache an image annotation (${state})`);
+    }
     await Zotero.Promise.delay(100);
   }
   const pixels = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
