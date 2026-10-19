@@ -50,6 +50,7 @@ export const LOCALES = [
   'sk',
   'sl',
   'hr',
+  'sr',
   'hu',
   'ro',
   'lt',
@@ -92,7 +93,7 @@ const CATALOGUES = import.meta.glob<Record<string, string>>(
 const loaded = new Set<Locale>(['en-US'])
 
 /* Ends in 1 but not 11; ends in 2-4 but not 12-14; everything else. Russian,
-   Ukrainian and Croatian count alike. */
+   Ukrainian, Croatian and Serbian count alike. */
 function byLastDigits(choice: number, branches: number): number {
   const tens = choice % 10
   const hundreds = choice % 100
@@ -139,10 +140,10 @@ function zeroAsOne(choice: number, branches: number): number {
  * Khmer, Vietnamese, Indonesian, Bengali and Chinese, which inflect nothing,
  * write the one form twice rather than pretend to a distinction; Turkish,
  * Hungarian, Georgian, Basque and Mongolian, which count with the singular, do
- * the same. Polish, Czech, Slovak, Croatian, Russian and Ukrainian have a third
- * form for the small counts, so "2 elementy" and "5 elementów" are different
- * words: their catalogues carry three branches and these rules choose between
- * them. Slovenian has a dual as well, and so four: "1 vnos", "2 vnosa",
+ * the same. Polish, Czech, Slovak, Croatian, Serbian, Russian and Ukrainian
+ * have a third form for the small counts, so "2 elementy" and "5 elementów" are
+ * different words: their catalogues carry three branches and these rules choose
+ * between them. Slovenian has a dual as well, and so four: "1 vnos", "2 vnosa",
  * "3 vnosi", "5 vnosov". Romanian's third form is for twenty and over, which
  * take "de": "19 înregistrări" but "20 de înregistrări". Lithuanian's and
  * Latvian's are for nought, the tens and the teens: "21 įrašas", "22 įrašai",
@@ -172,6 +173,7 @@ export const PLURAL_RULES = {
   bn: zeroAsOne,
   hi: zeroAsOne,
   hr: byLastDigits,
+  sr: byLastDigits,
   ru: byLastDigits,
   uk: byLastDigits,
   lt: baltic,

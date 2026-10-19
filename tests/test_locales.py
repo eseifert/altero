@@ -77,6 +77,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["ru"] == "Русский"
         assert LANGUAGES["sk"] == "Slovenčina"
         assert LANGUAGES["sl"] == "Slovenščina"
+        assert LANGUAGES["sr"] == "Српски"
         assert LANGUAGES["sv"] == "Svenska"
         assert LANGUAGES["ta"] == "தமிழ்"
         assert LANGUAGES["th"] == "ไทย"
@@ -180,6 +181,7 @@ class TestNormalisingALanguage:
             ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
+            ("sr-RS", "sr"),
             ("hr-HR", "hr"),
             ("is-IS", "is"),
             ("nn-NO", "nn"),
