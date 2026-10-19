@@ -166,6 +166,7 @@ describe('formatting a date in each language on offer', () => {
     ['ro', 'aprilie'],
     ['lt', 'balandžio'],
     ['lv', 'aprīlis'],
+    ['et', 'aprill'],
     ['ru', 'апреля'],
     ['uk', 'квітня'],
     ['el', 'Απριλίου'],

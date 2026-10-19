@@ -16,6 +16,7 @@ import el from './el'
 import enGB from './en-GB'
 import en from './en-US'
 import es from './es'
+import et from './et'
 import fi from './fi'
 import fr from './fr'
 import hi from './hi'
@@ -83,6 +84,7 @@ const CATALOGUES = {
   ro,
   lt,
   lv,
+  et,
   ru,
   uk,
   el,

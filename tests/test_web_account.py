@@ -781,6 +781,7 @@ class TestLanguageAndTimeZone:
             "ro",
             "lt",
             "lv",
+            "et",
             "ru",
             "uk",
             "el",

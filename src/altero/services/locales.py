@@ -50,6 +50,7 @@ LANGUAGES: dict[str, str] = {
     "ro": "Română",
     "lt": "Lietuvių",
     "lv": "Latviešu",
+    "et": "Eesti",
     "ru": "Русский",
     "uk": "Українська",
     "el": "Ελληνικά",
