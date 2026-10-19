@@ -47,6 +47,7 @@ describe('the languages on offer', () => {
         'en-GB',
         'de',
         'fr',
+        'br',
         'es',
         'pt-BR',
         'pt-PT',
@@ -127,6 +128,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['br-FR'])).toBe('br')
     expect(resolveLocale(null, ['sr-RS'])).toBe('sr')
     expect(resolveLocale(null, ['hr-HR'])).toBe('hr')
     expect(resolveLocale(null, ['is-IS'])).toBe('is')
@@ -484,6 +486,47 @@ describe('counting in Serbian', () => {
     [111, '111 ставки'],
   ])('renders %i', (count, expected) => {
     expect(items('sr', count)).toBe(expected)
+  })
+})
+
+describe('counting in Breton', () => {
+  /* Five forms, which mutate the noun rather than count it: the few take a
+     spirant, two a soft mutation, and a whole million "a" and the plural. */
+  const ATTACHMENTS =
+    '{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.'
+
+  it.each([
+    [1, 0],
+    [21, 0],
+    [11, 4],
+    [71, 4],
+    [2, 1],
+    [22, 1],
+    [12, 4],
+    [92, 4],
+    [3, 2],
+    [4, 2],
+    [9, 2],
+    [89, 2],
+    [13, 4],
+    [79, 4],
+    [99, 4],
+    [1000000, 3],
+    [0, 4],
+    [5, 4],
+  ])('puts %i in branch %i', (count, branch) => {
+    expect(PLURAL_RULES.br(count, 5)).toBe(branch)
+  })
+
+  it.each([
+    [1, '1 pezh-stag'],
+    [2, '2 bezh-stag'],
+    [3, '3 fezh-stag'],
+    [1000000, '1000000 a bezhioù-stag'],
+    [5, '5 pezh-stag'],
+  ])('renders %i', (count, start) => {
+    i18n.global.locale.value = 'br'
+    expect(i18n.global.t(ATTACHMENTS, count)).toMatch(new RegExp(`^${start} `))
   })
 })
 

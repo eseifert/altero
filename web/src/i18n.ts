@@ -30,6 +30,7 @@ export const LOCALES = [
   'en-GB',
   'de',
   'fr',
+  'br',
   'es',
   'pt-BR',
   'pt-PT',
@@ -145,13 +146,16 @@ function zeroAsOne(choice: number, branches: number): number {
  * different words: their catalogues carry three branches and these rules choose
  * between them. Slovenian has a dual as well, and so four: "1 vnos", "2 vnosa",
  * "3 vnosi", "5 vnosov". Romanian's third form is for twenty and over, which
- * take "de": "19 înregistrări" but "20 de înregistrări". Lithuanian's and
- * Latvian's are for nought, the tens and the teens: "21 įrašas", "22 įrašai",
- * "11 įrašų"; "21 vienums", "22 vienumi", "11 vienumu". Icelandic has the two
- * forms English has, but chooses by the last digit: "21 færsla", "11 færslur".
- * Bengali and Hindi count zero with one rather than with many. A catalogue
- * written with English's two would be wrong on every count from 2 to 4, which
- * is what `locales.node.spec.ts` now checks for.
+ * take "de": "19 înregistrări" but "20 de înregistrări". Breton has five, and
+ * they are about the mutation of the noun rather than its number:
+ * "1 pezh-stag", "2 bezh-stag", "3 fezh-stag", "1000000 a bezhioù-stag",
+ * "5 pezh-stag". Lithuanian's and Latvian's are for nought, the tens and the
+ * teens: "21 įrašas", "22 įrašai", "11 įrašų"; "21 vienums", "22 vienumi",
+ * "11 vienumu". Icelandic has the two forms English has, but chooses by the
+ * last digit: "21 færsla", "11 færslur". Bengali and Hindi count zero with one
+ * rather than with many. A catalogue written with English's two would be wrong
+ * on every count from 2 to 4, which is what `locales.node.spec.ts` now checks
+ * for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
@@ -188,6 +192,17 @@ export const PLURAL_RULES = {
     if (choice === 1) return 0
     if (choice === 0 || (hundreds >= 1 && hundreds <= 19)) return Math.min(1, branches - 1)
     return Math.min(2, branches - 1)
+  },
+  /* CLDR's five: ending in 1; in 2; in 3, 4 or 9 -- none of them in the teens,
+     the seventies or the nineties; a whole number of millions; everything else. */
+  br: (choice: number, branches: number) => {
+    const tens = choice % 10
+    const exempt = [1, 7, 9].includes(Math.floor((choice % 100) / 10))
+    if (tens === 1 && !exempt) return 0
+    if (tens === 2 && !exempt) return Math.min(1, branches - 1)
+    if ([3, 4, 9].includes(tens) && !exempt) return Math.min(2, branches - 1)
+    if (choice !== 0 && choice % 1000000 === 0) return Math.min(3, branches - 1)
+    return Math.min(4, branches - 1)
   },
   /* By the last two digits: 1, 2, 3-4, everything else. */
   sl: (choice: number, branches: number) => {

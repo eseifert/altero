@@ -762,6 +762,7 @@ class TestLanguageAndTimeZone:
             "en-GB",
             "de",
             "fr",
+            "br",
             "es",
             "pt-BR",
             "pt-PT",

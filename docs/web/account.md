@@ -188,16 +188,16 @@ How an operator registers an application, and what a client developer needs:
 
 ### Language and time zone
 
-The interface speaks English, German, French, Spanish, Portuguese, Catalan,
-Basque, Galician, Italian, Dutch, Afrikaans, Danish, Norwegian Bokmål, Norwegian
-Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak, Slovenian,
-Croatian, Serbian, Hungarian, Romanian, Lithuanian, Latvian, Estonian, Russian,
-Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish, Hindi, Bengali,
-Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese, Indonesian, Tagalog
-and Chinese — 50 catalogs, because three of those are written differently in
-different places and are carried twice: American and British English, Brazilian
-and European Portuguese, Simplified and Traditional Chinese. They are the same
-three Zotero splits.
+The interface speaks English, German, French, Breton, Spanish, Portuguese,
+Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Danish, Norwegian Bokmål,
+Norwegian Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak,
+Slovenian, Croatian, Serbian, Hungarian, Romanian, Lithuanian, Latvian,
+Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish,
+Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese,
+Indonesian, Tagalog and Chinese — 51 catalogs, because three of those are
+written differently in different places and are carried twice: American and
+British English, Brazilian and European Portuguese, Simplified and Traditional
+Chinese. They are the same three Zotero splits.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
 and both default to following the browser — which is a setting in itself, not

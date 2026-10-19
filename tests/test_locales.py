@@ -49,6 +49,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["af"] == "Afrikaans"
         assert LANGUAGES["bg"] == "Български"
         assert LANGUAGES["bn"] == "বাংলা"
+        assert LANGUAGES["br"] == "Brezhoneg"
         assert LANGUAGES["ca"] == "Català"
         assert LANGUAGES["cs"] == "Čeština"
         assert LANGUAGES["de"] == "Deutsch"
@@ -181,6 +182,7 @@ class TestNormalisingALanguage:
             ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
+            ("br-FR", "br"),
             ("sr-RS", "sr"),
             ("hr-HR", "hr"),
             ("is-IS", "is"),
