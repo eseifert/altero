@@ -66,6 +66,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["sl"] == "Slovenščina"
         assert LANGUAGES["sv"] == "Svenska"
         assert LANGUAGES["ta"] == "தமிழ்"
+        assert LANGUAGES["th"] == "ไทย"
         assert LANGUAGES["tr"] == "Türkçe"
         assert LANGUAGES["uk"] == "Українська"
         assert LANGUAGES["vi"] == "Tiếng Việt"
@@ -165,6 +166,7 @@ class TestNormalisingALanguage:
             ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
+            ("th-TH", "th"),
         ],
     )
     def test_a_language_carried_once_drops_its_territory(self, tag: str, expected: str) -> None:

@@ -57,6 +57,7 @@ LANGUAGES: dict[str, str] = {
     "ta": "தமிழ்",
     "ja": "日本語",
     "ko": "한국어",
+    "th": "ไทย",
     "vi": "Tiếng Việt",
     "id": "Bahasa Indonesia",
     "zh-CN": "简体中文",

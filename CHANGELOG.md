@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface is translated into Thai, 32 languages in all.
+
 ## [1.0.0-beta.3] — 2026-10-19
 
 This version is mostly about speed: large libraries sync, search, import and
