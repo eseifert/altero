@@ -42,6 +42,7 @@ LANGUAGES: dict[str, str] = {
     "af": "Afrikaans",
     "da": "Dansk",
     "nb": "Norsk bokmål",
+    "nn": "Norsk nynorsk",
     "sv": "Svenska",
     "fi": "Suomi",
     "pl": "Polski",
@@ -82,8 +83,8 @@ LANGUAGES: dict[str, str] = {
 #:
 #: `no` and `fil` are the exceptions, a language rather than a territory left
 #: open. `no` is Norwegian without naming a written standard, and goes to
-#: Bokmål, which most Norwegians write; Nynorsk (`nn`) has no catalogue and is
-#: not sent there. `fil` is Filipino, the standardised Tagalog that browsers
+#: Bokmål, which most Norwegians write; Nynorsk (`nn`) has a catalogue of its
+#: own and is not sent there. `fil` is Filipino, the standardised Tagalog that browsers
 #: in the Philippines report, and reads the Tagalog catalogue.
 DEFAULT_VARIANTS: dict[str, str] = {
     "en": "en-US",

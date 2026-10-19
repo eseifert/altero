@@ -41,6 +41,7 @@ export const LOCALES = [
   'af',
   'da',
   'nb',
+  'nn',
   'sv',
   'fi',
   'pl',

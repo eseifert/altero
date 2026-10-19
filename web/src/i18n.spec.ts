@@ -58,6 +58,7 @@ describe('the languages on offer', () => {
         'af',
         'da',
         'nb',
+        'nn',
         'sv',
         'fi',
         'pl',
@@ -123,6 +124,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['nn-NO'])).toBe('nn')
     expect(resolveLocale(null, ['bg-BG'])).toBe('bg')
     expect(resolveLocale(null, ['mn-MN'])).toBe('mn')
     expect(resolveLocale(null, ['gl-ES'])).toBe('gl')
@@ -151,10 +153,10 @@ describe('the languages on offer', () => {
     expect(matchLocale('zh')).toBe('zh-CN')
   })
 
-  it('reads Norwegian naming no written standard as Bokmål, and Nynorsk as neither', () => {
+  it('reads Norwegian naming no written standard as Bokmål, and Nynorsk as Nynorsk', () => {
     expect(matchLocale('no')).toBe('nb')
     expect(matchLocale('no-NO')).toBe('nb')
-    expect(matchLocale('nn-NO')).toBeNull()
+    expect(matchLocale('nn-NO')).toBe('nn')
   })
 
   it('reads Filipino as Tagalog', () => {
@@ -202,6 +204,8 @@ describe('counting in a language with two forms', () => {
     ['mn', 5, '5 зүйл'],
     ['bg', 1, '1 запис'],
     ['bg', 5, '5 записа'],
+    ['nn', 1, '1 element'],
+    ['nn', 5, '5 element'],
     ['ml', 1, '1 ഇനം'],
     ['ml', 5, '5 ഇനങ്ങൾ'],
     ['tl', 1, '1 item'],

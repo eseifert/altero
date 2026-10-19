@@ -773,6 +773,7 @@ class TestLanguageAndTimeZone:
             "af",
             "da",
             "nb",
+            "nn",
             "sv",
             "fi",
             "pl",

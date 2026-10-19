@@ -38,6 +38,7 @@ import ml from './ml'
 import mn from './mn'
 import nb from './nb'
 import nl from './nl'
+import nn from './nn'
 import pl from './pl'
 import ptBR from './pt-BR'
 import ptPT from './pt-PT'
@@ -80,6 +81,7 @@ const CATALOGUES = {
   af,
   da,
   nb,
+  nn,
   sv,
   fi,
   pl,

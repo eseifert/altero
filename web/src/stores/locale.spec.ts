@@ -158,6 +158,7 @@ describe('formatting a date in each language on offer', () => {
     ['af', 'April'],
     ['da', 'april'],
     ['nb', 'april'],
+    ['nn', 'april'],
     ['sv', 'april'],
     ['fi', 'huhtikuuta'],
     ['pl', 'kwietnia'],

@@ -69,6 +69,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["ml"] == "മലയാളം"
         assert LANGUAGES["mn"] == "Монгол"
         assert LANGUAGES["nb"] == "Norsk bokmål"
+        assert LANGUAGES["nn"] == "Norsk nynorsk"
         assert LANGUAGES["pl"] == "Polski"
         assert LANGUAGES["ro"] == "Română"
         assert LANGUAGES["ru"] == "Русский"
@@ -177,6 +178,7 @@ class TestNormalisingALanguage:
             ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
+            ("nn-NO", "nn"),
             ("bg-BG", "bg"),
             ("mn-MN", "mn"),
             ("gl-ES", "gl"),
@@ -230,8 +232,7 @@ class TestNormalisingALanguage:
         assert normalise_language(tag) == "tl"
 
     def test_nynorsk_is_not_taken_for_bokmal(self) -> None:
-        with pytest.raises(InvalidInputError, match="Unsupported language"):
-            normalise_language("nn-NO")
+        assert normalise_language("nn-NO") == "nn"
 
     @pytest.mark.parametrize(
         ("tag", "expected"),
