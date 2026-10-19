@@ -76,7 +76,7 @@ def _require_extensions() -> None:
                 op.execute(f"CREATE EXTENSION IF NOT EXISTS {extension}")
         except DBAPIError as refused:
             # The driver's own exception, without the adapter's class name.
-            reason = refused.orig.__cause__ or refused.orig
+            reason = getattr(refused.orig, "__cause__", None) or refused.orig or refused
             raise RuntimeError(
                 f"altero needs the PostgreSQL extension {extension} for full-text "
                 f"search and could not create it:\n\n{reason}\n\n"
