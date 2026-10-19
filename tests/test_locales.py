@@ -59,6 +59,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["km"] == "ខ្មែរ"
         assert LANGUAGES["ko"] == "한국어"
         assert LANGUAGES["lt"] == "Lietuvių"
+        assert LANGUAGES["lv"] == "Latviešu"
         assert LANGUAGES["ml"] == "മലയാളം"
         assert LANGUAGES["nb"] == "Norsk bokmål"
         assert LANGUAGES["pl"] == "Polski"
@@ -169,6 +170,7 @@ class TestNormalisingALanguage:
             ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
+            ("lv-LV", "lv"),
             ("tl-PH", "tl"),
             ("ml-IN", "ml"),
             ("km-KH", "km"),

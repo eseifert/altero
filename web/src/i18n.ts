@@ -46,6 +46,7 @@ export const LOCALES = [
   'hu',
   'ro',
   'lt',
+  'lv',
   'ru',
   'uk',
   'el',
@@ -100,6 +101,18 @@ function czechSlovak(choice: number, branches: number): number {
   return Math.min(2, branches - 1)
 }
 
+/* Ends in 1 and ends in 2-9, neither in 11-19; everything else, which is
+   nought, the tens and the teens. Lithuanian and Latvian count alike, CLDR's
+   Latvian "zero" being Lithuanian's "many". */
+function baltic(choice: number, branches: number): number {
+  const tens = choice % 10
+  const hundreds = choice % 100
+  const teen = hundreds >= 11 && hundreds <= 19
+  if (tens === 1 && !teen) return 0
+  if (tens >= 2 && !teen) return Math.min(1, branches - 1)
+  return Math.min(2, branches - 1)
+}
+
 /* Zero and one; everything else. Bengali and Hindi count nothing as they count
    one, where English counts it as many. */
 function zeroAsOne(choice: number, branches: number): number {
@@ -120,11 +133,12 @@ function zeroAsOne(choice: number, branches: number): number {
  * their catalogues carry three branches and these rules choose between them.
  * Slovenian has a dual as well, and so four: "1 vnos", "2 vnosa", "3 vnosi",
  * "5 vnosov". Romanian's third form is for twenty and over, which take "de":
- * "19 înregistrări" but "20 de înregistrări". Lithuanian's is for nought, the
- * tens and the teens: "21 įrašas", "22 įrašai", "11 įrašų". Bengali and Hindi
- * count zero with one rather than with many. A catalogue written with English's
- * two would be wrong on every count from 2 to 4, which is what
- * `locales.node.spec.ts` now checks for.
+ * "19 înregistrări" but "20 de înregistrări". Lithuanian's and Latvian's are
+ * for nought, the tens and the teens: "21 įrašas", "22 įrašai", "11 įrašų";
+ * "21 vienums", "22 vienumi", "11 vienumu". Bengali and Hindi count zero with
+ * one rather than with many. A catalogue written with English's two would be
+ * wrong on every count from 2 to 4, which is what `locales.node.spec.ts` now
+ * checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
@@ -147,15 +161,8 @@ export const PLURAL_RULES = {
   hi: zeroAsOne,
   ru: eastSlavic,
   uk: eastSlavic,
-  /* Ends in 1 and ends in 2-9, neither in 11-19; everything else. */
-  lt: (choice: number, branches: number) => {
-    const tens = choice % 10
-    const hundreds = choice % 100
-    const teen = hundreds >= 11 && hundreds <= 19
-    if (tens === 1 && !teen) return 0
-    if (tens >= 2 && !teen) return Math.min(1, branches - 1)
-    return Math.min(2, branches - 1)
-  },
+  lt: baltic,
+  lv: baltic,
   /* Exactly one; nought and anything ending in 1-19; everything else, which
      takes "de". */
   ro: (choice: number, branches: number) => {

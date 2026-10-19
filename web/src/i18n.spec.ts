@@ -63,6 +63,7 @@ describe('the languages on offer', () => {
         'hu',
         'ro',
         'lt',
+        'lv',
         'ru',
         'uk',
         'el',
@@ -115,6 +116,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['lv-LV'])).toBe('lv')
     expect(resolveLocale(null, ['tl-PH'])).toBe('tl')
     expect(resolveLocale(null, ['ml-IN'])).toBe('ml')
     expect(resolveLocale(null, ['km-KH'])).toBe('km')
@@ -318,6 +320,26 @@ describe('counting in Lithuanian', () => {
     [111, '111 įrašų'],
   ])('renders %i', (count, expected) => {
     expect(items('lt', count)).toBe(expected)
+  })
+})
+
+describe('counting in Latvian', () => {
+  /* Lithuanian's three categories under other names: nought, the tens and the
+     teens take the genitive. */
+  it.each([
+    [1, '1 vienums'],
+    [2, '2 vienumi'],
+    [9, '9 vienumi'],
+    [10, '10 vienumu'],
+    [0, '0 vienumu'],
+    [11, '11 vienumu'],
+    [19, '19 vienumu'],
+    [21, '21 vienums'],
+    [22, '22 vienumi'],
+    [101, '101 vienums'],
+    [111, '111 vienumu'],
+  ])('renders %i', (count, expected) => {
+    expect(items('lv', count)).toBe(expected)
   })
 })
 
