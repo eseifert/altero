@@ -71,6 +71,7 @@ describe('the languages on offer', () => {
         'et',
         'ru',
         'uk',
+        'bg',
         'el',
         'ka',
         'mn',
@@ -122,6 +123,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['bg-BG'])).toBe('bg')
     expect(resolveLocale(null, ['mn-MN'])).toBe('mn')
     expect(resolveLocale(null, ['gl-ES'])).toBe('gl')
     expect(resolveLocale(null, ['eu-ES'])).toBe('eu')
@@ -198,6 +200,8 @@ describe('counting in a language with two forms', () => {
     ['gl', 5, '5 elementos'],
     ['mn', 1, '1 зүйл'],
     ['mn', 5, '5 зүйл'],
+    ['bg', 1, '1 запис'],
+    ['bg', 5, '5 записа'],
     ['ml', 1, '1 ഇനം'],
     ['ml', 5, '5 ഇനങ്ങൾ'],
     ['tl', 1, '1 item'],

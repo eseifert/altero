@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import af from './af'
+import bg from './bg'
 import bn from './bn'
 import ca from './ca'
 import cs from './cs'
@@ -92,6 +93,7 @@ const CATALOGUES = {
   et,
   ru,
   uk,
+  bg,
   el,
   ka,
   mn,

@@ -786,6 +786,7 @@ class TestLanguageAndTimeZone:
             "et",
             "ru",
             "uk",
+            "bg",
             "el",
             "ka",
             "mn",
