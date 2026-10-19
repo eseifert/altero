@@ -1,7 +1,7 @@
 # The revision and complete file hashes must be reviewed together on an update.
 [zotero]
 repository = "https://github.com/zotero/zotero"
-revision = "ca61760225d25191d0c65acbfd0c4f12a172d263"
+revision = "536244c2771f590abab9c09a3c27e615e0b318ff"
 
 [discovery]
 client_globs = [

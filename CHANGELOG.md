@@ -33,6 +33,7 @@ search index once, about a minute per 30,000 attachments with text; check the
 - Sorting items by the server's modification date works; it used to sort by item key.
 - Compressed uploads are capped at 128 MiB, and made-up API keys share their address's rate limit.
 - Administrators can size the database connection pool ([configuration][config]).
+- Compatibility checks follow Zotero 10.0.6, whose changes since 10.0.5 leave syncing with altero unaffected.
 
 ## [1.0.0-beta.2] — 2026-10-03
 

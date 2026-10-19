@@ -1,5 +1,5 @@
 {
-  "revision": "ca61760225d25191d0c65acbfd0c4f12a172d263",
+  "revision": "536244c2771f590abab9c09a3c27e615e0b318ff",
   "consumers": {
     "chrome/content/zotero/actors/translation/http.js::this.request": {
       "sha256": "de12ec4a2c843ccd82fefacf508e8c55746f65a510c6b2729ec30b0c258c2170",
@@ -42,22 +42,22 @@
       "reason": "Debug report submission uses REPOSITORY_URL."
     },
     "chrome/content/zotero/xpcom/attachments.js::this.importFromDocument": {
-      "sha256": "85b642a134d2088b7654681573d4b6c763716bb37be393f0e039ed34828788d2",
+      "sha256": "1eb05d8745d04beea15c446ca12f7cb7ef5eca79e3b346dde79f693fb3cc6de9",
       "status": "external",
       "reason": "Attachment discovery downloads original publisher/resolver URLs; ZFS transfer is separately inventoried."
     },
     "chrome/content/zotero/xpcom/attachments.js::this.downloadFile": {
-      "sha256": "497b2a4b6ab1dddf18968e86da80fcaba8efa6bb6c4dfa41830caa2640fd4e0b",
+      "sha256": "5b79226af3783e2987ef13323096f6cdbbdebbcb51df5c253ea8c2a422a0978b",
       "status": "external",
       "reason": "Attachment discovery downloads original publisher/resolver URLs; ZFS transfer is separately inventoried."
     },
     "chrome/content/zotero/xpcom/attachments.js::this.getFileResolvers": {
-      "sha256": "b8f38815a2c8d0c8cf6a4c7523a84c6e09b24c7ca4a584be9429ff129411ce03",
+      "sha256": "86de87f2fcdd600c48a7dfb7d42ea15aa22c1c6a80498e49bce2bdc3fc11cc12",
       "status": "external",
       "reason": "Attachment discovery downloads original publisher/resolver URLs; ZFS transfer is separately inventoried."
     },
     "chrome/content/zotero/xpcom/attachments.js::this.downloadFirstAvailableFile": {
-      "sha256": "fa40f9c04997310a09407ff693f8216c3df6d61ebaff85478df77de2ba7be095",
+      "sha256": "2bace9293e37f76cf66a4bb366b558e59888af65a450d22ff37cbe0f23e24b46",
       "status": "external",
       "reason": "Attachment discovery downloads original publisher/resolver URLs; ZFS transfer is separately inventoried."
     },
@@ -122,42 +122,42 @@
       "reason": "Full-text extraction fetches a local file URI."
     },
     "chrome/content/zotero/xpcom/http.js::this._requestInternal": {
-      "sha256": "2cace321a40156016eb03de99b3db01521dcdbf9264977c6707deba255ae8a1f",
+      "sha256": "4869ff0c20106bbb069e1f84e18f666dd481ba6a1883f9eca27fea4fe712b232",
       "status": "transport",
       "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
     },
     "chrome/content/zotero/xpcom/http.js::_downloadInternal": {
-      "sha256": "89314c1b0173535e814847e55065f17c589f3731e5322855f05410a5f518dcbc",
+      "sha256": "ef853bbb0e3d3c95ddd8fcfbcd16bcdc2cbd372cd0251bac1fab43a1ec261cce",
       "status": "transport",
       "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
     },
     "chrome/content/zotero/xpcom/http.js::this.doGet": {
-      "sha256": "0b1c099c5cc9caf2c8e915103d9d91c558c2d20e187306077cb6cedbefe71e4a",
+      "sha256": "391595f729509749d711eba8d57b94c5199561f40bf50a20f341b1ab58684c07",
       "status": "transport",
       "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
     },
     "chrome/content/zotero/xpcom/http.js::this.doPost": {
-      "sha256": "8db6d272122b70af65c621a84e86b4d2e082348c5b569532ca32a347ecd9117c",
+      "sha256": "a171dfdc9a5743b89b1208f0fc8c1b28fc3617c331098edfa01ba85030dfdc6a",
       "status": "transport",
       "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
     },
     "chrome/content/zotero/xpcom/http.js::this.doHead": {
-      "sha256": "4dcf63159393539d5c7a603f7d6e10e6bb89df5a2447909585f00b10d73f5bd5",
+      "sha256": "e37134ee00e4d70f8fec51a7c9d7ad9dc8f410fde8c0d61404464215d03aa22f",
       "status": "transport",
       "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
     },
     "chrome/content/zotero/xpcom/http.js::this.doOptions": {
-      "sha256": "26ed497665f053779cb3840704bd91685e54e2d0e78aeb034de2248ff3ab54ee",
+      "sha256": "9222d9adebcc375586a3b59f4cfb4ecabede793c8ff15428e3af3bff7084e5b6",
       "status": "transport",
       "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
     },
     "chrome/content/zotero/xpcom/http.js::this.triggerProxyAuth": {
-      "sha256": "3776fad6a8dfa3f76c65b08b71ae3d4d013475497f42d85be828ad19f870a51c",
+      "sha256": "cd3a3d1e1aa86d2376f57db313c18c6984698da2245e6a85f7ca910391585b92",
       "status": "transport",
       "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
     },
     "chrome/content/zotero/xpcom/http.js::this.processDocuments": {
-      "sha256": "9a4e7eb4ddcb491feb7b4ebc0aae794a6cd2a2573340394e6030e140cb090703",
+      "sha256": "d30d47eb27caee059588fe05edabc52a84e458e7a40bf55e72aa5a6f67c2fa6a",
       "status": "transport",
       "reason": "General HTTP/file/resource transport accepts caller-supplied URLs; does not define a library endpoint."
     },
@@ -514,12 +514,12 @@
       ]
     },
     "chrome/content/zotero/xpcom/utilities_internal.js::getOpenAccessPDFURLs": {
-      "sha256": "a1f9b967899f035f16088d3dd8e5ab19a48da282ea233b2900cbf0604fe26f16",
+      "sha256": "9ea5d69caa77620825ebe4dfffedfd0e8190441b4242c4002930fbe13d58e2bd",
       "status": "external",
       "reason": "Open-access discovery uses SERVICES_URL; OpenURL resolver listing uses zotero.org/support."
     },
     "chrome/content/zotero/xpcom/utilities_internal.js::getResolvers": {
-      "sha256": "23f66edbe24ba324591dc5c141fd649e732e62b0bd54cdde93ebd09dc75df5d1",
+      "sha256": "1e1070616906b71b1189241b23106c11e95e5a0d3fbea5a38f7bd0421ee6e7ae",
       "status": "external",
       "reason": "Open-access discovery uses SERVICES_URL; OpenURL resolver listing uses zotero.org/support."
     },

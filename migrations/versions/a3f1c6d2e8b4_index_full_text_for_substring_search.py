@@ -75,13 +75,15 @@ def _require_extensions() -> None:
             with op.get_context().autocommit_block():
                 op.execute(f"CREATE EXTENSION IF NOT EXISTS {extension}")
         except DBAPIError as refused:
+            # The driver's own exception, without the adapter's class name.
+            reason = refused.orig.__cause__ or refused.orig
             raise RuntimeError(
                 f"altero needs the PostgreSQL extension {extension} for full-text "
-                f"search, and could not create it ({refused.orig}). Run "
-                f"'CREATE EXTENSION {extension};' in altero's database as its owner "
-                "or a superuser, then migrate again. On PostgreSQL 12 and older it "
-                "needs a superuser; some distributions ship it in a separate contrib "
-                "package."
+                f"search and could not create it:\n\n{reason}\n\n"
+                f"As the database's owner or a superuser, run 'CREATE EXTENSION "
+                f"{extension};' in altero's database, then migrate again. On "
+                "PostgreSQL 12 and older it needs a superuser; some distributions "
+                "ship it in a separate contrib package."
             ) from None
 
 
