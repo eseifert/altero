@@ -38,7 +38,13 @@ function watchAcceptanceDialogs(rules) {
             const dialog = window.document.querySelector("dialog");
             const button = ["accept", "cancel", "extra1", "extra2"].map(name => dialog.getButton(name))
               .find(button => button && !button.hidden && button.label === rule.button);
-            if (!button) throw new Error(`Missing prompt button ${rule.button}`);
+            if (!button) {
+              const seen = ["accept", "cancel", "extra1", "extra2"].map(name => {
+                const candidate = dialog.getButton(name);
+                return candidate ? `${name}=${JSON.stringify(candidate.label)}${candidate.hidden ? " (hidden)" : ""}` : `${name}=none`;
+              });
+              throw new Error(`Missing prompt button ${rule.button}; found ${seen.join(", ")}`);
+            }
             // Gecko starts the destructive-button delay only in an active window.
             window.focus();
             const started = Date.now();

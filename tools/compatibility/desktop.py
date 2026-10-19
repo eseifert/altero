@@ -47,6 +47,8 @@ def prepare_profile(root: Path, server_url: str) -> Path:
         "extensions.zoteroWinWordIntegration.skipInstallation": True,
         "extensions.zoteroMacWordIntegration.skipInstallation": True,
         "extensions.autoDisableScopes": 0,
+        # Dialog rules match English labels; otherwise the system's locale wins.
+        "intl.locale.requested": "en-US",
         "extensions.zotero.dataDir": str(data.resolve()),
         "extensions.zotero.useDataDir": True,
         "extensions.zotero.api.url": server_url.rstrip("/") + "/",
