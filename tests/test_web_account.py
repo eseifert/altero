@@ -789,6 +789,7 @@ class TestLanguageAndTimeZone:
             "ja",
             "ko",
             "th",
+            "km",
             "vi",
             "id",
             "zh-CN",

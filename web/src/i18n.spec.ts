@@ -74,6 +74,7 @@ describe('the languages on offer', () => {
         'ja',
         'ko',
         'th',
+        'km',
         'vi',
         'id',
         'zh-CN',
@@ -112,6 +113,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['km-KH'])).toBe('km')
     expect(resolveLocale(null, ['th-TH'])).toBe('th')
   })
 
@@ -174,6 +176,12 @@ describe('counting in Korean', () => {
 describe('counting in Thai', () => {
   it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
     expect(items('th', count)).toBe(`${count} รายการ`)
+  })
+})
+
+describe('counting in Khmer', () => {
+  it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
+    expect(items('km', count)).toBe(`ឯកសារ ${count}`)
   })
 })
 

@@ -24,6 +24,7 @@ import id from './id'
 import italian from './it'
 import ja from './ja'
 import ka from './ka'
+import km from './km'
 import ko from './ko'
 import lt from './lt'
 import nb from './nb'
@@ -85,6 +86,7 @@ const CATALOGUES = {
   ja,
   ko,
   th,
+  km,
   vi,
   id,
   'zh-CN': zhCN,
