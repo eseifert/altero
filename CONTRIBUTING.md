@@ -203,7 +203,7 @@ which point this goes away.
 |---------------------------------|-------------------------------|-----------------------------------|
 | master                          | `dev`                         | only until a release is published |
 | `v1.0.0`, `v1.2.3`              | `1.0`, `1.2`                  | yes                               |
-| `v1.0.0-beta.2`, `v1.0.0-rc.1`  | `1.0.0-beta.2`, `1.0.0-rc.1`  | no                                |
+| `v1.0.0-beta.3`, `v1.0.0-rc.1`  | `1.0.0-beta.3`, `1.0.0-rc.1`  | no                                |
 
 A patch release replaces the pages it corrects rather than adding a version
 nobody has a reason to choose between, so `v1.2.3` publishes as `1.2`. `latest`
@@ -224,10 +224,10 @@ the copies cost nothing.
 
 ## Preparing a release
 
-The release version is **1.0.0-beta.2**, with tag `v1.0.0-beta.2`.
+The release version is **1.0.0-beta.3**, with tag `v1.0.0-beta.3`.
 
-1. Set the package version in `src/altero/__init__.py` (`1.0.0b2` in PEP 440).
-   Set the matching SemVer version (`1.0.0-beta.2`) in `web/package.json` and
+1. Set the package version in `src/altero/__init__.py` (`1.0.0b3` in PEP 440).
+   Set the matching SemVer version (`1.0.0-beta.3`) in `web/package.json` and
    both the top-level and root-package entries of `web/package-lock.json`.
    `pyproject.toml` reads the Python version dynamically; `uv.lock` carries no
    project version to change. Keep the development-status classifier in
@@ -241,7 +241,7 @@ The release version is **1.0.0-beta.2**, with tag `v1.0.0-beta.2`.
    a disposable test database, never an existing library database.
 
    ```sh
-   uv run python tools/release.py --tag v1.0.0-beta.2
+   uv run python tools/release.py --tag v1.0.0-beta.3
    uv run ruff format --check .
    uv run ruff check .
    uv run ty check
@@ -252,7 +252,7 @@ The release version is **1.0.0-beta.2**, with tag `v1.0.0-beta.2`.
    npm --prefix web run build
    release_artifacts=$(mktemp -d /tmp/altero-release.XXXXXX)
    uv build --out-dir "$release_artifacts"
-   uv run python tools/release.py --tag v1.0.0-beta.2 --artifacts "$release_artifacts"
+   uv run python tools/release.py --tag v1.0.0-beta.3 --artifacts "$release_artifacts"
    ```
 
    Install the docs group for Zensical and put Node 24 on PATH for the web
@@ -283,12 +283,12 @@ The release version is **1.0.0-beta.2**, with tag `v1.0.0-beta.2`.
 
    ```sh
    git push origin master
-   git tag -a v1.0.0-beta.2 -m "altero 1.0.0-beta.2"
-   git push origin v1.0.0-beta.2
+   git tag -a v1.0.0-beta.3 -m "altero 1.0.0-beta.3"
+   git push origin v1.0.0-beta.3
    ```
 
-The tag publishes multi-architecture container images under `1.0.0-beta.2` and
-`latest`, and documentation under `https://altero.run/1.0.0-beta.2/`. Prerelease
+The tag publishes multi-architecture container images under `1.0.0-beta.3` and
+`latest`, and documentation under `https://altero.run/1.0.0-beta.3/`. Prerelease
 documentation does not take the docs site's `latest` alias; that policy is
 separate from the image's `latest` tag. A tag does not create a GitHub Release
 or upload Python packages. If creating a GitHub Release, mark it as a prerelease
@@ -301,34 +301,40 @@ The web CI job builds both Python artifacts after building the interface and
 checks their actual contents, including rebuilding the wheel through the source
 archive.
 
-### Beta.2 validation
+### Beta.3 validation
 
-Local release checks on 2026-10-03 passed:
+Local release checks on 2026-10-19 passed:
 
-- The full Python suite: 2,718 tests, no skips, including concurrency checks
+- The full Python suite: 2,896 tests, no skips, including concurrency checks
   against a fresh disposable PostgreSQL database.
 - The optional desktop source-replay suite: 321 tests, no skips, against the
-  pinned Zotero 10.0.5 source with Node 24.19.0.
-- The web interface: 838 tests, types and production build with Node 24.19.0;
-  installed dependency versions matched the lockfile.
-- Pinned Zotero and dataserver source verification, plus the network-consumer
-  review gate: 324 files, 88 consumers, no parse errors or stale reviews.
+  pinned Zotero 10.0.6 source with Node 24.19.0.
+- The web interface: 1,036 tests, types and production build with Node
+  24.19.0; installed dependency versions matched the lockfile.
+- Pinned Zotero and dataserver source verification (30 client functions), plus
+  the network-consumer review gate: 324 files, 88 consumers, no parse errors or
+  stale reviews. Fourteen consumers whose source changed in 10.0.6 were
+  reviewed and keep their dispositions.
 - Ruff formatting/lint, Ty, the locked dependency check and strict documentation
   build.
-- Fresh SQLite and PostgreSQL migrations, with no schema drift. Beta.2 adds no
-  migration beyond beta.1.
-- The wheel built through the source archive: all 329 browser files survived,
+- Upgrades from beta.2: databases created and filled by beta.2 were upgraded
+  on SQLite and on PostgreSQL with a non-superuser owner, keeping every object
+  version, setting, full text and deletion record, and finding stored text
+  through the new index. A role that does not own its database is refused with
+  instructions, and completes once a superuser has created the extensions.
+- The wheel built through the source archive: all 517 browser files survived,
   unrelated workspace files were excluded, and real HTTP served `/health`,
   `/app/`, the index's assets and a font from the extracted wheel. Authenticated
-  API reads and writes also passed, and health reported `1.0.0b2`.
+  API reads and writes also passed, and health reported `1.0.0b3`.
 
 The [recorded desktop matrix](docs/client-compatibility.md#successfully-tested-matrix)
-has 47 SQLite/PostgreSQL combinations and 594 phases with Zotero 10.0.5 on Linux.
-Release preparation rechecked retained report and snapshot hashes for 43
-combinations and 532 phases; four earlier PostgreSQL results survive only in the
-summary because their original temporary report is no longer available. Actual
-desktop scenarios were not rerun during release preparation. Remote CI and
-multi-architecture image publication must still be checked after pushing.
+has 52 SQLite/PostgreSQL combinations and 670 phases with Zotero 10.0.6 on Linux,
+run against the release candidate. `reader-rendering` failed on both databases
+because pdf.js stalls on the release machine since its graphics stack was
+updated; the same scenario fails there with 10.0.5 and beta.2, the combination
+that passed on 2026-10-03. Remote CI, including the desktop job's reader
+scenario, and multi-architecture image publication must still be checked after
+pushing.
 
 ## Before opening a pull request
 

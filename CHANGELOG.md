@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-beta.3] — 2026-10-19
+
 This version is mostly about speed: large libraries sync, search, import and
 export much faster, and the browser interface starts sooner. Upgrading builds a
 search index once, about a minute per 30,000 attachments with text; check the
@@ -198,6 +200,7 @@ The first release meant to be used by somebody other than its author.
 [desktop-matrix]: docs/client-compatibility.md#successfully-tested-matrix
 [db-req]: docs/deployment.md#database-requirements
 [config]: docs/configuration.md
+[1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3
 [1.0.0-beta.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.2
 [1.0.0-beta.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.1
 [1.0.0-alpha.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-alpha.3
