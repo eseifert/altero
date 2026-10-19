@@ -171,6 +171,7 @@ describe('formatting a date in each language on offer', () => {
     ['hi', 'अप्रैल'],
     ['bn', 'এপ্রিল'],
     ['ta', 'ஏப்ரல்'],
+    ['ml', 'ഏപ്രിൽ'],
     ['ja', '4月'],
     ['ko', '4월'],
     ['th', 'เมษายน'],

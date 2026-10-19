@@ -54,6 +54,7 @@ export const LOCALES = [
   'hi',
   'bn',
   'ta',
+  'ml',
   'ja',
   'ko',
   'th',
@@ -109,20 +110,20 @@ function zeroAsOne(choice: number, branches: number): number {
  *
  * English separates one from many and every catalogue followed, because that is
  * what German, French, Spanish, Portuguese, Danish, Norwegian, Swedish,
- * Finnish, Dutch, Italian, Greek and Tamil do too -- and Japanese, Korean,
- * Thai, Khmer, Vietnamese, Indonesian, Bengali and Chinese, which inflect
- * nothing, write the one form twice rather than pretend to a distinction; Turkish, Hungarian and
- * Georgian, which count with the singular, do the same. Polish, Czech, Slovak,
- * Russian and Ukrainian have a third form for the small counts, so "2 elementy"
- * and "5 elementów" are different words: their catalogues carry three branches
- * and these rules choose between them. Slovenian has a dual as well, and so
- * four: "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". Romanian's third form is
- * for twenty and over, which take "de": "19 înregistrări" but
- * "20 de înregistrări". Lithuanian's is for nought, the tens and the teens:
- * "21 įrašas", "22 įrašai", "11 įrašų". Bengali and Hindi count zero with one
- * rather than with many. A catalogue written with English's two would be wrong
- * on every count from 2 to 4, which is what `locales.node.spec.ts` now checks
- * for.
+ * Finnish, Dutch, Italian, Greek, Tamil and Malayalam do too -- and Japanese,
+ * Korean, Thai, Khmer, Vietnamese, Indonesian, Bengali and Chinese, which
+ * inflect nothing, write the one form twice rather than pretend to a
+ * distinction; Turkish, Hungarian and Georgian, which count with the singular,
+ * do the same. Polish, Czech, Slovak, Russian and Ukrainian have a third form
+ * for the small counts, so "2 elementy" and "5 elementów" are different words:
+ * their catalogues carry three branches and these rules choose between them.
+ * Slovenian has a dual as well, and so four: "1 vnos", "2 vnosa", "3 vnosi",
+ * "5 vnosov". Romanian's third form is for twenty and over, which take "de":
+ * "19 înregistrări" but "20 de înregistrări". Lithuanian's is for nought, the
+ * tens and the teens: "21 įrašas", "22 įrašai", "11 įrašų". Bengali and Hindi
+ * count zero with one rather than with many. A catalogue written with English's
+ * two would be wrong on every count from 2 to 4, which is what
+ * `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three

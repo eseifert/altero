@@ -786,6 +786,7 @@ class TestLanguageAndTimeZone:
             "hi",
             "bn",
             "ta",
+            "ml",
             "ja",
             "ko",
             "th",

@@ -71,6 +71,7 @@ describe('the languages on offer', () => {
         'hi',
         'bn',
         'ta',
+        'ml',
         'ja',
         'ko',
         'th',
@@ -113,6 +114,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['ml-IN'])).toBe('ml')
     expect(resolveLocale(null, ['km-KH'])).toBe('km')
     expect(resolveLocale(null, ['th-TH'])).toBe('th')
   })
@@ -162,6 +164,8 @@ describe('counting in a language with two forms', () => {
     ['el', 5, '5 στοιχεία'],
     ['ta', 1, '1 உருப்படி'],
     ['ta', 5, '5 உருப்படிகள்'],
+    ['ml', 1, '1 ഇനം'],
+    ['ml', 5, '5 ഇനങ്ങൾ'],
   ])('%s renders %i', (locale, count, expected) => {
     expect(items(locale, count)).toBe(expected)
   })

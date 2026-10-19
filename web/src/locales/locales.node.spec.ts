@@ -27,6 +27,7 @@ import ka from './ka'
 import km from './km'
 import ko from './ko'
 import lt from './lt'
+import ml from './ml'
 import nb from './nb'
 import nl from './nl'
 import pl from './pl'
@@ -83,6 +84,7 @@ const CATALOGUES = {
   hi,
   bn,
   ta,
+  ml,
   ja,
   ko,
   th,
