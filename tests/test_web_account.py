@@ -788,6 +788,7 @@ class TestLanguageAndTimeZone:
             "uk",
             "el",
             "ka",
+            "mn",
             "tr",
             "hi",
             "bn",

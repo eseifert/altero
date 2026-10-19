@@ -34,6 +34,7 @@ import ko from './ko'
 import lt from './lt'
 import lv from './lv'
 import ml from './ml'
+import mn from './mn'
 import nb from './nb'
 import nl from './nl'
 import pl from './pl'
@@ -93,6 +94,7 @@ const CATALOGUES = {
   uk,
   el,
   ka,
+  mn,
   tr,
   hi,
   bn,
