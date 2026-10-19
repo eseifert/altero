@@ -255,7 +255,7 @@ jobs:
           curl --fail --location --proto '=https' --tlsv1.2 \
             --output .compatibility/desktop.tar "$DESKTOP_URL"
           printf '%s  %s\n' "$DESKTOP_SHA256" .compatibility/desktop.tar | sha256sum --check --strict
-          # Detect compression from the archive: Zotero 10.0.5 uses XZ.
+          # Detect compression from the archive: Zotero 10.0.6 uses XZ.
           tar -xf .compatibility/desktop.tar -C .compatibility
 
       - name: Run real data, file and schema convergence

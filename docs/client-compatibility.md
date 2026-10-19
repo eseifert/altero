@@ -111,7 +111,7 @@ removed consumer, parse error or new consumer fails the review gate:
 
 ```sh
 .venv/bin/python -m tools.compatibility interactions \
-  --zotero-source .compatibility/zotero-10.0.5 --check \
+  --zotero-source .compatibility/zotero-10.0.6 --check \
   --output .compatibility/interactions.json --markdown .compatibility/interactions.md
 ```
 
@@ -258,8 +258,8 @@ consumers now have explicit manifest selectors as well as live scenario tests.
 
 The real desktop CI job runs nightly and on manual dispatch. Its official Linux
 archive, SHA-256 and version are pinned in `tools/compatibility/desktop.toml`.
-The 10.0.5 archive was downloaded through Zotero's official download endpoint
-and its application metadata inspected on 2026-10-02. CI checks the archive hash
+The 10.0.6 archive was downloaded through Zotero's official download endpoint
+and its application metadata inspected on 2026-10-19. CI checks the archive hash
 and running version, runs under Xvfb, and uploads snapshots, logs and desktop
 databases even on failure. A successful download is not a successful acceptance
 run; the test matrix below records runs separately. The GitHub jobs themselves
@@ -358,15 +358,15 @@ automatic sync, streaming, updates and word-processor installation, and leaves
 sync logic intact. `run_phase` applies explicit operations through Zotero's
 item APIs, runs the real sync runner, exports a JSON snapshot and exits. Each
 phase enforces the requested application version and a timeout, and preserves
-the desktop log on failure. The verified Zotero 10.0.5 binary and the Node
-replay source both use the 10.0.5 release; archive and source hashes are
+the desktop log on failure. The verified Zotero 10.0.6 binary and the Node
+replay source both use the 10.0.6 release; archive and source hashes are
 independent pins.
 
 
 ```sh
 uv run python -m tools.compatibility acceptance \
-  --desktop-executable /path/to/Zotero_linux-x86_64/zotero --desktop-version 10.0.5 \
-  --xvfb --schema-corpus --state-dir .compatibility/desktop-10.0.5
+  --desktop-executable /path/to/Zotero_linux-x86_64/zotero --desktop-version 10.0.6 \
+  --xvfb --schema-corpus --state-dir .compatibility/desktop-10.0.6
 ```
 
 This requires an installed Zotero binary and Xvfb (or omit `--xvfb` to use an
@@ -385,7 +385,7 @@ are retained on success and failure for inspection; drop those generated
 databases explicitly when finished. Desktop profiles and files remain under
 the new state directory. Without the flag the server uses SQLite there.
 
-The 15-phase baseline passed again with Zotero 10.0.5: parent/note/file download,
+The 15-phase baseline passes with Zotero 10.0.6: parent/note/file download,
 collection filing, persisted attachment bytes, disjoint offline edits and
 convergence, trash/restore propagation, deletion of parent and children, and
 all 40 schema types serialized by desktop A and downloaded into desktop B.
@@ -398,7 +398,7 @@ leave the library watermark unchanged. Unexpected or missing dialogs fail the
 phase; prompt/reconciliation methods are never replaced.
 
 The conflict scenario also covers an offline edit against a remote deletion.
-Zotero 10.0.5's
+Zotero 10.0.6's
 local choice for the deletion conflict retains the old object version, so the
 server's correct 404 triggers full sync and a repeated prompt. Cancelling that
 prompt must preserve the pending edit. Choosing local on the next sync lets
@@ -450,7 +450,7 @@ Zotero 10.0.1 bug: choosing Remote can keep and upload the local bytes.
 `Zotero.Sync.Storage.Local.resolveConflicts` identifies the selected side by its
 date instead of a side identifier, so either choice matches the local side.
 This was reproduced with 10.0.1; the equal-date failure has not been rerun
-with 10.0.5. The passing 10.0.5 scenario uses distinct displayed dates to
+with a later release. The passing 10.0.6 scenario uses distinct displayed dates to
 verify both working choices.
 A multi-file HTML snapshot also checks that ZIP transfer restores its HTML
 and CSS on disk.
@@ -504,7 +504,7 @@ actual desktop reconnect timing and UI scheduling are not exercised.
 
 ## Additional desktop scenarios
 
-Each scenario uses two actual 10.0.5 profiles, original desktop operations,
+Each scenario uses two actual 10.0.6 profiles, original desktop operations,
 real HTTP, persistent databases and files. Unexpected sync errors fail the run.
 The final settled sync checks convergence and an unchanged server watermark.
 
@@ -561,18 +561,10 @@ browser sign-in UI. Archive recovery follows the documented surviving-client
 procedure; it does not claim that raising a watermark rewinds synced desktops
 to an older archive.
 
-The three additional scenarios above passed against the verified Zotero 10.0.5
-archive with SQLite on 2026-10-03 (19, 12 and 22 phases respectively).
-Their preserved reports are under `.compatibility/implementation-limits-1`,
-`implementation-limits-2` and `implementation-transient-5`. The first limits run
-passed graph races and failed the initial credential assertion; the corrected
-credential scenario passed in its separate run. All three also passed on
-PostgreSQL in `implementation-postgres-1`. Login expiry and personal-library
-read scope do not cover every credential transition.
-
-Streaming reconnect passed against Zotero 10.0.5 with SQLite on 2026-10-03,
-with a measured 2013 ms delay and notification-driven synchronization
-(`implementation-streaming-1`, six phases). Four further scenarios cover the
+All of the scenarios above pass with Zotero 10.0.6 on SQLite and PostgreSQL.
+Login expiry and personal-library read scope do not cover every credential
+transition. Streaming reconnect observes the original reconnect delay and
+notification-driven synchronization. Four further scenarios cover the
 remaining declared transitions:
 
 | Scenario | Assertions |
@@ -582,14 +574,14 @@ remaining declared transitions:
 | `zipped-digest-race` | Hold two actual uploads independently; prove their main-file digests match while ZIP digests differ; overwrite the stored archive before the second registration, observe the expected storage failure and recover complete files and unpacked auxiliary resources. |
 | `backup-rewind` | Restore an older archive after both profiles synced newer objects; show that an increased library watermark preserves newer desktop copies while the server remains older; explicitly restore the surviving authoritative desktop and converge. |
 
-These scenarios passed locally with SQLite (7, 12, 13 and 10 phases). The
+`parent-rejection`, `zipped-digest-race` and `backup-rewind` pass with Zotero
+10.0.6 on both databases; `reader-rendering` currently fails on the release
+machine for a reason outside altero, described under the matrix. The
 automatic rewind entry is explicitly unsupported: an increased library counter
 cannot make older object versions replace already synced desktop caches. The
 separate recovery scenario proves the supported procedure. No inventory count
 certifies every interaction; additional platforms, credential combinations,
 reader formats and arbitrary failure schedules still need separate evidence.
-Streaming and all four further scenarios also passed on PostgreSQL in
-`implementation-postgres-1`, with the same phase counts as SQLite.
 
 The convergence oracle compares `lastRead` numerically: the desktop persists an
 integer and the API serves text. Setting values and finished queues must agree,
@@ -623,18 +615,18 @@ a catalogue entry and is normally unset.
 
 <!-- desktop-matrix -->
 
-Zotero 10.0.5 Linux x86-64; actual desktop profiles.
+Zotero 10.0.6 Linux x86-64; actual desktop profiles.
 
 | Scenario | SQLite | PostgreSQL |
 |---|---|---|
-| `baseline` | Not run | Passed (15 phases) |
-| `conflicts` | Not run | Passed (21 phases) |
-| `filing` | Not run | Passed (7 phases) |
-| `groups` | Not run | Passed (19 phases) |
-| `files` | Not run | Passed (20 phases) |
-| `relationships` | Not run | Passed (6 phases) |
+| `baseline` | Passed (15 phases) | Passed (15 phases) |
+| `conflicts` | Passed (21 phases) | Passed (21 phases) |
+| `filing` | Passed (7 phases) | Passed (7 phases) |
+| `groups` | Passed (19 phases) | Passed (19 phases) |
+| `files` | Passed (20 phases) | Passed (20 phases) |
+| `relationships` | Passed (6 phases) | Passed (6 phases) |
 | `recovery` | Passed (16 phases) | Passed (16 phases) |
-| `credentials` | Not run | Passed (12 phases) |
+| `credentials` | Passed (12 phases) | Passed (12 phases) |
 | `fulltext` | Passed (9 phases) | Passed (9 phases) |
 | `read-races` | Passed (24 phases) | Passed (24 phases) |
 | `settings` | Passed (11 phases) | Passed (11 phases) |
@@ -649,7 +641,7 @@ Zotero 10.0.5 Linux x86-64; actual desktop profiles.
 | `transient-errors` | Passed (22 phases) | Passed (22 phases) |
 | `streaming-reconnect` | Passed (6 phases) | Passed (6 phases) |
 | `parent-rejection` | Passed (7 phases) | Passed (7 phases) |
-| `reader-rendering` | Passed (12 phases) | Passed (12 phases) |
+| `reader-rendering` | Failed | Failed |
 | `zipped-digest-race` | Passed (13 phases) | Passed (13 phases) |
 | `backup-rewind` | Passed (10 phases) | Passed (10 phases) |
 | `graph-races` | Passed (19 phases) | Passed (19 phases) |
@@ -657,27 +649,36 @@ Zotero 10.0.5 Linux x86-64; actual desktop profiles.
 
 <!-- /desktop-matrix -->
 
-Results above are local executions with the pinned Linux x86-64 Zotero 10.0.5
-archive on 2026-10-02 and 2026-10-03. PostgreSQL uses the existing 18.4 container,
-with a fresh database per scenario. **Not run** means there is no successful result recorded
-for that combination; executable inventory entries and scheduled CI jobs do
-not count as passes. A successful scenario in a run that later failed is
-reported independently.
+Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
+archive on 2026-10-19, against the code prepared for 1.0.0-beta.3. PostgreSQL
+uses the existing 18.4 container, with a fresh database per scenario.
+**Not run** means there is no successful result recorded for that combination;
+executable inventory entries and scheduled CI jobs do not count as passes. A
+successful scenario in a run that later failed is reported independently: the
+last four scenarios ran separately after `reader-rendering` stopped the full run.
+
+`reader-rendering` failed on both databases for a reason outside altero. pdf.js
+starts rendering the page and never finishes, so no canvas or cached annotation
+image appears. The failing phase opens a PDF that desktop A attached itself,
+with sync off, so the server is not involved. Zotero 10.0.5 against the beta.2
+server — the combination that passed this scenario on 2026-10-03 — now fails the
+same way on the same machine, whose X server, Mesa and LLVM were updated on
+2026-10-08. Forcing software rendering or disabling Firefox's sandboxes changes
+nothing. The scenario has not passed with 10.0.6 yet; the desktop CI job runs it
+on GitHub's runners.
 
 The machine-readable evidence summary is
-[`compatibility-10.0.5.json`](assets/compatibility-10.0.5.json). It records
+[`compatibility-10.0.6.json`](assets/compatibility-10.0.6.json). It records
 phase counts and SHA-256 hashes of each report and its phase snapshots. Retained
 reports, profiles, files and failed attempts live in ignored local run
-directories or `/tmp`. During beta.2 preparation, report and snapshot hashes
-were rechecked for 43 combinations and 532 phases. The original temporary
-report for PostgreSQL `baseline`, `conflicts`, `filing` and `groups` is no longer
-available; those four results (62 phases) remain historical records in the
-summary and were not rerun. Regenerate a matrix from retained reports with:
+directories. Regenerate the matrix from them with:
 
 ```sh
-uv run python -m tools.compatibility matrix --desktop-version 10.0.5 \
-  --report .compatibility/desktop-10.0.5/acceptance.json \
-  --report .compatibility/desktop-10.0.5-postgres/acceptance.json \
+uv run python -m tools.compatibility matrix --desktop-version 10.0.6 \
+  --report .compatibility/desktop-10.0.6-2/acceptance.json \
+  --report .compatibility/desktop-10.0.6-rest/acceptance.json \
+  --report .compatibility/desktop-10.0.6-postgres-2/acceptance.json \
+  --report .compatibility/desktop-10.0.6-postgres-rest/acceptance.json \
   --output .compatibility/results.json --markdown .compatibility/matrix.md
 ```
 
@@ -687,25 +688,16 @@ or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.
 
-The matrix records 47 successful database/scenario combinations and 594
-actual desktop phases. All 27 scenarios passed on PostgreSQL; 20 also passed
-on SQLite. The baseline includes all 40 schema types. The eight additions
-described above passed 101 phases per database. The broad compatibility run
-passed 310 tests with no skips and six longer protocol replays deselected;
-those six replays passed separately with the pinned 10.0.5 sources. Subsequent
-focused checks passed all 106 generation/validity tests and the live unequal-ZIP
-regression. Node was 26.3.0 locally (CI uses Node 24). All seven mutation
-canaries passed intact and were detected by assertion.
+The matrix records 52 successful database/scenario combinations and 670
+actual desktop phases: 26 of the 27 scenarios pass on both databases. The
+baseline includes all 40 schema types. The source-replay suite passes 321 tests
+with no skips against the pinned 10.0.6 sources, with Node 24.19.0, and the
+network-consumer review gate passes with no stale or unreviewed consumers.
 
-The setting regressions and architecture checks passed 250 tests. Removing the
-setting fix made both recreation regressions fail before it was restored.
-The added item/file regressions and architecture checks also passed. Two
-production regressions first failed against the old implementation: omitted note
-content on partial writes, and competing unequal ZIP registrations deleting the
-intact archive. Removing the ZIP fix made its live HTTP regression fail again.
-Beta.2 preparation reran the full backend suite (2,718 tests, including
-PostgreSQL concurrency), the pinned source-replay suite (321 tests) and web
-tests (838), with no skips. Formatting, lint, types and the strict docs build
-also passed. The PHP dataserver and browser sign-in UI were not executed.
-The desktop evidence is Linux-only; exhaustive credential combinations,
-reader formats and failure schedules remain unverified.
+Two harness defects surfaced while moving to 10.0.6 and are fixed: profiles
+followed the machine's language, so a German system showed prompts the dialog
+rules could not find, and Zotero's automatic update could replace a pinned
+binary between phases. Profiles now request English and turn automatic updates
+off. The PHP dataserver and browser sign-in UI were not executed. The desktop
+evidence is Linux-only; exhaustive credential combinations, reader formats and
+failure schedules remain unverified.

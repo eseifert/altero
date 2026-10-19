@@ -346,7 +346,7 @@ Only the read-only state maps cleanly onto a permission the Zotero sync client u
 
 
 The desktop compatibility runner's `resync` scenario repeats this recovery
-with Zotero 10.0.5, including restoring an older archive before raising the
+with Zotero 10.0.6, including restoring an older archive before raising the
 counter and uploading the surviving desktop's authoritative copy. Raising the
 library counter alone does not rewind existing desktop objects to older object
 versions. See [the desktop scenarios](client-compatibility.md#additional-desktop-scenarios).
