@@ -1,0 +1,3866 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A self-hosted synchronization server for Zotero">
+      
+      
+        <meta name="author" content="Erich Seifert">
+      
+      
+        <link rel="canonical" href="https://altero.run/1.0.0-beta.3/compatibility/">
+      
+      
+        <link rel="prev" href="../status/">
+      
+      
+        <link rel="next" href="../schema/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="zensical-0.0.57">
+    
+    
+      
+        <title>Compatibility reference - altero</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5da3a30f.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.812a03bb.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#compatibility-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="./.." title="altero" class="md-header__button md-logo" aria-label="altero" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            altero
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Compatibility reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun-moon" viewBox="0 0 24 24"><path d="M12 2v2M14.837 16.385a6 6 0 1 1-7.223-7.222c.624-.147.97.66.715 1.248a4 4 0 0 0 5.26 5.259c.589-.255 1.396.09 1.248.715M16 12a4 4 0 0 0-4-4M19 5l-1.256 1.256M20 12h2"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-moon" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
+  <button type="button" class="md-search__button">
+    Search
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/eseifert/altero" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    eseifert/altero
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="./.." class="md-tabs__link">
+          
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+  Get started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../web-interface/" class="md-tabs__link">
+          
+  
+  Using altero
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../deployment/" class="md-tabs__link">
+          
+  
+  Running altero
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../status/" class="md-tabs__link">
+          
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../client-compatibility/" class="md-tabs__link">
+          
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="./.." title="altero" class="md-nav__button md-logo" aria-label="altero" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-book-open" viewBox="0 0 24 24"><path d="M12 5v16M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>
+
+    </a>
+    altero
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/eseifert/altero" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    eseifert/altero
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="./.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Overview
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Overview
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../motivation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Why altero exists
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Get started
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Get started
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Getting started
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting a Zotero client
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Using altero
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Using altero
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web-interface/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  The web interface
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/account/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Accounts and personal settings
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/library/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Browsing and organizing a library
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/sharing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Publishing and sharing
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/groups/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Groups, invitations and activity
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/data-transfer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Moving, importing and exporting data
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Running altero
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Running altero
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Deployment
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Configuration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../administration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Administration
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../oauth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Connecting other applications
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../email/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Email
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Reference
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Reference
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  What works
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Compatibility reference
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Compatibility reference
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-this-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        How to use this reference
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-queries-and-response-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        API queries and response behavior
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API queries and response behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omitted-note-content-in-partial-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Omitted note content in partial writes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#racing-zip-archives-of-different-sizes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Racing ZIP archives of different sizes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Search syntax
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-search-and-full-text-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Quick search and full-text search
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#who-added-an-item-and-who-last-changed-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Who added an item, and who last changed it
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Who added an item, and who last changed it">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sorting-by-a-person" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sorting by a person
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pagination-of-the-sync-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Pagination of the sync formats
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming-objects-by-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Naming objects by key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Parameter handling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-shapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Response shapes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields-the-published-schema-does-not-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fields the published schema does not list
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timestamps" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Timestamps
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#citations-and-bibliographies" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Citations and bibliographies
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#item-type-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Item type schema
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-and-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Files and synchronization
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files and synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-file-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The file protocol
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The file protocol">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#downloading-is-a-redirect-and-has-to-be" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Downloading is a redirect, and has to be
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Downloading is a redirect, and has to be">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-location-has-to-be-a-credential" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The location has to be a credential
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telling-an-archive-from-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Telling an archive from a file
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-and-client-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Authentication and client login
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication and client login">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#obtaining-a-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Obtaining a key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-credential-that-gave-up-notes-or-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A credential that gave up notes or files
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-the-desktop-client-actually-sends" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What the desktop client actually sends
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-streaming-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The streaming API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atom" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Atom
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        API versions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-relations-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The <code>relations</code> map
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backoff-and-retry-after" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Backoff and Retry-After
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#libraries-groups-and-altero-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Libraries, groups and altero extensions
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Libraries, groups and altero extensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#my-publications" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        My Publications
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="My Publications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#who-may-read-my-publications" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Who may read My Publications
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profile-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Profile pages
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publishing-from-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Publishing from the browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trashing-a-collection-or-a-saved-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Trashing a collection or a saved search
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inpublications" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>inPublications</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-posted-batch-is-a-batch-of-patches" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A POSTed batch is a batch of patches
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#objects-that-were-sent-again-without-changing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Objects that were sent again without changing
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Groups
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Groups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#who-the-client-finds-in-a-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Who the client finds in a group
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finer-roles-for-one-member" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Finer roles for one member
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Finer roles for one member">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-library-version-two-representations" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        One library version, two representations
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-and-own-surface-as-sync-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>add</code> and <code>own</code> surface as sync errors
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-a-permission-is-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Where a permission is set
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#renaming-a-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Renaming a tag
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-desktop-clients-three-extra-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The desktop client's three extra views
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-a-library-out-of-zoteroorg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Reading a library out of zotero.org
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-authorization-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The authorization server
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The authorization server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-second-credential-for-the-v3-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A second credential for the v3 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confining-a-grant-to-particular-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Confining a grant to particular resources
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signing-id-tokens-while-still-not-verifying-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Signing ID tokens while still not verifying them
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-dynamic-client-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        No dynamic client registration
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pkce-is-required-and-s256-is-the-only-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        PKCE is required, and <code>S256</code> is the only method
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scopes-are-refused-rather-than-narrowed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Scopes are refused rather than narrowed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity-provider-security-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Identity-provider security notes
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identity-provider security notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#not-verifying-the-id-tokens-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Not verifying the ID token's signature
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-a-saml-assertion-out-of-what-was-signed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Reading a SAML assertion out of what was signed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deliberate-differences-from-zoteroorg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deliberate differences from zotero.org
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deliberate differences from zotero.org">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deliberate-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deliberate differences
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Database schema
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Contributing
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Contributing
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../client-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Checking desktop compatibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing-two-clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Syncing two desktop clients
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  The design system
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../web/implementation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Web interface implementation notes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Development guide
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-this-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        How to use this reference
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-queries-and-response-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        API queries and response behavior
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API queries and response behavior">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omitted-note-content-in-partial-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Omitted note content in partial writes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#racing-zip-archives-of-different-sizes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Racing ZIP archives of different sizes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#search-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Search syntax
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quick-search-and-full-text-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Quick search and full-text search
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#who-added-an-item-and-who-last-changed-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Who added an item, and who last changed it
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Who added an item, and who last changed it">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sorting-by-a-person" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sorting by a person
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pagination-of-the-sync-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Pagination of the sync formats
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming-objects-by-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Naming objects by key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Parameter handling
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#response-shapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Response shapes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields-the-published-schema-does-not-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Fields the published schema does not list
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timestamps" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Timestamps
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#citations-and-bibliographies" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Citations and bibliographies
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#item-type-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Item type schema
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-and-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Files and synchronization
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Files and synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-file-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The file protocol
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The file protocol">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#downloading-is-a-redirect-and-has-to-be" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Downloading is a redirect, and has to be
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Downloading is a redirect, and has to be">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-location-has-to-be-a-credential" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The location has to be a credential
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#telling-an-archive-from-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Telling an archive from a file
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication-and-client-login" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Authentication and client login
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication and client login">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#obtaining-a-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Obtaining a key
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-credential-that-gave-up-notes-or-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A credential that gave up notes or files
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-the-desktop-client-actually-sends" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What the desktop client actually sends
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-streaming-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The streaming API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#atom" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Atom
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        API versions
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-relations-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The <code>relations</code> map
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backoff-and-retry-after" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Backoff and Retry-After
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#libraries-groups-and-altero-extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Libraries, groups and altero extensions
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Libraries, groups and altero extensions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#my-publications" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        My Publications
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="My Publications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#who-may-read-my-publications" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Who may read My Publications
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#profile-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Profile pages
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#publishing-from-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Publishing from the browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#trashing-a-collection-or-a-saved-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Trashing a collection or a saved search
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inpublications" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>inPublications</code>
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-posted-batch-is-a-batch-of-patches" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A POSTed batch is a batch of patches
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#objects-that-were-sent-again-without-changing" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Objects that were sent again without changing
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#groups" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Groups
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Groups">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#who-the-client-finds-in-a-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Who the client finds in a group
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finer-roles-for-one-member" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Finer roles for one member
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Finer roles for one member">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-library-version-two-representations" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        One library version, two representations
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-and-own-surface-as-sync-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        <code>add</code> and <code>own</code> surface as sync errors
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-a-permission-is-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Where a permission is set
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#renaming-a-tag" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Renaming a tag
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-desktop-clients-three-extra-views" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The desktop client's three extra views
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-a-library-out-of-zoteroorg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Reading a library out of zotero.org
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-authorization-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The authorization server
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The authorization server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-second-credential-for-the-v3-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        A second credential for the v3 API
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confining-a-grant-to-particular-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Confining a grant to particular resources
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signing-id-tokens-while-still-not-verifying-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Signing ID tokens while still not verifying them
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-dynamic-client-registration" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        No dynamic client registration
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pkce-is-required-and-s256-is-the-only-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        PKCE is required, and <code>S256</code> is the only method
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scopes-are-refused-rather-than-narrowed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Scopes are refused rather than narrowed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#identity-provider-security-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Identity-provider security notes
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Identity-provider security notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#not-verifying-the-id-tokens-signature" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Not verifying the ID token's signature
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-a-saml-assertion-out-of-what-was-signed" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Reading a SAML assertion out of what was signed
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deliberate-differences-from-zoteroorg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deliberate differences from zotero.org
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deliberate differences from zotero.org">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deliberate-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deliberate differences
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+    <a href="https://github.com/eseifert/altero/edit/master/docs/compatibility.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-pen" viewBox="0 0 24 24"><path d="M12.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v9.34"/><path d="M14 2v5a1 1 0 0 0 1 1h5M10.378 12.622a1 1 0 0 1 3 3.003L8.36 20.637a2 2 0 0 1-.854.506l-2.867.837a.5.5 0 0 1-.62-.62l.836-2.869a2 2 0 0 1 .506-.853z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="compatibility-reference">Compatibility reference<a class="headerlink" href="#compatibility-reference" title="Permanent link">&para;</a></h1>
+<p>This page records how altero behaves where the published Zotero API documentation is silent, vague or wrong, and where altero deliberately does something different.</p>
+<h2 id="how-to-use-this-reference">How to use this reference<a class="headerlink" href="#how-to-use-this-reference" title="Permanent link">&para;</a></h2>
+<p>altero is built for the unmodified Zotero desktop application. One rule decides every disagreement:</p>
+<blockquote>
+<p>When the published documentation and what the real client needs disagree, the real client wins.</p>
+</blockquote>
+<p>The evidence comes from three places, in this order:</p>
+<ul>
+<li>the live API at <code>https://api.zotero.org</code>, compared response by response;</li>
+<li>the source of the official <a href="https://github.com/zotero/dataserver">dataserver</a>; and</li>
+<li>real Zotero clients and libraries, where the first two say nothing.</li>
+</ul>
+<p>Each section says what altero does and why. The later sections cover features zotero.org does not have, such as finer group roles, renaming tags and the authorization server, and record the decisions behind them.</p>
+<h2 id="api-queries-and-response-behavior">API queries and response behavior<a class="headerlink" href="#api-queries-and-response-behavior" title="Permanent link">&para;</a></h2>
+<h3 id="omitted-note-content-in-partial-writes">Omitted note content in partial writes<a class="headerlink" href="#omitted-note-content-in-partial-writes" title="Permanent link">&para;</a></h3>
+<p>A partial write that leaves out <code>note</code> keeps the existing note text, for notes and attachments alike. Sending <code>note: ""</code> clears it. A full replacement (<code>PUT</code>) still replaces everything. This matches the dataserver, which only touches the note when the property is present.</p>
+<h3 id="racing-zip-archives-of-different-sizes">Racing ZIP archives of different sizes<a class="headerlink" href="#racing-zip-archives-of-different-sizes" title="Permanent link">&para;</a></h3>
+<p>When the client uploads a web snapshot, <code>md5</code> describes the file inside the archive and <code>zipMD5</code> the archive itself. Two clients zipping the same snapshot produce archives of different sizes with the same <code>md5</code>.</p>
+<p>If a registration does not match the archive already stored, altero refuses it but keeps the stored archive, even when it is smaller, because another upload or attachment may already depend on it. Truncated files and ZIPs with broken checksums are still removed.</p>
+<h3 id="search-syntax">Search syntax<a class="headerlink" href="#search-syntax" title="Permanent link">&para;</a></h3>
+<p>The <code>itemType</code> and <code>tag</code> parameters behave differently from what the documentation suggests, in two ways that change results.</p>
+<p><strong>Negation covers the whole value.</strong> <code>itemType=-book || journalArticle</code> excludes <em>both</em> types; it does not mean "not a book, or a journal article". This was confirmed by counting against a real library of 442 items: <code>itemType=attachment || note</code> matched 134 and <code>itemType=-attachment || note</code> returned exactly 308.</p>
+<p><strong><code>||</code> only separates when there is whitespace on both sides.</strong> <code>tag=a||b</code> is one tag literally named <code>a||b</code>, and so is <code>tag=a ||b</code>. This lets a tag containing <code>||</code> round-trip. Every documented example uses the spaced form, so clients are unaffected.</p>
+<p>A leading hyphen is escaped as <code>\-</code>. Only the whole value is trimmed, once, so inner spacing in <code>tag=foo bar || bar</code> survives.</p>
+<h3 id="quick-search-and-full-text-search">Quick search and full-text search<a class="headerlink" href="#quick-search-and-full-text-search" title="Permanent link">&para;</a></h3>
+<p><code>q</code> follows its own rules.</p>
+<p><strong>Words are combined with AND, fields with OR.</strong> Each word must appear somewhere in the title, a note's title, a creator's name or the year. <code>q=call me</code> needs both words, not the phrase; <code>q="call me"</code> needs the phrase. Single quotes never group words.</p>
+<p><strong><code>q=0</code> matches everything.</strong> The dataserver drops an unquoted <code>0</code> before searching, so a query of just <code>0</code> filters nothing. <code>q="0"</code> searches for it. Copied rather than corrected.</p>
+<p><strong><code>qmode=everything</code> also searches attachments' text.</strong> The matching item is the attachment itself, not the item it belongs to.</p>
+<p>zotero.org answers this from Elasticsearch. altero does not run a search cluster — that is exactly the kind of dependency <a href="../motivation/">Motivation</a> rules out — so it matches the stored text as a substring, using a trigram index in the database (see <a href="../deployment/#database-requirements">Database requirements</a>). Three differences follow:</p>
+<ul>
+<li><strong>Characters, not words.</strong> zotero.org matches whole words, with the last one as a prefix. altero matches characters, which cuts both ways: <code>q=equod</code> finds <em>Pequod</em>, which zotero.org would not, but <code>q="Pequod sailed"</code> does not find <em>Pequod, sailed</em>, which zotero.org would. Neither server stems, so <code>q=sailing</code> finds <em>sailed</em> on neither.</li>
+</ul>
+<p><strong>Accents are not folded, and Chinese and Japanese text matches as a phrase.</strong> <code>q=cafe</code> does not find <em>café</em>, here or on zotero.org. Zotero 9 made the <em>desktop's</em> own search ignore accents, but that is its local copy; the API is accent-sensitive on both servers. <code>量子計算</code> needs those four characters in a row, which is the behavior the desktop had to be fixed to produce. What zotero.org's analyzer does is taken from Elasticsearch's documented defaults, not observed.</p>
+<p><strong>Case is ignored in attachments' text on every database</strong>, including non-ASCII letters: <code>über</code> finds <code>ÜBER</code>. In the other fields on SQLite, only ASCII case is ignored unless SQLite was built with ICU, so <code>Übung</code> may or may not find <code>übung</code> in a title. Do not rely on either answer.</p>
+<p>A search term shorter than three characters cannot use the index and reads every text, which is slower. <code>%</code> and <code>_</code> act as wildcards, in the text as in the fields: <code>q=col_ur</code> finds <em>colour</em>. zotero.org has no wildcards.
+- <strong>No 300-result cap.</strong> zotero.org asks Elasticsearch for 300 hits and silently drops the rest. altero returns every match: the limit is an accident of how zotero.org fetches hits, not part of what the API means.
+- <strong>More fields are searched.</strong> zotero.org searches the title, creators, year and attachment text. altero searches every field, so a match on <code>publisher</code> is found here only. This is a superset, so no client breaks on it.</p>
+<p><strong><code>/top</code> answers with the parent of whatever matched.</strong> When a search can match a child item — through <code>q</code>, <code>tag</code>, <code>itemKey</code> or <code>itemType</code> — a hit in an attachment's text or a child note's title returns the top-level item it belongs to. Otherwise full-text hits would never appear in the top-level list clients actually show.</p>
+<p>Two consequences, both copied from zotero.org:</p>
+<ul>
+<li>All words must match the same item. A word in the parent's title plus a word in its attachment's text is not a match.</li>
+<li><code>since</code> does not climb to the parent. Syncing clients send it, and reporting a parent whose own version did not change would be wrong.</li>
+</ul>
+<p>Neither the matched item nor the parent it resolves to may be in the trash, so a hit inside a trashed item's PDF does not bring it back.</p>
+<h3 id="who-added-an-item-and-who-last-changed-it">Who added an item, and who last changed it<a class="headerlink" href="#who-added-an-item-and-who-last-changed-it" title="Permanent link">&para;</a></h3>
+<p>In group libraries, an item's <code>meta</code> names who created it and who last changed it. Both behaviors below are copied, including the parts that look like oversights.</p>
+<ul>
+<li><strong>Group libraries only.</strong> <code>createdByUser</code> and <code>lastModifiedByUser</code> never appear in a personal library, where there is only one person.</li>
+<li><strong><code>lastModifiedByUser</code> is left out when it is the same person as <code>createdByUser</code>.</strong> The common case — somebody adds an item and then fixes its title — shows one name, not the same name twice.</li>
+<li><strong>The name shown</strong> is the person's real name, or their username when they have none.</li>
+<li><strong>No <code>alternate</code> link</strong> to a profile on zotero.org — see <a href="#deliberate-differences">Deliberate differences</a>.</li>
+<li><strong>A deleted account breaks nothing.</strong> The block is simply left out.</li>
+</ul>
+<h4 id="sorting-by-a-person">Sorting by a person<a class="headerlink" href="#sorting-by-a-person" title="Permanent link">&para;</a></h4>
+<p><strong><code>sort=addedBy</code> orders by the author's displayed name.</strong> Where nobody is recorded — any personal library, and group items written before authorship was recorded — it sorts by <code>dateAdded</code> instead of failing.</p>
+<p>The sort <em>direction</em> still follows the sort's name: anything starting with <code>date</code> defaults to descending, everything else to ascending. So <code>sort=addedBy</code> ascends even when it falls back to <code>dateAdded</code>, while <code>sort=dateAdded</code> descends. This is zotero.org's behavior.</p>
+<p><strong><code>sort=editedBy</code> is altero's own.</strong> It has been requested from zotero.org since 2023 (<a href="https://github.com/zotero/dataserver/issues/153">dataserver#153</a>) and not built. zotero.org answers <code>Invalid 'sort' value</code> to it; no client sends it today.</p>
+<h3 id="pagination-of-the-sync-formats">Pagination of the sync formats<a class="headerlink" href="#pagination-of-the-sync-formats" title="Permanent link">&para;</a></h3>
+<p><code>format=keys</code> and <code>format=versions</code> have no page limit by default: they return everything in one response, with no <code>Link</code> header.</p>
+<p>This matters. The desktop reads the whole of <code>format=versions</code> to decide what to sync. Cutting it to the usual 25 would not cause an error — the client would silently believe the library holds 25 objects. An explicit <code>limit</code> is still honored and is not capped at 100.</p>
+<p>Every other format keeps a default of 25 and a maximum of 100.</p>
+<h3 id="naming-objects-by-key">Naming objects by key<a class="headerlink" href="#naming-objects-by-key" title="Permanent link">&para;</a></h3>
+<p><code>itemKey</code>, <code>collectionKey</code> and <code>searchKey</code> behave alike:</p>
+<ul>
+<li><strong>Malformed keys are dropped, not refused.</strong> They could not have matched anything anyway.</li>
+<li><strong>The page size is always 100</strong>, whatever <code>limit</code> says. <code>format=keys</code> and <code>format=versions</code> are exempt and still answer with everything.</li>
+<li><strong>Each object type filters on its own parameter</strong>: <code>collectionKey</code> for collections, <code>searchKey</code> for saved searches.</li>
+</ul>
+<p>All three matter because this is how a sync downloads changed objects: by key, in batches of 100. A library with fewer than 25 changes would hide any mistake here; one with hundreds would not.</p>
+<h3 id="parameter-handling">Parameter handling<a class="headerlink" href="#parameter-handling" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>limit=0</code> or a negative limit falls back to the default rather than erroring</td>
+</tr>
+<tr>
+<td>A limit above the maximum is lowered to it, not refused</td>
+</tr>
+<tr>
+<td><code>sort=asc</code> / <code>sort=desc</code> sets the direction and keeps the default sort</td>
+</tr>
+<tr>
+<td><code>qmode</code> ignores case, so <code>startsWith</code> and <code>startswith</code> both work</td>
+</tr>
+<tr>
+<td>Sorts whose name begins with <code>date</code> default to descending; everything else to ascending</td>
+</tr>
+<tr>
+<td><code>itemType</code> may not be repeated</td>
+</tr>
+<tr>
+<td><code>numItems</code> is a valid sort only for tags</td>
+</tr>
+<tr>
+<td><code>extra</code> and <code>serverDateModified</code> are valid item sorts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-shapes">Response shapes<a class="headerlink" href="#response-shapes" title="Permanent link">&para;</a></h3>
+<p>These were confirmed against a live library.</p>
+<ul>
+<li><strong>A tag has no version of its own.</strong> Its envelope is <code>{tag, links, meta}</code>, with <code>type</code> and <code>numItems</code> in <code>meta</code>. Clients learn tag versions from <code>format=versions</code>.</li>
+<li><strong><code>meta</code> leaves out what does not apply.</strong> <code>creatorSummary</code> is absent without creators, <code>parsedDate</code> without a date, and a child attachment's <code>meta</code> is <code>{}</code>. <code>numChildren</code> is always present. A summary reads <code>Smith</code>, <code>Smith and Myers</code> or <code>Ranganathan et al.</code>; <code>parsedDate</code> contains only the parts present, such as <code>2016</code> or <code>2018-05</code>.</li>
+<li><strong>A write response shows each object as it was just written.</strong> A parent created in the same batch as its children reports the <code>numChildren</code> it had at that moment, as on zotero.org.</li>
+<li><strong>Error messages name the object</strong>: <code>Item does not exist</code>, <code>Collection not found</code>, <code>Search not found</code>, <code>Invalid itemType 'bogus'</code>, <code>Invalid 'sort' value 'bogus'</code>.</li>
+<li><strong>An unreadable number is ignored.</strong> <code>limit=abc</code> answers 200 with the default page size. Only a value the server understands and disagrees with, such as an unknown sort, is a 400.</li>
+<li><strong>Links to the first page omit <code>start=0</code></strong>: <code>?limit=2</code>, not <code>?limit=2&amp;start=0</code>.</li>
+<li><strong>Field order decides whether an attachment can be saved.</strong> The desktop processes an attachment's fields in the order they arrive, and fails if <code>filename</code> comes before <code>linkMode</code>. The failure is not reported once: the item is retried and fails on every later sync. altero therefore always serves fields in the schema's order — for an attachment <code>linkMode</code>, <code>title</code>, <code>accessDate</code>, <code>url</code>, <code>contentType</code>, <code>charset</code>, <code>filename</code>, <code>md5</code>, <code>mtime</code>, <code>note</code> — which is also the order zotero.org uses.</li>
+</ul>
+<h3 id="fields-the-published-schema-does-not-list">Fields the published schema does not list<a class="headerlink" href="#fields-the-published-schema-does-not-list" title="Permanent link">&para;</a></h3>
+<p>The published schema gives attachments only <code>title</code>, <code>accessDate</code> and <code>url</code>, and notes and annotations no fields at all. In reality an attachment also has <code>linkMode</code>, <code>contentType</code>, <code>charset</code>, <code>filename</code>, <code>md5</code>, <code>mtime</code> and <code>path</code>; a note has <code>note</code>; and an annotation has the <code>annotation*</code> fields. Validating strictly against the published schema would even reject the server's own <code>/items/new</code> template, so altero accepts these fields too. Any other field outside the schema is still refused, so a storage field on a book is an error.</p>
+<p>If a write is refused with <code>Invalid field</code>, this is the first thing to check.</p>
+<p><strong><code>md5</code> and <code>mtime</code> are <code>null</code> until a file has been uploaded</strong>, on attachments that store a file. A write that sends either as empty does not overwrite a stored value. The Android app depends on this: an empty string instead of <code>null</code> stopped it from ever uploading the file.</p>
+<h3 id="timestamps">Timestamps<a class="headerlink" href="#timestamps" title="Permanent link">&para;</a></h3>
+<p><code>dateAdded</code> and <code>dateModified</code> come from the client and are stored unchanged, so uploading an existing library keeps its history. <code>serverDateModified</code> is always the server's own time, so no client can reorder results by changing its own clock.</p>
+<h3 id="citations-and-bibliographies">Citations and bibliographies<a class="headerlink" href="#citations-and-bibliographies" title="Permanent link">&para;</a></h3>
+<p>zotero.org sends items to a separate citation server. altero formats citations itself, with <a href="https://github.com/brechtm/citeproc-py">citeproc-py</a> and a packaged copy of the Citation Style Language styles (<a href="https://github.com/inveniosoftware/citeproc-py-styles">citeproc-py-styles</a>). Nothing is fetched while answering a request, so an instance without internet access can still use every published style.</p>
+<p><strong>Items are mapped to CSL the way Zotero maps them</strong>, using the tables in Zotero's own schema. A schema update therefore changes the output with it.</p>
+<p><strong><code>format=csljson</code> always wraps items</strong> in <code>{"items": [ ... ]}</code>, even a single one, as zotero.org does.</p>
+<p><strong><code>format=bib</code> is one document.</strong> It carries <code>Total-Results</code> but no <code>Link</code> header, refuses <code>sort</code>, <code>direction</code>, <code>start</code>, <code>limit</code> and <code>order</code> with a 400, and holds at most 150 items.</p>
+<p><strong><code>include</code> is checked.</strong> <code>data</code>, <code>bib</code>, <code>citation</code>, <code>csljson</code>, <code>none</code> and every export format are accepted. <code>include=none</code> cannot be combined with anything, <code>include</code> outside <code>format=json</code> is a 400, and so is an unknown value. zotero.org also accepts <code>html</code>, which needs Atom and is requested through <code>content</code> here.</p>
+<p><strong>Every export format zotero.org offers is available.</strong> zotero.org runs Zotero's JavaScript translators; altero has a Python port of each of the sixteen formats, checked against what zotero.org returns for the same item:</p>
+<ul>
+<li>Refer/BibIX, RefWorks Tagged, Wikipedia citation templates, COinS, MODS and TEI match byte for byte.</li>
+<li>CSV and EndNote XML match except for one deliberate difference each, listed below.</li>
+<li>The three RDF formats match statement for statement, apart from whitespace.</li>
+<li>BibTeX, BibLaTeX and RIS are produced from the item's CSL data instead of ported. Nothing these formats can hold is lost, but a type CSL calls <code>document</code> becomes <code>@misc</code> or <code>GEN</code>. Citation keys are author, year and the first significant title word, with a letter added where two collide; a <code>citationKey</code> field on the item always wins. Tags become keywords.</li>
+</ul>
+<p>Like Zotero, altero hands the TEI translator the item exactly as the API serves it, and every other translator the older field names they expect.</p>
+<p>Eight deliberate differences in the exported files. The first names the program that wrote the file; the rest avoid copying something broken:</p>
+<ul>
+<li><strong>Files say altero wrote them</strong>, in EndNote XML and Evernote, where zotero.org's name Zotero.</li>
+<li><strong>XML and RDF files match in content, not whitespace.</strong> No XML or RDF reader can tell the difference.</li>
+<li><strong>CSV's <code>Date Added</code> column holds the date added.</strong> zotero.org writes the date modified there.</li>
+<li><strong>Bookmarks are escaped</strong>, so an ampersand in a title no longer produces a file HTML readers misread.</li>
+<li><strong>Evernote escapes ampersands once</strong>, not twice, so a title with <code>&lt;</code> no longer reads <code>&amp;lt;</code>.</li>
+<li><strong>An Evernote <code>&lt;updated&gt;</code> ends in one <code>Z</code></strong>, and an item without a URL has an empty <code>&lt;source-url&gt;</code> instead of the text <code>undefined</code>.</li>
+<li><strong>An ISBN field holding two numbers separated by two spaces gives two Bibliontology entries</strong>, not two plus an empty one.</li>
+<li><strong>TEI entry ids:</strong> when two entries would get the same <code>xml:id</code>, the second gets the letter, because a file written in batches cannot go back and rename an entry already sent.</li>
+</ul>
+<p>Exports over the API carry neither attached files nor child notes, on either server: each item is exported on its own. Whether a format writes anything for a note, attachment or annotation is left as Zotero's translator decides.</p>
+<p>Three differences in formatted citations:</p>
+<ul>
+<li><strong>Old style names still work.</strong> The API's default style, <code>chicago-note-bibliography</code>, was renamed years ago; altero follows the CSL project's list of renamed styles. An unknown style answers <code>404 Style not found</code>.</li>
+<li><strong>A style given as a URL is refused</strong> with <code>400 Invalid style</code>. zotero.org fetches it, but fetching any URL on request would turn the server into a proxy for anyone holding a key.</li>
+<li><strong>Hanging indents and line spacing are written as zotero.org writes them</strong>, but the alignment some numbered styles use for their numbers (<code>second-field-align</code>) is not reproduced.</li>
+</ul>
+<p>One known flaw comes from citeproc-py: a label can appear for a value the item does not have. In the API's default style, an in-text citation of an item without an edition ends in a stray <code>edition.</code> Bibliographies in that style are fine, as are citations in APA, MLA, IEEE, Nature, AMA and the other Chicago styles. The fix has been reported upstream.</p>
+<h3 id="item-type-schema">Item type schema<a class="headerlink" href="#item-type-schema" title="Permanent link">&para;</a></h3>
+<p>These came from comparing all 163 schema responses with the live API.</p>
+<ul>
+<li><strong><code>/itemTypes</code> and <code>/itemFields</code> are sorted by their translated names</strong>, so the order changes with <code>locale</code>. Sorting is by character code, so <em>Software</em> (<code>computerProgram</code>) sorts under S and <em>TV Broadcast</em> comes before <em>Thesis</em>.</li>
+<li><strong><code>/itemTypeCreatorTypes</code> lists the primary creator type first</strong>, then the rest by translated name.</li>
+<li><strong><code>/itemFields</code> leaves out base-only fields</strong> such as <code>medium</code> and <code>authority</code>. They are still accepted in writes.</li>
+<li><strong>Two templates disagree with the schema.</strong> For <code>videoRecording</code> and <code>radioBroadcast</code> the schema calls <code>creator</code> the primary creator type, yet <code>/items/new</code> fills those templates with <code>director</code>. altero reproduces both, so a template from altero is interchangeable with one from zotero.org.</li>
+</ul>
+<h2 id="files-and-synchronization">Files and synchronization<a class="headerlink" href="#files-and-synchronization" title="Permanent link">&para;</a></h2>
+<h3 id="the-file-protocol">The file protocol<a class="headerlink" href="#the-file-protocol" title="Permanent link">&para;</a></h3>
+<p>Uploading a file takes three requests — authorize, send the bytes, register — exactly as with zotero.org, including the <code>uploadKey</code> passed between them and the <code>{"exists": 1}</code> answer when the server already holds those bytes.</p>
+<p>The middle step differs. zotero.org hands the client an Amazon S3 address plus a <code>prefix</code> and <code>suffix</code> to wrap around the file. altero points back at itself and leaves both empty, so the client sends the file as it is. A client that wraps the file as documented still sends exactly the file.</p>
+<p><strong>The mobile apps ask for a form.</strong> The iOS and Android apps add <code>params=1</code> and then send the file as a form upload. altero answers that request shape too, with empty form fields, and accepts the file from a form or as a plain body.</p>
+<p><strong>Stale uploads are refused.</strong> Bytes are checked against the declared MD5 and length, and <code>If-Match</code> or <code>If-None-Match</code> is required, so a client working from outdated information cannot overwrite a newer file. A conflicting upload answers 412 with <code>Last-Modified-Version</code> set to the attachment's own version; the desktop uses that header to open its file-conflict dialog. Without it, two desktops racing to upload kept retrying instead of resolving the conflict.</p>
+<p><strong>A file is stored whole or not at all.</strong> An upload that stops part way — a full disk, a dropped network mount — leaves no file rather than a short one. That matters because files are stored by content: a damaged file would be reported as <code>{"exists": 1}</code> to every later client holding the same bytes, and each would mark its attachment as synced for good.</p>
+<p>Registration therefore checks the stored file against its digest before attaching it. A file that is not what was sent is removed and the registration refused; the client treats that as a file-sync error and sends the file again on its next sync. One mismatch is not damage: two clients zipping the same snapshot produce different archives, so the stored archive may be somebody else's. The registration is still refused, but an intact archive stays (see <a href="#racing-zip-archives-of-different-sizes">Racing ZIP archives of different sizes</a>).</p>
+<p><strong>An attachment can claim a file the server does not have.</strong> A library moved from zotero.org whose files were kept on WebDAV names a digest for every attachment, but none of the files. So <code>If-None-Match: *</code> ("is there a file to protect?") is answered by looking for the file itself, not at what the attachment claims; otherwise the upload that would repair the attachment is refused. <code>If-Match</code> is still checked against the attachment, because that is how the client proves it is not working from stale information.</p>
+<h4 id="downloading-is-a-redirect-and-has-to-be">Downloading is a redirect, and has to be<a class="headerlink" href="#downloading-is-a-redirect-and-has-to-be" title="Permanent link">&para;</a></h4>
+<p>Asking for an attachment's file answers <strong>302</strong>, with three headers:</p>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>What it says</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Zotero-File-Modification-Time</code></td>
+<td>the modification time the uploading client declared</td>
+</tr>
+<tr>
+<td><code>Zotero-File-MD5</code></td>
+<td>the digest the attachment claims</td>
+</tr>
+<tr>
+<td><code>Zotero-File-Compressed</code></td>
+<td><code>Yes</code> when the stored bytes are a ZIP around that file</td>
+</tr>
+</tbody>
+</table>
+<p>The desktop reads these headers from the redirect and nowhere else. Answering 200 with the bytes makes every download fail with "A file sync error occurred". The redirect also lets the client skip the download entirely when the modification time shows its copy is current.</p>
+<h5 id="the-location-has-to-be-a-credential">The location has to be a credential<a class="headerlink" href="#the-location-has-to-be-a-credential" title="Permanent link">&para;</a></h5>
+<p>The desktop does not follow the redirect itself. It reads the headers, then makes a <em>new</em> request to the location, sending no API key with it. zotero.org can do that because its location is a pre-signed S3 address, which is a credential in itself.</p>
+<p>So altero's location is one too: a short-lived permission for that one file, at <code>/storage/download/&lt;key&gt;</code>. It expires after five minutes, is valid only for the file the redirect described, and is marked so that no shared cache stores it. It can be used more than once, because the desktop retries the same address after a server error or a dropped connection.</p>
+<p>The location is a full URL, because the desktop accepts nothing else here.</p>
+<p>Appending the caller's API key to the location (<code>?key=…</code>) would also work, and was rejected. An API key grants the whole account and never expires, and reverse proxies write every requested address into their access logs.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before Zotero's April 2026 rewrite the desktop followed this redirect itself and sent its key along. The older location, <code>&lt;prefix&gt;/items/&lt;key&gt;/file/content</code>, is still served for callers with a key that want the bytes directly.</p>
+</div>
+<h4 id="telling-an-archive-from-a-file">Telling an archive from a file<a class="headerlink" href="#telling-an-archive-from-a-file" title="Permanent link">&para;</a></h4>
+<p>The desktop zips a web snapshot before uploading it. If a download then says <code>Zotero-File-Compressed: No</code>, the client saves the ZIP itself under the attachment's name, and the snapshot is quietly lost.</p>
+<p>altero needs no stored flag to tell the two apart. A stored file whose content does not match the digest it is filed under is an archive around the real file. Only files that start like a ZIP are checked, and a <code>.docx</code> or <code>.epub</code> — which are ZIPs themselves — matches its own digest and is served as it is. Each archive is checked once, not on every sync.</p>
+<h2 id="authentication-and-client-login">Authentication and client login<a class="headerlink" href="#authentication-and-client-login" title="Permanent link">&para;</a></h2>
+<h3 id="obtaining-a-key">Obtaining a key<a class="headerlink" href="#obtaining-a-key" title="Permanent link">&para;</a></h3>
+<p>To link an account, the desktop creates a login session (<code>POST /keys/sessions</code>), opens the <code>loginURL</code> it receives in a browser, and polls the session until the response carries <code>apiKey</code>, <code>userID</code> and <code>username</code>, alongside <code>displayName</code> and <code>emails</code>. None of these fields is in the published documentation; they were found in the client source, and altero sends all of them.</p>
+<p>At zotero.org the browser window signs in to zotero.org. Here it opens altero's own interface, which asks the signed-in person to confirm and then issues the key. The client sees the same exchange either way.</p>
+<p><strong>Confirming takes a fresh proof of identity</strong>: the password, or, for an account without one, signing in again at its identity provider within the last five minutes. What is handed over is a full-access key that outlives the browser session, so an already open tab should not be able to approve it just by visiting a link.</p>
+<p><strong>Usernames and email addresses are separate</strong>, as at zotero.org. A username may not contain <code>@</code>, because signing in accepts either and decides which by the shape of what was typed. An account holds at most one address, reported only once confirmed.</p>
+<p><strong>Changing a username does not unlink a client.</strong> The client identifies an account by its numeric <code>userID</code> and accepts a changed username silently.</p>
+<p><strong><code>loginURL</code> carries a query</strong>, as zotero.org's does. The Android app appends <code>&amp;app=1</code> to it as text; without an existing query that landed in the path and the app opened a 404 page.</p>
+<p>The command line still works, and is the way in when the web interface has not been built: <code>loginURL</code> then shows the <code>altero login approve</code> instructions.</p>
+<p><strong>A re-authentication for one account cannot be approved for another.</strong> Handing a client somebody else's key makes it warn, offer to reset its data directory and quit. The confirmation screen says so before offering a button, and the server refuses it anyway.</p>
+<p><strong>The key covers group libraries too</strong>, as zotero.org's does. A key without group access makes the client think the server has lost the groups.</p>
+<p><code>POST /keys</code> (a key from a username and password) is not implemented. The client only uses it when migrating a profile that still holds a sync password from before 2016.</p>
+<p><strong>Managing keys was never part of the v3 API.</strong> <code>/users/&lt;id&gt;/keys</code> exists at zotero.org but only answers zotero.org's own signed-in web pages; an API key gets 403. altero offers the same under <strong>Settings → API keys</strong> in the browser, plus <code>altero key add</code> and <code>altero key revoke</code>. An API key can do to itself what zotero.org allows: read <code>/keys/current</code> and delete itself.</p>
+<h3 id="a-credential-that-gave-up-notes-or-files">A credential that gave up notes or files<a class="headerlink" href="#a-credential-that-gave-up-notes-or-files" title="Permanent link">&para;</a></h3>
+<p>A credential says four things about a library: whether it may read it, write to it, read its notes, and download its files. An API key carries them as <code>library</code>, <code>write</code>, <code>notes</code> and <code>files</code>; an OAuth token as the scopes <code>library.read</code>, <code>library.write</code>, <code>notes.read</code> and <code>files.read</code>. Notes and files only ever narrow reading: without read access there are no notes or files either.</p>
+<p><strong>A hidden note is hidden completely.</strong> Without note access, a note answers 404 by key and is missing from every listing, export, key list and version list. <code>numChildren</code> does not count it, and a tag carried only by hidden notes disappears from item-scoped tag lists. This is what zotero.org does. Serving the note with its text blanked would tell the caller it exists.</p>
+<p><strong>Without file access, only the bytes are refused.</strong> The download endpoints answer 403, but the attachment itself — with its <code>md5</code>, <code>filename</code> and <code>contentType</code> — is still served.</p>
+<p>Two rules from zotero.org that are not guessable:</p>
+<ul>
+<li><strong>An anonymous reader of a public library can read its notes but not its files.</strong> In a public group, <em>only members have file access</em>.</li>
+<li><strong>A credential never sees less of a public library than a visitor with no credential at all.</strong> Notes in a public library are readable whatever the credential says. Files are not, for the reason above.</li>
+</ul>
+<p><strong>File access does not cover the full text.</strong> A credential that may read the library may read an attachment's extracted text, even without file access — as on zotero.org. The consent screen's <em>Download your attachments</em> is about the files themselves.</p>
+<p>Two deliberate differences:</p>
+<ul>
+<li><strong>The restrictions apply to group libraries too.</strong> zotero.org applies them only to the personal library. A consent screen that says <em>Read your notes</em> should mean it everywhere.</li>
+<li><strong>Uploading depends on write access, not on file access.</strong> At zotero.org one <code>files</code> permission covers both directions. Here it is named for downloading, and the consent screen says <em>Download your attachments</em>, so it does not also grant uploads. Write access and the group's file-editing setting decide who may upload.</li>
+</ul>
+<p>None of this changes what the desktop sees: the keys it receives, and every key made in the browser or on the command line, carry all four permissions. Only an OAuth token can lack them.</p>
+<h3 id="what-the-desktop-client-actually-sends">What the desktop client actually sends<a class="headerlink" href="#what-the-desktop-client-actually-sends" title="Permanent link">&para;</a></h3>
+<p>These were found by running the real client, not by reading the documentation.</p>
+<p><strong><code>mtime</code> is in milliseconds and needs a 64-bit number.</strong> PostgreSQL refused it in a 32-bit column, so uploads worked in development on SQLite and failed in every container deployment.</p>
+<p><strong><code>mtime</code> is served as a number</strong>, as on zotero.org, although every other field is a string. The desktop requires a number when it resolves a file conflict in favor of the local copy.</p>
+<p><strong>Full text is uploaded in batches.</strong> The documentation describes <code>GET</code>/<code>PUT</code> on one item's full text, but the client uploads with <code>POST &lt;prefix&gt;/fulltext</code>, carrying a list of entries and requiring <code>If-Unmodified-Since-Version</code>. Each entry reported back must be an object with a <code>key</code>, not a bare key.</p>
+<p>zotero.org advances the library version once per item in the batch; altero once per request. The client cannot tell the difference, because it only uses the final version.</p>
+<p><strong>Recreating a deleted setting clears its deletion record</strong>, as on zotero.org. The desktop downloads settings before deletions, so a leftover record for <code>tagColors</code> would throw away the colors it just downloaded.</p>
+<p><strong>Tag deletions arrive without naming the tag.</strong> Because of a quirk in the client, <code>DELETE &lt;prefix&gt;/tags?tags=a||b</code> reaches the server as a bare <code>DELETE &lt;prefix&gt;/tags</code>. zotero.org answers 204 having deleted nothing, and the client accepts only 204 or 412 here, so altero answers 204 too. It also understands <code>tags=a||b</code> in case the client ever stops dropping it.</p>
+<p><strong>Uploads are compressed.</strong> The client gzips large request bodies, including full-text batches, which the documentation never mentions. altero decompresses them first; a body that does not decompress is a 400. Because this happens before authentication, compressed bodies and what they expand to are both limited to 128 MiB (413 beyond that). The client's largest write — 50 notes at zotero.org's length limit — is about 100 MB.</p>
+<p><strong>Snapshots arrive as ZIPs, with two digests.</strong> <code>md5</code> describes the original file and <code>zipMD5</code> the archive actually sent. altero checks the transfer against <code>zipMD5</code> and records <code>md5</code> on the item, which is what the client sends back next time.</p>
+<p><strong>The upload address must be a full URL.</strong> The client refuses a bare path.</p>
+<p><strong>Uploads are changes, not whole objects.</strong> After the first sync the client uploads only what changed — for example <code>{key, version, lastRead, dateModified}</code> with no <code>itemType</code>. A batch entry naming an existing item without <code>itemType</code> is therefore a partial update. A new item must still state its type. See <a href="#a-posted-batch-is-a-batch-of-patches">A POSTed batch is a batch of patches</a>.</p>
+<p><strong>Registering a file upload advances the library version.</strong> The full-text upload that follows can then arrive with an outdated version and get 412. The client syncs and retries successfully — one wasted round trip. zotero.org does the same, and not advancing the version would hide file changes from anyone asking what changed <code>since</code>.</p>
+<p><strong>A client may be ahead of the server.</strong> If the client's library version is higher than the server's, the write is accepted, as on zotero.org. zotero.org never gets into that state, but altero can, when a database is recreated while a client remembers a later version. The client then refuses the server's answer ("cannot decrease"), and re-uploads the same objects on every sync. "Restore to server" fails the same way. The only way out is to raise the server's counter above what the client remembers, with <code>altero library set-version</code>. Objects the client believes are already synced are not uploaded again, so anything written before the reset can be missing afterwards. Neither the check nor the answer is changed to avoid this: both are zotero.org's.</p>
+<p><strong>Two services the client uses are not part of the dataserver.</strong> <code>GET /retractions/list</code>, which flags retracted papers, answers 404. An empty list would claim that nothing in the library has been retracted, which altero cannot know. The client logs the failure and syncs normally. The streaming API is served — see below.</p>
+<p><strong>Pointing the client at altero does not redirect its streaming connection.</strong> The streaming address is set separately, by <code>extensions.zotero.streaming.url</code>, and defaults to <code>wss://stream.zotero.org</code>. A client configured only with altero's API address therefore opens a connection to zotero.org and sends it the API key — a full-access credential handed to a third party, though zotero.org rejects it as unknown. The symptom is a log line: <code>WebSocket connection closed: 4403 Invalid API key</code>. Set <code>streaming.url</code> to altero's own endpoint, as <a href="../clients/">Clients</a> describes; <code>extensions.zotero.streaming.enabled = false</code> also stops it.</p>
+<h3 id="the-streaming-api">The streaming API<a class="headerlink" href="#the-streaming-api" title="Permanent link">&para;</a></h3>
+<p>Served at <code>/stream</code>, not on a separate host, and the client is pointed at it with <code>extensions.zotero.streaming.url</code>. It follows the <a href="https://www.zotero.org/support/dev/web_api/v3/streaming_api">published protocol</a>. Both ways of subscribing work: an API key in the handshake, and <code>createSubscriptions</code> naming a key and no topics, which is what the desktop sends.</p>
+<p><strong>Three topics that are not libraries</strong> are accepted, because the client asks for them on every connection:</p>
+<ul>
+<li><strong><code>styles</code> and <code>translators</code></strong> are accepted but never fire; the client updates those on its own schedule.</li>
+<li><strong><code>login-session:&lt;token&gt;</code></strong> tells the client the moment a login is approved, instead of at its next poll. It needs the session's token, and on approval it carries the same body the poll returns. An approval from <code>altero login approve</code> on the command line is not announced; the client's poll finishes the login as before.</li>
+</ul>
+<p><strong>Removing a subscription that does not exist is ignored</strong>, instead of closing with 4409. The client's login flow does exactly that, and treats an unexpected close as its own error and stops reconnecting.</p>
+<p><strong><code>subscriptionsDeleted</code> names what was removed</strong>, which the client needs.</p>
+<p><strong>Guessed rather than copied</strong>, since there is no reference implementation:</p>
+<ul>
+<li>Close code <strong>4400</strong> for a message that is not JSON or asks for something unknown, continuing the documented 4403, 4409 and 4413.</li>
+<li>At most <strong>50 subscriptions per connection</strong>. The documentation says a limit exists but not what it is; the desktop holds one.</li>
+<li><strong><code>topicAdded</code> and <code>topicRemoved</code></strong> go only to subscriptions that named no topics. A client that chose its topics is not given new ones.</li>
+</ul>
+<p><strong>An event is sent only once its write is committed.</strong> A client told about a version that was then rolled back would ask for it and find the library older — indistinguishable from a server that went backwards.</p>
+<p><strong>One process only.</strong> Events are passed around in memory. With several worker processes, a client hears only about writes handled by its own worker; the others fall back on polling, as before.</p>
+<h3 id="atom">Atom<a class="headerlink" href="#atom" title="Permanent link">&para;</a></h3>
+<p><code>format=atom</code> is served for items, collections, saved searches and tags, both for lists and single objects. <code>content</code> chooses what goes inside: <code>html</code> by default, or <code>json</code>, <code>bib</code>, <code>citation</code>, <code>csljson</code>, an export format, <code>none</code>, or several at once. The shapes were copied from zotero.org.</p>
+<p>Five differences, most following from decisions elsewhere on this page:</p>
+<ul>
+<li><strong>No <code>rel="alternate"</code> links.</strong> See <a href="#deliberate-differences">Deliberate differences</a>.</li>
+<li><strong><code>&lt;id&gt;</code> uses the address the request came to</strong>, not <code>zotero.org</code>.</li>
+<li><strong>Feed titles start with <code>altero</code></strong>, not <code>Zotero</code>. The rest of the wording is zotero.org's.</li>
+<li><strong>No <code>rel="first"</code> link on the first page.</strong> The feed's links and the <code>Link</code> header come from one place, so they cannot disagree.</li>
+<li><strong>The HTML table lists fields in the item's own order.</strong> zotero.org orders them by an internal number the published schema does not include.</li>
+</ul>
+<p>A <code>&lt;content&gt;</code> element carries both <code>zapi:type</code> and a media type, so readers looking for either find it. A bibliography that is not valid XML is escaped and marked as HTML, so one bad entry cannot make the whole feed unreadable.</p>
+<p><code>content</code> is refused outside <code>format=atom</code>, and a citation is refused for collections, saved searches and tags: an empty answer would look the same as an object without one.</p>
+<h3 id="api-versions">API versions<a class="headerlink" href="#api-versions" title="Permanent link">&para;</a></h3>
+<p>Only version 3 is served. Asking for another version, by the <code>Zotero-API-Version</code> header or the <code>v</code> parameter, is a 400: older clients expect different envelopes, parameter names and pagination, and version 3 answers under an older label would be worse than a refusal. A header and a parameter that disagree are refused too, as on zotero.org.</p>
+<h3 id="the-relations-map">The <code>relations</code> map<a class="headerlink" href="#the-relations-map" title="Permanent link">&para;</a></h3>
+<p>A relation with one target is a <strong>string</strong>; with several it becomes an <strong>array</strong>. Zotero relies on this — an item related to three others names all three under <code>dc:relation</code> — so the shape matters.</p>
+<p>Collections carry relations too, and they are stored like items' relations.</p>
+<p>An empty array is accepted in place of an empty object, as zotero.org allows.</p>
+<p>Not copied: zotero.org accepts only certain relation types and requires Zotero addresses as values. altero accepts any. That is the permissive direction, so no client breaks, but a library moved from altero to zotero.org could carry a relation zotero.org refuses.</p>
+<h3 id="backoff-and-retry-after">Backoff and Retry-After<a class="headerlink" href="#backoff-and-retry-after" title="Permanent link">&para;</a></h3>
+<p>The desktop ignores both headers unless they are <strong>whole seconds</strong>, and <code>0</code> is as useless as a fraction. Without <code>Retry-After</code>, a 429 still works, but the client has to guess how long to wait.</p>
+<p>altero answers 429 with a whole-second <code>Retry-After</code> of at least 1. It does not send <code>Backoff</code>, which asks clients to slow down while still being served; that needs a measure of load altero does not have.</p>
+<p>On SQLite, a write that waits more than five seconds for another write to finish answers <strong>503 with <code>Retry-After: 5</code></strong>. Nothing has been written at that point. The desktop retries such a 503 and would report any other server error as a sync error. PostgreSQL waits instead and never gives this answer.</p>
+<h2 id="libraries-groups-and-altero-extensions">Libraries, groups and altero extensions<a class="headerlink" href="#libraries-groups-and-altero-extensions" title="Permanent link">&para;</a></h2>
+<h3 id="my-publications">My Publications<a class="headerlink" href="#my-publications" title="Permanent link">&para;</a></h3>
+<p><code>/users/&lt;id&gt;/publications/items</code> can be read <strong>without a key</strong>, as on zotero.org. Only items marked <code>inPublications</code> appear, in <code>items</code>, <code>items/top</code> and by key; any other key answers 404, so an item hidden from the list cannot be fetched directly either.</p>
+<p><code>publications/collections</code> and <code>publications/searches</code> answer 404, as on zotero.org. Nothing can be written here: an item joins the list by being saved in the library with <code>inPublications</code> set.</p>
+<p>There is no group version. My Publications belongs to a person, which is also why <code>inPublications</code> is refused on a group item.</p>
+<p><code>publications/settings</code> and <code>publications/deleted</code> are served and always empty, because the client polls both and treats anything but 200 as a failed sync.</p>
+<p>zotero.org also answers <code>publications/settings</code> with a 400 — "Please upgrade to the latest Zotero 5.0 beta" — once a user has published anything. That was a temporary guard for an old kind of publications library that altero never had. Copying it would refuse every current client that has published something.</p>
+<h4 id="who-may-read-my-publications">Who may read My Publications<a class="headerlink" href="#who-may-read-my-publications" title="Permanent link">&para;</a></h4>
+<p>At zotero.org anybody can. altero keeps that as the default and lets each account narrow it, because a personal server is not a public service — see <a href="../web/sharing/#who-can-see-it">Sharing</a>. The setting applies to the API as well as to the profile page:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>No key</th>
+<th>Any key from this server</th>
+<th>A key that may read the library</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>public</code> (default)</td>
+<td>200</td>
+<td>200</td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>users</code></td>
+<td>403</td>
+<td>200</td>
+<td>200</td>
+</tr>
+<tr>
+<td><code>private</code></td>
+<td>403</td>
+<td>403</td>
+<td>200</td>
+</tr>
+</tbody>
+</table>
+<p>The last column is why the owner's desktop keeps syncing: its key may read the library, so closing the page never breaks the sync that fills it. Every publications endpoint applies the setting, including the <code>settings</code> and <code>deleted</code> polls. An instance that never changes the setting behaves exactly like zotero.org.</p>
+<h4 id="profile-pages">Profile pages<a class="headerlink" href="#profile-pages" title="Permanent link">&para;</a></h4>
+<p>zotero.org's profile page is <code>zotero.org/&lt;name&gt;</code>, with the username simplified for the address. altero serves the same page at <code>/app/u/&lt;username&gt;</code>. The prefix keeps a username such as <code>settings</code> from colliding with the interface's own pages. Both the username and zotero.org's simplified form work, in any letter case.</p>
+<p>The heading shows the real name, or the username when there is none. There is no link to zotero.org, for the same reason as everywhere else.</p>
+<h4 id="publishing-from-the-browser">Publishing from the browser<a class="headerlink" href="#publishing-from-the-browser" title="Permanent link">&para;</a></h4>
+<p>The API knows only the <code>inPublications</code> flag, but publishing is more than that. Before setting it, the desktop asks four questions: whether files go along, whether notes go along, whether an existing <strong>Rights</strong> value stays, and which license the work is published under. altero's browser interface asks the same four and follows the desktop's rules:</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Child notes go along only when chosen</td>
+</tr>
+<tr>
+<td>Stored files go along only when chosen</td>
+</tr>
+<tr>
+<td>Links to web pages always go along</td>
+</tr>
+<tr>
+<td>Linked files never do, because the server does not hold them</td>
+</tr>
+<tr>
+<td>Annotations never do</td>
+</tr>
+<tr>
+<td>The license is written into <strong>Rights</strong> unless an existing value was chosen to stay</td>
+</tr>
+<tr>
+<td>Removing an item takes its notes and attachments with it, including trashed ones</td>
+</tr>
+<tr>
+<td>Removing something that is not published is an error</td>
+</tr>
+</tbody>
+</table>
+<p>These requests belong to the browser interface and cannot be made with an API key.</p>
+<p>Three deliberate differences:</p>
+<ul>
+<li><strong>The license name is written in English</strong>, whatever language the account uses. The desktop writes the name in the language of its own window, so the same license reaches the field in German from one client and in English from another. <strong>Rights</strong> is data that gets exported and cited, not a label, so it should not depend on who published.</li>
+<li><strong>The license can be changed afterwards.</strong> The desktop never shows its wizard twice for an item; a different license is typed into the <strong>Rights</strong> field. The browser has no field editor, so it allows editing <strong>Rights</strong> and nothing else. The edit is refused if the item changed in the meantime.</li>
+<li><strong>The generic "Creative Commons" choice is not offered.</strong> It is what the desktop reports while a license is still being chosen; here, choosing Creative Commons always leads on to the two questions that pick one of the six licenses.</li>
+</ul>
+<h3 id="trashing-a-collection-or-a-saved-search">Trashing a collection or a saved search<a class="headerlink" href="#trashing-a-collection-or-a-saved-search" title="Permanent link">&para;</a></h3>
+<p>Zotero trashes collections and saved searches by marking them <code>deleted</code>, and syncs that mark like any other property.</p>
+<p><strong>Trashed collections and searches stay in the listings</strong>, marked <code>deleted: 1</code>, because the client has no way to ask for trashed ones separately. Hiding them would tell the client they were gone, not trashed.</p>
+<p>Their counts follow zotero.org, and differ: <code>numCollections</code> includes trashed subcollections, <code>numItems</code> leaves out trashed items.</p>
+<p>Items are unaffected: they have their own trash endpoint, and <code>/items</code> still leaves trashed ones out.</p>
+<p>The value must be <code>true</code>, <code>false</code>, <code>0</code> or <code>1</code>; otherwise the string <code>"false"</code> would count as trashed.</p>
+<h3 id="inpublications"><code>inPublications</code><a class="headerlink" href="#inpublications" title="Permanent link">&para;</a></h3>
+<p>An ordinary item property. Setting it to true is refused in three cases:</p>
+<table>
+<thead>
+<tr>
+<th>Refused</th>
+<th>Message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A group library</td>
+<td><code>Group items cannot be added to My Publications</code></td>
+</tr>
+<tr>
+<td>A top-level note or attachment</td>
+<td><code>Top-level notes and attachments cannot be added to My Publications</code></td>
+</tr>
+<tr>
+<td>A linked-file attachment</td>
+<td><code>Linked-file attachments cannot be added to My Publications</code></td>
+</tr>
+</tbody>
+</table>
+<p>Child notes and attachments are allowed; that is what My Publications is for. A linked file is not, because the server does not hold the file.</p>
+<p>The property appears only when true, as <code>deleted</code> does.</p>
+<p><strong>A partial write that leaves it out leaves it alone</strong>, and the same goes for <code>deleted</code>. So changing an item's title does not take it out of the trash or out of My Publications. A <code>PUT</code> still clears what it leaves out; the client always sends <code>deleted: false</code> explicitly when restoring.</p>
+<p>Reading the public list is described under <a href="#my-publications">My Publications</a>; publishing with the desktop wizard's options, under <a href="#publishing-from-the-browser">Publishing from the browser</a>.</p>
+<h3 id="a-posted-batch-is-a-batch-of-patches">A POSTed batch is a batch of patches<a class="headerlink" href="#a-posted-batch-is-a-batch-of-patches" title="Permanent link">&para;</a></h3>
+<p>In a <code>POST</code> to <code>/items</code>, <code>/collections</code> or <code>/searches</code>:</p>
+<ul>
+<li>an entry naming an object that <strong>exists</strong> may leave out anything it is not changing, and what it leaves out stays as it was;</li>
+<li>an entry for a <strong>new</strong> object must still contain what a new object needs: a collection its name, a saved search its conditions, an item its type.</li>
+</ul>
+<p><code>PUT</code> replaces the whole object: what it leaves out is cleared.</p>
+<p><strong>An entry with a version above 0 must name an existing object.</strong> If the object is gone, that entry fails with 404, even if it is complete. The desktop needs the 404 to settle an edit made against an object deleted elsewhere; recreating the object silently would undo the deletion. New objects use version 0 or no version.</p>
+<p>This is the desktop's normal way of uploading: it remembers the last synced copy of each object and sends only the difference. Two common cases:</p>
+<table>
+<thead>
+<tr>
+<th>The user did</th>
+<th>What the client uploads</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sent a collection to the trash</td>
+<td><code>{key, version, deleted: true}</code></td>
+</tr>
+<tr>
+<td>Changed an item's type</td>
+<td><code>{key, version, itemType}</code></td>
+</tr>
+</tbody>
+</table>
+<p>Treated as complete objects, the first would be refused for lacking a name — stopping the whole library's sync — and the second would wipe every field, creator, tag and collection it did not mention.</p>
+<p><strong>Leaving a property out means "unchanged"; sending it empty clears it.</strong> That matters for the four list properties: <code>creators</code>, <code>tags</code>, <code>collections</code> and <code>relations</code>. The desktop really sends <code>collections: []</code> to take an item out of its last collection — for example after saving into a collection with the browser connector and then switching the save target to the library root. Treating empty as absent would leave the item filed, and the client would upload the same change on every sync forever.</p>
+<p>An item without creators has no <code>creators</code> property at all, while <code>tags</code>, <code>collections</code> and <code>relations</code> appear even when empty. That inconsistency is zotero.org's and is copied.</p>
+<h3 id="objects-that-were-sent-again-without-changing">Objects that were sent again without changing<a class="headerlink" href="#objects-that-were-sent-again-without-changing" title="Permanent link">&para;</a></h3>
+<p>An object identical to the stored one is reported as <code>unchanged</code> and keeps its version, as on zotero.org. Saving it again would advance the library version and make every other client download an object that never changed.</p>
+<p>Everything a client can set counts as a change: type, fields, creators and their order, relations, parent, trash flag, <code>dateAdded</code>, <code>dateModified</code>, tags and collections. The server's own values — the version and <code>serverDateModified</code> — do not. A batch in which nothing changed leaves the library version as it was.</p>
+<p>Settings follow the same rule: a setting is changed only if its value differs, so <code>3</code> and <code>3.0</code> differ but <code>3</code> and <code>3</code> do not. A request that changes no setting answers 204 with the library version unchanged; in a batch, only the settings that changed get the new version.</p>
+<p>The current dataserver advances the library version for each object in a batch, even an unchanged one. altero advances it once per request that changes something. Object versions and the reported results still agree; only the library's version number can differ between the two servers.</p>
+<p>Two places skip this check, as on zotero.org: a single-object <code>PUT</code> or <code>PATCH</code>, which has no report to put the answer in, and the full-text batch.</p>
+<h3 id="groups">Groups<a class="headerlink" href="#groups" title="Permanent link">&para;</a></h3>
+<p>zotero.org has endpoints for creating, editing and deleting groups and adding members, but only for its own administrators, in XML, and never used by the Zotero client. An ordinary key gets 403.</p>
+<p>altero serves the same paths for ordinary users, with an <strong>API key</strong> and <strong>JSON</strong> in the shape <code>GET /groups/&lt;id&gt;</code> already returns, so what was read can be sent back. Inventing a separate administrator credential would have meant a second kind of credential on a server whose permissions are otherwise per library.</p>
+<p><code>PUT</code> replaces and <code>PATCH</code> updates, as for items. A <code>PUT</code> without a <code>type</code> makes the group private, the safe default. <code>POST /groups/&lt;id&gt;/users</code> adds a member by <code>userID</code> or <code>username</code>.</p>
+<table>
+<thead>
+<tr>
+<th>To</th>
+<th>You need</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create a group</td>
+<td>a key that may write to your own library</td>
+</tr>
+<tr>
+<td>Read one</td>
+<td>membership, or a public group</td>
+</tr>
+<tr>
+<td>Write items to one</td>
+<td>membership, plus the group's editing setting</td>
+</tr>
+<tr>
+<td>Upload files to one</td>
+<td>membership, plus the group's file setting</td>
+</tr>
+<tr>
+<td>Change its details, add or remove members</td>
+<td>to be an administrator of the group</td>
+</tr>
+<tr>
+<td>Leave</td>
+<td>nothing but your own decision</td>
+</tr>
+<tr>
+<td>Hand it over, delete it</td>
+<td>to be its owner</td>
+</tr>
+</tbody>
+</table>
+<p>Two of these are altero's own rules. A key must be allowed to write to the group <em>and</em> its owner must administer it, because adding items and deciding who else may are different things. Only the owner can hand over or delete a group, because both end it as its members know it.</p>
+<p><strong>A key's "all groups" means the groups its owner belongs to</strong>, never every group on the server.</p>
+<p>Changing a group's details or its members advances the library's version. zotero.org keeps a separate group version; altero reports the library's for both. A role change therefore costs connected clients one sync that finds nothing new — the cheaper mistake, since a client that has not noticed a demotion still believes it may write.</p>
+<h4 id="who-the-client-finds-in-a-group">Who the client finds in a group<a class="headerlink" href="#who-the-client-finds-in-a-group" title="Permanent link">&para;</a></h4>
+<p><strong>Group listings always carry a <code>Link</code> header</strong>, even when empty or a single page. The desktop's account settings read it unconditionally and fail without it. zotero.org always includes an <code>alternate</code> link to itself; altero includes <code>self</code> instead. A page holds 25 groups by default; <code>format=versions</code> is unlimited.</p>
+<p>A group's JSON lists <code>admins</code> and <code>members</code> as user ids, and the desktop needs them: it makes a group library editable for the owner, for administrators, and for members when the group lets members edit. Anyone found in neither list syncs the library read-only. The owner is in neither list, as on zotero.org, and empty lists are left out. The lists are read-only; membership has its own endpoints.</p>
+<p><strong>Only members see the lists.</strong> zotero.org shows them to anyone who can read the group, which for a public group is anybody. Nobody outside a group syncs it, so for a stranger the lists would only reveal who belongs.</p>
+<p>The client fetches a group again only when its version changes, so every membership change advances it — from the API, the browser, the command line or an accepted invitation.</p>
+<h3 id="finer-roles-for-one-member">Finer roles for one member<a class="headerlink" href="#finer-roles-for-one-member" title="Permanent link">&para;</a></h3>
+<p>A Zotero group decides who may edit for the whole group at once: members or only administrators. Read-only members, members who may add but not remove, and members who may change only their own items have been requested on the Zotero forums since 2010 (<a href="https://forums.zotero.org/discussion/14053/">discussion 14053</a>). altero has all three, as a <strong>permission per member</strong>, alongside their role.</p>
+<p>A role says whether somebody helps run the group; a permission says how far they may go with its contents. An administrator can be an ordinary contributor, and a member can be limited to reading, without changing anybody's role.</p>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Creates</th>
+<th>Changes</th>
+<th>Removes</th>
+<th>Collections and searches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>inherit</code></td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>read</code></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>add</code></td>
+<td>✓</td>
+<td>anything</td>
+<td></td>
+<td>make and change, never remove</td>
+</tr>
+<tr>
+<td><code>own</code></td>
+<td>✓</td>
+<td>its own</td>
+<td>its own</td>
+<td>read-only</td>
+</tr>
+</tbody>
+</table>
+<p>Four decisions shape it:</p>
+<ul>
+<li><strong>It only ever restricts.</strong> It is applied last, after the key's permissions, membership and the group's own editing setting. A member marked <code>add</code> in a group where only administrators edit still cannot edit.</li>
+<li><strong>Moving to the trash counts as removing</strong>, because that is how the desktop deletes. Otherwise a member who may not delete could still empty the library. Restoring from the trash is allowed.</li>
+<li><strong>The shared structure belongs to nobody.</strong> Nothing records who made a collection, saved search or setting, so <code>own</code> treats all of them as somebody else's. Filing your own item into a collection is a change to the item and is allowed: contributors put their work where the group's structure says, but cannot restructure it.</li>
+<li><strong>Administrators cannot be restricted.</strong> They can edit any membership, including their own, so a restriction would be shown but not enforced. Making somebody an administrator clears theirs.</li>
+</ul>
+<h4 id="one-library-version-two-representations">One library version, two representations<a class="headerlink" href="#one-library-version-two-representations" title="Permanent link">&para;</a></h4>
+<p><code>read</code> is the only permission Zotero clients already understand: a read-only member is told the group's editing setting is "administrators only", while everybody else sees the real setting. The client then shows the library read-only, as it does for any member of such a group.</p>
+<p>So the same library version looks different to different people. That is sound, because a group never had one view for everyone — a stranger gets 404 where a member gets 200 — and a member's view changes only when the library's version does, which changing a permission causes.</p>
+<h4 id="add-and-own-surface-as-sync-errors"><code>add</code> and <code>own</code> surface as sync errors<a class="headerlink" href="#add-and-own-surface-as-sync-errors" title="Permanent link">&para;</a></h4>
+<p>Zotero clients have no way to show these two, and altero does not invent one. A restricted member's desktop shows the library as editable, and a forbidden write comes back as <strong>403</strong> with an explanation:</p>
+<ul>
+<li><code>You can add to this group library but not remove from it</code></li>
+<li><code>You can only change what you added to this group library</code></li>
+<li><code>You can only remove what you added to this group library</code></li>
+</ul>
+<p>The desktop shows this as a sync error, and the sentence is the only explanation the member gets. Anyone setting <code>add</code> or <code>own</code> should know that is how it looks from the other side. The browser interface knows both permissions and hides what they forbid.</p>
+<h4 id="where-a-permission-is-set">Where a permission is set<a class="headerlink" href="#where-a-permission-is-set" title="Permanent link">&para;</a></h4>
+<p>In the browser on the group's member list; in an invitation, so that "come and read this" and "come and help" are different invitations; with <code>altero group permission &lt;group&gt; &lt;username&gt; &lt;permission&gt;</code>; or through the API with <code>PUT /groups/&lt;id&gt;/users/&lt;userID&gt;</code>, which takes <code>permission</code> alongside <code>role</code>. When both are sent, the role is applied first, so a demotion followed by a restriction ends with the restriction.</p>
+<h3 id="renaming-a-tag">Renaming a tag<a class="headerlink" href="#renaming-a-tag" title="Permanent link">&para;</a></h3>
+<p><code>PATCH &lt;prefix&gt;/tags/&lt;name&gt;</code> with <code>{"tag": "&lt;new name&gt;"}</code> renames a tag and answers 204 with the new <code>Last-Modified-Version</code>.</p>
+<p>zotero.org has no such endpoint: renaming is left to the client, item by item, and has been requested since 2016 (<a href="https://github.com/zotero/dataserver/issues/108">dataserver#108</a>). So the endpoint is altero's own, and its behavior is copied from the desktop's own rename:</p>
+<ul>
+<li><strong>Both kinds of tag are renamed.</strong> A name can belong to a manual tag and an automatic one at the same time; both are renamed, just as deleting a tag deletes both.</li>
+<li><strong>Exactly one tag is left under the new name</strong>, carrying every item that had either name — including an automatic tag that already had the new name.</li>
+<li><strong>The renamed tag is manual.</strong> Renaming is how an automatic tag stops being one, in the desktop too.</li>
+<li><strong>Items already carrying the new name are left alone</strong>, and an item that carried both names ends up with it once.</li>
+<li><strong>Every affected item gets the new library version</strong>, so other clients download it. Their <code>dateModified</code> stays as it was, because no client made that change.</li>
+<li><strong>The old name is recorded as deleted</strong>, as if it had been deleted, and any deletion record for the new name is cleared. Otherwise one sync could tell a client both "remove this tag" and "here are items with it".</li>
+</ul>
+<p><code>If-Unmodified-Since-Version</code> is required. Renaming a tag to its own name changes nothing and does not advance the library version. An unknown tag is a 404; an empty name, or one longer than 255 characters, is a 400.</p>
+<p>The browser's tag list uses the same rename — see <a href="../web-interface/#tags">Tags</a>.</p>
+<h3 id="the-desktop-clients-three-extra-views">The desktop client's three extra views<a class="headerlink" href="#the-desktop-clients-three-extra-views" title="Permanent link">&para;</a></h3>
+<p>The desktop's sidebar shows <strong>Recently Read</strong>, <strong>Duplicate Items</strong> and <strong>Unfiled Items</strong>, all worked out from its local copy of the library. zotero.org's API has none of them, so altero's versions exist only in its browser interface; the v3 API is unchanged.</p>
+<p><strong>Unfiled Items</strong> needs no interpretation: top-level items in no collection and not in the trash.</p>
+<p><strong>Duplicate Items</strong> is a judgment. Two items count as the same work if they share a DOI or ISBN (ignoring punctuation, case and any <code>https://doi.org/</code> prefix), or if they share a title (ignoring punctuation and case) <em>and</em> a creator surname or year. A title alone is not enough, because many works are called "Introduction"; only when neither item has a creator or a year does the title stand alone. Item types are not compared, so a book and a chapter of it appear as a pair. Notes, attachments and annotations are never compared.</p>
+<p><strong>Recently Read</strong> is a guess. Zotero 7 records when an attachment was last read and syncs it, but which items the desktop lists, and over what period, is not documented. altero lists items whose attachments were read in the last 90 days, newest first where the sort allows, and stand-alone attachments themselves. <strong>The 90 days is a guess</strong>, chosen so the view does not grow into "everything ever opened".</p>
+<h3 id="reading-a-library-out-of-zoteroorg">Reading a library out of zotero.org<a class="headerlink" href="#reading-a-library-out-of-zoteroorg" title="Permanent link">&para;</a></h3>
+<p>This is the one place altero makes requests instead of answering them: it reads a personal library from api.zotero.org and turns it into the same archive <code>altero library export</code> writes, then restores that archive.</p>
+<p><strong>It needs an API key.</strong> zotero.org offers no password sign-in for software, and OAuth would require every altero instance to register with Zotero. The key is used for the import and then forgotten.</p>
+<p><strong>Three things zotero.org's API does not provide</strong>, and what altero uses instead:</p>
+<table>
+<thead>
+<tr>
+<th>Missing</th>
+<th>Instead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>serverDateModified</code></td>
+<td>The item's <code>dateModified</code>, which is the same moment for anything a client last wrote</td>
+</tr>
+<tr>
+<td>Dates for collections, saved searches and tags</td>
+<td>The time of the import</td>
+</tr>
+<tr>
+<td>Versions of deleted objects</td>
+<td>The library's current version, so a client asking what was deleted since any earlier point hears about all of it</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Links between items are rewritten to the new account.</strong> Related items, merge records and similar links name the account they belong to as <code>http://zotero.org/users/&lt;id&gt;/items/&lt;key&gt;</code>. The account number is changed to the new one, or every link would point to an account this server does not know. The <code>zotero.org</code> part stays, because the desktop recognizes these links only in that exact form. Links into group libraries are left as they are, since groups are not imported.</p>
+<p><strong>zotero.org's rate limits are obeyed</strong> the way the desktop obeys altero's: requests go one at a time, <code>Backoff</code> pauses before the next request, and a 429 waits as long as <code>Retry-After</code> says — or, without it, a doubling delay starting at one second.</p>
+<p><strong><code>/tags?format=versions</code> fails on api.zotero.org</strong> with a server error, for every library tried, including Zotero's own example account. A real import stopped on it after reading everything else. So the import treats only items, collections and saved searches as essential and stops if one cannot be read. Tag versions, settings, full text, the deletion log and attachment files are read if possible and listed in the report if not. A tag without a version gets the library's, which is the safe direction: clients asking what changed hear about it.</p>
+<p><strong>Pages are fetched by position</strong>, not by following the <code>Link</code> header, because that header always points at api.zotero.org.</p>
+<h2 id="the-authorization-server">The authorization server<a class="headerlink" href="#the-authorization-server" title="Permanent link">&para;</a></h2>
+<h3 id="a-second-credential-for-the-v3-api">A second credential for the v3 API<a class="headerlink" href="#a-second-credential-for-the-v3-api" title="Permanent link">&para;</a></h3>
+<p>The v3 API is authenticated by a credential sent with each request, <strong>never</strong> by a browser cookie. The authorization server lets an OAuth access token be that credential, alongside an API key; the rule itself is unchanged.</p>
+<p>That distinction is the whole reason it is allowed. A browser attaches cookies to requests any website can trigger, so a cookie that worked on <code>/users/&lt;id&gt;/items</code> would expose the entire sync protocol to cross-site attacks. A token is sent only by the application holding it, and no other website can make it be sent.</p>
+<p><code>/keys/current</code> and <code>/keys/&lt;key&gt;</code> refuse access tokens. They describe and revoke an API key; a token is not one.</p>
+<h3 id="confining-a-grant-to-particular-resources">Confining a grant to particular resources<a class="headerlink" href="#confining-a-grant-to-particular-resources" title="Permanent link">&para;</a></h3>
+<p>A scope says <em>what</em> an application may do, never <em>where</em>. <code>library.read</code> means the whole personal library and <code>groups.read</code> every group the account belongs to — usually more than an application needs. On the consent screen the account holder can therefore narrow a grant to particular libraries, or to particular collections in them: "group 42 and none of my others", "the <em>Reading</em> collection and nothing else".</p>
+<p>zotero.org has nothing like this, so there is nothing to copy, and API keys are unaffected. Grants made before this feature existed stay unrestricted.</p>
+<p><strong>A collection means the branch</strong>: everything nested inside it, at any depth, and anything filed there later — as with shared links and the desktop's <em>Show Items from Subcollections</em>. Otherwise filing a paper into a subcollection would quietly withdraw it from the application. Granting a subcollection does not grant its parent.</p>
+<p><strong>What a collection grant reaches</strong>: items filed in the granted collections, plus their notes, attachments and annotations — child items are never filed in collections themselves, and a paper without its PDF would be useless. Nothing else: an unfiled item is outside, and so is an item filed only elsewhere, with its children.</p>
+<p><strong>Refusals reveal nothing.</strong> A collection outside the grant is absent from every listing and answers 404 by key, and so does an item inside one — directly, through its children, its file, its full text, or a write naming it. 404, not 403, so an application cannot map the parts it was kept out of by guessing keys. A whole library that was not granted answers 403, since the caller already named it. Renaming tags, deleting saved searches and deleting settings answer the same way, so they cannot be used to probe for names either.</p>
+<p><strong>My Publications keeps its notes.</strong> Published items can be read with no credential at all, so a confined token still sees their notes — but only the published items inside its grant, which is less than an anonymous visitor sees and the right way round.</p>
+<p><strong>Four things a confined grant never gets</strong>, because they belong to no collection:</p>
+<ul>
+<li><strong>Saved searches.</strong> A saved search reaches wherever its conditions reach. <code>/searches</code> answers with an empty list.</li>
+<li><strong>Settings</strong>, such as tag colors. <code>/settings</code> answers with an empty object.</li>
+<li><strong>The deletion log.</strong> A deleted object no longer says which collections it was in, so there is no way to tell whether it was inside the grant. <code>/deleted</code> reports nothing.</li>
+<li><strong>Changing the library's structure</strong>: no creating, renaming or deleting collections, no saved searches, no settings, no tag renames (a rename changes items outside the grant too), and no group changes or new groups. Items inside the grant stay writable if the scopes allow it.</li>
+</ul>
+<p>An item can be moved between granted collections but not out of them, and a new item must be placed in a granted collection.</p>
+<p><code>GET /users/&lt;id&gt;/groups</code> lists only granted groups, and the <code>groups</code> claim in user info and ID tokens is narrowed the same way.</p>
+<p><strong>The restriction belongs to the grant</strong>, not to a token, so a refreshed token keeps it; otherwise an application could simply wait for it to expire. Deleting the last collection a grant named leaves it reaching less, never everything.</p>
+<h3 id="signing-id-tokens-while-still-not-verifying-them">Signing ID tokens while still not verifying them<a class="headerlink" href="#signing-id-tokens-while-still-not-verifying-them" title="Permanent link">&para;</a></h3>
+<p>These two decisions look contradictory, but are not.</p>
+<p>As a <em>client</em> of somebody else's identity provider, altero does not verify the signature on the ID tokens it receives — see <a href="#not-verifying-the-id-tokens-signature">below</a>. As an <em>identity provider</em>, it signs the ID tokens it issues (RS256), publishes its key at <code>/oauth/jwks.json</code>, and checks its own signature when a token comes back during sign-out.</p>
+<p>Every reason for not verifying other providers' tokens concerns input somebody else controls: a token claiming no algorithm, confusion between key types, a key chosen by the attacker. Signing its own tokens and checking them against its own keys involves none of these: the algorithm is fixed and no key is looked up from the token. The implementation is tested against the published examples in the relevant standards (RFC 7515 and RFC 7638).</p>
+<h3 id="no-dynamic-client-registration">No dynamic client registration<a class="headerlink" href="#no-dynamic-client-registration" title="Permanent link">&para;</a></h3>
+<p>Applications cannot register themselves (RFC 7591), and never will. The list of addresses an authorization code may be sent to is the whole security of the sign-in flow; a list anyone can add to protects nothing. An administrator registers applications from the command line.</p>
+<h3 id="pkce-is-required-and-s256-is-the-only-method">PKCE is required, and <code>S256</code> is the only method<a class="headerlink" href="#pkce-is-required-and-s256-is-the-only-method" title="Permanent link">&para;</a></h3>
+<p>The <code>plain</code> method makes the challenge identical to the secret it protects, so anyone who intercepts the code has everything needed to use it. altero neither offers nor accepts it, and requires PKCE from every application, including those with a client secret.</p>
+<h3 id="scopes-are-refused-rather-than-narrowed">Scopes are refused rather than narrowed<a class="headerlink" href="#scopes-are-refused-rather-than-narrowed" title="Permanent link">&para;</a></h3>
+<p>An unknown scope, a scope the application is not registered for, or one useless without another is an error, rather than being quietly dropped. Dropping it would produce an application that half works and a person who cannot tell which half. <code>library.write</code> without <code>library.read</code> is the useless case.</p>
+<p>There is no <code>annotations.*</code> scope: annotations are items, and the API has no separate permission for them.</p>
+<h2 id="identity-provider-security-notes">Identity-provider security notes<a class="headerlink" href="#identity-provider-security-notes" title="Permanent link">&para;</a></h2>
+<h3 id="not-verifying-the-id-tokens-signature">Not verifying the ID token's signature<a class="headerlink" href="#not-verifying-the-id-tokens-signature" title="Permanent link">&para;</a></h3>
+<p>Not a compatibility question — zotero.org has no single sign-on — but recorded here because it looks wrong and is deliberate.</p>
+<p>altero does <strong>not</strong> verify the signature on OpenID Connect ID tokens. It fetches the token itself, directly from the provider's token endpoint over TLS, and the OpenID Connect standard (Core §3.1.3.7, item 6) allows the TLS connection to vouch for the token in exactly that case. Not verifying keeps a signature implementation out of altero, along with its classic mistakes, and altero never reads the token's header, so there is nothing there to forge.</p>
+<p>This rests on two conditions, both always true here:</p>
+<ul>
+<li><strong>altero is a confidential client.</strong> It sends a secret with the token request and uses the authorization code flow with PKCE only.</li>
+<li><strong>The token comes from the token endpoint</strong>, never from the browser.</li>
+</ul>
+<p>Every claim is still checked — issuer, audience, authorized party, nonce, expiry, issue time and subject — and with no signature check, those checks are where the security lies.</p>
+<p><strong>Supporting public clients would require revisiting this first</strong>, since the exemption does not cover them.</p>
+<h3 id="reading-a-saml-assertion-out-of-what-was-signed">Reading a SAML assertion out of what was signed<a class="headerlink" href="#reading-a-saml-assertion-out-of-what-was-signed" title="Permanent link">&para;</a></h3>
+<p>The code looks as if it does less than it should, which is why this is written down.</p>
+<p>Signature verification is left to the <a href="https://github.com/XML-Security/signxml">signxml</a> library; writing it by hand is where implementations grow security holes. The defense against forged assertions is structural: altero reads every claim from the part of the document the library confirmed was signed, never from the document as received. An attacker who wraps a forged assertion around a genuine one still gets only the genuine one read.</p>
+<p>A valid signature still proves nothing on its own, so altero also checks:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Why a signature does not cover it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The status is success</td>
+<td>A failed sign-in is signed too</td>
+</tr>
+<tr>
+<td>The validity period</td>
+<td>An assertion from last year is still signed</td>
+</tr>
+<tr>
+<td>The intended audience</td>
+<td>It may have been signed for a different service</td>
+</tr>
+<tr>
+<td>The recipient address</td>
+<td>It may be meant for another of altero's addresses</td>
+</tr>
+<tr>
+<td>The request it answers</td>
+<td>It may answer a sign-in nobody here started</td>
+</tr>
+<tr>
+<td>That it was not used before</td>
+<td>Nothing in SAML prevents presenting one twice</td>
+</tr>
+</tbody>
+</table>
+<p>Three deliberate limits: sign-in must <strong>start at altero</strong>, because an unsolicited assertion answers no request and accepting one means accepting anything the key ever signed; <strong>encrypted assertions are not supported</strong>, since TLS already protects the connection; and there is <strong>no single logout</strong>, which is unreliable in practice, and altero's session is its own.</p>
+<h2 id="deliberate-differences-from-zoteroorg">Deliberate differences from zotero.org<a class="headerlink" href="#deliberate-differences-from-zoteroorg" title="Permanent link">&para;</a></h2>
+<h3 id="deliberate-differences">Deliberate differences<a class="headerlink" href="#deliberate-differences" title="Permanent link">&para;</a></h3>
+<p>Six places where altero does not copy zotero.org:</p>
+<ul>
+<li><strong>No <code>alternate</code> links.</strong> zotero.org links every object to its page on zotero.org. altero will not send clients to somebody else's copy of the data, and its own interface has no page per object, so envelopes carry only <code>self</code> and <code>up</code>. A single-page response therefore has no <code>Link</code> header — except group listings, which carry <code>self</code> because the desktop needs the header (see <a href="#who-the-client-finds-in-a-group">Who the client finds in a group</a>).</li>
+<li><strong>An unknown <code>locale</code> falls back to <code>en-US</code>.</strong> zotero.org answers 500.</li>
+<li><strong>Rate limiting is off unless configured.</strong> A self-hosted server with a handful of clients rarely needs it; set <code>ALTERO_RATE_LIMIT</code> to turn it on.</li>
+<li><strong>Fields with the same translated name may be ordered differently.</strong> Three fields are called "Format"; zotero.org orders them by an internal number the published schema lacks.</li>
+<li><strong>Tags can be renamed through the API</strong> — see <a href="#renaming-a-tag">Renaming a tag</a>. An addition rather than a change: nothing that reads tags behaves differently.</li>
+<li><strong>altero makes requests of its own</strong>, in one place only: <a href="#reading-a-library-out-of-zoteroorg">reading a library out of zotero.org</a>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../status/" class="md-footer__link md-footer__link--prev" aria-label="Previous: What works">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                What works
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../schema/" class="md-footer__link md-footer__link--next" aria-label="Next: Database schema">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Database schema
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Erich Seifert &middot; AGPL-3.0-or-later
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/eseifert/altero" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M216.5 362.5c-66-8-112.5-55.5-112.5-117 0-25 9-52 24-70-6.5-16.5-5.5-51.5 2-66 20-2.5 47 8 63 22.5 19-6 39-9 63.5-9s44.5 3 62.5 8.5c15.5-14 43-24.5 63-22 7 13.5 8 48.5 1.5 65.5 16 19 24.5 44.5 24.5 70.5 0 61.5-46.5 108-113.5 116.5 17 11 28.5 35 28.5 62.5v52c0 15 12.5 23.5 27.5 17.5C441 459.5 512 369 512 257 512 115.5 397 0 255.5 0S0 115.5 0 257c0 111 70.5 203 165.5 237.5 13.5 5 26.5-4 26.5-17.5v-40c-7 3-16 5-24 5-33 0-52.5-18-66.5-51.5-5.5-13.5-11.5-21.5-23-23-6-.5-8-3-8-6 0-6 10-10.5 20-10.5 14.5 0 27 9 40 27.5 10 14.5 20.5 21 33 21s20.5-4.5 32-16c8.5-8.5 15-16 21-21"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["content.action.edit","content.code.annotate","content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.tabs","navigation.top","navigation.tracking","search.highlight","toc.follow"],"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.49251538.min.js"></script>
+      
+    
+  </body>
+</html>
