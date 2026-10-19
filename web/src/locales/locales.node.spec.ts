@@ -20,6 +20,7 @@ import et from './et'
 import eu from './eu'
 import fi from './fi'
 import fr from './fr'
+import gl from './gl'
 import hi from './hi'
 import hu from './hu'
 import id from './id'
@@ -71,6 +72,7 @@ const CATALOGUES = {
   'pt-PT': ptPT,
   ca,
   eu,
+  gl,
   it: italian,
   nl,
   af,

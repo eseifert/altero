@@ -55,6 +55,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["et"] == "Eesti"
         assert LANGUAGES["eu"] == "Euskara"
         assert LANGUAGES["fi"] == "Suomi"
+        assert LANGUAGES["gl"] == "Galego"
         assert LANGUAGES["hi"] == "हिन्दी"
         assert LANGUAGES["hu"] == "Magyar"
         assert LANGUAGES["id"] == "Bahasa Indonesia"
@@ -174,6 +175,7 @@ class TestNormalisingALanguage:
             ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
+            ("gl-ES", "gl"),
             ("eu-ES", "eu"),
             ("et-EE", "et"),
             ("ca-ES", "ca"),

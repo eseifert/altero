@@ -52,6 +52,7 @@ describe('the languages on offer', () => {
         'pt-PT',
         'ca',
         'eu',
+        'gl',
         'it',
         'nl',
         'af',
@@ -120,6 +121,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['gl-ES'])).toBe('gl')
     expect(resolveLocale(null, ['eu-ES'])).toBe('eu')
     expect(resolveLocale(null, ['et-EE'])).toBe('et')
     expect(resolveLocale(null, ['ca-ES'])).toBe('ca')
@@ -190,6 +192,8 @@ describe('counting in a language with two forms', () => {
     ['et', 5, '5 kirjet'],
     ['eu', 1, '1 elementu'],
     ['eu', 5, '5 elementu'],
+    ['gl', 1, '1 elemento'],
+    ['gl', 5, '5 elementos'],
     ['ml', 1, '1 ഇനം'],
     ['ml', 5, '5 ഇനങ്ങൾ'],
     ['tl', 1, '1 item'],

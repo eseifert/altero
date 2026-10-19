@@ -35,6 +35,7 @@ export const LOCALES = [
   'pt-PT',
   'ca',
   'eu',
+  'gl',
   'it',
   'nl',
   'af',
@@ -128,8 +129,8 @@ function zeroAsOne(choice: number, branches: number): number {
  *
  * English separates one from many and every catalogue followed, because that is
  * what German, French, Spanish, Portuguese, Danish, Norwegian, Swedish,
- * Finnish, Estonian, Dutch, Afrikaans, Catalan, Italian, Greek, Tamil,
- * Malayalam and Tagalog do too -- and Japanese, Korean, Thai, Khmer,
+ * Finnish, Estonian, Dutch, Afrikaans, Catalan, Galician, Italian, Greek,
+ * Tamil, Malayalam and Tagalog do too -- and Japanese, Korean, Thai, Khmer,
  * Vietnamese, Indonesian, Bengali and Chinese, which inflect nothing, write the
  * one form twice rather than pretend to a distinction; Turkish, Hungarian,
  * Georgian and Basque, which count with the singular, do the same. Polish,
