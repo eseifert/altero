@@ -35,6 +35,7 @@ LANGUAGES: dict[str, str] = {
     "pt-BR": "Português (Brasil)",
     "pt-PT": "Português (Portugal)",
     "ca": "Català",
+    "eu": "Euskara",
     "it": "Italiano",
     "nl": "Nederlands",
     "af": "Afrikaans",

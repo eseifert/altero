@@ -34,6 +34,7 @@ export const LOCALES = [
   'pt-BR',
   'pt-PT',
   'ca',
+  'eu',
   'it',
   'nl',
   'af',
@@ -130,13 +131,13 @@ function zeroAsOne(choice: number, branches: number): number {
  * Finnish, Estonian, Dutch, Afrikaans, Catalan, Italian, Greek, Tamil,
  * Malayalam and Tagalog do too -- and Japanese, Korean, Thai, Khmer,
  * Vietnamese, Indonesian, Bengali and Chinese, which inflect nothing, write the
- * one form twice rather than pretend to a distinction; Turkish, Hungarian and
- * Georgian, which count with the singular, do the same. Polish, Czech, Slovak,
- * Russian and Ukrainian have a third form for the small counts, so "2 elementy"
- * and "5 elementów" are different words: their catalogues carry three branches
- * and these rules choose between them. Slovenian has a dual as well, and so
- * four: "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". Romanian's third form is
- * for twenty and over, which take "de": "19 înregistrări" but
+ * one form twice rather than pretend to a distinction; Turkish, Hungarian,
+ * Georgian and Basque, which count with the singular, do the same. Polish,
+ * Czech, Slovak, Russian and Ukrainian have a third form for the small counts,
+ * so "2 elementy" and "5 elementów" are different words: their catalogues carry
+ * three branches and these rules choose between them. Slovenian has a dual as
+ * well, and so four: "1 vnos", "2 vnosa", "3 vnosi", "5 vnosov". Romanian's
+ * third form is for twenty and over, which take "de": "19 înregistrări" but
  * "20 de înregistrări". Lithuanian's and Latvian's are for nought, the tens and
  * the teens: "21 įrašas", "22 įrašai", "11 įrašų"; "21 vienums", "22 vienumi",
  * "11 vienumu". Bengali and Hindi count zero with one rather than with many. A

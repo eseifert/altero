@@ -17,6 +17,7 @@ import enGB from './en-GB'
 import en from './en-US'
 import es from './es'
 import et from './et'
+import eu from './eu'
 import fi from './fi'
 import fr from './fr'
 import hi from './hi'
@@ -69,6 +70,7 @@ const CATALOGUES = {
   'pt-BR': ptBR,
   'pt-PT': ptPT,
   ca,
+  eu,
   it: italian,
   nl,
   af,
