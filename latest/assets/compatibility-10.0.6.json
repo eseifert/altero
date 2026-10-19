@@ -1,0 +1,491 @@
+{
+  "desktop_version": "10.0.6",
+  "cells": [
+    {
+      "scenario": "baseline",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 15,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "f7502a677d3990b3fce91568e352ae37adfe6f3dc478a492f1745ce93a36f239",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "conflicts",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 21,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "3cd3a3cd4d21f41b36ef85a49a74f20b18575cea41684b69d8ca1085dd45733c",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "filing",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 7,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "3a106ab3d5e42bae8e042eeaf3eb089a82497a484b5284e6acb54f4c738841d7",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "groups",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 19,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "880bdf6c1db9d35e1d1c28a07fba7015e39612bcc033dd45c554d00affe57a1d",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "files",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 20,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "c6cc947afb2a1c245a0236163e1fbd3d2d97f93990f54cf8882bcb44bf8a2f3a",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "relationships",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 6,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "b9ffe30b909d7eba37cf295150a28fca86a8cca469f42ed530f3cabc9c29ed10",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "recovery",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 16,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "9214c47933d662217b6c8a51c1fcfb94e6fe56cb2932b2384ce113c858d24fc8",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "credentials",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 12,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "114344b2335745d4da5e225855f7402470266d2d4f54adfec1a21b82b0f08441",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "fulltext",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 9,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "6166f3308f4e7775e54db418f2ff66531609681f8c25d5ebda540f7d7d290a84",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "read-races",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 24,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "60132ffcc9d4df68cf2a9f05015ce1e14d071370d465ea76465b1e16c25899d5",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "settings",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 11,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "e8fc56d45aa4f01a7596ffd2701b642e86c843a10055de706d4b7e3f4a105055",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "partial-failures",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 10,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "3517bfe81235bc651e18aeafb16f000106ab042c086513eb14db1a93c93a9fd6",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "graphs",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 17,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "f00410c5849f9dae20e830317142a34ed7d165dfb572968eb1e60943e5712232",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "http-policy",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 7,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "ff83bea1430c5c85f27e3c075baf4782d96d4f8fa1168f58f962bff73800d234",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "server-writes",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 8,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "7bae1d6813d04ec0826454393a098f3aca3128a24a3dba4fc5a763309032dc94",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "resync",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 13,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "0cbc39da9c21ad0d8af3e6c6b5a2696ede2241b47762af7fc22d3fce1c3f305a",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "file-lifecycle",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 16,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "71865c878efd7fa4c5849311a9ec008e2829c7f43c78ed8f6ea6618881467444",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "upload-interruption",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 8,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "38a64ad591a72d8c54352eae834e7d7082d9b7a485b5914b1dc661ee81b7bf31",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "server-crash",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 7,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "c9cadaf10f6d2e3b7ef893226af067a13363c8cf4385591ee48096d3089de1cb",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "transient-errors",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 22,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "a4593068f85b91168c2e2eea8b0766dfd24344cca55b2c872f909058c2e8c10b",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "streaming-reconnect",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 6,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "e68cbb71ab3fb4eaac823a79963495a17bda9680b8d8453ebca69510cd5f464f",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "parent-rejection",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 7,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": "c18a51535066e4d24c4a890a6cf613b08b04b5e7b3d00cfc4f2c1080ebbf46cd",
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "reader-rendering",
+      "backend": "sqlite",
+      "status": "failed",
+      "phases": 3,
+      "report_sha256": "d3c23f8e25fd60c7997c987da3ba5f0f28846c491a4e41bf2f3bfa4c557c5a25",
+      "snapshots_sha256": null,
+      "finished_at": "2026-10-19T00:59:29.464019+00:00"
+    },
+    {
+      "scenario": "zipped-digest-race",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 13,
+      "report_sha256": "18ac4e6e425d604afa4080ccc88ece4de8fd9e0382cdb13f88cb8060070c0cf4",
+      "snapshots_sha256": "a4cfc1d5a9d79385059c185413727ea73ab6746ffc856fb026df8d0793270845",
+      "finished_at": "2026-10-19T01:17:19.437073+00:00"
+    },
+    {
+      "scenario": "backup-rewind",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 10,
+      "report_sha256": "18ac4e6e425d604afa4080ccc88ece4de8fd9e0382cdb13f88cb8060070c0cf4",
+      "snapshots_sha256": "795cc097ef8d1040bf5b44467eafdb359da71be123887e18ce77a65f809bb226",
+      "finished_at": "2026-10-19T01:17:19.437073+00:00"
+    },
+    {
+      "scenario": "graph-races",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 19,
+      "report_sha256": "18ac4e6e425d604afa4080ccc88ece4de8fd9e0382cdb13f88cb8060070c0cf4",
+      "snapshots_sha256": "112ef73958c62a90a42518ced5a032171a26d88ceaec1b12d938b6f137b7fcb4",
+      "finished_at": "2026-10-19T01:17:19.437073+00:00"
+    },
+    {
+      "scenario": "credential-limits",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 12,
+      "report_sha256": "18ac4e6e425d604afa4080ccc88ece4de8fd9e0382cdb13f88cb8060070c0cf4",
+      "snapshots_sha256": "7eadfc02c023b0f98fa84c03c66e47112380bd526e85ae787248e8b718ab810c",
+      "finished_at": "2026-10-19T01:17:19.437073+00:00"
+    },
+    {
+      "scenario": "baseline",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 15,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "cd00a63fb20bf453818f47f2294709420bc4c3de5d6dd7f638db08bd0fe4f4ee",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "conflicts",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 21,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "bdc2231c7e4e055465def45b67833f717d4ce0428726bf1c1f534e5869e1d7fd",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "filing",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 7,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "d9760534b70d2cae525d59f7afede683612f6ac2a0676cc7d0d72d236a8b97fa",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "groups",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 19,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "560f2fc3ea52f8ba9788a27e1ca1acecd5bb221bdf7c95fca7cc47fe5dc5545d",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "files",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 20,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "1f31fc10f7a43b167f02a156c017877455d156c03a7efdf8515d7e211a3eb160",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "relationships",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 6,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "cf58cacb5594b18012a503d779e7d8da3634042f927aaafb0d19cf904aff7e7b",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "recovery",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 16,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "d1af27486b0b2ee22a5a6aef8b6e460361ddb21203a3c46589aefab2e99a5a41",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "credentials",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 12,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "6f88581701d3292b13456442bb2d33b42b79f7e2a4367c3c74f44167ffecff29",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "fulltext",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 9,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "3213dec7f6dadded93a7f03499dc10f2f5c99cffca5090a91e8d3192fea804c8",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "read-races",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 24,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "253edfcb5b0890026dbc4a6c992433234401ad0007602e7af82e0a104d615b7a",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "settings",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 11,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "e8fc56d45aa4f01a7596ffd2701b642e86c843a10055de706d4b7e3f4a105055",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "partial-failures",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 10,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "fddda6a12ea19d487d1e6b2dbd110781af59cfea9a7553ed9811716de6dccb7d",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "graphs",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 17,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "ceddfda1e7a150f7e2073b6f077f960d29de3122631a07de055da7cbd226709d",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "http-policy",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 7,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "c0ec089b1d9b0de271ea990a8feb065ec479da139c237cb3c0943d8bb91a08da",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "server-writes",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 8,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "9679ae30e6bb8c83821cf3737f0a1c2b499297942597799bcb0d0c1cc16a9951",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "resync",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 13,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "718c5c18be55f0a332d45af349568c0096a60475db9742a5ecd0649de0bc52cf",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "file-lifecycle",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 16,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "42429728007080b031e95a353b0615a06df885c1f8b97c7e30904ecde9671b8a",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "upload-interruption",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 8,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "1232d39a2ef737f2a55ca654944099f363e3a12c95cdffd7577df5f3c54a8129",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "server-crash",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 7,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "0dca32de417c102ebe081d821c5130d9323c7f7d608bd449eeb98b24ef0e3d9a",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "transient-errors",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 22,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "e3b7f39fc92b2f7d801fbe13d247e6c7b4b3dce2bfe443852ffacf5577baaa3f",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "streaming-reconnect",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 6,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "d7961e7de3c4afd92bed75b90b33f52243333e6e78106540627c84efce241620",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "parent-rejection",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 7,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": "a4cec7bb70c5fd5683c867da93eb2bc036f8c1902b5d9b39f18670712051d615",
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "reader-rendering",
+      "backend": "postgresql",
+      "status": "failed",
+      "phases": 3,
+      "report_sha256": "8b23257306fca5c1a16c00e5d299916c0b37e40e9a97d1ee32f193f32117426f",
+      "snapshots_sha256": null,
+      "finished_at": "2026-10-19T00:59:39.349830+00:00"
+    },
+    {
+      "scenario": "zipped-digest-race",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 13,
+      "report_sha256": "eee9f97a94dd4cb18c54dd5bca5619c16df61d2eb6af8730bc21c0d7335dae67",
+      "snapshots_sha256": "68a95ad172344d6214a831db09f18b223b09c8a049c8281fb1d8296ffb77fb54",
+      "finished_at": "2026-10-19T01:17:20.538841+00:00"
+    },
+    {
+      "scenario": "backup-rewind",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 10,
+      "report_sha256": "eee9f97a94dd4cb18c54dd5bca5619c16df61d2eb6af8730bc21c0d7335dae67",
+      "snapshots_sha256": "752e6b23d5c7eaea6f969ba60a074db4d6bc2dc4025957260a9de4331909ac62",
+      "finished_at": "2026-10-19T01:17:20.538841+00:00"
+    },
+    {
+      "scenario": "graph-races",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 19,
+      "report_sha256": "eee9f97a94dd4cb18c54dd5bca5619c16df61d2eb6af8730bc21c0d7335dae67",
+      "snapshots_sha256": "93f1ca71aeec23c876b7b851859225c41a82a1b70782c3d7b0e878ed86366db5",
+      "finished_at": "2026-10-19T01:17:20.538841+00:00"
+    },
+    {
+      "scenario": "credential-limits",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 12,
+      "report_sha256": "eee9f97a94dd4cb18c54dd5bca5619c16df61d2eb6af8730bc21c0d7335dae67",
+      "snapshots_sha256": "4f5589ef1a20279f6dd76a530e182119a8e3282e4deca3fef9145e81811341b5",
+      "finished_at": "2026-10-19T01:17:20.538841+00:00"
+    }
+  ]
+}
