@@ -58,6 +58,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["fi"] == "Suomi"
         assert LANGUAGES["gl"] == "Galego"
         assert LANGUAGES["hi"] == "हिन्दी"
+        assert LANGUAGES["hr"] == "Hrvatski"
         assert LANGUAGES["hu"] == "Magyar"
         assert LANGUAGES["id"] == "Bahasa Indonesia"
         assert LANGUAGES["is"] == "Íslenska"
@@ -179,6 +180,7 @@ class TestNormalisingALanguage:
             ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
+            ("hr-HR", "hr"),
             ("is-IS", "is"),
             ("nn-NO", "nn"),
             ("bg-BG", "bg"),

@@ -191,10 +191,10 @@ How an operator registers an application, and what a client developer needs:
 The interface speaks English, German, French, Spanish, Portuguese, Catalan,
 Basque, Galician, Italian, Dutch, Afrikaans, Danish, Norwegian Bokmål, Norwegian
 Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak, Slovenian,
-Hungarian, Romanian, Lithuanian, Latvian, Estonian, Russian, Ukrainian,
-Bulgarian, Greek, Georgian, Mongolian, Turkish, Hindi, Bengali, Tamil,
-Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese, Indonesian, Tagalog and
-Chinese — 48 catalogs, because three of those are written differently in
+Croatian, Hungarian, Romanian, Lithuanian, Latvian, Estonian, Russian,
+Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish, Hindi, Bengali,
+Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese, Indonesian, Tagalog
+and Chinese — 49 catalogs, because three of those are written differently in
 different places and are carried twice: American and British English, Brazilian
 and European Portuguese, Simplified and Traditional Chinese. They are the same
 three Zotero splits.

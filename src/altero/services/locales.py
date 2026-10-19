@@ -50,6 +50,7 @@ LANGUAGES: dict[str, str] = {
     "cs": "Čeština",
     "sk": "Slovenčina",
     "sl": "Slovenščina",
+    "hr": "Hrvatski",
     "hu": "Magyar",
     "ro": "Română",
     "lt": "Lietuvių",

@@ -49,6 +49,7 @@ export const LOCALES = [
   'cs',
   'sk',
   'sl',
+  'hr',
   'hu',
   'ro',
   'lt',
@@ -90,9 +91,9 @@ const CATALOGUES = import.meta.glob<Record<string, string>>(
 
 const loaded = new Set<Locale>(['en-US'])
 
-/* Ends in 1 but not 11; ends in 2-4 but not 12-14; everything else. Russian
-   and Ukrainian count alike. */
-function eastSlavic(choice: number, branches: number): number {
+/* Ends in 1 but not 11; ends in 2-4 but not 12-14; everything else. Russian,
+   Ukrainian and Croatian count alike. */
+function byLastDigits(choice: number, branches: number): number {
   const tens = choice % 10
   const hundreds = choice % 100
   if (tens === 1 && hundreds !== 11) return 0
@@ -138,18 +139,18 @@ function zeroAsOne(choice: number, branches: number): number {
  * Khmer, Vietnamese, Indonesian, Bengali and Chinese, which inflect nothing,
  * write the one form twice rather than pretend to a distinction; Turkish,
  * Hungarian, Georgian, Basque and Mongolian, which count with the singular, do
- * the same. Polish, Czech, Slovak, Russian and Ukrainian have a third form for
- * the small counts, so "2 elementy" and "5 elementów" are different words:
- * their catalogues carry three branches and these rules choose between them.
- * Slovenian has a dual as well, and so four: "1 vnos", "2 vnosa", "3 vnosi",
- * "5 vnosov". Romanian's third form is for twenty and over, which take "de":
- * "19 înregistrări" but "20 de înregistrări". Lithuanian's and Latvian's are
- * for nought, the tens and the teens: "21 įrašas", "22 įrašai", "11 įrašų";
- * "21 vienums", "22 vienumi", "11 vienumu". Icelandic has the two forms English
- * has, but chooses by the last digit: "21 færsla", "11 færslur". Bengali and
- * Hindi count zero with one rather than with many. A catalogue written with
- * English's two would be wrong on every count from 2 to 4, which is what
- * `locales.node.spec.ts` now checks for.
+ * the same. Polish, Czech, Slovak, Croatian, Russian and Ukrainian have a third
+ * form for the small counts, so "2 elementy" and "5 elementów" are different
+ * words: their catalogues carry three branches and these rules choose between
+ * them. Slovenian has a dual as well, and so four: "1 vnos", "2 vnosa",
+ * "3 vnosi", "5 vnosov". Romanian's third form is for twenty and over, which
+ * take "de": "19 înregistrări" but "20 de înregistrări". Lithuanian's and
+ * Latvian's are for nought, the tens and the teens: "21 įrašas", "22 įrašai",
+ * "11 įrašų"; "21 vienums", "22 vienumi", "11 vienumu". Icelandic has the two
+ * forms English has, but chooses by the last digit: "21 færsla", "11 færslur".
+ * Bengali and Hindi count zero with one rather than with many. A catalogue
+ * written with English's two would be wrong on every count from 2 to 4, which
+ * is what `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
@@ -170,8 +171,9 @@ export const PLURAL_RULES = {
   sk: czechSlovak,
   bn: zeroAsOne,
   hi: zeroAsOne,
-  ru: eastSlavic,
-  uk: eastSlavic,
+  hr: byLastDigits,
+  ru: byLastDigits,
+  uk: byLastDigits,
   lt: baltic,
   lv: baltic,
   /* Ends in 1 but not 11; everything else. */

@@ -66,6 +66,7 @@ describe('the languages on offer', () => {
         'cs',
         'sk',
         'sl',
+        'hr',
         'hu',
         'ro',
         'lt',
@@ -125,6 +126,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['hr-HR'])).toBe('hr')
     expect(resolveLocale(null, ['is-IS'])).toBe('is')
     expect(resolveLocale(null, ['nn-NO'])).toBe('nn')
     expect(resolveLocale(null, ['bg-BG'])).toBe('bg')
@@ -447,6 +449,24 @@ describe('counting in Ukrainian', () => {
     [111, '111 документів'],
   ])('renders %i', (count, expected) => {
     expect(items('uk', count)).toBe(expected)
+  })
+})
+
+describe('counting in Croatian', () => {
+  /* Russian's rule: the last digit decides, unless the last two are a teen. */
+  it.each([
+    [1, '1 stavka'],
+    [2, '2 stavke'],
+    [4, '4 stavke'],
+    [5, '5 stavki'],
+    [0, '0 stavki'],
+    [11, '11 stavki'],
+    [12, '12 stavki'],
+    [21, '21 stavka'],
+    [22, '22 stavke'],
+    [111, '111 stavki'],
+  ])('renders %i', (count, expected) => {
+    expect(items('hr', count)).toBe(expected)
   })
 })
 
