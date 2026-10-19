@@ -61,6 +61,7 @@ export const LOCALES = [
   'km',
   'vi',
   'id',
+  'tl',
   'zh-CN',
   'zh-TW',
 ] as const
@@ -110,9 +111,9 @@ function zeroAsOne(choice: number, branches: number): number {
  *
  * English separates one from many and every catalogue followed, because that is
  * what German, French, Spanish, Portuguese, Danish, Norwegian, Swedish,
- * Finnish, Dutch, Italian, Greek, Tamil and Malayalam do too -- and Japanese,
- * Korean, Thai, Khmer, Vietnamese, Indonesian, Bengali and Chinese, which
- * inflect nothing, write the one form twice rather than pretend to a
+ * Finnish, Dutch, Italian, Greek, Tamil, Malayalam and Tagalog do too -- and
+ * Japanese, Korean, Thai, Khmer, Vietnamese, Indonesian, Bengali and Chinese,
+ * which inflect nothing, write the one form twice rather than pretend to a
  * distinction; Turkish, Hungarian and Georgian, which count with the singular,
  * do the same. Polish, Czech, Slovak, Russian and Ukrainian have a third form
  * for the small counts, so "2 elementy" and "5 elementów" are different words:
@@ -194,7 +195,8 @@ export function isLocale(value: unknown): value is Locale {
 
 /**
  * Where a bare `en`, `pt` or `zh` goes, following CLDR's likely subtags, and
- * where `no` goes: Norwegian naming no written standard is read as Bokmål.
+ * where `no` and `fil` go: Norwegian naming no written standard is read as
+ * Bokmål, and Filipino, the standardised Tagalog, as Tagalog.
  *
  * The same answer the server gives in `services/locales.py`, and
  * `tests/test_locales.py` fails if the two tables disagree -- the browser has
@@ -203,6 +205,7 @@ export function isLocale(value: unknown): value is Locale {
  */
 export const DEFAULT_VARIANTS: Record<string, Locale> = {
   en: 'en-US',
+  fil: 'tl',
   no: 'nb',
   pt: 'pt-BR',
   zh: 'zh-CN',
@@ -227,6 +230,7 @@ export const VARIANT_SUBTAGS: Record<string, Record<string, Locale>> = {
     uk: 'en-GB',
     za: 'en-GB',
   },
+  fil: {}, // One catalogue, Tagalog; see `DEFAULT_VARIANTS`.
   no: {}, // One catalogue, Bokmål; see `DEFAULT_VARIANTS`.
   pt: {
     br: 'pt-BR',

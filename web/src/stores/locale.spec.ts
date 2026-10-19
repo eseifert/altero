@@ -177,6 +177,7 @@ describe('formatting a date in each language on offer', () => {
     ['th', 'เมษายน'],
     ['km', 'មេសា'],
     ['vi', 'tháng 4'],
+    ['tl', 'Abril'],
     ['zh-CN', '4月'],
     ['zh-TW', '4月'],
   ])('%s names the month in its own words', (language, month) => {

@@ -62,6 +62,7 @@ LANGUAGES: dict[str, str] = {
     "km": "ខ្មែរ",
     "vi": "Tiếng Việt",
     "id": "Bahasa Indonesia",
+    "tl": "Tagalog",
     "zh-CN": "简体中文",
     "zh-TW": "繁體中文",
 }
@@ -71,10 +72,18 @@ LANGUAGES: dict[str, str] = {
 #: Following CLDR rather than picking is what makes this answerable rather than
 #: an opinion about who owns a language.
 #:
-#: `no` is the one exception, a language rather than a territory left open: it
-#: is Norwegian without naming a written standard, and goes to Bokmål, which
-#: most Norwegians write. Nynorsk (`nn`) has no catalogue and is not sent there.
-DEFAULT_VARIANTS: dict[str, str] = {"en": "en-US", "no": "nb", "pt": "pt-BR", "zh": "zh-CN"}
+#: `no` and `fil` are the exceptions, a language rather than a territory left
+#: open. `no` is Norwegian without naming a written standard, and goes to
+#: Bokmål, which most Norwegians write; Nynorsk (`nn`) has no catalogue and is
+#: not sent there. `fil` is Filipino, the standardised Tagalog that browsers
+#: in the Philippines report, and reads the Tagalog catalogue.
+DEFAULT_VARIANTS: dict[str, str] = {
+    "en": "en-US",
+    "fil": "tl",
+    "no": "nb",
+    "pt": "pt-BR",
+    "zh": "zh-CN",
+}
 
 #: The region and script subtags that pick a variant, lowercased.
 #:
@@ -94,6 +103,7 @@ VARIANT_SUBTAGS: dict[str, dict[str, str]] = {
         "uk": "en-GB",
         "za": "en-GB",
     },
+    "fil": {},  # One catalogue, Tagalog; see `DEFAULT_VARIANTS`.
     "no": {},  # One catalogue, Bokmål; see `DEFAULT_VARIANTS`.
     "pt": {
         "br": "pt-BR",

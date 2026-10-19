@@ -78,6 +78,7 @@ describe('the languages on offer', () => {
         'km',
         'vi',
         'id',
+        'tl',
         'zh-CN',
         'zh-TW',
       ]),
@@ -114,6 +115,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['tl-PH'])).toBe('tl')
     expect(resolveLocale(null, ['ml-IN'])).toBe('ml')
     expect(resolveLocale(null, ['km-KH'])).toBe('km')
     expect(resolveLocale(null, ['th-TH'])).toBe('th')
@@ -137,6 +139,12 @@ describe('the languages on offer', () => {
     expect(matchLocale('no')).toBe('nb')
     expect(matchLocale('no-NO')).toBe('nb')
     expect(matchLocale('nn-NO')).toBeNull()
+  })
+
+  it('reads Filipino as Tagalog', () => {
+    expect(matchLocale('fil')).toBe('tl')
+    expect(matchLocale('fil-PH')).toBe('tl')
+    expect(resolveLocale(null, ['fil-PH', 'en-US'])).toBe('tl')
   })
 
   it('sends a territory with no catalogue to the one it reads', () => {
@@ -166,6 +174,8 @@ describe('counting in a language with two forms', () => {
     ['ta', 5, '5 உருப்படிகள்'],
     ['ml', 1, '1 ഇനം'],
     ['ml', 5, '5 ഇനങ്ങൾ'],
+    ['tl', 1, '1 item'],
+    ['tl', 5, '5 na item'],
   ])('%s renders %i', (locale, count, expected) => {
     expect(items(locale, count)).toBe(expected)
   })

@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- The browser interface is translated into Thai, Khmer and Malayalam, 34 languages in all.
+- The browser interface is translated into Thai, Khmer, Malayalam and Tagalog, 35 languages in all.
 
 ## [1.0.0-beta.3] — 2026-10-19
 

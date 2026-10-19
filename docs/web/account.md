@@ -192,10 +192,10 @@ The interface speaks English, German, French, Spanish, Portuguese, Italian,
 Dutch, Danish, Norwegian Bokmål, Swedish, Finnish, Polish, Czech, Slovak,
 Slovenian, Hungarian, Romanian, Lithuanian, Russian, Ukrainian, Greek, Georgian,
 Turkish, Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer,
-Vietnamese, Indonesian and Chinese — 37 catalogs, because three of those are
-written differently in different places and are carried twice: American and
-British English, Brazilian and European Portuguese, Simplified and Traditional
-Chinese. They are the same three Zotero splits.
+Vietnamese, Indonesian, Tagalog and Chinese — 38 catalogs, because three of
+those are written differently in different places and are carried twice:
+American and British English, Brazilian and European Portuguese, Simplified and
+Traditional Chinese. They are the same three Zotero splits.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
 and both default to following the browser — which is a setting in itself, not

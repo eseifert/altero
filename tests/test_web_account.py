@@ -793,6 +793,7 @@ class TestLanguageAndTimeZone:
             "km",
             "vi",
             "id",
+            "tl",
             "zh-CN",
             "zh-TW",
         }
