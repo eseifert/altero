@@ -48,6 +48,7 @@ class TestTheOfferedLanguages:
         """A language list in one language is only useful to people who read it."""
         assert LANGUAGES["af"] == "Afrikaans"
         assert LANGUAGES["bn"] == "বাংলা"
+        assert LANGUAGES["ca"] == "Català"
         assert LANGUAGES["cs"] == "Čeština"
         assert LANGUAGES["de"] == "Deutsch"
         assert LANGUAGES["el"] == "Ελληνικά"
@@ -171,6 +172,7 @@ class TestNormalisingALanguage:
             ("lt-LT", "lt"),
             ("ro-RO", "ro"),
             ("hu-HU", "hu"),
+            ("ca-ES", "ca"),
             ("af-ZA", "af"),
             ("lv-LV", "lv"),
             ("tl-PH", "tl"),

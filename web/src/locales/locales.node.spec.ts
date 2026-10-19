@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest'
 
 import af from './af'
 import bn from './bn'
+import ca from './ca'
 import cs from './cs'
 import da from './da'
 import de from './de'
@@ -66,6 +67,7 @@ const CATALOGUES = {
   es,
   'pt-BR': ptBR,
   'pt-PT': ptPT,
+  ca,
   it: italian,
   nl,
   af,

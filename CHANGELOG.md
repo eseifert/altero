@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- The browser interface is translated into 6 more languages, 37 in all.
+- The browser interface is translated into 7 more languages, 38 in all.
 
 ## [1.0.0-beta.3] — 2026-10-19
 
