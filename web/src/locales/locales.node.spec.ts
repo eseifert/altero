@@ -27,6 +27,7 @@ import hu from './hu'
 import id from './id'
 // `it` is vitest's, so the Italian catalogue comes in under another name and
 // goes back to its tag in `CATALOGUES` below.
+import icelandic from './is'
 import italian from './it'
 import ja from './ja'
 import ka from './ka'
@@ -83,6 +84,7 @@ const CATALOGUES = {
   nb,
   nn,
   sv,
+  is: icelandic,
   fi,
   pl,
   cs,

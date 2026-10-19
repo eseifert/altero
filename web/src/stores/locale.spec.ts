@@ -47,7 +47,7 @@ describe('choosing the language', () => {
   })
 
   it('falls back to English when it speaks none of them', () => {
-    expect(resolveLocale(null, ['cy', 'is'])).toBe('en-US')
+    expect(resolveLocale(null, ['cy', 'kl'])).toBe('en-US')
   })
 
   it('reads an underscore tag, which some browsers still send', () => {
@@ -160,6 +160,7 @@ describe('formatting a date in each language on offer', () => {
     ['nb', 'april'],
     ['nn', 'april'],
     ['sv', 'april'],
+    ['is', 'apríl'],
     ['fi', 'huhtikuuta'],
     ['pl', 'kwietnia'],
     ['cs', 'dubna'],

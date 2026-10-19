@@ -44,6 +44,7 @@ LANGUAGES: dict[str, str] = {
     "nb": "Norsk bokmål",
     "nn": "Norsk nynorsk",
     "sv": "Svenska",
+    "is": "Íslenska",
     "fi": "Suomi",
     "pl": "Polski",
     "cs": "Čeština",

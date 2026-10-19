@@ -60,6 +60,7 @@ describe('the languages on offer', () => {
         'nb',
         'nn',
         'sv',
+        'is',
         'fi',
         'pl',
         'cs',
@@ -124,6 +125,7 @@ describe('the languages on offer', () => {
     expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
     expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
     expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
+    expect(resolveLocale(null, ['is-IS'])).toBe('is')
     expect(resolveLocale(null, ['nn-NO'])).toBe('nn')
     expect(resolveLocale(null, ['bg-BG'])).toBe('bg')
     expect(resolveLocale(null, ['mn-MN'])).toBe('mn')
@@ -206,6 +208,8 @@ describe('counting in a language with two forms', () => {
     ['bg', 5, '5 записа'],
     ['nn', 1, '1 element'],
     ['nn', 5, '5 element'],
+    ['is', 1, '1 færsla'],
+    ['is', 5, '5 færslur'],
     ['ml', 1, '1 ഇനം'],
     ['ml', 5, '5 ഇനങ്ങൾ'],
     ['tl', 1, '1 item'],
@@ -372,6 +376,22 @@ describe('counting in Latvian', () => {
     [111, '111 vienumu'],
   ])('renders %i', (count, expected) => {
     expect(items('lv', count)).toBe(expected)
+  })
+})
+
+describe('counting in Icelandic', () => {
+  /* Two forms, as in English, but chosen by the last digit. */
+  it.each([
+    [1, '1 færsla'],
+    [2, '2 færslur'],
+    [0, '0 færslur'],
+    [11, '11 færslur'],
+    [21, '21 færsla'],
+    [22, '22 færslur'],
+    [101, '101 færsla'],
+    [111, '111 færslur'],
+  ])('renders %i', (count, expected) => {
+    expect(items('is', count)).toBe(expected)
   })
 })
 

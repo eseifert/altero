@@ -43,6 +43,7 @@ export const LOCALES = [
   'nb',
   'nn',
   'sv',
+  'is',
   'fi',
   'pl',
   'cs',
@@ -144,10 +145,11 @@ function zeroAsOne(choice: number, branches: number): number {
  * "5 vnosov". Romanian's third form is for twenty and over, which take "de":
  * "19 înregistrări" but "20 de înregistrări". Lithuanian's and Latvian's are
  * for nought, the tens and the teens: "21 įrašas", "22 įrašai", "11 įrašų";
- * "21 vienums", "22 vienumi", "11 vienumu". Bengali and Hindi count zero with
- * one rather than with many. A catalogue written with English's two would be
- * wrong on every count from 2 to 4, which is what `locales.node.spec.ts` now
- * checks for.
+ * "21 vienums", "22 vienumi", "11 vienumu". Icelandic has the two forms English
+ * has, but chooses by the last digit: "21 færsla", "11 færslur". Bengali and
+ * Hindi count zero with one rather than with many. A catalogue written with
+ * English's two would be wrong on every count from 2 to 4, which is what
+ * `locales.node.spec.ts` now checks for.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three
@@ -172,6 +174,9 @@ export const PLURAL_RULES = {
   uk: eastSlavic,
   lt: baltic,
   lv: baltic,
+  /* Ends in 1 but not 11; everything else. */
+  is: (choice: number, branches: number) =>
+    choice % 10 === 1 && choice % 100 !== 11 ? 0 : Math.min(1, branches - 1),
   /* Exactly one; nought and anything ending in 1-19; everything else, which
      takes "de". */
   ro: (choice: number, branches: number) => {

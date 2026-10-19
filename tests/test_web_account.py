@@ -775,6 +775,7 @@ class TestLanguageAndTimeZone:
             "nb",
             "nn",
             "sv",
+            "is",
             "fi",
             "pl",
             "cs",
