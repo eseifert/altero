@@ -767,6 +767,7 @@ class TestLanguageAndTimeZone:
             "pt-PT",
             "it",
             "nl",
+            "af",
             "da",
             "nb",
             "sv",

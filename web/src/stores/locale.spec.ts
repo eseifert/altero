@@ -152,6 +152,7 @@ describe('formatting a date in each language on offer', () => {
     ['pt-PT', 'abril'],
     ['it', 'aprile'],
     ['nl', 'april'],
+    ['af', 'April'],
     ['da', 'april'],
     ['nb', 'april'],
     ['sv', 'april'],

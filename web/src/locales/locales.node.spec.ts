@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import af from './af'
 import bn from './bn'
 import cs from './cs'
 import da from './da'
@@ -67,6 +68,7 @@ const CATALOGUES = {
   'pt-PT': ptPT,
   it: italian,
   nl,
+  af,
   da,
   nb,
   sv,
