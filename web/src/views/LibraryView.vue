@@ -22,6 +22,7 @@ import TagDialog from '@/components/TagDialog.vue'
 import { useCarry } from '@/dragging'
 import { exportable } from '@/exportformats'
 import { fieldLabel, loadLabels } from '@/items/labels'
+import { getItemTitle } from '@/items/titles'
 import { libraryLabel } from '@/librarylabel'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
 import { useAuthStore } from '@/stores/auth'
@@ -260,21 +261,8 @@ function clearSearch(): void {
   searchField.value?.focus()
 }
 
-/* A note's title is the start of its text, read out of its HTML: worked out once
-   per note rather than on every render, which for a long note is a regex over
-   all of it. Keyed by the item's data, which the store replaces when it changes. */
-const noteTitles = new WeakMap<object, string>()
-
 function titleOf(item: ItemEnvelope): string {
-  if (item.data.itemType === 'note') {
-    let text = noteTitles.get(item.data)
-    if (text === undefined) {
-      text = (item.data.note ?? '').replace(/<[^>]+>/g, ' ').trim().slice(0, 120)
-      noteTitles.set(item.data, text)
-    }
-    return text || t('Note')
-  }
-  return (item.data.title as string) || t('(untitled)')
+  return getItemTitle(item) || t(item.data.itemType === 'note' ? 'Note' : '(untitled)')
 }
 
 /*

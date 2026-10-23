@@ -1,5 +1,5 @@
 /**
- * Display names for item types, fields and creator types.
+ * Display names and base-field mappings from the server's Zotero schema.
  *
  * Taken from the server's copy of the Zotero schema rather than restated here:
  * the schema already carries every name in 48 locales, and a hand-kept list
@@ -18,12 +18,13 @@ interface DisplayNames {
   itemTypes: Record<string, string>
   fields: Record<string, string>
   creatorTypes: Record<string, string>
+  mappings: Record<string, Record<string, string>>
 }
 
 /* Reactive, because the names always arrive after the first render. Anything
    that asked for a label before the request finished has to be told when the
    answer is in, or it keeps the split camel case for as long as it is shown. */
-const names: DisplayNames = reactive({ itemTypes: {}, fields: {}, creatorTypes: {} })
+const names: DisplayNames = reactive({ itemTypes: {}, fields: {}, creatorTypes: {}, mappings: {} })
 
 /** The locale the names in hand, or the request in flight, were asked for. */
 let wanted: string | null = null
@@ -40,7 +41,7 @@ export function humanize(name: string): string {
 }
 
 /**
- * Load the display names for one locale; repeat calls for it await the first.
+ * Load schema names and mappings for one locale; repeat calls await the first.
  *
  * A different locale is a different set of names, so it is fetched again: the
  * interface's language can change while it is open, and labels that stayed in
@@ -60,6 +61,7 @@ export function loadLabels(locale?: string): Promise<void> {
       names.itemTypes = payload.itemTypes ?? {}
       names.fields = payload.fields ?? {}
       names.creatorTypes = payload.creatorTypes ?? {}
+      names.mappings = payload.mappings ?? {}
     })
     .catch(() => {
       // Labels are a nicety. The library still reads without them, and letting
@@ -82,11 +84,21 @@ export function itemTypeLabel(name: string): string {
   return names.itemTypes[name] ?? humanize(name)
 }
 
+/** Read a base field through its type-specific mapping, as Zotero Web Library does. */
+export function getBaseMappedValue(
+  data: Record<string, unknown> & { itemType: string },
+  property: string,
+): unknown {
+  const field = names.mappings[data.itemType]?.[property] ?? property
+  return data[field]
+}
+
 /** Discard what has been loaded. Used by tests, and by nothing else. */
 export function resetLabels(): void {
   names.itemTypes = {}
   names.fields = {}
   names.creatorTypes = {}
+  names.mappings = {}
   pending = null
   wanted = null
 }

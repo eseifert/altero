@@ -195,7 +195,7 @@ class Schema:
         return dict(self.raw["csl"]["names"])
 
     @cached_property
-    def _base_field_targets(self) -> dict[str, dict[str, str]]:
+    def base_field_mappings(self) -> dict[str, dict[str, str]]:
         """Per item type, the field that stands in for each base field."""
         return {
             name: {field.base_field: field.name for field in type_.fields if field.base_field}
@@ -215,7 +215,7 @@ class Schema:
             return None
         if field in type_.field_names:
             return field
-        return self._base_field_targets[item_type].get(field)
+        return self.base_field_mappings[item_type].get(field)
 
     # -- locales ---------------------------------------------------------
 

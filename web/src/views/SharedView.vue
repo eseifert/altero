@@ -27,6 +27,7 @@ import { request } from '@/api/client'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import { formatDate } from '@/formats'
 import { fieldLabel, itemTypeLabel, loadLabels } from '@/items/labels'
+import { getItemTitle } from '@/items/titles'
 import type { ItemEnvelope } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 import { useSharedStore } from '@/stores/shared'
@@ -77,7 +78,7 @@ function creators(item: ItemEnvelope): string {
 }
 
 function title(item: ItemEnvelope): string {
-  return (item.data.title as string) || t('(untitled)')
+  return getItemTitle(item) || t(item.data.itemType === 'note' ? 'Note' : '(untitled)')
 }
 
 /** The item's own date, as its author typed it: never reformatted. */
@@ -104,7 +105,7 @@ function notes(): ItemEnvelope[] {
 }
 
 function attachmentName(child: ItemEnvelope): string {
-  return (child.data.title as string) || (child.data.filename as string) || child.key
+  return getItemTitle(child) || child.data.filename || child.key
 }
 
 /** Whether this server holds the bytes, as opposed to a bookmarked address. */

@@ -80,6 +80,11 @@ browser or downloaded. A citation can be rendered there in Chicago, APA, MLA,
 IEEE or Nature; the server renders it with the same CSL processor that answers
 `format=bib`, rather than a second implementation in the browser.
 
+Item headings use Zotero's title field for each type: **Case Name** for cases,
+**Subject** for emails and **Name of Act** for statutes. The same titles appear
+on public profiles and shared collection pages. An empty case name, subject or
+act name shows “(untitled)”.
+
 ### Collections
 
 Collections can be made, renamed, moved and removed here.

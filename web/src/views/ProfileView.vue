@@ -19,6 +19,7 @@ import { useI18n } from 'vue-i18n'
 import { request } from '@/api/client'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import { fieldLabel, itemTypeLabel, loadLabels } from '@/items/labels'
+import { getItemTitle } from '@/items/titles'
 import { LICENSES } from '@/publications/licenses'
 import { useAuthStore } from '@/stores/auth'
 import type { ItemEnvelope } from '@/stores/library'
@@ -83,7 +84,7 @@ function creators(item: ItemEnvelope): string {
 }
 
 function title(item: ItemEnvelope): string {
-  return (item.data.title as string) || t('(untitled)')
+  return getItemTitle(item) || t(item.data.itemType === 'note' ? 'Note' : '(untitled)')
 }
 
 /** The item's own date, as its author typed it: never reformatted. */
@@ -126,7 +127,7 @@ function notes(): ItemEnvelope[] {
 
 /** What an attachment is called: its title, else its filename, else its key. */
 function attachmentName(child: ItemEnvelope): string {
-  return (child.data.title as string) || (child.data.filename as string) || child.key
+  return getItemTitle(child) || child.data.filename || child.key
 }
 
 /** Whether this server holds the bytes, as opposed to a bookmarked address. */

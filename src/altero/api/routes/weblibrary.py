@@ -491,7 +491,7 @@ async def render_item_citation(
 
 @router.get("/schema")
 async def get_display_names(request: Request, locale: str | None = None) -> Response:
-    """Return the display names for item types, fields and creator types.
+    """Return schema display names and type-specific base-field mappings.
 
     Public, like the v3 schema endpoints it mirrors: the item type schema is the
     same for everyone and describes no library. It is served here so the
@@ -503,11 +503,15 @@ async def get_display_names(request: Request, locale: str | None = None) -> Resp
     304 and keeps it.
     """
     schema = get_schema()
-    tag = f'"{schema.version}-{schema.resolve_locale(locale)}-{__version__}"'
+    # The response shape changed to include mappings; invalidate older cached
+    # names even when the schema and altero versions have not changed.
+    tag = f'"{schema.version}-{schema.resolve_locale(locale)}-{__version__}-2"'
     headers = {"ETag": tag, "Cache-Control": "no-cache"}
     if request.headers.get("If-None-Match") == tag:
         return Response(status_code=304, headers=headers)
-    return JSONResponse(schema.display_names(locale), headers=headers)
+    return JSONResponse(
+        schema.display_names(locale) | {"mappings": schema.base_field_mappings}, headers=headers
+    )
 
 
 @router.get("/libraries/{library_id}/tags")

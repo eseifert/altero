@@ -9,6 +9,7 @@ import SidebarIcon from '@/components/SidebarIcon.vue'
 import { exportable } from '@/exportformats'
 import { formatDateTime } from '@/formats'
 import { fieldLabel, itemTypeLabel } from '@/items/labels'
+import { getItemTitle } from '@/items/titles'
 import type { ItemEnvelope } from '@/stores/library'
 
 const { t } = useI18n()
@@ -131,7 +132,9 @@ interface Creator {
   name?: string
 }
 
-const title = computed(() => (props.item.data.title as string) || t('(untitled)'))
+const title = computed(
+  () => getItemTitle(props.item) || t(props.item.data.itemType === 'note' ? 'Note' : '(untitled)'),
+)
 
 const creators = computed<Creator[]>(() =>
   Array.isArray(props.item.data.creators) ? (props.item.data.creators as Creator[]) : [],
@@ -211,10 +214,9 @@ watch(
 
 function childTitle(child: ItemEnvelope): string {
   if (child.data.itemType === 'note') {
-    const text = (child.data.note ?? '').replace(/<[^>]+>/g, ' ').trim()
-    return text.slice(0, 120) || t('Note')
+    return getItemTitle(child) || t('Note')
   }
-  return (child.data.title as string) || (child.data.filename as string) || child.key
+  return getItemTitle(child) || child.data.filename || child.key
 }
 </script>
 

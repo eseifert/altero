@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Cases, emails and statutes show their titles throughout the browser interface instead of “(untitled)” ([Issue#22]).
 - The browser interface is translated into 17 more languages, 48 in all.
 
 ## [1.0.0-beta.3] — 2026-10-19
@@ -231,3 +232,4 @@ The first release meant to be used by somebody other than its author.
 [Discussion#18]: https://github.com/eseifert/altero/discussions/18
 [Issue#11]: https://github.com/eseifert/altero/issues/11
 [Issue#13]: https://github.com/eseifert/altero/issues/13
+[Issue#22]: https://github.com/eseifert/altero/issues/22

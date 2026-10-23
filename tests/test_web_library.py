@@ -622,6 +622,32 @@ class TestDuplicatesArePagedNotRecomputed:
 
 
 class TestTheDisplayNames:
+    async def test_base_field_mappings_come_from_the_schema(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        response = await client.get("/web/schema")
+
+        assert response.status_code == 200
+        mappings = response.json()["mappings"]
+        assert mappings["case"]["title"] == "caseName"
+        assert mappings["email"]["title"] == "subject"
+        assert mappings["statute"]["title"] == "nameOfAct"
+        assert mappings["case"]["date"] == "dateDecided"
+        german = (await client.get("/web/schema?locale=de")).json()
+        assert german["mappings"] == mappings
+
+    async def test_cached_names_without_mappings_are_replaced(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        from altero import __version__
+        from altero.itemschema import get_schema
+
+        previous = f'"{get_schema().version}-en-US-{__version__}"'
+        response = await client.get("/web/schema", headers={"If-None-Match": previous})
+
+        assert response.status_code == 200
+        assert response.json()["mappings"]["case"]["title"] == "caseName"
+
     async def test_a_browser_holding_them_is_told_they_have_not_changed(
         self, client: httpx.AsyncClient
     ) -> None:
