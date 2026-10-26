@@ -215,6 +215,7 @@ export default {
   'Disconnect': 'Prekini povezavo',
   'Display name': 'Prikazno ime',
   'Display name claim': 'Trditev s prikaznim imenom',
+  'Dismiss': 'Zapri',
   'Done': 'Končano',
   'Done selecting': 'Končaj izbiranje',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

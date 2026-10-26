@@ -214,6 +214,7 @@ export default {
   Disconnect: 'ยกเลิกการเชื่อมต่อ',
   'Display name': 'ชื่อที่แสดง',
   'Display name claim': 'เคลมชื่อที่แสดง',
+  Dismiss: 'ปิด',
   Done: 'เสร็จสิ้น',
   'Done selecting': 'เลือกเสร็จแล้ว',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

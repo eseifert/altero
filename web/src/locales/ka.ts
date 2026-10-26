@@ -210,6 +210,7 @@ export default {
   'Disconnect': 'გათიშვა',
   'Display name': 'საჩვენებელი სახელი',
   'Display name claim': 'საჩვენებელი სახელის ატრიბუტი',
+  'Dismiss': 'დახურვა',
   'Done': 'მზადაა',
   'Done selecting': 'მონიშვნის დასრულება',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

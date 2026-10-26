@@ -1,0 +1,86 @@
+/*
+ * The interface's transitions, by name.
+ *
+ * Global rather than scoped: Vue puts these classes on whatever a transition
+ * wraps, which belongs to the component using it, not to the wrapper. Each one
+ * is short and says where something came from or went; none is decoration.
+ * `prefers-reduced-motion` in base.css shortens them all to nothing.
+ */
+
+/* A dialog or a menu: it grows out of where it was asked for. */
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition:
+    opacity var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+    transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* A section opening or closing: its height, measured by `Collapse.vue`. */
+.collapse-enter-active,
+.collapse-leave-active {
+  overflow: hidden;
+  transition: height var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+}
+
+/* A toast rises from the edge it sits on and fades as it goes. */
+.toast-enter-active,
+.toast-leave-active {
+  transition:
+    opacity var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard),
+    transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* Something about to be there, as its shape: a bar a shade lighter than a
+   divider, with a light passing over it. Each list sizes the bars to what it
+   shows; under reduced motion there is no light. */
+.skeleton {
+  border-radius: 999px;
+  background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in srgb, var(--md-sys-color-surface) 60%, transparent) 50%,
+      transparent 100%
+    )
+    color-mix(in srgb, var(--md-sys-color-outline-variant) 55%, transparent);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+/* Still, the light would sit partway along each bar and shade it unevenly. */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    background-image: none;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 150% 0;
+  }
+
+  to {
+    background-position: -50% 0;
+  }
+}
+
+/* The toasts still showing move up into the gap one leaves. */
+.toast-move {
+  transition: transform var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+}
+
+.toast-leave-active {
+  position: absolute;
+}

@@ -219,6 +219,7 @@ export default {
   'Disconnect': 'Odpojit',
   'Display name': 'Zobrazované jméno',
   'Display name claim': 'Deklarace zobrazovaného jména',
+  'Dismiss': 'Zavřít',
   'Done': 'Hotovo',
   'Done selecting': 'Ukončit výběr',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

@@ -8,6 +8,7 @@ import './styles/fonts.css'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/dialog.css'
+import './styles/motion.css'
 
 // The catalogue the browser most likely wants is fetched before the first
 // paint, so the page does not appear in English and then change. The account

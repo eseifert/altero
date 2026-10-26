@@ -215,6 +215,7 @@ export default {
   'Disconnect': 'Katkaise yhteys',
   'Display name': 'Näyttönimi',
   'Display name claim': 'Näyttönimen väite',
+  'Dismiss': 'Sulje',
   'Done': 'Valmis',
   'Done selecting': 'Lopeta valinta',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

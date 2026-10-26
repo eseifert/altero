@@ -209,6 +209,7 @@ export default {
   'Disconnect': 'Αποσύνδεση',
   'Display name': 'Εμφανιζόμενο όνομα',
   'Display name claim': 'Δήλωση εμφανιζόμενου ονόματος',
+  'Dismiss': 'Κλείσιμο',
   'Done': 'Τέλος',
   'Done selecting': 'Τέλος επιλογής',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

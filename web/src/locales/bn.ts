@@ -220,6 +220,7 @@ export default {
   'Disconnect': 'সংযোগ বিচ্ছিন্ন করুন',
   'Display name': 'প্রদর্শিত নাম',
   'Display name claim': 'প্রদর্শিত নামের ক্লেইম',
+  'Dismiss': 'বন্ধ করুন',
   'Done': 'সম্পন্ন',
   'Done selecting': 'নির্বাচন শেষ',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

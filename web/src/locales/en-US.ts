@@ -205,6 +205,7 @@ export default {
   'Disconnect': 'Disconnect',
   'Display name': 'Display name',
   'Display name claim': 'Display name claim',
+  'Dismiss': 'Dismiss',
   'Done': 'Done',
   'Done selecting': 'Done selecting',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.': 'Done. Zotero is picking up the connection now — you can close this page and go back to it.',

@@ -204,6 +204,7 @@ export default {
   'Device connected': 'Gerät verbunden',
   'Disconnect': 'Trennen',
   'Display name': 'Anzeigename',
+  Dismiss: 'Schließen',
   Done: 'Fertig',
   'Display name claim': 'Claim für den Anzeigenamen',
   'Done selecting': 'Fertig',

@@ -216,6 +216,7 @@ export default {
   'Disconnect': 'Katkesta ühendus',
   'Display name': 'Kuvatav nimi',
   'Display name claim': 'Kuvatava nime väide',
+  'Dismiss': 'Sulge',
   'Done': 'Valmis',
   'Done selecting': 'Valimine lõpetatud',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

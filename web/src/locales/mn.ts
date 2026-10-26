@@ -217,6 +217,7 @@ export default {
   'Disconnect': 'Салгах',
   'Display name': 'Харагдах нэр',
   'Display name claim': 'Харагдах нэрийн claim',
+  'Dismiss': 'Хаах',
   'Done': 'Болсон',
   'Done selecting': 'Сонголтыг дуусгах',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

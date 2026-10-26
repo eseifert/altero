@@ -7,6 +7,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/AppIcon.vue'
 import SvgIcon from '@/components/SvgIcon.vue'
 import ThemeMenu from '@/components/ThemeMenu.vue'
+import ToastHost from '@/components/ToastHost.vue'
 import { sidebarIcon } from '@/items/sidebaricons'
 import { useAuthStore } from '@/stores/auth'
 import { useGroupStore } from '@/stores/groups'
@@ -173,6 +174,8 @@ async function signOut(): Promise<void> {
     <main id="content" class="shell__main" tabindex="-1">
       <RouterView />
     </main>
+
+    <ToastHost />
   </div>
 </template>
 

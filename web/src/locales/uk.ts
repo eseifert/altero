@@ -219,6 +219,7 @@ export default {
   'Disconnect': 'Відключити',
   'Display name': 'Відображуване ім’я',
   'Display name claim': 'Атрибут відображуваного імені',
+  'Dismiss': 'Закрити',
   'Done': 'Готово',
   'Done selecting': 'Виділення завершено',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

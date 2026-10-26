@@ -223,6 +223,7 @@ export default {
   'Device connected': 'Dispositivo conectado',
   Disconnect: 'Desconectar',
   'Display name': 'Nome exibido',
+  Dismiss: 'Fechar',
   Done: 'Concluído',
   'Display name claim': 'Atributo do nome exibido',
   'Done selecting': 'Pronto',

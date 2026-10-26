@@ -215,6 +215,7 @@ export default {
   Disconnect: 'Atvienot',
   'Display name': 'Parādāmais vārds',
   'Display name claim': 'Parādāmā vārda prasība',
+  Dismiss: 'Aizvērt',
   Done: 'Gatavs',
   'Done selecting': 'Beigt atlasi',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

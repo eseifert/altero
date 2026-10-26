@@ -216,6 +216,7 @@ export default {
   'Disconnect': 'Deskonektatu',
   'Display name': 'Bistaratzeko izena',
   'Display name claim': 'Bistaratzeko izenaren atributua',
+  'Dismiss': 'Itxi',
   'Done': 'Eginda',
   'Done selecting': 'Hautatzen amaitu',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

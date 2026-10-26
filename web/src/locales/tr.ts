@@ -217,6 +217,7 @@ export default {
   'Disconnect': 'Bağlantıyı kes',
   'Display name': 'Görünen ad',
   'Display name claim': 'Görünen ad talebi',
+  'Dismiss': 'Kapat',
   'Done': 'Bitti',
   'Done selecting': 'Seçim bitti',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

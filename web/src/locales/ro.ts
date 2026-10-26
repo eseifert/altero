@@ -218,6 +218,7 @@ export default {
   Disconnect: 'Deconectează',
   'Display name': 'Nume afișat',
   'Display name claim': 'Revendicarea pentru numele afișat',
+  Dismiss: 'Închide',
   Done: 'Gata',
   'Done selecting': 'Selectare încheiată',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

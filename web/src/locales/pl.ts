@@ -218,6 +218,7 @@ export default {
   'Disconnect': 'Rozłącz',
   'Display name': 'Nazwa wyświetlana',
   'Display name claim': 'Atrybut z nazwą wyświetlaną',
+  'Dismiss': 'Zamknij',
   'Done': 'Gotowe',
   'Done selecting': 'Koniec zaznaczania',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

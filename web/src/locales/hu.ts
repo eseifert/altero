@@ -178,6 +178,7 @@ export default {
   'Disconnect': 'Leválasztás',
   'Display name': 'Megjelenített név',
   'Display name claim': 'Megjelenített név jogcíme',
+  'Dismiss': 'Bezárás',
   'Done': 'Kész',
   'Done selecting': 'Kijelölés befejezése',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.': 'Kész. A Zotero most veszi át a kapcsolatot — bezárhatja ezt az oldalt, és visszatérhet a Zoteróhoz.',

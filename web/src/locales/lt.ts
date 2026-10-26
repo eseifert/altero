@@ -208,6 +208,7 @@ export default {
   'Disconnect': 'Atjungti',
   'Display name': 'Rodomas vardas',
   'Display name claim': 'Rodomo vardo teiginys',
+  'Dismiss': 'Užverti',
   'Done': 'Atlikta',
   'Done selecting': 'Baigti žymėti',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

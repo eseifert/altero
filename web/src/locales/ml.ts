@@ -218,6 +218,7 @@ export default {
   Disconnect: 'വിച്ഛേദിക്കുക',
   'Display name': 'പ്രദർശന നാമം',
   'Display name claim': 'പ്രദർശന നാമ ക്ലെയിം',
+  Dismiss: 'അടയ്ക്കുക',
   Done: 'പൂർത്തിയായി',
   'Done selecting': 'തിരഞ്ഞെടുപ്പ് പൂർത്തിയായി',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

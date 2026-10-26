@@ -217,6 +217,7 @@ export default {
   'Disconnect': 'Ontkoppel',
   'Display name': 'Vertoonnaam',
   'Display name claim': 'Aanspraak vir vertoonnaam',
+  'Dismiss': 'Sluit',
   'Done': 'Klaar',
   'Done selecting': 'Klaar met kies',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

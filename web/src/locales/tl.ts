@@ -221,6 +221,7 @@ export default {
   'Disconnect': 'Idiskonekta',
   'Display name': 'Display name',
   'Display name claim': 'Claim para sa display name',
+  'Dismiss': 'Isara',
   'Done': 'Tapos na',
   'Done selecting': 'Tapos nang pumili',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

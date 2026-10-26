@@ -219,6 +219,7 @@ export default {
   'Disconnect': 'Digevreañ',
   'Display name': 'Anv diskwel',
   'Display name claim': 'Doareenn an anv diskwel',
+  'Dismiss': 'Serriñ',
   'Done': 'Graet',
   'Done selecting': 'Echu gant an diuzañ',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

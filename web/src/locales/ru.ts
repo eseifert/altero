@@ -219,6 +219,7 @@ export default {
   'Disconnect': 'Отключить',
   'Display name': 'Отображаемое имя',
   'Display name claim': 'Атрибут отображаемого имени',
+  'Dismiss': 'Закрыть',
   'Done': 'Готово',
   'Done selecting': 'Выделение окончено',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

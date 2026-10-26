@@ -202,6 +202,7 @@ export default {
   'Device connected': 'デバイスを接続しました',
   'Disconnect': '連携を解除',
   'Display name': '表示名',
+  Dismiss: '閉じる',
   Done: '完了',
   'Display name claim': '表示名のクレーム',
   'Done selecting': '選択を終える',

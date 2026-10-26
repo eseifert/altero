@@ -215,6 +215,7 @@ export default {
   'Disconnect': 'Ngắt kết nối',
   'Display name': 'Tên hiển thị',
   'Display name claim': 'Claim tên hiển thị',
+  'Dismiss': 'Đóng',
   'Done': 'Xong',
   'Done selecting': 'Chọn xong',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

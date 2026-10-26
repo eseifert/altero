@@ -85,6 +85,20 @@ a {
 }
 
 /*
+ * Words for a screen reader that the screen says some other way -- by a dot, a
+ * shape, a position. Out of sight but not out of the accessibility tree, which
+ * `display: none` would take it out of too.
+ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*
  * ---- Focus, motion and the skip link ----
  */
 

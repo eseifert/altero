@@ -218,6 +218,7 @@ export default {
   'Device connected': 'Dispositiu connectat',
   'Disconnect': 'Desconnecta',
   'Display name': 'Nom visible',
+  Dismiss: 'Tanca',
   Done: 'Fet',
   'Display name claim': 'Atribut del nom visible',
   'Done selecting': 'Fet',

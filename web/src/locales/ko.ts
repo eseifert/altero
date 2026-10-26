@@ -211,6 +211,7 @@ export default {
   'Disconnect': '연결 해제',
   'Display name': '표시 이름',
   'Display name claim': '표시 이름 클레임',
+  'Dismiss': '닫기',
   'Done': '완료',
   'Done selecting': '선택 완료',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

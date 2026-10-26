@@ -216,6 +216,7 @@ export default {
   'Disconnect': 'Koble fra',
   'Display name': 'Visningsnavn',
   'Display name claim': 'Claim for visningsnavn',
+  'Dismiss': 'Lukk',
   'Done': 'Ferdig',
   'Done selecting': 'Ferdig med å velge',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

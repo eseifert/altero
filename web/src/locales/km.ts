@@ -216,6 +216,7 @@ export default {
   Disconnect: 'ផ្តាច់',
   'Display name': 'ឈ្មោះបង្ហាញ',
   'Display name claim': 'ការអះអាង (claim) ឈ្មោះបង្ហាញ',
+  Dismiss: 'បិទ',
   Done: 'រួចរាល់',
   'Done selecting': 'ជ្រើសរើសរួចរាល់',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

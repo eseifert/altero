@@ -214,6 +214,7 @@ export default {
   'Disconnect': 'Verbinding verbreken',
   'Display name': 'Weergavenaam',
   'Display name claim': 'Claim met weergavenaam',
+  'Dismiss': 'Sluiten',
   'Done': 'Klaar',
   'Done selecting': 'Klaar met selecteren',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

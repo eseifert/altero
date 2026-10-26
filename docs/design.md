@@ -244,6 +244,17 @@ into a field — including the one-time code.
 0.01ms rather than zero so that a transition end event nothing else waits for
 still fires.
 
+Motion says where something came from or went, and nothing else. The named
+transitions are in `styles/motion.css` — `FadeScale` for something appearing in
+place, `Collapse` for a section opening by its height, and the toast's — on the
+`--md-sys-motion-*` tokens, 150 to 250 ms. A toast reports an errand that just
+happened and offers to undo it where it can; it stays while the pointer or focus
+is on it (2.2.1), sits in a live region that is always on the page, and never
+replaces the trash as the way to take back a deletion. While a list loads, its
+rows are drawn as shapes beside the status message a screen reader hears: the
+list's own rows and columns, each bar as tall as the text's capitals and as
+wide as what the column usually holds, so it reads as the table that is coming.
+
 What this cannot claim: none of it has been through a screen reader or a real
 audit. The measurable parts are measured, in tests that fail — including axe
 over the sign-in, library, settings, administration and profile pages at desktop

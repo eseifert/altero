@@ -205,12 +205,4 @@ function when(iso: string): string {
 .notice__when {
   font-size: var(--md-sys-typescale-body-small-size);
 }
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
 </style>

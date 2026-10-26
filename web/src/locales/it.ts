@@ -214,6 +214,7 @@ export default {
   'Disconnect': 'Scollega',
   'Display name': 'Nome visualizzato',
   'Display name claim': 'Claim del nome visualizzato',
+  'Dismiss': 'Chiudi',
   'Done': 'Fatto',
   'Done selecting': 'Selezione conclusa',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

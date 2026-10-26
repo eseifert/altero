@@ -212,6 +212,7 @@ export default {
   Disconnect: '中斷連接',
   'Display name': '顯示名稱',
   'Display name claim': '顯示名稱宣告',
+  Dismiss: '關閉',
   Done: '完成',
   'Done selecting': '選取完畢',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

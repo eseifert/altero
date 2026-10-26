@@ -50,6 +50,9 @@ const auth = useAuthStore()
 /** Columns the list offers, named by the field each one asks the server to sort by. */
 const COLUMN_FIELDS = ['title', 'creator', 'date']
 
+/** How many rows stand in for the items while they load: about a screen. */
+const SKELETON_ROWS = 8
+
 /* The schema names the columns, so a heading is the word the detail pane and
    Zotero itself use for the same thing, in whatever language is in force.
    `creator` is a creator type rather than a field, which is what the column
@@ -1664,13 +1667,25 @@ function sortLabel(column: { field: string; label: string }): string {
           </div>
         </div>
 
-        <p
-          v-if="library.loading && !library.items.length"
-          class="library__state"
-          role="status"
-        >
-          {{ t('Loading…') }}
-        </p>
+        <template v-if="library.loading && !library.items.length">
+          <!-- The rows about to arrive, as shapes: the same row and cells as
+               an item, so each bar sits under its heading and a narrow screen
+               drops the same columns. On screen the shapes say that the list is
+               loading; a screen reader, which cannot see them, hears it said. -->
+          <p class="library__state visually-hidden" role="status">{{ t('Loading…') }}</p>
+          <ul class="library__items library__skeleton table-rows" aria-hidden="true">
+            <li v-for="row in SKELETON_ROWS" :key="row" class="library__line">
+              <span class="library__row library__row--skeleton">
+                <span class="library__cell library__cell--icon">
+                  <span class="skeleton skeleton--icon"></span>
+                </span>
+                <span class="library__cell library__cell--title"><span class="skeleton"></span></span>
+                <span class="library__cell"><span class="skeleton"></span></span>
+                <span class="library__cell"><span class="skeleton"></span></span>
+              </span>
+            </li>
+          </ul>
+        </template>
         <p v-else-if="!library.items.length" class="library__state" role="status">
           {{ emptyMessage }}
         </p>
@@ -2628,7 +2643,7 @@ function sortLabel(column: { field: string; label: string }): string {
   cursor: default;
 }
 
-.library__row:hover:not(.library__row--head) {
+.library__row:hover:not(.library__row--head, .library__row--skeleton) {
   background: var(--md-sys-state-hover-surface);
 }
 
@@ -2658,6 +2673,51 @@ function sortLabel(column: { field: string; label: string }): string {
 .library__cell--icon {
   display: grid;
   place-items: center;
+}
+
+.library__row--skeleton {
+  cursor: default;
+}
+
+/* A line of text rather than a block: as tall as a capital, centred where the
+   words would be, so the row keeps the height an item's row has. */
+.library__row--skeleton .skeleton {
+  display: inline-block;
+  block-size: 0.7em;
+  vertical-align: middle;
+}
+
+/* Each column as wide as what it usually holds, the title varying most, so the
+   block reads as a table of items rather than a page of text. */
+.library__row--skeleton .library__cell--title .skeleton {
+  inline-size: 78%;
+}
+
+.library__line:nth-child(3n + 2) .library__cell--title .skeleton {
+  inline-size: 56%;
+}
+
+.library__line:nth-child(3n) .library__cell--title .skeleton {
+  inline-size: 90%;
+}
+
+.library__row--skeleton .library__cell:nth-child(3) .skeleton {
+  inline-size: 58%;
+}
+
+.library__line:nth-child(2n) .library__cell:nth-child(3) .skeleton {
+  inline-size: 42%;
+}
+
+.library__row--skeleton .library__cell:nth-child(4) .skeleton {
+  inline-size: 2.6em;
+}
+
+.library__row--skeleton .skeleton--icon {
+  inline-size: 16px;
+  block-size: 16px;
+  margin: 2px;
+  border-radius: 3px;
 }
 
 .library__cell--head {

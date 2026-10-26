@@ -208,6 +208,31 @@ describe('the item list', () => {
 
     expect(wrapper.get('.library__cell--title').text()).toBe('Structure and Interpretation')
   })
+
+  it('is drawn in the shape of its columns while the items load', async () => {
+    /* The same row and cells as an item, so the bars sit under the headings
+       and a narrow screen drops the same columns. */
+    const answer = requestMock.getMockImplementation()!
+    requestMock.mockImplementation((path: string) =>
+      /\/items(\?|$)/.test(path) ? new Promise(() => {}) : answer(path),
+    )
+
+    const wrapper = mount(LibraryView)
+    await settle(wrapper)
+
+    const skeleton = wrapper.get('.library__skeleton')
+    expect(skeleton.attributes('aria-hidden')).toBe('true')
+    for (const row of skeleton.findAll('.library__row')) {
+      expect(row.findAll('.library__cell')).toHaveLength(4)
+      expect(row.findAll('.skeleton')).toHaveLength(4)
+    }
+    // Said to a screen reader, which cannot see the shapes; on screen the
+    // shapes say it.
+    const status = wrapper.get('.library__state')
+    expect(status.text()).toBe('Loading…')
+    expect(status.attributes('role')).toBe('status')
+    expect(status.classes()).toContain('visually-hidden')
+  })
 })
 
 /**

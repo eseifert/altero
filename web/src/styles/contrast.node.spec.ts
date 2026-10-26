@@ -72,6 +72,7 @@ const TEXT: Array<[string, string, string]> = [
   ['on-error', 'error', 'text on error'],
   ['on-error-container', 'error-container', 'text in an error container'],
   ['inverse-on-surface', 'inverse-surface', 'text on the inverse surface'],
+  ['inverse-primary', 'inverse-surface', 'a toast’s action'],
 ]
 
 /** Control borders and focus rings, which need 3:1. */

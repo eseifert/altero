@@ -212,6 +212,7 @@ export default {
   'Disconnect': 'डिस्कनेक्ट करें',
   'Display name': 'प्रदर्शित नाम',
   'Display name claim': 'प्रदर्शित नाम क्लेम',
+  'Dismiss': 'बंद करें',
   'Done': 'हो गया',
   'Done selecting': 'चयन पूरा हुआ',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

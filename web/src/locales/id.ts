@@ -221,6 +221,7 @@ export default {
   'Disconnect': 'Putuskan',
   'Display name': 'Nama tampilan',
   'Display name claim': 'Klaim nama tampilan',
+  'Dismiss': 'Tutup',
   'Done': 'Selesai',
   'Done selecting': 'Selesai memilih',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':

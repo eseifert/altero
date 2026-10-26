@@ -221,6 +221,7 @@ export default {
   'Disconnect': 'துண்டி',
   'Display name': 'காட்சிப் பெயர்',
   'Display name claim': 'காட்சிப் பெயர் கோரல்',
+  'Dismiss': 'மூடு',
   'Done': 'முடிந்தது',
   'Done selecting': 'தேர்வு முடிந்தது',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
