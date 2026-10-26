@@ -21,6 +21,7 @@ from altero.models import (
     ItemField,
     ItemTag,
     Library,
+    LibraryType,
     Tag,
     User,
 )
@@ -723,6 +724,21 @@ async def list_item_versions(
         total=await count_matches(session, statement, query, len(objects)),
         library_version=library.version,
     )
+
+
+#: The predicate of a related-items link, which the desktop writes on both items.
+RELATED = "dc:relation"
+
+
+def item_uri(library: Library, key: str) -> str:
+    """The URI an item is named by in another object's relations.
+
+    ``zotero.org`` is a namespace here and not an address: the desktop's
+    parser is anchored to it (``Zotero.URI.defaultPrefix``), so a URI naming
+    this server would stop matching. See :mod:`altero.services.zoteroimport`.
+    """
+    kind = "users" if library.type is LibraryType.USER else "groups"
+    return f"http://zotero.org/{kind}/{library.owner_id}/items/{key}"
 
 
 async def get_item(

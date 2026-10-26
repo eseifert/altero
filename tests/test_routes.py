@@ -152,6 +152,8 @@ EXPECTED = [
     # The one write about a single item: a version belongs to an item, and a
     # selection has no shared one. Same module; see its docstring.
     ("/web/libraries/{library_id}/items/{item_key}", "PATCH"),
+    ("/web/libraries/{library_id}/items/{item_key}/related", "POST"),
+    ("/web/libraries/{library_id}/items/{item_key}/related/{other_key}", "DELETE"),
     # An item put into My Publications on the desktop client's terms, and taken
     # out again with its children. Same module; see its docstring.
     ("/web/libraries/{library_id}/publications/items/{item_key}", "PUT"),

@@ -1456,6 +1456,222 @@ class TestChangingTheType:
         assert response.status_code == 400
 
 
+class TestRelatedItems:
+    """The Related section: `dc:relation` written on both items at once.
+
+    The desktop's related box writes both sides, and with
+    `skipDateModifiedUpdate`: relating two items is not editing either. One
+    request is one version, as it is everywhere here.
+    """
+
+    def uri(self, key: str) -> str:
+        return f"http://zotero.org/users/1/items/{key}"
+
+    async def two(self, ada: httpx.AsyncClient, session: AsyncSession) -> tuple[int, str, str]:
+        """Two books last modified in 2020, so that no write can stamp the same time."""
+        library_id = await personal_library(ada)
+        api_key = await admin.create_api_key(session, username="ada", name="seed")
+        created = await ada.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": api_key.key},
+            json=[
+                {"itemType": "book", "title": title, "dateModified": "2020-01-01T00:00:00Z"}
+                for title in ("First", "Second")
+            ],
+        )
+        made = created.json()["successful"]
+        return library_id, made["0"]["key"], made["1"]["key"]
+
+    async def data(self, ada: httpx.AsyncClient, library_id: int, key: str) -> dict[str, Any]:
+        response = await ada.get(f"/web/libraries/{library_id}/items/{key}")
+        return dict(response.json())
+
+    async def relate(
+        self, ada: httpx.AsyncClient, library_id: int, key: str, *others: str
+    ) -> httpx.Response:
+        return await ada.post(
+            f"/web/libraries/{library_id}/items/{key}/related",
+            json={"items": list(others)},
+            headers=csrf_headers(ada),
+        )
+
+    async def unrelate(
+        self, ada: httpx.AsyncClient, library_id: int, key: str, other: str
+    ) -> httpx.Response:
+        return await ada.delete(
+            f"/web/libraries/{library_id}/items/{key}/related/{other}",
+            headers=csrf_headers(ada),
+        )
+
+    async def test_both_items_name_each_other(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, second = await self.two(ada, session)
+
+        response = await self.relate(ada, library_id, first, second)
+
+        assert response.status_code == 200
+        one = (await self.data(ada, library_id, first))["data"]
+        two = (await self.data(ada, library_id, second))["data"]
+        assert one["relations"] == {"dc:relation": self.uri(second)}
+        assert two["relations"] == {"dc:relation": self.uri(first)}
+
+    async def test_it_is_one_version_and_no_date_modified(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, second = await self.two(ada, session)
+        before = {key: await self.data(ada, library_id, key) for key in (first, second)}
+
+        response = await self.relate(ada, library_id, first, second)
+
+        version = before[second]["version"] + 1
+        assert int(response.headers["Last-Modified-Version"]) == version
+        for key in (first, second):
+            after = await self.data(ada, library_id, key)
+            assert after["version"] == version
+            assert after["data"]["dateModified"] == "2020-01-01T00:00:00Z"
+
+    async def test_several_at_once(self, ada: httpx.AsyncClient, session: AsyncSession) -> None:
+        library_id, first, second = await self.two(ada, session)
+        third = await seed_item(ada, session, title="Third", key_name="c")
+
+        await self.relate(ada, library_id, first, second, third)
+
+        relations = (await self.data(ada, library_id, first))["data"]["relations"]
+        assert sorted(relations["dc:relation"]) == sorted([self.uri(second), self.uri(third)])
+        assert (await self.data(ada, library_id, third))["data"]["relations"] == {
+            "dc:relation": self.uri(first)
+        }
+
+    async def test_relating_again_takes_no_version(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, second = await self.two(ada, session)
+        done = await self.relate(ada, library_id, first, second)
+
+        again = await self.relate(ada, library_id, second, first)
+
+        assert again.status_code == 200
+        assert again.headers["Last-Modified-Version"] == done.headers["Last-Modified-Version"]
+
+    async def test_other_relations_stay(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, second = await self.two(ada, session)
+        same = "http://zotero.org/groups/9/items/ZZZZ2345"
+        version = (await self.data(ada, library_id, first))["version"]
+        await ada.patch(
+            f"/web/libraries/{library_id}/items/{first}",
+            json={"version": version, "relations": {"owl:sameAs": same}},
+            headers=csrf_headers(ada),
+        )
+
+        await self.relate(ada, library_id, first, second)
+        await self.unrelate(ada, library_id, first, second)
+
+        assert (await self.data(ada, library_id, first))["data"]["relations"] == {
+            "owl:sameAs": same
+        }
+
+    async def test_removing_takes_both_sides(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, second = await self.two(ada, session)
+        await self.relate(ada, library_id, first, second)
+
+        response = await self.unrelate(ada, library_id, second, first)
+
+        assert response.status_code == 200
+        for key in (first, second):
+            assert (await self.data(ada, library_id, key))["data"]["relations"] == {}
+
+    async def test_an_item_cannot_be_related_to_itself(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, _ = await self.two(ada, session)
+
+        response = await self.relate(ada, library_id, first, first)
+
+        assert response.status_code == 400
+
+    async def test_an_unknown_item_is_not_found(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, _ = await self.two(ada, session)
+
+        response = await self.relate(ada, library_id, first, "ZZZZ2345")
+
+        assert response.status_code == 404
+        assert (await self.data(ada, library_id, first))["data"]["relations"] == {}
+
+    async def test_an_item_in_the_trash_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, second = await self.two(ada, session)
+        await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": [second], "deleted": True},
+            headers=csrf_headers(ada),
+        )
+
+        response = await self.relate(ada, library_id, first, second)
+
+        assert response.status_code == 400
+
+    async def test_a_group_item_is_named_by_its_group(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        group = await factories.make_group(session, group_id=53, owner_id=1, members={})
+        one = await factories.make_item(session, group, fields={"title": "One"})
+        two = await factories.make_item(session, group, fields={"title": "Two"})
+        await session.commit()
+
+        await self.relate(ada, group.id, one.key, two.key)
+
+        data = (await self.data(ada, group.id, one.key))["data"]
+        assert data["relations"] == {"dc:relation": f"http://zotero.org/groups/53/items/{two.key}"}
+
+    async def test_a_desktop_hears_about_both(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, second = await self.two(ada, session)
+        api_key = await admin.create_api_key(session, username="ada", name="desktop")
+        since = (
+            await ada.get("/users/1/items?format=versions", headers={"Zotero-API-Key": api_key.key})
+        ).headers["Last-Modified-Version"]
+
+        await self.relate(ada, library_id, first, second)
+
+        changed = await ada.get(
+            f"/users/1/items?since={since}&format=versions",
+            headers={"Zotero-API-Key": api_key.key},
+        )
+        assert set(changed.json()) == {first, second}
+
+    async def test_it_needs_the_csrf_token(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, first, second = await self.two(ada, session)
+
+        response = await ada.post(
+            f"/web/libraries/{library_id}/items/{first}/related", json={"items": [second]}
+        )
+
+        assert response.status_code == 403
+
+    async def test_a_member_held_to_reading_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        group = await TestEditingAnItem().group_with_ada(session, MemberPermission.READ)
+        one = await factories.make_item(session, group, fields={"title": "One"})
+        two = await factories.make_item(session, group, fields={"title": "Two"})
+        await session.commit()
+
+        response = await self.relate(ada, group.id, one.key, two.key)
+
+        assert response.status_code == 403
+
+
 class TestCreatingAnItem:
     """A new item from the type picker: the v3 template, written by `save_item`.
 

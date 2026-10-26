@@ -263,6 +263,12 @@ def _retyped(item: Item, item_type: str, discard: list[str]) -> dict[str, Any]:
     return patch
 
 
+class RelatedItems(BaseModel):
+    """The items to relate to the one in the path."""
+
+    items: list[str] = Field(min_length=1)
+
+
 class CopyRequest(BaseModel):
     """Which items are being copied, and where they are going."""
 
@@ -584,6 +590,128 @@ async def update_item(
     await session.commit()
 
     return JSONResponse(rendered, headers=library_headers(version))
+
+
+@router.post("/libraries/{library_id}/items/{item_key}/related")
+async def relate_items(
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    library_id: int,
+    item_key: str,
+    _csrf: CsrfDep,
+    body: Annotated[RelatedItems, Body()],
+) -> Response:
+    """Relate one item to others, each naming the other: the Related section's *Add*."""
+    return await _relink(session, user, base_url, library_id, item_key, body.items, adding=True)
+
+
+@router.delete("/libraries/{library_id}/items/{item_key}/related/{other_key}")
+async def unrelate_items(
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    library_id: int,
+    item_key: str,
+    other_key: str,
+    _csrf: CsrfDep,
+) -> Response:
+    """Take a related-items link off both items: the Related section's *Remove*."""
+    return await _relink(session, user, base_url, library_id, item_key, [other_key], adding=False)
+
+
+async def _relink(
+    session: AsyncSession,
+    user: User,
+    base_url: str,
+    library_id: int,
+    item_key: str,
+    others: list[str],
+    *,
+    adding: bool,
+) -> Response:
+    """Add or remove `dc:relation` on both sides, as the desktop's related box does.
+
+    `Zotero.Item.addRelatedItem` writes one side; the box calls it on each item
+    and saves both with `skipDateModifiedUpdate`, so relating is not editing:
+    each item restates the `dateModified` it has, and nobody becomes its last
+    modifier. The library takes one version for the lot, and none when every
+    link asked for is already there, or already gone.
+    """
+    library, access = await _library(session, user, library_id, write=True)
+    library = await writes.lock_library(session, library)
+    previous_version = library.version
+
+    keys = list(dict.fromkeys(others))
+    if item_key in keys:
+        raise InvalidInputError("An item cannot be related to itself")
+    item = await items_service.get_item(session, library, item_key, permit=access)
+    partners = await items_service.get_items(session, library, keys, permit=access)
+    everyone = [item, *partners]
+    if any(each.deleted for each in everyone):
+        raise InvalidInputError("Restore the item from the trash to relate it")
+
+    links = {(item.id, partner.id) for partner in partners}
+    links |= {(partner.id, item.id) for partner in partners}
+    by_id = {each.id: each for each in everyone}
+    wanted: dict[int, list[tuple[str, str]]] = {}
+    for each in everyone:
+        stored = [(relation.predicate, relation.object) for relation in each.relations]
+        named = {
+            (items_service.RELATED, items_service.item_uri(library, by_id[other].key))
+            for subject, other in links
+            if subject == each.id
+        }
+        if adding:
+            pairs = stored + [pair for pair in sorted(named) if pair not in stored]
+        else:
+            pairs = [pair for pair in stored if pair not in named]
+        if pairs != stored:
+            wanted[each.id] = pairs
+
+    if not wanted:
+        # Nothing to write, and the lock was the only statement: let it go
+        # without a version, and answer with the items as they stand.
+        await session.rollback()
+        library = await session.get(Library, library_id)
+        assert library is not None
+        everyone = await items_service.get_items(session, library, [item_key, *keys])
+        rendered = await _rendered_all(session, everyone, library, base_url)
+        return JSONResponse({"items": rendered}, headers=library_headers(previous_version))
+
+    version = await writes.bump_library_version(session, library)
+    for item_id, pairs in wanted.items():
+        each = by_id[item_id]
+        relations: dict[str, list[str]] = {}
+        for predicate, obj in pairs:
+            relations.setdefault(predicate, []).append(obj)
+        await itemwrites.save_item(
+            session,
+            library,
+            {
+                "relations": relations,
+                "dateModified": each.date_modified.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            },
+            version,
+            key=each.key,
+            replace=False,
+            permit=access,
+            stored=each,
+        )
+
+    rendered = await _rendered_all(session, everyone, library, base_url)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=user.id,
+        kind=ActivityKind.ITEMS_CHANGED,
+        count=len(wanted),
+        objects=await groupactivity.name_items(
+            session, library, [by_id[item_id].key for item_id in wanted]
+        ),
+    )
+    await session.commit()
+    return JSONResponse({"items": rendered}, headers=library_headers(version))
 
 
 @router.delete("/libraries/{library_id}/items", status_code=204)
