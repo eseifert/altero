@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- A v3 item write without `dateModified` that changes nothing keeps its version, as on zotero.org.
+
 ## [1.0.0-beta.4] — 2026-10-26
 
 This version closes two ways somebody else's content could run a script in your

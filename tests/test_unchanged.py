@@ -287,7 +287,16 @@ class TestTheComparisonAgreesWithWriting:
         # (name, which item, how to change what was stored, expected unchanged)
         ("verbatim", "parent", lambda d, o: d, True),
         ("verbatim child", "child", lambda d, o: d, True),
-        ("no dateModified", "parent", lambda d, o: _without(d, "dateModified"), False),
+        # Upstream stamps a missing dateModified only when something else
+        # changed (`if ($item->hasChanged() && !$skipDateModifiedUpdate`), so
+        # leaving it out is no difference by itself.
+        ("no dateModified", "parent", lambda d, o: _without(d, "dateModified"), True),
+        (
+            "no dateModified, title",
+            "parent",
+            lambda d, o: {**_without(d, "dateModified"), "title": "Dune Messiah"},
+            False,
+        ),
         ("title", "parent", lambda d, o: {**d, "title": "Dune Messiah"}, False),
         ("only key and dates", "parent", lambda d, o: _only(d, "dateModified"), True),
         ("tags reordered", "parent", lambda d, o: {**d, "tags": d["tags"][::-1]}, True),
@@ -371,8 +380,18 @@ class TestTheComparisonAgreesWithWriting:
         await savepoint.rollback()
         session.expunge_all()
 
+        if "dateModified" not in payload:
+            # The server's own stamp, set only once something has changed: the
+            # oracle writes unconditionally, so it would always see one.
+            before, written = _unstamped(before), _unstamped(written)
         assert (before == written) == expected, "the oracle disagrees with the case"
         assert (answer is None) == expected
+
+
+def _unstamped(observed: tuple[Any, ...]) -> tuple[Any, ...]:
+    """``observed`` without its ``date_modified``, the fifth of its scalars."""
+    scalars, *rest = observed
+    return (scalars[:4] + scalars[5:], *rest)
 
 
 def _without(data: dict[str, Any], name: str) -> dict[str, Any]:

@@ -420,7 +420,11 @@ def _predict(
             else before.in_publications
         ),
         date_added=parsed["date_added"] or before.date_added or now,
-        date_modified=parsed["date_modified"] or now,
+        # Absent, it is stamped only if something else changes -- upstream's
+        # `if ($item->hasChanged() && !$skipDateModifiedUpdate)` -- so it is no
+        # difference on its own. Predicting `now` made a patch that changes
+        # nothing look changed whenever a second had passed since the last one.
+        date_modified=parsed["date_modified"] or before.date_modified,
         parent_id=parent_id if parent_id is not None or replace else before.parent_id,
         fields=tuple(sorted(fields.items())),
         creators=(
