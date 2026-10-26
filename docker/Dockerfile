@@ -11,7 +11,7 @@
 
 # The web interface is built first, in its own stage, so that node and its
 # 200-odd packages never reach the served image.
-FROM node:24-bookworm-slim AS web
+FROM node:24-trixie-slim AS web
 WORKDIR /build
 # .npmrc comes along: it is what keeps a dependency's install hook -- the font
 # packages' telemetry -- from running while the image is built.
@@ -23,7 +23,7 @@ COPY web/ ./web/
 # Writes to /build/src/altero/web/static, which the stage below copies in.
 RUN cd web && npm run build
 
-FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim
+FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim
 
 # Dependencies first, from the lock file alone, so editing the source does not
 # reinstall them. --frozen fails rather than silently resolving something the

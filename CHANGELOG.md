@@ -9,6 +9,7 @@ gained a capability worth naming.
 
 - Cases, emails and statutes show their titles throughout the browser interface instead of “(untitled)” ([Issue#22]).
 - The browser interface is translated into 17 more languages, 48 in all.
+- The container image is built on Debian 13 (trixie), with OpenSSL 3.5 instead of the end-of-life 3.0 ([Issue#29]).
 
 ## [1.0.0-beta.3] — 2026-10-19
 
@@ -233,3 +234,4 @@ The first release meant to be used by somebody other than its author.
 [Issue#11]: https://github.com/eseifert/altero/issues/11
 [Issue#13]: https://github.com/eseifert/altero/issues/13
 [Issue#22]: https://github.com/eseifert/altero/issues/22
+[Issue#29]: https://github.com/eseifert/altero/issues/29
