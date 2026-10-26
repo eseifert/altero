@@ -10,7 +10,7 @@ from sqlalchemy import ColumnElement, Select, and_, distinct, func, not_, or_, s
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, aliased, lazyload
 
-from altero.db import chunked, id_list
+from altero.db import chunked, id_list, ilike
 from altero.errors import InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
 from altero.models import (
@@ -303,15 +303,16 @@ def _quick_search(query: ListQuery, library_id: int, *, dialect: str) -> ColumnE
     emits one `AND (...)` per part and ORs the fields together inside it, so
     ``q=quantum computing`` wants both words and not the phrase.
 
-    Every part is a substring, ``%part%``, matched without regard to case. The
-    full text is matched through the index each backend keeps for it -- see
-    ``models/fulltext.py`` -- and everything else by ``ILIKE``.
+    Every part is a substring, ``%part%``, matched without regard to case in
+    any alphabet. The full text is matched through the index each backend keeps
+    for it -- see ``models/fulltext.py`` -- and everything else by
+    :func:`altero.db.ilike`.
     """
     clauses: list[ColumnElement[bool]] = []
     for part in parse_search_string(query.q or ""):
         pattern = f"%{part}%"
         alternatives: list[ColumnElement[bool]] = [
-            column.ilike(pattern) for column in _QUICK_SEARCH_COLUMNS
+            ilike(column, pattern, dialect=dialect) for column in _QUICK_SEARCH_COLUMNS
         ]
 
         if query.qmode == QuickSearchMode.EVERYTHING:
@@ -323,7 +324,7 @@ def _quick_search(query: ListQuery, library_id: int, *, dialect: str) -> ColumnE
             # where the join it needs to reach its library made a large
             # library's search 5% slower -- so it is held only where it helps.
             fields = select(ItemField.item_id).where(
-                ItemField.item_id == Item.id, ItemField.value.ilike(pattern)
+                ItemField.item_id == Item.id, ilike(ItemField.value, pattern, dialect=dialect)
             )
             if dialect == "postgresql":
                 owner = aliased(Item)
@@ -356,7 +357,7 @@ def _full_text_matches(part: str, library_id: int, *, dialect: str) -> ColumnEle
         if len(part) >= 3 and not ("%" in part or "_" in part):
             found = fulltext_search.c[SEARCH_TABLE].match('"' + part.replace('"', '""') + '"')
         else:
-            found = fulltext_search.c.content.like(pattern)
+            found = ilike(fulltext_search.c.content, pattern, dialect=dialect)
         return Item.id.in_(select(fulltext_search.c.rowid).where(found))
     return (
         select(FullText.item_id)

@@ -6,7 +6,16 @@ from collections.abc import AsyncIterator, Collection, Iterator, Sequence
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import BindParameter, DateTime, Integer, bindparam, event, func, make_url
+from sqlalchemy import (
+    BindParameter,
+    ColumnElement,
+    DateTime,
+    Integer,
+    bindparam,
+    event,
+    func,
+    make_url,
+)
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -14,6 +23,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.sql.elements import SQLCoreOperations
 
 from altero.settings import Settings
 
@@ -73,6 +83,68 @@ def hold(session: AsyncSession, *rows: object) -> None:
     session.info.setdefault("held", []).extend(rows)
 
 
+#: SQLite's own ``lower()`` and ``LIKE`` fold ASCII letters only, unless SQLite
+#: was built with ICU -- Debian's, and so the container image's, is not. This
+#: function, registered on every SQLite connection, folds the way Python does.
+UNICODE_LOWER = "altero_lower"
+
+
+def _unicode_lower(value: object) -> object:
+    return value.lower() if isinstance(value, str) else value
+
+
+def ilike(column: SQLCoreOperations[str], pattern: str, *, dialect: str) -> ColumnElement[bool]:
+    """``column ILIKE pattern``, ignoring case in every alphabet on every backend.
+
+    PostgreSQL's ``ILIKE`` already does, and is what its trigram indexes answer.
+    On SQLite, a pattern in ASCII is a plain ``LIKE``, which ignores ASCII case
+    by itself: 2.7 times faster than the ``lower(x) LIKE lower(y)`` SQLAlchemy
+    writes for ``ilike``, with the same answer. A pattern with any other letter
+    folds each row through :data:`UNICODE_LOWER` instead, at about twice the
+    cost of the built-in ``lower()``.
+    """
+    if dialect != "sqlite":
+        return column.ilike(pattern)
+    if pattern.isascii():
+        return column.like(pattern)
+    return getattr(func, UNICODE_LOWER)(column).like(_unicode_lower(pattern))
+
+
+#: What stands for itself in a ``GLOB`` pattern only inside brackets.
+_GLOB_LITERALS = {"*": "[*]", "?": "[?]", "[": "[[]"}
+
+
+def _glob(pattern: str) -> str:
+    """Translate a ``LIKE`` pattern, backslash escapes and all, into ``GLOB``."""
+    translated: list[str] = []
+    characters = iter(pattern)
+    for character in characters:
+        if character == "\\":
+            # A trailing backslash has nothing to escape and stands for itself.
+            character = next(characters, "\\")
+            translated.append(_GLOB_LITERALS.get(character, character))
+        elif character == "%":
+            translated.append("*")
+        elif character == "_":
+            translated.append("?")
+        else:
+            translated.append(_GLOB_LITERALS.get(character, character))
+    return "".join(translated)
+
+
+def like(column: SQLCoreOperations[str], pattern: str, *, dialect: str) -> ColumnElement[bool]:
+    """``column LIKE pattern``, minding case on every backend.
+
+    PostgreSQL's ``LIKE`` does, and takes a backslash as its escape. SQLite's
+    ignores ASCII case -- every case, if SQLite was built with ICU -- and has
+    no escape unless one is named, so there the pattern becomes a ``GLOB``,
+    which never ignores case.
+    """
+    if dialect != "sqlite":
+        return column.like(pattern)
+    return column.op("GLOB", is_comparison=True)(_glob(pattern))
+
+
 #: How long a connection waits for another's write lock before giving up. A
 #: write that gives up answers 503 with ``Retry-After``, which the desktop
 #: client retries -- see :mod:`altero.api.errors`.
@@ -102,7 +174,7 @@ OPTIMIZE = "PRAGMA optimize=0x10002"
 def _configure_sqlite(engine: AsyncEngine) -> None:
     """Apply the settings SQLite needs to behave under concurrent writes.
 
-    Three things are wrong with SQLite's defaults here:
+    Four things are wrong with SQLite's defaults here:
 
     - Foreign keys are not enforced, so a dangling reference is stored silently
       and only surfaces on a backend that does check.
@@ -112,6 +184,9 @@ def _configure_sqlite(engine: AsyncEngine) -> None:
       badly without them: a tag listing on a library of 30k items took 25 s. A
       connection gathers them when it opens, and :meth:`Database.optimize`
       keeps them current as the library grows.
+    - Case is folded in ASCII only, so a search for ``über`` misses ``Über``.
+      :func:`ilike` matches through :data:`UNICODE_LOWER` instead.
+
     What is deliberately not done here is beginning every transaction with
     ``BEGIN IMMEDIATE``. It would close the remaining hole — a transaction that
     reads and then writes can fail outright when it upgrades its lock, which
@@ -129,6 +204,7 @@ def _configure_sqlite(engine: AsyncEngine) -> None:
     @event.listens_for(engine.sync_engine, "connect")
     def _set_pragmas(connection: Any, _record: Any) -> None:
         cursor = connection.cursor()
+        connection.create_function(UNICODE_LOWER, 1, _unicode_lower, deterministic=True)
         cursor.execute("PRAGMA foreign_keys=ON")
         # An in-memory database has no journal to switch.
         cursor.execute("PRAGMA journal_mode=WAL")

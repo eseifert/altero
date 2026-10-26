@@ -54,7 +54,7 @@ zotero.org answers this from Elasticsearch. altero does not run a search cluster
 
   **Accents are not folded, and Chinese and Japanese text matches as a phrase.** `q=cafe` does not find *café*, here or on zotero.org. Zotero 9 made the *desktop's* own search ignore accents, but that is its local copy; the API is accent-sensitive on both servers. `量子計算` needs those four characters in a row, which is the behavior the desktop had to be fixed to produce. What zotero.org's analyzer does is taken from Elasticsearch's documented defaults, not observed.
 
-  **Case is ignored in attachments' text on every database**, including non-ASCII letters: `über` finds `ÜBER`. In the other fields on SQLite, only ASCII case is ignored unless SQLite was built with ICU, so `Übung` may or may not find `übung` in a title. Do not rely on either answer.
+  **Case is ignored in every alphabet, on every database**: `über` finds `ÜBER`, in attachments' text and in every field.
 
   A search term shorter than three characters cannot use the index and reads every text, which is slower. `%` and `_` act as wildcards, in the text as in the fields: `q=col_ur` finds *colour*. zotero.org has no wildcards.
 - **No 300-result cap.** zotero.org asks Elasticsearch for 300 hits and silently drops the rest. altero returns every match: the limit is an accident of how zotero.org fetches hits, not part of what the API means.
@@ -68,6 +68,8 @@ Two consequences, both copied from zotero.org:
 - `since` does not climb to the parent. Syncing clients send it, and reporting a parent whose own version did not change would be wrong.
 
 Neither the matched item nor the parent it resolves to may be in the trash, so a hit inside a trashed item's PDF does not bring it back.
+
+**A tag search minds case.** `/tags?q=fic` does not find *Fiction*, as on zotero.org and in the desktop's own local API. `%` and `_` act as wildcards there too, and `\` escapes them: searching for `50\%` finds *50%* but not *500*.
 
 ### Who added an item, and who last changed it
 

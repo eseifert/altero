@@ -11,6 +11,7 @@ from typing import Any
 from sqlalchemy import ColumnElement, Select, and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from altero.db import like
 from altero.errors import NotFoundError
 from altero.models import Item, ItemTag, Library, Tag
 from altero.query import Direction, ListQuery, TagSearchMode
@@ -32,13 +33,18 @@ class TagSummary:
     last_modified: datetime | None = None
 
 
-def _name_filter(query: ListQuery) -> ColumnElement[bool] | None:
-    """Return the predicate for a quick search over tag names."""
+def _name_filter(query: ListQuery, *, dialect: str) -> ColumnElement[bool] | None:
+    """Return the predicate for a quick search over tag names.
+
+    Case must match: the dataserver compares names in a binary collation, and
+    the desktop's Local API with ``String.includes``. The pattern is still a
+    ``LIKE`` pattern, as upstream's is.
+    """
     if not query.q:
         return None
     if query.qmode == TagSearchMode.STARTS_WITH:
-        return Tag.name.ilike(f"{query.q}%")
-    return Tag.name.ilike(f"%{query.q}%")
+        return like(Tag.name, f"{query.q}%", dialect=dialect)
+    return like(Tag.name, f"%{query.q}%", dialect=dialect)
 
 
 def _apply_sort(statement: Select[Any], query: ListQuery, count: Any) -> Select[Any]:
@@ -71,7 +77,8 @@ async def list_tags(
     filters: list[ColumnElement[bool]] = [Tag.library_id == library.id]
     if query.since:
         filters.append(Tag.version > query.since)
-    if (name_filter := _name_filter(query)) is not None:
+    dialect = session.get_bind().dialect.name
+    if (name_filter := _name_filter(query, dialect=dialect)) is not None:
         filters.append(name_filter)
 
     # The items are counted per tag first and the tags joined to the counts
