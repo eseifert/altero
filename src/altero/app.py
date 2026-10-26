@@ -48,6 +48,7 @@ from altero.api.routes import (
 from altero.api.routes import (
     settings as settings_routes,
 )
+from altero.api.security import SecurityHeadersMiddleware
 from altero.api.spa import mount_web_interface
 from altero.db import Database
 from altero.services import (
@@ -235,7 +236,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # /app can capture one of them.
     mount_web_interface(app)
 
-    # Outermost of all, so that every answer below names its version.
+    # Outermost but one, so that every answer below names its version.
     app.add_middleware(ApiVersionMiddleware)
+
+    # Outermost of all, so that every answer -- a refusal from the middleware
+    # above included -- says what a browser may do with it.
+    app.add_middleware(SecurityHeadersMiddleware)
 
     return app

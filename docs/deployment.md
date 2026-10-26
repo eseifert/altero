@@ -342,6 +342,8 @@ Set `ALTERO_PUBLIC_URL` to the URL people actually open. See [Public URL](#publi
 
 The proxy need not compress anything. altero sends the browser interface's scripts and stylesheets in the Brotli or gzip copies its build writes, and leaves API responses as they are.
 
+**Leave altero's security headers in place.** Every response carries `X-Content-Type-Options: nosniff` and a `Content-Security-Policy`: the interface's own under `/app`, and `sandbox` everywhere else, so an attachment opened in a browser tab runs no script. A proxy that replaces or strips them undoes that. `Strict-Transport-Security` is the proxy's to add.
+
 ### nginx
 
 ```nginx

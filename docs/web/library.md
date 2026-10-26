@@ -76,7 +76,8 @@ Escape empties it, and a second Escape closes it.
 
 The right pane shows an item's fields under the names the schema gives them,
 its creators, tags and notes, and its attachments — which can be opened in the
-browser or downloaded. A citation can be rendered there in Chicago, APA, MLA,
+browser or downloaded. An attached web page or SVG opens with its scripts
+switched off, and a note shows without any image it links from elsewhere. A citation can be rendered there in Chicago, APA, MLA,
 IEEE or Nature; the server renders it with the same CSL processor that answers
 `format=bib`, rather than a second implementation in the browser.
 

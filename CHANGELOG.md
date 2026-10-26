@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Attachments opened in a browser tab run no scripts, and the browser interface sends a Content-Security-Policy ([headers]).
 - Notes and citations can no longer run a script in the browser; `bib` and `citation` escape markup in fields, as zotero.org does.
 - Cases, emails and statutes show their titles throughout the browser interface instead of “(untitled)” ([Issue#22]).
 - The browser interface is translated into 17 more languages, 48 in all.
@@ -208,6 +209,7 @@ The first release meant to be used by somebody other than its author.
 
 [desktop-matrix]: docs/client-compatibility.md#successfully-tested-matrix
 [db-req]: docs/deployment.md#database-requirements
+[headers]: docs/deployment.md#behind-a-reverse-proxy
 [config]: docs/configuration.md
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3
 [1.0.0-beta.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.2
