@@ -1318,8 +1318,29 @@ class TestTheCostOfASelection:
         "errand", [{"addCollections": []}, {"deleted": True}], ids=["filing", "trashing"]
     )
     async def test_more_rows_cost_no_more_statements(
-        self, app: Any, ada: httpx.AsyncClient, session: AsyncSession, errand: dict
+        self,
+        app: Any,
+        ada: httpx.AsyncClient,
+        session: AsyncSession,
+        errand: dict,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
+        # Timestamps are kept to the second, and SQLAlchemy batches rows into
+        # one UPDATE only when they change the same columns. Fifteen items
+        # created across a second boundary would leave some already stamped
+        # with the second they are trashed in, and those would make a second
+        # UPDATE -- a count about the clock rather than about the selection.
+        from datetime import datetime as real
+
+        from altero.services import itemwrites
+
+        class Frozen(real):
+            @classmethod
+            def now(cls, tz: Any = None) -> Frozen:
+                return cls(2026, 1, 1, 12, 0, 0, tzinfo=tz)
+
+        monkeypatch.setattr(itemwrites, "datetime", Frozen)
+
         few = await self._errand(app, ada, session, 3, errand)
         many = await self._errand(app, ada, session, 15, errand)
 
