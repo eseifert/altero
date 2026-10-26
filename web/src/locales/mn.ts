@@ -86,6 +86,8 @@ export default {
     'Нэвтрэх хаягт харагдана. Жижиг үсэг, цифр болон зураас.',
   'Apply them now': 'Одоо хэрэгжүүлэх',
   'Archive': 'Архив',
+  'Are you sure you want to change the item type?':
+    'Та зүйлийн төрлийг өөрчлөхдөө итгэлтэй байна уу?',
   'Ask for a new one. Your current password still works.':
     'Шинийг хүснэ үү. Одоогийн нууц үг тань хүчинтэй хэвээр байна.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -108,6 +110,7 @@ export default {
   'Can': 'Эрх',
   'Cancel': 'Цуцлах',
   'Change': 'Өөрчлөх',
+  'Change Item Type': 'Зүйлийн төрлийг өөрчлөх',
   'Change password': 'Нууц үг солих',
   'Change the group libraries you belong to': 'Таны гишүүн болох бүлгийн номын сангуудыг өөрчлөх',
   'Change the rights': 'Эрхийг өөрчлөх',
@@ -614,6 +617,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Үндсэн URL. Түүний тохиргоог /.well-known/openid-configuration хаягаас уншина.',
   'The collection and everything inside it': 'Цуглуулга болон доторх бүх зүйл',
+  'The following fields will be lost:': 'Дараах талбарууд устах болно:',
   'The group has a new owner.': 'Бүлэг шинэ эзэмшигчтэй боллоо.',
   'The items in it stay in the library.': 'Доторх зүйлс номын санд үлдэнэ.',
   'The library is now at version {version}.': 'Номын сан одоо {version} хувилбартай байна.',

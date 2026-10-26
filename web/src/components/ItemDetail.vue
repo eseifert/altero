@@ -4,14 +4,14 @@ import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
 import AppIcon from '@/components/AppIcon.vue'
+import InfoPane from '@/components/InfoPane.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import { exportable } from '@/exportformats'
-import { formatDateTime } from '@/formats'
 import { fieldLabel, itemTypeLabel } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
 import { cleanBibliography, cleanNote } from '@/sanitize'
-import type { ItemEnvelope } from '@/stores/library'
+import type { ItemChanges, ItemEnvelope } from '@/stores/library'
 
 const { t } = useI18n()
 
@@ -33,6 +33,9 @@ const props = defineProps<{
    *  desktop client shows a child item's publishing button only there, and so
    *  does this: elsewhere a note's place in the list is its parent's business. */
   inPublicationsView?: boolean
+  /** Writes an edit of this item, for the Info pane. Absent where nothing
+   *  may be edited, which leaves every field as text. */
+  save?: (changes: ItemChanges) => Promise<unknown>
 }>()
 
 /*
@@ -56,15 +59,6 @@ const emit = defineEmits<{
   export: []
 }>()
 
-/**
- * Item types with no ``rights`` field, which is the whole of that list.
- *
- * Every other type in the schema has one. Checked against
- * ``itemschema`` rather than guessed: the server refuses the write anyway, but
- * offering a control that can only be refused is a promise not to make.
- */
-const WITHOUT_RIGHTS = new Set(['note', 'attachment', 'annotation'])
-
 /** Whether this item has a bibliography entry to write out. A note has none,
  *  and altero has no note translator to make one — see `exportformats.ts`. */
 const offersExport = computed(() => exportable(props.item.data.itemType))
@@ -85,12 +79,9 @@ const child = computed(() => Boolean(props.item.data.parentItem))
  */
 const showsTools = computed(() => Boolean(props.writable) && !child.value)
 
-/** Whether this pane offers to change the item's Rights field. */
-const editableRights = computed(
-  () => Boolean(props.writable) && !WITHOUT_RIGHTS.has(props.item.data.itemType),
-)
-
-const statesRights = computed(() => Boolean(props.item.data.rights))
+/** Whether the Info pane edits this item. Not in the trash, which the desktop
+ *  draws read-only and the server refuses to change. */
+const editable = computed(() => Boolean(props.writable) && !trashed.value)
 
 /**
  * Whether the pane offers to publish this item.
@@ -109,23 +100,6 @@ const offersPublishing = computed(
     (!child.value || Boolean(props.inPublicationsView)),
 )
 
-/** Properties shown elsewhere in the pane, or of no interest to a reader. */
-const HIDDEN = new Set([
-  'key',
-  'version',
-  'itemType',
-  'parentItem',
-  'tags',
-  'collections',
-  'relations',
-  'creators',
-  'deleted',
-  'note',
-  'md5',
-  'mtime',
-  'linkMode',
-])
-
 interface Creator {
   creatorType: string
   firstName?: string
@@ -139,26 +113,6 @@ const title = computed(
 
 const creators = computed<Creator[]>(() =>
   Array.isArray(props.item.data.creators) ? (props.item.data.creators as Creator[]) : [],
-)
-
-/**
- * Fields the server stamps, as opposed to fields somebody typed.
- *
- * These three are ISO instants in UTC and are shown in the reader's own zone
- * and format. Everything else -- `date`, `accessDate` as the client wrote it --
- * is text from the item and is shown as it was entered: reformatting a
- * citation's date would be rewriting the data.
- */
-const TIMESTAMPS = new Set(['dateAdded', 'dateModified'])
-
-const fields = computed(() =>
-  Object.entries(props.item.data)
-    .filter(([name, value]) => !HIDDEN.has(name) && typeof value === 'string' && value !== '')
-    .map(([name, value]) => ({
-      name,
-      label: fieldLabel(name),
-      value: TIMESTAMPS.has(name) ? formatDateTime(value as string) : (value as string),
-    })),
 )
 
 const tags = computed(() => props.item.data.tags ?? [])
@@ -357,50 +311,7 @@ function childTitle(child: ItemEnvelope): string {
       </template>
     </dl>
 
-    <dl v-if="fields.length || editableRights" class="detail__fields">
-      <template v-for="field in fields" :key="field.name">
-        <dt>{{ field.label }}</dt>
-        <dd>
-          <a
-            v-if="field.name === 'url' || field.name === 'DOI'"
-            :href="field.name === 'DOI' ? `https://doi.org/${field.value}` : field.value"
-            target="_blank"
-            rel="noopener noreferrer"
-          >{{ field.value }}</a>
-          <!--
-            The one field this pane can change, and the pencil is here rather
-            than beside every field because it is the only one: publishing a
-            work sets its licence, and the licence has to be revisable by
-            whoever set it. Everything else is still the desktop's to edit.
-          -->
-          <template v-else-if="field.name === 'rights' && editableRights">
-            <span>{{ field.value }}</span>
-            <button
-              class="detail__edit"
-              type="button"
-              :aria-label="t('Change the rights')"
-              :title="t('Change the rights')"
-              @click="emit('rights')"
-            >
-              <AppIcon name="edit" :size="12" />
-            </button>
-          </template>
-          <span v-else>{{ field.value }}</span>
-        </dd>
-      </template>
-
-      <!-- An item that says nothing about rights has no row above to hang the
-           pencil on, and "nothing" is exactly the state somebody publishing a
-           work wants to change. -->
-      <template v-if="editableRights && !statesRights">
-        <dt>{{ fieldLabel('rights') }}</dt>
-        <dd>
-          <button class="detail__add" type="button" @click="emit('rights')">
-            {{ t('Not stated — say what it is') }}
-          </button>
-        </dd>
-      </template>
-    </dl>
+    <InfoPane :item="item" :editable="editable" :save="save" @rights="emit('rights')" />
 
     <p v-if="isAttachment" class="detail__actions">
       <a class="detail__link" :href="fileUrl(item.key)" target="_blank" rel="noopener">{{ t('Open file') }}</a>
@@ -495,46 +406,6 @@ function childTitle(child: ItemEnvelope): string {
    wrapping a narrow pane needs. */
 .detail__tools {
   flex-wrap: wrap;
-}
-
-/*
- * The pencil beside the one field this pane can change, and the offer to fill
- * it where it is empty. Both are drawn rather than revealed on hover: a finger
- * cannot hover, which is the rule the sidebar's row controls follow too.
- */
-.detail__edit {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.5rem;
-  min-height: 1.5rem;
-  margin-left: var(--md-spacing-2);
-  padding: 0.1rem 0.25rem;
-  border: none;
-  border-radius: var(--md-sys-shape-corner-small);
-  background: none;
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-  vertical-align: middle;
-}
-
-.detail__edit:hover {
-  background: var(--md-sys-state-hover-surface);
-  color: var(--md-sys-color-on-surface);
-}
-
-.detail__add {
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--md-sys-color-primary);
-  font: inherit;
-  font-size: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.detail__add:hover {
-  text-decoration: underline;
 }
 
 .detail__title {

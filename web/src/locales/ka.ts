@@ -81,6 +81,8 @@ export default {
     'ჩანს შესვლის მისამართში. ქვედა რეგისტრის ლათინური ასოები, ციფრები და დეფისები.',
   'Apply them now': 'ახლავე გამოყენება',
   'Archive': 'არქივი',
+  'Are you sure you want to change the item type?':
+    'დარწმუნებული ხართ, რომ გსურთ ელემენტის ტიპის შეცვლა?',
   'Ask for a new one. Your current password still works.': 'მოითხოვეთ ახალი. თქვენი ამჟამინდელი პაროლი კვლავ მოქმედებს.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'ახალი მოითხოვეთ ამ სერვერის ადმინისტრატორისგან. თქვენი ამჟამინდელი პაროლი კვლავ მოქმედებს.',
@@ -102,6 +104,7 @@ export default {
   'Can': 'შეუძლია',
   'Cancel': 'გაუქმება',
   'Change': 'შეცვლა',
+  'Change Item Type': 'ელემენტის ტიპის შეცვლა',
   'Change password': 'პაროლის შეცვლა',
   'Change the group libraries you belong to': 'იმ ჯგუფური ბიბლიოთეკების შეცვლა, რომელთა წევრიც ხართ',
   'Change the rights': 'უფლებების შეცვლა',
@@ -577,6 +580,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'საბაზისო URL. მისი კონფიგურაცია იკითხება /.well-known/openid-configuration-იდან.',
   'The collection and everything inside it': 'კოლექცია და ყველაფერი, რაც მასშია',
+  'The following fields will be lost:': 'შემდეგი ველები დაიკარგება:',
   'The group has a new owner.': 'ჯგუფს ახალი მფლობელი ჰყავს.',
   'The items in it stay in the library.': 'მასში არსებული ჩანაწერები ბიბლიოთეკაში რჩება.',
   'The library is now at version {version}.': 'ბიბლიოთეკის ვერსია ახლა არის {version}.',

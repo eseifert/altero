@@ -85,6 +85,8 @@ export default {
     'Xuất hiện trong địa chỉ đăng nhập. Gồm chữ thường, chữ số và dấu gạch nối.',
   'Apply them now': 'Áp dụng ngay',
   'Archive': 'Bản lưu trữ',
+  'Are you sure you want to change the item type?':
+    'Bạn có chắc bạn muốn đổi kiểu cho biểu ghi này?',
   'Ask for a new one. Your current password still works.':
     'Hãy yêu cầu một liên kết mới. Mật khẩu hiện tại của bạn vẫn dùng được.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +109,7 @@ export default {
   'Can': 'Được phép',
   'Cancel': 'Hủy',
   'Change': 'Thay đổi',
+  'Change Item Type': 'Đổi Kiểu cho Biểu ghi',
   'Change password': 'Đổi mật khẩu',
   'Change the group libraries you belong to': 'Thay đổi các thư viện nhóm mà bạn là thành viên',
   'Change the rights': 'Thay đổi bản quyền',
@@ -593,6 +596,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL gốc. Cấu hình được đọc từ /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Bộ sưu tập và mọi thứ bên trong',
+  'The following fields will be lost:': 'Các trường dữ liệu sau sẽ bị mất:',
   'The group has a new owner.': 'Nhóm đã có chủ sở hữu mới.',
   'The items in it stay in the library.': 'Các mục trong đó vẫn ở lại thư viện.',
   'The library is now at version {version}.': 'Thư viện hiện ở phiên bản {version}.',

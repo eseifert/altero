@@ -85,6 +85,7 @@ export default {
     'Saioa hasteko helbidean agertzen da. Letra xeheak, digituak eta marratxoak.',
   'Apply them now': 'Aplikatu orain',
   'Archive': 'Artxiboa',
+  'Are you sure you want to change the item type?': 'Ziur zaude elementu mota alduatu nahi duzula?',
   'Ask for a new one. Your current password still works.':
     'Eskatu beste bat. Zure oraingo pasahitzak balio du oraindik.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +108,7 @@ export default {
   'Can': 'Baimenak',
   'Cancel': 'Utzi',
   'Change': 'Aldatu',
+  'Change Item Type': 'Aldatu elementu mota',
   'Change password': 'Aldatu pasahitza',
   'Change the group libraries you belong to': 'Aldatu zu kide zaren talde liburutegiak',
   'Change the rights': 'Aldatu eskubideak',
@@ -611,6 +613,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Oinarrizko URLa. Bere konfigurazioa /.well-known/openid-configuration helbidetik irakurtzen da.',
   'The collection and everything inside it': 'Bilduma eta barruko guztia',
+  'The following fields will be lost:': 'Ondorengo eremuak galduko dira:',
   'The group has a new owner.': 'Taldeak jabe berria du.',
   'The items in it stay in the library.': 'Barruko elementuak liburutegian geratzen dira.',
   'The library is now at version {version}.': 'Liburutegiaren bertsioa orain: {version}.',

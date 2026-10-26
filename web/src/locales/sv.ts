@@ -85,6 +85,7 @@ export default {
     'Visas i inloggningsadressen. Små bokstäver, siffror och bindestreck.',
   'Apply them now': 'Tillämpa dem nu',
   'Archive': 'Arkiv',
+  'Are you sure you want to change the item type?': 'Är du säker på att du vill ändra källtyp?',
   'Ask for a new one. Your current password still works.':
     'Be om en ny. Ditt nuvarande lösenord fungerar fortfarande.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +108,7 @@ export default {
   'Can': 'Får',
   'Cancel': 'Avbryt',
   'Change': 'Ändra',
+  'Change Item Type': 'Ändra källtyp',
   'Change password': 'Byt lösenord',
   'Change the group libraries you belong to': 'Ändra i gruppbiblioteken du tillhör',
   'Change the rights': 'Ändra rättigheterna',
@@ -611,6 +613,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Bas-URL:en. Dess konfiguration läses från /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Samlingen och allt inuti den',
+  'The following fields will be lost:': 'Följande fält kommer att försvinna:',
   'The group has a new owner.': 'Gruppen har en ny ägare.',
   'The items in it stay in the library.': 'Källorna i den finns kvar i biblioteket.',
   'The library is now at version {version}.': 'Biblioteket har nu version {version}.',

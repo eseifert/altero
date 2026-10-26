@@ -85,6 +85,7 @@ export default {
     'സൈൻ-ഇൻ വിലാസത്തിൽ കാണിക്കും. ഇംഗ്ലീഷ് ചെറിയക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഹൈഫനുകൾ.',
   'Apply them now': 'ഇപ്പോൾ നടപ്പാക്കുക',
   Archive: 'ആർക്കൈവ്',
+  'Are you sure you want to change the item type?': 'ഇനത്തിന്റെ തരം മാറ്റണമെന്ന് ഉറപ്പാണോ?',
   'Ask for a new one. Your current password still works.':
     'പുതിയൊരെണ്ണം ആവശ്യപ്പെടുക. നിങ്ങളുടെ നിലവിലെ പാസ്‌വേഡ് ഇപ്പോഴും പ്രവർത്തിക്കും.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +108,7 @@ export default {
   Can: 'ചെയ്യാവുന്നത്',
   Cancel: 'റദ്ദാക്കുക',
   Change: 'മാറ്റുക',
+  'Change Item Type': 'ഇനത്തിന്റെ തരം മാറ്റുക',
   'Change password': 'പാസ്‌വേഡ് മാറ്റുക',
   'Change the group libraries you belong to': 'നിങ്ങൾ അംഗമായ ഗ്രൂപ്പ് ലൈബ്രറികളിൽ മാറ്റം വരുത്തുക',
   'Change the rights': 'അവകാശങ്ങൾ മാറ്റുക',
@@ -620,6 +622,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'അടിസ്ഥാന URL. അതിന്റെ കോൺഫിഗറേഷൻ /.well-known/openid-configuration എന്നതിൽ നിന്ന് വായിക്കുന്നു.',
   'The collection and everything inside it': 'ശേഖരവും അതിനുള്ളിലുള്ളതെല്ലാം',
+  'The following fields will be lost:': 'താഴെ പറയുന്ന ഫീൽഡുകൾ നഷ്ടപ്പെടും:',
   'The group has a new owner.': 'ഗ്രൂപ്പിന് പുതിയ ഉടമയുണ്ട്.',
   'The items in it stay in the library.': 'അതിലെ ഇനങ്ങൾ ലൈബ്രറിയിൽ തുടരും.',
   'The library is now at version {version}.': 'ലൈബ്രറി ഇപ്പോൾ പതിപ്പ് {version}-ലാണ്.',

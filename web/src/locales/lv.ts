@@ -84,6 +84,7 @@ export default {
     'Redzams pierakstīšanās adresē. Mazie burti, cipari un defises.',
   'Apply them now': 'Piemērot tagad',
   Archive: 'Arhīvs',
+  'Are you sure you want to change the item type?': 'Vai tiešām vēlaties mainīt vienuma tipu?',
   'Ask for a new one. Your current password still works.':
     'Pieprasiet jaunu. Jūsu pašreizējā parole joprojām darbojas.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -106,6 +107,7 @@ export default {
   Can: 'Tiesības',
   Cancel: 'Atcelt',
   Change: 'Mainīt',
+  'Change Item Type': 'Mainīt vienuma tipu',
   'Change password': 'Mainīt paroli',
   'Change the group libraries you belong to': 'Mainīt grupu bibliotēkas, kurās esat dalībnieks',
   'Change the rights': 'Mainīt tiesības',
@@ -610,6 +612,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Bāzes URL. Konfigurācija tiek nolasīta no /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kolekcija un viss tās saturs',
+  'The following fields will be lost:': 'Tiks zaudēti šādi lauki:',
   'The group has a new owner.': 'Grupai ir jauns īpašnieks.',
   'The items in it stay in the library.': 'Tajā esošie vienumi paliek bibliotēkā.',
   'The library is now at version {version}.': 'Bibliotēka tagad ir versijā {version}.',

@@ -84,6 +84,7 @@ export default {
     'Näkyy kirjautumisosoitteessa. Pieniä kirjaimia, numeroita ja yhdysmerkkejä.',
   'Apply them now': 'Sovella niitä nyt',
   'Archive': 'Arkisto',
+  'Are you sure you want to change the item type?': 'Haluatko varmasti vaihtaa kohteen tyypin?',
   'Ask for a new one. Your current password still works.':
     'Pyydä uusi. Nykyinen salasanasi toimii edelleen.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -106,6 +107,7 @@ export default {
   'Can': 'Oikeudet',
   'Cancel': 'Peruuta',
   'Change': 'Muuta',
+  'Change Item Type': 'Vaihda kohteen tyyppi',
   'Change password': 'Vaihda salasana',
   'Change the group libraries you belong to': 'Muuttaa ryhmäkirjastoja, joihin kuulut',
   'Change the rights': 'Muuta oikeuksia',
@@ -608,6 +610,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Perus-URL. Sen määritykset luetaan osoitteesta /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kokoelma ja kaikki sen sisällä oleva',
+  'The following fields will be lost:': 'Seuraavat kentät menetetään:',
   'The group has a new owner.': 'Ryhmällä on uusi omistaja.',
   'The items in it stay in the library.': 'Sen nimikkeet jäävät kirjastoon.',
   'The library is now at version {version}.': 'Kirjasto on nyt versiossa {version}.',

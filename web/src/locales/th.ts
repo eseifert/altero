@@ -84,6 +84,7 @@ export default {
     'ปรากฏในที่อยู่สำหรับลงชื่อเข้าใช้ ใช้ได้เฉพาะอักษรตัวพิมพ์เล็ก ตัวเลข และขีดกลาง',
   'Apply them now': 'นำไปใช้เดี๋ยวนี้',
   Archive: 'ไฟล์เก็บถาวร',
+  'Are you sure you want to change the item type?': 'คุณต้องการเปลี่ยนประเภทรายการใช่หรือไม่?',
   'Ask for a new one. Your current password still works.':
     'ขอลิงก์ใหม่ รหัสผ่านปัจจุบันของคุณยังใช้ได้',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -106,6 +107,7 @@ export default {
   Can: 'สิทธิ์',
   Cancel: 'ยกเลิก',
   Change: 'เปลี่ยน',
+  'Change Item Type': 'เปลี่ยนประเภทรายการ',
   'Change password': 'เปลี่ยนรหัสผ่าน',
   'Change the group libraries you belong to': 'เปลี่ยนแปลงไลบรารีกลุ่มที่คุณเป็นสมาชิก',
   'Change the rights': 'เปลี่ยนสิทธิ์',
@@ -600,6 +602,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL หลัก การกำหนดค่าจะอ่านจาก /.well-known/openid-configuration',
   'The collection and everything inside it': 'คอลเล็กชั่นและทุกอย่างที่อยู่ภายใน',
+  'The following fields will be lost:': 'ฟีลด์ต่อไปนี้จะสูญหาย:',
   'The group has a new owner.': 'กลุ่มมีเจ้าของคนใหม่แล้ว',
   'The items in it stay in the library.': 'รายการในนั้นจะยังอยู่ในไลบรารี',
   'The library is now at version {version}.': 'ขณะนี้ไลบรารีอยู่ที่เวอร์ชัน {version}',

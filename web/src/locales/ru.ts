@@ -88,6 +88,7 @@ export default {
     'Входит в адрес входа. Строчные буквы, цифры и дефисы.',
   'Apply them now': 'Применить сейчас',
   'Archive': 'Архив',
+  'Are you sure you want to change the item type?': 'Вы уверены, что хотите изменить тип записи?',
   'Ask for a new one. Your current password still works.':
     'Попросите новую. Ваш нынешний пароль по-прежнему работает.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -110,6 +111,7 @@ export default {
   'Can': 'Может',
   'Cancel': 'Отменить',
   'Change': 'Изменить',
+  'Change Item Type': 'Изменить тип записи',
   'Change password': 'Изменить пароль',
   'Change the group libraries you belong to': 'Изменять групповые библиотеки, в которых вы состоите',
   'Change the rights': 'Изменить права',
@@ -610,6 +612,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Базовый адрес. Его конфигурация читается из /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Коллекция и всё, что внутри неё',
+  'The following fields will be lost:': 'Следующие поля будут утрачены:',
   'The group has a new owner.': 'У группы новый владелец.',
   'The items in it stay in the library.': 'Записи из неё остаются в библиотеке.',
   'The library is now at version {version}.': 'Библиотека теперь на версии {version}.',

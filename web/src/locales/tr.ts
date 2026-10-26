@@ -85,6 +85,8 @@ export default {
     'Oturum açma adresinde görünür. Küçük harfler, rakamlar ve kısa çizgiler.',
   'Apply them now': 'Şimdi uygula',
   'Archive': 'Arşiv',
+  'Are you sure you want to change the item type?':
+    'Eser türünü değiştirmek istediğinize emin misiniz?',
   'Ask for a new one. Your current password still works.':
     'Yenisini isteyiniz. Mevcut şifreniz hâlâ geçerli.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +109,7 @@ export default {
   'Can': 'Yetki',
   'Cancel': 'İptal et',
   'Change': 'Değiştir',
+  'Change Item Type': 'Eser türünü değiştir',
   'Change password': 'Şifreyi değiştir',
   'Change the group libraries you belong to': 'Üyesi olduğunuz grup kitaplıklarını değiştirmek',
   'Change the rights': 'Telifi değiştir',
@@ -616,6 +619,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Temel URL. Yapılandırması /.well-known/openid-configuration adresinden okunur.',
   'The collection and everything inside it': 'Derme ve içindeki her şey',
+  'The following fields will be lost:': 'Aşağıdaki alanlar kaybedilecek:',
   'The group has a new owner.': 'Grubun yeni bir sahibi var.',
   'The items in it stay in the library.': 'İçindeki eserler kitaplıkta kalır.',
   'The library is now at version {version}.': 'Kitaplık artık {version} sürümünde.',

@@ -85,6 +85,7 @@ export default {
     'Kuvatakse sisselogimisaadressis. Väiketähed, numbrid ja sidekriipsud.',
   'Apply them now': 'Rakenda kohe',
   'Archive': 'Arhiiv',
+  'Are you sure you want to change the item type?': 'Soovite kindlasti selle kirje tüüpi muutma?',
   'Ask for a new one. Your current password still works.':
     'Küsige uus. Teie praegune salasõna kehtib endiselt.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +108,7 @@ export default {
   'Can': 'Õigused',
   'Cancel': 'Tühista',
   'Change': 'Muuda',
+  'Change Item Type': 'Kirje tüübi muutmine',
   'Change password': 'Muuda salasõna',
   'Change the group libraries you belong to': 'Muuta nende gruppide raamatukogusid, kuhu kuulute',
   'Change the rights': 'Muuda õigusi',
@@ -613,6 +615,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Baas-URL. Selle seadistus loetakse aadressilt /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kogu ja kõik selle sees olev',
+  'The following fields will be lost:': 'Järgnevad väljad kustutatakse:',
   'The group has a new owner.': 'Grupil on uus omanik.',
   'The items in it stay in the library.': 'Selles olevad kirjed jäävad raamatukokku.',
   'The library is now at version {version}.': 'Raamatukogu on nüüd versioonis {version}.',

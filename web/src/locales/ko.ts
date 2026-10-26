@@ -82,6 +82,7 @@ export default {
     '로그인 주소에 표시됩니다. 영문 소문자, 숫자, 하이픈을 사용하세요.',
   'Apply them now': '지금 적용',
   'Archive': '아카이브',
+  'Are you sure you want to change the item type?': '정말로 항목 종류를 변경하길 원하십니까?',
   'Ask for a new one. Your current password still works.': '새 링크를 요청하세요. 현재 비밀번호는 계속 사용할 수 있습니다.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     '서버 운영자에게 새 링크를 요청하세요. 현재 비밀번호는 계속 사용할 수 있습니다.',
@@ -103,6 +104,7 @@ export default {
   'Can': '허용 작업',
   'Cancel': '취소',
   'Change': '변경',
+  'Change Item Type': '항목 종류 변경',
   'Change password': '비밀번호 변경',
   'Change the group libraries you belong to': '소속 그룹 라이브러리 변경',
   'Change the rights': '권한 변경',
@@ -579,6 +581,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     '기본 URL입니다. /.well-known/openid-configuration에서 구성을 읽습니다.',
   'The collection and everything inside it': '컬렉션 및 모든 하위 내용',
+  'The following fields will be lost:': '다음 필드를 잃을 수 있습니다.',
   'The group has a new owner.': '그룹 소유자가 변경되었습니다.',
   'The items in it stay in the library.': '컬렉션의 항목은 라이브러리에 유지됩니다.',
   'The library is now at version {version}.': '라이브러리 버전이 {version}(으)로 변경되었습니다.',

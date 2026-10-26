@@ -87,6 +87,8 @@ export default {
     'Lumalabas sa address ng pag-sign in. Maliliit na titik, numero at gitling.',
   'Apply them now': 'Ilapat na ngayon',
   'Archive': 'Archive',
+  'Are you sure you want to change the item type?':
+    'Sigurado ka bang gusto mong palitan ang uri ng item?',
   'Ask for a new one. Your current password still works.':
     'Humingi ng bago. Gumagana pa rin ang kasalukuyan mong password.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -109,6 +111,7 @@ export default {
   'Can': 'Maaaring',
   'Cancel': 'Kanselahin',
   'Change': 'Baguhin',
+  'Change Item Type': 'Palitan ang Uri ng Item',
   'Change password': 'Palitan ang password',
   'Change the group libraries you belong to':
     'Baguhin ang mga library ng grupo na kinabibilangan mo',
@@ -619,6 +622,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Ang base URL. Binabasa ang configuration nito mula sa /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Ang koleksyon at ang lahat ng nasa loob nito',
+  'The following fields will be lost:': 'Mawawala ang mga sumusunod na field:',
   'The group has a new owner.': 'May bagong may-ari ang grupo.',
   'The items in it stay in the library.': 'Mananatili sa library ang mga item na nasa loob nito.',
   'The library is now at version {version}.': 'Nasa bersyon {version} na ang library.',

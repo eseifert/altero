@@ -85,6 +85,8 @@ export default {
     'Появява се в адреса за влизане. Малки латински букви, цифри и тирета.',
   'Apply them now': 'Прилагане сега',
   'Archive': 'Архив',
+  'Are you sure you want to change the item type?':
+    'Сигурни ли сте, че искате да промените типа на записа?',
   'Ask for a new one. Your current password still works.':
     'Поискайте нова. Сегашната ви парола продължава да работи.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +109,7 @@ export default {
   'Can': 'Права',
   'Cancel': 'Отказ',
   'Change': 'Промяна',
+  'Change Item Type': 'Променя типа на записа',
   'Change password': 'Смяна на паролата',
   'Change the group libraries you belong to': 'Променя груповите библиотеки, в които членувате',
   'Change the rights': 'Промяна на правата',
@@ -610,6 +613,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Базовият URL адрес. Конфигурацията му се чете от /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Колекцията и всичко в нея',
+  'The following fields will be lost:': 'Следните полета ще бъдат загубени:',
   'The group has a new owner.': 'Групата има нов собственик.',
   'The items in it stay in the library.': 'Записите в нея остават в библиотеката.',
   'The library is now at version {version}.': 'Библиотеката вече е на версия {version}.',

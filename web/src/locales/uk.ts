@@ -88,6 +88,8 @@ export default {
     'Входить до адреси входу. Малі літери, цифри й дефіси.',
   'Apply them now': 'Застосувати зараз',
   'Archive': 'Архів',
+  'Are you sure you want to change the item type?':
+    'Ви впевнені, що бажаєте змінити тип документу?',
   'Ask for a new one. Your current password still works.':
     'Попросіть нове. Ваш теперішній пароль досі діє.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -110,6 +112,7 @@ export default {
   'Can': 'Може',
   'Cancel': 'Скасувати',
   'Change': 'Змінити',
+  'Change Item Type': 'Змінити тип документу',
   'Change password': 'Змінити пароль',
   'Change the group libraries you belong to': 'Змінювати групові бібліотеки, до яких ви належите',
   'Change the rights': 'Змінити права',
@@ -610,6 +613,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Базова адреса. Її конфігурація читається з /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Колекція й усе, що в ній',
+  'The following fields will be lost:': 'Наступні поля будуть втрачені.',
   'The group has a new owner.': 'Група має нового власника.',
   'The items in it stay in the library.': 'Документи з неї лишаються в бібліотеці.',
   'The library is now at version {version}.': 'Бібліотека тепер має версію {version}.',

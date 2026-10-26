@@ -88,6 +88,8 @@ export default {
     'সাইন-ইন ঠিকানায় দেখা যায়। ছোট হাতের ইংরেজি অক্ষর, অঙ্ক ও হাইফেন।',
   'Apply them now': 'এখনই প্রয়োগ করুন',
   'Archive': 'আর্কাইভ',
+  'Are you sure you want to change the item type?':
+    'আপনি কি নিশ্চিত যে আপনি আইটেমের ধরন পরিবর্তন করতে চান?',
   'Ask for a new one. Your current password still works.':
     'নতুন একটি চেয়ে নিন। আপনার বর্তমান পাসওয়ার্ড এখনও কাজ করে।',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -110,6 +112,7 @@ export default {
   'Can': 'অনুমতি',
   'Cancel': 'বাতিল',
   'Change': 'পরিবর্তন করুন',
+  'Change Item Type': 'আইটেমের ধরন পরিবর্তন করুন',
   'Change password': 'পাসওয়ার্ড পরিবর্তন করুন',
   'Change the group libraries you belong to':
     'আপনি যেসব গ্রুপ লাইব্রেরির সদস্য সেগুলো পরিবর্তন করা',
@@ -612,6 +615,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'মূল URL। এর কনফিগারেশন /.well-known/openid-configuration থেকে পড়া হয়।',
   'The collection and everything inside it': 'সংগ্রহটি ও এর ভেতরের সবকিছু',
+  'The following fields will be lost:': 'নিম্নলিখিত ফিল্ডগুলো হারিয়ে যাবে:',
   'The group has a new owner.': 'গ্রুপটির মালিক বদল হয়েছে।',
   'The items in it stay in the library.': 'এর ভেতরের আইটেমগুলো লাইব্রেরিতে থেকে যাবে।',
   'The library is now at version {version}.': 'লাইব্রেরিটি এখন সংস্করণ {version}-এ আছে।',

@@ -20,10 +20,19 @@ export class ApiError extends Error {
   /** The HTTP status, or 0 when the request never reached the server. */
   readonly status: number
 
-  constructor(message: string, status: number, options?: ErrorOptions) {
+  /** What the refusal was about, when the server said: the fields a change
+   *  of item type would lose, for one. */
+  readonly data: Record<string, unknown> | undefined
+
+  constructor(
+    message: string,
+    status: number,
+    options?: ErrorOptions & { data?: Record<string, unknown> },
+  ) {
     super(message, options)
     this.name = 'ApiError'
     this.status = status
+    this.data = options?.data
   }
 }
 
@@ -85,7 +94,8 @@ export async function request<T = unknown>(
     const message =
       (isRecord(payload) && typeof payload.message === 'string' && payload.message) ||
       `The server answered ${response.status}`
-    throw new ApiError(message, response.status)
+    const data = isRecord(payload) && isRecord(payload.data) ? payload.data : undefined
+    throw new ApiError(message, response.status, { data })
   }
 
   return payload as T

@@ -29,6 +29,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   useLibraryStore,
   type CollectionNode,
+  type ItemChanges,
   type ItemEnvelope,
   type TagEntry,
 } from '@/stores/library'
@@ -774,6 +775,13 @@ async function startPublishing(item: ItemEnvelope): Promise<void> {
  * item, so without this the licence could never be corrected here.
  */
 const editingRights = ref<ItemEnvelope | null>(null)
+
+/** One edit from the Info pane, of the item the pane is showing. */
+function saveSelected(changes: ItemChanges): Promise<unknown> {
+  const item = library.selected
+  if (!item) return Promise.resolve()
+  return library.saveItem(item.key, changes)
+}
 
 async function submitRights(rights: string): Promise<void> {
   const item = editingRights.value
@@ -1791,6 +1799,7 @@ function sortLabel(column: { field: string; label: string }): string {
         :removable="library.selected ? library.removable(library.selected) : false"
         :publishable="library.writable && library.library?.type === 'user'"
         :in-publications-view="library.scope === 'publications'"
+        :save="saveSelected"
         @open="library.select($event)"
         @close="library.select(null)"
         @move="moving = [library.selected]"

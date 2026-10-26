@@ -85,6 +85,7 @@ export default {
     'បង្ហាញក្នុងអាសយដ្ឋានចូល។ អក្សរឡាតាំងតូច លេខ និងសញ្ញា (-)។',
   'Apply them now': 'អនុវត្តឥឡូវនេះ',
   Archive: 'បណ្ណសារ',
+  'Are you sure you want to change the item type?': 'តើអ្នកចង់ផ្លាស់ប្តូរប្រភេទឯកសារ?',
   'Ask for a new one. Your current password still works.':
     'សូមស្នើសុំតំណថ្មី។ ពាក្យសម្ងាត់បច្ចុប្បន្នរបស់អ្នកនៅតែប្រើបាន។',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +108,7 @@ export default {
   Can: 'សិទ្ធិ',
   Cancel: 'បោះបង់',
   Change: 'ផ្លាស់ប្តូរ',
+  'Change Item Type': 'ផ្លាស់ប្តូរប្រភេទឯកសារ',
   'Change password': 'ប្តូរពាក្យសម្ងាត់',
   'Change the group libraries you belong to': 'កែប្រែបណ្ណាល័យក្រុមដែលអ្នកជាសមាជិក',
   'Change the rights': 'ផ្លាស់ប្តូរសិទ្ធិ',
@@ -608,6 +610,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL មូលដ្ឋាន។ ការកំណត់រចនាសម្ព័ន្ធរបស់វាត្រូវបានអានពី /.well-known/openid-configuration។',
   'The collection and everything inside it': 'កម្រងឯកសារ និងអ្វីៗទាំងអស់នៅខាងក្នុងវា',
+  'The following fields will be lost:': 'វិស័យទាំងអស់នេះនឹងត្រូវបាត់បង់ៈ',
   'The group has a new owner.': 'ក្រុមមានម្ចាស់ថ្មីហើយ។',
   'The items in it stay in the library.': 'ឯកសារនៅក្នុងវានៅតែមាននៅក្នុងបណ្ណាល័យ។',
   'The library is now at version {version}.': 'ឥឡូវនេះបណ្ណាល័យស្ថិតនៅកំណែ {version}។',

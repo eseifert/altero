@@ -77,6 +77,7 @@ export default {
     '出现在登录地址中。小写字母、数字和连字符。',
   'Apply them now': '立即应用',
   'Archive': '存档',
+  'Are you sure you want to change the item type?': '您确定要更改条目类型吗？',
   'Ask for a new one. Your current password still works.': '申请一个新的。你当前的密码仍然有效。',
   'Ask whoever runs this server for a new one. Your current password still works.':
     '向运行这台服务器的人要一个新的。你当前的密码仍然有效。',
@@ -98,6 +99,7 @@ export default {
   'Can': '可以',
   'Cancel': '取消',
   'Change': '更改',
+  'Change Item Type': '更改条目类型',
   'Change password': '更改密码',
   'Change the group libraries you belong to': '更改您所属的群组文库',
   'Change the rights': '更改版权',
@@ -578,6 +580,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     '基础 URL。其配置从 /.well-known/openid-configuration 读取。',
   'The collection and everything inside it': '此分类及其中的一切',
+  'The following fields will be lost:': '下列字段将丢失：',
   'The group has a new owner.': '群组有了新的所有者。',
   'The items in it stay in the library.': '其中的条目仍留在文库中。',
   'The library is now at version {version}.': '文库现在处于版本 {version}。',

@@ -84,6 +84,7 @@ export default {
     '出現在登入位址中。小寫字母、數字和連字號。',
   'Apply them now': '立即套用',
   Archive: '封存檔',
+  'Are you sure you want to change the item type?': '確定要改變項目的類型嗎？',
   'Ask for a new one. Your current password still works.': '申請一個新的。你目前的密碼仍然有效。',
   'Ask whoever runs this server for a new one. Your current password still works.':
     '向管理這台伺服器的人要一個新的。你目前的密碼仍然有效。',
@@ -105,6 +106,7 @@ export default {
   Can: '可以',
   Cancel: '取消',
   Change: '變更',
+  'Change Item Type': '改變項目類型',
   'Change password': '變更密碼',
   'Change the group libraries you belong to': '變更你所屬的群組文獻庫',
   'Change the rights': '變更版權',
@@ -573,6 +575,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     '基礎 URL。它的組態從 /.well-known/openid-configuration 讀取。',
   'The collection and everything inside it': '此文獻集及其中的一切',
+  'The following fields will be lost:': '下列欄位資料將會消失：',
   'The group has a new owner.': '群組有了新的擁有者。',
   'The items in it stay in the library.': '其中的項目仍留在文獻庫中。',
   'The library is now at version {version}.': '文獻庫現在處於版本 {version}。',

@@ -80,6 +80,8 @@ export default {
     'Εμφανίζεται στη διεύθυνση σύνδεσης. Πεζά λατινικά γράμματα, ψηφία και παύλες.',
   'Apply them now': 'Εφαρμογή τώρα',
   'Archive': 'Αρχείο αρχειοθέτησης',
+  'Are you sure you want to change the item type?':
+    'Είστε βέβαιοι ότι θέλετε να αλλάξετε τον τύπο στοιχείου;',
   'Ask for a new one. Your current password still works.': 'Ζητήστε νέο. Ο τρέχων κωδικός πρόσβασής σας εξακολουθεί να ισχύει.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Ζητήστε νέο από τον διαχειριστή αυτού του διακομιστή. Ο τρέχων κωδικός πρόσβασής σας εξακολουθεί να ισχύει.',
@@ -101,6 +103,7 @@ export default {
   'Can': 'Δικαίωμα',
   'Cancel': 'Άκυρο',
   'Change': 'Αλλαγή',
+  'Change Item Type': 'Αλλαγή Τύπου Στοιχείου',
   'Change password': 'Αλλαγή κωδικού πρόσβασης',
   'Change the group libraries you belong to': 'Αλλαγή των ομαδικών βιβλιοθηκών στις οποίες ανήκετε',
   'Change the rights': 'Αλλαγή των δικαιωμάτων',
@@ -589,6 +592,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Το βασικό URL. Η διαμόρφωσή του διαβάζεται από το /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Η συλλογή και όλο το περιεχόμενό της',
+  'The following fields will be lost:': 'Τα ακόλουθα πεδία θα χαθούν:',
   'The group has a new owner.': 'Η ομάδα έχει νέο ιδιοκτήτη.',
   'The items in it stay in the library.': 'Τα στοιχεία της παραμένουν στη βιβλιοθήκη.',
   'The library is now at version {version}.': 'Η βιβλιοθήκη βρίσκεται τώρα στην έκδοση {version}.',

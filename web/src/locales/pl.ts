@@ -87,6 +87,7 @@ export default {
     'Pojawia się w adresie logowania. Małe litery, cyfry i łączniki.',
   'Apply them now': 'Zastosuj je teraz',
   'Archive': 'Archiwum',
+  'Are you sure you want to change the item type?': 'Czy na pewno chcesz zmienić typ elementu?',
   'Ask for a new one. Your current password still works.':
     'Poproś o nowy. Twoje obecne hasło nadal działa.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -109,6 +110,7 @@ export default {
   'Can': 'Może',
   'Cancel': 'Anuluj',
   'Change': 'Zmień',
+  'Change Item Type': 'Zmień typ elementu',
   'Change password': 'Zmień hasło',
   'Change the group libraries you belong to': 'Zmieniać biblioteki grup, do których należysz',
   'Change the rights': 'Zmień prawa',
@@ -611,6 +613,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Adres bazowy. Konfiguracja odczytywana jest z /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kolekcja i wszystko, co w niej jest',
+  'The following fields will be lost:': 'Zostaną utracone następujące pola:',
   'The group has a new owner.': 'Grupa ma nowego właściciela.',
   'The items in it stay in the library.': 'Elementy z niej zostają w bibliotece.',
   'The library is now at version {version}.': 'Biblioteka jest teraz w wersji {version}.',

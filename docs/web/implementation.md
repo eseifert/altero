@@ -71,14 +71,13 @@ are cached for good, so the second visit fetches none of it.
 
 ### Not built yet
 
-Editing an item's fields — with one exception, the Rights field, because a
-license set when a work was published has to be revisable by whoever set it.
-Collections can be made, renamed, moved and removed, an item can be filed,
-trashed, restored, deleted, copied to another library, published to My
-Publications and written out as a file, a tag can be renamed, and a whole
-library can be restored from an archive or copied in from zotero.org — but no
-item's title, creators or dates can be changed here, no item can be created, and
-a tag cannot be deleted or put on something. Moving in from zotero.org brings
+Editing an item's creators, tags and notes, and creating an item. An item's
+fields and type can be edited, collections can be made, renamed, moved and
+removed, an item can be filed, trashed, restored, deleted, copied to another
+library, published to My Publications and written out as a file, a tag can be
+renamed, and a whole library can be restored from an archive or copied in from
+zotero.org — but no item can be created here, and a tag cannot be deleted or
+put on something. Moving in from zotero.org brings
 the personal library only; a group has to be made here and its members invited.
 
 The two things the desktop client does with a set of items that this does not

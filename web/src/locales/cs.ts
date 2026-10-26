@@ -88,6 +88,8 @@ export default {
     'Objeví se v adrese pro přihlášení. Malá písmena, číslice a spojovníky.',
   'Apply them now': 'Uplatnit je hned',
   'Archive': 'Archiv',
+  'Are you sure you want to change the item type?':
+    'Jste si jisti, že chcete změnit typ této položky?',
   'Ask for a new one. Your current password still works.':
     'Požádejte o nový. Vaše současné heslo stále platí.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -110,6 +112,7 @@ export default {
   'Can': 'Oprávnění',
   'Cancel': 'Zrušit',
   'Change': 'Změnit',
+  'Change Item Type': 'Změnit typ položky',
   'Change password': 'Změnit heslo',
   'Change the group libraries you belong to': 'Měnit knihovny vašich skupin',
   'Change the rights': 'Změnit práva',
@@ -615,6 +618,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Základní URL. Konfigurace se načítá z /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kolekce a vše, co obsahuje',
+  'The following fields will be lost:': 'Následující pole budou ztracena:',
   'The group has a new owner.': 'Skupina má nového vlastníka.',
   'The items in it stay in the library.': 'Položky v ní zůstanou v knihovně.',
   'The library is now at version {version}.': 'Knihovna je nyní ve verzi {version}.',

@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fieldLabel, humanize, itemTypeLabel, loadLabels, resetLabels } from '@/items/labels'
@@ -54,6 +55,7 @@ function detail(item: ItemEnvelope = ARTICLE, children: ItemEnvelope[] = []) {
 }
 
 beforeEach(() => {
+  setActivePinia(createPinia())
   requestMock.mockReset()
   resetLabels()
 })

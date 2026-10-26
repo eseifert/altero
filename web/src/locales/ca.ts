@@ -87,6 +87,7 @@ export default {
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.':
     'Apareix a l’adreça d’inici de sessió. Lletres minúscules, xifres i guionets.',
   'Apply them now': 'Aplica’ls ara',
+  'Are you sure you want to change the item type?': 'Segur que voleu canviar el tipus d\'element?',
   'Ask for a new one. Your current password still works.':
     'Demaneu-ne un de nou. La vostra contrasenya actual continua funcionant.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -109,6 +110,7 @@ export default {
   Cancel: 'Cancel·la',
   'By library': 'Per biblioteca',
   'Change': 'Canvia',
+  'Change Item Type': 'Canvia el tipus d\'element',
   'Change password': 'Canvia la contrasenya',
   'Change the group libraries you belong to':
     'Modificar les biblioteques de grup de què sou membre',
@@ -618,6 +620,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'L’URL base. La seva configuració es llegeix de /.well-known/openid-configuration.',
   'The collection and everything inside it': 'La col·lecció i tot el que conté',
+  'The following fields will be lost:': 'Es perdran els camps següents:',
   'The group has a new owner.': 'El grup té un propietari nou.',
   'The items in it stay in the library.': 'Els elements que conté es queden a la biblioteca.',
   'The library is now at version {version}.': 'La biblioteca és ara a la versió {version}.',

@@ -14,17 +14,31 @@ import { reactive } from 'vue'
 
 import { request } from '@/api/client'
 
+/** One regular item type as an editor draws it: fields in order, and the
+ *  creator roles it allows with the primary one first. */
+export interface TypeOutline {
+  fields: string[]
+  creatorTypes: string[]
+}
+
 interface DisplayNames {
   itemTypes: Record<string, string>
   fields: Record<string, string>
   creatorTypes: Record<string, string>
   mappings: Record<string, Record<string, string>>
+  types: Record<string, TypeOutline>
 }
 
 /* Reactive, because the names always arrive after the first render. Anything
    that asked for a label before the request finished has to be told when the
    answer is in, or it keeps the split camel case for as long as it is shown. */
-const names: DisplayNames = reactive({ itemTypes: {}, fields: {}, creatorTypes: {}, mappings: {} })
+const names: DisplayNames = reactive({
+  itemTypes: {},
+  fields: {},
+  creatorTypes: {},
+  mappings: {},
+  types: {},
+})
 
 /** The locale the names in hand, or the request in flight, were asked for. */
 let wanted: string | null = null
@@ -62,6 +76,7 @@ export function loadLabels(locale?: string): Promise<void> {
       names.fields = payload.fields ?? {}
       names.creatorTypes = payload.creatorTypes ?? {}
       names.mappings = payload.mappings ?? {}
+      names.types = payload.types ?? {}
     })
     .catch(() => {
       // Labels are a nicety. The library still reads without them, and letting
@@ -84,6 +99,18 @@ export function itemTypeLabel(name: string): string {
   return names.itemTypes[name] ?? humanize(name)
 }
 
+/** The fields and creator roles of ``itemType``, or none until the schema is in
+ *  -- and none for a note, an attachment or an annotation, whose content is not
+ *  fields. */
+export function typeOutline(itemType: string): TypeOutline | null {
+  return names.types[itemType] ?? null
+}
+
+/** Every regular item type, for a type menu. */
+export function regularItemTypes(): string[] {
+  return Object.keys(names.types)
+}
+
 /** Read a base field through its type-specific mapping, as Zotero Web Library does. */
 export function getBaseMappedValue(
   data: Record<string, unknown> & { itemType: string },
@@ -99,6 +126,7 @@ export function resetLabels(): void {
   names.fields = {}
   names.creatorTypes = {}
   names.mappings = {}
+  names.types = {}
   pending = null
   wanted = null
 }

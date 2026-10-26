@@ -4,7 +4,7 @@ altero includes a browser application at `/app/` for account management, library
 
 **Important boundary:** the browser session does not authenticate the Zotero v3 API. Zotero Desktop continues to use an API key.
 
-The web interface is a companion to Zotero Desktop, not a replacement for the full reference manager. In particular, bibliographic field editing remains a desktop task.
+The web interface is a companion to Zotero Desktop, not a replacement for the full reference manager. An item's fields and type can be edited here; its creators, tags and notes are still edited in Zotero Desktop.
 
 ## What you can do
 
@@ -55,7 +55,7 @@ A collection can also be shared by link without exposing the whole library or re
 
 ## Items
 
-The browser supports filing, trashing, restoring, deleting and copying items. Editing bibliographic fields is still a Zotero Desktop task. See [Browsing and organizing a library](web/library.md).
+The browser supports editing an item's fields and type, and filing, trashing, restoring, deleting and copying items. Creators, tags and notes are still edited in Zotero Desktop. See [Browsing and organizing a library](web/library.md).
 
 <a id="writing-items-out"></a>
 ### Exporting items

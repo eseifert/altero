@@ -29,7 +29,7 @@ const NOT_YET_LOGICAL: Record<string, number> = {
   'App.vue': 1,
   'components/CollectionDialog.vue': 1,
   'components/CollectionTree.vue': 2,
-  'components/ItemDetail.vue': 3,
+  'components/ItemDetail.vue': 1,
   'components/PublicationsDialog.vue': 1,
   'components/ThemeMenu.vue': 2,
   'styles/base.css': 1,

@@ -79,6 +79,7 @@ export default {
     'Rodomas prisijungimo adrese. Mažosios raidės, skaitmenys ir brūkšneliai.',
   'Apply them now': 'Taikyti dabar',
   'Archive': 'Archyvas',
+  'Are you sure you want to change the item type?': 'Tikrai norėtumėte pakeisti įrašo tipą?',
   'Ask for a new one. Your current password still works.': 'Paprašykite naujos. Dabartinis slaptažodis vis dar veikia.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Paprašykite šio serverio administratoriaus naujos. Dabartinis slaptažodis vis dar veikia.',
@@ -100,6 +101,7 @@ export default {
   'Can': 'Gali',
   'Cancel': 'Atšaukti',
   'Change': 'Keisti',
+  'Change Item Type': 'Pakeisti įrašo tipą',
   'Change password': 'Keisti slaptažodį',
   'Change the group libraries you belong to': 'Keisti grupių bibliotekas, kurioms priklausote',
   'Change the rights': 'Keisti teises',
@@ -579,6 +581,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Bazinis URL. Jo konfigūracija nuskaitoma iš /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Rinkinį ir viską, kas jame yra',
+  'The following fields will be lost:': 'Prarasite tokius laukus:',
   'The group has a new owner.': 'Grupė turi naują savininką.',
   'The items in it stay in the library.': 'Jame esantys įrašai lieka bibliotekoje.',
   'The library is now at version {version}.': 'Bibliotekos versija dabar yra {version}.',

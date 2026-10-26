@@ -89,6 +89,7 @@ export default {
     'Muncul di alamat masuk. Huruf kecil, angka, dan tanda hubung.',
   'Apply them now': 'Terapkan sekarang',
   'Archive': 'Arsip',
+  'Are you sure you want to change the item type?': 'Apakah Anda yakin ingin mengubah jenis item?',
   'Ask for a new one. Your current password still works.':
     'Minta tautan baru. Kata sandi Anda saat ini masih berlaku.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -111,6 +112,7 @@ export default {
   'Can': 'Dapat',
   'Cancel': 'Batal',
   'Change': 'Ubah',
+  'Change Item Type': 'Ubah Jenis Item',
   'Change password': 'Ubah kata sandi',
   'Change the group libraries you belong to':
     'Mengubah perpustakaan grup tempat Anda menjadi anggota',
@@ -618,6 +620,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL dasar. Konfigurasinya dibaca dari /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Koleksi ini beserta semua yang ada di dalamnya',
+  'The following fields will be lost:': 'Isian-isian berikut ini akan hilang:',
   'The group has a new owner.': 'Grup ini memiliki pemilik baru.',
   'The items in it stay in the library.': 'Item di dalamnya tetap berada di perpustakaan.',
   'The library is now at version {version}.': 'Perpustakaan kini berada di versi {version}.',

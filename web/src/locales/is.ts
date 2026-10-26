@@ -86,6 +86,7 @@ export default {
     'Birtist í innskráningarslóðinni. Lágstafir, tölustafir og bandstrik.',
   'Apply them now': 'Beita þeim núna',
   'Archive': 'Safnskrá',
+  'Are you sure you want to change the item type?': 'Ertu viss um að þú viljir breyta gerð færslu?',
   'Ask for a new one. Your current password still works.':
     'Biddu um nýjan. Núverandi lykilorð þitt virkar enn.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -108,6 +109,7 @@ export default {
   'Can': 'Má',
   'Cancel': 'Hætta við',
   'Change': 'Breyta',
+  'Change Item Type': 'Breyta tegund færslu',
   'Change password': 'Breyta lykilorði',
   'Change the group libraries you belong to': 'Breyta hópsöfnunum sem þú tilheyrir',
   'Change the rights': 'Breyta réttindunum',
@@ -614,6 +616,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Grunnslóðin. Skilgreining hennar er lesin úr /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Safnið og allt sem er inni í því',
+  'The following fields will be lost:': 'Eftirfarandi svæði munu glatast:',
   'The group has a new owner.': 'Hópurinn hefur nýjan eiganda.',
   'The items in it stay in the library.': 'Færslurnar í því verða áfram í færslusafninu.',
   'The library is now at version {version}.': 'Færslusafnið er nú í útgáfu {version}.',

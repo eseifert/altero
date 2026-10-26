@@ -85,6 +85,8 @@ export default {
     'Pojavi se v naslovu za prijavo. Male črke, števke in vezaji.',
   'Apply them now': 'Uveljavi zdaj',
   'Archive': 'Arhiv',
+  'Are you sure you want to change the item type?':
+    'Ste prepričani, da želite spremeniti vrsto vnosa?',
   'Ask for a new one. Your current password still works.': 'Zahtevajte novo. Vaše trenutno geslo še vedno deluje.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Za novo prosite skrbnika tega strežnika. Vaše trenutno geslo še vedno deluje.',
@@ -106,6 +108,7 @@ export default {
   'Can': 'Pravice',
   'Cancel': 'Prekliči',
   'Change': 'Spremeni',
+  'Change Item Type': 'Spremeni vrsto vnosa',
   'Change password': 'Spremeni geslo',
   'Change the group libraries you belong to': 'Spreminjati knjižnice skupin, v katerih ste',
   'Change the rights': 'Spremeni pravice',
@@ -595,6 +598,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Osnovni URL. Nastavitve se preberejo iz /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Zbirko in vse, kar je v njej',
+  'The following fields will be lost:': 'Izgubljena bodo naslednja polja:',
   'The group has a new owner.': 'Skupina ima novega lastnika.',
   'The items in it stay in the library.': 'Vnosi iz nje ostanejo v knjižnici.',
   'The library is now at version {version}.': 'Knjižnica je zdaj v različici {version}.',

@@ -74,6 +74,8 @@ export default {
   Archive: 'Archive',
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.': 'Apparaît dans l’adresse de connexion. Minuscules, chiffres et traits d’union.',
   'Apply them now': 'Appliquer maintenant',
+  'Are you sure you want to change the item type?':
+    'Voulez-vous vraiment changer le type du document ?',
   'Ask for a new one. Your current password still works.': 'Demandez-en un nouveau. Votre mot de passe actuel fonctionne toujours.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Demandez-en un nouveau à qui administre ce serveur. Votre mot de passe actuel fonctionne toujours.',
@@ -95,6 +97,7 @@ export default {
   Cancel: 'Annuler',
   'By library': 'Par bibliothèque',
   'Change': 'Modifier',
+  'Change Item Type': 'Changer le type du document',
   'Change password': 'Changer le mot de passe',
   'Change the group libraries you belong to': 'Modifier les bibliothèques de groupe dont vous êtes membre',
   'Change the rights': 'Modifier les autorisations',
@@ -577,6 +580,7 @@ export default {
   'That way of signing in is not available here.': 'Ce mode de connexion n’est pas disponible ici.',
   'The base URL. Its configuration is read from /.well-known/openid-configuration.': 'L’URL de base. Sa configuration est lue depuis /.well-known/openid-configuration.',
   'The collection and everything inside it': 'La collection et tout ce qu’elle contient',
+  'The following fields will be lost:': 'Les champs suivants seront perdus :',
   'The group has a new owner.': 'Le groupe a un nouveau propriétaire.',
   'The items in it stay in the library.': 'Les documents qu’elle contient restent dans la bibliothèque.',
   'The library is now at version {version}.':

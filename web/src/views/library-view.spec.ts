@@ -2830,7 +2830,7 @@ describe('publishing an item', () => {
     await row(wrapper).trigger('click')
     await settle(wrapper)
 
-    await wrapper.get('.detail__edit').trigger('click')
+    await wrapper.get('button[aria-label="Change the rights"]').trigger('click')
     await settle(wrapper)
 
     expect(wrapper.find('dialog.dialog').exists()).toBe(true)
@@ -2857,7 +2857,7 @@ describe('publishing an item', () => {
     await row(wrapper).trigger('click')
     await settle(wrapper)
 
-    const offer = wrapper.get('.detail__add')
+    const offer = wrapper.get('.info__offer')
     expect(offer.text()).toBe('Not stated — say what it is')
 
     await offer.trigger('click')

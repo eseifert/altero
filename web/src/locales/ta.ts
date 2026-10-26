@@ -86,6 +86,7 @@ export default {
     'உள்நுழைவு முகவரியில் தோன்றும். சிற்றெழுத்துகள், இலக்கங்கள் மற்றும் இணைப்புக்கோடுகள்.',
   'Apply them now': 'இப்போதே பயன்படுத்து',
   'Archive': 'காப்பகம்',
+  'Are you sure you want to change the item type?': 'உருப்படி வகையை மாற்ற விரும்புகிறீர்களா?',
   'Ask for a new one. Your current password still works.':
     'புதிய ஒன்றைக் கேட்கவும். உங்கள் தற்போதைய கடவுச்சொல் இன்னும் வேலை செய்கிறது.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -108,6 +109,7 @@ export default {
   'Can': 'செய்யக்கூடியது',
   'Cancel': 'ரத்துசெய்',
   'Change': 'மாற்று',
+  'Change Item Type': 'உருப்படி வகையை மாற்று',
   'Change password': 'கடவுச்சொல்லை மாற்று',
   'Change the group libraries you belong to': 'நீங்கள் உறுப்பினராக உள்ள குழு நூலகங்களை மாற்ற',
   'Change the rights': 'உரிமைகளை மாற்று',
@@ -626,6 +628,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'அடிப்படை URL. அதன் உள்ளமைவு /.well-known/openid-configuration இலிருந்து படிக்கப்படுகிறது.',
   'The collection and everything inside it': 'சேகரிப்பும் அதனுள் உள்ள அனைத்தும்',
+  'The following fields will be lost:': 'பின்வரும் புலங்கள் இழக்கப்படும்:',
   'The group has a new owner.': 'குழுவுக்குப் புதிய உரிமையாளர் உள்ளார்.',
   'The items in it stay in the library.': 'அதில் உள்ள உருப்படிகள் நூலகத்திலேயே இருக்கும்.',
   'The library is now at version {version}.': 'நூலகம் இப்போது பதிப்பு {version} இல் உள்ளது.',

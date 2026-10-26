@@ -83,6 +83,7 @@ export default {
     'साइन-इन पते में दिखता है। छोटे अक्षर, अंक और हाइफ़न।',
   'Apply them now': 'इन्हें अभी लागू करें',
   'Archive': 'आर्काइव',
+  'Are you sure you want to change the item type?': 'क्या आप वाकई आइटम का प्रकार बदलना चाहते हैं?',
   'Ask for a new one. Your current password still works.': 'नया लिंक माँगें। आपका मौजूदा पासवर्ड अब भी काम करता है।',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'इस सर्वर को चलाने वाले व्यक्ति से नया लिंक माँगें। आपका मौजूदा पासवर्ड अब भी काम करता है।',
@@ -104,6 +105,7 @@ export default {
   'Can': 'अनुमति',
   'Cancel': 'रद्द करें',
   'Change': 'बदलें',
+  'Change Item Type': 'आइटम का प्रकार बदलें',
   'Change password': 'पासवर्ड बदलें',
   'Change the group libraries you belong to': 'आप जिन समूह लाइब्रेरी के सदस्य हैं, उन्हें बदलना',
   'Change the rights': 'अधिकार बदलें',
@@ -587,6 +589,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'आधार URL। इसका कॉन्फ़िगरेशन /.well-known/openid-configuration से पढ़ा जाता है।',
   'The collection and everything inside it': 'संग्रह और उसके भीतर की हर चीज़',
+  'The following fields will be lost:': 'निम्नलिखित फ़ील्ड खो जाएँगे:',
   'The group has a new owner.': 'समूह का अब नया स्वामी है।',
   'The items in it stay in the library.': 'इसमें मौजूद आइटम लाइब्रेरी में बने रहते हैं।',
   'The library is now at version {version}.': 'लाइब्रेरी अब संस्करण {version} पर है।',

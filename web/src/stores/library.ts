@@ -57,6 +57,31 @@ export interface ItemEnvelope {
   }
 }
 
+/** One creator as the v3 API writes it: one name, or a first and a last. */
+export interface CreatorEntry {
+  creatorType: string
+  firstName?: string
+  lastName?: string
+  name?: string
+}
+
+/**
+ * What an edit of one item can carry, each part as the v3 API spells it.
+ *
+ * A list sent empty clears what it names and one left out is left alone, as
+ * the server reads them. `itemType` comes on its own, with `discard` naming
+ * the fields the person agreed to lose.
+ */
+export interface ItemChanges {
+  fields?: Record<string, string>
+  creators?: CreatorEntry[]
+  tags?: { tag: string; type?: number }[]
+  relations?: Record<string, string | string[]>
+  note?: string
+  itemType?: string
+  discard?: string[]
+}
+
 export interface CollectionEnvelope {
   key: string
   version: number
@@ -567,6 +592,39 @@ export const useLibraryStore = defineStore('library', () => {
     await afterItemWrite()
   }
 
+  /**
+   * Write one edit of ``key``, stating the version it replaces.
+   *
+   * The answer is the item as it now stands, and it goes straight into the
+   * pane, the row and the children rather than through a reload of the whole
+   * list: a field saved on every blur would otherwise cost three requests and
+   * a redraw for a change the reader can already see. A stale version is
+   * refused with 412 and thrown to the caller, which knows what was being
+   * edited and so what to tell the reader.
+   */
+  async function saveItem(key: string, changes: ItemChanges): Promise<ItemEnvelope | null> {
+    if (libraryId.value === null) return null
+    const current =
+      (selected.value?.key === key ? selected.value : undefined) ??
+      items.value.find((entry) => entry.key === key) ??
+      children.value.find((entry) => entry.key === key)
+    const fresh = await request<ItemEnvelope>(`/web/libraries/${libraryId.value}/items/${key}`, {
+      method: 'PATCH',
+      body: { ...changes, version: current?.version },
+    })
+    put(fresh)
+    return fresh
+  }
+
+  /** Replace every copy of an item the page holds with ``fresh``. */
+  function put(fresh: ItemEnvelope): void {
+    if (selected.value?.key === fresh.key) selected.value = fresh
+    const row = items.value.findIndex((entry) => entry.key === fresh.key)
+    if (row >= 0) items.value[row] = fresh
+    const child = children.value.findIndex((entry) => entry.key === fresh.key)
+    if (child >= 0) children.value[child] = fresh
+  }
+
   /** Put ``key`` into My Publications on the terms the wizard collected. */
   async function publishItem(
     key: string,
@@ -884,6 +942,7 @@ export const useLibraryStore = defineStore('library', () => {
     copyItems,
     childrenOf,
     editItem,
+    saveItem,
     publishItem,
     unpublishItem,
     refresh,

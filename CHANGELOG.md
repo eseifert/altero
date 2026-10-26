@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface edits an item's fields and changes its type, saving each field as you leave it ([editing]).
 - Changing an item's type in Zotero Desktop no longer stops sync when the item loses fields; fields and creators move as on zotero.org.
 - Desktop acceptance covers a lost parent, a child moved out to the library and a type change: 30 scenarios.
 - Uploads are held to zotero.org's rules for what may be a child of what; annotations on EPUBs and HTML snapshots are accepted ([parents]).
@@ -227,6 +228,7 @@ The first release meant to be used by somebody other than its author.
 [headers]: docs/deployment.md#behind-a-reverse-proxy
 [dependencies]: docs/compatibility.md#an-object-that-depends-on-one-the-server-lacks
 [parents]: docs/compatibility.md#what-may-be-a-child-of-what
+[editing]: docs/web/library.md#editing-an-item
 [config]: docs/configuration.md
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3

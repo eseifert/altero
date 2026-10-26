@@ -85,6 +85,7 @@ export default {
     'Står i innloggingsadressa. Små bokstavar, siffer og bindestrekar.',
   'Apply them now': 'Bruk dei no',
   'Archive': 'Arkiv',
+  'Are you sure you want to change the item type?': 'Vil du verkeleg forandra kjeldetypen?',
   'Ask for a new one. Your current password still works.':
     'Be om ei ny. Det noverande passordet ditt verkar framleis.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -107,6 +108,7 @@ export default {
   'Can': 'Kan',
   'Cancel': 'Avbryt',
   'Change': 'Endre',
+  'Change Item Type': 'Endre type',
   'Change password': 'Endre passord',
   'Change the group libraries you belong to': 'Endre gruppebiblioteka du er med i',
   'Change the rights': 'Endre rettane',
@@ -612,6 +614,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Basis-URL-en. Konfigurasjonen blir lesen frå /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Samlinga og alt inni ho',
+  'The following fields will be lost:': 'Følgjande vil bli sletta:',
   'The group has a new owner.': 'Gruppa har fått ein ny eigar.',
   'The items in it stay in the library.': 'Elementa i ho blir verande i biblioteket.',
   'The library is now at version {version}.': 'Biblioteket er no på versjon {version}.',

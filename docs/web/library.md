@@ -1,12 +1,13 @@
 # Browsing and organizing a library
 
-The browser interface is a companion to Zotero Desktop. It lets you browse, search and organize a library, but it is not intended to replace the desktop editor for bibliographic fields.
+The browser interface is a companion to Zotero Desktop. It lets you browse, search and organize a library and edit an item's fields, but it is not intended to replace the desktop application.
 
 ## Common tasks
 
 - Browse collections, tags and search results from the library view.
 - Create, rename, move and remove collections.
-- File, trash, restore, delete or copy items without editing their bibliographic fields.
+- Edit an item's fields and change its type.
+- File, trash, restore, delete or copy items.
 - Rename tags across a library.
 - Use the same actions with mouse, keyboard or touch where the interface provides them.
 
@@ -85,6 +86,30 @@ Item headings use Zotero's title field for each type: **Case Name** for cases,
 **Subject** for emails and **Name of Act** for statutes. The same titles appear
 on public profiles and shared collection pages. An empty case name, subject or
 act name shows “(untitled)”.
+
+### Editing an item
+
+Where you may change the library, the right pane shows every field of the
+item's type, empty ones included, in the order Zotero Desktop shows them.
+
+- **Edit a field** by pressing its value. Enter or leaving the field saves it,
+  and Escape puts it back. Abstract and Extra take several lines: there,
+  Shift+Enter saves. A URL or DOI stays a link; press the pencil beside it.
+- **Check a date.** Beside it, `y m d` shows how Zotero reads what you typed —
+  `d m y` for `26.10.2026` in Germany, `m d y` in the United States.
+- **Change the type** from the menu at the top. If the new type has no place
+  for some fields, the pane lists them and changes nothing until you confirm.
+  Fields move to their counterpart where there is one: a book's publisher
+  becomes a report's institution, and a book's author a film's director.
+- **Rights** is set with the license chooser, as for My Publications.
+
+Each save is one change, which Zotero Desktop receives on its next sync. If
+someone else changed the item since you opened it, the save is refused rather
+than written over their change; open the item again and repeat the edit.
+
+An item in the trash cannot be edited, as in Zotero Desktop: restore it first.
+A group member who may only read sees the fields without editing controls.
+Creators, tags and notes are still edited in Zotero Desktop.
 
 ### Collections
 
@@ -207,7 +232,8 @@ which tokens are real. Deleting a collection deletes its links with it.
 
 An item can be filed, trashed, restored, deleted and copied to another library
 — all of it by dragging rows of the item list somewhere, and all of it also
-without a pointer. What cannot be done here yet is editing an item's fields.
+without a pointer. Its fields and type are edited in the right pane; see
+[Editing an item](#editing-an-item).
 
 **Several rows can be picked out and carried together.** `Ctrl`-click — `Cmd`
 on a Mac — adds a row and takes one away, `Shift`-click takes everything
@@ -412,7 +438,7 @@ A tag can be renamed here. It is the one thing the browser does that reaches
 items, and it reaches them the only way a tag can be changed at all: a tag has
 no existence apart from the items carrying it, so renaming one rewrites every
 one of them. Nothing here chooses *which* items, adds a tag or removes one —
-that is editing items, which the browser does not do.
+that is editing an item's tags, which the browser does not do yet.
 
 It is the pencil on the tag, beside its name in the panel, dimmed until the
 pointer or the keyboard reaches it. A dialog opens holding the name the tag

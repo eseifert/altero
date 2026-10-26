@@ -80,6 +80,8 @@ export default {
     'Indgår i login-adressen. Små bogstaver, tal og bindestreger.',
   'Apply them now': 'Anvend dem nu',
   'Archive': 'Arkiv',
+  'Are you sure you want to change the item type?':
+    'Er du sikker på at du vil ændre elementets type?',
   'Ask for a new one. Your current password still works.':
     'Bed om et nyt. Din nuværende adgangskode virker stadig.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -102,6 +104,7 @@ export default {
   'Can': 'Kan',
   'Cancel': 'Annullér',
   'Change': 'Skift',
+  'Change Item Type': 'Henfør elementet til en ny type',
   'Change password': 'Skift adgangskode',
   'Change the group libraries you belong to': 'Ændre de gruppebiblioteker, du er medlem af',
   'Change the rights': 'Ret rettighederne',
@@ -601,6 +604,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Grund-URL’en. Konfigurationen læses fra /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Samlingen og alt inde i den',
+  'The following fields will be lost:': 'Følgende felter går tabt:',
   'The group has a new owner.': 'Gruppen har en ny ejer.',
   'The items in it stay in the library.': 'Elementerne i den bliver i biblioteket.',
   'The library is now at version {version}.': 'Biblioteket er nu på version {version}.',

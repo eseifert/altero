@@ -80,6 +80,8 @@ export default {
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.': 'Appears in the sign-in address. Lower-case letters, digits and hyphens.',
   'Apply them now': 'Apply them now',
   'Archive': 'Archive',
+  'Are you sure you want to change the item type?':
+    'Are you sure you want to change the item type?',
   'Ask for a new one. Your current password still works.': 'Ask for a new one. Your current password still works.',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Ask whoever runs this server for a new one. Your current password still works.',
@@ -100,6 +102,7 @@ export default {
   'Can': 'Can',
   'Cancel': 'Cancel',
   'Change': 'Change',
+  'Change Item Type': 'Change Item Type',
   'Change password': 'Change password',
   'Change the group libraries you belong to': 'Change the group libraries you belong to',
   'Change the rights': 'Change the rights',
@@ -556,6 +559,7 @@ export default {
   'That way of signing in is not available here.': 'That way of signing in is not available here.',
   'The base URL. Its configuration is read from /.well-known/openid-configuration.': 'The base URL. Its configuration is read from /.well-known/openid-configuration.',
   'The collection and everything inside it': 'The collection and everything inside it',
+  'The following fields will be lost:': 'The following fields will be lost:',
   'The group has a new owner.': 'The group has a new owner.',
   'The items in it stay in the library.': 'The items in it stay in the library.',
   'The library is now at version {version}.': 'The library is now at version {version}.',

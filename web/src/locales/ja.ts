@@ -76,6 +76,7 @@ export default {
   Archive: 'アーカイブ',
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.': 'サインインアドレスに表示されます。小文字・数字・ハイフンが使えます。',
   'Apply them now': '今すぐ適用',
+  'Are you sure you want to change the item type?': '項目の種類を変更しますか？',
   'Ask for a new one. Your current password still works.': '新しいリンクをリクエストしてください。現在のパスワードは引き続き使用できます。',
   'Ask whoever runs this server for a new one. Your current password still works.':
     'このサーバーの管理者に新しいリンクを頼んでください。今のパスワードはそのまま使えます。',
@@ -97,6 +98,7 @@ export default {
   Cancel: 'キャンセル',
   'By library': 'ライブラリ別',
   'Change': '変更',
+  'Change Item Type': '項目の種類を変更',
   'Change password': 'パスワードを変更',
   'Change the group libraries you belong to': '参加しているグループライブラリを変更する',
   'Change the rights': '権利を変更',
@@ -560,6 +562,7 @@ export default {
   'That way of signing in is not available here.': 'そのサインイン方法はここでは利用できません。',
   'The base URL. Its configuration is read from /.well-known/openid-configuration.': 'ベースURL。設定は /.well-known/openid-configuration から読み込まれます。',
   'The collection and everything inside it': 'コレクションとその中のすべて',
+  'The following fields will be lost:': '以下のフィールドが失われます :',
   'The group has a new owner.': 'グループのオーナーが変わりました。',
   'The items in it stay in the library.': '中のアイテムはライブラリーに残ります。',
   'The library is now at version {version}.': 'ライブラリーはバージョン {version} になりました。',

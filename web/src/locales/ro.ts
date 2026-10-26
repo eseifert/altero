@@ -86,6 +86,8 @@ export default {
     'Apare în adresa de autentificare. Litere mici, cifre și cratime.',
   'Apply them now': 'Aplică-le acum',
   Archive: 'Arhivă',
+  'Are you sure you want to change the item type?':
+    'Ești sigur că vrei să schimbi tipul înregistrării?',
   'Ask for a new one. Your current password still works.':
     'Cere unul nou. Parola ta actuală funcționează în continuare.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -108,6 +110,7 @@ export default {
   Can: 'Drepturi',
   Cancel: 'Anulare',
   Change: 'Schimbă',
+  'Change Item Type': 'Schimbă tipul înregistrării',
   'Change password': 'Schimbă parola',
   'Change the group libraries you belong to':
     'Să modifice bibliotecile de grup din care faci parte',
@@ -619,6 +622,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL-ul de bază. Configurația sa este citită din /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Colecția și tot ce conține',
+  'The following fields will be lost:': 'Următoarele câmpuri vor fi pierdute:',
   'The group has a new owner.': 'Grupul are un nou proprietar.',
   'The items in it stay in the library.': 'Înregistrările din ea rămân în bibliotecă.',
   'The library is now at version {version}.': 'Biblioteca este acum la versiunea {version}.',

@@ -86,6 +86,7 @@ export default {
     'Verskyn in die aanmeldadres. Kleinletters, syfers en koppeltekens.',
   'Apply them now': 'Pas hulle nou toe',
   'Archive': 'Argief',
+  'Are you sure you want to change the item type?': 'Is jy seker jy wil die itemtipe verander?',
   'Ask for a new one. Your current password still works.':
     'Vra vir ’n nuwe een. U huidige wagwoord werk steeds.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -108,6 +109,7 @@ export default {
   'Can': 'Mag',
   'Cancel': 'Kanselleer',
   'Change': 'Verander',
+  'Change Item Type': 'Verander itemtipe',
   'Change password': 'Verander wagwoord',
   'Change the group libraries you belong to': 'Die groepbiblioteke waaraan u behoort, verander',
   'Change the rights': 'Verander die regte',
@@ -610,6 +612,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Die basis-URL. Sy opstelling word gelees uit /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Die versameling en alles daarbinne',
+  'The following fields will be lost:': 'Die volgende velde sal verlore gaan:',
   'The group has a new owner.': 'Die groep het ’n nuwe eienaar.',
   'The items in it stay in the library.': 'Die items daarin bly in die biblioteek.',
   'The library is now at version {version}.': 'Die biblioteek is nou by weergawe {version}.',

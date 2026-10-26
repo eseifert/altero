@@ -87,6 +87,8 @@ export default {
     "Gwelet e vez er chomlec'h kevreañ. Lizherennoù bihan, sifroù ha barrennigoù-stagañ.",
   'Apply them now': 'Arloañ anezho bremañ',
   'Archive': 'Diell',
+  'Are you sure you want to change the item type?':
+    'Ha fellout a ra deoc\'h cheñch an doare elfenn?',
   'Ask for a new one. Your current password still works.':
     "Goulennit unan nevez. Ho ker-tremen a-vremañ a ya en-dro c'hoazh.",
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -109,6 +111,7 @@ export default {
   'Can': 'Gwirioù',
   'Cancel': 'Nullañ',
   'Change': 'Cheñch',
+  'Change Item Type': 'Cheñch an doare teuliad',
   'Change password': 'Cheñch ar ger-tremen',
   'Change the group libraries you belong to': "Cheñch levraouegoù ar strolladoù hoc'h ezel anezho",
   'Change the rights': 'Cheñch al lisañs',
@@ -619,6 +622,7 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'An URL diazez. Lennet e vez e gefluniadur e /.well-known/openid-configuration.',
   'The collection and everything inside it': 'An dastumadeg ha kement tra a zo enni',
+  'The following fields will be lost:': 'Ar maeziennoù da-heul a vo kollet:',
   'The group has a new owner.': "Ur perc'henn nevez en deus ar strollad.",
   'The items in it stay in the library.': 'An elfennoù a zo enni a chom el levraoueg.',
   'The library is now at version {version}.': 'En handelv {version} emañ al levraoueg bremañ.',
