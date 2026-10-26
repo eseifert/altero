@@ -16,8 +16,8 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.models import GroupActivity, Item, Library
-from altero.services import admin
+from altero.models import GroupActivity, Item, Library, MemberPermission, User
+from altero.services import admin, groups
 from tests import factories
 from tests.test_web_routes import csrf_headers, register
 
@@ -829,14 +829,13 @@ class TestWhoMay:
         assert response.status_code == 403
 
 
-class TestEditingAField:
-    """The one field the browser writes, and the reasons it may.
+class TestEditingAnItem:
+    """One item edited: its fields, creators, tags, relations and note.
 
-    Editing an item is the desktop client's job here, with one exception: the
-    licence of a published work. The client changes that in its Info pane --
-    `rights` is an ordinary field there -- and its My Publications wizard will
-    not run twice on the same item, so a browser that could publish under a
-    licence and never revise it would be worse than the client it copies.
+    A partial write through the same `save_item` a syncing client's goes
+    through, holding the version it replaces, because text typed over somebody
+    else's change is a lost write. What a property is cleared by is the v3 rule:
+    sent empty clears it, left out leaves it alone.
     """
 
     async def key_of(self, ada: httpx.AsyncClient, session: AsyncSession) -> tuple[int, str]:
@@ -847,25 +846,59 @@ class TestEditingAField:
         payload = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()
         return int(payload["version"])
 
-    async def test_the_rights_field_is_written(
-        self, ada: httpx.AsyncClient, session: AsyncSession
-    ) -> None:
-        library_id, key = await self.key_of(ada, session)
-        version = await self.version_of(ada, library_id, key)
-
-        response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{key}",
-            json={"fields": {"rights": "CC BY 4.0"}, "version": version},
+    async def edit(
+        self, ada: httpx.AsyncClient, library_id: int, item_key: str, **changes: object
+    ) -> httpx.Response:
+        """Write ``changes`` over the version the page was last shown."""
+        version = await self.version_of(ada, library_id, item_key)
+        return await ada.patch(
+            f"/web/libraries/{library_id}/items/{item_key}",
+            json={"version": version, **changes},
             headers=csrf_headers(ada),
         )
 
+    async def test_a_field_is_written(self, ada: httpx.AsyncClient, session: AsyncSession) -> None:
+        library_id, key = await self.key_of(ada, session)
+
+        response = await self.edit(ada, library_id, key, fields={"title": "SICP"})
+
         assert response.status_code == 200
+        assert response.json()["data"]["title"] == "SICP"
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert data["title"] == "SICP"
+
+    async def test_the_rights_field_is_written(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The licence of a published work, which this route began by writing."""
+        library_id, key = await self.key_of(ada, session)
+
+        response = await self.edit(ada, library_id, key, fields={"rights": "CC BY 4.0"})
+
         assert response.json()["data"]["rights"] == "CC BY 4.0"
+
+    async def test_several_fields_are_one_new_version(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+        before = await self.version_of(ada, library_id, key)
+
+        response = await self.edit(
+            ada,
+            library_id,
+            key,
+            fields={"title": "SICP", "publisher": "MIT Press", "date": "1985"},
+            creators=[{"creatorType": "author", "firstName": "Harold", "lastName": "Abelson"}],
+            tags=[{"tag": "lisp"}],
+        )
+
+        assert int(response.headers["Last-Modified-Version"]) == before + 1
+        assert response.json()["version"] == before + 1
 
     async def test_it_leaves_everything_else_alone(
         self, ada: httpx.AsyncClient, session: AsyncSession
     ) -> None:
-        """A partial write, like every other write this door makes."""
+        """A partial write: what is not mentioned is not touched."""
         library_id, key = await self.key_of(ada, session)
         papers = await make_collection(ada, library_id, "Papers")
         await ada.patch(
@@ -873,89 +906,134 @@ class TestEditingAField:
             json={"items": [key], "addCollections": [papers]},
             headers=csrf_headers(ada),
         )
-        version = await self.version_of(ada, library_id, key)
+        await self.edit(ada, library_id, key, tags=[{"tag": "lisp"}])
 
-        await ada.patch(
-            f"/web/libraries/{library_id}/items/{key}",
-            json={"fields": {"rights": "All rights reserved"}, "version": version},
-            headers=csrf_headers(ada),
-        )
+        await self.edit(ada, library_id, key, fields={"rights": "All rights reserved"})
 
         data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
         assert data["title"] == "Structure and Interpretation"
         assert data["collections"] == [papers]
+        assert data["tags"] == [{"tag": "lisp"}]
 
-    async def test_a_stale_version_is_refused(
+    async def test_an_emptied_field_is_cleared(
         self, ada: httpx.AsyncClient, session: AsyncSession
     ) -> None:
-        """Text is not an errand the server can work out for itself.
-
-        Filing and trashing are add-and-remove against what is stored, so a
-        stale page cannot express a wrong one. Typing over a licence somebody
-        else changed while the page sat open is a lost write.
-        """
         library_id, key = await self.key_of(ada, session)
-        stale = await self.version_of(ada, library_id, key)
-        await ada.patch(
-            f"/web/libraries/{library_id}/items/{key}",
-            json={"fields": {"rights": "First"}, "version": stale},
-            headers=csrf_headers(ada),
-        )
+        await self.edit(ada, library_id, key, fields={"publisher": "MIT Press"})
 
-        response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{key}",
-            json={"fields": {"rights": "Second"}, "version": stale},
-            headers=csrf_headers(ada),
-        )
+        await self.edit(ada, library_id, key, fields={"publisher": ""})
 
-        assert response.status_code == 412
         data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
-        assert data["rights"] == "First"
+        assert data["publisher"] == ""
 
-    async def test_a_field_edit_without_a_version_is_refused(
+    async def test_creators_are_written_in_order(
         self, ada: httpx.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
+        creators = [
+            {"creatorType": "author", "firstName": "Harold", "lastName": "Abelson"},
+            {"creatorType": "author", "firstName": "Gerald Jay", "lastName": "Sussman"},
+        ]
 
-        response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{key}",
-            json={"fields": {"rights": "CC0"}},
-            headers=csrf_headers(ada),
+        response = await self.edit(ada, library_id, key, creators=creators)
+
+        assert response.json()["data"]["creators"] == creators
+        assert response.json()["meta"]["creatorSummary"] == "Abelson and Sussman"
+
+    async def test_the_sort_keys_follow_the_edit(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Derived on every write, so the list sorts by what it now shows."""
+        library_id = await personal_library(ada)
+        first = await seed_item(ada, session, title="Alpha", key_name="a")
+        await seed_item(ada, session, title="Beta", key_name="b")
+
+        await self.edit(ada, library_id, first, fields={"title": "Gamma"})
+
+        assert await listed(ada, library_id, sort="title") == ["Beta", "Gamma"]
+
+    async def test_empty_creators_clear_them_and_absent_ones_do_not(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+        await self.edit(
+            ada,
+            library_id,
+            key,
+            creators=[{"creatorType": "author", "firstName": "Ada", "lastName": "Lovelace"}],
         )
 
-        assert response.status_code == 428
+        await self.edit(ada, library_id, key, fields={"title": "Kept"})
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert len(data["creators"]) == 1
 
-    async def test_an_edit_that_writes_no_field_is_refused(
+        await self.edit(ada, library_id, key, creators=[])
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert data.get("creators", []) == []
+
+    async def test_a_creator_type_the_item_type_lacks_is_refused(
         self, ada: httpx.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
-        version = await self.version_of(ada, library_id, key)
 
-        response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{key}",
-            json={"fields": {}, "version": version},
-            headers=csrf_headers(ada),
+        response = await self.edit(
+            ada, library_id, key, creators=[{"creatorType": "director", "name": "Someone"}]
         )
 
         assert response.status_code == 400
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert data.get("creators", []) == []
 
-    async def test_no_other_field_may_be_written(
+    async def test_tags_are_written_and_cleared(
         self, ada: httpx.AsyncClient, session: AsyncSession
     ) -> None:
-        """The allowlist is the whole of what this door edits."""
         library_id, key = await self.key_of(ada, session)
-        version = await self.version_of(ada, library_id, key)
 
-        response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{key}",
-            json={"fields": {"title": "Something else"}, "version": version},
-            headers=csrf_headers(ada),
+        response = await self.edit(
+            ada, library_id, key, tags=[{"tag": "lisp"}, {"tag": "auto", "type": 1}]
         )
+        assert sorted(tag["tag"] for tag in response.json()["data"]["tags"]) == ["auto", "lisp"]
+
+        response = await self.edit(ada, library_id, key, tags=[])
+        assert response.json()["data"]["tags"] == []
+
+    async def test_relations_are_written(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+        other = await seed_item(ada, session, title="Other", key_name="other")
+        uri = f"http://zotero.org/users/1/items/{other}"
+
+        response = await self.edit(ada, library_id, key, relations={"dc:relation": uri})
+
+        assert response.json()["data"]["relations"] == {"dc:relation": uri}
+
+    async def test_a_note_is_written(self, ada: httpx.AsyncClient, session: AsyncSession) -> None:
+        library_id = await personal_library(ada)
+        parent = await seed_item(ada, session)
+        key = await admin.create_api_key(session, username="ada", name="note")
+        created = await ada.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": key.key},
+            json=[{"itemType": "note", "parentItem": parent, "note": "<p>first</p>"}],
+        )
+        note = created.json()["successful"]["0"]["key"]
+
+        response = await self.edit(ada, library_id, note, note="<p>second</p>")
+
+        assert response.status_code == 200
+        assert response.json()["data"]["note"] == "<p>second</p>"
+        assert response.json()["data"]["parentItem"] == parent
+
+    async def test_a_book_has_no_note_to_write(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+
+        response = await self.edit(ada, library_id, key, note="<p>x</p>")
 
         assert response.status_code == 400
-        assert response.json()["message"] == "'title' cannot be changed here"
-        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
-        assert data["title"] == "Structure and Interpretation"
+        assert "not a valid field" in response.json()["message"]
 
     async def test_a_type_without_the_field_is_refused_as_a_client_would_be(
         self, ada: httpx.AsyncClient, session: AsyncSession
@@ -969,17 +1047,178 @@ class TestEditingAField:
             headers={"Zotero-API-Key": key.key},
             json=[{"itemType": "note", "parentItem": parent, "note": "<p>x</p>"}],
         )
-        note = created.json()["successful"]["0"]
-        version = int(note["version"])
+        note = created.json()["successful"]["0"]["key"]
 
-        response = await ada.patch(
-            f"/web/libraries/{library_id}/items/{note['key']}",
-            json={"fields": {"rights": "CC0"}, "version": version},
-            headers=csrf_headers(ada),
-        )
+        response = await self.edit(ada, library_id, note, fields={"rights": "CC0"})
 
         assert response.status_code == 400
         assert "not a valid field" in response.json()["message"]
+
+    async def test_an_unknown_field_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+
+        response = await self.edit(ada, library_id, key, fields={"colour": "red"})
+
+        assert response.status_code == 400
+
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "key",
+            "version",
+            "itemType",
+            "parentItem",
+            "collections",
+            "deleted",
+            "inPublications",
+            "dateAdded",
+            "dateModified",
+        ],
+    )
+    async def test_a_property_this_route_does_not_write_is_refused_by_name(
+        self, ada: httpx.AsyncClient, session: AsyncSession, name: str
+    ) -> None:
+        """Each of these is read-only or has a route of its own.
+
+        Named in ``fields`` it would have reached `save_item` as the property
+        itself, and a browser could have rewritten when an item was added.
+        """
+        library_id, key = await self.key_of(ada, session)
+        before = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()
+
+        for changes in ({"fields": {name: "x"}}, {name: "x"} if name != "version" else None):
+            if changes is None:
+                continue
+            response = await self.edit(ada, library_id, key, **changes)
+
+            assert response.status_code == 400, changes
+            assert response.json()["message"] == f"'{name}' cannot be changed here"
+
+        after = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()
+        assert after == before
+
+    async def test_a_property_nobody_knows_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+
+        response = await self.edit(ada, library_id, key, colour="red")
+
+        assert response.status_code == 400
+        assert response.json()["message"] == "Unknown property 'colour'"
+
+    async def test_a_stale_version_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Text is not an errand the server can work out for itself.
+
+        Filing and trashing are add-and-remove against what is stored, so a
+        stale page cannot express a wrong one. Typing over a field somebody
+        else changed while the page sat open is a lost write.
+        """
+        library_id, key = await self.key_of(ada, session)
+        stale = await self.version_of(ada, library_id, key)
+        await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"title": "First"}, "version": stale},
+            headers=csrf_headers(ada),
+        )
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"title": "Second"}, "version": stale},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 412
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert data["title"] == "First"
+
+    async def test_an_edit_without_a_version_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"title": "Untitled"}},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 428
+
+    async def test_an_edit_that_writes_nothing_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+
+        response = await self.edit(ada, library_id, key, fields={})
+
+        assert response.status_code == 400
+
+    async def test_an_edit_that_changes_nothing_takes_no_version(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Leaving a field as it was is not a change for every client to fetch.
+
+        Stored with a `dateModified` in the past, so that the edit, which sends
+        none, cannot pass by happening within the same second as the seed.
+        """
+        library_id = await personal_library(ada)
+        api_key = await admin.create_api_key(session, username="ada", name="seed")
+        created = await ada.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": api_key.key},
+            json=[
+                {
+                    "itemType": "book",
+                    "title": "Structure and Interpretation",
+                    "dateModified": "2020-01-01T00:00:00Z",
+                }
+            ],
+        )
+        key = created.json()["successful"]["0"]["key"]
+        # Seeded last, so the item's version is the library's too.
+        before = await self.version_of(ada, library_id, key)
+
+        response = await self.edit(
+            ada, library_id, key, fields={"title": "Structure and Interpretation"}
+        )
+
+        assert response.status_code == 200
+        assert response.json()["version"] == before
+        assert response.headers["Last-Modified-Version"] == str(before)
+
+    async def test_an_item_in_the_trash_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """The desktop's trash is read-only too: restoring is the way back."""
+        library_id, key = await self.key_of(ada, session)
+        await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": [key], "deleted": True},
+            headers=csrf_headers(ada),
+        )
+
+        response = await self.edit(ada, library_id, key, fields={"title": "Changed"})
+
+        assert response.status_code == 400
+        assert "trash" in response.json()["message"]
+
+    async def test_it_needs_the_csrf_token(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id, key = await self.key_of(ada, session)
+        version = await self.version_of(ada, library_id, key)
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"fields": {"title": "Changed"}, "version": version},
+        )
+
+        assert response.status_code == 403
 
     async def test_a_read_only_library_refuses_it(
         self, ada: httpx.AsyncClient, session: AsyncSession
@@ -997,6 +1236,67 @@ class TestEditingAField:
         )
 
         assert response.status_code == 403
+
+    async def test_a_member_held_to_reading_is_refused(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        group = await self.group_with_ada(session, MemberPermission.READ)
+        item = await factories.make_item(session, group, fields={"title": "Theirs"})
+        await session.commit()
+
+        response = await ada.patch(
+            f"/web/libraries/{group.id}/items/{item.key}",
+            json={"fields": {"title": "Mine"}, "version": item.version},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 403
+
+    async def test_a_member_held_to_their_own_cannot_edit_somebody_elses(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        group = await self.group_with_ada(session, MemberPermission.OWN)
+        item = await factories.make_item(session, group, fields={"title": "Theirs"})
+        await session.commit()
+
+        response = await ada.patch(
+            f"/web/libraries/{group.id}/items/{item.key}",
+            json={"fields": {"title": "Mine"}, "version": item.version},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 403
+        await session.refresh(item)
+        assert item.version == 1
+
+    async def test_a_member_held_to_adding_may_edit_anybodys(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """`add` withholds removing, not changing: the v3 rule."""
+        group = await self.group_with_ada(session, MemberPermission.ADD)
+        item = await factories.make_item(session, group, fields={"title": "Theirs"})
+        await session.commit()
+
+        response = await ada.patch(
+            f"/web/libraries/{group.id}/items/{item.key}",
+            json={"fields": {"title": "Ours"}, "version": item.version},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["data"]["title"] == "Ours"
+
+    async def group_with_ada(self, session: AsyncSession, permission: str) -> Library:
+        """A group of Grace's in which Ada is a member held to ``permission``."""
+        grace = await admin.create_user(session, username="grace")
+        group = await factories.make_group(
+            session, group_id=52, owner_id=grace.id, members={1: "member"}
+        )
+        ada = await session.get(User, 1)
+        assert ada is not None
+        await groups.set_permission(session, group, ada, permission)
+        await session.commit()
+        return group
 
 
 class TestASelection:

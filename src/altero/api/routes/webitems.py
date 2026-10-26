@@ -5,16 +5,10 @@ Almost everything it does is something a person can express by dragging rows of
 the item list somewhere: onto a collection, onto the library, onto the trash,
 onto another library, or onto My Publications.
 
-This is not a field editor, and it is one field away from not being one at all.
-``rights`` can be written here (:data:`EDITABLE_FIELDS`), and no other field
-can, because publishing a work sets its licence and a licence has to be
-revisable by whoever set it — the desktop client revises it in its Info pane,
-where ``rights`` is an ordinary field, and its My Publications wizard refuses to
-run a second time on the same item. An interface that can publish and cannot
-correct the terms would be worse than the client it copies. Everything else
-about an item is still the desktop's to edit; a general field editor is a
-larger thing than a line of this module, and it needs answers this does not
-have.
+One item is also edited here: its fields, creators, tags, relations and note,
+through :func:`update_item`. Its type, its parent, its collections, the trash
+and My Publications are each an errand of their own and are refused there by
+name (:data:`NOT_EDITED_HERE`).
 
 The rules are the ones the rest of ``/web`` follows: a cookie and never an API
 key, a CSRF token on anything that changes something, who may write decided by
@@ -60,12 +54,12 @@ files go, whether the notes go, and under what licence, with the same rules in
 children with it, because half a published work is not a state anybody asked
 for.
 
-**The one field edit states the version it replaces.** Every other write here
-is an errand the server works out against what is stored -- add this
-collection, take that one away, set a flag -- so a page an hour old cannot
-express a wrong one. Text can: somebody typing over a licence that another
-client changed while the page sat open is a lost write, and the browser knows
-which version it was shown. A stale one is refused rather than applied. It is
+**An edit states the version it replaces.** Every other write here is an
+errand the server works out against what is stored -- add this collection,
+take that one away, set a flag -- so a page an hour old cannot express a wrong
+one. Text can: somebody typing over a title that another client changed while
+the page sat open is a lost write, and the browser knows which version it was
+shown. A stale one is refused rather than applied. It is
 also the one write here that is about a single item and says so in its path,
 because a version belongs to an item and a selection has no shared one.
 """
@@ -73,7 +67,7 @@ because a version belongs to an item and a selection has no shared one.
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse, Response
@@ -98,22 +92,34 @@ from altero.services import items as items_service
 router = APIRouter(prefix="/web", tags=["web"])
 
 
-#: The fields the browser may write, and the whole of that list.
+#: Properties of an item that an edit may not name, in ``fields`` or beside it.
 #:
-#: ``rights`` is here because the licence of a published work has to be
-#: changeable by whoever published it, and this is where the desktop client
-#: changes it: `rights` is an ordinary field in its Info pane, edited like any
-#: other, and its My Publications wizard refuses to run twice on the same item
-#: (`collectionTree.jsx`: "Item ... already exists in My Publications"). A
-#: browser that could publish under a licence and never revise it would be
-#: worse than the client it copies.
-#:
-#: An allowlist rather than "any field the schema knows", because everything
-#: else in a library is still the desktop's to edit and a general field editor
-#: is a larger thing than one line of this module -- it needs an answer for
-#: creators, dates, notes and item types, and it needs one for what a browser
-#: does with an item another client changed while the page sat open.
-EDITABLE_FIELDS = frozenset({"rights"})
+#: The first four are the server's or the client's bookkeeping and nobody's to
+#: type. The rest are each changed by an errand of their own -- the parent by
+#: what a note or attachment is created under, collections by filing, the trash
+#: by trashing, My Publications by the wizard, and the item type by a change
+#: that says which fields it would lose -- and an edit that carried them would
+#: be a second, less careful way of doing the same thing. Named in ``fields``
+#: they would otherwise have reached :func:`~altero.services.itemwrites
+#: .save_item` as the property itself, since a v3 payload keeps both in one
+#: object.
+NOT_EDITED_HERE = frozenset(
+    {
+        "key",
+        "version",
+        "dateAdded",
+        "dateModified",
+        "itemType",
+        "parentItem",
+        "collections",
+        "deleted",
+        "inPublications",
+    }
+)
+
+#: What an edit may carry besides ``fields``, each as the v3 API spells it.
+#: Sent empty, a list clears what it names; left out, it is left alone.
+EDITED_PROPERTIES = ("creators", "tags", "relations", "note")
 
 
 class ItemErrands(BaseModel):
@@ -132,13 +138,52 @@ class ItemErrands(BaseModel):
     remove_collections: list[str] = Field(default_factory=list, alias="removeCollections")
 
 
-class ItemFields(BaseModel):
-    """The one text write: field values, and the version they replace."""
+class ItemEdit(BaseModel):
+    """One item's changes, and the version they replace.
 
-    #: Field values to write, by their API names. Only :data:`EDITABLE_FIELDS`.
-    fields: dict[str, str]
+    The parts are the v3 item's own, so what reaches ``save_item`` is the patch
+    a syncing client would have sent. Which of them were sent is
+    ``model_fields_set``, because ``creators: []`` clears an item's creators and
+    no ``creators`` at all leaves them be. Anything else is kept rather than
+    dropped, so that the route can refuse it by name.
+    """
+
+    model_config = ConfigDict(extra="allow")
+
+    #: Field values, by their API names.
+    fields: dict[str, str] = Field(default_factory=dict)
+    creators: list[dict[str, Any]] = Field(default_factory=list)
+    tags: list[dict[str, Any]] = Field(default_factory=list)
+    relations: dict[str, Any] = Field(default_factory=dict)
+    #: A note's HTML, or an attachment's note. Nothing else carries one.
+    note: str = ""
     #: The version the browser last read. Absent is refused rather than assumed.
     version: int | None = None
+
+    def patch(self) -> dict[str, Any]:
+        """The v3 partial item this edit amounts to.
+
+        Raises:
+            InvalidInputError: if it names a property it may not, or nothing.
+        """
+        extra = self.model_extra or {}
+        for name in [*self.fields, *extra]:
+            if name in NOT_EDITED_HERE:
+                raise InvalidInputError(f"'{name}' cannot be changed here")
+            if name in extra:
+                raise InvalidInputError(f"Unknown property '{name}'")
+            if name in itemwrites.STRUCTURAL_KEYS:
+                # `creators` or `note` as a string field: their own property
+                # says the same thing in the shape it has to have.
+                raise InvalidInputError(f"Send '{name}' beside 'fields', not in it")
+
+        patch: dict[str, Any] = dict(self.fields)
+        for name in EDITED_PROPERTIES:
+            if name in self.model_fields_set:
+                patch[name] = getattr(self, name)
+        if not patch:
+            raise InvalidInputError("Nothing to change")
+        return patch
 
 
 class CopyRequest(BaseModel):
@@ -318,47 +363,67 @@ async def update_item(
     library_id: int,
     item_key: str,
     _csrf: CsrfDep,
-    body: Annotated[ItemFields, Body()],
+    body: Annotated[ItemEdit, Body()],
 ) -> Response:
-    """Write one of the fields the browser may write, on one item.
+    """Edit one item: fields, creators, tags, relations or its note.
 
     The one write here that names a single item in its path, and the one that
     states the version it replaces. Every other change is an add-and-remove
     errand the server works out for itself against what is stored, so a stale
     page cannot express a wrong one; text is different. Somebody typing over a
-    licence that another client changed while the page sat open is a lost write,
+    title that another client changed while the page sat open is a lost write,
     and the browser knows which version it was shown. A version belongs to an
     item, which is why this is not something a selection can ask for.
+
+    An edit that changes nothing -- a field left the way it was on blur --
+    answers with the item as it stands and takes no version, as the v3 batch
+    reports it unchanged: every syncing client would otherwise fetch an item to
+    find nothing different.
     """
     library, access = await _library(session, user, library_id, write=True)
+    patch = body.patch()
 
     library = await writes.lock_library(session, library)
     item = await items_service.get_item(session, library, item_key)
 
-    if not body.fields:
-        raise InvalidInputError("Nothing to change")
-    if refused := sorted(set(body.fields) - EDITABLE_FIELDS):
-        raise InvalidInputError(f"'{refused[0]}' cannot be changed here")
     if body.version is None:
         raise PreconditionRequiredError("Say which version you are changing")
     if body.version != item.version:
         raise PreconditionFailedError("The item has changed since you read it")
+    if item.deleted:
+        # The desktop draws the trash read-only, and an edit there would be a
+        # change nobody can see until the item is restored.
+        raise InvalidInputError("Restore the item from the trash to change it")
 
+    previous_version = library.version
     version = await writes.bump_library_version(session, library)
 
-    # Through `save_item`, which is what decides whether the field belongs to
-    # this item type at all: a note has no `rights`, and the refusal for that is
-    # the one a syncing client would get, from the same place.
-    await itemwrites.save_item(
+    # Through `save_item`, which is what decides whether a field belongs to
+    # this item type at all -- a book has no note and a note has no `rights` --
+    # and the refusal for that is the one a syncing client would get, from the
+    # same place. It also derives the sort keys and asks `permit` whether this
+    # member may change this item.
+    written = await itemwrites.save_item(
         session,
         library,
-        dict(body.fields),
+        patch,
         version,
         key=item.key,
         replace=False,
+        detect_unchanged=True,
         actor_id=user.id,
         permit=access,
+        stored=item,
     )
+    if written is None:
+        # Everything the session held is expired by the rollback, so the
+        # library is read again by its id rather than off an expired object.
+        await session.rollback()
+        library = await session.get(Library, library_id)
+        assert library is not None
+        item = await items_service.get_item(session, library, item_key)
+        rendered = await _rendered(session, item, library, base_url)
+        return JSONResponse(rendered, headers=library_headers(previous_version))
 
     rendered = await _rendered(session, item, library, base_url)
     await groupactivity.record(
