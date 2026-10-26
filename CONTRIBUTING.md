@@ -301,40 +301,43 @@ The web CI job builds both Python artifacts after building the interface and
 checks their actual contents, including rebuilding the wheel through the source
 archive.
 
-### Beta.3 validation
+### Beta.4 validation
 
-Local release checks on 2026-10-19 passed:
+Local release checks on 2026-10-26 passed:
 
-- The full Python suite: 2,896 tests, no skips, including concurrency checks
-  against a fresh disposable PostgreSQL database.
-- The optional desktop source-replay suite: 321 tests, no skips, against the
-  pinned Zotero 10.0.6 source with Node 24.19.0.
-- The web interface: 1,036 tests, types and production build with Node
-  24.19.0; installed dependency versions matched the lockfile.
+- The full Python suite: 2,963 tests, no skips, including concurrency checks
+  against a fresh disposable PostgreSQL database. A statement-count test that
+  failed about one run in ten, depending on where a second boundary fell, was
+  made deterministic first.
+- The optional desktop source-replay suite: 323 tests, no skips, against the
+  pinned Zotero 10.0.6 source with Node 24.18.0.
+- The web interface: 1,288 tests, types and production build with Node 24.18.0;
+  installed dependency versions matched the lockfile. The new end-to-end suite
+  passed 22 tests in Chromium at desktop and phone sizes, with no
+  Content-Security-Policy violation and no serious or critical axe finding.
 - Pinned Zotero and dataserver source verification (30 client functions), plus
   the network-consumer review gate: 324 files, 88 consumers, no parse errors or
-  stale reviews. Fourteen consumers whose source changed in 10.0.6 were
-  reviewed and keep their dispositions.
+  stale reviews.
 - Ruff formatting/lint, Ty, the locked dependency check and strict documentation
   build.
-- Upgrades from beta.2: databases created and filled by beta.2 were upgraded
-  on SQLite and on PostgreSQL with a non-superuser owner, keeping every object
-  version, setting, full text and deletion record, and finding stored text
-  through the new index. A role that does not own its database is refused with
-  instructions, and completes once a superuser has created the extensions.
-- The wheel built through the source archive: all 517 browser files survived,
-  unrelated workspace files were excluded, and real HTTP served `/health`,
-  `/app/`, the index's assets and a font from the extracted wheel. Authenticated
-  API reads and writes also passed, and health reported `1.0.0b3`.
+- Upgrades from beta.3: the migrations are unchanged and `alembic check` finds
+  no drift. A SQLite database created and filled by beta.3 opened under beta.4
+  with no upgrade step, keeping object versions, the library version, a setting
+  and a deletion record; a search for `über` found “Über” in the old data, and
+  a write moved the library on by one version.
+- The wheel built through the source archive: all 568 browser files survived,
+  and real HTTP from the extracted wheel served `/health` (`1.0.0b4`), `/app/`
+  with its Content-Security-Policy, the index's assets and a font. Authenticated
+  API reads and writes passed, with `sandbox` and `nosniff` on their answers.
 
 The [recorded desktop matrix](docs/client-compatibility.md#successfully-tested-matrix)
-has 52 SQLite/PostgreSQL combinations and 670 phases with Zotero 10.0.6 on Linux,
-run against the release candidate. `reader-rendering` failed on both databases
-because pdf.js stalls on the release machine since its graphics stack was
-updated; the same scenario fails there with 10.0.5 and beta.2, the combination
-that passed on 2026-10-03. Remote CI, including the desktop job's reader
-scenario, and multi-architecture image publication must still be checked after
-pushing.
+has 54 SQLite/PostgreSQL combinations and 694 phases with Zotero 10.0.6 on Linux,
+run against the release candidate: all 27 scenarios pass on both databases.
+`reader-rendering`, which failed on this machine at beta.3, passes again.
+`graph-races` failed once on PostgreSQL while the machine was under other load
+and passed on its rerun; the matrix page records what differed. Remote CI,
+including the new end-to-end job, and multi-architecture image publication must
+still be checked after pushing.
 
 ## Before opening a pull request
 

@@ -28,7 +28,7 @@ It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v
 >
 > Test it with a separate Zotero profile or a library you can recreate. Synchronization writes client data to the server, and Zotero does not officially support third-party sync servers.
 
-**Current release: 1.0.0-beta.3.** Two real Zotero 10.0.6 profiles passed 52 scenario/database combinations across SQLite and PostgreSQL, covering 670 desktop phases. See [the changelog](CHANGELOG.md) and [coverage and remaining gaps](docs/client-compatibility.md).
+**Current release: 1.0.0-beta.4.** Two real Zotero 10.0.6 profiles passed 54 scenario/database combinations across SQLite and PostgreSQL, covering 694 desktop phases. See [the changelog](CHANGELOG.md) and [coverage and remaining gaps](docs/client-compatibility.md).
 
 ## Why altero?
 

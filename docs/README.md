@@ -5,8 +5,8 @@ altero is a self-hosted synchronization server for Zotero Desktop.
 > [!WARNING]
 > Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
 
-**Current release: 1.0.0-beta.3.** Two real Zotero 10.0.6 profiles passed 52
-scenario/database combinations and 670 phases across SQLite and PostgreSQL.
+**Current release: 1.0.0-beta.4.** Two real Zotero 10.0.6 profiles passed 54
+scenario/database combinations and 694 phases across SQLite and PostgreSQL.
 See [desktop compatibility checks](client-compatibility.md) for the
 tested transitions, known client behavior and remaining gaps.
 

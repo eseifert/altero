@@ -574,9 +574,8 @@ remaining declared transitions:
 | `zipped-digest-race` | Hold two actual uploads independently; prove their main-file digests match while ZIP digests differ; overwrite the stored archive before the second registration, observe the expected storage failure and recover complete files and unpacked auxiliary resources. |
 | `backup-rewind` | Restore an older archive after both profiles synced newer objects; show that an increased library watermark preserves newer desktop copies while the server remains older; explicitly restore the surviving authoritative desktop and converge. |
 
-`parent-rejection`, `zipped-digest-race` and `backup-rewind` pass with Zotero
-10.0.6 on both databases; `reader-rendering` currently fails on the release
-machine for a reason outside altero, described under the matrix. The
+`parent-rejection`, `reader-rendering`, `zipped-digest-race` and
+`backup-rewind` pass with Zotero 10.0.6 on both databases. The
 automatic rewind entry is explicitly unsupported: an increased library counter
 cannot make older object versions replace already synced desktop caches. The
 separate recovery scenario proves the supported procedure. No inventory count
@@ -641,7 +640,7 @@ Zotero 10.0.6 Linux x86-64; actual desktop profiles.
 | `transient-errors` | Passed (22 phases) | Passed (22 phases) |
 | `streaming-reconnect` | Passed (6 phases) | Passed (6 phases) |
 | `parent-rejection` | Passed (7 phases) | Passed (7 phases) |
-| `reader-rendering` | Failed | Failed |
+| `reader-rendering` | Passed (12 phases) | Passed (12 phases) |
 | `zipped-digest-race` | Passed (13 phases) | Passed (13 phases) |
 | `backup-rewind` | Passed (10 phases) | Passed (10 phases) |
 | `graph-races` | Passed (19 phases) | Passed (19 phases) |
@@ -650,22 +649,25 @@ Zotero 10.0.6 Linux x86-64; actual desktop profiles.
 <!-- /desktop-matrix -->
 
 Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on 2026-10-19, against the code prepared for 1.0.0-beta.3. PostgreSQL
+archive on 2026-10-26, against the code prepared for 1.0.0-beta.4. PostgreSQL
 uses the existing 18.4 container, with a fresh database per scenario.
 **Not run** means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes. A
-successful scenario in a run that later failed is reported independently: the
-last four scenarios ran separately after `reader-rendering` stopped the full run.
+successful scenario in a run that later failed is reported independently:
+`reader-rendering` ran on its own on both databases, and on PostgreSQL
+`graph-races` and `credential-limits` ran again after `graph-races` failed once.
 
-`reader-rendering` failed on both databases for a reason outside altero. pdf.js
-starts rendering the page and never finishes, so no canvas or cached annotation
-image appears. The failing phase opens a PDF that desktop A attached itself,
-with sync off, so the server is not involved. Zotero 10.0.5 against the beta.2
-server — the combination that passed this scenario on 2026-10-03 — now fails the
-same way on the same machine, whose X server, Mesa and LLVM were updated on
-2026-10-08. Forcing software rendering or disabling Firefox's sandboxes changes
-nothing. The scenario has not passed with 10.0.6 yet; the desktop CI job runs it
-on GitHub's runners.
+That failure did not repeat. In the first PostgreSQL run, desktop B finished a
+sync while its read of the items was held, without the parent and child it had
+not received, so the two desktops disagreed. The rerun, on an otherwise idle
+machine, passed all 19 phases, as did the SQLite run. During the failing run the
+machine was also running the other database's scenarios and building the
+release artifacts; that the desktop gave up on the held request under that load
+is a guess, not a finding.
+
+`reader-rendering` passes again on both databases. At beta.3 it failed on this
+machine after its X server, Mesa and LLVM were updated, with the server not
+involved; it now passes with the same Zotero build.
 
 The machine-readable evidence summary is
 [`compatibility-10.0.6.json`](assets/compatibility-10.0.6.json). It records
@@ -675,10 +677,11 @@ directories. Regenerate the matrix from them with:
 
 ```sh
 uv run python -m tools.compatibility matrix --desktop-version 10.0.6 \
-  --report .compatibility/desktop-10.0.6-2/acceptance.json \
-  --report .compatibility/desktop-10.0.6-rest/acceptance.json \
-  --report .compatibility/desktop-10.0.6-postgres-2/acceptance.json \
-  --report .compatibility/desktop-10.0.6-postgres-rest/acceptance.json \
+  --report .compatibility/desktop-10.0.6-beta4/acceptance.json \
+  --report .compatibility/desktop-10.0.6-beta4-reader/acceptance.json \
+  --report .compatibility/desktop-10.0.6-postgres-beta4/acceptance.json \
+  --report .compatibility/desktop-10.0.6-postgres-beta4-rest/acceptance.json \
+  --report .compatibility/desktop-10.0.6-postgres-beta4-reader/acceptance.json \
   --output .compatibility/results.json --markdown .compatibility/matrix.md
 ```
 
@@ -688,10 +691,10 @@ or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.
 
-The matrix records 52 successful database/scenario combinations and 670
-actual desktop phases: 26 of the 27 scenarios pass on both databases. The
-baseline includes all 40 schema types. The source-replay suite passes 321 tests
-with no skips against the pinned 10.0.6 sources, with Node 24.19.0, and the
+The matrix records 54 successful database/scenario combinations and 694
+actual desktop phases: all 27 scenarios pass on both databases. The
+baseline includes all 40 schema types. The source-replay suite passes 323 tests
+with no skips against the pinned 10.0.6 sources, with Node 24.18.0, and the
 network-consumer review gate passes with no stale or unreviewed consumers.
 
 Two harness defects surfaced while moving to 10.0.6 and are fixed: profiles
