@@ -345,6 +345,7 @@ class TestTheComparisonAgreesWithWriting:
         ("same parent", "child", lambda d, o: d, True),
         ("other parent", "child", lambda d, o: {**d, "parentItem": o["key"]}, False),
         ("parent left out", "child", lambda d, o: _without(d, "parentItem"), True),
+        ("parent taken away", "child", lambda d, o: {**d, "parentItem": False}, False),
     ]
 
     @pytest.mark.parametrize(

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- A note or attachment moved out to the library in Zotero Desktop is top-level here too; it used to stay under its old parent.
 - An upload naming a missing parent or collection fails with 409 and names it, so Zotero Desktop uploads it and retries ([dependencies]).
 - An item created from the `/items/new` template no longer keeps its empty creator; other nameless creators are refused, as on zotero.org.
 - A v3 item write without `dateModified` that changes nothing keeps its version, as on zotero.org.

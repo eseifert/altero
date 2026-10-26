@@ -498,6 +498,8 @@ Treated as complete objects, the first would be refused for lacking a name — s
 
 An item without creators has no `creators` property at all, while `tags`, `collections` and `relations` appear even when empty. That inconsistency is zotero.org's and is copied.
 
+**`parentItem: false` makes a child top-level.** The desktop sends it when a note or attachment is moved out to the library. As on zotero.org, a patch that files a child in a collection without mentioning `parentItem` does the same, since a child cannot be in a collection.
+
 ### Objects that were sent again without changing
 
 An object identical to the stored one is reported as `unchanged` and keeps its version, as on zotero.org. Saving it again would advance the library version and make every other client download an object that never changed.

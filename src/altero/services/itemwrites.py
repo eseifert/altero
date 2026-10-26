@@ -303,11 +303,28 @@ def validate_item(
     # and both expand a predicate naming several objects.
     relations = parse_relations(payload)
 
+    # `parentItem: false` takes a child out from under its parent, which is how
+    # the desktop says a note or attachment moved out to the library: its
+    # patch turns a parent that went away into `false`. Upstream also reads
+    # `collections` on a child as the same thing, "implicit parentItem: false
+    # for PATCH if collections provided", for a client bug it names -- a child
+    # cannot be in a collection, so being filed in one says it is a child no
+    # longer.
+    unparenting = "parentItem" in payload and not payload["parentItem"]
+    if (
+        existing is not None
+        and existing.parent_id is not None
+        and "parentItem" not in payload
+        and collections
+    ):
+        unparenting = True
+
     parsed = {
         "item_type": item_type,
         "key": payload.get("key") or None,
         "version": payload.get("version"),
         "parent_item": payload.get("parentItem") or None,
+        "unparenting": unparenting,
         "fields": fields,
         "creators": _validate_creators(
             item_type, payload.get("creators", []), creating=existing is None
@@ -446,7 +463,11 @@ def _predict(
         # difference on its own. Predicting `now` made a patch that changes
         # nothing look changed whenever a second had passed since the last one.
         date_modified=parsed["date_modified"] or before.date_modified,
-        parent_id=parent_id if parent_id is not None or replace else before.parent_id,
+        parent_id=(
+            parent_id
+            if parent_id is not None or replace or parsed["unparenting"]
+            else before.parent_id
+        ),
         fields=tuple(sorted(fields.items())),
         creators=(
             tuple(
@@ -574,7 +595,7 @@ async def _apply(
             ItemRelation(predicate=predicate, object=obj) for predicate, obj in parsed["relations"]
         ]
 
-    if parent_id is not None or replace:
+    if parent_id is not None or replace or parsed["unparenting"]:
         item.parent_id = parent_id
 
     # Sort keys are recomputed from whatever the item now holds, so a PATCH that

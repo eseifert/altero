@@ -1255,6 +1255,97 @@ class TestPartialUploads:
         assert "publisher" not in data
 
 
+class TestTakingAChildOutFromUnderItsParent:
+    """`parentItem: false` in a patch makes a child top-level.
+
+    The desktop sends exactly that when a note or attachment is moved out to
+    the library (`DataObjectUtilities.patch` turns a parent that went away
+    into `false`). Read as absent, the item stayed a child here and on every
+    other client, while the desktop believed it had synced.
+    """
+
+    async def child(self, session: AsyncSession, library: Library) -> None:
+        parent = await make_item(session, library, key="AAAA2345", version=10)
+        await make_item(
+            session, library, key="BBBB2345", item_type="note", parent=parent, version=10
+        )
+        await session.commit()
+
+    async def parent_of(self, client: httpx.AsyncClient) -> object:
+        data = (await client.get("/users/1/items/BBBB2345", headers=AUTH)).json()["data"]
+        return data.get("parentItem")
+
+    async def test_a_patch_in_a_batch_takes_it_out(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await self.child(session, library)
+
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"key": "BBBB2345", "version": 10, "parentItem": False}],
+            )
+        ).json()
+
+        assert body["unchanged"] == {}
+        assert "parentItem" not in body["successful"]["0"]["data"]
+        assert await self.parent_of(client) is None
+
+    async def test_a_single_patch_takes_it_out(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await self.child(session, library)
+
+        response = await client.patch(
+            "/users/1/items/BBBB2345",
+            headers=JSON | {"If-Unmodified-Since-Version": "10"},
+            json={"parentItem": False},
+        )
+
+        assert response.status_code == 204
+        assert await self.parent_of(client) is None
+
+    async def test_collections_on_a_child_take_it_out_too(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Upstream's "implicit parentItem: false", for a client bug it names.
+
+        Attachments going through PDF metadata retrieval are uploaded again as
+        standalone in a collection without `parentItem: false`; a child cannot
+        be in a collection, so `collections` says it is a child no longer.
+        """
+        await self.child(session, library)
+        await make_collection(session, library, key="CCCC2345")
+        await session.commit()
+
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"key": "BBBB2345", "version": 10, "collections": ["CCCC2345"]}],
+            )
+        ).json()
+
+        assert body["failed"] == {}
+        assert await self.parent_of(client) is None
+        data = (await client.get("/users/1/items/BBBB2345", headers=AUTH)).json()["data"]
+        assert data["collections"] == ["CCCC2345"]
+
+    async def test_leaving_it_out_leaves_the_parent(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await self.child(session, library)
+
+        await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[{"key": "BBBB2345", "version": 10, "note": "<p>edited</p>"}],
+        )
+
+        assert await self.parent_of(client) == "AAAA2345"
+
+
 class TestAPatchClearsWhatItSendsEmpty:
     """An empty array is a property that was mentioned, and it means "none".
 
