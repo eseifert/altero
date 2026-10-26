@@ -199,6 +199,45 @@ class TestRendering:
     def test_an_empty_bibliography_renders_nothing(self) -> None:
         assert bibliography([], style="apa") == ""
 
+    def test_markup_in_a_field_is_text(self) -> None:
+        """A title is text, and the HTML around it is the renderer's own: a
+        field must not be able to add an element, let alone a handler."""
+        html = bibliography(
+            [self._csl(title='<img src=x onerror="alert(1)"> Cats & dogs')], style="apa"
+        )
+
+        assert "<img" not in html.lower()
+        assert "&#60;img" in html.lower()
+        assert "Cats &#38; dogs" in html
+
+    def test_markup_in_a_name_is_text(self) -> None:
+        item = self._csl(author=[{"family": "<script>alert(1)</script>", "given": "Jane"}])
+
+        for html in (bibliography([item], style="apa"), citation(item, style="apa")):
+            assert "<script" not in html.lower()
+
+    def test_markup_in_a_url_is_text_and_its_link_still_works(self) -> None:
+        html = bibliography(
+            [self._csl(URL='https://example.org/?a=1&b="><img src=x onerror=alert(1)>')],
+            style="apa",
+            linkwrap=True,
+        )
+
+        assert "<img" not in html.lower()
+        assert '<a href="https://example.org/?a=1&amp;b=">' in html
+
+    def test_rich_text_markup_is_kept(self) -> None:
+        """The few tags citeproc-js reads as formatting inside a field --
+        italics for a species name, small caps, `nocase` -- stay formatting."""
+        html = bibliography(
+            [self._csl(title='Life of <i>Homo sapiens</i> in <span class="nocase">NYC</span>')],
+            style="apa",
+        )
+
+        assert "<i>Homo sapiens</i>" in html
+        assert "NYC" in html
+        assert "&#60;" not in html
+
 
 class TestFormats:
     async def test_csljson_wraps_the_items(

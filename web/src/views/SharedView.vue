@@ -28,6 +28,7 @@ import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import { formatDate } from '@/formats'
 import { fieldLabel, itemTypeLabel, loadLabels } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
+import { cleanBibliography, cleanNote } from '@/sanitize'
 import type { ItemEnvelope } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 import { useSharedStore } from '@/stores/shared'
@@ -319,7 +320,7 @@ watch(
                 </button>
               </div>
               <p v-if="citationError" class="shared__error" role="alert">{{ citationError }}</p>
-              <div v-else-if="bibliography" class="block entry__bib" v-html="bibliography"></div>
+              <div v-else-if="bibliography" class="block entry__bib" v-html="cleanBibliography(bibliography)"></div>
             </section>
 
             <section v-if="notes().length" class="entry__section">
@@ -328,7 +329,7 @@ watch(
                 v-for="child in notes()"
                 :key="child.key"
                 class="entry__note-body"
-                v-html="child.data.note"
+                v-html="cleanNote(child.data.note)"
               ></div>
             </section>
           </div>

@@ -10,6 +10,7 @@ import { exportable } from '@/exportformats'
 import { formatDateTime } from '@/formats'
 import { fieldLabel, itemTypeLabel } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
+import { cleanBibliography, cleanNote } from '@/sanitize'
 import type { ItemEnvelope } from '@/stores/library'
 
 const { t } = useI18n()
@@ -347,7 +348,7 @@ function childTitle(child: ItemEnvelope): string {
       </template>
     </div>
 
-    <div v-if="isNote" class="card__inset detail__note" v-html="item.data.note"></div>
+    <div v-if="isNote" class="card__inset detail__note" v-html="cleanNote(item.data.note)"></div>
 
     <dl v-if="creators.length" class="detail__fields">
       <template v-for="(creator, index) in creators" :key="index">
@@ -444,7 +445,7 @@ function childTitle(child: ItemEnvelope): string {
       </div>
       <p v-if="citationError" class="detail__error" role="alert">{{ citationError }}</p>
       <!-- Rendered by the server's own CSL processor from this item's data. -->
-      <div v-else-if="bibliography" class="card__inset detail__bib" v-html="bibliography"></div>
+      <div v-else-if="bibliography" class="card__inset detail__bib" v-html="cleanBibliography(bibliography)"></div>
     </section>
   </article>
 </template>

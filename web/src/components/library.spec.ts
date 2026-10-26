@@ -384,6 +384,33 @@ describe('ItemDetail', () => {
     expect(wrapper.get('.detail__note').text()).toBe('A thought')
   })
 
+  it('shows a note without the script somebody put in it', () => {
+    /* A note is whatever HTML a client or a group member synced. */
+    const note: ItemEnvelope = {
+      key: 'CCCC2345',
+      version: 1,
+      data: { itemType: 'note', note: '<p>A thought</p><img src="x" onerror="alert(1)">' },
+      meta: {},
+    }
+
+    const html = detail(note).get('.detail__note').html()
+
+    expect(html).toContain('A thought')
+    expect(html).not.toMatch(/onerror/i)
+  })
+
+  it('shows a citation without the markup a field smuggled into it', async () => {
+    requestMock.mockResolvedValue({
+      bib: '<div class="csl-bib-body"><img src="x" onerror="alert(1)">Doe, J.</div>',
+    })
+    const wrapper = detail()
+
+    await wrapper.get('.detail__button').trigger('click')
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(wrapper.get('.detail__bib').html()).not.toMatch(/onerror/i)
+  })
+
   it('lists child attachments and lets one be opened', async () => {
     const child: ItemEnvelope = {
       key: 'DDDD2345',

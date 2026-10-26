@@ -45,6 +45,42 @@ _URL = re.compile(r"(?<![\"'>=])\bhttps?://[^\s<>\"']+[^\s<>\"'.,;:)\]]")
 #: Text outside of a tag, which is the only place a link may be introduced.
 _TEXT_OUTSIDE_TAGS = re.compile(r"(<[^>]*>)|([^<]+)")
 
+#: The tags citeproc-js reads as formatting inside a field rather than as text.
+#: Everything else in a field is text and is escaped before rendering.
+_RICH_TEXT = re.compile(
+    r"</?(?:i|b|sub|sup)>"
+    r'|<span (?:class="(?:nocase|nodecor)"|style="font-variant:\s*small-caps;?")>'
+    r"|</span>",
+    re.IGNORECASE,
+)
+
+#: Escapes for a field's text. Numeric, because citeproc-py may change the case
+#: of a field (`text-case`), and `&AMP;` is not something to rely on.
+_TEXT_ESCAPES = str.maketrans({"&": "&#38;", "<": "&#60;", ">": "&#62;"})
+
+
+def _as_text(value: Any) -> Any:
+    """Escape every string in a CSL value, keeping the rich-text tags.
+
+    citeproc-py escapes the text a style supplies but writes a field's value into
+    its HTML as it stands, so a title could carry an element -- and a handler --
+    into every page and client that shows a bibliography. citeproc-js, which
+    upstream renders with, escapes it.
+    """
+    if isinstance(value, list):
+        return [_as_text(part) for part in value]
+    if isinstance(value, dict):
+        return {name: _as_text(part) for name, part in value.items()}
+    if not isinstance(value, str):
+        return value
+    parts, end = [], 0
+    for tag in _RICH_TEXT.finditer(value):
+        parts.append(value[end : tag.start()].translate(_TEXT_ESCAPES))
+        parts.append(tag.group(0))
+        end = tag.end()
+    parts.append(value[end:].translate(_TEXT_ESCAPES))
+    return "".join(parts)
+
 
 @lru_cache(maxsize=32)
 def _style(name: str, locale: str) -> Any:
@@ -87,10 +123,19 @@ def _linkwrap(markup: str) -> str:
     def wrap(match: re.Match[str]) -> str:
         if match.group(1) is not None:
             return match.group(1)
-        return _URL.sub(
-            lambda url: f'<a href="{html.escape(url.group(0), quote=True)}">{url.group(0)}</a>',
-            match.group(2),
-        )
+        # URLs are found in the text as it reads, not as it is escaped, so an
+        # escaped `&` stays inside a link and an escaped `>` ends one.
+        text = html.unescape(match.group(2))
+        parts, end = [], 0
+        for url in _URL.finditer(text):
+            address = html.escape(url.group(0), quote=True)
+            parts.append(html.escape(text[end : url.start()], quote=False))
+            parts.append(f'<a href="{address}">{html.escape(url.group(0), quote=False)}</a>')
+            end = url.end()
+        if not parts:
+            return match.group(2)
+        parts.append(html.escape(text[end:], quote=False))
+        return "".join(parts)
 
     return _TEXT_OUTSIDE_TAGS.sub(wrap, markup)
 
@@ -101,7 +146,16 @@ def _render(items: list[dict[str, Any]], style_name: str, locale: str) -> tuple[
     from citeproc.source.json import CiteProcJSON
 
     style = _style(style_name, locale)
-    bibliography = CitationStylesBibliography(style, CiteProcJSON(items), formatter.html)
+    source = CiteProcJSON(
+        [
+            {
+                name: value if name in ("id", "type") else _as_text(value)
+                for name, value in item.items()
+            }
+            for item in items
+        ]
+    )
+    bibliography = CitationStylesBibliography(style, source, formatter.html)
 
     citations = [Citation([CitationItem(item["id"])]) for item in items]
     for citation in citations:

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Notes and citations can no longer run a script in the browser; `bib` and `citation` escape markup in fields, as zotero.org does.
 - Cases, emails and statutes show their titles throughout the browser interface instead of “(untitled)” ([Issue#22]).
 - The browser interface is translated into 17 more languages, 48 in all.
 - The container image is built on Debian 13 (trixie), with OpenSSL 3.5 instead of the end-of-life 3.0 ([Issue#29]).

@@ -264,6 +264,54 @@ describe('citing something from a profile', () => {
     )
     expect(wrapper.find('.publication__bib').text()).toContain('Lovelace')
   })
+
+  it('shows the citation without the markup a field smuggled into it', async () => {
+    serve()
+    const wrapper = await screen()
+    await wrapper.find('.publication__summary').trigger('click')
+    await flush()
+    requestMock.mockResolvedValue({ bib: '<div>Lovelace<img src="x" onerror="alert(1)"></div>' })
+
+    await wrapper.find('.publication__cite button').trigger('click')
+    await flush()
+
+    expect(wrapper.find('.publication__bib').html()).not.toMatch(/onerror/i)
+  })
+})
+
+describe('a note on a profile', () => {
+  it('is shown without the script somebody put in it', async () => {
+    /* Anybody can open a profile, signed in or not. */
+    requestMock.mockImplementation((path: string) => {
+      if (path.includes('/children')) {
+        return Promise.resolve({
+          total: 1,
+          items: [
+            {
+              key: 'NOTE0001',
+              version: 3,
+              data: {
+                itemType: 'note',
+                note: '<p>Read this</p><img src="x" onerror="alert(1)">',
+                parentItem: 'PUBLIC01',
+              },
+              meta: {},
+            },
+          ],
+        })
+      }
+      if (path.includes('/items')) return Promise.resolve({ total: 1, items: [book()] })
+      return Promise.resolve(PROFILE)
+    })
+    const wrapper = await screen()
+
+    await wrapper.find('.publication__summary').trigger('click')
+    await flush()
+
+    const note = wrapper.get('.publication__note')
+    expect(note.text()).toContain('Read this')
+    expect(note.html()).not.toMatch(/onerror/i)
+  })
 })
 
 describe('when the server does not answer', () => {

@@ -16,6 +16,7 @@
     "typecheck": "vue-tsc --build"
   },
   "dependencies": {
+    "dompurify": "^3.4.17",
     "pinia": "^4.0.2",
     "vue": "^3.5.44",
     "vue-i18n": "^11.4.8",

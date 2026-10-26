@@ -21,6 +21,7 @@ import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import { fieldLabel, itemTypeLabel, loadLabels } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
 import { LICENSES } from '@/publications/licenses'
+import { cleanBibliography, cleanNote } from '@/sanitize'
 import { useAuthStore } from '@/stores/auth'
 import type { ItemEnvelope } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
@@ -364,18 +365,19 @@ const audience = computed(() => {
               </div>
               <p v-if="citationError" class="profile__error" role="alert">{{ citationError }}</p>
               <!-- Rendered by the server's own CSL processor from this item's data. -->
-              <div v-else-if="bibliography" class="block publication__bib" v-html="bibliography"></div>
+              <div v-else-if="bibliography" class="block publication__bib" v-html="cleanBibliography(bibliography)"></div>
             </section>
 
             <section v-if="notes().length" class="publication__section">
               <h2 class="publication__heading">{{ t('Notes') }}</h2>
               <!-- The note as its author wrote it, which Zotero stores as
-                   HTML. The same rendering the library view gives it. -->
+                   HTML, cleaned of anything that could run. The same
+                   rendering the library view gives it. -->
               <div
                 v-for="child in notes()"
                 :key="child.key"
                 class="publication__note"
-                v-html="child.data.note"
+                v-html="cleanNote(child.data.note)"
               ></div>
             </section>
           </div>

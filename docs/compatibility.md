@@ -150,6 +150,8 @@ zotero.org sends items to a separate citation server. altero formats citations i
 
 **Items are mapped to CSL the way Zotero maps them**, using the tables in Zotero's own schema. A schema update therefore changes the output with it.
 
+**A field is text in `bib` and `citation`.** Markup in a title or a name is escaped, except the rich-text tags the citation processor zotero.org uses also reads as formatting: `<i>`, `<b>`, `<sup>`, `<sub>`, small caps and `nocase`. A field cannot add an element, so a page that shows the HTML cannot be made to run a script.
+
 **`format=csljson` always wraps items** in `{"items": [ ... ]}`, even a single one, as zotero.org does.
 
 **`format=bib` is one document.** It carries `Total-Results` but no `Link` header, refuses `sort`, `direction`, `start`, `limit` and `order` with a 400, and holds at most 150 items.
