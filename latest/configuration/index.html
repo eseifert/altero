@@ -1843,6 +1843,7 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>config
 </span></code></pre></div>
 <p>The image sets <code>ALTERO_STORAGE_PATH=/data/storage</code>, <code>ALTERO_HOST=0.0.0.0</code> and <code>ALTERO_PORT=8000</code> itself. <code>/data</code> is the volume, so leave the storage path alone unless you also move the mount.</p>
+<p>Without <code>ALTERO_DATABASE_URL</code>, as when the image runs <a href="../deployment/#try-the-image-on-its-own">on its own</a>, the database is SQLite at <code>/data/altero.sqlite</code>. That default comes from the image's own <code>/app/config.py</code>. A <code>config.py</code> mounted there replaces it.</p>
 <h2 id="values">Values<a class="headerlink" href="#values" title="Permanent link">&para;</a></h2>
 <p>Booleans accept <code>true</code>, <code>1</code>, <code>yes</code> and <code>on</code>, and their opposites, in any case. Durations are whole seconds, hours or days as the name says. An empty string is a real value and usually means "off" or "fall back": <code>ALTERO_SMTP_URL=</code> writes mail to the log.</p>
 <h2 id="server-and-storage">Server and storage<a class="headerlink" href="#server-and-storage" title="Permanent link">&para;</a></h2>

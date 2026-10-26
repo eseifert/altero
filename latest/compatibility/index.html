@@ -3069,7 +3069,7 @@
 <li><strong>Characters, not words.</strong> zotero.org matches whole words, with the last one as a prefix. altero matches characters, which cuts both ways: <code>q=equod</code> finds <em>Pequod</em>, which zotero.org would not, but <code>q="Pequod sailed"</code> does not find <em>Pequod, sailed</em>, which zotero.org would. Neither server stems, so <code>q=sailing</code> finds <em>sailed</em> on neither.</li>
 </ul>
 <p><strong>Accents are not folded, and Chinese and Japanese text matches as a phrase.</strong> <code>q=cafe</code> does not find <em>café</em>, here or on zotero.org. Zotero 9 made the <em>desktop's</em> own search ignore accents, but that is its local copy; the API is accent-sensitive on both servers. <code>量子計算</code> needs those four characters in a row, which is the behavior the desktop had to be fixed to produce. What zotero.org's analyzer does is taken from Elasticsearch's documented defaults, not observed.</p>
-<p><strong>Case is ignored in attachments' text on every database</strong>, including non-ASCII letters: <code>über</code> finds <code>ÜBER</code>. In the other fields on SQLite, only ASCII case is ignored unless SQLite was built with ICU, so <code>Übung</code> may or may not find <code>übung</code> in a title. Do not rely on either answer.</p>
+<p><strong>Case is ignored in every alphabet, on every database</strong>: <code>über</code> finds <code>ÜBER</code>, in attachments' text and in every field.</p>
 <p>A search term shorter than three characters cannot use the index and reads every text, which is slower. <code>%</code> and <code>_</code> act as wildcards, in the text as in the fields: <code>q=col_ur</code> finds <em>colour</em>. zotero.org has no wildcards.
 - <strong>No 300-result cap.</strong> zotero.org asks Elasticsearch for 300 hits and silently drops the rest. altero returns every match: the limit is an accident of how zotero.org fetches hits, not part of what the API means.
 - <strong>More fields are searched.</strong> zotero.org searches the title, creators, year and attachment text. altero searches every field, so a match on <code>publisher</code> is found here only. This is a superset, so no client breaks on it.</p>
@@ -3080,6 +3080,7 @@
 <li><code>since</code> does not climb to the parent. Syncing clients send it, and reporting a parent whose own version did not change would be wrong.</li>
 </ul>
 <p>Neither the matched item nor the parent it resolves to may be in the trash, so a hit inside a trashed item's PDF does not bring it back.</p>
+<p><strong>A tag search minds case.</strong> <code>/tags?q=fic</code> does not find <em>Fiction</em>, as on zotero.org and in the desktop's own local API. <code>%</code> and <code>_</code> act as wildcards there too, and <code>\</code> escapes them: searching for <code>50\%</code> finds <em>50%</em> but not <em>500</em>.</p>
 <h3 id="who-added-an-item-and-who-last-changed-it">Who added an item, and who last changed it<a class="headerlink" href="#who-added-an-item-and-who-last-changed-it" title="Permanent link">&para;</a></h3>
 <p>In group libraries, an item's <code>meta</code> names who created it and who last changed it. Both behaviors below are copied, including the parts that look like oversights.</p>
 <ul>
