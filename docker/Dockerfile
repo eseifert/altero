@@ -23,7 +23,15 @@ COPY web/ ./web/
 # Writes to /build/src/altero/web/static, which the stage below copies in.
 RUN cd web && npm run build
 
-FROM ghcr.io/astral-sh/uv:python3.14-trixie-slim
+# altero and its dependencies are installed here, and only the result reaches
+# the served image: uv is a build tool, and 50 MB of one.
+FROM python:3.14-slim-trixie AS build
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+# The interpreter this base ships, never one uv downloads: the stage below is
+# the same base, so the environment's links to it still hold there. Nothing is
+# cached, since a cache would only be carried along unused.
+ENV UV_PYTHON_DOWNLOADS=never \
+    UV_NO_CACHE=1
 
 # Dependencies first, from the lock file alone, so editing the source does not
 # reinstall them. --frozen fails rather than silently resolving something the
@@ -41,6 +49,13 @@ COPY src ./src
 # installed package rather than beside it.
 COPY --from=web /build/src/altero/web/static ./src/altero/web/static
 RUN uv sync --frozen --no-dev --extra postgres
+
+FROM python:3.14-slim-trixie
+
+# All of /app, exactly as the stage above left it: the project is installed
+# editable, so the environment expects the source at the same path.
+WORKDIR /app
+COPY --from=build /app /app
 
 # Attachments and, for a single-user SQLite deployment, the database itself.
 # Declared so that neither is lost with the container.

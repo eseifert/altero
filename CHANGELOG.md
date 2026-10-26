@@ -10,6 +10,7 @@ gained a capability worth naming.
 - Cases, emails and statutes show their titles throughout the browser interface instead of “(untitled)” ([Issue#22]).
 - The browser interface is translated into 17 more languages, 48 in all.
 - The container image is built on Debian 13 (trixie), with OpenSSL 3.5 instead of the end-of-life 3.0 ([Issue#29]).
+- The container image is about 60 MB smaller: uv, which only the build needs, stays out of it.
 - Item searches ignore case in every alphabet on SQLite too: `über` finds “Über”.
 - Tag searches match case, as on zotero.org: `/tags?q=fic` no longer finds “Fiction”.
 
