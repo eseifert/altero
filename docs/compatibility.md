@@ -526,6 +526,21 @@ The desktop reads `data` to repair its own state: if it holds the missing object
 
 An object outside what the credential may read is reported as missing in the same way, so a write cannot be used to learn whether a key exists.
 
+### What may be a child of what
+
+The rules are zotero.org's, and the desktop applies the same ones before it uploads:
+
+| Item          | May hang off                                                                 |
+|---------------|------------------------------------------------------------------------------|
+| Regular item  | nothing                                                                      |
+| Note          | a regular item                                                               |
+| Attachment    | a regular item; an embedded image (a picture in a note) also a note          |
+| Annotation    | a file attachment, required: a highlight, underline or note annotation on a PDF, EPUB or HTML snapshot; an image, ink or text annotation on a PDF |
+
+A note or attachment under a note or attachment fails with 409, `Parent item cannot be a note or attachment`, naming the parent in `data`. The other refusals fail with 400, including an item named as its own parent.
+
+The rules are checked when an item is created or moved to another parent. An item already stored under a parent it could not have now, for example by an earlier altero, keeps syncing as it is.
+
 ### Groups
 
 zotero.org has endpoints for creating, editing and deleting groups and adding members, but only for its own administrators, in XML, and never used by the Zotero client. An ordinary key gets 403.
@@ -748,10 +763,11 @@ Three deliberate limits: sign-in must **start at altero**, because an unsolicite
 
 ### Deliberate differences
 
-Six places where altero does not copy zotero.org:
+Seven places where altero does not copy zotero.org:
 
 - **No `alternate` links.** zotero.org links every object to its page on zotero.org. altero will not send clients to somebody else's copy of the data, and its own interface has no page per object, so envelopes carry only `self` and `up`. A single-page response therefore has no `Link` header — except group listings, which carry `self` because the desktop needs the header (see [Who the client finds in a group](#who-the-client-finds-in-a-group)).
 - **An unknown `locale` falls back to `en-US`.** zotero.org answers 500.
+- **A regular item given a parent fails with 400.** zotero.org answers 500 for the same refusal.
 - **Rate limiting is off unless configured.** A self-hosted server with a handful of clients rarely needs it; set `ALTERO_RATE_LIMIT` to turn it on.
 - **Fields with the same translated name may be ordered differently.** Three fields are called "Format"; zotero.org orders them by an internal number the published schema lacks.
 - **Tags can be renamed through the API** — see [Renaming a tag](#renaming-a-tag). An addition rather than a change: nothing that reads tags behaves differently.

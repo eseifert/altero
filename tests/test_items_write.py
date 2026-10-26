@@ -902,11 +902,18 @@ class TestUnlistedFields:
     async def test_an_annotation_keeps_its_fields(
         self, client: httpx.AsyncClient, library: Library
     ) -> None:
+        # A PDF: a highlight hangs off a file a reader opens, as upstream asks.
         parent = (
             await client.post(
                 "/users/1/items",
                 headers=JSON,
-                json=[{"itemType": "attachment", "linkMode": "imported_file"}],
+                json=[
+                    {
+                        "itemType": "attachment",
+                        "linkMode": "imported_file",
+                        "contentType": "application/pdf",
+                    }
+                ],
             )
         ).json()["successful"]["0"]["key"]
 

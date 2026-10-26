@@ -17,7 +17,13 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.db import chunked
-from altero.errors import ForbiddenError, InvalidInputError, MissingObjectError, NotFoundError
+from altero.errors import (
+    ForbiddenError,
+    InvalidInputError,
+    InvalidParentError,
+    MissingObjectError,
+    NotFoundError,
+)
 from altero.itemschema import get_schema
 from altero.keys import coerce_key, is_valid_key
 from altero.models import (
@@ -497,20 +503,84 @@ def _predict(
     )
 
 
-async def _parent_id(
+async def _parent(
     session: AsyncSession, library: Library, parsed: dict[str, Any], permit: Access | None
-) -> int | None:
-    """The id of the parent ``parsed`` names, or ``None`` if it names none."""
+) -> Item | None:
+    """The parent ``parsed`` names, or ``None`` if it names none."""
     if parsed["parent_item"] is None:
         return None
     key = str(parsed["parent_item"])
     try:
-        parent = await get_item(session, library, key, permit=permit, related=False)
+        return await get_item(session, library, key, permit=permit, related=False)
     except NotFoundError:
         # Missing, or outside what the credential may see: the same answer
         # either way, so a write cannot ask whether a key exists.
         raise MissingObjectError(f"Parent item {key} not found", parentItem=key) from None
-    return parent.id
+
+
+#: The item types that may have a parent at all: upstream's `setSourceKey`.
+CHILD_TYPES = NOTE_BEARING_TYPES | {"annotation"}
+
+#: Annotation types every reader makes. The others -- image, ink, free text --
+#: only the PDF reader does.
+TEXT_ANNOTATION_TYPES = frozenset({"highlight", "underline", "note"})
+
+#: What the readers open, by content type: PDFs, EPUBs and HTML snapshots.
+READABLE_CONTENT_TYPES = frozenset({"application/pdf", "application/epub+zip", "text/html"})
+
+
+async def _check_parent(
+    session: AsyncSession, item_type: str, fields: dict[str, str], parent: Item | None
+) -> None:
+    """Refuse a parent this item cannot have, as upstream's `Zotero_Item::save` does.
+
+    Asked of an item being created or moved, never of one re-sent where it
+    is: upstream asks a note about its parent only on insert, and an item a
+    laxer server once stored under the wrong parent should keep syncing.
+
+    Args:
+        fields: The item's field values as they will be, stored and sent.
+    """
+    if item_type == "annotation":
+        if parent is None:
+            raise InvalidInputError("Annotation item must have a parent item")
+        rows = await session.execute(
+            select(ItemField.field, ItemField.value).where(
+                ItemField.item_id == parent.id, ItemField.field.in_(("linkMode", "contentType"))
+            )
+        )
+        stored = dict(rows.tuples().all())
+        if parent.item_type != "attachment" or stored.get("linkMode") == "linked_url":
+            raise InvalidInputError(
+                f"Parent item {parent.key} of annotation must be a file attachment"
+            )
+        annotation_type = fields.get("annotationType", "")
+        content_type = stored.get("contentType", "")
+        if annotation_type in TEXT_ANNOTATION_TYPES:
+            if content_type not in READABLE_CONTENT_TYPES:
+                # Upstream's message still says "must be a PDF attachment", a
+                # leftover marked TEMP beside the one it meant to say, which
+                # is this; its check already takes all three.
+                raise InvalidInputError(
+                    f"Parent item {parent.key} of {annotation_type} annotation "
+                    "must be a PDF, EPUB, or HTML attachment"
+                )
+        elif content_type != "application/pdf":
+            raise InvalidInputError(
+                f"Parent attachment {parent.key} of {annotation_type} annotation must be a PDF"
+            )
+        return
+
+    if parent is None:
+        return
+    embedded_image = item_type == "attachment" and fields.get("linkMode") == "embedded_image"
+    if item_type == "attachment" and parent.parent_id is not None and not embedded_image:
+        raise InvalidInputError(f"Parent item {parent.key} cannot be a child attachment")
+    regular = parent.item_type not in CHILD_TYPES
+    if not (regular or (embedded_image and parent.item_type == "note")):
+        raise InvalidParentError(
+            "Parent item cannot be a note or attachment", parentItem=parent.key
+        )
 
 
 async def _apply(
@@ -762,8 +832,28 @@ async def save_item(
                 permit.require_remove(item.created_by_user_id)
         check_object_version(item.version, parsed["version"], required=require_version)
 
+    if parsed["parent_item"] is not None:
+        if str(parsed["parent_item"]) == item.key:
+            # Upstream's words, its advice included: the desktop shows them.
+            raise InvalidInputError(
+                f"Item {item.key} cannot be a child of itself\n\n"
+                "Check your database integrity from the Advanced → Files and Folders "
+                "pane of the Zotero preferences."
+            )
+        if parsed["item_type"] not in CHILD_TYPES:
+            # Upstream's `setSourceKey` throws without a code here, which
+            # reaches the client as a 500; it is the client's mistake.
+            raise InvalidInputError("Only notes, attachments and annotations can have a parent")
+
     # Looked up before anything is assigned: see `_apply`.
-    parent_id = await _parent_id(session, library, parsed, permit)
+    parent = await _parent(session, library, parsed, permit)
+    parent_id = parent.id if parent is not None else None
+
+    # Where the item will hang once written, and whether that is anywhere new.
+    keeps_parent = parent is None and not (replace or parsed["unparenting"])
+    if creating or (not keeps_parent and parent_id != item.parent_id):
+        fields = {} if creating else item.field_values()
+        await _check_parent(session, parsed["item_type"], fields | parsed["fields"], parent)
 
     if detect_unchanged and not creating:
         # Decided by what writing would produce rather than by writing it and

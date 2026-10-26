@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Uploads are held to zotero.org's rules for what may be a child of what; annotations on EPUBs and HTML snapshots are accepted ([parents]).
 - A note or attachment moved out to the library in Zotero Desktop is top-level here too; it used to stay under its old parent.
 - An upload naming a missing parent or collection fails with 409 and names it, so Zotero Desktop uploads it and retries ([dependencies]).
 - An item created from the `/items/new` template no longer keeps its empty creator; other nameless creators are refused, as on zotero.org.
@@ -223,6 +224,7 @@ The first release meant to be used by somebody other than its author.
 [db-req]: docs/deployment.md#database-requirements
 [headers]: docs/deployment.md#behind-a-reverse-proxy
 [dependencies]: docs/compatibility.md#an-object-that-depends-on-one-the-server-lacks
+[parents]: docs/compatibility.md#what-may-be-a-child-of-what
 [config]: docs/configuration.md
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3

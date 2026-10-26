@@ -409,10 +409,10 @@ async def create_item(
 
     library = await writes.lock_library(session, library)
     if body.parent_item is not None:
-        # Checked here rather than left to `save_item`, which takes any parent
-        # a v3 client names: upstream refuses a parent on anything but a note,
-        # an attachment or an annotation, and one that is not a regular item.
-        # The browser makes notes only, under what its item list shows.
+        # Asked here before `save_item` asks its own, wider question, so that
+        # the browser's answers are the browser's: it makes notes only, under
+        # a regular item its list shows, and a refusal is a 400 rather than
+        # the sync protocol's 409.
         if body.item_type != "note":
             raise InvalidInputError("Only a note can be made under another item")
         parent = await items_service.get_item(session, library, body.parent_item, permit=access)

@@ -32,6 +32,18 @@ class MissingObjectError(AlteroError):
         self.data = data
 
 
+class InvalidParentError(AlteroError):
+    """A note or attachment names a parent it cannot have: a note or attachment.
+
+    Upstream's 409 for it carries the parent in ``data``, as a missing one
+    does; the desktop, finding that parent present, leaves it at that.
+    """
+
+    def __init__(self, message: str, **data: str) -> None:
+        super().__init__(message)
+        self.data = data
+
+
 class ForbiddenError(AlteroError):
     """The credential does not grant the required access."""
 
