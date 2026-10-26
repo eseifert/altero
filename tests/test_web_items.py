@@ -1299,6 +1299,203 @@ class TestEditingAnItem:
         return group
 
 
+class TestCreatingAnItem:
+    """A new item from the type picker: the v3 template, written by `save_item`.
+
+    What the browser sends is the type and where the item goes. The rest is the
+    template `/items/new` serves, so a book made here is the book a v3 client
+    creating from that template would have made, down to its empty fields.
+    """
+
+    async def create(
+        self, ada: httpx.AsyncClient, library_id: int, **body: object
+    ) -> httpx.Response:
+        return await ada.post(
+            f"/web/libraries/{library_id}/items", json=body, headers=csrf_headers(ada)
+        )
+
+    async def test_a_book_is_created(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+
+        response = await self.create(ada, library_id, itemType="book")
+
+        assert response.status_code == 201
+        item = response.json()
+        assert item["data"]["itemType"] == "book"
+        assert item["data"]["title"] == ""
+        assert await listed(ada, library_id) == [""]
+
+    async def test_it_is_the_template_without_its_nameless_creator(
+        self, ada: httpx.AsyncClient
+    ) -> None:
+        library_id = await personal_library(ada)
+        template = (await ada.get("/items/new?itemType=book")).json()
+
+        data = (await self.create(ada, library_id, itemType="book")).json()["data"]
+
+        expected = {name for name in template if name != "creators"}
+        assert expected <= set(data)
+        assert "creators" not in data
+
+    async def test_it_is_one_new_version(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        before = await self.create(ada, library_id, itemType="book")
+
+        response = await self.create(ada, library_id, itemType="journalArticle")
+
+        version = int(before.headers["Last-Modified-Version"])
+        assert int(response.headers["Last-Modified-Version"]) == version + 1
+        assert response.json()["version"] == version + 1
+
+    async def test_it_is_filed_where_it_was_made(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+        papers = await make_collection(ada, library_id, "Papers")
+
+        response = await self.create(ada, library_id, itemType="book", collections=[papers])
+
+        assert response.json()["data"]["collections"] == [papers]
+        assert await listed(ada, library_id, collection=papers) == [""]
+
+    async def test_an_unknown_collection_is_refused(self, ada: httpx.AsyncClient) -> None:
+        """As `save_item` refuses it for a syncing client, and nothing is made."""
+        library_id = await personal_library(ada)
+
+        response = await self.create(ada, library_id, itemType="book", collections=["ZZZZ2345"])
+
+        assert response.status_code == 400
+        assert await listed(ada, library_id) == []
+
+    async def test_a_child_note_is_created_under_its_parent(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        parent = await seed_item(ada, session)
+
+        response = await self.create(ada, library_id, itemType="note", parentItem=parent)
+
+        assert response.status_code == 201
+        assert response.json()["data"]["parentItem"] == parent
+        assert response.json()["data"]["note"] == ""
+        children = (await ada.get(f"/web/libraries/{library_id}/items/{parent}/children")).json()
+        assert [child["key"] for child in children["items"]] == [response.json()["key"]]
+
+    async def test_a_standalone_note_is_created(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+
+        response = await self.create(ada, library_id, itemType="note")
+
+        assert response.status_code == 201
+        assert "parentItem" not in response.json()["data"]
+
+    async def test_a_book_cannot_have_a_parent(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        parent = await seed_item(ada, session)
+
+        response = await self.create(ada, library_id, itemType="book", parentItem=parent)
+
+        assert response.status_code == 400
+        assert await listed(ada, library_id) == ["Structure and Interpretation"]
+
+    async def test_a_note_cannot_go_under_a_note(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        parent = await seed_item(ada, session)
+        note = (await self.create(ada, library_id, itemType="note", parentItem=parent)).json()
+
+        response = await self.create(ada, library_id, itemType="note", parentItem=note["key"])
+
+        assert response.status_code == 400
+
+    async def test_a_note_cannot_go_under_an_item_in_the_trash(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        parent = await seed_item(ada, session)
+        await ada.patch(
+            f"/web/libraries/{library_id}/items",
+            json={"items": [parent], "deleted": True},
+            headers=csrf_headers(ada),
+        )
+
+        response = await self.create(ada, library_id, itemType="note", parentItem=parent)
+
+        assert response.status_code == 400
+        assert "trash" in response.json()["message"]
+
+    async def test_an_unknown_parent_is_not_found(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+
+        response = await self.create(ada, library_id, itemType="note", parentItem="ZZZZ2345")
+
+        assert response.status_code == 404
+
+    async def test_an_unknown_type_is_refused(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+
+        response = await self.create(ada, library_id, itemType="nosuch")
+
+        assert response.status_code == 400
+
+    @pytest.mark.parametrize("item_type", ["attachment", "annotation"])
+    async def test_a_type_with_its_own_way_in_is_refused(
+        self, ada: httpx.AsyncClient, item_type: str
+    ) -> None:
+        """Attachments come with a file or a link, annotations from a reader."""
+        library_id = await personal_library(ada)
+
+        response = await self.create(ada, library_id, itemType=item_type)
+
+        assert response.status_code == 400
+        assert await listed(ada, library_id) == []
+
+    async def test_it_needs_the_csrf_token(self, ada: httpx.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+
+        response = await ada.post(f"/web/libraries/{library_id}/items", json={"itemType": "book"})
+
+        assert response.status_code == 403
+        assert await listed(ada, library_id) == []
+
+    async def test_a_read_only_library_refuses_it(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        group = await TestEditingAnItem().group_with_ada(session, MemberPermission.READ)
+
+        response = await self.create(ada, group.id, itemType="book")
+
+        assert response.status_code == 403
+
+    async def test_a_member_held_to_adding_may_create(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        group = await TestEditingAnItem().group_with_ada(session, MemberPermission.ADD)
+
+        response = await self.create(ada, group.id, itemType="book")
+
+        assert response.status_code == 201
+        assert response.json()["meta"]["createdByUser"]["id"] == 1
+
+    async def test_a_syncing_client_hears_about_it(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        api_key = await admin.create_api_key(session, username="ada", name="desktop")
+        since = (
+            await ada.get("/users/1/items?format=versions", headers={"Zotero-API-Key": api_key.key})
+        ).headers["Last-Modified-Version"]
+
+        made = (await self.create(ada, library_id, itemType="book")).json()
+
+        changed = await ada.get(
+            f"/users/1/items?since={since}&format=versions",
+            headers={"Zotero-API-Key": api_key.key},
+        )
+        assert changed.json() == {made["key"]: made["version"]}
+
+
 class TestASelection:
     """Several rows picked out and dragged somewhere: one errand, one version.
 

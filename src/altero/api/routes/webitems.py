@@ -5,8 +5,9 @@ Almost everything it does is something a person can express by dragging rows of
 the item list somewhere: onto a collection, onto the library, onto the trash,
 onto another library, or onto My Publications.
 
-One item is also edited here: its fields, creators, tags, relations and note,
-through :func:`update_item`. Its type, its parent, its collections, the trash
+One item is also created here, from the type picker (:func:`create_item`), and
+edited: its fields, creators, tags, relations and note, through
+:func:`update_item`. Its type, its parent, its collections, the trash
 and My Publications are each an errand of their own and are refused there by
 name (:data:`NOT_EDITED_HERE`).
 
@@ -83,6 +84,7 @@ from altero.errors import (
     PreconditionFailedError,
     PreconditionRequiredError,
 )
+from altero.itemschema import get_schema
 from altero.models import ActivityKind, Item, Library, User
 from altero.serializers import item as render_item
 from altero.services import auth, groupactivity, itemwrites, publications, writes
@@ -120,6 +122,29 @@ NOT_EDITED_HERE = frozenset(
 #: What an edit may carry besides ``fields``, each as the v3 API spells it.
 #: Sent empty, a list clears what it names; left out, it is left alone.
 EDITED_PROPERTIES = ("creators", "tags", "relations", "note")
+
+
+#: Item types the browser does not make from a bare template.
+#:
+#: An attachment is made with the file or the link it holds, and a template
+#: alone would be one with neither; an annotation belongs to a reader. Each has
+#: its own way in, or will have.
+NOT_CREATED_HERE = frozenset({"attachment", "annotation"})
+
+
+class NewItem(BaseModel):
+    """What the type picker sends: the type, and where the new item goes.
+
+    Nothing about its content. The item starts as the template `/items/new`
+    serves and is filled in by edits, so there is one way of writing a field
+    rather than two that could disagree about it.
+    """
+
+    item_type: str = Field(alias="itemType")
+    #: The item a note is made under. Only a note may have one here.
+    parent_item: str | None = Field(default=None, alias="parentItem")
+    #: The collection being looked at when it was made, usually.
+    collections: list[str] = Field(default_factory=list)
 
 
 class ItemErrands(BaseModel):
@@ -353,6 +378,68 @@ async def update_items(
     await session.commit()
 
     return JSONResponse({"items": rendered}, headers=library_headers(version))
+
+
+@router.post("/libraries/{library_id}/items", status_code=201)
+async def create_item(
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    library_id: int,
+    _csrf: CsrfDep,
+    body: Annotated[NewItem, Body()],
+) -> Response:
+    """Make one empty item of a type, filed where it was asked for.
+
+    The item is the v3 template for its type, written by the same `save_item`
+    a client's upload goes through -- so its empty fields, its key and its
+    version are what a client creating from `/items/new` would have produced,
+    and the template's one nameless creator is dropped there, as upstream drops
+    it. One request, one new version, and no precondition: nothing exists yet
+    for a page to be stale about.
+    """
+    library, access = await _library(session, user, library_id, write=True)
+    if body.item_type in NOT_CREATED_HERE:
+        raise InvalidInputError(f"'{body.item_type}' items cannot be created here")
+
+    payload = get_schema().template(body.item_type)
+    if body.collections:
+        payload["collections"] = list(dict.fromkeys(body.collections))
+
+    library = await writes.lock_library(session, library)
+    if body.parent_item is not None:
+        # Checked here rather than left to `save_item`, which takes any parent
+        # a v3 client names: upstream refuses a parent on anything but a note,
+        # an attachment or an annotation, and one that is not a regular item.
+        # The browser makes notes only, under what its item list shows.
+        if body.item_type != "note":
+            raise InvalidInputError("Only a note can be made under another item")
+        parent = await items_service.get_item(session, library, body.parent_item, permit=access)
+        if parent.parent_id is not None or parent.item_type in itemwrites.NOTE_BEARING_TYPES:
+            raise InvalidInputError("A note can be made only under a regular item")
+        if parent.deleted:
+            raise InvalidInputError("Restore the item from the trash to add a note to it")
+        payload["parentItem"] = parent.key
+
+    version = await writes.bump_library_version(session, library)
+    item = await itemwrites.save_item(
+        session, library, payload, version, actor_id=user.id, permit=access
+    )
+    assert item is not None
+    await session.flush()
+
+    rendered = await _rendered(session, item, library, base_url)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=user.id,
+        kind=ActivityKind.ITEMS_CHANGED,
+        count=1,
+        objects=await groupactivity.name_items(session, library, [item.key]),
+    )
+    await session.commit()
+
+    return JSONResponse(rendered, status_code=201, headers=library_headers(version))
 
 
 @router.patch("/libraries/{library_id}/items/{item_key}")

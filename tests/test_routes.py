@@ -144,6 +144,7 @@ EXPECTED = [
     # Items filed, trashed, deleted out of the trash, and copied into another
     # library -- a selection at a time, because that is what the reader picked
     # out. See altero/api/routes/webitems.py.
+    ("/web/libraries/{library_id}/items", "POST"),
     ("/web/libraries/{library_id}/items", "PATCH"),
     ("/web/libraries/{library_id}/items", "DELETE"),
     ("/web/libraries/{library_id}/items/copy", "POST"),
