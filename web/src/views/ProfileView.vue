@@ -502,7 +502,7 @@ const audience = computed(() => {
 }
 
 .publication__type {
-  color: var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .publication__detail {

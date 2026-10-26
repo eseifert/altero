@@ -27,6 +27,13 @@ npm run dev          # localhost:5173, proxying the API to :8000
 Without that build the server still runs and the API is fully usable; `/app/`
 answers 503 and says what to run.
 
+### End-to-end tests
+
+`npm run e2e` drives the built interface in Chromium, at desktop and phone
+sizes, against a real server on a throwaway SQLite database. It fails on any
+Content-Security-Policy violation and on serious or critical axe findings.
+Build first; the first run needs `npx playwright install chromium`.
+
 ### Design
 
 The design follows Material 3 with a teal accent, and light and dark follow the

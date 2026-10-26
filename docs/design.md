@@ -245,7 +245,9 @@ into a field — including the one-time code.
 still fires.
 
 What this cannot claim: none of it has been through a screen reader or a real
-audit. The measurable parts are measured, in tests that fail; the rest is
+audit. The measurable parts are measured, in tests that fail — including axe
+over the sign-in, library, settings, administration and profile pages at desktop
+and phone sizes, which fails on any serious or critical finding; the rest is
 careful work by somebody who cannot see the result. The item list is a list of
 buttons rather than a `role="grid"`, so a reader hears each row's values in
 order without hearing the column names — a deliberate trade, and the first

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- A profile's item types meet WCAG contrast; found by the new browser tests with axe.
 - Attachments opened in a browser tab run no scripts, and the browser interface sends a Content-Security-Policy ([headers]).
 - Notes and citations can no longer run a script in the browser; `bib` and `citation` escape markup in fields, as zotero.org does.
 - Cases, emails and statutes show their titles throughout the browser interface instead of “(untitled)” ([Issue#22]).

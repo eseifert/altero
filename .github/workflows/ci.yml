@@ -84,6 +84,35 @@ jobs:
         with:
           enable-cache: true
 
+      # The end-to-end suite starts the server itself, on a database of its own.
+      - name: Install the server
+        working-directory: .
+        run: uv sync --locked
+
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
+
+      # The built interface under a real server, in a real browser: its
+      # Content-Security-Policy, axe, and a phone-sized viewport. Every test
+      # must run, as in the Python job.
+      - name: End-to-end tests
+        run: |
+          npm run e2e
+          node -e '
+            const { stats } = require("./test-results/results.json")
+            if (stats.skipped) {
+              console.log(`::error::${stats.skipped} end-to-end tests were skipped; every test must run in CI.`)
+              process.exit(1)
+            }
+          '
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: web/test-results/
+          retention-days: 7
+
       - name: Build Python release artifacts
         working-directory: .
         run: uv build
