@@ -502,7 +502,7 @@ An item without creators has no `creators` property at all, while `tags`, `colle
 
 An object identical to the stored one is reported as `unchanged` and keeps its version, as on zotero.org. Saving it again would advance the library version and make every other client download an object that never changed.
 
-Everything a client can set counts as a change: type, fields, creators and their order, relations, parent, trash flag, `dateAdded`, `dateModified`, tags and collections. The server's own values — the version and `serverDateModified` — do not. A batch in which nothing changed leaves the library version as it was.
+Everything a client can set counts as a change: type, fields, creators and their order, relations, parent, trash flag, `dateAdded`, `dateModified`, tags and collections. The server's own values — the version and `serverDateModified` — do not. Leaving `dateModified` out is no change by itself: the server stamps it only when something else changed. A batch in which nothing changed leaves the library version as it was.
 
 Settings follow the same rule: a setting is changed only if its value differs, so `3` and `3.0` differ but `3` and `3` do not. A request that changes no setting answers 204 with the library version unchanged; in a batch, only the settings that changed get the new version.
 
