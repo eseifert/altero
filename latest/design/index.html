@@ -2034,8 +2034,20 @@ into a field — including the one-time code.</p>
 <p><strong>Motion (2.3.3).</strong> <code>prefers-reduced-motion</code> turns the transitions off, at
 0.01ms rather than zero so that a transition end event nothing else waits for
 still fires.</p>
+<p>Motion says where something came from or went, and nothing else. The named
+transitions are in <code>styles/motion.css</code> — <code>FadeScale</code> for something appearing in
+place, <code>Collapse</code> for a section opening by its height, and the toast's — on the
+<code>--md-sys-motion-*</code> tokens, 150 to 250 ms. A toast reports an errand that just
+happened and offers to undo it where it can; it stays while the pointer or focus
+is on it (2.2.1), sits in a live region that is always on the page, and never
+replaces the trash as the way to take back a deletion. While a list loads, its
+rows are drawn as shapes beside the status message a screen reader hears: the
+list's own rows and columns, each bar as tall as the text's capitals and as
+wide as what the column usually holds, so it reads as the table that is coming.</p>
 <p>What this cannot claim: none of it has been through a screen reader or a real
-audit. The measurable parts are measured, in tests that fail; the rest is
+audit. The measurable parts are measured, in tests that fail — including axe
+over the sign-in, library, settings, administration and profile pages at desktop
+and phone sizes, which fails on any serious or critical finding; the rest is
 careful work by somebody who cannot see the result. The item list is a list of
 buttons rather than a <code>role="grid"</code>, so a reader hears each row's values in
 order without hearing the column names — a deliberate trade, and the first
@@ -2058,6 +2070,11 @@ deliberate line in a test rather than a CSS block somebody copied.</p>
 machine, and <code>contrast.node.spec.ts</code>, which fails if the palette stops being
 readable. A design system nobody can accidentally leave is worth more than one
 written down.</p>
+<p><code>logical.node.spec.ts</code> keeps the interface ready to be mirrored for
+right-to-left languages: new CSS says a side as start or end
+(<code>margin-inline-start</code>, <code>text-align: start</code>), never as left or right. The files
+that predate it are listed with how many physical declarations each still has,
+and a file may only lose them.</p>
 
 
 

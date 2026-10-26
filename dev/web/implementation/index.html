@@ -1481,6 +1481,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#end-to-end-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        End-to-end tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#design" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1625,6 +1636,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#end-to-end-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        End-to-end tests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#design" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1700,6 +1722,11 @@
 </span></code></pre></div>
 <p>Without that build the server still runs and the API is fully usable; <code>/app/</code>
 answers 503 and says what to run.</p>
+<h3 id="end-to-end-tests">End-to-end tests<a class="headerlink" href="#end-to-end-tests" title="Permanent link">&para;</a></h3>
+<p><code>npm run e2e</code> drives the built interface in Chromium, at desktop and phone
+sizes, against a real server on a throwaway SQLite database. It fails on any
+Content-Security-Policy violation and on serious or critical axe findings.
+Build first; the first run needs <code>npx playwright install chromium</code>.</p>
 <h3 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h3>
 <p>The design follows Material 3 with a teal accent, and light and dark follow the
 operating system unless the user picks one. What altero does inside that frame
