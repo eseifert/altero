@@ -31,7 +31,10 @@ async def test_server_validates_corrupted_parent_and_rejects_dependent_child(tmp
             ).json()
             assert set(result["failed"]) == {"0", "1"}
             assert result["failed"]["0"]["code"] == 400
-            assert result["failed"]["1"]["code"] == 404
+            # Upstream's answer for a child whose parent is not there: 409,
+            # naming the parent, which the desktop reads to queue it again.
+            assert result["failed"]["1"]["code"] == 409
+            assert result["failed"]["1"]["data"] == {"parentItem": "PARENT23"}
             assert list(result["successful"]) == ["2"]
             assert (await client.get("/users/1/items/PARENT23")).status_code == 404
             assert (await client.get("/users/1/items/CHILD234")).status_code == 404
