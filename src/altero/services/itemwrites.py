@@ -130,8 +130,19 @@ def _parse_timestamp(value: Any, name: str) -> datetime | None:
         raise InvalidInputError(f"Invalid '{name}' value '{value}'") from None
 
 
-def _validate_creators(item_type: str, creators: Any) -> list[dict[str, str]]:
-    """Check the ``creators`` array and return it normalised."""
+#: What PHP's ``trim`` strips, which is what upstream asks a name to be more than.
+_PHP_WHITESPACE = " \t\n\r\0\x0b"
+
+
+def _validate_creators(item_type: str, creators: Any, *, creating: bool) -> list[dict[str, str]]:
+    """Check the ``creators`` array and return it normalised.
+
+    Args:
+        creating: Whether the item is new. A new item may carry one nameless
+            creator, which is dropped: `/items/new` seeds one, and upstream
+            forgives it for that reason. Anywhere else a nameless creator is
+            refused rather than stored as an empty row on every client.
+    """
     if not isinstance(creators, list):
         raise InvalidInputError("'creators' must be an array")
 
@@ -147,6 +158,14 @@ def _validate_creators(item_type: str, creators: Any) -> list[dict[str, str]]:
             raise InvalidInputError(
                 f"'{creator_type}' is not a valid creator type for type '{item_type}'"
             )
+
+        if not any(
+            str(creator.get(part) or "").strip(_PHP_WHITESPACE)
+            for part in ("name", "firstName", "lastName")
+        ):
+            if creating and len(creators) == 1:
+                continue
+            raise InvalidInputError("creator object must contain 'firstName'/'lastName' or 'name'")
 
         if "name" in creator:
             normalised.append({"creatorType": creator_type, "name": str(creator["name"])})
@@ -290,7 +309,9 @@ def validate_item(
         "version": payload.get("version"),
         "parent_item": payload.get("parentItem") or None,
         "fields": fields,
-        "creators": _validate_creators(item_type, payload.get("creators", [])),
+        "creators": _validate_creators(
+            item_type, payload.get("creators", []), creating=existing is None
+        ),
         "tags": _validate_tags(payload.get("tags", [])),
         "collections": [str(key) for key in collections],
         "relations": relations,

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- An item created from the `/items/new` template no longer keeps its empty creator; other nameless creators are refused, as on zotero.org.
 - A v3 item write without `dateModified` that changes nothing keeps its version, as on zotero.org.
 
 ## [1.0.0-beta.4] — 2026-10-26

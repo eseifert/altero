@@ -192,6 +192,22 @@ class TestCreate:
             {"creatorType": "author", "name": "Some Institution"}
         ]
 
+    async def test_the_template_s_nameless_creator_is_left_out(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """`/items/new` seeds one empty creator, and posting it back stores none.
+
+        Upstream: "On item creation, ignore single nameless creator, because
+        that's in the item template that the API returns".
+        """
+        template = (await client.get("/items/new?itemType=book")).json()
+        assert template["creators"] == [{"creatorType": "author", "firstName": "", "lastName": ""}]
+
+        body = (await client.post("/users/1/items", headers=JSON, json=[template])).json()
+
+        assert body["failed"] == {}
+        assert "creators" not in body["successful"]["0"]["data"]
+
     async def test_writing_requires_write_permission(
         self, client: httpx.AsyncClient, session: AsyncSession
     ) -> None:
@@ -258,6 +274,58 @@ class TestCreateFailures:
                     {
                         "itemType": "book",
                         "creators": [{"creatorType": "director", "lastName": "X"}],
+                    }
+                ],
+            )
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+
+    @pytest.mark.parametrize(
+        "nameless",
+        [
+            {"creatorType": "author", "firstName": "", "lastName": ""},
+            {"creatorType": "author", "name": "  "},
+            {"creatorType": "author"},
+        ],
+    )
+    async def test_a_nameless_creator_beside_another_is_rejected(
+        self, client: httpx.AsyncClient, library: Library, nameless: dict[str, str]
+    ) -> None:
+        """Only the template's single one is forgiven, and only on creation."""
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[
+                    {
+                        "itemType": "book",
+                        "creators": [nameless, {"creatorType": "author", "lastName": "X"}],
+                    }
+                ],
+            )
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+        assert body["failed"]["0"]["message"] == (
+            "creator object must contain 'firstName'/'lastName' or 'name'"
+        )
+
+    async def test_a_nameless_creator_on_an_existing_item_is_rejected(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", version=10)
+        await session.commit()
+
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[
+                    {
+                        "key": "AAAA2345",
+                        "version": 10,
+                        "creators": [{"creatorType": "author", "firstName": "", "lastName": ""}],
                     }
                 ],
             )
