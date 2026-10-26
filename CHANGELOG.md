@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Desktop acceptance covers a parent the server lost and a child moved out to the library: 29 scenarios.
 - Uploads are held to zotero.org's rules for what may be a child of what; annotations on EPUBs and HTML snapshots are accepted ([parents]).
 - A note or attachment moved out to the library in Zotero Desktop is top-level here too; it used to stay under its old parent.
 - An upload naming a missing parent or collection fails with 409 and names it, so Zotero Desktop uploads it and retries ([dependencies]).

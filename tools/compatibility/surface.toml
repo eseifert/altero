@@ -229,6 +229,16 @@ operation = "objects"
 status = "executable"
 tests = ["tools/compatibility/acceptance_parent_rejection.py"]
 
+[scenarios.lost_parent_reuploaded_on_conflict]
+operation = "objects"
+status = "executable"
+tests = ["tools/compatibility/acceptance_parents.py"]
+
+[scenarios.child_promoted_to_top_level]
+operation = "objects"
+status = "executable"
+tests = ["tools/compatibility/acceptance_parents.py"]
+
 [scenarios.desktop_transient_server_errors]
 operation = "http"
 status = "executable"

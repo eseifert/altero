@@ -201,6 +201,8 @@ SCENARIOS = (
     "transient-errors",
     "streaming-reconnect",
     "parent-rejection",
+    "missing-parent",
+    "child-promotion",
     "reader-rendering",
     "zipped-digest-race",
     "backup-rewind",
@@ -233,6 +235,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_groups import groups
     from tools.compatibility.acceptance_http import http_policy
     from tools.compatibility.acceptance_parent_rejection import parent_rejection
+    from tools.compatibility.acceptance_parents import child_promotion, missing_parent
     from tools.compatibility.acceptance_partial import partial_failures
     from tools.compatibility.acceptance_races import read_races
     from tools.compatibility.acceptance_reader import reader_rendering
@@ -271,6 +274,8 @@ async def run_acceptance(
     drivers["transient-errors"] = transient_errors
     drivers["streaming-reconnect"] = streaming_reconnect
     drivers["parent-rejection"] = parent_rejection
+    drivers["missing-parent"] = missing_parent
+    drivers["child-promotion"] = child_promotion
     drivers["reader-rendering"] = reader_rendering
     drivers["zipped-digest-race"] = zipped_digest_race
     drivers["backup-rewind"] = backup_rewind

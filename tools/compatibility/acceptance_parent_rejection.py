@@ -33,7 +33,14 @@ async def parent_rejection(run: AcceptanceRun) -> None:
         run.phase(
             "A",
             files=False,
-            expected_upload_errors=[dict(code=400, key="PARENT23")],
+            # The child names a parent the server refused, so it is refused as
+            # naming a missing one: 409, the parent in `data`, as upstream
+            # answers. The desktop finds that parent in its own batch, leaves
+            # it to the retry and shows both errors.
+            expected_upload_errors=[
+                dict(code=400, key="PARENT23"),
+                dict(code=409, key="CHILD234"),
+            ],
         )
     )
     try:
@@ -51,7 +58,12 @@ async def parent_rejection(run: AcceptanceRun) -> None:
             pending.cancel()
         await asyncio.gather(pending, return_exceptions=True)
     assert barrier.reached.is_set()
-    assert not recovered["unsynced"]["item"], "Original retry failed to recover parent and child"
+    # A 409 is not an object conflict, so the desktop does not restart into a
+    # full sync as it did for the 404 altero used to send: both stay queued,
+    # as they would against zotero.org, and the next ordinary sync sends them.
+    assert len(recovered["unsynced"]["item"]) == 2, "The refused pair was not kept queued"
+    recovered = await run.phase("A", files=False)
+    assert not recovered["unsynced"]["item"], "The next sync failed to recover parent and child"
     assert (
         next(item for item in recovered["items"] if item["key"] == "CHILD234")["note"]
         == "<p>Pending child</p>"

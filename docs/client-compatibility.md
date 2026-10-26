@@ -564,18 +564,21 @@ to an older archive.
 All of the scenarios above pass with Zotero 10.0.6 on SQLite and PostgreSQL.
 Login expiry and personal-library read scope do not cover every credential
 transition. Streaming reconnect observes the original reconnect delay and
-notification-driven synchronization. Four further scenarios cover the
+notification-driven synchronization. Six further scenarios cover the
 remaining declared transitions:
 
 | Scenario | Assertions |
 |---|---|
-| `parent-rejection` | Corrupt only a new parent type in one outgoing batch; the real validator refuses it and the dependent child, preserves unrelated success, and the original desktop retries and recovers both objects. Inspect the rejected batch before releasing its response. |
+| `parent-rejection` | Corrupt only a new parent type in one outgoing batch; the real validator refuses it, and the dependent child with a 409 naming the parent; unrelated success is preserved, both refusals are shown, and the desktop's next sync recovers both objects. Inspect the rejected batch before releasing its response. |
+| `missing-parent` | Restore an archive older than a synced parent, then create a child under it; the 409 naming the parent makes the original desktop queue the parent again, and both profiles converge on parent and child. |
+| `child-promotion` | Move a synced child note out to the library; the desktop's `parentItem: false` makes it top-level on the server and on the other profile. |
 | `reader-rendering` | Open the shipped PDF reader; check the fixture geometry in actual canvas pixels; compare generated PNG caches across profiles; change the crop, require different PNG bytes, and preserve regenerated output across restart. |
 | `zipped-digest-race` | Hold two actual uploads independently; prove their main-file digests match while ZIP digests differ; overwrite the stored archive before the second registration, observe the expected storage failure and recover complete files and unpacked auxiliary resources. |
 | `backup-rewind` | Restore an older archive after both profiles synced newer objects; show that an increased library watermark preserves newer desktop copies while the server remains older; explicitly restore the surviving authoritative desktop and converge. |
 
 `parent-rejection`, `reader-rendering`, `zipped-digest-race` and
-`backup-rewind` pass with Zotero 10.0.6 on both databases. The
+`backup-rewind` pass with Zotero 10.0.6 on both databases, and so do
+`missing-parent`, `child-promotion` and the revised `parent-rejection`. The
 automatic rewind entry is explicitly unsupported: an increased library counter
 cannot make older object versions replace already synced desktop caches. The
 separate recovery scenario proves the supported procedure. No inventory count
