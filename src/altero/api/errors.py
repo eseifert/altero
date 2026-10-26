@@ -19,6 +19,7 @@ from altero.errors import (
     AlteroError,
     ForbiddenError,
     InvalidInputError,
+    MissingObjectError,
     NotFoundError,
     OAuthError,
     PreconditionFailedError,
@@ -44,6 +45,9 @@ STATUS_CODES: dict[type[AlteroError], int] = {
     InvalidInputError: 400,
     ForbiddenError: 403,
     NotFoundError: 404,
+    # Upstream's answer when a dependency is missing, which the desktop reads
+    # (with `data`) as a cue to upload it: `Zotero_Errors::parseException`.
+    MissingObjectError: 409,
     PreconditionFailedError: 412,
     RequestTooLargeError: 413,
     PreconditionRequiredError: 428,

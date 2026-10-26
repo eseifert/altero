@@ -17,7 +17,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.db import chunked
-from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
+from altero.errors import ForbiddenError, InvalidInputError, MissingObjectError, NotFoundError
 from altero.itemschema import get_schema
 from altero.keys import coerce_key, is_valid_key
 from altero.models import (
@@ -482,9 +482,13 @@ async def _parent_id(
     """The id of the parent ``parsed`` names, or ``None`` if it names none."""
     if parsed["parent_item"] is None:
         return None
-    parent = await get_item(
-        session, library, str(parsed["parent_item"]), permit=permit, related=False
-    )
+    key = str(parsed["parent_item"])
+    try:
+        parent = await get_item(session, library, key, permit=permit, related=False)
+    except NotFoundError:
+        # Missing, or outside what the credential may see: the same answer
+        # either way, so a write cannot ask whether a key exists.
+        raise MissingObjectError(f"Parent item {key} not found", parentItem=key) from None
     return parent.id
 
 
@@ -636,7 +640,7 @@ async def _refile(
         ids = dict(rows.tuples().all())
     for key in wanted:
         if key not in ids:
-            raise InvalidInputError(f"Collection {key} not found")
+            raise MissingObjectError(f"Collection {key} not found", collection=key)
 
     current = set(stored.values())
     filed = [ids[key] for key in wanted]

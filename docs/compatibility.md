@@ -510,6 +510,20 @@ The current dataserver advances the library version for each object in a batch, 
 
 Two places skip this check, as on zotero.org: a single-object `PUT` or `PATCH`, which has no report to put the answer in, and the full-text batch.
 
+### An object that depends on one the server lacks
+
+An item naming a parent item or a collection that does not exist, or a collection naming a parent collection that does not exist, fails with 409, as on zotero.org. In a batch, the failure names the missing object in `data`:
+
+| Missing           | `message`                       | `data`                |
+|-------------------|---------------------------------|-----------------------|
+| Parent item       | `Parent item K not found`       | `{"parentItem": "K"}` |
+| Collection        | `Collection K not found`        | `{"collection": "K"}` |
+| Parent collection | `Parent collection K not found` | `{"collection": "K"}` |
+
+The desktop reads `data` to repair its own state: if it holds the missing object but has not queued it, it marks it for upload and syncs again. Without `data`, the same item fails on every sync.
+
+An object outside what the credential may read is reported as missing in the same way, so a write cannot be used to learn whether a key exists.
+
 ### Groups
 
 zotero.org has endpoints for creating, editing and deleting groups and adding members, but only for its own administrators, in XML, and never used by the Zotero client. An ordinary key gets 403.

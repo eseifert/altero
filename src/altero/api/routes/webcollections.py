@@ -32,7 +32,7 @@ from altero.api.deps import BaseUrlDep, SessionDep
 from altero.api.responses import library_headers
 from altero.api.routes.collections import render_collection
 from altero.api.routes.web import CsrfDep, CurrentUserDep
-from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
+from altero.errors import ForbiddenError, InvalidInputError, MissingObjectError, NotFoundError
 from altero.models import ActivityKind, Collection, Library, User
 from altero.services import auth, groupactivity, objectwrites, writes
 from altero.services import collections as collections_service
@@ -128,9 +128,15 @@ async def create_collection(
     # number twice, and the second write is the one nobody ever sees again.
     library = await writes.lock_library(session, library)
     version = await writes.bump_library_version(session, library)
-    collection = await objectwrites.save_collection(
-        session, library, payload, version, permit=access
-    )
+    try:
+        collection = await objectwrites.save_collection(
+            session, library, payload, version, permit=access
+        )
+    except MissingObjectError as missing:
+        # A 409 naming the parent is what a syncing client needs to upload it;
+        # a person who picked one gone since the page loaded is told it is not
+        # there, as the move below tells them.
+        raise NotFoundError(missing.message) from None
     assert collection is not None  # A new collection is never "unchanged".
 
     rendered = await render_collection(session, collection, library, base_url)

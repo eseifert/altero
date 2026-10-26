@@ -1356,13 +1356,15 @@ class TestCreatingAnItem:
         assert response.json()["data"]["collections"] == [papers]
         assert await listed(ada, library_id, collection=papers) == [""]
 
-    async def test_an_unknown_collection_is_refused(self, ada: httpx.AsyncClient) -> None:
-        """As `save_item` refuses it for a syncing client, and nothing is made."""
+    async def test_an_unknown_collection_is_not_found(self, ada: httpx.AsyncClient) -> None:
+        """As filing answers it, and nothing is made."""
         library_id = await personal_library(ada)
 
         response = await self.create(ada, library_id, itemType="book", collections=["ZZZZ2345"])
 
-        assert response.status_code == 400
+        assert response.status_code == 404
+        assert response.json()["message"] == "Collection ZZZZ2345 not found"
+        assert await listed(ada, library_id) == []
         assert await listed(ada, library_id) == []
 
     async def test_a_child_note_is_created_under_its_parent(

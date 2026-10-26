@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from altero.db import chunked
-from altero.errors import InvalidInputError, NotFoundError
+from altero.errors import InvalidInputError, MissingObjectError, NotFoundError
 from altero.keys import coerce_key, is_valid_key
 from altero.models import (
     Collection,
@@ -193,7 +193,12 @@ async def save_collection(
             # Without flushing what is assigned above, which would write the
             # collection here and again with its parent below.
             with session.no_autoflush:
-                parent_collection = await get_collection(session, library, str(parent))
+                try:
+                    parent_collection = await get_collection(session, library, str(parent))
+                except NotFoundError:
+                    raise MissingObjectError(
+                        f"Parent collection {parent} not found", collection=str(parent)
+                    ) from None
             collection.parent_id = parent_collection.id
         else:
             collection.parent_id = None

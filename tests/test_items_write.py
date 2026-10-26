@@ -333,6 +333,60 @@ class TestCreateFailures:
 
         assert body["failed"]["0"]["code"] == 400
 
+    async def test_a_missing_parent_names_itself(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """409 with the key, which the desktop reads to upload the parent.
+
+        `_checkObjectUploadError` marks the parent unsynced and queues it when
+        `data.parentItem` names one it holds and has not queued.
+        """
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"itemType": "note", "parentItem": "ZZZZ2345", "note": "x"}],
+            )
+        ).json()
+
+        assert body["failed"]["0"] == {
+            "code": 409,
+            "message": "Parent item ZZZZ2345 not found",
+            "data": {"parentItem": "ZZZZ2345"},
+        }
+
+    async def test_a_missing_collection_names_itself(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"itemType": "book", "collections": ["ZZZZ2345"]}],
+            )
+        ).json()
+
+        assert body["failed"]["0"] == {
+            "code": 409,
+            "message": "Collection ZZZZ2345 not found",
+            "data": {"collection": "ZZZZ2345"},
+        }
+
+    async def test_a_single_write_with_a_missing_parent_is_a_conflict(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="note", version=10)
+        await session.commit()
+
+        response = await client.patch(
+            "/users/1/items/AAAA2345",
+            headers=JSON | {"If-Unmodified-Since-Version": "10"},
+            json={"parentItem": "ZZZZ2345"},
+        )
+
+        assert response.status_code == 409
+        assert response.text == "Parent item ZZZZ2345 not found"
+
     async def test_a_failed_object_does_not_advance_the_version(
         self, client: httpx.AsyncClient, library: Library
     ) -> None:

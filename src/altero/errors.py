@@ -18,6 +18,20 @@ class NotFoundError(AlteroError):
     """The requested object does not exist."""
 
 
+class MissingObjectError(AlteroError):
+    """A write names another object it depends on, and that object does not exist.
+
+    A parent item, a parent collection, or a collection an item is filed in.
+    Distinct from :class:`NotFoundError`, which is about the object addressed:
+    a client holding the dependency can upload it and try again, and ``data``
+    names it so that it can. ``data`` uses the property the write named it by.
+    """
+
+    def __init__(self, message: str, **data: str) -> None:
+        super().__init__(message)
+        self.data = data
+
+
 class ForbiddenError(AlteroError):
     """The credential does not grant the required access."""
 

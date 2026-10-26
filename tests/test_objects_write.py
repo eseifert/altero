@@ -191,7 +191,13 @@ class TestCollectionWrites:
             )
         ).json()
 
-        assert body["failed"]["0"]["code"] == 404
+        # Upstream's shape, which the desktop reads to upload the parent it
+        # has and the server lacks (`_checkObjectUploadError`).
+        assert body["failed"]["0"] == {
+            "code": 409,
+            "message": "Parent collection ZZZZ2345 not found",
+            "data": {"collection": "ZZZZ2345"},
+        }
 
     async def test_a_collection_is_replaced(
         self, client: httpx.AsyncClient, session: AsyncSession, library: Library

@@ -80,6 +80,7 @@ from altero.db import chunked
 from altero.errors import (
     ForbiddenError,
     InvalidInputError,
+    MissingObjectError,
     NotFoundError,
     PreconditionFailedError,
     PreconditionRequiredError,
@@ -422,9 +423,15 @@ async def create_item(
         payload["parentItem"] = parent.key
 
     version = await writes.bump_library_version(session, library)
-    item = await itemwrites.save_item(
-        session, library, payload, version, actor_id=user.id, permit=access
-    )
+    try:
+        item = await itemwrites.save_item(
+            session, library, payload, version, actor_id=user.id, permit=access
+        )
+    except MissingObjectError as missing:
+        # The sync protocol's 409, which names the collection for a client to
+        # upload. Here it is a collection gone since the page loaded, and the
+        # browser's word for that is the 404 filing gives.
+        raise NotFoundError(missing.message) from None
     assert item is not None
     await session.flush()
 

@@ -57,11 +57,17 @@ class WriteResults:
     def add_unchanged(self, index: int, key: str) -> None:
         self.unchanged[index] = key
 
-    def add_failure(self, index: int, key: str, code: int, message: str) -> None:
+    def add_failure(
+        self, index: int, key: str, code: int, message: str, data: dict[str, str] | None = None
+    ) -> None:
         entry: dict[str, Any] = {"code": code, "message": message}
         # A failure before a key was known is reported without one.
         if key:
             entry = {"key": key, **entry}
+        # What the failure was about, when it was another object: the desktop
+        # uploads a missing parent or collection named here and retries.
+        if data:
+            entry["data"] = data
         self.failed[index] = entry
 
     def report(self) -> dict[str, Any]:

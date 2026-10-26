@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- An upload naming a missing parent or collection fails with 409 and names it, so Zotero Desktop uploads it and retries ([dependencies]).
 - An item created from the `/items/new` template no longer keeps its empty creator; other nameless creators are refused, as on zotero.org.
 - A v3 item write without `dateModified` that changes nothing keeps its version, as on zotero.org.
 
@@ -220,6 +221,7 @@ The first release meant to be used by somebody other than its author.
 [desktop-matrix]: docs/client-compatibility.md#successfully-tested-matrix
 [db-req]: docs/deployment.md#database-requirements
 [headers]: docs/deployment.md#behind-a-reverse-proxy
+[dependencies]: docs/compatibility.md#an-object-that-depends-on-one-the-server-lacks
 [config]: docs/configuration.md
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3

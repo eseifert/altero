@@ -86,7 +86,9 @@ async def batch_write(
             rendered = await save(session, library, payload, version)
         except AlteroError as error:
             await savepoint.rollback()
-            results.add_failure(index, key, status_for(error), error.message)
+            results.add_failure(
+                index, key, status_for(error), error.message, getattr(error, "data", None)
+            )
         else:
             if rendered is None:
                 # Nothing differs, so nothing is written and the object keeps
