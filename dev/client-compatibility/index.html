@@ -2415,7 +2415,7 @@ to an older archive.</p>
 <p>All of the scenarios above pass with Zotero 10.0.6 on SQLite and PostgreSQL.
 Login expiry and personal-library read scope do not cover every credential
 transition. Streaming reconnect observes the original reconnect delay and
-notification-driven synchronization. Four further scenarios cover the
+notification-driven synchronization. Seven further scenarios cover the
 remaining declared transitions:</p>
 <table>
 <thead>
@@ -2427,7 +2427,19 @@ remaining declared transitions:</p>
 <tbody>
 <tr>
 <td><code>parent-rejection</code></td>
-<td>Corrupt only a new parent type in one outgoing batch; the real validator refuses it and the dependent child, preserves unrelated success, and the original desktop retries and recovers both objects. Inspect the rejected batch before releasing its response.</td>
+<td>Corrupt only a new parent type in one outgoing batch; the real validator refuses it, and the dependent child with a 409 naming the parent; unrelated success is preserved, both refusals are shown, and the desktop's next sync recovers both objects. Inspect the rejected batch before releasing its response.</td>
+</tr>
+<tr>
+<td><code>missing-parent</code></td>
+<td>Restore an archive older than a synced parent, then create a child under it; the 409 naming the parent makes the original desktop queue the parent again, and both profiles converge on parent and child.</td>
+</tr>
+<tr>
+<td><code>child-promotion</code></td>
+<td>Move a synced child note out to the library; the desktop's <code>parentItem: false</code> makes it top-level on the server and on the other profile.</td>
+</tr>
+<tr>
+<td><code>type-change</code></td>
+<td>Change a synced book with an edition, a publisher, an author and an editor into a film through <code>setType</code>; the patch blanking fields a film lacks is accepted, and the server and the other profile hold the distributor, director and contributor the desktop mapped.</td>
 </tr>
 <tr>
 <td><code>reader-rendering</code></td>
@@ -2444,7 +2456,9 @@ remaining declared transitions:</p>
 </tbody>
 </table>
 <p><code>parent-rejection</code>, <code>reader-rendering</code>, <code>zipped-digest-race</code> and
-<code>backup-rewind</code> pass with Zotero 10.0.6 on both databases. The
+<code>backup-rewind</code> pass with Zotero 10.0.6 on both databases, and so do
+<code>missing-parent</code>, <code>child-promotion</code>, <code>type-change</code> and the revised
+<code>parent-rejection</code>. The
 automatic rewind entry is explicitly unsupported: an increased library counter
 cannot make older object versions replace already synced desktop caches. The
 separate recovery scenario proves the supported procedure. No inventory count

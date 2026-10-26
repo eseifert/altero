@@ -1717,6 +1717,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#an-object-that-depends-on-one-the-server-lacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        An object that depends on one the server lacks
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-may-be-a-child-of-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What may be a child of what
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#groups" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2740,6 +2762,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#an-object-that-depends-on-one-the-server-lacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        An object that depends on one the server lacks
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-may-be-a-child-of-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What may be a child of what
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#groups" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3479,12 +3523,74 @@
 <p>Treated as complete objects, the first would be refused for lacking a name — stopping the whole library's sync — and the second would wipe every field, creator, tag and collection it did not mention.</p>
 <p><strong>Leaving a property out means "unchanged"; sending it empty clears it.</strong> That matters for the four list properties: <code>creators</code>, <code>tags</code>, <code>collections</code> and <code>relations</code>. The desktop really sends <code>collections: []</code> to take an item out of its last collection — for example after saving into a collection with the browser connector and then switching the save target to the library root. Treating empty as absent would leave the item filed, and the client would upload the same change on every sync forever.</p>
 <p>An item without creators has no <code>creators</code> property at all, while <code>tags</code>, <code>collections</code> and <code>relations</code> appear even when empty. That inconsistency is zotero.org's and is copied.</p>
+<p><strong>Changing an item's type keeps what the new type can hold.</strong> A field the new type lacks moves to its equivalent there, as a book's <code>publisher</code> becomes a report's <code>institution</code>, or is cleared. A creator whose role the new type lacks becomes a <code>contributor</code>. A field sent empty is accepted even if the new type lacks it, because that is how the desktop clears one: it uploads <code>{key, version, itemType}</code> with every field the item lost set to <code>""</code>. Fields and creators sent with the type are taken as sent.</p>
+<p><strong><code>parentItem: false</code> makes a child top-level.</strong> The desktop sends it when a note or attachment is moved out to the library. As on zotero.org, a patch that files a child in a collection without mentioning <code>parentItem</code> does the same, since a child cannot be in a collection.</p>
 <h3 id="objects-that-were-sent-again-without-changing">Objects that were sent again without changing<a class="headerlink" href="#objects-that-were-sent-again-without-changing" title="Permanent link">&para;</a></h3>
 <p>An object identical to the stored one is reported as <code>unchanged</code> and keeps its version, as on zotero.org. Saving it again would advance the library version and make every other client download an object that never changed.</p>
-<p>Everything a client can set counts as a change: type, fields, creators and their order, relations, parent, trash flag, <code>dateAdded</code>, <code>dateModified</code>, tags and collections. The server's own values — the version and <code>serverDateModified</code> — do not. A batch in which nothing changed leaves the library version as it was.</p>
+<p>Everything a client can set counts as a change: type, fields, creators and their order, relations, parent, trash flag, <code>dateAdded</code>, <code>dateModified</code>, tags and collections. The server's own values — the version and <code>serverDateModified</code> — do not. Leaving <code>dateModified</code> out is no change by itself: the server stamps it only when something else changed. A batch in which nothing changed leaves the library version as it was.</p>
 <p>Settings follow the same rule: a setting is changed only if its value differs, so <code>3</code> and <code>3.0</code> differ but <code>3</code> and <code>3</code> do not. A request that changes no setting answers 204 with the library version unchanged; in a batch, only the settings that changed get the new version.</p>
 <p>The current dataserver advances the library version for each object in a batch, even an unchanged one. altero advances it once per request that changes something. Object versions and the reported results still agree; only the library's version number can differ between the two servers.</p>
 <p>Two places skip this check, as on zotero.org: a single-object <code>PUT</code> or <code>PATCH</code>, which has no report to put the answer in, and the full-text batch.</p>
+<h3 id="an-object-that-depends-on-one-the-server-lacks">An object that depends on one the server lacks<a class="headerlink" href="#an-object-that-depends-on-one-the-server-lacks" title="Permanent link">&para;</a></h3>
+<p>An item naming a parent item or a collection that does not exist, or a collection naming a parent collection that does not exist, fails with 409, as on zotero.org. In a batch, the failure names the missing object in <code>data</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Missing</th>
+<th><code>message</code></th>
+<th><code>data</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parent item</td>
+<td><code>Parent item K not found</code></td>
+<td><code>{"parentItem": "K"}</code></td>
+</tr>
+<tr>
+<td>Collection</td>
+<td><code>Collection K not found</code></td>
+<td><code>{"collection": "K"}</code></td>
+</tr>
+<tr>
+<td>Parent collection</td>
+<td><code>Parent collection K not found</code></td>
+<td><code>{"collection": "K"}</code></td>
+</tr>
+</tbody>
+</table>
+<p>The desktop reads <code>data</code> to repair its own state: if it holds the missing object but has not queued it, it marks it for upload and syncs again. Without <code>data</code>, the same item fails on every sync.</p>
+<p>An object outside what the credential may read is reported as missing in the same way, so a write cannot be used to learn whether a key exists.</p>
+<h3 id="what-may-be-a-child-of-what">What may be a child of what<a class="headerlink" href="#what-may-be-a-child-of-what" title="Permanent link">&para;</a></h3>
+<p>The rules are zotero.org's, and the desktop applies the same ones before it uploads:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>May hang off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Regular item</td>
+<td>nothing</td>
+</tr>
+<tr>
+<td>Note</td>
+<td>a regular item</td>
+</tr>
+<tr>
+<td>Attachment</td>
+<td>a regular item; an embedded image (a picture in a note) also a note</td>
+</tr>
+<tr>
+<td>Annotation</td>
+<td>a file attachment, required: a highlight, underline or note annotation on a PDF, EPUB or HTML snapshot; an image, ink or text annotation on a PDF</td>
+</tr>
+</tbody>
+</table>
+<p>A note or attachment under a note or attachment fails with 409, <code>Parent item cannot be a note or attachment</code>, naming the parent in <code>data</code>. The other refusals fail with 400, including an item named as its own parent.</p>
+<p>The rules are checked when an item is created or moved to another parent. An item already stored under a parent it could not have now, for example by an earlier altero, keeps syncing as it is.</p>
 <h3 id="groups">Groups<a class="headerlink" href="#groups" title="Permanent link">&para;</a></h3>
 <p>zotero.org has endpoints for creating, editing and deleting groups and adding members, but only for its own administrators, in XML, and never used by the Zotero client. An ordinary key gets 403.</p>
 <p>altero serves the same paths for ordinary users, with an <strong>API key</strong> and <strong>JSON</strong> in the shape <code>GET /groups/&lt;id&gt;</code> already returns, so what was read can be sent back. Inventing a separate administrator credential would have meant a second kind of credential on a server whose permissions are otherwise per library.</p>
@@ -3732,10 +3838,11 @@
 <p>Three deliberate limits: sign-in must <strong>start at altero</strong>, because an unsolicited assertion answers no request and accepting one means accepting anything the key ever signed; <strong>encrypted assertions are not supported</strong>, since TLS already protects the connection; and there is <strong>no single logout</strong>, which is unreliable in practice, and altero's session is its own.</p>
 <h2 id="deliberate-differences-from-zoteroorg">Deliberate differences from zotero.org<a class="headerlink" href="#deliberate-differences-from-zoteroorg" title="Permanent link">&para;</a></h2>
 <h3 id="deliberate-differences">Deliberate differences<a class="headerlink" href="#deliberate-differences" title="Permanent link">&para;</a></h3>
-<p>Six places where altero does not copy zotero.org:</p>
+<p>Seven places where altero does not copy zotero.org:</p>
 <ul>
 <li><strong>No <code>alternate</code> links.</strong> zotero.org links every object to its page on zotero.org. altero will not send clients to somebody else's copy of the data, and its own interface has no page per object, so envelopes carry only <code>self</code> and <code>up</code>. A single-page response therefore has no <code>Link</code> header — except group listings, which carry <code>self</code> because the desktop needs the header (see <a href="#who-the-client-finds-in-a-group">Who the client finds in a group</a>).</li>
 <li><strong>An unknown <code>locale</code> falls back to <code>en-US</code>.</strong> zotero.org answers 500.</li>
+<li><strong>A regular item given a parent fails with 400.</strong> zotero.org answers 500 for the same refusal.</li>
 <li><strong>Rate limiting is off unless configured.</strong> A self-hosted server with a handful of clients rarely needs it; set <code>ALTERO_RATE_LIMIT</code> to turn it on.</li>
 <li><strong>Fields with the same translated name may be ordered differently.</strong> Three fields are called "Format"; zotero.org orders them by an internal number the published schema lacks.</li>
 <li><strong>Tags can be renamed through the API</strong> — see <a href="#renaming-a-tag">Renaming a tag</a>. An addition rather than a change: nothing that reads tags behaves differently.</li>
