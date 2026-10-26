@@ -203,6 +203,7 @@ SCENARIOS = (
     "parent-rejection",
     "missing-parent",
     "child-promotion",
+    "type-change",
     "reader-rendering",
     "zipped-digest-race",
     "backup-rewind",
@@ -247,6 +248,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_settings import settings
     from tools.compatibility.acceptance_streaming import streaming_reconnect
     from tools.compatibility.acceptance_transient import transient_errors
+    from tools.compatibility.acceptance_types import type_change
     from tools.compatibility.acceptance_uploads import upload_interruption
     from tools.compatibility.acceptance_zip_race import zipped_digest_race
     from tools.compatibility.process_server import process_server
@@ -276,6 +278,7 @@ async def run_acceptance(
     drivers["parent-rejection"] = parent_rejection
     drivers["missing-parent"] = missing_parent
     drivers["child-promotion"] = child_promotion
+    drivers["type-change"] = type_change
     drivers["reader-rendering"] = reader_rendering
     drivers["zipped-digest-race"] = zipped_digest_race
     drivers["backup-rewind"] = backup_rewind

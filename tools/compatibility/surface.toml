@@ -239,6 +239,11 @@ operation = "objects"
 status = "executable"
 tests = ["tools/compatibility/acceptance_parents.py"]
 
+[scenarios.item_type_change_losing_fields]
+operation = "objects"
+status = "executable"
+tests = ["tools/compatibility/acceptance_types.py"]
+
 [scenarios.desktop_transient_server_errors]
 operation = "http"
 status = "executable"

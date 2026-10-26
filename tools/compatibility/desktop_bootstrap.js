@@ -72,6 +72,11 @@ async function runAcceptance() {
       const item = await Zotero.Items.getByLibraryAndKeyAsync(libraryID, operation.key);
       for (const [field, value] of Object.entries(operation.fields)) item.setField(field, value);
       await item.saveTx();
+    } else if (operation.action === "retype") {
+      // What the item pane does once its confirmation is answered.
+      const item = await Zotero.Items.getByLibraryAndKeyAsync(libraryID, operation.key);
+      item.setType(Zotero.ItemTypes.getID(operation.itemType));
+      await item.saveTx();
     } else if (operation.action === "json") {
       const item = await Zotero.Items.getByLibraryAndKeyAsync(libraryID, operation.key);
       item.fromJSON({...item.toJSON({mode: "full", syncedStorageProperties: true}), ...operation.data});
