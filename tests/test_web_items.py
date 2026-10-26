@@ -1068,7 +1068,6 @@ class TestEditingAnItem:
         [
             "key",
             "version",
-            "itemType",
             "parentItem",
             "collections",
             "deleted",
@@ -1297,6 +1296,164 @@ class TestEditingAnItem:
         await groups.set_permission(session, group, ada, permission)
         await session.commit()
         return group
+
+
+class TestChangingTheType:
+    """The item pane's type menu: the desktop's mapping, and a warning first.
+
+    A change that would throw fields away answers 409 naming them, and goes
+    through only when the browser sends the same names back in `discard` --
+    which a page showing an older warning cannot do for fields it never saw.
+    """
+
+    async def book(self, ada: httpx.AsyncClient, session: AsyncSession, **fields: str) -> str:
+        api_key = await admin.create_api_key(session, username="ada", name="seed")
+        created = await ada.post(
+            "/users/1/items",
+            headers={"Zotero-API-Key": api_key.key},
+            json=[
+                {
+                    "itemType": "book",
+                    "title": "SICP",
+                    "creators": [
+                        {"creatorType": "author", "firstName": "Harold", "lastName": "Abelson"}
+                    ],
+                    **fields,
+                }
+            ],
+        )
+        return str(created.json()["successful"]["0"]["key"])
+
+    async def retype(
+        self, ada: httpx.AsyncClient, key: str, item_type: str, **extra: object
+    ) -> httpx.Response:
+        library_id = await personal_library(ada)
+        version = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["version"]
+        return await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"version": version, "itemType": item_type, **extra},
+            headers=csrf_headers(ada),
+        )
+
+    async def test_a_change_that_loses_nothing_goes_through(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        key = await self.book(ada, session, publisher="MIT Press")
+
+        response = await self.retype(ada, key, "report")
+
+        assert response.status_code == 200
+        data = response.json()["data"]
+        assert data["itemType"] == "report"
+        assert data["institution"] == "MIT Press"
+        assert "publisher" not in data
+
+    async def test_a_change_that_loses_fields_names_them_first(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        key = await self.book(ada, session, edition="2", numPages="657")
+
+        response = await self.retype(ada, key, "film")
+
+        assert response.status_code == 409
+        assert response.json()["data"] == {"fields": ["edition", "numPages"]}
+        library_id = await personal_library(ada)
+        data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
+        assert data["itemType"] == "book"
+        assert data["edition"] == "2"
+
+    async def test_naming_them_back_goes_through(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        key = await self.book(ada, session, edition="2", numPages="657")
+
+        response = await self.retype(ada, key, "film", discard=["numPages", "edition"])
+
+        assert response.status_code == 200
+        data = response.json()["data"]
+        assert data["itemType"] == "film"
+        assert not {"edition", "numPages"} & set(data)
+        # The desktop's mapping: a book's author is a film's director.
+        assert data["creators"][0]["creatorType"] == "director"
+
+    async def test_a_warning_about_other_fields_does_not_count(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Somebody added a page count since the page showed its warning."""
+        key = await self.book(ada, session, edition="2", numPages="657")
+
+        response = await self.retype(ada, key, "film", discard=["edition"])
+
+        assert response.status_code == 409
+        assert response.json()["data"] == {"fields": ["edition", "numPages"]}
+
+    async def test_it_is_one_new_version_that_a_desktop_hears_about(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        key = await self.book(ada, session)
+        api_key = await admin.create_api_key(session, username="ada", name="desktop")
+        since = (
+            await ada.get("/users/1/items?format=versions", headers={"Zotero-API-Key": api_key.key})
+        ).headers["Last-Modified-Version"]
+
+        response = await self.retype(ada, key, "report")
+
+        assert int(response.headers["Last-Modified-Version"]) == int(since) + 1
+        changed = await ada.get(
+            f"/users/1/items?since={since}&format=versions",
+            headers={"Zotero-API-Key": api_key.key},
+        )
+        assert changed.json() == {key: int(since) + 1}
+
+    async def test_the_same_type_changes_nothing(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        key = await self.book(ada, session)
+        library_id = await personal_library(ada)
+        before = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["version"]
+
+        response = await self.retype(ada, key, "book")
+
+        assert response.status_code == 200
+        assert response.json()["version"] == before
+
+    async def test_a_note_keeps_its_type(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        made = await ada.post(
+            f"/web/libraries/{library_id}/items",
+            json={"itemType": "note"},
+            headers=csrf_headers(ada),
+        )
+
+        response = await self.retype(ada, made.json()["key"], "book")
+
+        assert response.status_code == 400
+
+    async def test_a_type_change_comes_on_its_own(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        key = await self.book(ada, session)
+
+        response = await self.retype(ada, key, "report", fields={"title": "Other"})
+
+        assert response.status_code == 400
+
+    async def test_the_type_is_not_a_field(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        key = await self.book(ada, session)
+        library_id = await personal_library(ada)
+        version = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["version"]
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{key}",
+            json={"version": version, "fields": {"itemType": "report"}},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
 
 
 class TestCreatingAnItem:

@@ -6,10 +6,10 @@ the item list somewhere: onto a collection, onto the library, onto the trash,
 onto another library, or onto My Publications.
 
 One item is also created here, from the type picker (:func:`create_item`), and
-edited: its fields, creators, tags, relations and note, through
-:func:`update_item`. Its type, its parent, its collections, the trash
-and My Publications are each an errand of their own and are refused there by
-name (:data:`NOT_EDITED_HERE`).
+edited: its fields, creators, tags, relations and note, or its type, through
+:func:`update_item`. Its parent, its collections, the trash and My
+Publications are each an errand of their own and are refused there by name
+(:data:`NOT_EDITED_HERE`).
 
 The rules are the ones the rest of ``/web`` follows: a cookie and never an API
 key, a CSRF token on anything that changes something, who may write decided by
@@ -78,6 +78,7 @@ from altero.api.responses import library_headers
 from altero.api.routes.web import CsrfDep, CurrentUserDep
 from altero.db import chunked
 from altero.errors import (
+    ConfirmationRequiredError,
     ForbiddenError,
     InvalidInputError,
     MissingObjectError,
@@ -86,6 +87,7 @@ from altero.errors import (
     PreconditionRequiredError,
 )
 from altero.itemschema import get_schema
+from altero.itemschema.typechange import change_type
 from altero.models import ActivityKind, Item, Library, User
 from altero.serializers import item as render_item
 from altero.services import auth, groupactivity, itemwrites, publications, writes
@@ -100,9 +102,8 @@ router = APIRouter(prefix="/web", tags=["web"])
 #: The first four are the server's or the client's bookkeeping and nobody's to
 #: type. The rest are each changed by an errand of their own -- the parent by
 #: what a note or attachment is created under, collections by filing, the trash
-#: by trashing, My Publications by the wizard, and the item type by a change
-#: that says which fields it would lose -- and an edit that carried them would
-#: be a second, less careful way of doing the same thing. Named in ``fields``
+#: by trashing and My Publications by the wizard -- and an edit that carried
+#: them would be a second, less careful way of doing the same thing. Named in ``fields``
 #: they would otherwise have reached :func:`~altero.services.itemwrites
 #: .save_item` as the property itself, since a v3 payload keeps both in one
 #: object.
@@ -112,7 +113,6 @@ NOT_EDITED_HERE = frozenset(
         "version",
         "dateAdded",
         "dateModified",
-        "itemType",
         "parentItem",
         "collections",
         "deleted",
@@ -183,6 +183,10 @@ class ItemEdit(BaseModel):
     relations: dict[str, Any] = Field(default_factory=dict)
     #: A note's HTML, or an attachment's note. Nothing else carries one.
     note: str = ""
+    #: A new item type, sent on its own: see :func:`_retyped`.
+    item_type: str | None = Field(default=None, alias="itemType")
+    #: The fields the person agreed to lose by changing the type.
+    discard: list[str] = Field(default_factory=list)
     #: The version the browser last read. Absent is refused rather than assumed.
     version: int | None = None
 
@@ -207,9 +211,56 @@ class ItemEdit(BaseModel):
         for name in EDITED_PROPERTIES:
             if name in self.model_fields_set:
                 patch[name] = getattr(self, name)
+        if self.item_type is not None:
+            if patch:
+                raise InvalidInputError("Change the item type on its own")
+            return {}
+        if "discard" in self.model_fields_set:
+            raise InvalidInputError("'discard' goes with a change of item type")
         if not patch:
             raise InvalidInputError("Nothing to change")
         return patch
+
+
+def _retyped(item: Item, item_type: str, discard: list[str]) -> dict[str, Any]:
+    """The v3 patch that changes ``item`` to ``item_type`` the way the desktop does.
+
+    The desktop's own mapping rather than upstream's plainer one, so a book's
+    author becomes a film's director as it would in the application beside
+    this page; the patch names every field and creator, and the server's
+    mapping finds nothing left to do. Fields with no place in the new type are
+    lost, and the item pane asks first: so does this, by refusing until
+    ``discard`` names exactly what the change throws away. A page showing an
+    older warning names other fields and is asked again.
+
+    Raises:
+        ConfirmationRequiredError: listing the fields, until they are agreed to.
+        InvalidInputError: for a note, an attachment or an annotation.
+    """
+    values = item.field_values()
+    creators = [
+        {"creatorType": creator.creator_type, "name": creator.name}
+        if creator.name is not None
+        else {
+            "creatorType": creator.creator_type,
+            "firstName": creator.first_name or "",
+            "lastName": creator.last_name or "",
+        }
+        for creator in sorted(item.creators, key=lambda c: c.position)
+    ]
+    change = change_type(get_schema(), item.item_type, item_type, values, creators)
+    if change.lost and sorted(discard) != sorted(change.lost):
+        raise ConfirmationRequiredError(
+            f"Changing the type loses {', '.join(change.lost)}", fields=change.lost
+        )
+
+    patch: dict[str, Any] = {"itemType": item_type, **change.fields}
+    for name, value in values.items():
+        if value and name not in change.fields:
+            patch[name] = ""
+    if creators:
+        patch["creators"] = change.creators
+    return patch
 
 
 class CopyRequest(BaseModel):
@@ -488,6 +539,8 @@ async def update_item(
         # The desktop draws the trash read-only, and an edit there would be a
         # change nobody can see until the item is restored.
         raise InvalidInputError("Restore the item from the trash to change it")
+    if body.item_type is not None:
+        patch = _retyped(item, body.item_type, body.discard)
 
     previous_version = library.version
     version = await writes.bump_library_version(session, library)

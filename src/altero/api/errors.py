@@ -17,6 +17,7 @@ from starlette.responses import JSONResponse, PlainTextResponse, Response
 
 from altero.errors import (
     AlteroError,
+    ConfirmationRequiredError,
     ForbiddenError,
     InvalidInputError,
     InvalidParentError,
@@ -50,6 +51,7 @@ STATUS_CODES: dict[type[AlteroError], int] = {
     # (with `data`) as a cue to upload it: `Zotero_Errors::parseException`.
     MissingObjectError: 409,
     InvalidParentError: 409,
+    ConfirmationRequiredError: 409,
     PreconditionFailedError: 412,
     RequestTooLargeError: 413,
     PreconditionRequiredError: 428,
@@ -69,13 +71,23 @@ def status_for(exc: AlteroError) -> int:
 
 
 def _reply(
-    request: Request, message: str, status_code: int, headers: Mapping[str, str] | None = None
+    request: Request,
+    message: str,
+    status_code: int,
+    headers: Mapping[str, str] | None = None,
+    data: Mapping[str, object] | None = None,
 ) -> Response:
-    """Render ``message`` the way the addressed API reports failure."""
+    """Render ``message`` the way the addressed API reports failure.
+
+    ``data`` reaches the web interface, whose JSON has room for what a refusal
+    was about. The v3 API answers a single write in plain text and carries
+    ``data`` only in a batch's per-object failures.
+    """
     if request.url.path.startswith(WEB_PREFIX):
-        return JSONResponse(
-            {"message": message}, status_code=status_code, headers=dict(headers or {})
-        )
+        body: dict[str, object] = {"message": message}
+        if data:
+            body["data"] = dict(data)
+        return JSONResponse(body, status_code=status_code, headers=dict(headers or {}))
     return PlainTextResponse(message, status_code=status_code, headers=dict(headers or {}))
 
 
@@ -100,7 +112,7 @@ async def handle_oauth_error(request: Request, exc: Exception) -> Response:
 
 async def handle_domain_error(request: Request, exc: Exception) -> Response:
     assert isinstance(exc, AlteroError)
-    return _reply(request, exc.message, status_for(exc))
+    return _reply(request, exc.message, status_for(exc), data=getattr(exc, "data", None))
 
 
 async def handle_http_exception(request: Request, exc: Exception) -> Response:

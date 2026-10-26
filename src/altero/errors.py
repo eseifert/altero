@@ -44,6 +44,18 @@ class InvalidParentError(AlteroError):
         self.data = data
 
 
+class ConfirmationRequiredError(AlteroError):
+    """A change would throw something away that the request did not agree to.
+
+    ``data`` says what, so that the caller can ask the person and send the
+    same request again with their answer.
+    """
+
+    def __init__(self, message: str, **data: object) -> None:
+        super().__init__(message)
+        self.data = data
+
+
 class ForbiddenError(AlteroError):
     """The credential does not grant the required access."""
 
