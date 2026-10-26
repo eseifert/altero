@@ -217,6 +217,30 @@ class Schema:
             return field
         return self.base_field_mappings[item_type].get(field)
 
+    @cached_property
+    def outlines(self) -> dict[str, dict[str, list[str]]]:
+        """Per regular item type, its fields in order and its creator types.
+
+        What an editor draws for an item of the type: the fields in the order
+        the desktop's item pane draws them, and the roles a creator may have,
+        the primary one first because it is the one a new creator is given.
+        Notes, attachments and annotations are left out; their content is not
+        fields.
+        """
+        outlines = {}
+        for name, type_ in self.item_types.items():
+            if name in ("note", "attachment", "annotation"):
+                continue
+            primary = type_.primary_creator_type
+            roles = [creator.name for creator in type_.creator_types]
+            if primary in roles:
+                roles = [primary] + [role for role in roles if role != primary]
+            outlines[name] = {
+                "fields": [field.name for field in type_.fields],
+                "creatorTypes": roles,
+            }
+        return outlines
+
     def base_of(self, item_type: str, field: str) -> str | None:
         """Return the base field ``field`` stands for in ``item_type``, if any.
 

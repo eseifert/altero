@@ -636,6 +636,38 @@ class TestTheDisplayNames:
         german = (await client.get("/web/schema?locale=de")).json()
         assert german["mappings"] == mappings
 
+    async def test_each_type_lists_its_fields_in_the_schema_s_order(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        """What the Info pane draws, row by row, for an item of that type."""
+        from altero.itemschema import get_schema
+
+        types = (await client.get("/web/schema")).json()["types"]
+
+        book = get_schema().get_item_type("book")
+        assert types["book"]["fields"] == [field.name for field in book.fields]
+        assert types["book"]["fields"][0] == "title"
+        assert "note" not in types
+
+    async def test_each_type_lists_its_creator_types_primary_first(
+        self, client: httpx.AsyncClient
+    ) -> None:
+        types = (await client.get("/web/schema")).json()["types"]
+
+        assert types["book"]["creatorTypes"][0] == "author"
+        assert types["film"]["creatorTypes"][0] == "director"
+        assert "contributor" in types["film"]["creatorTypes"]
+
+    async def test_cached_names_without_types_are_replaced(self, client: httpx.AsyncClient) -> None:
+        from altero import __version__
+        from altero.itemschema import get_schema
+
+        previous = f'"{get_schema().version}-en-US-{__version__}-2"'
+        response = await client.get("/web/schema", headers={"If-None-Match": previous})
+
+        assert response.status_code == 200
+        assert "types" in response.json()
+
     async def test_cached_names_without_mappings_are_replaced(
         self, client: httpx.AsyncClient
     ) -> None:

@@ -503,14 +503,17 @@ async def get_display_names(request: Request, locale: str | None = None) -> Resp
     304 and keeps it.
     """
     schema = get_schema()
-    # The response shape changed to include mappings; invalidate older cached
-    # names even when the schema and altero versions have not changed.
-    tag = f'"{schema.version}-{schema.resolve_locale(locale)}-{__version__}-2"'
+    # The suffix counts changes to the response's shape -- mappings, then each
+    # type's fields and creator types -- so that a browser holding an older
+    # shape is not told it is current when the schema and altero are the same.
+    tag = f'"{schema.version}-{schema.resolve_locale(locale)}-{__version__}-3"'
     headers = {"ETag": tag, "Cache-Control": "no-cache"}
     if request.headers.get("If-None-Match") == tag:
         return Response(status_code=304, headers=headers)
     return JSONResponse(
-        schema.display_names(locale) | {"mappings": schema.base_field_mappings}, headers=headers
+        schema.display_names(locale)
+        | {"mappings": schema.base_field_mappings, "types": schema.outlines},
+        headers=headers,
     )
 
 
