@@ -274,3 +274,9 @@ That is the same shape as the two guards already in `web/src/styles`:
 machine, and `contrast.node.spec.ts`, which fails if the palette stops being
 readable. A design system nobody can accidentally leave is worth more than one
 written down.
+
+`logical.node.spec.ts` keeps the interface ready to be mirrored for
+right-to-left languages: new CSS says a side as start or end
+(`margin-inline-start`, `text-align: start`), never as left or right. The files
+that predate it are listed with how many physical declarations each still has,
+and a file may only lose them.
