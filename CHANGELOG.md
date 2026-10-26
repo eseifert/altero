@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Changing an item's type in Zotero Desktop no longer stops sync when the item loses fields; fields and creators move as on zotero.org.
 - Desktop acceptance covers a parent the server lost and a child moved out to the library: 29 scenarios.
 - Uploads are held to zotero.org's rules for what may be a child of what; annotations on EPUBs and HTML snapshots are accepted ([parents]).
 - A note or attachment moved out to the library in Zotero Desktop is top-level here too; it used to stay under its old parent.

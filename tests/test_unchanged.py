@@ -339,6 +339,18 @@ class TestTheComparisonAgreesWithWriting:
             lambda d, o: {**d, "itemType": "bookSection"},
             False,
         ),
+        (
+            "item type, creators remapped",
+            "parent",
+            lambda d, o: {**_without(d, "creators"), "itemType": "film"},
+            False,
+        ),
+        (
+            "item type, fields blanked",
+            "parent",
+            lambda d, o: {**_without(d, "creators"), "itemType": "film", "date": ""},
+            False,
+        ),
         ("dateAdded", "parent", lambda d, o: {**d, "dateAdded": "2001-01-01T00:00:00Z"}, False),
         ("note text", "child", lambda d, o: {**d, "note": "<p>Melange</p>"}, False),
         ("note left out", "child", lambda d, o: _without(d, "note"), True),

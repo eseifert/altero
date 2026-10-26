@@ -217,6 +217,59 @@ class Schema:
             return field
         return self.base_field_mappings[item_type].get(field)
 
+    def base_of(self, item_type: str, field: str) -> str | None:
+        """Return the base field ``field`` stands for in ``item_type``, if any.
+
+        A type-specific field gives its base -- a report's ``institution`` is a
+        ``publisher`` -- and a base field the type carries as it is gives
+        itself. A field that is neither, such as ``edition``, has none.
+        """
+        type_ = self.item_types.get(item_type)
+        if type_ is None:
+            return None
+        for candidate in type_.fields:
+            if candidate.name == field:
+                if candidate.base_field:
+                    return candidate.base_field
+                return field if field in self._base_names else None
+        return None
+
+    @cached_property
+    def _base_names(self) -> frozenset[str]:
+        """Every name some field maps onto, whether or not a type carries it as such."""
+        return frozenset(
+            field.base_field
+            for type_ in self.item_types.values()
+            for field in type_.fields
+            if field.base_field
+        )
+
+    def retype_fields(
+        self, old_type: str, new_type: str, values: dict[str, str]
+    ) -> tuple[dict[str, str], frozenset[str]]:
+        """What changing ``old_type`` to ``new_type`` does to stored field values.
+
+        Upstream's `Zotero_Item::setType`: each non-empty field the new type
+        lacks moves to the new type's field for the same base, if there is
+        one, and is cleared either way. Fields both types have stay.
+
+        Returns:
+            The fields that moved, by their new names, and the old names that
+            the new type does not have.
+        """
+        new = self.get_item_type(new_type)
+        moved: dict[str, str] = {}
+        dropped: set[str] = set()
+        for name, value in values.items():
+            if name in new.field_names or not value:
+                continue
+            dropped.add(name)
+            base = self.base_of(old_type, name)
+            target = self.field_for(new_type, base) if base else None
+            if target:
+                moved[target] = value
+        return moved, frozenset(dropped)
+
     # -- locales ---------------------------------------------------------
 
     def resolve_locale(self, locale: str | None) -> str:

@@ -1,5 +1,7 @@
 """Writing items."""
 
+from typing import Any
+
 import httpx
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -1351,6 +1353,146 @@ class TestTakingAChildOutFromUnderItsParent:
         )
 
         assert await self.parent_of(client) == "AAAA2345"
+
+
+class TestChangingTheType:
+    """A patch that changes an item's type, as upstream's `setType` takes it.
+
+    The desktop maps fields itself and uploads the result: the new type, the
+    fields that moved, and every field the new type lacks blanked as `""`. A
+    type-only patch from any other client leaves the mapping to the server,
+    which moves a field to its new type's equivalent through their shared base
+    field and clears what has no place.
+    """
+
+    async def book(self, session: AsyncSession, library: Library) -> None:
+        await make_item(
+            session,
+            library,
+            key="AAAA2345",
+            version=10,
+            fields={"title": "SICP", "edition": "2", "publisher": "MIT Press", "ISBN": "x"},
+            creators=[("author", "Harold", "Abelson"), ("editor", "Ed", "Itor")],
+        )
+        await session.commit()
+
+    async def patch(self, client: httpx.AsyncClient, **data: object) -> dict[str, Any]:
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"key": "AAAA2345", "version": 10, **data}],
+            )
+        ).json()
+        assert body["failed"] == {}, body["failed"]
+        return dict(body["successful"]["0"]["data"])
+
+    async def test_the_desktop_s_patch_blanks_what_the_new_type_lacks(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """`DataObjectUtilities.patch` blanks every field that went away."""
+        await self.book(session, library)
+
+        data = await self.patch(
+            client,
+            itemType="report",
+            edition="",
+            publisher="",
+            institution="MIT Press",
+        )
+
+        assert data["itemType"] == "report"
+        assert data["institution"] == "MIT Press"
+        assert data["title"] == "SICP"
+        assert not {"edition", "publisher"} & set(data)
+
+    async def test_a_type_alone_moves_fields_through_their_base(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await self.book(session, library)
+
+        data = await self.patch(client, itemType="report")
+
+        assert data["institution"] == "MIT Press"
+        # Both types have these, so they stay as they were.
+        assert data["title"] == "SICP"
+        assert data["ISBN"] == "x"
+        assert not {"edition", "publisher"} & set(data)
+
+    async def test_what_was_sent_wins_over_what_would_move(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await self.book(session, library)
+
+        data = await self.patch(client, itemType="report", institution="Elsewhere")
+
+        assert data["institution"] == "Elsewhere"
+
+    async def test_creators_the_new_type_lacks_become_contributors(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Upstream resets them to contributor, which every type has."""
+        await self.book(session, library)
+
+        data = await self.patch(client, itemType="film")
+
+        assert [creator["creatorType"] for creator in data["creators"]] == [
+            "contributor",
+            "contributor",
+        ]
+        assert data["creators"][0]["lastName"] == "Abelson"
+
+    async def test_creators_sent_with_the_type_are_taken_as_sent(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await self.book(session, library)
+
+        data = await self.patch(
+            client,
+            itemType="film",
+            creators=[{"creatorType": "director", "firstName": "Harold", "lastName": "Abelson"}],
+        )
+
+        assert data["creators"] == [
+            {"creatorType": "director", "firstName": "Harold", "lastName": "Abelson"}
+        ]
+
+    async def test_null_clears_a_field_the_type_lacks_too(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await self.book(session, library)
+
+        data = await self.patch(client, itemType="report", edition=None)
+
+        assert "edition" not in data
+
+    async def test_a_value_for_a_field_the_type_lacks_is_still_refused(
+        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await self.book(session, library)
+
+        body = (
+            await client.post(
+                "/users/1/items",
+                headers=JSON,
+                json=[{"key": "AAAA2345", "version": 10, "itemType": "report", "edition": "3"}],
+            )
+        ).json()
+
+        assert body["failed"]["0"]["code"] == 400
+
+    async def test_a_blank_field_the_type_lacks_on_a_new_item_is_ignored(
+        self, client: httpx.AsyncClient, library: Library
+    ) -> None:
+        """Upstream turns `""` into false before asking whether the field fits."""
+        body = (
+            await client.post(
+                "/users/1/items", headers=JSON, json=[{"itemType": "report", "edition": ""}]
+            )
+        ).json()
+
+        assert body["failed"] == {}
+        assert "edition" not in body["successful"]["0"]["data"]
 
 
 class TestAPatchClearsWhatItSendsEmpty:

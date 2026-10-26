@@ -498,6 +498,8 @@ Treated as complete objects, the first would be refused for lacking a name — s
 
 An item without creators has no `creators` property at all, while `tags`, `collections` and `relations` appear even when empty. That inconsistency is zotero.org's and is copied.
 
+**Changing an item's type keeps what the new type can hold.** A field the new type lacks moves to its equivalent there, as a book's `publisher` becomes a report's `institution`, or is cleared. A creator whose role the new type lacks becomes a `contributor`. A field sent empty is accepted even if the new type lacks it, because that is how the desktop clears one: it uploads `{key, version, itemType}` with every field the item lost set to `""`. Fields and creators sent with the type are taken as sent.
+
 **`parentItem: false` makes a child top-level.** The desktop sends it when a note or attachment is moved out to the library. As on zotero.org, a patch that files a child in a collection without mentioning `parentItem` does the same, since a child cannot be in a collection.
 
 ### Objects that were sent again without changing

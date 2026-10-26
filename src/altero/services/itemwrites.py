@@ -276,6 +276,11 @@ def validate_item(
     unlisted = UNLISTED_FIELDS.get(item_type, ())
 
     fields: dict[str, str] = {}
+    # Fields sent empty that the type does not have. Upstream turns `""` and
+    # null into false before asking whether a field fits the type, so they are
+    # a clear rather than a refusal: the desktop's patch blanks every field an
+    # item lost by changing type.
+    cleared: set[str] = set()
     for name, value in payload.items():
         if name in STRUCTURAL_KEYS:
             continue
@@ -289,6 +294,9 @@ def validate_item(
         if name not in schema.all_field_names:
             raise InvalidInputError(f"Invalid field '{name}'")
         if name not in type_.field_names:
+            if value is None or value == "":
+                cleared.add(name)
+                continue
             raise InvalidInputError(f"'{name}' is not a valid field for type '{item_type}'")
         fields[name] = "" if value is None else str(value)
 
@@ -331,6 +339,7 @@ def validate_item(
         "version": payload.get("version"),
         "parent_item": payload.get("parentItem") or None,
         "unparenting": unparenting,
+        "cleared": cleared,
         "fields": fields,
         "creators": _validate_creators(
             item_type, payload.get("creators", []), creating=existing is None
@@ -453,6 +462,8 @@ def _predict(
     """
     mentioned = parsed["mentioned"]
     fields = dict(parsed["fields"]) if replace else dict(before.fields) | parsed["fields"]
+    for name in parsed["cleared"]:
+        fields.pop(name, None)
     return _State(
         item_type=parsed["item_type"],
         deleted=(
@@ -501,6 +512,43 @@ def _predict(
             else before.collections
         ),
     )
+
+
+def _retype(item: Item, parsed: dict[str, Any]) -> None:
+    """Fold upstream's `setType` into a patch that changes ``item``'s type.
+
+    Stored fields the new type lacks move to its field for the same base, or
+    are cleared; what the patch sends itself wins over what would move. Stored
+    creators of a type the new item type lacks become contributors, which every
+    type has, unless the patch restates the creators. A patch from the desktop
+    has already done all of this and sends the result; one from anybody else
+    sending only `itemType` would otherwise leave fields the item can no longer
+    have, and creators it cannot either.
+    """
+    schema = get_schema()
+    moved, dropped = schema.retype_fields(item.item_type, parsed["item_type"], item.field_values())
+    parsed["fields"] = moved | parsed["fields"]
+    parsed["cleared"] = (parsed["cleared"] | dropped) - parsed["fields"].keys()
+
+    if "creators" not in parsed["mentioned"]:
+        valid = schema.get_item_type(parsed["item_type"]).creator_type_names
+        parsed["creators"] = [
+            {
+                "creatorType": (
+                    creator.creator_type if creator.creator_type in valid else "contributor"
+                ),
+                **(
+                    {"name": creator.name}
+                    if creator.name is not None
+                    else {
+                        "firstName": creator.first_name or "",
+                        "lastName": creator.last_name or "",
+                    }
+                ),
+            }
+            for creator in sorted(item.creators, key=lambda c: c.position)
+        ]
+        parsed["mentioned"] = parsed["mentioned"] | {"creators"}
 
 
 async def _parent(
@@ -641,6 +689,8 @@ async def _apply(
             ItemField(field=name, value=value) for name, value in parsed["fields"].items()
         ]
     else:
+        if parsed["cleared"]:
+            item.fields = [field for field in item.fields if field.field not in parsed["cleared"]]
         existing = {field.field: field for field in item.fields}
         for name, value in parsed["fields"].items():
             if name in existing:
@@ -804,6 +854,9 @@ async def save_item(
     # one that exists.
     if item is None:
         replace = True
+
+    if item is not None and not replace and parsed["item_type"] != item.item_type:
+        _retype(item, parsed)
 
     links = None
     creating = item is None
