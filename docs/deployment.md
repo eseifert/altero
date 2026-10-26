@@ -129,6 +129,18 @@ docker compose -f docker/compose.yaml -f docker/compose.build.yaml up -d --build
 
 It builds `altero:local`, deliberately not the published name, so that a later `docker compose pull` cannot replace a built image without saying so. Both files carry the same project name, so the built stack uses the volumes an earlier pulled one wrote.
 
+### Try the image on its own
+
+For a quick single-user trial, the image runs without Compose or PostgreSQL:
+
+```sh
+docker run -d --name altero -p 127.0.0.1:8000:8000 -v altero-data:/data ghcr.io/eseifert/altero:latest
+docker exec altero altero user add <username>
+docker exec altero altero user password <username>
+```
+
+The SQLite database is kept on the `/data` volume, beside the attachments. `ALTERO_DATABASE_URL` selects another database, as the Compose stack does. For a server used by several people, use the Compose stack instead.
+
 ## Podman
 
 The image runs under Podman unchanged. Three things differ from Docker.

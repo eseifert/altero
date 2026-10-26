@@ -56,6 +56,10 @@ FROM python:3.14-slim-trixie
 # editable, so the environment expects the source at the same path.
 WORKDIR /app
 COPY --from=build /app /app
+# A database on /data when nothing else names one, so that the image runs on
+# its own. A file rather than an ENV: the environment would outrank a config.py
+# somebody mounted here, and move them onto an empty database without a word.
+COPY docker/defaults.py ./config.py
 
 # Attachments and, for a single-user SQLite deployment, the database itself.
 # Declared so that neither is lost with the container.

@@ -69,6 +69,8 @@ docker compose -f docker/compose.yaml config
 
 The image sets `ALTERO_STORAGE_PATH=/data/storage`, `ALTERO_HOST=0.0.0.0` and `ALTERO_PORT=8000` itself. `/data` is the volume, so leave the storage path alone unless you also move the mount.
 
+Without `ALTERO_DATABASE_URL`, as when the image runs [on its own](deployment.md#try-the-image-on-its-own), the database is SQLite at `/data/altero.sqlite`. That default comes from the image's own `/app/config.py`. A `config.py` mounted there replaces it.
+
 ## Values
 
 Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. Durations are whole seconds, hours or days as the name says. An empty string is a real value and usually means "off" or "fall back": `ALTERO_SMTP_URL=` writes mail to the log.
