@@ -7,15 +7,20 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- The library draws the shape of its rows while they load.
-- A profile's item types meet WCAG contrast; found by the new browser tests with axe.
+## [1.0.0-beta.4] — 2026-10-26
+
+This version closes two ways somebody else's content could run a script in your
+browser: a note, and an attached web page. Upgrading needs no database changes.
+
+- Notes and citations can no longer run a script in the browser; `bib` and `citation` escape markup in fields, as zotero.org does. Reported by [@arminbahl] in [Issue#30].
 - Attachments opened in a browser tab run no scripts, and the browser interface sends a Content-Security-Policy ([headers]).
-- Notes and citations can no longer run a script in the browser; `bib` and `citation` escape markup in fields, as zotero.org does.
 - Cases, emails and statutes show their titles throughout the browser interface instead of “(untitled)” ([Issue#22]).
 - The browser interface is translated into 17 more languages, 48 in all.
 - The container image is built on Debian 13 (trixie), with OpenSSL 3.5 instead of the end-of-life 3.0 ([Issue#29]).
 - The container image is about 60 MB smaller: uv, which only the build needs, stays out of it.
 - The container image runs on its own for a quick trial, keeping a SQLite database on its `/data` volume.
+- The library draws the shape of its rows while they load.
+- A profile's item types meet WCAG contrast; found by the new browser tests with axe.
 - Item searches ignore case in every alphabet on SQLite too: `über` finds “Über”.
 - Tag searches match case, as on zotero.org: `/tags?q=fic` no longer finds “Fiction”.
 
@@ -213,6 +218,7 @@ The first release meant to be used by somebody other than its author.
 [db-req]: docs/deployment.md#database-requirements
 [headers]: docs/deployment.md#behind-a-reverse-proxy
 [config]: docs/configuration.md
+[1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3
 [1.0.0-beta.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.2
 [1.0.0-beta.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.1
@@ -235,6 +241,7 @@ The first release meant to be used by somebody other than its author.
 [@sadgen]: https://github.com/sadgen
 [@ScatteredComet]: https://github.com/ScatteredComet
 [@mweber0]: https://github.com/mweber0
+[@arminbahl]: https://github.com/arminbahl
 [PR#7]: https://github.com/eseifert/altero/pull/7
 [PR#8]: https://github.com/eseifert/altero/pull/8
 [PR#14]: https://github.com/eseifert/altero/pull/14
@@ -244,3 +251,4 @@ The first release meant to be used by somebody other than its author.
 [Issue#13]: https://github.com/eseifert/altero/issues/13
 [Issue#22]: https://github.com/eseifert/altero/issues/22
 [Issue#29]: https://github.com/eseifert/altero/issues/29
+[Issue#30]: https://github.com/eseifert/altero/issues/30

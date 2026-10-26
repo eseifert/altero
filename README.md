@@ -54,9 +54,9 @@ Docker Compose is the easiest way to try altero. It starts PostgreSQL, altero an
 
 ```bash
 mkdir altero && cd altero
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.3/docker/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.4/docker/compose.yaml
 
-ALTERO_IMAGE_TAG=1.0.0-beta.3 docker compose up -d
+ALTERO_IMAGE_TAG=1.0.0-beta.4 docker compose up -d
 docker compose exec altero altero user add <username>
 docker compose exec altero altero user password <username>
 ```
@@ -65,7 +65,7 @@ docker compose exec altero altero user password <username>
 
 The server is published on the loopback interface by default. An idle instance uses around 125 MB of memory; attachments are what grows.
 
-Put `ALTERO_IMAGE_TAG=1.0.0-beta.3` in `.env` beside the Compose file to keep this version pinned for later upgrades. Without a pin, Compose follows `latest`, including future prereleases. The matching release documentation is at <https://altero.run/1.0.0-beta.3/>.
+Put `ALTERO_IMAGE_TAG=1.0.0-beta.4` in `.env` beside the Compose file to keep this version pinned for later upgrades. Without a pin, Compose follows `latest`, including future prereleases. The matching release documentation is at <https://altero.run/1.0.0-beta.4/>.
 
 For anything beyond local testing, read [Deployment](https://altero.run/latest/deployment/) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
 
