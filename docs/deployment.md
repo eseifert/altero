@@ -169,10 +169,10 @@ A worked NixOS example, with altero and PostgreSQL as `virtualisation.oci-contai
 
 Requirements:
 
-- Python 3.14 or newer;
+- Python 3.14.10 or newer — earlier releases still trust the eMudhra intermediate certificates whose keys were exposed in October 2026;
 - a database meeting the [database requirements](#database-requirements);
-- [uv](https://docs.astral.sh/uv/); and
-- Node 24 and npm to build the browser interface.
+- [uv](https://docs.astral.sh/uv/) 0.13.4 or newer, for the same reason; and
+- Node 24.22.1 or newer and npm to build the browser interface; earlier releases carry the Brotli decoder flaw CVE-2026-111497 and the eMudhra certificates.
 
 SQLite is the default. For PostgreSQL outside Docker, install the extra dependency:
 

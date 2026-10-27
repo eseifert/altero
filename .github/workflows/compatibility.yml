@@ -63,6 +63,9 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: web/.nvmrc
+          # The newest Node 24, not whichever the runner image carries: a
+          # security release reaches the build the day it is published.
+          check-latest: true
           cache: npm
           cache-dependency-path: tools/compatibility/package-lock.json
 
@@ -144,6 +147,9 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version-file: web/.nvmrc
+          # The newest Node 24, not whichever the runner image carries: a
+          # security release reaches the build the day it is published.
+          check-latest: true
           cache: npm
           cache-dependency-path: tools/compatibility/package-lock.json
 

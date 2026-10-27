@@ -59,6 +59,9 @@ jobs:
           # Matches web/.nvmrc. Vite 8 needs ^20.19 || >=22.12, so the runner's
           # default is not something to rely on.
           node-version-file: web/.nvmrc
+          # The newest Node 24, not whichever the runner image carries: a
+          # security release reaches the build the day it is published.
+          check-latest: true
           cache: npm
           cache-dependency-path: web/package-lock.json
 

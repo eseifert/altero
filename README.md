@@ -69,7 +69,7 @@ Put `ALTERO_IMAGE_TAG=1.0.0-beta.4` in `.env` beside the Compose file to keep th
 
 For anything beyond local testing, read [Deployment](https://altero.run/latest/deployment/) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
 
-To run without Docker you need **Python 3.14 or newer** and [uv](https://docs.astral.sh/uv/); SQLite is the default database. See [Deployment](https://altero.run/latest/deployment/#from-a-source-checkout).
+To run without Docker you need **Python 3.14.10 or newer** and [uv](https://docs.astral.sh/uv/) 0.13.4 or newer; SQLite is the default database. See [Deployment](https://altero.run/latest/deployment/#from-a-source-checkout).
 
 ### Point Zotero at altero
 

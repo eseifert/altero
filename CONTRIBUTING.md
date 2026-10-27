@@ -14,7 +14,9 @@ uv run alembic upgrade head
 uv run pytest
 ```
 
-Python 3.14 or newer, and [uv](https://docs.astral.sh/uv/). `pre-commit install`
+Python 3.14.10 or newer, [uv](https://docs.astral.sh/uv/) 0.13.4 or newer, and Node
+24.22.1 or newer for the web interface; see
+[Deployment](docs/deployment.md#from-a-source-checkout) for why. `pre-commit install`
 is per-checkout and easy to forget; without it CI will fail on formatting you
 could have fixed locally.
 

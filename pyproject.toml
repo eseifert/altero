@@ -148,6 +148,12 @@ asyncio_default_fixture_loop_scope = "function"
 source = ["altero"]
 branch = true
 
+[tool.uv]
+# uv downloads every package over TLS against roots of its own. Releases
+# before 0.13.4 still trust the eMudhra intermediate CAs whose keys were
+# exposed in October 2026; this makes an older uv refuse to run here.
+required-version = ">=0.13.4"
+
 [tool.uv.sources]
 # Versioned documentation, until Zensical grows its own. Upstream mike drives
 # MkDocs; this fork drives Zensical instead and is deliberately not published

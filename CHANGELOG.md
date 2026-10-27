@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Building from source needs uv 0.13.4, Python 3.14.10 and Node 24.22.1, which distrust the leaked eMudhra keys ([source]).
 - altero makes its outbound requests with httpx2 in place of httpx, verifying TLS against the system's trust store instead of certifi's.
 - The browser interface can be installed as an app on phones and computers, and opens offline; no library data is kept on the device ([install]).
 - Desktop acceptance covers items edited in the browser reaching both desktops, and a desktop edit winning a race: 31 scenarios.
@@ -243,6 +244,7 @@ The first release meant to be used by somebody other than its author.
 [editing]: docs/web/library.md#editing-an-item
 [items]: docs/web/library.md#items
 [install]: docs/web-interface.md#installing-it-as-an-app
+[source]: docs/deployment.md#from-a-source-checkout
 [config]: docs/configuration.md
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3
