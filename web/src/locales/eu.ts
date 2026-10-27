@@ -51,6 +51,7 @@ export default {
     'Gehitu sekretu hau zure autentifikazio-aplikazioari, eta idatzi erakusten duen kodea. Ez da ezer aldatuko hori egin arte.',
   'Add to My Publications': 'Gehitu Nire argitalpenak atalera',
   'Add to My Publications…': 'Gehitu Nire argitalpenak atalera…',
+  'Add to the selection or take out of it': 'Gehitu hautapenera edo kendu bertatik',
   'Add “{name}” to My Publications': 'Gehitu “{name}” Nire argitalpenak atalera',
   'Add, change and remove things in your library':
     'Gehitu, aldatu eta kendu gauzak zure liburutegian',
@@ -194,6 +195,7 @@ export default {
   'Create your account': 'Sortu zure kontua',
   'Created in': 'Non sortu',
   'Credentials revoked.': 'Kredentzialak baliogabetu dira.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Oraingo pasahitza',
   'Database': 'Datu-basea',
   'Dates look like this: {example}': 'Datak honela ikusten dira: {example}',
@@ -203,6 +205,7 @@ export default {
   'Decline': 'Ukatu',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Zure lana domeinu publikoari eskaintzea ezin da desegin, nahiz eta geroago beste baldintza batzuk aukeratu edo lana argitaratzeari utzi.',
+  'Del': 'Del',
   'Delete': 'Ezabatu',
   'Delete account': 'Ezabatu kontua',
   'Delete everything in the trash?': 'Zaborreko guztia ezabatu?',
@@ -237,16 +240,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Arrastatu banaketa hau mugitzeko. Egin klik bikoitza lehengora itzultzeko.',
   'Duplicate Items': 'Bikoiztutako elementuak',
+  'Edit the title': 'Editatu izenburua',
   'Email': 'Posta elektronikoa',
   'Email address': 'Helbide elektronikoa',
   'Email address (optional)': 'Helbide elektronikoa (aukerakoa)',
   'Email claim': 'Helbide elektronikoaren atributua',
   'Empty the trash': 'Hustu zaborra',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Idatzi zure gailuan agertzen den kodea.',
   'Enter the six-digit code from your authenticator app.':
     'Idatzi zure autentifikazio-aplikazioko sei digituko kodea.',
   'Enter the six-digit code we sent to your email address.':
     'Idatzi zure helbide elektronikora bidali dizugun sei digituko kodea.',
+  'Esc': 'Esc',
   'Everything': 'Dena',
   'Everything below asks for it, as your own settings do.':
     'Beheko guztiak eskatzen du, zure ezarpenek egiten duten bezala.',
@@ -265,9 +272,11 @@ export default {
   'Export a library': 'Esportatu liburutegi bat',
   'Exported Items': 'Esportatutako elementuak',
   'Export…': 'Esportatu…',
+  'Extend the selection': 'Zabaldu hautapena',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV zerbitzari batean gordetako fitxategiak ez daude zotero.org-en, beraz migrazio batek ezin ditu ekarri. Jarraitu fitxategiak WebDAV bidez sinkronizatzen, edo igo itzazu oraindik dituen Zotero bezero batetik.',
   'Finished.': 'Amaituta.',
+  'First or last item': 'Lehen edo azken elementua',
   'Follow this device ({name})': 'Jarraitu gailu honi ({name})',
   'For example, my laptop': 'Adibidez, nire eramangarria',
   'Forgotten password': 'Ahaztutako pasahitza',
@@ -286,6 +295,7 @@ export default {
   'Groups': 'Taldeak',
   'Hand over the group': 'Eman taldea beste bati',
   'Hide from My Publications': 'Ezkutatu Nire argitalpenak ataletik',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Amaitu gabeko igoera bat gogoratzen den orduak',
   'How long things are kept': 'Gauzak zenbat denboraz gordetzen diren',
   'I created this work and have the rights to distribute the files included.':
@@ -318,6 +328,7 @@ export default {
   'Keep the existing Rights field': 'Gorde uneko Eskubideak eremua',
   'Key created. Copy it now — it is not shown again.':
     'Gakoa sortu da. Kopiatu orain; ez da berriro erakutsiko.',
+  'Keyboard shortcuts': 'Laster-teklak',
   'Know who you are': 'Jakin nor zaren',
   'Language': 'Hizkuntza',
   'Language and time zone': 'Hizkuntza eta ordu-zona',
@@ -360,6 +371,7 @@ export default {
   'Move or copy “{name}”': 'Mugitu edo kopiatu “{name}”',
   'Move or copy…': 'Mugitu edo kopiatu…',
   'Move to trash': 'Bota zaborrera',
+  'Move without selecting': 'Mugitu hautatu gabe',
   'My Library': 'Nire liburutegia',
   'My Publications': 'Nire argitalpenak',
   'Name': 'Izena',
@@ -441,6 +453,8 @@ export default {
   'Owner': 'Jabea',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Itsatsi biak hornitzailea bere gakoa aldatzen ari den bitartean.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Sarbide-gakoa gehitu da.',
   'Passkeys': 'Sarbide-gakoak',
   'Password': 'Pasahitza',
@@ -456,6 +470,7 @@ export default {
   'People joining or leaving': 'Sartzen edo irteten diren pertsonak',
   'People with an account here': 'Hemen kontua duten pertsonak',
   'Please sign in first.': 'Hasi saioa lehenik.',
+  'Previous or next item': 'Aurreko edo hurrengo elementua',
   'Private': 'Pribatua',
   'Profile': 'Profila',
   'Provider entity ID': 'Hornitzailearen entitate-IDa',
@@ -555,9 +570,12 @@ export default {
   'Share a link…': 'Partekatu esteka bat…',
   'Share this collection': 'Partekatu bilduma hau',
   'Shared from {library}': 'Hemendik partekatua: {library}',
+  'Shift': 'Shift',
   'Short name': 'Izen laburra',
   'Show in My Publications': 'Erakutsi Nire argitalpenak atalean',
+  'Show keyboard shortcuts': 'Erakutsi laster-teklak',
   'Show more': 'Erakutsi gehiago',
+  'Show the item’s details': 'Erakutsi elementuaren xehetasunak',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Zure jakinarazpenetan erakusten da. Gehitu helbide elektroniko bat posta bidez ere jasotzeko.',
   'Sidebar width': 'Alboko barraren zabalera',
@@ -589,6 +607,7 @@ export default {
   'Sort by {column}': 'Ordenatu honen arabera: {column}',
   'Sort by {column}, currently ascending': 'Ordenatu honen arabera: {column}; orain gorantz',
   'Sort by {column}, currently descending': 'Ordenatu honen arabera: {column}; orain beherantz',
+  'Space': 'Zuriunea',
   'Stop administering': 'Utzi administratzeari',
   'Stopped.': 'Geldituta.',
   'Stops working on': 'Iraungitze-data',
@@ -608,6 +627,7 @@ export default {
   'Take them out of “{name}”': 'Atera “{name}” bildumatik',
   'Taking you back to the application…': 'Aplikaziora itzultzen…',
   'Tell me about': 'Jakinarazi iezadazu',
+  'Ten items up or down': 'Hamar elementu gora edo behera',
   'That confirmation link is not valid or has expired.':
     'Berrespen-esteka hori ez da baliozkoa edo iraungi egin da.',
   'That connection was removed.': 'Konexio hori kendu da.',

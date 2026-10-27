@@ -51,6 +51,7 @@ export default {
     'Lisage see saladus oma autentimisrakendusse ja sisestage seejärel kood, mida see näitab. Enne seda ei muutu midagi.',
   'Add to My Publications': 'Lisa minu väljaannetesse',
   'Add to My Publications…': 'Lisa minu väljaannetesse…',
+  'Add to the selection or take out of it': 'Lisa valikusse või eemalda sellest',
   'Add “{name}” to My Publications': 'Lisa „{name}“ minu väljaannetesse',
   'Add, change and remove things in your library':
     'Lisada, muuta ja eemaldada asju teie raamatukogus',
@@ -194,6 +195,7 @@ export default {
   'Create your account': 'Looge oma konto',
   'Created in': 'Asukoht',
   'Credentials revoked.': 'Volitused tühistatud.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Praegune salasõna',
   'Database': 'Andmebaas',
   'Dates look like this: {example}': 'Kuupäevad näevad välja nii: {example}',
@@ -203,6 +205,7 @@ export default {
   'Decline': 'Keeldu',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Teose üleandmist avalikku omandisse ei saa tagasi võtta, isegi kui valite hiljem teised tingimused või lõpetate teose avaldamise.',
+  'Del': 'Del',
   'Delete': 'Kustuta',
   'Delete account': 'Kustuta konto',
   'Delete everything in the trash?': 'Kas kustutada kõik prügikastis olev?',
@@ -237,16 +240,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Lohistage eraldaja liigutamiseks. Topeltklõps taastab algse asukoha.',
   'Duplicate Items': 'Duplikaadid',
+  'Edit the title': 'Muuda pealkirja',
   'Email': 'E-post',
   'Email address': 'E-posti aadress',
   'Email address (optional)': 'E-posti aadress (valikuline)',
   'Email claim': 'E-posti väide',
   'Empty the trash': 'Tühjenda prügikast',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Sisestage teie seadmes kuvatud kood.',
   'Enter the six-digit code from your authenticator app.':
     'Sisestage autentimisrakenduse kuuekohaline kood.',
   'Enter the six-digit code we sent to your email address.':
     'Sisestage kuuekohaline kood, mille saatsime teie e-posti aadressile.',
+  'Esc': 'Esc',
   'Everything': 'Kõik',
   'Everything below asks for it, as your own settings do.':
     'Kõik allolev nõuab seda, nagu ka teie enda seaded.',
@@ -265,9 +272,11 @@ export default {
   'Export a library': 'Ekspordi raamatukogu',
   'Exported Items': 'Eksporditud kirjed',
   'Export…': 'Ekspordi…',
+  'Extend the selection': 'Laienda valikut',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV-serveris hoitavaid faile ei salvestata zotero.org-is, seega ei saa üleviimine neid kaasa tuua. Jätkake failide sünkroonimist WebDAV-i kaudu või laadige need üles Zotero kliendist, kus need veel olemas on.',
   'Finished.': 'Lõpetatud.',
+  'First or last item': 'Esimene või viimane kirje',
   'Follow this device ({name})': 'Järgi seda seadet ({name})',
   'For example, my laptop': 'Näiteks minu sülearvuti',
   'Forgotten password': 'Unustatud salasõna',
@@ -286,6 +295,7 @@ export default {
   'Groups': 'Grupid',
   'Hand over the group': 'Anna grupp üle',
   'Hide from My Publications': 'Peida minu väljaannetest',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Mitu tundi lõpetamata üleslaadimist meeles peetakse',
   'How long things are kept': 'Kui kaua asju säilitatakse',
   'I created this work and have the rights to distribute the files included.':
@@ -318,6 +328,7 @@ export default {
   'Keep the existing Rights field': 'Säilita olemasolev väli Õigused',
   'Key created. Copy it now — it is not shown again.':
     'Võti loodud. Kopeerige see kohe — seda ei näidata enam.',
+  'Keyboard shortcuts': 'Kiirklahvid',
   'Know who you are': 'Teada, kes te olete',
   'Language': 'Keel',
   'Language and time zone': 'Keel ja ajavöönd',
@@ -361,6 +372,7 @@ export default {
   'Move or copy “{name}”': 'Teisalda või kopeeri „{name}“',
   'Move or copy…': 'Teisalda või kopeeri…',
   'Move to trash': 'Liiguta prügikasti',
+  'Move without selecting': 'Liigu valimata',
   'My Library': 'Minu raamatukogu',
   'My Publications': 'Minu väljaanded',
   'Name': 'Nimi',
@@ -443,6 +455,8 @@ export default {
   'Owner': 'Omanik',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Kleepige mõlemad, kui teenusepakkuja parajasti oma võtit vahetab.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Pääsuvõti lisatud.',
   'Passkeys': 'Pääsuvõtmed',
   'Password': 'Salasõna',
@@ -458,6 +472,7 @@ export default {
   'People joining or leaving': 'Liitujad ja lahkujad',
   'People with an account here': 'Inimesed, kellel on siin konto',
   'Please sign in first.': 'Palun logige kõigepealt sisse.',
+  'Previous or next item': 'Eelmine või järgmine kirje',
   'Private': 'Privaatne',
   'Profile': 'Profiil',
   'Provider entity ID': 'Teenusepakkuja olemi ID',
@@ -557,9 +572,12 @@ export default {
   'Share a link…': 'Jaga linki…',
   'Share this collection': 'Jaga seda kogu',
   'Shared from {library}': 'Jagatud raamatukogust {library}',
+  'Shift': 'Shift',
   'Short name': 'Lühinimi',
   'Show in My Publications': 'Näita minu väljaannetes',
+  'Show keyboard shortcuts': 'Näita kiirklahve',
   'Show more': 'Näita rohkem',
+  'Show the item’s details': 'Näita kirje üksikasju',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Kuvatakse teie teavitustes. Lisage e-posti aadress, et saada neid ka meilina.',
   'Sidebar width': 'Külgriba laius',
@@ -593,6 +611,7 @@ export default {
     'Sordi veeru {column} järgi, praegu kasvavas järjestuses',
   'Sort by {column}, currently descending':
     'Sordi veeru {column} järgi, praegu kahanevas järjestuses',
+  'Space': 'Tühik',
   'Stop administering': 'Lõpeta administreerimine',
   'Stopped.': 'Peatatud.',
   'Stops working on': 'Kehtib kuni',
@@ -611,6 +630,7 @@ export default {
   'Take them out of “{name}”': 'Eemalda need kogust „{name}“',
   'Taking you back to the application…': 'Suunan teid rakendusse tagasi…',
   'Tell me about': 'Teavita mind',
+  'Ten items up or down': 'Kümme kirjet üles või alla',
   'That confirmation link is not valid or has expired.':
     'See kinnituslink ei kehti või on aegunud.',
   'That connection was removed.': 'See ühendus eemaldati.',

@@ -52,6 +52,7 @@ export default {
     "Ouzhpennit ar sekred-mañ en hoc'h arload dilesa, ha goude-se ebarzhit ar c'hod a ziskouez. Netra ne cheñch a-raok ma vo graet ganeoc'h.",
   'Add to My Publications': 'Ouzhpennañ da Ma embannadennoù',
   'Add to My Publications…': 'Ouzhpennañ da Ma embannadennoù…',
+  'Add to the selection or take out of it': 'Ouzhpennañ d’an dibab pe tennañ diouzhañ',
   'Add “{name}” to My Publications': 'Ouzhpennañ “{name}” da Ma embannadennoù',
   'Add, change and remove things in your library':
     'Ouzhpennañ, cheñch ha dilemel traoù en ho levraoueg',
@@ -198,6 +199,7 @@ export default {
   'Create your account': 'Krouit ho kont',
   'Created in': 'Krouet e-barzh',
   'Credentials revoked.': 'Anaouadurioù nullet.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Ger-tremen a-vremañ',
   'Database': 'Diaz-roadennoù',
   'Dates look like this: {example}': 'Setu penaos e vez skrivet an deiziadoù: {example}',
@@ -207,6 +209,7 @@ export default {
   'Decline': "Nac'hañ",
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     "Ne c'haller ket nullañ gouestladur ho labour d'an domani foran, ha pa zibabfec'h divizoù all diwezhatoc'h pe ha pa baouezfec'h da embann al labour.",
+  'Del': 'Del',
   'Delete': 'Dilemel',
   'Delete account': 'Dilemel ar gont',
   'Delete everything in the trash?': 'Dilemel kement tra a zo er pod-lastez?',
@@ -241,16 +244,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Riklit evit fiñval an harz-mañ. Daouglikit evit e adlakaat.',
   'Duplicate Items': 'Elfennoù doubl',
+  'Edit the title': 'Aozañ an titl',
   'Email': 'Postel',
   'Email address': "Chomlec'h postel",
   'Email address (optional)': "Chomlec'h postel (diret)",
   'Email claim': 'Doareenn ar postel',
   'Empty the trash': 'Goullonderiñ ar pod-lastez',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': "Ebarzhit ar c'hod diskouezet war ho trevnad.",
   'Enter the six-digit code from your authenticator app.':
     "Ebarzhit ar c'hod c'hwec'h sifr eus hoc'h arload dilesa.",
   'Enter the six-digit code we sent to your email address.':
     "Ebarzhit ar c'hod c'hwec'h sifr hon eus kaset d'ho chomlec'h postel.",
+  'Esc': 'Esc',
   'Everything': 'Pep tra',
   'Everything below asks for it, as your own settings do.':
     "Kement tra amañ dindan a c'houlenn anezhañ, evel hoc'h arventennoù deoc'h-c'hwi.",
@@ -269,9 +276,11 @@ export default {
   'Export a library': 'Ezporzhiañ ul levraoueg',
   'Exported Items': 'Elfennoù ezporzhiet',
   'Export…': 'Ezporzhiañ…',
+  'Extend the selection': 'Astenn an dibab',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     "N'eo ket stoket war zotero.org ar restroù miret war ur servijer WebDAV, setu ne c'hall ket un treuzkas o degas. Kendalc'hit da sinkronelaat ar restroù dre WebDAV, pe pellgasit anezho adalek ur c'hliant Zotero a zalc'h anezho c'hoazh.",
   'Finished.': 'Echu.',
+  'First or last item': 'Elfenn gentañ pe ziwezhañ',
   'Follow this device ({name})': 'Heuliañ an trevnad-mañ ({name})',
   'For example, my laptop': 'Da skouer, ma urzhiataer hezoug',
   'Forgotten password': 'Ger-tremen ankouaet',
@@ -290,6 +299,7 @@ export default {
   'Groups': 'Strolladoù',
   'Hand over the group': "Treuzkas perc'hentiezh ar strollad",
   'Hide from My Publications': 'Kuzhat diouzh Ma embannadennoù',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered':
     'Eurvezhioù e vez miret soñj eus ur pellgasadenn diechu',
   'How long things are kept': 'Pegeit e vez miret an traoù',
@@ -323,6 +333,7 @@ export default {
   'Keep the existing Rights field': 'Mirout ar vaezienn Lisañs a zo anezhi',
   'Key created. Copy it now — it is not shown again.':
     "Alc'hwez krouet. Eilit anezhañ bremañ — ne vo ket diskouezet en-dro.",
+  'Keyboard shortcuts': 'Berradennoù klavier',
   'Know who you are': "Gouzout piv oc'h",
   'Language': 'Yezh',
   'Language and time zone': 'Yezh ha takad-eur',
@@ -367,6 +378,7 @@ export default {
   'Move or copy “{name}”': 'Fiñval pe eilañ “{name}”',
   'Move or copy…': 'Fiñval pe eilañ…',
   'Move to trash': "Kas d'ar pod-lastez",
+  'Move without selecting': 'Fiñval hep dibab',
   'My Library': 'Ma levraoueg',
   'My Publications': 'Ma embannadennoù',
   'Name': 'Anv',
@@ -451,6 +463,8 @@ export default {
   'Owner': "Perc'henn",
   'PEM. Paste both while the provider is rolling its key over.':
     "PEM. Pegit an daou e-pad ma vez o cheñch e alc'hwez gant ar pourchaser.",
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': "Alc'hwez-tremen ouzhpennet.",
   'Passkeys': "Alc'hwezioù-tremen",
   'Password': 'Ger-tremen',
@@ -466,6 +480,7 @@ export default {
   'People joining or leaving': 'Tud o tont tre pe o kuitaat',
   'People with an account here': 'Tud o deus ur gont amañ',
   'Please sign in first.': 'Kevreit da gentañ, mar plij.',
+  'Previous or next item': 'Elfenn a-raok pe war-lerc’h',
   'Private': 'Prevez',
   'Profile': 'Profil',
   'Provider entity ID': 'ID entite ar pourchaser',
@@ -565,9 +580,12 @@ export default {
   'Share a link…': 'Rannañ ul liamm…',
   'Share this collection': 'Rannañ an dastumadeg-mañ',
   'Shared from {library}': 'Rannet adalek {library}',
+  'Shift': 'Shift',
   'Short name': 'Anv berr',
   'Show in My Publications': 'Diskouez e Ma embannadennoù',
+  'Show keyboard shortcuts': 'Diskouez ar berradennoù klavier',
   'Show more': "Diskouez muioc'h",
+  'Show the item’s details': 'Diskouez munudoù an elfenn',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     "Diskouezet en ho rebuzadurioù. Ouzhpennit ur chomlec'h postel evit o resev dre bostel ivez.",
   'Sidebar width': 'Ledander ar varrenn-gostez',
@@ -599,6 +617,7 @@ export default {
   'Sort by {column}': 'Rummañ dre {column}',
   'Sort by {column}, currently ascending': 'Rummañ dre {column}, war-gresk bremañ',
   'Sort by {column}, currently descending': 'Rummañ dre {column}, war-zigresk bremañ',
+  'Space': 'Esaouenn',
   'Stop administering': 'Paouez da verañ',
   'Stopped.': 'Paouezet.',
   'Stops working on': 'Deiziad diamzeriñ',
@@ -618,6 +637,7 @@ export default {
   'Take them out of “{name}”': 'Tennañ anezho eus “{name}”',
   'Taking you back to the application…': "O tistreiñ d'an arload…",
   'Tell me about': "Kelaouiñ ac'hanon diwar-benn",
+  'Ten items up or down': 'Dek elfenn d’an nec’h pe d’an traoñ',
   'That confirmation link is not valid or has expired.':
     "N'eo ket mat al liamm kadarnaat-se pe diamzeret eo.",
   'That connection was removed.': "Dilamet eo bet ar c'hevreadur-se.",

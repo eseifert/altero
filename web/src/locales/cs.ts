@@ -54,6 +54,7 @@ export default {
     'Přidejte tento tajný klíč do své ověřovací aplikace a pak zadejte kód, který zobrazí. Dokud to neuděláte, nic se nezmění.',
   'Add to My Publications': 'Přidat do Mých publikací',
   'Add to My Publications…': 'Přidat do Mých publikací…',
+  'Add to the selection or take out of it': 'Přidat do výběru nebo z něj odebrat',
   'Add “{name}” to My Publications': 'Přidat „{name}“ do Mých publikací',
   'Add, change and remove things in your library':
     'Přidávat, měnit a odstraňovat obsah vaší knihovny',
@@ -198,6 +199,7 @@ export default {
   'Create your account': 'Vytvořte si účet',
   'Created in': 'Umístění',
   'Credentials revoked.': 'Přístupové údaje byly zneplatněny.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Současné heslo',
   'Database': 'Databáze',
   'Dates look like this: {example}': 'Data vypadají takto: {example}',
@@ -207,6 +209,7 @@ export default {
   'Decline': 'Odmítnout',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Věnování díla veřejné doméně nelze vzít zpět, ani když později zvolíte jiné podmínky nebo dílo přestanete publikovat.',
+  'Del': 'Del',
   'Delete': 'Smazat',
   'Delete account': 'Smazat účet',
   'Delete everything in the trash?': 'Smazat vše v koši?',
@@ -241,16 +244,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Přetažením posunete dělicí čáru. Dvojklikem ji vrátíte na původní místo.',
   'Duplicate Items': 'Duplicitní položky',
+  'Edit the title': 'Upravit název',
   'Email': 'E-mail',
   'Email address': 'E-mailová adresa',
   'Email address (optional)': 'E-mailová adresa (nepovinné)',
   'Email claim': 'Deklarace e-mailu',
   'Empty the trash': 'Vysypat koš',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Zadejte kód zobrazený na vašem zařízení.',
   'Enter the six-digit code from your authenticator app.':
     'Zadejte šestimístný kód z ověřovací aplikace.',
   'Enter the six-digit code we sent to your email address.':
     'Zadejte šestimístný kód, který jsme vám poslali e-mailem.',
+  'Esc': 'Esc',
   'Everything': 'Vše',
   'Everything below asks for it, as your own settings do.':
     'Vyžaduje ho všechno níže, stejně jako vaše vlastní nastavení.',
@@ -269,9 +276,11 @@ export default {
   'Export a library': 'Exportovat knihovnu',
   'Exported Items': 'Exportované položky',
   'Export…': 'Exportovat…',
+  'Extend the selection': 'Rozšířit výběr',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Soubory uložené na serveru WebDAV nejsou uloženy na zotero.org, takže je migrace nemůže přenést. Synchronizujte soubory dál přes WebDAV, nebo je nahrajte z klienta Zotero, který je stále má.',
   'Finished.': 'Dokončeno.',
+  'First or last item': 'První nebo poslední položka',
   'Follow this device ({name})': 'Podle tohoto zařízení ({name})',
   'For example, my laptop': 'Například můj notebook',
   'Forgotten password': 'Zapomenuté heslo',
@@ -290,6 +299,7 @@ export default {
   'Groups': 'Skupiny',
   'Hand over the group': 'Předat skupinu',
   'Hide from My Publications': 'Skrýt v Mých publikacích',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered':
     'Počet hodin, po které se pamatuje nedokončené nahrávání',
   'How long things are kept': 'Jak dlouho se co uchovává',
@@ -323,6 +333,7 @@ export default {
   'Keep the existing Rights field': 'Zachovat stávající pole Práva',
   'Key created. Copy it now — it is not shown again.':
     'Klíč byl vytvořen. Zkopírujte si ho hned — znovu se už nezobrazí.',
+  'Keyboard shortcuts': 'Klávesové zkratky',
   'Know who you are': 'Vědět, kdo jste',
   'Language': 'Jazyk',
   'Language and time zone': 'Jazyk a časové pásmo',
@@ -367,6 +378,7 @@ export default {
   'Move or copy “{name}”': 'Přesunout nebo zkopírovat „{name}“',
   'Move or copy…': 'Přesunout nebo zkopírovat…',
   'Move to trash': 'Přesunout do Koše',
+  'Move without selecting': 'Přesunout bez výběru',
   'My Library': 'Moje knihovna',
   'My Publications': 'Mé publikace',
   'Name': 'Název',
@@ -449,6 +461,8 @@ export default {
   'Owner': 'Vlastník',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Během výměny klíče u poskytovatele vložte oba.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Přístupový klíč byl přidán.',
   'Passkeys': 'Přístupové klíče',
   'Password': 'Heslo',
@@ -464,6 +478,7 @@ export default {
   'People joining or leaving': 'Příchody a odchody členů',
   'People with an account here': 'Lidé, kteří tu mají účet',
   'Please sign in first.': 'Nejprve se přihlaste.',
+  'Previous or next item': 'Předchozí nebo další položka',
   'Private': 'Soukromá',
   'Profile': 'Profil',
   'Provider entity ID': 'Entity ID poskytovatele',
@@ -562,9 +577,12 @@ export default {
   'Share a link…': 'Sdílet odkaz…',
   'Share this collection': 'Sdílet tuto kolekci',
   'Shared from {library}': 'Sdíleno z {library}',
+  'Shift': 'Shift',
   'Short name': 'Krátký název',
   'Show in My Publications': 'Zobrazit v Mých publikacích',
+  'Show keyboard shortcuts': 'Zobrazit klávesové zkratky',
   'Show more': 'Zobrazit více',
+  'Show the item’s details': 'Zobrazit podrobnosti položky',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Zobrazuje se ve vašich oznámeních. Přidejte e-mailovou adresu, chcete-li je dostávat i e-mailem.',
   'Sidebar width': 'Šířka postranního panelu',
@@ -596,6 +614,7 @@ export default {
   'Sort by {column}': 'Seřadit podle sloupce {column}',
   'Sort by {column}, currently ascending': 'Seřadit podle sloupce {column}, nyní vzestupně',
   'Sort by {column}, currently descending': 'Seřadit podle sloupce {column}, nyní sestupně',
+  'Space': 'Mezerník',
   'Stop administering': 'Odebrat práva správce',
   'Stopped.': 'Zastaveno.',
   'Stops working on': 'Přestane fungovat dne',
@@ -614,6 +633,7 @@ export default {
   'Take them out of “{name}”': 'Odebrat je z „{name}“',
   'Taking you back to the application…': 'Vracíme vás do aplikace…',
   'Tell me about': 'Upozorňovat mě na',
+  'Ten items up or down': 'O deset položek nahoru nebo dolů',
   'That confirmation link is not valid or has expired.':
     'Tento potvrzovací odkaz je neplatný nebo vypršel.',
   'That connection was removed.': 'Propojení bylo odebráno.',

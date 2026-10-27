@@ -3121,3 +3121,139 @@ describe('drawing the list again', () => {
     expect(reads).toBe(drawn)
   })
 })
+
+describe('the keyboard in the item list', () => {
+  const SECOND = { key: 'BBBB2345', version: 1, data: { itemType: 'book', title: 'The Dispossessed' }, meta: {} }
+  const THIRD = { key: 'CCCC9999', version: 1, data: { itemType: 'book', title: 'On whales' }, meta: {} }
+
+  beforeEach(() => {
+    contents = [ITEM, SECOND, THIRD]
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      if (/\/items\/[A-Z0-9]+$/.test(path)) return Promise.resolve(contents[0])
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+  })
+
+  afterEach(() => {
+    document.body.innerHTML = ''
+  })
+
+  async function opened() {
+    const wrapper = mount(LibraryView, { attachTo: document.body })
+    await settle(wrapper)
+    return wrapper
+  }
+
+  function rows(wrapper: ReturnType<typeof mount>) {
+    return wrapper.findAll('.library__row:not(.library__row--head)')
+  }
+
+  async function key(wrapper: ReturnType<typeof mount>, name: string, options: KeyboardEventInit = {}) {
+    const focused = document.activeElement as HTMLElement
+    focused.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true, ...options }))
+    await settle(wrapper)
+  }
+
+  function focusedTitle(): string {
+    return (document.activeElement as HTMLElement).textContent?.trim() ?? ''
+  }
+
+  it('is one stop for Tab, at the first row until another is moved to', async () => {
+    const wrapper = await opened()
+
+    expect(rows(wrapper).map((row) => row.attributes('tabindex'))).toEqual(['0', '-1', '-1'])
+  })
+
+  it('moves the selection with the arrows, and the pane follows', async () => {
+    const wrapper = await opened()
+    ;(rows(wrapper)[0].element as HTMLElement).focus()
+
+    await key(wrapper, 'ArrowDown')
+
+    expect(focusedTitle()).toContain('The Dispossessed')
+    expect(useLibraryStore().selectionKeys).toEqual(['BBBB2345'])
+    expect(useLibraryStore().selected?.key).toBe('BBBB2345')
+    expect(rows(wrapper).map((row) => row.attributes('tabindex'))).toEqual(['-1', '0', '-1'])
+
+    await key(wrapper, 'ArrowUp')
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345'])
+  })
+
+  it('goes to either end with Home and End, and stops there', async () => {
+    const wrapper = await opened()
+    ;(rows(wrapper)[0].element as HTMLElement).focus()
+
+    await key(wrapper, 'End')
+    expect(focusedTitle()).toContain('On whales')
+    await key(wrapper, 'ArrowDown')
+    expect(focusedTitle()).toContain('On whales')
+    await key(wrapper, 'Home')
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345'])
+  })
+
+  it('extends the selection with Shift, from where it started', async () => {
+    const wrapper = await opened()
+    await rows(wrapper)[0].trigger('click')
+    ;(rows(wrapper)[0].element as HTMLElement).focus()
+
+    await key(wrapper, 'ArrowDown', { shiftKey: true })
+    await key(wrapper, 'ArrowDown', { shiftKey: true })
+
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345', 'BBBB2345', 'CCCC9999'])
+  })
+
+  it('moves without selecting with Ctrl, and picks a row out with Ctrl+Space', async () => {
+    const wrapper = await opened()
+    await rows(wrapper)[0].trigger('click')
+    ;(rows(wrapper)[0].element as HTMLElement).focus()
+
+    await key(wrapper, 'ArrowDown', { ctrlKey: true })
+    await key(wrapper, 'ArrowDown', { ctrlKey: true })
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345'])
+
+    await key(wrapper, ' ', { ctrlKey: true })
+    expect(useLibraryStore().selectionKeys).toEqual(['AAAA2345', 'CCCC9999'])
+  })
+
+  it('reads the next page when moving past the last row fetched', async () => {
+    const store = useLibraryStore()
+    const wrapper = await opened()
+    ;(rows(wrapper)[2].element as HTMLElement).focus()
+    const more = vi.spyOn(store, 'loadMore').mockResolvedValue()
+    store.total = 10
+
+    await key(wrapper, 'ArrowDown')
+
+    expect(more).toHaveBeenCalledOnce()
+  })
+
+  it('opens the item and moves into its pane with Enter', async () => {
+    const wrapper = await opened()
+    ;(rows(wrapper)[1].element as HTMLElement).focus()
+
+    await key(wrapper, 'Enter')
+
+    expect(useLibraryStore().selected?.key).toBe('BBBB2345')
+    expect(document.activeElement?.classList.contains('detail__title')).toBe(true)
+  })
+
+  it('shows the shortcuts on ?, and not while a field is being typed in', async () => {
+    const wrapper = await opened()
+    ;(rows(wrapper)[0].element as HTMLElement).focus()
+
+    await key(wrapper, '?')
+    expect(wrapper.find('.shortcuts').exists()).toBe(true)
+    await wrapper.findAll('.dialog button').find((button) => button.text() === 'Done')!.trigger('click')
+    expect(wrapper.find('.shortcuts').exists()).toBe(false)
+
+    const field = await search(wrapper)
+    ;(field.element as HTMLElement).focus()
+    await key(wrapper, '?')
+    expect(wrapper.find('.shortcuts').exists()).toBe(false)
+  })
+})

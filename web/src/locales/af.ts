@@ -51,6 +51,7 @@ export default {
     'Voeg hierdie geheim by u verifikasie-app en voer dan die kode in wat dit wys. Niks verander voordat u dit doen nie.',
   'Add to My Publications': 'Voeg by My publikasies',
   'Add to My Publications…': 'Voeg by My publikasies…',
+  'Add to the selection or take out of it': 'Voeg by die keuse of haal daaruit',
   'Add “{name}” to My Publications': 'Voeg “{name}” by My publikasies',
   'Add, change and remove things in your library':
     'Dinge in u biblioteek byvoeg, verander en verwyder',
@@ -195,6 +196,7 @@ export default {
   'Create your account': 'Skep u rekening',
   'Created in': 'Geskep in',
   'Credentials revoked.': 'Aanmeldbewyse herroep.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Huidige wagwoord',
   'Database': 'Databasis',
   'Dates look like this: {example}': 'Datums lyk so: {example}',
@@ -204,6 +206,7 @@ export default {
   'Decline': 'Wys af',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Om u werk aan die publieke domein te skenk, kan nie ongedaan gemaak word nie, selfs as u later ander voorwaardes kies of ophou om die werk te publiseer.',
+  'Del': 'Del',
   'Delete': 'Skrap',
   'Delete account': 'Skrap rekening',
   'Delete everything in the trash?': 'Skrap alles in die asblik?',
@@ -238,16 +241,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Sleep om hierdie skeiding te skuif. Dubbelklik om dit terug te sit.',
   'Duplicate Items': 'Duplikaatitems',
+  'Edit the title': 'Wysig die titel',
   'Email': 'E-pos',
   'Email address': 'E-posadres',
   'Email address (optional)': 'E-posadres (opsioneel)',
   'Email claim': 'E-posaanspraak',
   'Empty the trash': 'Maak die asblik leeg',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Voer die kode in wat op u toestel gewys word.',
   'Enter the six-digit code from your authenticator app.':
     'Voer die sessyferkode uit u verifikasie-app in.',
   'Enter the six-digit code we sent to your email address.':
     'Voer die sessyferkode in wat ons na u e-posadres gestuur het.',
+  'Esc': 'Esc',
   'Everything': 'Alles',
   'Everything below asks for it, as your own settings do.':
     'Alles hieronder vra daarvoor, soos u eie instellings ook doen.',
@@ -266,9 +273,11 @@ export default {
   'Export a library': 'Voer ’n biblioteek uit',
   'Exported Items': 'Uitgevoerde items',
   'Export…': 'Voer uit…',
+  'Extend the selection': 'Brei die keuse uit',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Lêers wat op ’n WebDAV-bediener gehou word, word nie by zotero.org gestoor nie, dus kan ’n migrasie hulle nie oorbring nie. Hou aan om lêers deur WebDAV te sinkroniseer, of laai hulle op vanaf ’n Zotero-kliënt wat hulle nog het.',
   'Finished.': 'Voltooi.',
+  'First or last item': 'Eerste of laaste item',
   'Follow this device ({name})': 'Volg hierdie toestel ({name})',
   'For example, my laptop': 'Byvoorbeeld my skootrekenaar',
   'Forgotten password': 'Wagwoord vergeet',
@@ -287,6 +296,7 @@ export default {
   'Groups': 'Groepe',
   'Hand over the group': 'Dra die groep oor',
   'Hide from My Publications': 'Versteek uit My publikasies',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Ure wat ’n onvoltooide oplaai onthou word',
   'How long things are kept': 'Hoe lank dinge gehou word',
   'I created this work and have the rights to distribute the files included.':
@@ -319,6 +329,7 @@ export default {
   'Keep the existing Rights field': 'Behou die bestaande Regte-veld',
   'Key created. Copy it now — it is not shown again.':
     'Sleutel geskep. Kopieer dit nou — dit word nie weer gewys nie.',
+  'Keyboard shortcuts': 'Kortpadsleutels',
   'Know who you are': 'Weet wie u is',
   'Language': 'Taal',
   'Language and time zone': 'Taal en tydsone',
@@ -362,6 +373,7 @@ export default {
   'Move or copy “{name}”': 'Skuif of kopieer “{name}”',
   'Move or copy…': 'Skuif of kopieer…',
   'Move to trash': 'Skuif na asblik',
+  'Move without selecting': 'Beweeg sonder om te kies',
   'My Library': 'My biblioteek',
   'My Publications': 'My publikasies',
   'Name': 'Naam',
@@ -442,6 +454,8 @@ export default {
   'Owner': 'Eienaar',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Plak albei terwyl die verskaffer sy sleutel vervang.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Toegangsleutel bygevoeg.',
   'Passkeys': 'Toegangsleutels',
   'Password': 'Wagwoord',
@@ -457,6 +471,7 @@ export default {
   'People joining or leaving': 'Mense wat aansluit of vertrek',
   'People with an account here': 'Mense met ’n rekening hier',
   'Please sign in first.': 'Meld asseblief eers aan.',
+  'Previous or next item': 'Vorige of volgende item',
   'Private': 'Privaat',
   'Profile': 'Profiel',
   'Provider entity ID': 'Entiteit-ID van verskaffer',
@@ -555,9 +570,12 @@ export default {
   'Share a link…': 'Deel ’n skakel…',
   'Share this collection': 'Deel hierdie versameling',
   'Shared from {library}': 'Gedeel vanuit {library}',
+  'Shift': 'Shift',
   'Short name': 'Kort naam',
   'Show in My Publications': 'Wys in My publikasies',
+  'Show keyboard shortcuts': 'Wys kortpadsleutels',
   'Show more': 'Wys meer',
+  'Show the item’s details': 'Wys die item se besonderhede',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Word in u kennisgewings gewys. Voeg ’n e-posadres by om hulle ook as e-pos te ontvang.',
   'Sidebar width': 'Breedte van sybalk',
@@ -589,6 +607,7 @@ export default {
   'Sort by {column}': 'Sorteer volgens {column}',
   'Sort by {column}, currently ascending': 'Sorteer volgens {column}, tans stygend',
   'Sort by {column}, currently descending': 'Sorteer volgens {column}, tans dalend',
+  'Space': 'Spasie',
   'Stop administering': 'Hou op administreer',
   'Stopped.': 'Gestop.',
   'Stops working on': 'Hou op werk op',
@@ -607,6 +626,7 @@ export default {
   'Take them out of “{name}”': 'Haal hulle uit “{name}”',
   'Taking you back to the application…': 'Neem u terug na die toepassing…',
   'Tell me about': 'Laat weet my oor',
+  'Ten items up or down': 'Tien items op of af',
   'That confirmation link is not valid or has expired.':
     'Daardie bevestigingskakel is ongeldig of het verval.',
   'That connection was removed.': 'Daardie koppeling is verwyder.',

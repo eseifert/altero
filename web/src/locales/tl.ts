@@ -52,6 +52,7 @@ export default {
     'Idagdag ang secret na ito sa iyong authenticator app, pagkatapos ay ilagay ang code na ipinapakita nito. Walang magbabago hangga’t hindi mo ito ginagawa.',
   'Add to My Publications': 'Idagdag sa Aking Mga Publikasyon',
   'Add to My Publications…': 'Idagdag sa Aking Mga Publikasyon…',
+  'Add to the selection or take out of it': 'Idagdag sa pinili o alisin dito',
   'Add “{name}” to My Publications': 'Idagdag ang “{name}” sa Aking Mga Publikasyon',
   'Add, change and remove things in your library':
     'Magdagdag, magbago at mag-alis ng mga bagay sa iyong library',
@@ -200,6 +201,7 @@ export default {
   'Create your account': 'Gawin ang iyong account',
   'Created in': 'Ginawa sa',
   'Credentials revoked.': 'Binawi ang mga credential.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Kasalukuyang password',
   'Database': 'Database',
   'Dates look like this: {example}': 'Ganito ang hitsura ng mga petsa: {example}',
@@ -209,6 +211,7 @@ export default {
   'Decline': 'Tanggihan',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Hindi na mababawi ang paglalaan ng iyong akda sa public domain, kahit pumili ka pa ng ibang mga tuntunin sa ibang pagkakataon o itigil mo ang paglalathala ng akda.',
+  'Del': 'Del',
   'Delete': 'I-delete',
   'Delete account': 'I-delete ang account',
   'Delete everything in the trash?': 'I-delete ang lahat ng nasa basurahan?',
@@ -243,16 +246,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'I-drag para ilipat ang hatiang ito. I-double click para ibalik ito.',
   'Duplicate Items': 'Mga Duplicate na Item',
+  'Edit the title': 'I-edit ang pamagat',
   'Email': 'Email',
   'Email address': 'Email address',
   'Email address (optional)': 'Email address (opsyonal)',
   'Email claim': 'Claim para sa email',
   'Empty the trash': 'Alisan ng laman ang basurahan',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Ilagay ang code na ipinapakita sa iyong device.',
   'Enter the six-digit code from your authenticator app.':
     'Ilagay ang anim na digit na code mula sa iyong authenticator app.',
   'Enter the six-digit code we sent to your email address.':
     'Ilagay ang anim na digit na code na ipinadala namin sa iyong email address.',
+  'Esc': 'Esc',
   'Everything': 'Lahat',
   'Everything below asks for it, as your own settings do.':
     'Hinihingi ito ng lahat ng nasa ibaba, gaya ng iyong sariling mga setting.',
@@ -271,9 +278,11 @@ export default {
   'Export a library': 'Mag-export ng library',
   'Exported Items': 'Mga Na-export na Item',
   'Export…': 'I-export…',
+  'Extend the selection': 'Palawakin ang pinili',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Hindi iniimbak sa zotero.org ang mga file na nasa WebDAV server, kaya hindi ito madadala ng migration. Ipagpatuloy ang pag-sync ng mga file sa pamamagitan ng WebDAV, o i-upload ang mga ito mula sa Zotero client na may hawak pa ng mga ito.',
   'Finished.': 'Natapos na.',
+  'First or last item': 'Una o huling item',
   'Follow this device ({name})': 'Sundin ang device na ito ({name})',
   'For example, my laptop': 'Halimbawa, ang aking laptop',
   'Forgotten password': 'Nakalimutang password',
@@ -292,6 +301,7 @@ export default {
   'Groups': 'Mga grupo',
   'Hand over the group': 'Ipasa ang grupo',
   'Hide from My Publications': 'Itago mula sa Aking Mga Publikasyon',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Ilang oras tatandaan ang hindi natapos na upload',
   'How long things are kept': 'Gaano katagal itinatago ang mga bagay',
   'I created this work and have the rights to distribute the files included.':
@@ -324,6 +334,7 @@ export default {
   'Keep the existing Rights field': 'Panatilihin ang kasalukuyang field na Rights',
   'Key created. Copy it now — it is not shown again.':
     'Nagawa ang key. Kopyahin ito ngayon — hindi na ito ipapakitang muli.',
+  'Keyboard shortcuts': 'Mga keyboard shortcut',
   'Know who you are': 'Malaman kung sino ka',
   'Language': 'Wika',
   'Language and time zone': 'Wika at time zone',
@@ -368,6 +379,7 @@ export default {
   'Move or copy “{name}”': 'Ilipat o kopyahin ang “{name}”',
   'Move or copy…': 'Ilipat o kopyahin…',
   'Move to trash': 'Ilipat sa basurahan',
+  'Move without selecting': 'Lumipat nang hindi pumipili',
   'My Library': 'Aking Library',
   'My Publications': 'Aking Mga Publikasyon',
   'Name': 'Pangalan',
@@ -448,6 +460,8 @@ export default {
   'Owner': 'May-ari',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. I-paste ang dalawa habang pinapalitan ng provider ang key nito.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Naidagdag ang passkey.',
   'Passkeys': 'Mga passkey',
   'Password': 'Password',
@@ -463,6 +477,7 @@ export default {
   'People joining or leaving': 'Mga taong sumasali o umaalis',
   'People with an account here': 'Mga taong may account dito',
   'Please sign in first.': 'Mag-sign in muna.',
+  'Previous or next item': 'Nakaraan o susunod na item',
   'Private': 'Pribado',
   'Profile': 'Profile',
   'Provider entity ID': 'Entity ID ng provider',
@@ -564,9 +579,12 @@ export default {
   'Share a link…': 'Magbahagi ng link…',
   'Share this collection': 'Ibahagi ang koleksyong ito',
   'Shared from {library}': 'Ibinahagi mula sa {library}',
+  'Shift': 'Shift',
   'Short name': 'Maikling pangalan',
   'Show in My Publications': 'Ipakita sa Aking Mga Publikasyon',
+  'Show keyboard shortcuts': 'Ipakita ang mga keyboard shortcut',
   'Show more': 'Magpakita pa',
+  'Show the item’s details': 'Ipakita ang mga detalye ng item',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Ipinapakita sa iyong mga notification. Magdagdag ng email address para matanggap din ang mga ito sa email.',
   'Sidebar width': 'Lapad ng sidebar',
@@ -598,6 +616,7 @@ export default {
   'Sort by {column}': 'Ayusin ayon sa {column}',
   'Sort by {column}, currently ascending': 'Ayusin ayon sa {column}, kasalukuyang pataas',
   'Sort by {column}, currently descending': 'Ayusin ayon sa {column}, kasalukuyang pababa',
+  'Space': 'Space',
   'Stop administering': 'Ihinto ang pangangasiwa',
   'Stopped.': 'Itinigil.',
   'Stops working on': 'Titigil sa paggana sa',
@@ -617,6 +636,7 @@ export default {
   'Take them out of “{name}”': 'Alisin ang mga ito sa “{name}”',
   'Taking you back to the application…': 'Ibinabalik ka sa application…',
   'Tell me about': 'Abisuhan ako tungkol sa',
+  'Ten items up or down': 'Sampung item pataas o pababa',
   'That confirmation link is not valid or has expired.':
     'Hindi wasto o nag-expire na ang link ng kumpirmasyon na iyon.',
   'That connection was removed.': 'Inalis ang koneksyong iyon.',

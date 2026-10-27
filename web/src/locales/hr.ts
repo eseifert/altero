@@ -50,6 +50,7 @@ export default {
     'Dodajte ovu tajnu u aplikaciju za autentifikaciju, a zatim unesite kôd koji prikaže. Dok to ne učinite, ništa se ne mijenja.',
   'Add to My Publications': 'Dodaj u Moje publikacije',
   'Add to My Publications…': 'Dodaj u Moje publikacije…',
+  'Add to the selection or take out of it': 'Dodaj u odabir ili ukloni iz njega',
   'Add “{name}” to My Publications': 'Dodaj „{name}“ u Moje publikacije',
   'Add, change and remove things in your library':
     'Dodavati, mijenjati i uklanjati sadržaj Vaše biblioteke',
@@ -194,6 +195,7 @@ export default {
   'Create your account': 'Stvorite svoj račun',
   'Created in': 'Stvoreno u',
   'Credentials revoked.': 'Vjerodajnice su opozvane.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Trenutna lozinka',
   'Database': 'Baza podataka',
   'Dates look like this: {example}': 'Datumi izgledaju ovako: {example}',
@@ -203,6 +205,7 @@ export default {
   'Decline': 'Odbij',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Posvećivanje rada javnoj domeni ne može se poništiti, čak ni ako kasnije odaberete drukčije uvjete ili prestanete objavljivati rad.',
+  'Del': 'Del',
   'Delete': 'Izbriši',
   'Delete account': 'Izbriši račun',
   'Delete everything in the trash?': 'Želite li izbrisati sve iz otpada?',
@@ -238,16 +241,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Povucite da biste pomaknuli ovu razdjelnicu. Dvaput kliknite da biste je vratili na mjesto.',
   'Duplicate Items': 'Duplicirane stavke',
+  'Edit the title': 'Uredi naslov',
   'Email': 'E-pošta',
   'Email address': 'Adresa e-pošte',
   'Email address (optional)': 'Adresa e-pošte (neobavezno)',
   'Email claim': 'Tvrdnja s adresom e-pošte',
   'Empty the trash': 'Isprazni otpad',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Unesite kôd prikazan na Vašem uređaju.',
   'Enter the six-digit code from your authenticator app.':
     'Unesite šesteroznamenkasti kôd iz aplikacije za autentifikaciju.',
   'Enter the six-digit code we sent to your email address.':
     'Unesite šesteroznamenkasti kôd koji smo poslali na Vašu adresu e-pošte.',
+  'Esc': 'Esc',
   'Everything': 'Sve',
   'Everything below asks for it, as your own settings do.':
     'Sve u nastavku to traži, kao i Vaše vlastite postavke.',
@@ -266,9 +273,11 @@ export default {
   'Export a library': 'Izvezi biblioteku',
   'Exported Items': 'Izvezene stavke',
   'Export…': 'Izvoz…',
+  'Extend the selection': 'Proširi odabir',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Datoteke na poslužitelju WebDAV nisu pohranjene na zotero.org, pa ih migracija ne može prenijeti. Nastavite sinkronizirati datoteke putem WebDAV-a ili ih prenesite iz klijenta Zotero koji ih još ima.',
   'Finished.': 'Završeno.',
+  'First or last item': 'Prva ili posljednja stavka',
   'Follow this device ({name})': 'Prati ovaj uređaj ({name})',
   'For example, my laptop': 'Na primjer, moje prijenosno računalo',
   'Forgotten password': 'Zaboravljena lozinka',
@@ -287,6 +296,7 @@ export default {
   'Groups': 'Grupe',
   'Hand over the group': 'Predaj grupu',
   'Hide from My Publications': 'Sakrij iz Mojih publikacija',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Broj sati koliko se pamti nedovršeni prijenos',
   'How long things are kept': 'Koliko se dugo što čuva',
   'I created this work and have the rights to distribute the files included.':
@@ -319,6 +329,7 @@ export default {
   'Keep the existing Rights field': 'Zadrži postojeće polje Prava',
   'Key created. Copy it now — it is not shown again.':
     'Ključ je stvoren. Kopirajte ga sada — više se neće prikazati.',
+  'Keyboard shortcuts': 'Tipkovnički prečaci',
   'Know who you are': 'Znati tko ste',
   'Language': 'Jezik',
   'Language and time zone': 'Jezik i vremenska zona',
@@ -363,6 +374,7 @@ export default {
   'Move or copy “{name}”': 'Premjesti ili kopiraj „{name}“',
   'Move or copy…': 'Premjesti ili kopiraj…',
   'Move to trash': 'Premjesti u otpad',
+  'Move without selecting': 'Pomakni bez odabira',
   'My Library': 'Moja biblioteka',
   'My Publications': 'Moje publikacije',
   'Name': 'Naziv',
@@ -443,6 +455,8 @@ export default {
   'Owner': 'Vlasnik',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Dok pružatelj mijenja ključ, zalijepite oba.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Pristupni ključ je dodan.',
   'Passkeys': 'Pristupni ključevi',
   'Password': 'Lozinka',
@@ -458,6 +472,7 @@ export default {
   'People joining or leaving': 'Pridruživanja i odlasci članova',
   'People with an account here': 'Korisnici s računom na ovom poslužitelju',
   'Please sign in first.': 'Najprije se prijavite.',
+  'Previous or next item': 'Prethodna ili sljedeća stavka',
   'Private': 'Privatna',
   'Profile': 'Profil',
   'Provider entity ID': 'ID entiteta pružatelja',
@@ -557,9 +572,12 @@ export default {
   'Share a link…': 'Podijeli poveznicu…',
   'Share this collection': 'Podijeli ovu zbirku',
   'Shared from {library}': 'Podijeljeno iz {library}',
+  'Shift': 'Shift',
   'Short name': 'Kratki naziv',
   'Show in My Publications': 'Prikaži u Mojim publikacijama',
+  'Show keyboard shortcuts': 'Prikaži tipkovničke prečace',
   'Show more': 'Prikaži više',
+  'Show the item’s details': 'Prikaži pojedinosti stavke',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Prikazuje se među Vašim obavijestima. Dodajte adresu e-pošte ako ih želite primati i e-poštom.',
   'Sidebar width': 'Širina bočne trake',
@@ -590,6 +608,7 @@ export default {
   'Sort by {column}': 'Razvrstaj po stupcu {column}',
   'Sort by {column}, currently ascending': 'Razvrstaj po stupcu {column}, trenutno uzlazno',
   'Sort by {column}, currently descending': 'Razvrstaj po stupcu {column}, trenutno silazno',
+  'Space': 'Razmaknica',
   'Stop administering': 'Oduzmi administratorska prava',
   'Stopped.': 'Zaustavljeno.',
   'Stops working on': 'Prestaje raditi',
@@ -609,6 +628,7 @@ export default {
   'Take them out of “{name}”': 'Izvadi ih iz „{name}“',
   'Taking you back to the application…': 'Vraćanje u aplikaciju…',
   'Tell me about': 'Obavještavaj me o',
+  'Ten items up or down': 'Deset stavki gore ili dolje',
   'That confirmation link is not valid or has expired.':
     'Ta poveznica za potvrdu nije valjana ili je istekla.',
   'That connection was removed.': 'Ta veza je uklonjena.',

@@ -157,10 +157,13 @@ watch(
 )
 
 const info = ref<InstanceType<typeof InfoPane> | null>(null)
+const heading = ref<HTMLElement | null>(null)
 
 defineExpose({
   /** Open one of the Info pane's fields for typing, as for a new item. */
   editField: (name: string) => info.value?.edit(name),
+  /** Move the keyboard into the pane, at its heading, as Enter in the list does. */
+  focus: () => heading.value?.focus(),
 })
 
 function childTitle(child: ItemEnvelope): string {
@@ -176,7 +179,7 @@ function childTitle(child: ItemEnvelope): string {
     <header class="detail__header">
       <ItemTypeIcon :item-type="item.data.itemType" :size="22" />
       <div class="detail__headings">
-        <h2 class="detail__title">{{ title }}</h2>
+        <h2 ref="heading" class="detail__title" tabindex="-1">{{ title }}</h2>
         <p class="detail__type">{{ itemTypeLabel(item.data.itemType) }}</p>
       </div>
       <button class="icon-button detail__close" type="button" :aria-label="t('Close details')" @click="emit('close')">

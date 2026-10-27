@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser's item list is worked with the arrow keys, Home, End, Enter and F2, as on the desktop; `?` lists the shortcuts ([items]).
 - An edit in the browser over a change made elsewhere is saved when they differ, and asks which version to keep when they clash ([editing]).
 - The browser interface makes new items: **+** over the item list, recently used types first, filed into the open collection ([editing]).
 - The browser interface edits an item's tags, offering the library's tags as you type, and shows colours set in Zotero Desktop ([editing]).
@@ -235,6 +236,7 @@ The first release meant to be used by somebody other than its author.
 [dependencies]: docs/compatibility.md#an-object-that-depends-on-one-the-server-lacks
 [parents]: docs/compatibility.md#what-may-be-a-child-of-what
 [editing]: docs/web/library.md#editing-an-item
+[items]: docs/web/library.md#items
 [config]: docs/configuration.md
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3

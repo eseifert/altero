@@ -16,6 +16,7 @@ import ItemSelection from '@/components/ItemSelection.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import NewItemMenu from '@/components/NewItemMenu.vue'
 import PublicationsDialog from '@/components/PublicationsDialog.vue'
+import ShortcutSheet from '@/components/ShortcutSheet.vue'
 import RightsDialog from '@/components/RightsDialog.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import PaneSplitter from '@/components/PaneSplitter.vue'
@@ -1035,6 +1036,97 @@ function toggleSelecting(): void {
   selecting.value = !selecting.value
 }
 
+/*
+ * The keyboard in the item list, as in the desktop's item tree.
+ *
+ * The list is one stop for Tab, at the row last moved to: arrows, Home, End
+ * and the page keys move from there, and the selection moves with them, so
+ * the pane follows as it does on the desktop. Shift extends the selection from
+ * its anchor and Ctrl or Cmd moves without selecting, which with Space is how
+ * a keyboard picks out rows that are not next to each other. While Select is
+ * on, moving never selects: the checkboxes are the selection then.
+ *
+ * Enter opens the item and moves into its pane; F2 opens its title for typing.
+ */
+const focusKey = ref<string | null>(null)
+
+/** The row Tab lands on: the one moved to last, else the one open, else the first. */
+const tabKey = computed(() => {
+  const shown = new Set(library.items.map((entry) => entry.key))
+  for (const key of [focusKey.value, library.selected?.key, library.selection[0]]) {
+    if (key && shown.has(key)) return key
+  }
+  return library.items[0]?.key ?? null
+})
+
+const PAGE_STEP = 10
+
+/** The sheet of shortcuts, opened with `?` anywhere but where text is typed. */
+const showingShortcuts = ref(false)
+
+function pageKey(event: KeyboardEvent): void {
+  if (event.key !== '?' || event.ctrlKey || event.metaKey || event.altKey) return
+  const target = event.target as HTMLElement | null
+  if (target?.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), dialog')) return
+  event.preventDefault()
+  showingShortcuts.value = true
+}
+
+onMounted(() => window.addEventListener('keydown', pageKey))
+onBeforeUnmount(() => window.removeEventListener('keydown', pageKey))
+
+async function listKey(event: KeyboardEvent): Promise<void> {
+  const row = (event.target as HTMLElement).closest<HTMLElement>('[data-row]')
+  if (!row || event.altKey) return
+  const at = library.items.findIndex((entry) => entry.key === row.dataset.row)
+  const item = library.items[at]
+  if (!item) return
+  const modified = event.ctrlKey || event.metaKey
+
+  if ((event.key === 'Enter' || event.key === 'F2') && !modified && !event.shiftKey && !selecting.value) {
+    event.preventDefault()
+    if (library.selected?.key !== item.key || library.selection.length !== 1) await library.select(item)
+    await nextTick()
+    if (event.key === 'F2') detailPane.value?.editField(titleField(item.data.itemType))
+    else detailPane.value?.focus()
+    return
+  }
+
+  // Picking out a row without dropping the others. Said here rather than left
+  // to the click a Space makes, which does not reliably carry the modifier.
+  if (event.key === ' ' && modified) {
+    event.preventDefault()
+    await library.toggleSelected(item)
+    return
+  }
+
+  const last = library.items.length - 1
+  const steps: Record<string, number> = {
+    ArrowDown: at + 1,
+    ArrowUp: at - 1,
+    PageDown: at + PAGE_STEP,
+    PageUp: at - PAGE_STEP,
+    Home: 0,
+    End: last,
+  }
+  if (!(event.key in steps)) return
+  event.preventDefault()
+
+  let to = steps[event.key]
+  // Past the last row fetched is the next page, when there is one.
+  if (to > last && library.hasMore && !library.loading) await library.loadMore()
+  to = Math.max(0, Math.min(to, library.items.length - 1))
+  const next = library.items[to]
+  if (!next) return
+
+  focusKey.value = next.key
+  await nextTick()
+  document.querySelector<HTMLElement>(`[data-row="${CSS.escape(next.key)}"]`)?.focus()
+  if (next.key === item.key && !event.shiftKey) return
+  if (event.shiftKey) await library.extendSelection(next)
+  else if (!modified && !selecting.value) await library.select(next)
+}
+
 async function pressRow(item: ItemEnvelope, event: MouseEvent): Promise<void> {
   if (event.shiftKey) return void (await library.extendSelection(item))
   if (event.ctrlKey || event.metaKey || selecting.value) {
@@ -1735,6 +1827,7 @@ function sortLabel(column: { field: string; label: string }): string {
           :aria-label="t('Items in {name}', { name: heading })"
           @keydown.a="selectAllKey"
           @keydown.esc="library.clearSelection()"
+          @keydown="listKey"
         >
           <!-- Memoised on what a row shows: the item, whether it is picked out
                or being carried, whether checkboxes are drawn, and the language.
@@ -1745,7 +1838,7 @@ function sortLabel(column: { field: string; label: string }): string {
           <li
             v-for="item in library.items"
             :key="item.key"
-            v-memo="[item, selectedKeys.has(item.key), carriedKeys.has(item.key), selecting, locale]"
+            v-memo="[item, selectedKeys.has(item.key), carriedKeys.has(item.key), selecting, locale, item.key === tabKey]"
             class="library__line"
           >
             <!-- The checkbox is a sibling of the row rather than inside it: a
@@ -1776,6 +1869,9 @@ function sortLabel(column: { field: string; label: string }): string {
                 },
               ]"
               :aria-pressed="selectedKeys.has(item.key)"
+              :data-row="item.key"
+              :tabindex="item.key === tabKey ? 0 : -1"
+              @focus="focusKey = item.key"
               @click="pressRow(item, $event)"
               @pointerdown="carryItem(item, $event)"
               @keydown.delete.prevent="removeKey(item)"
@@ -1971,6 +2067,8 @@ function sortLabel(column: { field: string; label: string }): string {
       :link="exportLink"
       @close="exporting = null"
     />
+
+    <ShortcutSheet v-if="showingShortcuts" @close="showingShortcuts = false" />
 
     <TagDialog
       v-if="renaming"

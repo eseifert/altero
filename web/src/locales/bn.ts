@@ -53,6 +53,7 @@ export default {
     'এই সিক্রেটটি আপনার অথেনটিকেটর অ্যাপে যোগ করুন, তারপর অ্যাপে দেখানো কোডটি লিখুন। আপনি তা না করা পর্যন্ত কিছুই বদলাবে না।',
   'Add to My Publications': 'আমার প্রকাশনায় যোগ করুন',
   'Add to My Publications…': 'আমার প্রকাশনায় যোগ করুন…',
+  'Add to the selection or take out of it': 'নির্বাচনে যোগ করুন বা বাদ দিন',
   'Add “{name}” to My Publications': '“{name}” আমার প্রকাশনায় যোগ করুন',
   'Add, change and remove things in your library':
     'আপনার লাইব্রেরিতে কিছু যোগ, পরিবর্তন ও অপসারণ করা',
@@ -199,6 +200,7 @@ export default {
   'Create your account': 'আপনার অ্যাকাউন্ট তৈরি করুন',
   'Created in': 'যেখানে তৈরি হবে',
   'Credentials revoked.': 'ক্রেডেনশিয়াল প্রত্যাহার করা হয়েছে।',
+  'Ctrl': 'Ctrl',
   'Current password': 'বর্তমান পাসওয়ার্ড',
   'Database': 'ডেটাবেস',
   'Dates look like this: {example}': 'তারিখ দেখতে এমন: {example}',
@@ -208,6 +210,7 @@ export default {
   'Decline': 'প্রত্যাখ্যান করুন',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'আপনার কাজ পাবলিক ডোমেইনে উৎসর্গ করা আর ফেরানো যায় না, এমনকি পরে আপনি ভিন্ন শর্ত বেছে নিলে বা কাজটি প্রকাশ করা বন্ধ করলেও।',
+  'Del': 'Del',
   'Delete': 'মুছুন',
   'Delete account': 'অ্যাকাউন্ট মুছুন',
   'Delete everything in the trash?': 'ট্র্যাশের সবকিছু মুছে ফেলবেন?',
@@ -242,16 +245,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'এই বিভাজক সরাতে টেনে আনুন। আগের জায়গায় ফেরাতে ডাবল-ক্লিক করুন।',
   'Duplicate Items': 'ডুপ্লিকেট আইটেম',
+  'Edit the title': 'শিরোনাম সম্পাদনা করুন',
   'Email': 'ইমেইল',
   'Email address': 'ইমেইল ঠিকানা',
   'Email address (optional)': 'ইমেইল ঠিকানা (ঐচ্ছিক)',
   'Email claim': 'ইমেইল ক্লেইম',
   'Empty the trash': 'ট্র্যাশ খালি করুন',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'আপনার ডিভাইসে দেখানো কোডটি লিখুন।',
   'Enter the six-digit code from your authenticator app.':
     'আপনার অথেনটিকেটর অ্যাপের ছয় অঙ্কের কোডটি লিখুন।',
   'Enter the six-digit code we sent to your email address.':
     'আপনার ইমেইল ঠিকানায় আমরা যে ছয় অঙ্কের কোড পাঠিয়েছি তা লিখুন।',
+  'Esc': 'Esc',
   'Everything': 'সবকিছু',
   'Everything below asks for it, as your own settings do.':
     'নিচের সবকিছুর জন্য এটি চাওয়া হয়, আপনার নিজের সেটিংসের মতোই।',
@@ -270,9 +277,11 @@ export default {
   'Export a library': 'একটি লাইব্রেরি এক্সপোর্ট করুন',
   'Exported Items': 'এক্সপোর্ট করা আইটেম',
   'Export…': 'এক্সপোর্ট…',
+  'Extend the selection': 'নির্বাচন বাড়ান',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV সার্ভারে রাখা ফাইল zotero.org-এ সংরক্ষিত থাকে না, তাই মাইগ্রেশন সেগুলো আনতে পারে না। WebDAV-এর মাধ্যমে ফাইল সিঙ্ক করা চালিয়ে যান, অথবা যে Zotero ক্লায়েন্টে সেগুলো এখনও আছে সেখান থেকে আপলোড করুন।',
   'Finished.': 'সম্পন্ন হয়েছে।',
+  'First or last item': 'প্রথম বা শেষ আইটেম',
   'Follow this device ({name})': 'এই ডিভাইস অনুসরণ করুন ({name})',
   'For example, my laptop': 'যেমন, আমার ল্যাপটপ',
   'Forgotten password': 'পাসওয়ার্ড ভুলে গেছেন',
@@ -291,6 +300,7 @@ export default {
   'Groups': 'গ্রুপ',
   'Hand over the group': 'গ্রুপটি হস্তান্তর করুন',
   'Hide from My Publications': 'আমার প্রকাশনা থেকে লুকান',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'অসম্পূর্ণ আপলোড কত ঘণ্টা মনে রাখা হবে',
   'How long things are kept': 'কোন জিনিস কত দিন রাখা হয়',
   'I created this work and have the rights to distribute the files included.':
@@ -323,6 +333,7 @@ export default {
   'Keep the existing Rights field': 'বিদ্যমান অধিকার ফিল্ডটি রাখুন',
   'Key created. Copy it now — it is not shown again.':
     'কী তৈরি হয়েছে। এখনই কপি করুন — এটি আর দেখানো হবে না।',
+  'Keyboard shortcuts': 'কিবোর্ড শর্টকাট',
   'Know who you are': 'আপনি কে তা জানা',
   'Language': 'ভাষা',
   'Language and time zone': 'ভাষা ও সময় অঞ্চল',
@@ -366,6 +377,7 @@ export default {
   'Move or copy “{name}”': '“{name}” সরান বা কপি করুন',
   'Move or copy…': 'সরান বা কপি করুন…',
   'Move to trash': 'ট্র্যাশে সরান',
+  'Move without selecting': 'নির্বাচন না করে সরান',
   'My Library': 'আমার লাইব্রেরি',
   'My Publications': 'আমার প্রকাশনা',
   'Name': 'নাম',
@@ -445,6 +457,8 @@ export default {
   'Owner': 'মালিক',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM। প্রদানকারী যখন তার কী বদলাচ্ছে, তখন দুটোই পেস্ট করুন।',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'পাসকি যোগ করা হয়েছে।',
   'Passkeys': 'পাসকি',
   'Password': 'পাসওয়ার্ড',
@@ -460,6 +474,7 @@ export default {
   'People joining or leaving': 'সদস্যদের যোগদান বা প্রস্থান',
   'People with an account here': 'এখানে অ্যাকাউন্ট আছে এমন ব্যক্তিরা',
   'Please sign in first.': 'অনুগ্রহ করে আগে সাইন ইন করুন।',
+  'Previous or next item': 'আগের বা পরের আইটেম',
   'Private': 'ব্যক্তিগত',
   'Profile': 'প্রোফাইল',
   'Provider entity ID': 'প্রদানকারীর এনটিটি আইডি',
@@ -559,9 +574,12 @@ export default {
   'Share a link…': 'একটি লিঙ্ক শেয়ার করুন…',
   'Share this collection': 'এই সংগ্রহটি শেয়ার করুন',
   'Shared from {library}': '{library} থেকে শেয়ার করা',
+  'Shift': 'Shift',
   'Short name': 'সংক্ষিপ্ত নাম',
   'Show in My Publications': 'আমার প্রকাশনায় দেখান',
+  'Show keyboard shortcuts': 'কিবোর্ড শর্টকাট দেখান',
   'Show more': 'আরও দেখান',
+  'Show the item’s details': 'আইটেমের বিবরণ দেখান',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'আপনার বিজ্ঞপ্তিতে দেখানো হয়। এগুলো ইমেইলেও পেতে একটি ইমেইল ঠিকানা যোগ করুন।',
   'Sidebar width': 'সাইডবারের প্রস্থ',
@@ -593,6 +611,7 @@ export default {
   'Sort by {column}': '{column} অনুযায়ী সাজান',
   'Sort by {column}, currently ascending': '{column} অনুযায়ী সাজান, বর্তমানে ঊর্ধ্বক্রমে',
   'Sort by {column}, currently descending': '{column} অনুযায়ী সাজান, বর্তমানে অধঃক্রমে',
+  'Space': 'স্পেস',
   'Stop administering': 'প্রশাসকের ভূমিকা সরান',
   'Stopped.': 'থেমে গেছে।',
   'Stops working on': 'কাজ বন্ধের তারিখ',
@@ -611,6 +630,7 @@ export default {
   'Take them out of “{name}”': '“{name}” থেকে এগুলো বের করুন',
   'Taking you back to the application…': 'আপনাকে অ্যাপ্লিকেশনে ফিরিয়ে নেওয়া হচ্ছে…',
   'Tell me about': 'যেসব বিষয়ে আমাকে জানাবেন',
+  'Ten items up or down': 'দশটি আইটেম উপরে বা নিচে',
   'That confirmation link is not valid or has expired.':
     'ওই নিশ্চিতকরণ লিঙ্কটি বৈধ নয় বা এর মেয়াদ শেষ হয়ে গেছে।',
   'That connection was removed.': 'ওই সংযোগটি সরানো হয়েছে।',

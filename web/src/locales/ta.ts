@@ -52,6 +52,7 @@ export default {
     'இந்த ரகசியத்தை உங்கள் அங்கீகரிப்புப் பயன்பாட்டில் சேர்த்து, அது காட்டும் குறியீட்டை உள்ளிடவும். நீங்கள் அதைச் செய்யும் வரை எதுவும் மாறாது.',
   'Add to My Publications': 'எனது வெளியீடுகளில் சேர்',
   'Add to My Publications…': 'எனது வெளியீடுகளில் சேர்…',
+  'Add to the selection or take out of it': 'தேர்வில் சேர் அல்லது அதிலிருந்து நீக்கு',
   'Add “{name}” to My Publications': '“{name}” ஐ எனது வெளியீடுகளில் சேர்',
   'Add, change and remove things in your library':
     'உங்கள் நூலகத்தில் உள்ளவற்றைச் சேர்க்க, மாற்ற, அகற்ற',
@@ -199,6 +200,7 @@ export default {
   'Create your account': 'உங்கள் கணக்கை உருவாக்கவும்',
   'Created in': 'உருவாக்கப்படும் இடம்',
   'Credentials revoked.': 'நற்சான்றுகள் திரும்பப் பெறப்பட்டன.',
+  'Ctrl': 'Ctrl',
   'Current password': 'தற்போதைய கடவுச்சொல்',
   'Database': 'தரவுத்தளம்',
   'Dates look like this: {example}': 'தேதிகள் இப்படித் தோன்றும்: {example}',
@@ -208,6 +210,7 @@ export default {
   'Decline': 'நிராகரி',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'பின்னர் நீங்கள் வேறு விதிமுறைகளைத் தேர்ந்தெடுத்தாலும் அல்லது படைப்பை வெளியிடுவதை நிறுத்தினாலும், உங்கள் படைப்பைப் பொது களத்திற்கு அர்ப்பணித்ததைச் செயல்தவிர்க்க முடியாது.',
+  'Del': 'Del',
   'Delete': 'நீக்கு',
   'Delete account': 'கணக்கை நீக்கு',
   'Delete everything in the trash?': 'குப்பையில் உள்ள அனைத்தையும் நீக்கவா?',
@@ -242,16 +245,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'இந்தப் பிரிகோட்டை நகர்த்த இழுக்கவும். பழைய இடத்திற்குத் திருப்ப இருமுறை சொடுக்கவும்.',
   'Duplicate Items': 'நகல் உருப்படிகள்',
+  'Edit the title': 'தலைப்பைத் திருத்து',
   'Email': 'மின்னஞ்சல்',
   'Email address': 'மின்னஞ்சல் முகவரி',
   'Email address (optional)': 'மின்னஞ்சல் முகவரி (விருப்பத்தேர்வு)',
   'Email claim': 'மின்னஞ்சல் கோரல்',
   'Empty the trash': 'குப்பையைக் காலியாக்கு',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'உங்கள் சாதனத்தில் காட்டப்படும் குறியீட்டை உள்ளிடவும்.',
   'Enter the six-digit code from your authenticator app.':
     'உங்கள் அங்கீகரிப்புப் பயன்பாட்டிலிருந்து ஆறு இலக்கக் குறியீட்டை உள்ளிடவும்.',
   'Enter the six-digit code we sent to your email address.':
     'உங்கள் மின்னஞ்சல் முகவரிக்கு நாங்கள் அனுப்பிய ஆறு இலக்கக் குறியீட்டை உள்ளிடவும்.',
+  'Esc': 'Esc',
   'Everything': 'அனைத்தும்',
   'Everything below asks for it, as your own settings do.':
     'உங்கள் சொந்த அமைப்புகளைப் போலவே, கீழே உள்ள அனைத்தும் இதைக் கேட்கும்.',
@@ -270,9 +277,11 @@ export default {
   'Export a library': 'நூலகத்தை ஏற்றுமதி செய்',
   'Exported Items': 'ஏற்றுமதி செய்யப்பட்ட உருப்படிகள்',
   'Export…': 'ஏற்றுமதி…',
+  'Extend the selection': 'தேர்வை நீட்டி',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV சேவையகத்தில் வைக்கப்பட்ட கோப்புகள் zotero.org இல் சேமிக்கப்படுவதில்லை, எனவே இடம்பெயர்வால் அவற்றைக் கொண்டுவர முடியாது. WebDAV மூலம் கோப்புகளைத் தொடர்ந்து ஒத்திசைக்கவும், அல்லது அவற்றை இன்னும் வைத்திருக்கும் Zotero பயன்பாட்டிலிருந்து பதிவேற்றவும்.',
   'Finished.': 'முடிந்தது.',
+  'First or last item': 'முதல் அல்லது கடைசி உருப்படி',
   'Follow this device ({name})': 'இந்தச் சாதனத்தைப் பின்பற்று ({name})',
   'For example, my laptop': 'எடுத்துக்காட்டாக, எனது மடிக்கணினி',
   'Forgotten password': 'மறந்த கடவுச்சொல்',
@@ -291,6 +300,7 @@ export default {
   'Groups': 'குழுக்கள்',
   'Hand over the group': 'குழுவை ஒப்படை',
   'Hide from My Publications': 'எனது வெளியீடுகளிலிருந்து மறை',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered':
     'முடிக்கப்படாத பதிவேற்றம் நினைவில் வைக்கப்படும் மணிநேரங்கள்',
   'How long things are kept': 'எவை எவ்வளவு காலம் வைத்திருக்கப்படும்',
@@ -324,6 +334,7 @@ export default {
   'Keep the existing Rights field': 'ஏற்கனவே உள்ள உரிமைகள் புலத்தை வைத்திரு',
   'Key created. Copy it now — it is not shown again.':
     'விசை உருவாக்கப்பட்டது. இப்போதே நகலெடுக்கவும் — அது மீண்டும் காட்டப்படாது.',
+  'Keyboard shortcuts': 'விசைப்பலகை குறுக்குவழிகள்',
   'Know who you are': 'நீங்கள் யார் என்பதை அறிய',
   'Language': 'மொழி',
   'Language and time zone': 'மொழி மற்றும் நேர வலயம்',
@@ -368,6 +379,7 @@ export default {
   'Move or copy “{name}”': '“{name}” ஐ நகர்த்து அல்லது நகலெடு',
   'Move or copy…': 'நகர்த்து அல்லது நகலெடு…',
   'Move to trash': 'குப்பைக்கு நகர்த்து',
+  'Move without selecting': 'தேர்ந்தெடுக்காமல் நகர்த்து',
   'My Library': 'எனது நூலகம்',
   'My Publications': 'எனது வெளியீடுகள்',
   'Name': 'பெயர்',
@@ -454,6 +466,8 @@ export default {
   'Owner': 'உரிமையாளர்',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. வழங்குநர் தனது விசையை மாற்றிக்கொண்டிருக்கும்போது இரண்டையும் ஒட்டவும்.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'கடவுச்சாவி சேர்க்கப்பட்டது.',
   'Passkeys': 'கடவுச்சாவிகள்',
   'Password': 'கடவுச்சொல்',
@@ -469,6 +483,7 @@ export default {
   'People joining or leaving': 'சேரும் அல்லது வெளியேறும் நபர்கள்',
   'People with an account here': 'இங்கே கணக்கு உள்ளவர்கள்',
   'Please sign in first.': 'முதலில் உள்நுழையவும்.',
+  'Previous or next item': 'முந்தைய அல்லது அடுத்த உருப்படி',
   'Private': 'தனிப்பட்டது',
   'Profile': 'சுயவிவரம்',
   'Provider entity ID': 'வழங்குநரின் entity ID',
@@ -568,9 +583,12 @@ export default {
   'Share a link…': 'தொடுப்பைப் பகிர்…',
   'Share this collection': 'இந்தச் சேகரிப்பைப் பகிர்',
   'Shared from {library}': 'பகிரப்பட்டது: {library}',
+  'Shift': 'Shift',
   'Short name': 'சுருக்கப் பெயர்',
   'Show in My Publications': 'எனது வெளியீடுகளில் காட்டு',
+  'Show keyboard shortcuts': 'விசைப்பலகை குறுக்குவழிகளைக் காட்டு',
   'Show more': 'மேலும் காட்டு',
+  'Show the item’s details': 'உருப்படியின் விவரங்களைக் காட்டு',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'உங்கள் அறிவிப்புகளில் காட்டப்படும். அவற்றை மின்னஞ்சலாகவும் பெற, ஒரு மின்னஞ்சல் முகவரியைச் சேர்க்கவும்.',
   'Sidebar width': 'பக்கப்பட்டியின் அகலம்',
@@ -604,6 +622,7 @@ export default {
     '{column} நெடுவரிசைப்படி வரிசைப்படுத்து, தற்போது ஏறுவரிசையில்',
   'Sort by {column}, currently descending':
     '{column} நெடுவரிசைப்படி வரிசைப்படுத்து, தற்போது இறங்குவரிசையில்',
+  'Space': 'இடைவெளி',
   'Stop administering': 'நிர்வகிப்பதை நிறுத்து',
   'Stopped.': 'நிறுத்தப்பட்டது.',
   'Stops working on': 'வேலை செய்வதை நிறுத்தும் நாள்',
@@ -624,6 +643,7 @@ export default {
   'Take them out of “{name}”': 'அவற்றை “{name}” இலிருந்து வெளியே எடு',
   'Taking you back to the application…': 'உங்களைப் பயன்பாட்டுக்குத் திருப்பி அனுப்புகிறது…',
   'Tell me about': 'இவற்றைப் பற்றி எனக்குத் தெரிவி',
+  'Ten items up or down': 'பத்து உருப்படிகள் மேலே அல்லது கீழே',
   'That confirmation link is not valid or has expired.':
     'அந்த உறுதிப்படுத்தல் தொடுப்பு செல்லாதது அல்லது காலாவதியானது.',
   'That connection was removed.': 'அந்த இணைப்பு அகற்றப்பட்டது.',

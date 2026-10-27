@@ -55,6 +55,7 @@ export default {
     'Tambahkan kunci rahasia ini ke aplikasi autentikator Anda, lalu masukkan kode yang ditampilkannya. Tidak ada yang berubah sebelum Anda melakukannya.',
   'Add to My Publications': 'Tambahkan ke Publikasi Saya',
   'Add to My Publications…': 'Tambahkan ke Publikasi Saya…',
+  'Add to the selection or take out of it': 'Tambahkan ke pilihan atau keluarkan darinya',
   'Add “{name}” to My Publications': 'Tambahkan “{name}” ke Publikasi Saya',
   'Add, change and remove things in your library':
     'Menambahkan, mengubah, dan menghapus isi perpustakaan Anda',
@@ -199,6 +200,7 @@ export default {
   'Create your account': 'Buat akun Anda',
   'Created in': 'Dibuat di',
   'Credentials revoked.': 'Kredensial dicabut.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Kata sandi saat ini',
   'Database': 'Basis data',
   'Dates look like this: {example}': 'Tanggal ditampilkan seperti ini: {example}',
@@ -208,6 +210,7 @@ export default {
   'Decline': 'Tolak',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Mendedikasikan karya Anda ke domain publik tidak dapat dibatalkan, meskipun nanti Anda memilih ketentuan lain atau berhenti menerbitkan karya tersebut.',
+  'Del': 'Del',
   'Delete': 'Hapus',
   'Delete account': 'Hapus akun',
   'Delete everything in the trash?': 'Hapus semua isi Keranjang Sampah?',
@@ -242,16 +245,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Seret untuk memindahkan pembatas ini. Klik dua kali untuk mengembalikannya.',
   'Duplicate Items': 'Item duplikat',
+  'Edit the title': 'Sunting judul',
   'Email': 'Email',
   'Email address': 'Alamat email',
   'Email address (optional)': 'Alamat email (opsional)',
   'Email claim': 'Klaim email',
   'Empty the trash': 'Kosongkan Keranjang Sampah',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Masukkan kode yang ditampilkan di perangkat Anda.',
   'Enter the six-digit code from your authenticator app.':
     'Masukkan kode enam digit dari aplikasi autentikator Anda.',
   'Enter the six-digit code we sent to your email address.':
     'Masukkan kode enam digit yang kami kirim ke alamat email Anda.',
+  'Esc': 'Esc',
   'Everything': 'Semuanya',
   'Everything below asks for it, as your own settings do.':
     'Semua tindakan di bawah memerlukannya, sama seperti pengaturan Anda sendiri.',
@@ -271,9 +278,11 @@ export default {
   'Export a library': 'Ekspor perpustakaan',
   'Exported Items': 'Item-item Terekspor',
   'Export…': 'Ekspor…',
+  'Extend the selection': 'Perluas pilihan',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Berkas yang disimpan di server WebDAV tidak tersimpan di zotero.org, sehingga migrasi tidak dapat membawanya. Tetap sinkronkan berkas melalui WebDAV, atau unggah berkas dari klien Zotero yang masih menyimpannya.',
   'Finished.': 'Selesai.',
+  'First or last item': 'Item pertama atau terakhir',
   'Follow this device ({name})': 'Ikuti perangkat ini ({name})',
   'For example, my laptop': 'Misalnya, laptop saya',
   'Forgotten password': 'Lupa kata sandi',
@@ -292,6 +301,7 @@ export default {
   'Groups': 'Grup',
   'Hand over the group': 'Serahkan grup',
   'Hide from My Publications': 'Sembunyikan dari Publikasi Saya',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Berapa jam unggahan yang belum selesai diingat',
   'How long things are kept': 'Berapa lama data disimpan',
   'I created this work and have the rights to distribute the files included.':
@@ -324,6 +334,7 @@ export default {
   'Keep the existing Rights field': 'Pertahankan isian Hak yang sudah ada',
   'Key created. Copy it now — it is not shown again.':
     'Kunci dibuat. Salin sekarang — kunci ini tidak akan ditampilkan lagi.',
+  'Keyboard shortcuts': 'Pintasan papan ketik',
   'Know who you are': 'Mengetahui siapa Anda',
   'Language': 'Bahasa',
   'Language and time zone': 'Bahasa dan zona waktu',
@@ -368,6 +379,7 @@ export default {
   'Move or copy “{name}”': 'Pindahkan atau salin “{name}”',
   'Move or copy…': 'Pindahkan atau salin…',
   'Move to trash': 'Pindahkan ke Keranjang Sampah',
+  'Move without selecting': 'Pindah tanpa memilih',
   'My Library': 'Perpustakaanku',
   'My Publications': 'Publikasi Saya',
   'Name': 'Nama',
@@ -450,6 +462,8 @@ export default {
   'Owner': 'Pemilik',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Tempelkan keduanya selama penyedia sedang mengganti kuncinya.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Kunci sandi ditambahkan.',
   'Passkeys': 'Kunci sandi',
   'Password': 'Kata sandi',
@@ -465,6 +479,7 @@ export default {
   'People joining or leaving': 'Orang yang bergabung atau keluar',
   'People with an account here': 'Orang yang memiliki akun di sini',
   'Please sign in first.': 'Silakan masuk terlebih dahulu.',
+  'Previous or next item': 'Item sebelumnya atau berikutnya',
   'Private': 'Privat',
   'Profile': 'Profil',
   'Provider entity ID': 'ID entitas penyedia',
@@ -564,9 +579,12 @@ export default {
   'Share a link…': 'Bagikan tautan…',
   'Share this collection': 'Bagikan koleksi ini',
   'Shared from {library}': 'Dibagikan dari {library}',
+  'Shift': 'Shift',
   'Short name': 'Nama singkat',
   'Show in My Publications': 'Tampilkan di Publikasi Saya',
+  'Show keyboard shortcuts': 'Tampilkan pintasan papan ketik',
   'Show more': 'Tampilkan lebih banyak',
+  'Show the item’s details': 'Tampilkan rincian item',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Ditampilkan di notifikasi Anda. Tambahkan alamat email untuk menerimanya juga lewat email.',
   'Sidebar width': 'Lebar bilah samping',
@@ -598,6 +616,7 @@ export default {
   'Sort by {column}': 'Urutkan menurut {column}',
   'Sort by {column}, currently ascending': 'Urutkan menurut {column}, saat ini naik',
   'Sort by {column}, currently descending': 'Urutkan menurut {column}, saat ini turun',
+  'Space': 'Spasi',
   'Stop administering': 'Berhenti sebagai administrator',
   'Stopped.': 'Dihentikan.',
   'Stops working on': 'Berhenti berfungsi pada',
@@ -616,6 +635,7 @@ export default {
   'Take them out of “{name}”': 'Keluarkan dari “{name}”',
   'Taking you back to the application…': 'Mengarahkan Anda kembali ke aplikasi…',
   'Tell me about': 'Beri tahu saya tentang',
+  'Ten items up or down': 'Sepuluh item ke atas atau ke bawah',
   'That confirmation link is not valid or has expired.':
     'Tautan konfirmasi itu tidak valid atau sudah kedaluwarsa.',
   'That connection was removed.': 'Koneksi itu telah dihapus.',

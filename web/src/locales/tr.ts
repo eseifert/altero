@@ -50,6 +50,7 @@ export default {
     'Bu gizli anahtarı kimlik doğrulama uygulamanıza ekleyiniz, ardından uygulamanın gösterdiği kodu giriniz. Siz bunu yapana kadar hiçbir şey değişmez.',
   'Add to My Publications': 'Yayınlarım’a Ekle',
   'Add to My Publications…': 'Yayınlarım’a Ekle…',
+  'Add to the selection or take out of it': 'Seçime ekle veya seçimden çıkar',
   'Add “{name}” to My Publications': '“{name}” eserini Yayınlarım’a ekle',
   'Add, change and remove things in your library':
     'Kitaplığınıza ekleme yapmak, kitaplığınızdakileri değiştirmek ve kaldırmak',
@@ -196,6 +197,7 @@ export default {
   'Create your account': 'Hesabınızı oluşturunuz',
   'Created in': 'Oluşturulacağı yer',
   'Credentials revoked.': 'Kimlik bilgileri iptal edildi.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Mevcut şifre',
   'Database': 'Veritabanı',
   'Dates look like this: {example}': 'Tarihler şöyle görünür: {example}',
@@ -205,6 +207,7 @@ export default {
   'Decline': 'Reddet',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Eserinizi kamu alanına sunmak, daha sonra farklı koşullar seçseniz ya da eseri yayınlamayı bıraksanız bile geri alınamaz.',
+  'Del': 'Del',
   'Delete': 'Sil',
   'Delete account': 'Hesabı sil',
   'Delete everything in the trash?': 'Çöp Sepetindeki her şey silinsin mi?',
@@ -239,16 +242,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Bu ayırıcıyı taşımak için sürükleyiniz. Eski yerine koymak için çift tıklayınız.',
   'Duplicate Items': 'Yinelenmiş Eserler',
+  'Edit the title': 'Başlığı düzenle',
   'Email': 'E-posta',
   'Email address': 'E-posta adresi',
   'Email address (optional)': 'E-posta adresi (isteğe bağlı)',
   'Email claim': 'E-posta talebi',
   'Empty the trash': 'Çöp Sepetini boşalt',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Cihazınızda gösterilen kodu giriniz.',
   'Enter the six-digit code from your authenticator app.':
     'Kimlik doğrulama uygulamanızdaki altı haneli kodu giriniz.',
   'Enter the six-digit code we sent to your email address.':
     'E-posta adresinize gönderdiğimiz altı haneli kodu giriniz.',
+  'Esc': 'Esc',
   'Everything': 'Tümü',
   'Everything below asks for it, as your own settings do.':
     'Kendi ayarlarınızda olduğu gibi, aşağıdaki her şey bunu gerektirir.',
@@ -267,9 +274,11 @@ export default {
   'Export a library': 'Bir kitaplığı dışarı aktar',
   'Exported Items': 'Dışarı Aktarılan Eserler',
   'Export…': 'Dışarı aktar…',
+  'Extend the selection': 'Seçimi genişlet',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV sunucusunda tutulan dosyalar zotero.org’da saklanmaz, bu yüzden taşıma işlemi onları getiremez. Dosyaları WebDAV üzerinden eşitlemeye devam ediniz ya da onları hâlâ barındıran bir Zotero istemcisinden yükleyiniz.',
   'Finished.': 'Tamamlandı.',
+  'First or last item': 'İlk veya son eser',
   'Follow this device ({name})': 'Bu cihazı izle ({name})',
   'For example, my laptop': 'Örneğin, dizüstü bilgisayarım',
   'Forgotten password': 'Unutulan şifre',
@@ -288,6 +297,7 @@ export default {
   'Groups': 'Gruplar',
   'Hand over the group': 'Grubu devret',
   'Hide from My Publications': 'Yayınlarım’da gizle',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered':
     'Tamamlanmamış bir yüklemenin hatırlandığı saat sayısı',
   'How long things are kept': 'Ne kadar süre saklanır',
@@ -321,6 +331,7 @@ export default {
   'Keep the existing Rights field': 'Mevcut Telif alanını aynen tut',
   'Key created. Copy it now — it is not shown again.':
     'Anahtar oluşturuldu. Şimdi kopyalayınız — bir daha gösterilmeyecek.',
+  'Keyboard shortcuts': 'Klavye kısayolları',
   'Know who you are': 'Kim olduğunuzu bilmek',
   'Language': 'Dil',
   'Language and time zone': 'Dil ve saat dilimi',
@@ -365,6 +376,7 @@ export default {
   'Move or copy “{name}”': '“{name}” eserini taşı ya da kopyala',
   'Move or copy…': 'Taşı ya da kopyala…',
   'Move to trash': 'Çöp Sepetine gönder',
+  'Move without selecting': 'Seçmeden ilerle',
   'My Library': 'Kitaplığım',
   'My Publications': 'Yayınlarım',
   'Name': 'Ad',
@@ -446,6 +458,8 @@ export default {
   'Owner': 'Sahip',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Sağlayıcı anahtarını yenilerken ikisini birden yapıştırınız.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Geçiş anahtarı eklendi.',
   'Passkeys': 'Geçiş anahtarları',
   'Password': 'Şifre',
@@ -461,6 +475,7 @@ export default {
   'People joining or leaving': 'Katılan ya da ayrılan kişiler',
   'People with an account here': 'Burada hesabı olan kişiler',
   'Please sign in first.': 'Lütfen önce oturum açınız.',
+  'Previous or next item': 'Önceki veya sonraki eser',
   'Private': 'Özel',
   'Profile': 'Profil',
   'Provider entity ID': 'Sağlayıcı varlık kimliği',
@@ -561,9 +576,12 @@ export default {
   'Share a link…': 'Bağlantı paylaş…',
   'Share this collection': 'Bu dermeyi paylaş',
   'Shared from {library}': '{library} kitaplığından paylaşıldı',
+  'Shift': 'Shift',
   'Short name': 'Kısa ad',
   'Show in My Publications': 'Yayınlarım’da göster',
+  'Show keyboard shortcuts': 'Klavye kısayollarını göster',
   'Show more': 'Daha fazla göster',
+  'Show the item’s details': 'Eserin ayrıntılarını göster',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Bildirimlerinizde gösterilir. E-posta olarak da almak için bir e-posta adresi ekleyiniz.',
   'Sidebar width': 'Kenar çubuğu genişliği',
@@ -595,6 +613,7 @@ export default {
   'Sort by {column}': '{column} sütununa göre sırala',
   'Sort by {column}, currently ascending': '{column} sütununa göre sırala, şu an artan sırada',
   'Sort by {column}, currently descending': '{column} sütununa göre sırala, şu an azalan sırada',
+  'Space': 'Boşluk',
   'Stop administering': 'Yöneticilikten çıkar',
   'Stopped.': 'Durduruldu.',
   'Stops working on': 'Son geçerlilik tarihi',
@@ -615,6 +634,7 @@ export default {
   'Take them out of “{name}”': '“{name}” dermesinden çıkar',
   'Taking you back to the application…': 'Uygulamaya geri yönlendiriliyorsunuz…',
   'Tell me about': 'Bana şunları bildir',
+  'Ten items up or down': 'On eser yukarı veya aşağı',
   'That confirmation link is not valid or has expired.':
     'Bu doğrulama bağlantısı geçersiz ya da süresi dolmuş.',
   'That connection was removed.': 'Bu bağlantı kaldırıldı.',

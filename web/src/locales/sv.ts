@@ -51,6 +51,7 @@ export default {
     'Lägg till den här hemligheten i din autentiseringsapp och ange sedan koden den visar. Inget ändras förrän du gör det.',
   'Add to My Publications': 'Lägg till i Mina publikationer',
   'Add to My Publications…': 'Lägg till i Mina publikationer…',
+  'Add to the selection or take out of it': 'Lägg till i markeringen eller ta bort ur den',
   'Add “{name}” to My Publications': 'Lägg till ”{name}” i Mina publikationer',
   'Add, change and remove things in your library':
     'Lägga till, ändra och ta bort saker i ditt bibliotek',
@@ -194,6 +195,7 @@ export default {
   'Create your account': 'Skapa ditt konto',
   'Created in': 'Skapas i',
   'Credentials revoked.': 'Inloggningsuppgifterna har återkallats.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Nuvarande lösenord',
   'Database': 'Databas',
   'Dates look like this: {example}': 'Datum ser ut så här: {example}',
@@ -203,6 +205,7 @@ export default {
   'Decline': 'Avböj',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Att göra ditt verk till allmän egendom kan inte ångras, inte ens om du senare väljer andra villkor eller slutar publicera verket.',
+  'Del': 'Del',
   'Delete': 'Radera',
   'Delete account': 'Radera konto',
   'Delete everything in the trash?': 'Radera allt i papperskorgen?',
@@ -237,16 +240,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Dra för att flytta avgränsningen. Dubbelklicka för att återställa den.',
   'Duplicate Items': 'Källdubbletter',
+  'Edit the title': 'Redigera titeln',
   'Email': 'E-post',
   'Email address': 'E-postadress',
   'Email address (optional)': 'E-postadress (valfritt)',
   'Email claim': 'Anspråk för e-post',
   'Empty the trash': 'Töm papperskorgen',
+  'End': 'End',
+  'Enter': 'Retur',
   'Enter the code shown on your device.': 'Ange koden som visas på din enhet.',
   'Enter the six-digit code from your authenticator app.':
     'Ange den sexsiffriga koden från din autentiseringsapp.',
   'Enter the six-digit code we sent to your email address.':
     'Ange den sexsiffriga koden vi skickade till din e-postadress.',
+  'Esc': 'Esc',
   'Everything': 'Allt',
   'Everything below asks for it, as your own settings do.':
     'Allt nedan kräver det, precis som dina egna inställningar gör.',
@@ -265,9 +272,11 @@ export default {
   'Export a library': 'Exportera ett bibliotek',
   'Exported Items': 'Exporterade källor',
   'Export…': 'Exportera…',
+  'Extend the selection': 'Utöka markeringen',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Filer som ligger på en WebDAV-server lagras inte på zotero.org, så en flytt kan inte ta med dem. Fortsätt synkronisera filer via WebDAV, eller ladda upp dem från en Zotero-klient som fortfarande har dem.',
   'Finished.': 'Klart.',
+  'First or last item': 'Första eller sista posten',
   'Follow this device ({name})': 'Följ den här enheten ({name})',
   'For example, my laptop': 'Till exempel min bärbara dator',
   'Forgotten password': 'Glömt lösenord',
@@ -286,6 +295,7 @@ export default {
   'Groups': 'Grupper',
   'Hand over the group': 'Överlåt gruppen',
   'Hide from My Publications': 'Dölj i Mina publikationer',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Timmar som en oavslutad uppladdning sparas',
   'How long things are kept': 'Hur länge saker sparas',
   'I created this work and have the rights to distribute the files included.':
@@ -318,6 +328,7 @@ export default {
   'Keep the existing Rights field': 'Behåll nuvarande rättighetsfält',
   'Key created. Copy it now — it is not shown again.':
     'Nyckeln har skapats. Kopiera den nu — den visas inte igen.',
+  'Keyboard shortcuts': 'Kortkommandon',
   'Know who you are': 'Veta vem du är',
   'Language': 'Språk',
   'Language and time zone': 'Språk och tidszon',
@@ -362,6 +373,7 @@ export default {
   'Move or copy “{name}”': 'Flytta eller kopiera ”{name}”',
   'Move or copy…': 'Flytta eller kopiera…',
   'Move to trash': 'Flytta till papperskorgen',
+  'Move without selecting': 'Flytta utan att markera',
   'My Library': 'Mitt bibliotek',
   'My Publications': 'Mina publikationer',
   'Name': 'Namn',
@@ -442,6 +454,8 @@ export default {
   'Owner': 'Ägare',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Klistra in båda medan leverantören byter nyckel.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Lösennyckeln har lagts till.',
   'Passkeys': 'Lösennycklar',
   'Password': 'Lösenord',
@@ -457,6 +471,7 @@ export default {
   'People joining or leaving': 'Personer som går med eller lämnar',
   'People with an account here': 'Personer med ett konto här',
   'Please sign in first.': 'Logga in först.',
+  'Previous or next item': 'Föregående eller nästa post',
   'Private': 'Privat',
   'Profile': 'Profil',
   'Provider entity ID': 'Leverantörens entitets-ID',
@@ -557,9 +572,12 @@ export default {
   'Share a link…': 'Dela en länk…',
   'Share this collection': 'Dela den här samlingen',
   'Shared from {library}': 'Delad från {library}',
+  'Shift': 'Skift',
   'Short name': 'Kortnamn',
   'Show in My Publications': 'Visa i Mina publikationer',
+  'Show keyboard shortcuts': 'Visa kortkommandon',
   'Show more': 'Visa fler',
+  'Show the item’s details': 'Visa postens detaljer',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Visas bland dina aviseringar. Lägg till en e-postadress för att även få dem som e-post.',
   'Sidebar width': 'Sidofältets bredd',
@@ -591,6 +609,7 @@ export default {
   'Sort by {column}': 'Sortera efter {column}',
   'Sort by {column}, currently ascending': 'Sortera efter {column}, för närvarande stigande',
   'Sort by {column}, currently descending': 'Sortera efter {column}, för närvarande fallande',
+  'Space': 'Blanksteg',
   'Stop administering': 'Sluta administrera',
   'Stopped.': 'Avbrutet.',
   'Stops working on': 'Slutar fungera den',
@@ -609,6 +628,7 @@ export default {
   'Take them out of “{name}”': 'Ta bort dem från ”{name}”',
   'Taking you back to the application…': 'Skickar dig tillbaka till programmet…',
   'Tell me about': 'Meddela mig om',
+  'Ten items up or down': 'Tio poster upp eller ned',
   'That confirmation link is not valid or has expired.':
     'Bekräftelselänken är ogiltig eller har gått ut.',
   'That connection was removed.': 'Anslutningen har tagits bort.',

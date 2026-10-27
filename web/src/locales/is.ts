@@ -52,6 +52,7 @@ export default {
     'Bættu þessum leynilykli í auðkenningarforritið þitt og sláðu svo inn kóðann sem það sýnir. Ekkert breytist fyrr en þú gerir það.',
   'Add to My Publications': 'Bæta í Ritverkin mín',
   'Add to My Publications…': 'Bæta í Ritverkin mín…',
+  'Add to the selection or take out of it': 'Bæta við valið eða taka úr því',
   'Add “{name}” to My Publications': 'Bæta „{name}“ í Ritverkin mín',
   'Add, change and remove things in your library':
     'Bæta við, breyta og fjarlægja efni í færslusafninu þínu',
@@ -196,6 +197,7 @@ export default {
   'Create your account': 'Stofnaðu aðganginn þinn',
   'Created in': 'Búið til í',
   'Credentials revoked.': 'Innskráningarupplýsingar afturkallaðar.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Núverandi lykilorð',
   'Database': 'Gagnagrunnur',
   'Dates look like this: {example}': 'Dagsetningar líta svona út: {example}',
@@ -205,6 +207,7 @@ export default {
   'Decline': 'Hafna',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Ekki er hægt að afturkalla það að gera verkið þitt að almannaeign, jafnvel þótt þú veljir síðar aðra skilmála eða hættir að birta verkið.',
+  'Del': 'Del',
   'Delete': 'Eyða',
   'Delete account': 'Eyða aðgangi',
   'Delete everything in the trash?': 'Eyða öllu í ruslinu?',
@@ -239,16 +242,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Dragðu til að færa skilin. Tvísmelltu til að setja þau aftur á sinn stað.',
   'Duplicate Items': 'Eins færslur',
+  'Edit the title': 'Breyta titlinum',
   'Email': 'Tölvupóstur',
   'Email address': 'Netfang',
   'Email address (optional)': 'Netfang (valfrjálst)',
   'Email claim': 'Krafa fyrir netfang',
   'Empty the trash': 'Tæma ruslið',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Sláðu inn kóðann sem birtist á tækinu þínu.',
   'Enter the six-digit code from your authenticator app.':
     'Sláðu inn sex stafa kóðann úr auðkenningarforritinu þínu.',
   'Enter the six-digit code we sent to your email address.':
     'Sláðu inn sex stafa kóðann sem við sendum á netfangið þitt.',
+  'Esc': 'Esc',
   'Everything': 'Allt',
   'Everything below asks for it, as your own settings do.':
     'Allt hér fyrir neðan krefst þess, eins og þínar eigin stillingar gera.',
@@ -267,9 +274,11 @@ export default {
   'Export a library': 'Flytja út færslusafn',
   'Exported Items': 'Útfluttar færslur',
   'Export…': 'Flytja út…',
+  'Extend the selection': 'Stækka valið',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Skrár sem geymdar eru á WebDAV-þjóni eru ekki vistaðar á zotero.org, svo flutningur getur ekki tekið þær með. Haltu áfram að samstilla skrár um WebDAV, eða hladdu þeim upp úr Zotero-biðlara sem hefur þær enn.',
   'Finished.': 'Lokið.',
+  'First or last item': 'Fyrsta eða síðasta færsla',
   'Follow this device ({name})': 'Fylgja þessu tæki ({name})',
   'For example, my laptop': 'Til dæmis fartölvan mín',
   'Forgotten password': 'Gleymt lykilorð',
@@ -288,6 +297,7 @@ export default {
   'Groups': 'Hópar',
   'Hand over the group': 'Afhenda hópinn',
   'Hide from My Publications': 'Fela í Ritverkunum mínum',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered':
     'Klukkustundir sem ólokinni upphleðslu er haldið til haga',
   'How long things are kept': 'Hversu lengi hlutir eru geymdir',
@@ -321,6 +331,7 @@ export default {
   'Keep the existing Rights field': 'Halda núverandi réttindareit',
   'Key created. Copy it now — it is not shown again.':
     'Lykill búinn til. Afritaðu hann núna — hann verður ekki sýndur aftur.',
+  'Keyboard shortcuts': 'Flýtilyklar',
   'Know who you are': 'Vita hver þú ert',
   'Language': 'Tungumál',
   'Language and time zone': 'Tungumál og tímabelti',
@@ -364,6 +375,7 @@ export default {
   'Move or copy “{name}”': 'Færa eða afrita „{name}“',
   'Move or copy…': 'Færa eða afrita…',
   'Move to trash': 'Færa í ruslið',
+  'Move without selecting': 'Færa án þess að velja',
   'My Library': 'Færslusafnið mitt',
   'My Publications': 'Ritverkin mín',
   'Name': 'Nafn',
@@ -445,6 +457,8 @@ export default {
   'Owner': 'Eigandi',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Límdu bæði inn á meðan veitan skiptir um lykil.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Aðgangslykli bætt við.',
   'Passkeys': 'Aðgangslyklar',
   'Password': 'Lykilorð',
@@ -460,6 +474,7 @@ export default {
   'People joining or leaving': 'Fólk sem gengur í eða úr hópnum',
   'People with an account here': 'Fólk með aðgang hér',
   'Please sign in first.': 'Skráðu þig fyrst inn.',
+  'Previous or next item': 'Fyrri eða næsta færsla',
   'Private': 'Lokaður',
   'Profile': 'Prófíll',
   'Provider entity ID': 'Einingarauðkenni veitu',
@@ -560,9 +575,12 @@ export default {
   'Share a link…': 'Deila tengli…',
   'Share this collection': 'Deila þessu safni',
   'Shared from {library}': 'Deilt úr {library}',
+  'Shift': 'Shift',
   'Short name': 'Stutt heiti',
   'Show in My Publications': 'Sýna í Ritverkunum mínum',
+  'Show keyboard shortcuts': 'Sýna flýtilykla',
   'Show more': 'Sýna meira',
+  'Show the item’s details': 'Sýna upplýsingar færslunnar',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Birtist í tilkynningunum þínum. Bættu við netfangi til að fá þær líka í tölvupósti.',
   'Sidebar width': 'Breidd hliðarstiku',
@@ -594,6 +612,7 @@ export default {
   'Sort by {column}': 'Raða eftir {column}',
   'Sort by {column}, currently ascending': 'Raða eftir {column}, nú í hækkandi röð',
   'Sort by {column}, currently descending': 'Raða eftir {column}, nú í lækkandi röð',
+  'Space': 'Bilslá',
   'Stop administering': 'Hætta sem stjórnandi',
   'Stopped.': 'Stöðvað.',
   'Stops working on': 'Hættir að virka',
@@ -612,6 +631,7 @@ export default {
   'Take them out of “{name}”': 'Taka þær úr „{name}“',
   'Taking you back to the application…': 'Fer með þig aftur í forritið…',
   'Tell me about': 'Láta mig vita af',
+  'Ten items up or down': 'Tíu færslur upp eða niður',
   'That confirmation link is not valid or has expired.':
     'Staðfestingartengillinn er ógildur eða útrunninn.',
   'That connection was removed.': 'Tengingin var fjarlægð.',

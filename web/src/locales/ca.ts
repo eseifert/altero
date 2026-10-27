@@ -52,6 +52,7 @@ export default {
     'Afegiu aquest secret a la vostra aplicació d’autenticació i després introduïu el codi que mostri. No canvia res fins que ho feu.',
   'Add to My Publications': 'Afegeix a Les meves publicacions',
   'Add to My Publications…': 'Afegeix a Les meves publicacions…',
+  'Add to the selection or take out of it': 'Afegeix a la selecció o treu-ne',
   'Add “{name}” to My Publications': 'Afegeix «{name}» a Les meves publicacions',
   Administrator: 'Administrador',
   Administrators: 'Administradors',
@@ -197,6 +198,7 @@ export default {
   'Create your account': 'Creeu el vostre compte',
   'Created in': 'Es crearà a',
   'Credentials revoked.': 'S’han revocat les credencials.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Contrasenya actual',
   'Database': 'Base de dades',
   'Dates look like this: {example}': 'Les dates es mostren així: {example}',
@@ -207,6 +209,7 @@ export default {
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Dedicar el vostre treball al domini públic no es pot desfer, encara que més endavant trieu unes condicions diferents o deixeu de publicar el treball.',
   Delete: 'Suprimeix',
+  'Del': 'Supr',
   'Delete account': 'Suprimeix el compte',
   'Delete everything in the trash?': 'Voleu suprimir tot el que hi ha a la paperera?',
   'Delete it now': 'Suprimeix-ho ara',
@@ -240,16 +243,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Arrossegueu per moure aquesta divisió. Feu doble clic per restablir-la.',
   'Duplicate Items': 'Elements duplicats',
+  'Edit the title': 'Edita el títol',
   'Email': 'Correu electrònic',
   'Email address': 'Adreça electrònica',
   'Email address (optional)': 'Adreça electrònica (opcional)',
   'Email claim': 'Atribut de l’adreça electrònica',
   'Empty the trash': 'Buida la paperera',
+  'End': 'Fi',
+  'Enter': 'Retorn',
   'Enter the code shown on your device.': 'Introduïu el codi que es mostra al vostre dispositiu.',
   'Enter the six-digit code from your authenticator app.':
     'Introduïu el codi de sis xifres de la vostra aplicació d’autenticació.',
   'Enter the six-digit code we sent to your email address.':
     'Introduïu el codi de sis xifres que hem enviat a la vostra adreça electrònica.',
+  'Esc': 'Esc',
   'Everything': 'Tot',
   'Everything below asks for it, as your own settings do.':
     'Tot el que hi ha a sota la demana, com fa la vostra pròpia configuració.',
@@ -268,9 +275,11 @@ export default {
   'Export a library': 'Exporta una biblioteca',
   'Exported Items': 'Elements exportats',
   'Export…': 'Exporta…',
+  'Extend the selection': 'Amplia la selecció',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Els fitxers desats en un servidor WebDAV no s’emmagatzemen a zotero.org, de manera que una migració no els pot portar. Continueu sincronitzant els fitxers mitjançant WebDAV, o pugeu-los des d’un client del Zotero que encara els tingui.',
   'Finished.': 'Acabat.',
+  'First or last item': 'Primer o darrer element',
   'Follow this device ({name})': 'Segueix aquest dispositiu ({name})',
   'For example, my laptop': 'Per exemple, el meu portàtil',
   'Forgotten password': 'Contrasenya oblidada',
@@ -289,6 +298,7 @@ export default {
   Groups: 'Grups',
   'Hand over the group': 'Cedeix el grup',
   'Hide from My Publications': 'Amaga de Les meves publicacions',
+  'Home': 'Inici',
   'Hours an unfinished upload is remembered': 'Hores que es recorda una pujada sense acabar',
   'How long things are kept': 'Quant de temps es conserven les coses',
   'I created this work and have the rights to distribute the files included.':
@@ -322,6 +332,7 @@ export default {
   'Key created. Copy it now — it is not shown again.':
     'S’ha creat la clau. Copieu-la ara: no es tornarà a mostrar.',
   Language: 'Idioma',
+  'Keyboard shortcuts': 'Dreceres de teclat',
   'Language and time zone': 'Idioma i fus horari',
   'Language and time zone saved.': 'S’han desat l’idioma i el fus horari.',
   'Last opened {date}': 'Obert per darrera vegada el {date}',
@@ -363,6 +374,7 @@ export default {
   'Move or copy “{name}”': 'Mou o copia «{name}»',
   'Move or copy…': 'Mou o copia…',
   'Move to trash': 'Mou a la paperera',
+  'Move without selecting': 'Mou sense seleccionar',
   'My Library': 'La meva biblioteca',
   'My Publications': 'Les meves publicacions',
   Name: 'Nom',
@@ -447,6 +459,8 @@ export default {
   'Overview': 'Resum',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Enganxeu-los tots dos mentre el proveïdor renova la seva clau.',
+  'Page Down': 'AvPàg',
+  'Page Up': 'RePàg',
   'Passkey added.': 'S’ha afegit la clau d’accés.',
   'Passkeys': 'Claus d’accés',
   'Password changed. Every other browser was signed out.':
@@ -464,6 +478,7 @@ export default {
   Profile: 'Perfil',
   Public: 'Públic',
   'Please sign in first.': 'Primer inicieu la sessió.',
+  'Previous or next item': 'Element anterior o següent',
   'Provider entity ID': 'ID d’entitat del proveïdor',
   'Public page': 'Pàgina pública',
   'Public, invitation only': 'Públic, només amb invitació',
@@ -562,9 +577,12 @@ export default {
   'Share a link…': 'Comparteix un enllaç…',
   'Share this collection': 'Comparteix aquesta col·lecció',
   'Shared from {library}': 'Compartit des de {library}',
+  'Shift': 'Maj',
   'Short name': 'Nom curt',
   'Show in My Publications': 'Mostra a Les meves publicacions',
+  'Show keyboard shortcuts': 'Mostra les dreceres de teclat',
   'Show more': 'Mostra’n més',
+  'Show the item’s details': 'Mostra els detalls de l’element',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Es mostra a les vostres notificacions. Afegiu una adreça electrònica per rebre-les també per correu.',
   'Sidebar width': 'Amplada de la barra lateral',
@@ -596,6 +614,7 @@ export default {
   'Sort by {column}': 'Ordena per {column}',
   'Sort by {column}, currently ascending': 'Ordena per {column}, ara en ordre ascendent',
   'Sort by {column}, currently descending': 'Ordena per {column}, ara en ordre descendent',
+  'Space': 'Espai',
   'Stop administering': 'Deixa d’administrar',
   'Stopped.': 'Aturat.',
   'Stops working on': 'Deixa de funcionar el',
@@ -615,6 +634,7 @@ export default {
   'Take them out of “{name}”': 'Treu-los de «{name}»',
   'Taking you back to the application…': 'S’està tornant a l’aplicació…',
   'Tell me about': 'Avisa’m de',
+  'Ten items up or down': 'Deu elements amunt o avall',
   'That confirmation link is not valid or has expired.':
     'Aquest enllaç de confirmació no és vàlid o ha caducat.',
   'That connection was removed.': 'S’ha eliminat aquesta connexió.',

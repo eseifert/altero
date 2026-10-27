@@ -50,6 +50,7 @@ export default {
     'Добавете този таен ключ в приложението си за удостоверяване и въведете кода, който то показва. Нищо не се променя, докато не го направите.',
   'Add to My Publications': 'Добавяне в Моите публикации',
   'Add to My Publications…': 'Добавяне в Моите публикации…',
+  'Add to the selection or take out of it': 'Добавяне към избора или премахване от него',
   'Add “{name}” to My Publications': 'Добавяне на „{name}“ в Моите публикации',
   'Add, change and remove things in your library':
     'Добавя, променя и премахва неща в библиотеката ви',
@@ -195,6 +196,7 @@ export default {
   'Create your account': 'Създайте акаунта си',
   'Created in': 'Създава се в',
   'Credentials revoked.': 'Идентификационните данни са оттеглени.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Сегашна парола',
   'Database': 'База данни',
   'Dates look like this: {example}': 'Датите изглеждат така: {example}',
@@ -204,6 +206,7 @@ export default {
   'Decline': 'Отклоняване',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Предоставянето на творбата ви за обществено достояние е необратимо, дори ако по-късно изберете други условия или спрете да публикувате творбата.',
+  'Del': 'Del',
   'Delete': 'Изтриване',
   'Delete account': 'Изтриване на акаунта',
   'Delete everything in the trash?': 'Да се изтрие ли всичко в кошчето за боклук?',
@@ -238,16 +241,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Плъзнете, за да преместите разделителя. Щракнете двукратно, за да го върнете.',
   'Duplicate Items': 'Дублирани записи',
+  'Edit the title': 'Редактиране на заглавието',
   'Email': 'Имейл',
   'Email address': 'Имейл адрес',
   'Email address (optional)': 'Имейл адрес (по избор)',
   'Email claim': 'Твърдение за имейл',
   'Empty the trash': 'Изпразване на кошчето за боклук',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Въведете кода, показан на устройството ви.',
   'Enter the six-digit code from your authenticator app.':
     'Въведете шестцифрения код от приложението си за удостоверяване.',
   'Enter the six-digit code we sent to your email address.':
     'Въведете шестцифрения код, който изпратихме на имейл адреса ви.',
+  'Esc': 'Esc',
   'Everything': 'Всичко',
   'Everything below asks for it, as your own settings do.':
     'Всяко действие по-долу я изисква, както и собствените ви настройки.',
@@ -266,9 +273,11 @@ export default {
   'Export a library': 'Изнасяне на библиотека',
   'Exported Items': 'Изнесени записи',
   'Export…': 'Изнасяне…',
+  'Extend the selection': 'Разширяване на избора',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Файловете на сървър WebDAV не се съхраняват в zotero.org, затова преместването не може да ги пренесе. Продължете да синхронизирате файловете чрез WebDAV или ги качете от клиент на Zotero, в който все още ги има.',
   'Finished.': 'Завършено.',
+  'First or last item': 'Първи или последен запис',
   'Follow this device ({name})': 'Като на това устройство ({name})',
   'For example, my laptop': 'Например моят лаптоп',
   'Forgotten password': 'Забравена парола',
@@ -287,6 +296,7 @@ export default {
   'Groups': 'Групи',
   'Hand over the group': 'Предаване на групата',
   'Hide from My Publications': 'Скриване от Моите публикации',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Часове, през които се помни незавършено качване',
   'How long things are kept': 'Колко дълго се пазят нещата',
   'I created this work and have the rights to distribute the files included.':
@@ -319,6 +329,7 @@ export default {
   'Keep the existing Rights field': 'Запазване на съществуващото поле „Права“',
   'Key created. Copy it now — it is not shown again.':
     'Ключът е създаден. Копирайте го сега — няма да бъде показан отново.',
+  'Keyboard shortcuts': 'Клавишни комбинации',
   'Know who you are': 'Знае кой сте',
   'Language': 'Език',
   'Language and time zone': 'Език и часова зона',
@@ -363,6 +374,7 @@ export default {
   'Move or copy “{name}”': 'Преместване или копиране на „{name}“',
   'Move or copy…': 'Преместване или копиране…',
   'Move to trash': 'Преместване в кошчето за боклук',
+  'Move without selecting': 'Преместване без избиране',
   'My Library': 'Моята библиотека',
   'My Publications': 'Моите публикации',
   'Name': 'Име',
@@ -444,6 +456,8 @@ export default {
   'Owner': 'Собственик',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Поставете и двата, докато доставчикът сменя ключа си.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Ключът за достъп е добавен.',
   'Passkeys': 'Ключове за достъп',
   'Password': 'Парола',
@@ -459,6 +473,7 @@ export default {
   'People joining or leaving': 'Присъединяване или напускане на хора',
   'People with an account here': 'Хората с акаунт тук',
   'Please sign in first.': 'Първо влезте.',
+  'Previous or next item': 'Предишен или следващ запис',
   'Private': 'Частна',
   'Profile': 'Профил',
   'Provider entity ID': 'Идентификатор на обекта на доставчика',
@@ -557,9 +572,12 @@ export default {
   'Share a link…': 'Споделяне на връзка…',
   'Share this collection': 'Споделяне на тази колекция',
   'Shared from {library}': 'Споделено от {library}',
+  'Shift': 'Shift',
   'Short name': 'Кратко име',
   'Show in My Publications': 'Показване в Моите публикации',
+  'Show keyboard shortcuts': 'Показване на клавишните комбинации',
   'Show more': 'Показване на още',
+  'Show the item’s details': 'Показване на подробностите за записа',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Показват се в известията ви. Добавете имейл адрес, за да ги получавате и по пощата.',
   'Sidebar width': 'Ширина на страничната лента',
@@ -591,6 +609,7 @@ export default {
   'Sort by {column}': 'Сортиране по {column}',
   'Sort by {column}, currently ascending': 'Сортиране по {column}, в момента във възходящ ред',
   'Sort by {column}, currently descending': 'Сортиране по {column}, в момента в низходящ ред',
+  'Space': 'Интервал',
   'Stop administering': 'Отнемане на администраторските права',
   'Stopped.': 'Спряно.',
   'Stops working on': 'Спира да работи на',
@@ -609,6 +628,7 @@ export default {
   'Take them out of “{name}”': 'Изваждане от „{name}“',
   'Taking you back to the application…': 'Връщане към приложението…',
   'Tell me about': 'Известявай ме за',
+  'Ten items up or down': 'Десет записа нагоре или надолу',
   'That confirmation link is not valid or has expired.':
     'Тази връзка за потвърждение е невалидна или е изтекла.',
   'That connection was removed.': 'Тази връзка беше премахната.',

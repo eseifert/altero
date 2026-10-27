@@ -1,4 +1,4 @@
-import { expect, signIn, state, test } from './state'
+import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 test('a library shows what a client synced, and an item opens', async ({ page }) => {
   await signIn(page)
@@ -230,4 +230,27 @@ test('an edit over a change made elsewhere to the same field asks which to keep'
   await page.reload()
   await page.getByText('Letter to Charles Babbage').first().click()
   await expect(page.locator('.detail .info__value[aria-labelledby$="-letterType"]')).toHaveText(mine)
+})
+
+test('the item list is worked with the keyboard, and ? says how', async ({ page }) => {
+  await signIn(page)
+  const rows = page.locator('.library__row:not(.library__row--head)')
+  await rows.first().click()
+  const first = await page.locator('.detail__title').textContent()
+
+  await page.keyboard.press('ArrowDown')
+  await expect(page.locator('.detail__title')).not.toHaveText(first!)
+  await expect(rows.nth(1)).toBeFocused()
+  await page.keyboard.press('Home')
+  await expect(page.locator('.detail__title')).toHaveText(first!)
+
+  await page.keyboard.press('Enter')
+  await expect(page.locator('.detail__title')).toBeFocused()
+
+  await page.keyboard.press('?')
+  const sheet = page.getByRole('dialog', { name: 'Keyboard shortcuts' })
+  await expect(sheet).toBeVisible()
+  expect(await accessibilityProblems(page)).toEqual([])
+  await page.keyboard.press('Escape')
+  await expect(sheet).toBeHidden()
 })

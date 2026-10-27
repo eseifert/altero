@@ -51,6 +51,7 @@ export default {
     'Legg til denne hemmelegheita i autentiseringsappen din, og skriv så inn koden han viser. Ingenting blir endra før du gjer det.',
   'Add to My Publications': 'Legg til i Publikasjonane mine',
   'Add to My Publications…': 'Legg til i Publikasjonane mine…',
+  'Add to the selection or take out of it': 'Legg til i utvalet eller ta ut av det',
   'Add “{name}” to My Publications': 'Legg «{name}» til i Publikasjonane mine',
   'Add, change and remove things in your library':
     'Leggje til, endre og fjerne innhald i biblioteket ditt',
@@ -194,6 +195,7 @@ export default {
   'Create your account': 'Opprett kontoen din',
   'Created in': 'Blir oppretta i',
   'Credentials revoked.': 'Påloggingsinformasjonen er kalla tilbake.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Noverande passord',
   'Database': 'Database',
   'Dates look like this: {example}': 'Datoar ser slik ut: {example}',
@@ -203,6 +205,7 @@ export default {
   'Decline': 'Avslå',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Å gje arbeidet ditt fritt til allmenta kan ikkje gjerast om, sjølv om du seinare vel andre vilkår eller sluttar å publisere verket.',
+  'Del': 'Del',
   'Delete': 'Slett',
   'Delete account': 'Slett konto',
   'Delete everything in the trash?': 'Slette alt i søppelkorga?',
@@ -237,16 +240,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Dra for å flytte denne skiljelina. Dobbeltklikk for å setje ho tilbake.',
   'Duplicate Items': 'Dupliserte element',
+  'Edit the title': 'Rediger tittelen',
   'Email': 'E-post',
   'Email address': 'E-postadresse',
   'Email address (optional)': 'E-postadresse (valfritt)',
   'Email claim': 'Claim for e-post',
   'Empty the trash': 'Tøm søppelkorga',
+  'End': 'End',
+  'Enter': 'Enter',
   'Enter the code shown on your device.': 'Skriv inn koden som blir vist på eininga di.',
   'Enter the six-digit code from your authenticator app.':
     'Skriv inn den sekssifra koden frå autentiseringsappen din.',
   'Enter the six-digit code we sent to your email address.':
     'Skriv inn den sekssifra koden vi sende til e-postadressa di.',
+  'Esc': 'Esc',
   'Everything': 'Alt',
   'Everything below asks for it, as your own settings do.':
     'Alt nedanfor ber om det, slik dine eigne innstillingar gjer.',
@@ -265,9 +272,11 @@ export default {
   'Export a library': 'Eksporter eit bibliotek',
   'Exported Items': 'Eksporterte element',
   'Export…': 'Eksporter…',
+  'Extend the selection': 'Utvid utvalet',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Filer som ligg på ein WebDAV-tenar, blir ikkje lagra på zotero.org, så ei migrering kan ikkje ta dei med. Hald fram med å synkronisere filer via WebDAV, eller last dei opp frå ein Zotero-klient som framleis har dei.',
   'Finished.': 'Ferdig.',
+  'First or last item': 'Første eller siste element',
   'Follow this device ({name})': 'Følg denne eininga ({name})',
   'For example, my laptop': 'Til dømes: den berbare maskina mi',
   'Forgotten password': 'Gløymt passord',
@@ -286,6 +295,7 @@ export default {
   'Groups': 'Grupper',
   'Hand over the group': 'Overfør gruppa',
   'Hide from My Publications': 'Gøym frå Publikasjonane mine',
+  'Home': 'Home',
   'Hours an unfinished upload is remembered': 'Timar ei uferdig opplasting blir hugsa',
   'How long things are kept': 'Kor lenge ting blir tekne vare på',
   'I created this work and have the rights to distribute the files included.':
@@ -318,6 +328,7 @@ export default {
   'Keep the existing Rights field': 'Behald det eksisterande rettsfeltet',
   'Key created. Copy it now — it is not shown again.':
     'Nøkkelen er oppretta. Kopier han no – han blir ikkje vist igjen.',
+  'Keyboard shortcuts': 'Snøggtastar',
   'Know who you are': 'Vite kven du er',
   'Language': 'Språk',
   'Language and time zone': 'Språk og tidssone',
@@ -361,6 +372,7 @@ export default {
   'Move or copy “{name}”': 'Flytt eller kopier «{name}»',
   'Move or copy…': 'Flytt eller kopier…',
   'Move to trash': 'Flytt til søppelkorga',
+  'Move without selecting': 'Flytt utan å velje',
   'My Library': 'Biblioteket mitt',
   'My Publications': 'Publikasjonane mine',
   'Name': 'Namn',
@@ -444,6 +456,8 @@ export default {
   'Owner': 'Eigar',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Lim inn begge medan leverandøren byter nøkkel.',
+  'Page Down': 'Page Down',
+  'Page Up': 'Page Up',
   'Passkey added.': 'Tilgangsnøkkelen er lagd til.',
   'Passkeys': 'Tilgangsnøklar',
   'Password': 'Passord',
@@ -459,6 +473,7 @@ export default {
   'People joining or leaving': 'Folk som blir med eller går ut',
   'People with an account here': 'Folk med konto her',
   'Please sign in first.': 'Logg inn først.',
+  'Previous or next item': 'Førre eller neste element',
   'Private': 'Privat',
   'Profile': 'Profil',
   'Provider entity ID': 'Leverandøren sin entitets-ID',
@@ -558,9 +573,12 @@ export default {
   'Share a link…': 'Del ei lenkje…',
   'Share this collection': 'Del denne samlinga',
   'Shared from {library}': 'Delt frå {library}',
+  'Shift': 'Shift',
   'Short name': 'Kortnamn',
   'Show in My Publications': 'Vis i Publikasjonane mine',
+  'Show keyboard shortcuts': 'Vis snøggtastar',
   'Show more': 'Vis meir',
+  'Show the item’s details': 'Vis detaljane for elementet',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Blir viste i varsla dine. Legg til ei e-postadresse for å få dei på e-post òg.',
   'Sidebar width': 'Breidd på sidepanelet',
@@ -592,6 +610,7 @@ export default {
   'Sort by {column}': 'Sorter etter {column}',
   'Sort by {column}, currently ascending': 'Sorter etter {column}, no stigande',
   'Sort by {column}, currently descending': 'Sorter etter {column}, no søkkande',
+  'Space': 'Mellomrom',
   'Stop administering': 'Fjern som administrator',
   'Stopped.': 'Stoppa.',
   'Stops working on': 'Sluttar å verke',
@@ -610,6 +629,7 @@ export default {
   'Take them out of “{name}”': 'Ta dei ut av «{name}»',
   'Taking you back to the application…': 'Sender deg tilbake til programmet…',
   'Tell me about': 'Gje meg beskjed om',
+  'Ten items up or down': 'Ti element opp eller ned',
   'That confirmation link is not valid or has expired.':
     'Den stadfestingslenkja er ugyldig eller har gått ut.',
   'That connection was removed.': 'Den tilkoplinga vart fjerna.',

@@ -52,6 +52,7 @@ export default {
     'Engade este segredo á túa aplicación de autenticación e despois introduce o código que amose. Non cambia nada ata que o fagas.',
   'Add to My Publications': 'Engadir a As miñas publicacións',
   'Add to My Publications…': 'Engadir a As miñas publicacións…',
+  'Add to the selection or take out of it': 'Engadir á selección ou quitar dela',
   'Add “{name}” to My Publications': 'Engadir “{name}” a As miñas publicacións',
   Administrator: 'Administrador',
   Administrators: 'Administradores',
@@ -196,6 +197,7 @@ export default {
   'Create your account': 'Crea a túa conta',
   'Created in': 'Crear en',
   'Credentials revoked.': 'Credenciais revogadas.',
+  'Ctrl': 'Ctrl',
   'Current password': 'Contrasinal actual',
   'Database': 'Base de datos',
   'Dates look like this: {example}': 'As datas amósanse así: {example}',
@@ -206,6 +208,7 @@ export default {
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Ceder a túa obra ao dominio público non se pode desfacer, aínda que máis adiante escollas outras condicións ou deixes de publicar a obra.',
   Delete: 'Eliminar',
+  'Del': 'Supr',
   'Delete account': 'Eliminar a conta',
   'Delete everything in the trash?': 'Eliminar todo o que hai no lixo?',
   'Delete it now': 'Eliminalo agora',
@@ -239,16 +242,20 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Arrastra para mover esta división. Fai dobre clic para devolvela ao seu sitio.',
   'Duplicate Items': 'Elementos duplicados',
+  'Edit the title': 'Editar o título',
   'Email': 'Correo electrónico',
   'Email address': 'Enderezo de correo electrónico',
   'Email address (optional)': 'Enderezo de correo electrónico (opcional)',
   'Email claim': 'Atributo do correo electrónico',
   'Empty the trash': 'Baleirar o lixo',
+  'End': 'Fin',
+  'Enter': 'Intro',
   'Enter the code shown on your device.': 'Introduce o código que se amosa no teu dispositivo.',
   'Enter the six-digit code from your authenticator app.':
     'Introduce o código de seis díxitos da túa aplicación de autenticación.',
   'Enter the six-digit code we sent to your email address.':
     'Introduce o código de seis díxitos que enviamos ao teu enderezo de correo electrónico.',
+  'Esc': 'Esc',
   'Everything': 'Todo',
   'Everything below asks for it, as your own settings do.':
     'Todo o de embaixo pídeo, igual que a túa propia configuración.',
@@ -268,9 +275,11 @@ export default {
   'Export a library': 'Exportar unha biblioteca',
   'Exported Items': 'Elementos exportados',
   'Export…': 'Exportar…',
+  'Extend the selection': 'Ampliar a selección',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Os ficheiros gardados nun servidor WebDAV non están almacenados en zotero.org, así que unha migración non os pode traer. Continúa sincronizando os ficheiros por WebDAV ou súbeos desde un cliente de Zotero que aínda os teña.',
   'Finished.': 'Rematado.',
+  'First or last item': 'Primeiro ou último elemento',
   'Follow this device ({name})': 'Seguir este dispositivo ({name})',
   'For example, my laptop': 'Por exemplo, o meu portátil',
   'Forgotten password': 'Contrasinal esquecido',
@@ -289,6 +298,7 @@ export default {
   Groups: 'Grupos',
   'Hand over the group': 'Ceder o grupo',
   'Hide from My Publications': 'Agochar de As miñas publicacións',
+  'Home': 'Inicio',
   'Hours an unfinished upload is remembered': 'Horas que se lembra unha subida sen rematar',
   'How long things are kept': 'Canto tempo se conservan as cousas',
   'I created this work and have the rights to distribute the files included.':
@@ -322,6 +332,7 @@ export default {
   'Key created. Copy it now — it is not shown again.':
     'Chave creada. Cópiaa agora: non se volverá amosar.',
   Language: 'Idioma',
+  'Keyboard shortcuts': 'Atallos de teclado',
   'Language and time zone': 'Idioma e fuso horario',
   'Language and time zone saved.': 'Idioma e fuso horario gardados.',
   'Last opened {date}': 'Aberta por última vez: {date}',
@@ -364,6 +375,7 @@ export default {
   'Move or copy “{name}”': 'Mover ou copiar “{name}”',
   'Move or copy…': 'Mover ou copiar…',
   'Move to trash': 'Mover ao lixo',
+  'Move without selecting': 'Moverse sen seleccionar',
   'My Library': 'A miña biblioteca',
   'My Publications': 'As miñas publicacións',
   Name: 'Nome',
@@ -445,6 +457,8 @@ export default {
   'Overview': 'Visión xeral',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Pega ambos mentres o fornecedor está a renovar a súa chave.',
+  'Page Down': 'AvPág',
+  'Page Up': 'RePág',
   'Passkey added.': 'Chave de acceso engadida.',
   'Passkeys': 'Chaves de acceso',
   'Password changed. Every other browser was signed out.':
@@ -462,6 +476,7 @@ export default {
   Profile: 'Perfil',
   Public: 'Público',
   'Please sign in first.': 'Inicia sesión primeiro.',
+  'Previous or next item': 'Elemento anterior ou seguinte',
   'Provider entity ID': 'ID de entidade do fornecedor',
   'Public page': 'Páxina pública',
   'Public, invitation only': 'Público, só con convite',
@@ -558,9 +573,12 @@ export default {
   'Share a link…': 'Compartir unha ligazón…',
   'Share this collection': 'Compartir esta colección',
   'Shared from {library}': 'Compartido desde {library}',
+  'Shift': 'Maiús',
   'Short name': 'Nome curto',
   'Show in My Publications': 'Amosar en As miñas publicacións',
+  'Show keyboard shortcuts': 'Amosar os atallos de teclado',
   'Show more': 'Amosar máis',
+  'Show the item’s details': 'Amosar os detalles do elemento',
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Amósase nas túas notificacións. Engade un enderezo de correo electrónico para recibilas tamén por correo.',
   'Sidebar width': 'Largura da barra lateral',
@@ -592,6 +610,7 @@ export default {
   'Sort by {column}': 'Ordenar por {column}',
   'Sort by {column}, currently ascending': 'Ordenar por {column}, agora en orde ascendente',
   'Sort by {column}, currently descending': 'Ordenar por {column}, agora en orde descendente',
+  'Space': 'Espazo',
   'Stop administering': 'Deixar de administrar',
   'Stopped.': 'Detido.',
   'Stops working on': 'Deixa de funcionar o día',
@@ -611,6 +630,7 @@ export default {
   'Take them out of “{name}”': 'Sacalos de “{name}”',
   'Taking you back to the application…': 'Levándote de volta á aplicación…',
   'Tell me about': 'Avisarme de',
+  'Ten items up or down': 'Dez elementos arriba ou abaixo',
   'That confirmation link is not valid or has expired.':
     'Esa ligazón de confirmación non é válida ou caducou.',
   'That connection was removed.': 'Quitouse esa conexión.',

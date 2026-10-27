@@ -9,7 +9,7 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 - Make an item, edit its fields, creators and tags, change its type, and relate it to others.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
-- Use the same actions with mouse, keyboard or touch where the interface provides them.
+- Use the same actions with mouse, keyboard or touch where the interface provides them; `?` lists the keys.
 
 ## Detailed behavior
 
@@ -275,15 +275,21 @@ is what a click is for and a drag that quietly changed the selection would hand
 back a different list than the reader had. What is under the pointer says which
 it is: a title, or a count.
 
-None of those exist on a touch screen, and none of them can be reached from a
-keyboard either — pressing a button fires a click with no modifier on it, so a
-row that is only a button can only ever be selected on its own. **Select** is
-what answers both. It draws a checkbox on every row and one on the heading line
-for the whole page, and a checkbox is a control a finger can hit and a keyboard
-reaches with `Tab` and `Space`. While it is on, pressing anywhere on a row
-toggles that row: in a mode whose whole purpose is picking rows out, a tap that
-opened the detail pane instead would be the mode failing to mean anything. A
-mouse is not made to use it — the modifiers work whether it is on or off.
+**The keyboard moves through the list** as in Zotero Desktop's item tree. The
+list is one stop for `Tab`; `↑` and `↓`, `Home` and `End`, and `Page Up` and
+`Page Down` (ten rows) move the selection, and the right pane follows. `Shift`
+with an arrow extends the selection, and `Ctrl` (`Cmd`) with an arrow moves
+without selecting, so that `Ctrl`+`Space` can add the row reached or take it
+out. Moving past the last row shown reads the next page. `Enter` moves into the
+item's pane, and `F2` opens its title for typing. `?` lists all of this.
+
+None of the modifiers exist on a touch screen. **Select** answers that. It
+draws a checkbox on every row and one on the heading line for the whole page,
+and a checkbox is a control a finger can hit. While it is on, pressing anywhere
+on a row toggles that row, and the arrow keys move without selecting: in a mode
+whose whole purpose is picking rows out, a tap that opened the detail pane
+instead would be the mode failing to mean anything. A mouse is not made to use
+it — the modifiers work whether it is on or off.
 
 **A selection is one request and one new library version**, whichever errand it
 is. Twenty rows dragged onto a collection is one thing the reader did; twenty
@@ -446,10 +452,7 @@ is swallowed, or every drag would also select the row it started from.
 one of the reasons the dialog exists: “Move or copy…” carries a “take it out
 of” checkbox that says the same thing. `Ctrl` and `Shift` to pick out several
 rows have no equivalent either, and **Select** is the answer to that one — a
-checkbox on every row, which is a control a finger can hit. It is not only a
-touch affordance: a keyboard cannot press a row with a modifier held down
-either, so the same checkboxes are how somebody working without a pointer picks
-out more than one row.
+checkbox on every row, which is a control a finger can hit.
 
 `Shift` means two things and they do not collide: held while *dropping* it
 moves rather than files, and held while *clicking* it takes everything between.
