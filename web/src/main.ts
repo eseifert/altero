@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { i18n, loadLocale, resolveLocale } from './i18n'
 import { router } from './router'
+import { registerServiceWorker } from './serviceworker/register'
 import './styles/fonts.css'
 import './styles/tokens.css'
 import './styles/base.css'
@@ -21,4 +22,5 @@ void loadLocale(guessed)
     app.mount('#app')
     // After the first paint rather than before it; see `styles/fonts-jp.css`.
     void import('./styles/fonts-jp.css')
+    if (import.meta.env.PROD) void registerServiceWorker()
   })

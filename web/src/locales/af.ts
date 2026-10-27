@@ -21,6 +21,7 @@ export default {
     '’n Groep is ’n eie biblioteek, gedeel met die mense wat u daarby voeg.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     '’n Skakel is aan hulle ge-e-pos. Dit is {hours} uur lank geldig en kan een keer gebruik word.',
+  'A new version of altero is ready.': '’n Nuwe weergawe van altero is gereed.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     '’n Toegangsleutel meld u op sy eie aan — u toestel kontroleer dat dit u is, en daar is geen wagwoord om te steel nie.',
   'A password must be at least {count} characters':
@@ -505,6 +506,7 @@ export default {
   'Registration is open on this server.': 'Registrasie is oop op hierdie bediener.',
   'Reinstate': 'Herstel',
   'Related': 'Verwant',
+  'Reload': 'Herlaai',
   'Remote version: {value}': 'Afgeleë weergawe: {value}',
   'Remove': 'Verwyder',
   'Remove Creator': 'Verwyder skepper',

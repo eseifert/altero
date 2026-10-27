@@ -21,6 +21,7 @@ export default {
     'குழு என்பது ஒரு தனி நூலகம்; நீங்கள் அதில் சேர்க்கும் நபர்களுடன் அது பகிரப்படுகிறது.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'அவருக்கு ஒரு தொடுப்பு மின்னஞ்சலில் அனுப்பப்பட்டது. அது {hours} மணிநேரம் செல்லுபடியாகும், ஒருமுறை மட்டுமே பயன்படுத்த முடியும்.',
+  'A new version of altero is ready.': 'altero-வின் புதிய பதிப்பு தயார்.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'கடவுச்சாவி தானாகவே உங்களை உள்நுழைய வைக்கிறது — அது நீங்கள்தான் என்பதை உங்கள் சாதனம் சரிபார்க்கிறது, திருடுவதற்குக் கடவுச்சொல் எதுவும் இல்லை.',
   'A password must be at least {count} characters':
@@ -518,6 +519,7 @@ export default {
   'Registration is open on this server.': 'இந்தச் சேவையகத்தில் பதிவு திறந்துள்ளது.',
   'Reinstate': 'மீண்டும் செயல்படுத்து',
   'Related': 'தொடர்புடைய',
+  'Reload': 'மீண்டும் ஏற்று',
   'Remote version: {value}': 'தொலை பதிப்பு: {value}',
   'Remove': 'அகற்று',
   'Remove Creator': 'உருவாக்கியவரை நீக்கு',

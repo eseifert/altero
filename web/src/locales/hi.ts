@@ -23,6 +23,7 @@ export default {
     'समूह अपने आप में एक लाइब्रेरी है, जिसे उन लोगों के साथ साझा किया जाता है जिन्हें आप उसमें जोड़ते हैं।',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'उन्हें ईमेल से एक लिंक भेजा गया है। यह {hours} घंटे तक मान्य है और केवल एक बार इस्तेमाल किया जा सकता है।',
+  'A new version of altero is ready.': 'altero का नया संस्करण तैयार है।',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'पासकी अकेले ही आपको साइन इन कर देती है — आपका डिवाइस जाँचता है कि यह आप ही हैं, और चुराने के लिए कोई पासवर्ड होता ही नहीं।',
   'A password must be at least {count} characters': 'पासवर्ड कम से कम {count} वर्णों का होना चाहिए',
@@ -489,6 +490,7 @@ export default {
   'Registration is open on this server.': 'इस सर्वर पर पंजीकरण खुला है।',
   'Reinstate': 'बहाल करें',
   'Related': 'संबंधित',
+  'Reload': 'फिर से लोड करें',
   'Remote version: {value}': 'दूरस्थ संस्करण: {value}',
   'Remove': 'हटाएँ',
   'Remove Creator': 'रचनाकार हटाएँ',

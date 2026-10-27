@@ -24,6 +24,7 @@ export default {
     'グループはそれ自体が一つのライブラリで、追加した人と共有されます。',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'リンクをメールで送りました。{hours} 時間有効で、1 回だけ使えます。',
+  'A new version of altero is ready.': 'altero の新しいバージョンの準備ができました。',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.': 'パスキーは単独でサインインできます。デバイスが本人確認を行い、盗まれるパスワードはありません。',
   'A password must be at least {count} characters': 'パスワードは {count} 文字以上必要です',
   'A private group stays private whatever this says. Make it public as well to share it.':
@@ -469,6 +470,7 @@ export default {
   Remove: '削除',
   'Reinstate': '利用を再開',
   'Related': '関連項目',
+  'Reload': '再読み込み',
   'Remote version: {value}': 'リモートのバージョン : {value}',
   'Remove Creator': '作成者を削除',
   'Remove Related': '関連項目を削除',

@@ -18,6 +18,7 @@ export default {
     '群组是一个独立的文库，与你加入其中的人共享。',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     '链接已通过电子邮件发送给他们。有效期 {hours} 小时，只能使用一次。',
+  'A new version of altero is ready.': 'altero 的新版本已就绪。',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     '通行密钥可以单独登录——你的设备验证是你本人，没有可被窃取的密码。',
   'A password must be at least {count} characters': '密码至少需要 {count} 个字符',
@@ -481,6 +482,7 @@ export default {
   'Registration is open on this server.': '这台服务器开放注册。',
   'Reinstate': '恢复',
   'Related': '相关',
+  'Reload': '重新加载',
   'Remote version: {value}': '远程版本：{value}',
   'Remove': '移除',
   'Remove Creator': '移除创作者',

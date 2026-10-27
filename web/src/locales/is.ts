@@ -21,6 +21,7 @@ export default {
     'Hópur er sérstakt færslusafn sem er deilt með fólkinu sem þú bætir í hann.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Tengill var sendur viðkomandi í tölvupósti. Hann gildir í {hours} klukkustundir og aðeins er hægt að nota hann einu sinni.',
+  'A new version of altero is ready.': 'Ný útgáfa af altero er tilbúin.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Aðgangslykill skráir þig inn einn og sér — tækið þitt staðfestir að þetta sért þú og það er ekkert lykilorð sem hægt er að stela.',
   'A password must be at least {count} characters':
@@ -509,6 +510,7 @@ export default {
   'Registration is open on this server.': 'Nýskráning er opin á þessum þjóni.',
   'Reinstate': 'Endurvirkja',
   'Related': 'Venslað',
+  'Reload': 'Endurhlaða',
   'Remote version: {value}': 'Fjarútgáfa: {value}',
   'Remove': 'Fjarlægja',
   'Remove Creator': 'Fjarlægja höfund',

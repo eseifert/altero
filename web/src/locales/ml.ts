@@ -22,6 +22,7 @@ export default {
     'ഗ്രൂപ്പ് എന്നത് സ്വന്തമായ ഒരു ലൈബ്രറിയാണ്; നിങ്ങൾ അതിൽ ചേർക്കുന്ന ആളുകളുമായി അത് പങ്കിടുന്നു.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'അവർക്ക് ഒരു ലിങ്ക് ഇമെയിലിൽ അയച്ചു. അത് {hours} മണിക്കൂർ സാധുവാണ്, ഒരിക്കൽ മാത്രം ഉപയോഗിക്കാം.',
+  'A new version of altero is ready.': 'altero-യുടെ പുതിയ പതിപ്പ് തയ്യാറാണ്.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'പാസ്‌കീ സ്വന്തമായി നിങ്ങളെ സൈൻ ഇൻ ചെയ്യിക്കുന്നു — അത് നിങ്ങൾ തന്നെയാണെന്ന് നിങ്ങളുടെ ഉപകരണം പരിശോധിക്കുന്നു, മോഷ്ടിക്കാൻ പാസ്‌വേഡ് ഒന്നുമില്ല.',
   'A password must be at least {count} characters': 'പാസ്‌വേഡിൽ കുറഞ്ഞത് {count} പ്രതീകങ്ങൾ വേണം',
@@ -513,6 +514,7 @@ export default {
   Reinstate: 'വീണ്ടും സജീവമാക്കുക',
   Remove: 'നീക്കം ചെയ്യുക',
   'Related': 'ബന്ധപ്പെട്ടവ',
+  'Reload': 'വീണ്ടും ലോഡ് ചെയ്യുക',
   'Remote version: {value}': 'വിദൂര പതിപ്പ്: {value}',
   'Remove Creator': 'സ്രഷ്ടാവിനെ നീക്കം ചെയ്യുക',
   'Remove Related': 'ബന്ധപ്പെട്ടത് നീക്കം ചെയ്യുക',

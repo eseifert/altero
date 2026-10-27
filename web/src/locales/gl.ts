@@ -21,6 +21,7 @@ export default {
     'Un grupo é unha biblioteca propia, compartida coas persoas que engadas a el.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Enviouse unha ligazón por correo electrónico. É válida durante {hours} horas e só se pode usar unha vez.',
+  'A new version of altero is ready.': 'Hai unha nova versión de altero lista.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Unha chave de acceso inicia a sesión por si soa: o teu dispositivo comproba que es ti e non hai ningún contrasinal que roubar.',
   'A password must be at least {count} characters':
@@ -509,6 +510,7 @@ export default {
   Remove: 'Quitar',
   'Reinstate': 'Restablecer',
   'Related': 'Relacionados',
+  'Reload': 'Recargar',
   'Remote version: {value}': 'Versión remota: {value}',
   'Remove Creator': 'Eliminar creador',
   'Remove Related': 'Eliminar relacionado',

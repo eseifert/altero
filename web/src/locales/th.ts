@@ -21,6 +21,7 @@ export default {
     'กลุ่มคือไลบรารีหนึ่งที่แยกเป็นของตัวเอง และแบ่งปันกับคนที่คุณเพิ่มเข้าไป',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'ส่งลิงก์ทางอีเมลให้แล้ว ลิงก์ใช้ได้ {hours} ชั่วโมงและใช้ได้เพียงครั้งเดียว',
+  'A new version of altero is ready.': 'altero รุ่นใหม่พร้อมแล้ว',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'พาสคีย์ใช้ลงชื่อเข้าใช้ได้ด้วยตัวเอง — อุปกรณ์ของคุณจะตรวจสอบว่าเป็นคุณจริง และไม่มีรหัสผ่านให้ใครขโมย',
   'A password must be at least {count} characters': 'รหัสผ่านต้องมีอย่างน้อย {count} ตัวอักษร',
@@ -499,6 +500,7 @@ export default {
   Reinstate: 'คืนสิทธิ์การใช้งาน',
   Remove: 'ลบออก',
   'Related': 'เชื่อมโยงกับ',
+  'Reload': 'โหลดซ้ำ',
   'Remote version: {value}': 'รุ่นระยะไกล: {value}',
   'Remove Creator': 'ลบผู้สร้างสรรค์',
   'Remove Related': 'ลบรายการที่เชื่อมโยง',

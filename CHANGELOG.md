@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface can be installed as an app on phones and computers, and opens offline; no library data is kept on the device ([install]).
 - Desktop acceptance covers items edited in the browser reaching both desktops, and a desktop edit winning a race: 31 scenarios.
 - An open browser page shows changes made elsewhere — a desktop syncing, a group member — without a reload ([editing]).
 - The browser's item list offers *Show more* until every item is shown; it stopped after the second page, hiding the rest.
@@ -240,6 +241,7 @@ The first release meant to be used by somebody other than its author.
 [parents]: docs/compatibility.md#what-may-be-a-child-of-what
 [editing]: docs/web/library.md#editing-an-item
 [items]: docs/web/library.md#items
+[install]: docs/web-interface.md#installing-it-as-an-app
 [config]: docs/configuration.md
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3

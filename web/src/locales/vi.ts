@@ -24,6 +24,7 @@ export default {
     'Nhóm là một thư viện riêng, được chia sẻ với những người bạn thêm vào nhóm.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Một liên kết đã được gửi qua email cho người đó. Liên kết có hiệu lực trong {hours} giờ và chỉ dùng được một lần.',
+  'A new version of altero is ready.': 'Phiên bản mới của altero đã sẵn sàng.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Chỉ cần khóa truy cập là đủ để đăng nhập — thiết bị của bạn kiểm tra đúng là bạn, và không có mật khẩu nào để bị đánh cắp.',
   'A password must be at least {count} characters': 'Mật khẩu phải có ít nhất {count} ký tự',
@@ -495,6 +496,7 @@ export default {
   'Registration is open on this server.': 'Máy chủ này đang mở đăng ký.',
   'Reinstate': 'Cho hoạt động lại',
   'Related': 'Liên quan',
+  'Reload': 'Tải lại',
   'Remote version: {value}': 'Phiên bản từ xa: {value}',
   'Remove': 'Gỡ bỏ',
   'Remove Creator': 'Xóa người tạo lập',

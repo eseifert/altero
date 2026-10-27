@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { fileURLToPath, URL } from 'node:url'
 import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib'
 
@@ -73,8 +74,36 @@ export function precompress(): VitePlugin {
   }
 }
 
+/** The placeholder in the service worker that becomes the build's id. */
+const BUILD_PLACEHOLDER = '__ALTERO_BUILD__'
+
+/**
+ * Write the service worker to `/app/sw.js`, stamped with an id of this build.
+ *
+ * A worker is replaced only when its script's bytes change, and its own code
+ * changes rarely; what changes with every deploy is the set of fingerprinted
+ * files. So the id is a digest of their names, and any build that changes a
+ * single asset is a new worker, which then offers itself to open pages.
+ */
+export function serviceWorker(): VitePlugin {
+  return {
+    name: 'altero-service-worker',
+    apply: 'build',
+    generateBundle(_options, bundle) {
+      const names = Object.keys(bundle)
+        .filter((name) => name.startsWith('assets/'))
+        .sort()
+      const build = createHash('sha256').update(names.join('\n')).digest('hex').slice(0, 16)
+      const worker = bundle['sw.js']
+      if (!worker || worker.type !== 'chunk') throw new Error('The service worker was not built')
+      if (worker.imports.length) throw new Error('The service worker must not import a shared chunk')
+      worker.code = worker.code.replaceAll(BUILD_PLACEHOLDER, JSON.stringify(build))
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [vue(), precompress()],
+  plugins: [vue(), serviceWorker(), precompress()],
   css: { postcss: { plugins: [swapFontDisplay] } },
   resolve: {
     alias: {
@@ -113,6 +142,17 @@ export default defineConfig({
     // threshold and travels in the bundle.
     assetsInlineLimit: (file: string) =>
       /favicon-(light|dark)\.svg$/.test(file) ? false : undefined,
+    rollupOptions: {
+      // The service worker is an entry of its own, written unhashed: a
+      // worker's URL is its identity, and a renamed one is a second worker.
+      input: {
+        index: fileURLToPath(new URL('./index.html', import.meta.url)),
+        sw: fileURLToPath(new URL('./src/serviceworker/sw.ts', import.meta.url)),
+      },
+      output: {
+        entryFileNames: (chunk) => (chunk.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js'),
+      },
+    },
   },
   server: {
     // `npm run dev` talks to a locally running altero, so the cookie the API

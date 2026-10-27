@@ -21,6 +21,7 @@ export default {
     'Un grup este o bibliotecă separată, partajată cu persoanele pe care le adaugi în el.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'I-a fost trimis un link prin e-mail. Este valabil {hours} h și poate fi folosit o singură dată.',
+  'A new version of altero is ready.': 'O nouă versiune altero este gata.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'O cheie de acces te autentifică de una singură — dispozitivul tău verifică dacă ești tu și nu există nicio parolă care să poată fi furată.',
   'A password must be at least {count} characters':
@@ -514,6 +515,7 @@ export default {
   Reinstate: 'Reactivează',
   Remove: 'Elimină',
   'Related': 'Relații',
+  'Reload': 'Reîncarcă',
   'Remote version: {value}': 'Versiunea la distanță: {value}',
   'Remove Creator': 'Elimină creatorul',
   'Remove Related': 'Elimină relația',

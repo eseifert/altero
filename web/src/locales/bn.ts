@@ -24,6 +24,7 @@ export default {
     'গ্রুপ হলো একটি নিজস্ব লাইব্রেরি, যা আপনি যাদের যোগ করেন তাদের সাথে শেয়ার করা হয়।',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'তাদের ইমেইলে একটি লিঙ্ক পাঠানো হয়েছে। এটি {hours} ঘণ্টা বৈধ এবং একবারই ব্যবহার করা যাবে।',
+  'A new version of altero is ready.': 'altero-র একটি নতুন সংস্করণ প্রস্তুত।',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'পাসকি একাই আপনাকে সাইন ইন করায় — আপনার ডিভাইস যাচাই করে যে এটি আপনিই, এবং চুরি করার মতো কোনো পাসওয়ার্ড থাকে না।',
   'A password must be at least {count} characters': 'পাসওয়ার্ডে কমপক্ষে {count}টি অক্ষর থাকতে হবে',
@@ -509,6 +510,7 @@ export default {
   'Registration is open on this server.': 'এই সার্ভারে নিবন্ধন খোলা আছে।',
   'Reinstate': 'পুনর্বহাল করুন',
   'Related': 'সম্পর্কিত',
+  'Reload': 'আবার লোড করুন',
   'Remote version: {value}': 'দূরবর্তী সংস্করণ: {value}',
   'Remove': 'সরান',
   'Remove Creator': 'স্রষ্টা সরান',

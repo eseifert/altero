@@ -186,6 +186,12 @@ async function signOut(): Promise<void> {
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  /* Clear of a phone's notch and home indicator, which the page runs under
+     (`viewport-fit=cover`). The larger of the two sides on both, since a
+     notch sits on whichever side the phone was turned to and this is about
+     the screen, not the direction of the text. Zero everywhere else. */
+  padding-inline: max(env(safe-area-inset-left), env(safe-area-inset-right));
+  padding-block-end: env(safe-area-inset-bottom);
 }
 
 /*
@@ -203,6 +209,7 @@ async function signOut(): Promise<void> {
   justify-content: space-between;
   gap: var(--md-spacing-4);
   padding: var(--md-spacing-2) var(--md-spacing-5);
+  padding-block-start: max(var(--md-spacing-2), env(safe-area-inset-top));
   border-bottom: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface-container);
 }

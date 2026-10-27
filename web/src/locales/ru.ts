@@ -24,6 +24,7 @@ export default {
     'Группа — это отдельная библиотека, общая с теми, кого вы в неё добавите.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Ссылка отправлена им по почте. Она действует {hours} часов и используется один раз.',
+  'A new version of altero is ready.': 'Новая версия altero готова.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Ключ доступа входит сам по себе: ваше устройство проверяет, что это вы, и красть нечего — пароля нет.',
   'A password must be at least {count} characters':
@@ -507,6 +508,7 @@ export default {
   'Registration is open on this server.': 'На этом сервере регистрация открыта.',
   'Reinstate': 'Восстановить',
   'Related': 'Связанные',
+  'Reload': 'Перезагрузить',
   'Remote version: {value}': 'Версия (удалённое расположение): {value}',
   'Remove': 'Убрать',
   'Remove Creator': 'Удалить Создателя',

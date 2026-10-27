@@ -21,6 +21,7 @@ export default {
     'Grupė – tai atskira biblioteka, kuria dalijatės su į grupę įtrauktais žmonėmis.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Nuoroda išsiųsta el. paštu. Ji galioja {hours} val. ir gali būti panaudota vieną kartą.',
+  'A new version of altero is ready.': 'Paruošta nauja altero versija.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Prieigos raktu prisijungiama be nieko daugiau – jūsų įrenginys patikrina, kad tai jūs, o slaptažodžio, kurį būtų galima pavogti, nėra.',
   'A password must be at least {count} characters': 'Slaptažodis turi būti ne trumpesnis nei {count} simb.',
@@ -483,6 +484,7 @@ export default {
   'Registration is open on this server.': 'Šiame serveryje registracija atvira.',
   'Reinstate': 'Vėl aktyvinti',
   'Related': 'Susiję',
+  'Reload': 'Įkelti iš naujo',
   'Remote version: {value}': 'Nuotolinė versija: {value}',
   'Remove': 'Pašalinti',
   'Remove Creator': 'Pašalinti autorių',

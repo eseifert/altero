@@ -24,6 +24,7 @@ export default {
     '그룹은 초대한 사람들과 공유하는 독립된 라이브러리입니다.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     '이메일로 링크를 보냈습니다. {hours}시간 동안 유효하며 한 번만 사용할 수 있습니다.',
+  'A new version of altero is ready.': 'altero의 새 버전이 준비되었습니다.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     '패스키만으로 로그인할 수 있습니다. 기기가 본인인지 확인하므로 도난당할 비밀번호가 없습니다.',
   'A password must be at least {count} characters': '비밀번호는 {count}자 이상이어야 합니다',
@@ -484,6 +485,7 @@ export default {
   'Registration is open on this server.': '이 서버는 계정 등록을 허용합니다.',
   'Reinstate': '활성화',
   'Related': '연관',
+  'Reload': '새로 고침',
   'Remote version: {value}': '원격 버전: {value}',
   'Remove': '제거',
   'Remove Creator': '창작가 제거',

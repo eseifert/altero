@@ -24,6 +24,7 @@ export default {
     'Grupa to osobna biblioteka, współdzielona z osobami, które do niej dodasz.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Odnośnik został wysłany do nich pocztą. Jest ważny {hours} godzin i można go użyć raz.',
+  'A new version of altero is ready.': 'Nowa wersja altero jest gotowa.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Klucz dostępu loguje cię samodzielnie — twoje urządzenie sprawdza, że to ty, i nie ma hasła, które można by ukraść.',
   'A password must be at least {count} characters': 'Hasło musi mieć co najmniej {count} znaków',
@@ -509,6 +510,7 @@ export default {
   'Registration is open on this server.': 'Na tym serwerze rejestracja jest otwarta.',
   'Reinstate': 'Przywróć',
   'Related': 'Powiązane',
+  'Reload': 'Wczytaj ponownie',
   'Remote version: {value}': 'Zdalna wersja: {value}',
   'Remove': 'Usuń',
   'Remove Creator': 'Usuń twórcę',

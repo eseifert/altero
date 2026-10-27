@@ -21,6 +21,7 @@ export default {
     'Grupa je zasebna biblioteka koju dijelite s osobama koje u nju dodate.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Poveznica je poslana e-poštom. Vrijedi {hours} h i može se upotrijebiti jednom.',
+  'A new version of altero is ready.': 'Nova verzija programa altero je spremna.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Pristupni ključ prijavljuje Vas sam — Vaš uređaj provjerava da ste to Vi, a nema lozinke koju bi netko mogao ukrasti.',
   'A password must be at least {count} characters': 'Lozinka mora imati najmanje {count} znakova',
@@ -507,6 +508,7 @@ export default {
   'Registration is open on this server.': 'Registracija na ovom poslužitelju je otvorena.',
   'Reinstate': 'Ponovno omogući',
   'Related': 'Srodno',
+  'Reload': 'Ponovno učitaj',
   'Remote version: {value}': 'Udaljena verzija: {value}',
   'Remove': 'Ukloni',
   'Remove Creator': 'Ukloni stvoritelja',

@@ -21,6 +21,7 @@ export default {
     'Бүлэг нь таны нэмсэн хүмүүстэй хуваалцдаг бие даасан номын сан юм.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Түүнд имэйлээр холбоос илгээлээ. Холбоос {hours} цагийн турш хүчинтэй бөгөөд нэг удаа ашиглах боломжтой.',
+  'A new version of altero is ready.': 'altero-ийн шинэ хувилбар бэлэн боллоо.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Нэвтрэх түлхүүр таныг дангаараа нэвтрүүлнэ — төхөөрөмж тань таныг мөн эсэхийг шалгах тул хулгайлагдах нууц үг байхгүй.',
   'A password must be at least {count} characters':
@@ -508,6 +509,7 @@ export default {
   'Registration is open on this server.': 'Энэ серверт бүртгэл нээлттэй байна.',
   'Reinstate': 'Сэргээх',
   'Related': 'Холбоотой',
+  'Reload': 'Дахин ачаалах',
   'Remote version: {value}': 'Алсын хувилбар: {value}',
   'Remove': 'Хасах',
   'Remove Creator': 'Зохиогч хасах',

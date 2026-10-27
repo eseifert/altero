@@ -21,6 +21,7 @@ export default {
     'Μια ομάδα είναι μια αυτόνομη βιβλιοθήκη, κοινή με τα άτομα που προσθέτετε σε αυτήν.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Στάλθηκε ένας σύνδεσμος με email. Ισχύει για {hours} ώρες και μπορεί να χρησιμοποιηθεί μία φορά.',
+  'A new version of altero is ready.': 'Μια νέα έκδοση του altero είναι έτοιμη.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Ένα κλειδί πρόσβασης σάς συνδέει από μόνο του — η συσκευή σας επιβεβαιώνει ότι είστε εσείς και δεν υπάρχει κωδικός πρόσβασης για να κλαπεί.',
   'A password must be at least {count} characters': 'Ο κωδικός πρόσβασης πρέπει να έχει τουλάχιστον {count} χαρακτήρες',
@@ -490,6 +491,7 @@ export default {
   'Registration is open on this server.': 'Η εγγραφή είναι ανοιχτή σε αυτόν τον διακομιστή.',
   'Reinstate': 'Επαναφορά',
   'Related': 'Σχετικό',
+  'Reload': 'Επαναφόρτωση',
   'Remote version: {value}': 'Απομακρυσμένη έκδοση: {value}',
   'Remove': 'Αφαίρεση',
   'Remove Creator': 'Αφαίρεση δημιουργού',

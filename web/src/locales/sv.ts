@@ -21,6 +21,7 @@ export default {
     'En grupp är ett eget bibliotek, delat med de personer du lägger till i den.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'En länk har skickats med e-post. Den gäller i {hours} timmar och kan användas en gång.',
+  'A new version of altero is ready.': 'En ny version av altero är klar.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'En lösennyckel loggar in dig på egen hand — din enhet kontrollerar att det är du, och det finns inget lösenord att stjäla.',
   'A password must be at least {count} characters': 'Ett lösenord måste ha minst {count} tecken',
@@ -506,6 +507,7 @@ export default {
   'Registration is open on this server.': 'Registreringen är öppen på den här servern.',
   'Reinstate': 'Återaktivera',
   'Related': 'Liknande källor',
+  'Reload': 'Läs in igen',
   'Remote version: {value}': 'Fjärrversion: {value}',
   'Remove': 'Ta bort',
   'Remove Creator': 'Ta bort upphovsperson',

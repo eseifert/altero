@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The installed application's icon: the mark from favicon-dark.svg, centred on
+     a tile of the light theme's primary. The mark sits inside the central 60%,
+     so the same drawing serves as a maskable icon, which a platform may crop to
+     a circle of 80%. Rendered to PNG by web/scripts/icons.sh. -->
+<svg width="512" height="512" version="1.1" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+ <rect width="512" height="512" fill="#006a6a"/>
+ <g transform="translate(199.5 128) scale(48.38) translate(-3.8246 0)" stroke-linecap="round" stroke-linejoin="round">
+  <path d="m3.8246 2.6458v2.6458h0.43202l0.71675-2.2515h0.018604l0.72037 2.2515 0.44752-1e-7 -1e-7 -2.6458-0.89865-2.6458-0.53433-1e-7z" fill="#ffffff" fill-opacity=".5"/>
+  <path d="m3.8246 5.2917 0.90227-2.6458h0.53433l0.89865 2.6458h-0.44752l-0.72037-2.2515h-0.018603l-0.71675 2.2515z" fill="#ffffff"/>
+  <path d="m4.7268 0h0.53433v2.6458h-0.53433z" fill="#000000" fill-opacity=".25"/>
+ </g>
+</svg>

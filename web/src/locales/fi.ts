@@ -21,6 +21,7 @@ export default {
     'Ryhmä on oma kirjastonsa, joka jaetaan niiden kanssa, jotka lisäät siihen.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Hänelle lähetettiin linkki sähköpostilla. Se on voimassa {hours} tuntia ja toimii kerran.',
+  'A new version of altero is ready.': 'Uusi altero-versio on valmis.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Pääsyavaimella kirjaudut sisään ilman muuta — laitteesi varmistaa, että kyse on sinusta, eikä varastettavaa salasanaa ole.',
   'A password must be at least {count} characters':
@@ -505,6 +506,7 @@ export default {
   'Registration is open on this server.': 'Rekisteröityminen on avoinna tällä palvelimella.',
   'Reinstate': 'Palauta käyttöön',
   'Related': 'Liittyvät',
+  'Reload': 'Lataa uudelleen',
   'Remote version: {value}': 'Etäversio: {value}',
   'Remove': 'Poista',
   'Remove Creator': 'Poista tekijä',

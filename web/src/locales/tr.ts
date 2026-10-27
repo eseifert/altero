@@ -21,6 +21,7 @@ export default {
     'Grup, eklediğiniz kişilerle paylaşılan, kendi başına bir kitaplıktır.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Kendisine e-postayla bir bağlantı gönderildi. Bağlantı {hours} saat geçerlidir ve bir kez kullanılabilir.',
+  'A new version of altero is ready.': 'altero’nun yeni sürümü hazır.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Geçiş anahtarı tek başına oturum açmanızı sağlar — cihazınız sizin olduğunuzu doğrular ve çalınacak bir şifre yoktur.',
   'A password must be at least {count} characters': 'Şifre en az {count} karakter olmalıdır',
@@ -510,6 +511,7 @@ export default {
   'Registration is open on this server.': 'Bu sunucuda kayıt açık.',
   'Reinstate': 'Yeniden etkinleştir',
   'Related': 'İlişkili',
+  'Reload': 'Yeniden yükle',
   'Remote version: {value}': 'Uzaktaki versiyon: {value}',
   'Remove': 'Kaldır',
   'Remove Creator': 'Oluşturanı kaldır',

@@ -1,7 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ICONS, THEME_STORAGE_KEY, useThemeStore } from './theme'
+import { CHROME_COLORS, ICONS, THEME_STORAGE_KEY, useThemeStore } from './theme'
 
 /** Stand in for the OS setting, which jsdom does not model. */
 function systemPrefersDark(dark: boolean): void {
@@ -21,6 +21,7 @@ describe('the theme store', () => {
     localStorage.clear()
     document.documentElement.removeAttribute('data-theme')
     document.querySelectorAll('link[rel~="icon"]').forEach((link) => link.remove())
+    document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.remove())
     systemPrefersDark(false)
   })
 
@@ -90,6 +91,22 @@ describe('the theme store', () => {
     theme.setPreference('dark')
 
     expect(icon()?.getAttribute('href')).toBe(ICONS.dark)
+  })
+
+  it('paints the browser’s own bar in the theme on screen, whatever the system says', () => {
+    /* index.html serves one for the first paint; it is replaced, not added to. */
+    const served = document.head.appendChild(document.createElement('meta'))
+    served.name = 'theme-color'
+    served.content = CHROME_COLORS.light
+    systemPrefersDark(false)
+    const theme = useThemeStore()
+    theme.initialise()
+
+    theme.setPreference('dark')
+
+    const metas = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+    expect([...metas].map((meta) => meta.content)).toEqual([CHROME_COLORS.dark])
+    served.remove()
   })
 
   it('leaves one icon behind, whichever the page was served with', () => {

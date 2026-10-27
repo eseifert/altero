@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 
 import iconDark from '@/assets/favicon-dark.svg'
 import iconLight from '@/assets/favicon-light.svg'
+import { CHROME_COLORS } from '@/themecolors'
 
 /** What the user asked for, as opposed to what is on screen. */
 export type ThemePreference = 'system' | 'light' | 'dark'
@@ -20,6 +21,8 @@ export type ResolvedTheme = 'light' | 'dark'
 export const ICONS: Record<ResolvedTheme, string> = { light: iconLight, dark: iconDark }
 
 export const THEME_STORAGE_KEY = 'altero.theme'
+
+export { CHROME_COLORS }
 
 const DARK_QUERY = '(prefers-color-scheme: dark)'
 
@@ -52,6 +55,18 @@ export const useThemeStore = defineStore('theme', () => {
     // against a system that asks for dark.
     document.documentElement.dataset.theme = resolved.value
     paintIcon(resolved.value)
+    paintChrome(resolved.value)
+  }
+
+  /** The `theme-color` the browser and an installed app draw their bar in. */
+  function paintChrome(theme: ResolvedTheme): void {
+    const metas = document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+    const meta = metas[0] ?? document.head.appendChild(document.createElement('meta'))
+    // As with the icon: a browser reading another would keep its colour.
+    for (const spare of [...metas].slice(1)) spare.remove()
+    meta.name = 'theme-color'
+    meta.removeAttribute('media')
+    meta.content = CHROME_COLORS[theme]
   }
 
   /**

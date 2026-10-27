@@ -18,6 +18,7 @@ export default {
     'Een groep is een eigen bibliotheek, gedeeld met de mensen die u eraan toevoegt.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Er is hun een link gemaild. Die is {hours} uur geldig en kan één keer worden gebruikt.',
+  'A new version of altero is ready.': 'Er is een nieuwe versie van altero klaar.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Een passkey meldt u op eigen kracht aan — uw apparaat controleert dat u het bent, en er is geen wachtwoord te stelen.',
   'A password must be at least {count} characters':
@@ -507,6 +508,7 @@ export default {
   'Registration is open on this server.': 'Registratie staat open op deze server.',
   'Reinstate': 'Herstellen',
   'Related': 'Gerelateerd',
+  'Reload': 'Opnieuw laden',
   'Remote version: {value}': 'Versie op server: {value}',
   'Remove': 'Verwijderen',
   'Remove Creator': 'Maker verwijderen',

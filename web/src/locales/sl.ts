@@ -25,6 +25,7 @@ export default {
     'Skupina je samostojna knjižnica, ki jo delite z ljudmi, ki jih dodate vanjo.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Povezava je bila poslana po e-pošti. Velja {hours} ur in jo je mogoče uporabiti enkrat.',
+  'A new version of altero is ready.': 'Nova različica programa altero je pripravljena.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Ključ za dostop vas prijavi sam — naprava preveri, da ste to vi, in ni gesla, ki bi ga lahko kdo ukradel.',
   'A password must be at least {count} characters': 'Geslo mora imeti najmanj {count} znakov',
@@ -496,6 +497,7 @@ export default {
   'Registration is open on this server.': 'Registracija na tem strežniku je odprta.',
   'Reinstate': 'Ponovno omogoči',
   'Related': 'Sorodno',
+  'Reload': 'Znova naloži',
   'Remote version: {value}': 'Oddaljena različica: {value}',
   'Remove': 'Odstrani',
   'Remove Creator': 'Odstrani ustvarjalca',

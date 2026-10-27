@@ -27,6 +27,7 @@ export default {
     '群組是一個獨立的文獻庫，與你加入其中的人共用。',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     '連結已透過電子郵件寄給他們。有效期 {hours} 小時，只能使用一次。',
+  'A new version of altero is ready.': 'altero 的新版本已就緒。',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     '通行金鑰可以單獨登入——你的裝置驗證是你本人，沒有可被竊取的密碼。',
   'A password must be at least {count} characters': '密碼至少需要 {count} 個字元',
@@ -480,6 +481,7 @@ export default {
   Reinstate: '恢復',
   Remove: '移除',
   'Related': '相關',
+  'Reload': '重新載入',
   'Remote version: {value}': '遠端版：{value}',
   'Remove Creator': '移除創作者',
   'Remove Related': '移除關聯',

@@ -25,6 +25,7 @@ export default {
     'Skupina je samostatná knihovna, kterou sdílíte s lidmi, které do ní přidáte.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Odkaz byl dotyčnému odeslán e-mailem. Platí {hours} h a lze ho použít jen jednou.',
+  'A new version of altero is ready.': 'Je připravena nová verze altero.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Přístupový klíč vás přihlásí sám — zařízení ověří, že jste to vy, a neexistuje žádné heslo, které by šlo ukrást.',
   'A password must be at least {count} characters': 'Heslo musí mít alespoň {count} znaků',
@@ -512,6 +513,7 @@ export default {
   'Registration is open on this server.': 'Registrace na tomto serveru je otevřená.',
   'Reinstate': 'Obnovit přístup',
   'Related': 'Související',
+  'Reload': 'Znovu načíst',
   'Remote version: {value}': 'Vzdálená verze: {value}',
   'Remove': 'Odebrat',
   'Remove Creator': 'Odebrat tvůrce',

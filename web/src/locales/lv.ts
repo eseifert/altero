@@ -21,6 +21,7 @@ export default {
     'Grupa ir atsevišķa bibliotēka, kas tiek kopīgota ar cilvēkiem, kurus tai pievienojat.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Saite tika nosūtīta pa e-pastu. Tā ir derīga {hours} h un izmantojama vienu reizi.',
+  'A new version of altero is ready.': 'Ir gatava jauna altero versija.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Ar piekļuves atslēgu var pierakstīties bez nekā cita — ierīce pārbauda, ka tas esat jūs, un nav paroles, ko varētu nozagt.',
   'A password must be at least {count} characters': 'Parolē jābūt vismaz {count} rakstzīmēm',
@@ -506,6 +507,7 @@ export default {
   Reinstate: 'Aktivizēt no jauna',
   Remove: 'Noņemt',
   'Related': 'Saistītie',
+  'Reload': 'Pārlādēt',
   'Remote version: {value}': 'Attālā versija: {value}',
   'Remove Creator': 'Noņemt autoru',
   'Remove Related': 'Noņemt saistīto',

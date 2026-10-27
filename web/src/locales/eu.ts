@@ -21,6 +21,7 @@ export default {
     'Talde bat liburutegi propioa da, bertara gehitzen dituzun pertsonekin partekatua.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Esteka bat bidali zaio posta elektronikoz. {hours} orduz balio du eta behin bakarrik erabil daiteke.',
+  'A new version of altero is ready.': 'altero-ren bertsio berri bat prest dago.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Sarbide-gako batek berak bakarrik hasten du saioa: zure gailuak egiaztatzen du zu zarela, eta ez dago lapurtzeko pasahitzik.',
   'A password must be at least {count} characters':
@@ -505,6 +506,7 @@ export default {
   'Registration is open on this server.': 'Izen-ematea irekita dago zerbitzari honetan.',
   'Reinstate': 'Berrezarri',
   'Related': 'Erlazionatutakoak',
+  'Reload': 'Birkargatu',
   'Remote version: {value}': 'Urrutiko bertsioa: {value}',
   'Remove': 'Kendu',
   'Remove Creator': 'Kendu sortzailea',

@@ -18,6 +18,8 @@ def built(tmp_path: Path) -> Path:
     (root / "assets").mkdir(parents=True)
     (root / "index.html").write_text("<!doctype html><div id=app></div>")
     (root / "assets" / "index-abc123.js").write_text("console.log('altero')")
+    (root / "sw.js").write_text("self.addEventListener('fetch', () => {})")
+    (root / "manifest.webmanifest").write_text('{"name": "altero"}')
     return root
 
 
@@ -82,6 +84,22 @@ class TestWhenBuilt:
         response = await built_client.get("/app/")
 
         assert "immutable" not in response.headers.get("cache-control", "")
+
+    async def test_the_service_worker_is_checked_on_every_visit(
+        self, built_client: httpx.AsyncClient
+    ) -> None:
+        """Its bytes are how a deploy reaches an installed app; kept, they pin it."""
+        response = await built_client.get("/app/sw.js")
+
+        assert response.status_code == 200
+        assert response.headers["cache-control"] == "no-cache"
+        assert response.headers["content-type"].startswith("text/javascript")
+
+    async def test_the_manifest_is_served_as_one(self, built_client: httpx.AsyncClient) -> None:
+        response = await built_client.get("/app/manifest.webmanifest")
+
+        assert response.headers["content-type"].startswith("application/manifest+json")
+        assert response.headers["cache-control"] == "no-cache"
 
     async def test_a_client_side_route_falls_back_to_the_index(
         self, built_client: httpx.AsyncClient

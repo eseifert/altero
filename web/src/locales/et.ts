@@ -21,6 +21,7 @@ export default {
     'Grupp on omaette raamatukogu, mida jagatakse inimestega, kelle te sinna lisate.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Talle saadeti e-postiga link. See kehtib {hours} tundi ja seda saab kasutada ühe korra.',
+  'A new version of altero is ready.': 'altero uus versioon on valmis.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Pääsuvõtmega logite sisse ilma muu abita — teie seade kontrollib, et see olete teie, ja varastada pole ühtegi salasõna.',
   'A password must be at least {count} characters': 'Salasõnas peab olema vähemalt {count} märki',
@@ -507,6 +508,7 @@ export default {
   'Registration is open on this server.': 'Selles serveris on registreerumine avatud.',
   'Reinstate': 'Taasta',
   'Related': 'Seotud',
+  'Reload': 'Laadi uuesti',
   'Remote version: {value}': 'Kaugversioon: {value}',
   'Remove': 'Eemalda',
   'Remove Creator': 'Eemalda autor',

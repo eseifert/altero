@@ -27,6 +27,7 @@ export default {
     'A group is a library of its own, shared with the people you add to it.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'A link was emailed to them. It is good for {hours} hours and can be used once.',
+  'A new version of altero is ready.': 'A new version of altero is ready.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.',
   'A password must be at least {count} characters':
@@ -511,6 +512,7 @@ export default {
   Reinstate: 'Reinstate',
   Remove: 'Remove',
   'Related': 'Related',
+  'Reload': 'Reload',
   'Remote version: {value}': 'Remote version: {value}',
   'Remove Creator': 'Remove Creator',
   'Remove Related': 'Remove Related',

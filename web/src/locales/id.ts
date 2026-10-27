@@ -24,6 +24,7 @@ export default {
     'Grup adalah perpustakaan tersendiri yang dibagikan kepada orang-orang yang Anda tambahkan ke dalamnya.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Tautan telah dikirim ke email mereka. Tautan ini berlaku selama {hours} jam dan hanya dapat digunakan sekali.',
+  'A new version of altero is ready.': 'Versi baru altero sudah siap.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Kunci sandi sudah cukup untuk masuk — perangkat Anda memastikan bahwa itu memang Anda, dan tidak ada kata sandi yang bisa dicuri.',
   'A password must be at least {count} characters':
@@ -514,6 +515,7 @@ export default {
   'Registration is open on this server.': 'Pendaftaran dibuka di server ini.',
   'Reinstate': 'Aktifkan kembali',
   'Related': 'Terkait',
+  'Reload': 'Muat ulang',
   'Remote version: {value}': 'Versi jarak jauh: {value}',
   'Remove': 'Buang',
   'Remove Creator': 'Hapus Penyusun',

@@ -21,6 +21,7 @@ export default {
     'Ur strollad a zo ul levraoueg anezhañ e-unan, rannet gant an dud a ouzhpennit ennañ.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     "Kaset eo bet ul liamm dezho dre bostel. Mat eo e-pad {hours} eur ha ne c'hall bezañ implijet nemet ur wech.",
+  'A new version of altero is ready.': 'Prest eo ur stumm nevez eus altero.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     "Gant un alc'hwez-tremen e kevreit hep netra all — ho trevnad a wir ez eo c'hwi, ha n'eus ger-tremen ebet da laerezh.",
   'A password must be at least {count} characters':
@@ -515,6 +516,7 @@ export default {
   'Registration is open on this server.': 'Digor eo an enskrivañ war ar servijer-mañ.',
   'Reinstate': 'Adweredekaat',
   'Related': 'Kevreet',
+  'Reload': 'Adkargañ',
   'Remote version: {value}': 'Stumm a-bell: {value}',
   'Remove': 'Tennañ',
   'Remove Creator': 'Dilemel ar c\'hrouer',

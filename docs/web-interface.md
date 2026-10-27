@@ -18,6 +18,21 @@ The web interface is a companion to Zotero Desktop, not a replacement for the fu
 | Instance administration | Accounts, storage, retention, sign-in providers                                                         | [Administration](administration.md)                          |
 | Contributor details     | Build commands, design system, known browser gaps                                                       | [Web implementation notes](web/implementation.md)            |
 
+## Installing it as an app
+
+The interface can be installed on a phone, tablet or computer, and then opens
+in a window of its own:
+
+- **iPhone and iPad:** open `/app/` in Safari, then **Share → Add to Home
+  Screen**. Not verified on a real device yet.
+- **Android and desktop Chrome or Edge:** **Install** in the browser's menu or
+  address bar.
+
+An installed app opens without a network, but it shows no library offline:
+nothing from a library is stored on the device, so signing out of a shared
+machine leaves nothing behind. When a new version of altero has been
+deployed, the app offers to reload into it.
+
 ## Accounts
 
 Registration and personal settings are documented in [Accounts and personal settings](web/account.md).

@@ -21,6 +21,7 @@ export default {
     'ក្រុមគឺជាបណ្ណាល័យដាច់ដោយឡែកមួយ ដែលចែករំលែកជាមួយមនុស្សដែលអ្នកបន្ថែមចូលក្នុងក្រុម។',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'តំណមួយត្រូវបានផ្ញើទៅពួកគេតាមអ៊ីមែល។ វាមានសុពលភាព {hours} ម៉ោង ហើយអាចប្រើបានតែម្តងប៉ុណ្ណោះ។',
+  'A new version of altero is ready.': 'កំណែថ្មីរបស់ altero រួចរាល់ហើយ។',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'កូនសោសម្ងាត់អាចឱ្យអ្នកចូលបានដោយខ្លួនវាផ្ទាល់ — ឧបករណ៍របស់អ្នកផ្ទៀងផ្ទាត់ថាពិតជាអ្នក ហើយគ្មានពាក្យសម្ងាត់ណាឱ្យគេលួចបានទេ។',
   'A password must be at least {count} characters':
@@ -505,6 +506,7 @@ export default {
   Reinstate: 'ស្តារសិទ្ធិវិញ',
   Remove: 'ដកចេញ',
   'Related': 'ពាក់ព័ន្ធ',
+  'Reload': 'ផ្ទុកឡើងវិញ',
   'Remote version: {value}': 'កំណែពីចម្ងាយ៖ {value}',
   'Remove Creator': 'លុបអ្នកនិពន្ធ',
   'Remove Related': 'លុបធាតុពាក់ព័ន្ធ',

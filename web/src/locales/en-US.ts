@@ -30,6 +30,7 @@ export default {
   'A group is a library of its own, shared with the people you add to it.': 'A group is a library of its own, shared with the people you add to it.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'A link was emailed to them. It is good for {hours} hours and can be used once.',
+  'A new version of altero is ready.': 'A new version of altero is ready.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.': 'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.',
   'A password must be at least {count} characters': 'A password must be at least {count} characters',
   'A private group stays private whatever this says. Make it public as well to share it.': 'A private group stays private whatever this says. Make it public as well to share it.',
@@ -466,6 +467,7 @@ export default {
   'Registration is open on this server.': 'Registration is open on this server.',
   'Reinstate': 'Reinstate',
   'Related': 'Related',
+  'Reload': 'Reload',
   'Remote version: {value}': 'Remote version: {value}',
   'Remove': 'Remove',
   'Remove Creator': 'Remove Creator',

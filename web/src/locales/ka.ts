@@ -23,6 +23,7 @@ export default {
     'ჯგუფი დამოუკიდებელი ბიბლიოთეკაა, რომელიც გაზიარებულია მასში თქვენ მიერ დამატებულ ადამიანებთან.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'მათ ელფოსტით ბმული გაეგზავნათ. ის {hours} საათის განმავლობაში მოქმედებს და მხოლოდ ერთხელ გამოიყენება.',
+  'A new version of altero is ready.': 'altero-ს ახალი ვერსია მზადაა.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'წვდომის გასაღები თავისით გაშვებთ სისტემაში — თქვენი მოწყობილობა ამოწმებს, რომ ეს თქვენ ხართ, და მოსაპარი პაროლი არ არსებობს.',
   'A password must be at least {count} characters': 'პაროლი უნდა შეიცავდეს მინიმუმ {count} სიმბოლოს',
@@ -482,6 +483,7 @@ export default {
   'Registration is open on this server.': 'ამ სერვერზე რეგისტრაცია ღიაა.',
   'Reinstate': 'აღდგენა',
   'Related': 'დაკავშირებული',
+  'Reload': 'ხელახლა ჩატვირთვა',
   'Remote version: {value}': 'დისტანციური ვერსია: {value}',
   'Remove': 'წაშლა',
   'Remove Creator': 'ავტორის წაშლა',

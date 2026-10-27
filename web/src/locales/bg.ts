@@ -21,6 +21,7 @@ export default {
     'Групата е отделна библиотека, споделена с хората, които добавите в нея.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Изпратихме му връзка по имейл. Тя е валидна {hours} часа и може да се използва само веднъж.',
+  'A new version of altero is ready.': 'Готова е нова версия на altero.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'С ключ за достъп влизате без нищо друго — устройството ви проверява, че сте вие, и няма парола, която да бъде открадната.',
   'A password must be at least {count} characters': 'Паролата трябва да е поне {count} знака',
@@ -507,6 +508,7 @@ export default {
   'Registration is open on this server.': 'Регистрацията на този сървър е отворена.',
   'Reinstate': 'Възстановяване',
   'Related': 'Свързани',
+  'Reload': 'Презареждане',
   'Remote version: {value}': 'Отдалечена версия: {value}',
   'Remove': 'Премахване',
   'Remove Creator': 'Премахване на създател',

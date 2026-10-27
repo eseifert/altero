@@ -39,6 +39,15 @@ def is_built(root: Path | None = None) -> bool:
 ASSET_CACHE = "public, max-age=31536000, immutable"
 
 
+#: Files at the top of the build that a browser must ask about on every visit:
+#: the service worker, whose bytes changing is how a deploy reaches an installed
+#: application, and the manifest it was installed from. Neither is fingerprinted,
+#: so neither may be kept the way an asset is.
+REVALIDATED = {"sw.js", "manifest.webmanifest"}
+
+#: Not in every system's MIME table, and a manifest sent as a download is ignored.
+mimetypes.add_type("application/manifest+json", ".webmanifest")
+
 #: Precompressed copies the build writes beside an asset, best first: the
 #: ``Content-Encoding`` each is sent with, and the suffix it is stored under.
 PRECOMPRESSED = (("br", ".br"), ("gzip", ".gz"))
@@ -90,6 +99,8 @@ class SinglePageApp(StaticFiles):
         # thirty font subsets; without this each one is asked about again on
         # every page load, only to be told it has not changed. index.html is
         # deliberately not in here: it is what names the current assets.
+        if path in REVALIDATED and response.status_code == 200:
+            response.headers["cache-control"] = "no-cache"
         if path.startswith("assets/") and response.status_code == 200:
             response.headers["cache-control"] = ASSET_CACHE
             # The same URL answers differently by encoding, so a cache in

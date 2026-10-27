@@ -21,6 +21,7 @@ export default {
     'Un grup és una biblioteca pròpia, compartida amb les persones que hi afegiu.',
   'A link was emailed to them. It is good for {hours} hours and can be used once.':
     'Se li ha enviat un enllaç per correu electrònic. És vàlid durant {hours} hores i només es pot utilitzar una vegada.',
+  'A new version of altero is ready.': 'Hi ha una versió nova d’altero a punt.',
   'A passkey signs you in on its own — your device checks it is you, and there is no password to steal.':
     'Una clau d’accés inicia la sessió per si sola: el vostre dispositiu comprova que sou vós, i no hi ha cap contrasenya que es pugui robar.',
   'A password must be at least {count} characters':
@@ -512,6 +513,7 @@ export default {
   Remove: 'Elimina',
   'Reinstate': 'Restableix',
   'Related': 'Elements relacionats',
+  'Reload': 'Torna a carregar',
   'Remote version: {value}': 'Versió remota: {value}',
   'Remove Creator': 'Elimina el creador',
   'Remove Related': 'Elimina l’element relacionat',
