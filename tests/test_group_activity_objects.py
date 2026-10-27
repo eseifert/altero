@@ -15,7 +15,7 @@ Volume is bounded by the API itself: a write request carries at most
 fifty of these however large the library is.
 """
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -51,7 +51,7 @@ async def objects_of(session: AsyncSession, activity: GroupActivity) -> list[tup
 
 class TestRecordingWhat:
     async def test_created_items_are_named(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await client.post(
             "/groups/100/items",
@@ -69,7 +69,7 @@ class TestRecordingWhat:
         ]
 
     async def test_a_note_is_named_by_its_opening(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         # A note has no title, and the item list shows the start of its text.
         # The same derivation is reused rather than a second one written.
@@ -83,7 +83,7 @@ class TestRecordingWhat:
         assert await objects_of(session, activity) == [("NNNN2345", "Call me Ishmael.")]
 
     async def test_collections_are_named(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await client.post(
             "/groups/100/collections",
@@ -95,7 +95,7 @@ class TestRecordingWhat:
         assert await objects_of(session, activity) == [("CCCC2345", "Whaling")]
 
     async def test_a_change_records_the_name_it_had_afterwards(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         created = await client.post(
             "/groups/100/items",
@@ -113,7 +113,7 @@ class TestRecordingWhat:
         assert await objects_of(session, second) == [("AAAA2345", "Moby-Dick; or, The Whale")]
 
     async def test_renaming_later_does_not_rewrite_the_earlier_entry(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         # The whole reason the name is stored rather than joined: a log that
         # changed retroactively would not be a log.
@@ -131,7 +131,7 @@ class TestRecordingWhat:
 
 class TestDeletions:
     async def test_a_trashed_item_is_named(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         created = await client.post(
             "/groups/100/items",
@@ -147,7 +147,7 @@ class TestDeletions:
         assert await objects_of(session, trashing) == [("AAAA2345", "Moby-Dick")]
 
     async def test_an_item_deleted_outright_is_named(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         # Nothing is left to look the name up from afterwards, so it has to be
         # taken before the row goes.
@@ -169,7 +169,7 @@ class TestDeletions:
         assert await objects_of(session, deletion) == [("AAAA2345", "Moby-Dick")]
 
     async def test_several_deleted_at_once_are_all_named(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         created = await client.post(
             "/groups/100/items",
@@ -193,7 +193,7 @@ class TestDeletions:
         ]
 
     async def test_a_change_and_a_trashing_in_one_batch_are_kept_apart(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         created = await client.post(
             "/groups/100/items",
@@ -218,7 +218,7 @@ class TestDeletions:
 
 class TestHousekeeping:
     async def test_the_count_still_matches_the_objects(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await client.post(
             "/groups/100/items",
@@ -231,7 +231,7 @@ class TestHousekeeping:
         assert len(await objects_of(session, activity)) == 3
 
     async def test_a_personal_library_records_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await client.post(
             "/users/1/items", headers=JSON, json=[{"itemType": "book", "title": "Moby-Dick"}]
@@ -241,7 +241,7 @@ class TestHousekeeping:
         assert list(await session.scalars(select(GroupActivityObject))) == []
 
     async def test_deleting_the_group_takes_them_with_it(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         from altero.services import groups as groups_service
 

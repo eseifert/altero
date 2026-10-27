@@ -14,7 +14,7 @@ mean a row per object per change, and the thing people ask for is "has anything
 happened here lately", which the counts answer.
 """
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,7 +30,7 @@ def settings(tmp_path) -> Settings:  # type: ignore[no-untyped-def]
     )
 
 
-async def sign_up(client: httpx.AsyncClient, username: str = "ada") -> httpx.Response:
+async def sign_up(client: httpx2.AsyncClient, username: str = "ada") -> httpx2.Response:
     return await client.post(
         "/web/auth/register",
         json={
@@ -41,18 +41,18 @@ async def sign_up(client: httpx.AsyncClient, username: str = "ada") -> httpx.Res
     )
 
 
-def csrf(client: httpx.AsyncClient) -> dict[str, str]:
+def csrf(client: httpx2.AsyncClient) -> dict[str, str]:
     return {"X-CSRF-Token": client.cookies["altero_csrf"]}
 
 
 @pytest.fixture
-async def ada(client: httpx.AsyncClient) -> httpx.AsyncClient:
+async def ada(client: httpx2.AsyncClient) -> httpx2.AsyncClient:
     assert (await sign_up(client)).status_code == 201
     return client
 
 
 @pytest.fixture
-async def group(ada: httpx.AsyncClient) -> int:
+async def group(ada: httpx2.AsyncClient) -> int:
     response = await ada.post("/web/groups", json={"name": "Kollaps"}, headers=csrf(ada))
     assert response.status_code == 201
     return int(response.json()["id"])
@@ -79,7 +79,7 @@ async def record(
 
 class TestReading:
     async def test_an_untouched_group_has_an_empty_log(
-        self, ada: httpx.AsyncClient, group: int
+        self, ada: httpx2.AsyncClient, group: int
     ) -> None:
         response = await ada.get(f"/web/groups/{group}/activity")
 
@@ -87,7 +87,7 @@ class TestReading:
         assert response.json() == {"activity": [], "total": 0}
 
     async def test_an_entry_names_what_happened_and_who(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         await record(session, group, kind="items_changed", count=4)
 
@@ -100,7 +100,7 @@ class TestReading:
         assert entry["when"].endswith("Z")
 
     async def test_an_entry_names_the_objects_it_touched(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         # The point of dataserver#89: "what was modified", not merely how much.
         from altero.models import GroupActivity, GroupActivityObject
@@ -125,7 +125,7 @@ class TestReading:
         ]
 
     async def test_an_entry_with_no_objects_recorded_carries_an_empty_list(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         # Everything written before this existed, which is what an upgraded
         # instance is full of. It has a count and no names, and the interface
@@ -138,7 +138,7 @@ class TestReading:
         assert body["activity"][0]["count"] == 3
 
     async def test_the_newest_comes_first(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         await record(session, group, kind="items_changed")
         await record(session, group, kind="items_deleted")
@@ -151,7 +151,7 @@ class TestReading:
         ]
 
     async def test_a_write_by_nobody_has_no_actor(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         # A key that names no person can still reach a group library.
         await record(session, group, actor_id=None)
@@ -161,7 +161,7 @@ class TestReading:
         assert body["activity"][0]["actor"] is None
 
     async def test_entries_are_shown_whether_or_not_they_have_been_sent(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         # The log is the record, not the outbox: an entry nobody subscribed to
         # is still something that happened.
@@ -184,7 +184,7 @@ class TestReading:
 
 class TestPaging:
     async def test_the_page_is_capped_and_the_total_reported(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         for _ in range(5):
             await record(session, group)
@@ -195,7 +195,7 @@ class TestPaging:
         assert body["total"] == 5
 
     async def test_start_moves_through_the_log(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         for count in (1, 2, 3):
             await record(session, group, count=count)
@@ -206,7 +206,7 @@ class TestPaging:
         assert [entry["count"] for entry in body["activity"]] == [2]
 
     async def test_an_unreadable_limit_is_ignored(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         await record(session, group)
 
@@ -218,7 +218,7 @@ class TestPaging:
 
 class TestWhoMaySee:
     async def test_a_stranger_may_not(
-        self, client: httpx.AsyncClient, ada: httpx.AsyncClient, group: int
+        self, client: httpx2.AsyncClient, ada: httpx2.AsyncClient, group: int
     ) -> None:
         await ada.post("/web/auth/logout", headers=csrf(ada))
 
@@ -227,7 +227,7 @@ class TestWhoMaySee:
         assert response.status_code in (401, 403)
 
     async def test_a_non_member_may_not(
-        self, client: httpx.AsyncClient, ada: httpx.AsyncClient, group: int
+        self, client: httpx2.AsyncClient, ada: httpx2.AsyncClient, group: int
     ) -> None:
         # Not found rather than forbidden, as everywhere else in /web: a
         # stranger learns nothing about which private groups exist.
@@ -239,7 +239,7 @@ class TestWhoMaySee:
         assert response.status_code in (401, 403, 404)
 
     async def test_an_api_key_may_not(
-        self, client: httpx.AsyncClient, ada: httpx.AsyncClient, group: int, session: AsyncSession
+        self, client: httpx2.AsyncClient, ada: httpx2.AsyncClient, group: int, session: AsyncSession
     ) -> None:
         # The v3 API is API-key only and /web is cookie only; the log is /web.
         #
@@ -259,7 +259,7 @@ class TestWhoMaySee:
         assert response.status_code in (401, 403)
 
     async def test_a_plain_member_may(
-        self, ada: httpx.AsyncClient, session: AsyncSession, group: int
+        self, ada: httpx2.AsyncClient, session: AsyncSession, group: int
     ) -> None:
         # Everybody in a group can see what happened in it. Restricting the log
         # to administrators would make it a supervision tool rather than a way

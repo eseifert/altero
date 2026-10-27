@@ -14,7 +14,7 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -56,26 +56,26 @@ async def source(tmp_path: Path) -> AsyncIterator[FastAPI]:
 
 
 @pytest.fixture
-async def remote(source: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
+async def remote(source: FastAPI) -> AsyncIterator[httpx2.AsyncClient]:
     """A client pointed at that server, as the fetcher will be."""
-    transport = httpx.ASGITransport(app=source)
-    async with httpx.AsyncClient(transport=transport) as client:
+    transport = httpx2.ASGITransport(app=source)
+    async with httpx2.AsyncClient(transport=transport) as client:
         yield client
 
 
 @pytest.fixture
-async def zotero(source: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
+async def zotero(source: FastAPI) -> AsyncIterator[httpx2.AsyncClient]:
     """A client used to *fill* the source, over its own v3 API."""
-    transport = httpx.ASGITransport(app=source)
-    async with httpx.AsyncClient(transport=transport, base_url="http://zotero.test") as client:
+    transport = httpx2.ASGITransport(app=source)
+    async with httpx2.AsyncClient(transport=transport, base_url="http://zotero.test") as client:
         yield client
 
 
-def api(remote: httpx.AsyncClient) -> ZoteroApi:
+def api(remote: httpx2.AsyncClient) -> ZoteroApi:
     return ZoteroApi(key=SOURCE_KEY, client=remote, base_url="http://zotero.test")
 
 
-async def seed(zotero: httpx.AsyncClient, items: list[dict]) -> httpx.Response:
+async def seed(zotero: httpx2.AsyncClient, items: list[dict]) -> httpx2.Response:
     response = await zotero.post("/users/4711/items", headers=JSON, json=items)
     assert response.status_code == 200, response.text
     return response
@@ -88,7 +88,7 @@ def documents(archive: Path) -> dict[str, Any]:
 
 class TestReadingALibrary:
     async def test_the_items_come_across_with_their_keys_and_versions(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         body = (
             await seed(
@@ -111,7 +111,7 @@ class TestReadingALibrary:
         assert all(entry["version"] == version for entry in items)
 
     async def test_the_library_version_comes_across(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         """What makes the copy a copy: a client is in step with it, not ahead."""
         await seed(zotero, [{"itemType": "book", "title": "Moby-Dick"}])
@@ -126,7 +126,7 @@ class TestReadingALibrary:
         assert manifest["library"]["version"] == summary.library_version
 
     async def test_collections_keep_their_shape_and_their_items(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         await zotero.post(
             "/users/4711/collections",
@@ -158,7 +158,7 @@ class TestReadingALibrary:
         assert by_key["DDDD2345"]["parent"] == "CCCC2345"
 
     async def test_tags_carry_their_items_and_their_type(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         await seed(
             zotero,
@@ -185,7 +185,7 @@ class TestReadingALibrary:
         assert all(entry["items"] == ["AAAA2345"] for entry in tags)
 
     async def test_trashed_items_come_too(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         """A copy that quietly emptied the trash would not be a copy."""
         await seed(
@@ -202,7 +202,7 @@ class TestReadingALibrary:
         assert items[0]["deleted"] is True
 
     async def test_child_notes_name_their_parent(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         await seed(zotero, [{"itemType": "book", "title": "Moby-Dick", "key": "AAAA2345"}])
         await seed(
@@ -225,7 +225,7 @@ class TestReadingALibrary:
         assert {"field": "note", "value": "<p>A note</p>"} in note["fields"]
 
     async def test_saved_searches_keep_their_conditions(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         await zotero.post(
             "/users/4711/searches",
@@ -250,7 +250,7 @@ class TestReadingALibrary:
         assert searches[0]["conditions"][0]["value"] == "whale"
 
     async def test_settings_come_across(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         await zotero.put(
             "/users/4711/settings/tagColors",
@@ -267,7 +267,7 @@ class TestReadingALibrary:
         assert json.loads(settings[0]["value"]) == [{"name": "unread", "color": "#FF6666"}]
 
     async def test_the_deletion_log_comes_across(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         await seed(zotero, [{"itemType": "book", "title": "Gone", "key": "AAAA2345"}])
         await zotero.delete(
@@ -292,7 +292,7 @@ class TestObjectReferences:
     """Relation URIs name an account by number, and the numbers differ."""
 
     async def test_a_related_item_is_pointed_at_the_new_account(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         await seed(
             zotero,
@@ -317,7 +317,7 @@ class TestObjectReferences:
         assert summary.rewritten == 1
 
     async def test_the_namespace_is_left_alone(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         """`Zotero.URI` is anchored to the literal `http://zotero.org/`.
 
@@ -342,7 +342,7 @@ class TestObjectReferences:
         assert items[0]["relations"][0]["object"].startswith("http://zotero.org/")
 
     async def test_a_group_reference_is_left_where_it_points(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         """Groups are not migrated, so aiming it at a local group would lie."""
         await seed(
@@ -366,7 +366,7 @@ class TestObjectReferences:
         assert summary.rewritten == 0
 
     async def test_nothing_is_rewritten_when_the_numbers_agree(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         await seed(
             zotero,
@@ -389,7 +389,7 @@ class TestObjectReferences:
 
 class TestAttachments:
     async def test_the_bytes_come_across(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         from altero.services.storage import file_digest
 
@@ -423,8 +423,8 @@ class TestAttachments:
 
     async def test_a_file_is_never_held_whole(
         self,
-        remote: httpx.AsyncClient,
-        zotero: httpx.AsyncClient,
+        remote: httpx2.AsyncClient,
+        zotero: httpx2.AsyncClient,
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
@@ -445,16 +445,16 @@ class TestAttachments:
             ],
         )
         await _store(zotero, "AAAA2345", body)
-        read_whole = httpx.Response.aread
+        read_whole = httpx2.Response.aread
 
-        async def reading(self: httpx.Response) -> bytes:
+        async def reading(self: httpx2.Response) -> bytes:
             # The bytes come from where the redirect points; the 302 itself
-            # has an empty body that httpx reads on its way past.
+            # has an empty body that httpx2 reads on its way past.
             path = self.request.url.path
             assert not path.startswith("/storage/download/"), "a file was read whole"
             return await read_whole(self)
 
-        monkeypatch.setattr(httpx.Response, "aread", reading)
+        monkeypatch.setattr(httpx2.Response, "aread", reading)
         await fetch_archive(api(remote), destination=tmp_path / "out.zip", target_user_id=4711)
 
         with zipfile.ZipFile(tmp_path / "out.zip") as bundle:
@@ -463,7 +463,7 @@ class TestAttachments:
             assert bundle.read(entry) == body
 
     async def test_an_attachment_with_no_file_is_named_rather_than_fatal(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         """The ordinary case for an account that ran out of storage."""
         await seed(
@@ -490,7 +490,7 @@ class TestAttachments:
         assert summary.items == 1
 
     async def test_a_linked_file_is_not_asked_for(
-        self, remote: httpx.AsyncClient, zotero: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, zotero: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         """Its bytes were never uploaded, so asking is a wasted 404."""
         await seed(
@@ -513,7 +513,7 @@ class TestAttachments:
         assert summary.files_missing == []
 
 
-async def _store(zotero: httpx.AsyncClient, key: str, body: bytes) -> None:
+async def _store(zotero: httpx2.AsyncClient, key: str, body: bytes) -> None:
     """Upload a file to the source server through its own file protocol."""
     from altero.services.storage import file_digest
 
@@ -553,7 +553,7 @@ async def _store(zotero: httpx.AsyncClient, key: str, body: bytes) -> None:
 
 class TestWhatItRefuses:
     async def test_a_key_that_cannot_read_the_library_is_refused(
-        self, source: FastAPI, remote: httpx.AsyncClient, tmp_path: Path
+        self, source: FastAPI, remote: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         async with source.state.database.session_factory() as session:
             await factories.make_api_key(
@@ -567,7 +567,7 @@ class TestWhatItRefuses:
             await fetch_archive(narrow, destination=tmp_path / "out.zip", target_user_id=1)
 
     async def test_an_unknown_key_is_refused(
-        self, remote: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         wrong = ZoteroApi(key="Z" * 24, client=remote, base_url="http://zotero.test")
 
@@ -580,8 +580,8 @@ class TestRestoringWhatWasRead:
 
     async def test_the_library_arrives_whole(
         self,
-        remote: httpx.AsyncClient,
-        zotero: httpx.AsyncClient,
+        remote: httpx2.AsyncClient,
+        zotero: httpx2.AsyncClient,
         session: AsyncSession,
         settings: Settings,
         tmp_path: Path,
@@ -621,12 +621,12 @@ class TestRestoringWhatWasRead:
 
     async def test_it_refuses_to_merge_into_a_library_that_holds_something(
         self,
-        remote: httpx.AsyncClient,
-        zotero: httpx.AsyncClient,
+        remote: httpx2.AsyncClient,
+        zotero: httpx2.AsyncClient,
         session: AsyncSession,
         settings: Settings,
         tmp_path: Path,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
     ) -> None:
         """`replace` is the difference between a copy and two libraries mixed."""
         await seed(zotero, [{"itemType": "book", "title": "Moby-Dick", "key": "AAAA2345"}])
@@ -654,13 +654,13 @@ class TestRestoringWhatWasRead:
 class TestBeingAGoodGuest:
     """What zotero.org does and the fixture above does not."""
 
-    def _throttling(self, answers: list[httpx.Response]) -> httpx.MockTransport:
+    def _throttling(self, answers: list[httpx2.Response]) -> httpx2.MockTransport:
         remaining = list(answers)
 
-        def handle(request: httpx.Request) -> httpx.Response:
-            return remaining.pop(0) if remaining else httpx.Response(200, json=[])
+        def handle(request: httpx2.Request) -> httpx2.Response:
+            return remaining.pop(0) if remaining else httpx2.Response(200, json=[])
 
-        return httpx.MockTransport(handle)
+        return httpx2.MockTransport(handle)
 
     async def test_a_429_is_waited_out_and_the_request_repeated(
         self, monkeypatch: pytest.MonkeyPatch
@@ -673,12 +673,12 @@ class TestBeingAGoodGuest:
         monkeypatch.setattr("altero.services.zoteroapi.asyncio.sleep", record)
         transport = self._throttling(
             [
-                httpx.Response(429, headers={"Retry-After": "7"}),
-                httpx.Response(200, json={"ok": True}),
+                httpx2.Response(429, headers={"Retry-After": "7"}),
+                httpx2.Response(200, json={"ok": True}),
             ]
         )
 
-        async with httpx.AsyncClient(transport=transport) as client:
+        async with httpx2.AsyncClient(transport=transport) as client:
             body = await ZoteroApi(key="k", client=client).json("/keys/current")
 
         assert body == {"ok": True}
@@ -695,12 +695,12 @@ class TestBeingAGoodGuest:
         monkeypatch.setattr("altero.services.zoteroapi.asyncio.sleep", record)
         transport = self._throttling(
             [
-                httpx.Response(200, json={"first": True}, headers={"Backoff": "3"}),
-                httpx.Response(200, json={"second": True}),
+                httpx2.Response(200, json={"first": True}, headers={"Backoff": "3"}),
+                httpx2.Response(200, json={"second": True}),
             ]
         )
 
-        async with httpx.AsyncClient(transport=transport) as client:
+        async with httpx2.AsyncClient(transport=transport) as client:
             api = ZoteroApi(key="k", client=client)
             assert await api.json("/one") == {"first": True}
             assert slept == []
@@ -719,10 +719,10 @@ class TestBeingAGoodGuest:
 
         monkeypatch.setattr("altero.services.zoteroapi.asyncio.sleep", record)
         transport = self._throttling(
-            [httpx.Response(200, json={"ok": True}, headers={"Backoff": "1.5"})]
+            [httpx2.Response(200, json={"ok": True}, headers={"Backoff": "1.5"})]
         )
 
-        async with httpx.AsyncClient(transport=transport) as client:
+        async with httpx2.AsyncClient(transport=transport) as client:
             api = ZoteroApi(key="k", client=client)
             await api.json("/one")
             await api.json("/two")
@@ -736,9 +736,9 @@ class TestBeingAGoodGuest:
             return None
 
         monkeypatch.setattr("altero.services.zoteroapi.asyncio.sleep", record)
-        transport = httpx.MockTransport(lambda request: httpx.Response(429))
+        transport = httpx2.MockTransport(lambda request: httpx2.Response(429))
 
-        async with httpx.AsyncClient(transport=transport) as client:
+        async with httpx2.AsyncClient(transport=transport) as client:
             with pytest.raises(ZoteroApiError):
                 await ZoteroApi(key="k", client=client).json("/keys/current")
 
@@ -746,11 +746,11 @@ class TestBeingAGoodGuest:
         """A `Link` naming api.zotero.org would send a redirected fetch home."""
         seen: list[str] = []
 
-        def handle(request: httpx.Request) -> httpx.Response:
+        def handle(request: httpx2.Request) -> httpx2.Response:
             seen.append(str(request.url))
             start = int(request.url.params.get("start", 0))
             page = [{"key": f"K{index}"} for index in range(start, min(start + 100, 150))]
-            return httpx.Response(
+            return httpx2.Response(
                 200,
                 json=page,
                 headers={
@@ -759,7 +759,7 @@ class TestBeingAGoodGuest:
                 },
             )
 
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+        async with httpx2.AsyncClient(transport=httpx2.MockTransport(handle)) as client:
             api = ZoteroApi(key="k", client=client, base_url="http://elsewhere.test")
             pages = [page async for page in api.paged("/users/1/items")]
 
@@ -769,21 +769,21 @@ class TestBeingAGoodGuest:
 
 class TestALibraryThisServerCannotFullyStore:
     async def test_an_item_it_cannot_store_is_reported_rather_than_fatal(
-        self, remote: httpx.AsyncClient, tmp_path: Path
+        self, remote: httpx2.AsyncClient, tmp_path: Path
     ) -> None:
         """A schema newer than the vendored one must not lose the other items."""
 
-        def handle(request: httpx.Request) -> httpx.Response:
+        def handle(request: httpx2.Request) -> httpx2.Response:
             path = request.url.path
             if path == "/keys/current":
-                return httpx.Response(
+                return httpx2.Response(
                     200,
                     json={"userID": 4711, "username": "ada", "access": {"user": {"library": True}}},
                 )
             if path == "/users/4711/items":
                 if request.url.params.get("start", "0") != "0":
-                    return httpx.Response(200, json=[], headers={"Total-Results": "2"})
-                return httpx.Response(
+                    return httpx2.Response(200, json=[], headers={"Total-Results": "2"})
+                return httpx2.Response(
                     200,
                     headers={"Total-Results": "2", "Last-Modified-Version": "12"},
                     json=[
@@ -810,16 +810,16 @@ class TestALibraryThisServerCannotFullyStore:
                     ],
                 )
             if path == "/users/4711/settings":
-                return httpx.Response(200, json={})
+                return httpx2.Response(200, json={})
             if path == "/users/4711/fulltext":
-                return httpx.Response(200, json={})
+                return httpx2.Response(200, json={})
             if path == "/users/4711/deleted":
-                return httpx.Response(200, json={})
+                return httpx2.Response(200, json={})
             if path == "/users/4711/tags":
-                return httpx.Response(200, json={})
-            return httpx.Response(200, json=[], headers={"Total-Results": "0"})
+                return httpx2.Response(200, json={})
+            return httpx2.Response(200, json=[], headers={"Total-Results": "0"})
 
-        async with httpx.AsyncClient(transport=httpx.MockTransport(handle)) as client:
+        async with httpx2.AsyncClient(transport=httpx2.MockTransport(handle)) as client:
             summary = await fetch_archive(
                 ZoteroApi(key="k", client=client, base_url="http://zotero.test"),
                 destination=tmp_path / "out.zip",
@@ -852,22 +852,22 @@ class TestWhatZoteroOrgWillNotServe:
 
         monkeypatch.setattr("altero.services.zoteroapi.asyncio.sleep", instantly)
 
-    def _server(self, broken: set[str]) -> httpx.MockTransport:
+    def _server(self, broken: set[str]) -> httpx2.MockTransport:
         """A library that answers everything except the paths in `broken`."""
 
-        def handle(request: httpx.Request) -> httpx.Response:
+        def handle(request: httpx2.Request) -> httpx2.Response:
             path = request.url.path
             if path in broken:
-                return httpx.Response(500, text="An error occurred")
+                return httpx2.Response(500, text="An error occurred")
             if path == "/keys/current":
-                return httpx.Response(
+                return httpx2.Response(
                     200,
                     json={"userID": 7, "username": "ada", "access": {"user": {"library": True}}},
                 )
             if path == "/users/7/items":
                 if request.url.params.get("start", "0") != "0":
-                    return httpx.Response(200, json=[], headers={"Total-Results": "1"})
-                return httpx.Response(
+                    return httpx2.Response(200, json=[], headers={"Total-Results": "1"})
+                return httpx2.Response(
                     200,
                     headers={"Total-Results": "1", "Last-Modified-Version": "413"},
                     json=[
@@ -885,15 +885,15 @@ class TestWhatZoteroOrgWillNotServe:
                     ],
                 )
             if path in ("/users/7/settings", "/users/7/fulltext", "/users/7/deleted"):
-                return httpx.Response(200, json={})
+                return httpx2.Response(200, json={})
             if path == "/users/7/tags":
-                return httpx.Response(200, json={})
-            return httpx.Response(200, json=[], headers={"Total-Results": "0"})
+                return httpx2.Response(200, json={})
+            return httpx2.Response(200, json=[], headers={"Total-Results": "0"})
 
-        return httpx.MockTransport(handle)
+        return httpx2.MockTransport(handle)
 
     async def _read(self, broken: set[str], tmp_path: Path):
-        async with httpx.AsyncClient(transport=self._server(broken)) as client:
+        async with httpx2.AsyncClient(transport=self._server(broken)) as client:
             return await fetch_archive(
                 ZoteroApi(key="k", client=client, base_url="http://zotero.test"),
                 destination=tmp_path / "out.zip",

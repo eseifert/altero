@@ -25,7 +25,7 @@ import os
 from collections.abc import AsyncIterator
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 
 from altero.app import create_app
@@ -52,7 +52,7 @@ async def database() -> AsyncIterator[Database]:
 
 
 @pytest.fixture
-async def client(database: Database, tmp_path: Path) -> AsyncIterator[httpx.AsyncClient]:
+async def client(database: Database, tmp_path: Path) -> AsyncIterator[httpx2.AsyncClient]:
     """A client whose attachments land somewhere of this test's own.
 
     The storage path matters more than it looks. Left at its default these
@@ -64,8 +64,8 @@ async def client(database: Database, tmp_path: Path) -> AsyncIterator[httpx.Asyn
     assert POSTGRES_URL
     app = create_app(Settings(database_url=POSTGRES_URL, storage_path=tmp_path / "storage"))
     app.state.database = database
-    transport = httpx.ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+    transport = httpx2.ASGITransport(app=app)
+    async with httpx2.AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
 
 
@@ -77,14 +77,14 @@ async def make_cli_account(database: Database, username: str = "ada"):  # type: 
         return user.id
 
 
-async def sign_in(client: httpx.AsyncClient, username: str = "ada") -> None:
+async def sign_in(client: httpx2.AsyncClient, username: str = "ada") -> None:
     response = await client.post(
         "/web/auth/login", json={"username": username, "password": PASSWORD}
     )
     assert response.status_code == 200, response.text
 
 
-def csrf(client: httpx.AsyncClient) -> dict[str, str]:
+def csrf(client: httpx2.AsyncClient) -> dict[str, str]:
     return {"X-CSRF-Token": client.cookies.get("altero_csrf") or ""}
 
 
@@ -92,7 +92,7 @@ class TestAnAccountWithNoAddress:
     """`altero user add` makes these, and they have no email at all."""
 
     async def test_the_notifications_panel_answers(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         """This is the regression. It answered 500 on PostgreSQL."""
         await make_cli_account(database)
@@ -104,7 +104,7 @@ class TestAnAccountWithNoAddress:
         assert response.json() == {"unread": 0, "notifications": [], "invitations": []}
 
     async def test_the_account_page_answers(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         await make_cli_account(database)
         await sign_in(client)
@@ -116,7 +116,7 @@ class TestAnAccountWithNoAddress:
         assert response.json()["user"]["emailVerified"] is False
 
     async def test_they_can_still_be_invited_by_link(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         """Matched on the invitation's user_id, since there is no address to match."""
         await make_cli_account(database)
@@ -154,7 +154,7 @@ class TestAnAccountWithNoAddress:
         assert [entry["libraryName"] for entry in body["invitations"]] == ["Analytical Engine"]
 
     async def test_they_can_answer_that_invitation(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         await make_cli_account(database)
 
@@ -189,7 +189,7 @@ class TestAnAccountWithNoAddress:
 class TestTheOrdinaryPathsAlsoWorkHere:
     """Cheap insurance: the same flows the SQLite tests cover, on PostgreSQL."""
 
-    async def test_register_sign_in_and_read_the_library(self, client: httpx.AsyncClient) -> None:
+    async def test_register_sign_in_and_read_the_library(self, client: httpx2.AsyncClient) -> None:
         registered = await client.post(
             "/web/auth/register",
             json={
@@ -206,7 +206,7 @@ class TestTheOrdinaryPathsAlsoWorkHere:
         assert len((await client.get("/web/libraries")).json()) == 1
 
     async def test_an_invitation_round_trip(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         await client.post(
             "/web/auth/register",
@@ -256,7 +256,7 @@ class TestTheFileProtocol:
     MTIME = 1785793739415
 
     async def test_authorising_an_upload_accepts_a_millisecond_mtime(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         await client.post(
             "/web/auth/register",
@@ -307,7 +307,7 @@ class TestTheFileProtocol:
         assert response.json()["uploadKey"]
 
     async def test_a_zipped_snapshot_uploads_too(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         """The other upload shape, which carries an extra digest.
 
@@ -401,7 +401,7 @@ class TestTheOperatorLayerOnPostgres:
     """
 
     async def test_the_administration_screens_answer(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         await make_cli_account(database)
         await sign_in(client)
@@ -415,7 +415,7 @@ class TestTheOperatorLayerOnPostgres:
         assert accounts.json()["users"][0]["administrator"] is True
 
     async def test_a_retention_period_is_stored_and_read_back(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         await make_cli_account(database)
         await sign_in(client)
@@ -428,7 +428,7 @@ class TestTheOperatorLayerOnPostgres:
         assert again.json()["settings"]["trashRetentionDays"] == 30
 
     async def test_the_trash_sweep_takes_the_row_lock_and_deletes(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         from datetime import UTC, datetime, timedelta
 
@@ -459,7 +459,7 @@ class TestTheOperatorLayerOnPostgres:
             assert await session.scalar(select(Item)) is None
 
     async def test_suspending_refuses_the_key_and_the_cookie(
-        self, client: httpx.AsyncClient, database: Database
+        self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         user_id = await make_cli_account(database)
         await sign_in(client)

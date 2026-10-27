@@ -14,7 +14,7 @@ syncing rather than failing on every edit.
 
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,25 +40,25 @@ async def library(session: AsyncSession) -> Library:
     return library
 
 
-async def post(client: httpx.AsyncClient, *objects: dict[str, Any]) -> dict[str, Any]:
+async def post(client: httpx2.AsyncClient, *objects: dict[str, Any]) -> dict[str, Any]:
     response = await client.post("/users/1/items", headers=JSON, json=list(objects))
     assert response.status_code == 200, response.text
     return dict(response.json())
 
 
-async def made(client: httpx.AsyncClient, item: dict[str, Any]) -> str:
+async def made(client: httpx2.AsyncClient, item: dict[str, Any]) -> str:
     """Create ``item`` and return its key, failing the test if it was refused."""
     body = await post(client, item)
     assert body["failed"] == {}, body["failed"]
     return str(body["successful"]["0"]["key"])
 
 
-async def book(client: httpx.AsyncClient) -> str:
+async def book(client: httpx2.AsyncClient) -> str:
     return await made(client, {"itemType": "book", "title": "Parent"})
 
 
 async def file(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     parent: str | None = None,
     content_type: str = PDF,
     link_mode: str = "imported_file",
@@ -95,7 +95,7 @@ def failure(body: dict[str, Any]) -> dict[str, Any]:
 
 class TestWhatMayHaveAParent:
     async def test_an_item_cannot_be_its_own_parent(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = await post(client, {"key": "AAAA2345", "itemType": "note", "parentItem": "AAAA2345"})
 
@@ -104,7 +104,7 @@ class TestWhatMayHaveAParent:
         assert refused["message"].startswith("Item AAAA2345 cannot be a child of itself")
 
     async def test_a_regular_item_cannot_have_a_parent(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """Upstream fails this with a 500; it is the client's mistake, so 400."""
         parent = await book(client)
@@ -114,19 +114,19 @@ class TestWhatMayHaveAParent:
         assert refused["code"] == 400
 
     async def test_saying_a_regular_item_has_no_parent_is_fine(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         await made(client, {"itemType": "book", "parentItem": False})
 
 
 class TestNotes:
     async def test_a_note_goes_under_a_regular_item(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         await made(client, {"itemType": "note", "parentItem": await book(client), "note": "x"})
 
     async def test_a_note_cannot_go_under_a_note(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         parent = await made(client, {"itemType": "note", "note": "standalone"})
 
@@ -141,7 +141,7 @@ class TestNotes:
         }
 
     async def test_a_note_cannot_go_under_an_attachment(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         parent = await file(client)
 
@@ -150,7 +150,7 @@ class TestNotes:
         assert refused["code"] == 409
 
     async def test_a_note_cannot_be_moved_under_a_note(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         note = await made(client, {"itemType": "note", "note": "moving"})
         other = await made(client, {"itemType": "note", "note": "standalone"})
@@ -162,12 +162,12 @@ class TestNotes:
 
 class TestAttachments:
     async def test_an_attachment_goes_under_a_regular_item(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         await file(client, await book(client))
 
     async def test_an_attachment_cannot_go_under_a_child_attachment(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         child = await file(client, await book(client))
 
@@ -182,7 +182,7 @@ class TestAttachments:
         assert refused["message"] == f"Parent item {child} cannot be a child attachment"
 
     async def test_a_file_cannot_go_under_a_note(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         note = await made(client, {"itemType": "note", "note": "standalone"})
 
@@ -196,7 +196,7 @@ class TestAttachments:
         assert refused["code"] == 409
 
     async def test_an_embedded_image_goes_under_a_note(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """How an image pasted into a note is stored."""
         note = await made(client, {"itemType": "note", "note": "<p><img/></p>"})
@@ -204,7 +204,7 @@ class TestAttachments:
         await file(client, note, content_type="image/png", link_mode="embedded_image")
 
     async def test_an_embedded_image_goes_under_a_child_note(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         note = await made(
             client, {"itemType": "note", "parentItem": await book(client), "note": "<p/>"}
@@ -215,7 +215,7 @@ class TestAttachments:
 
 class TestAnnotations:
     async def test_an_annotation_must_have_a_parent(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         refused = failure(await post(client, annotation(None)))
 
@@ -223,7 +223,7 @@ class TestAnnotations:
         assert refused["message"] == "Annotation item must have a parent item"
 
     async def test_an_annotation_cannot_go_under_a_regular_item(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         refused = failure(await post(client, annotation(await book(client))))
 
@@ -231,7 +231,7 @@ class TestAnnotations:
         assert "must be a file attachment" in refused["message"]
 
     async def test_an_annotation_cannot_go_under_a_link(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         link = await made(
             client,
@@ -245,7 +245,7 @@ class TestAnnotations:
     @pytest.mark.parametrize("annotation_type", ["highlight", "underline", "note"])
     @pytest.mark.parametrize("content_type", [PDF, EPUB, HTML])
     async def test_a_text_annotation_goes_on_any_file_a_reader_opens(
-        self, client: httpx.AsyncClient, library: Library, annotation_type: str, content_type: str
+        self, client: httpx2.AsyncClient, library: Library, annotation_type: str, content_type: str
     ) -> None:
         parent = await file(client, await book(client), content_type=content_type)
 
@@ -253,7 +253,7 @@ class TestAnnotations:
 
     @pytest.mark.parametrize("annotation_type", ["image", "ink", "text"])
     async def test_a_drawn_annotation_goes_on_a_pdf(
-        self, client: httpx.AsyncClient, library: Library, annotation_type: str
+        self, client: httpx2.AsyncClient, library: Library, annotation_type: str
     ) -> None:
         parent = await file(client, await book(client), content_type=PDF)
 
@@ -262,7 +262,7 @@ class TestAnnotations:
     @pytest.mark.parametrize("annotation_type", ["image", "ink", "text"])
     @pytest.mark.parametrize("content_type", [EPUB, HTML])
     async def test_a_drawn_annotation_goes_on_a_pdf_alone(
-        self, client: httpx.AsyncClient, library: Library, annotation_type: str, content_type: str
+        self, client: httpx2.AsyncClient, library: Library, annotation_type: str, content_type: str
     ) -> None:
         parent = await file(client, await book(client), content_type=content_type)
 
@@ -272,7 +272,7 @@ class TestAnnotations:
         assert "must be a PDF" in refused["message"]
 
     async def test_a_highlight_cannot_go_on_a_plain_text_file(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         parent = await file(client, await book(client), content_type="text/plain")
 
@@ -282,7 +282,7 @@ class TestAnnotations:
         assert refused["message"].endswith("must be a PDF, EPUB, or HTML attachment")
 
     async def test_an_annotation_moved_to_an_epub_is_checked_too(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         parent = await book(client)
         pdf = await file(client, parent, content_type=PDF)
@@ -296,7 +296,7 @@ class TestAnnotations:
 
 class TestWhatIsAlreadyStored:
     async def test_an_item_re_sent_under_the_parent_it_has_is_not_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """A graph a laxer server once accepted keeps syncing.
 

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,7 +26,7 @@ async def library(session: AsyncSession) -> Library:
 
 class TestListing:
     async def test_an_empty_library_returns_an_empty_list(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items", headers=AUTH)
 
@@ -36,7 +36,7 @@ class TestListing:
         assert response.headers["Last-Modified-Version"] == "10"
 
     async def test_items_are_returned_in_the_envelope(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -67,7 +67,7 @@ class TestListing:
         assert body["data"]["dateAdded"].endswith("Z")
 
     async def test_trashed_items_are_hidden_by_default(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345", deleted=True)
@@ -77,7 +77,7 @@ class TestListing:
         assert keys == ["AAAA2345"]
 
     async def test_include_trashed_brings_them_back(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345", deleted=True)
@@ -87,7 +87,7 @@ class TestListing:
         assert len(body) == 2
 
     async def test_the_trash_lists_only_trashed_items(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345", deleted=True)
@@ -98,7 +98,7 @@ class TestListing:
         assert body[0]["data"]["deleted"] == 1
 
     async def test_top_excludes_child_items(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
@@ -110,7 +110,7 @@ class TestListing:
         assert len(every) == 2
 
     async def test_children_lists_an_items_children(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
@@ -122,7 +122,7 @@ class TestListing:
         assert body[0]["links"]["up"]["href"].endswith("/items/AAAA2345")
 
     async def test_num_children_is_reported(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
@@ -134,7 +134,7 @@ class TestListing:
 
 class TestSingleItem:
     async def test_an_item_is_returned_by_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", fields={"title": "T"})
 
@@ -145,19 +145,19 @@ class TestSingleItem:
         assert response.headers["Last-Modified-Version"] == "10"
 
     async def test_an_unknown_key_is_a_404(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/items/ZZZZ2345", headers=AUTH)).status_code == 404
 
     async def test_reading_requires_authorisation(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/items")).status_code == 403
 
 
 class TestFormats:
     async def test_format_keys_returns_one_key_per_line(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345")
@@ -168,7 +168,7 @@ class TestFormats:
         assert sorted(response.text.split("\n")) == ["AAAA2345", "BBBB2345"]
 
     async def test_format_versions_maps_keys_to_versions(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=7)
 
@@ -177,7 +177,7 @@ class TestFormats:
         assert response.json() == {"AAAA2345": 7}
 
     async def test_an_unknown_format_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items?format=nope", headers=AUTH)
 
@@ -186,7 +186,7 @@ class TestFormats:
 
 class TestFiltering:
     async def test_item_key_selects_specific_items(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345")
@@ -197,7 +197,7 @@ class TestFiltering:
         assert sorted(i["key"] for i in body) == ["AAAA2345", "CCCC2345"]
 
     async def test_a_long_list_of_keys_is_not_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """Upstream never counts them.
 
@@ -212,7 +212,7 @@ class TestFiltering:
         assert response.status_code == 200
 
     async def test_a_malformed_key_matches_nothing_rather_than_failing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """`array_filter` with a log line, not an error: a key that cannot name
         an object here would not have matched one anyway."""
@@ -224,7 +224,7 @@ class TestFiltering:
         assert [entry["key"] for entry in response.json()] == ["AAAA2345"]
 
     async def test_item_type_filters(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="book")
         await make_item(session, library, key="BBBB2345", item_type="journalArticle")
@@ -234,7 +234,7 @@ class TestFiltering:
         assert [i["key"] for i in body] == ["AAAA2345"]
 
     async def test_item_type_accepts_alternatives(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="book")
         await make_item(session, library, key="BBBB2345", item_type="journalArticle")
@@ -247,7 +247,7 @@ class TestFiltering:
         assert sorted(i["key"] for i in body) == ["AAAA2345", "BBBB2345"]
 
     async def test_item_type_negation(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="book")
         await make_item(session, library, key="BBBB2345", item_type="note")
@@ -257,7 +257,7 @@ class TestFiltering:
         assert [i["key"] for i in body] == ["AAAA2345"]
 
     async def test_tag_filters(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345")
@@ -268,7 +268,7 @@ class TestFiltering:
         assert [i["key"] for i in body] == ["AAAA2345"]
 
     async def test_repeated_tags_are_combined_with_and(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         both = await make_item(session, library, key="AAAA2345")
         one = await make_item(session, library, key="BBBB2345")
@@ -281,7 +281,7 @@ class TestFiltering:
         assert [i["key"] for i in body] == ["AAAA2345"]
 
     async def test_tag_alternatives_are_combined_with_or(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -294,7 +294,7 @@ class TestFiltering:
         assert sorted(i["key"] for i in body) == ["AAAA2345", "BBBB2345"]
 
     async def test_quick_search_matches_title_and_creator(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", fields={"title": "Moby-Dick"})
         await make_item(
@@ -313,7 +313,7 @@ class TestFiltering:
         assert [i["key"] for i in melville] == ["BBBB2345"]
 
     async def test_quick_search_everything_reaches_other_fields(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session, library, key="AAAA2345", fields={"title": "T", "publisher": "Harper"}
@@ -328,7 +328,7 @@ class TestFiltering:
         assert [i["key"] for i in everything] == ["AAAA2345"]
 
     async def test_since_returns_only_newer_objects(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=3)
         await make_item(session, library, key="BBBB2345", version=8)
@@ -340,7 +340,7 @@ class TestFiltering:
 
 class TestSortingAndPaging:
     async def test_sorting_by_title(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", fields={"title": "Zebra"})
         await make_item(session, library, key="BBBB2345", fields={"title": "Apple"})
@@ -350,7 +350,7 @@ class TestSortingAndPaging:
         assert [i["data"]["title"] for i in body] == ["Apple", "Zebra"]
 
     async def test_sorting_direction_can_be_reversed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", fields={"title": "Zebra"})
         await make_item(session, library, key="BBBB2345", fields={"title": "Apple"})
@@ -360,7 +360,7 @@ class TestSortingAndPaging:
         assert [i["data"]["title"] for i in body] == ["Zebra", "Apple"]
 
     async def test_sorting_by_server_date_modified(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """The server's own timestamp, not a field: it was once sorted by key alone."""
         newer = await make_item(session, library, key="AAAA2345")
@@ -378,12 +378,12 @@ class TestSortingAndPaging:
         assert [i["key"] for i in descending.json()] == ["AAAA2345", "BBBB2345"]
 
     async def test_an_unknown_sort_field_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/items?sort=nope", headers=AUTH)).status_code == 400
 
     async def test_limit_and_start_page_through_results(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(5):
             await make_item(
@@ -396,7 +396,7 @@ class TestSortingAndPaging:
         assert response.headers["Total-Results"] == "5"
 
     async def test_the_link_header_describes_the_neighbouring_pages(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(5):
             await make_item(
@@ -413,14 +413,14 @@ class TestSortingAndPaging:
         assert 'rel="last"' in link
 
     async def test_the_link_header_is_absent_for_a_single_page(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
 
         assert "Link" not in (await client.get("/users/1/items", headers=AUTH)).headers
 
     async def test_the_link_header_preserves_filters(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(5):
             await make_item(session, library, key=f"AAAA234{index}", item_type="book")
@@ -434,7 +434,7 @@ class TestSortingAndPaging:
 
 class TestConditionalRequests:
     async def test_an_unchanged_library_yields_304(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get(
             "/users/1/items", headers=AUTH | {"If-Modified-Since-Version": "10"}
@@ -444,7 +444,7 @@ class TestConditionalRequests:
         assert not response.content
 
     async def test_an_older_version_yields_the_body(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get(
             "/users/1/items", headers=AUTH | {"If-Modified-Since-Version": "9"}
@@ -455,7 +455,7 @@ class TestConditionalRequests:
 
 class TestCollectionScopedItems:
     async def test_items_of_a_collection_are_listed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         inside = await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345")
@@ -466,7 +466,7 @@ class TestCollectionScopedItems:
         assert [i["key"] for i in body] == ["AAAA2345"]
 
     async def test_top_items_of_a_collection_exclude_children(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_item(session, library, key="AAAA2345")
         child = await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
@@ -477,7 +477,7 @@ class TestCollectionScopedItems:
         assert [i["key"] for i in body] == ["AAAA2345"]
 
     async def test_an_unknown_collection_is_a_404(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/collections/ZZZZ2345/items", headers=AUTH)
 
@@ -511,7 +511,7 @@ class TestDownloadingByKey:
         return keys
 
     async def test_a_hundred_keys_are_accepted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """What the client sends. altero refused anything over fifty."""
         keys = await self._fill(session, library, 100)
@@ -522,7 +522,7 @@ class TestDownloadingByKey:
         assert len(response.json()) == 100
 
     async def test_more_than_a_hundred_are_not_refused_either(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """Upstream never counts them; it pages. So this answers a full page."""
         keys = await self._fill(session, library, 120)
@@ -534,7 +534,7 @@ class TestDownloadingByKey:
         assert response.headers["Total-Results"] == "120"
 
     async def test_a_batch_is_not_cut_to_the_default_page_size(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """The quieter half of the bug: 30 keys answered with 25 objects."""
         keys = await self._fill(session, library, 30)
@@ -544,7 +544,7 @@ class TestDownloadingByKey:
         assert len(body) == 30
 
     async def test_an_explicit_limit_does_not_shrink_the_batch(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """Upstream assigns the forced limit last, over whatever was asked."""
         keys = await self._fill(session, library, 30)
@@ -556,7 +556,7 @@ class TestDownloadingByKey:
         assert len(body) == 30
 
     async def test_the_unpaginated_formats_still_answer_with_everything(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """`versions` has no limit, and forcing one on it would truncate."""
         keys = await self._fill(session, library, 120)

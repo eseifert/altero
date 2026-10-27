@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime, timedelta
 
-import httpx
+import httpx2
 from sqlalchemy import select
 
 from altero.models import Library, User
@@ -31,7 +31,7 @@ async def server_writes(run: AcceptanceRun) -> None:
         library = await session.scalar(select(Library).where(Library.owner_id == 1))
         assert library is not None
         library_id = library.id
-    async with httpx.AsyncClient(
+    async with httpx2.AsyncClient(
         base_url=run.server.url,
         cookies={"altero_session": token, "altero_csrf": "acceptance-csrf"},
         headers={"X-CSRF-Token": "acceptance-csrf"},

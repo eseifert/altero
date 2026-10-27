@@ -1,6 +1,6 @@
 """Signing in against a directory, over HTTP, with a directory that answers.
 
-The directory is an `httpx.MockTransport` standing in for a real one, so the
+The directory is an `httpx2.MockTransport` standing in for a real one, so the
 whole exchange runs -- discovery, the redirect, the code, the token endpoint,
 UserInfo -- and only the socket is fake.
 
@@ -14,7 +14,7 @@ import json
 from datetime import UTC, datetime, timedelta
 from urllib.parse import parse_qs, urlparse
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy import select
@@ -59,12 +59,12 @@ class Directory:
 
         return f"{segment({'alg': 'RS256'})}.{segment(payload)}.signature-never-read"
 
-    def handle(self, request: httpx.Request) -> httpx.Response:
+    def handle(self, request: httpx2.Request) -> httpx2.Response:
         path = urlparse(str(request.url)).path
 
         if path == "/.well-known/openid-configuration":
             self.discovery_calls += 1
-            return httpx.Response(
+            return httpx2.Response(
                 200,
                 json={
                     "issuer": ISSUER,
@@ -77,7 +77,7 @@ class Directory:
         if path == "/token":
             form = parse_qs(request.content.decode())
             self.exchanges.append({name: value[0] for name, value in form.items()})
-            return httpx.Response(
+            return httpx2.Response(
                 200,
                 json={
                     "access_token": "an-access-token",
@@ -87,20 +87,20 @@ class Directory:
             )
 
         if path == "/userinfo":
-            return httpx.Response(200, json={"sub": SUBJECT, **self.userinfo_claims})
+            return httpx2.Response(200, json={"sub": SUBJECT, **self.userinfo_claims})
 
-        return httpx.Response(404)
+        return httpx2.Response(404)
 
 
 @pytest.fixture
 def directory(app: FastAPI) -> Directory:
     """Point the application's outbound client at the stand-in."""
     fake = Directory()
-    app.state.http_client = httpx.AsyncClient(transport=httpx.MockTransport(fake.handle))
+    app.state.http_client = httpx2.AsyncClient(transport=httpx2.MockTransport(fake.handle))
     return fake
 
 
-async def add_provider(client: httpx.AsyncClient, **overrides: object) -> httpx.Response:
+async def add_provider(client: httpx2.AsyncClient, **overrides: object) -> httpx2.Response:
     body: dict = {
         "slug": "campus",
         "kind": "oidc",
@@ -116,8 +116,8 @@ async def add_provider(client: httpx.AsyncClient, **overrides: object) -> httpx.
 
 
 async def follow(
-    client: httpx.AsyncClient, directory: Directory, session: AsyncSession
-) -> httpx.Response:
+    client: httpx2.AsyncClient, directory: Directory, session: AsyncSession
+) -> httpx2.Response:
     """Start a sign-in, play the directory's part, and come back."""
     started = await client.get("/web/auth/sso/campus/start")
     parameters = parse_qs(urlparse(started.headers["location"]).query)
@@ -128,7 +128,7 @@ async def follow(
 
 class TestConfiguringOne:
     async def test_an_administrator_can_add_one(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
 
@@ -138,7 +138,7 @@ class TestConfiguringOne:
         assert response.json()["warning"] is None
 
     async def test_discovery_runs_when_it_is_added(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
 
@@ -148,7 +148,7 @@ class TestConfiguringOne:
         assert body["provider"]["authorizationEndpoint"] == f"{ISSUER}/authorize"
 
     async def test_the_client_secret_is_never_returned(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         """A signed-in tab must not be a way of reading back a credential the
         instance holds for somebody else's directory."""
@@ -160,7 +160,7 @@ class TestConfiguringOne:
         assert body["provider"]["hasClientSecret"] is True
 
     async def test_the_callback_to_configure_at_the_directory_is_shown(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         """The single most likely thing to be misconfigured."""
         await register(client)
@@ -170,7 +170,7 @@ class TestConfiguringOne:
         assert body["provider"]["redirectUri"].endswith("/web/auth/sso/campus/callback")
 
     async def test_an_unreachable_directory_does_not_lose_what_was_typed(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
 
@@ -180,7 +180,7 @@ class TestConfiguringOne:
         assert response.json()["warning"] is not None
 
     async def test_it_takes_the_administrators_own_proof(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
 
@@ -193,7 +193,7 @@ class TestConfiguringOne:
         assert response.status_code == 403
 
     async def test_an_ordinary_account_cannot_see_them(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         from altero.services import admin, webauth, websessions
 
@@ -209,7 +209,7 @@ class TestConfiguringOne:
 
 class TestTheSignInPageIsToldAboutThem:
     async def test_an_enabled_provider_is_offered(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -220,7 +220,7 @@ class TestTheSignInPageIsToldAboutThem:
         assert body["providers"] == [{"slug": "campus", "kind": "oidc", "displayName": "Campus"}]
 
     async def test_nothing_about_how_it_is_configured_is_disclosed(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         """This answers to anybody who loads the page."""
         await register(client)
@@ -233,7 +233,7 @@ class TestTheSignInPageIsToldAboutThem:
         assert ISSUER not in body
 
     async def test_a_disabled_one_is_not_offered(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -248,7 +248,7 @@ class TestTheSignInPageIsToldAboutThem:
 
 class TestSigningIn:
     async def test_starting_sends_the_browser_to_the_directory(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -260,7 +260,7 @@ class TestSigningIn:
         assert response.headers["location"].startswith(f"{ISSUER}/authorize?")
 
     async def test_the_request_is_recorded_so_a_second_worker_could_finish_it(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         """In the database rather than in memory, unlike the streaming broker."""
         await register(client)
@@ -271,7 +271,7 @@ class TestSigningIn:
         assert await session.scalar(select(AuthRequest)) is not None
 
     async def test_a_full_sign_in_makes_an_account_and_a_session(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -284,7 +284,7 @@ class TestSigningIn:
         assert (await client.get("/web/auth/session")).json()["user"]["username"] == "grace"
 
     async def test_the_code_is_exchanged_with_pkce_and_the_secret(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -298,7 +298,7 @@ class TestSigningIn:
         assert exchange["code_verifier"]
 
     async def test_signing_in_twice_lands_on_the_same_account(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -312,7 +312,7 @@ class TestSigningIn:
         assert (await client.get("/web/auth/session")).json()["user"]["id"] == first
 
     async def test_a_claim_only_userinfo_carries_is_seen(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         """Directories keep the token small and put the rest there, and the
         required claim is frequently one of them."""
@@ -326,7 +326,7 @@ class TestSigningIn:
         assert response.headers["location"].endswith("/app/library")
 
     async def test_losing_the_required_claim_refuses_the_sign_in(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client, requiredClaim="groups", requiredValue="zotero")
@@ -341,7 +341,7 @@ class TestSigningIn:
 
 class TestTheCallbackRefusesWhatItShould:
     async def test_a_state_that_was_never_issued(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -353,7 +353,7 @@ class TestTheCallbackRefusesWhatItShould:
         assert (await client.get("/web/auth/session")).status_code == 401
 
     async def test_a_state_used_twice(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         """The row is spent as it is read, so a replayed code finds nothing."""
         await register(client)
@@ -371,7 +371,7 @@ class TestTheCallbackRefusesWhatItShould:
         assert "error=expired" in again.headers["location"]
 
     async def test_a_token_answering_a_different_request(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         """The nonce is what pins the token to this sign-in."""
         await register(client)
@@ -387,7 +387,7 @@ class TestTheCallbackRefusesWhatItShould:
         assert (await client.get("/web/auth/session")).status_code == 401
 
     async def test_the_directory_refusing(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -397,7 +397,7 @@ class TestTheCallbackRefusesWhatItShould:
 
         assert "error=refused" in response.headers["location"]
 
-    async def test_an_unknown_provider(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unknown_provider(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.get("/web/auth/sso/nowhere/start")
@@ -407,7 +407,7 @@ class TestTheCallbackRefusesWhatItShould:
 
 class TestAnAccountsOwnConnections:
     async def test_a_signed_in_account_can_attach_one(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         """The supported path for an instance that had accounts before a directory."""
         await register(client)
@@ -423,7 +423,7 @@ class TestAnAccountsOwnConnections:
         assert body["identities"][0]["provider"] == "campus"
 
     async def test_linking_asks_the_directory_to_authenticate_again(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -433,7 +433,7 @@ class TestAnAccountsOwnConnections:
         assert parse_qs(urlparse(started.headers["location"]).query)["prompt"] == ["login"]
 
     async def test_a_stranger_cannot_start_a_link(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -444,7 +444,7 @@ class TestAnAccountsOwnConnections:
         assert "error=not-signed-in" in response.headers["location"]
 
     async def test_it_can_be_detached(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client, createAccounts=False)
@@ -465,8 +465,8 @@ class TestAnAccountsOwnConnections:
 
 
 async def reauthenticate(
-    client: httpx.AsyncClient, directory: Directory, next_path: str = "/library"
-) -> httpx.Response:
+    client: httpx2.AsyncClient, directory: Directory, next_path: str = "/library"
+) -> httpx2.Response:
     """Go back through the directory to prove this browser again."""
     started = await client.get(
         "/web/auth/sso/campus/start", params={"purpose": "reauth", "next": next_path}
@@ -477,7 +477,7 @@ async def reauthenticate(
 
 
 async def signed_in_through_the_directory(
-    client: httpx.AsyncClient, directory: Directory, session: AsyncSession
+    client: httpx2.AsyncClient, directory: Directory, session: AsyncSession
 ) -> None:
     """Leave the client signed in as an account the directory created, which
     has never had a password."""
@@ -491,7 +491,7 @@ class TestWhatABrowserCanProveItselfWith:
     """`/web/account/proof`, which tells a confirmation screen what to offer."""
 
     async def test_an_account_with_a_password_is_asked_for_it(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -500,7 +500,7 @@ class TestWhatABrowserCanProveItselfWith:
         assert body == {"password": True, "fresh": False, "providers": []}
 
     async def test_an_account_the_directory_made_is_offered_the_directory(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await signed_in_through_the_directory(client, directory, session)
 
@@ -513,7 +513,7 @@ class TestWhatABrowserCanProveItselfWith:
         }
 
     async def test_going_back_through_the_directory_makes_it_fresh(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await signed_in_through_the_directory(client, directory, session)
 
@@ -522,7 +522,7 @@ class TestWhatABrowserCanProveItselfWith:
         assert (await client.get("/web/account/proof")).json()["fresh"] is True
 
     async def test_a_directory_the_account_is_not_connected_to_is_not_offered(
-        self, client: httpx.AsyncClient, directory: Directory
+        self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:
         """Re-authenticating there would only end at "not yours"."""
         await register(client)
@@ -531,7 +531,7 @@ class TestWhatABrowserCanProveItselfWith:
         assert (await client.get("/web/account/proof")).json()["providers"] == []
 
     async def test_a_disabled_directory_is_not_offered(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await signed_in_through_the_directory(client, directory, session)
         provider = await session.scalar(select(IdentityProvider))
@@ -541,12 +541,12 @@ class TestWhatABrowserCanProveItselfWith:
 
         assert (await client.get("/web/account/proof")).json()["providers"] == []
 
-    async def test_it_needs_a_session(self, client: httpx.AsyncClient) -> None:
+    async def test_it_needs_a_session(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/account/proof")).status_code == 401
 
 
 class TestReauthenticatingThroughSaml:
-    async def test_the_directory_is_made_to_ask_again(self, client: httpx.AsyncClient) -> None:
+    async def test_the_directory_is_made_to_ask_again(self, client: httpx2.AsyncClient) -> None:
         """Without ForceAuthn a SAML directory answers from its own session,
         and the trip proves no more than the sign-in it followed."""
         from tests.test_saml import CERTIFICATE, authn_request
@@ -578,7 +578,7 @@ class TestAnAccountWithNoPasswordConnectsZotero:
     """
 
     async def test_signing_in_again_is_not_proof(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         """An ordinary sign-in can be answered from the directory's own session
         without asking anybody anything, so it does not stand in for proof."""
@@ -593,7 +593,7 @@ class TestAnAccountWithNoPasswordConnectsZotero:
         assert (await client.get(f"/keys/sessions/{token}")).json()["status"] == "pending"
 
     async def test_going_back_through_the_directory_returns_to_the_request(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await signed_in_through_the_directory(client, directory, session)
         token = await start_session(client)
@@ -603,7 +603,7 @@ class TestAnAccountWithNoPasswordConnectsZotero:
         assert response.headers["location"].endswith(f"/app/link?token={token}")
 
     async def test_it_is_approved_after_going_back_through_the_directory(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await signed_in_through_the_directory(client, directory, session)
         token = await start_session(client)
@@ -623,7 +623,7 @@ class TestTheV3ApiIsStillUntouched:
     """Whatever federation adds, a cookie must not reach the sync protocol."""
 
     async def test_a_federated_session_does_not_authenticate_a_v3_request(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         await register(client)
         await add_provider(client)
@@ -637,7 +637,7 @@ class TestTheV3ApiIsStillUntouched:
         assert response.status_code in (401, 403)
 
     async def test_no_api_key_is_issued_by_signing_in(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         """A desktop client still gets its key the way it always did, from a
         signed-in browser -- federation does not hand one out."""
@@ -649,7 +649,7 @@ class TestTheV3ApiIsStillUntouched:
         assert list(await session.scalars(select(ApiKey))) == []
 
     async def test_the_callback_does_not_take_a_csrf_token(
-        self, client: httpx.AsyncClient, session: AsyncSession, directory: Directory
+        self, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
     ) -> None:
         """It arrives by navigation from the directory, so there is no header to
         send; the state row is what makes it genuine."""

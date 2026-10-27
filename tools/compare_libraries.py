@@ -43,7 +43,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import httpx
+import httpx2
 
 #: The client schema this was written against. A higher one is not refused --
 #: the tables it reads have been stable for years -- but it is worth saying.
@@ -521,7 +521,7 @@ def _read_client(name: str, origin: str, library: LibraryRef) -> Snapshot:
 # --------------------------------------------------------------------------
 
 
-def _paged(client: httpx.Client, path: str, **params: Any) -> Iterator[dict[str, Any]]:
+def _paged(client: httpx2.Client, path: str, **params: Any) -> Iterator[dict[str, Any]]:
     start, limit = 0, 100
     while True:
         response = client.get(
@@ -538,7 +538,7 @@ def _paged(client: httpx.Client, path: str, **params: Any) -> Iterator[dict[str,
 def _read_server(name: str, origin: str, library: LibraryRef, key: str) -> Snapshot:
     if not key:
         raise SourceError("reading the server needs --key (or ALTERO_API_KEY)")
-    with httpx.Client(
+    with httpx2.Client(
         base_url=origin.rstrip("/"),
         headers={"Zotero-API-Key": key, "Zotero-API-Version": "3"},
         timeout=60.0,
@@ -700,13 +700,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         if not named:
             # Unnamed sources are allowed, and the column heading is then the
             # host or the directory the source was read from.
-            origin, name = name, httpx.URL(name).host or Path(name).name
+            origin, name = name, httpx2.URL(name).host or Path(name).name
         try:
             if origin.startswith(("http://", "https://")):
                 snapshots.append(_read_server(name, origin, args.library, args.key))
             else:
                 snapshots.append(_read_client(name, origin, args.library))
-        except (SourceError, httpx.HTTPError) as error:
+        except (SourceError, httpx2.HTTPError) as error:
             print(f"{name}: {error}", file=sys.stderr)
             failed = True
 

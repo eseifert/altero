@@ -37,7 +37,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 from urllib.parse import urlencode
 
-import httpx
+import httpx2
 
 from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import IdentityProvider
@@ -275,7 +275,7 @@ def satisfies_requirement(claims: dict[str, Any], provider: IdentityProvider) ->
 class Client:
     """The one thing here that makes network calls."""
 
-    def __init__(self, client: httpx.AsyncClient) -> None:
+    def __init__(self, client: httpx2.AsyncClient) -> None:
         self.client = client
 
     async def discover(self, issuer: str) -> Discovery:
@@ -284,7 +284,7 @@ class Client:
             response = await self.client.get(discovery_url(issuer), timeout=TIMEOUT_SECONDS)
             response.raise_for_status()
             document = response.json()
-        except (httpx.HTTPError, ValueError) as failure:
+        except (httpx2.HTTPError, ValueError) as failure:
             logger.warning("Could not read the configuration at %s: %s", issuer, failure)
             raise InvalidInputError(
                 f"Could not read an OpenID configuration from {issuer}"
@@ -344,7 +344,7 @@ class Client:
                 headers={"Accept": "application/json"},
                 timeout=TIMEOUT_SECONDS,
             )
-        except httpx.HTTPError as failure:
+        except httpx2.HTTPError as failure:
             logger.warning("Could not reach %s: %s", provider.token_endpoint, failure)
             raise ForbiddenError("Could not reach the identity provider") from failure
 
@@ -385,7 +385,7 @@ class Client:
             )
             response.raise_for_status()
             claims = response.json()
-        except (httpx.HTTPError, ValueError) as failure:
+        except (httpx2.HTTPError, ValueError) as failure:
             logger.info("UserInfo at %s did not answer: %s", provider.slug, failure)
             return {}
         return claims if isinstance(claims, dict) else {}

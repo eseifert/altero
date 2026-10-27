@@ -5,7 +5,7 @@ import base64
 import hashlib
 import time
 
-import httpx
+import httpx2
 
 from tools.compatibility.acceptance_runtime import AcceptanceRun
 
@@ -44,7 +44,7 @@ async def files(run: AcceptanceRun) -> None:
         assert left["files"][key] == base64.b64encode(expected).decode()
         response = await run.request("GET", f"/users/1/items/{key}")
         assert response.json()["data"]["md5"] == hashlib.md5(expected).hexdigest()
-        async with httpx.AsyncClient(base_url=run.server.url, follow_redirects=True) as client:
+        async with httpx2.AsyncClient(base_url=run.server.url, follow_redirects=True) as client:
             downloaded = await client.get(
                 f"/users/1/items/{key}/file", headers={"Zotero-API-Key": run.server.key}
             )

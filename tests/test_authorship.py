@@ -18,7 +18,7 @@ What is deliberately different is `links`. Upstream gives each user an
 why altero omits `alternate` links everywhere.
 """
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,21 +44,23 @@ async def group(session: AsyncSession) -> Library:
     return await make_group(session, group_id=100, owner_id=1, members={2: "member"})
 
 
-async def create(client: httpx.AsyncClient, headers: dict[str, str], **fields: object) -> dict:
+async def create(client: httpx2.AsyncClient, headers: dict[str, str], **fields: object) -> dict:
     payload = {"itemType": "book", "title": "One", **fields}
     response = await client.post("/groups/100/items", headers=headers | JSON, json=[payload])
     assert response.status_code == 200, response.text
     return response.json()["successful"]["0"]
 
 
-async def read(client: httpx.AsyncClient, key: str, headers: dict[str, str]) -> dict:
+async def read(client: httpx2.AsyncClient, key: str, headers: dict[str, str]) -> dict:
     response = await client.get(f"/groups/100/items/{key}", headers=headers)
     assert response.status_code == 200, response.text
     return response.json()
 
 
 class TestWhoCreated:
-    async def test_the_creator_is_reported(self, client: httpx.AsyncClient, group: Library) -> None:
+    async def test_the_creator_is_reported(
+        self, client: httpx2.AsyncClient, group: Library
+    ) -> None:
         created = await create(client, AS_ALICE)
 
         body = await read(client, created["key"], AS_ALICE)
@@ -70,7 +72,7 @@ class TestWhoCreated:
         }
 
     async def test_it_is_reported_on_a_listing_too(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         await create(client, AS_ALICE)
 
@@ -79,7 +81,7 @@ class TestWhoCreated:
         assert listing[0]["meta"]["createdByUser"]["username"] == "alice"
 
     async def test_the_creator_does_not_change_when_somebody_else_edits(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         created = await create(client, AS_ALICE)
 
@@ -93,7 +95,7 @@ class TestWhoCreated:
         assert body["meta"]["createdByUser"]["username"] == "alice"
 
     async def test_a_personal_library_reports_neither(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         # Upstream emits these for group libraries only: a personal library has
         # exactly one author and saying so on every item is noise.
@@ -110,7 +112,7 @@ class TestWhoCreated:
 
 class TestWhoLastChanged:
     async def test_a_second_person_editing_is_reported(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         created = await create(client, AS_ALICE)
 
@@ -124,7 +126,7 @@ class TestWhoLastChanged:
         assert body["meta"]["lastModifiedByUser"]["username"] == "bob"
 
     async def test_it_is_omitted_when_it_is_the_creator(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         # Upstream's `$lastModifiedByUserID != $createdByUserID`. Adding an item
         # and then fixing its title is one name, not the same name twice.
@@ -141,7 +143,7 @@ class TestWhoLastChanged:
         assert "lastModifiedByUser" not in body["meta"]
 
     async def test_it_is_omitted_on_a_freshly_created_item(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         created = await create(client, AS_ALICE)
 
@@ -150,7 +152,7 @@ class TestWhoLastChanged:
         assert "lastModifiedByUser" not in body["meta"]
 
     async def test_a_single_object_write_records_the_editor_too(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         # PUT and PATCH take a different path through the route module from the
         # batch POST, and the desktop client uses all three.
@@ -169,7 +171,7 @@ class TestWhoLastChanged:
         assert body["meta"]["lastModifiedByUser"]["username"] == "bob"
 
     async def test_a_replacing_write_records_the_editor_too(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         created = await create(client, AS_ALICE)
         key = created["key"]
@@ -185,7 +187,7 @@ class TestWhoLastChanged:
         assert body["meta"]["lastModifiedByUser"]["username"] == "bob"
 
     async def test_the_last_editor_replaces_the_previous_one(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         created = await create(client, AS_ALICE)
         after_bob = await client.post(
@@ -219,7 +221,7 @@ class TestSorting:
     """
 
     @pytest.fixture
-    async def three(self, client: httpx.AsyncClient, group: Library) -> None:
+    async def three(self, client: httpx2.AsyncClient, group: Library) -> None:
         """Three items whose key order is the reverse of their author order.
 
         Deliberate: the sort this replaces fell through to an empty key and so
@@ -232,14 +234,14 @@ class TestSorting:
         await create(client, AS_ALICE, key="CCCC2345", title="Alice's second")
 
     async def test_added_by_orders_by_the_authors_name(
-        self, client: httpx.AsyncClient, three: None
+        self, client: httpx2.AsyncClient, three: None
     ) -> None:
         listing = (await client.get("/groups/100/items?sort=addedBy", headers=AS_ALICE)).json()
 
         who = [item["meta"]["createdByUser"]["name"] for item in listing]
         assert who == ["Alice", "Alice", "Bob"]
 
-    async def test_it_can_be_reversed(self, client: httpx.AsyncClient, three: None) -> None:
+    async def test_it_can_be_reversed(self, client: httpx2.AsyncClient, three: None) -> None:
         listing = (
             await client.get("/groups/100/items?sort=addedBy&direction=desc", headers=AS_ALICE)
         ).json()
@@ -248,7 +250,7 @@ class TestSorting:
         assert who == ["Bob", "Alice", "Alice"]
 
     async def test_edited_by_orders_by_whoever_last_touched_it(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         # Not upstream's: dataserver#153 asks for this and it has never been
         # built. Recorded as a divergence in docs/compatibility.md.
@@ -263,7 +265,7 @@ class TestSorting:
         assert [item["key"] for item in listing] == [alices["key"], bobs["key"]]
 
     async def test_a_personal_library_falls_back_to_date_added(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         # Upstream's fallback, and the reason it exists: nothing in a personal
         # library has an author to sort by, so the parameter has to mean
@@ -291,7 +293,7 @@ class TestSorting:
         ]
 
     async def test_a_group_with_no_authorship_recorded_falls_back_too(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         # Items that predate the columns, which is every item in every library
         # that upgraded into this.
@@ -308,7 +310,7 @@ class TestSorting:
 
 class TestNames:
     async def test_a_display_name_is_preferred(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         created = await create(client, AS_ALICE)
 
@@ -317,7 +319,7 @@ class TestNames:
         assert body["meta"]["createdByUser"]["name"] == "Alice"
 
     async def test_an_account_with_no_display_name_falls_back_to_the_username(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         # `Zotero_Users::getName` returns the real name or the username.
         from sqlalchemy import update
@@ -333,7 +335,7 @@ class TestNames:
         assert body["meta"]["createdByUser"]["name"] == "alice"
 
     async def test_no_alternate_link_is_offered(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         # Upstream links to the user's profile on zotero.org. altero does not
         # point clients at somebody else's copy of the data, which is the same

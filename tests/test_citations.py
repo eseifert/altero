@@ -2,7 +2,7 @@
 
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -241,7 +241,7 @@ class TestRendering:
 
 class TestFormats:
     async def test_csljson_wraps_the_items(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items?format=csljson", headers=AUTH)
 
@@ -252,7 +252,7 @@ class TestFormats:
         assert response.json()["items"][0]["title"] == "A study of things"
 
     async def test_a_single_item_is_wrapped_the_same_way(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         """Upstream wraps one item in the same `items` array, with a note in its
         own source saying it would change that in a later API version."""
@@ -261,7 +261,7 @@ class TestFormats:
         assert response.json()["items"][0]["id"] == f"{library.id}/AAAA2345"
 
     async def test_bib_renders_html(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items?format=bib&style=apa", headers=AUTH)
 
@@ -271,7 +271,7 @@ class TestFormats:
         assert "Doe" in response.text
 
     async def test_a_bibliography_carries_no_paging_links(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items?format=bib", headers=AUTH)
 
@@ -279,7 +279,7 @@ class TestFormats:
         assert response.headers["Total-Results"] == "1"
 
     async def test_paging_parameters_are_refused_for_a_bibliography(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items?format=bib&limit=5", headers=AUTH)
 
@@ -287,7 +287,7 @@ class TestFormats:
         assert response.text == "'limit' is not valid for format=bib"
 
     async def test_an_unknown_style_is_reported(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items?format=bib&style=not-a-style", headers=AUTH)
 
@@ -295,7 +295,7 @@ class TestFormats:
         assert response.text == "Style not found"
 
     async def test_a_style_that_could_not_be_a_name_is_refused(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         """A URL is a valid style upstream, whose citation server fetches it.
         Fetching one from here would make the server a proxy."""
@@ -307,7 +307,7 @@ class TestFormats:
         assert response.text == "Invalid style"
 
     async def test_the_citation_formats_are_only_for_items(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/collections?format=bib", headers=AUTH)
 
@@ -315,7 +315,7 @@ class TestFormats:
         assert response.text == "Invalid 'format' value 'bib'"
 
     async def test_keys_is_not_a_format_for_one_object(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items/AAAA2345?format=keys", headers=AUTH)
 
@@ -324,7 +324,7 @@ class TestFormats:
 
 class TestInclude:
     async def test_data_is_included_by_default(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         (body,) = (await client.get("/users/1/items", headers=AUTH)).json()
 
@@ -332,7 +332,7 @@ class TestInclude:
         assert "csljson" not in body
 
     async def test_csljson_can_be_included_beside_the_data(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         (body,) = (await client.get("/users/1/items?include=data,csljson", headers=AUTH)).json()
 
@@ -340,7 +340,7 @@ class TestInclude:
         assert body["csljson"]["type"] == "article-journal"
 
     async def test_asking_only_for_a_citation_leaves_the_data_out(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         (body,) = (await client.get("/users/1/items?include=citation", headers=AUTH)).json()
 
@@ -348,14 +348,14 @@ class TestInclude:
         assert body["citation"].startswith("<span>")
 
     async def test_bib_is_rendered_per_item(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         (body,) = (await client.get("/users/1/items?include=bib", headers=AUTH)).json()
 
         assert '<div class="csl-bib-body"' in body["bib"]
 
     async def test_include_none_leaves_the_envelope_bare(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         (body,) = (await client.get("/users/1/items?include=none", headers=AUTH)).json()
 
@@ -363,14 +363,14 @@ class TestInclude:
         assert body["key"] == "AAAA2345"
 
     async def test_include_none_cannot_be_combined(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items?include=none,data", headers=AUTH)
 
         assert response.status_code == 400
 
     async def test_an_unknown_include_value_is_refused(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """It used to be ignored, which answered 200 with data the client did
         not ask for."""
@@ -380,7 +380,7 @@ class TestInclude:
         assert response.text == "Invalid 'include' value 'nonsense'"
 
     async def test_include_is_only_meaningful_for_json(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items?format=keys&include=bib", headers=AUTH)
 
@@ -388,7 +388,7 @@ class TestInclude:
         assert response.text == "'include' is valid only for format=json"
 
     async def test_a_single_item_honours_include(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         body = (await client.get("/users/1/items/AAAA2345?include=csljson", headers=AUTH)).json()
 
@@ -400,7 +400,7 @@ class TestExportFormats:
     """BibTeX, BibLaTeX and RIS, written from the same CSL JSON."""
 
     async def test_bibtex_writes_an_entry_per_item(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items?format=bibtex", headers=AUTH)
 
@@ -412,7 +412,7 @@ class TestExportFormats:
         assert "pages = {12--30}" in response.text
 
     async def test_a_citation_key_is_one_a_person_would_type(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         body = (await client.get("/users/1/items?format=bibtex", headers=AUTH)).text
 
@@ -467,7 +467,7 @@ class TestExportFormats:
         assert "@misc{page2020," in written
 
     async def test_biblatex_uses_its_own_entry_types(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -483,7 +483,7 @@ class TestExportFormats:
         assert "@online{" in biblatex_body
 
     async def test_ris_writes_tagged_lines(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items?format=ris", headers=AUTH)
 
@@ -494,7 +494,7 @@ class TestExportFormats:
         assert "ER  -" in response.text
 
     async def test_ris_carries_no_record_numbers(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         """The library writes `1.` above each record; RIS files do not have it,
         and a reader that is strict about the first line chokes."""
@@ -503,7 +503,7 @@ class TestExportFormats:
         assert body.lstrip().startswith("TY  - ")
 
     async def test_tags_are_exported_as_keywords(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library, article: Item
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library, article: Item
     ) -> None:
         """Tags are not part of CSL, so they have to be carried separately --
         and a library exported without them has lost what somebody typed."""
@@ -518,7 +518,7 @@ class TestExportFormats:
         assert "KW  - toread" in ris_body
 
     async def test_one_item_can_be_exported_on_its_own(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items/AAAA2345?format=ris", headers=AUTH)
 
@@ -526,7 +526,7 @@ class TestExportFormats:
         assert "TY  - JOUR" in response.text
 
     async def test_an_export_can_be_included_beside_the_data(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         (body,) = (await client.get("/users/1/items?include=data,bibtex", headers=AUTH)).json()
 
@@ -534,7 +534,7 @@ class TestExportFormats:
         assert body["bibtex"].startswith("@article{")
 
     async def test_the_export_formats_are_only_for_items(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/collections?format=ris", headers=AUTH)
 
@@ -564,7 +564,7 @@ class TestTheRenderer:
         return seen
 
     async def test_the_same_item_is_not_rendered_twice(
-        self, client: httpx.AsyncClient, article: Item, renders: list[str]
+        self, client: httpx2.AsyncClient, article: Item, renders: list[str]
     ) -> None:
         for _ in range(2):
             response = await client.get(
@@ -576,7 +576,7 @@ class TestTheRenderer:
 
     async def test_a_changed_item_is_rendered_again(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         article: Item,
         renders: list[str],
@@ -593,7 +593,7 @@ class TestTheRenderer:
         assert len(renders) == 2
 
     async def test_rendering_leaves_the_event_loop_free(
-        self, client: httpx.AsyncClient, article: Item, renders: list[str]
+        self, client: httpx2.AsyncClient, article: Item, renders: list[str]
     ) -> None:
         await client.get("/users/1/items/AAAA2345?format=bib", headers=AUTH)
 

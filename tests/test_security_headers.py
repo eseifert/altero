@@ -10,7 +10,7 @@ into a group would run with the session of whoever opened it.
 import hashlib
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -46,7 +46,7 @@ async def library(session: AsyncSession) -> Library:
 
 
 async def store(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     session: AsyncSession,
     library: Library,
     key: str,
@@ -77,13 +77,13 @@ async def store(
     )
 
 
-def policy(response: httpx.Response) -> list[str]:
+def policy(response: httpx2.Response) -> list[str]:
     return [part.strip() for part in response.headers["content-security-policy"].split(";")]
 
 
 class TestAFileIsNeverAPage:
     async def test_an_html_attachment_runs_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """`key` may be passed in the query, so this is a link anybody can send."""
         await store(client, session, library, "HTML2345", PAGE, "text/html", "page.html")
@@ -96,7 +96,7 @@ class TestAFileIsNeverAPage:
         assert response.headers["x-content-type-options"] == "nosniff"
 
     async def test_an_svg_attachment_runs_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         svg = b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
         await store(client, session, library, "SVGG2345", svg, "image/svg+xml", "image.svg")
@@ -106,7 +106,7 @@ class TestAFileIsNeverAPage:
         assert "sandbox" in policy(response)
 
     async def test_the_download_the_client_is_sent_to_runs_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await store(client, session, library, "HTML2345", PAGE, "text/html", "page.html")
         redirect = await client.get("/users/1/items/HTML2345/file", headers=AUTH)
@@ -117,7 +117,7 @@ class TestAFileIsNeverAPage:
         assert "sandbox" in policy(response)
 
     async def test_a_pdf_is_left_out_of_the_sandbox(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """A sandboxed document may not use a plugin, and Chrome's PDF viewer is
         one: the reader would see a refusal instead of the paper."""
@@ -133,7 +133,7 @@ class TestAFileIsNeverAPage:
 
 class TestTheApiIsData:
     async def test_json_carries_the_sandbox(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items", headers=AUTH)
 
@@ -141,7 +141,7 @@ class TestTheApiIsData:
         assert response.headers["x-content-type-options"] == "nosniff"
 
     async def test_a_bibliography_carries_the_sandbox(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """HTML, and reachable with the key in the query."""
         response = await client.get(f"/users/1/items?format=bib&key={KEY}")
@@ -149,7 +149,7 @@ class TestTheApiIsData:
         assert response.headers["content-type"].startswith("text/html")
         assert "sandbox" in policy(response)
 
-    async def test_an_error_carries_the_sandbox(self, client: httpx.AsyncClient) -> None:
+    async def test_an_error_carries_the_sandbox(self, client: httpx2.AsyncClient) -> None:
         response = await client.get("/web/libraries")
 
         assert response.status_code == 401
@@ -167,8 +167,8 @@ async def interface(  # type: ignore[no-untyped-def]
     monkeypatch.setattr(spa, "STATIC_ROOT", root)
     app: FastAPI = create_app(settings)
     await app.state.database.create_all()
-    transport = httpx.ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+    transport = httpx2.ASGITransport(app=app)
+    async with httpx2.AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
     await app.state.database.dispose()
 
@@ -176,7 +176,7 @@ async def interface(  # type: ignore[no-untyped-def]
 class TestTheInterfaceRunsOnlyItsOwnScript:
     @pytest.mark.parametrize("path", ["/", "/app/", "/app/library", "/app/u/ada"])
     async def test_the_page_carries_the_interface_policy(
-        self, interface: httpx.AsyncClient, path: str
+        self, interface: httpx2.AsyncClient, path: str
     ) -> None:
         response = await interface.get(path)
 
@@ -197,7 +197,7 @@ class TestTheInterfaceRunsOnlyItsOwnScript:
         assert "'unsafe-inline'" not in directives["style-src"]
         assert all("'unsafe-eval'" not in sources for sources in directives.values())
 
-    async def test_an_asset_is_not_sandboxed(self, interface: httpx.AsyncClient) -> None:
+    async def test_an_asset_is_not_sandboxed(self, interface: httpx2.AsyncClient) -> None:
         response = await interface.get("/app/assets/index-abc123.js")
 
         assert "sandbox" not in response.headers["content-security-policy"]

@@ -12,7 +12,7 @@ with no password proves itself through its directory instead, which is in
 `test_web_identity.py` beside the stand-in directory it needs.
 """
 
-import httpx
+import httpx2
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.services import admin
@@ -22,7 +22,7 @@ from tests.test_web_routes import csrf_headers, register
 PASSWORD = "correct horse battery staple"
 
 
-async def start_session(client: httpx.AsyncClient, user_id: int | None = None) -> str:
+async def start_session(client: httpx2.AsyncClient, user_id: int | None = None) -> str:
     """Do what the desktop client does first, and return its session token."""
     body = {"userID": user_id} if user_id is not None else {}
     response = await client.post("/keys/sessions", json=body)
@@ -32,7 +32,7 @@ async def start_session(client: httpx.AsyncClient, user_id: int | None = None) -
 
 class TestThePageTheClientOpens:
     async def test_it_sends_a_browser_to_the_interface(
-        self, client: httpx.AsyncClient, as_if_built: object
+        self, client: httpx2.AsyncClient, as_if_built: object
     ) -> None:
         """The client opens loginURL in a browser; that is where the flow lives."""
         token = await start_session(client)
@@ -42,12 +42,12 @@ class TestThePageTheClientOpens:
         assert response.status_code in (302, 303, 307)
         assert response.headers["location"] == f"/app/link?token={token}"
 
-    async def test_an_unknown_session_is_still_a_404(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unknown_session_is_still_a_404(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/keys/sessions/nope/login")).status_code == 404
 
 
 class TestReadingTheRequest:
-    async def test_it_describes_a_pending_session(self, client: httpx.AsyncClient) -> None:
+    async def test_it_describes_a_pending_session(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         token = await start_session(client)
 
@@ -58,19 +58,19 @@ class TestReadingTheRequest:
         assert body["requestedUserId"] is None
         assert body["expiresInSeconds"] > 0
 
-    async def test_it_needs_a_session(self, client: httpx.AsyncClient) -> None:
+    async def test_it_needs_a_session(self, client: httpx2.AsyncClient) -> None:
         """Otherwise the page would say what exists before anyone has signed in."""
         token = await start_session(client)
 
         assert (await client.get(f"/web/link/{token}")).status_code == 401
 
-    async def test_an_unknown_token_is_a_404(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unknown_token_is_a_404(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         assert (await client.get("/web/link/nope")).status_code == 404
 
     async def test_a_session_for_another_account_cannot_be_approved(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The client named the account it expects.
 
@@ -90,7 +90,7 @@ class TestReadingTheRequest:
         assert "grace" in body["reason"] or str(grace.id) in body["reason"]
 
     async def test_a_profile_that_synced_elsewhere_is_told_what_to_do(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """The commonest way to reach the refusal, and the one that misled.
 
@@ -110,7 +110,7 @@ class TestReadingTheRequest:
         assert "7654321" in body["reason"]
         assert "--id 7654321" in body["reason"]
 
-    async def test_it_reports_a_session_already_answered(self, client: httpx.AsyncClient) -> None:
+    async def test_it_reports_a_session_already_answered(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         token = await start_session(client)
         await client.post(
@@ -126,7 +126,7 @@ class TestReadingTheRequest:
 
 
 class TestApproving:
-    async def test_the_client_gets_a_key(self, client: httpx.AsyncClient) -> None:
+    async def test_the_client_gets_a_key(self, client: httpx2.AsyncClient) -> None:
         """The whole exchange, end to end, as the client performs it."""
         await register(client)
         token = await start_session(client)
@@ -145,7 +145,7 @@ class TestApproving:
         assert polled["userID"] == 1
         assert polled["username"] == "ada"
 
-    async def test_the_key_can_actually_sync(self, client: httpx.AsyncClient) -> None:
+    async def test_the_key_can_actually_sync(self, client: httpx2.AsyncClient) -> None:
         """A key that cannot read the library would be a working flow and a
         broken result."""
         await register(client)
@@ -162,7 +162,7 @@ class TestApproving:
         assert response.status_code == 200
 
     async def test_the_key_covers_group_libraries_too(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The client syncs groups as well, and a key without them looks like
         a server that lost them."""
@@ -182,7 +182,7 @@ class TestApproving:
 
         assert response.status_code == 200
 
-    async def test_the_wrong_password_approves_nothing(self, client: httpx.AsyncClient) -> None:
+    async def test_the_wrong_password_approves_nothing(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         token = await start_session(client)
 
@@ -195,7 +195,7 @@ class TestApproving:
         assert response.status_code == 403
         assert (await client.get(f"/keys/sessions/{token}")).json()["status"] == "pending"
 
-    async def test_it_needs_the_csrf_token(self, client: httpx.AsyncClient) -> None:
+    async def test_it_needs_the_csrf_token(self, client: httpx2.AsyncClient) -> None:
         """A page elsewhere must not be able to make this happen."""
         await register(client)
         token = await start_session(client)
@@ -207,7 +207,7 @@ class TestApproving:
         assert response.status_code == 403
         assert (await client.get(f"/keys/sessions/{token}")).json()["status"] == "pending"
 
-    async def test_it_needs_a_signed_in_session(self, client: httpx.AsyncClient) -> None:
+    async def test_it_needs_a_signed_in_session(self, client: httpx2.AsyncClient) -> None:
         token = await start_session(client)
 
         response = await client.post(
@@ -216,7 +216,7 @@ class TestApproving:
 
         assert response.status_code in (401, 403)
 
-    async def test_approving_twice_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_approving_twice_is_refused(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         token = await start_session(client)
         await client.post(
@@ -234,7 +234,7 @@ class TestApproving:
         assert again.status_code == 400
 
     async def test_a_session_naming_another_account_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await admin.create_user(session, username="grace")
@@ -250,7 +250,7 @@ class TestApproving:
         assert (await client.get(f"/keys/sessions/{token}")).json()["status"] == "pending"
 
     async def test_an_expired_session_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         from datetime import UTC, datetime, timedelta
 
@@ -271,7 +271,7 @@ class TestApproving:
         assert response.status_code == 404
 
     async def test_the_issued_key_is_recognisable_afterwards(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Somebody revoking keys later has to be able to tell which is which."""
         await register(client)
@@ -289,7 +289,7 @@ class TestApproving:
 
 
 class TestDeclining:
-    async def test_it_cancels_the_session(self, client: httpx.AsyncClient) -> None:
+    async def test_it_cancels_the_session(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         token = await start_session(client)
 
@@ -298,7 +298,7 @@ class TestDeclining:
         assert response.status_code == 204
         assert (await client.get(f"/keys/sessions/{token}")).json()["status"] == "cancelled"
 
-    async def test_declining_needs_no_password(self, client: httpx.AsyncClient) -> None:
+    async def test_declining_needs_no_password(self, client: httpx2.AsyncClient) -> None:
         """Refusing to grant something should never be harder than granting it."""
         await register(client)
         token = await start_session(client)
@@ -307,13 +307,15 @@ class TestDeclining:
             await client.post(f"/web/link/{token}/deny", headers=csrf_headers(client))
         ).status_code == 204
 
-    async def test_it_still_needs_the_csrf_token(self, client: httpx.AsyncClient) -> None:
+    async def test_it_still_needs_the_csrf_token(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         token = await start_session(client)
 
         assert (await client.post(f"/web/link/{token}/deny")).status_code == 403
 
-    async def test_no_key_is_issued(self, client: httpx.AsyncClient, session: AsyncSession) -> None:
+    async def test_no_key_is_issued(
+        self, client: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
         await register(client)
         token = await start_session(client)
 

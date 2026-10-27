@@ -13,7 +13,7 @@ Anything else would let a stranger ask which usernames exist here.
 import hashlib
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy import text
@@ -102,7 +102,7 @@ async def set_visibility(session: AsyncSession, owner: User, visibility: Profile
     await session.commit()
 
 
-async def sign_in_as(client: httpx.AsyncClient, session: AsyncSession, username: str) -> User:
+async def sign_in_as(client: httpx2.AsyncClient, session: AsyncSession, username: str) -> User:
     """Put a second account on this instance and sign the browser in as it.
 
     Not `register`: registration closes once an account exists, and the
@@ -124,7 +124,7 @@ async def sign_in_as(client: httpx.AsyncClient, session: AsyncSession, username:
 
 class TestReadingAProfile:
     async def test_a_stranger_sees_a_public_profile(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         response = await client.get("/web/profiles/ada")
 
@@ -133,7 +133,7 @@ class TestReadingAProfile:
         assert response.json()["numPublications"] == 1
 
     async def test_the_username_stands_in_for_a_missing_display_name(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         """`Zotero_Users::getName` falls back the same way."""
         owner.display_name = ""
@@ -144,12 +144,12 @@ class TestReadingAProfile:
         assert response.json()["displayName"] == "ada"
 
     async def test_the_name_is_matched_without_regard_to_case(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         assert (await client.get("/web/profiles/Ada")).status_code == 200
 
     async def test_a_slugged_name_arrives(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """`Zotero_Utilities::slugify` turns a space into an underscore."""
         await make_user(session, user_id=2, username="Ada Lovelace")
@@ -159,11 +159,11 @@ class TestReadingAProfile:
         assert response.status_code == 200
         assert response.json()["username"] == "Ada Lovelace"
 
-    async def test_an_unclaimed_name_is_absent(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unclaimed_name_is_absent(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/profiles/nobody")).status_code == 404
 
     async def test_a_stranger_is_not_told_whose_profile_it_is(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         """`owner` and `visibility` are the reader's own business, never anyone's."""
         payload = (await client.get("/web/profiles/ada")).json()
@@ -174,7 +174,7 @@ class TestReadingAProfile:
 
 class TestWhatIsOnThePage:
     async def test_only_published_items_are_listed(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         listing = await client.get("/web/profiles/ada/items")
 
@@ -182,7 +182,7 @@ class TestWhatIsOnThePage:
         assert keys == {"PUBLIC01"}
 
     async def test_an_unpublished_item_is_absent_by_key_too(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         """Hiding it from the listing is pointless if its key still fetches it."""
         response = await client.get("/web/profiles/ada/items/PRIVATE1")
@@ -190,7 +190,7 @@ class TestWhatIsOnThePage:
         assert response.status_code == 404
 
     async def test_a_trashed_publication_is_absent(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library, owner: User
     ) -> None:
         trashed = await make_item(
             session, library, key="TRASHED1", in_publications=True, deleted=True
@@ -204,7 +204,7 @@ class TestWhatIsOnThePage:
         assert one.status_code == 404
 
     async def test_only_the_children_that_were_published_come_along(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         """The wizard answered that question once; a note left behind stays behind."""
         response = await client.get("/web/profiles/ada/items/PUBLIC01/children")
@@ -213,7 +213,7 @@ class TestWhatIsOnThePage:
         assert keys == {"NOTE0001"}
 
     async def test_an_item_carries_the_shape_the_library_view_uses(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         item = (await client.get("/web/profiles/ada/items/PUBLIC01")).json()
 
@@ -222,7 +222,7 @@ class TestWhatIsOnThePage:
         assert item["meta"]["creatorSummary"] == "Lovelace"
 
     async def test_a_citation_can_be_had_for_a_published_item(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         response = await client.get("/web/profiles/ada/items/PUBLIC01/citation")
 
@@ -230,7 +230,7 @@ class TestWhatIsOnThePage:
         assert "Lovelace" in response.json()["bib"]
 
     async def test_a_citation_is_refused_for_an_unpublished_one(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         assert (await client.get("/web/profiles/ada/items/PRIVATE1/citation")).status_code == 404
 
@@ -240,7 +240,7 @@ class TestPublishedFiles:
 
     async def test_a_published_file_is_served_to_a_stranger(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         owner: User,
@@ -262,7 +262,7 @@ class TestPublishedFiles:
 
     async def test_it_can_be_asked_for_as_a_download(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         owner: User,
@@ -278,7 +278,7 @@ class TestPublishedFiles:
 
     async def test_an_unpublished_file_is_not(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         owner: User,
@@ -294,14 +294,14 @@ class TestPublishedFiles:
 
 class TestWhoMaySee:
     async def test_users_only_refuses_a_stranger(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         await set_visibility(session, owner, ProfileVisibility.USERS)
 
         assert (await client.get("/web/profiles/ada")).status_code == 404
 
     async def test_users_only_admits_somebody_signed_in(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         await set_visibility(session, owner, ProfileVisibility.USERS)
         await sign_in_as(client, session, "grace")
@@ -309,7 +309,7 @@ class TestWhoMaySee:
         assert (await client.get("/web/profiles/ada")).status_code == 200
 
     async def test_private_refuses_another_account(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         await set_visibility(session, owner, ProfileVisibility.PRIVATE)
         await sign_in_as(client, session, "grace")
@@ -317,7 +317,7 @@ class TestWhoMaySee:
         assert (await client.get("/web/profiles/ada")).status_code == 404
 
     async def test_the_owner_always_sees_their_own_page(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Otherwise closing the page means losing the way to check what is on it."""
         await register(client, username="ada")
@@ -332,7 +332,7 @@ class TestWhoMaySee:
         assert response.json()["visibility"] == "private"
 
     async def test_the_items_are_hidden_with_the_page(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         """Every endpoint asks, not only the one that draws the heading."""
         await set_visibility(session, owner, ProfileVisibility.PRIVATE)
@@ -349,7 +349,7 @@ class TestWhoMaySee:
 
 class TestTheSetting:
     async def test_an_account_starts_public(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Which is the behaviour every account had before the setting existed."""
         await register(client)
@@ -358,13 +358,13 @@ class TestTheSetting:
         assert user is not None
         assert user.profile_visibility is ProfileVisibility.PUBLIC
 
-    async def test_the_session_reports_it(self, client: httpx.AsyncClient) -> None:
+    async def test_the_session_reports_it(self, client: httpx2.AsyncClient) -> None:
         response = await register(client)
 
         assert response.json()["user"]["profileVisibility"] == "public"
 
     async def test_it_can_be_changed(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
 
@@ -378,7 +378,7 @@ class TestTheSetting:
         assert response.json()["user"]["profileVisibility"] == "users"
 
     async def test_a_display_name_can_still_be_changed_on_its_own(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -391,7 +391,7 @@ class TestTheSetting:
         assert response.json()["user"]["profileVisibility"] == "public"
 
     async def test_a_value_that_is_not_one_of_the_three_is_refused(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -404,7 +404,7 @@ class TestTheSetting:
         assert response.status_code == 400
 
     async def test_it_takes_a_csrf_token_like_every_other_write(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -415,7 +415,7 @@ class TestTheSetting:
 
 class TestTheBoundaryStillHolds:
     async def test_an_api_key_reaches_no_profile_page(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         """It is answered, but the key is not what answered it.
 
@@ -432,7 +432,7 @@ class TestTheBoundaryStillHolds:
         assert response.status_code == 404
 
     async def test_the_password_is_not_needed_to_read_a_public_page(
-        self, client: httpx.AsyncClient, owner: User
+        self, client: httpx2.AsyncClient, owner: User
     ) -> None:
         assert PASSWORD  # the fixture account has none; nothing here asks for one
         assert (await client.get("/web/profiles/ada/items")).status_code == 200
@@ -446,7 +446,7 @@ class TestFindingTheAccount:
     """
 
     async def test_a_name_that_could_be_nobodys_slug_is_answered_at_once(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         """Nothing slugs to a string holding what slugify drops.
 
@@ -458,7 +458,7 @@ class TestFindingTheAccount:
         assert (await client.get("/web/profiles/Ada%20Lovelace!")).status_code == 404
 
     async def test_the_username_wins_over_a_slug_that_matches(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         """Two accounts can share a slug; the one actually named it is meant."""
         await make_user(session, user_id=2, username="ada_lovelace")

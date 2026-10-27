@@ -14,7 +14,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
-import httpx
+import httpx2
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import ApiKey
@@ -124,7 +124,7 @@ class TestTheService:
 
 class TestThroughTheApi:
     async def test_using_a_key_records_it(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await admin.create_user(session, username="ada")
         key = await admin.create_api_key(session, username="ada", name="laptop")
@@ -141,7 +141,7 @@ class TestThroughTheApi:
         assert stored.last_user_agent == "Zotero/7.0.9"
 
     async def test_an_unauthenticated_request_records_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await admin.create_user(session, username="ada")
         key = await admin.create_api_key(session, username="ada", name="laptop")
@@ -153,7 +153,7 @@ class TestThroughTheApi:
         assert stored.last_used is None
 
     async def test_a_rejected_key_records_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await admin.create_user(session, username="ada")
         key = await admin.create_api_key(session, username="ada", name="laptop")
@@ -165,7 +165,7 @@ class TestThroughTheApi:
         assert stored.last_used is None
 
     async def test_a_web_session_does_not_touch_any_key(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The cookie path is not a key, and must not look like one being used."""
         from tests.test_web_routes import register

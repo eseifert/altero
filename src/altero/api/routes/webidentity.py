@@ -25,7 +25,7 @@ navigations rather than fetches:
 from typing import Annotated
 from urllib.parse import quote, urlencode
 
-import httpx
+import httpx2
 from fastapi import APIRouter, Body, Form, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import select
@@ -141,7 +141,7 @@ async def _client(request: Request) -> oidc.Client:
     """Return the outbound client, built once per application."""
     existing = getattr(request.app.state, "http_client", None)
     if existing is None:
-        existing = httpx.AsyncClient(follow_redirects=False)
+        existing = httpx2.AsyncClient(follow_redirects=False)
         request.app.state.http_client = existing
     return oidc.Client(existing)
 

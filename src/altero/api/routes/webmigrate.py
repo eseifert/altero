@@ -28,7 +28,7 @@ import tempfile
 from pathlib import Path
 from typing import Annotated, Any
 
-import httpx
+import httpx2
 from fastapi import APIRouter, Body
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import async_sessionmaker
@@ -45,7 +45,7 @@ router = APIRouter(prefix="/web", tags=["web"])
 
 #: How long to wait on api.zotero.org. Generous on reads because a page of a
 #: hundred items with their notes is not small, and a file may be a book.
-TIMEOUT = httpx.Timeout(60.0, read=300.0)
+TIMEOUT = httpx2.Timeout(60.0, read=300.0)
 
 
 class StartMigration(BaseModel):
@@ -81,7 +81,7 @@ async def _run(
     """
     workspace = Path(tempfile.mkdtemp(prefix="altero-migrate-"))
     try:
-        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+        async with httpx2.AsyncClient(timeout=TIMEOUT) as client:
             api = zoteroapi.ZoteroApi(
                 key=key,
                 client=client,

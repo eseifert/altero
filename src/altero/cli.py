@@ -438,7 +438,7 @@ def _print_progress(progress: zoteroimport.Progress) -> None:
 
 async def _migrate_zotero(session: AsyncSession, args: argparse.Namespace) -> None:
     """Copy a personal library out of zotero.org and restore it here."""
-    import httpx
+    import httpx2
 
     user = await admin.get_user_by_name(session, args.username)
     library = await auth.get_library(session, LibraryType.USER, user.id)
@@ -450,7 +450,7 @@ async def _migrate_zotero(session: AsyncSession, args: argparse.Namespace) -> No
     archive = args.archive or Path(f"zotero-{user.username}.zip")
     settings = get_settings()
 
-    async with httpx.AsyncClient(timeout=httpx.Timeout(60.0, read=300.0)) as client:
+    async with httpx2.AsyncClient(timeout=httpx2.Timeout(60.0, read=300.0)) as client:
         api = zoteroapi.ZoteroApi(key=key.strip(), client=client, base_url=args.server)
         summary = await zoteroimport.fetch_archive(
             api,

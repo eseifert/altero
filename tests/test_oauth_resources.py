@@ -14,7 +14,7 @@ the same authorization.
 from collections.abc import AsyncIterator
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy import delete, select
@@ -90,7 +90,7 @@ class Fixture:
         self.group_collection: Collection
 
 
-async def register(client: httpx.AsyncClient, username: str = "ada") -> int:
+async def register(client: httpx2.AsyncClient, username: str = "ada") -> int:
     response = await client.post(
         "/web/auth/register",
         json={
@@ -104,7 +104,7 @@ async def register(client: httpx.AsyncClient, username: str = "ada") -> int:
     return int(response.json()["user"]["id"])
 
 
-async def build(session: AsyncSession, client: httpx.AsyncClient) -> Fixture:
+async def build(session: AsyncSession, client: httpx2.AsyncClient) -> Fixture:
     """Lay out a personal library and two groups.
 
     The personal library holds three collections -- one granted, one nested
@@ -187,7 +187,7 @@ ALL_SCOPES = (
 
 
 async def token_for(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     *,
     resources: list[str] | None,
     scope: str = "openid library.read notes.read files.read groups.read",
@@ -219,7 +219,7 @@ async def token_for(
 
 
 @pytest.fixture
-async def library(session: AsyncSession, client: httpx.AsyncClient) -> Fixture:
+async def library(session: AsyncSession, client: httpx2.AsyncClient) -> Fixture:
     await make_client(session, scopes=ALL_SCOPES)
     return await build(session, client)
 
@@ -237,7 +237,7 @@ class TestOneGroupAndNotAnother:
     """A grant naming group 42 reaches group 42 and no other library."""
 
     async def test_the_named_group_is_readable(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(client, resources=["groups/42"])
 
@@ -247,7 +247,7 @@ class TestOneGroupAndNotAnother:
         assert keys(response.json()) == {library.allowed_group_item.key}
 
     async def test_another_group_is_refused(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(client, resources=["groups/42"])
 
@@ -256,7 +256,7 @@ class TestOneGroupAndNotAnother:
         assert response.status_code == 403
 
     async def test_the_owners_own_library_is_refused(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """A grant naming a group names *only* it, the personal library included.
 
@@ -272,7 +272,7 @@ class TestOneGroupAndNotAnother:
         assert response.status_code == 403
 
     async def test_the_group_listing_names_only_the_granted_one(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """``GET /users/<id>/groups`` is the first request of every sync.
 
@@ -290,7 +290,7 @@ class TestOneGroupAndNotAnother:
         assert [entry["id"] for entry in response.json()] == [42]
 
     async def test_the_group_versions_form_names_only_the_granted_one(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(client, resources=["groups/42"])
 
@@ -303,7 +303,7 @@ class TestOneGroupAndNotAnother:
         assert list(response.json()) == ["42"]
 
     async def test_the_denied_group_is_not_described(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """``GET /groups/<id>`` answers 404 for a library the grant does not name.
 
@@ -317,7 +317,7 @@ class TestOneGroupAndNotAnother:
         assert response.status_code == 404
 
     async def test_the_groups_claim_names_only_the_granted_one(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client, resources=["groups/42"], scope="openid groups library.read"
@@ -337,7 +337,7 @@ class TestOneCollectionAndNotItsSiblings:
     """A grant naming a collection reaches that branch and nothing beside it."""
 
     async def test_the_granted_item_is_listed(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client, resources=[f"users/{library.user_id}/collections/{library.granted.key}"]
@@ -351,7 +351,7 @@ class TestOneCollectionAndNotItsSiblings:
         assert keys(response.json()) == {library.granted_item.key, library.nested_item.key}
 
     async def test_a_sibling_collections_item_is_not(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client, resources=[f"users/{library.user_id}/collections/{library.granted.key}"]
@@ -364,7 +364,7 @@ class TestOneCollectionAndNotItsSiblings:
         assert library.sibling_item.key not in keys(response.json())
 
     async def test_an_unfiled_item_is_not(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """Filed nowhere is inside no collection, so it is inside no grant."""
         tokens = await token_for(
@@ -378,7 +378,7 @@ class TestOneCollectionAndNotItsSiblings:
         assert library.unfiled_item.key not in keys(response.json())
 
     async def test_a_nested_collections_items_come_along(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """Naming a collection means the branch. See ``confinement_for``."""
         tokens = await token_for(
@@ -394,7 +394,7 @@ class TestOneCollectionAndNotItsSiblings:
         assert keys(response.json()) == {library.nested_item.key}
 
     async def test_naming_the_nested_collection_does_not_reach_its_parent(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The branch goes downwards only."""
         tokens = await token_for(
@@ -408,7 +408,7 @@ class TestOneCollectionAndNotItsSiblings:
         assert keys(response.json()) == {library.nested_item.key}
 
     async def test_the_collection_listing_shows_only_the_branch(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client, resources=[f"users/{library.user_id}/collections/{library.granted.key}"]
@@ -421,7 +421,7 @@ class TestOneCollectionAndNotItsSiblings:
         assert keys(response.json()) == {library.granted.key, library.nested.key}
 
     async def test_a_granted_collection_nested_deep_is_still_top_level(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """``/collections/top`` means top *of what the caller can see*.
 
@@ -440,7 +440,7 @@ class TestOneCollectionAndNotItsSiblings:
         assert keys(response.json()) == {library.nested.key}
 
     async def test_a_sibling_collection_is_not_found_by_key(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client, resources=[f"users/{library.user_id}/collections/{library.granted.key}"]
@@ -454,7 +454,7 @@ class TestOneCollectionAndNotItsSiblings:
         assert response.status_code == 404
 
     async def test_a_sibling_collections_items_are_not_found_either(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """Not an empty page: an empty page says the collection is there."""
         tokens = await token_for(
@@ -476,7 +476,7 @@ class TestOneCollectionAndNotItsSiblings:
 
 class TestACollectionOfAGroupLibrary:
     async def test_a_group_collection_confines_the_group(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         loose = await make_item(
             session, library.allowed_group, fields={"title": "Not in the collection"}
@@ -491,7 +491,7 @@ class TestACollectionOfAGroupLibrary:
         assert loose.key not in keys(response.json())
 
     async def test_a_personal_and_a_group_grant_hold_together(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """Two libraries, narrowed differently, in one grant."""
         tokens = await token_for(
@@ -512,7 +512,7 @@ class TestACollectionOfAGroupLibrary:
         assert denied.status_code == 403
 
     async def test_a_library_named_entire_is_not_narrowed_by_a_collection_row(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The wider row wins, so the order the rows went in cannot decide."""
         loose = await make_item(session, library.allowed_group, fields={"title": "Loose"})
@@ -529,7 +529,7 @@ class TestACollectionOfAGroupLibrary:
         assert loose.key in keys(response.json())
 
     async def test_a_group_the_owner_is_not_in_cannot_be_granted(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """A grant narrows what its owner can do; it is never a way past it."""
         from tests.factories import make_user
@@ -561,7 +561,7 @@ class TestReadingAndWriting:
     """Write is the scope *and* the grant, and never one of the two."""
 
     async def test_an_item_inside_the_grant_can_be_written(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -581,7 +581,7 @@ class TestReadingAndWriting:
         assert response.status_code == 204, response.text
 
     async def test_an_item_outside_the_grant_cannot_be(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """404, not 403. A write must not confirm what a read would not."""
         tokens = await token_for(
@@ -602,7 +602,7 @@ class TestReadingAndWriting:
         assert response.status_code == 404
 
     async def test_an_item_cannot_be_walked_out_of_the_grant(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """Refiling into a collection outside the grant is refused.
 
@@ -627,7 +627,7 @@ class TestReadingAndWriting:
         assert response.status_code == 403
 
     async def test_a_new_item_must_land_inside_the_grant(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -645,7 +645,7 @@ class TestReadingAndWriting:
         assert response.json()["failed"], response.text
 
     async def test_a_new_item_filed_inside_the_grant_is_accepted(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -669,7 +669,7 @@ class TestReadingAndWriting:
         assert response.json()["successful"], response.text
 
     async def test_the_librarys_shape_is_read_only(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """No collection, saved search, setting or tag is writable under a grant.
 
@@ -692,7 +692,7 @@ class TestReadingAndWriting:
         assert response.json()["failed"], response.text
 
     async def test_renaming_a_tag_refuses_the_same_way_whether_it_exists(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The refusal must not tell a confined token which tags are there.
 
@@ -722,7 +722,7 @@ class TestReadingAndWriting:
         assert absent.status_code == 404
 
     async def test_deleting_a_search_or_setting_answers_the_same_either_way(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The same 403-versus-404 leak the tag rename had, in two more routes.
 
@@ -758,7 +758,7 @@ class TestReadingAndWriting:
             assert response.status_code == 404, f"{path} answered {response.status_code}"
 
     async def test_renaming_a_tag_it_can_see_is_still_refused(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """A tag inside the grant is refused for what it would rewrite.
 
@@ -784,7 +784,7 @@ class TestReadingAndWriting:
         assert response.status_code == 403
 
     async def test_a_confined_grant_does_not_administer_a_group(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """A group's membership is the group's shape, like its collections.
 
@@ -805,7 +805,7 @@ class TestReadingAndWriting:
         assert response.status_code == 403
 
     async def test_a_confined_grant_does_not_make_a_new_group(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -822,7 +822,7 @@ class TestReadingAndWriting:
         assert response.status_code == 403
 
     async def test_an_unconfined_grant_still_administers_a_group(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The line is the confinement and nothing else."""
         tokens = await token_for(client, resources=None, scope="openid groups.read groups.write")
@@ -836,7 +836,7 @@ class TestReadingAndWriting:
         assert response.status_code == 200, response.text
 
     async def test_a_read_only_grant_still_cannot_write_inside_it(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The grant never widens the scope. ``library.write`` was not asked for."""
         tokens = await token_for(
@@ -857,7 +857,7 @@ class TestReadingAndWriting:
         assert response.status_code == 403
 
     async def test_deleting_something_outside_the_grant_is_not_found(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -885,7 +885,7 @@ class TestNotesAndFilesStillApply:
     """The scopes narrow what is left after the grant, never the other way."""
 
     async def test_a_note_inside_the_grant_is_reachable_with_the_scope(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -901,7 +901,7 @@ class TestNotesAndFilesStillApply:
         assert response.status_code == 200
 
     async def test_a_note_inside_the_grant_is_withheld_without_the_scope(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -917,7 +917,7 @@ class TestNotesAndFilesStillApply:
         assert response.status_code == 404
 
     async def test_a_note_outside_the_grant_is_withheld_even_with_the_scope(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -933,7 +933,7 @@ class TestNotesAndFilesStillApply:
         assert response.status_code == 404
 
     async def test_the_child_count_agrees_with_both(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """``numChildren`` is the last thing that can say a hidden child exists."""
         tokens = await token_for(
@@ -951,7 +951,7 @@ class TestNotesAndFilesStillApply:
         assert response.json()["meta"]["numChildren"] == 1
 
     async def test_a_file_outside_the_grant_is_not_found(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(
             client,
@@ -976,7 +976,7 @@ class TestNothingLeaksThroughAnIndirectPath:
     """A count, a key, a version, a search, an export, a log, a child."""
 
     @pytest.fixture
-    async def token(self, client: httpx.AsyncClient, library: Fixture) -> str:
+    async def token(self, client: httpx2.AsyncClient, library: Fixture) -> str:
         tokens = await token_for(
             client,
             resources=[f"users/{library.user_id}/collections/{library.granted.key}"],
@@ -985,7 +985,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         return str(tokens["access_token"])
 
     async def test_the_total_counts_only_what_is_reachable(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(f"/users/{library.user_id}/items", headers=bearer(token))
 
@@ -994,7 +994,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert response.headers["Total-Results"] == "4"
 
     async def test_the_key_listing_names_only_what_is_reachable(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         """``format=keys`` is unpaginated, so a leak here is the whole library."""
         response = await client.get(
@@ -1011,7 +1011,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         }
 
     async def test_the_version_listing_does_too(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(
             f"/users/{library.user_id}/items",
@@ -1022,7 +1022,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert library.sibling_item.key not in response.json()
 
     async def test_a_search_cannot_reach_outside(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(
             f"/users/{library.user_id}/items",
@@ -1033,7 +1033,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert response.json() == []
 
     async def test_a_search_that_matches_a_hidden_child_surfaces_no_parent(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture, token: str
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         """The ``/top`` mapping finds parents through children; it is confined too."""
         await index_fulltext(session, library.personal, library.sibling_attachment, "quantum")
@@ -1047,7 +1047,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert response.json() == []
 
     async def test_an_export_holds_only_what_the_listing_held(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(
             f"/users/{library.user_id}/items",
@@ -1059,7 +1059,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert "Granted paper" in response.text
 
     async def test_the_full_text_index_names_only_reachable_items(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture, token: str
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         await index_fulltext(session, library.personal, library.granted_attachment, "inside")
         await index_fulltext(session, library.personal, library.sibling_attachment, "outside")
@@ -1069,7 +1069,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert set(response.json()) == {library.granted_attachment.key}
 
     async def test_the_full_text_of_an_item_outside_is_not_found(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture, token: str
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         await index_fulltext(session, library.personal, library.sibling_attachment, "outside")
 
@@ -1081,7 +1081,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert response.status_code == 404
 
     async def test_the_children_of_an_item_outside_are_not_found(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(
             f"/users/{library.user_id}/items/{library.sibling_item.key}/children",
@@ -1091,7 +1091,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert response.status_code == 404
 
     async def test_the_children_of_an_item_inside_are_found(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(
             f"/users/{library.user_id}/items/{library.granted_item.key}/children",
@@ -1104,21 +1104,21 @@ class TestNothingLeaksThroughAnIndirectPath:
         }
 
     async def test_the_tag_listing_counts_only_reachable_items(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(f"/users/{library.user_id}/tags", headers=bearer(token))
 
         assert {entry["tag"] for entry in response.json()} == {"inside"}
 
     async def test_a_tag_carried_only_outside_is_not_found(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(f"/users/{library.user_id}/tags/outside", headers=bearer(token))
 
         assert response.status_code == 404
 
     async def test_the_saved_searches_are_not_listed(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         """A saved search reaches wherever its conditions reach. See ``list_searches``."""
         response = await client.get(f"/users/{library.user_id}/searches", headers=bearer(token))
@@ -1126,14 +1126,14 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert response.json() == []
 
     async def test_the_settings_are_not_listed(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         response = await client.get(f"/users/{library.user_id}/settings", headers=bearer(token))
 
         assert response.json() == {}
 
     async def test_the_delete_log_says_nothing(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         """What is left of a deleted object is its key, and the key alone."""
         response = await client.get(
@@ -1151,7 +1151,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         }
 
     async def test_the_trash_shows_only_what_is_reachable(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture, token: str
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         library.sibling_item.deleted = True
         library.granted_item.deleted = True
@@ -1163,7 +1163,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert library.sibling_item.key not in keys(response.json())
 
     async def test_the_unfiled_view_is_empty(
-        self, client: httpx.AsyncClient, library: Fixture, token: str
+        self, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         """Unfiled means in no collection, which means in no grant."""
         response = await client.get(
@@ -1175,7 +1175,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert response.json() == []
 
     async def test_the_publications_view_keeps_its_notes(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture, token: str
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         """My Publications answers with no credential, so it withholds no notes.
 
@@ -1195,7 +1195,7 @@ class TestNothingLeaksThroughAnIndirectPath:
         assert library.granted_note.key in keys(anonymous.json())
 
     async def test_the_publications_view_is_confined_too(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture, token: str
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture, token: str
     ) -> None:
         library.sibling_item.in_publications = True
         library.granted_item.in_publications = True
@@ -1216,7 +1216,7 @@ class TestNothingLeaksThroughAnIndirectPath:
 
 class TestARefreshedTokenKeepsTheGrant:
     async def test_the_confinement_survives_a_refresh(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The restriction is on the grant, so it cannot be waited out.
 
@@ -1245,7 +1245,7 @@ class TestARefreshedTokenKeepsTheGrant:
         assert library.sibling_item.key not in keys(response.json())
 
     async def test_a_refreshed_group_grant_survives_too(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(client, resources=["groups/42"])
 
@@ -1272,7 +1272,7 @@ class TestARefreshedTokenKeepsTheGrant:
 
 class TestAnUnrestrictedGrantIsUnchanged:
     async def test_no_resources_reaches_the_whole_library(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(client, resources=None)
 
@@ -1284,7 +1284,7 @@ class TestAnUnrestrictedGrantIsUnchanged:
         assert library.unfiled_item.key in keys(response.json())
 
     async def test_an_empty_list_is_the_same_as_none(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """A screen that offered the choice and had nothing ticked narrows nothing."""
         tokens = await token_for(client, resources=[])
@@ -1296,7 +1296,7 @@ class TestAnUnrestrictedGrantIsUnchanged:
         assert library.sibling_item.key in keys(response.json())
 
     async def test_the_grant_row_is_not_marked_restricted(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         await token_for(client, resources=None)
 
@@ -1305,7 +1305,7 @@ class TestAnUnrestrictedGrantIsUnchanged:
         assert grant.restricted is False
 
     async def test_an_unrestricted_grant_still_sees_every_group(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(client, resources=None, scope="openid groups.read")
 
@@ -1316,7 +1316,7 @@ class TestAnUnrestrictedGrantIsUnchanged:
         assert {entry["id"] for entry in response.json()} == {42, 99}
 
     async def test_an_api_key_is_untouched(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """No API key can carry a resource grant, and none is affected by one.
 
@@ -1342,7 +1342,7 @@ class TestAnUnrestrictedGrantIsUnchanged:
 
 class TestRevokingAndReplacing:
     async def test_approving_again_replaces_the_resources(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """A consent screen answers about the whole grant, not about a delta.
 
@@ -1364,7 +1364,7 @@ class TestRevokingAndReplacing:
         assert library.granted_item.key not in keys(response.json())
 
     async def test_lifting_the_confinement_works(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         await token_for(
             client, resources=[f"users/{library.user_id}/collections/{library.granted.key}"]
@@ -1378,7 +1378,7 @@ class TestRevokingAndReplacing:
         assert library.sibling_item.key in keys(response.json())
 
     async def test_revoking_takes_the_resources_with_it(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         tokens = await token_for(client, resources=["groups/42"])
 
@@ -1394,7 +1394,7 @@ class TestRevokingAndReplacing:
         assert refused.status_code == 403
 
     async def test_deleting_a_granted_collection_narrows_rather_than_widens(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The ``restricted`` flag outlives the rows, and this is why it exists.
 
@@ -1422,7 +1422,7 @@ class TestRevokingAndReplacing:
 
 class TestTheConsentScreen:
     async def test_it_offers_the_libraries_and_their_collections(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         verifier, challenge = pkce()
         started = await authorize(client, challenge=challenge, scope="openid library.read")
@@ -1443,7 +1443,7 @@ class TestTheConsentScreen:
         assert verifier
 
     async def test_it_nests_the_collections(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         _, challenge = pkce()
         started = await authorize(client, challenge=challenge, scope="openid library.read")
@@ -1458,7 +1458,7 @@ class TestTheConsentScreen:
         assert nested["parentKey"] == library.granted.key
 
     async def test_it_offers_nothing_when_no_library_is_asked_for(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """An application asking only to establish identity reaches no library.
 
@@ -1474,7 +1474,7 @@ class TestTheConsentScreen:
         assert payload["libraries"] == []
 
     async def test_it_says_what_a_standing_grant_already_reaches(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         await token_for(
             client, resources=[f"users/{library.user_id}/collections/{library.granted.key}"]
@@ -1496,7 +1496,7 @@ class TestTheConsentScreen:
         ]
 
     async def test_the_authorization_listing_says_so_too(
-        self, client: httpx.AsyncClient, library: Fixture
+        self, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         await token_for(client, resources=["groups/42"])
 
@@ -1521,7 +1521,7 @@ class TestTheConsentScreen:
 
 class TestTheItemPredicateHasOneMeaning:
     async def test_the_query_and_the_single_item_form_agree(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """``confined_to_collections`` and ``in_collections`` are one rule twice.
 
@@ -1560,7 +1560,7 @@ class TestTheItemPredicateHasOneMeaning:
         }
 
     async def test_an_annotation_under_a_filed_item_is_inside(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """Three levels is as deep as Zotero nests, and the predicate reaches it."""
         annotation = await make_item(
@@ -1577,7 +1577,7 @@ class TestTheItemPredicateHasOneMeaning:
         assert await items_service.in_collections(session, annotation, confined)
 
     async def test_a_grant_cannot_name_a_collection_of_another_library(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         """The library is restated in the widening query, so a stray id cannot widen.
 
@@ -1598,14 +1598,14 @@ class TestTheItemPredicateHasOneMeaning:
 
 class TestResolvingTheConfinement:
     async def test_an_unrestricted_credential_costs_no_query(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         credential = auth.Credential(user_id=library.user_id, library_read=True)
 
         assert await auth.confinement_for(session, library.personal, credential) is None
 
     async def test_a_library_the_grant_does_not_name_is_denied(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         credential = auth.Credential(
             user_id=library.user_id,
@@ -1619,7 +1619,7 @@ class TestResolvingTheConfinement:
         assert confinement.denied is True
 
     async def test_a_library_named_entire_is_not_confined(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         credential = auth.Credential(
             user_id=library.user_id,
@@ -1634,7 +1634,7 @@ class TestResolvingTheConfinement:
         assert confinement.collections is None
 
     async def test_a_denied_library_reads_nothing_and_writes_nothing(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         credential = auth.Credential(
             user_id=library.user_id,
@@ -1651,7 +1651,7 @@ class TestResolvingTheConfinement:
         assert access.files is False
 
     async def test_offered_resources_never_names_a_library_out_of_reach(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Fixture
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Fixture
     ) -> None:
         from tests.factories import make_user
 

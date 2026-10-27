@@ -1,6 +1,6 @@
 """Reading collections, saved searches and tags."""
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -31,7 +31,7 @@ async def library(session: AsyncSession) -> Library:
 
 class TestCollections:
     async def test_collections_are_returned_in_the_envelope(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="COLL2345", name="Fiction")
 
@@ -44,7 +44,7 @@ class TestCollections:
         assert body["links"]["self"]["href"].endswith("/users/1/collections/COLL2345")
 
     async def test_a_nested_collection_names_its_parent(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_collection(session, library, key="AAAA2345", name="Parent")
         await make_collection(session, library, key="BBBB2345", name="Child", parent=parent)
@@ -55,7 +55,7 @@ class TestCollections:
         assert body["links"]["up"]["href"].endswith("/collections/AAAA2345")
 
     async def test_top_excludes_nested_collections(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_collection(session, library, key="AAAA2345")
         await make_collection(session, library, key="BBBB2345", parent=parent)
@@ -65,7 +65,7 @@ class TestCollections:
         assert [c["key"] for c in top] == ["AAAA2345"]
 
     async def test_subcollections_are_listed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_collection(session, library, key="AAAA2345")
         await make_collection(session, library, key="BBBB2345", parent=parent)
@@ -75,7 +75,7 @@ class TestCollections:
         assert [c["key"] for c in body] == ["BBBB2345"]
 
     async def test_counts_are_reported(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="ITEM2345")
         parent = await make_collection(session, library, key="AAAA2345", items=[item])
@@ -86,7 +86,7 @@ class TestCollections:
         assert body["meta"] == {"numCollections": 1, "numItems": 1}
 
     async def test_trashed_and_child_items_are_not_counted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         kept = await make_item(session, library)
         trashed = await make_item(session, library, deleted=True)
@@ -98,7 +98,7 @@ class TestCollections:
         assert body["meta"]["numItems"] == 1
 
     async def test_collections_sort_by_name_by_default(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345", name="Zebra")
         await make_collection(session, library, key="BBBB2345", name="Apple")
@@ -108,14 +108,14 @@ class TestCollections:
         assert [c["data"]["name"] for c in body] == ["Apple", "Zebra"]
 
     async def test_an_unknown_collection_is_a_404(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/collections/ZZZZ2345", headers=AUTH)
 
         assert response.status_code == 404
 
     async def test_format_keys_is_supported(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="COLL2345")
 
@@ -124,7 +124,7 @@ class TestCollections:
         assert response.text == "COLL2345"
 
     async def test_since_filters_collections(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345", version=3)
         await make_collection(session, library, key="BBBB2345", version=8)
@@ -136,7 +136,7 @@ class TestCollections:
 
 class TestSearches:
     async def test_searches_are_returned_with_their_conditions(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(
             session,
@@ -155,7 +155,7 @@ class TestSearches:
         ]
 
     async def test_a_search_is_returned_by_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(session, library, key="SRCH2345", name="Recent")
 
@@ -165,14 +165,14 @@ class TestSearches:
         assert response.json()["data"]["name"] == "Recent"
 
     async def test_an_unknown_search_is_a_404(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/searches/ZZZZ2345", headers=AUTH)).status_code == 404
 
 
 class TestTags:
     async def test_tags_are_returned_with_their_counts(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -185,7 +185,7 @@ class TestTags:
         assert body["meta"] == {"type": 0, "numItems": 2}
 
     async def test_automatic_tags_report_their_type(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "auto", tag_type=1)
@@ -195,7 +195,7 @@ class TestTags:
         assert body["meta"]["type"] == 1
 
     async def test_a_tag_is_returned_by_name(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -206,12 +206,12 @@ class TestTags:
         assert response.json()["tag"] == "fiction"
 
     async def test_an_unknown_tag_is_a_404(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/tags/nope", headers=AUTH)).status_code == 404
 
     async def test_tags_of_one_item_are_listed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -223,7 +223,7 @@ class TestTags:
         assert [t["tag"] for t in body] == ["fiction"]
 
     async def test_a_quick_search_filters_tag_names(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -236,7 +236,7 @@ class TestTags:
         assert starts == []
 
     async def test_tags_can_be_sorted_by_item_count(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -249,7 +249,7 @@ class TestTags:
         assert [t["tag"] for t in body] == ["common", "rare"]
 
     async def test_an_item_carries_its_tags_and_collections(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -266,7 +266,7 @@ class TestScopedTags:
     """Tags can be listed against any of the item scopes."""
 
     async def test_tags_of_a_collection_are_listed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         inside = await make_item(session, library, key="AAAA2345")
         outside = await make_item(session, library, key="BBBB2345")
@@ -279,7 +279,7 @@ class TestScopedTags:
         assert [t["tag"] for t in body] == ["inside"]
 
     async def test_tags_of_a_collections_items_are_listed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         inside = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, inside, "inside")
@@ -290,7 +290,7 @@ class TestScopedTags:
         assert [t["tag"] for t in body] == ["inside"]
 
     async def test_top_level_tags_exclude_child_items(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_item(session, library, key="AAAA2345")
         child = await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
@@ -304,7 +304,7 @@ class TestScopedTags:
         assert sorted(t["tag"] for t in every) == ["onchild", "onparent"]
 
     async def test_trash_tags_cover_only_trashed_items(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         live = await make_item(session, library, key="AAAA2345")
         trashed = await make_item(session, library, key="BBBB2345", deleted=True)
@@ -316,7 +316,7 @@ class TestScopedTags:
         assert [t["tag"] for t in body] == ["gone"]
 
     async def test_top_and_trash_are_not_read_as_item_keys(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # `/items/top/tags` must not be routed as item key "top".
         for scope in ("top", "trash"):
@@ -324,7 +324,7 @@ class TestScopedTags:
             assert response.status_code == 200, scope
 
     async def test_a_scoped_listing_still_counts_across_the_library(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -349,7 +349,7 @@ class TestDownloadingByKey:
     """
 
     async def test_collections_are_filtered_by_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345", name="One")
         await make_collection(session, library, key="BBBB2345", name="Two")
@@ -363,7 +363,7 @@ class TestDownloadingByKey:
         assert sorted(entry["key"] for entry in body) == ["AAAA2345", "CCCC2345"]
 
     async def test_searches_are_filtered_by_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for key in ("AAAA2345", "BBBB2345", "CCCC2345"):
             await make_search(
@@ -376,7 +376,7 @@ class TestDownloadingByKey:
         assert [entry["key"] for entry in body] == ["BBBB2345"]
 
     async def test_a_batch_of_collections_is_not_cut_to_a_page(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         alphabet = "23456789ABCDEFGHIJKLMNPQRSTUVWXYZ"
         keys = [f"CCCC{alphabet[n // 33]}{alphabet[n % 33]}ZZ" for n in range(40)]
@@ -391,7 +391,7 @@ class TestDownloadingByKey:
         assert len(body) == 40
 
     async def test_an_unknown_key_simply_matches_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345", name="One")
         await session.commit()

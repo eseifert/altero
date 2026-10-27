@@ -11,7 +11,7 @@ rather than one errand per row.
 
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,18 +22,18 @@ from tests import factories
 from tests.test_web_routes import csrf_headers, register
 
 
-async def personal_library(client: httpx.AsyncClient) -> int:
+async def personal_library(client: httpx2.AsyncClient) -> int:
     return int((await client.get("/web/libraries")).json()[0]["id"])
 
 
 @pytest.fixture
-async def ada(client: httpx.AsyncClient) -> httpx.AsyncClient:
+async def ada(client: httpx2.AsyncClient) -> httpx2.AsyncClient:
     """One account, signed in, with its personal library."""
     assert (await register(client)).status_code == 201
     return client
 
 
-async def make_collection(client: httpx.AsyncClient, library_id: int, name: str) -> str:
+async def make_collection(client: httpx2.AsyncClient, library_id: int, name: str) -> str:
     response = await client.post(
         f"/web/libraries/{library_id}/collections",
         json={"name": name},
@@ -44,7 +44,7 @@ async def make_collection(client: httpx.AsyncClient, library_id: int, name: str)
 
 
 async def seed_item(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     session: AsyncSession,
     *,
     title: str = "Structure and Interpretation",
@@ -63,7 +63,7 @@ async def seed_item(
     return str(response.json()["successful"]["0"]["key"])
 
 
-def only(response: httpx.Response) -> dict[str, Any]:
+def only(response: httpx2.Response) -> dict[str, Any]:
     """The one item out of an answer that always names a selection.
 
     Filing, trashing and copying answer with a list because that is what they
@@ -75,7 +75,7 @@ def only(response: httpx.Response) -> dict[str, Any]:
     return dict(body["items"][0])
 
 
-async def listed(client: httpx.AsyncClient, library_id: int, **query: str) -> list[str]:
+async def listed(client: httpx2.AsyncClient, library_id: int, **query: str) -> list[str]:
     """The titles the interface would draw, in the scope asked for."""
     request = "&".join(f"{name}={value}" for name, value in query.items())
     payload = (await client.get(f"/web/libraries/{library_id}/items?{request}")).json()
@@ -84,7 +84,7 @@ async def listed(client: httpx.AsyncClient, library_id: int, **query: str) -> li
 
 class TestFiling:
     async def test_an_item_is_put_into_a_collection(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         papers = await make_collection(ada, library_id, "Papers")
@@ -101,7 +101,7 @@ class TestFiling:
         assert await listed(ada, library_id, collection=papers) == ["Structure and Interpretation"]
 
     async def test_filing_it_again_somewhere_else_keeps_the_first(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Dragging onto a collection adds; it does not move. Zotero's rule."""
         library_id = await personal_library(ada)
@@ -120,7 +120,7 @@ class TestFiling:
         assert sorted(body["data"]["collections"]) == sorted([papers, books])
 
     async def test_a_move_is_one_request_and_one_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Shift-dragging takes it out of where it was and puts it where it went."""
         library_id = await personal_library(ada)
@@ -139,7 +139,7 @@ class TestFiling:
         assert int(response.headers["Last-Modified-Version"]) == before + 1
 
     async def test_it_is_taken_out_of_the_only_collection_it_was_in(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The case a partial write cannot express: an empty array reads as
         "not mentioned", so this has to be its own thing."""
@@ -160,7 +160,7 @@ class TestFiling:
         assert await listed(ada, library_id) == ["Structure and Interpretation"]
 
     async def test_filing_it_where_it_already_is_changes_nothing_about_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         papers = await make_collection(ada, library_id, "Papers")
@@ -177,7 +177,7 @@ class TestFiling:
         assert body["data"]["collections"] == [papers]
 
     async def test_filing_does_not_untrash(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A partial write clears `deleted` unless it is restated, and filing
         something is not restoring it."""
@@ -199,7 +199,7 @@ class TestFiling:
         assert await listed(ada, library_id, scope="trash") == ["Structure and Interpretation"]
 
     async def test_a_request_that_asks_for_nothing_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Naming items is not an errand. A request the server can satisfy by
         doing nothing would still take a library version if it were allowed."""
@@ -217,7 +217,7 @@ class TestFiling:
         assert (await ada.get("/web/libraries")).json()[0]["version"] == before
 
     async def test_an_unknown_collection_is_not_found(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -233,7 +233,7 @@ class TestFiling:
 
 class TestTheTrash:
     async def test_an_item_is_moved_to_the_trash(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -249,7 +249,7 @@ class TestTheTrash:
         assert await listed(ada, library_id, scope="trash") == ["Structure and Interpretation"]
 
     async def test_it_comes_back_out_again(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Which is the whole reason the browser trashes rather than deletes."""
         library_id = await personal_library(ada)
@@ -270,7 +270,7 @@ class TestTheTrash:
         assert await listed(ada, library_id, scope="trash") == []
 
     async def test_trashing_keeps_it_filed_where_it_was(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """So that restoring puts it back where it came from."""
         library_id = await personal_library(ada)
@@ -288,7 +288,7 @@ class TestTheTrash:
         assert body["data"]["collections"] == [papers]
 
     async def test_a_syncing_client_hears_about_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -306,7 +306,7 @@ class TestTheTrash:
 
 class TestDeletingForGood:
     async def test_an_item_in_the_trash_is_deleted(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -325,7 +325,7 @@ class TestDeletingForGood:
         assert await session.scalar(select(Item).where(Item.key == item)) is None
 
     async def test_an_item_still_in_the_library_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The browser has no undo, so the trash is the undo. Something that
         has never been trashed cannot be deleted by one request."""
@@ -340,7 +340,7 @@ class TestDeletingForGood:
         assert await listed(ada, library_id) == ["Structure and Interpretation"]
 
     async def test_the_deletion_is_recorded_for_syncing_clients(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -365,7 +365,7 @@ class TestDeletingForGood:
         )
         assert item in deleted.json()["items"]
 
-    async def test_an_unknown_item_is_not_found(self, ada: httpx.AsyncClient) -> None:
+    async def test_an_unknown_item_is_not_found(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
 
         response = await ada.delete(
@@ -377,7 +377,7 @@ class TestDeletingForGood:
 
 class TestEmptyingTheTrash:
     async def test_everything_in_the_trash_goes(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         first = await seed_item(ada, session, title="One", key_name="one")
@@ -396,7 +396,7 @@ class TestEmptyingTheTrash:
         assert await listed(ada, library_id, scope="trash") == []
 
     async def test_what_is_not_in_the_trash_stays(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         kept = await seed_item(ada, session, title="Kept", key_name="kept")
@@ -413,7 +413,7 @@ class TestEmptyingTheTrash:
         assert await session.scalar(select(Item).where(Item.key == kept)) is not None
 
     async def test_an_empty_trash_is_not_a_new_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Nothing was written, so nothing changed. A library that announced a
         new version because somebody looked at an empty trash would send every
@@ -428,7 +428,7 @@ class TestEmptyingTheTrash:
         assert (await ada.get("/web/libraries")).json()[0]["version"] == before
 
     async def test_however_many_items_it_is_one_new_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         for name in ("one", "two", "three"):
@@ -445,7 +445,7 @@ class TestEmptyingTheTrash:
         assert int(response.headers["Last-Modified-Version"]) == before + 1
 
     async def test_the_deletions_are_recorded_for_syncing_clients(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -469,7 +469,7 @@ class TestEmptyingTheTrash:
         assert item in deleted.json()["items"]
 
     async def test_it_needs_the_csrf_token(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -485,7 +485,7 @@ class TestEmptyingTheTrash:
         assert await listed(ada, library_id, scope="trash") == ["Structure and Interpretation"]
 
     async def test_a_library_this_account_cannot_write_to_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         grace = await admin.create_user(session, username="grace")
         theirs = await session.scalar(select(Library).where(Library.owner_id == grace.id))
@@ -508,7 +508,7 @@ class TestCopyingToAnotherLibrary:
         )
 
     async def test_an_item_is_copied_into_a_group(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         group = await self._group(session)
@@ -525,7 +525,7 @@ class TestCopyingToAnotherLibrary:
         assert await listed(ada, group.id) == ["Structure and Interpretation"]
 
     async def test_the_original_stays_where_it_was(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A copy and never a move: nothing leaves a library by being dragged."""
         library_id = await personal_library(ada)
@@ -541,7 +541,7 @@ class TestCopyingToAnotherLibrary:
         assert await listed(ada, library_id) == ["Structure and Interpretation"]
 
     async def test_the_copy_is_its_own_item(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         group = await self._group(session)
@@ -561,7 +561,7 @@ class TestCopyingToAnotherLibrary:
         assert body["library"]["id"] == group.owner_id
 
     async def test_it_lands_in_the_collection_it_was_dropped_on(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         group = await self._group(session)
@@ -579,7 +579,7 @@ class TestCopyingToAnotherLibrary:
         assert body["data"]["collections"] == [target.key]
 
     async def test_the_collections_it_was_in_do_not_come_with_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """They are collections in the library it left, and mean nothing here."""
         library_id = await personal_library(ada)
@@ -598,7 +598,7 @@ class TestCopyingToAnotherLibrary:
         assert body["data"]["collections"] == []
 
     async def test_its_notes_and_attachments_come_with_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A copy of a book without the note somebody wrote on it is not the
         copy they asked for."""
@@ -626,7 +626,7 @@ class TestCopyingToAnotherLibrary:
         ]
 
     async def test_the_tags_come_with_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         group = await self._group(session)
@@ -649,7 +649,7 @@ class TestCopyingToAnotherLibrary:
         assert body["data"]["tags"] == [{"tag": "toread"}]
 
     async def test_copying_into_the_same_library_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Two identical items in one library is nobody's intention, and the
         sidebar cannot express it: the row it was dragged from is the row it
@@ -666,7 +666,7 @@ class TestCopyingToAnotherLibrary:
         assert response.status_code == 400
 
     async def test_a_library_this_account_cannot_write_to_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -684,7 +684,7 @@ class TestCopyingToAnotherLibrary:
         assert await session.scalar(select(Item).where(Item.library_id == theirs.id)) is None
 
     async def test_a_library_this_account_cannot_read_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The other direction: copying *out* of somebody else's library."""
         grace = await admin.create_user(session, username="grace")
@@ -702,7 +702,7 @@ class TestCopyingToAnotherLibrary:
         assert response.status_code == 403
 
     async def test_one_request_is_one_new_version_of_the_target(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Only the library that gained something moves. The one the item came
         from did not change, and a version bump there would tell every client
@@ -730,7 +730,7 @@ class TestCopyingToAnotherLibrary:
 
 class TestWhoMay:
     async def test_patching_needs_the_csrf_token(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -743,7 +743,7 @@ class TestWhoMay:
         assert await listed(ada, library_id) == ["Structure and Interpretation"]
 
     async def test_deleting_needs_the_csrf_token(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         item = await seed_item(ada, session)
@@ -759,7 +759,7 @@ class TestWhoMay:
         assert await listed(ada, library_id, scope="trash") == ["Structure and Interpretation"]
 
     async def test_copying_needs_the_csrf_token(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         group = await factories.make_group(
@@ -775,7 +775,7 @@ class TestWhoMay:
         assert await listed(ada, group.id) == []
 
     async def test_an_api_key_does_not_open_this_door(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The boundary in both directions: a key belongs to the v3 API."""
         library_id = await personal_library(ada)
@@ -792,7 +792,7 @@ class TestWhoMay:
         assert response.status_code == 401
 
     async def test_another_person_s_item_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         grace = await admin.create_user(session, username="grace")
         theirs = await session.scalar(select(Library).where(Library.owner_id == grace.id))
@@ -808,7 +808,7 @@ class TestWhoMay:
         assert response.status_code == 403
 
     async def test_a_group_that_reserves_editing_refuses_a_member(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         grace = await admin.create_user(session, username="grace")
         group = await factories.make_group(
@@ -838,17 +838,17 @@ class TestEditingAnItem:
     sent empty clears it, left out leaves it alone.
     """
 
-    async def key_of(self, ada: httpx.AsyncClient, session: AsyncSession) -> tuple[int, str]:
+    async def key_of(self, ada: httpx2.AsyncClient, session: AsyncSession) -> tuple[int, str]:
         library_id = await personal_library(ada)
         return library_id, await seed_item(ada, session)
 
-    async def version_of(self, ada: httpx.AsyncClient, library_id: int, key: str) -> int:
+    async def version_of(self, ada: httpx2.AsyncClient, library_id: int, key: str) -> int:
         payload = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()
         return int(payload["version"])
 
     async def edit(
-        self, ada: httpx.AsyncClient, library_id: int, item_key: str, **changes: object
-    ) -> httpx.Response:
+        self, ada: httpx2.AsyncClient, library_id: int, item_key: str, **changes: object
+    ) -> httpx2.Response:
         """Write ``changes`` over the version the page was last shown."""
         version = await self.version_of(ada, library_id, item_key)
         return await ada.patch(
@@ -857,7 +857,7 @@ class TestEditingAnItem:
             headers=csrf_headers(ada),
         )
 
-    async def test_a_field_is_written(self, ada: httpx.AsyncClient, session: AsyncSession) -> None:
+    async def test_a_field_is_written(self, ada: httpx2.AsyncClient, session: AsyncSession) -> None:
         library_id, key = await self.key_of(ada, session)
 
         response = await self.edit(ada, library_id, key, fields={"title": "SICP"})
@@ -868,7 +868,7 @@ class TestEditingAnItem:
         assert data["title"] == "SICP"
 
     async def test_the_rights_field_is_written(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The licence of a published work, which this route began by writing."""
         library_id, key = await self.key_of(ada, session)
@@ -878,7 +878,7 @@ class TestEditingAnItem:
         assert response.json()["data"]["rights"] == "CC BY 4.0"
 
     async def test_several_fields_are_one_new_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
         before = await self.version_of(ada, library_id, key)
@@ -896,7 +896,7 @@ class TestEditingAnItem:
         assert response.json()["version"] == before + 1
 
     async def test_it_leaves_everything_else_alone(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A partial write: what is not mentioned is not touched."""
         library_id, key = await self.key_of(ada, session)
@@ -916,7 +916,7 @@ class TestEditingAnItem:
         assert data["tags"] == [{"tag": "lisp"}]
 
     async def test_an_emptied_field_is_cleared(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
         await self.edit(ada, library_id, key, fields={"publisher": "MIT Press"})
@@ -927,7 +927,7 @@ class TestEditingAnItem:
         assert data["publisher"] == ""
 
     async def test_creators_are_written_in_order(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
         creators = [
@@ -941,7 +941,7 @@ class TestEditingAnItem:
         assert response.json()["meta"]["creatorSummary"] == "Abelson and Sussman"
 
     async def test_the_sort_keys_follow_the_edit(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Derived on every write, so the list sorts by what it now shows."""
         library_id = await personal_library(ada)
@@ -953,7 +953,7 @@ class TestEditingAnItem:
         assert await listed(ada, library_id, sort="title") == ["Beta", "Gamma"]
 
     async def test_empty_creators_clear_them_and_absent_ones_do_not(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
         await self.edit(
@@ -972,7 +972,7 @@ class TestEditingAnItem:
         assert data.get("creators", []) == []
 
     async def test_a_creator_type_the_item_type_lacks_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
 
@@ -985,7 +985,7 @@ class TestEditingAnItem:
         assert data.get("creators", []) == []
 
     async def test_tags_are_written_and_cleared(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
 
@@ -998,7 +998,7 @@ class TestEditingAnItem:
         assert response.json()["data"]["tags"] == []
 
     async def test_relations_are_written(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
         other = await seed_item(ada, session, title="Other", key_name="other")
@@ -1008,7 +1008,7 @@ class TestEditingAnItem:
 
         assert response.json()["data"]["relations"] == {"dc:relation": uri}
 
-    async def test_a_note_is_written(self, ada: httpx.AsyncClient, session: AsyncSession) -> None:
+    async def test_a_note_is_written(self, ada: httpx2.AsyncClient, session: AsyncSession) -> None:
         library_id = await personal_library(ada)
         parent = await seed_item(ada, session)
         key = await admin.create_api_key(session, username="ada", name="note")
@@ -1026,7 +1026,7 @@ class TestEditingAnItem:
         assert response.json()["data"]["parentItem"] == parent
 
     async def test_a_book_has_no_note_to_write(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
 
@@ -1036,7 +1036,7 @@ class TestEditingAnItem:
         assert "not a valid field" in response.json()["message"]
 
     async def test_a_type_without_the_field_is_refused_as_a_client_would_be(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A note has no `rights`, and `save_item` is what says so."""
         library_id = await personal_library(ada)
@@ -1055,7 +1055,7 @@ class TestEditingAnItem:
         assert "not a valid field" in response.json()["message"]
 
     async def test_an_unknown_field_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
 
@@ -1077,7 +1077,7 @@ class TestEditingAnItem:
         ],
     )
     async def test_a_property_this_route_does_not_write_is_refused_by_name(
-        self, ada: httpx.AsyncClient, session: AsyncSession, name: str
+        self, ada: httpx2.AsyncClient, session: AsyncSession, name: str
     ) -> None:
         """Each of these is read-only or has a route of its own.
 
@@ -1099,7 +1099,7 @@ class TestEditingAnItem:
         assert after == before
 
     async def test_a_property_nobody_knows_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
 
@@ -1109,7 +1109,7 @@ class TestEditingAnItem:
         assert response.json()["message"] == "Unknown property 'colour'"
 
     async def test_a_stale_version_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Text is not an errand the server can work out for itself.
 
@@ -1136,7 +1136,7 @@ class TestEditingAnItem:
         assert data["title"] == "First"
 
     async def test_an_edit_without_a_version_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
 
@@ -1149,7 +1149,7 @@ class TestEditingAnItem:
         assert response.status_code == 428
 
     async def test_an_edit_that_writes_nothing_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
 
@@ -1158,7 +1158,7 @@ class TestEditingAnItem:
         assert response.status_code == 400
 
     async def test_an_edit_that_changes_nothing_takes_no_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Leaving a field as it was is not a change for every client to fetch.
 
@@ -1191,7 +1191,7 @@ class TestEditingAnItem:
         assert response.headers["Last-Modified-Version"] == str(before)
 
     async def test_an_item_in_the_trash_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The desktop's trash is read-only too: restoring is the way back."""
         library_id, key = await self.key_of(ada, session)
@@ -1207,7 +1207,7 @@ class TestEditingAnItem:
         assert "trash" in response.json()["message"]
 
     async def test_it_needs_the_csrf_token(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self.key_of(ada, session)
         version = await self.version_of(ada, library_id, key)
@@ -1220,7 +1220,7 @@ class TestEditingAnItem:
         assert response.status_code == 403
 
     async def test_a_read_only_library_refuses_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         grace = await admin.create_user(session, username="grace")
         theirs = await session.scalar(select(Library).where(Library.owner_id == grace.id))
@@ -1237,7 +1237,7 @@ class TestEditingAnItem:
         assert response.status_code == 403
 
     async def test_a_member_held_to_reading_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         group = await self.group_with_ada(session, MemberPermission.READ)
         item = await factories.make_item(session, group, fields={"title": "Theirs"})
@@ -1252,7 +1252,7 @@ class TestEditingAnItem:
         assert response.status_code == 403
 
     async def test_a_member_held_to_their_own_cannot_edit_somebody_elses(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         group = await self.group_with_ada(session, MemberPermission.OWN)
         item = await factories.make_item(session, group, fields={"title": "Theirs"})
@@ -1269,7 +1269,7 @@ class TestEditingAnItem:
         assert item.version == 1
 
     async def test_a_member_held_to_adding_may_edit_anybodys(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """`add` withholds removing, not changing: the v3 rule."""
         group = await self.group_with_ada(session, MemberPermission.ADD)
@@ -1306,7 +1306,7 @@ class TestChangingTheType:
     which a page showing an older warning cannot do for fields it never saw.
     """
 
-    async def book(self, ada: httpx.AsyncClient, session: AsyncSession, **fields: str) -> str:
+    async def book(self, ada: httpx2.AsyncClient, session: AsyncSession, **fields: str) -> str:
         api_key = await admin.create_api_key(session, username="ada", name="seed")
         created = await ada.post(
             "/users/1/items",
@@ -1325,8 +1325,8 @@ class TestChangingTheType:
         return str(created.json()["successful"]["0"]["key"])
 
     async def retype(
-        self, ada: httpx.AsyncClient, key: str, item_type: str, **extra: object
-    ) -> httpx.Response:
+        self, ada: httpx2.AsyncClient, key: str, item_type: str, **extra: object
+    ) -> httpx2.Response:
         library_id = await personal_library(ada)
         version = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["version"]
         return await ada.patch(
@@ -1336,7 +1336,7 @@ class TestChangingTheType:
         )
 
     async def test_a_change_that_loses_nothing_goes_through(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         key = await self.book(ada, session, publisher="MIT Press")
 
@@ -1349,7 +1349,7 @@ class TestChangingTheType:
         assert "publisher" not in data
 
     async def test_a_change_that_loses_fields_names_them_first(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         key = await self.book(ada, session, edition="2", numPages="657")
 
@@ -1363,7 +1363,7 @@ class TestChangingTheType:
         assert data["edition"] == "2"
 
     async def test_naming_them_back_goes_through(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         key = await self.book(ada, session, edition="2", numPages="657")
 
@@ -1377,7 +1377,7 @@ class TestChangingTheType:
         assert data["creators"][0]["creatorType"] == "director"
 
     async def test_a_warning_about_other_fields_does_not_count(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Somebody added a page count since the page showed its warning."""
         key = await self.book(ada, session, edition="2", numPages="657")
@@ -1388,7 +1388,7 @@ class TestChangingTheType:
         assert response.json()["data"] == {"fields": ["edition", "numPages"]}
 
     async def test_it_is_one_new_version_that_a_desktop_hears_about(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         key = await self.book(ada, session)
         api_key = await admin.create_api_key(session, username="ada", name="desktop")
@@ -1406,7 +1406,7 @@ class TestChangingTheType:
         assert changed.json() == {key: int(since) + 1}
 
     async def test_the_same_type_changes_nothing(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         key = await self.book(ada, session)
         library_id = await personal_library(ada)
@@ -1418,7 +1418,7 @@ class TestChangingTheType:
         assert response.json()["version"] == before
 
     async def test_a_note_keeps_its_type(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         made = await ada.post(
@@ -1432,7 +1432,7 @@ class TestChangingTheType:
         assert response.status_code == 400
 
     async def test_a_type_change_comes_on_its_own(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         key = await self.book(ada, session)
 
@@ -1441,7 +1441,7 @@ class TestChangingTheType:
         assert response.status_code == 400
 
     async def test_the_type_is_not_a_field(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         key = await self.book(ada, session)
         library_id = await personal_library(ada)
@@ -1467,7 +1467,7 @@ class TestRelatedItems:
     def uri(self, key: str) -> str:
         return f"http://zotero.org/users/1/items/{key}"
 
-    async def two(self, ada: httpx.AsyncClient, session: AsyncSession) -> tuple[int, str, str]:
+    async def two(self, ada: httpx2.AsyncClient, session: AsyncSession) -> tuple[int, str, str]:
         """Two books last modified in 2020, so that no write can stamp the same time."""
         library_id = await personal_library(ada)
         api_key = await admin.create_api_key(session, username="ada", name="seed")
@@ -1482,13 +1482,13 @@ class TestRelatedItems:
         made = created.json()["successful"]
         return library_id, made["0"]["key"], made["1"]["key"]
 
-    async def data(self, ada: httpx.AsyncClient, library_id: int, key: str) -> dict[str, Any]:
+    async def data(self, ada: httpx2.AsyncClient, library_id: int, key: str) -> dict[str, Any]:
         response = await ada.get(f"/web/libraries/{library_id}/items/{key}")
         return dict(response.json())
 
     async def relate(
-        self, ada: httpx.AsyncClient, library_id: int, key: str, *others: str
-    ) -> httpx.Response:
+        self, ada: httpx2.AsyncClient, library_id: int, key: str, *others: str
+    ) -> httpx2.Response:
         return await ada.post(
             f"/web/libraries/{library_id}/items/{key}/related",
             json={"items": list(others)},
@@ -1496,15 +1496,15 @@ class TestRelatedItems:
         )
 
     async def unrelate(
-        self, ada: httpx.AsyncClient, library_id: int, key: str, other: str
-    ) -> httpx.Response:
+        self, ada: httpx2.AsyncClient, library_id: int, key: str, other: str
+    ) -> httpx2.Response:
         return await ada.delete(
             f"/web/libraries/{library_id}/items/{key}/related/{other}",
             headers=csrf_headers(ada),
         )
 
     async def test_both_items_name_each_other(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, second = await self.two(ada, session)
 
@@ -1517,7 +1517,7 @@ class TestRelatedItems:
         assert two["relations"] == {"dc:relation": self.uri(first)}
 
     async def test_it_is_one_version_and_no_date_modified(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, second = await self.two(ada, session)
         before = {key: await self.data(ada, library_id, key) for key in (first, second)}
@@ -1531,7 +1531,7 @@ class TestRelatedItems:
             assert after["version"] == version
             assert after["data"]["dateModified"] == "2020-01-01T00:00:00Z"
 
-    async def test_several_at_once(self, ada: httpx.AsyncClient, session: AsyncSession) -> None:
+    async def test_several_at_once(self, ada: httpx2.AsyncClient, session: AsyncSession) -> None:
         library_id, first, second = await self.two(ada, session)
         third = await seed_item(ada, session, title="Third", key_name="c")
 
@@ -1544,7 +1544,7 @@ class TestRelatedItems:
         }
 
     async def test_relating_again_takes_no_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, second = await self.two(ada, session)
         done = await self.relate(ada, library_id, first, second)
@@ -1555,7 +1555,7 @@ class TestRelatedItems:
         assert again.headers["Last-Modified-Version"] == done.headers["Last-Modified-Version"]
 
     async def test_other_relations_stay(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, second = await self.two(ada, session)
         same = "http://zotero.org/groups/9/items/ZZZZ2345"
@@ -1574,7 +1574,7 @@ class TestRelatedItems:
         }
 
     async def test_removing_takes_both_sides(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, second = await self.two(ada, session)
         await self.relate(ada, library_id, first, second)
@@ -1586,7 +1586,7 @@ class TestRelatedItems:
             assert (await self.data(ada, library_id, key))["data"]["relations"] == {}
 
     async def test_an_item_cannot_be_related_to_itself(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, _ = await self.two(ada, session)
 
@@ -1595,7 +1595,7 @@ class TestRelatedItems:
         assert response.status_code == 400
 
     async def test_an_unknown_item_is_not_found(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, _ = await self.two(ada, session)
 
@@ -1605,7 +1605,7 @@ class TestRelatedItems:
         assert (await self.data(ada, library_id, first))["data"]["relations"] == {}
 
     async def test_an_item_in_the_trash_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, second = await self.two(ada, session)
         await ada.patch(
@@ -1619,7 +1619,7 @@ class TestRelatedItems:
         assert response.status_code == 400
 
     async def test_a_group_item_is_named_by_its_group(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         group = await factories.make_group(session, group_id=53, owner_id=1, members={})
         one = await factories.make_item(session, group, fields={"title": "One"})
@@ -1632,7 +1632,7 @@ class TestRelatedItems:
         assert data["relations"] == {"dc:relation": f"http://zotero.org/groups/53/items/{two.key}"}
 
     async def test_a_desktop_hears_about_both(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, second = await self.two(ada, session)
         api_key = await admin.create_api_key(session, username="ada", name="desktop")
@@ -1649,7 +1649,7 @@ class TestRelatedItems:
         assert set(changed.json()) == {first, second}
 
     async def test_it_needs_the_csrf_token(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, first, second = await self.two(ada, session)
 
@@ -1660,7 +1660,7 @@ class TestRelatedItems:
         assert response.status_code == 403
 
     async def test_a_member_held_to_reading_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         group = await TestEditingAnItem().group_with_ada(session, MemberPermission.READ)
         one = await factories.make_item(session, group, fields={"title": "One"})
@@ -1672,7 +1672,7 @@ class TestRelatedItems:
         assert response.status_code == 403
 
     async def test_a_member_held_to_their_own_cannot_relate_somebody_elses(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Relating writes both items, so the other one has to be Ada's too."""
         group = await TestEditingAnItem().group_with_ada(session, MemberPermission.OWN)
@@ -1698,13 +1698,13 @@ class TestCreatingAnItem:
     """
 
     async def create(
-        self, ada: httpx.AsyncClient, library_id: int, **body: object
-    ) -> httpx.Response:
+        self, ada: httpx2.AsyncClient, library_id: int, **body: object
+    ) -> httpx2.Response:
         return await ada.post(
             f"/web/libraries/{library_id}/items", json=body, headers=csrf_headers(ada)
         )
 
-    async def test_a_book_is_created(self, ada: httpx.AsyncClient) -> None:
+    async def test_a_book_is_created(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
 
         response = await self.create(ada, library_id, itemType="book")
@@ -1716,7 +1716,7 @@ class TestCreatingAnItem:
         assert await listed(ada, library_id) == [""]
 
     async def test_it_is_the_template_without_its_nameless_creator(
-        self, ada: httpx.AsyncClient
+        self, ada: httpx2.AsyncClient
     ) -> None:
         library_id = await personal_library(ada)
         template = (await ada.get("/items/new?itemType=book")).json()
@@ -1727,7 +1727,7 @@ class TestCreatingAnItem:
         assert expected <= set(data)
         assert "creators" not in data
 
-    async def test_it_is_one_new_version(self, ada: httpx.AsyncClient) -> None:
+    async def test_it_is_one_new_version(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
         before = await self.create(ada, library_id, itemType="book")
 
@@ -1737,7 +1737,7 @@ class TestCreatingAnItem:
         assert int(response.headers["Last-Modified-Version"]) == version + 1
         assert response.json()["version"] == version + 1
 
-    async def test_it_is_filed_where_it_was_made(self, ada: httpx.AsyncClient) -> None:
+    async def test_it_is_filed_where_it_was_made(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
         papers = await make_collection(ada, library_id, "Papers")
 
@@ -1746,7 +1746,7 @@ class TestCreatingAnItem:
         assert response.json()["data"]["collections"] == [papers]
         assert await listed(ada, library_id, collection=papers) == [""]
 
-    async def test_an_unknown_collection_is_not_found(self, ada: httpx.AsyncClient) -> None:
+    async def test_an_unknown_collection_is_not_found(self, ada: httpx2.AsyncClient) -> None:
         """As filing answers it, and nothing is made."""
         library_id = await personal_library(ada)
 
@@ -1758,7 +1758,7 @@ class TestCreatingAnItem:
         assert await listed(ada, library_id) == []
 
     async def test_a_child_note_is_created_under_its_parent(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         parent = await seed_item(ada, session)
@@ -1771,7 +1771,7 @@ class TestCreatingAnItem:
         children = (await ada.get(f"/web/libraries/{library_id}/items/{parent}/children")).json()
         assert [child["key"] for child in children["items"]] == [response.json()["key"]]
 
-    async def test_a_standalone_note_is_created(self, ada: httpx.AsyncClient) -> None:
+    async def test_a_standalone_note_is_created(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
 
         response = await self.create(ada, library_id, itemType="note")
@@ -1780,7 +1780,7 @@ class TestCreatingAnItem:
         assert "parentItem" not in response.json()["data"]
 
     async def test_a_book_cannot_have_a_parent(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         parent = await seed_item(ada, session)
@@ -1791,7 +1791,7 @@ class TestCreatingAnItem:
         assert await listed(ada, library_id) == ["Structure and Interpretation"]
 
     async def test_a_note_cannot_go_under_a_note(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         parent = await seed_item(ada, session)
@@ -1802,7 +1802,7 @@ class TestCreatingAnItem:
         assert response.status_code == 400
 
     async def test_a_note_cannot_go_under_an_item_in_the_trash(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         parent = await seed_item(ada, session)
@@ -1817,14 +1817,14 @@ class TestCreatingAnItem:
         assert response.status_code == 400
         assert "trash" in response.json()["message"]
 
-    async def test_an_unknown_parent_is_not_found(self, ada: httpx.AsyncClient) -> None:
+    async def test_an_unknown_parent_is_not_found(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
 
         response = await self.create(ada, library_id, itemType="note", parentItem="ZZZZ2345")
 
         assert response.status_code == 404
 
-    async def test_an_unknown_type_is_refused(self, ada: httpx.AsyncClient) -> None:
+    async def test_an_unknown_type_is_refused(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
 
         response = await self.create(ada, library_id, itemType="nosuch")
@@ -1833,7 +1833,7 @@ class TestCreatingAnItem:
 
     @pytest.mark.parametrize("item_type", ["attachment", "annotation"])
     async def test_a_type_with_its_own_way_in_is_refused(
-        self, ada: httpx.AsyncClient, item_type: str
+        self, ada: httpx2.AsyncClient, item_type: str
     ) -> None:
         """Attachments come with a file or a link, annotations from a reader."""
         library_id = await personal_library(ada)
@@ -1843,7 +1843,7 @@ class TestCreatingAnItem:
         assert response.status_code == 400
         assert await listed(ada, library_id) == []
 
-    async def test_it_needs_the_csrf_token(self, ada: httpx.AsyncClient) -> None:
+    async def test_it_needs_the_csrf_token(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
 
         response = await ada.post(f"/web/libraries/{library_id}/items", json={"itemType": "book"})
@@ -1852,7 +1852,7 @@ class TestCreatingAnItem:
         assert await listed(ada, library_id) == []
 
     async def test_a_read_only_library_refuses_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         group = await TestEditingAnItem().group_with_ada(session, MemberPermission.READ)
 
@@ -1861,7 +1861,7 @@ class TestCreatingAnItem:
         assert response.status_code == 403
 
     async def test_a_member_held_to_adding_may_create(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         group = await TestEditingAnItem().group_with_ada(session, MemberPermission.ADD)
 
@@ -1871,7 +1871,7 @@ class TestCreatingAnItem:
         assert response.json()["meta"]["createdByUser"]["id"] == 1
 
     async def test_a_syncing_client_hears_about_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         api_key = await admin.create_api_key(session, username="ada", name="desktop")
@@ -1902,14 +1902,14 @@ class TestASelection:
             session, group_id=50, owner_id=1, members={}, name="Whale Watchers"
         )
 
-    async def _three(self, ada: httpx.AsyncClient, session: AsyncSession) -> list[str]:
+    async def _three(self, ada: httpx2.AsyncClient, session: AsyncSession) -> list[str]:
         return [
             await seed_item(ada, session, title=name.capitalize(), key_name=name)
             for name in ("one", "two", "three")
         ]
 
     async def test_a_selection_is_filed_in_one_request(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         papers = await make_collection(ada, library_id, "Papers")
@@ -1926,7 +1926,7 @@ class TestASelection:
         assert sorted(await listed(ada, library_id, collection=papers)) == ["One", "Three", "Two"]
 
     async def test_however_many_rows_it_is_one_new_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The whole reason the endpoint takes a list. Three requests would be
         three versions, and every syncing client would fetch three times."""
@@ -1945,7 +1945,7 @@ class TestASelection:
         assert {entry["version"] for entry in response.json()["items"]} == {before + 1}
 
     async def test_each_row_keeps_the_collections_only_it_was_in(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Filing is worked out per item against what is stored, so a selection
         does not flatten three different filings into one."""
@@ -1970,7 +1970,7 @@ class TestASelection:
         assert collections[filed] == sorted([books, papers])
 
     async def test_a_selection_moves_out_of_one_collection_and_into_another(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Shift-dragging a selection: the removal and the addition together."""
         library_id = await personal_library(ada)
@@ -1993,7 +1993,7 @@ class TestASelection:
         assert sorted(await listed(ada, library_id, collection=books)) == ["One", "Two"]
 
     async def test_a_selection_goes_to_the_trash_together(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         items = await self._three(ada, session)
@@ -2010,7 +2010,7 @@ class TestASelection:
         assert sorted(await listed(ada, library_id, scope="trash")) == ["One", "Three", "Two"]
 
     async def test_a_selection_comes_back_out_together(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         items = await self._three(ada, session)
@@ -2030,7 +2030,7 @@ class TestASelection:
         assert await listed(ada, library_id, scope="trash") == []
 
     async def test_a_selection_is_deleted_for_good_in_one_request(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         items = await self._three(ada, session)
@@ -2051,7 +2051,7 @@ class TestASelection:
         assert await listed(ada, library_id, scope="trash") == []
 
     async def test_one_row_outside_the_trash_refuses_the_whole_selection(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The trash is the undo, and it is the undo for every row named. A
         request that deleted the trashed ones and refused the rest would leave a
@@ -2076,7 +2076,7 @@ class TestASelection:
         assert (await ada.get("/web/libraries")).json()[0]["version"] == before
 
     async def test_a_key_naming_nothing_writes_none_of_the_others(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Everything is resolved before anything is written, so a selection is
         filed or it is not — never half filed with no way to say which half."""
@@ -2096,7 +2096,7 @@ class TestASelection:
         assert (await ada.get("/web/libraries")).json()[0]["version"] == before
 
     async def test_the_same_row_named_twice_is_written_once(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         papers = await make_collection(ada, library_id, "Papers")
@@ -2113,7 +2113,7 @@ class TestASelection:
         assert [entry["key"] for entry in body["items"]] == [item]
 
     async def test_an_empty_selection_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         await seed_item(ada, session)
@@ -2127,7 +2127,7 @@ class TestASelection:
         assert response.status_code == 400
 
     async def test_a_selection_is_copied_into_a_group_in_one_request(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         group = await self._group(session)
@@ -2149,7 +2149,7 @@ class TestASelection:
         assert sorted(await listed(ada, library_id)) == ["One", "Three", "Two"]
 
     async def test_a_group_hears_about_it_as_one_change(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """One row in the log saying three items changed, rather than three rows
         saying one each: what the members are told is what happened."""
@@ -2177,7 +2177,7 @@ class TestTheCostOfASelection:
     """A selection costs the same few statements whether it is three rows or fifteen."""
 
     async def _errand(
-        self, app: Any, ada: httpx.AsyncClient, session: AsyncSession, count: int, errand: dict
+        self, app: Any, ada: httpx2.AsyncClient, session: AsyncSession, count: int, errand: dict
     ) -> int:
         from tests.test_query_counts import capture_sql
 
@@ -2209,7 +2209,7 @@ class TestTheCostOfASelection:
     async def test_more_rows_cost_no_more_statements(
         self,
         app: Any,
-        ada: httpx.AsyncClient,
+        ada: httpx2.AsyncClient,
         session: AsyncSession,
         errand: dict,
         monkeypatch: pytest.MonkeyPatch,

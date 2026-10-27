@@ -34,7 +34,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, BinaryIO
 
-import httpx
+import httpx2
 
 from altero.errors import InvalidInputError
 
@@ -77,7 +77,7 @@ def _absorb(sink: BinaryIO, digest: Any, chunk: bytes) -> None:
     sink.write(chunk)
 
 
-def _seconds(headers: httpx.Headers, name: str) -> float | None:
+def _seconds(headers: httpx2.Headers, name: str) -> float | None:
     """Return a whole-second delay header, or ``None`` if it is unusable.
 
     Zotero's own client discards anything that is not a whole number, and zero
@@ -107,7 +107,7 @@ class ZoteroApi:
     """
 
     key: str
-    client: httpx.AsyncClient
+    client: httpx2.AsyncClient
     base_url: str = DEFAULT_BASE_URL
     #: Called with the number of seconds whenever a pause is being observed, so
     #: that a long wait can be shown rather than looking like a hang.
@@ -127,7 +127,7 @@ class ZoteroApi:
         logger.info("waiting %.0fs before the next request to %s", seconds, self.base_url)
         await asyncio.sleep(seconds)
 
-    async def get(self, path: str, **params: Any) -> httpx.Response:
+    async def get(self, path: str, **params: Any) -> httpx2.Response:
         """Fetch one path, observing whatever the server asks for.
 
         Raises:
@@ -136,7 +136,7 @@ class ZoteroApi:
         """
         return await self._send(path, params, stream=False)
 
-    async def _send(self, path: str, params: dict[str, Any], *, stream: bool) -> httpx.Response:
+    async def _send(self, path: str, params: dict[str, Any], *, stream: bool) -> httpx2.Response:
         """:meth:`get`, leaving the body of what it returns unread if ``stream``.
 
         The caller then reads it and closes it. Every answer that is not handed
@@ -152,7 +152,7 @@ class ZoteroApi:
             try:
                 request = self.client.build_request("GET", url, params=params, headers=self.headers)
                 response = await self.client.send(request, stream=stream, follow_redirects=True)
-            except httpx.HTTPError as thrown:
+            except httpx2.HTTPError as thrown:
                 if attempt == MAX_ATTEMPTS:
                     raise ZoteroApiError(f"Could not reach {url}: {thrown}") from thrown
                 await self._pause(delay)

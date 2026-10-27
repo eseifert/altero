@@ -10,7 +10,7 @@ Off unless configured. A personal server with one user has nothing to throttle,
 and a limit nobody asked for turns a working sync into a stuck one.
 """
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -134,15 +134,15 @@ async def limited(session: AsyncSession, tmp_path_factory: pytest.TempPathFactor
     return application
 
 
-async def get(app: FastAPI, path: str, headers: dict[str, str] | None = None) -> httpx.Response:
-    transport = httpx.ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+async def get(app: FastAPI, path: str, headers: dict[str, str] | None = None) -> httpx2.Response:
+    transport = httpx2.ASGITransport(app=app)
+    async with httpx2.AsyncClient(transport=transport, base_url="http://testserver") as client:
         return await client.get(path, headers=headers or {})
 
 
 class TestOverHttp:
     async def test_nothing_is_limited_by_default(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_user(session, user_id=1)
         await make_api_key(session, key=KEY, user_id=1)

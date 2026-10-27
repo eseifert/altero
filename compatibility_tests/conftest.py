@@ -5,7 +5,7 @@ import os
 from collections.abc import AsyncIterator
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 import uvicorn
 from fastapi import FastAPI
@@ -47,7 +47,7 @@ def zotero_client(pytestconfig: pytest.Config) -> ZoteroClient:
 
 
 @pytest.fixture
-async def socket_client(app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
+async def socket_client(app: FastAPI) -> AsyncIterator[httpx2.AsyncClient]:
     """Exercise the same database fixtures over an actual HTTP connection."""
     server = uvicorn.Server(
         uvicorn.Config(app, host="127.0.0.1", port=0, log_level="error", access_log=False)
@@ -61,7 +61,7 @@ async def socket_client(app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
                     raise RuntimeError("Compatibility server exited before binding")
                 await asyncio.sleep(0.01)
         port = server.servers[0].sockets[0].getsockname()[1]
-        async with httpx.AsyncClient(base_url=f"http://127.0.0.1:{port}") as client:
+        async with httpx2.AsyncClient(base_url=f"http://127.0.0.1:{port}") as client:
             yield client
     finally:
         server.should_exit = True

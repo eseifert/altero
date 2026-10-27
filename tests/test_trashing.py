@@ -19,7 +19,7 @@ Upstream has no trash filter in its collection queries, and its
 
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,19 +48,21 @@ async def library(session: AsyncSession) -> Library:
 
 
 async def post(
-    client: httpx.AsyncClient, path: str, payload: list[dict[str, Any]]
-) -> httpx.Response:
+    client: httpx2.AsyncClient, path: str, payload: list[dict[str, Any]]
+) -> httpx2.Response:
     return await client.post(path, headers=JSON, json=payload)
 
 
-async def make_one(client: httpx.AsyncClient, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+async def make_one(
+    client: httpx2.AsyncClient, path: str, payload: dict[str, Any]
+) -> dict[str, Any]:
     created = await post(client, path, [payload])
     data: dict[str, Any] = created.json()["successful"]["0"]["data"]
     return data
 
 
 class TestTrashingACollection:
-    async def test_the_flag_is_stored(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_the_flag_is_stored(self, client: httpx2.AsyncClient, library: Library) -> None:
         stored = await make_one(client, "/users/1/collections", {"name": "Fiction"})
 
         await post(client, "/users/1/collections", [{**stored, "deleted": 1}])
@@ -69,7 +71,7 @@ class TestTrashingACollection:
         assert fetched.json()["data"]["deleted"] == 1
 
     async def test_a_trashed_collection_stays_in_the_listing(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await make_one(client, "/users/1/collections", {"name": "Fiction"})
         await post(client, "/users/1/collections", [{**stored, "deleted": 1}])
@@ -79,7 +81,7 @@ class TestTrashingACollection:
         assert [entry["key"] for entry in listing.json()] == [stored["key"]]
 
     async def test_a_trashed_collection_stays_in_format_versions(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # This is how a syncing client learns anything at all. Dropping the
         # collection here would read as "removed", not "trashed".
@@ -93,7 +95,7 @@ class TestTrashingACollection:
         assert stored["key"] in versions.json()
 
     async def test_it_can_be_taken_out_of_the_trash(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """Taken out the way the client takes one out: `deleted: false`.
 
@@ -112,7 +114,7 @@ class TestTrashingACollection:
         assert "deleted" not in fetched.json()["data"]
 
     async def test_leaving_the_flag_off_a_patch_leaves_it_trashed(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """`isset($json->deleted) || !$partialUpdate` -- upstream's own rule."""
         stored = await make_one(client, "/users/1/collections", {"name": "Fiction"})
@@ -126,7 +128,7 @@ class TestTrashingACollection:
         assert fetched.json()["data"]["deleted"] == 1
 
     async def test_a_replacing_put_still_takes_it_out(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """`PUT` replaces, so what it leaves out it clears. Upstream too."""
         stored = await make_one(client, "/users/1/collections", {"name": "Fiction"})
@@ -144,7 +146,7 @@ class TestTrashingACollection:
         assert "deleted" not in fetched.json()["data"]
 
     async def test_a_trashed_subcollection_still_counts(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # Upstream counts with a bare SELECT COUNT(*) and no trash filter.
         parent = await make_one(client, "/users/1/collections", {"name": "Parent"})
@@ -158,7 +160,7 @@ class TestTrashingACollection:
         assert fetched.json()["meta"]["numCollections"] == 1
 
     async def test_a_trashed_item_still_does_not_count(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # numItems does filter upstream, and must go on doing so here.
         collection = await make_one(client, "/users/1/collections", {"name": "Fiction"})
@@ -174,7 +176,7 @@ class TestTrashingACollection:
         assert fetched.json()["meta"]["numItems"] == 0
 
     async def test_trashing_is_not_an_unchanged_write(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await make_one(client, "/users/1/collections", {"name": "Fiction"})
 
@@ -184,7 +186,7 @@ class TestTrashingACollection:
         assert set(again.json()["successful"]) == {"0"}
 
     async def test_a_non_boolean_flag_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await post(
             client, "/users/1/collections", [{"name": "Fiction", "deleted": "yes"}]
@@ -194,7 +196,7 @@ class TestTrashingACollection:
 
 
 class TestTrashingASearch:
-    async def test_the_flag_is_stored(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_the_flag_is_stored(self, client: httpx2.AsyncClient, library: Library) -> None:
         stored = await make_one(client, "/users/1/searches", SEARCH)
 
         await post(client, "/users/1/searches", [{**stored, "deleted": 1}])
@@ -203,7 +205,7 @@ class TestTrashingASearch:
         assert fetched.json()["data"]["deleted"] == 1
 
     async def test_a_trashed_search_stays_in_the_listing(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await make_one(client, "/users/1/searches", SEARCH)
         await post(client, "/users/1/searches", [{**stored, "deleted": 1}])
@@ -213,7 +215,7 @@ class TestTrashingASearch:
         assert [entry["key"] for entry in listing.json()] == [stored["key"]]
 
     async def test_it_can_be_taken_out_of_the_trash(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await make_one(client, "/users/1/searches", SEARCH)
         trashed = await post(client, "/users/1/searches", [{**stored, "deleted": 1}])
@@ -225,7 +227,7 @@ class TestTrashingASearch:
         assert "deleted" not in fetched.json()["data"]
 
     async def test_trashing_is_not_an_unchanged_write(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await make_one(client, "/users/1/searches", SEARCH)
 
@@ -236,7 +238,7 @@ class TestTrashingASearch:
 
 class TestTrashedItemsAreUnaffected:
     async def test_the_items_listing_still_hides_the_trash(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Items are the one type with real trash semantics upstream -- a
         # separate endpoint and an includeTrashed parameter -- so nothing here
@@ -249,7 +251,7 @@ class TestTrashedItemsAreUnaffected:
         assert [entry["key"] for entry in listing.json()] == ["AAAA2345"]
 
     async def test_the_trash_endpoint_still_shows_them(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="BBBB2345", deleted=True)
 

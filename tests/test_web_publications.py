@@ -15,7 +15,7 @@ combinations of answers can arrive at all.
 import re
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,12 +32,12 @@ LICENSES_TS = (
 )
 
 
-async def personal_library(client: httpx.AsyncClient) -> int:
+async def personal_library(client: httpx2.AsyncClient) -> int:
     return int((await client.get("/web/libraries")).json()[0]["id"])
 
 
 @pytest.fixture
-async def ada(client: httpx.AsyncClient) -> httpx.AsyncClient:
+async def ada(client: httpx2.AsyncClient) -> httpx2.AsyncClient:
     """One account, signed in, with its personal library."""
     assert (await register(client)).status_code == 201
     return client
@@ -49,7 +49,7 @@ async def api_key(session: AsyncSession, name: str = "seed") -> str:
 
 
 async def seed_work(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     session: AsyncSession,
     *,
     rights: str = "",
@@ -128,8 +128,8 @@ async def seed_work(
 
 
 async def publish(
-    client: httpx.AsyncClient, library_id: int, key: str, **terms: object
-) -> httpx.Response:
+    client: httpx2.AsyncClient, library_id: int, key: str, **terms: object
+) -> httpx2.Response:
     return await client.put(
         f"/web/libraries/{library_id}/publications/items/{key}",
         json=terms,
@@ -137,20 +137,20 @@ async def publish(
     )
 
 
-async def unpublish(client: httpx.AsyncClient, library_id: int, key: str) -> httpx.Response:
+async def unpublish(client: httpx2.AsyncClient, library_id: int, key: str) -> httpx2.Response:
     return await client.delete(
         f"/web/libraries/{library_id}/publications/items/{key}",
         headers=csrf_headers(client),
     )
 
 
-async def published(client: httpx.AsyncClient, library_id: int) -> list[str]:
+async def published(client: httpx2.AsyncClient, library_id: int) -> list[str]:
     """The keys the My Publications view of the library holds."""
     payload = (await client.get(f"/web/libraries/{library_id}/items?scope=publications")).json()
     return [entry["key"] for entry in payload["items"]]
 
 
-async def fetched(client: httpx.AsyncClient, library_id: int, key: str) -> dict[str, object]:
+async def fetched(client: httpx2.AsyncClient, library_id: int, key: str) -> dict[str, object]:
     data: dict[str, object] = (await client.get(f"/web/libraries/{library_id}/items/{key}")).json()[
         "data"
     ]
@@ -159,7 +159,7 @@ async def fetched(client: httpx.AsyncClient, library_id: int, key: str) -> dict[
 
 class TestPublishingAWork:
     async def test_the_item_is_flagged_and_answered_with(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, _ = await seed_work(ada, session)
@@ -171,7 +171,7 @@ class TestPublishingAWork:
         assert await published(ada, library_id) == [book]
 
     async def test_one_request_is_one_new_library_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """However many items it touches: the work and its children are one act."""
         library_id = await personal_library(ada)
@@ -186,7 +186,7 @@ class TestPublishingAWork:
             assert (await fetched(ada, library_id, key))["version"] == version
 
     async def test_the_children_stay_behind_unless_they_were_asked_for(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, children = await seed_work(ada, session, with_note=True, with_file=True)
@@ -198,7 +198,7 @@ class TestPublishingAWork:
         assert "inPublications" not in await fetched(ada, library_id, children["file"])
 
     async def test_including_notes_takes_the_notes(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, children = await seed_work(ada, session, with_note=True, with_file=True)
@@ -209,7 +209,7 @@ class TestPublishingAWork:
         assert "inPublications" not in await fetched(ada, library_id, children["file"])
 
     async def test_including_files_takes_the_stored_attachments(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, children = await seed_work(ada, session, with_note=True, with_file=True)
@@ -220,7 +220,7 @@ class TestPublishingAWork:
         assert "inPublications" not in await fetched(ada, library_id, children["note"])
 
     async def test_a_link_attachment_goes_whatever_was_asked(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """``copyOptions.childLinks = true`` on the client's own drop, always.
 
@@ -235,7 +235,7 @@ class TestPublishingAWork:
         assert (await fetched(ada, library_id, children["link"]))["inPublications"] is True
 
     async def test_a_linked_file_never_goes(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The server does not hold its bytes, so it could not publish them."""
         library_id = await personal_library(ada)
@@ -248,7 +248,7 @@ class TestPublishingAWork:
         assert (await fetched(ada, library_id, children["file"]))["inPublications"] is True
 
     async def test_a_child_can_be_published_on_its_own(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The desktop's "Show in My Publications" for a child left behind."""
         library_id = await personal_library(ada)
@@ -266,7 +266,7 @@ class TestPublishingAWork:
 
 class TestTheLicence:
     async def test_the_chosen_licence_is_written_into_rights(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, _ = await seed_work(ada, session)
@@ -278,7 +278,7 @@ class TestTheLicence:
         )
 
     async def test_keeping_the_rights_field_leaves_what_is_there(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, _ = await seed_work(ada, session, rights="© 1974 the author")
@@ -288,7 +288,7 @@ class TestTheLicence:
         assert (await fetched(ada, library_id, book))["rights"] == "© 1974 the author"
 
     async def test_not_keeping_it_replaces_what_is_there(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, _ = await seed_work(ada, session, rights="© 1974 the author")
@@ -300,7 +300,7 @@ class TestTheLicence:
         )
 
     async def test_keeping_it_still_fills_an_empty_field(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """``!options.keepRights || !item.getField('rights')`` -- either one."""
         library_id = await personal_library(ada)
@@ -313,7 +313,7 @@ class TestTheLicence:
         )
 
     async def test_no_licence_leaves_the_field_alone(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Publishing without files licenses nothing, and says nothing."""
         library_id = await personal_library(ada)
@@ -324,7 +324,7 @@ class TestTheLicence:
         assert (await fetched(ada, library_id, book))["rights"] == "© 1974 the author"
 
     async def test_a_licence_nobody_offers_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Otherwise the browser writes free text into a published item's rights."""
         library_id = await personal_library(ada)
@@ -341,7 +341,7 @@ class TestTheLicence:
 
 class TestTakingItOutAgain:
     async def test_the_item_and_its_children_come_out_together(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, _ = await seed_work(ada, session, with_note=True, with_file=True)
@@ -353,7 +353,7 @@ class TestTakingItOutAgain:
         assert await published(ada, library_id) == []
 
     async def test_a_trashed_child_comes_out_too_and_stays_trashed(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A published note somebody trashed is still published until this."""
         library_id = await personal_library(ada)
@@ -372,7 +372,7 @@ class TestTakingItOutAgain:
         assert note["deleted"] == 1
 
     async def test_the_item_itself_is_untouched_otherwise(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Unpublishing is not deleting: everything else stays where it was."""
         library_id = await personal_library(ada)
@@ -385,7 +385,7 @@ class TestTakingItOutAgain:
         assert (await fetched(ada, library_id, children["note"]))["parentItem"] == book
 
     async def test_an_item_that_was_never_published_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, _ = await seed_work(ada, session)
@@ -398,7 +398,7 @@ class TestTakingItOutAgain:
 
 class TestWhoMayPublish:
     async def test_a_group_library_has_no_my_publications(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         group = await factories.make_group(
             session, group_id=50, owner_id=1, members={}, name="Whale Watchers"
@@ -412,7 +412,7 @@ class TestWhoMayPublish:
         assert response.json()["message"] == "Group items cannot be added to My Publications"
 
     async def test_nobody_publishes_into_someone_elses_library(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """My Publications is one person's, and so is the library behind it."""
         grace = await admin.create_user(session, username="grace")
@@ -426,7 +426,7 @@ class TestWhoMayPublish:
         assert response.status_code == 403
 
     async def test_the_csrf_token_is_required(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         book, _ = await seed_work(ada, session)
@@ -436,7 +436,7 @@ class TestWhoMayPublish:
         assert response.status_code == 403
 
     async def test_the_v3_publications_endpoint_still_refuses_writes(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The public listing is to read. Nothing here opened it for writing."""
         key = await api_key(session, name="v3")

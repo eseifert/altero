@@ -1,6 +1,6 @@
 """Full-text content of attachments."""
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +25,7 @@ async def library(session: AsyncSession) -> Library:
 
 class TestStoringContent:
     async def test_content_round_trips(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -44,7 +44,7 @@ class TestStoringContent:
         }
 
     async def test_statistics_the_client_omits_are_not_invented(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -58,7 +58,7 @@ class TestStoringContent:
         assert set(body) == {"content", "indexedChars", "totalChars"}
 
     async def test_content_can_be_replaced(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -73,7 +73,7 @@ class TestStoringContent:
         assert body["content"] == "second"
 
     async def test_storing_advances_the_library_version(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -84,7 +84,7 @@ class TestStoringContent:
         assert response.headers["Last-Modified-Version"] == "11"
 
     async def test_a_body_without_content_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -95,7 +95,7 @@ class TestStoringContent:
         assert response.status_code == 400
 
     async def test_an_unknown_item_is_a_404(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.put(
             "/users/1/items/ZZZZ2345/fulltext", headers=JSON, json={"content": "t"}
@@ -104,7 +104,7 @@ class TestStoringContent:
         assert response.status_code == 404
 
     async def test_writing_requires_write_permission(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_user(session, user_id=2, username="reader")
         await make_api_key(session, key="READONLY", user_id=2, library_write=False)
@@ -122,7 +122,7 @@ class TestStoringContent:
 
 class TestReading:
     async def test_an_item_without_content_is_a_404(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -133,12 +133,12 @@ class TestReading:
 
 class TestVersionIndex:
     async def test_the_index_is_empty_to_begin_with(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/fulltext", headers=AUTH)).json() == {}
 
     async def test_the_index_reports_every_indexed_item(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         await make_item(session, library, key="BBBB2345", item_type="attachment")
@@ -150,7 +150,7 @@ class TestVersionIndex:
         assert body == {"AAAA2345": 11, "BBBB2345": 12}
 
     async def test_since_filters_the_index(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         await make_item(session, library, key="BBBB2345", item_type="attachment")
@@ -162,7 +162,7 @@ class TestVersionIndex:
         assert body == {"BBBB2345": 12}
 
     async def test_an_unreadable_since_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/fulltext?since=abc", headers=AUTH)).status_code == 400
 
@@ -178,7 +178,7 @@ class TestBatchUpload:
     """
 
     async def test_a_batch_is_stored(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         await make_item(session, library, key="BBBB2345", item_type="attachment")
@@ -199,7 +199,7 @@ class TestBatchUpload:
         assert body["successful"]["1"]["key"] == "BBBB2345"
 
     async def test_the_content_is_readable_afterwards(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -214,7 +214,7 @@ class TestBatchUpload:
         assert body["indexedChars"] == 16
 
     async def test_successful_entries_carry_a_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The client does results[state][index].key; a bare string would leave
         # it looking up an item by undefined.
@@ -232,7 +232,7 @@ class TestBatchUpload:
         assert "key" in body["successful"]["0"]
 
     async def test_an_unknown_item_fails_that_entry_only(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -252,7 +252,7 @@ class TestBatchUpload:
         assert body["failed"]["1"]["key"] == "ZZZZ2345"
 
     async def test_an_entry_without_a_key_fails(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -266,7 +266,7 @@ class TestBatchUpload:
         assert "key" in body["failed"]["0"]["message"].lower()
 
     async def test_the_version_advances_once_for_the_whole_batch(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         await make_item(session, library, key="BBBB2345", item_type="attachment")
@@ -283,7 +283,7 @@ class TestBatchUpload:
         assert response.headers["Last-Modified-Version"] == "11"
 
     async def test_a_missing_version_header_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -294,7 +294,7 @@ class TestBatchUpload:
         assert response.status_code == 428
 
     async def test_a_stale_version_header_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The client expects 412 here and retries the whole sync.
         await make_item(session, library, key="AAAA2345", item_type="attachment")
@@ -308,7 +308,7 @@ class TestBatchUpload:
         assert response.status_code == 412
 
     async def test_uploading_requires_write_permission(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_user(session, user_id=2, username="reader")
         await make_api_key(session, key="READONLY", user_id=2, library_write=False)
@@ -343,13 +343,13 @@ class TestSearching:
         await index_fulltext(session, library, pdf, "Call me Ishmael. The Pequod sailed.")
         return parent
 
-    async def test_stored_text_is_searched(self, client: httpx.AsyncClient, article: Item) -> None:
+    async def test_stored_text_is_searched(self, client: httpx2.AsyncClient, article: Item) -> None:
         response = await client.get("/users/1/items?q=Pequod&qmode=everything", headers=AUTH)
 
         assert [item["key"] for item in response.json()] == ["CHILD2345"]
 
     async def test_the_default_mode_does_not_search_it(
-        self, client: httpx.AsyncClient, article: Item
+        self, client: httpx2.AsyncClient, article: Item
     ) -> None:
         # titleCreatorYear is the item's own metadata and nothing else, so a
         # word that appears only in the PDF must not match.
@@ -358,7 +358,7 @@ class TestSearching:
         assert response.json() == []
 
     async def test_a_match_in_top_mode_answers_with_the_parent(
-        self, client: httpx.AsyncClient, article: Item
+        self, client: httpx2.AsyncClient, article: Item
     ) -> None:
         # The attachment is never top-level, so the hit is only useful if it
         # surfaces the item it hangs under -- which is the scope the web
@@ -368,7 +368,7 @@ class TestSearching:
         assert [item["key"] for item in response.json()] == ["PARENT234"]
 
     async def test_the_parent_is_answered_once_however_many_children_match(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library, article: Item
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library, article: Item
     ) -> None:
         second = await make_item(
             session, library, key="CHILD3456", item_type="attachment", parent=article
@@ -380,7 +380,7 @@ class TestSearching:
         assert [item["key"] for item in response.json()] == ["PARENT234"]
 
     async def test_text_in_another_library_is_not_reached(
-        self, client: httpx.AsyncClient, session: AsyncSession, article: Item
+        self, client: httpx2.AsyncClient, session: AsyncSession, article: Item
     ) -> None:
         await make_user(session, user_id=2, username="other")
         elsewhere = await get_library(session, LibraryType.USER, 2)
@@ -392,7 +392,7 @@ class TestSearching:
         assert [item["key"] for item in response.json()] == ["CHILD2345"]
 
     async def test_a_trashed_parent_is_not_surfaced(
-        self, client: httpx.AsyncClient, session: AsyncSession, article: Item
+        self, client: httpx2.AsyncClient, session: AsyncSession, article: Item
     ) -> None:
         # Upstream joins deletedItems a second time on the top-level item for
         # exactly this, so a hit inside a trashed item's PDF stays out of the
@@ -405,7 +405,7 @@ class TestSearching:
         assert response.json() == []
 
     async def test_an_annotation_surfaces_its_grandparent(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library, article: Item
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library, article: Item
     ) -> None:
         # item -> attachment -> annotation is as deep as Zotero goes, and /top
         # has to climb all of it.
@@ -426,7 +426,7 @@ class TestSearching:
         assert [item["key"] for item in response.json()] == ["PARENT234"]
 
     async def test_every_word_of_a_query_must_match(
-        self, client: httpx.AsyncClient, article: Item
+        self, client: httpx2.AsyncClient, article: Item
     ) -> None:
         # Upstream emits one `AND (...)` per part, so both words are required.
         both = await client.get("/users/1/items?q=Ishmael Pequod&qmode=everything", headers=AUTH)
@@ -438,7 +438,7 @@ class TestSearching:
         assert missing.json() == []
 
     async def test_words_do_not_combine_across_a_parent_and_its_child(
-        self, client: httpx.AsyncClient, article: Item
+        self, client: httpx2.AsyncClient, article: Item
     ) -> None:
         # Every part is applied to the same row, so a word from the parent's
         # title and a word from the child's text do not add up to a match, even
@@ -455,7 +455,7 @@ class TestSearching:
         assert [item["key"] for item in title_alone.json()] == ["PARENT234"]
 
     async def test_a_quoted_phrase_stays_one_part(
-        self, client: httpx.AsyncClient, article: Item
+        self, client: httpx2.AsyncClient, article: Item
     ) -> None:
         # Quoted, the words have to be adjacent; unquoted they need not be.
         phrase = await client.get('/users/1/items?q="me Ishmael"&qmode=everything', headers=AUTH)
@@ -467,7 +467,7 @@ class TestSearching:
         assert reversed_phrase.json() == []
 
     async def test_case_is_ignored(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # ASCII only, deliberately. Whether `CAFÉ` reaches `café` depends on
         # whether the SQLite in use was built with ICU -- `lower()` is
@@ -484,7 +484,7 @@ class TestSearching:
         assert await search("ferm") == ["ACCENT234"]
 
     async def test_accents_are_not_folded(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Upstream's index carries no `asciifolding` filter, so its search is
         # accent-sensitive too and `cafe` does not reach `café`. The Zotero 9
@@ -504,7 +504,7 @@ class TestSearching:
         assert await search("cafe") == []
 
     async def test_cjk_text_matches_as_a_phrase(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Matching characters rather than words means adjacency is required,
         # which is what a reader of Chinese or Japanese wants and what the

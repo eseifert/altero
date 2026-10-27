@@ -1,6 +1,6 @@
 """Items edited in the browser reach both desktops, and a desktop's edit wins a race."""
 
-import httpx
+import httpx2
 from sqlalchemy import select
 
 from altero.models import Library, User
@@ -53,7 +53,7 @@ async def web_editing(run: AcceptanceRun) -> None:
         assert library is not None
         library_id = library.id
 
-    async with httpx.AsyncClient(
+    async with httpx2.AsyncClient(
         base_url=f"{run.server.url}/web/libraries/{library_id}",
         cookies={"altero_session": token, "altero_csrf": "acceptance-csrf"},
         headers={"X-CSRF-Token": "acceptance-csrf"},

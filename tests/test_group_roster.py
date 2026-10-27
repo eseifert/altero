@@ -14,7 +14,7 @@ tests checked, and they passed while every member of every group but its owner
 synced a read-only library. Found by @alpichlabs in PR #14.
 """
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy import select
@@ -52,7 +52,7 @@ def client_permissions(data: dict, user_id: int) -> tuple[bool, bool]:
     return False, False
 
 
-async def bobs_view(client: httpx.AsyncClient, source: str) -> dict:
+async def bobs_view(client: httpx2.AsyncClient, source: str) -> dict:
     response = await client.get(source, headers=AS_BOB)
     assert response.status_code == 200, response.text
     body = response.json()
@@ -79,7 +79,7 @@ async def set_policy(session: AsyncSession, library: Library, **values: str) -> 
 @pytest.mark.parametrize("source", SOURCES)
 class TestWhatTheClientDecides:
     async def test_a_member_may_edit_a_group_open_to_its_members(
-        self, people, session: AsyncSession, client: httpx.AsyncClient, source: str
+        self, people, session: AsyncSession, client: httpx2.AsyncClient, source: str
     ) -> None:
         """The ordinary case, and the one that was broken."""
         await make_group(session, owner_id=1, members={2: "member"})
@@ -87,7 +87,7 @@ class TestWhatTheClientDecides:
         assert client_permissions(await bobs_view(client, source), 2) == (True, True)
 
     async def test_an_administrator_may_edit_a_group_reserved_to_administrators(
-        self, people, session: AsyncSession, client: httpx.AsyncClient, source: str
+        self, people, session: AsyncSession, client: httpx2.AsyncClient, source: str
     ) -> None:
         library = await make_group(session, owner_id=1, members={2: "admin"})
         await set_policy(session, library, library_editing="admins", file_editing="admins")
@@ -95,7 +95,7 @@ class TestWhatTheClientDecides:
         assert client_permissions(await bobs_view(client, source), 2) == (True, True)
 
     async def test_a_member_may_not_edit_a_group_reserved_to_administrators(
-        self, people, session: AsyncSession, client: httpx.AsyncClient, source: str
+        self, people, session: AsyncSession, client: httpx2.AsyncClient, source: str
     ) -> None:
         library = await make_group(session, owner_id=1, members={2: "member"})
         await set_policy(session, library, library_editing="admins")
@@ -103,7 +103,7 @@ class TestWhatTheClientDecides:
         assert client_permissions(await bobs_view(client, source), 2) == (False, False)
 
     async def test_a_member_may_edit_but_not_upload_where_files_are_reserved(
-        self, people, session: AsyncSession, client: httpx.AsyncClient, source: str
+        self, people, session: AsyncSession, client: httpx2.AsyncClient, source: str
     ) -> None:
         library = await make_group(session, owner_id=1, members={2: "member"})
         await set_policy(session, library, file_editing="admins")
@@ -111,7 +111,7 @@ class TestWhatTheClientDecides:
         assert client_permissions(await bobs_view(client, source), 2) == (True, False)
 
     async def test_a_member_held_to_reading_may_not_edit(
-        self, people, session: AsyncSession, client: httpx.AsyncClient, source: str
+        self, people, session: AsyncSession, client: httpx2.AsyncClient, source: str
     ) -> None:
         """The per-member restriction, said through ``libraryEditing``.
 
@@ -129,7 +129,7 @@ class TestWhatTheClientDecides:
 
 class TestTheRoster:
     async def test_the_owner_is_not_listed_among_the_administrators(
-        self, people, session: AsyncSession, client: httpx.AsyncClient
+        self, people, session: AsyncSession, client: httpx2.AsyncClient
     ) -> None:
         """altero stores the owner as an admin; upstream as a role of its own.
 
@@ -143,7 +143,7 @@ class TestTheRoster:
         assert (data["owner"], data["admins"], data["members"]) == (1, [2], [3])
 
     async def test_an_empty_role_is_left_out(
-        self, people, session: AsyncSession, client: httpx.AsyncClient
+        self, people, session: AsyncSession, client: httpx2.AsyncClient
     ) -> None:
         """``toJSON`` writes each array only ``if ($admins)``."""
         await make_group(session, owner_id=1)
@@ -155,7 +155,7 @@ class TestTheRoster:
 
     @pytest.mark.parametrize("headers", [{}, AS_CAROL], ids=["anonymous", "stranger"])
     async def test_somebody_outside_a_public_group_is_not_told_who_is_in_it(
-        self, people, session: AsyncSession, client: httpx.AsyncClient, headers: dict
+        self, people, session: AsyncSession, client: httpx2.AsyncClient, headers: dict
     ) -> None:
         """altero's decision, not upstream's, which hands anyone the ids.
 
@@ -176,7 +176,7 @@ class TestTheRoster:
         assert "members" not in response.json()["data"]
 
     async def test_what_was_read_can_be_written_back(
-        self, people, session: AsyncSession, client: httpx.AsyncClient
+        self, people, session: AsyncSession, client: httpx2.AsyncClient
     ) -> None:
         """The roster is reported, never written through the group's metadata."""
         await make_group(session, owner_id=1, members={2: "member"})
@@ -193,7 +193,7 @@ class TestTheRoster:
         )
 
     async def test_listing_more_groups_costs_no_more_queries(
-        self, people, session: AsyncSession, client: httpx.AsyncClient, app: FastAPI
+        self, people, session: AsyncSession, client: httpx2.AsyncClient, app: FastAPI
     ) -> None:
         """Every sync starts with this listing, so the rosters come in one go."""
         await make_group(session, group_id=100, owner_id=1, members={2: "member"})

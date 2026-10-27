@@ -1,6 +1,6 @@
 """The streaming API.
 
-Driven through Starlette's test client rather than the ``httpx`` one the rest
+Driven through Starlette's test client rather than the ``httpx2`` one the rest
 of the suite uses, because only that one speaks WebSocket. It runs the
 application in a thread of its own, so a write made through it and the socket
 watching for that write are genuinely concurrent -- which is the thing worth

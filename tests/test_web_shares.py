@@ -24,7 +24,7 @@ the library rather than a use of it.
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,7 +35,7 @@ from tests import factories
 from tests.test_web_routes import PASSWORD, csrf_headers, register
 
 
-async def sign_in_as(client: httpx.AsyncClient, session: AsyncSession, username: str) -> User:
+async def sign_in_as(client: httpx2.AsyncClient, session: AsyncSession, username: str) -> User:
     """Put another account on this instance and sign the browser in as it.
 
     Not `register`: registration closes once an account exists, so every
@@ -54,18 +54,18 @@ async def sign_in_as(client: httpx.AsyncClient, session: AsyncSession, username:
     return user
 
 
-async def personal_library(client: httpx.AsyncClient) -> int:
+async def personal_library(client: httpx2.AsyncClient) -> int:
     return int((await client.get("/web/libraries")).json()[0]["id"])
 
 
 @pytest.fixture
-async def ada(client: httpx.AsyncClient) -> httpx.AsyncClient:
+async def ada(client: httpx2.AsyncClient) -> httpx2.AsyncClient:
     """One account, signed in, with its personal library."""
     assert (await register(client)).status_code == 201
     return client
 
 
-async def make_collection(client: httpx.AsyncClient, library_id: int, name: str) -> str:
+async def make_collection(client: httpx2.AsyncClient, library_id: int, name: str) -> str:
     response = await client.post(
         f"/web/libraries/{library_id}/collections",
         json={"name": name},
@@ -76,7 +76,7 @@ async def make_collection(client: httpx.AsyncClient, library_id: int, name: str)
 
 
 async def share(
-    client: httpx.AsyncClient, library_id: int, collection_key: str, **terms: object
+    client: httpx2.AsyncClient, library_id: int, collection_key: str, **terms: object
 ) -> dict:
     response = await client.post(
         f"/web/libraries/{library_id}/collections/{collection_key}/shares",
@@ -94,7 +94,7 @@ def token_of(created: dict) -> str:
 
 class TestMakingALink:
     async def test_a_link_is_made_and_answers_with_its_url_once(
-        self, ada: httpx.AsyncClient
+        self, ada: httpx2.AsyncClient
     ) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
@@ -104,7 +104,7 @@ class TestMakingALink:
         assert created["url"].startswith("http://testserver/app/shared/")
         assert created["collection"] == key
 
-    async def test_the_token_is_never_answered_again(self, ada: httpx.AsyncClient) -> None:
+    async def test_the_token_is_never_answered_again(self, ada: httpx2.AsyncClient) -> None:
         """It is not stored anywhere it can be read back, and the list says so
         by not carrying it."""
         library_id = await personal_library(ada)
@@ -117,7 +117,7 @@ class TestMakingALink:
         assert "url" not in listing["shares"][0]
         assert "token" not in listing["shares"][0]
 
-    async def test_no_library_version_moves(self, ada: httpx.AsyncClient) -> None:
+    async def test_no_library_version_moves(self, ada: httpx2.AsyncClient) -> None:
         """A share changes no object, so telling every syncing client that
         something happened would be a lie to all of them."""
         library_id = await personal_library(ada)
@@ -128,7 +128,7 @@ class TestMakingALink:
 
         assert (await ada.get("/web/libraries")).json()[0]["version"] == before
 
-    async def test_a_csrf_token_is_required(self, ada: httpx.AsyncClient) -> None:
+    async def test_a_csrf_token_is_required(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
 
@@ -137,7 +137,7 @@ class TestMakingALink:
         assert response.status_code == 403
 
     async def test_a_trashed_collection_cannot_be_shared(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
@@ -158,7 +158,7 @@ class TestMakingALink:
 
 class TestWhoMayShare:
     async def test_a_stranger_cannot_share_from_somebody_elses_library(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         assert (await register(client, "ada")).status_code == 201
         library_id = await personal_library(client)
@@ -175,7 +175,7 @@ class TestWhoMayShare:
         assert response.status_code == 403
 
     async def test_a_read_only_group_member_cannot_share(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Giving a collection away is a decision about the library."""
         assert (await register(client, "ada")).status_code == 201
@@ -206,7 +206,7 @@ class TestWhoMayShare:
 
 
 class TestReadingOne:
-    async def test_the_page_describes_the_collection(self, ada: httpx.AsyncClient) -> None:
+    async def test_the_page_describes_the_collection(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
         token = token_of(await share(ada, library_id, key))
@@ -217,7 +217,7 @@ class TestReadingOne:
         assert body["numItems"] == 0
 
     async def test_it_answers_with_no_cookie_at_all(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The point of a link: it can be sent to somebody with no account."""
         assert (await register(client, "ada")).status_code == 201
@@ -231,7 +231,7 @@ class TestReadingOne:
         assert response.status_code == 200
 
     async def test_the_items_of_the_collection_are_listed(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
@@ -248,7 +248,7 @@ class TestReadingOne:
         assert [entry["data"]["title"] for entry in listing["items"]] == ["Inside"]
 
     async def test_the_trash_is_never_shown(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A shared collection is somebody's reading list, and what they threw
         away is not on it."""
@@ -270,7 +270,7 @@ class TestReadingOne:
 
 class TestHowMuchOfTheTree:
     async def test_the_branch_comes_along_by_default(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         parent = await make_collection(ada, library_id, "Papers")
@@ -287,7 +287,7 @@ class TestHowMuchOfTheTree:
         assert [entry["data"]["title"] for entry in listing["items"]] == ["Nested"]
 
     async def test_one_collection_alone_can_be_shared(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         parent = await make_collection(ada, library_id, "Papers")
@@ -304,7 +304,7 @@ class TestHowMuchOfTheTree:
         assert listing["items"] == []
 
     async def test_the_nested_collections_are_listed_for_the_page(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         parent = await make_collection(ada, library_id, "Papers")
@@ -319,7 +319,7 @@ class TestHowMuchOfTheTree:
         assert [entry["data"]["name"] for entry in body["collections"]] == ["Drafts"]
 
     async def test_a_collection_outside_the_share_cannot_be_asked_for(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The one parameter that narrows anything is resolved against the
         subtree, so it is never a way out of it."""
@@ -342,7 +342,7 @@ class TestFiles:
     """
 
     async def attach(
-        self, client: httpx.AsyncClient, session: AsyncSession, library_id: int, key: str
+        self, client: httpx2.AsyncClient, session: AsyncSession, library_id: int, key: str
     ) -> str:
         """An attachment in the shared collection, with real bytes behind it.
 
@@ -386,7 +386,7 @@ class TestFiles:
         return str(created["key"])
 
     async def test_a_link_that_carries_files_serves_the_bytes(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         from tests.test_files import CONTENT
 
@@ -401,7 +401,7 @@ class TestFiles:
         assert response.content == CONTENT
 
     async def test_a_metadata_only_link_refuses_the_bytes(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
@@ -413,7 +413,7 @@ class TestFiles:
         assert response.status_code == 404
 
     async def test_the_item_is_still_described(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """An item whose PDF is not on offer still has one, and a page that hid
         it would be describing a different item than the library holds."""
@@ -429,7 +429,7 @@ class TestFiles:
 
 
 class TestWhenALinkStopsWorking:
-    async def test_a_revoked_link_is_gone(self, ada: httpx.AsyncClient) -> None:
+    async def test_a_revoked_link_is_gone(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
         created = await share(ada, library_id, key)
@@ -440,7 +440,7 @@ class TestWhenALinkStopsWorking:
         assert (await ada.get(f"/web/shared/{token_of(created)}")).status_code == 404
 
     async def test_an_expired_link_is_gone(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
@@ -454,7 +454,7 @@ class TestWhenALinkStopsWorking:
         assert (await ada.get(f"/web/shared/{token_of(created)}")).status_code == 404
 
     async def test_a_trashed_collection_is_the_same_answer(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Somebody clearing out their library should not leave a page behind."""
         library_id = await personal_library(ada)
@@ -470,12 +470,12 @@ class TestWhenALinkStopsWorking:
         assert (await ada.get(f"/web/shared/{token_of(created)}")).status_code == 404
 
     async def test_a_token_that_never_was_is_the_same_answer(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         assert (await client.get("/web/shared/nothing-like-a-real-token")).status_code == 404
 
     async def test_deleting_the_collection_takes_its_links(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A link to something that no longer exists must stop existing at the
         moment the thing it pointed at did."""
@@ -491,7 +491,7 @@ class TestWhenALinkStopsWorking:
         assert (await ada.get(f"/web/shared/{token_of(created)}")).status_code == 404
         assert await session.scalar(select(CollectionShare)) is None
 
-    async def test_an_expiry_in_the_past_is_refused(self, ada: httpx.AsyncClient) -> None:
+    async def test_an_expiry_in_the_past_is_refused(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
 
@@ -505,7 +505,7 @@ class TestWhenALinkStopsWorking:
 
 
 class TestChangingOne:
-    async def test_the_terms_can_be_narrowed(self, ada: httpx.AsyncClient) -> None:
+    async def test_the_terms_can_be_narrowed(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)
         key = await make_collection(ada, library_id, "Papers")
         created = await share(ada, library_id, key)
@@ -517,7 +517,7 @@ class TestChangingOne:
         assert response.status_code == 200
         assert response.json()["files"] is False
 
-    async def test_an_expiry_can_be_cleared(self, ada: httpx.AsyncClient) -> None:
+    async def test_an_expiry_can_be_cleared(self, ada: httpx2.AsyncClient) -> None:
         """`null` cannot be told from "not mentioned" in a partial write, so
         clearing one is said in a word."""
         library_id = await personal_library(ada)
@@ -534,7 +534,7 @@ class TestChangingOne:
 
 class TestTheV3ApiIsUntouched:
     async def test_no_key_reaches_a_share(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The whole reason this is a page and not a permission."""
         await factories.make_user(session)
@@ -549,7 +549,7 @@ class TestTheV3ApiIsUntouched:
 
 class TestTheCostOfALink:
     async def test_reading_through_a_link_counts_nothing(
-        self, app: Any, ada: httpx.AsyncClient, session: AsyncSession
+        self, app: Any, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Whether a link reaches an item is a membership test, not a listing with a total."""
         from tests.test_query_counts import capture_sql
@@ -568,7 +568,7 @@ class TestTheCostOfALink:
         assert not totals, "\n\n".join(totals)
 
     async def test_listing_links_reads_their_collections_once(
-        self, app: Any, ada: httpx.AsyncClient
+        self, app: Any, ada: httpx2.AsyncClient
     ) -> None:
         from tests.test_query_counts import capture_sql
 

@@ -1,6 +1,6 @@
 """The original API client must accept altero's sync watermark and response body."""
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,7 +24,7 @@ async def library(session: AsyncSession) -> Library:
     return library
 
 
-def captured(response: httpx.Response) -> dict:
+def captured(response: httpx2.Response) -> dict:
     return {
         "status": response.status_code,
         "headers": dict(response.headers),
@@ -33,7 +33,7 @@ def captured(response: httpx.Response) -> dict:
 
 
 async def test_a_version_listing_is_accepted_by_the_desktop_client(
-    library: Library, client: httpx.AsyncClient, zotero_client: ZoteroClient
+    library: Library, client: httpx2.AsyncClient, zotero_client: ZoteroClient
 ) -> None:
     response = await client.get("/users/1/items?format=versions", headers=AUTH)
     assert response.status_code == 200
@@ -47,7 +47,7 @@ async def test_a_version_listing_is_accepted_by_the_desktop_client(
 
 
 async def test_the_desktop_client_rejects_a_missing_watermark(
-    library: Library, client: httpx.AsyncClient, zotero_client: ZoteroClient
+    library: Library, client: httpx2.AsyncClient, zotero_client: ZoteroClient
 ) -> None:
     response = await client.get("/users/1/items?format=versions", headers=AUTH)
     assert response.status_code == 200
@@ -59,7 +59,7 @@ async def test_the_desktop_client_rejects_a_missing_watermark(
 
 
 async def test_an_unchanged_library_is_accepted_without_a_body(
-    library: Library, client: httpx.AsyncClient, zotero_client: ZoteroClient
+    library: Library, client: httpx2.AsyncClient, zotero_client: ZoteroClient
 ) -> None:
     response = await client.get(
         "/users/1/items?format=versions", headers=AUTH | {"If-Modified-Since-Version": "7"}

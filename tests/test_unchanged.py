@@ -13,7 +13,7 @@ send it straight back, which is what a client does out of its sync cache.
 
 from typing import Any, ClassVar
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -37,14 +37,14 @@ async def library(session: AsyncSession) -> Library:
 
 
 async def send(
-    client: httpx.AsyncClient, path: str, payload: list[dict[str, Any]]
-) -> httpx.Response:
+    client: httpx2.AsyncClient, path: str, payload: list[dict[str, Any]]
+) -> httpx2.Response:
     return await client.post(path, headers=JSON, json=payload)
 
 
 class TestItems:
     async def test_an_item_sent_back_verbatim_is_unchanged(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(client, "/users/1/items", [{"itemType": "book", "title": "Dune"}])
         stored = created.json()["successful"]["0"]["data"]
@@ -55,7 +55,7 @@ class TestItems:
         assert again.json()["unchanged"] == {"0": stored["key"]}
 
     async def test_an_unchanged_item_keeps_its_version(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(client, "/users/1/items", [{"itemType": "book", "title": "Dune"}])
         stored = created.json()["successful"]["0"]["data"]
@@ -66,7 +66,7 @@ class TestItems:
         assert fetched.json()["version"] == stored["version"]
 
     async def test_the_library_version_does_not_move(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # The whole point: a re-sent object that advanced the library would make
         # every other client re-download something that never changed.
@@ -79,7 +79,7 @@ class TestItems:
         assert again.headers["Last-Modified-Version"] == settled
 
     async def test_a_changed_title_is_still_written(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(client, "/users/1/items", [{"itemType": "book", "title": "Dune"}])
         stored = created.json()["successful"]["0"]["data"]
@@ -101,7 +101,7 @@ class TestItems:
         ],
     )
     async def test_a_difference_anywhere_counts_as_changed(
-        self, client: httpx.AsyncClient, library: Library, field: str, value: Any
+        self, client: httpx2.AsyncClient, library: Library, field: str, value: Any
     ) -> None:
         # Comparing only the obvious scalars would report an item unchanged
         # after its tags or its creators had been rewritten.
@@ -114,7 +114,7 @@ class TestItems:
         assert set(again.json()["successful"]) == {"0"}
 
     async def test_a_collection_move_counts_as_changed(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         collection = await send(client, "/users/1/collections", [{"name": "Fiction"}])
         collection_key = collection.json()["successful"]["0"]["data"]["key"]
@@ -128,7 +128,7 @@ class TestItems:
 
 class TestCollectionsAndSearches:
     async def test_a_collection_sent_back_verbatim_is_unchanged(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(client, "/users/1/collections", [{"name": "Fiction"}])
         stored = created.json()["successful"]["0"]["data"]
@@ -139,7 +139,7 @@ class TestCollectionsAndSearches:
         assert again.headers["Last-Modified-Version"] == "11"
 
     async def test_a_renamed_collection_is_written(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(client, "/users/1/collections", [{"name": "Fiction"}])
         stored = created.json()["successful"]["0"]["data"]
@@ -150,7 +150,7 @@ class TestCollectionsAndSearches:
         assert again.headers["Last-Modified-Version"] == "12"
 
     async def test_a_reparented_collection_is_written(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         parent = await send(client, "/users/1/collections", [{"name": "Parent"}])
         parent_key = parent.json()["successful"]["0"]["data"]["key"]
@@ -164,7 +164,7 @@ class TestCollectionsAndSearches:
         assert again.json()["unchanged"] == {}
 
     async def test_a_search_sent_back_verbatim_is_unchanged(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(
             client,
@@ -183,7 +183,7 @@ class TestCollectionsAndSearches:
         assert again.json()["unchanged"] == {"0": stored["key"]}
 
     async def test_an_edited_condition_is_written(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(
             client,
@@ -208,7 +208,7 @@ class TestCollectionsAndSearches:
 
 class TestMixedBatches:
     async def test_one_of_each_costs_exactly_one_version(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(
             client,
@@ -227,7 +227,7 @@ class TestMixedBatches:
         assert again.json()["successful"]["1"]["version"] == 12
 
     async def test_an_unchanged_object_beside_a_failure_is_still_unchanged(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await send(client, "/users/1/items", [{"itemType": "book", "title": "Dune"}])
         stored = created.json()["successful"]["0"]["data"]
@@ -249,7 +249,7 @@ class TestTheComparisonAgreesWithWriting:
 
     @pytest.fixture
     async def stored(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> dict[str, dict[str, Any]]:
         collections = await send(client, "/users/1/collections", [{"name": "One"}, {"name": "Two"}])
         keys = [entry["key"] for entry in collections.json()["successful"].values()]

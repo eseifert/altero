@@ -11,7 +11,7 @@ import asyncio
 import sqlite3
 from collections.abc import AsyncIterator, Iterator
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,7 +27,7 @@ AUTH = {"Zotero-API-Key": KEY}
 
 
 async def test_two_writes_from_one_version_cannot_both_land(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await make_user(session, user_id=1)
     await make_api_key(session, key=KEY, user_id=1)
@@ -62,10 +62,10 @@ class TestABusyDatabase:
     """
 
     @pytest.fixture
-    async def client(self, app: FastAPI) -> AsyncIterator[httpx.AsyncClient]:
+    async def client(self, app: FastAPI) -> AsyncIterator[httpx2.AsyncClient]:
         """A client that sees what a real one would: a status, not a traceback."""
-        transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
-        async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        transport = httpx2.ASGITransport(app=app, raise_app_exceptions=False)
+        async with httpx2.AsyncClient(transport=transport, base_url="http://testserver") as client:
             yield client
 
     @pytest.fixture
@@ -79,7 +79,7 @@ class TestABusyDatabase:
         holder.close()
 
     async def test_the_write_answers_503_with_retry_after(
-        self, client: httpx.AsyncClient, session: AsyncSession, held: sqlite3.Connection
+        self, client: httpx2.AsyncClient, session: AsyncSession, held: sqlite3.Connection
     ) -> None:
         await make_user(session, user_id=1)
         await make_api_key(session, key=KEY, user_id=1)
@@ -94,7 +94,7 @@ class TestABusyDatabase:
         assert retried.status_code == 200
 
     async def test_the_browser_hears_it_in_json(
-        self, client: httpx.AsyncClient, held: sqlite3.Connection
+        self, client: httpx2.AsyncClient, held: sqlite3.Connection
     ) -> None:
         from tests.test_web_routes import register
 

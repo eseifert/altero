@@ -5,7 +5,7 @@ none the deployment's own configuration supplies the value. That is what lets
 an operator keep `config.py` and still see their own numbers on the screen.
 """
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -86,14 +86,14 @@ class TestWhatIsRefused:
 
 
 class TestThroughTheBrowser:
-    async def test_an_administrator_reads_the_settings(self, client: httpx.AsyncClient) -> None:
+    async def test_an_administrator_reads_the_settings(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         body = (await client.get("/web/admin/settings")).json()
 
         assert body["settings"]["trashRetentionDays"] == 0
 
-    async def test_an_administrator_changes_one(self, client: httpx.AsyncClient) -> None:
+    async def test_an_administrator_changes_one(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.put(
@@ -106,7 +106,7 @@ class TestThroughTheBrowser:
         assert response.json()["settings"]["trashRetentionDays"] == 30
 
     async def test_a_write_without_the_csrf_token_is_refused(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -114,7 +114,7 @@ class TestThroughTheBrowser:
 
         assert response.status_code == 403
 
-    async def test_a_refused_value_says_why(self, client: httpx.AsyncClient) -> None:
+    async def test_a_refused_value_says_why(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.put(
@@ -127,7 +127,7 @@ class TestThroughTheBrowser:
         assert "negative" in response.json()["message"]
 
     async def test_it_says_what_the_configuration_would_give(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """So the screen can say a stored number is not the deployment's own."""
         await register(client)

@@ -8,7 +8,7 @@ every library and a CSRF target with the whole protocol behind it.
 
 from datetime import UTC, datetime
 
-import httpx
+import httpx2
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.services import admin, totp, webauth
@@ -19,7 +19,7 @@ PASSWORD = "correct horse battery staple"
 CSRF_HEADER = "X-CSRF-Token"
 
 
-async def register(client: httpx.AsyncClient, username: str = "ada") -> httpx.Response:
+async def register(client: httpx2.AsyncClient, username: str = "ada") -> httpx2.Response:
     return await client.post(
         "/web/auth/register",
         json={
@@ -31,14 +31,14 @@ async def register(client: httpx.AsyncClient, username: str = "ada") -> httpx.Re
     )
 
 
-def csrf_headers(client: httpx.AsyncClient) -> dict[str, str]:
+def csrf_headers(client: httpx2.AsyncClient) -> dict[str, str]:
     """Return the double-submit header matching the cookie the client holds."""
     return {CSRF_HEADER: client.cookies.get("altero_csrf") or ""}
 
 
 class TestRegistration:
     async def test_the_first_registration_succeeds_and_signs_the_browser_in(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         response = await register(client)
 
@@ -47,7 +47,7 @@ class TestRegistration:
         assert client.cookies.get("altero_session")
 
     async def test_the_session_cookie_is_not_readable_by_script(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """The token is the credential; script must not be able to lift it."""
         response = await register(client)
@@ -59,7 +59,7 @@ class TestRegistration:
         assert "httponly" in cookie
         assert "samesite=lax" in cookie
 
-    async def test_the_csrf_cookie_is_readable_by_script(self, client: httpx.AsyncClient) -> None:
+    async def test_the_csrf_cookie_is_readable_by_script(self, client: httpx2.AsyncClient) -> None:
         """It has to be, so the client can echo it back in a header."""
         response = await register(client)
 
@@ -68,7 +68,7 @@ class TestRegistration:
         ).lower()
         assert "httponly" not in cookie
 
-    async def test_a_second_registration_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_a_second_registration_is_refused(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await register(client, username="grace")
@@ -76,7 +76,7 @@ class TestRegistration:
         assert response.status_code == 403
 
     async def test_a_short_password_is_refused_with_a_readable_message(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         response = await client.post(
             "/web/auth/register",
@@ -89,7 +89,7 @@ class TestRegistration:
 
 class TestConfig:
     async def test_the_client_can_ask_whether_registration_is_open(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """So the sign-in page knows whether to offer a register link at all."""
         assert (await client.get("/web/config")).json()["registrationOpen"] is True
@@ -98,7 +98,9 @@ class TestConfig:
 
         assert (await client.get("/web/config")).json()["registrationOpen"] is False
 
-    async def test_the_config_endpoint_needs_no_credential(self, client: httpx.AsyncClient) -> None:
+    async def test_the_config_endpoint_needs_no_credential(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         response = await client.get("/web/config")
 
         assert response.status_code == 200
@@ -106,7 +108,7 @@ class TestConfig:
 
 
 class TestLogin:
-    async def test_the_right_password_signs_in(self, client: httpx.AsyncClient) -> None:
+    async def test_the_right_password_signs_in(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         client.cookies.clear()
 
@@ -118,7 +120,7 @@ class TestLogin:
         assert response.json()["needsFactor"] is None
         assert client.cookies.get("altero_session")
 
-    async def test_the_wrong_password_answers_401(self, client: httpx.AsyncClient) -> None:
+    async def test_the_wrong_password_answers_401(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         client.cookies.clear()
 
@@ -130,7 +132,7 @@ class TestLogin:
         assert not client.cookies.get("altero_session")
 
     async def test_an_unknown_user_answers_exactly_the_same(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
         client.cookies.clear()
@@ -148,7 +150,7 @@ class TestLogin:
 
 class TestSession:
     async def test_the_current_session_reports_the_signed_in_user(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -158,15 +160,15 @@ class TestSession:
         assert response.json()["user"]["username"] == "ada"
         assert response.json()["user"]["id"] == 1
 
-    async def test_no_cookie_means_401(self, client: httpx.AsyncClient) -> None:
+    async def test_no_cookie_means_401(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/auth/session")).status_code == 401
 
-    async def test_a_forged_cookie_means_401(self, client: httpx.AsyncClient) -> None:
+    async def test_a_forged_cookie_means_401(self, client: httpx2.AsyncClient) -> None:
         client.cookies.set("altero_session", "made up", domain="testserver")
 
         assert (await client.get("/web/auth/session")).status_code == 401
 
-    async def test_signing_out_ends_the_session(self, client: httpx.AsyncClient) -> None:
+    async def test_signing_out_ends_the_session(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         headers = csrf_headers(client)
 
@@ -175,7 +177,7 @@ class TestSession:
         assert response.status_code == 204
         assert (await client.get("/web/auth/session")).status_code == 401
 
-    async def test_signing_out_twice_is_not_an_error(self, client: httpx.AsyncClient) -> None:
+    async def test_signing_out_twice_is_not_an_error(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         headers = csrf_headers(client)
         await client.post("/web/auth/logout", headers=headers)
@@ -185,7 +187,7 @@ class TestSession:
 
 class TestCrossSiteRequestForgery:
     async def test_an_unsafe_request_without_the_header_is_refused(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """A form posted from another origin carries the cookie but cannot read it."""
         await register(client)
@@ -195,19 +197,19 @@ class TestCrossSiteRequestForgery:
         assert response.status_code == 403
         assert (await client.get("/web/auth/session")).status_code == 200
 
-    async def test_a_mismatched_token_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_a_mismatched_token_is_refused(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.post("/web/auth/logout", headers={CSRF_HEADER: "not it"})
 
         assert response.status_code == 403
 
-    async def test_a_safe_request_needs_no_token(self, client: httpx.AsyncClient) -> None:
+    async def test_a_safe_request_needs_no_token(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         assert (await client.get("/web/auth/session")).status_code == 200
 
-    async def test_signing_in_needs_no_token(self, client: httpx.AsyncClient) -> None:
+    async def test_signing_in_needs_no_token(self, client: httpx2.AsyncClient) -> None:
         """There is no session to forge a request against yet."""
         await register(client)
         client.cookies.clear()
@@ -221,7 +223,7 @@ class TestCrossSiteRequestForgery:
 
 class TestSecondFactor:
     async def test_a_pending_session_is_not_signed_in(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         user = await admin.get_user_by_name(session, "ada")
@@ -238,7 +240,7 @@ class TestSecondFactor:
         assert secret
 
     async def test_the_right_code_finishes_signing_in(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         user = await admin.get_user_by_name(session, "ada")
@@ -256,7 +258,7 @@ class TestSecondFactor:
         assert (await client.get("/web/auth/session")).status_code == 200
 
     async def test_the_wrong_code_answers_401_and_leaves_it_pending(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         user = await admin.get_user_by_name(session, "ada")
@@ -281,7 +283,7 @@ class TestTheV3ApiIsUntouched:
     """
 
     async def test_a_session_cookie_does_not_authenticate_a_v3_request(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -290,7 +292,7 @@ class TestTheV3ApiIsUntouched:
         assert response.status_code == 403
 
     async def test_an_api_key_still_works_untouched(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         key = await admin.create_api_key(session, username="ada", name="laptop")
@@ -300,7 +302,7 @@ class TestTheV3ApiIsUntouched:
         assert response.status_code == 200
 
     async def test_an_api_key_does_not_authenticate_a_web_request(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """And not the other way round either: the web session is its own thing."""
         await register(client)

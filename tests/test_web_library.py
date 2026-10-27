@@ -2,7 +2,7 @@
 
 from typing import Any
 
-import httpx
+import httpx2
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.services import admin
@@ -11,7 +11,7 @@ from tests.test_web_routes import csrf_headers, register
 
 
 class TestLibraries:
-    async def test_the_personal_library_is_listed(self, client: httpx.AsyncClient) -> None:
+    async def test_the_personal_library_is_listed(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.get("/web/libraries")
@@ -19,11 +19,11 @@ class TestLibraries:
         assert response.status_code == 200
         assert [library["type"] for library in response.json()] == ["user"]
 
-    async def test_it_needs_a_session(self, client: httpx.AsyncClient) -> None:
+    async def test_it_needs_a_session(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/libraries")).status_code == 401
 
     async def test_another_user_s_library_is_not_listed(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         await admin.create_user(session, username="grace")
@@ -35,7 +35,7 @@ class TestLibraries:
 
 class TestItems:
     async def test_an_empty_library_lists_nothing_and_says_so(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
         library_id = (await client.get("/web/libraries")).json()[0]["id"]
@@ -46,7 +46,7 @@ class TestItems:
         assert response.json() == {"total": 0, "libraryVersion": 0, "items": []}
 
     async def test_items_come_back_in_the_v3_shape(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Same serialiser as the sync API, so there is one idea of an item."""
         await register(client)
@@ -66,7 +66,7 @@ class TestItems:
         assert "key" in body["items"][0]
 
     async def test_another_user_s_library_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await admin.create_user(session, username="grace")
@@ -83,13 +83,13 @@ class TestItems:
 
         assert response.status_code == 403
 
-    async def test_a_missing_library_is_404(self, client: httpx.AsyncClient) -> None:
+    async def test_a_missing_library_is_404(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         assert (await client.get("/web/libraries/9999/items")).status_code == 404
 
     async def test_an_absurd_limit_is_refused_rather_than_served(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
         library_id = (await client.get("/web/libraries")).json()[0]["id"]
@@ -98,7 +98,7 @@ class TestItems:
 
         assert response.status_code == 400
 
-    async def test_signing_out_ends_access_to_the_library(self, client: httpx.AsyncClient) -> None:
+    async def test_signing_out_ends_access_to_the_library(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         await client.post("/web/auth/logout", headers=csrf_headers(client))
 
@@ -108,7 +108,7 @@ class TestItems:
 class TestBrowsing:
     """The reads the interface needs beyond a flat list of items."""
 
-    async def _seed(self, client: httpx.AsyncClient, session: AsyncSession) -> tuple[int, str]:
+    async def _seed(self, client: httpx2.AsyncClient, session: AsyncSession) -> tuple[int, str]:
         """Register, then fill a library through the v3 API. Returns the library and key."""
         await register(client)
         key = await admin.create_api_key(session, username="ada", name="seed")
@@ -116,7 +116,7 @@ class TestBrowsing:
         return library_id, key.key
 
     async def test_collections_come_back_as_a_whole_tree(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         auth = {"Zotero-API-Key": key}
@@ -137,7 +137,7 @@ class TestBrowsing:
         assert names["Drafts"]["data"]["parentCollection"] == created["key"]
 
     async def test_items_can_be_narrowed_to_a_collection(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         auth = {"Zotero-API-Key": key}
@@ -160,7 +160,7 @@ class TestBrowsing:
         assert [entry["data"]["title"] for entry in body["items"]] == ["In it"]
 
     async def test_the_trash_is_its_own_scope(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         auth = {"Zotero-API-Key": key}
@@ -180,7 +180,7 @@ class TestBrowsing:
         assert [entry["data"]["title"] for entry in trashed["items"]] == ["Discarded"]
 
     async def test_my_publications_is_its_own_scope(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The row Zotero's own sidebar has, which the browser now offers too."""
         library_id, key = await self._seed(client, session)
@@ -200,7 +200,7 @@ class TestBrowsing:
         assert [entry["data"]["title"] for entry in published["items"]] == ["Published"]
 
     async def test_a_group_has_no_publications(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Publishing is something an account does with its own library. The
         sidebar does not draw the row for a group, and the endpoint refuses it
@@ -213,7 +213,7 @@ class TestBrowsing:
         assert response.status_code == 400
 
     async def test_unfiled_items_are_the_ones_in_no_collection(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         auth = {"Zotero-API-Key": key}
@@ -238,7 +238,7 @@ class TestBrowsing:
         assert [entry["data"]["title"] for entry in body["items"]] == ["Loose"]
 
     async def test_the_trash_is_not_unfiled(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Something thrown away is not something waiting to be filed."""
         library_id, key = await self._seed(client, session)
@@ -253,7 +253,7 @@ class TestBrowsing:
         assert body["items"] == []
 
     async def test_duplicates_are_found_by_identifier(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Two records with one DOI are the same work, whatever else differs."""
         library_id, key = await self._seed(client, session)
@@ -279,7 +279,7 @@ class TestBrowsing:
         ]
 
     async def test_duplicates_need_more_than_a_shared_title(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """ "Introduction" is a title many works have; a creator or a year has
         to stand behind it."""
@@ -308,7 +308,7 @@ class TestBrowsing:
         assert body["items"] == []
 
     async def test_a_title_and_a_creator_are_enough(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         await client.post(
@@ -335,7 +335,7 @@ class TestBrowsing:
         assert len(body["items"]) == 2
 
     async def test_recently_read_follows_the_attachments(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """`lastRead` is what the client writes when it closes a reader, and
         the row lists the item that was read rather than the file."""
@@ -374,7 +374,7 @@ class TestBrowsing:
         assert [entry["data"]["title"] for entry in body["items"]] == ["Read lately"]
 
     async def test_recently_read_forgets_what_was_read_long_ago(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         import time
 
@@ -405,7 +405,7 @@ class TestBrowsing:
         assert body["items"] == []
 
     async def test_a_search_matches_more_than_the_title(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         await client.post(
@@ -422,7 +422,7 @@ class TestBrowsing:
         assert [entry["data"]["title"] for entry in body["items"]] == ["Whales"]
 
     async def test_item_keys_narrow_the_list_to_those_items(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """How the Related section reads the items another one names."""
         library_id, key = await self._seed(client, session)
@@ -457,7 +457,7 @@ class TestBrowsing:
         assert sorted(entry["key"] for entry in body["items"]) == sorted(wanted.split(","))
 
     async def test_items_can_be_filtered_by_tag(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         await client.post(
@@ -474,7 +474,7 @@ class TestBrowsing:
         assert [entry["data"]["title"] for entry in body["items"]] == ["Tagged"]
 
     async def test_tags_are_listed_with_their_counts(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         await client.post(
@@ -492,7 +492,7 @@ class TestBrowsing:
         assert body["colors"] == []
 
     async def test_tag_colours_come_from_the_synced_setting(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """In the desktop's order, which is the order its keys 1 to 9 assign."""
         library_id, key = await self._seed(client, session)
@@ -512,7 +512,7 @@ class TestBrowsing:
         assert body["colors"] == colours
 
     async def test_one_item_is_readable_on_its_own(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         created = (
@@ -528,7 +528,7 @@ class TestBrowsing:
         assert body["data"]["title"] == "Alone"
 
     async def test_child_notes_and_attachments_are_listed(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         auth = {"Zotero-API-Key": key}
@@ -551,7 +551,7 @@ class TestBrowsing:
         assert body["items"][0]["data"]["note"] == "<p>A thought</p>"
 
     async def test_an_unknown_sort_field_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The parameter reaches a SQL ORDER BY, so it is checked against the
         same list the v3 API accepts rather than passed through."""
@@ -562,7 +562,7 @@ class TestBrowsing:
         assert response.status_code == 400
 
     async def test_reading_a_file_needs_the_session(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library_id, key = await self._seed(client, session)
         created = (
@@ -583,7 +583,7 @@ class TestFiles:
     """Attachment bytes reach the browser without an API key."""
 
     async def test_a_stored_file_is_served_to_the_session(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         from tests.test_files import CONTENT, authorization
 
@@ -623,7 +623,7 @@ class TestFiles:
 
 class TestTheCostOfTheLibraryList:
     async def test_every_group_is_asked_about_at_once(
-        self, app: Any, client: httpx.AsyncClient, session: AsyncSession
+        self, app: Any, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """What an account may do in each library is one statement, not one per group."""
         from tests.factories import make_group
@@ -644,7 +644,7 @@ class TestTheCostOfTheLibraryList:
 class TestDuplicatesArePagedNotRecomputed:
     async def test_a_second_page_reuses_the_first_pages_answer(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         monkeypatch: Any,
     ) -> None:
@@ -679,7 +679,7 @@ class TestDuplicatesArePagedNotRecomputed:
 
 class TestTheDisplayNames:
     async def test_base_field_mappings_come_from_the_schema(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         response = await client.get("/web/schema")
 
@@ -693,7 +693,7 @@ class TestTheDisplayNames:
         assert german["mappings"] == mappings
 
     async def test_each_type_lists_its_fields_in_the_schema_s_order(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """What the Info pane draws, row by row, for an item of that type."""
         from altero.itemschema import get_schema
@@ -706,7 +706,7 @@ class TestTheDisplayNames:
         assert "note" not in types
 
     async def test_each_type_lists_its_creator_types_primary_first(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         types = (await client.get("/web/schema")).json()["types"]
 
@@ -714,7 +714,9 @@ class TestTheDisplayNames:
         assert types["film"]["creatorTypes"][0] == "director"
         assert "contributor" in types["film"]["creatorTypes"]
 
-    async def test_cached_names_without_types_are_replaced(self, client: httpx.AsyncClient) -> None:
+    async def test_cached_names_without_types_are_replaced(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         from altero import __version__
         from altero.itemschema import get_schema
 
@@ -725,7 +727,7 @@ class TestTheDisplayNames:
         assert "types" in response.json()
 
     async def test_cached_names_without_mappings_are_replaced(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         from altero import __version__
         from altero.itemschema import get_schema
@@ -737,7 +739,7 @@ class TestTheDisplayNames:
         assert response.json()["mappings"]["case"]["title"] == "caseName"
 
     async def test_a_browser_holding_them_is_told_they_have_not_changed(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """Asked for on every page load, and changed only by an upgrade."""
         first = await client.get("/web/schema?locale=de")
@@ -749,7 +751,7 @@ class TestTheDisplayNames:
         assert again.status_code == 304
         assert again.content == b""
 
-    async def test_another_language_is_another_answer(self, client: httpx.AsyncClient) -> None:
+    async def test_another_language_is_another_answer(self, client: httpx2.AsyncClient) -> None:
         german = await client.get("/web/schema?locale=de")
         french = await client.get(
             "/web/schema?locale=fr", headers={"If-None-Match": german.headers["etag"]}

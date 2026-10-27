@@ -26,7 +26,7 @@ member who may not delete but may trash could still empty a library in one
 gesture -- which is the thing the forum thread was posted after.
 """
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -63,7 +63,7 @@ async def restrict(session: AsyncSession, library: Library, permission: str) -> 
 
 
 async def add_item(
-    client: httpx.AsyncClient, headers: dict[str, str], title: str = "One", **fields: object
+    client: httpx2.AsyncClient, headers: dict[str, str], title: str = "One", **fields: object
 ) -> str:
     """Create one item and return its key."""
     response = await client.post(
@@ -78,8 +78,8 @@ async def add_item(
 
 
 async def patch_item(
-    client: httpx.AsyncClient, headers: dict[str, str], key: str, **fields: object
-) -> httpx.Response:
+    client: httpx2.AsyncClient, headers: dict[str, str], key: str, **fields: object
+) -> httpx2.Response:
     version = (await client.get(f"/groups/100/items/{key}", headers=headers)).json()["version"]
     return await client.patch(
         f"/groups/100/items/{key}",
@@ -89,8 +89,8 @@ async def patch_item(
 
 
 async def delete_item(
-    client: httpx.AsyncClient, headers: dict[str, str], key: str
-) -> httpx.Response:
+    client: httpx2.AsyncClient, headers: dict[str, str], key: str
+) -> httpx2.Response:
     version = (await client.get("/groups/100/items", headers=headers)).headers[
         "Last-Modified-Version"
     ]
@@ -101,7 +101,7 @@ async def delete_item(
 
 class TestTheDefaultIsUnchanged:
     async def test_an_ordinary_member_writes_as_before(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         """Every existing membership is `inherit`, and nothing about it moved."""
         key = await add_item(client, AS_BOB)
@@ -110,7 +110,7 @@ class TestTheDefaultIsUnchanged:
         assert (await delete_item(client, AS_BOB, key)).status_code == 204
 
     async def test_the_group_reports_its_own_policy(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         body = (await client.get("/groups/100", headers=AS_BOB)).json()
 
@@ -119,7 +119,7 @@ class TestTheDefaultIsUnchanged:
 
 class TestReadOnly:
     async def test_the_member_cannot_write(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await restrict(session, group, MemberPermission.READ)
 
@@ -130,7 +130,7 @@ class TestReadOnly:
         assert response.status_code == 403
 
     async def test_the_member_can_still_read(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await add_item(client, AS_ALICE)
         await restrict(session, group, MemberPermission.READ)
@@ -141,7 +141,7 @@ class TestReadOnly:
         assert len(response.json()) == 1
 
     async def test_the_group_says_admins_to_that_member(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """The whole of how a read-only member is expressed to a sync client.
 
@@ -155,7 +155,7 @@ class TestReadOnly:
         assert body["data"]["libraryEditing"] == "admins"
 
     async def test_everybody_else_still_sees_the_stored_policy(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """Two representations of one library version, which is the decision.
 
@@ -170,7 +170,7 @@ class TestReadOnly:
         assert body["data"]["libraryEditing"] == "members"
 
     async def test_the_members_own_group_list_says_admins_too(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """The list a client syncs from, which is where it matters most."""
         await restrict(session, group, MemberPermission.READ)
@@ -180,7 +180,7 @@ class TestReadOnly:
         assert [entry["data"]["libraryEditing"] for entry in listing] == ["admins"]
 
     async def test_files_are_refused_too(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         key = await add_item(
             client, AS_ALICE, itemType="attachment", linkMode="imported_file", title="File"
@@ -198,14 +198,14 @@ class TestReadOnly:
 
 class TestAddButNotRemove:
     async def test_the_member_can_add(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await restrict(session, group, MemberPermission.ADD)
 
         assert await add_item(client, AS_BOB)
 
     async def test_the_member_can_change_anybodys_item(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """`add` is about removal, not about authorship."""
         key = await add_item(client, AS_ALICE)
@@ -214,7 +214,7 @@ class TestAddButNotRemove:
         assert (await patch_item(client, AS_BOB, key, title="Two")).status_code == 204
 
     async def test_the_member_cannot_delete(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         key = await add_item(client, AS_ALICE)
         await restrict(session, group, MemberPermission.ADD)
@@ -222,7 +222,7 @@ class TestAddButNotRemove:
         assert (await delete_item(client, AS_BOB, key)).status_code == 403
 
     async def test_the_member_cannot_delete_their_own_either(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """The point is the library, not ownership: `own` is the other one."""
         key = await add_item(client, AS_BOB)
@@ -231,7 +231,7 @@ class TestAddButNotRemove:
         assert (await delete_item(client, AS_BOB, key)).status_code == 403
 
     async def test_the_member_cannot_trash(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """Trashing is how the client deletes, so it is a removal here."""
         key = await add_item(client, AS_ALICE)
@@ -242,7 +242,7 @@ class TestAddButNotRemove:
         assert response.status_code == 403
 
     async def test_the_member_can_restore_from_the_trash(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """Putting something back is not taking it away."""
         key = await add_item(client, AS_ALICE)
@@ -252,7 +252,7 @@ class TestAddButNotRemove:
         assert (await patch_item(client, AS_BOB, key, deleted=False)).status_code == 204
 
     async def test_the_member_can_make_a_collection_and_not_delete_one(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await restrict(session, group, MemberPermission.ADD)
 
@@ -270,7 +270,7 @@ class TestAddButNotRemove:
         assert removed.status_code == 403
 
     async def test_the_member_cannot_delete_a_tag(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await add_item(client, AS_ALICE, tags=[{"tag": "physics"}])
         await restrict(session, group, MemberPermission.ADD)
@@ -286,7 +286,7 @@ class TestAddButNotRemove:
         assert response.status_code == 403
 
     async def test_the_refusal_says_what_is_wrong(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """There is no client vocabulary for this, so the message is the whole
         explanation the person restricted is going to get."""
@@ -300,14 +300,14 @@ class TestAddButNotRemove:
 
 class TestOwnItemsOnly:
     async def test_the_member_can_add(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await restrict(session, group, MemberPermission.OWN)
 
         assert await add_item(client, AS_BOB)
 
     async def test_the_member_can_change_their_own(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await restrict(session, group, MemberPermission.OWN)
         key = await add_item(client, AS_BOB)
@@ -315,7 +315,7 @@ class TestOwnItemsOnly:
         assert (await patch_item(client, AS_BOB, key, title="Two")).status_code == 204
 
     async def test_the_member_can_remove_their_own(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await restrict(session, group, MemberPermission.OWN)
         key = await add_item(client, AS_BOB)
@@ -323,7 +323,7 @@ class TestOwnItemsOnly:
         assert (await delete_item(client, AS_BOB, key)).status_code == 204
 
     async def test_the_member_cannot_change_somebody_elses(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         key = await add_item(client, AS_ALICE)
         await restrict(session, group, MemberPermission.OWN)
@@ -331,7 +331,7 @@ class TestOwnItemsOnly:
         assert (await patch_item(client, AS_BOB, key, title="Two")).status_code == 403
 
     async def test_the_member_cannot_remove_somebody_elses(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         key = await add_item(client, AS_ALICE)
         await restrict(session, group, MemberPermission.OWN)
@@ -339,7 +339,7 @@ class TestOwnItemsOnly:
         assert (await delete_item(client, AS_BOB, key)).status_code == 403
 
     async def test_an_item_with_no_recorded_author_is_nobodys(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """The safe direction for a restriction is to hold.
 
@@ -352,7 +352,7 @@ class TestOwnItemsOnly:
         assert (await patch_item(client, AS_BOB, item.key, title="Two")).status_code == 403
 
     async def test_the_shared_structure_is_read_only(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """Nothing records who made a collection, so none of them is theirs."""
         await restrict(session, group, MemberPermission.OWN)
@@ -365,7 +365,7 @@ class TestOwnItemsOnly:
         assert response.json()["failed"]["0"]["code"] == 403
 
     async def test_they_can_still_file_their_own_item(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """Filing is a write to the *item*, which is theirs."""
         collection = await make_collection(session, group, key="COLLONE1", name="Papers")
@@ -379,7 +379,7 @@ class TestOwnItemsOnly:
 
 class TestItIsACeiling:
     async def test_the_groups_policy_still_wins(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """`add` in an admins-only group is not a way in."""
         alice = await session.get(User, 1)
@@ -398,7 +398,7 @@ class TestItIsACeiling:
         assert response.status_code == 403
 
     async def test_a_read_only_key_is_not_widened(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await make_api_key(
             session,
@@ -440,7 +440,7 @@ class TestAdministrators:
         assert member.permission == MemberPermission.INHERIT
 
     async def test_the_v3_roster_reports_the_permission(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         await restrict(session, group, MemberPermission.ADD)
 
@@ -449,7 +449,7 @@ class TestAdministrators:
         assert {entry["id"]: entry["permission"] for entry in roster} == {1: "inherit", 2: "add"}
 
     async def test_an_administrator_sets_one_over_the_v3_endpoint(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         response = await client.put(
             "/groups/100/users/2", headers=AS_ALICE | JSON, json={"permission": "read"}
@@ -459,7 +459,7 @@ class TestAdministrators:
         assert response.json()["permission"] == "read"
 
     async def test_a_role_and_a_permission_can_be_sent_together(
-        self, client: httpx.AsyncClient, session: AsyncSession, group: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:
         """Applied role first, so the promotion's reset does not eat the
         permission the same request asked for -- here, a demotion followed by a
@@ -481,7 +481,7 @@ class TestAdministrators:
         }
 
     async def test_an_unknown_permission_is_refused(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         response = await client.put(
             "/groups/100/users/2", headers=AS_ALICE | JSON, json={"permission": "everything"}

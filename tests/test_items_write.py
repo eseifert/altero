@@ -2,7 +2,7 @@
 
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -36,7 +36,7 @@ class TestCreate:
     @pytest.mark.parametrize("kind", ["items", "collections", "searches"])
     @pytest.mark.parametrize("complete", [False, True])
     async def test_a_missing_versioned_object_is_not_recreated(
-        self, client: httpx.AsyncClient, library: Library, kind: str, complete: bool
+        self, client: httpx2.AsyncClient, library: Library, kind: str, complete: bool
     ) -> None:
         data = {
             "items": {"itemType": "book", "title": "Former item"},
@@ -57,7 +57,7 @@ class TestCreate:
         assert response.headers["Last-Modified-Version"] == "10"
         assert (await client.get(f"/users/1/{kind}/MISSING2", headers=AUTH)).status_code == 404
 
-    async def test_an_item_is_created(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_an_item_is_created(self, client: httpx2.AsyncClient, library: Library) -> None:
         response = await client.post(
             "/users/1/items", headers=JSON, json=[{"itemType": "book", "title": "Moby-Dick"}]
         )
@@ -71,7 +71,7 @@ class TestCreate:
         assert created["version"] == 11
 
     async def test_the_deprecated_success_map_is_also_emitted(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post("/users/1/items", headers=JSON, json=[{"itemType": "book"}])
@@ -80,7 +80,7 @@ class TestCreate:
         assert body["success"]["0"] == body["successful"]["0"]["key"]
 
     async def test_the_library_version_advances_once_per_request(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/items",
@@ -92,7 +92,7 @@ class TestCreate:
         assert {obj["version"] for obj in response.json()["successful"].values()} == {11}
 
     async def test_a_single_object_may_be_sent_unwrapped(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post("/users/1/items", headers=JSON, json={"itemType": "book"})
 
@@ -100,7 +100,7 @@ class TestCreate:
         assert len(response.json()["successful"]) == 1
 
     async def test_a_client_supplied_key_is_kept(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -113,7 +113,7 @@ class TestCreate:
         assert body["successful"]["0"]["key"] == "AAAA2345"
 
     async def test_a_child_may_name_a_parent_from_the_same_request(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/items",
@@ -129,7 +129,7 @@ class TestCreate:
         assert child["data"]["parentItem"] == "AAAA2345"
 
     async def test_creators_tags_and_collections_are_stored(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="COLL2345")
 
@@ -161,7 +161,7 @@ class TestCreate:
         assert data["collections"] == ["COLL2345"]
 
     async def test_a_tag_named_twice_is_carried_once(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """Upstream's `Zotero_Tag::addItem` skips an item the tag already has."""
         tags = [{"tag": "a"}, {"tag": "a"}, {"tag": "a", "type": 1}, {"tag": "a", "type": 1}]
@@ -175,7 +175,7 @@ class TestCreate:
         assert sorted((t["tag"], t.get("type", 0)) for t in stored) == [("a", 0), ("a", 1)]
 
     async def test_a_single_field_creator_is_stored(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -195,7 +195,7 @@ class TestCreate:
         ]
 
     async def test_the_template_s_nameless_creator_is_left_out(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """`/items/new` seeds one empty creator, and posting it back stores none.
 
@@ -211,7 +211,7 @@ class TestCreate:
         assert "creators" not in body["successful"]["0"]["data"]
 
     async def test_writing_requires_write_permission(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_user(session, user_id=2, username="reader")
         await make_api_key(session, key="READONLY", user_id=2, library_write=False)
@@ -227,7 +227,7 @@ class TestCreate:
 
 class TestCreateFailures:
     async def test_an_unknown_item_type_fails_that_object_only(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/items",
@@ -242,7 +242,7 @@ class TestCreateFailures:
         assert "nosuch" in body["failed"]["1"]["message"]
 
     async def test_a_field_invalid_for_the_type_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -255,7 +255,7 @@ class TestCreateFailures:
         assert body["failed"]["0"]["code"] == 400
 
     async def test_an_unknown_field_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -266,7 +266,7 @@ class TestCreateFailures:
         assert body["failed"]["0"]["code"] == 400
 
     async def test_an_invalid_creator_type_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -292,7 +292,7 @@ class TestCreateFailures:
         ],
     )
     async def test_a_nameless_creator_beside_another_is_rejected(
-        self, client: httpx.AsyncClient, library: Library, nameless: dict[str, str]
+        self, client: httpx2.AsyncClient, library: Library, nameless: dict[str, str]
     ) -> None:
         """Only the template's single one is forgiven, and only on creation."""
         body = (
@@ -314,7 +314,7 @@ class TestCreateFailures:
         )
 
     async def test_a_nameless_creator_on_an_existing_item_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10)
         await session.commit()
@@ -336,7 +336,7 @@ class TestCreateFailures:
         assert body["failed"]["0"]["code"] == 400
 
     async def test_a_missing_parent_names_itself(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """409 with the key, which the desktop reads to upload the parent.
 
@@ -358,7 +358,7 @@ class TestCreateFailures:
         }
 
     async def test_a_missing_collection_names_itself(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -375,7 +375,7 @@ class TestCreateFailures:
         }
 
     async def test_a_single_write_with_a_missing_parent_is_a_conflict(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="note", version=10)
         await session.commit()
@@ -390,14 +390,14 @@ class TestCreateFailures:
         assert response.text == "Parent item ZZZZ2345 not found"
 
     async def test_a_failed_object_does_not_advance_the_version(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post("/users/1/items", headers=JSON, json=[{"itemType": "nosuch"}])
 
         assert response.headers["Last-Modified-Version"] == "10"
 
     async def test_more_than_fifty_objects_are_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/items", headers=JSON, json=[{"itemType": "book"}] * 51
@@ -406,7 +406,7 @@ class TestCreateFailures:
         assert response.status_code == 413
 
     async def test_a_malformed_body_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post("/users/1/items", headers=JSON, json="nope")
 
@@ -415,7 +415,7 @@ class TestCreateFailures:
 
 class TestReplaceAndUpdate:
     async def test_put_replaces_the_whole_item(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -437,7 +437,7 @@ class TestReplaceAndUpdate:
         assert "publisher" not in body["data"]
 
     async def test_patch_leaves_untouched_properties_alone(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -459,7 +459,7 @@ class TestReplaceAndUpdate:
         assert body["data"]["publisher"] == "Harper"
 
     async def test_the_version_header_may_carry_the_precondition(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10)
 
@@ -472,7 +472,7 @@ class TestReplaceAndUpdate:
         assert response.status_code == 204
 
     async def test_a_stale_version_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10)
 
@@ -485,7 +485,7 @@ class TestReplaceAndUpdate:
         assert response.status_code == 412
 
     async def test_a_missing_version_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10)
 
@@ -496,7 +496,7 @@ class TestReplaceAndUpdate:
         assert response.status_code == 428
 
     async def test_updating_advances_the_version(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10)
 
@@ -509,7 +509,7 @@ class TestReplaceAndUpdate:
         assert response.headers["Last-Modified-Version"] == "11"
 
     async def test_an_item_can_be_moved_to_the_trash(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10)
 
@@ -535,7 +535,7 @@ class TestThePatchLeavesTheTwoFlagsAlone:
     """
 
     async def test_a_patch_that_says_nothing_leaves_it_in_the_trash(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10, deleted=True)
 
@@ -549,7 +549,7 @@ class TestThePatchLeavesTheTwoFlagsAlone:
         assert body["data"]["deleted"] == 1
 
     async def test_a_patch_that_says_nothing_leaves_it_published(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10, in_publications=True)
 
@@ -563,7 +563,7 @@ class TestThePatchLeavesTheTwoFlagsAlone:
         assert body["data"]["inPublications"] is True
 
     async def test_a_patch_that_says_so_still_takes_it_out_of_the_trash(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """The client writes the flag out when it goes, rather than dropping it."""
         await make_item(session, library, key="AAAA2345", version=10, deleted=True)
@@ -578,7 +578,7 @@ class TestThePatchLeavesTheTwoFlagsAlone:
         assert "deleted" not in body["data"]
 
     async def test_a_replacing_put_still_clears_what_it_leaves_out(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session, library, key="AAAA2345", version=10, deleted=True, in_publications=True
@@ -597,7 +597,7 @@ class TestThePatchLeavesTheTwoFlagsAlone:
 
 class TestDelete:
     async def test_an_item_is_deleted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
 
@@ -610,7 +610,7 @@ class TestDelete:
         assert (await client.get("/users/1/items/AAAA2345", headers=AUTH)).status_code == 404
 
     async def test_deleting_without_a_version_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
 
@@ -620,7 +620,7 @@ class TestDelete:
         assert response.text == "If-Unmodified-Since-Version not provided"
 
     async def test_deleting_with_a_stale_version_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
 
@@ -632,7 +632,7 @@ class TestDelete:
         assert response.status_code == 412
 
     async def test_a_non_numeric_version_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
 
@@ -643,7 +643,7 @@ class TestDelete:
         assert response.status_code == 400
 
     async def test_deleting_an_unknown_item_is_a_404(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.delete(
             "/users/1/items/ZZZZ2345", headers=AUTH | {"If-Unmodified-Since-Version": "10"}
@@ -652,7 +652,7 @@ class TestDelete:
         assert response.status_code == 404
 
     async def test_several_items_are_deleted_by_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345")
@@ -668,7 +668,7 @@ class TestDelete:
         assert [i["key"] for i in remaining] == ["CCCC2345"]
 
     async def test_deleting_more_than_fifty_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         keys = ",".join(f"AAAA{n:04d}" for n in range(51))
 
@@ -680,7 +680,7 @@ class TestDelete:
         assert response.status_code == 413
 
     async def test_deleting_a_parent_deletes_its_children(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # A note whose parent is gone has nothing to attach to, and leaving it
         # behind would point at a row that no longer exists.
@@ -694,7 +694,7 @@ class TestDelete:
         assert (await client.get("/users/1/items", headers=AUTH)).json() == []
 
     async def test_a_deleted_child_is_reported_in_the_delete_log(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_item(session, library, key="AAAA2345")
         await make_item(session, library, key="BBBB2345", item_type="note", parent=parent)
@@ -707,7 +707,7 @@ class TestDelete:
         assert sorted(body["items"]) == ["AAAA2345", "BBBB2345"]
 
     async def test_an_attachment_is_deleted_with_its_indexed_text(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The client indexes a PDF and uploads the text; deleting the
         # attachment has to take that text with it, or the row is left naming
@@ -727,7 +727,7 @@ class TestDelete:
         assert (await client.get("/users/1/items", headers=AUTH)).json() == []
 
     async def test_a_parent_is_deleted_with_its_indexed_attachment(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The same text, reached through the parent rather than named outright.
         parent = await make_item(session, library, key="AAAA2345")
@@ -744,7 +744,7 @@ class TestDelete:
         assert (await client.get("/users/1/items", headers=AUTH)).json() == []
 
     async def test_a_tag_left_with_no_items_is_removed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         from sqlalchemy import func, select
 
@@ -763,7 +763,7 @@ class TestDelete:
         assert remaining == 0
 
     async def test_a_tag_still_used_elsewhere_is_kept(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -779,7 +779,7 @@ class TestDelete:
         ]
 
     async def test_deleting_an_item_removes_its_tag_links(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -795,7 +795,7 @@ class TestWriteTokens:
     TOKEN = "a" * 32
 
     async def test_a_replayed_token_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         headers = JSON | {"Zotero-Write-Token": self.TOKEN}
 
@@ -806,7 +806,7 @@ class TestWriteTokens:
         assert second.status_code == 412
 
     async def test_a_different_token_is_accepted(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         await client.post(
             "/users/1/items",
@@ -822,7 +822,7 @@ class TestWriteTokens:
         assert second.status_code == 200
 
     async def test_a_malformed_token_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/items",
@@ -842,7 +842,7 @@ class TestUnlistedFields:
     """
 
     async def test_the_servers_own_attachment_template_round_trips(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # Whatever /items/new offers must be acceptable back.
         for mode in ("imported_file", "imported_url", "linked_file", "linked_url"):
@@ -853,7 +853,7 @@ class TestUnlistedFields:
             assert response.json()["failed"] == {}, mode
 
     async def test_attachment_storage_fields_are_stored(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -882,7 +882,7 @@ class TestUnlistedFields:
         assert data["filename"] == "page.html"
 
     async def test_a_linked_file_keeps_its_path(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -902,7 +902,7 @@ class TestUnlistedFields:
         assert body["successful"]["0"]["data"]["path"] == "attachments:paper.pdf"
 
     async def test_an_annotation_keeps_its_fields(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # A PDF: a highlight hangs off a file a reader opens, as upstream asks.
         parent = (
@@ -942,7 +942,7 @@ class TestUnlistedFields:
         assert data["annotationText"] == "a passage"
 
     async def test_a_storage_field_is_still_rejected_for_a_book(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -957,7 +957,7 @@ class TestUnlistedFields:
 
 class TestClientTimestamps:
     async def test_supplied_timestamps_round_trip(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # A client uploading an existing library must not have its history
         # rewritten to the moment of upload.
@@ -981,7 +981,7 @@ class TestClientTimestamps:
         assert data["dateModified"] == "2019-06-02T11:30:00Z"
 
     async def test_missing_timestamps_default_to_now(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post("/users/1/items", headers=JSON, json=[{"itemType": "book"}])
@@ -992,7 +992,7 @@ class TestClientTimestamps:
         assert data["dateAdded"].endswith("Z")
 
     async def test_a_malformed_timestamp_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -1005,7 +1005,7 @@ class TestClientTimestamps:
         assert body["failed"]["0"]["code"] == 400
 
     async def test_date_added_survives_an_update(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         created = (
             await client.post(
@@ -1046,7 +1046,7 @@ class TestPartialUploads:
     @pytest.mark.parametrize("method", ["POST", "PATCH"])
     async def test_reparenting_preserves_omitted_note_content(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         item_type: str,
@@ -1086,7 +1086,7 @@ class TestPartialUploads:
         ] == ""
 
     async def test_a_partial_object_updates_the_stored_item(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10, fields={"title": "Kept"})
 
@@ -1104,7 +1104,7 @@ class TestPartialUploads:
         assert data["accessDate"] == "2026-01-01T00:00:00Z"
 
     async def test_the_exact_upload_the_client_sent(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Copied from a real sync: opening a snapshot updates lastRead only.
         await make_item(session, library, key="IJ7GDYP9", version=12, item_type="attachment")
@@ -1127,7 +1127,7 @@ class TestPartialUploads:
         assert data["lastRead"] == "1785524654"
 
     async def test_a_new_item_still_needs_an_item_type(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # Only an existing key makes an object partial.
         body = (
@@ -1140,14 +1140,14 @@ class TestPartialUploads:
         assert "itemType" in body["failed"]["0"]["message"]
 
     async def test_an_object_with_no_key_at_all_needs_an_item_type(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (await client.post("/users/1/items", headers=JSON, json=[{}])).json()
 
         assert body["failed"]["0"]["code"] == 400
 
     async def test_a_partial_update_leaves_other_fields_alone(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -1170,7 +1170,7 @@ class TestPartialUploads:
         assert data["creators"][0]["lastName"] == "Melville"
 
     async def test_a_stale_version_in_a_partial_object_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", version=10)
 
@@ -1183,7 +1183,7 @@ class TestPartialUploads:
         assert body["failed"]["0"]["code"] == 412
 
     async def test_last_read_is_accepted_on_an_attachment(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -1204,7 +1204,7 @@ class TestPartialUploads:
         assert body["successful"]["0"]["data"]["lastRead"] == "1785524654"
 
     async def test_a_patch_that_changes_the_type_keeps_the_rest(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """The one patch that carries `itemType`, and the one that lost data.
 
@@ -1242,7 +1242,7 @@ class TestPartialUploads:
         assert data["collections"] == ["CCCC2345"]
 
     async def test_a_replacing_put_still_clears_what_it_leaves_out(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """`PUT` is the replacing write, and stays one."""
         await make_item(
@@ -1280,12 +1280,12 @@ class TestTakingAChildOutFromUnderItsParent:
         )
         await session.commit()
 
-    async def parent_of(self, client: httpx.AsyncClient) -> object:
+    async def parent_of(self, client: httpx2.AsyncClient) -> object:
         data = (await client.get("/users/1/items/BBBB2345", headers=AUTH)).json()["data"]
         return data.get("parentItem")
 
     async def test_a_patch_in_a_batch_takes_it_out(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await self.child(session, library)
 
@@ -1302,7 +1302,7 @@ class TestTakingAChildOutFromUnderItsParent:
         assert await self.parent_of(client) is None
 
     async def test_a_single_patch_takes_it_out(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await self.child(session, library)
 
@@ -1316,7 +1316,7 @@ class TestTakingAChildOutFromUnderItsParent:
         assert await self.parent_of(client) is None
 
     async def test_collections_on_a_child_take_it_out_too(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """Upstream's "implicit parentItem: false", for a client bug it names.
 
@@ -1342,7 +1342,7 @@ class TestTakingAChildOutFromUnderItsParent:
         assert data["collections"] == ["CCCC2345"]
 
     async def test_leaving_it_out_leaves_the_parent(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await self.child(session, library)
 
@@ -1376,7 +1376,7 @@ class TestChangingTheType:
         )
         await session.commit()
 
-    async def patch(self, client: httpx.AsyncClient, **data: object) -> dict[str, Any]:
+    async def patch(self, client: httpx2.AsyncClient, **data: object) -> dict[str, Any]:
         body = (
             await client.post(
                 "/users/1/items",
@@ -1388,7 +1388,7 @@ class TestChangingTheType:
         return dict(body["successful"]["0"]["data"])
 
     async def test_the_desktop_s_patch_blanks_what_the_new_type_lacks(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """`DataObjectUtilities.patch` blanks every field that went away."""
         await self.book(session, library)
@@ -1407,7 +1407,7 @@ class TestChangingTheType:
         assert not {"edition", "publisher"} & set(data)
 
     async def test_a_type_alone_moves_fields_through_their_base(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await self.book(session, library)
 
@@ -1420,7 +1420,7 @@ class TestChangingTheType:
         assert not {"edition", "publisher"} & set(data)
 
     async def test_what_was_sent_wins_over_what_would_move(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await self.book(session, library)
 
@@ -1429,7 +1429,7 @@ class TestChangingTheType:
         assert data["institution"] == "Elsewhere"
 
     async def test_creators_the_new_type_lacks_become_contributors(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """Upstream resets them to contributor, which every type has."""
         await self.book(session, library)
@@ -1443,7 +1443,7 @@ class TestChangingTheType:
         assert data["creators"][0]["lastName"] == "Abelson"
 
     async def test_creators_sent_with_the_type_are_taken_as_sent(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await self.book(session, library)
 
@@ -1458,7 +1458,7 @@ class TestChangingTheType:
         ]
 
     async def test_null_clears_a_field_the_type_lacks_too(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await self.book(session, library)
 
@@ -1467,7 +1467,7 @@ class TestChangingTheType:
         assert "edition" not in data
 
     async def test_a_value_for_a_field_the_type_lacks_is_still_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await self.book(session, library)
 
@@ -1482,7 +1482,7 @@ class TestChangingTheType:
         assert body["failed"]["0"]["code"] == 400
 
     async def test_a_blank_field_the_type_lacks_on_a_new_item_is_ignored(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """Upstream turns `""` into false before asking whether the field fits."""
         body = (
@@ -1513,7 +1513,7 @@ class TestAPatchClearsWhatItSendsEmpty:
     """
 
     async def test_an_empty_collections_array_files_the_item_nowhere(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345", version=10)
         await make_collection(session, library, key="CCCC2345", name="Whales", items=[item])
@@ -1529,7 +1529,7 @@ class TestAPatchClearsWhatItSendsEmpty:
         assert data["collections"] == []
 
     async def test_the_upload_the_connector_sends_when_the_target_moves_to_the_root(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Copied from a real sync: an item saved into a collection, then the
         # connector's save target changed to the library itself.
@@ -1553,7 +1553,7 @@ class TestAPatchClearsWhatItSendsEmpty:
         assert response.json()["successful"]["0"]["data"]["collections"] == []
 
     async def test_an_empty_tags_array_takes_the_last_tag_off(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345", version=10)
         await tag_item(session, library, item, "fiction")
@@ -1567,7 +1567,7 @@ class TestAPatchClearsWhatItSendsEmpty:
         assert data["tags"] == []
 
     async def test_an_empty_creators_array_takes_the_last_creator_off(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -1591,7 +1591,7 @@ class TestAPatchClearsWhatItSendsEmpty:
         assert "creators" not in data
 
     async def test_an_empty_relations_map_takes_the_last_relation_off(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """`DataObjectUtilities.patch` sends `relations: {}` rather than omitting it."""
         await client.post(
@@ -1618,7 +1618,7 @@ class TestAPatchClearsWhatItSendsEmpty:
         assert data["relations"] == {}
 
     async def test_a_patch_that_stays_silent_still_leaves_them_alone(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """The other half of the rule, and the one a type change depends on."""
         item = await make_item(

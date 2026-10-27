@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime
 
-import httpx
+import httpx2
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import User, WebSession
@@ -26,7 +26,7 @@ def _now() -> int:
 
 
 class TestReadingTheAccount:
-    async def test_it_reports_the_user_and_their_sessions(self, client: httpx.AsyncClient) -> None:
+    async def test_it_reports_the_user_and_their_sessions(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         body = (await client.get("/web/account")).json()
@@ -36,12 +36,12 @@ class TestReadingTheAccount:
         assert len(body["sessions"]) == 1
         assert body["sessions"][0]["current"] is True
 
-    async def test_it_needs_a_session(self, client: httpx.AsyncClient) -> None:
+    async def test_it_needs_a_session(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/account")).status_code == 401
 
 
 class TestChangingThings:
-    async def test_the_display_name_changes(self, client: httpx.AsyncClient) -> None:
+    async def test_the_display_name_changes(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.patch(
@@ -52,14 +52,14 @@ class TestChangingThings:
         assert response.json()["user"]["displayName"] == "Ada L."
 
     async def test_a_change_without_the_csrf_token_is_refused(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
         assert (await client.patch("/web/account", json={"displayName": "x"})).status_code == 403
 
     async def test_the_password_changes_with_the_current_one(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -73,7 +73,7 @@ class TestChangingThings:
         # This browser stays signed in; the change did not sign it out.
         assert (await client.get("/web/account")).status_code == 200
 
-    async def test_the_wrong_current_password_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_the_wrong_current_password_is_refused(self, client: httpx2.AsyncClient) -> None:
         """A cookie alone must not be enough to replace the password."""
         await register(client)
 
@@ -86,7 +86,7 @@ class TestChangingThings:
         assert response.status_code == 403
 
     async def test_changing_the_address_does_not_change_it_yet(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -99,7 +99,9 @@ class TestChangingThings:
         assert response.status_code == 202
         assert (await client.get("/web/account")).json()["user"]["email"] == "ada@example.org"
 
-    async def test_changing_the_address_needs_the_password(self, client: httpx.AsyncClient) -> None:
+    async def test_changing_the_address_needs_the_password(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         await register(client)
 
         response = await client.post(
@@ -113,7 +115,7 @@ class TestChangingThings:
 
 class TestTheSecondFactor:
     async def test_enrolment_is_two_steps(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
 
@@ -133,7 +135,9 @@ class TestTheSecondFactor:
         assert confirmed.status_code == 204
         assert (await client.get("/web/account")).json()["totpEnabled"] is True
 
-    async def test_a_wrong_confirmation_code_leaves_it_off(self, client: httpx.AsyncClient) -> None:
+    async def test_a_wrong_confirmation_code_leaves_it_off(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         await register(client)
         await client.post("/web/account/totp", headers=csrf_headers(client))
 
@@ -144,7 +148,7 @@ class TestTheSecondFactor:
         assert response.status_code == 403
         assert (await client.get("/web/account")).json()["totpEnabled"] is False
 
-    async def test_disabling_needs_the_password(self, client: httpx.AsyncClient) -> None:
+    async def test_disabling_needs_the_password(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         started = await client.post("/web/account/totp", headers=csrf_headers(client))
         await client.post(
@@ -172,7 +176,7 @@ class TestTheSecondFactor:
 
 class TestSessions:
     async def test_signing_out_everywhere_else_keeps_this_one(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         user = await admin.get_user_by_name(session, "ada")
@@ -188,7 +192,7 @@ class TestSessions:
         assert len((await client.get("/web/account")).json()["sessions"]) == 1
 
     async def test_another_account_s_session_cannot_be_ended(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await webauth.register(
@@ -211,7 +215,7 @@ class TestSessions:
 
 class TestNotificationsAndInvitations:
     async def test_an_invitation_arrives_as_a_notification(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The point of the in-app list: it does not depend on mail working."""
         await register(client)
@@ -237,7 +241,7 @@ class TestNotificationsAndInvitations:
         assert ada.id
 
     async def test_accepting_joins_the_group_and_clears_the_badge(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await webauth.register(
@@ -265,7 +269,7 @@ class TestNotificationsAndInvitations:
         assert len((await client.get("/web/libraries")).json()) == 2
 
     async def test_declining_does_not_join(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await webauth.register(
@@ -290,7 +294,7 @@ class TestNotificationsAndInvitations:
         assert len((await client.get("/web/libraries")).json()) == 1
 
     async def test_somebody_else_s_invitation_cannot_be_accepted(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await webauth.register(
@@ -314,7 +318,7 @@ class TestNotificationsAndInvitations:
         assert response.status_code == 403
 
     async def test_marking_all_read_clears_the_badge(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         from altero.services import notifications
@@ -327,7 +331,7 @@ class TestNotificationsAndInvitations:
         assert (await client.get("/web/notifications")).json()["unread"] == 0
 
     async def test_an_admin_can_invite_through_the_api(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         library = await admin.create_group(session, name="Analytical Engine", owner_username="ada")
@@ -352,7 +356,7 @@ class TestNotificationsAndInvitations:
         assert len(listed.json()["invitations"]) == 1
 
     async def test_a_non_admin_cannot_invite(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await webauth.register(
@@ -374,7 +378,7 @@ class TestNotificationsAndInvitations:
         assert grace.id
 
     async def test_answering_an_invitation_needs_the_csrf_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await webauth.register(
@@ -396,12 +400,12 @@ class TestNotificationsAndInvitations:
         assert response.status_code == 403
         assert CSRF_HEADER
 
-    async def test_notifications_need_a_session(self, client: httpx.AsyncClient) -> None:
+    async def test_notifications_need_a_session(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/notifications")).status_code == 401
 
 
 class TestTheV3ApiIsStillUntouched:
-    async def test_a_cookie_does_not_reach_the_sync_api(self, client: httpx.AsyncClient) -> None:
+    async def test_a_cookie_does_not_reach_the_sync_api(self, client: httpx2.AsyncClient) -> None:
         """Repeated here because this file adds a lot of new cookie endpoints."""
         await register(client)
         await client.post("/web/account/totp", headers=csrf_headers(client))
@@ -409,7 +413,7 @@ class TestTheV3ApiIsStillUntouched:
         assert (await client.get("/users/1/items")).status_code == 403
 
     async def test_an_api_key_does_not_reach_the_account_endpoints(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         key = await admin.create_api_key(session, username="ada", name="laptop")
@@ -422,12 +426,12 @@ class TestTheV3ApiIsStillUntouched:
 
 
 class TestManagingKeys:
-    async def test_a_new_account_has_none(self, client: httpx.AsyncClient) -> None:
+    async def test_a_new_account_has_none(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         assert (await client.get("/web/account/keys")).json() == {"keys": []}
 
-    async def test_creating_returns_the_key_once(self, client: httpx.AsyncClient) -> None:
+    async def test_creating_returns_the_key_once(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.post(
@@ -440,7 +444,7 @@ class TestManagingKeys:
         assert len(response.json()["key"]) >= 20
         assert response.json()["created"]["name"] == "laptop"
 
-    async def test_the_list_never_shows_the_key_again(self, client: httpx.AsyncClient) -> None:
+    async def test_the_list_never_shows_the_key_again(self, client: httpx2.AsyncClient) -> None:
         """Otherwise a signed-in tab is a way to read back every credential."""
         await register(client)
         created = await client.post(
@@ -455,7 +459,7 @@ class TestManagingKeys:
         assert key not in str(listed)
         assert listed[0]["suffix"] == key[-4:]
 
-    async def test_creating_needs_the_password(self, client: httpx.AsyncClient) -> None:
+    async def test_creating_needs_the_password(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.post(
@@ -467,7 +471,7 @@ class TestManagingKeys:
         assert response.status_code == 403
         assert (await client.get("/web/account/keys")).json()["keys"] == []
 
-    async def test_creating_needs_the_csrf_token(self, client: httpx.AsyncClient) -> None:
+    async def test_creating_needs_the_csrf_token(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.post(
@@ -476,7 +480,7 @@ class TestManagingKeys:
 
         assert response.status_code == 403
 
-    async def test_the_key_it_issues_works(self, client: httpx.AsyncClient) -> None:
+    async def test_the_key_it_issues_works(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         created = await client.post(
             "/web/account/keys",
@@ -490,7 +494,7 @@ class TestManagingKeys:
 
         assert response.status_code == 200
 
-    async def test_a_read_only_key_cannot_write(self, client: httpx.AsyncClient) -> None:
+    async def test_a_read_only_key_cannot_write(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         created = await client.post(
             "/web/account/keys",
@@ -510,7 +514,7 @@ class TestManagingKeys:
             )
         ).status_code == 403
 
-    async def test_revoking_stops_it_working(self, client: httpx.AsyncClient) -> None:
+    async def test_revoking_stops_it_working(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         created = await client.post(
             "/web/account/keys",
@@ -527,7 +531,7 @@ class TestManagingKeys:
             await client.get("/users/1/items", headers={"Zotero-API-Key": key})
         ).status_code == 403
 
-    async def test_revoking_needs_no_password(self, client: httpx.AsyncClient) -> None:
+    async def test_revoking_needs_no_password(self, client: httpx2.AsyncClient) -> None:
         """A key is revoked at the moment it has leaked; do not ask for more."""
         await register(client)
         created = await client.post(
@@ -544,7 +548,7 @@ class TestManagingKeys:
         assert response.status_code == 204
 
     async def test_another_account_s_key_cannot_be_revoked(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         await webauth.register(
@@ -563,7 +567,7 @@ class TestManagingKeys:
         assert response.status_code == 403
 
     async def test_the_key_from_linking_a_client_shows_up_here(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """The two ways of getting a key end up in the same list."""
         await register(client)
@@ -578,10 +582,10 @@ class TestManagingKeys:
 
         assert [entry["name"] for entry in listed] == ["Zotero client"]
 
-    async def test_keys_need_a_session(self, client: httpx.AsyncClient) -> None:
+    async def test_keys_need_a_session(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/account/keys")).status_code == 401
 
-    async def test_a_new_key_reports_never_used(self, client: httpx.AsyncClient) -> None:
+    async def test_a_new_key_reports_never_used(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         await client.post(
             "/web/account/keys",
@@ -594,7 +598,7 @@ class TestManagingKeys:
         assert listed[0]["lastUsed"] is None
         assert listed[0]["lastAddress"] is None
 
-    async def test_using_a_key_shows_up_in_the_list(self, client: httpx.AsyncClient) -> None:
+    async def test_using_a_key_shows_up_in_the_list(self, client: httpx2.AsyncClient) -> None:
         """This is what makes the list answer "which can I revoke?"."""
         await register(client)
         created = await client.post(
@@ -616,7 +620,7 @@ class TestManagingKeys:
 class TestLanguageAndTimeZone:
     """Both are account settings, so they follow the person between browsers."""
 
-    async def test_a_new_account_follows_the_browser(self, client: httpx.AsyncClient) -> None:
+    async def test_a_new_account_follows_the_browser(self, client: httpx2.AsyncClient) -> None:
         """Null is the setting, not the absence of one."""
         await register(client)
 
@@ -625,7 +629,7 @@ class TestLanguageAndTimeZone:
         assert body["user"]["language"] is None
         assert body["user"]["timeZone"] is None
 
-    async def test_both_are_set_together(self, client: httpx.AsyncClient) -> None:
+    async def test_both_are_set_together(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.put(
@@ -638,7 +642,7 @@ class TestLanguageAndTimeZone:
         assert response.json()["user"]["language"] == "de"
         assert response.json()["user"]["timeZone"] == "Europe/Berlin"
 
-    async def test_the_setting_outlives_the_session(self, client: httpx.AsyncClient) -> None:
+    async def test_the_setting_outlives_the_session(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         await client.put(
             "/web/account/locale",
@@ -652,7 +656,7 @@ class TestLanguageAndTimeZone:
         assert body["user"]["timeZone"] == "Asia/Tokyo"
 
     async def test_either_can_go_back_to_following_the_browser(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
         await client.put(
@@ -672,7 +676,7 @@ class TestLanguageAndTimeZone:
         assert body["user"]["timeZone"] is None
 
     async def test_a_region_narrows_to_the_language_it_has_a_catalogue_for(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """`de-AT` is German as far as the interface strings go. The region still
         reaches date formatting, which the browser supplies separately."""
@@ -686,7 +690,9 @@ class TestLanguageAndTimeZone:
 
         assert response.json()["user"]["language"] == "de"
 
-    async def test_a_region_that_changes_the_words_is_kept(self, client: httpx.AsyncClient) -> None:
+    async def test_a_region_that_changes_the_words_is_kept(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         """Portuguese is carried twice, so `pt-BR` is stored as itself rather
         than flattened to a catalogue written in Lisbon."""
         await register(client)
@@ -700,7 +706,7 @@ class TestLanguageAndTimeZone:
         assert response.json()["user"]["language"] == "pt-BR"
 
     async def test_a_territory_without_a_catalogue_reads_the_nearest(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """Australia spells as Britain does, so that is the catalogue stored."""
         await register(client)
@@ -713,7 +719,9 @@ class TestLanguageAndTimeZone:
 
         assert response.json()["user"]["language"] == "en-GB"
 
-    async def test_a_language_with_no_catalogue_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_a_language_with_no_catalogue_is_refused(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         await register(client)
 
         response = await client.put(
@@ -723,7 +731,7 @@ class TestLanguageAndTimeZone:
         assert response.status_code == 400
 
     async def test_a_time_zone_the_server_does_not_know_is_refused(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """Offered from the server's own database, so anything else is a typo
         or a client inventing zones."""
@@ -735,7 +743,7 @@ class TestLanguageAndTimeZone:
 
         assert response.status_code == 400
 
-    async def test_a_utc_offset_is_not_a_time_zone(self, client: httpx.AsyncClient) -> None:
+    async def test_a_utc_offset_is_not_a_time_zone(self, client: httpx2.AsyncClient) -> None:
         """An offset is wrong for half the year anywhere that keeps summer time."""
         await register(client)
 
@@ -745,14 +753,14 @@ class TestLanguageAndTimeZone:
 
         assert response.status_code == 400
 
-    async def test_setting_it_needs_the_csrf_token(self, client: httpx.AsyncClient) -> None:
+    async def test_setting_it_needs_the_csrf_token(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.put("/web/account/locale", json={"language": "de"})
 
         assert response.status_code == 403
 
-    async def test_the_choices_come_from_the_server(self, client: httpx.AsyncClient) -> None:
+    async def test_the_choices_come_from_the_server(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         body = (await client.get("/web/account/locales")).json()
@@ -824,7 +832,7 @@ class TestAnAccountWithNoPassword:
     """
 
     async def _signed_in(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> tuple[User, WebSession]:
         """Make a passwordless account and put its cookie in ``client``."""
         # The first account made on an instance administers it, and this test
@@ -836,7 +844,7 @@ class TestAnAccountWithNoPassword:
         return user, record
 
     async def test_it_cannot_make_a_key_without_proving_itself(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await self._signed_in(client, session)
 
@@ -847,7 +855,7 @@ class TestAnAccountWithNoPassword:
         assert response.status_code == 403
 
     async def test_a_recent_proof_lets_it_make_one(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, record = await self._signed_in(client, session)
         await reauth.stamp(session, record)
@@ -860,7 +868,7 @@ class TestAnAccountWithNoPassword:
         assert response.json()["key"]
 
     async def test_a_made_up_password_does_not_get_it_through(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """There is no hash to match, and `verify_password` must not say yes."""
         await self._signed_in(client, session)
@@ -874,7 +882,7 @@ class TestAnAccountWithNoPassword:
         assert response.status_code == 403
 
     async def test_it_can_set_a_password_once_it_has_proved_itself(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, record = await self._signed_in(client, session)
         await reauth.stamp(session, record)
@@ -889,7 +897,7 @@ class TestAnAccountWithNoPassword:
 
 
 class TestAPasswordIsStillAskedFor:
-    async def test_making_a_key_without_one_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_making_a_key_without_one_is_refused(self, client: httpx2.AsyncClient) -> None:
         """An ordinary account gains nothing from the new seam."""
         await register(client)
 
@@ -899,7 +907,7 @@ class TestAPasswordIsStillAskedFor:
 
         assert response.status_code == 403
 
-    async def test_the_wrong_one_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_the_wrong_one_is_refused(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.post(
@@ -911,7 +919,7 @@ class TestAPasswordIsStillAskedFor:
         assert response.status_code == 403
 
     async def test_giving_it_once_covers_the_next_operation(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """What the freshness window is for: a settings page asks once."""
         await register(client)

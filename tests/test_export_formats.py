@@ -10,7 +10,7 @@ import csv
 import io
 import re
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -780,7 +780,7 @@ class TestTheEndpoints:
     )
     async def test_a_listing_answers_in_the_format_asked_for(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         library: Library,
         article: Item,
         response_format: str,
@@ -794,7 +794,7 @@ class TestTheEndpoints:
         assert marker in response.text
 
     async def test_one_item_answers_in_the_format_asked_for(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items/AAAA2345?format=refer", headers=AUTH)
 
@@ -802,7 +802,7 @@ class TestTheEndpoints:
         assert response.text.startswith("%0 Journal Article")
 
     async def test_include_carries_one_document_per_item(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         body = (await client.get("/users/1/items?include=csv,refer", headers=AUTH)).json()
 
@@ -811,7 +811,7 @@ class TestTheEndpoints:
         assert "data" not in body[0]
 
     async def test_an_unknown_format_is_still_refused(
-        self, client: httpx.AsyncClient, library: Library, article: Item
+        self, client: httpx2.AsyncClient, library: Library, article: Item
     ) -> None:
         response = await client.get("/users/1/items?format=endnote", headers=AUTH)
 

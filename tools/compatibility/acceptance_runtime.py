@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-import httpx
+import httpx2
 
 from tools.compatibility.desktop import prepare_profile, run_phase
 from tools.compatibility.runtime import TestServer
@@ -31,8 +31,8 @@ class AcceptanceRun:
         self.phases.append(dict(client=name, operations=list(operations), snapshot=path.name))
         return snapshot
 
-    async def request(self, method: str, path: str, *, key=None, **options) -> httpx.Response:
-        async with httpx.AsyncClient(base_url=self.server.url) as client:
+    async def request(self, method: str, path: str, *, key=None, **options) -> httpx2.Response:
+        async with httpx2.AsyncClient(base_url=self.server.url) as client:
             response = await client.request(
                 method,
                 path,

@@ -9,7 +9,7 @@ longer exists and no way to find out.
 
 from datetime import UTC, datetime, timedelta
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -132,7 +132,7 @@ class TestTheTrash:
 
 class TestWhatAClientIsTold:
     async def test_a_syncing_client_learns_the_item_is_gone(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The whole reason this goes through the ordinary delete path.
 

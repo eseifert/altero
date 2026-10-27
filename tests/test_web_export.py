@@ -11,7 +11,7 @@ one citation key per item.
 import json
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +23,7 @@ from tests.test_web_routes import register
 
 
 @pytest.fixture
-async def ada(client: httpx.AsyncClient) -> httpx.AsyncClient:
+async def ada(client: httpx2.AsyncClient) -> httpx2.AsyncClient:
     """One account, signed in, with its personal library."""
     assert (await register(client)).status_code == 201
     return client
@@ -37,14 +37,14 @@ async def personal_library(session: AsyncSession, owner_id: int = 1) -> Library:
     return library
 
 
-async def export(client: httpx.AsyncClient, library: Library, **query: str) -> httpx.Response:
+async def export(client: httpx2.AsyncClient, library: Library, **query: str) -> httpx2.Response:
     parameters = "&".join(f"{name}={value}" for name, value in query.items())
     return await client.get(f"/web/libraries/{library.id}/items/export?{parameters}")
 
 
 class TestWhatComesOut:
     async def test_a_library_is_written_as_bibtex(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         await factories.make_item(
@@ -62,7 +62,7 @@ class TestWhatComesOut:
         assert "Structure and Interpretation" in response.text
 
     async def test_biblatex_uses_its_own_entry_types(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The one thing that tells the two apart: BibTeX has no `@online`."""
         library = await personal_library(session)
@@ -75,7 +75,7 @@ class TestWhatComesOut:
         assert "@online{" in biblatex
 
     async def test_ris_is_written_as_ris(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         await factories.make_item(session, library, fields={"title": "A book"})
@@ -88,7 +88,7 @@ class TestWhatComesOut:
         assert "TI  - A book" in response.text
 
     async def test_csl_json_is_a_file_rather_than_the_api_s_envelope(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A CSL JSON *file* is an array. The `{"items": …}` wrapper is the v3
         API's envelope, and pandoc and citeproc read neither of those."""
@@ -103,7 +103,7 @@ class TestWhatComesOut:
         assert body[0]["title"] == "A book"
 
     async def test_the_file_is_named_and_offered_as_a_download(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         await factories.make_item(session, library, fields={"title": "A book"})
@@ -115,7 +115,7 @@ class TestWhatComesOut:
         assert "My%20Library.bib" in disposition
 
     async def test_a_name_cannot_carry_a_path_or_break_the_header(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         await factories.make_item(session, library, fields={"title": "A book"})
@@ -127,7 +127,7 @@ class TestWhatComesOut:
         assert response.status_code == 200
 
     async def test_an_empty_view_writes_an_empty_file_rather_than_failing(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The desktop client greys the menu item out instead; so does the
         interface. A request made anyway gets an empty bibliography, which is
@@ -142,7 +142,7 @@ class TestWhatComesOut:
 
 class TestWhichItems:
     async def test_a_collection_narrows_it_to_that_collection(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         inside = await factories.make_item(session, library, fields={"title": "Filed"})
@@ -155,7 +155,7 @@ class TestWhichItems:
         assert "Loose" not in text
 
     async def test_a_search_narrows_it_the_way_the_list_is_narrowed(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         await factories.make_item(session, library, fields={"title": "Whales"})
@@ -167,7 +167,7 @@ class TestWhichItems:
         assert "Trains" not in text
 
     async def test_a_tag_narrows_it_too(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         tagged = await factories.make_item(session, library, fields={"title": "Tagged"})
@@ -180,7 +180,7 @@ class TestWhichItems:
         assert "Untagged" not in text
 
     async def test_named_items_are_the_only_ones_written(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A selection is an errand of its own, as it is for filing and trashing."""
         library = await personal_library(session)
@@ -193,7 +193,7 @@ class TestWhichItems:
         assert "Passed over" not in text
 
     async def test_a_key_from_another_library_is_not_reached(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         await factories.make_item(session, library, fields={"title": "Mine"})
@@ -207,7 +207,7 @@ class TestWhichItems:
         assert text.strip() == ""
 
     async def test_notes_and_attachments_are_left_out(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Neither has a bibliography entry, and altero has no note translator
         to write one with. The desktop client's own BibTeX and RIS translators
@@ -231,7 +231,7 @@ class TestWhichItems:
         assert "A scan" not in text
 
     async def test_the_trash_is_out_of_the_way_unless_it_is_what_is_shown(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
         await factories.make_item(session, library, fields={"title": "Kept"})
@@ -246,7 +246,7 @@ class TestWhichItems:
         assert "Kept" not in trash_text
 
     async def test_more_items_than_one_batch_all_arrive_with_distinct_keys(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The export is written in batches, and a citation key is unique
         within a file — so the set of used keys has to outlive one batch."""
@@ -273,7 +273,7 @@ class TestWhichItems:
 
 class TestWhoMay:
     async def test_a_session_is_required(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         library = await personal_library(session)
@@ -282,7 +282,7 @@ class TestWhoMay:
         assert (await export(client, library, format="ris")).status_code == 401
 
     async def test_reading_a_group_is_enough_to_export_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Unlike an archive, which is an administrator's act: this file holds
         nothing a member could not read item by item."""
@@ -296,20 +296,20 @@ class TestWhoMay:
         assert "Shared reading" in response.text
 
     async def test_a_library_this_account_cannot_read_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         grace = await admin.create_user(session, username="grace")
         theirs = await personal_library(session, owner_id=grace.id)
 
         assert (await export(ada, theirs, format="ris")).status_code == 403
 
-    async def test_a_missing_library_is_404(self, ada: httpx.AsyncClient) -> None:
+    async def test_a_missing_library_is_404(self, ada: httpx2.AsyncClient) -> None:
         response = await ada.get("/web/libraries/9999/items/export?format=ris")
 
         assert response.status_code == 404
 
     async def test_an_api_key_is_not_a_way_in(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         library = await personal_library(session)
@@ -326,7 +326,7 @@ class TestWhoMay:
 
 class TestWhatItRefuses:
     async def test_an_unknown_format_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
 
@@ -335,7 +335,7 @@ class TestWhatItRefuses:
         assert response.status_code == 400
 
     async def test_a_reading_format_is_not_an_export_format(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """`json` and `atom` are how the API describes an item, not files to
         hand to another program."""
@@ -345,14 +345,14 @@ class TestWhatItRefuses:
         assert (await export(ada, library, format="atom")).status_code == 400
 
     async def test_a_sort_the_list_cannot_do_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await personal_library(session)
 
         assert (await export(ada, library, format="ris", sort="colour")).status_code == 400
 
     async def test_a_group_has_no_publications_to_export(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         grace = await admin.create_user(session, username="grace")
         group = await factories.make_group(session, owner_id=grace.id, members={1: "member"})
@@ -366,7 +366,7 @@ class TestTheCostOfAnExport:
     async def test_batches_neither_count_nor_skip(
         self,
         app: Any,
-        ada: httpx.AsyncClient,
+        ada: httpx2.AsyncClient,
         session: AsyncSession,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:

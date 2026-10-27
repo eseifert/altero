@@ -13,7 +13,7 @@ wrong guesses.
 from datetime import timedelta
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy import select
@@ -75,13 +75,13 @@ def code_from(outbox: Outbox) -> str:
     return outbox.sent[-1].subject.split(" ", 1)[0]
 
 
-async def sign_in(client: httpx.AsyncClient) -> httpx.Response:
+async def sign_in(client: httpx2.AsyncClient) -> httpx2.Response:
     return await client.post("/web/auth/login", json={"username": USERNAME, "password": PASSWORD})
 
 
 class TestSigningInWithOne:
     async def test_the_password_alone_does_not_sign_in(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """The whole claim: a stolen password stops being enough."""
         await enrolled_account(session)
@@ -93,7 +93,7 @@ class TestSigningInWithOne:
         assert (await client.get("/web/auth/session")).status_code == 401
 
     async def test_a_code_is_sent_to_the_confirmed_address(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
 
@@ -104,7 +104,7 @@ class TestSigningInWithOne:
         assert code_from(outbox).isdigit()
 
     async def test_the_code_is_in_the_subject_so_a_phone_can_show_it(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
 
@@ -113,7 +113,7 @@ class TestSigningInWithOne:
         assert outbox.sent[0].subject.startswith(code_from(outbox))
 
     async def test_the_right_code_finishes_signing_in(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)
@@ -127,7 +127,7 @@ class TestSigningInWithOne:
         assert (await client.get("/web/auth/session")).status_code == 200
 
     async def test_the_wrong_code_answers_401_and_leaves_it_pending(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)
@@ -140,7 +140,7 @@ class TestSigningInWithOne:
         assert (await client.get("/web/auth/session")).status_code == 401
 
     async def test_it_needs_the_csrf_token(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)
@@ -150,7 +150,7 @@ class TestSigningInWithOne:
         assert response.status_code == 403
 
     async def test_a_code_works_once(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)
@@ -169,7 +169,7 @@ class TestSigningInWithOne:
 
 class TestItIsBoundToOneSignIn:
     async def test_a_code_from_another_browser_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox, app: FastAPI
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox, app: FastAPI
     ) -> None:
         """Whoever read the mail must not be able to use it from their machine."""
         user = await enrolled_account(session)
@@ -185,7 +185,7 @@ class TestItIsBoundToOneSignIn:
         assert token
 
     async def test_asking_again_replaces_the_code_rather_than_adding_one(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """Two live codes would double what an interceptor has to work with."""
         await enrolled_account(session)
@@ -205,7 +205,7 @@ class TestItIsBoundToOneSignIn:
         assert fresh.status_code == 200
 
     async def test_the_code_goes_when_the_session_does(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """Cascaded, so an abandoned sign-in leaves no live credential behind."""
         user = await enrolled_account(session)
@@ -220,7 +220,7 @@ class TestItIsBoundToOneSignIn:
 
 class TestItCannotBeGuessed:
     async def test_the_code_is_spent_after_a_few_wrong_guesses(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """Six digits would be walkable otherwise."""
         await enrolled_account(session)
@@ -238,7 +238,7 @@ class TestItCannotBeGuessed:
         assert response.status_code == 401
 
     async def test_an_expired_code_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)
@@ -254,7 +254,7 @@ class TestItCannotBeGuessed:
         assert response.status_code == 401
 
     async def test_only_the_digest_is_stored(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)
@@ -268,7 +268,7 @@ class TestItCannotBeGuessed:
 
 class TestWhenBothFactorsAreEnrolled:
     async def test_the_authenticator_is_asked_for(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """The stronger of the two wins without being asked about."""
         await enrolled_account(session, totp_too=True)
@@ -279,7 +279,7 @@ class TestWhenBothFactorsAreEnrolled:
         assert outbox.sent == []
 
     async def test_the_email_code_is_offered_as_the_other_way(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session, totp_too=True)
 
@@ -288,7 +288,7 @@ class TestWhenBothFactorsAreEnrolled:
         assert body["alternativeFactors"] == ["email"]
 
     async def test_asking_for_it_sends_a_code_and_signs_in(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """The answer to a lost phone, end to end."""
         await enrolled_account(session, totp_too=True)
@@ -306,7 +306,7 @@ class TestWhenBothFactorsAreEnrolled:
         assert finished.status_code == 200
 
     async def test_a_factor_the_account_does_not_have_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         user = await admin.create_user(session, username="ada")
         await webauth.set_password(session, user, PASSWORD)
@@ -321,7 +321,7 @@ class TestWhenBothFactorsAreEnrolled:
         assert outbox.sent == []
 
     async def test_a_finished_session_cannot_be_put_back_into_a_factor(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """Otherwise this is a way of re-opening a session to present a code at."""
         await enrolled_account(session)
@@ -339,7 +339,7 @@ class TestWhenBothFactorsAreEnrolled:
 
 class TestTurningItOn:
     async def test_it_needs_a_confirmed_address(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """A factor sent where nobody proved they can read is no factor at all."""
         from tests.test_web_routes import register
@@ -356,7 +356,7 @@ class TestTurningItOn:
         assert await session.scalar(select(EmailFactor)) is None
 
     async def test_a_confirmed_address_can_turn_it_on(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         user = await enrolled_account(session)
         await logincodes.disable(session, user)
@@ -373,7 +373,7 @@ class TestTurningItOn:
         assert enrolled is not None
 
     async def test_turning_it_on_needs_the_password(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         user = await enrolled_account(session)
         await logincodes.disable(session, user)
@@ -386,7 +386,7 @@ class TestTurningItOn:
         assert response.status_code == 403
 
     async def test_the_settings_screen_says_whether_it_is_on(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)
@@ -399,7 +399,7 @@ class TestTurningItOn:
         assert body["emailCodesEnabled"] is True
 
     async def test_turning_it_off_stops_it_being_asked_for(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)
@@ -419,7 +419,7 @@ class TestTurningItOn:
         assert (await sign_in(client)).json()["needsFactor"] is None
 
     async def test_the_owner_is_told_when_it_changes(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """A silent change to a credential is one nobody notices being made."""
         user = await enrolled_account(session)
@@ -437,7 +437,7 @@ class TestTurningItOn:
 
 
 class TestTheConfigListsIt:
-    async def test_the_sign_in_page_is_told_it_exists(self, client: httpx.AsyncClient) -> None:
+    async def test_the_sign_in_page_is_told_it_exists(self, client: httpx2.AsyncClient) -> None:
         """Named rather than compared to the whole list, which grows as factors
         are added and is not what this test is about."""
         body = (await client.get("/web/config")).json()
@@ -447,7 +447,7 @@ class TestTheConfigListsIt:
 
 class TestTheCsrfHeaderIsStillRequired:
     async def test_resending_needs_it(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await enrolled_account(session)
         await sign_in(client)

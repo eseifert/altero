@@ -1,6 +1,6 @@
 """Injected failures exercise real transport boundaries and durable writes."""
 
-import httpx
+import httpx2
 import pytest
 
 from tools.compatibility.barriers import HTTPBarrier
@@ -14,7 +14,7 @@ async def test_transient_response_distinguishes_uncommitted_and_committed_writes
     async with disposable_server(tmp_path / "server") as server:
         barrier = server.barrier
         barrier.inject("POST", "/users/1/items", point, fault="status", status=503)
-        async with httpx.AsyncClient(
+        async with httpx2.AsyncClient(
             base_url=server.url, headers={"Zotero-API-Key": server.key}
         ) as client:
             failed = await client.post(
@@ -37,11 +37,11 @@ async def test_transient_response_distinguishes_uncommitted_and_committed_writes
 async def test_truncated_response_is_a_real_transport_error_and_next_request_recovers(tmp_path):
     async with (
         disposable_server(tmp_path / "server") as server,
-        httpx.AsyncClient(base_url=server.url, headers={"Zotero-API-Key": server.key}) as client,
+        httpx2.AsyncClient(base_url=server.url, headers={"Zotero-API-Key": server.key}) as client,
     ):
         barrier = server.barrier
         barrier.inject("GET", "/users/1/items", "download", fault="disconnect")
-        with pytest.raises(httpx.RemoteProtocolError):
+        with pytest.raises(httpx2.RemoteProtocolError):
             await client.get("/users/1/items")
         assert barrier.reached.is_set()
         assert (await client.get("/users/1/items")).status_code == 200

@@ -13,7 +13,7 @@ import asyncio
 import os
 from collections.abc import AsyncIterator
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 
@@ -54,18 +54,18 @@ async def database() -> AsyncIterator[Database]:
 
 
 @pytest.fixture
-async def client(database: Database) -> AsyncIterator[httpx.AsyncClient]:
+async def client(database: Database) -> AsyncIterator[httpx2.AsyncClient]:
     """Return a client whose app shares the prepared database."""
     assert POSTGRES_URL
     app = create_app(Settings(database_url=POSTGRES_URL))
-    transport = httpx.ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+    transport = httpx2.ASGITransport(app=app)
+    async with httpx2.AsyncClient(transport=transport, base_url="http://testserver") as client:
         yield client
     await app.state.database.dispose()
 
 
 async def test_concurrent_creates_each_get_their_own_version(
-    client: httpx.AsyncClient, database: Database
+    client: httpx2.AsyncClient, database: Database
 ) -> None:
     """No two requests may share a library version.
 
@@ -92,7 +92,7 @@ async def test_concurrent_creates_each_get_their_own_version(
     assert sorted(versions) == list(range(1, 11))
 
 
-async def test_no_write_is_lost(client: httpx.AsyncClient, database: Database) -> None:
+async def test_no_write_is_lost(client: httpx2.AsyncClient, database: Database) -> None:
     """Every concurrent create must survive."""
     await asyncio.gather(
         *(
@@ -113,7 +113,7 @@ async def test_no_write_is_lost(client: httpx.AsyncClient, database: Database) -
 
 
 async def test_the_library_version_matches_the_newest_object(
-    client: httpx.AsyncClient, database: Database
+    client: httpx2.AsyncClient, database: Database
 ) -> None:
     await asyncio.gather(
         *(
@@ -132,7 +132,7 @@ async def test_the_library_version_matches_the_newest_object(
 
 
 async def test_the_same_write_token_is_honoured_once(
-    client: httpx.AsyncClient, database: Database
+    client: httpx2.AsyncClient, database: Database
 ) -> None:
     """Two copies of one request must not both be applied.
 
@@ -162,7 +162,7 @@ async def test_the_same_write_token_is_honoured_once(
 
 
 async def test_the_same_new_tag_is_created_once(
-    client: httpx.AsyncClient, database: Database
+    client: httpx2.AsyncClient, database: Database
 ) -> None:
     """Concurrent writes naming one new tag must not duplicate it."""
     responses = await asyncio.gather(

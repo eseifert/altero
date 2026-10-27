@@ -7,7 +7,7 @@ an API key and nothing else.
 
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,7 +37,7 @@ def settings(tmp_path: Path) -> Settings:
 
 
 async def enrol(
-    client: httpx.AsyncClient, device: Authenticator | None = None, *, name: str = "Laptop"
+    client: httpx2.AsyncClient, device: Authenticator | None = None, *, name: str = "Laptop"
 ) -> Authenticator:
     """Run a whole enrolment over HTTP."""
     device = device or Authenticator()
@@ -58,7 +58,7 @@ async def enrol(
     return device
 
 
-async def sign_in(client: httpx.AsyncClient, device: Authenticator) -> httpx.Response:
+async def sign_in(client: httpx2.AsyncClient, device: Authenticator) -> httpx2.Response:
     """No CSRF header anywhere here: a browser that has never signed in has no
     token to send, and that is exactly the browser this pair is for."""
     options = (await client.post("/web/auth/passkey/options")).json()
@@ -67,7 +67,7 @@ async def sign_in(client: httpx.AsyncClient, device: Authenticator) -> httpx.Res
 
 
 class TestEnrolling:
-    async def test_a_signed_in_account_can_add_one(self, client: httpx.AsyncClient) -> None:
+    async def test_a_signed_in_account_can_add_one(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         await enrol(client)
@@ -76,7 +76,7 @@ class TestEnrolling:
         assert len(body["passkeys"]) == 1
         assert body["passkeys"][0]["name"] == "Laptop"
 
-    async def test_it_takes_the_password_first(self, client: httpx.AsyncClient) -> None:
+    async def test_it_takes_the_password_first(self, client: httpx2.AsyncClient) -> None:
         """A passkey is a way *in*, so adding one asks for proof exactly as
         making an API key does -- and asks before the authenticator is touched,
         so a refusal does not arrive after a fingerprint."""
@@ -88,7 +88,7 @@ class TestEnrolling:
 
         assert response.status_code == 403
 
-    async def test_the_wrong_password_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_the_wrong_password_is_refused(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.post(
@@ -99,7 +99,7 @@ class TestEnrolling:
 
         assert response.status_code == 403
 
-    async def test_it_needs_the_csrf_token(self, client: httpx.AsyncClient) -> None:
+    async def test_it_needs_the_csrf_token(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.post(
@@ -111,7 +111,7 @@ class TestEnrolling:
 
 class TestSigningIn:
     async def test_a_browser_that_has_never_signed_in_can_use_one(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """The CSRF cookie is only set by a sign-in, so requiring the token
         here would make a passkey unusable by exactly the browser it is for."""
@@ -126,7 +126,7 @@ class TestSigningIn:
 
         assert response.status_code == 200
 
-    async def test_a_passkey_alone_opens_a_session(self, client: httpx.AsyncClient) -> None:
+    async def test_a_passkey_alone_opens_a_session(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         device = await enrol(client)
         await client.post("/web/auth/logout", headers=csrf_headers(client))
@@ -137,7 +137,7 @@ class TestSigningIn:
         assert response.json()["needsFactor"] is None
         assert (await client.get("/web/auth/session")).json()["user"]["username"] == "ada"
 
-    async def test_no_username_is_taken_anywhere(self, client: httpx.AsyncClient) -> None:
+    async def test_no_username_is_taken_anywhere(self, client: httpx2.AsyncClient) -> None:
         """Which is what makes this page unable to answer whether an account
         exists."""
         await register(client)
@@ -148,7 +148,7 @@ class TestSigningIn:
         assert not options.get("allowCredentials")
 
     async def test_the_options_look_the_same_whether_or_not_anyone_is_enrolled(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """Before and after an enrolment, the same shape -- so the endpoint
         cannot be used to ask whether anybody here has a passkey."""
@@ -164,7 +164,7 @@ class TestSigningIn:
         assert set(before) == set(after)
         assert before.get("allowCredentials") == after.get("allowCredentials")
 
-    async def test_it_can_change_things_straight_away(self, client: httpx.AsyncClient) -> None:
+    async def test_it_can_change_things_straight_away(self, client: httpx2.AsyncClient) -> None:
         """A passkey is the stronger credential, so it counts as proof: making
         an API key right afterwards does not ask for anything more."""
         await register(client)
@@ -178,7 +178,7 @@ class TestSigningIn:
 
         assert response.status_code == 201
 
-    async def test_a_passkey_nobody_enrolled_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_a_passkey_nobody_enrolled_is_refused(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         await client.post("/web/auth/logout", headers=csrf_headers(client))
         stranger = Authenticator(credential_id=b"never-seen-before-0")
@@ -189,7 +189,7 @@ class TestSigningIn:
 
 
 class TestManagingThem:
-    async def test_one_can_be_renamed(self, client: httpx.AsyncClient) -> None:
+    async def test_one_can_be_renamed(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         await enrol(client)
         stored = (await client.get("/web/account/passkeys")).json()["passkeys"][0]
@@ -203,7 +203,7 @@ class TestManagingThem:
         assert response.status_code == 200
         assert response.json()["passkey"]["name"] == "Yubikey"
 
-    async def test_one_can_be_removed_with_the_password(self, client: httpx.AsyncClient) -> None:
+    async def test_one_can_be_removed_with_the_password(self, client: httpx2.AsyncClient) -> None:
         await register(client)
         await enrol(client)
         stored = (await client.get("/web/account/passkeys")).json()["passkeys"][0]
@@ -219,7 +219,7 @@ class TestManagingThem:
         assert (await client.get("/web/account/passkeys")).json()["passkeys"] == []
 
     async def test_somebody_elses_is_not_removable(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         from altero.services import admin, webauth, websessions
 
@@ -244,11 +244,11 @@ class TestManagingThem:
 
 class TestTheConfigSaysWhetherTheyWork:
     async def test_an_instance_with_a_public_url_offers_them(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         assert (await client.get("/web/config")).json()["passkeysAvailable"] is True
 
-    async def test_webauthn_is_listed_as_a_factor(self, client: httpx.AsyncClient) -> None:
+    async def test_webauthn_is_listed_as_a_factor(self, client: httpx2.AsyncClient) -> None:
         assert "webauthn" in (await client.get("/web/config")).json()["secondFactors"]
 
 
@@ -263,11 +263,11 @@ class TestWithoutAPublicUrl:
             storage_path=tmp_path / "storage",
         )
 
-    async def test_the_page_is_told_not_to_offer_them(self, client: httpx.AsyncClient) -> None:
+    async def test_the_page_is_told_not_to_offer_them(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/config")).json()["passkeysAvailable"] is False
 
     async def test_enrolling_is_refused_rather_than_guessed_at(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """Guessing would make a passkey that silently stops working the day
         the address changes."""
@@ -284,7 +284,7 @@ class TestWithoutAPublicUrl:
 
 class TestTheV3ApiIsStillUntouched:
     async def test_a_passkey_session_does_not_authenticate_a_v3_request(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         device = await enrol(client)
@@ -298,7 +298,7 @@ class TestTheV3ApiIsStillUntouched:
         assert response.status_code in (401, 403)
 
     async def test_signing_in_hands_out_no_api_key(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A desktop client still takes its key from Settings, as it always
         did -- a passkey changes what the browser accepts, not the sync API."""
@@ -310,7 +310,7 @@ class TestTheV3ApiIsStillUntouched:
         assert list(await session.scalars(select(ApiKey))) == []
 
     async def test_the_credential_row_holds_no_secret(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         device = await enrol(client)

@@ -14,7 +14,7 @@ looked at them and the serializer returned ``{}`` unconditionally.
 
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,7 +42,7 @@ async def library(session: AsyncSession) -> Library:
 
 
 async def post(
-    client: httpx.AsyncClient, path: str, payload: list[dict[str, Any]]
+    client: httpx2.AsyncClient, path: str, payload: list[dict[str, Any]]
 ) -> dict[str, Any]:
     response = await client.post(path, headers=JSON, json=payload)
     body: dict[str, Any] = response.json()
@@ -53,7 +53,7 @@ async def post(
 
 class TestItemRelations:
     async def test_one_object_is_a_string(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await post(
             client,
@@ -64,7 +64,7 @@ class TestItemRelations:
         assert stored["relations"] == {"dc:relation": OTHER}
 
     async def test_several_objects_stay_several(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # An item related to two others. Keyed on the predicate alone, the
         # second relation overwrites the first and the user loses one.
@@ -82,7 +82,7 @@ class TestItemRelations:
 
         assert sorted(stored["relations"]["dc:relation"]) == sorted([OTHER, ANOTHER])
 
-    async def test_they_survive_a_fetch(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_they_survive_a_fetch(self, client: httpx2.AsyncClient, library: Library) -> None:
         stored = await post(
             client,
             "/users/1/items",
@@ -102,7 +102,7 @@ class TestItemRelations:
         )
 
     async def test_two_predicates_stay_apart(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await post(
             client,
@@ -119,7 +119,7 @@ class TestItemRelations:
         assert stored["relations"] == {"dc:relation": OTHER, "owl:sameAs": ANOTHER}
 
     async def test_an_empty_array_is_accepted_as_no_relations(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # Upstream allows it explicitly, "because it's annoying for some
         # clients otherwise". Rejecting it would fail the whole item.
@@ -132,7 +132,7 @@ class TestItemRelations:
 
 class TestCollectionRelations:
     async def test_they_are_stored_rather_than_dropped(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await post(
             client,
@@ -142,7 +142,7 @@ class TestCollectionRelations:
 
         assert stored["relations"] == {"owl:sameAs": A_COLLECTION}
 
-    async def test_they_survive_a_fetch(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_they_survive_a_fetch(self, client: httpx2.AsyncClient, library: Library) -> None:
         stored = await post(
             client,
             "/users/1/collections",
@@ -154,7 +154,7 @@ class TestCollectionRelations:
         assert fetched.json()["data"]["relations"] == {"owl:sameAs": A_COLLECTION}
 
     async def test_several_objects_stay_several(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await post(
             client,
@@ -165,14 +165,14 @@ class TestCollectionRelations:
         assert sorted(stored["relations"]["owl:sameAs"]) == sorted([A_COLLECTION, OTHER])
 
     async def test_a_collection_without_relations_reports_an_empty_map(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await post(client, "/users/1/collections", [{"name": "Fiction"}])
 
         assert stored["relations"] == {}
 
     async def test_an_empty_map_clears_them(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """How a client clears them: it sends the empty map.
 
@@ -192,7 +192,7 @@ class TestCollectionRelations:
         assert again["relations"] == {}
 
     async def test_leaving_the_map_out_of_a_patch_leaves_them_alone(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await post(
             client,
@@ -207,7 +207,7 @@ class TestCollectionRelations:
         assert fetched.json()["data"]["relations"] == {"owl:sameAs": A_COLLECTION}
 
     async def test_changing_them_is_not_an_unchanged_write(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await post(client, "/users/1/collections", [{"name": "Fiction"}])
 
@@ -221,7 +221,7 @@ class TestCollectionRelations:
         assert set(response.json()["successful"]) == {"0"}
 
     async def test_resending_them_verbatim_is_unchanged(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         stored = await post(
             client,
@@ -234,7 +234,7 @@ class TestCollectionRelations:
         assert response.json()["unchanged"] == {"0": stored["key"]}
 
     async def test_a_non_object_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/collections",

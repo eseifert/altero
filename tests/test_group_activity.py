@@ -11,7 +11,7 @@ is; the fan-out belongs to the sweep that sends, where it costs nobody's
 request. See :mod:`altero.services.groupactivity`.
 """
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -131,7 +131,7 @@ class TestOnTheWritePath:
         return await make_group(session, group_id=100, owner_id=1)
 
     async def test_creating_items_records_one_event_for_the_batch(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         response = await client.post(
             "/groups/100/items",
@@ -149,7 +149,7 @@ class TestOnTheWritePath:
         ]
 
     async def test_a_write_to_a_personal_library_records_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/items", headers=JSON, json=[{"itemType": "book", "title": "One"}]
@@ -159,7 +159,7 @@ class TestOnTheWritePath:
         assert await recorded(session) == []
 
     async def test_a_batch_that_wholly_failed_records_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Nothing was written and the library version did not move, so nothing
         # happened for anybody to hear about.
@@ -172,7 +172,7 @@ class TestOnTheWritePath:
         assert await recorded(session) == []
 
     async def test_trashing_an_item_is_recorded_as_a_deletion(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Trashing is a field change on the wire, but it is what a person means
         # by deleting, and it is the event a member asked to be warned about.
@@ -195,7 +195,7 @@ class TestOnTheWritePath:
         ]
 
     async def test_deleting_items_outright_is_recorded_as_a_deletion(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         created = await client.post(
             "/groups/100/items", headers=JSON, json=[{"itemType": "book", "title": "One"}]
@@ -216,7 +216,7 @@ class TestOnTheWritePath:
         ]
 
     async def test_collections_are_recorded_under_their_own_kind(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         response = await client.post(
             "/groups/100/collections", headers=JSON, json=[{"name": "Reading"}]

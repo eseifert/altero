@@ -4,7 +4,7 @@ import hashlib
 import io
 import zipfile
 
-import httpx
+import httpx2
 
 from tools.compatibility.runtime import disposable_server
 
@@ -22,7 +22,7 @@ async def test_smaller_whole_archive_survives_the_other_uploads_registration(tmp
     assert len(archives[0]) > len(archives[1])
     async with (
         disposable_server(tmp_path / "server") as server,
-        httpx.AsyncClient(base_url=server.url, headers={"Zotero-API-Key": server.key}) as client,
+        httpx2.AsyncClient(base_url=server.url, headers={"Zotero-API-Key": server.key}) as client,
     ):
         keys = ("ZIPBIG23", "ZIPSMAL2")
         seeded = await client.post(

@@ -1,6 +1,6 @@
 """Credential handling and the key and group endpoints, over HTTP."""
 
-import httpx
+import httpx2
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests.factories import make_api_key, make_group, make_user
@@ -14,7 +14,7 @@ async def _setup(session: AsyncSession) -> None:
 
 
 async def test_the_api_key_header_authenticates(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
 
@@ -24,7 +24,7 @@ async def test_the_api_key_header_authenticates(
 
 
 async def test_a_bearer_token_authenticates(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
 
@@ -34,7 +34,7 @@ async def test_a_bearer_token_authenticates(
 
 
 async def test_the_bearer_scheme_is_matched_case_insensitively(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
 
@@ -44,7 +44,7 @@ async def test_the_bearer_scheme_is_matched_case_insensitively(
 
 
 async def test_the_key_query_parameter_authenticates(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
 
@@ -54,7 +54,7 @@ async def test_the_key_query_parameter_authenticates(
 
 
 async def test_the_header_wins_over_the_query_parameter(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
 
@@ -63,7 +63,9 @@ async def test_the_header_wins_over_the_query_parameter(
     assert response.status_code == 200
 
 
-async def test_an_unknown_key_is_rejected(client: httpx.AsyncClient, session: AsyncSession) -> None:
+async def test_an_unknown_key_is_rejected(
+    client: httpx2.AsyncClient, session: AsyncSession
+) -> None:
     await _setup(session)
 
     response = await client.get("/users/1/groups", headers={"Zotero-API-Key": "NOPE"})
@@ -73,7 +75,7 @@ async def test_an_unknown_key_is_rejected(client: httpx.AsyncClient, session: As
     assert response.headers["content-type"].startswith("text/plain")
 
 
-async def test_a_missing_key_is_rejected(client: httpx.AsyncClient, session: AsyncSession) -> None:
+async def test_a_missing_key_is_rejected(client: httpx2.AsyncClient, session: AsyncSession) -> None:
     await _setup(session)
 
     response = await client.get("/users/1/groups")
@@ -82,7 +84,7 @@ async def test_a_missing_key_is_rejected(client: httpx.AsyncClient, session: Asy
 
 
 async def test_a_non_bearer_authorization_header_is_ignored(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
 
@@ -92,7 +94,7 @@ async def test_a_non_bearer_authorization_header_is_ignored(
 
 
 async def test_a_key_cannot_list_another_users_groups(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
     await make_user(session, user_id=2, username="other")
@@ -103,7 +105,7 @@ async def test_a_key_cannot_list_another_users_groups(
 
 
 async def test_groups_are_listed_for_their_member(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
     await make_group(session, group_id=100, owner_id=1, name="Research")
@@ -119,7 +121,7 @@ async def test_groups_are_listed_for_their_member(
 
 
 async def test_one_group_is_readable_by_a_key_that_covers_it(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await make_user(session, user_id=1, username="octocat", display_name="Mona Lisa")
     await make_api_key(session, key=KEY, user_id=1, all_groups_read=True)
@@ -135,7 +137,7 @@ async def test_one_group_is_readable_by_a_key_that_covers_it(
 
 
 async def test_a_public_group_is_readable_without_a_key(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
     await make_group(session, group_id=100, owner_id=1, name="Open", public=True)
@@ -147,7 +149,7 @@ async def test_a_public_group_is_readable_without_a_key(
 
 
 async def test_a_group_the_caller_cannot_read_is_not_confirmed_to_exist(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     """403 would tell a stranger which private groups exist. Upstream's own
     check answers 404, and so does this. A key that does not cover groups is
@@ -162,7 +164,7 @@ async def test_a_group_the_caller_cannot_read_is_not_confirmed_to_exist(
 
 
 async def test_groups_of_other_users_are_not_listed(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
     await make_user(session, user_id=2, username="other")
@@ -174,7 +176,7 @@ async def test_groups_of_other_users_are_not_listed(
 
 
 async def test_a_key_describes_its_own_access(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
 
@@ -195,7 +197,7 @@ async def test_a_key_describes_its_own_access(
 
 
 async def test_a_key_cannot_describe_another_key(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
     await make_api_key(session, key="OTHERKEY", user_id=1)
@@ -206,7 +208,7 @@ async def test_a_key_cannot_describe_another_key(
 
 
 async def test_group_defaults_appear_in_the_key_description(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await make_user(session, user_id=1)
     await make_api_key(session, key=KEY, user_id=1, all_groups_read=True, all_groups_write=True)
@@ -217,7 +219,7 @@ async def test_group_defaults_appear_in_the_key_description(
 
 
 async def test_every_response_carries_the_api_version(
-    client: httpx.AsyncClient, session: AsyncSession
+    client: httpx2.AsyncClient, session: AsyncSession
 ) -> None:
     await _setup(session)
 

@@ -1,6 +1,6 @@
 """A rejected new parent cannot leave a child or discard unrelated success."""
 
-import httpx
+import httpx2
 
 from tools.compatibility.runtime import disposable_server
 
@@ -11,7 +11,7 @@ async def test_server_validates_corrupted_parent_and_rejects_dependent_child(tmp
             "POST", "/users/1/items", rewrite_item={"key": "PARENT23", "itemType": "invalid"}
         )
         server.barrier.release.set()
-        async with httpx.AsyncClient(
+        async with httpx2.AsyncClient(
             base_url=server.url, headers={"Zotero-API-Key": server.key}
         ) as client:
             result = (

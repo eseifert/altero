@@ -13,7 +13,7 @@ upload an item does not give up, it keeps sending it.
 
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,14 +45,14 @@ async def group(session: AsyncSession) -> Library:
 
 
 async def post(
-    client: httpx.AsyncClient, path: str, payload: list[dict[str, Any]]
-) -> httpx.Response:
+    client: httpx2.AsyncClient, path: str, payload: list[dict[str, Any]]
+) -> httpx2.Response:
     return await client.post(path, headers=JSON, json=payload)
 
 
 class TestAcceptingTheProperty:
     async def test_an_item_can_be_put_in_my_publications(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await post(
             client,
@@ -65,7 +65,7 @@ class TestAcceptingTheProperty:
         assert response.json()["successful"]["0"]["data"]["inPublications"] is True
 
     async def test_it_survives_a_round_trip_through_the_api(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await post(
             client,
@@ -79,7 +79,7 @@ class TestAcceptingTheProperty:
         assert fetched.json()["data"]["inPublications"] is True
 
     async def test_it_is_omitted_rather_than_false(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # Upstream emits the key only when true, as it does for `deleted`.
         # Emitting `false` would put a property on every item in every library.
@@ -88,7 +88,7 @@ class TestAcceptingTheProperty:
         assert "inPublications" not in created.json()["successful"]["0"]["data"]
 
     async def test_a_falsy_value_is_accepted_and_stored_as_absent(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await post(
             client,
@@ -100,7 +100,7 @@ class TestAcceptingTheProperty:
         assert "inPublications" not in created.json()["successful"]["0"]["data"]
 
     async def test_a_replacing_write_clears_it(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # A full write with the property absent means false, as for any other
         # property a replacing write does not mention.
@@ -118,7 +118,7 @@ class TestAcceptingTheProperty:
         assert "inPublications" not in fetched.json()["data"]
 
     async def test_a_batched_write_that_omits_it_leaves_it_alone(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """A POSTed batch is a batch of patches, and a patch says nothing here.
 
@@ -144,7 +144,7 @@ class TestAcceptingTheProperty:
         assert fetched.json()["data"]["inPublications"] is True
 
     async def test_a_child_attachment_may_be_in_publications(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # Only *top-level* notes and attachments are refused; a child of a
         # published item is exactly what My Publications is for.
@@ -170,7 +170,7 @@ class TestAcceptingTheProperty:
 
 class TestRefusals:
     async def test_a_group_item_cannot_be_in_my_publications(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         response = await post(
             client,
@@ -183,7 +183,7 @@ class TestRefusals:
         assert failure["message"] == "Group items cannot be added to My Publications"
 
     async def test_a_group_item_may_still_carry_a_falsy_value(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         # Upstream stops checking the moment the value is falsy, so a client
         # sending inPublications:false to a group is not an error.
@@ -197,7 +197,7 @@ class TestRefusals:
 
     @pytest.mark.parametrize("item_type", ["note", "attachment"])
     async def test_a_top_level_note_or_attachment_is_refused(
-        self, client: httpx.AsyncClient, library: Library, item_type: str
+        self, client: httpx2.AsyncClient, library: Library, item_type: str
     ) -> None:
         payload: dict[str, Any] = {"itemType": item_type, "inPublications": True}
         if item_type == "attachment":
@@ -213,7 +213,7 @@ class TestRefusals:
         )
 
     async def test_a_linked_file_attachment_is_refused(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # The server does not hold the bytes of a linked file, so it could not
         # publish them.
@@ -241,7 +241,7 @@ class TestRefusals:
 
 class TestInteractionWithTheRest:
     async def test_toggling_it_is_not_an_unchanged_write(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # A property left out of the unchanged comparison would let a change to
         # it disappear, reported as unchanged and never stored.
@@ -254,7 +254,7 @@ class TestInteractionWithTheRest:
         assert again.json()["successful"]["0"]["data"]["inPublications"] is True
 
     async def test_an_item_in_publications_resent_verbatim_is_unchanged(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         created = await post(
             client,

@@ -2,7 +2,7 @@
 
 import hashlib
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import update
 
@@ -22,7 +22,7 @@ async def check_write_boundary(tmp_path, family, point, *, corrupt_watermark=Fal
     async with process_server(tmp_path / "server") as server:
 
         async def request(method, path, **options):
-            async with httpx.AsyncClient(
+            async with httpx2.AsyncClient(
                 base_url=server.url, headers={"Zotero-API-Key": server.key}
             ) as client:
                 return await client.request(method, path, **options)

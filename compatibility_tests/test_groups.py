@@ -1,6 +1,6 @@
 """Check API responses with the original permission and cache decision functions."""
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 from tests.factories import make_api_key, make_group, make_user
@@ -36,7 +36,7 @@ async def people(session: AsyncSession) -> None:
 async def test_the_client_sees_the_members_permission(
     people,
     session: AsyncSession,
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     zotero_client: ZoteroClient,
     path: str,
     role: str,
@@ -67,7 +67,7 @@ async def test_the_client_sees_the_members_permission(
 async def test_an_existing_client_refreshes_changed_permissions(
     people,
     session: AsyncSession,
-    socket_client: httpx.AsyncClient,
+    socket_client: httpx2.AsyncClient,
     zotero_client: ZoteroClient,
     change: str,
 ) -> None:

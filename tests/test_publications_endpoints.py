@@ -10,7 +10,7 @@ There is no group equivalent. My Publications belongs to a person.
 
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -54,7 +54,7 @@ async def published(session: AsyncSession, library: Library) -> dict[str, Any]:
 
 class TestReadingWithoutAKey:
     async def test_the_listing_is_anonymous(
-        self, client: httpx.AsyncClient, published: dict[str, Any]
+        self, client: httpx2.AsyncClient, published: dict[str, Any]
     ) -> None:
         response = await client.get("/users/1/publications/items")
 
@@ -62,7 +62,7 @@ class TestReadingWithoutAKey:
         assert response.headers["Last-Modified-Version"] == "10"
 
     async def test_only_published_items_appear(
-        self, client: httpx.AsyncClient, published: dict[str, Any]
+        self, client: httpx2.AsyncClient, published: dict[str, Any]
     ) -> None:
         listing = await client.get("/users/1/publications/items")
 
@@ -71,7 +71,7 @@ class TestReadingWithoutAKey:
         assert published["public"] in keys
 
     async def test_an_empty_publications_list_is_not_an_error(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/publications/items")
 
@@ -79,21 +79,21 @@ class TestReadingWithoutAKey:
         assert response.json() == []
 
     async def test_a_key_may_still_be_supplied(
-        self, client: httpx.AsyncClient, published: dict[str, Any]
+        self, client: httpx2.AsyncClient, published: dict[str, Any]
     ) -> None:
         response = await client.get("/users/1/publications/items", headers=AUTH)
 
         assert response.status_code == 200
 
     async def test_top_excludes_children(
-        self, client: httpx.AsyncClient, published: dict[str, Any]
+        self, client: httpx2.AsyncClient, published: dict[str, Any]
     ) -> None:
         listing = await client.get("/users/1/publications/items/top")
 
         assert [entry["key"] for entry in listing.json()] == [published["public"]]
 
     async def test_one_item_can_be_fetched(
-        self, client: httpx.AsyncClient, published: dict[str, Any]
+        self, client: httpx2.AsyncClient, published: dict[str, Any]
     ) -> None:
         response = await client.get(f"/users/1/publications/items/{published['public']}")
 
@@ -101,7 +101,7 @@ class TestReadingWithoutAKey:
         assert response.json()["data"]["title"] == "Published"
 
     async def test_a_private_item_is_not_reachable_by_key(
-        self, client: httpx.AsyncClient, published: dict[str, Any]
+        self, client: httpx2.AsyncClient, published: dict[str, Any]
     ) -> None:
         # The listing hiding it would be no use if the key still fetched it.
         response = await client.get(f"/users/1/publications/items/{published['private']}")
@@ -109,7 +109,7 @@ class TestReadingWithoutAKey:
         assert response.status_code == 404
 
     async def test_the_sync_formats_work(
-        self, client: httpx.AsyncClient, published: dict[str, Any]
+        self, client: httpx2.AsyncClient, published: dict[str, Any]
     ) -> None:
         versions = await client.get("/users/1/publications/items?format=versions")
 
@@ -120,7 +120,7 @@ class TestTheRestOfTheSyncCycle:
     """The client polls these alongside the items, and stops on anything but a 200."""
 
     async def test_settings_are_empty_but_present(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/publications/settings")
 
@@ -130,7 +130,7 @@ class TestTheRestOfTheSyncCycle:
         assert response.headers["Last-Modified-Version"] == str(library.version)
 
     async def test_deletions_are_an_empty_object(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """An object, not an array: the shape a `/deleted` response has."""
         response = await client.get("/users/1/publications/deleted")
@@ -140,7 +140,7 @@ class TestTheRestOfTheSyncCycle:
         assert response.headers["Last-Modified-Version"] == str(library.version)
 
     async def test_both_are_readable_without_a_key(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         for path in ("settings", "deleted"):
             assert (await client.get(f"/users/1/publications/{path}")).status_code == 200
@@ -149,13 +149,13 @@ class TestTheRestOfTheSyncCycle:
 class TestWhatIsNotThere:
     @pytest.mark.parametrize("path", ["collections", "searches"])
     async def test_only_items_exist(
-        self, client: httpx.AsyncClient, library: Library, path: str
+        self, client: httpx2.AsyncClient, library: Library, path: str
     ) -> None:
         response = await client.get(f"/users/1/publications/{path}")
 
         assert response.status_code == 404
 
-    async def test_writing_is_refused(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_writing_is_refused(self, client: httpx2.AsyncClient, library: Library) -> None:
         # A public list is public to read, not to add to.
         response = await client.post(
             "/users/1/publications/items",
@@ -166,7 +166,7 @@ class TestWhatIsNotThere:
         assert response.status_code == 403
 
     async def test_a_group_has_no_publications(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/groups/2/publications/items")
 
@@ -190,13 +190,13 @@ class TestTheOwnersVisibilitySetting:
         return user
 
     async def test_public_is_the_default_and_answers_a_stranger(
-        self, client: httpx.AsyncClient, owner: User, published: dict[str, Any]
+        self, client: httpx2.AsyncClient, owner: User, published: dict[str, Any]
     ) -> None:
         assert owner.profile_visibility is ProfileVisibility.PUBLIC
         assert (await client.get("/users/1/publications/items")).status_code == 200
 
     async def test_users_refuses_a_caller_with_no_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         owner.profile_visibility = ProfileVisibility.USERS
         await session.commit()
@@ -206,7 +206,7 @@ class TestTheOwnersVisibilitySetting:
         assert response.status_code == 403
 
     async def test_users_admits_a_key_this_server_issued(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         owner.profile_visibility = ProfileVisibility.USERS
         await session.commit()
@@ -216,7 +216,7 @@ class TestTheOwnersVisibilitySetting:
         assert response.status_code == 200
 
     async def test_private_refuses_a_stranger(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         owner.profile_visibility = ProfileVisibility.PRIVATE
         await session.commit()
@@ -224,7 +224,7 @@ class TestTheOwnersVisibilitySetting:
         assert (await client.get("/users/1/publications/items")).status_code == 403
 
     async def test_private_refuses_somebody_elses_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         owner.profile_visibility = ProfileVisibility.PRIVATE
         await session.commit()
@@ -238,7 +238,7 @@ class TestTheOwnersVisibilitySetting:
         assert response.status_code == 403
 
     async def test_the_owners_own_client_goes_on_syncing(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         """Closing the page must not stop the desktop client reading its own list."""
         owner.profile_visibility = ProfileVisibility.PRIVATE
@@ -247,7 +247,7 @@ class TestTheOwnersVisibilitySetting:
         assert (await client.get("/users/1/publications/items", headers=AUTH)).status_code == 200
 
     async def test_the_polls_the_client_makes_are_refused_too(
-        self, client: httpx.AsyncClient, session: AsyncSession, owner: User
+        self, client: httpx2.AsyncClient, session: AsyncSession, owner: User
     ) -> None:
         """Otherwise a closed list still reports its version to whoever asks."""
         owner.profile_visibility = ProfileVisibility.PRIVATE
@@ -258,7 +258,7 @@ class TestTheOwnersVisibilitySetting:
 
     async def test_one_item_is_refused_by_key_as_well(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         owner: User,
         published: dict[str, Any],

@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import IO, Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -65,7 +65,7 @@ def authorization(**overrides: object) -> dict[str, str]:
     return form
 
 
-async def upload(client: httpx.AsyncClient, key: str, content: bytes = CONTENT) -> None:
+async def upload(client: httpx2.AsyncClient, key: str, content: bytes = CONTENT) -> None:
     """Run the whole three-step upload for a file."""
     authorized = await client.post(
         f"/users/1/items/{key}/file",
@@ -84,7 +84,7 @@ async def upload(client: httpx.AsyncClient, key: str, content: bytes = CONTENT) 
 class TestAuthorization:
     @pytest.mark.parametrize("precondition", [{"If-Match": "0" * 32}, {"If-None-Match": "*"}])
     async def test_conflicting_file_names_its_item_version(
-        self, client: httpx.AsyncClient, attachment: str, precondition: dict[str, str]
+        self, client: httpx2.AsyncClient, attachment: str, precondition: dict[str, str]
     ) -> None:
         await upload(client, attachment)
         item = (await client.get(f"/users/1/items/{attachment}", headers=AUTH)).json()["data"]
@@ -101,7 +101,7 @@ class TestAuthorization:
         assert response.headers.get("Last-Modified-Version") == str(item["version"])
 
     async def test_missing_file_precondition_has_no_version(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         response = await client.post(
             f"/users/1/items/{attachment}/file",
@@ -112,7 +112,7 @@ class TestAuthorization:
         assert "Last-Modified-Version" not in response.headers
 
     async def test_authorization_returns_upload_instructions(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         response = await client.post(
             f"/users/1/items/{attachment}/file",
@@ -128,7 +128,7 @@ class TestAuthorization:
         assert body["suffix"] == ""
 
     async def test_a_precondition_is_required(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         response = await client.post(
             f"/users/1/items/{attachment}/file", headers=AUTH, data=authorization()
@@ -137,7 +137,7 @@ class TestAuthorization:
         assert response.status_code == 428
 
     async def test_if_none_match_fails_when_a_file_is_present(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         await upload(client, attachment)
 
@@ -150,7 +150,7 @@ class TestAuthorization:
         assert response.status_code == 412
 
     async def test_if_match_must_name_the_current_file(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         await upload(client, attachment)
 
@@ -169,7 +169,7 @@ class TestAuthorization:
         assert current.status_code == 200
 
     async def test_a_digest_with_no_bytes_is_not_a_file(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """An attachment can name a file this server has never held.
 
@@ -198,7 +198,7 @@ class TestAuthorization:
         assert "uploadKey" in authorized.json()
 
     async def test_the_file_a_claim_outlived_can_still_be_sent(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """And the whole upload goes through, whichever precondition is used.
 
@@ -229,7 +229,7 @@ class TestAuthorization:
         ).content == CONTENT
 
     async def test_a_swept_file_can_be_uploaded_again(
-        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+        self, client: httpx2.AsyncClient, attachment: str, settings: Settings
     ) -> None:
         """The same state reached from the other end: the bytes went away.
 
@@ -251,7 +251,7 @@ class TestAuthorization:
         assert "uploadKey" in response.json()
 
     async def test_a_known_file_needs_no_upload(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The same bytes attached twice are stored once.
         await make_item(session, library, key="AAAA2345", item_type="attachment")
@@ -270,7 +270,7 @@ class TestAuthorization:
         ).content == CONTENT
 
     async def test_a_malformed_digest_is_rejected(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         response = await client.post(
             f"/users/1/items/{attachment}/file",
@@ -281,7 +281,7 @@ class TestAuthorization:
         assert response.status_code == 400
 
     async def test_a_missing_field_is_rejected(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         form = authorization()
         del form["filename"]
@@ -295,7 +295,7 @@ class TestAuthorization:
         assert response.status_code == 400
 
     async def test_only_attachments_take_files(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="BOOK2345", item_type="book")
 
@@ -308,7 +308,7 @@ class TestAuthorization:
         assert response.status_code == 400
 
     async def test_uploading_requires_write_permission(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_user(session, user_id=2, username="reader")
         await make_api_key(session, key="READONLY", user_id=2, library_write=False)
@@ -332,7 +332,7 @@ class TestFormUpload:
     with the file in a part named ``file``. Neither reads ``prefix`` or ``suffix``.
     """
 
-    async def authorize(self, client: httpx.AsyncClient, key: str) -> dict:
+    async def authorize(self, client: httpx2.AsyncClient, key: str) -> dict:
         response = await client.post(
             f"/users/1/items/{key}/file",
             headers=AUTH | {"If-None-Match": "*"},
@@ -342,7 +342,7 @@ class TestFormUpload:
         return response.json()
 
     async def test_asking_for_params_answers_with_a_form(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         body = await self.authorize(client, attachment)
 
@@ -352,7 +352,7 @@ class TestFormUpload:
         assert body["params"] == {}
 
     async def test_a_known_file_still_needs_no_upload(
-        self, client: httpx.AsyncClient, attachment: str, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, attachment: str, session: AsyncSession, library: Library
     ) -> None:
         await upload(client, attachment)
         await make_item(session, library, key="BBBB2345", item_type="attachment")
@@ -362,7 +362,7 @@ class TestFormUpload:
         assert body == {"exists": 1}
 
     async def test_a_multipart_upload_round_trips(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         body = await self.authorize(client, attachment)
 
@@ -381,7 +381,7 @@ class TestFormUpload:
         assert response.content == CONTENT
 
     async def test_the_form_fields_are_sent_back_beside_the_file(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         body = await self.authorize(client, attachment)
 
@@ -396,7 +396,7 @@ class TestFormUpload:
         assert sent.status_code == 201
 
     async def test_a_multipart_upload_is_checked_like_any_other(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         body = await self.authorize(client, attachment)
 
@@ -407,7 +407,7 @@ class TestFormUpload:
         assert sent.status_code == 400
 
     async def test_a_multipart_upload_without_a_file_is_refused(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         body = await self.authorize(client, attachment)
 
@@ -419,7 +419,7 @@ class TestFormUpload:
 
 
 class TestUploadAndRegistration:
-    async def test_a_file_round_trips(self, client: httpx.AsyncClient, attachment: str) -> None:
+    async def test_a_file_round_trips(self, client: httpx2.AsyncClient, attachment: str) -> None:
         await upload(client, attachment)
 
         # A download is a redirect to the bytes, as it is upstream: see
@@ -432,7 +432,7 @@ class TestUploadAndRegistration:
         assert response.content == CONTENT
 
     async def test_registration_records_the_file_on_the_item(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         await upload(client, attachment)
 
@@ -447,7 +447,7 @@ class TestUploadAndRegistration:
         assert data["mtime"] == 1700000000000
 
     async def test_bytes_that_do_not_match_the_digest_are_refused(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         authorized = (
             await client.post(
@@ -462,7 +462,7 @@ class TestUploadAndRegistration:
         assert response.status_code == 400
 
     async def test_bytes_of_the_wrong_length_are_refused(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         authorized = (
             await client.post(
@@ -477,7 +477,7 @@ class TestUploadAndRegistration:
         assert response.status_code == 400
 
     async def test_registering_before_the_bytes_arrive_is_refused(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         authorized = (
             await client.post(
@@ -496,7 +496,7 @@ class TestUploadAndRegistration:
         assert response.status_code == 400
 
     async def test_an_unknown_upload_key_is_a_404(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         response = await client.post(
             f"/users/1/items/{attachment}/file",
@@ -507,7 +507,7 @@ class TestUploadAndRegistration:
         assert response.status_code == 404
 
     async def test_an_item_can_be_deleted_while_an_upload_is_authorized(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         # The authorization outlives the request that granted it and names the
         # item, so an item deleted between the first step and the third has to
@@ -526,7 +526,7 @@ class TestUploadAndRegistration:
         assert response.status_code == 204
 
     async def test_registration_advances_the_version(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         before = (await client.get(f"/users/1/items/{attachment}", headers=AUTH)).json()
         await upload(client, attachment)
@@ -538,7 +538,7 @@ class TestUploadAndRegistration:
 class TestTheBytesOnTheWayIn:
     """A file is written as it arrives, and checked before the library is locked."""
 
-    async def _authorized(self, client: httpx.AsyncClient, key: str) -> dict:
+    async def _authorized(self, client: httpx2.AsyncClient, key: str) -> dict:
         response = await client.post(
             f"/users/1/items/{key}/file",
             headers=AUTH | {"If-None-Match": "*"},
@@ -548,7 +548,7 @@ class TestTheBytesOnTheWayIn:
 
     async def test_the_body_is_never_read_whole(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         settings: Settings,
         attachment: str,
         monkeypatch: pytest.MonkeyPatch,
@@ -572,7 +572,7 @@ class TestTheBytesOnTheWayIn:
         assert file_path(settings.storage_path, MD5).read_bytes() == CONTENT
 
     async def test_a_declared_size_over_the_limit_is_refused_unread(
-        self, client: httpx.AsyncClient, attachment: str, monkeypatch: pytest.MonkeyPatch
+        self, client: httpx2.AsyncClient, attachment: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         from altero.api.routes import files
 
@@ -595,7 +595,7 @@ class TestTheBytesOnTheWayIn:
         assert len(sent) <= 1
 
     async def test_too_many_bytes_leave_nothing_behind(
-        self, client: httpx.AsyncClient, settings: Settings, attachment: str
+        self, client: httpx2.AsyncClient, settings: Settings, attachment: str
     ) -> None:
         authorized = await self._authorized(client, attachment)
 
@@ -607,7 +607,7 @@ class TestTheBytesOnTheWayIn:
         assert not directory.exists() or not list(directory.iterdir())
 
     async def test_the_stored_file_is_checked_before_the_library_is_locked(
-        self, client: httpx.AsyncClient, attachment: str, monkeypatch: pytest.MonkeyPatch
+        self, client: httpx2.AsyncClient, attachment: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         """Hashing a large file under the lock holds up every other writer."""
         from altero.services import writes
@@ -638,7 +638,7 @@ class TestTheBytesOnTheWayIn:
         assert order == ["confirm", "lock"]
 
     async def test_a_consumed_registration_is_not_found(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         authorized = await self._authorized(client, attachment)
         await client.post(authorized["url"], content=CONTENT)
@@ -659,7 +659,7 @@ class TestTheConnectionIsNotHeldForTheDownload:
     async def test_the_session_is_closed_before_the_bytes_are_sent(
         self,
         app: Any,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         attachment: str,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
@@ -689,14 +689,14 @@ class TestTheConnectionIsNotHeldForTheDownload:
 
 class TestDownload:
     async def test_an_item_without_a_file_is_a_404(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         assert (
             await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)
         ).status_code == 404
 
     async def test_the_view_route_serves_the_same_bytes(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         await upload(client, attachment)
 
@@ -707,14 +707,14 @@ class TestDownload:
         assert "text/plain" in response.headers["content-type"]
 
     async def test_downloading_requires_authorisation(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         await upload(client, attachment)
 
         assert (await client.get(f"/users/1/items/{attachment}/file")).status_code == 403
 
     async def test_a_file_missing_from_disk_is_a_404(
-        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+        self, client: httpx2.AsyncClient, attachment: str, settings: Settings
     ) -> None:
         await upload(client, attachment)
         (settings.storage_path / MD5[:2] / MD5).unlink()
@@ -737,7 +737,7 @@ class TestDownloadPermission:
     """
 
     async def test_the_location_is_reachable_with_no_headers_at_all(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         await upload(client, attachment)
 
@@ -752,7 +752,7 @@ class TestDownloadPermission:
 
     async def test_handing_one_out_clears_the_expired_ones(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         attachment: str,
@@ -782,7 +782,7 @@ class TestDownloadPermission:
         assert len(keys) == 1
 
     async def test_the_location_carries_no_api_key(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         # A key grants the whole account and never expires; every reverse proxy
         # writes the request line to its access log.
@@ -794,7 +794,7 @@ class TestDownloadPermission:
         assert redirect.headers["cache-control"] == "no-store"
 
     async def test_the_permission_is_not_an_api_key(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         # It opens one file and nothing else, which is the whole point of it
         # being something other than the key.
@@ -808,7 +808,7 @@ class TestDownloadPermission:
         ).status_code == 403
 
     async def test_it_can_be_spent_more_than_once(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         # `Zotero.HTTP.download` retries the same URL after a 5xx or a dropped
         # connection. One-shot would turn every such retry into a failed sync.
@@ -821,7 +821,7 @@ class TestDownloadPermission:
         assert (await client.get(location)).status_code == 200
 
     async def test_an_expired_permission_opens_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, attachment: str
+        self, client: httpx2.AsyncClient, session: AsyncSession, attachment: str
     ) -> None:
         await upload(client, attachment)
         location = (await client.get(f"/users/1/items/{attachment}/file", headers=AUTH)).headers[
@@ -836,14 +836,14 @@ class TestDownloadPermission:
         assert (await client.get(location)).status_code == 404
 
     async def test_a_permission_nobody_issued_opens_nothing(
-        self, client: httpx.AsyncClient, attachment: str
+        self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
         await upload(client, attachment)
 
         assert (await client.get("/storage/download/" + "X" * 24)).status_code == 404
 
     async def test_it_does_not_follow_the_item_to_another_file(
-        self, client: httpx.AsyncClient, session: AsyncSession, attachment: str
+        self, client: httpx2.AsyncClient, session: AsyncSession, attachment: str
     ) -> None:
         # The 302 promised a digest in `Zotero-File-MD5`. Serving whatever the
         # attachment holds later would break that promise silently.
@@ -873,7 +873,7 @@ class TestDownloadPermission:
         assert (await client.get(location)).status_code == 404
 
     async def test_deleting_the_item_takes_its_permissions(
-        self, client: httpx.AsyncClient, session: AsyncSession, attachment: str
+        self, client: httpx2.AsyncClient, session: AsyncSession, attachment: str
     ) -> None:
         # The row names the item by id, so leaving one behind fails the foreign
         # key on the way out.
@@ -1033,7 +1033,7 @@ class TestAtomicWrites:
             assert reading.read() == CONTENT
 
 
-async def send(client: httpx.AsyncClient, key: str, content: bytes = CONTENT) -> str:
+async def send(client: httpx2.AsyncClient, key: str, content: bytes = CONTENT) -> str:
     """Authorize an upload and send the bytes. Returns the key to register with."""
     authorized = (
         await client.post(
@@ -1046,7 +1046,7 @@ async def send(client: httpx.AsyncClient, key: str, content: bytes = CONTENT) ->
     return str(authorized["uploadKey"])
 
 
-async def finish(client: httpx.AsyncClient, key: str, upload_key: str) -> httpx.Response:
+async def finish(client: httpx2.AsyncClient, key: str, upload_key: str) -> httpx2.Response:
     """Take the third step of an upload."""
     return await client.post(
         f"/users/1/items/{key}/file",
@@ -1066,7 +1066,7 @@ class TestRegistrationChecksTheStoredFile:
     """
 
     async def test_a_truncated_stored_file_is_refused(
-        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+        self, client: httpx2.AsyncClient, attachment: str, settings: Settings
     ) -> None:
         upload_key = await send(client, attachment)
         file_path(Path(settings.storage_path), MD5).write_bytes(CONTENT[:10])
@@ -1074,7 +1074,7 @@ class TestRegistrationChecksTheStoredFile:
         assert (await finish(client, attachment, upload_key)).status_code == 400
 
     async def test_bytes_that_changed_under_the_store_are_refused(
-        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+        self, client: httpx2.AsyncClient, attachment: str, settings: Settings
     ) -> None:
         # Same length, so only reading them back catches it.
         upload_key = await send(client, attachment)
@@ -1083,7 +1083,7 @@ class TestRegistrationChecksTheStoredFile:
         assert (await finish(client, attachment, upload_key)).status_code == 400
 
     async def test_a_file_that_went_away_is_refused(
-        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+        self, client: httpx2.AsyncClient, attachment: str, settings: Settings
     ) -> None:
         upload_key = await send(client, attachment)
         file_path(Path(settings.storage_path), MD5).unlink()
@@ -1091,7 +1091,7 @@ class TestRegistrationChecksTheStoredFile:
         assert (await finish(client, attachment, upload_key)).status_code == 400
 
     async def test_a_refused_file_is_removed_so_it_can_be_sent_again(
-        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+        self, client: httpx2.AsyncClient, attachment: str, settings: Settings
     ) -> None:
         """Which is the whole point of refusing.
 
@@ -1115,7 +1115,7 @@ class TestRegistrationChecksTheStoredFile:
         ).content == CONTENT
 
     async def test_a_refused_registration_attaches_nothing(
-        self, client: httpx.AsyncClient, attachment: str, settings: Settings
+        self, client: httpx2.AsyncClient, attachment: str, settings: Settings
     ) -> None:
         upload_key = await send(client, attachment)
         file_path(Path(settings.storage_path), MD5).write_bytes(CONTENT[:10])

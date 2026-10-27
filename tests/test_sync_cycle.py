@@ -1,7 +1,7 @@
 """A whole sync cycle, driven over a real socket.
 
 Every other test in this suite reaches the application through
-``httpx.ASGITransport``, which never opens a connection. Two bugs have already
+``httpx2.ASGITransport``, which never opens a connection. Two bugs have already
 survived that: an orphaned child item and an attachment template the client
 could not use, both found only when a real server was driven from outside. This
 replays what the desktop client actually does -- the request sequence, headers
@@ -21,7 +21,7 @@ import time
 from collections.abc import AsyncIterator
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 import uvicorn
 
@@ -84,15 +84,15 @@ async def server(settings: Settings) -> AsyncIterator[str]:
 
 
 @pytest.fixture
-async def uploader(server: str) -> AsyncIterator[httpx.AsyncClient]:
-    async with httpx.AsyncClient(base_url=server, timeout=30) as client:
+async def uploader(server: str) -> AsyncIterator[httpx2.AsyncClient]:
+    async with httpx2.AsyncClient(base_url=server, timeout=30) as client:
         yield client
 
 
 @pytest.fixture
-async def downloader(server: str) -> AsyncIterator[httpx.AsyncClient]:
+async def downloader(server: str) -> AsyncIterator[httpx2.AsyncClient]:
     """A second client, sharing nothing with the first but the server."""
-    async with httpx.AsyncClient(base_url=server, timeout=30) as client:
+    async with httpx2.AsyncClient(base_url=server, timeout=30) as client:
         yield client
 
 
@@ -103,8 +103,8 @@ def gzipped(payload: object) -> tuple[bytes, dict[str, str]]:
 
 
 async def upload_items(
-    client: httpx.AsyncClient, *, since: int, version: int = 0
-) -> httpx.Response:
+    client: httpx2.AsyncClient, *, since: int, version: int = 0
+) -> httpx2.Response:
     """Send the parent and its attachment in one batch, as the client does.
 
     ``since`` is the library version the client believes it holds; ``version``
@@ -154,7 +154,7 @@ async def upload_items(
 
 class TestASyncCycleOverASocket:
     async def test_a_library_uploaded_by_one_client_is_what_another_downloads(
-        self, uploader: httpx.AsyncClient, downloader: httpx.AsyncClient, server: str
+        self, uploader: httpx2.AsyncClient, downloader: httpx2.AsyncClient, server: str
     ) -> None:
         # 1. The client checks its key before anything else.
         keys = await uploader.get("/keys/current", headers=AUTH)
@@ -274,7 +274,7 @@ class TestASyncCycleOverASocket:
         assert text.json()["content"] == "The Brutalist Report"
 
     async def test_a_rolled_back_client_resending_version_zero_is_told_to_reconcile(
-        self, uploader: httpx.AsyncClient
+        self, uploader: httpx2.AsyncClient
     ) -> None:
         """The shape the stuck client took: the same batch, over and over.
 
@@ -302,7 +302,7 @@ class TestASyncCycleOverASocket:
         assert again.headers["Last-Modified-Version"] == "1"
 
     async def test_resending_an_identical_object_costs_nothing(
-        self, uploader: httpx.AsyncClient
+        self, uploader: httpx2.AsyncClient
     ) -> None:
         """A client re-sending what it correctly holds is told nothing changed.
 

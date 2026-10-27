@@ -1,6 +1,6 @@
 """A member and owner see policy changes and exercise real removal prompts."""
 
-import httpx
+import httpx2
 
 from tools.compatibility.acceptance_runtime import AcceptanceRun
 
@@ -37,7 +37,7 @@ async def groups(run: AcceptanceRun) -> None:
     await run.request("PATCH", prefix, json={"libraryEditing": "admins", "fileEditing": "admins"})
     permissions(await phase("B"), editable=False, files_editable=False)
     permissions(await phase("A"), editable=True, files_editable=True)
-    async with httpx.AsyncClient(base_url=run.server.url) as client:
+    async with httpx2.AsyncClient(base_url=run.server.url) as client:
         denied = await client.post(
             prefix + "/items",
             headers={"Zotero-API-Key": run.server.keys[2]},

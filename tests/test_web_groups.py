@@ -9,7 +9,7 @@ address it was sent to.
 
 from datetime import UTC, datetime, timedelta
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy import select
@@ -30,7 +30,9 @@ def settings(tmp_path) -> Settings:  # type: ignore[no-untyped-def]
     )
 
 
-async def sign_up(client: httpx.AsyncClient, username: str = "ada", **extra: str) -> httpx.Response:
+async def sign_up(
+    client: httpx2.AsyncClient, username: str = "ada", **extra: str
+) -> httpx2.Response:
     return await client.post(
         "/web/auth/register",
         json={
@@ -41,31 +43,31 @@ async def sign_up(client: httpx.AsyncClient, username: str = "ada", **extra: str
     )
 
 
-async def sign_in(client: httpx.AsyncClient, username: str) -> None:
+async def sign_in(client: httpx2.AsyncClient, username: str) -> None:
     response = await client.post(
         "/web/auth/login", json={"username": username, "password": "correct horse battery"}
     )
     assert response.status_code == 200, response.text
 
 
-def csrf(client: httpx.AsyncClient) -> dict[str, str]:
+def csrf(client: httpx2.AsyncClient) -> dict[str, str]:
     return {"X-CSRF-Token": client.cookies["altero_csrf"]}
 
 
 @pytest.fixture
-async def ada(client: httpx.AsyncClient) -> httpx.AsyncClient:
+async def ada(client: httpx2.AsyncClient) -> httpx2.AsyncClient:
     """One account, signed in. The first is always allowed to register."""
     assert (await sign_up(client)).status_code == 201
     return client
 
 
 class TestGroups:
-    async def test_a_new_account_is_in_no_groups(self, ada: httpx.AsyncClient) -> None:
+    async def test_a_new_account_is_in_no_groups(self, ada: httpx2.AsyncClient) -> None:
         response = await ada.get("/web/groups")
 
         assert response.json() == {"groups": []}
 
-    async def test_anybody_signed_in_may_create_one(self, ada: httpx.AsyncClient) -> None:
+    async def test_anybody_signed_in_may_create_one(self, ada: httpx2.AsyncClient) -> None:
         response = await ada.post(
             "/web/groups",
             json={"name": "Analytical Engine", "description": "Notes"},
@@ -81,14 +83,14 @@ class TestGroups:
         )
         assert group["numMembers"] == 1
 
-    async def test_creating_one_needs_the_csrf_token(self, ada: httpx.AsyncClient) -> None:
+    async def test_creating_one_needs_the_csrf_token(self, ada: httpx2.AsyncClient) -> None:
         """The whole point of the token: a page on another origin can make the
         browser send the cookie but cannot read it."""
         response = await ada.post("/web/groups", json={"name": "No"})
 
         assert response.status_code == 403
 
-    async def test_a_group_carries_the_id_a_sync_client_sees(self, ada: httpx.AsyncClient) -> None:
+    async def test_a_group_carries_the_id_a_sync_client_sees(self, ada: httpx2.AsyncClient) -> None:
         """The interface addresses libraries by their internal id; a person
         reading their client's logs needs the other one."""
         created = (await ada.post("/web/groups", json={"name": "Engine"}, headers=csrf(ada))).json()
@@ -96,7 +98,7 @@ class TestGroups:
         assert created["groupId"] >= 1
         assert created["id"] != created["groupId"] or True  # ids may coincide
 
-    async def test_metadata_can_be_changed(self, ada: httpx.AsyncClient) -> None:
+    async def test_metadata_can_be_changed(self, ada: httpx2.AsyncClient) -> None:
         created = (await ada.post("/web/groups", json={"name": "Engine"}, headers=csrf(ada))).json()
 
         response = await ada.patch(
@@ -109,7 +111,7 @@ class TestGroups:
         assert response.json()["type"] == "PublicOpen"
 
     async def test_a_group_you_are_not_in_is_not_found(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """404 rather than 403, as the v3 endpoint does: a stranger learns
         nothing about which private groups exist."""
@@ -119,7 +121,7 @@ class TestGroups:
         assert (await ada.get(f"/web/groups/{library.id}")).status_code == 404
 
     async def test_only_the_owner_may_delete_one(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         created = (await ada.post("/web/groups", json={"name": "Engine"}, headers=csrf(ada))).json()
 
@@ -131,7 +133,7 @@ class TestGroups:
 
 class TestMembersInTheBrowser:
     @pytest.fixture
-    async def shared(self, client: httpx.AsyncClient, session: AsyncSession) -> dict:
+    async def shared(self, client: httpx2.AsyncClient, session: AsyncSession) -> dict:
         """Ada owns a group; Grace is a member, and Grace is signed in."""
         await sign_up(client, "ada")
         group = (
@@ -144,7 +146,7 @@ class TestMembersInTheBrowser:
         return group
 
     async def test_a_member_sees_the_group_but_not_its_invitations(
-        self, shared: dict, client: httpx.AsyncClient, session: AsyncSession
+        self, shared: dict, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Only an administrator hands membership out, so only an
         administrator is shown who has been offered it."""
@@ -163,7 +165,7 @@ class TestMembersInTheBrowser:
 
 
 class TestInvitations:
-    async def test_an_administrator_invites_an_address(self, ada: httpx.AsyncClient) -> None:
+    async def test_an_administrator_invites_an_address(self, ada: httpx2.AsyncClient) -> None:
         group = (await ada.post("/web/groups", json={"name": "Engine"}, headers=csrf(ada))).json()
 
         response = await ada.post(
@@ -176,7 +178,7 @@ class TestInvitations:
         listed = (await ada.get(f"/web/groups/{group['id']}")).json()["invitations"]
         assert [entry["email"] for entry in listed] == ["grace@example.org"]
 
-    async def test_one_can_be_withdrawn(self, ada: httpx.AsyncClient) -> None:
+    async def test_one_can_be_withdrawn(self, ada: httpx2.AsyncClient) -> None:
         group = (await ada.post("/web/groups", json={"name": "Engine"}, headers=csrf(ada))).json()
         invitation = (
             await ada.post(
@@ -192,7 +194,7 @@ class TestInvitations:
         assert (await ada.get(f"/web/groups/{group['id']}")).json()["invitations"] == []
 
     async def test_the_emailed_link_is_readable_without_signing_in(
-        self, ada: httpx.AsyncClient, session: AsyncSession, app: FastAPI
+        self, ada: httpx2.AsyncClient, session: AsyncSession, app: FastAPI
     ) -> None:
         """Somebody with no account here has to be able to see what they were
         asked to join before deciding to make one."""
@@ -207,31 +209,31 @@ class TestInvitations:
         )
 
         # A client of its own, carrying no session cookie at all.
-        transport = httpx.ASGITransport(app=app)
-        async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as guest:
+        transport = httpx2.ASGITransport(app=app)
+        async with httpx2.AsyncClient(transport=transport, base_url="http://testserver") as guest:
             response = await guest.get(f"/web/invitations/token/{token}")
 
         assert response.status_code == 200
         assert response.json()["libraryName"] == "Engine"
         assert response.json()["hasAccount"] is False
 
-    async def test_an_unknown_token_is_not_found(self, ada: httpx.AsyncClient) -> None:
+    async def test_an_unknown_token_is_not_found(self, ada: httpx2.AsyncClient) -> None:
         assert (await ada.get("/web/invitations/token/nonsense")).status_code == 404
 
 
 class TestRegistration:
-    async def test_the_first_account_is_always_allowed(self, client: httpx.AsyncClient) -> None:
+    async def test_the_first_account_is_always_allowed(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/config")).json()["firstAccount"] is True
         assert (await sign_up(client)).status_code == 201
 
-    async def test_and_the_second_is_not(self, ada: httpx.AsyncClient) -> None:
+    async def test_and_the_second_is_not(self, ada: httpx2.AsyncClient) -> None:
         config = (await ada.get("/web/config")).json()
 
         assert (config["registrationOpen"], config["firstAccount"]) == (False, False)
         assert (await sign_up(ada, "grace")).status_code == 403
 
     async def test_unless_the_deployment_opened_it(
-        self, tmp_path, app, client: httpx.AsyncClient
+        self, tmp_path, app, client: httpx2.AsyncClient
     ) -> None:  # type: ignore[no-untyped-def]
         await sign_up(client)
         app.state.settings = app.state.settings.model_copy(update={"open_registration": True})
@@ -240,7 +242,7 @@ class TestRegistration:
         assert (await sign_up(client, "grace")).status_code == 201
 
     async def test_or_the_address_has_an_invitation_waiting(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Inviting somebody who is not here yet is the documented way to bring
         them into a group, and it was unreachable: the link they received
@@ -258,7 +260,7 @@ class TestRegistration:
         assert joined.status_code == 201
 
     async def test_the_public_config_still_says_closed(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """An invitation opens the door for one address. Reporting the instance
         as open would advertise a form that refuses almost everybody."""
@@ -272,7 +274,7 @@ class TestRegistration:
         assert (await ada.get("/web/config")).json()["registrationOpen"] is False
 
     async def test_an_expired_invitation_does_not_open_it(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         group = (await ada.post("/web/groups", json={"name": "Engine"}, headers=csrf(ada))).json()
         await ada.post(

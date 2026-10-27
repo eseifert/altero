@@ -6,7 +6,7 @@ having to remember this file. And an administrator counts and measures without
 reading: nothing under /web/admin answers with an item, a title or a file.
 """
 
-import httpx
+import httpx2
 import pytest
 from fastapi.routing import APIRoute
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -25,7 +25,7 @@ ADMIN_ROUTES = [
 ]
 
 
-async def sign_in_as_somebody_else(client: httpx.AsyncClient, session: AsyncSession) -> None:
+async def sign_in_as_somebody_else(client: httpx2.AsyncClient, session: AsyncSession) -> None:
     """Register the administrator, then sign in as an ordinary account."""
     await register(client)
     grace = await admin.create_user(session, username="grace")
@@ -40,7 +40,7 @@ class TestWhoGetsIn:
 
     @pytest.mark.parametrize(("method", "path"), ADMIN_ROUTES)
     async def test_an_ordinary_account_is_refused_every_route(
-        self, client: httpx.AsyncClient, session: AsyncSession, method: str, path: str
+        self, client: httpx2.AsyncClient, session: AsyncSession, method: str, path: str
     ) -> None:
         await sign_in_as_somebody_else(client, session)
 
@@ -52,7 +52,7 @@ class TestWhoGetsIn:
 
     @pytest.mark.parametrize(("method", "path"), ADMIN_ROUTES)
     async def test_a_stranger_is_refused_every_route(
-        self, client: httpx.AsyncClient, method: str, path: str
+        self, client: httpx2.AsyncClient, method: str, path: str
     ) -> None:
         response = await client.request(method, path.format(user_id=1), json={})
 
@@ -60,7 +60,7 @@ class TestWhoGetsIn:
 
     @pytest.mark.parametrize(("method", "path"), ADMIN_ROUTES)
     async def test_an_api_key_is_refused_every_route(
-        self, client: httpx.AsyncClient, session: AsyncSession, method: str, path: str
+        self, client: httpx2.AsyncClient, session: AsyncSession, method: str, path: str
     ) -> None:
         """The instance's own screens are not a second door into the v3 API.
 
@@ -79,7 +79,9 @@ class TestWhoGetsIn:
 
 
 class TestTheOverview:
-    async def test_it_reports_what_the_instance_is_running(self, client: httpx.AsyncClient) -> None:
+    async def test_it_reports_what_the_instance_is_running(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         """ "Which migration is this instance on" is the upgrade's question."""
         await register(client)
 
@@ -90,7 +92,7 @@ class TestTheOverview:
         assert "revision" in body
         assert body["database"] == "sqlite"
 
-    async def test_it_never_reports_the_database_url(self, client: httpx.AsyncClient) -> None:
+    async def test_it_never_reports_the_database_url(self, client: httpx2.AsyncClient) -> None:
         """It carries a password, and the dialect is the whole of the answer."""
         await register(client)
 
@@ -99,7 +101,7 @@ class TestTheOverview:
         assert b"sqlite+aiosqlite" not in body
 
     async def test_it_counts_the_accounts_and_libraries(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         await admin.create_user(session, username="grace")
@@ -112,7 +114,7 @@ class TestTheOverview:
 
 class TestTheStorageReport:
     async def test_it_lists_every_library_with_what_it_holds(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         library = await admin.list_libraries(session)
@@ -125,7 +127,7 @@ class TestTheStorageReport:
         assert entry["ownerId"] == 1
         assert entry["items"] == 1
 
-    async def test_it_reports_nominal_against_real(self, client: httpx.AsyncClient) -> None:
+    async def test_it_reports_nominal_against_real(self, client: httpx2.AsyncClient) -> None:
         """The number zotero.org cannot report; see services/storagestats.py."""
         await register(client)
 
@@ -136,7 +138,7 @@ class TestTheStorageReport:
         assert body["savedBytes"] == 0
 
     async def test_it_does_not_name_a_single_item(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """An administrator counts and measures. They do not read.
 
@@ -156,7 +158,7 @@ class TestPurgingStorage:
     """The only route in this layer that removes bytes."""
 
     async def test_it_takes_the_administrator_s_own_password(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         await register(client)
 
@@ -168,7 +170,7 @@ class TestPurgingStorage:
 
         assert response.status_code == 403
 
-    async def test_it_reports_what_it_freed(self, client: httpx.AsyncClient) -> None:
+    async def test_it_reports_what_it_freed(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.post(

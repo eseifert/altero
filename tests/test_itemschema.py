@@ -5,7 +5,7 @@ https://api.zotero.org so that the vendored schema is exercised against real
 responses rather than against assumptions.
 """
 
-import httpx
+import httpx2
 import pytest
 
 from altero.errors import InvalidInputError
@@ -34,13 +34,13 @@ LIVE_BOOK_TEMPLATE_KEYS = [
 
 
 class TestItemTypes:
-    async def test_the_order_matches_the_live_api(self, client: httpx.AsyncClient) -> None:
+    async def test_the_order_matches_the_live_api(self, client: httpx2.AsyncClient) -> None:
         response = await client.get("/itemTypes")
 
         assert response.status_code == 200
         assert [entry["itemType"] for entry in response.json()] == LIVE_ITEM_TYPE_ORDER
 
-    async def test_entries_carry_a_localized_name(self, client: httpx.AsyncClient) -> None:
+    async def test_entries_carry_a_localized_name(self, client: httpx2.AsyncClient) -> None:
         entries = {
             entry["itemType"]: entry["localized"]
             for entry in (await client.get("/itemTypes")).json()
@@ -49,14 +49,14 @@ class TestItemTypes:
         assert entries["book"] == "Book"
         assert entries["computerProgram"] == "Software"
 
-    async def test_internal_types_are_hidden(self, client: httpx.AsyncClient) -> None:
+    async def test_internal_types_are_hidden(self, client: httpx2.AsyncClient) -> None:
         names = {entry["itemType"] for entry in (await client.get("/itemTypes")).json()}
 
         assert "annotation" not in names
         assert "attachment" not in names
         assert "note" in names
 
-    async def test_a_locale_is_applied(self, client: httpx.AsyncClient) -> None:
+    async def test_a_locale_is_applied(self, client: httpx2.AsyncClient) -> None:
         entries = {
             entry["itemType"]: entry["localized"]
             for entry in (await client.get("/itemTypes?locale=de")).json()
@@ -65,7 +65,7 @@ class TestItemTypes:
         assert entries["book"] == "Buch"
 
     async def test_a_regional_locale_falls_back_to_its_language(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         entries = {
             entry["itemType"]: entry["localized"]
@@ -74,7 +74,9 @@ class TestItemTypes:
 
         assert entries["book"] == "Buch"
 
-    async def test_an_unknown_locale_falls_back_to_english(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unknown_locale_falls_back_to_english(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         entries = {
             entry["itemType"]: entry["localized"]
             for entry in (await client.get("/itemTypes?locale=xx-XX")).json()
@@ -84,7 +86,7 @@ class TestItemTypes:
 
 
 class TestItemFields:
-    async def test_fields_are_ordered_by_localized_name(self, client: httpx.AsyncClient) -> None:
+    async def test_fields_are_ordered_by_localized_name(self, client: httpx2.AsyncClient) -> None:
         entries = (await client.get("/itemFields")).json()
 
         assert [entry["field"] for entry in entries[:4]] == [
@@ -94,7 +96,7 @@ class TestItemFields:
             "accessDate",
         ]
 
-    async def test_base_only_fields_are_excluded(self, client: httpx.AsyncClient) -> None:
+    async def test_base_only_fields_are_excluded(self, client: httpx2.AsyncClient) -> None:
         names = {entry["field"] for entry in (await client.get("/itemFields")).json()}
 
         assert {"title", "publisher", "artworkMedium"} <= names
@@ -102,28 +104,28 @@ class TestItemFields:
         # another field, and the API does not list them here.
         assert not {"medium", "authority"} & names
 
-    async def test_the_field_count_matches_the_live_api(self, client: httpx.AsyncClient) -> None:
+    async def test_the_field_count_matches_the_live_api(self, client: httpx2.AsyncClient) -> None:
         assert len((await client.get("/itemFields")).json()) == 121
 
 
 class TestItemTypeFields:
-    async def test_fields_are_returned_in_schema_order(self, client: httpx.AsyncClient) -> None:
+    async def test_fields_are_returned_in_schema_order(self, client: httpx2.AsyncClient) -> None:
         entries = (await client.get("/itemTypeFields?itemType=book")).json()
 
         assert [entry["field"] for entry in entries[:3]] == ["title", "abstractNote", "series"]
 
-    async def test_an_unknown_item_type_is_rejected(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unknown_item_type_is_rejected(self, client: httpx2.AsyncClient) -> None:
         response = await client.get("/itemTypeFields?itemType=nosuch")
 
         assert response.status_code == 400
         assert response.text == "Invalid item type 'nosuch'"
 
-    async def test_a_missing_item_type_is_rejected(self, client: httpx.AsyncClient) -> None:
+    async def test_a_missing_item_type_is_rejected(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/itemTypeFields")).status_code == 400
 
 
 class TestItemTypeCreatorTypes:
-    async def test_creator_types_match_the_live_api(self, client: httpx.AsyncClient) -> None:
+    async def test_creator_types_match_the_live_api(self, client: httpx2.AsyncClient) -> None:
         entries = (await client.get("/itemTypeCreatorTypes?itemType=book")).json()
 
         assert entries == [
@@ -134,11 +136,13 @@ class TestItemTypeCreatorTypes:
             {"creatorType": "translator", "localized": "Translator"},
         ]
 
-    async def test_a_type_without_creators_returns_nothing(self, client: httpx.AsyncClient) -> None:
+    async def test_a_type_without_creators_returns_nothing(
+        self, client: httpx2.AsyncClient
+    ) -> None:
         assert (await client.get("/itemTypeCreatorTypes?itemType=note")).json() == []
 
     async def test_the_primary_type_leads_and_the_rest_follow_by_localized_name(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         # The schema lists these in a different order, and sorting by the raw
         # name would give a different result again; the live API sorts by the
@@ -159,7 +163,7 @@ class TestItemTypeCreatorTypes:
 
 
 class TestCreatorFields:
-    async def test_creator_fields_match_the_live_api(self, client: httpx.AsyncClient) -> None:
+    async def test_creator_fields_match_the_live_api(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/creatorFields")).json() == [
             {"field": "firstName", "localized": "First"},
             {"field": "lastName", "localized": "Last"},
@@ -168,7 +172,7 @@ class TestCreatorFields:
 
 
 class TestTemplates:
-    async def test_the_book_template_matches_the_live_api(self, client: httpx.AsyncClient) -> None:
+    async def test_the_book_template_matches_the_live_api(self, client: httpx2.AsyncClient) -> None:
         template = (await client.get("/items/new?itemType=book")).json()
 
         assert list(template) == LIVE_BOOK_TEMPLATE_KEYS
@@ -179,7 +183,7 @@ class TestTemplates:
         assert template["relations"] == {}
 
     async def test_creators_follow_the_types_own_title_field(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         template = (await client.get("/items/new?itemType=case")).json()
 
@@ -187,7 +191,7 @@ class TestTemplates:
 
     @pytest.mark.parametrize("item_type", ["videoRecording", "radioBroadcast"])
     async def test_templates_reproduce_the_upstream_creator_quirk(
-        self, client: httpx.AsyncClient, item_type: str
+        self, client: httpx2.AsyncClient, item_type: str
     ) -> None:
         # The schema marks `creator` primary for these types, and
         # /itemTypeCreatorTypes reports it as such, but upstream seeds the
@@ -198,7 +202,7 @@ class TestTemplates:
         assert template["creators"][0]["creatorType"] == "director"
         assert creator_types[0]["creatorType"] == "creator"
 
-    async def test_the_note_template_matches_the_live_api(self, client: httpx.AsyncClient) -> None:
+    async def test_the_note_template_matches_the_live_api(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/items/new?itemType=note")).json() == {
             "itemType": "note",
             "note": "",
@@ -234,13 +238,13 @@ class TestTemplates:
         ],
     )  # fmt: skip
     async def test_attachment_templates_match_the_live_api(
-        self, client: httpx.AsyncClient, link_mode: str, expected: list[str]
+        self, client: httpx2.AsyncClient, link_mode: str, expected: list[str]
     ) -> None:
         template = (await client.get(f"/items/new?itemType=attachment&linkMode={link_mode}")).json()
 
         assert list(template) == expected
 
-    async def test_attachment_null_defaults(self, client: httpx.AsyncClient) -> None:
+    async def test_attachment_null_defaults(self, client: httpx2.AsyncClient) -> None:
         template = (
             await client.get("/items/new?itemType=attachment&linkMode=imported_file")
         ).json()
@@ -250,24 +254,24 @@ class TestTemplates:
         assert template["charset"] == ""
 
     async def test_an_attachment_without_a_link_mode_is_rejected(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         response = await client.get("/items/new?itemType=attachment")
 
         assert response.status_code == 400
         assert response.text == "linkMode required for itemType=attachment"
 
-    async def test_an_unknown_link_mode_is_rejected(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unknown_link_mode_is_rejected(self, client: httpx2.AsyncClient) -> None:
         response = await client.get("/items/new?itemType=attachment&linkMode=nope")
 
         assert response.status_code == 400
 
-    async def test_an_unknown_item_type_is_rejected(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unknown_item_type_is_rejected(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/items/new?itemType=nosuch")).status_code == 400
 
 
 class TestFullSchema:
-    async def test_the_whole_schema_is_served(self, client: httpx.AsyncClient) -> None:
+    async def test_the_whole_schema_is_served(self, client: httpx2.AsyncClient) -> None:
         body = (await client.get("/schema")).json()
 
         assert body["version"] == get_schema().version
@@ -276,10 +280,10 @@ class TestFullSchema:
 
 
 class TestConditionalRequests:
-    async def test_responses_carry_a_last_modified_header(self, client: httpx.AsyncClient) -> None:
+    async def test_responses_carry_a_last_modified_header(self, client: httpx2.AsyncClient) -> None:
         assert "Last-Modified" in (await client.get("/itemTypes")).headers
 
-    async def test_an_unchanged_schema_yields_304(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unchanged_schema_yields_304(self, client: httpx2.AsyncClient) -> None:
         last_modified = (await client.get("/itemTypes")).headers["Last-Modified"]
 
         response = await client.get("/itemTypes", headers={"If-Modified-Since": last_modified})
@@ -287,14 +291,14 @@ class TestConditionalRequests:
         assert response.status_code == 304
         assert not response.content
 
-    async def test_an_older_date_still_yields_the_body(self, client: httpx.AsyncClient) -> None:
+    async def test_an_older_date_still_yields_the_body(self, client: httpx2.AsyncClient) -> None:
         response = await client.get(
             "/itemTypes", headers={"If-Modified-Since": "Wed, 01 Jan 2020 00:00:00 GMT"}
         )
 
         assert response.status_code == 200
 
-    async def test_an_unparseable_date_is_ignored(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unparseable_date_is_ignored(self, client: httpx2.AsyncClient) -> None:
         response = await client.get("/itemTypes", headers={"If-Modified-Since": "nonsense"})
 
         assert response.status_code == 200

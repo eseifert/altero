@@ -7,7 +7,7 @@ desktop application depends on them, so they are mirrored deliberately.
 
 import logging
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,7 +41,7 @@ class TestUnlimitedSyncFormats:
     """
 
     async def test_format_versions_is_not_truncated(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(40):
             await make_item(session, library, key=f"AAA{index:05d}")
@@ -51,7 +51,7 @@ class TestUnlimitedSyncFormats:
         assert len(body) == 40
 
     async def test_format_keys_is_not_truncated(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(40):
             await make_item(session, library, key=f"AAA{index:05d}")
@@ -61,7 +61,7 @@ class TestUnlimitedSyncFormats:
         assert len(response.text.split("\n")) == 40
 
     async def test_json_is_still_paginated(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(40):
             await make_item(session, library, key=f"AAA{index:05d}")
@@ -69,7 +69,7 @@ class TestUnlimitedSyncFormats:
         assert len((await client.get("/users/1/items", headers=AUTH)).json()) == 25
 
     async def test_an_unlimited_response_has_no_link_header(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(40):
             await make_item(session, library, key=f"AAA{index:05d}")
@@ -80,7 +80,7 @@ class TestUnlimitedSyncFormats:
         assert response.headers["Total-Results"] == "40"
 
     async def test_an_explicit_limit_is_still_honoured(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(40):
             await make_item(session, library, key=f"AAA{index:05d}")
@@ -101,7 +101,7 @@ class TestNegationCoversTheWholeExpression:
     """``getSearchParamValues`` strips the leading ``-`` before splitting on ``||``."""
 
     async def test_negated_item_types_exclude_every_alternative(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="book")
         await make_item(session, library, key="BBBB2345", item_type="journalArticle")
@@ -114,7 +114,7 @@ class TestNegationCoversTheWholeExpression:
         assert [i["key"] for i in body] == ["CCCC2345"]
 
     async def test_negated_tags_exclude_every_alternative(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -127,7 +127,7 @@ class TestNegationCoversTheWholeExpression:
         assert [i["key"] for i in body] == ["CCCC2345"]
 
     async def test_a_bare_double_pipe_is_part_of_the_value(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "a||b")
@@ -146,7 +146,7 @@ class TestParameterQuirks:
         assert query.direction is Direction.ASCENDING
 
     async def test_sort_asc_is_accepted_over_http(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         assert (await client.get("/users/1/items?sort=asc", headers=AUTH)).status_code == 200
 
@@ -158,7 +158,7 @@ class TestParameterQuirks:
         assert query.qmode in ("titleCreatorYear", "everything")
 
     async def test_startswith_is_accepted_in_either_spelling(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "history")
@@ -170,7 +170,7 @@ class TestParameterQuirks:
         assert lower.json() == camel.json() != []
 
     async def test_repeating_item_type_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items?itemType=book&itemType=thesis", headers=AUTH)
 
@@ -178,7 +178,7 @@ class TestParameterQuirks:
         assert response.text == "Cannot specify 'itemType' more than once"
 
     async def test_a_zero_limit_falls_back_to_the_default(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index in range(30):
             await make_item(session, library, key=f"AAA{index:05d}")
@@ -201,7 +201,7 @@ class TestParameterQuirks:
         assert parse_list_query([("sort", sort)], sort_fields=ITEM_SORT_FIELDS).sort == sort
 
     async def test_num_items_is_not_a_valid_item_sort(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # numItems is only meaningful for tags.
         response = await client.get("/users/1/items?sort=numItems", headers=AUTH)
@@ -245,7 +245,7 @@ class TestAVersionAheadOfTheLibraryIsAccepted:
     """
 
     async def test_a_precondition_ahead_of_the_library_is_not_a_conflict(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/collections",
@@ -259,7 +259,7 @@ class TestAVersionAheadOfTheLibraryIsAccepted:
         assert response.headers["Last-Modified-Version"] == "11"
 
     async def test_a_delete_ahead_of_the_library_is_not_a_conflict(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
 
@@ -273,7 +273,7 @@ class TestAVersionAheadOfTheLibraryIsAccepted:
 
     async def test_the_impossible_claim_is_logged(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         library: Library,
         caplog: pytest.LogCaptureFixture,
     ) -> None:
@@ -293,7 +293,7 @@ class TestAVersionAheadOfTheLibraryIsAccepted:
         assert "user/1" in record.message
 
     async def test_an_ordinary_write_logs_nothing(
-        self, client: httpx.AsyncClient, library: Library, caplog: pytest.LogCaptureFixture
+        self, client: httpx2.AsyncClient, library: Library, caplog: pytest.LogCaptureFixture
     ) -> None:
         with caplog.at_level(logging.WARNING, logger=WRITES_LOGGER):
             response = await client.post(
@@ -314,7 +314,7 @@ class TestVerifiedAgainstALiveLibrary:
     """
 
     async def test_a_tag_carries_no_top_level_version(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The live envelope is {tag, links, meta} only. Tag versions reach a
         # client through format=versions instead.
@@ -327,7 +327,7 @@ class TestVerifiedAgainstALiveLibrary:
         assert set(body["meta"]) == {"type", "numItems"}
 
     async def test_the_library_block_carries_no_self_link(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Upstream puts only an `alternate` link here, pointing at its web UI.
         await make_item(session, library, key="AAAA2345")
@@ -337,7 +337,7 @@ class TestVerifiedAgainstALiveLibrary:
         assert "self" not in body["library"]["links"]
 
     async def test_an_unparseable_limit_falls_back_to_the_default(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # `limit=abc` answers 200 upstream, not 400: a non-numeric value is
         # simply ignored.
@@ -350,7 +350,7 @@ class TestVerifiedAgainstALiveLibrary:
         assert len(response.json()) == 25
 
     async def test_an_unparseable_start_is_ignored(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
 
@@ -359,7 +359,7 @@ class TestVerifiedAgainstALiveLibrary:
         assert response.status_code == 200
 
     async def test_backward_links_omit_a_zero_start(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Upstream writes `?limit=2` rather than `?limit=2&start=0`.
         for index in range(6):
@@ -371,7 +371,7 @@ class TestVerifiedAgainstALiveLibrary:
         assert "start=" not in first
 
     async def test_error_bodies_name_the_object(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         item = await client.get("/users/1/items/ZZZZ2345", headers=AUTH)
         collection = await client.get("/users/1/collections/ZZZZ2345", headers=AUTH)
@@ -382,7 +382,7 @@ class TestVerifiedAgainstALiveLibrary:
         assert search.text == "Search not found"
 
     async def test_an_invalid_item_type_filter_names_the_parameter(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items?itemType=bogus", headers=AUTH)
 
@@ -390,7 +390,7 @@ class TestVerifiedAgainstALiveLibrary:
         assert response.text == "Invalid itemType 'bogus'"
 
     async def test_creator_summaries_match_the_live_forms(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Confirmed live: one name alone, two joined by "and", three or more
         # abbreviated with "et al.".
@@ -422,7 +422,7 @@ class TestVerifiedAgainstALiveLibrary:
         assert body["CCCC2345"] == "Ranganathan et al."
 
     async def test_an_item_without_creators_omits_the_summary(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
 

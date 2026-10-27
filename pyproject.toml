@@ -35,8 +35,10 @@ dependencies = [
     "rispy>=0.10.0",
     # The outbound conversations this server has: reading a library out of
     # api.zotero.org when somebody migrates one in (services/zoteroapi.py), and
-    # talking to an OpenID Connect provider (services/oidc.py).
-    "httpx>=0.28",
+    # talking to an OpenID Connect provider (services/oidc.py). httpx2 is httpx
+    # carried on under the pydantic organisation; it verifies TLS against the
+    # operating system's trust store rather than certifi's bundle.
+    "httpx2>=2.13.1",
     # XML signature verification for the SAML service provider. Hand-rolling
     # this is not on: canonicalisation is where naive implementations grow
     # signature-wrapping holes, and XMLVerifier.verify returns the *signed*
@@ -72,10 +74,6 @@ altero = "altero.cli:main"
 [dependency-groups]
 dev = [
     "asyncpg>=0.31.0",
-    "httpx>=0.28",
-    # What Starlette's TestClient takes now that it has deprecated httpx; the
-    # rest of the suite, and altero itself, still use httpx.
-    "httpx2>=2.13.1",
     "pre-commit>=4.6.1",
     "pytest>=8.4",
     "pytest-asyncio>=1.0",

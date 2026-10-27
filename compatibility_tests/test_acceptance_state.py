@@ -4,7 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 from unittest.mock import AsyncMock
 
-import httpx
+import httpx2
 import pytest
 
 from tools.compatibility.acceptance_runtime import AcceptanceRun
@@ -26,7 +26,7 @@ async def test_convergence_rejects_divergent_state(tmp_path, failure):
     server = {kind: deepcopy(snapshot[kind]) for kind in ("items", "collections", "searches")}
 
     async def request(method, path, **options):
-        return httpx.Response(200, json=[{"data": value} for value in server[path.split("/")[-1]]])
+        return httpx2.Response(200, json=[{"data": value} for value in server[path.split("/")[-1]]])
 
     runner.request = AsyncMock(side_effect=request)
     await runner.converged(snapshot, deepcopy(snapshot))
@@ -58,7 +58,7 @@ async def test_collection_membership_order_is_not_a_conflict(tmp_path):
     )
 
     async def request(method, path, **options):
-        return httpx.Response(
+        return httpx2.Response(
             200, json=[{"data": value} for value in snapshot[path.split("/")[-1]]]
         )
 
@@ -83,7 +83,9 @@ async def test_convergence_reads_past_the_first_server_page(tmp_path):
         values = items if path.endswith("/items") else []
         start = options["params"].get("start", 0)
         starts.append((path, start))
-        return httpx.Response(200, json=[dict(data=value) for value in values[start : start + 100]])
+        return httpx2.Response(
+            200, json=[dict(data=value) for value in values[start : start + 100]]
+        )
 
     runner.request = AsyncMock(side_effect=request)
     await runner.converged(snapshot, deepcopy(snapshot))
@@ -112,7 +114,9 @@ async def test_single_relation_wire_and_desktop_shapes_are_equivalent(tmp_path):
     server["items"][0]["relations"]["dc:relation"] = "https://example.org/item"
 
     async def request(method, path, **options):
-        return httpx.Response(200, json=[dict(data=value) for value in server[path.split("/")[-1]]])
+        return httpx2.Response(
+            200, json=[dict(data=value) for value in server[path.split("/")[-1]]]
+        )
 
     runner.request = AsyncMock(side_effect=request)
     await runner.converged(snapshot, deepcopy(snapshot))
@@ -137,7 +141,9 @@ async def test_unchanged_upload_can_record_a_higher_desktop_object_version(tmp_p
     other = deepcopy(stored)
 
     async def request(method, path, **options):
-        return httpx.Response(200, json=[dict(data=value) for value in stored[path.split("/")[-1]]])
+        return httpx2.Response(
+            200, json=[dict(data=value) for value in stored[path.split("/")[-1]]]
+        )
 
     runner.request = AsyncMock(side_effect=request)
     await runner.converged(snapshot, other)
@@ -161,7 +167,9 @@ async def test_last_read_wire_text_matches_desktop_integer_without_losing_change
     stored["items"][0]["lastRead"] = "1785701798"
 
     async def request(method, path, **options):
-        return httpx.Response(200, json=[dict(data=value) for value in stored[path.split("/")[-1]]])
+        return httpx2.Response(
+            200, json=[dict(data=value) for value in stored[path.split("/")[-1]]]
+        )
 
     runner.request = AsyncMock(side_effect=request)
     await runner.converged(snapshot, deepcopy(snapshot))
@@ -187,7 +195,7 @@ async def test_unchanged_setting_records_batch_version_and_still_checks_value(tm
     stored = deepcopy(snapshot["settings"])
 
     async def request(method, path, **options):
-        return httpx.Response(200, json=stored if path.endswith("settings") else [])
+        return httpx2.Response(200, json=stored if path.endswith("settings") else [])
 
     runner.request = AsyncMock(side_effect=request)
     await runner.converged(snapshot, other)

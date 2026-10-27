@@ -9,7 +9,7 @@ leave every sync client of a suspended account working exactly as before.
 
 from datetime import UTC, datetime, timedelta
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,7 +39,7 @@ async def second_account(session: AsyncSession, username: str = "grace") -> User
 
 class TestSuspension:
     async def test_an_api_key_stops_working(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The half that matters: a sync client must notice too."""
         await register(client)
@@ -68,7 +68,7 @@ class TestSuspension:
         assert await websessions.lookup(session, token) is None
 
     async def test_the_library_is_untouched(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Access stops; the data stays. That is the whole point of suspending."""
         await register(client)
@@ -81,7 +81,7 @@ class TestSuspension:
         assert await session.scalar(select(Item).where(Item.library_id == library.id))
 
     async def test_reinstating_puts_everything_back(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await second_account(session)
@@ -170,7 +170,7 @@ class TestDeletingAnAccount:
 
 class TestThroughTheBrowser:
     async def test_the_account_list_says_what_each_one_is(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         await second_account(session)
@@ -183,7 +183,7 @@ class TestThroughTheBrowser:
         assert names["grace"]["keys"] == 0
 
     async def test_an_account_is_made_with_a_password_shown_once(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         response = await client.post(
             "/web/auth/register",
@@ -205,7 +205,7 @@ class TestThroughTheBrowser:
         assert response.json()["user"]["username"] == "grace"
 
     async def test_making_one_takes_the_administrator_s_own_password(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """Everything that touches a credential does; see services/account.py."""
         await register(client)
@@ -223,7 +223,7 @@ class TestThroughTheBrowser:
         assert response.status_code == 403
 
     async def test_suspending_and_reinstating(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await second_account(session)
@@ -243,7 +243,7 @@ class TestThroughTheBrowser:
         assert reinstated.json()["user"]["disabled"] is False
 
     async def test_an_administrator_cannot_suspend_themselves(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         """A door that locks from the inside with the key still in it."""
         await register(client)
@@ -258,7 +258,7 @@ class TestThroughTheBrowser:
         assert "yourself" in response.json()["message"]
 
     async def test_deleting_an_account(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await second_account(session)
@@ -278,7 +278,7 @@ class TestThroughTheBrowser:
         session.expire_all()
         assert await session.get(User, grace_id) is None
 
-    async def test_deleting_yourself_is_refused(self, client: httpx.AsyncClient) -> None:
+    async def test_deleting_yourself_is_refused(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 
         response = await client.request(
@@ -291,7 +291,7 @@ class TestThroughTheBrowser:
         assert response.status_code == 400
 
     async def test_revoking_somebody_s_credentials(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await second_account(session)
@@ -307,7 +307,7 @@ class TestThroughTheBrowser:
         assert response.json()["keys"] == 1
 
     async def test_setting_somebody_s_password(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The other operation that sent people to a shell."""
         await register(client)
@@ -324,7 +324,7 @@ class TestThroughTheBrowser:
         assert await webauth.login(session, username="grace", password="a brand new password")
 
     async def test_a_suspended_account_cannot_use_its_cookie(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Suspension has to reach a browser that is already signed in."""
         await register(client)
@@ -347,7 +347,7 @@ class TestAPasswordResetLink:
     """
 
     async def test_an_administrator_gets_a_link_to_hand_over(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Returned as well as mailed: most instances have no relay configured,
         and a link only readable in the server log would need the shell these
@@ -365,7 +365,7 @@ class TestAPasswordResetLink:
         assert "/app/reset?token=" in response.json()["link"]
 
     async def test_the_link_says_whose_password_it_sets(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await second_account(session)
@@ -376,7 +376,7 @@ class TestAPasswordResetLink:
         assert body["username"] == "grace"
 
     async def test_it_sets_the_password_without_a_session(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Followed in whatever browser is open; the token is the credential."""
         grace = await second_account(session)
@@ -392,7 +392,7 @@ class TestAPasswordResetLink:
         assert await webauth.login(session, username="grace", password="a password of my own")
 
     async def test_a_link_works_once(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         grace = await second_account(session)
         token = await passwordreset.issue(session, grace)
@@ -407,7 +407,7 @@ class TestAPasswordResetLink:
         assert again.status_code == 403
 
     async def test_a_password_that_is_refused_does_not_spend_the_link(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Otherwise a typo costs somebody their only way in."""
         grace = await second_account(session)
@@ -454,7 +454,7 @@ class TestAPasswordResetLink:
             await passwordreset.resolve(session, token)
 
     async def test_nobody_but_an_administrator_can_issue_one(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         grace = await second_account(session)
@@ -471,7 +471,7 @@ class TestAPasswordResetLink:
 
 class TestNothingHalfMade:
     async def test_a_refused_password_leaves_no_account(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
 
@@ -485,7 +485,7 @@ class TestNothingHalfMade:
         assert await session.scalar(select(User).where(User.username == "grace")) is None
 
     async def test_an_address_somebody_else_holds_leaves_no_account(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
 

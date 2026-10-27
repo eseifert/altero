@@ -11,7 +11,7 @@ import time
 from collections.abc import AsyncIterator
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 import uvicorn
 
@@ -66,8 +66,8 @@ async def server(settings: Settings, monkeypatch: pytest.MonkeyPatch) -> AsyncIt
         await task
 
 
-async def signed_in(server: str, username: str = "ada") -> httpx.AsyncClient:
-    client = httpx.AsyncClient(base_url=server, timeout=30)
+async def signed_in(server: str, username: str = "ada") -> httpx2.AsyncClient:
+    client = httpx2.AsyncClient(base_url=server, timeout=30)
     registered = await client.post(
         "/web/auth/register",
         json={
@@ -81,11 +81,11 @@ async def signed_in(server: str, username: str = "ada") -> httpx.AsyncClient:
     return client
 
 
-async def library_id(client: httpx.AsyncClient) -> int:
+async def library_id(client: httpx2.AsyncClient) -> int:
     return (await client.get("/web/libraries")).json()[0]["id"]
 
 
-async def add_item(client: httpx.AsyncClient, library: int) -> int:
+async def add_item(client: httpx2.AsyncClient, library: int) -> int:
     """Write through the browser's own route, and return the new library version."""
     created = await client.post(
         f"/web/libraries/{library}/items",
@@ -99,7 +99,7 @@ async def add_item(client: httpx.AsyncClient, library: int) -> int:
 class Feed:
     """The events one open stream has delivered, read as they arrive."""
 
-    def __init__(self, response: httpx.Response) -> None:
+    def __init__(self, response: httpx2.Response) -> None:
         self.response = response
         self.lines = response.aiter_lines()
 
@@ -174,7 +174,7 @@ class TestTheFeed:
         await grace.aclose()
 
     async def test_it_needs_a_session(self, server: str) -> None:
-        async with httpx.AsyncClient(base_url=server) as stranger:
+        async with httpx2.AsyncClient(base_url=server) as stranger:
             response = await stranger.get("/web/libraries/1/events")
 
         assert response.status_code == 401
@@ -197,7 +197,7 @@ class TestTheFeed:
         async with client.stream("GET", f"/web/libraries/{library}/events") as response:
             feed = Feed(response)
             await feed.next()
-            async with httpx.AsyncClient(base_url=server, cookies=client.cookies) as other_tab:
+            async with httpx2.AsyncClient(base_url=server, cookies=client.cookies) as other_tab:
                 signed_out = await other_tab.post(
                     "/web/auth/logout",
                     headers=csrf_headers(other_tab),  # type: ignore[arg-type]

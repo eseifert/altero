@@ -8,7 +8,7 @@ an address that has no account here. Those are the three things being tested.
 
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy import select
@@ -68,7 +68,7 @@ async def confirmed_account(session: AsyncSession, username: str = "grace") -> U
 
 class TestAskingForOne:
     async def test_a_confirmed_address_is_sent_a_link(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         user = await confirmed_account(session)
 
@@ -80,7 +80,7 @@ class TestAskingForOne:
         assert outbox.sent[0].to == "grace@example.org"
 
     async def test_the_link_it_sends_actually_works(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """End to end: the thing in the mail sets the password."""
         user = await confirmed_account(session)
@@ -96,7 +96,7 @@ class TestAskingForOne:
         assert await webauth.login(session, username="grace", password="a password of my own")
 
     async def test_the_address_is_matched_whatever_case_it_is_typed_in(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await confirmed_account(session)
 
@@ -105,7 +105,7 @@ class TestAskingForOne:
         assert len(outbox.sent) == 1
 
     async def test_it_needs_no_session_and_no_csrf_token(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """Whoever is looking at this form is by definition not signed in."""
         await confirmed_account(session)
@@ -120,7 +120,7 @@ class TestItSaysNothingAboutWhoHasAnAccount:
     """The form must not become a way of asking which addresses are here."""
 
     async def test_an_unknown_address_answers_the_same(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await confirmed_account(session)
 
@@ -132,7 +132,7 @@ class TestItSaysNothingAboutWhoHasAnAccount:
         assert len(outbox.sent) == 1
 
     async def test_something_that_is_not_an_address_answers_the_same(
-        self, client: httpx.AsyncClient, outbox: Outbox
+        self, client: httpx2.AsyncClient, outbox: Outbox
     ) -> None:
         response = await client.post("/web/auth/forgot", json={"email": "not an address"})
 
@@ -140,7 +140,7 @@ class TestItSaysNothingAboutWhoHasAnAccount:
         assert outbox.sent == []
 
     async def test_an_unconfirmed_address_gets_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """Nobody proved they hold it, so a mistyped registration is not a way in."""
         await register(client)
@@ -153,7 +153,7 @@ class TestItSaysNothingAboutWhoHasAnAccount:
         assert outbox.sent == []
 
     async def test_a_suspended_account_cannot_let_itself_back_in(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         user = await confirmed_account(session)
         await admin.set_disabled(session, user, disabled=True)
@@ -166,7 +166,7 @@ class TestItSaysNothingAboutWhoHasAnAccount:
 
 class TestTheRateLimit:
     async def test_one_address_cannot_be_mailed_without_end(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await confirmed_account(session)
 
@@ -176,7 +176,7 @@ class TestTheRateLimit:
         assert len(outbox.sent) == passwordreset.REQUESTS_PER_WINDOW
 
     async def test_being_refused_still_answers_202(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         """A 429 here would say the address is one worth limiting."""
         await confirmed_account(session)
@@ -188,7 +188,7 @@ class TestTheRateLimit:
         assert response.status_code == 202
 
     async def test_one_address_being_hammered_does_not_block_another(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         await confirmed_account(session)
         await confirmed_account(session, username="alan")
@@ -201,7 +201,7 @@ class TestTheRateLimit:
 
 
 class TestTheSignInPageIsToldWhetherToOfferIt:
-    async def test_an_instance_that_offers_it_says_so(self, client: httpx.AsyncClient) -> None:
+    async def test_an_instance_that_offers_it_says_so(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/config")).json()["passwordResetOpen"] is True
 
 
@@ -217,7 +217,7 @@ class TestWithoutARelay:
         )
 
     async def test_no_link_is_made_at_all(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         user = await confirmed_account(session)
 
@@ -229,7 +229,7 @@ class TestWithoutARelay:
         outstanding = select(PasswordReset).where(PasswordReset.user_id == user.id)
         assert await session.scalar(outstanding) is None
 
-    async def test_the_page_is_told_not_to_offer_it(self, client: httpx.AsyncClient) -> None:
+    async def test_the_page_is_told_not_to_offer_it(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/config")).json()["passwordResetOpen"] is False
 
 
@@ -243,7 +243,7 @@ class TestWhenTheOperatorHasNotTurnedItOn:
         )
 
     async def test_nothing_is_sent(
-        self, client: httpx.AsyncClient, session: AsyncSession, outbox: Outbox
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
     ) -> None:
         user = await confirmed_account(session)
 
@@ -252,5 +252,5 @@ class TestWhenTheOperatorHasNotTurnedItOn:
         assert response.status_code == 202
         assert outbox.sent == []
 
-    async def test_the_page_is_told_not_to_offer_it(self, client: httpx.AsyncClient) -> None:
+    async def test_the_page_is_told_not_to_offer_it(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/config")).json()["passwordResetOpen"] is False

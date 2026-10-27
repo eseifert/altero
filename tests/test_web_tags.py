@@ -7,7 +7,7 @@ library, what the panel is answered with, and the version counter moving
 exactly once per request — or not at all when nothing changed.
 """
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,24 +18,24 @@ from tests import factories
 from tests.test_web_routes import csrf_headers, register
 
 
-async def tag_names(client: httpx.AsyncClient, library_id: int) -> list[str]:
+async def tag_names(client: httpx2.AsyncClient, library_id: int) -> list[str]:
     payload = (await client.get(f"/web/libraries/{library_id}/tags")).json()
     return [entry["tag"] for entry in payload["tags"]]
 
 
-async def library_version(client: httpx.AsyncClient) -> int:
+async def library_version(client: httpx2.AsyncClient) -> int:
     return int((await client.get("/web/libraries")).json()[0]["version"])
 
 
 @pytest.fixture
-async def ada(client: httpx.AsyncClient) -> httpx.AsyncClient:
+async def ada(client: httpx2.AsyncClient) -> httpx2.AsyncClient:
     """One account, signed in, with its personal library."""
     assert (await register(client)).status_code == 201
     return client
 
 
 @pytest.fixture
-async def tagged(session: AsyncSession, ada: httpx.AsyncClient) -> Library:
+async def tagged(session: AsyncSession, ada: httpx2.AsyncClient) -> Library:
     """That library, with one item under the tag `ficton`."""
     library = await session.scalar(select(Library).where(Library.owner_id == 1))
     assert library is not None
@@ -46,7 +46,7 @@ async def tagged(session: AsyncSession, ada: httpx.AsyncClient) -> Library:
 
 
 class TestRenamingOne:
-    async def test_the_tag_is_renamed(self, ada: httpx.AsyncClient, tagged: Library) -> None:
+    async def test_the_tag_is_renamed(self, ada: httpx2.AsyncClient, tagged: Library) -> None:
         response = await ada.patch(
             f"/web/libraries/{tagged.id}/tags/ficton",
             json={"tag": "fiction"},
@@ -57,7 +57,7 @@ class TestRenamingOne:
         assert await tag_names(ada, tagged.id) == ["fiction"]
 
     async def test_it_comes_back_in_the_shape_the_selector_reads(
-        self, ada: httpx.AsyncClient, tagged: Library
+        self, ada: httpx2.AsyncClient, tagged: Library
     ) -> None:
         body = (
             await ada.patch(
@@ -70,7 +70,7 @@ class TestRenamingOne:
         assert body == {"tag": "fiction", "type": 0, "numItems": 1, "itemsChanged": 1}
 
     async def test_the_items_carry_the_new_name(
-        self, ada: httpx.AsyncClient, tagged: Library
+        self, ada: httpx2.AsyncClient, tagged: Library
     ) -> None:
         await ada.patch(
             f"/web/libraries/{tagged.id}/tags/ficton",
@@ -82,7 +82,7 @@ class TestRenamingOne:
         assert body["data"]["tags"] == [{"tag": "fiction"}]
 
     async def test_a_merge_reports_what_it_left(
-        self, ada: httpx.AsyncClient, session: AsyncSession, tagged: Library
+        self, ada: httpx2.AsyncClient, session: AsyncSession, tagged: Library
     ) -> None:
         """Two tags become one, and the count is the union rather than the sum."""
         item = await session.scalar(select(Item).where(Item.key == "AAAA2345"))
@@ -102,7 +102,7 @@ class TestRenamingOne:
         assert await tag_names(ada, tagged.id) == ["fiction"]
 
     async def test_the_panel_is_left_with_one_of_the_name_whatever_its_type(
-        self, ada: httpx.AsyncClient, session: AsyncSession, tagged: Library
+        self, ada: httpx2.AsyncClient, session: AsyncSession, tagged: Library
     ) -> None:
         """A name the selector shows twice is a name it filters by once."""
         other = await factories.make_item(session, tagged, key="BBBB2345")
@@ -120,7 +120,7 @@ class TestRenamingOne:
         assert body == {"tag": "fiction", "type": 0, "numItems": 2, "itemsChanged": 2}
         assert await tag_names(ada, tagged.id) == ["fiction"]
 
-    async def test_the_name_is_trimmed(self, ada: httpx.AsyncClient, tagged: Library) -> None:
+    async def test_the_name_is_trimmed(self, ada: httpx2.AsyncClient, tagged: Library) -> None:
         await ada.patch(
             f"/web/libraries/{tagged.id}/tags/ficton",
             json={"tag": "  fiction  "},
@@ -129,7 +129,7 @@ class TestRenamingOne:
 
         assert await tag_names(ada, tagged.id) == ["fiction"]
 
-    async def test_an_empty_name_is_refused(self, ada: httpx.AsyncClient, tagged: Library) -> None:
+    async def test_an_empty_name_is_refused(self, ada: httpx2.AsyncClient, tagged: Library) -> None:
         response = await ada.patch(
             f"/web/libraries/{tagged.id}/tags/ficton",
             json={"tag": "   "},
@@ -139,7 +139,9 @@ class TestRenamingOne:
         assert response.status_code == 400
         assert await tag_names(ada, tagged.id) == ["ficton"]
 
-    async def test_an_absurd_name_is_refused(self, ada: httpx.AsyncClient, tagged: Library) -> None:
+    async def test_an_absurd_name_is_refused(
+        self, ada: httpx2.AsyncClient, tagged: Library
+    ) -> None:
         response = await ada.patch(
             f"/web/libraries/{tagged.id}/tags/ficton",
             json={"tag": "x" * 256},
@@ -149,7 +151,7 @@ class TestRenamingOne:
         assert response.status_code == 400
 
     async def test_an_unknown_tag_is_not_found(
-        self, ada: httpx.AsyncClient, tagged: Library
+        self, ada: httpx2.AsyncClient, tagged: Library
     ) -> None:
         response = await ada.patch(
             f"/web/libraries/{tagged.id}/tags/novel",
@@ -162,7 +164,7 @@ class TestRenamingOne:
 
 class TestTheVersionCounter:
     async def test_one_request_is_one_new_version(
-        self, ada: httpx.AsyncClient, session: AsyncSession, tagged: Library
+        self, ada: httpx2.AsyncClient, session: AsyncSession, tagged: Library
     ) -> None:
         second = await factories.make_item(session, tagged, key="BBBB2345")
         await factories.tag_item(session, tagged, second, "ficton")
@@ -178,7 +180,7 @@ class TestTheVersionCounter:
         assert await library_version(ada) == before + 1
 
     async def test_the_answer_carries_the_new_version(
-        self, ada: httpx.AsyncClient, tagged: Library
+        self, ada: httpx2.AsyncClient, tagged: Library
     ) -> None:
         response = await ada.patch(
             f"/web/libraries/{tagged.id}/tags/ficton",
@@ -189,7 +191,7 @@ class TestTheVersionCounter:
         assert int(response.headers["Last-Modified-Version"]) == await library_version(ada)
 
     async def test_the_name_it_already_has_moves_nothing(
-        self, ada: httpx.AsyncClient, tagged: Library
+        self, ada: httpx2.AsyncClient, tagged: Library
     ) -> None:
         before = await library_version(ada)
 
@@ -204,7 +206,7 @@ class TestTheVersionCounter:
         assert await library_version(ada) == before
 
     async def test_a_refused_write_leaves_the_version_alone(
-        self, ada: httpx.AsyncClient, tagged: Library
+        self, ada: httpx2.AsyncClient, tagged: Library
     ) -> None:
         before = await library_version(ada)
 
@@ -218,7 +220,7 @@ class TestTheVersionCounter:
 
 
 class TestWhoMay:
-    async def test_it_needs_a_session(self, client: httpx.AsyncClient, tagged: Library) -> None:
+    async def test_it_needs_a_session(self, client: httpx2.AsyncClient, tagged: Library) -> None:
         headers = csrf_headers(client)
         client.cookies.delete("altero_session")
 
@@ -228,7 +230,7 @@ class TestWhoMay:
 
         assert response.status_code == 401
 
-    async def test_it_needs_the_csrf_token(self, ada: httpx.AsyncClient, tagged: Library) -> None:
+    async def test_it_needs_the_csrf_token(self, ada: httpx2.AsyncClient, tagged: Library) -> None:
         response = await ada.patch(
             f"/web/libraries/{tagged.id}/tags/ficton", json={"tag": "fiction"}
         )
@@ -237,7 +239,7 @@ class TestWhoMay:
         assert await tag_names(ada, tagged.id) == ["ficton"]
 
     async def test_an_api_key_does_not_open_this_door(
-        self, ada: httpx.AsyncClient, session: AsyncSession, tagged: Library
+        self, ada: httpx2.AsyncClient, session: AsyncSession, tagged: Library
     ) -> None:
         """The boundary in both directions: a key belongs to the v3 API."""
         key = await admin.create_api_key(session, username="ada", name="laptop")
@@ -252,7 +254,7 @@ class TestWhoMay:
         assert response.status_code == 401
 
     async def test_another_person_s_library_is_refused(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         grace = await admin.create_user(session, username="grace")
         theirs = await session.scalar(select(Library).where(Library.owner_id == grace.id))
@@ -270,7 +272,7 @@ class TestWhoMay:
         assert response.status_code == 403
         assert await session.scalar(select(Tag.name).where(Tag.library_id == theirs.id)) == "ficton"
 
-    async def test_a_missing_library_is_not_found(self, ada: httpx.AsyncClient) -> None:
+    async def test_a_missing_library_is_not_found(self, ada: httpx2.AsyncClient) -> None:
         response = await ada.patch(
             "/web/libraries/9999/tags/ficton", json={"tag": "fiction"}, headers=csrf_headers(ada)
         )
@@ -297,7 +299,7 @@ class TestGroupPolicy:
         return library
 
     async def test_a_member_of_an_open_group_may_rename(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await self._group(session, editing="members", role="member")
 
@@ -310,7 +312,7 @@ class TestGroupPolicy:
         assert response.status_code == 200
 
     async def test_a_member_of_an_admins_only_group_may_not(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await self._group(session, editing="admins", role="member")
 
@@ -324,7 +326,7 @@ class TestGroupPolicy:
         assert await tag_names(ada, library.id) == ["ficton"]
 
     async def test_an_administrator_of_that_group_may(
-        self, ada: httpx.AsyncClient, session: AsyncSession
+        self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         library = await self._group(session, editing="admins", role="admin")
 

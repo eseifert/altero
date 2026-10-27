@@ -6,7 +6,7 @@ account out of service. Nothing here grants access to anybody's library, and
 tests/test_web_admin.py holds that line from the other side.
 """
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -89,7 +89,7 @@ class TestGrantingIt:
 
 
 class TestWhatTheBrowserIsTold:
-    async def test_the_session_reports_the_flag(self, client: httpx.AsyncClient) -> None:
+    async def test_the_session_reports_the_flag(self, client: httpx2.AsyncClient) -> None:
         """The interface shows the administration screens from this alone."""
         await register(client)
 
@@ -98,7 +98,7 @@ class TestWhatTheBrowserIsTold:
         assert response.json()["user"]["administrator"] is True
 
     async def test_another_account_is_told_it_is_not_one(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
         await admin.create_user(session, username="grace")

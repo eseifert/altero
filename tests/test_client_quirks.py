@@ -14,7 +14,7 @@ import zlib
 from pathlib import Path
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -58,7 +58,7 @@ class TestGzippedRequests:
     """
 
     async def test_a_gzipped_body_is_accepted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         body = json.dumps([{"key": "AAAA2345", "content": "Some text"}]).encode()
@@ -78,7 +78,7 @@ class TestGzippedRequests:
         assert response.json()["failed"] == {}
 
     async def test_the_content_survives_compression(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Non-ASCII is where a mishandled encoding shows up first.
         await make_item(session, library, key="AAAA2345", item_type="attachment")
@@ -100,7 +100,7 @@ class TestGzippedRequests:
         assert stored["content"] == text
 
     async def test_an_uncompressed_body_still_works(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -113,7 +113,7 @@ class TestGzippedRequests:
         assert response.status_code == 200
 
     async def test_a_corrupt_gzip_body_is_a_400(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Better than a 500 with a traceback in it.
         await make_item(session, library, key="AAAA2345", item_type="attachment")
@@ -127,7 +127,7 @@ class TestGzippedRequests:
         assert response.status_code == 400
 
     async def test_a_truncated_gzip_body_is_a_400(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         body = json.dumps([{"key": "AAAA2345", "content": "Some text"}]).encode()
@@ -141,7 +141,7 @@ class TestGzippedRequests:
         assert response.status_code == 400
 
     async def test_a_deflated_body_is_accepted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         body = json.dumps([{"key": "AAAA2345", "content": "Some text"}]).encode()
@@ -156,7 +156,7 @@ class TestGzippedRequests:
         assert response.json()["failed"] == {}
 
     async def test_a_gzip_body_of_several_members_is_read_whole(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """Concatenated members are one gzip stream, as RFC 1952 has it."""
         await make_item(session, library, key="AAAA2345", item_type="attachment")
@@ -186,7 +186,7 @@ class TestCompressedBodyLimits:
         monkeypatch.setattr(compression, "MAX_BODY_BYTES", 1000)
 
     async def test_a_body_inflating_past_the_limit_is_refused(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         response = await client.post(
             "/users/1/fulltext",
@@ -197,7 +197,7 @@ class TestCompressedBodyLimits:
         assert response.status_code == 413
 
     async def test_a_compressed_body_past_the_limit_is_refused_unread(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         response = await client.post(
             "/users/1/fulltext",
@@ -208,7 +208,7 @@ class TestCompressedBodyLimits:
         assert response.status_code == 413
 
     async def test_a_body_inside_the_limit_is_untouched(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         body = json.dumps([{"key": "AAAA2345", "content": "x" * 800}]).encode()
@@ -224,7 +224,7 @@ class TestCompressedBodyLimits:
 
 class TestUploadUrl:
     async def test_the_upload_url_is_absolute(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The client passes this straight to XMLHttpRequest.open(), which
         # rejects a bare path with "is not a valid URL".
@@ -263,7 +263,7 @@ class TestZippedUploads:
         return hashlib.md5(self.CONTENT, usedforsecurity=False).hexdigest()
 
     async def test_a_zipped_upload_is_validated_against_the_zip_digest(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         original_md5 = hashlib.md5(self.CONTENT, usedforsecurity=False).hexdigest()
@@ -295,7 +295,7 @@ class TestZippedUploads:
         assert registered.status_code == 204
 
     async def test_the_item_records_the_original_digest(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The client sends this back as If-Match next time, so recording the
         # zip's digest instead would make every later upload fail with 412.
@@ -329,7 +329,7 @@ class TestZippedUploads:
         assert data["filename"] == "page.html"
 
     async def test_the_wrong_zip_digest_is_still_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
 
@@ -352,7 +352,7 @@ class TestZippedUploads:
 
         assert response.status_code == 400
 
-    async def send(self, client: httpx.AsyncClient) -> str:
+    async def send(self, client: httpx2.AsyncClient) -> str:
         """Authorize a snapshot and send its archive. Returns the upload key."""
         authorized = (
             await client.post(
@@ -373,7 +373,7 @@ class TestZippedUploads:
 
     async def test_a_damaged_archive_is_refused_at_registration(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         settings: Settings,
@@ -403,7 +403,7 @@ class TestZippedUploads:
     @pytest.mark.parametrize("smaller_replacement", [False, True])
     async def test_another_clients_archive_of_the_same_page_is_kept(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         settings: Settings,
@@ -464,7 +464,7 @@ class TestGroupVersions:
         return group
 
     async def test_the_versions_format_is_keyed_by_group_id(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         response = await client.get("/users/1/groups?format=versions", headers=AUTH)
 
@@ -472,14 +472,14 @@ class TestGroupVersions:
         assert response.json() == {"42": 7}
 
     async def test_a_user_with_no_groups_answers_an_empty_object(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/groups?format=versions", headers=AUTH)
 
         assert response.json() == {}
 
     async def test_the_version_is_the_one_the_group_itself_reports(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         # The client compares the two to decide whether to re-download the
         # group, so a mismatch is either a download every sync or none ever.
@@ -489,7 +489,7 @@ class TestGroupVersions:
         assert versions["42"] == rendered["version"]
 
     async def test_the_default_format_is_still_the_group_listing(
-        self, client: httpx.AsyncClient, group: Library
+        self, client: httpx2.AsyncClient, group: Library
     ) -> None:
         response = await client.get("/users/1/groups", headers=AUTH)
 
@@ -517,7 +517,7 @@ class TestFileDownloads:
 
     async def _upload(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         key: str,
         body: bytes,
         *,
@@ -554,7 +554,7 @@ class TestFileDownloads:
         return digest
 
     async def test_the_download_redirects_and_carries_the_file_headers(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         digest = await self._upload(client, "AAAA2345", self.CONTENT)
@@ -568,9 +568,9 @@ class TestFileDownloads:
         assert response.headers["Location"]
 
     async def test_the_redirect_leads_to_the_bytes_without_the_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
-        # Not `follow_redirects=True` with the headers still attached: httpx
+        # Not `follow_redirects=True` with the headers still attached: httpx2
         # would resend them and this would pass against a location only an API
         # key can open, which is the location altero used to send.
         await make_item(session, library, key="AAAA2345", item_type="attachment")
@@ -583,7 +583,7 @@ class TestFileDownloads:
         assert response.content == self.CONTENT
 
     async def test_a_zipped_upload_is_announced_as_compressed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The stored bytes are the archive; the item's `md5` describes the file
         # inside it. Saying `No` here would have the client write the ZIP itself
@@ -597,7 +597,7 @@ class TestFileDownloads:
 
     async def test_telling_a_wrapper_apart_happens_off_the_event_loop(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         monkeypatch: pytest.MonkeyPatch,
@@ -624,7 +624,7 @@ class TestFileDownloads:
         assert threading.main_thread().name not in hashed_on
 
     async def test_an_attachment_that_is_itself_a_zip_is_not_compressed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # A .docx or .epub is a ZIP too. What distinguishes the wrapper is that
         # its bytes hash to something other than the digest the item claims.
@@ -636,7 +636,7 @@ class TestFileDownloads:
         assert response.headers["Zotero-File-Compressed"] == "No"
 
     async def test_a_missing_file_is_still_a_404(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The client treats 404 as "nothing to download" and marks the
         # attachment in sync, so it must not become a redirect to nowhere.
@@ -672,7 +672,7 @@ class TestAttachmentFieldOrder:
     """
 
     async def test_link_mode_precedes_filename(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment", fields=SCRAMBLED)
 
@@ -682,7 +682,7 @@ class TestAttachmentFieldOrder:
         assert keys.index("linkMode") < keys.index("filename")
 
     async def test_the_order_is_the_one_upstream_emits(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Read off an imported_url attachment as zotero.org serves it.
         await make_item(
@@ -712,7 +712,7 @@ class TestAttachmentFieldOrder:
         ]
 
     async def test_a_normal_item_follows_the_schema(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -742,7 +742,7 @@ class TestAttachmentModificationTime:
     """
 
     async def test_it_is_served_as_a_number(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -758,7 +758,7 @@ class TestAttachmentModificationTime:
         assert not isinstance(data["mtime"], str)
 
     async def test_the_digest_beside_it_stays_text(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # `md5` is a hex digest, which happens to be all digits often enough
         # that coercing by shape rather than by name would eventually turn one
@@ -776,7 +776,7 @@ class TestAttachmentModificationTime:
         assert data["md5"] == "1" * 32
 
     async def test_it_keeps_its_place_in_the_order(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Emitting it as a number must not move it, for the reason
         # `TestAttachmentFieldOrder` exists.
@@ -794,7 +794,7 @@ class TestAttachmentModificationTime:
         assert keys.index("filename") < keys.index("md5") < keys.index("mtime")
 
     async def test_something_that_is_not_a_timestamp_is_left_alone(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Nothing stops a write storing text here, and serving it back as it
         # was stored is better than a 500 on reading the library.
@@ -827,7 +827,7 @@ class TestAttachmentWithoutAFile:
     """
 
     async def test_both_are_null_before_a_file_arrives(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345", item_type="attachment", fields=SCRAMBLED)
 
@@ -839,7 +839,7 @@ class TestAttachmentWithoutAFile:
         assert keys.index("filename") < keys.index("md5") < keys.index("mtime")
 
     async def test_an_empty_value_already_stored_is_served_as_null(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # What a library written to before this was fixed holds.
         await make_item(
@@ -856,7 +856,7 @@ class TestAttachmentWithoutAFile:
         assert data["mtime"] is None
 
     async def test_a_linked_attachment_carries_neither(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(
             session,
@@ -872,7 +872,7 @@ class TestAttachmentWithoutAFile:
         assert "mtime" not in data
 
     async def test_writing_them_empty_stores_nothing(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         written = await client.post(
             "/users/1/items",
@@ -896,7 +896,7 @@ class TestAttachmentWithoutAFile:
         assert data["mtime"] is None
 
     async def test_writing_them_empty_leaves_a_registered_file_alone(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(
             session,
@@ -920,7 +920,7 @@ class TestAttachmentWithoutAFile:
 
 class TestErrorBodies:
     async def test_an_unexpected_failure_does_not_leak_a_traceback(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # The client logs the whole response body, so a traceback ends up in the
         # user's debug output and in bug reports.

@@ -60,7 +60,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import httpx
+import httpx2
 
 from altero import __version__
 from altero.errors import InvalidInputError
@@ -301,7 +301,7 @@ async def fetch_archive(
         """
         try:
             return await request
-        except (ZoteroApiError, httpx.HTTPError) as thrown:
+        except (ZoteroApiError, httpx2.HTTPError) as thrown:
             logger.warning("could not read %s from %s: %s", part, api.base_url, thrown)
             if part not in summary.unavailable:
                 summary.unavailable.append(part)

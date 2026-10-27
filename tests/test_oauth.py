@@ -15,7 +15,7 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -95,7 +95,7 @@ async def make_client(
     )
 
 
-async def make_account(client: httpx.AsyncClient, username: str = "ada") -> int:
+async def make_account(client: httpx2.AsyncClient, username: str = "ada") -> int:
     """Register an account through the interface and leave the browser signed in."""
     response = await client.post(
         "/web/auth/register",
@@ -110,12 +110,12 @@ async def make_account(client: httpx.AsyncClient, username: str = "ada") -> int:
     return response.json()["user"]["id"]
 
 
-def csrf(client: httpx.AsyncClient) -> dict[str, str]:
+def csrf(client: httpx2.AsyncClient) -> dict[str, str]:
     return {CSRF_HEADER: client.cookies.get("altero_csrf") or ""}
 
 
 async def authorize(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     *,
     challenge: str,
     client_id: str = "notebook",
@@ -124,7 +124,7 @@ async def authorize(
     state: str = "opaque-state",
     nonce: str = "",
     method: str = "S256",
-) -> httpx.Response:
+) -> httpx2.Response:
     return await client.get(
         "/oauth/authorize",
         params={
@@ -141,7 +141,7 @@ async def authorize(
     )
 
 
-async def grant(client: httpx.AsyncClient, handle: str, approve: bool = True) -> str:
+async def grant(client: httpx2.AsyncClient, handle: str, approve: bool = True) -> str:
     """Approve a pending authorization and return where the browser is sent."""
     response = await client.post(
         f"/web/oauth/pending/{handle}",
@@ -159,7 +159,7 @@ def code_from(redirect: str) -> str:
 
 
 async def full_flow(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     session: AsyncSession,
     *,
     scope: str = "openid library.read",
@@ -172,7 +172,7 @@ async def full_flow(
 
 
 async def walk_flow(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     *,
     scope: str = "openid library.read",
     nonce: str = "",
@@ -260,7 +260,7 @@ class TestTheRedirectUriIsMatchedAgainstTheRegistration:
     """
 
     async def test_an_unregistered_redirect_uri_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         _, challenge = pkce()
@@ -273,7 +273,7 @@ class TestTheRedirectUriIsMatchedAgainstTheRegistration:
         assert "not a redirect URI registered" in response.text
 
     async def test_the_refusal_does_not_redirect_to_the_address_it_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """RFC 6749 §4.1.2.1. Bouncing the error off it makes an open redirector."""
         await make_client(session)
@@ -286,7 +286,7 @@ class TestTheRedirectUriIsMatchedAgainstTheRegistration:
         assert "location" not in response.headers
 
     async def test_an_unknown_client_is_refused_and_does_not_register_itself(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, challenge = pkce()
 
@@ -299,7 +299,7 @@ class TestTheRedirectUriIsMatchedAgainstTheRegistration:
         )
 
     async def test_a_disabled_client_stops_working(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         registered, _ = await make_client(session)
         registered.disabled_at = datetime.now(UTC).replace(tzinfo=None)
@@ -309,7 +309,7 @@ class TestTheRedirectUriIsMatchedAgainstTheRegistration:
         assert (await authorize(client, challenge=challenge)).status_code == 404
 
     async def test_a_loopback_port_may_differ_as_rfc_8252_requires(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A native application is given its port by the operating system."""
         await make_client(session, redirect_uris=["http://127.0.0.1:1/callback"])
@@ -324,7 +324,7 @@ class TestTheRedirectUriIsMatchedAgainstTheRegistration:
         assert "/app/authorize?request=" in response.headers["location"]
 
     async def test_the_loopback_exception_does_not_widen_the_path(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session, redirect_uris=["http://127.0.0.1:1/callback"])
         _, challenge = pkce()
@@ -336,7 +336,7 @@ class TestTheRedirectUriIsMatchedAgainstTheRegistration:
         assert response.status_code == 403
 
     async def test_the_loopback_exception_does_not_widen_to_another_host(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session, redirect_uris=["http://127.0.0.1:1/callback"])
         _, challenge = pkce()
@@ -369,7 +369,7 @@ class TestSigningInGoesThroughTheOneDoor:
     """
 
     async def test_authorize_takes_no_credentials_and_hands_over_to_the_interface(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         _, challenge = pkce()
@@ -381,7 +381,7 @@ class TestSigningInGoesThroughTheOneDoor:
         assert "password" not in response.text.lower()
 
     async def test_a_pending_authorization_cannot_be_read_without_a_cookie(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         _, challenge = pkce()
@@ -393,7 +393,7 @@ class TestSigningInGoesThroughTheOneDoor:
         assert response.status_code == 401
 
     async def test_an_account_with_a_second_factor_cannot_be_bypassed_here(
-        self, client: httpx.AsyncClient, session: AsyncSession, app: FastAPI
+        self, client: httpx2.AsyncClient, session: AsyncSession, app: FastAPI
     ) -> None:
         """The hole this replaces: a password-only form beside the real one.
 
@@ -413,8 +413,8 @@ class TestSigningInGoesThroughTheOneDoor:
         await session.commit()
 
         # A fresh browser: signing in now owes a second factor.
-        async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=app), base_url="http://testserver"
+        async with httpx2.AsyncClient(
+            transport=httpx2.ASGITransport(app=app), base_url="http://testserver"
         ) as fresh:
             signed_in = await fresh.post(
                 "/web/auth/login", json={"username": "ada", "password": PASSWORD}
@@ -433,7 +433,7 @@ class TestSigningInGoesThroughTheOneDoor:
         assert refused.status_code == 401
 
     async def test_approving_needs_the_csrf_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -452,7 +452,7 @@ class TestTheConsentScreenDescribesTheStoredRequest:
     """What is shown comes from the store, never from the link that opened it."""
 
     async def test_it_reports_what_was_asked_for(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -468,7 +468,7 @@ class TestTheConsentScreenDescribesTheStoredRequest:
         assert described["alreadyGranted"] is False
 
     async def test_a_handle_that_was_never_issued_is_not_found(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_account(client)
 
@@ -477,7 +477,7 @@ class TestTheConsentScreenDescribesTheStoredRequest:
         assert response.status_code == 404
 
     async def test_a_second_authorization_for_the_same_scopes_is_already_granted(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await full_flow(client, session)
         _, challenge = pkce()
@@ -490,7 +490,7 @@ class TestTheConsentScreenDescribesTheStoredRequest:
         assert described["newScopes"] == []
 
     async def test_asking_for_more_reports_only_what_is_new(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await full_flow(client, session)
         _, challenge = pkce()
@@ -509,7 +509,7 @@ class TestScopesGrantExactlyWhatTheySay:
     """The hole this replaces let ``openid`` read every library on the instance."""
 
     async def test_openid_alone_reaches_no_library(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
         user_id = (await only_user(session)).id
@@ -522,7 +522,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert response.status_code == 403
 
     async def test_openid_alone_reaches_no_file(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
         user_id = (await only_user(session)).id
@@ -534,7 +534,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert response.status_code == 403
 
     async def test_openid_alone_answers_a_subject_and_nothing_else(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
 
@@ -545,7 +545,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert set(claims) == {"sub"}
 
     async def test_a_token_is_read_with_its_grant_and_owner(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """One statement for the token, and none more for whose it is."""
         from tests.test_query_counts import capture_sql
@@ -559,7 +559,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert len(statements) == 1, "\n\n".join(statements)
 
     async def test_profile_adds_a_name_and_email_adds_an_address(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid profile email")
 
@@ -573,7 +573,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert claims["email_verified"] is False
 
     async def test_library_read_reads_and_does_not_write(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid library.read")
         user_id = (await only_user(session)).id
@@ -588,7 +588,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert wrote.status_code == 403
 
     async def test_library_read_alone_reaches_no_note(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """``notes.read`` was named on the consent screen and enforced nowhere.
 
@@ -610,7 +610,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert "confidential" not in listing.text
 
     async def test_notes_read_reaches_the_note_it_names(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The teeth for the test above: the scope is what makes the difference."""
         tokens = await full_flow(client, session, scope="openid library.read notes.read")
@@ -626,7 +626,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert single.json()["data"]["note"] == "<p>confidential</p>"
 
     async def test_library_read_alone_reaches_no_file(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """``openid`` alone being refused above proved only that reading is gated."""
         tokens = await full_flow(client, session, scope="openid library.read")
@@ -650,7 +650,7 @@ class TestScopesGrantExactlyWhatTheySay:
         ).status_code == 200
 
     async def test_files_read_reaches_the_attachment_it_names(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The teeth for the test above."""
         tokens = await full_flow(client, session, scope="openid library.read files.read")
@@ -668,7 +668,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert response.status_code == 404
 
     async def test_library_write_reaches_the_library(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid library.read library.write")
         user_id = (await only_user(session)).id
@@ -682,7 +682,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert wrote.status_code == 200
 
     async def test_write_without_read_is_refused_rather_than_silently_useless(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         _, challenge = pkce()
@@ -693,7 +693,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert "error=invalid_scope" in response.headers["location"]
 
     async def test_a_scope_the_client_is_not_registered_for_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session, scopes="openid library.read")
         _, challenge = pkce()
@@ -705,7 +705,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert "error=invalid_scope" in response.headers["location"]
 
     async def test_an_unknown_scope_is_refused_rather_than_dropped(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """An application asking for annotations.write has a belief about this server."""
         await make_client(session)
@@ -716,7 +716,7 @@ class TestScopesGrantExactlyWhatTheySay:
         assert "error=invalid_scope" in response.headers["location"]
 
     async def test_a_scope_error_goes_to_the_registered_address(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Once the address is known good, the application is told at it."""
         await make_client(session)
@@ -729,7 +729,9 @@ class TestScopesGrantExactlyWhatTheySay:
 
 
 class TestPkceCannotBeTurnedOff:
-    async def test_plain_is_refused(self, client: httpx.AsyncClient, session: AsyncSession) -> None:
+    async def test_plain_is_refused(
+        self, client: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
         await make_client(session)
         _, challenge = pkce()
 
@@ -737,13 +739,13 @@ class TestPkceCannotBeTurnedOff:
 
         assert "error=invalid_request" in response.headers["location"]
 
-    async def test_plain_is_not_advertised(self, client: httpx.AsyncClient) -> None:
+    async def test_plain_is_not_advertised(self, client: httpx2.AsyncClient) -> None:
         document = (await client.get("/.well-known/openid-configuration")).json()
 
         assert document["code_challenge_methods_supported"] == ["S256"]
 
     async def test_a_missing_challenge_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
 
@@ -752,7 +754,7 @@ class TestPkceCannotBeTurnedOff:
         assert "error=invalid_request" in response.headers["location"]
 
     async def test_the_wrong_verifier_does_not_redeem_the_code(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -778,7 +780,7 @@ class TestPkceCannotBeTurnedOff:
 
 class TestTheAuthorizationCode:
     async def test_the_whole_flow_produces_a_working_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session)
         user_id = (await only_user(session)).id
@@ -792,7 +794,7 @@ class TestTheAuthorizationCode:
         assert tokens["expires_in"] == 3600
 
     async def test_a_code_is_single_use(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -815,7 +817,7 @@ class TestTheAuthorizationCode:
         assert replayed.json()["error"] == "invalid_grant"
 
     async def test_replaying_a_code_revokes_what_the_first_exchange_produced(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """RFC 6749 §4.1.2. The assertion, not just that the replay is refused."""
         await make_client(session)
@@ -842,7 +844,7 @@ class TestTheAuthorizationCode:
         assert after.status_code == 403
 
     async def test_a_mismatched_redirect_uri_is_refused_at_the_exchange(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session, redirect_uris=[REDIRECT, "https://app.example.com/other"])
         await make_account(client)
@@ -866,7 +868,7 @@ class TestTheAuthorizationCode:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_another_client_cannot_spend_the_code(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_client(session, client_id="thief", redirect_uris=["https://thief.example/cb"])
@@ -891,7 +893,7 @@ class TestTheAuthorizationCode:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_an_expired_code_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -919,7 +921,7 @@ class TestTheAuthorizationCode:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_refusing_tells_the_application_rather_than_leaving_it_waiting(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -936,13 +938,13 @@ class TestTheAuthorizationCode:
 
 class TestTheIdToken:
     async def test_it_is_issued_only_when_openid_was_asked_for(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         with_openid = await full_flow(client, session, scope="openid library.read")
         assert "id_token" in with_openid
 
     async def test_it_verifies_under_the_published_key_set(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The check a client makes. Anything less does not test a signature."""
         tokens = await full_flow(client, session, scope="openid")
@@ -965,7 +967,7 @@ class TestTheIdToken:
         assert header["alg"] == "RS256"
 
     async def test_a_tampered_id_token_does_not_verify(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """What gives the test above its teeth."""
         from cryptography.exceptions import InvalidSignature
@@ -990,7 +992,7 @@ class TestTheIdToken:
             )
 
     async def test_its_claims_say_who_issued_it_and_for_whom(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid", nonce="n-0S6_WzA2Mj")
         user_id = (await only_user(session)).id
@@ -1005,7 +1007,7 @@ class TestTheIdToken:
         assert "auth_time" in claims
 
     async def test_the_at_hash_ties_it_to_the_access_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
 
@@ -1016,7 +1018,7 @@ class TestTheIdToken:
         assert claims["at_hash"] == expected
 
     async def test_identity_claims_are_gated_by_scope(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
 
@@ -1028,7 +1030,7 @@ class TestTheIdToken:
 
 class TestRefreshRotation:
     async def test_a_refresh_produces_a_new_pair(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         first = await full_flow(client, session)
 
@@ -1048,7 +1050,7 @@ class TestRefreshRotation:
         assert second["scope"] == first["scope"]
 
     async def test_replaying_a_rotated_refresh_token_kills_the_whole_family(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The assertion that matters: the token rotated *to* must also die."""
         first = await full_flow(client, session)
@@ -1090,7 +1092,7 @@ class TestRefreshRotation:
         assert again.status_code == 400
 
     async def test_an_expired_refresh_token_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session)
         stored = await session.scalar(select(OAuthToken).where(OAuthToken.kind == "refresh"))
@@ -1110,7 +1112,7 @@ class TestRefreshRotation:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_another_client_cannot_rotate_it(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session)
         await make_client(session, client_id="thief", redirect_uris=["https://thief.example/cb"])
@@ -1127,7 +1129,7 @@ class TestRefreshRotation:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_an_unsupported_grant_type_says_so(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         response = await client.post(
             "/oauth/token", data={"grant_type": "password", "client_id": "notebook"}
@@ -1139,7 +1141,7 @@ class TestRefreshRotation:
 
 class TestConfidentialClients:
     async def test_the_secret_is_required(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, secret = await make_client(session, confidential=True)
         assert secret is not None
@@ -1164,7 +1166,7 @@ class TestConfidentialClients:
         assert without.json()["error"] == "invalid_client"
 
     async def test_the_right_secret_works(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, secret = await make_client(session, confidential=True)
         await make_account(client)
@@ -1195,7 +1197,7 @@ class TestConfidentialClients:
         assert secret not in registered.secret_hash
 
     async def test_the_secret_may_be_presented_as_http_basic(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, secret = await make_client(session, confidential=True)
         assert secret is not None
@@ -1220,7 +1222,7 @@ class TestConfidentialClients:
         assert response.status_code == 200, response.text
 
     async def test_basic_authenticates_a_refresh_as_well(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, secret = await make_client(session, confidential=True)
         assert secret is not None
@@ -1251,7 +1253,7 @@ class TestConfidentialClients:
         assert response.status_code == 200, response.text
 
     async def test_a_wrong_secret_in_the_header_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session, confidential=True)
 
@@ -1265,7 +1267,7 @@ class TestConfidentialClients:
         assert response.json()["error"] == "invalid_client"
 
     async def test_presenting_the_secret_in_both_places_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """RFC 6749 §2.3: a client uses one authentication method per request.
 
@@ -1289,7 +1291,7 @@ class TestConfidentialClients:
         assert response.json()["error"] == "invalid_request"
 
     async def test_a_client_id_that_contradicts_the_header_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, secret = await make_client(session, confidential=True)
         assert secret is not None
@@ -1308,7 +1310,7 @@ class TestConfidentialClients:
         assert response.json()["error"] == "invalid_request"
 
     async def test_the_same_client_id_in_both_places_is_accepted(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Naming the client in the body as well is not a second method.
 
@@ -1331,7 +1333,7 @@ class TestConfidentialClients:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_a_header_that_is_not_base64_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session, confidential=True)
 
@@ -1349,7 +1351,7 @@ class TestConfidentialClients:
         assert "Basic credentials" in response.json()["error_description"]
 
     async def test_a_header_with_no_colon_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session, confidential=True)
 
@@ -1364,7 +1366,7 @@ class TestConfidentialClients:
         assert "do not separate" in response.json()["error_description"]
 
     async def test_the_credentials_are_percent_decoded(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """RFC 6749 §2.3.1 form-encodes both values before base64.
 
@@ -1384,7 +1386,7 @@ class TestConfidentialClients:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_a_plus_is_not_read_as_a_space(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The other half of the decision above, and the reason it is not
         ``unquote_plus``: a client that skipped the form-encoding still works,
@@ -1402,7 +1404,7 @@ class TestConfidentialClients:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_a_public_client_needs_no_header(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """PKCE is what authenticates a public client, and it is required."""
         await make_client(session)
@@ -1421,7 +1423,7 @@ class TestConfidentialClients:
 
 class TestRevocation:
     async def test_revoking_an_access_token_stops_it(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session)
         user_id = (await only_user(session)).id
@@ -1436,7 +1438,7 @@ class TestRevocation:
         assert response.status_code == 403
 
     async def test_revoking_a_refresh_token_takes_the_access_token_with_it(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session)
         user_id = (await only_user(session)).id
@@ -1450,7 +1452,7 @@ class TestRevocation:
         )
         assert response.status_code == 403
 
-    async def test_an_unknown_token_still_answers_200(self, client: httpx.AsyncClient) -> None:
+    async def test_an_unknown_token_still_answers_200(self, client: httpx2.AsyncClient) -> None:
         """RFC 7009 §2.2: an error here would answer whether a string is live."""
         response = await client.post(
             "/oauth/revoke", data={"client_id": "notebook", "token": "not a token"}
@@ -1461,7 +1463,7 @@ class TestRevocation:
 
 class TestSuspensionReachesATokenToo:
     async def test_a_suspended_account_stops_the_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The half of a suspension that matters: enforced at every credential."""
         tokens = await full_flow(client, session)
@@ -1478,7 +1480,7 @@ class TestSuspensionReachesATokenToo:
         assert response.status_code == 403
 
     async def test_a_suspended_account_cannot_refresh(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session)
         user = await only_user(session)
@@ -1499,7 +1501,7 @@ class TestSuspensionReachesATokenToo:
 
 class TestConnectedApplications:
     async def test_the_grant_is_listed(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await full_flow(client, session)
 
@@ -1511,7 +1513,7 @@ class TestConnectedApplications:
         assert listed[0]["activeTokens"] == 1
 
     async def test_disconnecting_stops_the_token_at_once(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session)
         user_id = (await only_user(session)).id
@@ -1526,7 +1528,7 @@ class TestConnectedApplications:
         assert after.status_code == 403
 
     async def test_disconnecting_needs_the_csrf_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await full_flow(client, session)
         listed = (await client.get("/web/oauth/authorizations")).json()
@@ -1538,7 +1540,7 @@ class TestConnectedApplications:
         assert response.status_code == 403
 
     async def test_somebody_elses_authorization_cannot_be_withdrawn(
-        self, client: httpx.AsyncClient, session: AsyncSession, app: FastAPI
+        self, client: httpx2.AsyncClient, session: AsyncSession, app: FastAPI
     ) -> None:
         await full_flow(client, session)
         listed = (await client.get("/web/oauth/authorizations")).json()
@@ -1550,8 +1552,8 @@ class TestConnectedApplications:
         await session.commit()
         await webauth.set_password(session, grace, PASSWORD)
 
-        async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=app), base_url="http://testserver"
+        async with httpx2.AsyncClient(
+            transport=httpx2.ASGITransport(app=app), base_url="http://testserver"
         ) as other:
             signed_in = await other.post(
                 "/web/auth/login", json={"username": "grace", "password": PASSWORD}
@@ -1563,13 +1565,13 @@ class TestConnectedApplications:
 
         assert response.status_code == 404
 
-    async def test_authorizations_need_a_cookie(self, client: httpx.AsyncClient) -> None:
+    async def test_authorizations_need_a_cookie(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/oauth/authorizations")).status_code == 401
 
 
 class TestDiscovery:
     async def test_both_well_known_paths_serve_the_same_document(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         oidc = await client.get("/.well-known/openid-configuration")
         oauth = await client.get("/.well-known/oauth-authorization-server")
@@ -1577,7 +1579,7 @@ class TestDiscovery:
         assert oidc.status_code == 200
         assert oidc.json() == oauth.json()
 
-    async def test_it_names_everything_a_client_needs(self, client: httpx.AsyncClient) -> None:
+    async def test_it_names_everything_a_client_needs(self, client: httpx2.AsyncClient) -> None:
         document = (await client.get("/.well-known/openid-configuration")).json()
 
         for required in (
@@ -1593,7 +1595,7 @@ class TestDiscovery:
         assert document["id_token_signing_alg_values_supported"] == ["RS256"]
 
     async def test_it_names_the_client_authentication_methods_it_accepts(
-        self, client: httpx.AsyncClient
+        self, client: httpx2.AsyncClient
     ) -> None:
         document = (await client.get("/.well-known/openid-configuration")).json()
 
@@ -1603,7 +1605,7 @@ class TestDiscovery:
             "client_secret_post",
         ]
 
-    async def test_the_key_set_holds_a_usable_key(self, client: httpx.AsyncClient) -> None:
+    async def test_the_key_set_holds_a_usable_key(self, client: httpx2.AsyncClient) -> None:
         keys = (await client.get("/oauth/jwks.json")).json()["keys"]
 
         assert len(keys) == 1
@@ -1613,7 +1615,7 @@ class TestDiscovery:
         assert keys[0]["kid"]
 
     async def test_a_rotated_key_is_still_published(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Otherwise every token issued before a rotation stops verifying."""
         before = (await client.get("/oauth/jwks.json")).json()["keys"][0]["kid"]
@@ -1628,7 +1630,7 @@ class TestDiscovery:
 class TestTheIssuerIsNotTakenFromTheRequest:
     """A ``Host`` header must not decide what this server calls itself."""
 
-    async def test_the_issuer_comes_from_the_setting(self, client: httpx.AsyncClient) -> None:
+    async def test_the_issuer_comes_from_the_setting(self, client: httpx2.AsyncClient) -> None:
         document = (
             await client.get(
                 "/.well-known/openid-configuration", headers={"Host": "attacker.example"}
@@ -1649,8 +1651,8 @@ class TestTheIssuerIsNotTakenFromTheRequest:
         )
         await bare.state.database.create_all()
         try:
-            async with httpx.AsyncClient(
-                transport=httpx.ASGITransport(app=bare), base_url="http://testserver"
+            async with httpx2.AsyncClient(
+                transport=httpx2.ASGITransport(app=bare), base_url="http://testserver"
             ) as anonymous:
                 response = await anonymous.get("/.well-known/openid-configuration")
         finally:
@@ -1664,7 +1666,7 @@ class TestTheApiKeyPathIsUntouched:
     """The v3 API gained a credential; it did not lose one, and cookies still bounce."""
 
     async def test_an_api_key_still_works(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_account(client)
         key = await admin.create_api_key(session, username="ada", name="laptop")
@@ -1674,7 +1676,7 @@ class TestTheApiKeyPathIsUntouched:
         assert response.status_code == 200
 
     async def test_a_session_cookie_still_does_not_authenticate_a_v3_request(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The rule OAuth did not widen: a cookie is still not a v3 credential."""
         await full_flow(client, session)
@@ -1685,13 +1687,13 @@ class TestTheApiKeyPathIsUntouched:
         assert response.status_code == 403
 
     async def test_an_access_token_does_not_authenticate_a_web_request(
-        self, client: httpx.AsyncClient, session: AsyncSession, app: FastAPI
+        self, client: httpx2.AsyncClient, session: AsyncSession, app: FastAPI
     ) -> None:
         """And not the other way round either: /web is the cookie's alone."""
         tokens = await full_flow(client, session)
 
-        async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=app), base_url="http://testserver"
+        async with httpx2.AsyncClient(
+            transport=httpx2.ASGITransport(app=app), base_url="http://testserver"
         ) as anonymous:
             response = await anonymous.get(
                 "/web/auth/session", headers=bearer(tokens["access_token"])
@@ -1700,7 +1702,7 @@ class TestTheApiKeyPathIsUntouched:
         assert response.status_code == 401
 
     async def test_a_token_cannot_manage_api_keys(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """/keys is about a key as an object, and a token is not one."""
         tokens = await full_flow(client, session)
@@ -1710,7 +1712,7 @@ class TestTheApiKeyPathIsUntouched:
         assert response.status_code == 403
 
     async def test_a_token_cannot_delete_a_key(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session)
 
@@ -1721,7 +1723,7 @@ class TestTheApiKeyPathIsUntouched:
 
 class TestHousekeeping:
     async def test_expired_rows_are_swept(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await full_flow(client, session)
         for row in await session.scalars(select(OAuthToken)):
@@ -1745,14 +1747,14 @@ class TestTheGroupsClaim:
     """
 
     async def test_the_claim_is_absent_without_the_scope(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid profile")
 
         assert "groups" not in claims_of(tokens["id_token"])
 
     async def test_it_names_the_groups_the_account_belongs_to(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         user_id = await make_account(client)
@@ -1764,7 +1766,7 @@ class TestTheGroupsClaim:
         assert claims_of(tokens["id_token"])["groups"] == ["Reading Group", "Lab Notebook"]
 
     async def test_a_group_somebody_else_is_in_is_not_named(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """What gives the test above its teeth: it is membership, not a listing."""
         await make_client(session)
@@ -1778,7 +1780,7 @@ class TestTheGroupsClaim:
         assert claims_of(tokens["id_token"])["groups"] == ["Reading Group"]
 
     async def test_an_account_in_no_group_is_told_so_rather_than_left_guessing(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """An empty list, not an absent claim.
 
@@ -1790,7 +1792,7 @@ class TestTheGroupsClaim:
         assert claims_of(tokens["id_token"])["groups"] == []
 
     async def test_userinfo_says_the_same_thing(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         user_id = await make_account(client)
@@ -1804,7 +1806,7 @@ class TestTheGroupsClaim:
         assert claims["groups"] == ["Reading Group"]
 
     async def test_userinfo_does_not_say_it_without_the_scope(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         user_id = await make_account(client)
@@ -1818,7 +1820,7 @@ class TestTheGroupsClaim:
         assert "groups" not in claims
 
     async def test_it_reaches_no_group_library(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The whole reason this is its own scope rather than part of groups.read."""
         await make_client(session)
@@ -1833,7 +1835,7 @@ class TestTheGroupsClaim:
         assert response.status_code == 403
 
     async def test_groups_read_still_reaches_the_group_library(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """And the larger scope is unchanged by the smaller one existing."""
         await make_client(session, scopes="openid library.read groups.read")
@@ -1848,7 +1850,7 @@ class TestTheGroupsClaim:
         assert response.status_code == 200
 
     async def test_groups_read_alone_does_not_put_names_in_the_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """One scope, one thing. Reading the libraries is not being told the list."""
         await make_client(session, scopes="openid library.read groups.read")
@@ -1859,7 +1861,7 @@ class TestTheGroupsClaim:
 
         assert "groups" not in claims_of(tokens["id_token"])
 
-    async def test_the_scope_and_the_claim_are_advertised(self, client: httpx.AsyncClient) -> None:
+    async def test_the_scope_and_the_claim_are_advertised(self, client: httpx2.AsyncClient) -> None:
         document = (await client.get("/.well-known/openid-configuration")).json()
 
         assert "groups" in document["scopes_supported"]
@@ -1889,7 +1891,7 @@ async def hint_for(
     )
 
 
-async def signed_in(client: httpx.AsyncClient) -> bool:
+async def signed_in(client: httpx2.AsyncClient) -> bool:
     """Return whether the browser still holds a session."""
     return (await client.get("/web/auth/session")).status_code == 200
 
@@ -1903,13 +1905,13 @@ class TestRpInitiatedLogout:
     else's site would sign people out of their library all day.
     """
 
-    async def test_it_is_advertised(self, client: httpx.AsyncClient) -> None:
+    async def test_it_is_advertised(self, client: httpx2.AsyncClient) -> None:
         document = (await client.get("/.well-known/openid-configuration")).json()
 
         assert document["end_session_endpoint"] == f"{PUBLIC_URL}/oauth/logout"
 
     async def test_it_ends_the_browser_session(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
         assert await signed_in(client)
@@ -1923,7 +1925,7 @@ class TestRpInitiatedLogout:
         assert not await signed_in(client)
 
     async def test_it_returns_to_the_registered_address_carrying_the_state(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
 
@@ -1942,7 +1944,7 @@ class TestRpInitiatedLogout:
         assert "state=opaque-state" in response.headers["location"]
 
     async def test_with_nowhere_to_go_it_lands_on_the_interface(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
 
@@ -1956,7 +1958,7 @@ class TestRpInitiatedLogout:
         assert response.headers["location"] == "/app/"
 
     async def test_post_works_as_well_as_get(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """RP-Initiated Logout 1.0 §2 allows either."""
         tokens = await full_flow(client, session, scope="openid")
@@ -1971,7 +1973,7 @@ class TestRpInitiatedLogout:
         assert not await signed_in(client)
 
     async def test_an_unregistered_address_is_refused_and_not_redirected_to(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The same rule as the authorization endpoint: never bounce off an unverified address."""
         tokens = await full_flow(client, session, scope="openid")
@@ -1989,7 +1991,7 @@ class TestRpInitiatedLogout:
         assert "location" not in response.headers
 
     async def test_a_forged_hint_signs_nobody_out(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         tokens = await full_flow(client, session, scope="openid")
         header, _, signature = tokens["id_token"].split(".")
@@ -2011,7 +2013,7 @@ class TestRpInitiatedLogout:
         assert await signed_in(client)
 
     async def test_a_hint_signed_by_somebody_else_signs_nobody_out(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await full_flow(client, session, scope="openid")
         stranger = rsa.generate_private_key(public_exponent=65537, key_size=2048)
@@ -2036,7 +2038,7 @@ class TestRpInitiatedLogout:
         assert await signed_in(client)
 
     async def test_without_a_hint_it_refuses_rather_than_signing_anybody_out(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """What keeps this from being a sign-out anybody can provoke."""
         await full_flow(client, session, scope="openid")
@@ -2047,7 +2049,7 @@ class TestRpInitiatedLogout:
         assert await signed_in(client)
 
     async def test_an_expired_hint_is_still_a_hint(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """An ID token lives an hour; signing out happens whenever somebody says so."""
         await full_flow(client, session, scope="openid")
@@ -2063,7 +2065,7 @@ class TestRpInitiatedLogout:
         assert not await signed_in(client)
 
     async def test_a_hint_issued_elsewhere_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await full_flow(client, session, scope="openid")
         user = await only_user(session)
@@ -2082,7 +2084,7 @@ class TestRpInitiatedLogout:
         assert await signed_in(client)
 
     async def test_a_hint_for_an_unregistered_client_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await full_flow(client, session, scope="openid")
         user = await only_user(session)
@@ -2099,7 +2101,7 @@ class TestRpInitiatedLogout:
         assert await signed_in(client)
 
     async def test_it_does_not_sign_out_somebody_else(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """RP-Initiated Logout 1.0 §2: not the session, if it is not that subject's."""
         await full_flow(client, session, scope="openid")
@@ -2118,7 +2120,7 @@ class TestRpInitiatedLogout:
         assert await signed_in(client)
 
     async def test_signing_out_of_the_browser_leaves_the_application_working(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A session and a grant are different things, and this ends the session.
 
@@ -2139,7 +2141,7 @@ class TestRpInitiatedLogout:
         ).status_code == 200
 
     async def test_a_browser_that_was_never_signed_in_is_sent_on_its_way(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Nothing to end is not a failure: the RP wants its landing page either way."""
         tokens = await full_flow(client, session, scope="openid")
@@ -2182,19 +2184,19 @@ DEVICE_GRANT = "urn:ietf:params:oauth:grant-type:device_code"
 
 
 async def start_device(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     *,
     client_id: str = "notebook",
     scope: str = "openid library.read",
-) -> httpx.Response:
+) -> httpx2.Response:
     return await client.post(
         "/oauth/device_authorization", data={"client_id": client_id, "scope": scope}
     )
 
 
 async def poll_device(
-    client: httpx.AsyncClient, device_code: str, *, client_id: str = "notebook", **extra: str
-) -> httpx.Response:
+    client: httpx2.AsyncClient, device_code: str, *, client_id: str = "notebook", **extra: str
+) -> httpx2.Response:
     return await client.post(
         "/oauth/token",
         data={
@@ -2206,7 +2208,7 @@ async def poll_device(
     )
 
 
-async def enter_code(client: httpx.AsyncClient, user_code: str) -> httpx.Response:
+async def enter_code(client: httpx2.AsyncClient, user_code: str) -> httpx2.Response:
     return await client.post(
         "/web/oauth/device", json={"userCode": user_code}, headers=csrf(client)
     )
@@ -2222,7 +2224,7 @@ class TestTheDeviceGrant:
     two to disagree about what is being granted.
     """
 
-    async def test_it_is_advertised(self, client: httpx.AsyncClient) -> None:
+    async def test_it_is_advertised(self, client: httpx2.AsyncClient) -> None:
         document = (await client.get("/.well-known/openid-configuration")).json()
 
         assert (
@@ -2231,7 +2233,7 @@ class TestTheDeviceGrant:
         assert DEVICE_GRANT in document["grant_types_supported"]
 
     async def test_it_hands_out_a_code_and_says_where_to_type_it(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
 
@@ -2245,7 +2247,7 @@ class TestTheDeviceGrant:
         assert started["interval"] > 0
 
     async def test_the_user_code_is_short_enough_to_read_out(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Somebody is copying this off a screen, possibly across a room."""
         await make_client(session)
@@ -2256,7 +2258,7 @@ class TestTheDeviceGrant:
         assert set(started["user_code"]) <= set(oauthserver.USER_CODE_ALPHABET + "-")
 
     async def test_two_devices_get_two_codes(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
 
@@ -2267,7 +2269,7 @@ class TestTheDeviceGrant:
         assert first["device_code"] != second["device_code"]
 
     async def test_polling_before_anybody_has_answered_says_so(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         started = (await start_device(client)).json()
@@ -2278,7 +2280,7 @@ class TestTheDeviceGrant:
         assert response.json()["error"] == "authorization_pending"
 
     async def test_polling_faster_than_the_interval_is_told_to_slow_down(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """RFC 8628 §3.5. A device in a tight loop is told, not merely refused."""
         await make_client(session)
@@ -2290,7 +2292,7 @@ class TestTheDeviceGrant:
         assert response.json()["error"] == "slow_down"
 
     async def test_approving_at_the_browser_produces_a_working_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         user_id = await make_account(client)
@@ -2308,7 +2310,7 @@ class TestTheDeviceGrant:
         ).status_code == 200
 
     async def test_the_consent_screen_describes_what_the_device_asked_for(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -2321,7 +2323,7 @@ class TestTheDeviceGrant:
         assert described["scopes"] == ["openid", "library.read", "files.read"]
 
     async def test_a_device_code_is_spent_once(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -2335,7 +2337,7 @@ class TestTheDeviceGrant:
         assert again.json()["error"] == "invalid_grant"
 
     async def test_refusing_at_the_browser_tells_the_device(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -2348,7 +2350,7 @@ class TestTheDeviceGrant:
         assert response.json()["error"] == "access_denied"
 
     async def test_an_expired_device_code_says_expired_rather_than_pending(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """A device that polls forever should stop, and only this tells it to."""
         await make_client(session)
@@ -2363,7 +2365,7 @@ class TestTheDeviceGrant:
         assert response.json()["error"] == "expired_token"
 
     async def test_an_unknown_device_code_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
 
@@ -2372,7 +2374,7 @@ class TestTheDeviceGrant:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_another_client_cannot_spend_it(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_client(session, client_id="other", redirect_uris=["https://other.example/cb"])
@@ -2386,7 +2388,7 @@ class TestTheDeviceGrant:
         assert response.json()["error"] == "invalid_grant"
 
     async def test_a_confidential_client_still_presents_its_secret(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         _, secret = await make_client(session, confidential=True)
         assert secret is not None
@@ -2400,7 +2402,7 @@ class TestTheDeviceGrant:
         ] == "authorization_pending"
 
     async def test_a_scope_the_client_is_not_registered_for_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session, scopes="openid library.read")
 
@@ -2409,7 +2411,7 @@ class TestTheDeviceGrant:
         assert response.json()["error"] == "invalid_scope"
 
     async def test_a_disabled_client_cannot_start_one(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         registered, _ = await make_client(session)
         registered.disabled_at = datetime.now(UTC).replace(tzinfo=None)
@@ -2418,7 +2420,7 @@ class TestTheDeviceGrant:
         assert (await start_device(client)).json()["error"] == "invalid_client"
 
     async def test_the_code_is_read_however_it_was_typed(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Case and the dash are decoration; somebody typing it should not have to know."""
         await make_client(session)
@@ -2430,7 +2432,7 @@ class TestTheDeviceGrant:
         assert entered.status_code == 200
 
     async def test_an_unknown_user_code_is_not_found(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -2438,7 +2440,7 @@ class TestTheDeviceGrant:
         assert (await enter_code(client, "ZZZZ-ZZZZ")).status_code == 404
 
     async def test_an_expired_user_code_is_not_found(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -2451,7 +2453,7 @@ class TestTheDeviceGrant:
         assert (await enter_code(client, started["user_code"])).status_code == 404
 
     async def test_a_code_that_has_already_been_answered_is_not_found(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """Approving is a one-time act. A code still live afterwards is a second grant."""
         await make_client(session)
@@ -2463,7 +2465,7 @@ class TestTheDeviceGrant:
         assert (await enter_code(client, started["user_code"])).status_code == 404
 
     async def test_a_code_that_was_refused_is_not_found(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -2474,7 +2476,7 @@ class TestTheDeviceGrant:
         assert (await enter_code(client, started["user_code"])).status_code == 404
 
     async def test_approving_after_the_device_has_given_up_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The consent screen outlives the device code, so it has to check."""
         await make_client(session)
@@ -2493,7 +2495,7 @@ class TestTheDeviceGrant:
         assert response.status_code == 404
 
     async def test_entering_a_code_takes_a_cookie(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """It is consent, so it happens where consent happens: signed in, under /web."""
         await make_client(session)
@@ -2502,7 +2504,7 @@ class TestTheDeviceGrant:
         assert (await enter_code(client, started["user_code"])).status_code == 401
 
     async def test_entering_a_code_takes_the_csrf_token(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -2513,7 +2515,7 @@ class TestTheDeviceGrant:
         assert response.status_code == 403
 
     async def test_the_device_never_sees_a_redirect_uri(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """What makes this flow worth having: no browser on the device, so no address.
 
@@ -2528,7 +2530,7 @@ class TestTheDeviceGrant:
         assert "code_challenge" not in started
 
     async def test_expired_device_codes_are_swept(
-        self, client: httpx.AsyncClient, session: AsyncSession
+        self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await make_client(session)
         await start_device(client)

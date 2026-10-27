@@ -17,7 +17,7 @@ absent from every listing, and uncounted in ``numChildren``
 import hashlib
 from pathlib import Path
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -79,7 +79,7 @@ async def library(session: AsyncSession) -> Library:
     return library
 
 
-async def upload(client: httpx.AsyncClient) -> None:
+async def upload(client: httpx2.AsyncClient) -> None:
     """Put bytes on the attachment, with the key that may."""
     authorized = await client.post(
         f"/users/1/items/{ATTACHMENT}/file",
@@ -102,7 +102,7 @@ async def upload(client: httpx.AsyncClient) -> None:
     )
 
 
-def keys_in(response: httpx.Response) -> set[str]:
+def keys_in(response: httpx2.Response) -> set[str]:
     return {entry["key"] for entry in response.json()}
 
 
@@ -110,7 +110,7 @@ class TestANoteIsHiddenWithoutNotesAccess:
     """Hidden, not redacted: upstream never serves an emptied note."""
 
     async def test_a_note_by_key_is_not_found(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get(f"/users/1/items/{NOTE}", headers=WITHOUT)
 
@@ -118,28 +118,28 @@ class TestANoteIsHiddenWithoutNotesAccess:
         assert "confidential" not in response.text
 
     async def test_no_note_appears_in_the_item_listing(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items", headers=WITHOUT)
 
         assert keys_in(response) == {BOOK, ATTACHMENT}
 
     async def test_no_note_appears_among_top_level_items(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items/top", headers=WITHOUT)
 
         assert keys_in(response) == {BOOK}
 
     async def test_no_note_appears_among_a_parent_s_children(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get(f"/users/1/items/{BOOK}/children", headers=WITHOUT)
 
         assert keys_in(response) == {ATTACHMENT}
 
     async def test_no_note_appears_in_the_trash(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await client.patch(
             f"/users/1/items/{LOOSE}",
@@ -153,7 +153,7 @@ class TestANoteIsHiddenWithoutNotesAccess:
         assert keys_in(response) == set()
 
     async def test_a_note_is_absent_from_format_keys_and_versions(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         keys = await client.get("/users/1/items?format=keys", headers=WITHOUT)
         versions = await client.get("/users/1/items?format=versions", headers=WITHOUT)
@@ -162,7 +162,7 @@ class TestANoteIsHiddenWithoutNotesAccess:
         assert set(versions.json()) == {BOOK, ATTACHMENT}
 
     async def test_a_note_is_absent_from_an_atom_feed(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/users/1/items?format=atom", headers=WITHOUT)
 
@@ -170,7 +170,7 @@ class TestANoteIsHiddenWithoutNotesAccess:
         assert NOTE not in response.text
 
     async def test_num_children_does_not_count_the_hidden_note(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """Otherwise the count is the one thing left saying a note is there."""
         narrow = await client.get(f"/users/1/items/{BOOK}", headers=WITHOUT)
@@ -180,7 +180,7 @@ class TestANoteIsHiddenWithoutNotesAccess:
         assert full.json()["meta"]["numChildren"] == 2
 
     async def test_a_note_is_absent_from_a_collection_s_items(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         made = await client.post(
             "/users/1/collections",
@@ -201,7 +201,7 @@ class TestANoteIsHiddenWithoutNotesAccess:
         assert keys_in(response) == set()
 
     async def test_a_tag_carried_only_by_a_note_is_not_listed_within_items(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         await client.patch(
             f"/users/1/items/{LOOSE}",
@@ -216,7 +216,7 @@ class TestANoteIsHiddenWithoutNotesAccess:
         assert "private" not in [entry["tag"] for entry in scoped.json()]
 
     async def test_a_full_key_still_sees_every_note(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """The teeth: every assertion above is about the narrow key alone."""
         listing = await client.get("/users/1/items", headers=WITH)
@@ -228,7 +228,7 @@ class TestANoteIsHiddenWithoutNotesAccess:
 
 class TestFileBytesNeedFileAccess:
     async def test_the_redirect_is_refused(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         await upload(client)
 
@@ -236,7 +236,9 @@ class TestFileBytesNeedFileAccess:
 
         assert response.status_code == 403
 
-    async def test_the_bytes_are_refused(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_the_bytes_are_refused(
+        self, client: httpx2.AsyncClient, library: Library
+    ) -> None:
         await upload(client)
 
         response = await client.get(f"/users/1/items/{ATTACHMENT}/file/content", headers=WITHOUT)
@@ -245,7 +247,7 @@ class TestFileBytesNeedFileAccess:
         assert CONTENT not in response.content
 
     async def test_the_view_route_is_refused(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         await upload(client)
 
@@ -254,7 +256,7 @@ class TestFileBytesNeedFileAccess:
         assert response.status_code == 403
 
     async def test_the_attachment_itself_is_still_readable(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """Only the bytes are withheld. The item describing them is not a file."""
         await upload(client)
@@ -265,7 +267,7 @@ class TestFileBytesNeedFileAccess:
         assert response.json()["data"]["md5"] == MD5
 
     async def test_a_full_key_still_downloads(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         await upload(client)
 

@@ -3,7 +3,7 @@
 import asyncio
 from contextlib import suppress
 
-import httpx
+import httpx2
 
 from tools.compatibility.process_server import process_server
 
@@ -11,7 +11,7 @@ from tools.compatibility.process_server import process_server
 async def test_committed_object_survives_killed_worker(tmp_path):
     async with process_server(tmp_path / "server") as server:
         headers = {"Zotero-API-Key": server.key}
-        async with httpx.AsyncClient(base_url=server.url) as client:
+        async with httpx2.AsyncClient(base_url=server.url) as client:
             server.barrier.arm("POST", "/users/1/items", "response")
             pending = asyncio.create_task(
                 client.post(
@@ -26,7 +26,7 @@ async def test_committed_object_survives_killed_worker(tmp_path):
                 assert server.barrier.trace[-1]["status"] == 200
                 assert server.crash is not None
                 old_pid = await server.crash()
-                with suppress(httpx.TransportError):
+                with suppress(httpx2.TransportError):
                     await pending
             finally:
                 server.barrier.release.set()

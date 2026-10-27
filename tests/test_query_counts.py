@@ -11,7 +11,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
-import httpx
+import httpx2
 import pytest
 from fastapi import FastAPI
 from sqlalchemy import event
@@ -75,7 +75,7 @@ async def populated(session: AsyncSession, library: Library) -> Library:
 
 class TestItemListings:
     async def test_a_larger_page_costs_no_more_queries(
-        self, app: FastAPI, client: httpx.AsyncClient, populated: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, populated: Library
     ) -> None:
         """The related data of a page is fetched per page, not per item."""
         with capture_sql(app) as one_item:
@@ -90,7 +90,7 @@ class TestItemListings:
         )
 
     async def test_the_envelope_survives_batching(
-        self, client: httpx.AsyncClient, populated: Library
+        self, client: httpx2.AsyncClient, populated: Library
     ) -> None:
         """The related data still lands on the right item once fetched in bulk."""
         body = (await client.get("/users/1/items?limit=10", headers=AUTH)).json()
@@ -102,7 +102,7 @@ class TestItemListings:
             assert entry["meta"]["numChildren"] == 0
 
     async def test_children_are_counted_per_parent(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Library
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """A batched count must not spread one parent's children over the page."""
         parent = await make_item(session, library, key="AAAA1111")
@@ -117,7 +117,7 @@ class TestItemListings:
         assert children["BBBB2222"] == 0
 
     async def test_a_child_still_names_its_parent(
-        self, session: AsyncSession, client: httpx.AsyncClient, library: Library
+        self, session: AsyncSession, client: httpx2.AsyncClient, library: Library
     ) -> None:
         parent = await make_item(session, library, key="AAAA1111")
         await make_item(session, library, key="CCCC3333", item_type="note", parent=parent)
@@ -142,7 +142,7 @@ class TestCollectionListings:
         return library
 
     async def test_a_larger_page_costs_no_more_queries(
-        self, app: FastAPI, client: httpx.AsyncClient, shelves: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, shelves: Library
     ) -> None:
         # Two rather than one, so that the small page also holds a nested
         # collection: a page of only top-level collections names no parent and
@@ -160,7 +160,7 @@ class TestCollectionListings:
         )
 
     async def test_the_counts_land_on_the_right_collection(
-        self, client: httpx.AsyncClient, shelves: Library
+        self, client: httpx2.AsyncClient, shelves: Library
     ) -> None:
         body = (await client.get("/users/1/collections?limit=25", headers=AUTH)).json()
         by_key = {entry["key"]: entry for entry in body}
@@ -179,7 +179,7 @@ class TestCollectionListings:
 
 class TestUnpaginatedFormats:
     async def test_the_keys_format_is_not_counted_twice(
-        self, app: FastAPI, client: httpx.AsyncClient, populated: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, populated: Library
     ) -> None:
         """An unlimited page is the whole result set, so counting it is wasted work."""
         with capture_sql(app) as statements:
@@ -191,7 +191,7 @@ class TestUnpaginatedFormats:
         assert counts == [], f"the whole result set was counted as well as fetched: {counts}"
 
     async def test_an_offset_is_still_reported_in_the_total(
-        self, client: httpx.AsyncClient, populated: Library
+        self, client: httpx2.AsyncClient, populated: Library
     ) -> None:
         """The total covers the objects the offset skipped, not just those returned."""
         response = await client.get("/users/1/items?format=keys&start=4", headers=AUTH)
@@ -200,7 +200,7 @@ class TestUnpaginatedFormats:
         assert len(response.text.splitlines()) == 6
 
     async def test_the_versions_format_is_not_counted_twice(
-        self, app: FastAPI, client: httpx.AsyncClient, populated: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, populated: Library
     ) -> None:
         with capture_sql(app) as statements:
             response = await client.get("/users/1/items?format=versions", headers=AUTH)
@@ -211,7 +211,7 @@ class TestUnpaginatedFormats:
 
     @pytest.mark.parametrize("response_format", ["keys", "versions"])
     async def test_a_key_listing_loads_nothing_but_keys(
-        self, app: FastAPI, client: httpx.AsyncClient, populated: Library, response_format: str
+        self, app: FastAPI, client: httpx2.AsyncClient, populated: Library, response_format: str
     ) -> None:
         """A full sync asks for every key and version, and nothing else of an item.
 
@@ -248,7 +248,7 @@ class TestExpensiveFilters:
     async def test_the_total_comes_with_the_page(
         self,
         app: FastAPI,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         path: str,
@@ -267,7 +267,7 @@ class TestExpensiveFilters:
 
     @pytest.mark.parametrize("path", ["/users/1/items?q=Item&start=10", "/users/1/tags?start=10"])
     async def test_a_page_past_the_end_still_reports_the_total(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library, path: str
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library, path: str
     ) -> None:
         for index in range(5):
             item = await make_item(session, library, fields={"title": f"Item {index}"})
@@ -283,7 +283,7 @@ class TestAuthentication:
     """Who is asking costs one statement, and the rest of the request reuses it."""
 
     async def test_a_key_is_read_with_its_owner(
-        self, app: FastAPI, client: httpx.AsyncClient, library: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """The key and its owner in one statement, and the overrides in one more.
 
@@ -298,7 +298,7 @@ class TestAuthentication:
         assert len(statements) == 2, "\n\n".join(statements)
 
     async def test_a_browser_session_is_read_with_its_owner(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         from altero.services import admin
         from tests.test_web_routes import register
@@ -316,7 +316,7 @@ class TestAuthentication:
         assert not [s for s in statements if "api_key_group_access" in s]
 
     async def test_an_upload_to_a_group_resolves_access_once(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         """The upload dependency reuses the access the request already has."""
         from tests.factories import make_group
@@ -344,7 +344,7 @@ class TestDeleting:
     async def _delete(
         self,
         app: FastAPI,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         count: int,
@@ -374,7 +374,7 @@ class TestDeleting:
     async def test_more_items_cost_no_more_statements(
         self,
         app: FastAPI,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
     ) -> None:
@@ -389,7 +389,7 @@ class TestCreating:
     """A new object is one INSERT, not an INSERT and then UPDATEs of the same row."""
 
     async def test_an_item_is_written_once(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_item(session, library, key="PARENT23")
         children = [
@@ -404,7 +404,7 @@ class TestCreating:
         assert not [s for s in statements if s.startswith("UPDATE items")], "\n\n".join(statements)
 
     async def test_a_collection_is_written_once(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="PARENT23")
         nested = [{"name": f"Shelf {index}", "parentCollection": "PARENT23"} for index in range(3)]
@@ -416,7 +416,7 @@ class TestCreating:
         assert not [s for s in statements if s.startswith("UPDATE collections")]
 
     async def test_the_new_version_is_not_read_back(
-        self, app: FastAPI, client: httpx.AsyncClient, library: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """RETURNING gave the version, and a personal library records no activity."""
         with capture_sql(app) as statements:
@@ -431,7 +431,7 @@ class TestCreating:
 
 class TestFilingAndTagging:
     async def test_a_new_items_tags_and_collections_are_found_together(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """One lookup for all of an item's tags and one for its collections.
 
@@ -459,7 +459,7 @@ class TestFilingAndTagging:
         assert not [s for s in statements if s.startswith("DELETE")]
 
     async def test_changing_one_tag_rewrites_one_link(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="TAGGED23", version=5)
         for name in ("a", "b"):
@@ -479,7 +479,7 @@ class TestFilingAndTagging:
         assert (len(removed), len(added)) == (1, 1), "\n\n".join(statements)
 
     async def test_an_unchanged_item_is_not_written(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """Deciding it is unchanged writes nothing, rather than writing and rolling back."""
         await make_collection(session, library, key="SHELF234")
@@ -510,7 +510,7 @@ class TestLookingAnItemUp:
     async def test_a_route_needing_only_the_row_loads_nothing_else(
         self,
         app: FastAPI,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         path: str,
@@ -538,7 +538,7 @@ class TestLookingAnItemUp:
 
 class TestTheDeleteLog:
     async def test_it_reads_two_columns(
-        self, app: FastAPI, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """A sync reads the whole log; building a row object for each entry was most of it."""
         from altero.models import DeletedObject

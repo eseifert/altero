@@ -9,7 +9,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from uuid import uuid4
 
-import httpx
+import httpx2
 import uvicorn
 
 from altero.app import create_app
@@ -163,7 +163,7 @@ async def process_server(root: Path, *, accounts=1, postgres_url=None):
                 stdout=log,
                 stderr=log,
             )
-            async with httpx.AsyncClient(base_url=server.url, timeout=1) as client:
+            async with httpx2.AsyncClient(base_url=server.url, timeout=1) as client:
                 async with asyncio.timeout(15):
                     while True:
                         if process.returncode is not None:
@@ -172,7 +172,7 @@ async def process_server(root: Path, *, accounts=1, postgres_url=None):
                             response = await client.get("/health")
                             response.raise_for_status()
                             break
-                        except httpx.TransportError:
+                        except httpx2.TransportError:
                             await asyncio.sleep(0.05)
             return process.pid
 

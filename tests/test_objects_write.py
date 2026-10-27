@@ -1,6 +1,6 @@
 """Writing collections, saved searches and tags, and the delete log."""
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,7 +48,7 @@ class TestAPostedBatchIsPatches:
     """
 
     async def test_trashing_a_collection_needs_no_name(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345", name="more", version=10)
 
@@ -64,7 +64,7 @@ class TestAPostedBatchIsPatches:
         assert body["data"]["name"] == "more"
 
     async def test_trashing_a_search_needs_no_name(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(
             session,
@@ -88,7 +88,7 @@ class TestAPostedBatchIsPatches:
         assert body["data"]["conditions"][0]["value"] == "whale"
 
     async def test_a_patch_leaves_the_parent_where_it_was(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_collection(session, library, key="AAAA2345", name="Whales")
         await make_collection(session, library, key="BBBB2345", name="more", parent=parent)
@@ -103,7 +103,7 @@ class TestAPostedBatchIsPatches:
         assert body["data"]["parentCollection"] == "AAAA2345"
 
     async def test_a_new_collection_still_needs_a_name(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         """Only an object that exists may leave things out."""
         body = (
@@ -113,7 +113,7 @@ class TestAPostedBatchIsPatches:
         assert body["failed"]["0"]["code"] == 400
 
     async def test_a_new_search_still_needs_its_conditions(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post("/users/1/searches", headers=JSON, json=[{"name": "Whales"}])
@@ -122,7 +122,7 @@ class TestAPostedBatchIsPatches:
         assert body["failed"]["0"]["code"] == 400
 
     async def test_a_patch_that_renames_leaves_the_rest_alone(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(
             session,
@@ -146,7 +146,7 @@ class TestAPostedBatchIsPatches:
 
 class TestCollectionWrites:
     async def test_a_collection_is_created(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.post(
             "/users/1/collections", headers=JSON, json=[{"name": "Fiction"}]
@@ -159,7 +159,7 @@ class TestCollectionWrites:
         assert created["version"] == 11
 
     async def test_a_nested_collection_is_created(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345", name="Parent")
 
@@ -174,14 +174,14 @@ class TestCollectionWrites:
         assert body["successful"]["0"]["data"]["parentCollection"] == "AAAA2345"
 
     async def test_a_collection_without_a_name_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (await client.post("/users/1/collections", headers=JSON, json=[{}])).json()
 
         assert body["failed"]["0"]["code"] == 400
 
     async def test_an_unknown_parent_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post(
@@ -200,7 +200,7 @@ class TestCollectionWrites:
         }
 
     async def test_a_collection_is_replaced(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345", name="Old", version=10)
 
@@ -215,7 +215,7 @@ class TestCollectionWrites:
         assert body["data"]["name"] == "New"
 
     async def test_replacing_with_a_stale_version_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345", version=10)
 
@@ -226,7 +226,7 @@ class TestCollectionWrites:
         assert response.status_code == 412
 
     async def test_a_collection_is_deleted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345")
 
@@ -236,7 +236,7 @@ class TestCollectionWrites:
         assert (await client.get("/users/1/collections/AAAA2345", headers=AUTH)).status_code == 404
 
     async def test_deleting_promotes_nested_collections(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         grandparent = await make_collection(session, library, key="AAAA2345")
         parent = await make_collection(session, library, key="BBBB2345", parent=grandparent)
@@ -248,7 +248,7 @@ class TestCollectionWrites:
         assert child["data"]["parentCollection"] == "AAAA2345"
 
     async def test_deleting_without_a_version_is_rejected(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345")
 
@@ -257,7 +257,7 @@ class TestCollectionWrites:
         ).status_code == 428
 
     async def test_several_collections_are_deleted_by_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345")
         await make_collection(session, library, key="BBBB2345")
@@ -271,7 +271,7 @@ class TestCollectionWrites:
 
 
 class TestSearchWrites:
-    async def test_a_search_is_created(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_a_search_is_created(self, client: httpx2.AsyncClient, library: Library) -> None:
         response = await client.post(
             "/users/1/searches",
             headers=JSON,
@@ -291,7 +291,7 @@ class TestSearchWrites:
         assert created["data"]["conditions"][0]["value"] == "whale"
 
     async def test_a_search_without_conditions_is_rejected(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (
             await client.post("/users/1/searches", headers=JSON, json=[{"name": "Empty"}])
@@ -300,7 +300,7 @@ class TestSearchWrites:
         assert body["failed"]["0"]["code"] == 400
 
     async def test_a_search_is_replaced(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(
             session,
@@ -327,7 +327,7 @@ class TestSearchWrites:
         assert body["data"]["conditions"][0]["value"] == "squid"
 
     async def test_patching_a_search_leaves_what_it_does_not_mention(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(
             session,
@@ -348,7 +348,7 @@ class TestSearchWrites:
         assert body["data"]["conditions"][0]["value"] == "whale"
 
     async def test_replacing_a_search_needs_its_conditions(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """A `PUT` clears what it leaves out, and a saved search with no
         conditions is not a saved search."""
@@ -363,7 +363,7 @@ class TestSearchWrites:
         assert response.status_code == 400
 
     async def test_patching_a_collection_leaves_what_it_does_not_mention(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_collection(session, library, key="PPPP2345", name="Parent", version=10)
         await make_collection(
@@ -380,7 +380,7 @@ class TestSearchWrites:
         assert body["data"]["parentCollection"] == "PPPP2345"
 
     async def test_replacing_a_collection_clears_its_parent(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         parent = await make_collection(session, library, key="PPPP2345", name="Parent", version=10)
         await make_collection(
@@ -395,7 +395,7 @@ class TestSearchWrites:
         assert body["data"]["parentCollection"] is False
 
     async def test_a_search_is_deleted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(session, library, key="AAAA2345")
 
@@ -405,7 +405,7 @@ class TestSearchWrites:
         assert (await client.get("/users/1/searches/AAAA2345", headers=AUTH)).status_code == 404
 
     async def test_several_searches_are_deleted_by_key(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(session, library, key="AAAA2345")
         await make_search(session, library, key="BBBB2345")
@@ -420,7 +420,7 @@ class TestSearchWrites:
 
 class TestTagWrites:
     async def test_a_tag_is_deleted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -431,7 +431,7 @@ class TestTagWrites:
         assert (await client.get("/users/1/tags", headers=AUTH)).json() == []
 
     async def test_deleting_a_tag_leaves_the_item(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -442,7 +442,7 @@ class TestTagWrites:
         assert body["data"]["tags"] == []
 
     async def test_several_tags_are_deleted_with_alternatives(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -454,7 +454,7 @@ class TestTagWrites:
         assert (await client.get("/users/1/tags", headers=AUTH)).json() == []
 
     async def test_both_types_of_a_name_are_removed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -466,7 +466,7 @@ class TestTagWrites:
         assert (await client.get("/users/1/tags", headers=AUTH)).json() == []
 
     async def test_deleting_without_a_tag_deletes_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The desktop client sends its tag names as `tags`, which its own
         # parameter filter then drops, so the request arrives bare. Upstream
@@ -483,7 +483,7 @@ class TestTagWrites:
         ]
 
     async def test_the_plural_parameter_is_also_accepted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # Should the client ever stop dropping it, `tags` means the same thing,
         # and its values are joined with a bare `||` rather than a spaced one.
@@ -506,7 +506,7 @@ class TestRenamingATag:
     """
 
     async def test_the_tag_is_renamed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "ficton")
@@ -521,7 +521,7 @@ class TestRenamingATag:
         ]
 
     async def test_the_items_carry_the_new_name(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "ficton")
@@ -532,7 +532,7 @@ class TestRenamingATag:
         assert body["data"]["tags"] == [{"tag": "fiction"}]
 
     async def test_every_item_that_carried_it_is_a_new_version(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """The only thing that tells a syncing client its items changed."""
         one = await make_item(session, library, key="AAAA2345")
@@ -552,7 +552,7 @@ class TestRenamingATag:
         ] == before
 
     async def test_the_client_s_own_timestamp_is_left_alone(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """The client did not do this, so `dateModified` is not the client's."""
         item = await make_item(session, library, key="AAAA2345")
@@ -565,7 +565,7 @@ class TestRenamingATag:
         assert after["data"]["dateModified"] == before["data"]["dateModified"]
 
     async def test_both_types_of_the_name_are_renamed(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -579,7 +579,7 @@ class TestRenamingATag:
         ]
 
     async def test_what_it_becomes_is_manual(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """`Zotero.Tags.rename` sets `type=0` on every link it moves."""
         item = await make_item(session, library, key="AAAA2345")
@@ -591,7 +591,7 @@ class TestRenamingATag:
         assert body["data"]["tags"] == [{"tag": "fiction"}]
 
     async def test_renaming_onto_an_existing_name_merges(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -608,7 +608,7 @@ class TestRenamingATag:
         assert body["data"]["tags"] == [{"tag": "fiction"}]
 
     async def test_it_merges_with_an_automatic_tag_of_that_name_too(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """The new name must end up naming one tag, whatever type it was.
 
@@ -629,7 +629,7 @@ class TestRenamingATag:
         assert tags[0]["meta"]["numItems"] == 2
 
     async def test_an_absorbed_automatic_tag_leaves_its_items_manual(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """And their JSON changed, so they are a new version like the rest."""
         one = await make_item(session, library, key="AAAA2345")
@@ -644,7 +644,7 @@ class TestRenamingATag:
         assert body["version"] == 11
 
     async def test_four_tags_of_two_names_become_one(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         for index, (key, name, tag_type) in enumerate(
             [
@@ -666,7 +666,7 @@ class TestRenamingATag:
         ]
 
     async def test_an_item_already_under_the_new_name_is_left_where_it_is(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """Nothing changed for it, so it is not a new version."""
         one = await make_item(session, library, key="AAAA2345")
@@ -681,7 +681,7 @@ class TestRenamingATag:
         assert untouched["data"]["tags"] == [{"tag": "fiction"}]
 
     async def test_the_old_name_is_reported_as_deleted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "ficton")
@@ -692,7 +692,7 @@ class TestRenamingATag:
         assert body["tags"] == ["ficton"]
 
     async def test_a_name_that_comes_back_stops_being_deleted(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         """Otherwise one sync says "remove this tag" and "here it is" at once."""
         item = await make_item(session, library, key="AAAA2345")
@@ -712,7 +712,7 @@ class TestRenamingATag:
         assert body["tags"] == ["fiction"]
 
     async def test_one_request_is_one_new_version(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")
         two = await make_item(session, library, key="BBBB2345")
@@ -726,7 +726,7 @@ class TestRenamingATag:
         assert response.headers["Last-Modified-Version"] == "11"
 
     async def test_the_name_it_already_has_changes_nothing(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -739,7 +739,7 @@ class TestRenamingATag:
         assert response.headers["Last-Modified-Version"] == "10"
 
     async def test_an_unknown_tag_is_not_found(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.patch(
             "/users/1/tags/ficton", headers=VERSIONED, json={"tag": "fiction"}
@@ -748,7 +748,7 @@ class TestRenamingATag:
         assert response.status_code == 404
 
     async def test_an_empty_name_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "ficton")
@@ -760,7 +760,7 @@ class TestRenamingATag:
         assert response.status_code == 400
 
     async def test_an_absurd_name_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "ficton")
@@ -772,7 +772,7 @@ class TestRenamingATag:
         assert response.status_code == 400
 
     async def test_a_body_without_a_name_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "ficton")
@@ -782,7 +782,7 @@ class TestRenamingATag:
         assert response.status_code == 400
 
     async def test_the_version_header_is_required(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "ficton")
@@ -792,7 +792,7 @@ class TestRenamingATag:
         assert response.status_code == 428
 
     async def test_a_stale_version_is_refused(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "ficton")
@@ -810,11 +810,11 @@ class TestRenamingATag:
 
 
 class TestDeleteLog:
-    async def test_since_is_required(self, client: httpx.AsyncClient, library: Library) -> None:
+    async def test_since_is_required(self, client: httpx2.AsyncClient, library: Library) -> None:
         assert (await client.get("/users/1/deleted", headers=AUTH)).status_code == 400
 
     async def test_an_empty_log_reports_every_group(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         body = (await client.get("/users/1/deleted?since=0", headers=AUTH)).json()
 
@@ -827,7 +827,7 @@ class TestDeleteLog:
         }
 
     async def test_a_deleted_item_is_reported(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
         await client.delete("/users/1/items/AAAA2345", headers=VERSIONED)
@@ -837,7 +837,7 @@ class TestDeleteLog:
         assert body["items"] == ["AAAA2345"]
 
     async def test_a_deleted_collection_is_reported(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_collection(session, library, key="AAAA2345")
         await client.delete("/users/1/collections/AAAA2345", headers=VERSIONED)
@@ -847,7 +847,7 @@ class TestDeleteLog:
         assert body["collections"] == ["AAAA2345"]
 
     async def test_a_deleted_search_is_reported(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_search(session, library, key="AAAA2345")
         await client.delete("/users/1/searches/AAAA2345", headers=VERSIONED)
@@ -857,7 +857,7 @@ class TestDeleteLog:
         assert body["searches"] == ["AAAA2345"]
 
     async def test_a_deleted_tag_is_reported_by_name(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         item = await make_item(session, library, key="AAAA2345")
         await tag_item(session, library, item, "fiction")
@@ -868,7 +868,7 @@ class TestDeleteLog:
         assert body["tags"] == ["fiction"]
 
     async def test_older_deletions_are_not_reported(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         await make_item(session, library, key="AAAA2345")
         response = await client.delete("/users/1/items/AAAA2345", headers=VERSIONED)
@@ -879,7 +879,7 @@ class TestDeleteLog:
         assert body["items"] == []
 
     async def test_deleting_the_same_key_twice_yields_one_entry(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # The dataserver keys this table on (library, type, key), so a repeat
         # moves the existing row forward instead of adding a second one.

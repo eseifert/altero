@@ -2,7 +2,7 @@
 
 from datetime import UTC, datetime, timedelta
 
-import httpx
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,14 +29,14 @@ async def library(session: AsyncSession) -> Library:
 
 class TestApiVersion:
     async def test_the_version_is_reported_on_every_response(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/itemTypes")
 
         assert response.headers["Zotero-API-Version"] == "3"
 
     async def test_asking_for_the_implemented_version_is_fine(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         header = await client.get("/itemTypes", headers={"Zotero-API-Version": "3"})
         parameter = await client.get("/itemTypes?v=3")
@@ -46,7 +46,7 @@ class TestApiVersion:
 
     @pytest.mark.parametrize("version", ["1", "2", "4"])
     async def test_another_version_is_refused(
-        self, client: httpx.AsyncClient, library: Library, version: str
+        self, client: httpx2.AsyncClient, library: Library, version: str
     ) -> None:
         # v1 and v2 clients expect Atom, which this server does not serve.
         response = await client.get("/itemTypes", headers={"Zotero-API-Version": version})
@@ -55,7 +55,7 @@ class TestApiVersion:
         assert "Invalid API version" in response.text
 
     async def test_a_disagreeing_header_and_parameter_are_refused(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.get("/itemTypes?v=2", headers={"Zotero-API-Version": "3"})
 
@@ -65,7 +65,7 @@ class TestApiVersion:
 
 class TestCors:
     async def test_protocol_headers_are_exposed_to_browsers(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         # A browser cannot read a header that is not named here, and the whole
         # sync protocol lives in headers.
@@ -78,7 +78,7 @@ class TestCors:
             assert name in exposed
 
     async def test_a_preflight_is_answered(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         response = await client.options(
             "/users/1/items",
@@ -98,7 +98,7 @@ class TestWriteTokenExpiry:
     TOKEN = "a" * 32
 
     async def test_an_expired_token_is_forgotten(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # A token is only worth remembering for as long as a client might
         # retry; after that the same one may be used again.
@@ -124,7 +124,7 @@ class TestWriteTokenExpiry:
         assert again.status_code == 200
 
     async def test_a_fresh_token_is_still_remembered(
-        self, client: httpx.AsyncClient, library: Library
+        self, client: httpx2.AsyncClient, library: Library
     ) -> None:
         headers = JSON | {"Zotero-Write-Token": self.TOKEN}
         await client.post("/users/1/items", headers=headers, json=[{"itemType": "book"}])
@@ -134,7 +134,7 @@ class TestWriteTokenExpiry:
         assert again.status_code == 412
 
     async def test_expired_tokens_are_cleared_from_the_table(
-        self, client: httpx.AsyncClient, session: AsyncSession, library: Library
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         session.add(
             WriteToken(
