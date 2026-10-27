@@ -1,40 +1,31 @@
 <script setup lang="ts">
+import { PluginKey } from '@tiptap/pm/state'
 import { EditorContent } from '@tiptap/vue-3'
-import { lift, wrapIn } from '@tiptap/pm/commands'
-import type { Command } from '@tiptap/pm/state'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
+import { BubbleMenu } from '@tiptap/vue-3/menus'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import AppIcon from '@/components/AppIcon.vue'
-import NoteMenu, { type NoteMenuEntry } from '@/components/NoteMenu.vue'
-import { redoCommand, undoCommand } from '@/notes/behaviour'
-import {
-  blockIsActive,
-  blockquoteIsActive,
-  changeIndent,
-  clearFormatting,
-  hasAttr,
-  listIsActive,
-  removeColor,
-  setColor,
-  toggleAlignment,
-  toggleBlock,
-  toggleList,
-} from '@/notes/commands'
+import NoteSlashMenu, { type SlashEntry } from '@/components/NoteSlashMenu.vue'
+import NoteToolbar from '@/components/NoteToolbar.vue'
 import { createNoteEditor, safeHref } from '@/notes/editor'
-import { HIGHLIGHT_COLORS, TEXT_COLORS } from '@/notes/marks'
+import { type BlockId, useNoteFormatting } from '@/notes/formatting'
+import { dismissSlash, SlashCommands, type SlashQuery } from '@/notes/slash'
 import '@/notes/editor.css'
 
 /*
- * A note, open for reading and writing.
+ * A note, open for reading and writing, drawn as part of the page rather than
+ * as a field on it -- the way Linear and Notion draw a document.
  *
- * The toolbar is the desktop's, in the desktop's words: Zotero's own note
- * editor has one fixed row of tools over the text, and so does this, because
- * it is the one way in that a finger, a keyboard and a screen reader all find
- * without being told. Markdown typed at the start of a line and the desktop's
- * keys work as well, as quicker ways to the same things. It is one tab stop,
- * moved through with the arrow keys; Alt+F10 reaches it from the text and
- * Escape goes back.
+ * Nothing stands over the text until it is wanted. Where there is a mouse,
+ * selecting text raises a bar of formats over it, and "/" opens a list of
+ * block types; Markdown typed at the start of a line and the desktop's keys
+ * work as well. Where there is a finger, the tools sit on the keyboard while
+ * the note is being written: a bar over a selection would cover the handles
+ * the phone draws to change it.
+ *
+ * The keyboard reaches the tools from anywhere in the text with Alt+F10, as in
+ * Zotero's own editor, or Escape, which is also the way out of a field in
+ * which Tab indents; Escape in the tools comes back.
  *
  * The parent decides what to do with a change; this says only that one
  * happened, and never on opening a note.
@@ -51,315 +42,178 @@ const props = defineProps<{
 
 const emit = defineEmits<{ change: [html: string] }>()
 
-const toolbar = ref<HTMLElement | null>(null)
-const linkInput = ref<HTMLInputElement | null>(null)
+/** A finger rather than a mouse: the tools go on the keyboard. */
+const coarse = ref(window.matchMedia?.('(pointer: coarse)').matches ?? false)
 
-/** Bumped on every transaction, so what the toolbar shows is read again. */
-const tick = ref(0)
-const linkEditing = ref(false)
-const linkDraft = ref('')
+const slash = ref<{ query: SlashQuery; at: { left: number; top: number; bottom: number } } | null>(null)
+const slashMenu = ref<InstanceType<typeof NoteSlashMenu> | null>(null)
 
 const note = createNoteEditor({
   html: props.html,
   editable: props.editable,
   words: { and: t('and'), etAl: t('et al.') },
   imageUrl: props.imageUrl,
-  placeholder: t('Write a note…'),
+  placeholder: t('Write, or type / for headings, lists and more…'),
   label: t('Note'),
   onChange: html => emit('change', html),
   toggleLink: () => {
-    openLink()
+    void openLink()
     return true
   },
   focusToolbar: () => {
-    focusToolbar()
+    void focusTools()
     return true
   },
+  extensions: [
+    SlashCommands.configure({
+      onChange: (query, view) => {
+        if (!query) {
+          slash.value = null
+          return
+        }
+        const { left, top, bottom } = view.coordsAtPos(query.from)
+        slash.value = { query, at: { left, top, bottom } }
+      },
+      onKeyDown: event => slashMenu.value?.onKey(event) ?? false,
+    }),
+  ],
 })
 const editor = shallowRef(note.editor)
-editor.value.on('transaction', () => tick.value++)
+const f = useNoteFormatting(editor)
 
 const editable = computed(() => props.editable && !note.unsupportedSchema)
+
+/** Whether the reader has put the cursor anywhere yet. */
+let placed = false
+note.editor.on('focus', () => (placed = true))
 
 defineExpose({
   /** The note as it would be saved now. */
   html: note.html,
-  focus: () => editor.value.commands.focus(),
+  /** Back where the cursor was, or after the last word if it never was. */
+  focus: () => editor.value.commands.focus(placed ? null : 'end'),
 })
 
 onBeforeUnmount(() => editor.value.destroy())
 
-/* ---- Running a command. ---- */
+/* ---- The bar over a selection. ---- */
 
-function run(command: Command): void {
-  const { view } = editor.value
-  command(view.state, view.dispatch, view)
-  view.focus()
+const bubbleKey = new PluginKey('noteBubble')
+const bubbleToolbar = ref<InstanceType<typeof NoteToolbar> | null>(null)
+const dockedToolbar = ref<InstanceType<typeof NoteToolbar> | null>(null)
+const linkInput = ref<HTMLInputElement | null>(null)
+/** Raised from the keyboard over no selection, until Escape lowers it. */
+const raised = ref(false)
+
+const bubbleOptions = { strategy: 'fixed' as const, placement: 'top' as const, offset: 8 }
+
+function shouldShowBubble({
+  view,
+  state,
+  element,
+}: {
+  view: { hasFocus: () => boolean }
+  state: typeof editor.value.state
+  element: HTMLElement
+}): boolean {
+  if (!editable.value || coarse.value) return false
+  if (!view.hasFocus() && !element.contains(document.activeElement)) return false
+  if (raised.value || f.linkEditing.value) return true
+  const { empty, from, to } = state.selection
+  if (!empty) return state.doc.textBetween(from, to).length > 0
+  return editor.value.isActive('link')
 }
 
-const schema = computed(() => editor.value.schema)
-
-function markActive(name: string, attrs: Record<string, unknown> = {}): boolean {
-  void tick.value
-  return editor.value.isActive(name, attrs)
+function showBubble(): void {
+  editor.value.view.dispatch(editor.value.state.tr.setMeta(bubbleKey, 'show'))
 }
 
-/* ---- What the toolbar shows. ---- */
-
-type BlockId =
-  | 'paragraph'
-  | 'heading1'
-  | 'heading2'
-  | 'heading3'
-  | 'codeBlock'
-  | 'bulletList'
-  | 'orderedList'
-  | 'blockquote'
-
-const formatEntries = computed<NoteMenuEntry[]>(() => {
-  void tick.value
-  const { state } = editor.value
-  const nodes = schema.value.nodes
-  const inList = listIsActive(state, nodes.bulletList!) || listIsActive(state, nodes.orderedList!)
-  const inQuote = blockquoteIsActive(state)
-  const blocks: [BlockId, string, boolean, string?][] = [
-    ['paragraph', t('Paragraph'), blockIsActive(state, nodes.paragraph!) && !inList && !inQuote],
-    ['heading1', t('Heading 1'), blockIsActive(state, nodes.heading!, { level: 1 }), 'h1'],
-    ['heading2', t('Heading 2'), blockIsActive(state, nodes.heading!, { level: 2 }), 'h2'],
-    ['heading3', t('Heading 3'), blockIsActive(state, nodes.heading!, { level: 3 }), 'h3'],
-    ['codeBlock', t('Monospaced'), blockIsActive(state, nodes.codeBlock!), 'code'],
-    ['bulletList', t('Bulleted List'), listIsActive(state, nodes.bulletList!)],
-    ['orderedList', t('Numbered List'), listIsActive(state, nodes.orderedList!)],
-    ['blockquote', t('Block Quote'), inQuote],
-  ]
-  const marks: [string, string, boolean, string?][] = [
-    ['underline', t('Underline'), markActive('underline'), 'underline'],
-    ['strike', t('Strikethrough'), markActive('strike'), 'strike'],
-    ['sub', t('Subscript'), markActive('subsup', { type: 'sub' })],
-    ['sup', t('Superscript'), markActive('subsup', { type: 'sup' })],
-    ['code', t('Monospaced'), markActive('code'), 'code'],
-  ]
-  return [
-    ...blocks.map(([id, label, checked, sample]) => ({ id, label, checked, sample, kind: 'radio' as const })),
-    ...marks.map(([id, label, checked, sample], index) => ({
-      id,
-      label,
-      checked,
-      sample,
-      kind: 'check' as const,
-      separated: index === 0,
-    })),
-  ]
-})
-
-function format(id: string): void {
-  const nodes = schema.value.nodes
-  const marks: Record<string, [string, Record<string, unknown>?]> = {
-    underline: ['underline'],
-    strike: ['strike'],
-    sub: ['subsup', { type: 'sub' }],
-    sup: ['subsup', { type: 'sup' }],
-    code: ['code'],
-  }
-  if (id in marks) {
-    const [name, attrs] = marks[id]!
-    editor.value.chain().focus().toggleMark(name, attrs).run()
+async function focusTools(): Promise<void> {
+  if (!editable.value) return
+  if (coarse.value) {
+    dockedToolbar.value?.focus()
     return
   }
-  const blocks: Record<string, Command> = {
-    paragraph: toggleBlock(nodes.paragraph!),
-    heading1: toggleBlock(nodes.heading!, { level: 1 }),
-    heading2: toggleBlock(nodes.heading!, { level: 2 }),
-    heading3: toggleBlock(nodes.heading!, { level: 3 }),
-    codeBlock: toggleBlock(nodes.codeBlock!),
-    bulletList: toggleList(nodes.bulletList!, nodes.listItem!),
-    orderedList: toggleList(nodes.orderedList!, nodes.listItem!),
-    blockquote: (state, dispatch, view) =>
-      blockquoteIsActive(state) ? lift(state, dispatch) : wrapIn(nodes.blockquote!)(state, dispatch, view),
-  }
-  run(blocks[id]!)
+  raised.value = true
+  showBubble()
+  await nextTick()
+  bubbleToolbar.value?.focus()
 }
 
-/** The names of the note editor's colours, Zotero's `general-<colour>`. */
-function colorName(name: string): string {
-  const names: Record<string, string> = {
-    red: t('Red'),
-    orange: t('Orange'),
-    yellow: t('Yellow'),
-    green: t('Green'),
-    purple: t('Purple'),
-    magenta: t('Magenta'),
-    blue: t('Blue'),
-    gray: t('Gray'),
-  }
-  return names[name] ?? name
+function leaveTools(): void {
+  raised.value = false
+  editor.value.commands.focus()
 }
 
-function colorEntries(markName: string, colors: readonly (readonly [string, string])[]): NoteMenuEntry[] {
-  void tick.value
-  const current = String(editor.value.getAttributes(markName).color ?? '').toLowerCase()
-  return [
-    { id: '', label: t('Remove Color'), kind: 'action' },
-    ...colors.map(([name, code]) => ({
-      id: code,
-      label: colorName(name),
-      kind: 'radio' as const,
-      swatch: code,
-      checked: current === code,
-      separated: name === 'red',
-    })),
-  ]
-}
-
-const textColors = computed(() => colorEntries('textColor', TEXT_COLORS))
-const highlightColors = computed(() => colorEntries('backgroundColor', HIGHLIGHT_COLORS))
-
-/** The colour each colour button last put on text, for its bar. */
-const lastText = ref<string | null>(null)
-const lastHighlight = ref<string | null>(null)
-
-function color(markName: 'textColor' | 'backgroundColor', code: string): void {
-  const type = schema.value.marks[markName]!
-  if (code) {
-    run(setColor(type, code))
-    if (markName === 'textColor') lastText.value = code
-    else lastHighlight.value = code
-  } else {
-    run(removeColor(type))
-  }
-}
-
-const alignEntries = computed<NoteMenuEntry[]>(() => {
-  void tick.value
-  const { state } = editor.value
-  return [
-    { id: 'left', label: t('Align Left'), kind: 'radio', checked: hasAttr(state, 'align', 'left') },
-    { id: 'center', label: t('Align Center'), kind: 'radio', checked: hasAttr(state, 'align', 'center') },
-    { id: 'right', label: t('Align Right'), kind: 'radio', checked: hasAttr(state, 'align', 'right') },
-    { id: 'outdent', label: t('Decrease Indent'), kind: 'action', separated: true },
-    { id: 'indent', label: t('Increase Indent'), kind: 'action' },
-  ]
-})
-
-function align(id: string): void {
-  if (id === 'indent') run(changeIndent(1))
-  else if (id === 'outdent') run(changeIndent(-1))
-  else run(toggleAlignment(id))
-}
-
-/* ---- Links. ---- */
-
-/** The address of the link the cursor is in, if any. */
-const currentLink = computed<string | null>(() => {
-  void tick.value
-  return markActive('link') ? (editor.value.getAttributes('link').href ?? null) : null
-})
+/* ---- Links, edited in the bar over them. ---- */
 
 async function openLink(): Promise<void> {
-  if (!editable.value) return
-  linkDraft.value = currentLink.value ?? ''
-  linkEditing.value = true
+  await f.openLink()
+  if (!coarse.value) showBubble()
   await nextTick()
   linkInput.value?.focus()
   linkInput.value?.select()
 }
 
-/** What was typed, as an address: one with no scheme is taken to be a web page. */
-function address(typed: string): string {
-  const value = typed.trim()
-  return /^[a-z][a-z\d+.-]*:/i.test(value) ? value : `https://${value}`
-}
-
-function applyLink(): void {
-  const value = linkDraft.value.trim()
-  linkEditing.value = false
-  const chain = editor.value.chain().focus()
-  if (!value) {
-    chain.extendMarkRange('link').unsetMark('link').run()
-    return
-  }
-  const href = address(value)
-  const { empty } = editor.value.state.selection
-  if (empty && !currentLink.value) {
-    chain.insertContent({ type: 'text', text: value, marks: [{ type: 'link', attrs: { href } }] }).run()
-  } else {
-    chain.extendMarkRange('link').setMark('link', { href }).run()
-  }
-}
-
-function cancelLink(): void {
-  linkEditing.value = false
-  editor.value.commands.focus()
-}
-
-function unlink(): void {
-  editor.value.chain().focus().extendMarkRange('link').unsetMark('link').run()
-}
-
-function followLink(): void {
-  const href = safeHref(currentLink.value)
-  if (href) window.open(href, '_blank', 'noopener,noreferrer')
-}
-
-/* ---- The toolbar as one tab stop. ---- */
-
-const current = ref(0)
-
-function tools(): HTMLButtonElement[] {
-  return Array.from(
-    toolbar.value?.querySelectorAll<HTMLButtonElement>(':scope > button, :scope > .note-menu > button') ?? [],
-  ).filter(button => !button.disabled)
-}
-
-function focusToolbar(): void {
-  const all = tools()
-  ;(all[current.value] ?? all[0])?.focus()
-}
-
-function toolbarKeydown(event: KeyboardEvent): void {
-  const all = tools()
-  const at = all.indexOf(document.activeElement as HTMLButtonElement)
-  if (at < 0) return
-  const to: Record<string, number> = {
-    ArrowRight: (at + 1) % all.length,
-    ArrowLeft: (at - 1 + all.length) % all.length,
-    Home: 0,
-    End: all.length - 1,
-  }
-  // Right moves on in reading order, which is leftwards in a language
-  // written right to left.
-  if (getComputedStyle(toolbar.value!).direction === 'rtl') {
-    ;[to.ArrowRight, to.ArrowLeft] = [to.ArrowLeft!, to.ArrowRight!]
-  }
-  if (event.key in to) {
-    event.preventDefault()
-    current.value = to[event.key]!
-    all[current.value]?.focus()
-  } else if (event.key === 'Escape') {
-    event.preventDefault()
-    editor.value.commands.focus()
-  }
-}
-
-function toolbarFocusin(event: FocusEvent): void {
-  const at = tools().indexOf(event.target as HTMLButtonElement)
-  if (at >= 0) current.value = at
-}
-
-/** A press on a tool leaves the focus, and a phone's keyboard, in the text;
- *  a menu takes it when it opens, to be moved through. */
-function keepTextFocused(event: MouseEvent): void {
-  if ((event.target as Element).closest('button:not([aria-haspopup])')) event.preventDefault()
-}
-
-/** Escape in the text leaves it for the toolbar, the way out of a field where
+/** Escape in the text leaves it for the tools: the way out of a field where
  *  Tab indents. */
 function editorKeydown(event: KeyboardEvent): void {
-  if (event.key === 'Escape' && !event.defaultPrevented) {
+  if (event.key === 'Escape' && !event.defaultPrevented && !slash.value) {
     event.preventDefault()
-    focusToolbar()
+    void focusTools()
   }
 }
+
+/* ---- "/" ---- */
+
+const slashEntries = computed<SlashEntry[]>(() => {
+  const labels = f.blockLabels.value
+  const words: Record<BlockId, string[]> = {
+    paragraph: ['Paragraph', 'text', 'p'],
+    heading1: ['Heading 1', 'h1', '#'],
+    heading2: ['Heading 2', 'h2', '##'],
+    heading3: ['Heading 3', 'h3', '###'],
+    codeBlock: ['Monospaced', 'code', '```'],
+    bulletList: ['Bulleted List', 'bullet', 'ul', '-'],
+    orderedList: ['Numbered List', 'numbered', 'ol', '1.'],
+    blockquote: ['Block Quote', 'quote', '>'],
+  }
+  const samples: Partial<Record<BlockId, string>> = { heading1: 'h1', heading2: 'h2', heading3: 'h3', codeBlock: 'code' }
+  return [
+    ...(Object.keys(words) as BlockId[]).map(id => ({ id, label: labels[id], keywords: words[id], sample: samples[id] })),
+    { id: 'divider', label: t('Divider'), keywords: ['Divider', 'hr', 'rule', '---'] },
+  ]
+})
+
+function chooseSlash(id: string): void {
+  const query = slash.value?.query
+  if (!query) return
+  editor.value.chain().focus().deleteRange({ from: query.from, to: query.to }).run()
+  if (id === 'divider') {
+    editor.value.chain().focus().insertContent({ type: 'horizontalRule' }).run()
+  } else if (!f.blockEntries.value.find(entry => entry.id === id)?.checked) {
+    f.run(f.blockCommand(id as BlockId))
+  }
+}
+
+const slashId = `note-slash-${useId()}`
+
+// The text field points into the list while it is open: the combobox
+// pattern, which lets a screen reader follow the arrows without the cursor
+// leaving the text.
+watch(
+  () => slashMenu.value?.activeId ?? null,
+  activeId => {
+    const dom = editor.value.view.dom
+    if (activeId) {
+      dom.setAttribute('aria-controls', `${slashId}-list`)
+      dom.setAttribute('aria-activedescendant', activeId)
+    } else {
+      dom.removeAttribute('aria-controls')
+      dom.removeAttribute('aria-activedescendant')
+    }
+  },
+)
 
 /* ---- On a phone, the toolbar sits on the keyboard. ---- */
 
@@ -371,171 +225,127 @@ function measureKeyboard(): void {
   keyboardInset.value = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)
 }
 
+const pointerQuery = window.matchMedia?.('(pointer: coarse)')
+function pointerChanged(event: MediaQueryListEvent): void {
+  coarse.value = event.matches
+}
+
 onMounted(() => {
   window.visualViewport?.addEventListener('resize', measureKeyboard)
   window.visualViewport?.addEventListener('scroll', measureKeyboard)
+  pointerQuery?.addEventListener?.('change', pointerChanged)
 })
 onBeforeUnmount(() => {
   window.visualViewport?.removeEventListener('resize', measureKeyboard)
   window.visualViewport?.removeEventListener('scroll', measureKeyboard)
+  pointerQuery?.removeEventListener?.('change', pointerChanged)
 })
 </script>
 
 <template>
-  <div class="note-editor" :style="{ '--note-keyboard-inset': `${keyboardInset}px` }">
+  <div
+    class="note-editor"
+    :class="{ 'note-editor--docked': coarse }"
+    :style="{ '--note-keyboard-inset': `${keyboardInset}px` }"
+  >
     <p v-if="note.unsupportedSchema" class="card__inset note-editor__notice" role="status">
       {{ t('This note was written by a newer version of Zotero. It can be read here but not changed.') }}
     </p>
 
-    <div v-if="editable" class="note-editor__bar">
-      <div
-        ref="toolbar"
-        class="toolbar note-editor__toolbar"
-        role="toolbar"
-        :aria-label="t('Formatting')"
-        aria-orientation="horizontal"
-        @keydown="toolbarKeydown"
-        @focusin="toolbarFocusin"
-        @mousedown="keepTextFocused"
-      >
-        <button
-          class="icon-button"
-          type="button"
-          :tabindex="current === 0 ? 0 : -1"
-          :aria-label="t('Undo')"
-          :title="t('Undo')"
-          @click="run(undoCommand)"
-        >
-          <AppIcon name="undo" :size="22" />
-        </button>
-        <button
-          class="icon-button"
-          type="button"
-          :tabindex="current === 1 ? 0 : -1"
-          :aria-label="t('Redo')"
-          :title="t('Redo')"
-          @click="run(redoCommand)"
-        >
-          <AppIcon name="redo" :size="22" />
-        </button>
-        <span class="note-editor__divider" aria-hidden="true"></span>
-        <NoteMenu
-          :tabindex="current === 2 ? 0 : -1"
-          :label="t('Format Text')"
-          icon="format-text"
-          :entries="formatEntries"
-          @choose="format"
-        />
-        <button
-          class="icon-button"
-          :class="{ 'icon-button--on': markActive('strong') }"
-          type="button"
-          :tabindex="current === 3 ? 0 : -1"
-          :aria-pressed="markActive('strong')"
-          :aria-label="t('Bold')"
-          :title="t('Bold')"
-          @click="editor.chain().focus().toggleMark('strong').run()"
-        >
-          <AppIcon name="bold" :size="22" />
-        </button>
-        <button
-          class="icon-button"
-          :class="{ 'icon-button--on': markActive('em') }"
-          type="button"
-          :tabindex="current === 4 ? 0 : -1"
-          :aria-pressed="markActive('em')"
-          :aria-label="t('Italic')"
-          :title="t('Italic')"
-          @click="editor.chain().focus().toggleMark('em').run()"
-        >
-          <AppIcon name="italic" :size="22" />
-        </button>
-        <button
-          class="icon-button"
-          :class="{ 'icon-button--on': currentLink !== null || linkEditing }"
-          type="button"
-          :tabindex="current === 5 ? 0 : -1"
-          :aria-pressed="currentLink !== null"
-          :aria-label="t('Insert Link')"
-          :title="t('Insert Link')"
-          @click="openLink"
-        >
-          <AppIcon name="link" :size="22" />
-        </button>
-        <NoteMenu
-          :tabindex="current === 6 ? 0 : -1"
-          :label="t('Text Color')"
-          icon="text-color"
-          :bar="lastText"
-          :entries="textColors"
-          @choose="color('textColor', $event)"
-        />
-        <NoteMenu
-          :tabindex="current === 7 ? 0 : -1"
-          :label="t('Highlight Text')"
-          icon="highlight"
-          :bar="lastHighlight"
-          :entries="highlightColors"
-          @choose="color('backgroundColor', $event)"
-        />
-        <NoteMenu
-          :tabindex="current === 8 ? 0 : -1"
-          :label="t('Align')"
-          icon="align"
-          :entries="alignEntries"
-          @choose="align"
-        />
-        <button
-          class="icon-button"
-          type="button"
-          :tabindex="current === 9 ? 0 : -1"
-          :aria-label="t('Clear Formatting')"
-          :title="t('Clear Formatting')"
-          @click="run(clearFormatting)"
-        >
-          <AppIcon name="clear-format" :size="22" />
-        </button>
-      </div>
-      <slot name="status"></slot>
-    </div>
+    <NoteToolbar
+      v-if="editable && coarse"
+      ref="dockedToolbar"
+      class="note-editor__docked"
+      :f="f"
+      variant="docked"
+      @leave="leaveTools"
+    />
 
     <!--
-      Links get a bar of their own under the toolbar rather than a bubble over
-      the text: it stays put in a narrow pane, under a finger and behind the
-      keyboard, and it is in the reading order after the tools that opened it.
+      Links get a bar of their own on a phone, under the tools, where it stays
+      put behind the keyboard; with a mouse the same controls are in the bar
+      over the link.
     -->
-    <form v-if="editable && linkEditing" class="note-editor__link" @submit.prevent="applyLink">
-      <label class="note-editor__link-label" for="note-link">{{ t('Enter Link') }}</label>
-      <input
-        id="note-link"
-        ref="linkInput"
-        v-model="linkDraft"
-        class="note-editor__link-input"
-        type="url"
-        inputmode="url"
-        autocomplete="url"
-        spellcheck="false"
-        @keydown.escape.prevent="cancelLink"
-      />
-      <button class="note-editor__link-button" type="submit">{{ t('Set') }}</button>
-      <button class="note-editor__link-button" type="button" @click="cancelLink">{{ t('Cancel') }}</button>
-    </form>
-    <div v-else-if="currentLink !== null" class="note-editor__link">
-      <span class="note-editor__link-address" dir="ltr">{{ currentLink }}</span>
-      <button v-if="safeHref(currentLink)" class="note-editor__link-button" type="button" @click="followLink">
-        {{ t('Open Link') }}
-      </button>
-      <template v-if="editable">
+    <template v-if="editable && coarse">
+      <form v-if="f.linkEditing.value" class="note-editor__link" @submit.prevent="f.applyLink()">
+        <label class="note-editor__link-label" :for="`${slashId}-link`">{{ t('Enter Link') }}</label>
+        <input
+          :id="`${slashId}-link`"
+          ref="linkInput"
+          v-model="f.linkDraft.value"
+          class="note-editor__link-input"
+          type="url"
+          inputmode="url"
+          autocomplete="url"
+          spellcheck="false"
+          @keydown.escape.prevent="f.cancelLink()"
+        />
+        <button class="note-editor__link-button" type="submit">{{ t('Set') }}</button>
+        <button class="note-editor__link-button" type="button" @click="f.cancelLink()">{{ t('Cancel') }}</button>
+      </form>
+      <div v-else-if="f.currentLink.value !== null" class="note-editor__link">
+        <span class="note-editor__link-address" dir="ltr">{{ f.currentLink.value }}</span>
+        <button v-if="safeHref(f.currentLink.value)" class="note-editor__link-button" type="button" @click="f.followLink()">
+          {{ t('Open Link') }}
+        </button>
         <button class="note-editor__link-button" type="button" @click="openLink">{{ t('Edit') }}</button>
-        <button class="note-editor__link-button" type="button" @click="unlink">{{ t('Unlink') }}</button>
-      </template>
-    </div>
+        <button class="note-editor__link-button" type="button" @click="f.unlink()">{{ t('Unlink') }}</button>
+      </div>
+    </template>
 
-    <EditorContent
-      class="note-editor__text card__inset"
+    <EditorContent class="note-editor__text" :editor="editor" @keydown="editorKeydown">
+    </EditorContent>
+
+    <BubbleMenu
+      v-if="editable && !coarse"
       :editor="editor"
-      @keydown="editorKeydown"
+      :plugin-key="bubbleKey"
+      :should-show="shouldShowBubble"
+      :options="bubbleOptions"
+      :update-delay="0"
+      class="note-editor__bubble"
+      @keydown.escape="raised = false"
+    >
+      <form v-if="f.linkEditing.value" class="toolbar note-editor__link note-editor__link--floating" @submit.prevent="f.applyLink()">
+        <label class="visually-hidden" :for="`${slashId}-link`">{{ t('Enter Link') }}</label>
+        <input
+          :id="`${slashId}-link`"
+          ref="linkInput"
+          v-model="f.linkDraft.value"
+          class="note-editor__link-input"
+          type="url"
+          inputmode="url"
+          autocomplete="url"
+          spellcheck="false"
+          :placeholder="t('Enter Link')"
+          @keydown.escape.prevent.stop="f.cancelLink()"
+        />
+        <button class="note-editor__link-button" type="submit">{{ t('Set') }}</button>
+      </form>
+      <div
+        v-else-if="!raised && editor.state.selection.empty && f.currentLink.value !== null"
+        class="toolbar note-editor__link note-editor__link--floating"
+      >
+        <span class="note-editor__link-address" dir="ltr">{{ f.currentLink.value }}</span>
+        <button v-if="safeHref(f.currentLink.value)" class="note-editor__link-button" type="button" @click="f.followLink()">
+          {{ t('Open Link') }}
+        </button>
+        <button class="note-editor__link-button" type="button" @click="openLink">{{ t('Edit') }}</button>
+        <button class="note-editor__link-button" type="button" @click="f.unlink()">{{ t('Unlink') }}</button>
+      </div>
+      <NoteToolbar v-else ref="bubbleToolbar" :f="f" variant="bubble" @leave="leaveTools" />
+    </BubbleMenu>
+
+    <NoteSlashMenu
+      ref="slashMenu"
+      :at="slash?.at ?? null"
+      :query="slash?.query.query ?? ''"
+      :entries="slashEntries"
+      :id-prefix="slashId"
+      @choose="chooseSlash"
+      @dismiss="dismissSlash(editor.view)"
     />
+
   </div>
 </template>
 
@@ -548,42 +358,23 @@ onBeforeUnmount(() => {
   gap: var(--md-spacing-2);
 }
 
-/* The toolbar and, after it, whatever the parent says about saving. */
-.note-editor__bar {
-  position: sticky;
-  z-index: 2;
-  inset-block-start: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--md-spacing-1) var(--md-spacing-3);
-}
-
 /*
- * One row, whatever the width of the pane: a toolbar that wraps puts the same
- * tool in a different place every time the pane is resized. What does not fit
- * scrolls sideways, with the tools used most at its start. It stays at the top
- * of the pane while a long note scrolls under it.
+ * The text is the page: no box, no fill, only a hairline frame while it has
+ * the keyboard, so there is still something to say where typing goes.
  */
-.note-editor__toolbar {
-  overflow-x: auto;
-  scrollbar-width: none;
-  align-self: flex-start;
-  max-width: 100%;
+.note-editor__text {
+  border-radius: var(--md-sys-shape-corner-small);
+  cursor: text;
 }
 
-.note-editor__divider {
-  flex: none;
-  width: 1px;
-  height: 1.5rem;
-  margin-inline: 0.15rem;
-  background: var(--md-sys-color-outline-variant);
+.note-editor__text:focus-within {
+  outline: 1px solid var(--md-sys-color-outline-variant);
+  outline-offset: 0.4rem;
 }
 
 .note-editor__notice {
   margin: 0;
   color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-body-medium-size);
 }
 
 .note-editor__link {
@@ -592,6 +383,16 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: var(--md-spacing-2);
   font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+/* With a mouse the link's controls float over it, drawn as the formats are. */
+.toolbar.note-editor__link--floating {
+  flex-wrap: nowrap;
+  max-width: min(28rem, 90vw);
+  padding: var(--md-spacing-1) var(--md-spacing-2);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-small);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 14%);
 }
 
 .note-editor__link-label {
@@ -619,6 +420,7 @@ onBeforeUnmount(() => {
 }
 
 .note-editor__link-button {
+  flex: none;
   padding: 0.3rem 0.6rem;
   border: 1px solid var(--md-sys-color-outline);
   border-radius: var(--md-sys-shape-corner-small);
@@ -628,28 +430,47 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
-.note-editor__text {
-  cursor: text;
+.note-editor__bubble {
+  z-index: 25;
 }
 
-.note-editor__text:focus-within {
-  outline: 2px solid var(--md-sys-color-primary);
-  outline-offset: 1px;
+/* Over the text the link's errands are words, not boxes, as the formats
+   beside them are glyphs: the bar is the container. */
+.note-editor__link--floating .note-editor__link-button {
+  border: none;
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  background: none;
+  color: var(--md-sys-color-primary);
+}
+
+.note-editor__link--floating .note-editor__link-button:hover {
+  background: var(--md-sys-state-hover-surface);
 }
 
 /*
- * On a phone the toolbar rides on the on-screen keyboard while the note is
- * being typed in, where the thumb is; `--note-keyboard-inset` is how much of
- * the window the keyboard covers. Unverified on iOS: there was no device to
- * try it on.
+ * The tools on a finger's device: shown only while the note is being written,
+ * at the top of the pane where the screen is wide, and on the keyboard where
+ * it is narrow -- where the thumb is. `--note-keyboard-inset` is how much of
+ * the window the keyboard covers. Unverified on iOS: there was no device.
  */
-@media (pointer: coarse) and (max-width: 600px) {
+.note-editor__docked {
+  position: sticky;
+  z-index: 2;
+  inset-block-start: 0;
+  align-self: flex-start;
+}
+
+.note-editor--docked:not(:focus-within) .note-editor__docked {
+  display: none;
+}
+
+@media (max-width: 600px) {
   /* Room for the toolbar, which no longer takes any in the flow. */
-  .note-editor:focus-within {
+  .note-editor--docked:focus-within {
     padding-block-end: 4rem;
   }
 
-  .note-editor:focus-within .note-editor__toolbar {
+  .note-editor--docked:focus-within .note-editor__docked {
     position: fixed;
     z-index: 20;
     inset-inline: 0;

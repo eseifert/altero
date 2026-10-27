@@ -149,24 +149,30 @@ A group member who may only read sees the fields without editing controls.
 ### Writing a note
 
 A note opens in an editor in the right pane, and is saved a second after you
-stop typing, as in Zotero Desktop; **Saved.** beside the toolbar says so. A note
+stop typing, as in Zotero Desktop; **Saved.** above the note says so. A note
 left before then — another item opened, the tab closed — is saved on the way out.
 
 - **Make a note** with the note button over the item list: **New Standalone
   Note** files it into the collection being shown, **New Item Note** puts it
   under the item picked out. **+** beside **Attachments and notes** in an item's
   pane adds one under that item. The note opens ready to type.
-- **Format text** from the toolbar, which is Zotero Desktop's: the format menu
-  (paragraph, headings, monospaced, lists, block quote, and underline,
-  strikethrough, subscript and superscript), bold, italic, link, text and
-  highlight colour, alignment and indent, and clear formatting. Zotero Desktop's
-  keys work too — Ctrl+B, Ctrl+K for a link, Tab to indent or move a list item
-  in, Shift+Ctrl+1 to 6 for headings — and so does Markdown typed at the start
-  of a line: `#`, `-`, `1.`, `>`, ```` ``` ````, `---`.
-- **Links** are edited in the bar under the toolbar, which also opens the link
-  under the cursor in a new tab.
-- **Leave the text** with Escape, which moves to the toolbar; Alt+F10 does the
-  same from anywhere in the note. Tab inside a note indents, as on the desktop.
+- **Format text** by selecting it: a bar appears over the selection with the
+  block type (paragraph, headings, monospaced, lists, block quote), bold,
+  italic, underline, strikethrough, code, link, text and highlight colour, and
+  under **More** alignment, indent, subscript, superscript and clear
+  formatting. On a phone or tablet the same tools sit on the keyboard while you
+  write instead, with undo and redo.
+- **Type `/`** at the start of a line or after a space for a list of block
+  types; keep typing to narrow it (`/h2`, `/quote`, `/ul`), and press Enter.
+  Zotero Desktop's keys work too — Ctrl+B, Ctrl+K for a link, Tab to indent or
+  move a list item in, Shift+Ctrl+1 to 6 for headings — and so does Markdown
+  typed at the start of a line: `#`, `-`, `1.`, `>`, ```` ``` ````, `---`.
+- **Links** are edited in the bar over them, which also opens the link under
+  the cursor in a new tab.
+- **Write full screen** with the button above the note: the note fills the
+  window until you press it again or Escape.
+- **Leave the text** with Escape or Alt+F10, which move to the tools; Escape
+  there comes back. Tab inside a note indents, as on the desktop.
 
 A note is saved as Zotero Desktop's note editor would write it, so a note
 edited here and opened there reads the same. Opening a note writes nothing:

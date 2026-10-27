@@ -228,6 +228,7 @@ export default {
   Dismiss: 'Fechar',
   Done: 'Concluído',
   'Display name claim': 'Atributo do nome apresentado',
+  'Divider': 'Separador',
   'Done selecting': 'Concluído',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
     'Concluído. O Zotero está a estabelecer a ligação — pode fechar esta página e voltar a ele.',
@@ -247,6 +248,7 @@ export default {
   'Empty the trash': 'Esvaziar o lixo',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Entrar em ecrã completo',
   'Enter Link': 'Introduzir ligação',
   'Enter the code shown on your device.': 'Introduza o código apresentado no seu dispositivo.',
   'Enter the six-digit code from your authenticator app.':
@@ -265,6 +267,7 @@ export default {
     'Tudo o que está em {name} é eliminado primeiro, ficheiros incluídos, e não há lixo à volta de uma biblioteca.',
   'Everything the permissions above cover': 'Tudo o que as permissões acima abrangem',
   Expand: 'Expandir',
+  'Exit Full Screen': 'Sair de ecrã completo',
   'Expires {when}.': 'Expira a {when}.',
   'Export': 'Exportar',
   'Export a library': 'Exportar uma biblioteca',
@@ -370,6 +373,7 @@ export default {
   Members: 'Membros',
   'Migration revision': 'Revisão de migração',
   'Monospaced': 'Monoespaçado',
+  'More': 'Mais',
   'More Options…': 'Mais opções...',
   'Move Down': 'Mover Para Baixo',
   'Move Up': 'Mover Para Cima',
@@ -740,7 +744,8 @@ export default {
   'Would delete:': 'Eliminaria:',
   'Would you like to allow your work to be shared by others?':
     'Gostaria de permitir que outros possam partilhar o seu trabalho?',
-  'Write a note…': 'Escreva uma nota…',
+  'Write, or type / for headings, lists and more…':
+    'Escreva ou introduza / para cabeçalhos, listas e mais…',
   'Writing it into your library…': 'A escrever na sua biblioteca…',
   Yes: 'Sim',
   'Yellow': 'Amarelo',

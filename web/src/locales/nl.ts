@@ -239,6 +239,7 @@ export default {
   'Display name': 'Weergavenaam',
   'Display name claim': 'Claim met weergavenaam',
   'Dismiss': 'Sluiten',
+  'Divider': 'Scheidingslijn',
   'Done': 'Klaar',
   'Done selecting': 'Klaar met selecteren',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -259,6 +260,7 @@ export default {
   'Empty the trash': 'Prullenbak legen',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Volledig scherm openen',
   'Enter Link': 'Link invoeren',
   'Enter the code shown on your device.': 'Voer de code in die op je apparaat staat.',
   'Enter the six-digit code from your authenticator app.':
@@ -278,6 +280,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Alles in {name} wordt eerst verwijderd, bestanden inbegrepen, en er is geen prullenbak omheen.',
   'Everything the permissions above cover': 'Alles wat de rechten hierboven dekken',
+  'Exit Full Screen': 'Volledig scherm verlaten',
   'Expand': 'Uitklappen',
   'Expires {when}.': 'Verloopt {when}.',
   'Export': 'Exporteren',
@@ -388,6 +391,7 @@ export default {
   'Members': 'Leden',
   'Migration revision': 'Migratierevisie',
   'Monospaced': 'Vaste breedte',
+  'More': 'Meer',
   'More Options…': 'Meer opties…',
   'Move Down': 'Verplaats naar beneden',
   'Move Up': 'Verplaats naar boven',
@@ -784,7 +788,8 @@ export default {
   'Would delete:': 'Zou verwijderen:',
   'Would you like to allow your work to be shared by others?':
     'Wilt u toestaan dat anderen uw werk delen?',
-  'Write a note…': 'Schrijf een aantekening…',
+  'Write, or type / for headings, lists and more…':
+    'Schrijf, of typ / voor koppen, lijsten en meer…',
   'Writing it into your library…': 'Het in uw bibliotheek schrijven…',
   'Yellow': 'Geel',
   'Yes': 'Ja',

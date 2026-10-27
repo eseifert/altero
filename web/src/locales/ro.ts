@@ -244,6 +244,7 @@ export default {
   'Display name claim': 'Revendicarea pentru numele afișat',
   Dismiss: 'Închide',
   Done: 'Gata',
+  'Divider': 'Separator',
   'Done selecting': 'Selectare încheiată',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
     'Gata. Zotero preia acum conexiunea — poți închide această pagină și te poți întoarce la el.',
@@ -263,6 +264,7 @@ export default {
   'Empty the trash': 'Golește coșul de gunoi',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Intră în modul ecran complet',
   'Enter Link': 'Introducere link',
   'Enter the code shown on your device.': 'Introdu codul afișat pe dispozitivul tău.',
   'Enter the six-digit code from your authenticator app.':
@@ -284,6 +286,7 @@ export default {
     'Tot ce se află în {name} este șters mai întâi, inclusiv fișierele, și nu există niciun coș de gunoi.',
   'Everything the permissions above cover': 'Tot ce acoperă permisiunile de mai sus',
   Expand: 'Extinde',
+  'Exit Full Screen': 'Ieși din modul ecran complet',
   'Expires {when}.': 'Expiră pe {when}.',
   Export: 'Exportă',
   'Export a library': 'Exportă o bibliotecă',
@@ -394,6 +397,7 @@ export default {
   Members: 'Membri',
   'Migration revision': 'Revizia migrării',
   'Monospaced': 'Monospațiat',
+  'More': 'Mai mult',
   'More Options…': 'Mai multe opțiuni…',
   'Move Down': 'Mută în jos',
   'Move Up': 'Mută în sus',
@@ -794,7 +798,8 @@ export default {
   'Would delete:': 'S-ar șterge:',
   'Would you like to allow your work to be shared by others?':
     'Vrei să permiți ca alții să distribuie lucrarea ta?',
-  'Write a note…': 'Scrie o notă…',
+  'Write, or type / for headings, lists and more…':
+    'Scrie sau tastează / pentru titluri, liste și altele…',
   'Writing it into your library…': 'Se scrie în biblioteca ta…',
   Yes: 'Da',
   'Yellow': 'Galben',

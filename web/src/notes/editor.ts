@@ -10,6 +10,7 @@
  * link is never followed by the browser, but opened by `openLink` when its
  * address is one a reader can safely be sent to.
  */
+import type { AnyExtension } from '@tiptap/core'
 import { DOMSerializer, type Node as ProseMirrorNode } from '@tiptap/pm/model'
 import type { NodeView } from '@tiptap/pm/view'
 import { Dropcursor, Gapcursor, Placeholder } from '@tiptap/extensions'
@@ -37,6 +38,8 @@ export interface NoteEditorOptions {
   onChange?: (html: string) => void
   toggleLink?: () => boolean
   focusToolbar?: () => boolean
+  /** Behaviour the interface adds around the note, such as the "/" menu. */
+  extensions?: AnyExtension[]
 }
 
 export interface NoteEditor {
@@ -115,6 +118,7 @@ export function createNoteEditor(options: NoteEditorOptions): NoteEditor {
       Dropcursor,
       Gapcursor,
       Placeholder.configure({ placeholder: options.placeholder ?? '' }),
+      ...(options.extensions ?? []),
     ],
     // A citation's text is written from the note's metadata, which has to be
     // on the schema before the view first draws it.

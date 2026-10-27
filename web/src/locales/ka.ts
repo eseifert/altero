@@ -235,6 +235,7 @@ export default {
   'Display name': 'საჩვენებელი სახელი',
   'Display name claim': 'საჩვენებელი სახელის ატრიბუტი',
   'Dismiss': 'დახურვა',
+  'Divider': 'გამყოფი ხაზი',
   'Done': 'მზადაა',
   'Done selecting': 'მონიშვნის დასრულება',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -255,6 +256,7 @@ export default {
   'Empty the trash': 'სანაგვის დაცლა',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'სრულ ეკრანზე გადასვლა',
   'Enter Link': 'შეიყვანეთ ბმული',
   'Enter the code shown on your device.': 'შეიყვანეთ თქვენს მოწყობილობაზე ნაჩვენები კოდი.',
   'Enter the six-digit code from your authenticator app.': 'შეიყვანეთ ექვსნიშნა კოდი თქვენი ავთენტიფიკატორის აპიდან.',
@@ -272,6 +274,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'ჯერ წაიშლება ყველაფერი, რაც {name}-შია, ფაილების ჩათვლით, და ამისთვის სანაგვე არ არსებობს.',
   'Everything the permissions above cover': 'ყველაფერი, რასაც ზემოთ მოცემული ნებართვები მოიცავს',
+  'Exit Full Screen': 'სრული ეკრანიდან გასვლა',
   'Expand': 'გაშლა',
   'Expires {when}.': 'ვადა გასდის: {when}.',
   'Export': 'ექსპორტი',
@@ -375,6 +378,7 @@ export default {
   'Members': 'წევრები',
   'Migration revision': 'მიგრაციის რევიზია',
   'Monospaced': 'ფიქსირებული სიგანე',
+  'More': 'მეტი',
   'More Options…': 'მეტი პარამეტრი…',
   'Move Down': 'ქვემოთ გადატანა',
   'Move Up': 'ზემოთ გადატანა',
@@ -743,7 +747,8 @@ export default {
     'ამის გარეშე ბიბლიოთეკა, რომელშიც უკვე რამე არის, ხელუხლებელი დარჩება და მასთან შერწყმა არ მოხდება.',
   'Would delete:': 'წაიშლებოდა:',
   'Would you like to allow your work to be shared by others?': 'გსურთ, სხვებს მისცეთ თქვენი ნაშრომის გაზიარების უფლება?',
-  'Write a note…': 'დაწერეთ შენიშვნა…',
+  'Write, or type / for headings, lists and more…':
+    'დაწერეთ ან აკრიფეთ / სათაურების, სიების და სხვა ელემენტებისთვის…',
   'Writing it into your library…': 'იწერება თქვენს ბიბლიოთეკაში…',
   Yes: 'დიახ',
   'Yellow': 'ყვითელი',

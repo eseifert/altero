@@ -241,6 +241,7 @@ export default {
   'Display name': 'Visningsnavn',
   'Display name claim': 'Claim for visningsnavn',
   'Dismiss': 'Lukk',
+  'Divider': 'Skillelinje',
   'Done': 'Ferdig',
   'Done selecting': 'Ferdig med å velge',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -261,6 +262,7 @@ export default {
   'Empty the trash': 'Tøm søppelkorgen',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Åpne fullskjerm',
   'Enter Link': 'Legg inn lenke',
   'Enter the code shown on your device.': 'Skriv inn koden som vises på enheten din.',
   'Enter the six-digit code from your authenticator app.':
@@ -280,6 +282,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Alt i {name} slettes først, inkludert filer, og det finnes ingen søppelkorg rundt det.',
   'Everything the permissions above cover': 'Alt som tillatelsene ovenfor dekker',
+  'Exit Full Screen': 'Avslutt fullskjerm',
   'Expand': 'Utvid',
   'Expires {when}.': 'Utløper {when}.',
   'Export': 'Eksporter',
@@ -391,6 +394,7 @@ export default {
   'Members': 'Medlemmer',
   'Migration revision': 'Migreringsrevisjon',
   'Monospaced': 'Fast bredde',
+  'More': 'Mer',
   'More Options…': 'Flere valg…',
   'Move Down': 'Flytt ned',
   'Move Up': 'Flytt opp',
@@ -784,7 +788,8 @@ export default {
   'Would delete:': 'Ville bli slettet:',
   'Would you like to allow your work to be shared by others?':
     'Vil du tillate at arbeidet ditt blir delt av andre?',
-  'Write a note…': 'Skriv et notat…',
+  'Write, or type / for headings, lists and more…':
+    'Skriv, eller tast / for overskrifter, lister og mer…',
   'Writing it into your library…': 'Skriver det inn i biblioteket ditt…',
   'Yellow': 'Gul',
   'Yes': 'Ja',

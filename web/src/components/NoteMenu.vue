@@ -36,8 +36,9 @@ const props = defineProps<{
   disabled?: boolean
   /** The colour bar under a colour button's glyph. */
   bar?: string | null
-  /** The button's place in its toolbar's single tab stop. */
-  tabindex?: number
+  /** Words on the button in place of the glyph, as the floating bar shows the
+   *  block the cursor is in. The button's name then carries them too. */
+  text?: string
 }>()
 
 const emit = defineEmits<{ choose: [id: string]; closed: [] }>()
@@ -157,13 +158,13 @@ defineExpose({ button })
       type="button"
       aria-haspopup="menu"
       :aria-expanded="open"
-      :aria-label="props.label"
+      :aria-label="props.text ? `${props.label}: ${props.text}` : props.label"
       :title="props.label"
       :disabled="props.disabled"
-      :tabindex="props.tabindex"
       @click="toggle"
     >
-      <span class="note-menu__glyph">
+      <span v-if="props.text" class="note-menu__text">{{ props.text }}</span>
+      <span v-else class="note-menu__glyph">
         <AppIcon :name="props.icon" :size="22" />
         <span v-if="props.bar !== undefined" class="note-menu__bar" :style="{ background: props.bar ?? 'currentColor' }"></span>
       </span>
@@ -210,6 +211,16 @@ defineExpose({ button })
   border-radius: var(--md-sys-shape-corner-full);
 }
 
+.note-menu__text {
+  max-width: 9rem;
+  overflow: hidden;
+  padding-inline-start: 0.25rem;
+  font: inherit;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .note-menu__glyph {
   display: grid;
   place-items: center;
@@ -222,6 +233,13 @@ defineExpose({ button })
   height: 0.2rem;
   margin-block-start: -0.2rem;
   border-radius: 0.1rem;
+}
+
+/* The edge, corner and shadow of the formatting bar these open from. */
+.menu.note-menu__list {
+  border-color: var(--md-sys-color-outline-variant);
+  border-radius: var(--md-sys-shape-corner-small);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 14%);
 }
 
 .note-menu__list {

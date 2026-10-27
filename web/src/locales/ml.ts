@@ -243,6 +243,7 @@ export default {
   'Display name claim': 'പ്രദർശന നാമ ക്ലെയിം',
   Dismiss: 'അടയ്ക്കുക',
   Done: 'പൂർത്തിയായി',
+  'Divider': 'വിഭജന രേഖ',
   'Done selecting': 'തിരഞ്ഞെടുപ്പ് പൂർത്തിയായി',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
     'പൂർത്തിയായി. Zotero ഇപ്പോൾ കണക്ഷൻ സ്വീകരിക്കുന്നു — നിങ്ങൾക്ക് ഈ പേജ് അടച്ച് അതിലേക്ക് മടങ്ങാം.',
@@ -262,6 +263,7 @@ export default {
   'Empty the trash': 'ട്രാഷ് ശൂന്യമാക്കുക',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'പൂർണ്ണ സ്ക്രീനിലേക്ക് മാറുക',
   'Enter Link': 'ലിങ്ക് നൽകുക',
   'Enter the code shown on your device.': 'നിങ്ങളുടെ ഉപകരണത്തിൽ കാണിക്കുന്ന കോഡ് നൽകുക.',
   'Enter the six-digit code from your authenticator app.':
@@ -282,6 +284,7 @@ export default {
     '{name} എന്നതിലെ എല്ലാം, ഫയലുകൾ ഉൾപ്പെടെ, ആദ്യം ഇല്ലാതാക്കും; ഇതിന് ട്രാഷ് ഇല്ല.',
   'Everything the permissions above cover': 'മുകളിലെ അനുമതികൾ ഉൾക്കൊള്ളുന്ന എല്ലാം',
   Expand: 'വികസിപ്പിക്കുക',
+  'Exit Full Screen': 'പൂർണ്ണ സ്ക്രീനിൽ നിന്ന് പുറത്തുകടക്കുക',
   'Expires {when}.': 'കാലഹരണപ്പെടുന്നത്: {when}.',
   Export: 'എക്സ്‌പോർട്ട് ചെയ്യുക',
   'Export a library': 'ഒരു ലൈബ്രറി എക്സ്‌പോർട്ട് ചെയ്യുക',
@@ -392,6 +395,7 @@ export default {
   Members: 'അംഗങ്ങൾ',
   'Migration revision': 'മൈഗ്രേഷൻ റിവിഷൻ',
   'Monospaced': 'മോണോസ്പേസ്',
+  'More': 'കൂടുതൽ',
   'More Options…': 'കൂടുതൽ ഓപ്ഷനുകൾ…',
   'Move Down': 'താഴേക്ക് നീക്കുക',
   'Move Up': 'മുകളിലേക്ക് നീക്കുക',
@@ -791,7 +795,8 @@ export default {
   'Would delete:': 'ഇല്ലാതാക്കപ്പെടുന്നവ:',
   'Would you like to allow your work to be shared by others?':
     'നിങ്ങളുടെ കൃതി മറ്റുള്ളവർ പങ്കിടാൻ അനുവദിക്കണോ?',
-  'Write a note…': 'ഒരു കുറിപ്പ് എഴുതുക…',
+  'Write, or type / for headings, lists and more…':
+    'എഴുതുക, അല്ലെങ്കിൽ തലക്കെട്ടുകൾ, ലിസ്റ്റുകൾ എന്നിവയ്ക്കും മറ്റും / ടൈപ്പ് ചെയ്യുക…',
   'Writing it into your library…': 'നിങ്ങളുടെ ലൈബ്രറിയിലേക്ക് എഴുതുന്നു…',
   Yes: 'അതെ',
   'Yellow': 'മഞ്ഞ',

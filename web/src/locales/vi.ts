@@ -240,6 +240,7 @@ export default {
   'Display name': 'Tên hiển thị',
   'Display name claim': 'Claim tên hiển thị',
   'Dismiss': 'Đóng',
+  'Divider': 'Đường phân cách',
   'Done': 'Xong',
   'Done selecting': 'Chọn xong',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -260,6 +261,7 @@ export default {
   'Empty the trash': 'Dọn thùng rác',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Vào chế độ toàn màn hình',
   'Enter Link': 'Nhập liên kết',
   'Enter the code shown on your device.': 'Nhập mã hiển thị trên thiết bị của bạn.',
   'Enter the six-digit code from your authenticator app.': 'Nhập mã sáu chữ số từ ứng dụng xác thực.',
@@ -278,6 +280,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Mọi thứ trong {name} sẽ bị xóa trước, kể cả các tệp, và không có thùng rác nào để lấy lại.',
   'Everything the permissions above cover': 'Mọi thứ mà các quyền ở trên cho phép',
+  'Exit Full Screen': 'Thoát chế độ toàn màn hình',
   'Expand': 'Mở rộng',
   'Expires {when}.': 'Hết hạn vào {when}.',
   'Export': 'Xuất',
@@ -385,6 +388,7 @@ export default {
   'Members': 'Thành viên',
   'Migration revision': 'Phiên bản migration',
   'Monospaced': 'Độ rộng cố định',
+  'More': 'Khác',
   'More Options…': 'Tùy chọn khác…',
   'Move Down': 'Di chuyển xuống',
   'Move Up': 'Di chuyển lên',
@@ -762,7 +766,8 @@ export default {
   'Would delete:': 'Sẽ xóa:',
   'Would you like to allow your work to be shared by others?':
     'Bạn có muốn cho phép người khác chia sẻ tác phẩm của bạn không?',
-  'Write a note…': 'Viết ghi chú…',
+  'Write, or type / for headings, lists and more…':
+    'Viết, hoặc gõ / để chèn tiêu đề, danh sách và hơn thế nữa…',
   'Writing it into your library…': 'Đang ghi vào thư viện của bạn…',
   'Yellow': 'Vàng',
   'Yes': 'Có',

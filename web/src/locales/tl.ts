@@ -246,6 +246,7 @@ export default {
   'Display name': 'Display name',
   'Display name claim': 'Claim para sa display name',
   'Dismiss': 'Isara',
+  'Divider': 'Pahalang na Linya',
   'Done': 'Tapos na',
   'Done selecting': 'Tapos nang pumili',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -266,6 +267,7 @@ export default {
   'Empty the trash': 'Alisan ng laman ang basurahan',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Pumasok sa Full Screen',
   'Enter Link': 'Ilagay ang Link',
   'Enter the code shown on your device.': 'Ilagay ang code na ipinapakita sa iyong device.',
   'Enter the six-digit code from your authenticator app.':
@@ -285,6 +287,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Ide-delete muna ang lahat ng nasa {name}, kasama ang mga file, at walang basurahan para rito.',
   'Everything the permissions above cover': 'Lahat ng saklaw ng mga pahintulot sa itaas',
+  'Exit Full Screen': 'Lumabas sa Full Screen',
   'Expand': 'I-expand',
   'Expires {when}.': 'Mag-e-expire {when}.',
   'Export': 'I-export',
@@ -396,6 +399,7 @@ export default {
   'Members': 'Mga miyembro',
   'Migration revision': 'Migration revision',
   'Monospaced': 'Monospace',
+  'More': 'Higit pa',
   'More Options…': 'Higit pang Opsyon…',
   'Move Down': 'Ilipat Pababa',
   'Move Up': 'Ilipat Pataas',
@@ -793,7 +797,8 @@ export default {
   'Would delete:': 'Ide-delete:',
   'Would you like to allow your work to be shared by others?':
     'Gusto mo bang payagan ang iba na ibahagi ang iyong akda?',
-  'Write a note…': 'Sumulat ng tala…',
+  'Write, or type / for headings, lists and more…':
+    'Sumulat, o i-type ang / para sa mga heading, listahan at iba pa…',
   'Writing it into your library…': 'Isinusulat ito sa iyong library…',
   'Yellow': 'Dilaw',
   'Yes': 'Oo',

@@ -245,6 +245,7 @@ export default {
   'Display name': 'Nama tampilan',
   'Display name claim': 'Klaim nama tampilan',
   'Dismiss': 'Tutup',
+  'Divider': 'Pemisah',
   'Done': 'Selesai',
   'Done selecting': 'Selesai memilih',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -265,6 +266,7 @@ export default {
   'Empty the trash': 'Kosongkan Keranjang Sampah',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Masuk ke Mode Layar Penuh',
   'Enter Link': 'Masukkan Tautan',
   'Enter the code shown on your device.': 'Masukkan kode yang ditampilkan di perangkat Anda.',
   'Enter the six-digit code from your authenticator app.':
@@ -285,6 +287,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Semua isi {name} dihapus terlebih dahulu, termasuk berkasnya, dan tidak ada Keranjang Sampah untuk itu.',
   'Everything the permissions above cover': 'Semua yang dicakup izin di atas',
+  'Exit Full Screen': 'Keluar dari Mode Layar Penuh',
   'Expand': 'Bentangkan',
   'Expires {when}.': 'Kedaluwarsa {when}.',
   'Export': 'Ekspor',
@@ -396,6 +399,7 @@ export default {
   'Members': 'Anggota',
   'Migration revision': 'Revisi migrasi',
   'Monospaced': 'Lebar Tetap',
+  'More': 'Lainnya',
   'More Options…': 'Opsi Lainnya…',
   'Move Down': 'Pindah ke Bawah',
   'Move Up': 'Pindah ke Atas',
@@ -790,7 +794,8 @@ export default {
   'Would delete:': 'Akan dihapus:',
   'Would you like to allow your work to be shared by others?':
     'Apakah Anda ingin karya Anda dibagikan oleh orang lain?',
-  'Write a note…': 'Tulis catatan…',
+  'Write, or type / for headings, lists and more…':
+    'Tulis, atau ketik / untuk judul, daftar, dan lainnya…',
   'Writing it into your library…': 'Menulisnya ke perpustakaan Anda…',
   'Yellow': 'Kuning',
   'Yes': 'Ya',

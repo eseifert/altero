@@ -244,6 +244,7 @@ export default {
   'Display name': 'Anv diskwel',
   'Display name claim': 'Doareenn an anv diskwel',
   'Dismiss': 'Serriñ',
+  'Divider': 'Dispartier',
   'Done': 'Graet',
   'Done selecting': 'Echu gant an diuzañ',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -264,6 +265,7 @@ export default {
   'Empty the trash': 'Goullonderiñ ar pod-lastez',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Kregiñ ar mod skramm a-bezh',
   'Enter Link': 'Ebarzhiñ ul liamm',
   'Enter the code shown on your device.': "Ebarzhit ar c'hod diskouezet war ho trevnad.",
   'Enter the six-digit code from your authenticator app.':
@@ -283,6 +285,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     "Kement tra a zo e {name} a vo dilamet da gentañ, ar restroù en o zouez, ha n'eus pod-lastez ebet evit se.",
   'Everything the permissions above cover': 'Kement tra a zo goloet gant an aotreoù a-us',
+  'Exit Full Screen': 'Kuitaat ar mod skramm a-bezh',
   'Expand': 'Displegañ',
   'Expires {when}.': 'Diamzeret e vo {when}.',
   'Export': 'Ezporzhiañ',
@@ -395,6 +398,7 @@ export default {
   'Members': 'Izili',
   'Migration revision': "Adweladenn treuzlec'hiañ an diaz",
   'Monospaced': 'Monospaset',
+  'More': 'Muioc\'h',
   'More Options…': 'Muioc\'h a arventennoù...',
   'Move Down': 'War-draoñ',
   'Move Up': 'War-grec\'h',
@@ -792,7 +796,8 @@ export default {
   'Would delete:': 'A vefe dilamet:',
   'Would you like to allow your work to be shared by others?':
     "Ha c'hoant ho peus da aotren tud all da rannañ ho labour?",
-  'Write a note…': 'Skrivit un notenn…',
+  'Write, or type / for headings, lists and more…':
+    'Skrivit, pe biziatait / evit titloù, listennoù ha muioc\'h…',
   'Writing it into your library…': 'O skrivañ en ho levraoueg…',
   'Yellow': 'Melen',
   'Yes': 'Ya',

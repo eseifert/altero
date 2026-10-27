@@ -244,6 +244,7 @@ export default {
   Dismiss: 'Tanca',
   Done: 'Fet',
   'Display name claim': 'Atribut del nom visible',
+  'Divider': 'Separador',
   'Done selecting': 'Fet',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
     'Fet. El Zotero està establint la connexió: podeu tancar aquesta pàgina i tornar-hi.',
@@ -263,6 +264,7 @@ export default {
   'Empty the trash': 'Buida la paperera',
   'End': 'Fi',
   'Enter': 'Retorn',
+  'Enter Full Screen': 'Obre a pantalla completa',
   'Enter Link': 'Introdueix un enllaç',
   'Enter the code shown on your device.': 'Introduïu el codi que es mostra al vostre dispositiu.',
   'Enter the six-digit code from your authenticator app.':
@@ -283,6 +285,7 @@ export default {
     'Primer se suprimeix tot el que hi ha a {name}, fitxers inclosos, i no hi ha cap paperera que ho reculli.',
   'Everything the permissions above cover': 'Tot el que cobreixen els permisos anteriors',
   Expand: 'Expandeix',
+  'Exit Full Screen': 'Surt de la pantalla completa',
   'Expires {when}.': 'Caduca el {when}.',
   'Export': 'Exporta',
   'Export a library': 'Exporta una biblioteca',
@@ -391,6 +394,7 @@ export default {
   Members: 'Membres',
   'Migration revision': 'Revisió de la migració',
   'Monospaced': 'Monoespaiat',
+  'More': 'Més',
   'More Options…': 'Més opcions…',
   'Move Down': 'Mou avall',
   'Move Up': 'Mou amunt',
@@ -790,7 +794,8 @@ export default {
   'Would delete:': 'Se suprimiria:',
   'Would you like to allow your work to be shared by others?':
     'Voldríeu permetre que altres comparteixin el vostre treball?',
-  'Write a note…': 'Escriviu una nota…',
+  'Write, or type / for headings, lists and more…':
+    'Escriviu o teclegeu / per a encapçalaments, llistes i més…',
   'Writing it into your library…': 'S’està escrivint a la vostra biblioteca…',
   Yes: 'Sí',
   'Yellow': 'Groc',

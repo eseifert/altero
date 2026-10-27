@@ -242,6 +242,7 @@ export default {
   'Display name': 'Görünen ad',
   'Display name claim': 'Görünen ad talebi',
   'Dismiss': 'Kapat',
+  'Divider': 'Ayırıcı',
   'Done': 'Bitti',
   'Done selecting': 'Seçim bitti',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -262,6 +263,7 @@ export default {
   'Empty the trash': 'Çöp Sepetini boşalt',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Tam ekrana geç',
   'Enter Link': 'Bağlantıyı Gir',
   'Enter the code shown on your device.': 'Cihazınızda gösterilen kodu giriniz.',
   'Enter the six-digit code from your authenticator app.':
@@ -281,6 +283,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name} içindeki her şey, dosyalar dahil, önce silinir ve bunun için Çöp Sepeti yoktur.',
   'Everything the permissions above cover': 'Yukarıdaki izinlerin kapsadığı her şey',
+  'Exit Full Screen': 'Tam ekrandan çık',
   'Expand': 'Genişlet',
   'Expires {when}.': 'Son geçerlilik: {when}.',
   'Export': 'Dışarı aktar',
@@ -393,6 +396,7 @@ export default {
   'Members': 'Üyeler',
   'Migration revision': 'Geçiş revizyonu',
   'Monospaced': 'Tek Aralıklı',
+  'More': 'Diğer',
   'More Options…': 'Diğer Seçenekler...',
   'Move Down': 'Bir Aşağı Taşı',
   'Move Up': 'Bir Yukarı Taşı',
@@ -789,7 +793,8 @@ export default {
   'Would delete:': 'Silinecekler:',
   'Would you like to allow your work to be shared by others?':
     'Eserinizin başkaları tarafından paylaşılabilmesine izin veriyor musunuz?',
-  'Write a note…': 'Bir not yazın…',
+  'Write, or type / for headings, lists and more…':
+    'Yazmaya başlayın ya da başlık, liste ve daha fazlası için / tuşuna basın…',
   'Writing it into your library…': 'Kitaplığınıza yazılıyor…',
   'Yellow': 'Sarı',
   'Yes': 'Evet',

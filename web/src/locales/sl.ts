@@ -240,6 +240,7 @@ export default {
   'Display name': 'Prikazno ime',
   'Display name claim': 'Trditev s prikaznim imenom',
   'Dismiss': 'Zapri',
+  'Divider': 'Ločilna črta',
   'Done': 'Končano',
   'Done selecting': 'Končaj izbiranje',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -260,6 +261,7 @@ export default {
   'Empty the trash': 'Izprazni koš',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Vstop v celozaslonski način',
   'Enter Link': 'Vnesite povezavo',
   'Enter the code shown on your device.': 'Vnesite kodo, prikazano na vaši napravi.',
   'Enter the six-digit code from your authenticator app.':
@@ -279,6 +281,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Vse v knjižnici {name} se najprej izbriše, tudi datoteke, in koša za to ni.',
   'Everything the permissions above cover': 'Vse, kar zajemajo zgornja dovoljenja',
+  'Exit Full Screen': 'Izhod iz celozaslonskega načina',
   'Expand': 'Razširi',
   'Expires {when}.': 'Poteče {when}.',
   'Export': 'Izvozi',
@@ -386,6 +389,7 @@ export default {
   'Members': 'Člani',
   'Migration revision': 'Revizija migracije',
   'Monospaced': 'Enakomerni razmik',
+  'More': 'Dodatno',
   'More Options…': 'Več možnosti…',
   'Move Down': 'Premakni navzdol',
   'Move Up': 'Premakni navzgor',
@@ -765,7 +769,8 @@ export default {
   'Would delete:': 'Izbrisano bi bilo:',
   'Would you like to allow your work to be shared by others?':
     'Želite dovoliti, da drugi dajejo vaše delo v skupno rabo?',
-  'Write a note…': 'Napišite opombo …',
+  'Write, or type / for headings, lists and more…':
+    'Pišite ali vnesite / za naslove, sezname in drugo …',
   'Writing it into your library…': 'Zapisovanje v vašo knjižnico …',
   Yes: 'Da',
   'Yellow': 'Rumena',

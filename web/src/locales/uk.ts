@@ -244,6 +244,7 @@ export default {
   'Display name': 'Відображуване ім’я',
   'Display name claim': 'Атрибут відображуваного імені',
   'Dismiss': 'Закрити',
+  'Divider': 'Роздільник',
   'Done': 'Готово',
   'Done selecting': 'Виділення завершено',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -264,6 +265,7 @@ export default {
   'Empty the trash': 'Очистити Кошик',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Перейти в повноекранний режим',
   'Enter Link': 'Введіть посилання',
   'Enter the code shown on your device.': 'Введіть код, показаний на вашому пристрої.',
   'Enter the six-digit code from your authenticator app.':
@@ -283,6 +285,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Усе в {name} спершу видаляється, разом із файлами, і Кошика для цього немає.',
   'Everything the permissions above cover': 'Усе, що охоплюють дозволи вище',
+  'Exit Full Screen': 'Вийти з повноекранного режиму',
   'Expand': 'Розгорнути',
   'Expires {when}.': 'Спливає {when}.',
   'Export': 'Експорт',
@@ -392,6 +395,7 @@ export default {
   'Members': 'Учасники',
   'Migration revision': 'Ревізія міграції',
   'Monospaced': 'Моноширинний',
+  'More': 'Більше',
   'More Options…': 'Більше параметрів…',
   'Move Down': 'Перемістити вниз',
   'Move Up': 'Перемістити вгору',
@@ -782,7 +786,8 @@ export default {
   'Would delete:': 'Буде видалено:',
   'Would you like to allow your work to be shared by others?':
     'Дозволити іншим поширювати вашу роботу?',
-  'Write a note…': 'Напишіть примітку…',
+  'Write, or type / for headings, lists and more…':
+    'Пишіть або введіть / для заголовків, списків тощо…',
   'Writing it into your library…': 'Запис до вашої бібліотеки…',
   'Yellow': 'Жовтий',
   'Yes': 'Так',

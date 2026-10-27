@@ -241,6 +241,7 @@ export default {
   'Display name': 'Vertoonnaam',
   'Display name claim': 'Aanspraak vir vertoonnaam',
   'Dismiss': 'Sluit',
+  'Divider': 'Skeidslyn',
   'Done': 'Klaar',
   'Done selecting': 'Klaar met kies',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -261,6 +262,7 @@ export default {
   'Empty the trash': 'Maak die asblik leeg',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Betree volskermmodus',
   'Enter Link': 'Voer skakel in',
   'Enter the code shown on your device.': 'Voer die kode in wat op u toestel gewys word.',
   'Enter the six-digit code from your authenticator app.':
@@ -280,6 +282,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Alles in {name} word eers geskrap, lêers ingesluit, en daar is geen asblik rondom dit nie.',
   'Everything the permissions above cover': 'Alles wat die toestemmings hierbo dek',
+  'Exit Full Screen': 'Sluit volskermmodus af',
   'Expand': 'Brei uit',
   'Expires {when}.': 'Verval op {when}.',
   'Export': 'Voer uit',
@@ -390,6 +393,7 @@ export default {
   'Members': 'Lede',
   'Migration revision': 'Migrasiehersiening',
   'Monospaced': 'Vaste breedte',
+  'More': 'Meer',
   'More Options…': 'Meer opsies…',
   'Move Down': 'Skuif af',
   'Move Up': 'Skuif op',
@@ -783,7 +787,7 @@ export default {
   'Would delete:': 'Sou skrap:',
   'Would you like to allow your work to be shared by others?':
     'Wil u toelaat dat ander u werk deel?',
-  'Write a note…': 'Skryf ’n nota…',
+  'Write, or type / for headings, lists and more…': 'Skryf, of tik / vir opskrifte, lyste en meer…',
   'Writing it into your library…': 'Skryf dit tans in u biblioteek…',
   'Yellow': 'Geel',
   'Yes': 'Ja',

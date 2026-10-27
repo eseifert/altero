@@ -243,6 +243,7 @@ export default {
   'Display name': 'Отображаемое имя',
   'Display name claim': 'Атрибут отображаемого имени',
   'Dismiss': 'Закрыть',
+  'Divider': 'Разделитель',
   'Done': 'Готово',
   'Done selecting': 'Выделение окончено',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -263,6 +264,7 @@ export default {
   'Empty the trash': 'Очистить корзину',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Перейти в полноэкранный режим',
   'Enter Link': 'Ввести ссылку',
   'Enter the code shown on your device.': 'Введите код, показанный на вашем устройстве.',
   'Enter the six-digit code from your authenticator app.':
@@ -282,6 +284,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Всё в {name} сначала удаляется, вместе с файлами, и корзины вокруг этого нет.',
   'Everything the permissions above cover': 'Всё, что охватывают разрешения выше',
+  'Exit Full Screen': 'Выйти из полноэкранного режима',
   'Expand': 'Развернуть',
   'Expires {when}.': 'Истекает {when}.',
   'Export': 'Экспорт',
@@ -391,6 +394,7 @@ export default {
   'Members': 'Участники',
   'Migration revision': 'Ревизия миграции',
   'Monospaced': 'Моноширинный',
+  'More': 'Ещё',
   'More Options…': 'Дополнительные параметры…',
   'Move Down': 'Переместить вниз',
   'Move Up': 'Переместить вверх',
@@ -781,7 +785,8 @@ export default {
   'Would delete:': 'Будет удалено:',
   'Would you like to allow your work to be shared by others?':
     'Разрешить другим распространять вашу работу?',
-  'Write a note…': 'Напишите заметку…',
+  'Write, or type / for headings, lists and more…':
+    'Начните писать или введите / для заголовков, списков и прочего…',
   'Writing it into your library…': 'Запись в вашу библиотеку…',
   'Yellow': 'Жёлтый',
   'Yes': 'Да',

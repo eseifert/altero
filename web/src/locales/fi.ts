@@ -239,6 +239,7 @@ export default {
   'Display name': 'Näyttönimi',
   'Display name claim': 'Näyttönimen väite',
   'Dismiss': 'Sulje',
+  'Divider': 'Erotinviiva',
   'Done': 'Valmis',
   'Done selecting': 'Lopeta valinta',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -259,6 +260,7 @@ export default {
   'Empty the trash': 'Tyhjennä roskakori',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Siirry koko näytön tilaan',
   'Enter Link': 'Syötä linkki',
   'Enter the code shown on your device.': 'Syötä laitteesi näyttämä koodi.',
   'Enter the six-digit code from your authenticator app.':
@@ -278,6 +280,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Kirjaston {name} koko sisältö poistetaan ensin, myös tiedostot, eikä mitään siirretä roskakoriin.',
   'Everything the permissions above cover': 'Kaikkeen, mitä yllä olevat oikeudet kattavat',
+  'Exit Full Screen': 'Poistu koko näytön tilasta',
   'Expand': 'Laajenna',
   'Expires {when}.': 'Vanhenee {when}.',
   'Export': 'Vie',
@@ -388,6 +391,7 @@ export default {
   'Members': 'Jäsenet',
   'Migration revision': 'Tietokantamigraation versio',
   'Monospaced': 'Kiinteälevyinen',
+  'More': 'Lisää',
   'More Options…': 'Lisää asetuksia…',
   'Move Down': 'Siirrä alas',
   'Move Up': 'Siirrä ylös',
@@ -779,7 +783,8 @@ export default {
   'Would delete:': 'Poistettaisiin:',
   'Would you like to allow your work to be shared by others?':
     'Saavatko muut levittää julkaisujasi edelleen?',
-  'Write a note…': 'Kirjoita muistiinpano…',
+  'Write, or type / for headings, lists and more…':
+    'Kirjoita tai syötä / otsikoita, luetteloita ja muuta varten…',
   'Writing it into your library…': 'Kirjoitetaan kirjastoosi…',
   'Yellow': 'Keltainen',
   'Yes': 'Kyllä',

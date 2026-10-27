@@ -232,6 +232,7 @@ export default {
   'Display name': 'Rodomas vardas',
   'Display name claim': 'Rodomo vardo teiginys',
   'Dismiss': 'Užverti',
+  'Divider': 'Skiriamoji linija',
   'Done': 'Atlikta',
   'Done selecting': 'Baigti žymėti',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -252,6 +253,7 @@ export default {
   'Empty the trash': 'Išvalyti šiukšlinę',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Rodyti visame ekrane',
   'Enter Link': 'Įveskite nuorodą',
   'Enter the code shown on your device.': 'Įveskite įrenginyje rodomą kodą.',
   'Enter the six-digit code from your authenticator app.': 'Įveskite šešiaženklį kodą iš autentifikavimo programėlės.',
@@ -269,6 +271,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Pirmiausia pašalinamas visas bibliotekos „{name}“ turinys, įskaitant rinkmenas, ir šiukšlinė to neapsaugo.',
   'Everything the permissions above cover': 'Viskas, ką apima aukščiau nurodyti leidimai',
+  'Exit Full Screen': 'Grįžti iš viso ekrano',
   'Expand': 'Išskleisti',
   'Expires {when}.': 'Galioja iki {when}.',
   'Export': 'Eksportuoti',
@@ -374,6 +377,7 @@ export default {
   'Members': 'Nariai',
   'Migration revision': 'Migracijos revizija',
   'Monospaced': 'Lygiaplotis',
+  'More': 'Daugiau',
   'More Options…': 'Daugiau parinkčių…',
   'Move Down': 'Nuleisti žemyn',
   'Move Up': 'Kelti aukštyn',
@@ -747,7 +751,8 @@ export default {
   'Would delete:': 'Būtų pašalinta:',
   'Would you like to allow your work to be shared by others?':
     'Ar norėtumėte, kad kiti galėtų platinti jūsų darbą?',
-  'Write a note…': 'Rašykite pastabą…',
+  'Write, or type / for headings, lists and more…':
+    'Rašykite arba įveskite / antraštėms, sąrašams ir kitkam…',
   'Writing it into your library…': 'Įrašoma į jūsų biblioteką…',
   Yes: 'Taip',
   'Yellow': 'Geltona',

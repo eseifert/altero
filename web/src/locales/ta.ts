@@ -245,6 +245,7 @@ export default {
   'Display name': 'காட்சிப் பெயர்',
   'Display name claim': 'காட்சிப் பெயர் கோரல்',
   'Dismiss': 'மூடு',
+  'Divider': 'பிரிப்புக் கோடு',
   'Done': 'முடிந்தது',
   'Done selecting': 'தேர்வு முடிந்தது',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -265,6 +266,7 @@ export default {
   'Empty the trash': 'குப்பையைக் காலியாக்கு',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'முழுத்திரைக்குச் செல்',
   'Enter Link': 'தொடுப்பை உள்ளிடவும்',
   'Enter the code shown on your device.': 'உங்கள் சாதனத்தில் காட்டப்படும் குறியீட்டை உள்ளிடவும்.',
   'Enter the six-digit code from your authenticator app.':
@@ -284,6 +286,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name} நூலகத்தில் உள்ள அனைத்தும், கோப்புகள் உட்பட, முதலில் நீக்கப்படும்; அதற்குக் குப்பை இல்லை.',
   'Everything the permissions above cover': 'மேலே உள்ள அனுமதிகள் உள்ளடக்கும் அனைத்தும்',
+  'Exit Full Screen': 'முழுத்திரையிலிருந்து வெளியேறு',
   'Expand': 'விரி',
   'Expires {when}.': 'காலாவதியாகும் நாள்: {when}.',
   'Export': 'ஏற்றுமதி',
@@ -396,6 +399,7 @@ export default {
   'Members': 'உறுப்பினர்கள்',
   'Migration revision': 'இடம்பெயர்வுத் திருத்தம்',
   'Monospaced': 'ஒற்றைவெளியுடைய',
+  'More': 'மேலும்',
   'More Options…': 'மேலும் விருப்பங்கள்...',
   'Move Down': 'கீழே இறங்கு',
   'Move Up': 'மேலே நகர்த்து',
@@ -799,7 +803,8 @@ export default {
   'Would delete:': 'நீக்கப்படக்கூடியவை:',
   'Would you like to allow your work to be shared by others?':
     'உங்கள் படைப்பை மற்றவர்கள் பகிர அனுமதிக்க விரும்புகிறீர்களா?',
-  'Write a note…': 'குறிப்பு எழுதுங்கள்…',
+  'Write, or type / for headings, lists and more…':
+    'எழுதுங்கள், அல்லது தலைப்புகள், பட்டியல்கள் மற்றும் பலவற்றுக்கு / தட்டச்சு செய்யுங்கள்…',
   'Writing it into your library…': 'உங்கள் நூலகத்தில் எழுதுகிறது…',
   'Yellow': 'மஞ்சள்',
   'Yes': 'ஆம்',

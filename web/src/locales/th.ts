@@ -239,6 +239,7 @@ export default {
   'Display name claim': 'เคลมชื่อที่แสดง',
   Dismiss: 'ปิด',
   Done: 'เสร็จสิ้น',
+  'Divider': 'เส้นคั่น',
   'Done selecting': 'เลือกเสร็จแล้ว',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
     'เรียบร้อย Zotero กำลังรับการเชื่อมต่ออยู่ — คุณปิดหน้านี้แล้วกลับไปที่ Zotero ได้เลย',
@@ -258,6 +259,7 @@ export default {
   'Empty the trash': 'ล้างถังขยะ',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'เข้าสู่ภาพเต็มหน้าจอ',
   'Enter Link': 'ใส่ลิงก์',
   'Enter the code shown on your device.': 'ป้อนรหัสที่แสดงบนอุปกรณ์ของคุณ',
   'Enter the six-digit code from your authenticator app.': 'ป้อนรหัสหกหลักจากแอปยืนยันตัวตนของคุณ',
@@ -277,6 +279,7 @@ export default {
     'ทุกอย่างใน {name} จะถูกลบก่อน รวมถึงไฟล์ และไม่มีถังขยะรองรับ',
   'Everything the permissions above cover': 'ทุกอย่างที่สิทธิ์ด้านบนครอบคลุม',
   Expand: 'ขยาย',
+  'Exit Full Screen': 'ออกจากภาพเต็มหน้าจอ',
   'Expires {when}.': 'หมดอายุ {when}',
   Export: 'ส่งออก',
   'Export a library': 'ส่งออกไลบรารี',
@@ -384,6 +387,7 @@ export default {
   Members: 'สมาชิก',
   'Migration revision': 'รุ่นการปรับโครงสร้างฐานข้อมูล',
   'Monospaced': 'ความกว้างคงที่',
+  'More': 'เพิ่มเติม',
   'More Options…': 'ตัวเลือกเพิ่มเติม…',
   'Move Down': 'เลื่อนลง',
   'Move Up': 'เลื่อนขึ้น',
@@ -771,7 +775,8 @@ export default {
   'Would delete:': 'จะลบ:',
   'Would you like to allow your work to be shared by others?':
     'คุณต้องการอนุญาตให้ผู้อื่นแบ่งปันผลงานของคุณหรือไม่?',
-  'Write a note…': 'เขียนหมายเหตุ…',
+  'Write, or type / for headings, lists and more…':
+    'เขียน หรือพิมพ์ / เพื่อใส่หัวเรื่อง รายการ และอื่นๆ…',
   'Writing it into your library…': 'กำลังเขียนลงในไลบรารีของคุณ…',
   Yes: 'ใช่',
   'Yellow': 'เหลือง',

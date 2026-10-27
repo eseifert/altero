@@ -244,6 +244,7 @@ export default {
   'Display name': 'Zobrazované jméno',
   'Display name claim': 'Deklarace zobrazovaného jména',
   'Dismiss': 'Zavřít',
+  'Divider': 'Oddělovač',
   'Done': 'Hotovo',
   'Done selecting': 'Ukončit výběr',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -264,6 +265,7 @@ export default {
   'Empty the trash': 'Vysypat koš',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Spustit režim celé obrazovky',
   'Enter Link': 'Vložit odkaz',
   'Enter the code shown on your device.': 'Zadejte kód zobrazený na vašem zařízení.',
   'Enter the six-digit code from your authenticator app.':
@@ -283,6 +285,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Vše v {name} se nejprve smaže, včetně souborů, a žádný koš to nezachytí.',
   'Everything the permissions above cover': 'Vše, na co se vztahují oprávnění výše',
+  'Exit Full Screen': 'Ukončit režim celé obrazovky',
   'Expand': 'Rozbalit',
   'Expires {when}.': 'Platnost vyprší {when}.',
   'Export': 'Exportovat',
@@ -395,6 +398,7 @@ export default {
   'Members': 'Členové',
   'Migration revision': 'Revize migrace',
   'Monospaced': 'Neproporcionální',
+  'More': 'Více',
   'More Options…': 'Další možnosti…',
   'Move Down': 'Posunout dolů',
   'Move Up': 'Posunout nahoru',
@@ -788,7 +792,8 @@ export default {
   'Would delete:': 'Smazalo by se:',
   'Would you like to allow your work to be shared by others?':
     'Chcete ostatním umožnit sdílení vaší práce?',
-  'Write a note…': 'Napište poznámku…',
+  'Write, or type / for headings, lists and more…':
+    'Pište nebo zadejte / pro nadpisy, seznamy a další…',
   'Writing it into your library…': 'Zapisování do vaší knihovny…',
   'Yellow': 'Žlutá',
   'Yes': 'Ano',

@@ -242,6 +242,7 @@ export default {
   'Display name': 'Nazwa wyświetlana',
   'Display name claim': 'Atrybut z nazwą wyświetlaną',
   'Dismiss': 'Zamknij',
+  'Divider': 'Separator',
   'Done': 'Gotowe',
   'Done selecting': 'Koniec zaznaczania',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -262,6 +263,7 @@ export default {
   'Empty the trash': 'Opróżnij kosz',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Przejdź do trybu pełnoekranowego',
   'Enter Link': 'Wpisz odnośnik',
   'Enter the code shown on your device.': 'Wpisz kod wyświetlony na urządzeniu.',
   'Enter the six-digit code from your authenticator app.':
@@ -281,6 +283,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Wszystko w {name} zostaje najpierw usunięte, razem z plikami, i nie ma wokół tego kosza.',
   'Everything the permissions above cover': 'Wszystko, co obejmują powyższe uprawnienia',
+  'Exit Full Screen': 'Opuść tryb pełnoekranowy',
   'Expand': 'Rozwiń',
   'Expires {when}.': 'Wygasa {when}.',
   'Export': 'Eksportuj',
@@ -391,6 +394,7 @@ export default {
   'Members': 'Członkowie',
   'Migration revision': 'Rewizja migracji',
   'Monospaced': 'Stała szerokość',
+  'More': 'Więcej',
   'More Options…': 'Więcej opcji...',
   'Move Down': 'Przenieś w dół',
   'Move Up': 'Przenieś do góry',
@@ -783,7 +787,8 @@ export default {
   'Would delete:': 'Usunięto by:',
   'Would you like to allow your work to be shared by others?':
     'Czy chcesz pozwolić innym udostępniać twoją pracę?',
-  'Write a note…': 'Napisz notatkę…',
+  'Write, or type / for headings, lists and more…':
+    'Pisz lub wpisz /, aby wstawić nagłówki, listy i nie tylko…',
   'Writing it into your library…': 'Zapisywanie w twojej bibliotece…',
   'Yellow': 'Żółty',
   'Yes': 'Tak',

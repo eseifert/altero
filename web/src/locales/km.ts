@@ -241,6 +241,7 @@ export default {
   'Display name claim': 'ការអះអាង (claim) ឈ្មោះបង្ហាញ',
   Dismiss: 'បិទ',
   Done: 'រួចរាល់',
+  'Divider': 'បន្ទាត់បំបែក',
   'Done selecting': 'ជ្រើសរើសរួចរាល់',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
     'រួចរាល់។ Zotero កំពុងទទួលយកការតភ្ជាប់ឥឡូវនេះ — អ្នកអាចបិទទំព័រនេះ ហើយត្រឡប់ទៅ Zotero វិញ។',
@@ -260,6 +261,7 @@ export default {
   'Empty the trash': 'សម្អាតធុងសំរាម',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'ចូល​អេក្រង់​ពេញ',
   'Enter Link': 'វាយបញ្ចូលតំណ',
   'Enter the code shown on your device.': 'បញ្ចូលកូដដែលបង្ហាញនៅលើឧបករណ៍របស់អ្នក។',
   'Enter the six-digit code from your authenticator app.':
@@ -281,6 +283,7 @@ export default {
     'អ្វីៗទាំងអស់នៅក្នុង {name} នឹងត្រូវលុបជាមុនសិន រួមទាំងឯកសារផងដែរ ហើយគ្មានធុងសំរាមសម្រាប់សង្គ្រោះវាទេ។',
   'Everything the permissions above cover': 'អ្វីៗទាំងអស់ដែលសិទ្ធិខាងលើគ្របដណ្តប់',
   Expand: 'ពង្រីក',
+  'Exit Full Screen': 'បិទ​អេក្រង់​ពេញ',
   'Expires {when}.': 'ផុតកំណត់ {when}។',
   Export: 'នាំចេញ',
   'Export a library': 'នាំចេញបណ្ណាល័យ',
@@ -389,6 +392,7 @@ export default {
   Members: 'សមាជិក',
   'Migration revision': 'កំណែ migration',
   'Monospaced': 'ទទឹងថេរ',
+  'More': 'ច្រើនទៀត',
   'More Options…': 'ជម្រើសច្រើនទៀត…',
   'Move Down': 'ផ្លាស់ទីចុះក្រោម',
   'Move Up': 'ផ្លាស់ទីឡើងលើ',
@@ -780,7 +784,8 @@ export default {
   'Would delete:': 'នឹងលុប៖',
   'Would you like to allow your work to be shared by others?':
     'តើអ្នកចង់អនុញ្ញាតឱ្យអ្នកដទៃចែករំលែកស្នាដៃរបស់អ្នកឬទេ?',
-  'Write a note…': 'សរសេរកំណត់ចំណាំ…',
+  'Write, or type / for headings, lists and more…':
+    'សរសេរ ឬវាយ / សម្រាប់ចំណងជើង បញ្ជី និងច្រើនទៀត…',
   'Writing it into your library…': 'កំពុងសរសេរវាចូលទៅក្នុងបណ្ណាល័យរបស់អ្នក…',
   Yes: 'បាទ/ចាស',
   'Yellow': 'លឿង',

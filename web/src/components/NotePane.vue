@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import AppIcon from '@/components/AppIcon.vue'
 import ConflictNotice from '@/components/ConflictNotice.vue'
 import NoteEditor from '@/components/NoteEditor.vue'
 import { noteToTitle } from '@/items/titles'
@@ -152,44 +153,142 @@ onBeforeUnmount(() => {
   void flush()
 })
 
+/*
+ * Full screen: the note alone in the window, for writing at length, as
+ * Notion's full-page view and Linear's expanded editor give. It is a modal
+ * dialog, so the page behind it cannot be reached by Tab or by a screen
+ * reader, and Escape -- outside the text, where Escape moves to the tools --
+ * brings the note back into the pane.
+ */
+const focused = ref(false)
+const frame = ref<HTMLDialogElement | null>(null)
+const toggle = ref<HTMLButtonElement | null>(null)
+const frameId = `note-frame-${useId()}`
+const title = computed(() => noteToTitle(props.item.data.note ?? '') || t('Note'))
+
+async function enter(): Promise<void> {
+  focused.value = true
+  await nextTick()
+  frame.value?.showModal()
+  editor.value?.focus()
+}
+
+async function leave(): Promise<void> {
+  if (!focused.value) return
+  frame.value?.close()
+  focused.value = false
+  await nextTick()
+  toggle.value?.focus()
+}
+
+onBeforeUnmount(() => frame.value?.close())
+
 defineExpose({ focus: () => editor.value?.focus() })
 </script>
 
 <template>
   <section class="note-pane">
-    <NoteEditor
-      :key="generation"
-      ref="editor"
-      :html="item.data.note ?? ''"
-      :editable="editable"
-      :image-url="imageUrl"
-      @change="change"
-    >
-      <template #status>
-        <span v-if="state === 'saving'" class="note-pane__state">{{ t('Saving…') }}</span>
-        <span v-else-if="state === 'saved'" class="note-pane__state">{{ t('Saved.') }}</span>
-        <span v-else-if="state === 'failed'" class="note-pane__state note-pane__state--failed" role="alert">
-          <span :title="failure">{{ t('Not saved.') }}</span>
-          <button class="note-pane__retry" type="button" @click="retry">{{ t('Try Again') }}</button>
-        </span>
-      </template>
-    </NoteEditor>
-    <ConflictNotice
-      v-if="conflict"
-      :id="`note-${item.key}-conflict`"
-      :mine="conflict.mine"
-      :theirs="conflict.theirs"
-      @mine="keepMine"
-      @theirs="keepTheirs"
-    />
+    <!--
+      Moved into the dialog below while the note is written full-window, and
+      back again after: the same editor, so nothing typed is lost on the way.
+    -->
+    <Teleport defer :to="`#${frameId}`" :disabled="!focused">
+      <div class="note-pane__inner">
+        <div class="note-pane__bar">
+          <span v-if="state === 'saving'" class="note-pane__state">{{ t('Saving…') }}</span>
+          <span v-else-if="state === 'saved'" class="note-pane__state">{{ t('Saved.') }}</span>
+          <span v-else-if="state === 'failed'" class="note-pane__state note-pane__state--failed" role="alert">
+            <span :title="failure">{{ t('Not saved.') }}</span>
+            <button class="note-pane__retry" type="button" @click="retry">{{ t('Try Again') }}</button>
+          </span>
+          <button
+            ref="toggle"
+            class="icon-button note-pane__toggle"
+            type="button"
+            :aria-label="focused ? t('Exit Full Screen') : t('Enter Full Screen')"
+            :title="focused ? t('Exit Full Screen') : t('Enter Full Screen')"
+            @click="focused ? leave() : enter()"
+          >
+            <AppIcon :name="focused ? 'collapse' : 'expand'" :size="20" />
+          </button>
+        </div>
+        <NoteEditor
+          :key="generation"
+          ref="editor"
+          :html="item.data.note ?? ''"
+          :editable="editable"
+          :image-url="imageUrl"
+          @change="change"
+        />
+        <ConflictNotice
+          v-if="conflict"
+          :id="`note-${item.key}-conflict`"
+          :mine="conflict.mine"
+          :theirs="conflict.theirs"
+          @mine="keepMine"
+          @theirs="keepTheirs"
+        />
+      </div>
+    </Teleport>
+    <dialog ref="frame" class="note-pane__dialog" :aria-label="title" @cancel.prevent="leave">
+      <div :id="frameId" class="note-pane__column"></div>
+    </dialog>
   </section>
 </template>
 
 <style scoped>
-.note-pane {
+@import '@/styles/surfaces.css';
+
+.note-pane__inner {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-2);
+}
+
+/* Quiet, as Google Docs' save state is: how the note stands, and the way into
+   full screen, on one line over the text. */
+.note-pane__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-2);
+  min-height: 2rem;
+}
+
+.note-pane__toggle {
+  margin-inline-start: auto;
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+/* Not drawn until full screen opens it; then the whole window, the page's own
+   colour, with the note in a column of a comfortable measure. */
+.note-pane__dialog {
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: var(--md-spacing-4) var(--md-spacing-4) var(--md-spacing-6);
+  border: none;
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+.note-pane__dialog::backdrop {
+  background: transparent;
+}
+
+.note-pane__column {
+  max-width: 44rem;
+  margin-inline: auto;
+}
+
+.note-pane__dialog :deep(.note-editor__text:focus-within) {
+  outline: none;
+}
+
+.note-pane__dialog :deep(.ProseMirror) {
+  min-height: calc(100dvh - 10rem);
+  font-size: 1.0625rem;
 }
 
 .note-pane__state {

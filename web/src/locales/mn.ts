@@ -242,6 +242,7 @@ export default {
   'Display name': 'Харагдах нэр',
   'Display name claim': 'Харагдах нэрийн claim',
   'Dismiss': 'Хаах',
+  'Divider': 'Тусгаарлагч зураас',
   'Done': 'Болсон',
   'Done selecting': 'Сонголтыг дуусгах',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -262,6 +263,7 @@ export default {
   'Empty the trash': 'Хогийн савыг хоослох',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Бүтэн дэлгэцээр харах',
   'Enter Link': 'Холбоос оруулна уу',
   'Enter the code shown on your device.': 'Төхөөрөмж дээр тань харагдаж буй кодыг оруулна уу.',
   'Enter the six-digit code from your authenticator app.':
@@ -281,6 +283,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name} доторх бүх зүйлийг, файлуудыг оруулаад, эхлээд устгах бөгөөд үүнд Хогийн сав байхгүй.',
   'Everything the permissions above cover': 'Дээрх зөвшөөрлүүдийн хамрах бүх зүйл',
+  'Exit Full Screen': 'Бүтэн дэлгэцээс гарах',
   'Expand': 'Дэлгэх',
   'Expires {when}.': 'Дуусах хугацаа: {when}.',
   'Export': 'Гаргах',
@@ -392,6 +395,7 @@ export default {
   'Members': 'Гишүүд',
   'Migration revision': 'Шилжүүлгийн хувилбар',
   'Monospaced': 'Тогтмол өргөнтэй',
+  'More': 'Бусад',
   'More Options…': 'Бусад сонголт…',
   'Move Down': 'Доош зөөх',
   'Move Up': 'Дээш зөөх',
@@ -787,7 +791,8 @@ export default {
   'Would delete:': 'Устгах зүйлс:',
   'Would you like to allow your work to be shared by others?':
     'Бүтээлээ бусад хүмүүс хуваалцахыг зөвшөөрөх үү?',
-  'Write a note…': 'Тэмдэглэл бичих…',
+  'Write, or type / for headings, lists and more…':
+    'Бичнэ үү, эсвэл гарчиг, жагсаалт болон бусад зүйлд / дарна уу…',
   'Writing it into your library…': 'Таны номын санд бичиж байна…',
   'Yellow': 'Шар',
   'Yes': 'Тийм',

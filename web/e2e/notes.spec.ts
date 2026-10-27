@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 /* Both projects run against the one seeded library, so every note written
@@ -61,13 +63,21 @@ test('what is typed in a note is saved as the desktop writes it, and is there af
   await expect(page.locator('.note-editor .ProseMirror strong')).toHaveText('bold')
 })
 
-test('the toolbar turns a line into a heading', async ({ page }, testInfo) => {
+/** Brings up the tools: by selecting the line with a mouse, over which they
+ *  float; by putting the cursor in the text on a phone, where they dock. */
+async function showTools(page: Page, project: string): Promise<void> {
+  const line = page.locator('.note-editor .ProseMirror p').first()
+  if (project === 'desktop') await line.click({ clickCount: 3 })
+  else await line.click()
+}
+
+test('the Format menu turns a line into a heading', async ({ page }, testInfo) => {
   const marker = `heading-${testInfo.project.name}`
   await seedNote(`<p>Heading ${marker}</p>`)
   await signIn(page)
   await page.getByText(`Heading ${marker}`).first().click()
 
-  await page.locator('.note-editor .ProseMirror').click()
+  await showTools(page, testInfo.project.name)
   await page.getByRole('button', { name: 'Format Text' }).click()
   // Seen where it is drawn, and not clipped by the toolbar it opens from,
   // which scrolls sideways: the entry is what is under its own centre.
@@ -83,6 +93,59 @@ test('the toolbar turns a line into a heading', async ({ page }, testInfo) => {
   await expect(page.locator('.note-editor .ProseMirror h1')).toHaveText(`Heading ${marker}`)
   await expect(page.locator('.note-pane__state')).toHaveText('Saved.')
   expect((await stored(marker)).note).toContain(`<h1>Heading ${marker}</h1>`)
+})
+
+test('the tools appear only when wanted, and make text bold', async ({ page }, testInfo) => {
+  const marker = `bubble-${testInfo.project.name}`
+  await seedNote(`<p>Bold ${marker}</p>`)
+  await signIn(page)
+  await page.getByText(`Bold ${marker}`).first().click()
+
+  await expect(page.getByRole('toolbar', { name: 'Formatting' })).toBeHidden()
+  // Over the selection with a mouse; on the keyboard, with the whole line
+  // selected by its own handles, on a phone.
+  await showTools(page, testInfo.project.name)
+  if (testInfo.project.name !== 'desktop') await page.keyboard.press('ControlOrMeta+a')
+  await page.getByRole('toolbar', { name: 'Formatting' }).getByRole('button', { name: 'Bold' }).click()
+  await expect(page.locator('.note-pane__state')).toHaveText('Saved.')
+  expect((await stored(marker)).note).toContain(`<strong>Bold ${marker}</strong>`)
+})
+
+test('"/" offers the block types and makes the one chosen', async ({ page }, testInfo) => {
+  const marker = `slash-${testInfo.project.name}`
+  await seedNote(`<p>Slash ${marker}</p>`)
+  await signIn(page)
+  await page.getByText(`Slash ${marker}`).first().click()
+
+  await page.locator('.note-editor .ProseMirror').click()
+  await page.keyboard.press('End')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('/num')
+  await expect(page.getByRole('option')).toHaveText(['Numbered List'])
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('first')
+  await expect(page.locator('.note-pane__state')).toHaveText('Saved.')
+  expect((await stored(marker)).note).toContain('<ol>\n<li>\nfirst\n</li>\n</ol>')
+})
+
+test('a note is written full screen and comes back to its pane', async ({ page }, testInfo) => {
+  const marker = `full-${testInfo.project.name}`
+  await seedNote(`<p>Full ${marker}</p>`)
+  await signIn(page)
+  await page.getByText(`Full ${marker}`).first().click()
+
+  await page.getByRole('button', { name: 'Enter Full Screen' }).click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.locator('.ProseMirror')).toBeFocused()
+  await page.keyboard.type(' written large')
+  await expect(dialog.locator('.note-pane__state')).toHaveText('Saved.')
+  expect(await accessibilityProblems(page)).toEqual([])
+
+  await page.getByRole('button', { name: 'Exit Full Screen' }).click()
+  await expect(dialog).toHaveCount(0)
+  await expect(page.locator('.note-pane .ProseMirror')).toContainText(`Full ${marker} written large`)
+  await expect(page.getByRole('button', { name: 'Enter Full Screen' })).toBeFocused()
+  expect((await stored(marker)).note).toContain(`Full ${marker} written large`)
 })
 
 test('a note opened and left is not written', async ({ page }, testInfo) => {
@@ -154,13 +217,15 @@ test('a note changed elsewhere reaches the open editor while nothing is unsaved'
   await expect(page.locator('.note-editor .ProseMirror')).toContainText(`After ${marker}`)
 })
 
-test('the note editor has no serious accessibility problems', async ({ page }) => {
+test('the note editor has no serious accessibility problems', async ({ page }, testInfo) => {
   await signIn(page)
   await page.getByText('Notes on the Analytical Engine').first().click()
   await page.getByText('The engine weaves algebraic patterns.').first().click()
   await expect(page.locator('.note-editor .ProseMirror')).toBeVisible()
   expect(await accessibilityProblems(page)).toEqual([])
 
+  await showTools(page, testInfo.project.name)
+  expect(await accessibilityProblems(page)).toEqual([])
   await page.getByRole('button', { name: 'Format Text' }).click()
   expect(await accessibilityProblems(page)).toEqual([])
 })

@@ -240,6 +240,7 @@ export default {
   'Display name': 'Kuvatav nimi',
   'Display name claim': 'Kuvatava nime väide',
   'Dismiss': 'Sulge',
+  'Divider': 'Eraldusjoon',
   'Done': 'Valmis',
   'Done selecting': 'Valimine lõpetatud',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -260,6 +261,7 @@ export default {
   'Empty the trash': 'Tühjenda prügikast',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Lülitu täisekraanirežiimi',
   'Enter Link': 'Sisesta link',
   'Enter the code shown on your device.': 'Sisestage teie seadmes kuvatud kood.',
   'Enter the six-digit code from your authenticator app.':
@@ -279,6 +281,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Kõigepealt kustutatakse kõik raamatukogus {name} olev, ka failid, ja seda ei saa prügikastist tagasi.',
   'Everything the permissions above cover': 'Kõik, mida ülaltoodud õigused hõlmavad',
+  'Exit Full Screen': 'Välju täisekraanirežiimist',
   'Expand': 'Laienda',
   'Expires {when}.': 'Aegub {when}.',
   'Export': 'Ekspordi',
@@ -389,6 +392,7 @@ export default {
   'Members': 'Liikmed',
   'Migration revision': 'Migratsiooni redaktsioon',
   'Monospaced': 'Fikseeritud laiusega',
+  'More': 'Veel',
   'More Options…': 'Rohkem valikuid…',
   'Move Down': 'Liigutada alla',
   'Move Up': 'Liigutada üles',
@@ -785,7 +789,8 @@ export default {
   'Would delete:': 'Kustutataks:',
   'Would you like to allow your work to be shared by others?':
     'Kas soovite lubada teistel oma teost jagada?',
-  'Write a note…': 'Kirjutage märkus…',
+  'Write, or type / for headings, lists and more…':
+    'Kirjutage või sisestage / pealkirjade, nimekirjade ja muu jaoks…',
   'Writing it into your library…': 'Teie raamatukokku kirjutamine…',
   Yes: 'Jah',
   'Yellow': 'Kollane',

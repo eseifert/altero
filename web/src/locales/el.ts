@@ -234,6 +234,7 @@ export default {
   'Display name': 'Εμφανιζόμενο όνομα',
   'Display name claim': 'Δήλωση εμφανιζόμενου ονόματος',
   'Dismiss': 'Κλείσιμο',
+  'Divider': 'Διαχωριστικό',
   'Done': 'Τέλος',
   'Done selecting': 'Τέλος επιλογής',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -254,6 +255,7 @@ export default {
   'Empty the trash': 'Άδειασμα του Κάδου απορριμμάτων',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Μετάβαση σε πλήρη οθόνη',
   'Enter Link': 'Εισαγάγετε σύνδεσμο',
   'Enter the code shown on your device.': 'Εισαγάγετε τον κωδικό που εμφανίζεται στη συσκευή σας.',
   'Enter the six-digit code from your authenticator app.':
@@ -272,6 +274,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Όλο το περιεχόμενο της βιβλιοθήκης {name} διαγράφεται πρώτα, μαζί με τα αρχεία, και δεν περνά από τον Κάδο απορριμμάτων.',
   'Everything the permissions above cover': 'Όλα όσα καλύπτουν τα παραπάνω δικαιώματα',
+  'Exit Full Screen': 'Έξοδος από πλήρη οθόνη',
   'Expand': 'Ανάπτυξη',
   'Expires {when}.': 'Λήγει: {when}.',
   'Export': 'Εξαγωγή',
@@ -378,6 +381,7 @@ export default {
   'Members': 'Μέλη',
   'Migration revision': 'Αναθεώρηση μετάβασης',
   'Monospaced': 'Σταθερού πλάτους',
+  'More': 'Περισσότερα',
   'More Options…': 'Περισσότερες επιλογές…',
   'Move Down': 'Μετακίνηση Κάτω',
   'Move Up': 'Μετακίνηση Επάνω',
@@ -760,7 +764,8 @@ export default {
   'Would delete:': 'Θα διαγραφούν:',
   'Would you like to allow your work to be shared by others?':
     'Θέλετε να επιτρέψετε την κοινή χρήση της εργασίας σας από άλλους;',
-  'Write a note…': 'Γράψτε μια σημείωση…',
+  'Write, or type / for headings, lists and more…':
+    'Γράψτε ή πληκτρολογήστε / για επικεφαλίδες, λίστες και άλλα…',
   'Writing it into your library…': 'Εγγραφή στη βιβλιοθήκη σας…',
   'Yellow': 'Κίτρινο',
   'Yes': 'Ναι',

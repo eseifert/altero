@@ -240,6 +240,7 @@ export default {
   'Display name claim': 'Parādāmā vārda prasība',
   Dismiss: 'Aizvērt',
   Done: 'Gatavs',
+  'Divider': 'Atdalītājlīnija',
   'Done selecting': 'Beigt atlasi',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
     'Gatavs. Zotero tagad izveido savienojumu — varat aizvērt šo lapu un atgriezties pie Zotero.',
@@ -259,6 +260,7 @@ export default {
   'Empty the trash': 'Iztukšot miskasti',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Pāriet pilnekrāna režīmā',
   'Enter Link': 'Ievadiet saiti',
   'Enter the code shown on your device.': 'Ievadiet ierīcē redzamo kodu.',
   'Enter the six-digit code from your authenticator app.':
@@ -279,6 +281,7 @@ export default {
     'Vispirms tiek dzēsts viss bibliotēkas {name} saturs, arī faili, un miskastes tam nav.',
   'Everything the permissions above cover': 'Viss, uz ko attiecas iepriekš minētās atļaujas',
   Expand: 'Izvērst',
+  'Exit Full Screen': 'Iziet no pilnekrāna režīma',
   'Expires {when}.': 'Termiņš beidzas {when}.',
   Export: 'Eksportēt',
   'Export a library': 'Eksportēt bibliotēku',
@@ -389,6 +392,7 @@ export default {
   Members: 'Dalībnieki',
   'Migration revision': 'Migrācijas revīzija',
   'Monospaced': 'Vienplatuma',
+  'More': 'Vairāk',
   'More Options…': 'Vairāk opciju…',
   'Move Down': 'Pārvietot uz leju',
   'Move Up': 'Pārvietot uz augšu',
@@ -781,7 +785,8 @@ export default {
   'Would delete:': 'Tiktu izdzēsts:',
   'Would you like to allow your work to be shared by others?':
     'Vai vēlaties atļaut citiem kopīgot jūsu darbu?',
-  'Write a note…': 'Rakstiet piezīmi…',
+  'Write, or type / for headings, lists and more…':
+    'Rakstiet vai ievadiet / virsrakstiem, sarakstiem un citam…',
   'Writing it into your library…': 'Ieraksta to jūsu bibliotēkā…',
   Yes: 'Jā',
   'Yellow': 'Dzeltena',

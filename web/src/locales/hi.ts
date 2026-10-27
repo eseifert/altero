@@ -236,6 +236,7 @@ export default {
   'Display name': 'प्रदर्शित नाम',
   'Display name claim': 'प्रदर्शित नाम क्लेम',
   'Dismiss': 'बंद करें',
+  'Divider': 'विभाजक रेखा',
   'Done': 'हो गया',
   'Done selecting': 'चयन पूरा हुआ',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -256,6 +257,7 @@ export default {
   'Empty the trash': 'ट्रैश खाली करें',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'पूर्ण स्क्रीन में जाएँ',
   'Enter Link': 'लिंक दर्ज करें',
   'Enter the code shown on your device.': 'अपने डिवाइस पर दिखाया गया कोड दर्ज करें।',
   'Enter the six-digit code from your authenticator app.': 'अपने ऑथेंटिकेटर ऐप से छह अंकों का कोड दर्ज करें।',
@@ -274,6 +276,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name} की हर चीज़ पहले हटा दी जाती है, फ़ाइलों सहित, और इसके लिए कोई ट्रैश नहीं होता।',
   'Everything the permissions above cover': 'ऊपर दी गई अनुमतियों में आने वाली हर चीज़',
+  'Exit Full Screen': 'पूर्ण स्क्रीन से बाहर निकलें',
   'Expand': 'विस्तृत करें',
   'Expires {when}.': '{when} को समाप्त होगा।',
   'Export': 'निर्यात करें',
@@ -379,6 +382,7 @@ export default {
   'Members': 'सदस्य',
   'Migration revision': 'माइग्रेशन संशोधन',
   'Monospaced': 'मोनोस्पेस',
+  'More': 'अधिक',
   'More Options…': 'और विकल्प…',
   'Move Down': 'नीचे ले जाएँ',
   'Move Up': 'ऊपर ले जाएँ',
@@ -755,7 +759,8 @@ export default {
   'Would delete:': 'हटाया जाएगा:',
   'Would you like to allow your work to be shared by others?':
     'क्या आप दूसरों को अपनी कृति साझा करने की अनुमति देना चाहेंगे?',
-  'Write a note…': 'नोट लिखें…',
+  'Write, or type / for headings, lists and more…':
+    'लिखें, या शीर्षक, सूचियों और अन्य के लिए / टाइप करें…',
   'Writing it into your library…': 'इसे आपकी लाइब्रेरी में लिखा जा रहा है…',
   'Yellow': 'पीला',
   'Yes': 'हाँ',

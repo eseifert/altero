@@ -247,6 +247,7 @@ export default {
   'Display name claim': 'Display name claim',
   Dismiss: 'Dismiss',
   Done: 'Done',
+  'Divider': 'Divider',
   'Done selecting': 'Done selecting',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
     'Done. Zotero is picking up the connection now — you can close this page and go back to it.',
@@ -266,6 +267,7 @@ export default {
   'Empty the trash': 'Empty the bin',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Enter Full Screen',
   'Enter Link': 'Enter Link',
   'Enter the code shown on your device.': 'Enter the code shown on your device.',
   'Enter the six-digit code from your authenticator app.':
@@ -286,6 +288,7 @@ export default {
     'Everything in {name} is deleted first, files included, and there is no bin around it.',
   'Everything the permissions above cover': 'Everything the permissions above cover',
   Expand: 'Expand',
+  'Exit Full Screen': 'Exit Full Screen',
   'Expires {when}.': 'Expires {when}.',
   Export: 'Export',
   'Export a library': 'Export a library',
@@ -395,6 +398,7 @@ export default {
   Members: 'Members',
   'Migration revision': 'Migration revision',
   'Monospaced': 'Monospaced',
+  'More': 'More',
   'More Options…': 'More Options…',
   'Move Down': 'Move Down',
   'Move Up': 'Move Up',
@@ -786,7 +790,8 @@ export default {
   'Would delete:': 'Would delete:',
   'Would you like to allow your work to be shared by others?':
     'Would you like to allow your work to be shared by others?',
-  'Write a note…': 'Write a note…',
+  'Write, or type / for headings, lists and more…':
+    'Write, or type / for headings, lists and more…',
   'Writing it into your library…': 'Writing it into your library…',
   Yes: 'Yes',
   'Yellow': 'Yellow',

@@ -240,6 +240,7 @@ export default {
   'Display name': 'Visningsnamn',
   'Display name claim': 'Anspråk för visningsnamn',
   'Dismiss': 'Stäng',
+  'Divider': 'Avgränsare',
   'Done': 'Klar',
   'Done selecting': 'Klar med markeringen',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -260,6 +261,7 @@ export default {
   'Empty the trash': 'Töm papperskorgen',
   'End': 'End',
   'Enter': 'Retur',
+  'Enter Full Screen': 'Aktivera helskärm',
   'Enter Link': 'Ange länk',
   'Enter the code shown on your device.': 'Ange koden som visas på din enhet.',
   'Enter the six-digit code from your authenticator app.':
@@ -279,6 +281,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Allt i {name} raderas först, även filerna, och det finns ingen papperskorg runt det.',
   'Everything the permissions above cover': 'Allt som behörigheterna ovan omfattar',
+  'Exit Full Screen': 'Stäng helskärm',
   'Expand': 'Fäll ut',
   'Expires {when}.': 'Upphör {when}.',
   'Export': 'Exportera',
@@ -390,6 +393,7 @@ export default {
   'Members': 'Medlemmar',
   'Migration revision': 'Migreringsrevision',
   'Monospaced': 'Fast bredd',
+  'More': 'Mer',
   'More Options…': 'Fler alternativ...',
   'Move Down': 'Flytta ner',
   'Move Up': 'Flytta upp',
@@ -784,7 +788,8 @@ export default {
   'Would delete:': 'Skulle radera:',
   'Would you like to allow your work to be shared by others?':
     'Vill du tillåta att andra delar ditt verk?',
-  'Write a note…': 'Skriv en anteckning…',
+  'Write, or type / for headings, lists and more…':
+    'Skriv text eller tryck / för rubriker, listor med mera…',
   'Writing it into your library…': 'Skriver in det i ditt bibliotek…',
   'Yellow': 'Gul',
   'Yes': 'Ja',

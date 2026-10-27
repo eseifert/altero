@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- The browser interface writes notes, standalone or under an item, with Zotero Desktop's toolbar and keys, saving as you type ([notes]).
+- The browser interface writes notes, standalone or under an item: format by selecting or typing `/`, full screen, saved as you type ([notes]).
 
 ## [1.0.0-beta.5] — 2026-10-27
 

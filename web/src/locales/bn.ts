@@ -245,6 +245,7 @@ export default {
   'Display name': 'প্রদর্শিত নাম',
   'Display name claim': 'প্রদর্শিত নামের ক্লেইম',
   'Dismiss': 'বন্ধ করুন',
+  'Divider': 'বিভাজক রেখা',
   'Done': 'সম্পন্ন',
   'Done selecting': 'নির্বাচন শেষ',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -265,6 +266,7 @@ export default {
   'Empty the trash': 'ট্র্যাশ খালি করুন',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'পূর্ণ স্ক্রিন চালু করুন',
   'Enter Link': 'লিঙ্ক লিখুন',
   'Enter the code shown on your device.': 'আপনার ডিভাইসে দেখানো কোডটি লিখুন।',
   'Enter the six-digit code from your authenticator app.':
@@ -284,6 +286,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name}-এর সবকিছু প্রথমে মুছে ফেলা হয়, ফাইলসহ, এবং এর জন্য কোনো ট্র্যাশ নেই।',
   'Everything the permissions above cover': 'ওপরের অনুমতিগুলোর আওতায় থাকা সবকিছু',
+  'Exit Full Screen': 'পূর্ণ স্ক্রিন থেকে প্রস্থান করুন',
   'Expand': 'প্রসারিত করুন',
   'Expires {when}.': 'মেয়াদ শেষ: {when}।',
   'Export': 'এক্সপোর্ট করুন',
@@ -394,6 +397,7 @@ export default {
   'Members': 'সদস্যগণ',
   'Migration revision': 'মাইগ্রেশন রিভিশন',
   'Monospaced': 'মনোস্পেস',
+  'More': 'আরও',
   'More Options…': 'আরও বিকল্প…',
   'Move Down': 'নিচে সরান',
   'Move Up': 'উপরে সরান',
@@ -784,7 +788,8 @@ export default {
   'Would delete:': 'যা মুছে যাবে:',
   'Would you like to allow your work to be shared by others?':
     'আপনি কি অন্যদের আপনার কাজ শেয়ার করার অনুমতি দিতে চান?',
-  'Write a note…': 'একটি নোট লিখুন…',
+  'Write, or type / for headings, lists and more…':
+    'লিখুন, অথবা শিরোনাম, তালিকা ও আরও কিছুর জন্য / টাইপ করুন…',
   'Writing it into your library…': 'আপনার লাইব্রেরিতে লেখা হচ্ছে…',
   'Yellow': 'হলুদ',
   'Yes': 'হ্যাঁ',

@@ -241,6 +241,7 @@ export default {
   'Display name': 'Показвано име',
   'Display name claim': 'Твърдение за показваното име',
   'Dismiss': 'Затваряне',
+  'Divider': 'Разделител',
   'Done': 'Готово',
   'Done selecting': 'Край на избирането',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -261,6 +262,7 @@ export default {
   'Empty the trash': 'Изпразване на кошчето за боклук',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Влизане в режим на цял екран',
   'Enter Link': 'Въведете връзка',
   'Enter the code shown on your device.': 'Въведете кода, показан на устройството ви.',
   'Enter the six-digit code from your authenticator app.':
@@ -280,6 +282,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Първо се изтрива всичко в {name}, включително файловете, и няма кошче, от което да ги върнете.',
   'Everything the permissions above cover': 'Всичко, което обхващат разрешенията по-горе',
+  'Exit Full Screen': 'Излизане от цял екран',
   'Expand': 'Разгъване',
   'Expires {when}.': 'Изтича на {when}.',
   'Export': 'Изнасяне',
@@ -391,6 +394,7 @@ export default {
   'Members': 'Членове',
   'Migration revision': 'Ревизия на миграцията',
   'Monospaced': 'Равноширинен',
+  'More': 'Още',
   'More Options…': 'Още опции…',
   'Move Down': 'Преместване надолу',
   'Move Up': 'Преместване нагоре',
@@ -783,7 +787,8 @@ export default {
   'Would delete:': 'Ще бъдат изтрити:',
   'Would you like to allow your work to be shared by others?':
     'Искате ли да разрешите на другите да споделят вашата творба?',
-  'Write a note…': 'Напишете бележка…',
+  'Write, or type / for headings, lists and more…':
+    'Пишете или въведете / за заглавия, списъци и още…',
   'Writing it into your library…': 'Записване в библиотеката ви…',
   Yes: 'Да',
   'Yellow': 'Жълт',

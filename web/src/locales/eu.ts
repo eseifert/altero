@@ -240,6 +240,7 @@ export default {
   'Display name': 'Bistaratzeko izena',
   'Display name claim': 'Bistaratzeko izenaren atributua',
   'Dismiss': 'Itxi',
+  'Divider': 'Bereizlea',
   'Done': 'Eginda',
   'Done selecting': 'Hautatzen amaitu',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -260,6 +261,7 @@ export default {
   'Empty the trash': 'Hustu zaborra',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Sartu pantaila osoan',
   'Enter Link': 'Sartu esteka',
   'Enter the code shown on your device.': 'Idatzi zure gailuan agertzen den kodea.',
   'Enter the six-digit code from your authenticator app.':
@@ -279,6 +281,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name} liburutegiko guztia ezabatzen da lehenik, fitxategiak barne, eta ez dago zaborrik inguruan.',
   'Everything the permissions above cover': 'Goiko baimenek hartzen duten guztia',
+  'Exit Full Screen': 'Irten pantaila osotik',
   'Expand': 'Zabaldu',
   'Expires {when}.': 'Iraungitzea: {when}.',
   'Export': 'Esportatu',
@@ -388,6 +391,7 @@ export default {
   'Members': 'Kideak',
   'Migration revision': 'Migrazio-berrikuspena',
   'Monospaced': 'Tarte bakarrekoa',
+  'More': 'Gehiago',
   'More Options…': 'Aukera gehiago…',
   'Move Down': 'Mugitu behera',
   'Move Up': 'Mugitu gora',
@@ -784,7 +788,8 @@ export default {
   'Would delete:': 'Ezabatuko litzatekeena:',
   'Would you like to allow your work to be shared by others?':
     'Besteek zure lana partekatzea baimendu nahi al duzu?',
-  'Write a note…': 'Idatzi ohar bat…',
+  'Write, or type / for headings, lists and more…':
+    'Idatzi, edo sakatu / goiburu, zerrenda eta gehiagorako…',
   'Writing it into your library…': 'Zure liburutegian idazten…',
   Yes: 'Bai',
   'Yellow': 'Horia',

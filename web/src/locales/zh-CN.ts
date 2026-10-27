@@ -230,6 +230,7 @@ export default {
   'Display name': '显示名称',
   'Display name claim': '显示名称声明',
   'Dismiss': '关闭',
+  'Divider': '分割线',
   'Done': '完成',
   'Done selecting': '选择完毕',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -249,6 +250,7 @@ export default {
   'Empty the trash': '清空回收站',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': '进入全屏',
   'Enter Link': '输入链接',
   'Enter the code shown on your device.': '请输入设备上显示的代码。',
   'Enter the six-digit code from your authenticator app.':
@@ -268,6 +270,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     '{name} 中的一切会先被删除，文件也包括在内，而且没有回收站可以找回。',
   'Everything the permissions above cover': '上述权限涵盖的全部内容',
+  'Exit Full Screen': '退出全屏',
   'Expand': '展开',
   'Expires {when}.': '{when} 到期。',
   'Export': '导出',
@@ -373,6 +376,7 @@ export default {
   'Members': '成员',
   'Migration revision': '迁移版本',
   'Monospaced': '等宽',
+  'More': '更多',
   'More Options…': '更多选项…',
   'Move Down': '下移',
   'Move Up': '上移',
@@ -746,7 +750,7 @@ export default {
     '不勾选此项时，已有内容的文库会被跳过，而不是被合并写入。',
   'Would delete:': '将会删除：',
   'Would you like to allow your work to be shared by others?': '你希望允许他人分享你的作品吗？',
-  'Write a note…': '写笔记…',
+  'Write, or type / for headings, lists and more…': '输入内容，或键入 / 插入标题、列表等…',
   'Writing it into your library…': '正在写入你的文库…',
   'Yellow': '黄色',
   'Yes': '是',

@@ -242,6 +242,7 @@ export default {
   'Display name': 'Birtingarnafn',
   'Display name claim': 'Krafa fyrir birtingarnafn',
   'Dismiss': 'Loka',
+  'Divider': 'Skillilína',
   'Done': 'Lokið',
   'Done selecting': 'Vali lokið',
   'Done. Zotero is picking up the connection now — you can close this page and go back to it.':
@@ -262,6 +263,7 @@ export default {
   'Empty the trash': 'Tæma ruslið',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Full Screen': 'Fara í fullan skjá',
   'Enter Link': 'Sláðu inn tengil',
   'Enter the code shown on your device.': 'Sláðu inn kóðann sem birtist á tækinu þínu.',
   'Enter the six-digit code from your authenticator app.':
@@ -281,6 +283,7 @@ export default {
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
     'Öllu í {name} er eytt fyrst, skrám meðtöldum, og það er ekkert rusl utan um það.',
   'Everything the permissions above cover': 'Allt sem heimildirnar hér að ofan ná yfir',
+  'Exit Full Screen': 'Hætta í fullum skjá',
   'Expand': 'Fella út',
   'Expires {when}.': 'Rennur út {when}.',
   'Export': 'Flytja út',
@@ -392,6 +395,7 @@ export default {
   'Members': 'Meðlimir',
   'Migration revision': 'Útgáfa gagnagrunnsskema',
   'Monospaced': 'Jafnbreitt letur',
+  'More': 'Meira',
   'More Options…': 'Fleiri valkostir…',
   'Move Down': 'Færa niður',
   'Move Up': 'Færa upp',
@@ -786,7 +790,8 @@ export default {
   'Would delete:': 'Myndi eyða:',
   'Would you like to allow your work to be shared by others?':
     'Viltu leyfa öðrum að deila verkinu þínu?',
-  'Write a note…': 'Skrifaðu athugasemd…',
+  'Write, or type / for headings, lists and more…':
+    'Skrifaðu, eða sláðu inn / fyrir fyrirsagnir, lista og fleira…',
   'Writing it into your library…': 'Skrifa það í færslusafnið þitt…',
   'Yellow': 'Gulur',
   'Yes': 'Já',
