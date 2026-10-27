@@ -73,6 +73,9 @@ altero = "altero.cli:main"
 dev = [
     "asyncpg>=0.31.0",
     "httpx>=0.28",
+    # What Starlette's TestClient takes now that it has deprecated httpx; the
+    # rest of the suite, and altero itself, still use httpx.
+    "httpx2>=2.13.1",
     "pre-commit>=4.6.1",
     "pytest>=8.4",
     "pytest-asyncio>=1.0",

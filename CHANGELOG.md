@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The test suite gives Starlette's test client httpx2, which it now asks for in place of httpx.
 - The browser interface can be installed as an app on phones and computers, and opens offline; no library data is kept on the device ([install]).
 - Desktop acceptance covers items edited in the browser reaching both desktops, and a desktop edit winning a race: 31 scenarios.
 - An open browser page shows changes made elsewhere — a desktop syncing, a group member — without a reload ([editing]).
