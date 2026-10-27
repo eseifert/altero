@@ -39,6 +39,8 @@ const props = defineProps<{
   /** Words on the button in place of the glyph, as the floating bar shows the
    *  block the cursor is in. The button's name then carries them too. */
   text?: string
+  /** The glyph's size, where the button sits among smaller ones. */
+  iconSize?: number
 }>()
 
 const emit = defineEmits<{ choose: [id: string]; closed: [] }>()
@@ -88,8 +90,12 @@ function position(): void {
   }
   const width = list.value?.offsetWidth ?? 0
   const rtl = getComputedStyle(button.value!).direction === 'rtl'
-  const start = rtl ? rect.right - width : rect.left
-  style.left = `${Math.max(8, Math.min(start, window.innerWidth - width - 8))}px`
+  // The page's width without its scrollbar, which a menu must not run under.
+  const across = document.documentElement.clientWidth || window.innerWidth
+  /* Hung from the button's far edge when it would not fit from the near one,
+     as a menu at the end of a pane opens back towards the page. */
+  const start = rtl || rect.left + width > across - 8 ? rect.right - width : rect.left
+  style.left = `${Math.max(8, Math.min(start, across - width - 8))}px`
   place.value = style
 }
 
@@ -165,7 +171,7 @@ defineExpose({ button })
     >
       <span v-if="props.text" class="note-menu__text">{{ props.text }}</span>
       <span v-else class="note-menu__glyph">
-        <AppIcon :name="props.icon" :size="22" />
+        <AppIcon :name="props.icon" :size="props.iconSize ?? 22" />
         <span v-if="props.bar !== undefined" class="note-menu__bar" :style="{ background: props.bar ?? 'currentColor' }"></span>
       </span>
       <AppIcon name="chevron-down" :size="12" />

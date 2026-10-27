@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Safn þarf að hafa heiti.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Skrá sem er viðhengd í tveimur færslusöfnum er geymd einu sinni og talin í báðum. Fyrri talan er það sem þessi þjónn þarf að geyma; sú síðari er það sem færslusöfnin myndu kosta hvert í sínu lagi.',
+  'A file on your computer cannot be linked from the browser.':
+    'Ekki er hægt að tengja í skrá á tölvunni þinni úr vafranum.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Skrá sem biðlarinn bað um að senda en sendi aldrei. Ekkert glatast: hann biður aftur.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'Aðgangi eytt.',
   'Accounts': 'Aðgangar',
   'Across the instance': 'Í allri uppsetningunni',
+  'Add Attachment': 'Bæta við viðhengi',
   'Add Creator': 'Bæta við höfundi',
+  'Add File…': 'Bæta við skrá…',
   'Add Note': 'Bæta við athugasemd',
   'Add Related': 'Bæta við venslaðri færslu',
   'Add Tag': 'Bæta við merki',
@@ -103,8 +107,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Biddu þann sem rekur þennan þjón um nýjan. Núverandi lykilorð þitt virkar enn.',
   'At least {count} characters': 'Að minnsta kosti {count} stafir',
+  'Attach': 'Hengja við',
+  'Attach File…': 'Hengja skrá við…',
+  'Attach Web Link': 'Hengja veftengil við',
+  'Attach Web Link…': 'Hengja veftengil við…',
   'Attachments': 'Viðhengi',
   'Attachments directory': 'Mappa viðhengja',
+  'Audio': 'Hljóð',
   'Authenticator app': 'Auðkenningarforrit',
   'Authenticator enabled.': 'Auðkenningarforrit virkjað.',
   'Authenticator removed.': 'Auðkenningarforrit fjarlægt.',
@@ -123,6 +132,7 @@ export default {
   'Callback address': 'Svarslóð',
   'Can': 'Má',
   'Cancel': 'Hætta við',
+  'Cancel upload of {name}': 'Hætta við upphleðslu á {name}',
   'Change': 'Breyta',
   'Change Item Type': 'Breyta tegund færslu',
   'Change password': 'Breyta lykilorði',
@@ -254,6 +264,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Dragðu til að færa skilin. Tvísmelltu til að setja þau aftur á sinn stað.',
   'Duplicate Items': 'Eins færslur',
+  'Ebook': 'Rafbók',
   'Edit': 'Breyta',
   'Edit the title': 'Breyta titlinum',
   'Email': 'Tölvupóstur',
@@ -295,6 +306,8 @@ export default {
     'Skrár sem geymdar eru á WebDAV-þjóni eru ekki vistaðar á zotero.org, svo flutningur getur ekki tekið þær með. Haltu áfram að samstilla skrár um WebDAV, eða hladdu þeim upp úr Zotero-biðlara sem hefur þær enn.',
   'Finished.': 'Lokið.',
   'First or last item': 'Fyrsta eða síðasta færsla',
+  'Folders cannot be added. Add the files inside them.':
+    'Ekki er hægt að bæta við möppum. Bættu við skránum sem eru í þeim.',
   'Follow this device ({name})': 'Fylgja þessu tæki ({name})',
   'For example, my laptop': 'Til dæmis fartölvan mín',
   'Forgotten password': 'Gleymt lykilorð',
@@ -330,6 +343,7 @@ export default {
   'I created this work.': 'Ég bjó til þetta verk.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ef aðgangur hér notar þetta netfang er tengill til að velja nýtt lykilorð á leiðinni.',
+  'Image': 'Mynd',
   'Import and export': 'Innflutningur og útflutningur',
   'In the trash': 'Í ruslinu',
   'Include attached files': 'Taka með viðhengdar skrár',
@@ -363,6 +377,8 @@ export default {
   'Language': 'Tungumál',
   'Language and time zone': 'Tungumál og tímabelti',
   'Language and time zone saved.': 'Tungumál og tímabelti vistuð.',
+  'Larger than the {size} this server accepts':
+    'Stærri en hámarkið {size} sem þessi þjónn tekur við',
   'Last opened {date}': 'Síðast opnað {date}',
   'Last time you limited it to:': 'Síðast takmarkaðir þú það við:',
   'Last used {when}': 'Síðast notað {when}',
@@ -377,6 +393,7 @@ export default {
   'Libraries': 'Færslusöfn',
   'Library': 'Færslusafn',
   'Limited to:': 'Takmarkað við:',
+  'Link': 'Slóð',
   'Link issued.': 'Tengill gefinn út.',
   'Links to this collection': 'Tenglar á þetta safn',
   'Loading…': 'Hleð…',
@@ -492,6 +509,7 @@ export default {
     'Önnur forrit sem þú hefur leyft að nálgast þennan aðgang. Hvert þeirra fékk aðeins þær heimildir sem þú samþykktir.',
   'Overview': 'Yfirlit',
   'Owner': 'Eigandi',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Límdu bæði inn á meðan veitan skiptir um lykil.',
   'Page Down': 'Page Down',
@@ -568,6 +586,7 @@ export default {
   'Render': 'Útbúa',
   'Rendering…': 'Útbý…',
   'Repeat password': 'Endurtaktu lykilorðið',
+  'Replace File…': 'Skipta út skrá…',
   'Replace what my library here already holds':
     'Skipta út því sem færslusafnið mitt hér geymir nú þegar',
   'Replace what this library already holds': 'Skipta út því sem þetta færslusafn geymir nú þegar',
@@ -704,6 +723,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Grunnslóðin. Skilgreining hennar er lesin úr /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Safnið og allt sem er inni í því',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Skránni var fyrst skipt út annars staðar. Þetta er nýja skráin.',
   'The following fields will be lost:': 'Eftirfarandi svæði munu glatast:',
   'The group has a new owner.': 'Hópurinn hefur nýjan eiganda.',
   'The items in it stay in the library.': 'Færslurnar í því verða áfram í færslusafninu.',
@@ -731,7 +752,10 @@ export default {
     'Þetta býr til lykil sem virkar þar til þú fjarlægir hann í Stillingum, jafnvel eftir að þú skráir þig út hér.',
   'This instance has no accounts yet, so this one will be yours.':
     'Þessi uppsetning hefur enga aðganga enn, svo þessi verður þinn.',
+  'This is not an address. Check it and try again.':
+    'Þetta er ekki slóð. Athugaðu hana og reyndu aftur.',
   'This is your public page.': 'Þetta er opinbera síðan þín.',
+  'This kind of address cannot be attached.': 'Ekki er hægt að hengja við slóð af þessu tagi.',
   'This link does not include the files themselves.': 'Þessi tengill nær ekki til skránna sjálfra.',
   'This link has been revoked, has expired, or never existed.':
     'Þessi tengill hefur verið afturkallaður, er útrunninn eða var aldrei til.',
@@ -742,6 +766,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Einingarauðkenni þessa þjóns er hans eigin opinbera slóð.',
   'Time zone': 'Tímabelti',
+  'Title': 'Titill',
   'Trash': 'Rusl',
   'Try Again': 'Reyna aftur',
   'Turn off codes by email': 'Slökkva á kóðum í tölvupósti',
@@ -754,6 +779,8 @@ export default {
   'Unlink': 'Fjarlægja tengil',
   'Unread': 'Ólesið',
   'Unreferenced files deleted.': 'Skrám sem ekkert vísar í var eytt.',
+  'Uploading {name}': 'Hleð upp {name}',
+  'Uploads': 'Upphleðslur',
   'Use a code by email instead': 'Nota kóða í tölvupósti í staðinn',
   'Use a passkey instead': 'Nota aðgangslykil í staðinn',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -764,8 +791,10 @@ export default {
   'Verify': 'Staðfesta',
   'Version': 'Útgáfa',
   'Version {version}': 'Útgáfa {version}',
+  'Video': 'Kvikmynd',
   'Visibility': 'Sýnileiki',
   'Web API version': 'Útgáfa vef-API',
+  'Webpage': 'Vefsíða',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Það sem hóptilkynningarnar byggðust á. Enginn fær tilkynningu tvisvar og þetta ræður aðeins hversu lengi skráningin er geymd.',
   'What is it for?': 'Til hvers er hann?',

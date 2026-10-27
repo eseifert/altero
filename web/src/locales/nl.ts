@@ -12,6 +12,8 @@ export default {
   'A collection needs a name.': 'Een verzameling heeft een naam nodig.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Een bestand dat in twee bibliotheken is bijgevoegd, wordt één keer opgeslagen en in beide meegeteld. Het eerste getal is wat deze server moet bewaren; het tweede is wat de bibliotheken afzonderlijk zouden kosten.',
+  'A file on your computer cannot be linked from the browser.':
+    'Een bestand op uw computer kan niet vanuit de browser worden gekoppeld.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Een bestand dat het programma aankondigde en nooit verstuurde. Er gaat niets verloren: het vraagt opnieuw.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -38,7 +40,9 @@ export default {
   'Account deleted.': 'Account verwijderd.',
   'Accounts': 'Accounts',
   'Across the instance': 'Over de hele instantie',
+  'Add Attachment': 'Bijlage toevoegen',
   'Add Creator': 'Maker toevoegen',
+  'Add File…': 'Bestand toevoegen…',
   'Add Note': 'Aantekening toevoegen',
   'Add Related': 'Gerelateerd item toevoegen',
   'Add Tag': 'Label toevoegen',
@@ -101,8 +105,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Vraag degene die deze server beheert om een nieuwe. Uw huidige wachtwoord werkt nog.',
   'At least {count} characters': 'Minstens {count} tekens',
+  'Attach': 'Bijvoegen',
+  'Attach File…': 'Bestand bijvoegen…',
+  'Attach Web Link': 'Webkoppeling bijvoegen',
+  'Attach Web Link…': 'Webkoppeling bijvoegen…',
   'Attachments': 'Bijlagen',
   'Attachments directory': 'Map met bijlagen',
+  'Audio': 'Audio',
   'Authenticator app': 'Authenticator-app',
   'Authenticator enabled.': 'Authenticator ingeschakeld.',
   'Authenticator removed.': 'Authenticator verwijderd.',
@@ -121,6 +130,7 @@ export default {
   'Callback address': 'Callback-adres',
   'Can': 'Kan',
   'Cancel': 'Annuleren',
+  'Cancel upload of {name}': 'Upload van {name} annuleren',
   'Change': 'Wijzigen',
   'Change Item Type': 'Item-type veranderen',
   'Change password': 'Wachtwoord wijzigen',
@@ -251,6 +261,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Sleep om deze scheiding te verplaatsen. Dubbelklik om die terug te zetten.',
   'Duplicate Items': 'Dubbele items',
+  'Ebook': 'E-book',
   'Edit': 'Bewerken',
   'Edit the title': 'Titel bewerken',
   'Email': 'E-mail',
@@ -292,6 +303,8 @@ export default {
     'Bestanden op een WebDAV-server staan niet bij zotero.org, dus een migratie kan ze niet meenemen. Blijf de bestanden via WebDAV synchroniseren, of upload ze vanuit een Zotero-programma dat ze nog heeft.',
   'Finished.': 'Voltooid.',
   'First or last item': 'Eerste of laatste item',
+  'Folders cannot be added. Add the files inside them.':
+    'Mappen kunnen niet worden toegevoegd. Voeg de bestanden erin toe.',
   'Follow this device ({name})': 'Dit apparaat volgen ({name})',
   'For example, my laptop': 'Bijvoorbeeld: mijn laptop',
   'Forgotten password': 'Wachtwoord vergeten',
@@ -326,6 +339,7 @@ export default {
   'I created this work.': 'Ik heb dit werk gemaakt.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Als een account hier dat adres gebruikt, is er een link onderweg om een nieuw wachtwoord in te stellen.',
+  'Image': 'Afbeelding',
   'Import and export': 'Importeren en exporteren',
   'In the trash': 'In de prullenbak',
   'Include attached files': 'Bijgevoegde bestanden meenemen',
@@ -358,6 +372,7 @@ export default {
   'Language': 'Taal',
   'Language and time zone': 'Taal en tijdzone',
   'Language and time zone saved.': 'Taal en tijdzone opgeslagen.',
+  'Larger than the {size} this server accepts': 'Groter dan de {size} die deze server accepteert',
   'Last opened {date}': 'Laatst geopend {date}',
   'Last time you limited it to:': 'De vorige keer beperkte je het tot:',
   'Last used {when}': 'Laatst gebruikt {when}',
@@ -373,6 +388,7 @@ export default {
   'Libraries': 'Bibliotheken',
   'Library': 'Bibliotheek',
   'Limited to:': 'Beperkt tot:',
+  'Link': 'Verwijzing',
   'Link issued.': 'Link uitgegeven.',
   'Links to this collection': 'Links naar deze verzameling',
   'Loading…': 'Laden…',
@@ -490,6 +506,7 @@ export default {
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Andere applicaties die je toegang tot dit account hebt gegeven. Elk kreeg alleen de rechten die je hebt goedgekeurd.',
   'Overview': 'Overzicht',
   'Owner': 'Eigenaar',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Plak er twee zolang de aanbieder zijn sleutel wisselt.',
   'Page Down': 'Page Down',
@@ -566,6 +583,7 @@ export default {
   'Render': 'Opmaken',
   'Rendering…': 'Opmaken…',
   'Repeat password': 'Herhaal het wachtwoord',
+  'Replace File…': 'Bestand vervangen…',
   'Replace what my library here already holds':
     'Vervangen wat mijn bibliotheek hier al bevat',
   'Replace what this library already holds': 'Vervangen wat deze bibliotheek al bevat',
@@ -701,6 +719,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'De basis-URL. De configuratie wordt gelezen uit /.well-known/openid-configuration.',
   'The collection and everything inside it': 'De verzameling en alles daarbinnen',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Het bestand is eerst elders vervangen. Dit is het nieuwe.',
   'The following fields will be lost:': 'De volgende velden zullen verloren gaan:',
   'The group has a new owner.': 'De groep heeft een nieuwe eigenaar.',
   'The items in it stay in the library.': 'De items erin blijven in de bibliotheek.',
@@ -728,7 +748,10 @@ export default {
     'Dit maakt een sleutel die blijft werken tot u hem bij Instellingen verwijdert, ook nadat u zich hier heeft afgemeld.',
   'This instance has no accounts yet, so this one will be yours.':
     'Deze instantie heeft nog geen accounts, dus dit account wordt van u.',
+  'This is not an address. Check it and try again.':
+    'Dit is geen adres. Controleer het en probeer het opnieuw.',
   'This is your public page.': 'Dit is uw openbare pagina.',
+  'This kind of address cannot be attached.': 'Dit soort adres kan niet worden bijgevoegd.',
   'This link does not include the files themselves.':
     'Deze link omvat de bestanden zelf niet.',
   'This link has been revoked, has expired, or never existed.':
@@ -740,6 +763,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'De entity-ID van deze server is zijn eigen openbare URL.',
   'Time zone': 'Tijdzone',
+  'Title': 'Titel',
   'Trash': 'Prullenbak',
   'Try Again': 'Opnieuw proberen',
   'Turn off codes by email': 'Codes per e-mail uitschakelen',
@@ -752,6 +776,8 @@ export default {
   'Unlink': 'Link verwijderen',
   'Unread': 'Ongelezen',
   'Unreferenced files deleted.': 'Bestanden zonder verwijzing verwijderd.',
+  'Uploading {name}': '{name} wordt geüpload',
+  'Uploads': 'Uploads',
   'Use a code by email instead': 'Gebruik in plaats daarvan een code per e-mail',
   'Use a passkey instead': 'Gebruik in plaats daarvan een passkey',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -763,8 +789,10 @@ export default {
   'Verify': 'Verifiëren',
   'Version': 'Versie',
   'Version {version}': 'Versie {version}',
+  'Video': 'Video',
   'Visibility': 'Zichtbaarheid',
   'Web API version': 'Versie van de web-API',
+  'Webpage': 'Webpagina',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Waaruit groepsmeldingen zijn verstuurd. Niemand wordt twee keer op de hoogte gebracht, en dit bepaalt alleen hoe lang de registratie blijft staan.',
   'What is it for?': 'Waar is die voor?',

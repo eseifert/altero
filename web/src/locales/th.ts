@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'คอลเล็กชั่นต้องมีชื่อ',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'ไฟล์ที่แนบอยู่ในสองไลบรารีจะถูกเก็บไว้ครั้งเดียวแต่นับในทั้งสองไลบรารี ตัวเลขแรกคือพื้นที่ที่เซิร์ฟเวอร์นี้ต้องเก็บจริง ตัวเลขที่สองคือพื้นที่ที่ไลบรารีต่าง ๆ จะใช้หากเก็บแยกกัน',
+  'A file on your computer cannot be linked from the browser.':
+    'ไม่สามารถลิงก์ไปยังไฟล์ในคอมพิวเตอร์ของคุณจากเบราว์เซอร์ได้',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'ไฟล์ที่ไคลเอนต์ขอส่งแต่ไม่เคยส่งมา ไม่มีอะไรสูญหาย ไคลเอนต์จะขอส่งใหม่อีกครั้ง',
   'A group is a library of its own, shared with the people you add to it.':
@@ -39,7 +41,9 @@ export default {
   'Account deleted.': 'ลบบัญชีแล้ว',
   Accounts: 'บัญชี',
   'Across the instance': 'ทั้งอินสแตนซ์',
+  'Add Attachment': 'เพิ่มไฟล์แนบ',
   'Add Creator': 'เพิ่มผู้สร้างสรรค์',
+  'Add File…': 'เพิ่มไฟล์…',
   'Add Note': 'เพิ่มหมายเหตุ',
   'Add Related': 'เพิ่มรายการที่เชื่อมโยง',
   'Add Tag': 'เพิ่มแท็ก',
@@ -101,8 +105,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'ขอลิงก์ใหม่จากผู้ดูแลเซิร์ฟเวอร์นี้ รหัสผ่านปัจจุบันของคุณยังใช้ได้',
   'At least {count} characters': 'อย่างน้อย {count} ตัวอักษร',
+  'Attach': 'แนบ',
+  'Attach File…': 'แนบไฟล์…',
+  'Attach Web Link': 'แนบลิงก์เว็บ',
+  'Attach Web Link…': 'แนบลิงก์เว็บ…',
   Attachments: 'ไฟล์แนบ',
   'Attachments directory': 'ไดเรกทอรีไฟล์แนบ',
+  'Audio': 'เสียง',
   'Authenticator app': 'แอปยืนยันตัวตน',
   'Authenticator enabled.': 'เปิดใช้แอปยืนยันตัวตนแล้ว',
   'Authenticator removed.': 'ลบแอปยืนยันตัวตนแล้ว',
@@ -121,6 +130,7 @@ export default {
   'Callback address': 'ที่อยู่ callback',
   Can: 'สิทธิ์',
   Cancel: 'ยกเลิก',
+  'Cancel upload of {name}': 'ยกเลิกการอัปโหลด {name}',
   Change: 'เปลี่ยน',
   'Change Item Type': 'เปลี่ยนประเภทรายการ',
   'Change password': 'เปลี่ยนรหัสผ่าน',
@@ -250,6 +260,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'ลากเพื่อย้ายเส้นแบ่งนี้ ดับเบิลคลิกเพื่อคืนตำแหน่งเดิม',
   'Duplicate Items': 'รายการซ้ำ',
+  'Ebook': 'อีบุ๊ก',
   Email: 'อีเมล',
   'Edit': 'แก้ไข',
   'Edit the title': 'แก้ไขชื่อเรื่อง',
@@ -290,6 +301,8 @@ export default {
     'ไฟล์ที่เก็บไว้บนเซิร์ฟเวอร์ WebDAV ไม่ได้เก็บอยู่ที่ zotero.org การย้ายจึงนำไฟล์เหล่านั้นมาด้วยไม่ได้ ให้ประสานข้อมูลไฟล์ผ่าน WebDAV ต่อไป หรืออัปโหลดจากไคลเอนต์ Zotero ที่ยังมีไฟล์อยู่',
   'Finished.': 'เสร็จสิ้น',
   'First or last item': 'รายการแรกหรือสุดท้าย',
+  'Folders cannot be added. Add the files inside them.':
+    'ไม่สามารถเพิ่มโฟลเดอร์ได้ ให้เพิ่มไฟล์ที่อยู่ข้างในแทน',
   'Follow this device ({name})': 'ตามอุปกรณ์นี้ ({name})',
   'For example, my laptop': 'เช่น แล็ปท็อปของฉัน',
   'Forgotten password': 'ลืมรหัสผ่าน',
@@ -324,6 +337,7 @@ export default {
   'I created this work.': 'ฉันเป็นผู้สร้างผลงานนี้',
   'If an account here uses that address, a link to set a new password is on its way.':
     'หากมีบัญชีที่นี่ที่ใช้ที่อยู่นั้น ลิงก์สำหรับตั้งรหัสผ่านใหม่กำลังส่งไปให้',
+  'Image': 'ภาพ',
   'Import and export': 'นำเข้าและส่งออก',
   'In the trash': 'อยู่ในถังขยะ',
   'Include attached files': 'รวมไฟล์แนบ',
@@ -357,6 +371,7 @@ export default {
   Language: 'ภาษา',
   'Language and time zone': 'ภาษาและเขตเวลา',
   'Language and time zone saved.': 'บันทึกภาษาและเขตเวลาแล้ว',
+  'Larger than the {size} this server accepts': 'ใหญ่เกิน {size} ที่เซิร์ฟเวอร์นี้รับได้',
   'Last opened {date}': 'เปิดล่าสุด {date}',
   'Last time you limited it to:': 'ครั้งที่แล้วคุณจำกัดไว้ที่:',
   'Last used {when}': 'ใช้ล่าสุด {when}',
@@ -370,6 +385,7 @@ export default {
   Libraries: 'ไลบรารี',
   Library: 'ไลบรารี',
   'Limited to:': 'จำกัดไว้ที่:',
+  'Link': 'ลิงก์',
   'Link issued.': 'ออกลิงก์แล้ว',
   'Links to this collection': 'ลิงก์ไปยังคอลเล็กชั่นนี้',
   'Loading…': 'กำลังโหลด…',
@@ -482,6 +498,7 @@ export default {
     'แอปพลิเคชันอื่นที่คุณอนุญาตให้เข้าถึงบัญชีนี้ แต่ละแอปได้รับเฉพาะสิทธิ์ที่คุณอนุมัติเท่านั้น',
   Overview: 'ภาพรวม',
   Owner: 'เจ้าของ',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM วางทั้งสองใบระหว่างที่ผู้ให้บริการกำลังเปลี่ยนคีย์',
   'Page Down': 'Page Down',
@@ -557,6 +574,7 @@ export default {
   Render: 'แสดงผล',
   'Rendering…': 'กำลังแสดงผล…',
   'Repeat password': 'ป้อนรหัสผ่านอีกครั้ง',
+  'Replace File…': 'แทนที่ไฟล์…',
   'Replace what my library here already holds': 'แทนที่สิ่งที่มีอยู่แล้วในไลบรารีของฉันที่นี่',
   'Replace what this library already holds': 'แทนที่สิ่งที่มีอยู่แล้วในไลบรารีนี้',
   'Required claim': 'เคลมที่จำเป็น',
@@ -690,6 +708,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL หลัก การกำหนดค่าจะอ่านจาก /.well-known/openid-configuration',
   'The collection and everything inside it': 'คอลเล็กชั่นและทุกอย่างที่อยู่ภายใน',
+  'The file was replaced elsewhere first. This is the new one.':
+    'ไฟล์ถูกแทนที่จากที่อื่นไปก่อนแล้ว นี่คือไฟล์ใหม่',
   'The following fields will be lost:': 'ฟีลด์ต่อไปนี้จะสูญหาย:',
   'The group has a new owner.': 'กลุ่มมีเจ้าของคนใหม่แล้ว',
   'The items in it stay in the library.': 'รายการในนั้นจะยังอยู่ในไลบรารี',
@@ -716,7 +736,9 @@ export default {
     'การดำเนินการนี้จะสร้างคีย์ที่ใช้ได้จนกว่าคุณจะลบในการตั้งค่า แม้คุณจะออกจากระบบที่นี่แล้วก็ตาม',
   'This instance has no accounts yet, so this one will be yours.':
     'อินสแตนซ์นี้ยังไม่มีบัญชี บัญชีนี้จึงจะเป็นของคุณ',
+  'This is not an address. Check it and try again.': 'นี่ไม่ใช่ที่อยู่ โปรดตรวจสอบแล้วลองอีกครั้ง',
   'This is your public page.': 'นี่คือหน้าสาธารณะของคุณ',
+  'This kind of address cannot be attached.': 'ไม่สามารถแนบที่อยู่ประเภทนี้ได้',
   'This link does not include the files themselves.': 'ลิงก์นี้ไม่รวมตัวไฟล์',
   'This link has been revoked, has expired, or never existed.':
     'ลิงก์นี้ถูกเพิกถอน หมดอายุ หรือไม่เคยมีอยู่',
@@ -727,6 +749,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Entity ID ของเซิร์ฟเวอร์นี้คือ URL สาธารณะของเซิร์ฟเวอร์เอง',
   'Time zone': 'เขตเวลา',
+  'Title': 'ชื่อเรื่อง',
   Trash: 'ถังขยะ',
   'Try Again': 'ลองอีกครั้ง',
   'Turn off codes by email': 'ปิดรหัสทางอีเมล',
@@ -739,6 +762,8 @@ export default {
   Unread: 'ยังไม่ได้อ่าน',
   'Unlink': 'เลิกลิงก์',
   'Unreferenced files deleted.': 'ลบไฟล์ที่ไม่มีการอ้างถึงแล้ว',
+  'Uploading {name}': 'กำลังอัปโหลด {name}',
+  'Uploads': 'การอัปโหลด',
   'Use a code by email instead': 'ใช้รหัสทางอีเมลแทน',
   'Use a passkey instead': 'ใช้พาสคีย์แทน',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -750,8 +775,10 @@ export default {
   Verify: 'ยืนยัน',
   Version: 'เวอร์ชัน',
   'Version {version}': 'เวอร์ชัน {version}',
+  'Video': 'วีดิทัศน์',
   Visibility: 'การมองเห็น',
   'Web API version': 'เวอร์ชัน Web API',
+  'Webpage': 'หน้าเว็บ',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'บันทึกที่ใช้ส่งการแจ้งเตือนของกลุ่ม ไม่มีใครได้รับการแจ้งเตือนซ้ำ ค่านี้กำหนดเพียงว่าจะเก็บบันทึกไว้นานเท่าใด',
   'What is it for?': 'ใช้ทำอะไร?',

@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Колекцията трябва да има име.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Файл, прикачен в две библиотеки, се съхранява веднъж, но се отчита и в двете. Първото число е колко трябва да съхранява този сървър, второто — колко биха заемали библиотеките поотделно.',
+  'A file on your computer cannot be linked from the browser.':
+    'Файл от вашия компютър не може да бъде свързан от браузъра.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Файл, който клиентът е поискал да изпрати, но така и не е изпратил. Нищо не се губи: клиентът ще поиска отново.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -39,7 +41,9 @@ export default {
   'Account deleted.': 'Акаунтът е изтрит.',
   'Accounts': 'Акаунти',
   'Across the instance': 'В целия сървър',
+  'Add Attachment': 'Добавяне на прикачен файл',
   'Add Creator': 'Добавяне на създател',
+  'Add File…': 'Добавяне на файл…',
   'Add Note': 'Добавяне на бележка',
   'Add Related': 'Добавяне на свързан запис',
   'Add Tag': 'Добавяне на маркер',
@@ -103,8 +107,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Поискайте нова от администратора на този сървър. Сегашната ви парола продължава да работи.',
   'At least {count} characters': 'Поне {count} знака',
+  'Attach': 'Прикачване',
+  'Attach File…': 'Прикачване на файл…',
+  'Attach Web Link': 'Прикачване на уеб линк',
+  'Attach Web Link…': 'Прикачване на уеб линк…',
   Attachments: 'Прикачени файлове',
   'Attachments directory': 'Директория с прикачени файлове',
+  'Audio': 'Аудио',
   'Authenticator app': 'Приложение за удостоверяване',
   'Authenticator enabled.': 'Приложението за удостоверяване е включено.',
   'Authenticator removed.': 'Приложението за удостоверяване е премахнато.',
@@ -123,6 +132,7 @@ export default {
   'Callback address': 'Адрес за обратно извикване',
   'Can': 'Права',
   'Cancel': 'Отказ',
+  'Cancel upload of {name}': 'Отказ от качването на {name}',
   'Change': 'Промяна',
   'Change Item Type': 'Променя типа на записа',
   'Change password': 'Смяна на паролата',
@@ -253,6 +263,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Плъзнете, за да преместите разделителя. Щракнете двукратно, за да го върнете.',
   'Duplicate Items': 'Дублирани записи',
+  'Ebook': 'Електронна книга',
   'Edit': 'Редактиране',
   'Edit the title': 'Редактиране на заглавието',
   'Email': 'Имейл',
@@ -294,6 +305,8 @@ export default {
     'Файловете на сървър WebDAV не се съхраняват в zotero.org, затова преместването не може да ги пренесе. Продължете да синхронизирате файловете чрез WebDAV или ги качете от клиент на Zotero, в който все още ги има.',
   'Finished.': 'Завършено.',
   'First or last item': 'Първи или последен запис',
+  'Folders cannot be added. Add the files inside them.':
+    'Папките не могат да се добавят. Добавете файловете в тях.',
   'Follow this device ({name})': 'Като на това устройство ({name})',
   'For example, my laptop': 'Например моят лаптоп',
   'Forgotten password': 'Забравена парола',
@@ -328,6 +341,7 @@ export default {
   'I created this work.': 'Аз съм създал тази творба.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ако акаунт тук използва този адрес, връзка за задаване на нова парола вече пътува към него.',
+  'Image': 'Изображение',
   'Import and export': 'Внасяне и изнасяне',
   'In the trash': 'В кошчето',
   'Include attached files': 'Включване на прикачените файлове',
@@ -361,6 +375,7 @@ export default {
   'Language': 'Език',
   'Language and time zone': 'Език и часова зона',
   'Language and time zone saved.': 'Езикът и часовата зона са запазени.',
+  'Larger than the {size} this server accepts': 'По-голям от допустимите за този сървър {size}',
   'Last opened {date}': 'Последно отваряне: {date}',
   'Last time you limited it to:': 'Последния път го ограничихте до:',
   'Last used {when}': 'Последно използване: {when}',
@@ -376,6 +391,7 @@ export default {
   'Libraries': 'Библиотеки',
   'Library': 'Библиотека',
   'Limited to:': 'Ограничено до:',
+  'Link': 'Линк',
   'Link issued.': 'Връзката е издадена.',
   'Links to this collection': 'Връзки към тази колекция',
   'Loading…': 'Зареждане…',
@@ -491,6 +507,7 @@ export default {
     'Други приложения, на които сте разрешили достъп до този акаунт. Всяко е получило само одобрените от вас разрешения.',
   'Overview': 'Преглед',
   'Owner': 'Собственик',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Поставете и двата, докато доставчикът сменя ключа си.',
   'Page Down': 'Page Down',
@@ -566,6 +583,7 @@ export default {
   'Render': 'Генериране',
   'Rendering…': 'Генериране…',
   'Repeat password': 'Повторете паролата',
+  'Replace File…': 'Замяна на файла…',
   'Replace what my library here already holds': 'Замяна на съдържанието на библиотеката ми тук',
   'Replace what this library already holds': 'Замяна на съдържанието на тази библиотека',
   'Required claim': 'Изисквано твърдение',
@@ -701,6 +719,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Базовият URL адрес. Конфигурацията му се чете от /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Колекцията и всичко в нея',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Файлът първо беше заменен другаде. Това е новият.',
   'The following fields will be lost:': 'Следните полета ще бъдат загубени:',
   'The group has a new owner.': 'Групата има нов собственик.',
   'The items in it stay in the library.': 'Записите в нея остават в библиотеката.',
@@ -728,7 +748,10 @@ export default {
     'Така се създава ключ, който работи, докато не го премахнете в Настройки, дори след като излезете оттук.',
   'This instance has no accounts yet, so this one will be yours.':
     'На този сървър все още няма акаунти, така че този ще бъде вашият.',
+  'This is not an address. Check it and try again.':
+    'Това не е адрес. Проверете го и опитайте отново.',
   'This is your public page.': 'Това е вашата публична страница.',
+  'This kind of address cannot be attached.': 'Адрес от този вид не може да се прикачи.',
   'This link does not include the files themselves.': 'Тази връзка не включва самите файлове.',
   'This link has been revoked, has expired, or never existed.':
     'Тази връзка е оттеглена, изтекла или никога не е съществувала.',
@@ -739,6 +762,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Идентификаторът на обекта на този сървър е собственият му публичен URL адрес.',
   'Time zone': 'Часова зона',
+  'Title': 'Заглавие',
   'Trash': 'Кошче за боклук',
   'Try Again': 'Опитайте отново',
   'Turn off codes by email': 'Изключване на кодовете по имейл',
@@ -751,6 +775,8 @@ export default {
   'Unlink': 'Премахване на връзката',
   'Unread': 'Непрочетено',
   'Unreferenced files deleted.': 'Файловете без препратки са изтрити.',
+  'Uploading {name}': 'Качване на {name}',
+  'Uploads': 'Качвания',
   'Use a code by email instead': 'Използване на код по имейл',
   'Use a passkey instead': 'Използване на ключ за достъп',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -762,8 +788,10 @@ export default {
   'Verify': 'Проверка',
   'Version': 'Версия',
   'Version {version}': 'Версия {version}',
+  'Video': 'Видео',
   'Visibility': 'Видимост',
   'Web API version': 'Версия на Web API',
+  'Webpage': 'Интернет страница',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Въз основа на тях са изпратени известията от групите. Никой не се известява два пъти, а тази настройка определя само колко дълго се пазят сведенията.',
   'What is it for?': 'За какво е?',

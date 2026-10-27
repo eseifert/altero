@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Dermenin bir adı olmalıdır.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'İki kitaplıkta ek olarak bulunan bir dosya bir kez saklanır ve her ikisinde de sayılır. İlk sayı bu sunucunun saklaması gereken miktardır; ikincisi kitaplıkların ayrı ayrı kaplayacağı alandır.',
+  'A file on your computer cannot be linked from the browser.':
+    'Bilgisayarınızdaki bir dosyaya tarayıcıdan bağlantı verilemez.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'İstemcinin göndermek isteyip hiç göndermediği bir dosya. Hiçbir şey kaybolmaz: istemci yeniden sorar.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -39,7 +41,9 @@ export default {
   'Account deleted.': 'Hesap silindi.',
   'Accounts': 'Hesaplar',
   'Across the instance': 'Sunucunun tamamında',
+  'Add Attachment': 'Ek Ekle',
   'Add Creator': 'Oluşturan ekle',
+  'Add File…': 'Dosya Ekle…',
   'Add Note': 'Not Ekle',
   'Add Related': 'İlişkili ekle',
   'Add Tag': 'Etiket ekle',
@@ -103,8 +107,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Bu sunucuyu yöneten kişiden yenisini isteyiniz. Mevcut şifreniz hâlâ geçerli.',
   'At least {count} characters': 'En az {count} karakter',
+  'Attach': 'Ekle',
+  'Attach File…': 'Dosyayı Ekle…',
+  'Attach Web Link': 'Web Bağlantısı Ekle',
+  'Attach Web Link…': 'Web Bağlantısı Ekle…',
   'Attachments': 'Ekler',
   'Attachments directory': 'Ekler dizini',
+  'Audio': 'Ses',
   'Authenticator app': 'Kimlik doğrulama uygulaması',
   'Authenticator enabled.': 'Kimlik doğrulama uygulaması etkinleştirildi.',
   'Authenticator removed.': 'Kimlik doğrulama uygulaması kaldırıldı.',
@@ -123,6 +132,7 @@ export default {
   'Callback address': 'Geri çağırma adresi',
   'Can': 'Yetki',
   'Cancel': 'İptal et',
+  'Cancel upload of {name}': '{name} yüklemesini iptal et',
   'Change': 'Değiştir',
   'Change Item Type': 'Eser türünü değiştir',
   'Change password': 'Şifreyi değiştir',
@@ -254,6 +264,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Bu ayırıcıyı taşımak için sürükleyiniz. Eski yerine koymak için çift tıklayınız.',
   'Duplicate Items': 'Yinelenmiş Eserler',
+  'Ebook': 'E-kitap',
   'Edit': 'Düzenle',
   'Edit the title': 'Başlığı düzenle',
   'Email': 'E-posta',
@@ -295,6 +306,8 @@ export default {
     'WebDAV sunucusunda tutulan dosyalar zotero.org’da saklanmaz, bu yüzden taşıma işlemi onları getiremez. Dosyaları WebDAV üzerinden eşitlemeye devam ediniz ya da onları hâlâ barındıran bir Zotero istemcisinden yükleyiniz.',
   'Finished.': 'Tamamlandı.',
   'First or last item': 'İlk veya son eser',
+  'Folders cannot be added. Add the files inside them.':
+    'Klasörler eklenemez. İçlerindeki dosyaları ekleyiniz.',
   'Follow this device ({name})': 'Bu cihazı izle ({name})',
   'For example, my laptop': 'Örneğin, dizüstü bilgisayarım',
   'Forgotten password': 'Unutulan şifre',
@@ -330,6 +343,7 @@ export default {
   'I created this work.': 'Bu eseri ben yarattım.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Buradaki bir hesap bu adresi kullanıyorsa, yeni bir şifre belirlemek için bir bağlantı yolda.',
+  'Image': 'Resim',
   'Import and export': 'İçeri ve dışarı aktarım',
   'In the trash': 'Çöp Sepetinde',
   'Include attached files': 'Ekli dosyaları dahil et',
@@ -363,6 +377,7 @@ export default {
   'Language': 'Dil',
   'Language and time zone': 'Dil ve saat dilimi',
   'Language and time zone saved.': 'Dil ve saat dilimi kaydedildi.',
+  'Larger than the {size} this server accepts': 'Bu sunucunun kabul ettiği {size} sınırından büyük',
   'Last opened {date}': 'Son açılma: {date}',
   'Last time you limited it to:': 'Geçen sefer şununla sınırlamıştınız:',
   'Last used {when}': 'Son kullanım: {when}',
@@ -378,6 +393,7 @@ export default {
   'Libraries': 'Kitaplıklar',
   'Library': 'Kitaplık',
   'Limited to:': 'Sınırlandığı yerler:',
+  'Link': 'Bağlantı',
   'Link issued.': 'Bağlantı oluşturuldu.',
   'Links to this collection': 'Bu dermeye verilen bağlantılar',
   'Loading…': 'Yükleniyor…',
@@ -493,6 +509,7 @@ export default {
     'Bu hesaba erişmesine izin verdiğiniz diğer uygulamalar. Her birine yalnızca onayladığınız izinler verildi.',
   'Overview': 'Genel bakış',
   'Owner': 'Sahip',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Sağlayıcı anahtarını yenilerken ikisini birden yapıştırınız.',
   'Page Down': 'Page Down',
@@ -569,6 +586,7 @@ export default {
   'Render': 'Oluştur',
   'Rendering…': 'Oluşturuluyor…',
   'Repeat password': 'Şifreyi tekrarlayınız',
+  'Replace File…': 'Dosyayı Değiştir…',
   'Replace what my library here already holds':
     'Buradaki kitaplığımda zaten bulunanların yerine koy',
   'Replace what this library already holds': 'Bu kitaplıkta zaten bulunanların yerine koy',
@@ -707,6 +725,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Temel URL. Yapılandırması /.well-known/openid-configuration adresinden okunur.',
   'The collection and everything inside it': 'Derme ve içindeki her şey',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Dosya önce başka bir yerde değiştirildi. Bu, yeni dosyadır.',
   'The following fields will be lost:': 'Aşağıdaki alanlar kaybedilecek:',
   'The group has a new owner.': 'Grubun yeni bir sahibi var.',
   'The items in it stay in the library.': 'İçindeki eserler kitaplıkta kalır.',
@@ -734,7 +754,10 @@ export default {
     'Bu, burada oturumu kapatsanız bile siz Ayarlar’dan kaldırana kadar çalışmaya devam eden bir anahtar oluşturur.',
   'This instance has no accounts yet, so this one will be yours.':
     'Bu sunucuda henüz hiç hesap yok; bu yüzden bu hesap sizin olacak.',
+  'This is not an address. Check it and try again.':
+    'Bu bir adres değil. Kontrol edip tekrar deneyiniz.',
   'This is your public page.': 'Bu, herkese açık sayfanız.',
+  'This kind of address cannot be attached.': 'Bu tür bir adres eklenemez.',
   'This link does not include the files themselves.': 'Bu bağlantı dosyaların kendisini içermez.',
   'This link has been revoked, has expired, or never existed.':
     'Bu bağlantı iptal edilmiş, süresi dolmuş ya da hiç var olmamış.',
@@ -745,6 +768,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Bu sunucunun varlık kimliği kendi herkese açık URL’sidir.',
   'Time zone': 'Saat dilimi',
+  'Title': 'Başlık',
   'Trash': 'Çöp Sepeti',
   'Try Again': 'Yeniden dene',
   'Turn off codes by email': 'E-posta kodlarını kapat',
@@ -757,6 +781,8 @@ export default {
   'Unlink': 'Bağlantıyı Kaldır',
   'Unread': 'Okunmamış',
   'Unreferenced files deleted.': 'Başvurulmayan dosyalar silindi.',
+  'Uploading {name}': '{name} yükleniyor',
+  'Uploads': 'Yüklemeler',
   'Use a code by email instead': 'Bunun yerine e-postayla kod kullan',
   'Use a passkey instead': 'Bunun yerine geçiş anahtarı kullan',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -768,8 +794,10 @@ export default {
   'Verify': 'Doğrula',
   'Version': 'Sürüm',
   'Version {version}': 'Sürüm {version}',
+  'Video': 'Video',
   'Visibility': 'Görünürlük',
   'Web API version': 'Web API sürümü',
+  'Webpage': 'Web sayfası',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Grup bildirimlerinin dayandığı kayıtlar. Kimseye iki kez bildirim gönderilmez; bu ayar yalnızca kaydın ne kadar süre saklanacağını belirler.',
   'What is it for?': 'Ne için kullanılacak?',

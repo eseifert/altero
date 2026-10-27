@@ -18,6 +18,8 @@ export default {
   'A collection needs a name.': 'সংগ্রহের একটি নাম দিন।',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'দুটি লাইব্রেরিতে সংযুক্ত একটি ফাইল একবারই সংরক্ষিত হয় এবং দুটিতেই গণনা করা হয়। প্রথম সংখ্যাটি হলো এই সার্ভারকে যতটুকু ধারণ করতে হয়; দ্বিতীয়টি হলো লাইব্রেরিগুলো আলাদাভাবে রাখলে যতটুকু লাগত।',
+  'A file on your computer cannot be linked from the browser.':
+    'আপনার কম্পিউটারের কোনো ফাইল ব্রাউজার থেকে লিঙ্ক করা যায় না।',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'এমন একটি ফাইল যা ক্লায়েন্ট পাঠাতে চেয়েছিল কিন্তু কখনো পাঠায়নি। কিছুই হারায়নি: ক্লায়েন্ট আবার অনুরোধ করবে।',
   'A group is a library of its own, shared with the people you add to it.':
@@ -42,7 +44,9 @@ export default {
   'Account deleted.': 'অ্যাকাউন্ট মুছে ফেলা হয়েছে।',
   'Accounts': 'অ্যাকাউন্ট',
   'Across the instance': 'পুরো ইনস্ট্যান্স জুড়ে',
+  'Add Attachment': 'সংযুক্তি যোগ করুন',
   'Add Creator': 'স্রষ্টা যোগ করুন',
+  'Add File…': 'ফাইল যোগ করুন…',
   'Add Note': 'নোট যোগ করুন',
   'Add Related': 'সম্পর্কিত যোগ করুন',
   'Add Tag': 'ট্যাগ যোগ করুন',
@@ -106,8 +110,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'নতুন একটির জন্য এই সার্ভারের পরিচালকের কাছে অনুরোধ করুন। আপনার বর্তমান পাসওয়ার্ড এখনও কাজ করে।',
   'At least {count} characters': 'কমপক্ষে {count}টি অক্ষর',
+  'Attach': 'সংযুক্ত করুন',
+  'Attach File…': 'ফাইল সংযুক্ত করুন…',
+  'Attach Web Link': 'ওয়েব লিঙ্ক সংযুক্ত করুন',
+  'Attach Web Link…': 'ওয়েব লিঙ্ক সংযুক্ত করুন…',
   'Attachments': 'সংযুক্তি',
   'Attachments directory': 'সংযুক্তির ডিরেক্টরি',
+  'Audio': 'অডিও',
   'Authenticator app': 'অথেনটিকেটর অ্যাপ',
   'Authenticator enabled.': 'অথেনটিকেটর চালু হয়েছে।',
   'Authenticator removed.': 'অথেনটিকেটর সরানো হয়েছে।',
@@ -126,6 +135,7 @@ export default {
   'Callback address': 'কলব্যাক ঠিকানা',
   'Can': 'অনুমতি',
   'Cancel': 'বাতিল',
+  'Cancel upload of {name}': '{name}-এর আপলোড বাতিল করুন',
   'Change': 'পরিবর্তন করুন',
   'Change Item Type': 'আইটেমের ধরন পরিবর্তন করুন',
   'Change password': 'পাসওয়ার্ড পরিবর্তন করুন',
@@ -257,6 +267,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'এই বিভাজক সরাতে টেনে আনুন। আগের জায়গায় ফেরাতে ডাবল-ক্লিক করুন।',
   'Duplicate Items': 'ডুপ্লিকেট আইটেম',
+  'Ebook': 'ই-বুক',
   'Edit': 'সম্পাদনা করুন',
   'Edit the title': 'শিরোনাম সম্পাদনা করুন',
   'Email': 'ইমেইল',
@@ -298,6 +309,8 @@ export default {
     'WebDAV সার্ভারে রাখা ফাইল zotero.org-এ সংরক্ষিত থাকে না, তাই মাইগ্রেশন সেগুলো আনতে পারে না। WebDAV-এর মাধ্যমে ফাইল সিঙ্ক করা চালিয়ে যান, অথবা যে Zotero ক্লায়েন্টে সেগুলো এখনও আছে সেখান থেকে আপলোড করুন।',
   'Finished.': 'সম্পন্ন হয়েছে।',
   'First or last item': 'প্রথম বা শেষ আইটেম',
+  'Folders cannot be added. Add the files inside them.':
+    'ফোল্ডার যোগ করা যায় না। সেগুলোর ভেতরের ফাইল যোগ করুন।',
   'Follow this device ({name})': 'এই ডিভাইস অনুসরণ করুন ({name})',
   'For example, my laptop': 'যেমন, আমার ল্যাপটপ',
   'Forgotten password': 'পাসওয়ার্ড ভুলে গেছেন',
@@ -332,6 +345,7 @@ export default {
   'I created this work.': 'আমি এই কাজটি তৈরি করেছি।',
   'If an account here uses that address, a link to set a new password is on its way.':
     'এখানের কোনো অ্যাকাউন্ট ওই ঠিকানা ব্যবহার করলে, নতুন পাসওয়ার্ড সেট করার একটি লিঙ্ক পাঠানো হচ্ছে।',
+  'Image': 'ছবি',
   'Import and export': 'ইমপোর্ট ও এক্সপোর্ট',
   'In the trash': 'ট্র্যাশে',
   'Include attached files': 'সংযুক্ত ফাইল অন্তর্ভুক্ত করুন',
@@ -365,6 +379,7 @@ export default {
   'Language': 'ভাষা',
   'Language and time zone': 'ভাষা ও সময় অঞ্চল',
   'Language and time zone saved.': 'ভাষা ও সময় অঞ্চল সংরক্ষিত হয়েছে।',
+  'Larger than the {size} this server accepts': 'এই সার্ভার যে {size} গ্রহণ করে তার চেয়ে বড়',
   'Last opened {date}': 'শেষ খোলা হয়েছে: {date}',
   'Last time you limited it to:': 'গতবার আপনি এটিকে সীমিত করেছিলেন:',
   'Last used {when}': 'শেষ ব্যবহার: {when}',
@@ -379,6 +394,7 @@ export default {
   'Libraries': 'লাইব্রেরি',
   'Library': 'লাইব্রেরি',
   'Limited to:': 'সীমিত:',
+  'Link': 'লিঙ্ক',
   'Link issued.': 'লিঙ্ক তৈরি হয়েছে।',
   'Links to this collection': 'এই সংগ্রহের লিঙ্ক',
   'Loading…': 'লোড হচ্ছে…',
@@ -492,6 +508,7 @@ export default {
     'অন্য যেসব অ্যাপ্লিকেশনকে আপনি এই অ্যাকাউন্টে প্রবেশের অনুমতি দিয়েছেন। প্রতিটিকে শুধু আপনার অনুমোদিত অনুমতিগুলোই দেওয়া হয়েছে।',
   'Overview': 'সংক্ষিপ্ত বিবরণ',
   'Owner': 'মালিক',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM। প্রদানকারী যখন তার কী বদলাচ্ছে, তখন দুটোই পেস্ট করুন।',
   'Page Down': 'Page Down',
@@ -568,6 +585,7 @@ export default {
   'Render': 'তৈরি করুন',
   'Rendering…': 'তৈরি করা হচ্ছে…',
   'Repeat password': 'পাসওয়ার্ড আবার লিখুন',
+  'Replace File…': 'ফাইল প্রতিস্থাপন করুন…',
   'Replace what my library here already holds': 'এখানে আমার লাইব্রেরিতে যা আছে তা প্রতিস্থাপন করুন',
   'Replace what this library already holds': 'এই লাইব্রেরিতে যা আছে তা প্রতিস্থাপন করুন',
   'Required claim': 'প্রয়োজনীয় ক্লেইম',
@@ -703,6 +721,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'মূল URL। এর কনফিগারেশন /.well-known/openid-configuration থেকে পড়া হয়।',
   'The collection and everything inside it': 'সংগ্রহটি ও এর ভেতরের সবকিছু',
+  'The file was replaced elsewhere first. This is the new one.':
+    'ফাইলটি আগেই অন্য কোথাও প্রতিস্থাপিত হয়েছে। এটিই নতুনটি।',
   'The following fields will be lost:': 'নিম্নলিখিত ফিল্ডগুলো হারিয়ে যাবে:',
   'The group has a new owner.': 'গ্রুপটির মালিক বদল হয়েছে।',
   'The items in it stay in the library.': 'এর ভেতরের আইটেমগুলো লাইব্রেরিতে থেকে যাবে।',
@@ -729,7 +749,10 @@ export default {
     'এটি এমন একটি কী তৈরি করে যা আপনি সেটিংসে গিয়ে না সরানো পর্যন্ত কাজ করতে থাকে, এখানে সাইন আউট করার পরেও।',
   'This instance has no accounts yet, so this one will be yours.':
     'এই ইনস্ট্যান্সে এখনও কোনো অ্যাকাউন্ট নেই, তাই এটি আপনারই হবে।',
+  'This is not an address. Check it and try again.':
+    'এটি কোনো ঠিকানা নয়। যাচাই করে আবার চেষ্টা করুন।',
   'This is your public page.': 'এটি আপনার সর্বজনীন পৃষ্ঠা।',
+  'This kind of address cannot be attached.': 'এই ধরনের ঠিকানা সংযুক্ত করা যায় না।',
   'This link does not include the files themselves.': 'এই লিঙ্কে ফাইলগুলো নিজে অন্তর্ভুক্ত নয়।',
   'This link has been revoked, has expired, or never existed.':
     'এই লিঙ্কটি প্রত্যাহার করা হয়েছে, এর মেয়াদ শেষ হয়ে গেছে, অথবা এটি কখনো ছিলই না।',
@@ -740,6 +763,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'এই সার্ভারের এনটিটি আইডি হলো এর নিজস্ব সর্বজনীন URL।',
   'Time zone': 'সময় অঞ্চল',
+  'Title': 'শিরোনাম',
   'Trash': 'ট্র্যাশ',
   'Try Again': 'আবার চেষ্টা করুন',
   'Turn off codes by email': 'ইমেইলে কোড বন্ধ করুন',
@@ -752,6 +776,8 @@ export default {
   'Unlink': 'লিঙ্ক সরান',
   'Unread': 'অপঠিত',
   'Unreferenced files deleted.': 'অব্যবহৃত ফাইল মুছে ফেলা হয়েছে।',
+  'Uploading {name}': '{name} আপলোড হচ্ছে',
+  'Uploads': 'আপলোড',
   'Use a code by email instead': 'এর বদলে ইমেইলে কোড ব্যবহার করুন',
   'Use a passkey instead': 'এর বদলে পাসকি ব্যবহার করুন',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -763,8 +789,10 @@ export default {
   'Verify': 'যাচাই করুন',
   'Version': 'সংস্করণ',
   'Version {version}': 'সংস্করণ {version}',
+  'Video': 'ভিডিও',
   'Visibility': 'দৃশ্যমানতা',
   'Web API version': 'Web API সংস্করণ',
+  'Webpage': 'ওয়েবপৃষ্ঠা',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'যে রেকর্ড থেকে গ্রুপ বিজ্ঞপ্তি পাঠানো হয়েছে। কাউকে দুবার জানানো হয় না, এবং এটি শুধু ঠিক করে রেকর্ডটি কত দিন থাকবে।',
   'What is it for?': 'এটি কিসের জন্য?',

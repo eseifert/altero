@@ -17,6 +17,8 @@ export default {
   'A collection needs a name.': 'संग्रह का नाम होना ज़रूरी है।',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'दो लाइब्रेरी में अनुलग्न फ़ाइल एक ही बार संग्रहीत होती है और दोनों में गिनी जाती है। पहली संख्या बताती है कि इस सर्वर को कितना रखना पड़ता है; दूसरी बताती है कि अलग-अलग रखने पर लाइब्रेरी कितनी जगह लेतीं।',
+  'A file on your computer cannot be linked from the browser.':
+    'आपके कंप्यूटर की फ़ाइल को ब्राउज़र से लिंक नहीं किया जा सकता।',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'ऐसी फ़ाइल जिसे भेजने का अनुरोध क्लाइंट ने किया, पर जिसे कभी भेजा नहीं। कुछ भी खोया नहीं है: क्लाइंट फिर से अनुरोध करेगा।',
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'खाता हटाया गया।',
   'Accounts': 'खाते',
   'Across the instance': 'पूरे इंस्टेंस में',
+  'Add Attachment': 'अनुलग्नक जोड़ें',
   'Add Creator': 'रचनाकार जोड़ें',
+  'Add File…': 'फ़ाइल जोड़ें…',
   'Add Note': 'नोट जोड़ें',
   'Add Related': 'संबंधित जोड़ें',
   'Add Tag': 'टैग जोड़ें',
@@ -99,8 +103,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'इस सर्वर को चलाने वाले व्यक्ति से नया लिंक माँगें। आपका मौजूदा पासवर्ड अब भी काम करता है।',
   'At least {count} characters': 'कम से कम {count} वर्ण',
+  'Attach': 'अनुलग्न करें',
+  'Attach File…': 'फ़ाइल अनुलग्न करें…',
+  'Attach Web Link': 'वेब लिंक अनुलग्न करें',
+  'Attach Web Link…': 'वेब लिंक अनुलग्न करें…',
   'Attachments': 'अनुलग्नक',
   'Attachments directory': 'अनुलग्नक निर्देशिका',
+  'Audio': 'ऑडियो',
   'Authenticator app': 'ऑथेंटिकेटर ऐप',
   'Authenticator enabled.': 'ऑथेंटिकेटर चालू किया गया।',
   'Authenticator removed.': 'ऑथेंटिकेटर हटाया गया।',
@@ -119,6 +128,7 @@ export default {
   'Callback address': 'कॉलबैक पता',
   'Can': 'अनुमति',
   'Cancel': 'रद्द करें',
+  'Cancel upload of {name}': '{name} का अपलोड रद्द करें',
   'Change': 'बदलें',
   'Change Item Type': 'आइटम का प्रकार बदलें',
   'Change password': 'पासवर्ड बदलें',
@@ -248,6 +258,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'इस विभाजक को खिसकाने के लिए खींचें। पहले जैसा करने के लिए डबल-क्लिक करें।',
   'Duplicate Items': 'डुप्लिकेट आइटम',
+  'Ebook': 'ई-बुक',
   'Edit': 'संपादित करें',
   'Edit the title': 'शीर्षक संपादित करें',
   'Email': 'ईमेल',
@@ -288,6 +299,8 @@ export default {
     'WebDAV सर्वर पर रखी गई फ़ाइलें zotero.org पर संग्रहीत नहीं होतीं, इसलिए माइग्रेशन उन्हें यहाँ नहीं ला सकता। फ़ाइलें WebDAV से सिंक करते रहें, या उन्हें किसी ऐसे Zotero क्लाइंट से अपलोड करें जिसमें वे अब भी मौजूद हों।',
   'Finished.': 'पूरा हुआ।',
   'First or last item': 'पहला या अंतिम आइटम',
+  'Folders cannot be added. Add the files inside them.':
+    'फ़ोल्डर नहीं जोड़े जा सकते। उनके अंदर की फ़ाइलें जोड़ें।',
   'Follow this device ({name})': 'इस डिवाइस के अनुसार ({name})',
   'For example, my laptop': 'उदाहरण के लिए, मेरा लैपटॉप',
   'Forgotten password': 'भूला हुआ पासवर्ड',
@@ -322,6 +335,7 @@ export default {
   'I created this work.': 'मैंने यह कृति बनाई है।',
   'If an account here uses that address, a link to set a new password is on its way.':
     'अगर यहाँ कोई खाता उस पते का उपयोग करता है, तो नया पासवर्ड सेट करने का लिंक भेजा जा रहा है।',
+  'Image': 'छवि',
   'Import and export': 'आयात और निर्यात',
   'In the trash': 'ट्रैश में',
   'Include attached files': 'अनुलग्न फ़ाइलें शामिल करें',
@@ -354,6 +368,8 @@ export default {
   'Language': 'भाषा',
   'Language and time zone': 'भाषा और समय क्षेत्र',
   'Language and time zone saved.': 'भाषा और समय क्षेत्र सहेजे गए।',
+  'Larger than the {size} this server accepts':
+    'इस सर्वर द्वारा स्वीकार किए जाने वाले {size} से बड़ी',
   'Last opened {date}': 'अंतिम बार {date} को खोला गया',
   'Last time you limited it to:': 'पिछली बार आपने इसे इन तक सीमित किया था:',
   'Last used {when}': 'अंतिम उपयोग {when}',
@@ -366,6 +382,7 @@ export default {
   'Libraries': 'लाइब्रेरी',
   'Library': 'लाइब्रेरी',
   'Limited to:': 'इन तक सीमित:',
+  'Link': 'लिंक',
   'Link issued.': 'लिंक जारी किया गया।',
   'Links to this collection': 'इस संग्रह के लिंक',
   'Loading…': 'लोड हो रहा है…',
@@ -475,6 +492,7 @@ export default {
     'अन्य ऐप्लिकेशन जिन्हें आपने इस खाते तक पहुँचने की अनुमति दी है। हर एक को केवल वही अनुमतियाँ दी गईं जिन्हें आपने स्वीकृत किया।',
   'Overview': 'अवलोकन',
   'Owner': 'स्वामी',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. जब प्रदाता अपनी कुंजी बदल रहा हो, तब दोनों पेस्ट करें।',
   'Page Down': 'Page Down',
@@ -547,6 +565,7 @@ export default {
   'Render': 'तैयार करें',
   'Rendering…': 'तैयार किया जा रहा है…',
   'Repeat password': 'पासवर्ड दोहराएँ',
+  'Replace File…': 'फ़ाइल बदलें…',
   'Replace what my library here already holds': 'यहाँ मेरी लाइब्रेरी में पहले से मौजूद सामग्री को बदल दें',
   'Replace what this library already holds': 'इस लाइब्रेरी में पहले से मौजूद सामग्री को बदल दें',
   'Required claim': 'आवश्यक क्लेम',
@@ -677,6 +696,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'आधार URL। इसका कॉन्फ़िगरेशन /.well-known/openid-configuration से पढ़ा जाता है।',
   'The collection and everything inside it': 'संग्रह और उसके भीतर की हर चीज़',
+  'The file was replaced elsewhere first. This is the new one.':
+    'फ़ाइल पहले ही कहीं और बदल दी गई थी। यह नई फ़ाइल है।',
   'The following fields will be lost:': 'निम्नलिखित फ़ील्ड खो जाएँगे:',
   'The group has a new owner.': 'समूह का अब नया स्वामी है।',
   'The items in it stay in the library.': 'इसमें मौजूद आइटम लाइब्रेरी में बने रहते हैं।',
@@ -703,7 +724,10 @@ export default {
     'इससे एक ऐसी कुंजी बनती है जो तब तक काम करती रहती है जब तक आप उसे सेटिंग में नहीं हटाते, यहाँ से साइन आउट करने के बाद भी।',
   'This instance has no accounts yet, so this one will be yours.':
     'इस इंस्टेंस में अभी कोई खाता नहीं है, इसलिए यह इंस्टेंस आपका होगा।',
+  'This is not an address. Check it and try again.':
+    'यह कोई पता नहीं है। इसे जाँचें और फिर से कोशिश करें।',
   'This is your public page.': 'यह आपका सार्वजनिक पेज है।',
+  'This kind of address cannot be attached.': 'इस प्रकार का पता अनुलग्न नहीं किया जा सकता।',
   'This link does not include the files themselves.': 'इस लिंक में फ़ाइलें स्वयं शामिल नहीं हैं।',
   'This link has been revoked, has expired, or never existed.':
     'यह लिंक निरस्त कर दिया गया है, इसकी अवधि समाप्त हो गई है, या यह कभी मौजूद ही नहीं था।',
@@ -713,6 +737,7 @@ export default {
   'This server': 'यह सर्वर',
   'This server’s entity ID is its own public URL.': 'इस सर्वर की एंटिटी ID उसका अपना सार्वजनिक URL है।',
   'Time zone': 'समय क्षेत्र',
+  'Title': 'शीर्षक',
   'Trash': 'ट्रैश',
   'Try Again': 'फिर से कोशिश करें',
   'Turn off codes by email': 'ईमेल से कोड बंद करें',
@@ -725,6 +750,8 @@ export default {
   'Unlink': 'लिंक हटाएँ',
   'Unread': 'अपठित',
   'Unreferenced files deleted.': 'असंदर्भित फ़ाइलें हटाई गईं।',
+  'Uploading {name}': '{name} को अपलोड किया जा रहा है',
+  'Uploads': 'अपलोड',
   'Use a code by email instead': 'इसके बजाय ईमेल से कोड का उपयोग करें',
   'Use a passkey instead': 'इसके बजाय पासकी का उपयोग करें',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -735,8 +762,10 @@ export default {
   'Verify': 'सत्यापित करें',
   'Version': 'संस्करण',
   'Version {version}': 'संस्करण {version}',
+  'Video': 'वीडियो',
   'Visibility': 'दृश्यता',
   'Web API version': 'Web API संस्करण',
+  'Webpage': 'वेबपेज',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'वह रिकॉर्ड जिससे समूह सूचनाएँ भेजी गईं। किसी को दो बार सूचना नहीं भेजी जाती, और यह केवल तय करता है कि रिकॉर्ड कितने समय तक रहे।',
   'What is it for?': 'यह किसलिए है?',

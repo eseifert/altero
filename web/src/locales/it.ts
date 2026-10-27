@@ -12,6 +12,8 @@ export default {
   'A collection needs a name.': 'Una collezione ha bisogno di un nome.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Un file allegato in due biblioteche viene memorizzato una sola volta e conteggiato in entrambe. Il primo numero è ciò che questo server deve conservare; il secondo è quanto costerebbero le biblioteche separatamente.',
+  'A file on your computer cannot be linked from the browser.':
+    'Un file sul tuo computer non può essere collegato dal browser.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Un file che il client ha annunciato e non ha mai inviato. Non si perde nulla: lo richiede di nuovo.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -38,7 +40,9 @@ export default {
   'Account deleted.': 'Account eliminato.',
   'Accounts': 'Account',
   'Across the instance': 'Su tutta l’istanza',
+  'Add Attachment': 'Aggiungi un allegato',
   'Add Creator': 'Aggiungi autore',
+  'Add File…': 'Aggiungi file…',
   'Add Note': 'Aggiungi nota',
   'Add Related': 'Aggiungi elemento correlato',
   'Add Tag': 'Aggiungi tag',
@@ -100,8 +104,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Chiedine uno nuovo a chi gestisce questo server. La tua password attuale funziona ancora.',
   'At least {count} characters': 'Almeno {count} caratteri',
+  'Attach': 'Allega',
+  'Attach File…': 'Allega file…',
+  'Attach Web Link': 'Allega link web',
+  'Attach Web Link…': 'Allega link web…',
   'Attachments': 'Allegati',
   'Attachments directory': 'Cartella degli allegati',
+  'Audio': 'File audio',
   'Authenticator app': 'App di autenticazione',
   'Authenticator enabled.': 'App di autenticazione attivata.',
   'Authenticator removed.': 'App di autenticazione rimossa.',
@@ -120,6 +129,7 @@ export default {
   'Callback address': 'Indirizzo di callback',
   'Can': 'Può',
   'Cancel': 'Annulla',
+  'Cancel upload of {name}': 'Annulla il caricamento di {name}',
   'Change': 'Cambia',
   'Change Item Type': 'Modifica tipo di elemento',
   'Change password': 'Cambia la password',
@@ -250,6 +260,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Trascina per spostare questa divisione. Fai doppio clic per rimetterla a posto.',
   'Duplicate Items': 'Elementi duplicati',
+  'Ebook': 'Ebook',
   'Edit': 'Modifica',
   'Edit the title': 'Modifica il titolo',
   'Email': 'Email',
@@ -291,6 +302,8 @@ export default {
     'I file conservati su un server WebDAV non sono archiviati su zotero.org, quindi una migrazione non può portarli con sé. Continua a sincronizzare i file tramite WebDAV, oppure caricali da un client Zotero che li ha ancora.',
   'Finished.': 'Terminato.',
   'First or last item': 'Primo o ultimo elemento',
+  'Folders cannot be added. Add the files inside them.':
+    'Le cartelle non possono essere aggiunte. Aggiungi i file che contengono.',
   'Follow this device ({name})': 'Segui questo dispositivo ({name})',
   'For example, my laptop': 'Per esempio, il mio portatile',
   'Forgotten password': 'Password dimenticata',
@@ -326,6 +339,7 @@ export default {
   'I created this work.': 'Ho creato io quest’opera.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Se un account qui usa quell’indirizzo, un collegamento per impostare una nuova password è in arrivo.',
+  'Image': 'Immagine',
   'Import and export': 'Importazione ed esportazione',
   'In the trash': 'Nel cestino',
   'Include attached files': 'Includi i file allegati',
@@ -358,6 +372,8 @@ export default {
   'Language': 'Lingua',
   'Language and time zone': 'Lingua e fuso orario',
   'Language and time zone saved.': 'Lingua e fuso orario salvati.',
+  'Larger than the {size} this server accepts':
+    'Supera il limite di {size} accettato da questo server',
   'Last opened {date}': 'Aperto l’ultima volta {date}',
   'Last time you limited it to:': 'L’ultima volta l’hai limitata a:',
   'Last used {when}': 'Usato l’ultima volta {when}',
@@ -372,6 +388,7 @@ export default {
   'Libraries': 'Biblioteche',
   'Library': 'Biblioteca',
   'Limited to:': 'Limitata a:',
+  'Link': 'Collegamento',
   'Link issued.': 'Collegamento emesso.',
   'Links to this collection': 'Collegamenti a questa collezione',
   'Loading…': 'Caricamento…',
@@ -488,6 +505,7 @@ export default {
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Altre applicazioni a cui hai consentito di accedere a questo account. A ciascuna sono stati concessi solo i permessi che hai approvato.',
   'Overview': 'Panoramica',
   'Owner': 'Proprietario',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Incollali entrambi mentre il fornitore sta cambiando la sua chiave.',
   'Page Down': 'PagGiù',
@@ -565,6 +583,7 @@ export default {
   'Render': 'Genera',
   'Rendering…': 'Generazione…',
   'Repeat password': 'Ripeti la password',
+  'Replace File…': 'Sostituisci file…',
   'Replace what my library here already holds':
     'Sostituisci ciò che la mia biblioteca qui contiene già',
   'Replace what this library already holds': 'Sostituisci ciò che questa biblioteca contiene già',
@@ -700,6 +719,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'L’URL di base. La sua configurazione viene letta da /.well-known/openid-configuration.',
   'The collection and everything inside it': 'La collezione e tutto ciò che contiene',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Il file è stato sostituito prima altrove. Questo è quello nuovo.',
   'The following fields will be lost:': 'I seguenti campi andranno persi:',
   'The group has a new owner.': 'Il gruppo ha un nuovo proprietario.',
   'The items in it stay in the library.': 'Gli elementi che contiene restano nella biblioteca.',
@@ -727,7 +748,10 @@ export default {
     'Questo crea una chiave che continua a funzionare finché non la rimuovi nelle Impostazioni, anche dopo che sei uscito da qui.',
   'This instance has no accounts yet, so this one will be yours.':
     'Questa istanza non ha ancora account, quindi questo sarà tuo.',
+  'This is not an address. Check it and try again.':
+    'Questo non è un indirizzo. Controllalo e riprova.',
   'This is your public page.': 'Questa è la tua pagina pubblica.',
+  'This kind of address cannot be attached.': 'Questo tipo di indirizzo non può essere allegato.',
   'This link does not include the files themselves.':
     'Questo collegamento non comprende i file stessi.',
   'This link has been revoked, has expired, or never existed.':
@@ -739,6 +763,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'L’entity ID di questo server è il suo stesso URL pubblico.',
   'Time zone': 'Fuso orario',
+  'Title': 'Titolo',
   'Trash': 'Cestino',
   'Try Again': 'Riprova',
   'Turn off codes by email': 'Disattiva i codici via email',
@@ -751,6 +776,8 @@ export default {
   'Unlink': 'Rimuovi collegamento',
   'Unread': 'Non letto',
   'Unreferenced files deleted.': 'File non più referenziati eliminati.',
+  'Uploading {name}': 'Caricamento di {name}',
+  'Uploads': 'Caricamenti',
   'Use a code by email instead': 'Usa invece un codice via email',
   'Use a passkey instead': 'Usa invece una passkey',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -762,8 +789,10 @@ export default {
   'Verify': 'Verifica',
   'Version': 'Versione',
   'Version {version}': 'Versione {version}',
+  'Video': 'File video',
   'Visibility': 'Visibilità',
   'Web API version': 'Versione dell’API web',
+  'Webpage': 'Pagina web',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Da dove sono state inviate le notifiche di gruppo. Nessuno viene avvisato due volte, e questo decide soltanto per quanto tempo la registrazione rimane.',
   'What is it for?': 'A che cosa serve?',

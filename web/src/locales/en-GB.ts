@@ -21,6 +21,8 @@ export default {
   'A collection needs a name.': 'A collection needs a name.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.',
+  'A file on your computer cannot be linked from the browser.':
+    'A file on your computer cannot be linked from the browser.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'A file the client asked to send and never sent. Nothing is lost: it asks again.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -47,7 +49,9 @@ export default {
   'Account deleted.': 'Account deleted.',
   Accounts: 'Accounts',
   'Across the instance': 'Across the instance',
+  'Add Attachment': 'Add Attachment',
   'Add Creator': 'Add Creator',
+  'Add File…': 'Add File…',
   'Add Note': 'Add Note',
   'Add Related': 'Add Related',
   'Add Tag': 'Add Tag',
@@ -108,8 +112,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Ask whoever runs this server for a new one. Your current password still works.',
   'At least {count} characters': 'At least {count} characters',
+  'Attach': 'Attach',
+  'Attach File…': 'Attach File…',
+  'Attach Web Link': 'Attach Web Link',
+  'Attach Web Link…': 'Attach Web Link…',
   Attachments: 'Attachments',
   'Attachments directory': 'Attachments directory',
+  'Audio': 'Audio',
   'Authenticator app': 'Authenticator app',
   'Authenticator enabled.': 'Authenticator enabled.',
   'Authenticator removed.': 'Authenticator removed.',
@@ -128,6 +137,7 @@ export default {
   'Callback address': 'Callback address',
   Can: 'Can',
   Cancel: 'Cancel',
+  'Cancel upload of {name}': 'Cancel upload of {name}',
   Change: 'Change',
   'Change Item Type': 'Change Item Type',
   'Change password': 'Change password',
@@ -258,6 +268,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Drag to move this divide. Double-click to put it back.',
   'Duplicate Items': 'Duplicate Items',
+  'Ebook': 'Ebook',
   Email: 'Email',
   'Edit': 'Edit',
   'Edit the title': 'Edit the title',
@@ -299,6 +310,8 @@ export default {
     'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.',
   'Finished.': 'Finished.',
   'First or last item': 'First or last item',
+  'Folders cannot be added. Add the files inside them.':
+    'Folders cannot be added. Add the files inside them.',
   'Follow this device ({name})': 'Follow this device ({name})',
   'For example, my laptop': 'For example, my laptop',
   'Forgotten password': 'Forgotten password',
@@ -333,6 +346,7 @@ export default {
   'I created this work.': 'I created this work.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'If an account here uses that address, a link to set a new password is on its way.',
+  'Image': 'Image',
   'Import and export': 'Import and export',
   'In the trash': 'In the bin',
   'Include attached files': 'Include attached files',
@@ -366,6 +380,7 @@ export default {
   Language: 'Language',
   'Language and time zone': 'Language and time zone',
   'Language and time zone saved.': 'Language and time zone saved.',
+  'Larger than the {size} this server accepts': 'Larger than the {size} this server accepts',
   'Last opened {date}': 'Last opened {date}',
   'Last time you limited it to:': 'Last time you limited it to:',
   'Last used {when}': 'Last used {when}',
@@ -380,6 +395,7 @@ export default {
   Libraries: 'Libraries',
   Library: 'Library',
   'Limited to:': 'Limited to:',
+  'Link': 'Link',
   'Link issued.': 'Link issued.',
   'Links to this collection': 'Links to this collection',
   'Loading…': 'Loading…',
@@ -493,6 +509,7 @@ export default {
     'Other applications you have allowed to reach this account. Each was given only the permissions you approved.',
   Overview: 'Overview',
   Owner: 'Owner',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Paste both while the provider is rolling its key over.',
   'Page Down': 'Page Down',
@@ -569,6 +586,7 @@ export default {
   Render: 'Render',
   'Rendering…': 'Rendering…',
   'Repeat password': 'Repeat password',
+  'Replace File…': 'Replace File…',
   'Replace what my library here already holds': 'Replace what my library here already holds',
   'Replace what this library already holds': 'Replace what this library already holds',
   'Required claim': 'Required claim',
@@ -703,6 +721,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'The base URL. Its configuration is read from /.well-known/openid-configuration.',
   'The collection and everything inside it': 'The collection and everything inside it',
+  'The file was replaced elsewhere first. This is the new one.':
+    'The file was replaced elsewhere first. This is the new one.',
   'The following fields will be lost:': 'The following fields will be lost:',
   'The group has a new owner.': 'The group has a new owner.',
   'The items in it stay in the library.': 'The items in it stay in the library.',
@@ -730,7 +750,10 @@ export default {
     'This creates a key that keeps working until you remove it in Settings, even after you sign out here.',
   'This instance has no accounts yet, so this one will be yours.':
     'This instance has no accounts yet, so this one will be yours.',
+  'This is not an address. Check it and try again.':
+    'This is not an address. Check it and try again.',
   'This is your public page.': 'This is your public page.',
+  'This kind of address cannot be attached.': 'This kind of address cannot be attached.',
   'This link does not include the files themselves.':
     'This link does not include the files themselves.',
   'This link has been revoked, has expired, or never existed.':
@@ -742,6 +765,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'This server’s entity ID is its own public URL.',
   'Time zone': 'Time zone',
+  'Title': 'Title',
   Trash: 'Bin',
   'Try Again': 'Try Again',
   'Turn off codes by email': 'Turn off codes by email',
@@ -754,6 +778,8 @@ export default {
   Unread: 'Unread',
   'Unlink': 'Unlink',
   'Unreferenced files deleted.': 'Unreferenced files deleted.',
+  'Uploading {name}': 'Uploading {name}',
+  'Uploads': 'Uploads',
   'Use a code by email instead': 'Use a code by email instead',
   'Use a passkey instead': 'Use a passkey instead',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -765,8 +791,10 @@ export default {
   Verify: 'Verify',
   Version: 'Version',
   'Version {version}': 'Version {version}',
+  'Video': 'Video',
   Visibility: 'Visibility',
   'Web API version': 'Web API version',
+  'Webpage': 'Webpage',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.',
   'What is it for?': 'What is it for?',

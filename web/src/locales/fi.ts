@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Kokoelmalla on oltava nimi.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Kahdessa kirjastossa liitteenä oleva tiedosto tallennetaan kerran ja lasketaan kumpaankin. Ensimmäinen luku kertoo, paljonko tämän palvelimen on säilytettävä; toinen, paljonko kirjastot veisivät erikseen.',
+  'A file on your computer cannot be linked from the browser.':
+    'Tietokoneellasi olevaan tiedostoon ei voi linkittää selaimesta.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Tiedosto, jonka sovellus pyysi saada lähettää mutta jäi lähettämättä. Mitään ei menetetä: sovellus pyytää uudelleen.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -40,7 +42,9 @@ export default {
   'Account deleted.': 'Tili poistettu.',
   'Accounts': 'Tilit',
   'Across the instance': 'Koko palvelimella',
+  'Add Attachment': 'Lisää liite',
   'Add Creator': 'Lisää tekijä',
+  'Add File…': 'Lisää tiedosto…',
   'Add Note': 'Lisää muistiinpano',
   'Add Related': 'Lisää liittyvä',
   'Add Tag': 'Lisää merkki',
@@ -101,8 +105,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Pyydä uutta tämän palvelimen ylläpitäjältä. Nykyinen salasanasi toimii edelleen.',
   'At least {count} characters': 'Vähintään {count} merkkiä',
+  'Attach': 'Liitä',
+  'Attach File…': 'Liitä tiedosto…',
+  'Attach Web Link': 'Liitä verkkolinkki',
+  'Attach Web Link…': 'Liitä verkkolinkki…',
   'Attachments': 'Liitteet',
   'Attachments directory': 'Liitteiden hakemisto',
+  'Audio': 'Ääni',
   'Authenticator app': 'Todennussovellus',
   'Authenticator enabled.': 'Todennussovellus otettu käyttöön.',
   'Authenticator removed.': 'Todennussovellus poistettu.',
@@ -121,6 +130,7 @@ export default {
   'Callback address': 'Paluuosoite',
   'Can': 'Oikeudet',
   'Cancel': 'Peruuta',
+  'Cancel upload of {name}': 'Peruuta lähetys: {name}',
   'Change': 'Muuta',
   'Change Item Type': 'Vaihda kohteen tyyppi',
   'Change password': 'Vaihda salasana',
@@ -251,6 +261,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Siirrä jakajaa vetämällä. Palauta se kaksoisnapsauttamalla.',
   'Duplicate Items': 'Kaksoiskappaleet',
+  'Ebook': 'E-kirja',
   'Edit': 'Muokkaa',
   'Edit the title': 'Muokkaa otsikkoa',
   'Email': 'Sähköposti',
@@ -292,6 +303,8 @@ export default {
     'WebDAV-palvelimella säilytettyjä tiedostoja ei tallenneta zotero.org:iin, joten siirto ei voi tuoda niitä mukanaan. Synkronoi tiedostot edelleen WebDAVin kautta tai lataa ne palvelimelle Zotero-sovelluksesta, jossa ne vielä ovat.',
   'Finished.': 'Valmis.',
   'First or last item': 'Ensimmäinen tai viimeinen nimike',
+  'Folders cannot be added. Add the files inside them.':
+    'Kansioita ei voi lisätä. Lisää niiden sisältämät tiedostot.',
   'Follow this device ({name})': 'Seuraa tätä laitetta ({name})',
   'For example, my laptop': 'Esimerkiksi oma kannettava',
   'Forgotten password': 'Unohtunut salasana',
@@ -326,6 +339,7 @@ export default {
   'I created this work.': 'Olen itse luonut tämän teoksen.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Jos jokin täkäläinen tili käyttää tätä osoitetta, linkki uuden salasanan asettamiseen on matkalla.',
+  'Image': 'Kuva',
   'Import and export': 'Tuonti ja vienti',
   'In the trash': 'Roskakorissa',
   'Include attached files': 'Sisällytä liitetiedostot',
@@ -359,6 +373,7 @@ export default {
   'Language': 'Kieli',
   'Language and time zone': 'Kieli ja aikavyöhyke',
   'Language and time zone saved.': 'Kieli ja aikavyöhyke tallennettu.',
+  'Larger than the {size} this server accepts': 'Suurempi kuin tämän palvelimen hyväksymä {size}',
   'Last opened {date}': 'Viimeksi avattu {date}',
   'Last time you limited it to:': 'Viime kerralla rajasit sen kohteisiin:',
   'Last used {when}': 'Viimeksi käytetty {when}',
@@ -373,6 +388,7 @@ export default {
   'Libraries': 'Kirjastot',
   'Library': 'Kirjasto',
   'Limited to:': 'Rajattu:',
+  'Link': 'Linkki',
   'Link issued.': 'Linkki luotu.',
   'Links to this collection': 'Linkit tähän kokoelmaan',
   'Loading…': 'Ladataan…',
@@ -488,6 +504,7 @@ export default {
     'Muut sovellukset, joille olet antanut pääsyn tähän tiliin. Kukin sai vain hyväksymäsi oikeudet.',
   'Overview': 'Yleiskatsaus',
   'Owner': 'Omistaja',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM-muodossa. Liitä molemmat, kun palveluntarjoaja on vaihtamassa avaintaan.',
   'Page Down': 'Page Down',
@@ -564,6 +581,7 @@ export default {
   'Render': 'Muotoile',
   'Rendering…': 'Muotoillaan…',
   'Repeat password': 'Toista salasana',
+  'Replace File…': 'Korvaa tiedosto…',
   'Replace what my library here already holds': 'Korvaa tämän palvelimen kirjastoni nykyinen sisältö',
   'Replace what this library already holds': 'Korvaa tämän kirjaston nykyinen sisältö',
   'Required claim': 'Vaadittu väite',
@@ -698,6 +716,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Perus-URL. Sen määritykset luetaan osoitteesta /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kokoelma ja kaikki sen sisällä oleva',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Tiedosto korvattiin ensin muualla. Tämä on uusi tiedosto.',
   'The following fields will be lost:': 'Seuraavat kentät menetetään:',
   'The group has a new owner.': 'Ryhmällä on uusi omistaja.',
   'The items in it stay in the library.': 'Sen nimikkeet jäävät kirjastoon.',
@@ -725,7 +745,10 @@ export default {
     'Tämä luo avaimen, joka toimii, kunnes poistat sen asetuksista, vaikka kirjautuisit täältä ulos.',
   'This instance has no accounts yet, so this one will be yours.':
     'Tällä palvelimella ei ole vielä yhtään tiliä, joten tästä tulee sinun tilisi.',
+  'This is not an address. Check it and try again.':
+    'Tämä ei ole osoite. Tarkista se ja yritä uudelleen.',
   'This is your public page.': 'Tämä on julkinen sivusi.',
+  'This kind of address cannot be attached.': 'Tällaista osoitetta ei voi liittää.',
   'This link does not include the files themselves.':
     'Tämä linkki ei sisällä itse tiedostoja.',
   'This link has been revoked, has expired, or never existed.':
@@ -736,6 +759,7 @@ export default {
   'This server': 'Tämä palvelin',
   'This server’s entity ID is its own public URL.': 'Tämän palvelimen entity ID on sen oma julkinen URL.',
   'Time zone': 'Aikavyöhyke',
+  'Title': 'Otsikko',
   'Trash': 'Roskakori',
   'Try Again': 'Yritä uudelleen',
   'Turn off codes by email': 'Poista sähköpostikoodit käytöstä',
@@ -748,6 +772,8 @@ export default {
   'Unlink': 'Poista linkki',
   'Unread': 'Lukematon',
   'Unreferenced files deleted.': 'Tiedostot, joihin ei viitata, poistettu.',
+  'Uploading {name}': 'Lähetetään: {name}',
+  'Uploads': 'Lähetykset',
   'Use a code by email instead': 'Käytä sen sijaan sähköpostikoodia',
   'Use a passkey instead': 'Käytä sen sijaan pääsyavainta',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -758,8 +784,10 @@ export default {
   'Verify': 'Vahvista',
   'Version': 'Versio',
   'Version {version}': 'Versio {version}',
+  'Video': 'Video',
   'Visibility': 'Näkyvyys',
   'Web API version': 'Web API -versio',
+  'Webpage': 'Verkkosivu',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Tiedot, joiden pohjalta ryhmäilmoitukset lähetettiin. Ketään ei ilmoiteta kahdesti; tämä ratkaisee vain, kuinka kauan merkintä säilyy.',
   'What is it for?': 'Mihin sitä käytetään?',

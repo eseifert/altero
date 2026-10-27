@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Kailangan ng pangalan ang koleksyon.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Ang file na naka-attach sa dalawang library ay iniimbak nang isang beses at binibilang sa pareho. Ang unang numero ang kailangang hawakan ng server na ito; ang pangalawa ang magiging laki ng mga library kung magkahiwalay ang mga ito.',
+  'A file on your computer cannot be linked from the browser.':
+    'Hindi maaaring i-link mula sa browser ang isang file sa iyong computer.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Isang file na hiniling ng client na ipadala pero hindi naipadala. Walang nawala: hihilingin itong muli.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'Na-delete ang account.',
   'Accounts': 'Mga account',
   'Across the instance': 'Sa buong instance',
+  'Add Attachment': 'Magdagdag ng Attachment',
   'Add Creator': 'Magdagdag ng Lumikha',
+  'Add File…': 'Magdagdag ng File…',
   'Add Note': 'Magdagdag ng Tala',
   'Add Related': 'Magdagdag ng Kaugnay',
   'Add Tag': 'Magdagdag ng Tag',
@@ -105,8 +109,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Humingi ng bago sa namamahala ng server na ito. Gumagana pa rin ang kasalukuyan mong password.',
   'At least {count} characters': 'Hindi bababa sa {count} character',
+  'Attach': 'I-attach',
+  'Attach File…': 'Mag-attach ng File…',
+  'Attach Web Link': 'Mag-attach ng Web Link',
+  'Attach Web Link…': 'Mag-attach ng Web Link…',
   'Attachments': 'Mga attachment',
   'Attachments directory': 'Direktoryo ng mga attachment',
+  'Audio': 'Audio',
   'Authenticator app': 'Authenticator app',
   'Authenticator enabled.': 'Na-enable ang authenticator.',
   'Authenticator removed.': 'Inalis ang authenticator.',
@@ -125,6 +134,7 @@ export default {
   'Callback address': 'Callback address',
   'Can': 'Maaaring',
   'Cancel': 'Kanselahin',
+  'Cancel upload of {name}': 'Kanselahin ang pag-upload ng {name}',
   'Change': 'Baguhin',
   'Change Item Type': 'Palitan ang Uri ng Item',
   'Change password': 'Palitan ang password',
@@ -258,6 +268,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'I-drag para ilipat ang hatiang ito. I-double click para ibalik ito.',
   'Duplicate Items': 'Mga Duplicate na Item',
+  'Ebook': 'Ebook',
   'Edit': 'I-edit',
   'Edit the title': 'I-edit ang pamagat',
   'Email': 'Email',
@@ -299,6 +310,8 @@ export default {
     'Hindi iniimbak sa zotero.org ang mga file na nasa WebDAV server, kaya hindi ito madadala ng migration. Ipagpatuloy ang pag-sync ng mga file sa pamamagitan ng WebDAV, o i-upload ang mga ito mula sa Zotero client na may hawak pa ng mga ito.',
   'Finished.': 'Natapos na.',
   'First or last item': 'Una o huling item',
+  'Folders cannot be added. Add the files inside them.':
+    'Hindi maaaring magdagdag ng mga folder. Idagdag ang mga file na nasa loob ng mga ito.',
   'Follow this device ({name})': 'Sundin ang device na ito ({name})',
   'For example, my laptop': 'Halimbawa, ang aking laptop',
   'Forgotten password': 'Nakalimutang password',
@@ -333,6 +346,7 @@ export default {
   'I created this work.': 'Ako ang lumikha ng akdang ito.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Kung may account dito na gumagamit ng address na iyon, papunta na ang link para magtakda ng bagong password.',
+  'Image': 'Larawan',
   'Import and export': 'Pag-import at pag-export',
   'In the trash': 'Nasa basurahan',
   'Include attached files': 'Isama ang mga naka-attach na file',
@@ -366,6 +380,8 @@ export default {
   'Language': 'Wika',
   'Language and time zone': 'Wika at time zone',
   'Language and time zone saved.': 'Na-save ang wika at time zone.',
+  'Larger than the {size} this server accepts':
+    'Mas malaki sa {size} na tinatanggap ng server na ito',
   'Last opened {date}': 'Huling binuksan {date}',
   'Last time you limited it to:': 'Noong huli, nilimitahan mo ito sa:',
   'Last used {when}': 'Huling ginamit {when}',
@@ -381,6 +397,7 @@ export default {
   'Libraries': 'Mga library',
   'Library': 'Library',
   'Limited to:': 'Limitado sa:',
+  'Link': 'Link',
   'Link issued.': 'Nagawa ang link.',
   'Links to this collection': 'Mga link sa koleksyong ito',
   'Loading…': 'Naglo-load…',
@@ -495,6 +512,7 @@ export default {
     'Iba pang mga application na pinayagan mong ma-access ang account na ito. Ang bawat isa ay binigyan lang ng mga pahintulot na inaprubahan mo.',
   'Overview': 'Pangkalahatang-ideya',
   'Owner': 'May-ari',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. I-paste ang dalawa habang pinapalitan ng provider ang key nito.',
   'Page Down': 'Page Down',
@@ -572,6 +590,7 @@ export default {
   'Render': 'I-render',
   'Rendering…': 'Nire-render…',
   'Repeat password': 'Ulitin ang password',
+  'Replace File…': 'Palitan ang File…',
   'Replace what my library here already holds':
     'Palitan ang kasalukuyang laman ng aking library dito',
   'Replace what this library already holds': 'Palitan ang kasalukuyang laman ng library na ito',
@@ -710,6 +729,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Ang base URL. Binabasa ang configuration nito mula sa /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Ang koleksyon at ang lahat ng nasa loob nito',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Napalitan na muna ang file sa ibang lugar. Ito ang bago.',
   'The following fields will be lost:': 'Mawawala ang mga sumusunod na field:',
   'The group has a new owner.': 'May bagong may-ari ang grupo.',
   'The items in it stay in the library.': 'Mananatili sa library ang mga item na nasa loob nito.',
@@ -737,7 +758,11 @@ export default {
     'Gagawa ito ng key na patuloy na gagana hanggang alisin mo ito sa Mga setting, kahit mag-sign out ka pa rito.',
   'This instance has no accounts yet, so this one will be yours.':
     'Wala pang account ang instance na ito, kaya sa iyo mapupunta ang isang ito.',
+  'This is not an address. Check it and try again.':
+    'Hindi ito address. Suriin ito at subukan ulit.',
   'This is your public page.': 'Ito ang iyong pampublikong page.',
+  'This kind of address cannot be attached.':
+    'Hindi maaaring i-attach ang ganitong uri ng address.',
   'This link does not include the files themselves.':
     'Hindi kasama sa link na ito ang mismong mga file.',
   'This link has been revoked, has expired, or never existed.':
@@ -749,6 +774,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Ang entity ID ng server na ito ay ang sarili nitong pampublikong URL.',
   'Time zone': 'Time zone',
+  'Title': 'Pamagat',
   'Trash': 'Basurahan',
   'Try Again': 'Subukan Muli',
   'Turn off codes by email': 'I-off ang mga code sa email',
@@ -761,6 +787,8 @@ export default {
   'Unlink': 'Alisin ang Link',
   'Unread': 'Hindi pa nababasa',
   'Unreferenced files deleted.': 'Na-delete ang mga file na walang tumutukoy.',
+  'Uploading {name}': 'Ina-upload ang {name}',
+  'Uploads': 'Mga upload',
   'Use a code by email instead': 'Gumamit na lang ng code sa email',
   'Use a passkey instead': 'Gumamit na lang ng passkey',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -772,8 +800,10 @@ export default {
   'Verify': 'I-verify',
   'Version': 'Bersyon',
   'Version {version}': 'Bersyon {version}',
+  'Video': 'Video',
   'Visibility': 'Visibility',
   'Web API version': 'Bersyon ng Web API',
+  'Webpage': 'Webpage',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Ang pinagmulan ng mga naipadalang notification ng grupo. Walang inaabisuhan nang dalawang beses, at ito lang ang nagtatakda kung gaano katagal mananatili ang talaan.',
   'What is it for?': 'Para saan ito?',

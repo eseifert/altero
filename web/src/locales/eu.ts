@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Bildumak izen bat behar du.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Bi liburutegitan erantsitako fitxategi bat behin gordetzen da eta bietan zenbatzen da. Lehen zenbakia zerbitzari honek gorde behar duena da; bigarrena, liburutegiek bereiz hartuko luketena.',
+  'A file on your computer cannot be linked from the browser.':
+    'Ezin da zure ordenagailuko fitxategi bat nabigatzailetik estekatu.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Bezeroak bidaltzeko eskatu eta inoiz bidali ez zuen fitxategia. Ez da ezer galtzen: berriro eskatuko du.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -40,7 +42,9 @@ export default {
   'Account deleted.': 'Kontua ezabatu da.',
   'Accounts': 'Kontuak',
   'Across the instance': 'Instantzia osoan',
+  'Add Attachment': 'Eranskina gehitu',
   'Add Creator': 'Gehitu sortzailea',
+  'Add File…': 'Gehitu fitxategia…',
   'Add Note': 'Oharra gehitu',
   'Add Related': 'Gehitu erlazionatutakoa',
   'Add Tag': 'Gehitu etiketa',
@@ -102,8 +106,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Eskatu beste bat zerbitzari hau kudeatzen duenari. Zure oraingo pasahitzak balio du oraindik.',
   'At least {count} characters': 'Gutxienez {count} karaktere',
+  'Attach': 'Erantsi',
+  'Attach File…': 'Erantsi fitxategia…',
+  'Attach Web Link': 'Erantsi web esteka',
+  'Attach Web Link…': 'Erantsi web esteka…',
   Attachments: 'Eranskinak',
   'Attachments directory': 'Eranskinen direktorioa',
+  'Audio': 'Audioa',
   'Authenticator app': 'Autentifikazio-aplikazioa',
   'Authenticator enabled.': 'Autentifikazio-aplikazioa gaitu da.',
   'Authenticator removed.': 'Autentifikazio-aplikazioa kendu da.',
@@ -122,6 +131,7 @@ export default {
   'Callback address': 'Itzulera-helbidea',
   'Can': 'Baimenak',
   'Cancel': 'Utzi',
+  'Cancel upload of {name}': 'Utzi igoera: {name}',
   'Change': 'Aldatu',
   'Change Item Type': 'Aldatu elementu mota',
   'Change password': 'Aldatu pasahitza',
@@ -252,6 +262,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Arrastatu banaketa hau mugitzeko. Egin klik bikoitza lehengora itzultzeko.',
   'Duplicate Items': 'Bikoiztutako elementuak',
+  'Ebook': 'Liburu elektronikoa',
   'Edit': 'Editatu',
   'Edit the title': 'Editatu izenburua',
   'Email': 'Posta elektronikoa',
@@ -293,6 +304,8 @@ export default {
     'WebDAV zerbitzari batean gordetako fitxategiak ez daude zotero.org-en, beraz migrazio batek ezin ditu ekarri. Jarraitu fitxategiak WebDAV bidez sinkronizatzen, edo igo itzazu oraindik dituen Zotero bezero batetik.',
   'Finished.': 'Amaituta.',
   'First or last item': 'Lehen edo azken elementua',
+  'Folders cannot be added. Add the files inside them.':
+    'Karpetak ezin dira gehitu. Gehitu haien barruko fitxategiak.',
   'Follow this device ({name})': 'Jarraitu gailu honi ({name})',
   'For example, my laptop': 'Adibidez, nire eramangarria',
   'Forgotten password': 'Ahaztutako pasahitza',
@@ -327,6 +340,7 @@ export default {
   'I created this work.': 'Nik sortu dut lan hau.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Hemengo kontu batek helbide hori erabiltzen badu, pasahitz berria ezartzeko esteka bat bidean da.',
+  'Image': 'Irudia',
   'Import and export': 'Inportatu eta esportatu',
   'In the trash': 'Zaborrean',
   'Include attached files': 'Sartu erantsitako fitxategiak',
@@ -360,6 +374,8 @@ export default {
   'Language': 'Hizkuntza',
   'Language and time zone': 'Hizkuntza eta ordu-zona',
   'Language and time zone saved.': 'Hizkuntza eta ordu-zona gorde dira.',
+  'Larger than the {size} this server accepts':
+    'Zerbitzari honek onartzen duen {size} baino handiagoa',
   'Last opened {date}': 'Azkenekoz irekia: {date}',
   'Last time you limited it to:': 'Azken aldian honetara mugatu zenuen:',
   'Last used {when}': 'Azken erabilera: {when}',
@@ -374,6 +390,7 @@ export default {
   'Libraries': 'Liburutegiak',
   'Library': 'Liburutegia',
   'Limited to:': 'Honetara mugatua:',
+  'Link': 'Esteka',
   'Link issued.': 'Esteka sortu da.',
   'Links to this collection': 'Bilduma honetarako estekak',
   'Loading…': 'Kargatzen…',
@@ -488,6 +505,7 @@ export default {
     'Kontu honetara sartzeko baimena eman diezun beste aplikazioak. Bakoitzak zuk onartutako baimenak soilik jaso ditu.',
   'Overview': 'Ikuspegi orokorra',
   'Owner': 'Jabea',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Itsatsi biak hornitzailea bere gakoa aldatzen ari den bitartean.',
   'Page Down': 'Page Down',
@@ -564,6 +582,7 @@ export default {
   'Render': 'Sortu',
   'Rendering…': 'Sortzen…',
   'Repeat password': 'Errepikatu pasahitza',
+  'Replace File…': 'Ordeztu fitxategia…',
   'Replace what my library here already holds': 'Ordeztu hemengo nire liburutegiak dagoeneko duena',
   'Replace what this library already holds': 'Ordeztu liburutegi honek dagoeneko duena',
   'Required claim': 'Beharrezko atributua',
@@ -701,6 +720,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Oinarrizko URLa. Bere konfigurazioa /.well-known/openid-configuration helbidetik irakurtzen da.',
   'The collection and everything inside it': 'Bilduma eta barruko guztia',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Fitxategia beste nonbait ordeztu da lehenago. Hau da berria.',
   'The following fields will be lost:': 'Ondorengo eremuak galduko dira:',
   'The group has a new owner.': 'Taldeak jabe berria du.',
   'The items in it stay in the library.': 'Barruko elementuak liburutegian geratzen dira.',
@@ -728,7 +749,10 @@ export default {
     'Honek gako bat sortzen du, Ezarpenetan kendu arte balio duena, baita hemen saioa amaitu ondoren ere.',
   'This instance has no accounts yet, so this one will be yours.':
     'Instantzia honek ez du konturik oraindik, beraz hau zurea izango da.',
+  'This is not an address. Check it and try again.':
+    'Hau ez da helbide bat. Egiaztatu eta saiatu berriro.',
   'This is your public page.': 'Hau da zure orri publikoa.',
+  'This kind of address cannot be attached.': 'Mota honetako helbideak ezin dira erantsi.',
   'This link does not include the files themselves.':
     'Esteka honek ez ditu fitxategiak berak barne hartzen.',
   'This link has been revoked, has expired, or never existed.':
@@ -740,6 +764,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Zerbitzari honen entitate-IDa bere URL publikoa da.',
   'Time zone': 'Ordu-zona',
+  'Title': 'Izenburua',
   'Trash': 'Zaborra',
   'Try Again': 'Saiatu berriro',
   'Turn off codes by email': 'Desaktibatu posta elektronikoko kodeak',
@@ -752,6 +777,8 @@ export default {
   'Unlink': 'Esteka kendu',
   'Unread': 'Irakurri gabe',
   'Unreferenced files deleted.': 'Erreferentziarik gabeko fitxategiak ezabatu dira.',
+  'Uploading {name}': 'Igotzen: {name}',
+  'Uploads': 'Igoerak',
   'Use a code by email instead': 'Erabili posta elektronikoko kode bat horren ordez',
   'Use a passkey instead': 'Erabili sarbide-gako bat horren ordez',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -763,8 +790,10 @@ export default {
   'Verify': 'Egiaztatu',
   'Version': 'Bertsioa',
   'Version {version}': '{version} bertsioa',
+  'Video': 'Bideoa',
   'Visibility': 'Ikusgarritasuna',
   'Web API version': 'Web APIaren bertsioa',
+  'Webpage': 'Web-orria',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Talde-jakinarazpenak zertatik bidali ziren. Inori ez zaio bi aldiz jakinarazten; honek erregistroa zenbat denboraz geratzen den baino ez du erabakitzen.',
   'What is it for?': 'Zertarako da?',

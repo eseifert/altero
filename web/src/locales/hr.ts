@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Zbirka mora imati naziv.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Datoteka priložena u dvije biblioteke pohranjena je jednom, a broji se u obje. Prvi broj pokazuje koliko ovaj poslužitelj mora držati, a drugi koliko bi biblioteke zauzimale svaka zasebno.',
+  'A file on your computer cannot be linked from the browser.':
+    'Datoteka na Vašem računalu ne može se povezati iz preglednika.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Datoteka koju je klijent najavio, ali je nikad nije poslao. Ništa nije izgubljeno: klijent će ponovno pitati.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -39,7 +41,9 @@ export default {
   'Account deleted.': 'Račun je izbrisan.',
   'Accounts': 'Računi',
   'Across the instance': 'Na cijeloj instanci',
+  'Add Attachment': 'Dodaj prilog',
   'Add Creator': 'Dodaj stvoritelja',
+  'Add File…': 'Dodaj datoteku…',
   'Add Note': 'Dodaj bilješku',
   'Add Related': 'Dodaj srodno',
   'Add Tag': 'Dodaj oznaku',
@@ -102,8 +106,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Zatražite novu od administratora ovog poslužitelja. Vaša trenutna lozinka i dalje vrijedi.',
   'At least {count} characters': 'Najmanje {count} znakova',
+  'Attach': 'Priloži',
+  'Attach File…': 'Priloži datoteku…',
+  'Attach Web Link': 'Dodaj web poveznicu',
+  'Attach Web Link…': 'Dodaj web poveznicu…',
   Attachments: 'Prilozi',
   'Attachments directory': 'Mapa priloga',
+  'Audio': 'Zvuk',
   'Authenticator app': 'Aplikacija za autentifikaciju',
   'Authenticator enabled.': 'Aplikacija za autentifikaciju je omogućena.',
   'Authenticator removed.': 'Aplikacija za autentifikaciju je uklonjena.',
@@ -122,6 +131,7 @@ export default {
   'Callback address': 'Povratna adresa',
   'Can': 'Ovlasti',
   'Cancel': 'Odustani',
+  'Cancel upload of {name}': 'Prekini prijenos datoteke {name}',
   'Change': 'Promijeni',
   'Change Item Type': 'Promijeni vrstu stavke',
   'Change password': 'Promijeni lozinku',
@@ -253,6 +263,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Povucite da biste pomaknuli ovu razdjelnicu. Dvaput kliknite da biste je vratili na mjesto.',
   'Duplicate Items': 'Duplicirane stavke',
+  'Ebook': 'E-knjiga',
   'Edit': 'Uredi',
   'Edit the title': 'Uredi naslov',
   'Email': 'E-pošta',
@@ -294,6 +305,8 @@ export default {
     'Datoteke na poslužitelju WebDAV nisu pohranjene na zotero.org, pa ih migracija ne može prenijeti. Nastavite sinkronizirati datoteke putem WebDAV-a ili ih prenesite iz klijenta Zotero koji ih još ima.',
   'Finished.': 'Završeno.',
   'First or last item': 'Prva ili posljednja stavka',
+  'Folders cannot be added. Add the files inside them.':
+    'Mape se ne mogu dodati. Dodajte datoteke koje se nalaze u njima.',
   'Follow this device ({name})': 'Prati ovaj uređaj ({name})',
   'For example, my laptop': 'Na primjer, moje prijenosno računalo',
   'Forgotten password': 'Zaboravljena lozinka',
@@ -328,6 +341,7 @@ export default {
   'I created this work.': 'Ovo je moj rad.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ako neki račun na ovom poslužitelju koristi tu adresu, poveznica za postavljanje nove lozinke je na putu.',
+  'Image': 'Slika',
   'Import and export': 'Uvoz i izvoz',
   'In the trash': 'U otpadu',
   'Include attached files': 'Uključi priložene datoteke',
@@ -361,6 +375,7 @@ export default {
   'Language': 'Jezik',
   'Language and time zone': 'Jezik i vremenska zona',
   'Language and time zone saved.': 'Jezik i vremenska zona su spremljeni.',
+  'Larger than the {size} this server accepts': 'Veće od {size}, koliko prihvaća ovaj poslužitelj',
   'Last opened {date}': 'Zadnji put otvoreno {date}',
   'Last time you limited it to:': 'Prošli put ste je ograničili na:',
   'Last used {when}': 'Zadnja upotreba {when}',
@@ -376,6 +391,7 @@ export default {
   'Libraries': 'Biblioteke',
   'Library': 'Biblioteka',
   'Limited to:': 'Ograničeno na:',
+  'Link': 'Poveznica',
   'Link issued.': 'Poveznica je izdana.',
   'Links to this collection': 'Poveznice na ovu zbirku',
   'Loading…': 'Učitavanje…',
@@ -490,6 +506,7 @@ export default {
     'Druge aplikacije kojima ste dopustili pristup ovom računu. Svaka je dobila samo dopuštenja koja ste odobrili.',
   'Overview': 'Pregled',
   'Owner': 'Vlasnik',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Dok pružatelj mijenja ključ, zalijepite oba.',
   'Page Down': 'Page Down',
@@ -566,6 +583,7 @@ export default {
   'Render': 'Oblikuj',
   'Rendering…': 'Oblikovanje…',
   'Repeat password': 'Ponovite lozinku',
+  'Replace File…': 'Zamijeni datoteku…',
   'Replace what my library here already holds': 'Zamijeni ono što moja biblioteka ovdje već sadrži',
   'Replace what this library already holds': 'Zamijeni ono što ova biblioteka već sadrži',
   'Required claim': 'Obavezna tvrdnja',
@@ -700,6 +718,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Osnovni URL. Konfiguracija se učitava iz /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Zbirku i sve što je u njoj',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Datoteka je u međuvremenu zamijenjena drugdje. Ovo je nova datoteka.',
   'The following fields will be lost:': 'Sljedeća polja bit će izgubljena:',
   'The group has a new owner.': 'Grupa ima novog vlasnika.',
   'The items in it stay in the library.': 'Stavke iz nje ostaju u biblioteci.',
@@ -727,7 +747,10 @@ export default {
     'Time se stvara ključ koji radi dok ga ne uklonite u Postavkama, čak i nakon što se ovdje odjavite.',
   'This instance has no accounts yet, so this one will be yours.':
     'Ova instanca još nema računa, pa će ovaj biti Vaš.',
+  'This is not an address. Check it and try again.':
+    'Ovo nije adresa. Provjerite je i pokušajte ponovno.',
   'This is your public page.': 'Ovo je Vaša javna stranica.',
+  'This kind of address cannot be attached.': 'Ova se vrsta adrese ne može priložiti.',
   'This link does not include the files themselves.': 'Ova poveznica ne uključuje same datoteke.',
   'This link has been revoked, has expired, or never existed.':
     'Ova poveznica je opozvana, istekla je ili nikad nije postojala.',
@@ -738,6 +761,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'ID entiteta ovog poslužitelja njegov je javni URL.',
   'Time zone': 'Vremenska zona',
+  'Title': 'Naslov',
   'Trash': 'Otpad',
   'Try Again': 'Pokušaj ponovno',
   'Turn off codes by email': 'Isključi kodove e-poštom',
@@ -750,6 +774,8 @@ export default {
   'Unlink': 'Ukloni poveznicu',
   'Unread': 'Nepročitano',
   'Unreferenced files deleted.': 'Datoteke bez referenci su izbrisane.',
+  'Uploading {name}': 'Prijenos datoteke {name}',
+  'Uploads': 'Prijenosi',
   'Use a code by email instead': 'Umjesto toga upotrijebi kôd e-poštom',
   'Use a passkey instead': 'Umjesto toga upotrijebi pristupni ključ',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -761,8 +787,10 @@ export default {
   'Verify': 'Provjeri',
   'Version': 'Verzija',
   'Version {version}': 'Verzija {version}',
+  'Video': 'Video',
   'Visibility': 'Vidljivost',
   'Web API version': 'Verzija web API-ja',
+  'Webpage': 'Web-stranica',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Iz tih zapisa nastaju obavijesti grupe. Nitko ne dobiva obavijest dvaput; ova postavka određuje samo koliko dugo zapis ostaje.',
   'What is it for?': 'Čemu služi?',

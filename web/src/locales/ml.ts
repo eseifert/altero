@@ -16,6 +16,8 @@ export default {
   'A collection needs a name.': 'ശേഖരത്തിന് ഒരു പേര് വേണം.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'രണ്ട് ലൈബ്രറികളിൽ അറ്റാച്ച് ചെയ്ത ഒരു ഫയൽ ഒരിക്കൽ മാത്രം സംഭരിക്കുന്നു, എന്നാൽ രണ്ടിലും കണക്കാക്കുന്നു. ആദ്യ സംഖ്യ ഈ സെർവർ സൂക്ഷിക്കേണ്ട അളവാണ്; രണ്ടാമത്തേത് ലൈബ്രറികൾ വെവ്വേറെയായിരുന്നെങ്കിൽ വേണ്ടിവരുന്ന അളവും.',
+  'A file on your computer cannot be linked from the browser.':
+    'നിങ്ങളുടെ കമ്പ്യൂട്ടറിലെ ഒരു ഫയൽ ബ്രൗസറിൽ നിന്ന് ലിങ്ക് ചെയ്യാനാവില്ല.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'ക്ലയന്റ് അയയ്ക്കാൻ അനുമതി ചോദിച്ചെങ്കിലും ഒരിക്കലും അയയ്ക്കാത്ത ഫയൽ. ഒന്നും നഷ്ടപ്പെട്ടിട്ടില്ല: അത് വീണ്ടും ചോദിക്കും.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -40,7 +42,9 @@ export default {
   'Account deleted.': 'അക്കൗണ്ട് ഇല്ലാതാക്കി.',
   Accounts: 'അക്കൗണ്ടുകൾ',
   'Across the instance': 'ഈ ഇൻസ്റ്റൻസിലാകെ',
+  'Add Attachment': 'അറ്റാച്ച്മെന്റ് ചേർക്കുക',
   'Add Creator': 'സ്രഷ്ടാവിനെ ചേർക്കുക',
+  'Add File…': 'ഫയൽ ചേർക്കുക…',
   'Add Note': 'കുറിപ്പ് ചേർക്കുക',
   'Add Related': 'ബന്ധപ്പെട്ടത് ചേർക്കുക',
   'Add Tag': 'ടാഗ് ചേർക്കുക',
@@ -102,8 +106,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'ഈ സെർവർ നടത്തുന്നയാളോട് പുതിയൊരെണ്ണം ആവശ്യപ്പെടുക. നിങ്ങളുടെ നിലവിലെ പാസ്‌വേഡ് ഇപ്പോഴും പ്രവർത്തിക്കും.',
   'At least {count} characters': 'കുറഞ്ഞത് {count} പ്രതീകങ്ങൾ',
+  'Attach': 'അറ്റാച്ച് ചെയ്യുക',
+  'Attach File…': 'ഫയൽ അറ്റാച്ച് ചെയ്യുക…',
+  'Attach Web Link': 'വെബ് ലിങ്ക് അറ്റാച്ച് ചെയ്യുക',
+  'Attach Web Link…': 'വെബ് ലിങ്ക് അറ്റാച്ച് ചെയ്യുക…',
   Attachments: 'അറ്റാച്ച്മെന്റുകൾ',
   'Attachments directory': 'അറ്റാച്ച്മെന്റ് ഡയറക്ടറി',
+  'Audio': 'ഓഡിയോ',
   'Authenticator app': 'ഓതന്റിക്കേറ്റർ ആപ്പ്',
   'Authenticator enabled.': 'ഓതന്റിക്കേറ്റർ പ്രവർത്തനക്ഷമമാക്കി.',
   'Authenticator removed.': 'ഓതന്റിക്കേറ്റർ നീക്കം ചെയ്തു.',
@@ -122,6 +131,7 @@ export default {
   'Callback address': 'കോൾബാക്ക് വിലാസം',
   Can: 'ചെയ്യാവുന്നത്',
   Cancel: 'റദ്ദാക്കുക',
+  'Cancel upload of {name}': '{name} അപ്‌ലോഡ് ചെയ്യുന്നത് റദ്ദാക്കുക',
   Change: 'മാറ്റുക',
   'Change Item Type': 'ഇനത്തിന്റെ തരം മാറ്റുക',
   'Change password': 'പാസ്‌വേഡ് മാറ്റുക',
@@ -254,6 +264,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'ഈ വിഭജനരേഖ നീക്കാൻ വലിച്ചിടുക. പഴയ സ്ഥാനത്താക്കാൻ ഡബിൾ-ക്ലിക്ക് ചെയ്യുക.',
   'Duplicate Items': 'തനിപ്പകർപ്പ് ഇനങ്ങൾ',
+  'Ebook': 'ഇ-ബുക്ക്',
   Email: 'ഇമെയിൽ',
   'Edit': 'തിരുത്തുക',
   'Edit the title': 'ശീർഷകം തിരുത്തുക',
@@ -295,6 +306,8 @@ export default {
     'WebDAV സെർവറിൽ സൂക്ഷിച്ച ഫയലുകൾ zotero.org-ൽ സംഭരിക്കുന്നില്ല, അതിനാൽ മൈഗ്രേഷന് അവ കൊണ്ടുവരാനാവില്ല. WebDAV വഴി ഫയലുകൾ സമന്വയിപ്പിക്കുന്നത് തുടരുക, അല്ലെങ്കിൽ അവ ഇപ്പോഴും ഉള്ള ഒരു Zotero ക്ലയന്റിൽ നിന്ന് അപ്‌ലോഡ് ചെയ്യുക.',
   'Finished.': 'പൂർത്തിയായി.',
   'First or last item': 'ആദ്യ അല്ലെങ്കിൽ അവസാന ഇനം',
+  'Folders cannot be added. Add the files inside them.':
+    'ഫോൾഡറുകൾ ചേർക്കാനാവില്ല. അവയ്ക്കുള്ളിലെ ഫയലുകൾ ചേർക്കുക.',
   'Follow this device ({name})': 'ഈ ഉപകരണത്തെ പിന്തുടരുക ({name})',
   'For example, my laptop': 'ഉദാഹരണത്തിന്, എന്റെ ലാപ്‌ടോപ്പ്',
   'Forgotten password': 'മറന്ന പാസ്‌വേഡ്',
@@ -329,6 +342,7 @@ export default {
   'I created this work.': 'ഈ കൃതി ഞാൻ സൃഷ്ടിച്ചതാണ്.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'ഇവിടെ ഏതെങ്കിലും അക്കൗണ്ട് ആ വിലാസം ഉപയോഗിക്കുന്നുണ്ടെങ്കിൽ, പുതിയ പാസ്‌വേഡ് സജ്ജീകരിക്കാനുള്ള ലിങ്ക് വരുന്നുണ്ട്.',
+  'Image': 'ചിത്രം',
   'Import and export': 'ഇമ്പോർട്ടും എക്സ്‌പോർട്ടും',
   'In the trash': 'ട്രാഷിൽ',
   'Include attached files': 'അറ്റാച്ച് ചെയ്ത ഫയലുകൾ ഉൾപ്പെടുത്തുക',
@@ -362,6 +376,7 @@ export default {
   Language: 'ഭാഷ',
   'Language and time zone': 'ഭാഷയും സമയമേഖലയും',
   'Language and time zone saved.': 'ഭാഷയും സമയമേഖലയും സംരക്ഷിച്ചു.',
+  'Larger than the {size} this server accepts': 'ഈ സെർവർ സ്വീകരിക്കുന്ന പരിധിയായ {size} കവിയുന്നു',
   'Last opened {date}': 'അവസാനം തുറന്നത്: {date}',
   'Last time you limited it to:': 'കഴിഞ്ഞ തവണ നിങ്ങൾ ഇതിനെ പരിമിതപ്പെടുത്തിയത്:',
   'Last used {when}': 'അവസാനം ഉപയോഗിച്ചത്: {when}',
@@ -377,6 +392,7 @@ export default {
   Libraries: 'ലൈബ്രറികൾ',
   Library: 'ലൈബ്രറി',
   'Limited to:': 'പരിമിതപ്പെടുത്തിയത്:',
+  'Link': 'ലിങ്ക്',
   'Link issued.': 'ലിങ്ക് നൽകി.',
   'Links to this collection': 'ഈ ശേഖരത്തിലേക്കുള്ള ലിങ്കുകൾ',
   'Loading…': 'ലോഡ് ചെയ്യുന്നു…',
@@ -494,6 +510,7 @@ export default {
     'ഈ അക്കൗണ്ടിലേക്ക് എത്താൻ നിങ്ങൾ അനുവദിച്ച മറ്റ് ആപ്ലിക്കേഷനുകൾ. ഓരോന്നിനും നിങ്ങൾ അംഗീകരിച്ച അനുമതികൾ മാത്രമേ നൽകിയിട്ടുള്ളൂ.',
   Overview: 'അവലോകനം',
   Owner: 'ഉടമ',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. ദാതാവ് അതിന്റെ കീ മാറ്റിക്കൊണ്ടിരിക്കുമ്പോൾ രണ്ടും ഒട്ടിക്കുക.',
   'Page Down': 'Page Down',
@@ -572,6 +589,7 @@ export default {
   Render: 'തയ്യാറാക്കുക',
   'Rendering…': 'തയ്യാറാക്കുന്നു…',
   'Repeat password': 'പാസ്‌വേഡ് വീണ്ടും നൽകുക',
+  'Replace File…': 'ഫയൽ മാറ്റിസ്ഥാപിക്കുക…',
   'Replace what my library here already holds':
     'ഇവിടെ എന്റെ ലൈബ്രറിയിൽ ഇപ്പോഴുള്ളവ മാറ്റിസ്ഥാപിക്കുക',
   'Replace what this library already holds': 'ഈ ലൈബ്രറിയിൽ ഇപ്പോഴുള്ളവ മാറ്റിസ്ഥാപിക്കുക',
@@ -710,6 +728,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'അടിസ്ഥാന URL. അതിന്റെ കോൺഫിഗറേഷൻ /.well-known/openid-configuration എന്നതിൽ നിന്ന് വായിക്കുന്നു.',
   'The collection and everything inside it': 'ശേഖരവും അതിനുള്ളിലുള്ളതെല്ലാം',
+  'The file was replaced elsewhere first. This is the new one.':
+    'ഫയൽ ഇതിനകം മറ്റെവിടെയോ മാറ്റിസ്ഥാപിച്ചു. ഇതാണ് പുതിയത്.',
   'The following fields will be lost:': 'താഴെ പറയുന്ന ഫീൽഡുകൾ നഷ്ടപ്പെടും:',
   'The group has a new owner.': 'ഗ്രൂപ്പിന് പുതിയ ഉടമയുണ്ട്.',
   'The items in it stay in the library.': 'അതിലെ ഇനങ്ങൾ ലൈബ്രറിയിൽ തുടരും.',
@@ -736,7 +756,10 @@ export default {
     'ഇത് ഒരു കീ സൃഷ്ടിക്കുന്നു; നിങ്ങൾ ഇവിടെ നിന്ന് സൈൻ ഔട്ട് ചെയ്താലും, ക്രമീകരണങ്ങളിൽ നീക്കം ചെയ്യുന്നതുവരെ അത് പ്രവർത്തിക്കും.',
   'This instance has no accounts yet, so this one will be yours.':
     'ഈ ഇൻസ്റ്റൻസിൽ ഇതുവരെ അക്കൗണ്ടുകളൊന്നുമില്ല, അതിനാൽ ഇത് നിങ്ങളുടേതായിരിക്കും.',
+  'This is not an address. Check it and try again.':
+    'ഇതൊരു വിലാസമല്ല. പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.',
   'This is your public page.': 'ഇതാണ് നിങ്ങളുടെ പൊതു പേജ്.',
+  'This kind of address cannot be attached.': 'ഇത്തരം വിലാസം അറ്റാച്ച് ചെയ്യാനാവില്ല.',
   'This link does not include the files themselves.': 'ഈ ലിങ്കിൽ ഫയലുകൾ ഉൾപ്പെടുന്നില്ല.',
   'This link has been revoked, has expired, or never existed.':
     'ഈ ലിങ്ക് അസാധുവാക്കി, കാലഹരണപ്പെട്ടു, അല്ലെങ്കിൽ ഒരിക്കലും നിലവിലുണ്ടായിരുന്നില്ല.',
@@ -747,6 +770,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'ഈ സെർവറിന്റെ എന്റിറ്റി ID അതിന്റെ സ്വന്തം പൊതു URL ആണ്.',
   'Time zone': 'സമയമേഖല',
+  'Title': 'ശീർഷകം',
   Trash: 'ട്രാഷ്',
   'Try Again': 'വീണ്ടും ശ്രമിക്കുക',
   'Turn off codes by email': 'ഇമെയിൽ വഴിയുള്ള കോഡുകൾ ഓഫാക്കുക',
@@ -759,6 +783,8 @@ export default {
   Unread: 'വായിക്കാത്തവ',
   'Unlink': 'ലിങ്ക് നീക്കം ചെയ്യുക',
   'Unreferenced files deleted.': 'പരാമർശിക്കപ്പെടാത്ത ഫയലുകൾ ഇല്ലാതാക്കി.',
+  'Uploading {name}': '{name} അപ്‌ലോഡ് ചെയ്യുന്നു',
+  'Uploads': 'അപ്‌ലോഡുകൾ',
   'Use a code by email instead': 'പകരം ഇമെയിൽ വഴിയുള്ള കോഡ് ഉപയോഗിക്കുക',
   'Use a passkey instead': 'പകരം പാസ്‌കീ ഉപയോഗിക്കുക',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -770,8 +796,10 @@ export default {
   Verify: 'പരിശോധിക്കുക',
   Version: 'പതിപ്പ്',
   'Version {version}': 'പതിപ്പ് {version}',
+  'Video': 'വീഡിയോ',
   Visibility: 'ദൃശ്യത',
   'Web API version': 'Web API പതിപ്പ്',
+  'Webpage': 'വെബ്‌പേജ്',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'ഗ്രൂപ്പ് അറിയിപ്പുകൾ അയയ്ക്കാൻ ഉപയോഗിച്ച രേഖ. ആരെയും രണ്ടുതവണ അറിയിക്കില്ല; രേഖ എത്രകാലം നിലനിൽക്കുമെന്ന് മാത്രമാണ് ഇത് തീരുമാനിക്കുന്നത്.',
   'What is it for?': 'ഇത് എന്തിനാണ്?',

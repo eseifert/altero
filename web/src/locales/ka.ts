@@ -17,6 +17,8 @@ export default {
   'A collection needs a name.': 'კოლექციას სახელი სჭირდება.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'ორ ბიბლიოთეკაში დართული ფაილი ერთხელ ინახება და ორივეში ითვლება. პირველი რიცხვი აჩვენებს, რამდენის შენახვა უწევს ამ სერვერს; მეორე — რამდენ ადგილს დაიკავებდნენ ბიბლიოთეკები ცალ-ცალკე.',
+  'A file on your computer cannot be linked from the browser.':
+    'ბრაუზერიდან თქვენს კომპიუტერზე არსებულ ფაილზე ბმულის შექმნა შეუძლებელია.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'ფაილი, რომლის გაგზავნაც კლიენტმა მოითხოვა, მაგრამ არ გაუგზავნია. არაფერი იკარგება: კლიენტი ხელახლა მოითხოვს.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'ანგარიში წაიშალა.',
   'Accounts': 'ანგარიშები',
   'Across the instance': 'მთელ ინსტანციაში',
+  'Add Attachment': 'დანართის დამატება',
   'Add Creator': 'ავტორის დამატება',
+  'Add File…': 'ფაილის დამატება…',
   'Add Note': 'შენიშვნის დამატება',
   'Add Related': 'დაკავშირებულის დამატება',
   'Add Tag': 'ტეგის დამატება',
@@ -98,8 +102,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'ახალი მოითხოვეთ ამ სერვერის ადმინისტრატორისგან. თქვენი ამჟამინდელი პაროლი კვლავ მოქმედებს.',
   'At least {count} characters': 'მინიმუმ {count} სიმბოლო',
+  'Attach': 'დართვა',
+  'Attach File…': 'ფაილის დართვა…',
+  'Attach Web Link': 'ვებბმულის დართვა',
+  'Attach Web Link…': 'ვებბმულის დართვა…',
   Attachments: 'დანართები',
   'Attachments directory': 'დანართების საქაღალდე',
+  'Audio': 'აუდიო',
   'Authenticator app': 'ავთენტიფიკატორის აპი',
   'Authenticator enabled.': 'ავთენტიფიკატორი ჩაირთო.',
   'Authenticator removed.': 'ავთენტიფიკატორი წაიშალა.',
@@ -118,6 +127,7 @@ export default {
   'Callback address': 'დაბრუნების მისამართი',
   'Can': 'შეუძლია',
   'Cancel': 'გაუქმება',
+  'Cancel upload of {name}': 'ატვირთვის გაუქმება: {name}',
   'Change': 'შეცვლა',
   'Change Item Type': 'ელემენტის ტიპის შეცვლა',
   'Change password': 'პაროლის შეცვლა',
@@ -247,6 +257,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'გადაათრიეთ ამ გამყოფის გადასაადგილებლად. ორმაგი დაწკაპუნებით ის თავის ადგილს დაუბრუნდება.',
   'Duplicate Items': 'დუბლირებული ჩანაწერები',
+  'Ebook': 'ელწიგნი',
   'Edit': 'რედაქტირება',
   'Edit the title': 'სათაურის რედაქტირება',
   'Email': 'ელფოსტა',
@@ -286,6 +297,8 @@ export default {
     'WebDAV სერვერზე შენახული ფაილები zotero.org-ზე არ ინახება, ამიტომ მიგრაცია მათ ვერ გადმოიტანს. განაგრძეთ ფაილების სინქრონიზაცია WebDAV-ით ან ატვირთეთ ისინი Zotero კლიენტიდან, რომელსაც ისინი ჯერ კიდევ აქვს.',
   'Finished.': 'დასრულდა.',
   'First or last item': 'პირველი ან ბოლო ჩანაწერი',
+  'Folders cannot be added. Add the files inside them.':
+    'საქაღალდეების დამატება შეუძლებელია. დაამატეთ მათში არსებული ფაილები.',
   'Follow this device ({name})': 'ამ მოწყობილობის მიხედვით ({name})',
   'For example, my laptop': 'მაგალითად, ჩემი ლეპტოპი',
   'Forgotten password': 'დავიწყებული პაროლი',
@@ -320,6 +333,7 @@ export default {
   'I created this work.': 'ეს ნაშრომი მე შევქმენი.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'თუ აქ რომელიმე ანგარიში ამ მისამართს იყენებს, ახალი პაროლის დასაყენებელი ბმული უკვე იგზავნება.',
+  'Image': 'სურათი',
   'Import and export': 'იმპორტი და ექსპორტი',
   'In the trash': 'სანაგვეში',
   'Include attached files': 'დართული ფაილების ჩართვა',
@@ -350,6 +364,7 @@ export default {
   'Language': 'ენა',
   'Language and time zone': 'ენა და სასაათო სარტყელი',
   'Language and time zone saved.': 'ენა და სასაათო სარტყელი შენახულია.',
+  'Larger than the {size} this server accepts': 'აღემატება ამ სერვერის ზღვარს ({size})',
   'Last opened {date}': 'ბოლოს გაიხსნა: {date}',
   'Last time you limited it to:': 'წინა ჯერზე შეზღუდეთ:',
   'Last used {when}': 'ბოლოს გამოყენებულია: {when}',
@@ -362,6 +377,7 @@ export default {
   'Libraries': 'ბიბლიოთეკები',
   'Library': 'ბიბლიოთეკა',
   'Limited to:': 'შეზღუდულია:',
+  'Link': 'ბმული',
   'Link issued.': 'ბმული შეიქმნა.',
   'Links to this collection': 'ბმულები ამ კოლექციაზე',
   'Loading…': 'იტვირთება…',
@@ -470,6 +486,7 @@ export default {
     'სხვა აპლიკაციები, რომლებსაც ამ ანგარიშზე წვდომა დაუშვით. თითოეულს მხოლოდ თქვენ მიერ დამტკიცებული ნებართვები მიეცა.',
   'Overview': 'მიმოხილვა',
   'Owner': 'მფლობელი',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.': 'PEM. ჩასვით ორივე, სანამ პროვაიდერი გასაღებს ცვლის.',
   'Page Down': 'Page Down',
   'Page Up': 'Page Up',
@@ -540,6 +557,7 @@ export default {
   'Render': 'გენერირება',
   'Rendering…': 'გენერირდება…',
   'Repeat password': 'გაიმეორეთ პაროლი',
+  'Replace File…': 'ფაილის ჩანაცვლება…',
   'Replace what my library here already holds': 'ჩემს აქაურ ბიბლიოთეკაში უკვე არსებულის ჩანაცვლება',
   'Replace what this library already holds': 'ამ ბიბლიოთეკაში უკვე არსებულის ჩანაცვლება',
   'Required claim': 'სავალდებულო ატრიბუტი',
@@ -668,6 +686,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'საბაზისო URL. მისი კონფიგურაცია იკითხება /.well-known/openid-configuration-იდან.',
   'The collection and everything inside it': 'კოლექცია და ყველაფერი, რაც მასშია',
+  'The file was replaced elsewhere first. This is the new one.':
+    'ფაილი მანამდე სხვაგან ჩაანაცვლეს. ეს ახალი ფაილია.',
   'The following fields will be lost:': 'შემდეგი ველები დაიკარგება:',
   'The group has a new owner.': 'ჯგუფს ახალი მფლობელი ჰყავს.',
   'The items in it stay in the library.': 'მასში არსებული ჩანაწერები ბიბლიოთეკაში რჩება.',
@@ -693,7 +713,10 @@ export default {
   'This creates a key that keeps working until you remove it in Settings, even after you sign out here.':
     'ეს ქმნის გასაღებს, რომელიც მანამ იმუშავებს, სანამ მას პარამეტრებში არ წაშლით, მაშინაც კი, თუ აქედან გახვალთ.',
   'This instance has no accounts yet, so this one will be yours.': 'ამ ინსტანციაში ჯერ ანგარიშები არ არის, ამიტომ ეს თქვენი იქნება.',
+  'This is not an address. Check it and try again.':
+    'ეს მისამართი არ არის. შეამოწმეთ და სცადეთ ხელახლა.',
   'This is your public page.': 'ეს თქვენი საჯარო გვერდია.',
+  'This kind of address cannot be attached.': 'ამ ტიპის მისამართის დართვა შეუძლებელია.',
   'This link does not include the files themselves.': 'ეს ბმული თავად ფაილებს არ მოიცავს.',
   'This link has been revoked, has expired, or never existed.': 'ეს ბმული გაუქმდა, ვადა გაუვიდა ან არასოდეს არსებულა.',
   'This link stops working {date}.': 'ეს ბმული მოქმედებს {date}-მდე.',
@@ -702,6 +725,7 @@ export default {
   'This server': 'ეს სერვერი',
   'This server’s entity ID is its own public URL.': 'ამ სერვერის Entity ID მისივე საჯარო URL-ია.',
   'Time zone': 'სასაათო სარტყელი',
+  'Title': 'სათაური',
   'Trash': 'სანაგვე',
   'Try Again': 'ხელახლა ცდა',
   'Turn off codes by email': 'ელფოსტით კოდების გამორთვა',
@@ -714,6 +738,8 @@ export default {
   'Unlink': 'ბმულის მოხსნა',
   'Unread': 'წაუკითხავი',
   'Unreferenced files deleted.': 'გამოუყენებელი ფაილები წაიშალა.',
+  'Uploading {name}': 'იტვირთება: {name}',
+  'Uploads': 'ატვირთვები',
   'Use a code by email instead': 'ამის ნაცვლად ელფოსტით მიღებული კოდის გამოყენება',
   'Use a passkey instead': 'ამის ნაცვლად წვდომის გასაღების გამოყენება',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -724,8 +750,10 @@ export default {
   'Verify': 'შემოწმება',
   'Version': 'ვერსია',
   'Version {version}': 'ვერსია {version}',
+  'Video': 'ვიდეო',
   'Visibility': 'ხილვადობა',
   'Web API version': 'Web API-ის ვერსია',
+  'Webpage': 'ვებგვერდი',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'ის, რის საფუძველზეც ჯგუფის შეტყობინებები გაიგზავნა. ორჯერ არავის ეცნობება, და ეს მხოლოდ იმას განსაზღვრავს, რამდენ ხანს დარჩება ჩანაწერი.',
   'What is it for?': 'რისთვის არის?',

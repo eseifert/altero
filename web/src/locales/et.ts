@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Kogul peab olema nimi.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Kahes raamatukogus manusena olev fail salvestatakse üks kord ja arvestatakse mõlemasse. Esimene arv näitab, kui palju see server peab tegelikult hoidma; teine, kui palju raamatukogud eraldi võtaksid.',
+  'A file on your computer cannot be linked from the browser.':
+    'Teie arvutis olevat faili ei saa brauserist linkida.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Fail, mille klient soovis saata, kuid jättis saatmata. Midagi ei lähe kaotsi: klient küsib uuesti.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -40,7 +42,9 @@ export default {
   'Account deleted.': 'Konto kustutatud.',
   'Accounts': 'Kontod',
   'Across the instance': 'Kogu serveris',
+  'Add Attachment': 'Manuse lisamine',
   'Add Creator': 'Lisa autor',
+  'Add File…': 'Lisa fail…',
   'Add Note': 'Märkuse lisamine',
   'Add Related': 'Lisa seotud kirje',
   'Add Tag': 'Lisa lipik',
@@ -102,8 +106,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Küsige uut selle serveri haldajalt. Teie praegune salasõna kehtib endiselt.',
   'At least {count} characters': 'Vähemalt {count} märki',
+  'Attach': 'Manusta',
+  'Attach File…': 'Manusta fail…',
+  'Attach Web Link': 'Manusta veebilink',
+  'Attach Web Link…': 'Manusta veebilink…',
   Attachments: 'Manused',
   'Attachments directory': 'Manuste kataloog',
+  'Audio': 'Heli',
   'Authenticator app': 'Autentimisrakendus',
   'Authenticator enabled.': 'Autentimisrakendus lubatud.',
   'Authenticator removed.': 'Autentimisrakendus eemaldatud.',
@@ -122,6 +131,7 @@ export default {
   'Callback address': 'Tagasipöördumisaadress',
   'Can': 'Õigused',
   'Cancel': 'Tühista',
+  'Cancel upload of {name}': 'Tühista faili {name} üleslaadimine',
   'Change': 'Muuda',
   'Change Item Type': 'Kirje tüübi muutmine',
   'Change password': 'Muuda salasõna',
@@ -252,6 +262,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Lohistage eraldaja liigutamiseks. Topeltklõps taastab algse asukoha.',
   'Duplicate Items': 'Duplikaadid',
+  'Ebook': 'E-raamat',
   'Edit': 'Muuda',
   'Edit the title': 'Muuda pealkirja',
   'Email': 'E-post',
@@ -293,6 +304,8 @@ export default {
     'WebDAV-serveris hoitavaid faile ei salvestata zotero.org-is, seega ei saa üleviimine neid kaasa tuua. Jätkake failide sünkroonimist WebDAV-i kaudu või laadige need üles Zotero kliendist, kus need veel olemas on.',
   'Finished.': 'Lõpetatud.',
   'First or last item': 'Esimene või viimane kirje',
+  'Folders cannot be added. Add the files inside them.':
+    'Kaustu ei saa lisada. Lisage neis olevad failid.',
   'Follow this device ({name})': 'Järgi seda seadet ({name})',
   'For example, my laptop': 'Näiteks minu sülearvuti',
   'Forgotten password': 'Unustatud salasõna',
@@ -327,6 +340,7 @@ export default {
   'I created this work.': 'Olen selle teose looja.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Kui mõni siinne konto kasutab seda aadressi, on uue salasõna määramise link teel.',
+  'Image': 'Kujutis',
   'Import and export': 'Import ja eksport',
   'In the trash': 'Prügikastis',
   'Include attached files': 'Kaasa manusfailid',
@@ -360,6 +374,7 @@ export default {
   'Language': 'Keel',
   'Language and time zone': 'Keel ja ajavöönd',
   'Language and time zone saved.': 'Keel ja ajavöönd salvestatud.',
+  'Larger than the {size} this server accepts': 'Suurem kui {size}, mille see server vastu võtab',
   'Last opened {date}': 'Viimati avatud {date}',
   'Last time you limited it to:': 'Eelmisel korral piirasite selle järgmisega:',
   'Last used {when}': 'Viimati kasutatud {when}',
@@ -375,6 +390,7 @@ export default {
   'Libraries': 'Raamatukogud',
   'Library': 'Raamatukogu',
   'Limited to:': 'Piiratud järgmisega:',
+  'Link': 'Link',
   'Link issued.': 'Link väljastatud.',
   'Links to this collection': 'Lingid sellele kogule',
   'Loading…': 'Laadimine…',
@@ -490,6 +506,7 @@ export default {
     'Muud rakendused, millel olete lubanud sellele kontole juurde pääseda. Igaüks sai ainult need õigused, mille te kinnitasite.',
   'Overview': 'Ülevaade',
   'Owner': 'Omanik',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Kleepige mõlemad, kui teenusepakkuja parajasti oma võtit vahetab.',
   'Page Down': 'Page Down',
@@ -566,6 +583,7 @@ export default {
   'Render': 'Koosta',
   'Rendering…': 'Koostamine…',
   'Repeat password': 'Korrake salasõna',
+  'Replace File…': 'Asenda fail…',
   'Replace what my library here already holds': 'Asenda see, mis minu siinses raamatukogus juba on',
   'Replace what this library already holds': 'Asenda see, mis selles raamatukogus juba on',
   'Required claim': 'Nõutav väide',
@@ -703,6 +721,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Baas-URL. Selle seadistus loetakse aadressilt /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kogu ja kõik selle sees olev',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Fail asendati vahepeal mujal. See on uus fail.',
   'The following fields will be lost:': 'Järgnevad väljad kustutatakse:',
   'The group has a new owner.': 'Grupil on uus omanik.',
   'The items in it stay in the library.': 'Selles olevad kirjed jäävad raamatukokku.',
@@ -730,7 +750,10 @@ export default {
     'Sellega luuakse võti, mis kehtib seni, kuni selle seadetes eemaldate, ka pärast siit väljalogimist.',
   'This instance has no accounts yet, so this one will be yours.':
     'Selles serveris pole veel kontosid, seega saab see teie omaks.',
+  'This is not an address. Check it and try again.':
+    'See ei ole aadress. Kontrollige seda ja proovige uuesti.',
   'This is your public page.': 'See on teie avalik leht.',
+  'This kind of address cannot be attached.': 'Sellist aadressi ei saa manustada.',
   'This link does not include the files themselves.': 'See link ei hõlma faile endid.',
   'This link has been revoked, has expired, or never existed.':
     'See link on tühistatud, aegunud või pole kunagi olemas olnud.',
@@ -741,6 +764,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Selle serveri olemi ID on tema enda avalik URL.',
   'Time zone': 'Ajavöönd',
+  'Title': 'Pealkiri',
   'Trash': 'Prügikast',
   'Try Again': 'Proovi uuesti',
   'Turn off codes by email': 'Lülita koodid e-postiga välja',
@@ -753,6 +777,8 @@ export default {
   'Unlink': 'Eemalda link',
   'Unread': 'Lugemata',
   'Unreferenced files deleted.': 'Failid, millele ei viidata, on kustutatud.',
+  'Uploading {name}': 'Faili {name} üleslaadimine',
+  'Uploads': 'Üleslaadimised',
   'Use a code by email instead': 'Kasuta selle asemel e-postiga saadetud koodi',
   'Use a passkey instead': 'Kasuta selle asemel pääsuvõtit',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -763,8 +789,10 @@ export default {
   'Verify': 'Kinnita',
   'Version': 'Versioon',
   'Version {version}': 'Versioon {version}',
+  'Video': 'Video',
   'Visibility': 'Nähtavus',
   'Web API version': 'Veebi-API versioon',
+  'Webpage': 'Veebilehekülg',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Kanded, mille põhjal grupiteavitused saadeti. Kedagi ei teavitata kaks korda; see määrab ainult, kui kaua kannet säilitatakse.',
   'What is it for?': 'Milleks see on?',

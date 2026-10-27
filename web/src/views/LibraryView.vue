@@ -22,7 +22,10 @@ import RightsDialog from '@/components/RightsDialog.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import PaneSplitter from '@/components/PaneSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
+import UploadProgress from '@/components/UploadProgress.vue'
+import WebLinkDialog from '@/components/WebLinkDialog.vue'
 import { useCarry } from '@/dragging'
+import { useFileDrop } from '@/filedrop'
 import { exportable } from '@/exportformats'
 import { fieldLabel, loadLabels, titleField } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
@@ -655,6 +658,130 @@ function createNote(parentItem?: string): Promise<void> {
     await nextTick()
     detailPane.value?.focusNote()
   })
+}
+
+/*
+ * Attaching files and links: the desktop's *Add Attachment* menu, the same
+ * errands in the item pane's Attachments section, and files dragged in from
+ * the computer.
+ *
+ * A file goes under the item picked out when it is a regular item -- *Attach
+ * File…* -- or on its own into the collection being shown -- *Add File…*. The
+ * desktop offers web links only under an item, and so does this. Whether files
+ * may be put here at all is the group's `fileEditing`, which the server
+ * reports per library; a link holds no file and is offered regardless.
+ */
+const attachEntries = computed(() => [
+  ...(library.filesEditable ? [{ id: 'standalone', label: t('Add File…'), kind: 'action' as const }] : []),
+  ...(noteParent.value && library.filesEditable
+    ? [{ id: 'child', label: t('Attach File…'), kind: 'action' as const }]
+    : []),
+  ...(noteParent.value ? [{ id: 'link', label: t('Attach Web Link…'), kind: 'action' as const }] : []),
+])
+
+/** Where the files chosen in the picker go, set as it is opened. */
+type FilePlace = { parentItem: string } | { collection: string | null } | { replace: ItemEnvelope }
+const picker = useTemplateRef<HTMLInputElement>('picker')
+const picking = ref<FilePlace | null>(null)
+
+function chooseFiles(place: FilePlace): void {
+  picking.value = place
+  const input = picker.value
+  if (!input) return
+  input.multiple = !('replace' in place)
+  input.value = ''
+  input.click()
+}
+
+function chosen(event: Event): void {
+  const place = picking.value
+  const files = Array.from((event.target as HTMLInputElement).files ?? [])
+  picking.value = null
+  if (!place || !files.length) return
+  if ('replace' in place) void runOnItem(async () => void (await library.replaceFile(place.replace, files[0]!)))
+  else void runOnItem(async () => void (await library.uploadFiles(files, place)))
+}
+
+function chooseAttachment(id: string): void {
+  if (id === 'standalone') chooseFiles({ collection: library.collectionKey })
+  else if (id === 'child' && noteParent.value) chooseFiles({ parentItem: noteParent.value.key })
+  else if (id === 'link' && noteParent.value) linking.value = noteParent.value
+}
+
+/** The item a web link is being attached to, while its dialog is open. */
+const linking = ref<ItemEnvelope | null>(null)
+const linkBusy = ref(false)
+const linkError = ref<string | null>(null)
+
+async function attachLink(link: { url: string; title: string }): Promise<void> {
+  const parent = linking.value
+  if (!parent) return
+  linkBusy.value = true
+  linkError.value = null
+  try {
+    // The desktop opens the new link, and so does this.
+    await library.createItem('attachment', { parentItem: parent.key, link })
+    linking.value = null
+  } catch (thrown) {
+    linkError.value = thrown instanceof Error ? thrown.message : String(thrown)
+  } finally {
+    linkBusy.value = false
+  }
+}
+
+function closeLink(): void {
+  linking.value = null
+  linkError.value = null
+}
+
+/** Whether a row takes files under it: a regular item, out of the trash. */
+function takesFilesUnder(item: ItemEnvelope): boolean {
+  return (
+    library.filesEditable &&
+    !item.data.parentItem &&
+    !item.data.deleted &&
+    !['note', 'attachment', 'annotation'].includes(item.data.itemType)
+  )
+}
+
+/** Whether the list takes a file on its own here: where a new item can be made. */
+const takesStandaloneFiles = computed(() => offersNewItem.value && library.filesEditable)
+
+/**
+ * Whether a file dragged from the computer may land on ``target``.
+ *
+ * Under a regular item -- a row, or the open item's pane -- into a collection,
+ * onto the open library, or onto the list itself, which is the collection
+ * being shown. Never into the trash or My Publications, where nothing is made.
+ */
+function acceptsFiles(target: string): boolean {
+  if (!library.filesEditable) return false
+  const kind = target.slice(0, target.indexOf(':'))
+  const value = target.slice(target.indexOf(':') + 1)
+  if (kind === 'item') return true
+  if (kind === 'collection') return true
+  if (kind === 'library') return Number(value) === library.libraryId
+  if (kind === 'list') return takesStandaloneFiles.value
+  return false
+}
+
+function dropFiles(target: string, files: File[], folders: number): void {
+  const kind = target.slice(0, target.indexOf(':'))
+  const value = target.slice(target.indexOf(':') + 1)
+  itemError.value = folders ? t('Folders cannot be added. Add the files inside them.') : null
+  if (!files.length) return
+  const place =
+    kind === 'item'
+      ? { parentItem: value }
+      : { collection: kind === 'collection' ? value : kind === 'list' ? library.collectionKey : null }
+  void library.uploadFiles(files, place)
+}
+
+const fileDrop = useFileDrop({ accepts: acceptsFiles, onDrop: dropFiles })
+
+/** Whether ``target`` lights up, for rows being carried and files alike. */
+function lights(target: string): boolean {
+  return lit(target) || fileDrop.target.value === target
 }
 
 async function runOnItem(action: () => Promise<void>): Promise<void> {
@@ -1359,7 +1486,7 @@ function sortLabel(column: { field: string; label: string }): string {
           -->
           <div
             class="library__nav-row"
-            :class="{ 'library__nav-row--over': lit(`library:${entry.id}`) }"
+            :class="{ 'library__nav-row--over': lights(`library:${entry.id}`) }"
             :data-drop="`library:${entry.id}`"
           >
             <!-- The twisty says which library is open rather than opening one
@@ -1444,8 +1571,8 @@ function sortLabel(column: { field: string; label: string }): string {
               :nodes="library.collections"
               :selected="library.collectionKey"
               :editable="library.writable"
-              :carrying="carry.carrying.value !== null"
-              :over="carry.target.value"
+              :carrying="carry.carrying.value !== null || fileDrop.target.value !== null"
+              :over="carry.target.value ?? fileDrop.target.value"
               @select="library.selectCollection($event)"
               @add="startNew($event)"
               @settings="startSettings($event)"
@@ -1591,7 +1718,13 @@ function sortLabel(column: { field: string; label: string }): string {
       @update:width="resizeSidebar"
     />
 
-    <section class="library__list">
+    <!-- Files let go on the list, not on a row that takes them, are added on
+         their own to the collection being shown. -->
+    <section
+      class="library__list"
+      :class="{ 'library__list--over': fileDrop.target.value === 'list:' }"
+      data-file-drop="list:"
+    >
       <header class="library__header">
         <h1 class="library__heading">{{ heading }}</h1>
 
@@ -1615,6 +1748,13 @@ function sortLabel(column: { field: string; label: string }): string {
             icon="new-note"
             :entries="newNoteEntries"
             @choose="createNote($event === 'child' ? noteParent?.key : undefined)"
+          />
+          <NoteMenu
+            v-if="offersNewItem && attachEntries.length"
+            :label="t('Add Attachment')"
+            icon="attach"
+            :entries="attachEntries"
+            @choose="chooseAttachment"
           />
 
           <!--
@@ -1879,7 +2019,7 @@ function sortLabel(column: { field: string; label: string }): string {
           <li
             v-for="item in library.items"
             :key="item.key"
-            v-memo="[item, selectedKeys.has(item.key), carriedKeys.has(item.key), selecting, locale, item.key === tabKey]"
+            v-memo="[item, selectedKeys.has(item.key), carriedKeys.has(item.key), selecting, locale, item.key === tabKey, fileDrop.target.value === `item:${item.key}`]"
             class="library__line"
           >
             <!-- The checkbox is a sibling of the row rather than inside it: a
@@ -1907,8 +2047,10 @@ function sortLabel(column: { field: string; label: string }): string {
                 {
                   'library__row--selected row--current': selectedKeys.has(item.key),
                   'library__row--carried': carriedKeys.has(item.key),
+                  'library__row--over': fileDrop.target.value === `item:${item.key}`,
                 },
               ]"
+              :data-file-drop="takesFilesUnder(item) ? `item:${item.key}` : undefined"
               :aria-pressed="selectedKeys.has(item.key)"
               :data-row="item.key"
               :tabindex="item.key === tabKey ? 0 : -1"
@@ -1969,6 +2111,7 @@ function sortLabel(column: { field: string; label: string }): string {
         :publishable="library.writable && library.library?.type === 'user'"
         :in-publications-view="library.scope === 'publications'"
         :save="saveSelected"
+        :files-editable="library.filesEditable"
         @open="library.select($event)"
         @close="library.select(null)"
         @move="moving = [library.selected]"
@@ -1980,6 +2123,9 @@ function sortLabel(column: { field: string; label: string }): string {
         @rights="editingRights = library.selected"
         @export="exportItem(library.selected!)"
         @add-note="createNote(library.selected!.key)"
+        @attach-file="chooseFiles({ parentItem: library.selected!.key })"
+        @attach-link="linking = library.selected"
+        @replace-file="chooseFiles({ replace: library.selected! })"
       />
       <!-- More than one row picked out: a count and the errands, because what
            several items have in common is what can be done to them rather than
@@ -2111,6 +2257,21 @@ function sortLabel(column: { field: string; label: string }): string {
     />
 
     <ShortcutSheet v-if="showingShortcuts" @close="showingShortcuts = false" />
+
+    <!-- The picker every *Attach File…*, *Add File…* and *Replace File…* opens.
+         Hidden, and pressed from those, since the button that opens it is the
+         one a reader recognises. -->
+    <input ref="picker" class="library__picker" type="file" tabindex="-1" aria-hidden="true" @change="chosen" />
+
+    <WebLinkDialog
+      v-if="linking"
+      :busy="linkBusy"
+      :error="linkError"
+      @submit="attachLink"
+      @cancel="closeLink"
+    />
+
+    <UploadProgress />
 
     <TagDialog
       v-if="renaming"
@@ -2339,10 +2500,23 @@ function sortLabel(column: { field: string; label: string }): string {
 /* An outline rather than a fill on the row a drag is over, so it does not
    look like the row that is selected. */
 .library__nav-row--over,
-.library__scope-row--over {
+.library__scope-row--over,
+.library__row--over {
   border-radius: var(--md-sys-shape-corner-small);
   outline: 2px solid var(--md-sys-color-primary);
   outline-offset: -1px;
+}
+
+/* The list itself, lit from inside while a file over it would be added to
+   the collection it shows. */
+.library__list--over {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: -2px;
+}
+
+/* Pressed only by script, from the buttons that name what it is for. */
+.library__picker {
+  display: none;
 }
 
 /* The row being carried, dimmed so that the pointer is visibly taking

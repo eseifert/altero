@@ -18,6 +18,8 @@ export default {
   'A collection needs a name.': 'Bộ sưu tập cần có tên.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Một tệp được đính kèm trong hai thư viện chỉ được lưu một lần nhưng được tính ở cả hai. Con số thứ nhất là dung lượng máy chủ này phải lưu giữ; con số thứ hai là dung lượng nếu các thư viện được lưu riêng rẽ.',
+  'A file on your computer cannot be linked from the browser.':
+    'Không thể liên kết tới một tệp trên máy tính của bạn từ trình duyệt.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Một tệp mà ứng dụng khách đã xin gửi nhưng chưa bao giờ gửi. Không có gì bị mất: ứng dụng sẽ xin gửi lại.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -42,7 +44,9 @@ export default {
   'Account deleted.': 'Đã xóa tài khoản.',
   'Accounts': 'Tài khoản',
   'Across the instance': 'Trên toàn máy chủ',
+  'Add Attachment': 'Thêm tệp đính kèm',
   'Add Creator': 'Thêm người tạo lập',
+  'Add File…': 'Thêm tệp…',
   'Add Note': 'Thêm ghi chú',
   'Add Related': 'Thêm mục liên quan',
   'Add Tag': 'Thêm thẻ',
@@ -103,8 +107,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Hãy nhờ người quản lý máy chủ này cấp một liên kết mới. Mật khẩu hiện tại của bạn vẫn dùng được.',
   'At least {count} characters': 'Ít nhất {count} ký tự',
+  'Attach': 'Đính kèm',
+  'Attach File…': 'Đính kèm tệp…',
+  'Attach Web Link': 'Đính kèm liên kết web',
+  'Attach Web Link…': 'Đính kèm liên kết web…',
   'Attachments': 'Phần đính kèm',
   'Attachments directory': 'Thư mục tệp đính kèm',
+  'Audio': 'Ghi âm',
   'Authenticator app': 'Ứng dụng xác thực',
   'Authenticator enabled.': 'Đã bật ứng dụng xác thực.',
   'Authenticator removed.': 'Đã gỡ bỏ ứng dụng xác thực.',
@@ -123,6 +132,7 @@ export default {
   'Callback address': 'Địa chỉ callback',
   'Can': 'Được phép',
   'Cancel': 'Hủy',
+  'Cancel upload of {name}': 'Hủy tải lên {name}',
   'Change': 'Thay đổi',
   'Change Item Type': 'Đổi Kiểu cho Biểu ghi',
   'Change password': 'Đổi mật khẩu',
@@ -252,6 +262,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Kéo để di chuyển đường phân cách. Nhấp đúp để đưa về vị trí cũ.',
   'Duplicate Items': 'Các mục trùng lặp',
+  'Ebook': 'Sách điện tử',
   'Edit': 'Chỉnh sửa',
   'Edit the title': 'Sửa nhan đề',
   'Email': 'Email',
@@ -292,6 +303,8 @@ export default {
     'Các tệp lưu trên máy chủ WebDAV không được lưu tại zotero.org, nên quá trình chuyển không thể mang chúng sang. Hãy tiếp tục đồng bộ tệp qua WebDAV, hoặc tải chúng lên từ một ứng dụng Zotero vẫn còn giữ chúng.',
   'Finished.': 'Đã hoàn tất.',
   'First or last item': 'Mục đầu tiên hoặc cuối cùng',
+  'Folders cannot be added. Add the files inside them.':
+    'Không thể thêm thư mục. Hãy thêm các tệp bên trong.',
   'Follow this device ({name})': 'Theo thiết bị này ({name})',
   'For example, my laptop': 'Ví dụ: máy tính xách tay của tôi',
   'Forgotten password': 'Quên mật khẩu',
@@ -326,6 +339,7 @@ export default {
   'I created this work.': 'Tôi đã tạo ra tác phẩm này.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Nếu có tài khoản ở đây dùng địa chỉ đó, một liên kết để đặt mật khẩu mới đang được gửi đến.',
+  'Image': 'Hình ảnh',
   'Import and export': 'Nhập và xuất',
   'In the trash': 'Trong thùng rác',
   'Include attached files': 'Gộp các tệp đính kèm',
@@ -359,6 +373,7 @@ export default {
   'Language': 'Ngôn ngữ',
   'Language and time zone': 'Ngôn ngữ và múi giờ',
   'Language and time zone saved.': 'Đã lưu ngôn ngữ và múi giờ.',
+  'Larger than the {size} this server accepts': 'Vượt quá {size}, mức tối đa máy chủ này chấp nhận',
   'Last opened {date}': 'Mở lần cuối vào {date}',
   'Last time you limited it to:': 'Lần trước bạn đã giới hạn trong:',
   'Last used {when}': 'Dùng lần cuối vào {when}',
@@ -372,6 +387,7 @@ export default {
   'Libraries': 'Thư viện',
   'Library': 'Thư viện',
   'Limited to:': 'Giới hạn trong:',
+  'Link': 'Liên kết',
   'Link issued.': 'Đã tạo liên kết.',
   'Links to this collection': 'Liên kết tới bộ sưu tập này',
   'Loading…': 'Đang tải…',
@@ -481,6 +497,7 @@ export default {
     'Các ứng dụng khác mà bạn đã cho phép truy cập tài khoản này. Mỗi ứng dụng chỉ được cấp những quyền bạn đã chấp thuận.',
   'Overview': 'Tổng quan',
   'Owner': 'Chủ sở hữu',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'Định dạng PEM. Dán cả hai trong lúc nhà cung cấp đang luân chuyển khóa.',
   'Page Down': 'Page Down',
@@ -554,6 +571,7 @@ export default {
   'Render': 'Kết xuất',
   'Rendering…': 'Đang kết xuất…',
   'Repeat password': 'Nhập lại mật khẩu',
+  'Replace File…': 'Thay thế tệp…',
   'Replace what my library here already holds': 'Thay thế nội dung hiện có trong thư viện của tôi ở đây',
   'Replace what this library already holds': 'Thay thế nội dung hiện có trong thư viện này',
   'Required claim': 'Claim bắt buộc',
@@ -684,6 +702,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL gốc. Cấu hình được đọc từ /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Bộ sưu tập và mọi thứ bên trong',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Tệp đã được thay thế ở nơi khác trước. Đây là tệp mới.',
   'The following fields will be lost:': 'Các trường dữ liệu sau sẽ bị mất:',
   'The group has a new owner.': 'Nhóm đã có chủ sở hữu mới.',
   'The items in it stay in the library.': 'Các mục trong đó vẫn ở lại thư viện.',
@@ -710,7 +730,10 @@ export default {
     'Thao tác này tạo một khóa có hiệu lực cho đến khi bạn gỡ bỏ nó trong Cài đặt, kể cả sau khi bạn đăng xuất ở đây.',
   'This instance has no accounts yet, so this one will be yours.':
     'Máy chủ này chưa có tài khoản nào, nên tài khoản này sẽ là của bạn.',
+  'This is not an address. Check it and try again.':
+    'Đây không phải là một địa chỉ. Hãy kiểm tra và thử lại.',
   'This is your public page.': 'Đây là trang công khai của bạn.',
+  'This kind of address cannot be attached.': 'Không thể đính kèm loại địa chỉ này.',
   'This link does not include the files themselves.': 'Liên kết này không bao gồm bản thân các tệp.',
   'This link has been revoked, has expired, or never existed.':
     'Liên kết này đã bị thu hồi, đã hết hạn hoặc chưa từng tồn tại.',
@@ -720,6 +743,7 @@ export default {
   'This server': 'Máy chủ này',
   'This server’s entity ID is its own public URL.': 'Entity ID của máy chủ này chính là URL công khai của nó.',
   'Time zone': 'Múi giờ',
+  'Title': 'Nhan đề',
   'Trash': 'Thùng rác',
   'Try Again': 'Thử lại',
   'Turn off codes by email': 'Tắt mã qua email',
@@ -732,6 +756,8 @@ export default {
   'Unlink': 'Bỏ liên kết',
   'Unread': 'Chưa đọc',
   'Unreferenced files deleted.': 'Đã xóa các tệp không được tham chiếu.',
+  'Uploading {name}': 'Đang tải lên {name}',
+  'Uploads': 'Tải lên',
   'Use a code by email instead': 'Dùng mã qua email thay thế',
   'Use a passkey instead': 'Dùng khóa truy cập thay thế',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -742,8 +768,10 @@ export default {
   'Verify': 'Xác minh',
   'Version': 'Phiên bản',
   'Version {version}': 'Phiên bản {version}',
+  'Video': 'Ghi hình',
   'Visibility': 'Chế độ hiển thị',
   'Web API version': 'Phiên bản Web API',
+  'Webpage': 'Trang web',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Dữ liệu dùng để gửi thông báo nhóm. Không ai nhận thông báo hai lần; thiết lập này chỉ quyết định bản ghi được giữ trong bao lâu.',
   'What is it for?': 'Dùng để làm gì?',

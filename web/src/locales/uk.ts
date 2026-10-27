@@ -18,6 +18,8 @@ export default {
   'A collection needs a name.': 'Колекції потрібна назва.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Файл, вкладений у дві бібліотеки, зберігається один раз, а враховується в обох. Перше число — те, що мусить зберігати цей сервер; друге — скільки бібліотеки займали б окремо.',
+  'A file on your computer cannot be linked from the browser.':
+    'На файл на вашому комп’ютері не можна послатися з браузера.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Файл, який клієнт збирався надіслати, та так і не надіслав. Нічого не втрачено: він попросить знову.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -43,7 +45,9 @@ export default {
   'Account deleted.': 'Обліковий запис видалено.',
   'Accounts': 'Облікові записи',
   'Across the instance': 'На всьому сервері',
+  'Add Attachment': 'Додати вкладення',
   'Add Creator': 'Додати автора',
+  'Add File…': 'Додати файл…',
   'Add Note': 'Додати примітку',
   'Add Related': 'Додати пов’язаний',
   'Add Tag': 'Додати тег',
@@ -106,8 +110,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Попросіть нове в того, хто обслуговує цей сервер. Ваш теперішній пароль досі діє.',
   'At least {count} characters': 'Щонайменше {count} символів',
+  'Attach': 'Прикріпити',
+  'Attach File…': 'Прикріпити файл…',
+  'Attach Web Link': 'Прикріпити вебпосилання',
+  'Attach Web Link…': 'Прикріпити вебпосилання…',
   'Attachments': 'Вкладення',
   'Attachments directory': 'Каталог вкладень',
+  'Audio': 'Аудіо',
   'Authenticator app': 'Застосунок-автентифікатор',
   'Authenticator enabled.': 'Автентифікатор увімкнено.',
   'Authenticator removed.': 'Автентифікатор видалено.',
@@ -126,6 +135,7 @@ export default {
   'Callback address': 'Адреса зворотного виклику',
   'Can': 'Може',
   'Cancel': 'Скасувати',
+  'Cancel upload of {name}': 'Скасувати вивантаження {name}',
   'Change': 'Змінити',
   'Change Item Type': 'Змінити тип документу',
   'Change password': 'Змінити пароль',
@@ -256,6 +266,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Перетягніть, щоб зсунути цей роздільник. Подвійне клацання поверне його на місце.',
   'Duplicate Items': 'Дублікати документів',
+  'Ebook': 'Електронна книга',
   'Edit': 'Редагувати',
   'Edit the title': 'Редагувати назву',
   'Email': 'Пошта',
@@ -297,6 +308,8 @@ export default {
     'Файли, що зберігаються на сервері WebDAV, не лежать на zotero.org, тож перенесення не може їх забрати. Синхронізуйте файли й далі через WebDAV або вивантажте їх із клієнта Zotero, де вони ще є.',
   'Finished.': 'Завершено.',
   'First or last item': 'Перший або останній запис',
+  'Folders cannot be added. Add the files inside them.':
+    'Теки додати не можна. Додайте файли, що в них.',
   'Follow this device ({name})': 'Як на цьому пристрої ({name})',
   'For example, my laptop': 'Наприклад, мій ноутбук',
   'Forgotten password': 'Забутий пароль',
@@ -331,6 +344,7 @@ export default {
   'I created this work.': 'Це моя власна робота.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Якщо якийсь тутешній обліковий запис використовує цю адресу, посилання для нового пароля вже в дорозі.',
+  'Image': 'Зображення',
   'Import and export': 'Імпорт та експорт',
   'In the trash': 'У Кошику',
   'Include attached files': 'Включити вкладені файли',
@@ -363,6 +377,7 @@ export default {
   'Language': 'Мова',
   'Language and time zone': 'Мова та часовий пояс',
   'Language and time zone saved.': 'Мову та часовий пояс збережено.',
+  'Larger than the {size} this server accepts': 'Перевищує {size} — більше цей сервер не приймає',
   'Last opened {date}': 'Востаннє відкрито {date}',
   'Last time you limited it to:': 'Минулого разу ви обмежили його:',
   'Last used {when}': 'Востаннє використано {when}',
@@ -377,6 +392,7 @@ export default {
   'Libraries': 'Бібліотеки',
   'Library': 'Бібліотека',
   'Limited to:': 'Обмежено:',
+  'Link': 'Посилання',
   'Link issued.': 'Посилання видано.',
   'Links to this collection': 'Посилання на цю колекцію',
   'Loading…': 'Завантаження…',
@@ -491,6 +507,7 @@ export default {
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Інші застосунки, яким ви дозволили доступ до цього облікового запису. Кожен отримав лише ті дозволи, які ви схвалили.',
   'Overview': 'Огляд',
   'Owner': 'Власник',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Вставте обидва, поки постачальник змінює свій ключ.',
   'Page Down': 'Page Down',
@@ -567,6 +584,7 @@ export default {
   'Render': 'Побудувати',
   'Rendering…': 'Побудова…',
   'Repeat password': 'Повторіть пароль',
+  'Replace File…': 'Замінити файл…',
   'Replace what my library here already holds':
     'Замінити те, що моя тутешня бібліотека вже містить',
   'Replace what this library already holds': 'Замінити те, що ця бібліотека вже містить',
@@ -701,6 +719,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Базова адреса. Її конфігурація читається з /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Колекція й усе, що в ній',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Тим часом файл замінили деінде. Ось новий.',
   'The following fields will be lost:': 'Наступні поля будуть втрачені.',
   'The group has a new owner.': 'Група має нового власника.',
   'The items in it stay in the library.': 'Документи з неї лишаються в бібліотеці.',
@@ -727,7 +747,10 @@ export default {
     'Так створюється ключ, який діє, доки ви не видалите його в Налаштуваннях, — навіть після того, як ви вийдете звідси.',
   'This instance has no accounts yet, so this one will be yours.':
     'На цьому сервері поки немає облікових записів, тож цей буде вашим.',
+  'This is not an address. Check it and try again.':
+    'Це не адреса. Перевірте її та спробуйте ще раз.',
   'This is your public page.': 'Це ваша відкрита сторінка.',
+  'This kind of address cannot be attached.': 'Адресу такого типу не можна прикріпити.',
   'This link does not include the files themselves.': 'Це посилання не включає самі файли.',
   'This link has been revoked, has expired, or never existed.':
     'Це посилання відкликано, його термін сплив, або його ніколи не існувало.',
@@ -738,6 +761,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Entity ID цього сервера — його власна публічна адреса.',
   'Time zone': 'Часовий пояс',
+  'Title': 'Назва',
   'Trash': 'Кошик',
   'Try Again': 'Спробувати ще раз',
   'Turn off codes by email': 'Вимкнути коди поштою',
@@ -750,6 +774,8 @@ export default {
   'Unlink': 'Прибрати посилання',
   'Unread': 'Непрочитане',
   'Unreferenced files deleted.': 'Файли без посилань видалено.',
+  'Uploading {name}': 'Вивантаження {name}',
+  'Uploads': 'Вивантаження',
   'Use a code by email instead': 'Натомість використати код поштою',
   'Use a passkey instead': 'Натомість використати ключ доступу',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -761,8 +787,10 @@ export default {
   'Verify': 'Перевірити',
   'Version': 'Версія',
   'Version {version}': 'Версія {version}',
+  'Video': 'Відео',
   'Visibility': 'Видимість',
   'Web API version': 'Версія Web API',
+  'Webpage': 'Вебсторінка',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Те, з чого надсилалися сповіщення групи. Нікого не сповіщають двічі, і це визначає лише, скільки запис зберігається.',
   'What is it for?': 'Для чого він?',

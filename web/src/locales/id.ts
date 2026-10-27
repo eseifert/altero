@@ -18,6 +18,8 @@ export default {
   'A collection needs a name.': 'Koleksi perlu diberi nama.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Berkas yang dilampirkan di dua perpustakaan disimpan sekali dan dihitung di keduanya. Angka pertama adalah yang harus disimpan server ini; angka kedua adalah ukuran perpustakaan-perpustakaan itu jika disimpan terpisah.',
+  'A file on your computer cannot be linked from the browser.':
+    'Berkas di komputer Anda tidak dapat ditautkan dari peramban.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Berkas yang diminta klien untuk dikirim tetapi tidak pernah dikirim. Tidak ada yang hilang: klien akan memintanya lagi.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -44,7 +46,9 @@ export default {
   'Account deleted.': 'Akun dihapus.',
   'Accounts': 'Akun',
   'Across the instance': 'Di seluruh instans',
+  'Add Attachment': 'Tambahkan Lampiran',
   'Add Creator': 'Tambah Penyusun',
+  'Add File…': 'Tambah Berkas…',
   'Add Note': 'Tambahkan Catatan',
   'Add Related': 'Tambah Terkait',
   'Add Tag': 'Tambah Tag',
@@ -106,8 +110,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Minta tautan baru kepada pengelola server ini. Kata sandi Anda saat ini masih berlaku.',
   'At least {count} characters': 'Setidaknya {count} karakter',
+  'Attach': 'Lampirkan',
+  'Attach File…': 'Lampirkan Berkas…',
+  'Attach Web Link': 'Lampirkan Tautan Web',
+  'Attach Web Link…': 'Lampirkan Tautan Web…',
   'Attachments': 'Lampiran',
   'Attachments directory': 'Direktori lampiran',
+  'Audio': 'Audio',
   'Authenticator app': 'Aplikasi autentikator',
   'Authenticator enabled.': 'Autentikator diaktifkan.',
   'Authenticator removed.': 'Autentikator dihapus.',
@@ -126,6 +135,7 @@ export default {
   'Callback address': 'Alamat callback',
   'Can': 'Dapat',
   'Cancel': 'Batal',
+  'Cancel upload of {name}': 'Batalkan unggahan {name}',
   'Change': 'Ubah',
   'Change Item Type': 'Ubah Jenis Item',
   'Change password': 'Ubah kata sandi',
@@ -257,6 +267,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Seret untuk memindahkan pembatas ini. Klik dua kali untuk mengembalikannya.',
   'Duplicate Items': 'Item duplikat',
+  'Ebook': 'Buku Elektronik',
   'Edit': 'Sunting',
   'Edit the title': 'Sunting judul',
   'Email': 'Email',
@@ -299,6 +310,8 @@ export default {
     'Berkas yang disimpan di server WebDAV tidak tersimpan di zotero.org, sehingga migrasi tidak dapat membawanya. Tetap sinkronkan berkas melalui WebDAV, atau unggah berkas dari klien Zotero yang masih menyimpannya.',
   'Finished.': 'Selesai.',
   'First or last item': 'Item pertama atau terakhir',
+  'Folders cannot be added. Add the files inside them.':
+    'Folder tidak dapat ditambahkan. Tambahkan berkas yang ada di dalamnya.',
   'Follow this device ({name})': 'Ikuti perangkat ini ({name})',
   'For example, my laptop': 'Misalnya, laptop saya',
   'Forgotten password': 'Lupa kata sandi',
@@ -333,6 +346,7 @@ export default {
   'I created this work.': 'Saya membuat karya ini.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Jika ada akun di sini yang menggunakan alamat tersebut, tautan untuk mengatur kata sandi baru sedang dikirim.',
+  'Image': 'Gambar',
   'Import and export': 'Impor dan ekspor',
   'In the trash': 'Di Keranjang Sampah',
   'Include attached files': 'Sertakan berkas lampiran',
@@ -366,6 +380,7 @@ export default {
   'Language': 'Bahasa',
   'Language and time zone': 'Bahasa dan zona waktu',
   'Language and time zone saved.': 'Bahasa dan zona waktu disimpan.',
+  'Larger than the {size} this server accepts': 'Lebih besar dari {size} yang diterima server ini',
   'Last opened {date}': 'Terakhir dibuka {date}',
   'Last time you limited it to:': 'Terakhir kali Anda membatasinya ke:',
   'Last used {when}': 'Terakhir digunakan {when}',
@@ -381,6 +396,7 @@ export default {
   'Libraries': 'Perpustakaan',
   'Library': 'Perpustakaan',
   'Limited to:': 'Dibatasi ke:',
+  'Link': 'Tautan',
   'Link issued.': 'Tautan dibuat.',
   'Links to this collection': 'Tautan ke koleksi ini',
   'Loading…': 'Memuat…',
@@ -497,6 +513,7 @@ export default {
     'Aplikasi lain yang telah Anda izinkan untuk mengakses akun ini. Masing-masing hanya diberi izin yang Anda setujui.',
   'Overview': 'Ringkasan',
   'Owner': 'Pemilik',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Tempelkan keduanya selama penyedia sedang mengganti kuncinya.',
   'Page Down': 'Page Down',
@@ -573,6 +590,7 @@ export default {
   'Render': 'Tampilkan',
   'Rendering…': 'Menampilkan…',
   'Repeat password': 'Ulangi kata sandi',
+  'Replace File…': 'Ganti Berkas…',
   'Replace what my library here already holds': 'Ganti isi perpustakaan saya di sini',
   'Replace what this library already holds': 'Ganti isi perpustakaan ini',
   'Required claim': 'Klaim yang diwajibkan',
@@ -708,6 +726,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL dasar. Konfigurasinya dibaca dari /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Koleksi ini beserta semua yang ada di dalamnya',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Berkas ini lebih dulu diganti di tempat lain. Inilah berkas yang baru.',
   'The following fields will be lost:': 'Isian-isian berikut ini akan hilang:',
   'The group has a new owner.': 'Grup ini memiliki pemilik baru.',
   'The items in it stay in the library.': 'Item di dalamnya tetap berada di perpustakaan.',
@@ -735,7 +755,9 @@ export default {
     'Ini membuat kunci yang tetap berfungsi sampai Anda menghapusnya di Pengaturan, bahkan setelah Anda keluar di sini.',
   'This instance has no accounts yet, so this one will be yours.':
     'Instans ini belum memiliki akun, jadi instans ini akan menjadi milik Anda.',
+  'This is not an address. Check it and try again.': 'Ini bukan alamat. Periksa dan coba lagi.',
   'This is your public page.': 'Ini halaman publik Anda.',
+  'This kind of address cannot be attached.': 'Jenis alamat ini tidak dapat dilampirkan.',
   'This link does not include the files themselves.': 'Tautan ini tidak menyertakan berkasnya.',
   'This link has been revoked, has expired, or never existed.':
     'Tautan ini telah dicabut, sudah kedaluwarsa, atau tidak pernah ada.',
@@ -746,6 +768,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'ID entitas server ini adalah URL publiknya sendiri.',
   'Time zone': 'Zona waktu',
+  'Title': 'Judul',
   'Trash': 'Keranjang Sampah',
   'Try Again': 'Coba Lagi',
   'Turn off codes by email': 'Nonaktifkan kode lewat email',
@@ -758,6 +781,8 @@ export default {
   'Unlink': 'Hapus Tautan',
   'Unread': 'Belum dibaca',
   'Unreferenced files deleted.': 'Berkas yang tidak dirujuk telah dihapus.',
+  'Uploading {name}': 'Mengunggah {name}',
+  'Uploads': 'Unggahan',
   'Use a code by email instead': 'Gunakan kode lewat email',
   'Use a passkey instead': 'Gunakan kunci sandi',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -769,8 +794,10 @@ export default {
   'Verify': 'Verifikasi',
   'Version': 'Versi',
   'Version {version}': 'Versi {version}',
+  'Video': 'Video',
   'Visibility': 'Visibilitas',
   'Web API version': 'Versi Web API',
+  'Webpage': 'Laman Web',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Catatan tentang notifikasi grup yang telah dikirim. Tidak ada yang diberi tahu dua kali, dan pengaturan ini hanya menentukan berapa lama catatan itu disimpan.',
   'What is it for?': 'Untuk apa?',

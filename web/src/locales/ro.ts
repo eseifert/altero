@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Colecția trebuie să aibă un nume.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Un fișier anexat în două biblioteci este stocat o singură dată și numărat în amândouă. Primul număr este cât trebuie să păstreze acest server; al doilea, cât ar ocupa bibliotecile separat.',
+  'A file on your computer cannot be linked from the browser.':
+    'Un fișier de pe computerul tău nu poate fi legat din browser.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Un fișier pe care clientul a cerut să-l trimită, dar nu l-a trimis niciodată. Nu se pierde nimic: clientul îl cere din nou.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'Cont șters.',
   Accounts: 'Conturi',
   'Across the instance': 'În întreaga instanță',
+  'Add Attachment': 'Adaugă anexă',
   'Add Creator': 'Adaugă creator',
+  'Add File…': 'Adaugă fișier…',
   'Add Note': 'Adaugă notă',
   'Add Related': 'Adaugă relație',
   'Add Tag': 'Adaugă etichetă',
@@ -104,8 +108,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Cere unul nou de la cine administrează acest server. Parola ta actuală funcționează în continuare.',
   'At least {count} characters': 'Cel puțin {count} caractere',
+  'Attach': 'Anexează',
+  'Attach File…': 'Anexează fișier…',
+  'Attach Web Link': 'Anexează link web',
+  'Attach Web Link…': 'Anexează link web…',
   Attachments: 'Anexe',
   'Attachments directory': 'Dosarul anexelor',
+  'Audio': 'Audio',
   'Authenticator app': 'Aplicație de autentificare',
   'Authenticator enabled.': 'Aplicația de autentificare a fost activată.',
   'Authenticator removed.': 'Aplicația de autentificare a fost eliminată.',
@@ -124,6 +133,7 @@ export default {
   'Callback address': 'Adresă de callback',
   Can: 'Drepturi',
   Cancel: 'Anulare',
+  'Cancel upload of {name}': 'Anulează încărcarea pentru {name}',
   Change: 'Schimbă',
   'Change Item Type': 'Schimbă tipul înregistrării',
   'Change password': 'Schimbă parola',
@@ -255,6 +265,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Trage pentru a muta acest separator. Dublu clic pentru a-l readuce la loc.',
   'Duplicate Items': 'Înregistrări duplicate',
+  'Ebook': 'Carte electronică',
   Email: 'E-mail',
   'Edit': 'Editează',
   'Edit the title': 'Editează titlul',
@@ -297,6 +308,8 @@ export default {
     'Fișierele păstrate pe un server WebDAV nu sunt stocate pe zotero.org, așa că o migrare nu le poate aduce. Continuă să sincronizezi fișierele prin WebDAV sau încarcă-le dintr-un client Zotero care le mai are.',
   'Finished.': 'Finalizat.',
   'First or last item': 'Prima sau ultima înregistrare',
+  'Folders cannot be added. Add the files inside them.':
+    'Dosarele nu pot fi adăugate. Adaugă fișierele din interiorul lor.',
   'Follow this device ({name})': 'Urmează acest dispozitiv ({name})',
   'For example, my laptop': 'De exemplu, laptopul meu',
   'Forgotten password': 'Parolă uitată',
@@ -331,6 +344,7 @@ export default {
   'I created this work.': 'Am creat această lucrare.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Dacă un cont de aici folosește această adresă, un link pentru setarea unei parole noi este pe drum.',
+  'Image': 'Imagine',
   'Import and export': 'Import și export',
   'In the trash': 'În coșul de gunoi',
   'Include attached files': 'Include fișierele anexate',
@@ -364,6 +378,8 @@ export default {
   Language: 'Limbă',
   'Language and time zone': 'Limbă și fus orar',
   'Language and time zone saved.': 'Limba și fusul orar au fost salvate.',
+  'Larger than the {size} this server accepts':
+    'Mai mare decât cei {size} acceptați de acest server',
   'Last opened {date}': 'Deschis ultima dată pe {date}',
   'Last time you limited it to:': 'Data trecută ai limitat-o la:',
   'Last used {when}': 'Folosită ultima dată la {when}',
@@ -379,6 +395,7 @@ export default {
   Libraries: 'Biblioteci',
   Library: 'Bibliotecă',
   'Limited to:': 'Limitat la:',
+  'Link': 'Link',
   'Link issued.': 'Link emis.',
   'Links to this collection': 'Linkuri către această colecție',
   'Loading…': 'Se încarcă…',
@@ -495,6 +512,7 @@ export default {
     'Alte aplicații cărora le-ai permis accesul la acest cont. Fiecare a primit doar permisiunile pe care le-ai aprobat.',
   Overview: 'Prezentare generală',
   Owner: 'Proprietar',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Lipește-le pe amândouă cât timp furnizorul își schimbă cheia.',
   'Page Down': 'Page Down',
@@ -572,6 +590,7 @@ export default {
   Render: 'Generează',
   'Rendering…': 'Se generează…',
   'Repeat password': 'Repetă parola',
+  'Replace File…': 'Înlocuiește fișierul…',
   'Replace what my library here already holds':
     'Înlocuiește ce conține deja biblioteca mea de aici',
   'Replace what this library already holds': 'Înlocuiește ce conține deja această bibliotecă',
@@ -710,6 +729,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL-ul de bază. Configurația sa este citită din /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Colecția și tot ce conține',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Fișierul a fost înlocuit mai întâi în altă parte. Acesta este cel nou.',
   'The following fields will be lost:': 'Următoarele câmpuri vor fi pierdute:',
   'The group has a new owner.': 'Grupul are un nou proprietar.',
   'The items in it stay in the library.': 'Înregistrările din ea rămân în bibliotecă.',
@@ -737,7 +758,10 @@ export default {
     'Se creează o cheie care funcționează până când o elimini din Setări, chiar și după ce te deconectezi de aici.',
   'This instance has no accounts yet, so this one will be yours.':
     'Această instanță nu are încă niciun cont, așa că primul va fi al tău.',
+  'This is not an address. Check it and try again.':
+    'Aceasta nu este o adresă. Verific-o și încearcă din nou.',
   'This is your public page.': 'Aceasta este pagina ta publică.',
+  'This kind of address cannot be attached.': 'Acest tip de adresă nu poate fi anexat.',
   'This link does not include the files themselves.':
     'Acest link nu include fișierele propriu-zise.',
   'This link has been revoked, has expired, or never existed.':
@@ -749,6 +773,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'ID-ul de entitate al acestui server este propriul său URL public.',
   'Time zone': 'Fus orar',
+  'Title': 'Titlu',
   Trash: 'Coș de gunoi',
   'Try Again': 'Încearcă din nou',
   'Turn off codes by email': 'Dezactivează codurile prin e-mail',
@@ -761,6 +786,8 @@ export default {
   Unread: 'Necitite',
   'Unlink': 'Elimină linkul',
   'Unreferenced files deleted.': 'Fișierele nereferențiate au fost șterse.',
+  'Uploading {name}': 'Se încarcă {name}',
+  'Uploads': 'Încărcări',
   'Use a code by email instead': 'Folosește în schimb un cod prin e-mail',
   'Use a passkey instead': 'Folosește în schimb o cheie de acces',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -772,8 +799,10 @@ export default {
   Verify: 'Verifică',
   Version: 'Versiune',
   'Version {version}': 'Versiunea {version}',
+  'Video': 'Video',
   Visibility: 'Vizibilitate',
   'Web API version': 'Versiunea Web API',
+  'Webpage': 'Pagină web',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Datele din care au fost trimise notificările de grup. Nimeni nu este notificat de două ori; setarea decide doar cât timp sunt păstrate.',
   'What is it for?': 'Pentru ce este?',

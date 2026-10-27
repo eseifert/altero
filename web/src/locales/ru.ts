@@ -18,6 +18,8 @@ export default {
   'A collection needs a name.': 'Коллекции нужно название.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Файл, вложенный в две библиотеки, хранится один раз, а учитывается в обеих. Первое число — то, что должен хранить этот сервер; второе — то, сколько библиотеки заняли бы по отдельности.',
+  'A file on your computer cannot be linked from the browser.':
+    'Сослаться из браузера на файл на вашем компьютере нельзя.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Файл, который клиент собирался отправить и так и не отправил. Ничего не потеряно: он попросит снова.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -43,7 +45,9 @@ export default {
   'Account deleted.': 'Учётная запись удалена.',
   'Accounts': 'Учётные записи',
   'Across the instance': 'По всему серверу',
+  'Add Attachment': 'Добавить вложение',
   'Add Creator': 'Добавить Создателя',
+  'Add File…': 'Добавить файл…',
   'Add Note': 'Добавить заметку',
   'Add Related': 'Добавить Относящееся',
   'Add Tag': 'Добавить Тег',
@@ -105,8 +109,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Попросите новую у того, кто ведёт этот сервер. Ваш нынешний пароль по-прежнему работает.',
   'At least {count} characters': 'Не менее {count} символов',
+  'Attach': 'Добавить',
+  'Attach File…': 'Присоединить файл…',
+  'Attach Web Link': 'Добавить веб-ссылку',
+  'Attach Web Link…': 'Добавить веб-ссылку…',
   'Attachments': 'Вложения',
   'Attachments directory': 'Каталог вложений',
+  'Audio': 'Аудио',
   'Authenticator app': 'Приложение-аутентификатор',
   'Authenticator enabled.': 'Аутентификатор включён.',
   'Authenticator removed.': 'Аутентификатор удалён.',
@@ -125,6 +134,7 @@ export default {
   'Callback address': 'Адрес обратного вызова',
   'Can': 'Может',
   'Cancel': 'Отменить',
+  'Cancel upload of {name}': 'Отменить загрузку {name}',
   'Change': 'Изменить',
   'Change Item Type': 'Изменить тип записи',
   'Change password': 'Изменить пароль',
@@ -255,6 +265,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Потяните, чтобы сдвинуть этот разделитель. Двойной щелчок вернёт его на место.',
   'Duplicate Items': 'Дубликаты записей',
+  'Ebook': 'Электронная книга',
   'Edit': 'Редактировать',
   'Edit the title': 'Изменить заглавие',
   'Email': 'Почта',
@@ -296,6 +307,8 @@ export default {
     'Файлы, хранящиеся на сервере WebDAV, не лежат на zotero.org, поэтому перенос не может их забрать. Продолжайте синхронизировать файлы через WebDAV или загрузите их из клиента Zotero, где они ещё есть.',
   'Finished.': 'Завершено.',
   'First or last item': 'Первый или последний элемент',
+  'Folders cannot be added. Add the files inside them.':
+    'Папки добавить нельзя. Добавьте файлы, которые в них лежат.',
   'Follow this device ({name})': 'Как на этом устройстве ({name})',
   'For example, my laptop': 'Например, мой ноутбук',
   'Forgotten password': 'Забытый пароль',
@@ -330,6 +343,7 @@ export default {
   'I created this work.': 'Я создал эту работу.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Если какая-то здешняя учётная запись использует этот адрес, ссылка для задания нового пароля уже в пути.',
+  'Image': 'Изображение',
   'Import and export': 'Импорт и экспорт',
   'In the trash': 'В корзине',
   'Include attached files': 'Включить вложенные файлы',
@@ -362,6 +376,7 @@ export default {
   'Language': 'Язык',
   'Language and time zone': 'Язык и часовой пояс',
   'Language and time zone saved.': 'Язык и часовой пояс сохранены.',
+  'Larger than the {size} this server accepts': 'Больше {size}, допустимых на этом сервере',
   'Last opened {date}': 'Последний раз открывалось {date}',
   'Last time you limited it to:': 'В прошлый раз вы ограничили его:',
   'Last used {when}': 'Последний раз использовалось {when}',
@@ -376,6 +391,7 @@ export default {
   'Libraries': 'Библиотеки',
   'Library': 'Библиотека',
   'Limited to:': 'Ограничено:',
+  'Link': 'Ссылка',
   'Link issued.': 'Ссылка выдана.',
   'Links to this collection': 'Ссылки на эту коллекцию',
   'Loading…': 'Загрузка…',
@@ -490,6 +506,7 @@ export default {
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Другие приложения, которым вы разрешили доступ к этой учётной записи. Каждое получило только те разрешения, которые вы одобрили.',
   'Overview': 'Обзор',
   'Owner': 'Владелец',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Вставьте оба, пока поставщик меняет свой ключ.',
   'Page Down': 'Page Down',
@@ -566,6 +583,7 @@ export default {
   'Render': 'Построить',
   'Rendering…': 'Построение…',
   'Repeat password': 'Повторите пароль',
+  'Replace File…': 'Заменить файл…',
   'Replace what my library here already holds':
     'Заменить то, что моя здешняя библиотека уже содержит',
   'Replace what this library already holds': 'Заменить то, что эта библиотека уже содержит',
@@ -700,6 +718,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Базовый адрес. Его конфигурация читается из /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Коллекция и всё, что внутри неё',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Файл сначала заменили в другом месте. Это новый.',
   'The following fields will be lost:': 'Следующие поля будут утрачены:',
   'The group has a new owner.': 'У группы новый владелец.',
   'The items in it stay in the library.': 'Записи из неё остаются в библиотеке.',
@@ -726,7 +746,10 @@ export default {
     'Так создаётся ключ, который работает, пока вы не удалите его в Настройках, — даже после того, как вы выйдете отсюда.',
   'This instance has no accounts yet, so this one will be yours.':
     'На этом сервере пока нет учётных записей, поэтому эта будет вашей.',
+  'This is not an address. Check it and try again.':
+    'Это не адрес. Проверьте его и попробуйте снова.',
   'This is your public page.': 'Это ваша открытая страница.',
+  'This kind of address cannot be attached.': 'Такой адрес нельзя добавить как вложение.',
   'This link does not include the files themselves.': 'Эта ссылка не включает сами файлы.',
   'This link has been revoked, has expired, or never existed.':
     'Эта ссылка отозвана, истекла или никогда не существовала.',
@@ -737,6 +760,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Entity ID этого сервера — его собственный публичный адрес.',
   'Time zone': 'Часовой пояс',
+  'Title': 'Заголовок',
   'Trash': 'Корзина',
   'Try Again': 'Попробовать снова',
   'Turn off codes by email': 'Отключить коды по почте',
@@ -749,6 +773,8 @@ export default {
   'Unlink': 'Убрать ссылку',
   'Unread': 'Непрочитанное',
   'Unreferenced files deleted.': 'Файлы без ссылок удалены.',
+  'Uploading {name}': 'Загрузка {name}',
+  'Uploads': 'Загрузка файлов',
   'Use a code by email instead': 'Использовать вместо этого код по почте',
   'Use a passkey instead': 'Использовать вместо этого ключ доступа',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -760,8 +786,10 @@ export default {
   'Verify': 'Проверить',
   'Version': 'Версия',
   'Version {version}': 'Версия {version}',
+  'Video': 'Видео',
   'Visibility': 'Видимость',
   'Web API version': 'Версия Web API',
+  'Webpage': 'Веб-страница',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'То, из чего рассылались уведомления группы. Никого не уведомляют дважды, и это решает лишь, сколько запись остаётся.',
   'What is it for?': 'Для чего он?',

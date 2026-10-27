@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Unha colección necesita un nome.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Un ficheiro anexado en dúas bibliotecas gárdase unha soa vez e cóntase en ambas. O primeiro número é o que este servidor ten que gardar; o segundo, o que ocuparían as bibliotecas por separado.',
+  'A file on your computer cannot be linked from the browser.':
+    'Non se pode ligar desde o navegador un ficheiro do teu computador.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Un ficheiro que o cliente pediu enviar e nunca enviou. Non se perde nada: volverá pedilo.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'Conta eliminada.',
   'Accounts': 'Contas',
   'Across the instance': 'En toda a instancia',
+  'Add Attachment': 'Engadir un anexo',
   'Add Creator': 'Engadir creador',
+  'Add File…': 'Engadir ficheiro…',
   'Add Note': 'Engadir unha nota',
   'Add Related': 'Engadir relacionado',
   'Add Tag': 'Engadir etiqueta',
@@ -104,8 +108,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Pídelle unha nova a quen administre este servidor. O teu contrasinal actual segue funcionando.',
   'At least {count} characters': 'Polo menos {count} caracteres',
+  'Attach': 'Anexar',
+  'Attach File…': 'Anexar ficheiro…',
+  'Attach Web Link': 'Anexar ligazón web',
+  'Attach Web Link…': 'Anexar ligazón web…',
   Attachments: 'Anexos',
   'Attachments directory': 'Cartafol de anexos',
+  'Audio': 'Son',
   'Authenticator app': 'Aplicación de autenticación',
   'Authenticator enabled.': 'Aplicación de autenticación activada.',
   'Authenticator removed.': 'Aplicación de autenticación quitada.',
@@ -124,6 +133,7 @@ export default {
   'Can': 'Pode',
   Cancel: 'Cancelar',
   'By library': 'Por biblioteca',
+  'Cancel upload of {name}': 'Cancelar a subida de {name}',
   'Change': 'Cambiar',
   'Change Item Type': 'Cambiar o tipo de elemento',
   'Change password': 'Cambiar o contrasinal',
@@ -254,6 +264,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Arrastra para mover esta división. Fai dobre clic para devolvela ao seu sitio.',
   'Duplicate Items': 'Elementos duplicados',
+  'Ebook': 'Libro electrónico',
   'Edit': 'Editar',
   'Edit the title': 'Editar o título',
   'Email': 'Correo electrónico',
@@ -296,6 +307,8 @@ export default {
     'Os ficheiros gardados nun servidor WebDAV non están almacenados en zotero.org, así que unha migración non os pode traer. Continúa sincronizando os ficheiros por WebDAV ou súbeos desde un cliente de Zotero que aínda os teña.',
   'Finished.': 'Rematado.',
   'First or last item': 'Primeiro ou último elemento',
+  'Folders cannot be added. Add the files inside them.':
+    'Non se poden engadir cartafoles. Engade os ficheiros que conteñen.',
   'Follow this device ({name})': 'Seguir este dispositivo ({name})',
   'For example, my laptop': 'Por exemplo, o meu portátil',
   'Forgotten password': 'Contrasinal esquecido',
@@ -330,6 +343,7 @@ export default {
   'I created this work.': 'Creei esta obra.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Se algunha conta de aquí usa ese enderezo, hai de camiño unha ligazón para definir un novo contrasinal.',
+  'Image': 'Imaxe',
   'Import and export': 'Importar e exportar',
   'In the trash': 'No lixo',
   'Include attached files': 'Incluír os ficheiros anexos',
@@ -362,6 +376,7 @@ export default {
   'Keyboard shortcuts': 'Atallos de teclado',
   'Language and time zone': 'Idioma e fuso horario',
   'Language and time zone saved.': 'Idioma e fuso horario gardados.',
+  'Larger than the {size} this server accepts': 'Supera os {size} que acepta este servidor',
   'Last opened {date}': 'Aberta por última vez: {date}',
   'Last time you limited it to:': 'A última vez limitáchela a:',
   'Last used {when}': 'Último uso: {when}',
@@ -377,6 +392,7 @@ export default {
   Libraries: 'Bibliotecas',
   Library: 'Biblioteca',
   'Limited to:': 'Limitada a:',
+  'Link': 'Ligazón',
   'Link issued.': 'Ligazón emitida.',
   'Links to this collection': 'Ligazóns a esta colección',
   'Loading…': 'Cargando…',
@@ -487,6 +503,7 @@ export default {
     'Abre zotero.org → Settings → Security → Applications e crea unha nova chave privada.',
   Optional: 'Opcional',
   Owner: 'Propietario',
+  'PDF': 'PDF',
   Password: 'Contrasinal',
   'Orange': 'Laranxa',
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.':
@@ -564,6 +581,7 @@ export default {
     'Ao quitalo tamén se quita a conexión de todas as contas con el.',
   'Rename tag': 'Renomear a etiqueta',
   'Rename “{name}”': 'Renomear “{name}”',
+  'Replace File…': 'Substituír ficheiro…',
   Resend: 'Reenviar',
   Restore: 'Restaurar',
   'Rendering…': 'Xerando…',
@@ -704,6 +722,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'O URL base. A súa configuración lese desde /.well-known/openid-configuration.',
   'The collection and everything inside it': 'A colección e todo o que hai dentro dela',
+  'The file was replaced elsewhere first. This is the new one.':
+    'O ficheiro substituíuse antes noutro lugar. Este é o novo.',
   'The following fields will be lost:': 'Perderanse os seguintes campos:',
   'The group has a new owner.': 'O grupo ten un novo propietario.',
   'The items in it stay in the library.': 'Os elementos que contén permanecen na biblioteca.',
@@ -731,7 +751,10 @@ export default {
     'Isto crea unha chave que segue funcionando ata que a quites na Configuración, mesmo despois de pechar a sesión aquí.',
   'This instance has no accounts yet, so this one will be yours.':
     'Esta instancia aínda non ten contas, así que esta será a túa.',
+  'This is not an address. Check it and try again.':
+    'Isto non é un enderezo. Compróbao e téntao de novo.',
   'This is your public page.': 'Esta é a túa páxina pública.',
+  'This kind of address cannot be attached.': 'Este tipo de enderezo non se pode anexar.',
   'This link does not include the files themselves.': 'Esta ligazón non inclúe os ficheiros en si.',
   'This link has been revoked, has expired, or never existed.':
     'Esta ligazón foi revogada, caducou ou nunca existiu.',
@@ -742,6 +765,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'O ID de entidade deste servidor é o seu propio URL público.',
   'Time zone': 'Fuso horario',
+  'Title': 'Título',
   Trash: 'Lixo',
   'Try Again': 'Tentar de novo',
   'Turn off codes by email': 'Desactivar os códigos por correo electrónico',
@@ -754,6 +778,8 @@ export default {
   Unread: 'Sen ler',
   'Unlink': 'Retirar ligazón',
   'Unreferenced files deleted.': 'Elimináronse os ficheiros sen referencias.',
+  'Uploading {name}': 'Subindo {name}',
+  'Uploads': 'Subidas',
   'Use a code by email instead': 'Usar no seu lugar un código por correo electrónico',
   'Use a passkey instead': 'Usar no seu lugar unha chave de acceso',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -764,8 +790,10 @@ export default {
   'Username claim': 'Atributo do nome de usuario',
   'Version': 'Versión',
   'Version {version}': 'Versión {version}',
+  'Video': 'Vídeo',
   Visibility: 'Visibilidade',
   'Web API version': 'Versión da API web',
+  'Webpage': 'Páxina web',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Aquilo a partir do que se enviaron as notificacións de grupo. Ninguén recibe un aviso dúas veces; isto só decide canto tempo se conserva o rexistro.',
   'What is it for?': 'Para que é?',

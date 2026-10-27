@@ -8,6 +8,7 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 - Create, rename, move and remove collections.
 - Make an item, edit its fields, creators and tags, change its type, and relate it to others.
 - Write notes, on their own or under an item.
+- Add files and web links, on their own or under an item, and replace a file.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
 - Use the same actions with mouse, keyboard or touch where the interface provides them; `?` lists the keys.
@@ -154,8 +155,8 @@ left before then — another item opened, the tab closed — is saved on the way
 
 - **Make a note** with the note button over the item list: **New Standalone
   Note** files it into the collection being shown, **New Item Note** puts it
-  under the item picked out. **+** beside **Attachments and notes** in an item's
-  pane adds one under that item. The note opens ready to type.
+  under the item picked out. **+** beside **Notes** in an item's pane adds one
+  under that item. The note opens ready to type.
 - **Format text** by selecting it: a bar appears over the selection with the
   block type (paragraph, headings, monospaced, lists, block quote), bold,
   italic, underline, strikethrough, code, link, text and highlight colour, and
@@ -185,6 +186,40 @@ If the note changed elsewhere while you were typing, nothing is written: the
 pane names the local version and the remote version by their first lines, and
 **Choose this version** keeps one. A note changed elsewhere while you are only
 reading it shows the change straight away.
+
+### Adding files and links
+
+A file added here is stored on this server and synced to Zotero Desktop like a
+file the desktop added: the desktop downloads it, under the name it had.
+
+- **Add a file under an item** with **Attach File…**, from the paperclip over
+  the item list or from **+** beside **Attachments** in the item's pane, or drag
+  files from your computer onto the item's row or its pane.
+- **Add a file on its own** with **Add File…**, which files it into the
+  collection being shown, or drag files onto a collection, the library or the
+  list itself.
+- **Attach a web link** with **Attach Web Link…**: an address and, if you want
+  one, a title. Without a title the link is named after its address, as in
+  Zotero Desktop. An address typed without `https://` gets `http://`.
+- **Replace a file** with **Replace File…** in an attachment's pane. The
+  attachment keeps its title and takes the new file's name.
+
+Files go up one at a time, each with a progress bar in the corner of the window
+and a button to cancel it. A file that could not be added stays there, saying
+why, until you dismiss it. Folders cannot be dropped; add the files inside
+them.
+
+The first PDF, ebook, web page, image, audio or video file under an item is
+titled after its kind ("PDF"), and any other after its file name, as in Zotero
+Desktop. Zotero Desktop's automatic renaming of files from the item's metadata
+is not done here.
+
+Files cannot be added to a group whose
+[file editing setting](../administration.md#group-policy) keeps them to administrators or
+allows none; web links can. The largest file accepted is set by
+[`ALTERO_MAX_UPLOAD_MB`](../configuration.md#server-and-storage), 1 GiB by
+default. If somebody replaced the same file elsewhere while yours was going up,
+yours is refused rather than written over theirs, and the pane shows theirs.
 
 ### Collections
 

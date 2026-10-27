@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Η συλλογή χρειάζεται όνομα.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Ένα αρχείο που είναι συνημμένο σε δύο βιβλιοθήκες αποθηκεύεται μία φορά και μετριέται και στις δύο. Ο πρώτος αριθμός είναι όσα πρέπει να κρατά αυτός ο διακομιστής· ο δεύτερος είναι όσα θα καταλάμβαναν οι βιβλιοθήκες χωριστά.',
+  'A file on your computer cannot be linked from the browser.':
+    'Ένα αρχείο στον υπολογιστή σας δεν μπορεί να συνδεθεί από το πρόγραμμα περιήγησης.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Ένα αρχείο που το πρόγραμμα-πελάτης ζήτησε να στείλει και δεν το έστειλε ποτέ. Τίποτα δεν χάνεται: θα το ζητήσει ξανά.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -39,7 +41,9 @@ export default {
   'Account deleted.': 'Ο λογαριασμός διαγράφηκε.',
   'Accounts': 'Λογαριασμοί',
   'Across the instance': 'Σε όλη την εγκατάσταση',
+  'Add Attachment': 'Προσθήκη προσαρτήματος',
   'Add Creator': 'Προσθήκη δημιουργού',
+  'Add File…': 'Προσθήκη αρχείου…',
   'Add Note': 'Προσθήκη σημείωσης',
   'Add Related': 'Προσθήκη σχετικού',
   'Add Tag': 'Προσθήκη ετικέτας',
@@ -97,8 +101,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Ζητήστε νέο από τον διαχειριστή αυτού του διακομιστή. Ο τρέχων κωδικός πρόσβασής σας εξακολουθεί να ισχύει.',
   'At least {count} characters': 'Τουλάχιστον {count} χαρακτήρες',
+  'Attach': 'Προσάρτηση',
+  'Attach File…': 'Προσάρτηση αρχείου…',
+  'Attach Web Link': 'Προσάρτηση συνδέσμου ιστού',
+  'Attach Web Link…': 'Προσάρτηση συνδέσμου ιστού…',
   'Attachments': 'Συνημμένα',
   'Attachments directory': 'Κατάλογος συνημμένων',
+  'Audio': 'Ήχος',
   'Authenticator app': 'Εφαρμογή ελέγχου ταυτότητας',
   'Authenticator enabled.': 'Η εφαρμογή ελέγχου ταυτότητας ενεργοποιήθηκε.',
   'Authenticator removed.': 'Η εφαρμογή ελέγχου ταυτότητας αφαιρέθηκε.',
@@ -117,6 +126,7 @@ export default {
   'Callback address': 'Διεύθυνση επιστροφής',
   'Can': 'Δικαίωμα',
   'Cancel': 'Άκυρο',
+  'Cancel upload of {name}': 'Ακύρωση μεταφόρτωσης του {name}',
   'Change': 'Αλλαγή',
   'Change Item Type': 'Αλλαγή Τύπου Στοιχείου',
   'Change password': 'Αλλαγή κωδικού πρόσβασης',
@@ -246,6 +256,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Σύρετε για να μετακινήσετε αυτό το διαχωριστικό. Κάντε διπλό κλικ για να το επαναφέρετε.',
   'Duplicate Items': 'Διπλότυπα Στοιχεία',
+  'Ebook': 'Ηλεκτρονικό βιβλίο',
   'Edit': 'Επεξεργασία',
   'Edit the title': 'Επεξεργασία τίτλου',
   'Email': 'Email',
@@ -286,6 +297,8 @@ export default {
     'Τα αρχεία που φυλάσσονται σε διακομιστή WebDAV δεν αποθηκεύονται στο zotero.org, οπότε η μεταφορά δεν μπορεί να τα φέρει. Συνεχίστε να συγχρονίζετε τα αρχεία μέσω WebDAV ή μεταφορτώστε τα από ένα πρόγραμμα-πελάτη Zotero που τα έχει ακόμη.',
   'Finished.': 'Ολοκληρώθηκε.',
   'First or last item': 'Πρώτο ή τελευταίο στοιχείο',
+  'Folders cannot be added. Add the files inside them.':
+    'Δεν είναι δυνατή η προσθήκη φακέλων. Προσθέστε τα αρχεία που περιέχουν.',
   'Follow this device ({name})': 'Όπως αυτή η συσκευή ({name})',
   'For example, my laptop': 'Για παράδειγμα, ο φορητός μου',
   'Forgotten password': 'Ξεχασμένος κωδικός πρόσβασης',
@@ -320,6 +333,7 @@ export default {
   'I created this work.': 'Δημιούργησα αυτό το έργο.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Αν κάποιος λογαριασμός εδώ χρησιμοποιεί αυτή τη διεύθυνση, ένας σύνδεσμος για τον ορισμό νέου κωδικού πρόσβασης είναι καθ’ οδόν.',
+  'Image': 'Εικόνα',
   'Import and export': 'Εισαγωγή και εξαγωγή',
   'In the trash': 'Στον Κάδο απορριμμάτων',
   'Include attached files': 'Συμπερίληψη συνημμένων αρχείων',
@@ -351,6 +365,8 @@ export default {
   'Language': 'Γλώσσα',
   'Language and time zone': 'Γλώσσα και ζώνη ώρας',
   'Language and time zone saved.': 'Η γλώσσα και η ζώνη ώρας αποθηκεύτηκαν.',
+  'Larger than the {size} this server accepts':
+    'Μεγαλύτερο από τα {size} που δέχεται αυτός ο διακομιστής',
   'Last opened {date}': 'Τελευταίο άνοιγμα: {date}',
   'Last time you limited it to:': 'Την προηγούμενη φορά την περιορίσατε σε:',
   'Last used {when}': 'Τελευταία χρήση: {when}',
@@ -365,6 +381,7 @@ export default {
   'Libraries': 'Βιβλιοθήκες',
   'Library': 'Βιβλιοθήκη',
   'Limited to:': 'Περιορίζεται σε:',
+  'Link': 'Σύνδεσμος',
   'Link issued.': 'Ο σύνδεσμος εκδόθηκε.',
   'Links to this collection': 'Σύνδεσμοι προς αυτή τη συλλογή',
   'Loading…': 'Φόρτωση…',
@@ -475,6 +492,7 @@ export default {
     'Άλλες εφαρμογές στις οποίες επιτρέψατε πρόσβαση σε αυτόν τον λογαριασμό. Η καθεμία έλαβε μόνο τα δικαιώματα που εγκρίνατε.',
   'Overview': 'Επισκόπηση',
   'Owner': 'Ιδιοκτήτης',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Επικολλήστε και τα δύο όσο ο πάροχος αντικαθιστά το κλειδί του.',
   'Page Down': 'Page Down',
@@ -549,6 +567,7 @@ export default {
   'Render': 'Δημιουργία',
   'Rendering…': 'Δημιουργία…',
   'Repeat password': 'Επανάληψη κωδικού πρόσβασης',
+  'Replace File…': 'Αντικατάσταση αρχείου…',
   'Replace what my library here already holds': 'Αντικατάσταση όσων περιέχει ήδη η βιβλιοθήκη μου εδώ',
   'Replace what this library already holds': 'Αντικατάσταση όσων περιέχει ήδη αυτή η βιβλιοθήκη',
   'Required claim': 'Απαιτούμενη δήλωση',
@@ -680,6 +699,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Το βασικό URL. Η διαμόρφωσή του διαβάζεται από το /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Η συλλογή και όλο το περιεχόμενό της',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Το αρχείο αντικαταστάθηκε πρώτα αλλού. Αυτό είναι το νέο.',
   'The following fields will be lost:': 'Τα ακόλουθα πεδία θα χαθούν:',
   'The group has a new owner.': 'Η ομάδα έχει νέο ιδιοκτήτη.',
   'The items in it stay in the library.': 'Τα στοιχεία της παραμένουν στη βιβλιοθήκη.',
@@ -706,7 +727,10 @@ export default {
     'Έτσι δημιουργείται ένα κλειδί που λειτουργεί μέχρι να το αφαιρέσετε στις Ρυθμίσεις, ακόμη κι αν αποσυνδεθείτε εδώ.',
   'This instance has no accounts yet, so this one will be yours.':
     'Αυτή η εγκατάσταση δεν έχει ακόμη λογαριασμούς, οπότε αυτή θα είναι δική σας.',
+  'This is not an address. Check it and try again.':
+    'Αυτό δεν είναι διεύθυνση. Ελέγξτε την και δοκιμάστε ξανά.',
   'This is your public page.': 'Αυτή είναι η δημόσια σελίδα σας.',
+  'This kind of address cannot be attached.': 'Αυτό το είδος διεύθυνσης δεν μπορεί να προσαρτηθεί.',
   'This link does not include the files themselves.': 'Αυτός ο σύνδεσμος δεν περιλαμβάνει τα ίδια τα αρχεία.',
   'This link has been revoked, has expired, or never existed.':
     'Αυτός ο σύνδεσμος έχει ανακληθεί, έχει λήξει ή δεν υπήρξε ποτέ.',
@@ -717,6 +741,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Το αναγνωριστικό οντότητας αυτού του διακομιστή είναι το δικό του δημόσιο URL.',
   'Time zone': 'Ζώνη ώρας',
+  'Title': 'Τίτλος',
   'Trash': 'Κάδος Απορριμμάτων',
   'Try Again': 'Δοκιμάστε ξανά',
   'Turn off codes by email': 'Απενεργοποίηση κωδικών μέσω email',
@@ -729,6 +754,8 @@ export default {
   'Unlink': 'Κατάργηση συνδέσμου',
   'Unread': 'Μη αναγνωσμένες',
   'Unreferenced files deleted.': 'Τα αρχεία χωρίς αναφορές διαγράφηκαν.',
+  'Uploading {name}': 'Μεταφόρτωση του {name}',
+  'Uploads': 'Μεταφορτώσεις',
   'Use a code by email instead': 'Χρήση κωδικού μέσω email',
   'Use a passkey instead': 'Χρήση κλειδιού πρόσβασης',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -739,8 +766,10 @@ export default {
   'Verify': 'Επαλήθευση',
   'Version': 'Έκδοση',
   'Version {version}': 'Έκδοση {version}',
+  'Video': 'Βίντεο',
   'Visibility': 'Ορατότητα',
   'Web API version': 'Έκδοση Web API',
+  'Webpage': 'Ιστοσελίδα',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Από αυτές στάλθηκαν οι ειδοποιήσεις ομάδων. Κανείς δεν ειδοποιείται δύο φορές· αυτό ορίζει μόνο πόσο διατηρείται η εγγραφή.',
   'What is it for?': 'Για ποιον σκοπό είναι;',

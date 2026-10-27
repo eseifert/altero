@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Цуглуулгад нэр өгөх шаардлагатай.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Хоёр номын санд хавсаргасан файлыг нэг удаа хадгалж, хоёуланд нь тоолдог. Эхний тоо нь энэ серверийн хадгалах ёстой хэмжээ, хоёр дахь нь номын сангууд тус тусдаа эзлэх байсан хэмжээ юм.',
+  'A file on your computer cannot be linked from the browser.':
+    'Таны компьютер дээрх файлыг хөтчөөс холбох боломжгүй.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Клиент илгээхээр хүсээд хэзээ ч илгээгээгүй файл. Юу ч алдагдахгүй: клиент дахин хүсэлт гаргана.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -40,7 +42,9 @@ export default {
   'Account deleted.': 'Бүртгэл устлаа.',
   'Accounts': 'Бүртгэлүүд',
   'Across the instance': 'Серверийн хэмжээнд',
+  'Add Attachment': 'Хавсралт нэмэх',
   'Add Creator': 'Зохиогч нэмэх',
+  'Add File…': 'Файл нэмэх…',
   'Add Note': 'Тэмдэглэл нэмэх',
   'Add Related': 'Холбоотой зүйл нэмэх',
   'Add Tag': 'Таг нэмэх',
@@ -104,8 +108,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Энэ серверийг ажиллуулдаг хүнээс шинийг хүснэ үү. Одоогийн нууц үг тань хүчинтэй хэвээр байна.',
   'At least {count} characters': 'Хамгийн багадаа {count} тэмдэгт',
+  'Attach': 'Хавсаргах',
+  'Attach File…': 'Файл хавсаргах…',
+  'Attach Web Link': 'Вэб холбоос хавсаргах',
+  'Attach Web Link…': 'Вэб холбоос хавсаргах…',
   'Attachments': 'Хавсралтууд',
   'Attachments directory': 'Хавсралтын хавтас',
+  'Audio': 'Аудио',
   'Authenticator app': 'Баталгаажуулагч апп',
   'Authenticator enabled.': 'Баталгаажуулагч апп идэвхжлээ.',
   'Authenticator removed.': 'Баталгаажуулагч апп хасагдлаа.',
@@ -124,6 +133,7 @@ export default {
   'Callback address': 'Буцах хаяг',
   'Can': 'Эрх',
   'Cancel': 'Цуцлах',
+  'Cancel upload of {name}': '{name} файлын байршуулалтыг цуцлах',
   'Change': 'Өөрчлөх',
   'Change Item Type': 'Зүйлийн төрлийг өөрчлөх',
   'Change password': 'Нууц үг солих',
@@ -254,6 +264,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Энэ хуваагчийг зөөхийн тулд чирнэ үү. Буцааж байрлуулахын тулд давхар товшино уу.',
   'Duplicate Items': 'Давхардсан зүйлс',
+  'Ebook': 'Цахим ном',
   'Edit': 'Засах',
   'Edit the title': 'Гарчгийг засах',
   'Email': 'Имэйл',
@@ -295,6 +306,8 @@ export default {
     'WebDAV сервер дээр хадгалсан файлууд zotero.org-д хадгалагддаггүй тул шилжүүлэлтээр тэдгээрийг авчрах боломжгүй. Файлуудаа WebDAV-аар үргэлжлүүлэн синхрончлох эсвэл тэдгээрийг одоо ч хадгалж буй Zotero клиентээс байршуулна уу.',
   'Finished.': 'Дууслаа.',
   'First or last item': 'Эхний эсвэл сүүлийн бичлэг',
+  'Folders cannot be added. Add the files inside them.':
+    'Хавтас нэмэх боломжгүй. Доторх файлуудыг нь нэмнэ үү.',
   'Follow this device ({name})': 'Энэ төхөөрөмжийг дагах ({name})',
   'For example, my laptop': 'Жишээ нь, миний зөөврийн компьютер',
   'Forgotten password': 'Мартсан нууц үг',
@@ -329,6 +342,7 @@ export default {
   'I created this work.': 'Би энэ бүтээлийг туурвисан.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Хэрэв энд тэр хаягийг ашигладаг бүртгэл байвал шинэ нууц үг тохируулах холбоос илгээгдэж байна.',
+  'Image': 'Зураг',
   'Import and export': 'Оруулах ба гаргах',
   'In the trash': 'Хогийн саванд',
   'Include attached files': 'Хавсаргасан файлуудыг оруулах',
@@ -362,6 +376,7 @@ export default {
   'Language': 'Хэл',
   'Language and time zone': 'Хэл ба цагийн бүс',
   'Language and time zone saved.': 'Хэл ба цагийн бүсийг хадгаллаа.',
+  'Larger than the {size} this server accepts': 'Энэ серверийн хүлээн авах хэмжээнээс ({size}) том',
   'Last opened {date}': 'Сүүлд нээсэн: {date}',
   'Last time you limited it to:': 'Өмнө нь та үүнийг дараахаар хязгаарласан:',
   'Last used {when}': 'Сүүлд ашигласан: {when}',
@@ -377,6 +392,7 @@ export default {
   'Libraries': 'Номын сангууд',
   'Library': 'Номын сан',
   'Limited to:': 'Хязгаарласан:',
+  'Link': 'Холбоос',
   'Link issued.': 'Холбоос үүслээ.',
   'Links to this collection': 'Энэ цуглуулгын холбоосууд',
   'Loading…': 'Ачаалж байна…',
@@ -491,6 +507,7 @@ export default {
     'Энэ бүртгэлд хандахыг таны зөвшөөрсөн бусад програмууд. Тус бүрд зөвхөн таны баталсан зөвшөөрлүүдийг өгсөн.',
   'Overview': 'Тойм',
   'Owner': 'Эзэмшигч',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Үйлчилгээ үзүүлэгч түлхүүрээ сольж байх үед хоёуланг нь буулгана уу.',
   'Page Down': 'Page Down',
@@ -567,6 +584,7 @@ export default {
   'Render': 'Үүсгэх',
   'Rendering…': 'Үүсгэж байна…',
   'Repeat password': 'Нууц үгээ давтана уу',
+  'Replace File…': 'Файл солих…',
   'Replace what my library here already holds':
     'Эндэх номын сангийн минь одоо байгаа агуулгыг солих',
   'Replace what this library already holds': 'Энэ номын сангийн одоо байгаа агуулгыг солих',
@@ -705,6 +723,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Үндсэн URL. Түүний тохиргоог /.well-known/openid-configuration хаягаас уншина.',
   'The collection and everything inside it': 'Цуглуулга болон доторх бүх зүйл',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Файлыг өөр газар түрүүлж сольсон байна. Энэ бол шинэ нь.',
   'The following fields will be lost:': 'Дараах талбарууд устах болно:',
   'The group has a new owner.': 'Бүлэг шинэ эзэмшигчтэй боллоо.',
   'The items in it stay in the library.': 'Доторх зүйлс номын санд үлдэнэ.',
@@ -731,7 +751,10 @@ export default {
     'Энэ нь та эндээс гарсан ч, Тохиргооноос хасах хүртэл ажилласаар байх түлхүүр үүсгэнэ.',
   'This instance has no accounts yet, so this one will be yours.':
     'Энэ серверт одоогоор бүртгэл алга тул энэ бүртгэл таных болно.',
+  'This is not an address. Check it and try again.':
+    'Энэ хаяг биш байна. Шалгаад дахин оролдоно уу.',
   'This is your public page.': 'Энэ бол таны нийтийн хуудас.',
+  'This kind of address cannot be attached.': 'Ийм төрлийн хаягийг хавсаргах боломжгүй.',
   'This link does not include the files themselves.': 'Энэ холбоост файлууд өөрсдөө ороогүй.',
   'This link has been revoked, has expired, or never existed.':
     'Энэ холбоосыг цуцалсан, хугацаа нь дууссан эсвэл огт байгаагүй.',
@@ -742,6 +765,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Энэ серверийн entity ID нь түүний нийтийн URL юм.',
   'Time zone': 'Цагийн бүс',
+  'Title': 'Гарчиг',
   'Trash': 'Хогийн сав',
   'Try Again': 'Дахин оролдох',
   'Turn off codes by email': 'Имэйлээр код авахыг унтраах',
@@ -754,6 +778,8 @@ export default {
   'Unlink': 'Холбоос салгах',
   'Unread': 'Уншаагүй',
   'Unreferenced files deleted.': 'Ашиглагдаагүй файлуудыг устгалаа.',
+  'Uploading {name}': '{name} файлыг байршуулж байна',
+  'Uploads': 'Байршуулалтууд',
   'Use a code by email instead': 'Оронд нь имэйлээр код ашиглах',
   'Use a passkey instead': 'Оронд нь нэвтрэх түлхүүр ашиглах',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -765,8 +791,10 @@ export default {
   'Verify': 'Баталгаажуулах',
   'Version': 'Хувилбар',
   'Version {version}': 'Хувилбар {version}',
+  'Video': 'Видео',
   'Visibility': 'Харагдах байдал',
   'Web API version': 'Web API хувилбар',
+  'Webpage': 'Вэб хуудас',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Бүлгийн мэдэгдлүүдийг үүсгэсэн бичлэгүүд. Хэнд ч хоёр удаа мэдэгдэхгүй бөгөөд энэ нь зөвхөн бичлэгийг хэр удаан хадгалахыг тодорхойлно.',
   'What is it for?': 'Юунд зориулсан бэ?',

@@ -19,6 +19,8 @@ export default {
   'A collection needs a name.': 'Kolekce musí mít název.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Soubor přiložený ve dvou knihovnách je uložen jednou a započítán v obou. První číslo udává, kolik musí uchovávat tento server; druhé, kolik by knihovny zabíraly každá zvlášť.',
+  'A file on your computer cannot be linked from the browser.':
+    'Na soubor ve vašem počítači nelze z prohlížeče odkazovat.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Soubor, jehož odeslání klient ohlásil, ale nikdy ho neodeslal. Nic se neztratí: klient o to požádá znovu.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -43,7 +45,9 @@ export default {
   'Account deleted.': 'Účet byl smazán.',
   'Accounts': 'Účty',
   'Across the instance': 'Celá instance',
+  'Add Attachment': 'Přidat přílohu',
   'Add Creator': 'Přidat tvůrce',
+  'Add File…': 'Přidat soubor…',
   'Add Note': 'Přidat poznámku',
   'Add Related': 'Přidat související',
   'Add Tag': 'Přidat štítek',
@@ -106,8 +110,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Požádejte o nový správce tohoto serveru. Vaše současné heslo stále platí.',
   'At least {count} characters': 'Alespoň {count} znaků',
+  'Attach': 'Připojit',
+  'Attach File…': 'Připojit soubor…',
+  'Attach Web Link': 'Připojit webový odkaz',
+  'Attach Web Link…': 'Připojit webový odkaz…',
   'Attachments': 'Přílohy',
   'Attachments directory': 'Adresář příloh',
+  'Audio': 'Audio',
   'Authenticator app': 'Ověřovací aplikace',
   'Authenticator enabled.': 'Ověřovací aplikace byla zapnuta.',
   'Authenticator removed.': 'Ověřovací aplikace byla odebrána.',
@@ -126,6 +135,7 @@ export default {
   'Callback address': 'Návratová adresa',
   'Can': 'Oprávnění',
   'Cancel': 'Zrušit',
+  'Cancel upload of {name}': 'Zrušit nahrávání souboru {name}',
   'Change': 'Změnit',
   'Change Item Type': 'Změnit typ položky',
   'Change password': 'Změnit heslo',
@@ -256,6 +266,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Přetažením posunete dělicí čáru. Dvojklikem ji vrátíte na původní místo.',
   'Duplicate Items': 'Duplicitní položky',
+  'Ebook': 'E-kniha',
   'Edit': 'Upravit',
   'Edit the title': 'Upravit název',
   'Email': 'E-mail',
@@ -297,6 +308,8 @@ export default {
     'Soubory uložené na serveru WebDAV nejsou uloženy na zotero.org, takže je migrace nemůže přenést. Synchronizujte soubory dál přes WebDAV, nebo je nahrajte z klienta Zotero, který je stále má.',
   'Finished.': 'Dokončeno.',
   'First or last item': 'První nebo poslední položka',
+  'Folders cannot be added. Add the files inside them.':
+    'Složky nelze přidat. Přidejte soubory, které obsahují.',
   'Follow this device ({name})': 'Podle tohoto zařízení ({name})',
   'For example, my laptop': 'Například můj notebook',
   'Forgotten password': 'Zapomenuté heslo',
@@ -332,6 +345,7 @@ export default {
   'I created this work.': 'Vytvořil jsem tuto práci.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Pokud tuto adresu používá některý zdejší účet, odkaz pro nastavení nového hesla je na cestě.',
+  'Image': 'Obrázek',
   'Import and export': 'Import a export',
   'In the trash': 'V koši',
   'Include attached files': 'Zahrnout přiložené soubory',
@@ -365,6 +379,8 @@ export default {
   'Language': 'Jazyk',
   'Language and time zone': 'Jazyk a časové pásmo',
   'Language and time zone saved.': 'Jazyk a časové pásmo byly uloženy.',
+  'Larger than the {size} this server accepts':
+    'Větší než limit {size}, který tento server přijímá',
   'Last opened {date}': 'Naposledy otevřeno {date}',
   'Last time you limited it to:': 'Minule jste ji omezili na:',
   'Last used {when}': 'Naposledy použito {when}',
@@ -380,6 +396,7 @@ export default {
   'Libraries': 'Knihovny',
   'Library': 'Knihovna',
   'Limited to:': 'Omezeno na:',
+  'Link': 'Odkaz',
   'Link issued.': 'Odkaz byl vydán.',
   'Links to this collection': 'Odkazy na tuto kolekci',
   'Loading…': 'Načítání…',
@@ -496,6 +513,7 @@ export default {
     'Další aplikace, kterým jste povolili přístup k tomuto účtu. Každá dostala jen ta oprávnění, která jste schválili.',
   'Overview': 'Přehled',
   'Owner': 'Vlastník',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Během výměny klíče u poskytovatele vložte oba.',
   'Page Down': 'Page Down',
@@ -571,6 +589,7 @@ export default {
   'Render': 'Vygenerovat',
   'Rendering…': 'Generování…',
   'Repeat password': 'Zopakujte heslo',
+  'Replace File…': 'Nahradit soubor…',
   'Replace what my library here already holds': 'Nahradit to, co už moje zdejší knihovna obsahuje',
   'Replace what this library already holds': 'Nahradit to, co už tato knihovna obsahuje',
   'Required claim': 'Požadovaná deklarace',
@@ -706,6 +725,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Základní URL. Konfigurace se načítá z /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kolekce a vše, co obsahuje',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Soubor už byl nahrazen jinde. Toto je nový soubor.',
   'The following fields will be lost:': 'Následující pole budou ztracena:',
   'The group has a new owner.': 'Skupina má nového vlastníka.',
   'The items in it stay in the library.': 'Položky v ní zůstanou v knihovně.',
@@ -733,7 +754,10 @@ export default {
     'Tím se vytvoří klíč, který funguje, dokud ho neodstraníte v Nastavení, a to i poté, co se zde odhlásíte.',
   'This instance has no accounts yet, so this one will be yours.':
     'Tato instance zatím nemá žádné účty, takže bude vaše.',
+  'This is not an address. Check it and try again.':
+    'Toto není adresa. Zkontrolujte ji a zkuste to znovu.',
   'This is your public page.': 'Toto je vaše veřejná stránka.',
+  'This kind of address cannot be attached.': 'Tento druh adresy nelze připojit.',
   'This link does not include the files themselves.': 'Tento odkaz nezahrnuje samotné soubory.',
   'This link has been revoked, has expired, or never existed.':
     'Tento odkaz byl zneplatněn, vypršel nebo nikdy neexistoval.',
@@ -744,6 +768,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Entity ID tohoto serveru je jeho vlastní veřejná URL.',
   'Time zone': 'Časové pásmo',
+  'Title': 'Název',
   'Trash': 'Koš',
   'Try Again': 'Zkusit znovu',
   'Turn off codes by email': 'Vypnout kódy e-mailem',
@@ -756,6 +781,8 @@ export default {
   'Unlink': 'Odpojit',
   'Unread': 'Nepřečtené',
   'Unreferenced files deleted.': 'Soubory bez odkazů byly smazány.',
+  'Uploading {name}': 'Nahrávání souboru {name}',
+  'Uploads': 'Nahrávané soubory',
   'Use a code by email instead': 'Použít raději kód e-mailem',
   'Use a passkey instead': 'Použít raději přístupový klíč',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -767,8 +794,10 @@ export default {
   'Verify': 'Ověřit',
   'Version': 'Verze',
   'Version {version}': 'Verze {version}',
+  'Video': 'Video',
   'Visibility': 'Viditelnost',
   'Web API version': 'Verze Web API',
+  'Webpage': 'Webová stránka',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Záznamy, z nichž se odesílala oznámení skupin. Nikdo nedostane oznámení dvakrát; tato hodnota určuje jen to, jak dlouho záznam zůstane.',
   'What is it for?': 'K čemu slouží?',

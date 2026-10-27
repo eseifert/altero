@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Rinkiniui reikia pavadinimo.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Rinkmena, prisegta dviejose bibliotekose, saugoma vieną kartą, bet skaičiuojama abiejose. Pirmasis skaičius – kiek turi saugoti šis serveris; antrasis – kiek bibliotekos užimtų atskirai.',
+  'A file on your computer cannot be linked from the browser.':
+    'Rinkmenos jūsų kompiuteryje negalima susieti iš naršyklės.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Rinkmena, kurią klientas prašė leisti nusiųsti, bet taip ir nenusiuntė. Niekas neprarasta: jis paprašys dar kartą.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -39,7 +41,9 @@ export default {
   'Account deleted.': 'Paskyra pašalinta.',
   'Accounts': 'Paskyros',
   'Across the instance': 'Visame serveryje',
+  'Add Attachment': 'Įtraukti priedą',
   'Add Creator': 'Pridėti autorių',
+  'Add File…': 'Pridėti rinkmeną…',
   'Add Note': 'Įtraukti pastabą',
   'Add Related': 'Pridėti susijusį',
   'Add Tag': 'Pridėti gairę',
@@ -95,8 +99,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Paprašykite šio serverio administratoriaus naujos. Dabartinis slaptažodis vis dar veikia.',
   'At least {count} characters': 'Ne mažiau kaip {count} simb.',
+  'Attach': 'Pridėti',
+  'Attach File…': 'Prisegti rinkmeną…',
+  'Attach Web Link': 'Pridėti tinklalapio nuorodą',
+  'Attach Web Link…': 'Pridėti tinklalapio nuorodą…',
   Attachments: 'Priedai',
   'Attachments directory': 'Priedų katalogas',
+  'Audio': 'Garso įr.',
   'Authenticator app': 'Autentifikavimo programėlė',
   'Authenticator enabled.': 'Autentifikavimo programėlė įjungta.',
   'Authenticator removed.': 'Autentifikavimo programėlė pašalinta.',
@@ -115,6 +124,7 @@ export default {
   'Callback address': 'Grįžtamasis adresas',
   'Can': 'Gali',
   'Cancel': 'Atšaukti',
+  'Cancel upload of {name}': 'Atšaukti įkėlimą: {name}',
   'Change': 'Keisti',
   'Change Item Type': 'Pakeisti įrašo tipą',
   'Change password': 'Keisti slaptažodį',
@@ -244,6 +254,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Vilkite, kad perkeltumėte šią skiriamąją liniją. Dukart spustelėkite, kad grąžintumėte ją į vietą.',
   'Duplicate Items': 'Besidubliuojantys įrašai',
+  'Ebook': 'El. knyga',
   'Edit': 'Redaguoti',
   'Edit the title': 'Redaguoti pavadinimą',
   'Email': 'El. paštas',
@@ -283,6 +294,8 @@ export default {
     'WebDAV serveryje laikomos rinkmenos nesaugomos zotero.org, todėl perkeliant biblioteką jų perkelti nepavyks. Toliau sinchronizuokite rinkmenas per WebDAV arba įkelkite jas iš Zotero kliento, kuriame jos dar yra.',
   'Finished.': 'Baigta.',
   'First or last item': 'Pirmas arba paskutinis įrašas',
+  'Folders cannot be added. Add the files inside them.':
+    'Aplankų pridėti negalima. Pridėkite juose esančias rinkmenas.',
   'Follow this device ({name})': 'Pagal šį įrenginį ({name})',
   'For example, my laptop': 'Pavyzdžiui, mano nešiojamasis kompiuteris',
   'Forgotten password': 'Pamirštas slaptažodis',
@@ -317,6 +330,7 @@ export default {
   'I created this work.': 'Esu šio darbo kūrėjas.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Jei šiame serveryje yra paskyra tokiu adresu, nuoroda naujam slaptažodžiui nustatyti jau siunčiama.',
+  'Image': 'Paveikslas',
   'Import and export': 'Importavimas ir eksportavimas',
   'In the trash': 'Šiukšlinėje',
   'Include attached files': 'Įtraukti prisegtas rinkmenas',
@@ -348,6 +362,8 @@ export default {
   'Language': 'Kalba',
   'Language and time zone': 'Kalba ir laiko juosta',
   'Language and time zone saved.': 'Kalba ir laiko juosta įrašytos.',
+  'Larger than the {size} this server accepts':
+    'Didesnė nei šio serverio leidžiamas dydis ({size})',
   'Last opened {date}': 'Paskutinį kartą atverta {date}',
   'Last time you limited it to:': 'Praėjusį kartą apribojote iki:',
   'Last used {when}': 'Paskutinį kartą naudota {when}',
@@ -361,6 +377,7 @@ export default {
   'Libraries': 'Bibliotekos',
   'Library': 'Biblioteka',
   'Limited to:': 'Apribota iki:',
+  'Link': 'Nuoroda',
   'Link issued.': 'Nuoroda sukurta.',
   'Links to this collection': 'Nuorodos į šį rinkinį',
   'Loading…': 'Įkeliama…',
@@ -470,6 +487,7 @@ export default {
     'Kitos programos, kurioms leidote pasiekti šią paskyrą. Kiekvienai suteikti tik jūsų patvirtinti leidimai.',
   'Overview': 'Apžvalga',
   'Owner': 'Savininkas',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.': 'PEM. Kol teikėjas keičia raktą, įklijuokite abu.',
   'Page Down': 'Page Down',
   'Page Up': 'Page Up',
@@ -541,6 +559,7 @@ export default {
   'Render': 'Sugeneruoti',
   'Rendering…': 'Generuojama…',
   'Repeat password': 'Pakartokite slaptažodį',
+  'Replace File…': 'Pakeisti rinkmeną…',
   'Replace what my library here already holds': 'Pakeisti tai, kas jau yra mano bibliotekoje šiame serveryje',
   'Replace what this library already holds': 'Pakeisti tai, kas jau yra šioje bibliotekoje',
   'Required claim': 'Privalomas teiginys',
@@ -669,6 +688,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Bazinis URL. Jo konfigūracija nuskaitoma iš /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Rinkinį ir viską, kas jame yra',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Rinkmena pirmiau buvo pakeista kitur. Čia – naujoji.',
   'The following fields will be lost:': 'Prarasite tokius laukus:',
   'The group has a new owner.': 'Grupė turi naują savininką.',
   'The items in it stay in the library.': 'Jame esantys įrašai lieka bibliotekoje.',
@@ -695,7 +716,10 @@ export default {
     'Taip sukuriamas raktas, kuris veiks tol, kol jo nepašalinsite nuostatose, net ir atsijungus čia.',
   'This instance has no accounts yet, so this one will be yours.':
     'Šiame serveryje dar nėra paskyrų, todėl jis bus jūsų.',
+  'This is not an address. Check it and try again.':
+    'Tai ne adresas. Patikrinkite ir bandykite dar kartą.',
   'This is your public page.': 'Tai jūsų viešas puslapis.',
+  'This kind of address cannot be attached.': 'Tokio tipo adreso pridėti negalima.',
   'This link does not include the files themselves.': 'Ši nuoroda neapima pačių rinkmenų.',
   'This link has been revoked, has expired, or never existed.':
     'Ši nuoroda atšaukta, nebegalioja arba niekada neegzistavo.',
@@ -705,6 +729,7 @@ export default {
   'This server': 'Šis serveris',
   'This server’s entity ID is its own public URL.': 'Šio serverio subjekto ID yra jo paties viešasis URL.',
   'Time zone': 'Laiko juosta',
+  'Title': 'Pavadinimas',
   'Trash': 'Šiukšlinė',
   'Try Again': 'Bandyti dar kartą',
   'Turn off codes by email': 'Išjungti kodus el. paštu',
@@ -717,6 +742,8 @@ export default {
   'Unlink': 'Atsieti',
   'Unread': 'Neskaityta',
   'Unreferenced files deleted.': 'Nenaudojamos rinkmenos pašalintos.',
+  'Uploading {name}': 'Įkeliama: {name}',
+  'Uploads': 'Įkėlimai',
   'Use a code by email instead': 'Vietoj to naudoti kodą el. paštu',
   'Use a passkey instead': 'Vietoj to naudoti prieigos raktą',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -727,8 +754,10 @@ export default {
   'Verify': 'Patikrinti',
   'Version': 'Versija',
   'Version {version}': 'Versija {version}',
+  'Video': 'Vaizdas',
   'Visibility': 'Matomumas',
   'Web API version': 'Web API versija',
+  'Webpage': 'Tinklalapis',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Įvykiai, iš kurių buvo siųsti grupės pranešimai. Niekam nepranešama du kartus; šis nustatymas lemia tik tai, kiek laiko jie saugomi.',
   'What is it for?': 'Kam jis skirtas?',

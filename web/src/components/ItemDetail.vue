@@ -6,10 +6,12 @@ import { request } from '@/api/client'
 import AppIcon from '@/components/AppIcon.vue'
 import InfoPane from '@/components/InfoPane.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
+import NoteMenu from '@/components/NoteMenu.vue'
 import RelatedSection from '@/components/RelatedSection.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import TagEditor from '@/components/TagEditor.vue'
 import { exportable } from '@/exportformats'
+import { holdsStoredFile } from '@/items/attachments'
 import { itemTypeLabel } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
 import { cleanBibliography, cleanNote } from '@/sanitize'
@@ -42,6 +44,10 @@ const props = defineProps<{
   /** Writes an edit of this item, for the Info pane. Absent where nothing
    *  may be edited, which leaves every field as text. */
   save?: SaveItem
+  /** Whether files may be put into this library, which a group decides
+   *  separately from who may edit it. A web link holds no file and is offered
+   *  regardless, as the desktop offers it. */
+  filesEditable?: boolean
 }>()
 
 /*
@@ -65,6 +71,11 @@ const emit = defineEmits<{
   export: []
   /** Make a note under this item, which the view opens. */
   addNote: []
+  /** Choose files to attach to this item, or a web link to. */
+  attachFile: []
+  attachLink: []
+  /** Choose a file to put on this attachment in place of its own. */
+  replaceFile: []
 }>()
 
 /** Whether this item has a bibliography entry to write out. A note has none,
@@ -127,6 +138,17 @@ const attachments = computed(() => props.children.filter((child) => child.data.i
 /** Whether this item takes notes under it: a regular item, as on the desktop. */
 const takesNotes = computed(
   () => editable.value && !['note', 'attachment', 'annotation'].includes(props.item.data.itemType),
+)
+
+/** The desktop's attachment menu for an item: *Attach File…* and *Attach Web Link…*. */
+const attachEntries = computed(() => [
+  ...(props.filesEditable ? [{ id: 'file', label: t('Attach File…'), kind: 'action' as const }] : []),
+  { id: 'link', label: t('Attach Web Link…'), kind: 'action' as const },
+])
+
+/** Whether this attachment's file can be replaced from here. */
+const replaceable = computed(
+  () => editable.value && Boolean(props.filesEditable) && holdsStoredFile(props.item),
 )
 
 /* ---- Citation, rendered by the server in the chosen style. ---- */
@@ -201,7 +223,9 @@ function childTitle(child: ItemEnvelope): string {
 </script>
 
 <template>
-  <article class="detail">
+  <!-- A file dragged here from the computer is attached to this item: the
+       view finds the target by this attribute, as it finds the collections. -->
+  <article class="detail" :data-file-drop="takesNotes ? `item:${item.key}` : undefined">
     <header class="detail__header">
       <ItemTypeIcon :item-type="item.data.itemType" :size="22" />
       <div class="detail__headings">
@@ -345,6 +369,9 @@ function childTitle(child: ItemEnvelope): string {
     <p v-if="isAttachment" class="detail__actions">
       <a class="detail__link" :href="fileUrl(item.key)" target="_blank" rel="noopener">{{ t('Open file') }}</a>
       <a class="detail__link" :href="fileUrl(item.key, { download: true })">{{ t('Download') }}</a>
+      <button v-if="replaceable" class="detail__text-button" type="button" @click="emit('replaceFile')">
+        {{ t('Replace File…') }}
+      </button>
     </p>
 
     <TagEditor :item="item" :editable="editable" :save="save" />
@@ -356,9 +383,20 @@ function childTitle(child: ItemEnvelope): string {
       words of Zotero's item pane, where a note is added from its own section
       rather than from a list it shares with files.
     -->
-    <section v-if="attachments.length" class="detail__section">
-      <h3 class="detail__heading">{{ t('Attachments') }}</h3>
-      <ul class="detail__children">
+    <section v-if="attachments.length || takesNotes" class="detail__section">
+      <div class="detail__heading-row">
+        <h3 class="detail__heading detail__heading--in-row">{{ t('Attachments') }}</h3>
+        <NoteMenu
+          v-if="takesNotes"
+          class="detail__add-menu"
+          :label="t('Add Attachment')"
+          icon="plus"
+          :icon-size="18"
+          :entries="attachEntries"
+          @choose="$event === 'file' ? emit('attachFile') : emit('attachLink')"
+        />
+      </div>
+      <ul v-if="attachments.length" class="detail__children">
         <li v-for="child in attachments" :key="child.key">
           <button class="detail__child" type="button" @click="emit('open', child)">
             <ItemTypeIcon :item-type="child.data.itemType" :size="16" />
@@ -506,10 +544,20 @@ function childTitle(child: ItemEnvelope): string {
   height: 1.75rem;
 }
 
+/* The attachment menu's button, at the height of the plain add buttons in
+   the sections around it; its chevron is what says a menu opens. */
+.detail__add-menu :deep(.note-menu__button) {
+  height: 1.75rem;
+}
+
 @media (pointer: coarse) {
+  .detail__add,
+  .detail__add-menu :deep(.note-menu__button) {
+    height: 2.5rem;
+  }
+
   .detail__add {
     width: 2.5rem;
-    height: 2.5rem;
   }
 }
 
@@ -569,6 +617,18 @@ function childTitle(child: ItemEnvelope): string {
 .detail__link {
   color: var(--md-sys-color-primary);
   font-size: var(--md-sys-typescale-body-medium-size);
+}
+
+/* A link's size and colour, being an errand on the same line as two links. */
+.detail__text-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--md-sys-color-primary);
+  font: inherit;
+  font-size: var(--md-sys-typescale-body-medium-size);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .detail__note {

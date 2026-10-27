@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'កម្រងឯកសារត្រូវតែមានឈ្មោះ។',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'ឯកសារដែលភ្ជាប់នៅក្នុងបណ្ណាល័យពីរ ត្រូវបានរក្សាទុកតែម្តង ប៉ុន្តែរាប់ក្នុងបណ្ណាល័យទាំងពីរ។ លេខទីមួយគឺទំហំដែលម៉ាស៊ីនបម្រើនេះត្រូវផ្ទុកពិតប្រាកដ ចំណែកលេខទីពីរគឺទំហំដែលបណ្ណាល័យនឹងប្រើ ប្រសិនបើរាប់ដាច់ដោយឡែកពីគ្នា។',
+  'A file on your computer cannot be linked from the browser.':
+    'ឯកសារនៅលើកុំព្យូទ័ររបស់អ្នក មិនអាចភ្ជាប់តំណពីកម្មវិធីរុករកបានទេ។',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'ឯកសារដែលកម្មវិធីបានស្នើសុំផ្ញើ ប៉ុន្តែមិនបានផ្ញើមកសោះ។ គ្មានអ្វីបាត់បង់ទេ៖ វានឹងស្នើសុំម្តងទៀត។',
   'A group is a library of its own, shared with the people you add to it.':
@@ -40,7 +42,9 @@ export default {
   'Account deleted.': 'បានលុបគណនី។',
   Accounts: 'គណនី',
   'Across the instance': 'ទូទាំងម៉ាស៊ីនបម្រើនេះ',
+  'Add Attachment': 'បន្ថែមឯកសារកម្ជាប់',
   'Add Creator': 'បន្ថែមអ្នកនិពន្ធ',
+  'Add File…': 'បន្ថែមឯកសារ…',
   'Add Note': 'បន្ថែមកំណត់ចំណាំ',
   'Add Related': 'បន្ថែមធាតុពាក់ព័ន្ធ',
   'Add Tag': 'បន្ថែមស្លាក',
@@ -102,8 +106,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'សូមស្នើសុំតំណថ្មីពីអ្នកដែលគ្រប់គ្រងម៉ាស៊ីនបម្រើនេះ។ ពាក្យសម្ងាត់បច្ចុប្បន្នរបស់អ្នកនៅតែប្រើបាន។',
   'At least {count} characters': 'យ៉ាងហោចណាស់ {count} តួអក្សរ',
+  'Attach': 'ភ្ជាប់',
+  'Attach File…': 'ភ្ជាប់ឯកសារ…',
+  'Attach Web Link': 'ភ្ជាប់តំណគេហទំព័រ',
+  'Attach Web Link…': 'ភ្ជាប់តំណគេហទំព័រ…',
   Attachments: 'ឯកសារកម្ជាប់',
   'Attachments directory': 'ថតឯកសារកម្ជាប់',
+  'Audio': 'សំឡេង',
   'Authenticator app': 'កម្មវិធីផ្ទៀងផ្ទាត់',
   'Authenticator enabled.': 'បានបើកកម្មវិធីផ្ទៀងផ្ទាត់។',
   'Authenticator removed.': 'បានដកកម្មវិធីផ្ទៀងផ្ទាត់ចេញ។',
@@ -122,6 +131,7 @@ export default {
   'Callback address': 'អាសយដ្ឋាន callback',
   Can: 'សិទ្ធិ',
   Cancel: 'បោះបង់',
+  'Cancel upload of {name}': 'បោះបង់ការផ្ទុកឡើង {name}',
   Change: 'ផ្លាស់ប្តូរ',
   'Change Item Type': 'ផ្លាស់ប្តូរប្រភេទឯកសារ',
   'Change password': 'ប្តូរពាក្យសម្ងាត់',
@@ -252,6 +262,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'អូសដើម្បីផ្លាស់ទីបន្ទាត់ខណ្ឌនេះ។ ចុចពីរដងដើម្បីដាក់វាត្រឡប់ទីតាំងដើមវិញ។',
   'Duplicate Items': 'ឯកសារត្រួត',
+  'Ebook': 'សៀវភៅអេឡិចត្រូនិក',
   Email: 'អ៊ីមែល',
   'Edit': 'កែសម្រួល',
   'Edit the title': 'កែសម្រួលចំណងជើង',
@@ -294,6 +305,8 @@ export default {
     'ឯកសារដែលរក្សាទុកនៅលើម៉ាស៊ីនបម្រើ WebDAV មិនត្រូវបានរក្សាទុកនៅ zotero.org ទេ ដូច្នេះការផ្ទេរមិនអាចនាំវាមកបានឡើយ។ សូមបន្តធ្វើសមកាលកម្មឯកសារតាម WebDAV ឬផ្ទុកវាឡើងពីកម្មវិធី Zotero ដែលនៅមានឯកសារទាំងនោះ។',
   'Finished.': 'បានបញ្ចប់។',
   'First or last item': 'ធាតុដំបូង ឬចុងក្រោយ',
+  'Folders cannot be added. Add the files inside them.':
+    'មិនអាចបន្ថែមថតឯកសារបានទេ។ សូមបន្ថែមឯកសារដែលនៅក្នុងថតនោះ។',
   'Follow this device ({name})': 'ធ្វើតាមឧបករណ៍នេះ ({name})',
   'For example, my laptop': 'ឧទាហរណ៍៖ កុំព្យូទ័រយួរដៃរបស់ខ្ញុំ',
   'Forgotten password': 'ភ្លេចពាក្យសម្ងាត់',
@@ -328,6 +341,7 @@ export default {
   'I created this work.': 'ខ្ញុំបានបង្កើតស្នាដៃនេះ។',
   'If an account here uses that address, a link to set a new password is on its way.':
     'ប្រសិនបើមានគណនីនៅទីនេះប្រើអាសយដ្ឋាននោះ តំណសម្រាប់កំណត់ពាក្យសម្ងាត់ថ្មីកំពុងផ្ញើទៅ។',
+  'Image': 'រូបភាព',
   'Import and export': 'នាំចូល និងនាំចេញ',
   'In the trash': 'នៅក្នុងធុងសំរាម',
   'Include attached files': 'រួមបញ្ចូលឯកសារកម្ជាប់',
@@ -361,6 +375,7 @@ export default {
   Language: 'ភាសា',
   'Language and time zone': 'ភាសា និងតំបន់ពេលវេលា',
   'Language and time zone saved.': 'បានរក្សាទុកភាសា និងតំបន់ពេលវេលា។',
+  'Larger than the {size} this server accepts': 'ធំជាង {size} ដែលម៉ាស៊ីនបម្រើនេះទទួលយក',
   'Last opened {date}': 'បើកចុងក្រោយ {date}',
   'Last time you limited it to:': 'លើកមុនអ្នកបានកំណត់វាត្រឹម៖',
   'Last used {when}': 'ប្រើចុងក្រោយ {when}',
@@ -375,6 +390,7 @@ export default {
   Libraries: 'បណ្ណាល័យ',
   Library: 'បណ្ណាល័យ',
   'Limited to:': 'កំណត់ត្រឹម៖',
+  'Link': 'តំណ',
   'Link issued.': 'បានចេញតំណ។',
   'Links to this collection': 'តំណទៅកាន់កម្រងឯកសារនេះ',
   'Loading…': 'កំពុងផ្ទុក…',
@@ -488,6 +504,7 @@ export default {
     'កម្មវិធីផ្សេងទៀតដែលអ្នកបានអនុញ្ញាតឱ្យចូលប្រើគណនីនេះ។ កម្មវិធីនីមួយៗទទួលបានតែសិទ្ធិដែលអ្នកបានយល់ព្រមប៉ុណ្ណោះ។',
   Overview: 'ទិដ្ឋភាពទូទៅ',
   Owner: 'ម្ចាស់',
+  'PDF': 'ភីឌីអែហ្វ',
   'PEM. Paste both while the provider is rolling its key over.':
     'ទម្រង់ PEM។ សូមបិទភ្ជាប់ទាំងពីរ ខណៈពេលអ្នកផ្តល់សេវាកំពុងប្តូរកូនសោរបស់ខ្លួន។',
   'Page Down': 'Page Down',
@@ -563,6 +580,7 @@ export default {
   Render: 'បង្កើត',
   'Rendering…': 'កំពុងបង្កើត…',
   'Repeat password': 'វាយពាក្យសម្ងាត់ម្តងទៀត',
+  'Replace File…': 'ជំនួសឯកសារ…',
   'Replace what my library here already holds':
     'ជំនួសអ្វីដែលមានស្រាប់ក្នុងបណ្ណាល័យរបស់ខ្ញុំនៅទីនេះ',
   'Replace what this library already holds': 'ជំនួសអ្វីដែលមានស្រាប់ក្នុងបណ្ណាល័យនេះ',
@@ -698,6 +716,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'URL មូលដ្ឋាន។ ការកំណត់រចនាសម្ព័ន្ធរបស់វាត្រូវបានអានពី /.well-known/openid-configuration។',
   'The collection and everything inside it': 'កម្រងឯកសារ និងអ្វីៗទាំងអស់នៅខាងក្នុងវា',
+  'The file was replaced elsewhere first. This is the new one.':
+    'ឯកសារត្រូវបានជំនួសនៅកន្លែងផ្សេងមុនហើយ។ នេះគឺជាឯកសារថ្មី។',
   'The following fields will be lost:': 'វិស័យទាំងអស់នេះនឹងត្រូវបាត់បង់ៈ',
   'The group has a new owner.': 'ក្រុមមានម្ចាស់ថ្មីហើយ។',
   'The items in it stay in the library.': 'ឯកសារនៅក្នុងវានៅតែមាននៅក្នុងបណ្ណាល័យ។',
@@ -725,7 +745,10 @@ export default {
     'សកម្មភាពនេះបង្កើតកូនសោមួយដែលនៅតែដំណើរការ រហូតដល់អ្នកដកវាចេញក្នុងការកំណត់ ទោះបីជាអ្នកចាកចេញពីទីនេះក៏ដោយ។',
   'This instance has no accounts yet, so this one will be yours.':
     'ម៉ាស៊ីនបម្រើនេះមិនទាន់មានគណនីនៅឡើយទេ ដូច្នេះគណនីនេះនឹងក្លាយជារបស់អ្នក។',
+  'This is not an address. Check it and try again.':
+    'នេះមិនមែនជាអាសយដ្ឋានទេ។ សូមពិនិត្យ ហើយព្យាយាមម្តងទៀត។',
   'This is your public page.': 'នេះជាទំព័រសាធារណៈរបស់អ្នក។',
+  'This kind of address cannot be attached.': 'អាសយដ្ឋានប្រភេទនេះ មិនអាចភ្ជាប់បានទេ។',
   'This link does not include the files themselves.': 'តំណនេះមិនរួមបញ្ចូលឯកសារខ្លួនឯងទេ។',
   'This link has been revoked, has expired, or never existed.':
     'តំណនេះត្រូវបានដកហូត បានផុតកំណត់ ឬមិនដែលមានទេ។',
@@ -736,6 +759,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Entity ID របស់ម៉ាស៊ីនបម្រើនេះ គឺជា URL សាធារណៈរបស់វាផ្ទាល់។',
   'Time zone': 'តំបន់ពេលវេលា',
+  'Title': 'ចំណងជើង',
   Trash: 'ធុងសំរាម',
   'Try Again': 'ព្យាយាមម្តងទៀត',
   'Turn off codes by email': 'បិទកូដតាមអ៊ីមែល',
@@ -748,6 +772,8 @@ export default {
   Unread: 'មិនទាន់អាន',
   'Unlink': 'ដកតំណចេញ',
   'Unreferenced files deleted.': 'បានលុបឯកសារដែលគ្មានអ្វីយោងទៅ។',
+  'Uploading {name}': 'កំពុងផ្ទុកឡើង {name}',
+  'Uploads': 'ការផ្ទុកឡើង',
   'Use a code by email instead': 'ប្រើកូដតាមអ៊ីមែលជំនួសវិញ',
   'Use a passkey instead': 'ប្រើកូនសោសម្ងាត់ជំនួសវិញ',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -759,8 +785,10 @@ export default {
   Verify: 'ផ្ទៀងផ្ទាត់',
   Version: 'កំណែ',
   'Version {version}': 'កំណែ {version}',
+  'Video': 'វីដេអូ',
   Visibility: 'ភាពមើលឃើញ',
   'Web API version': 'កំណែ Web API',
+  'Webpage': 'គេហទំព័រ',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'ទិន្នន័យដែលការជូនដំណឹងក្រុមត្រូវបានផ្ញើចេញពី។ គ្មាននរណាត្រូវបានជូនដំណឹងពីរដងទេ ហើយការកំណត់នេះគ្រាន់តែសម្រេចថាកំណត់ត្រានឹងត្រូវរក្សាទុករយៈពេលប៉ុន្មាន។',
   'What is it for?': 'វាសម្រាប់អ្វី?',

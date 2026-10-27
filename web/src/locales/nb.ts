@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'En samling må ha et navn.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'En fil som er vedlagt i to biblioteker, lagres én gang og telles i begge. Det første tallet er det denne serveren må lagre; det andre er hva bibliotekene ville tatt hver for seg.',
+  'A file on your computer cannot be linked from the browser.':
+    'En fil på datamaskinen din kan ikke lenkes fra nettleseren.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'En fil klienten ba om å sende, men aldri sendte. Ingenting går tapt: den spør igjen.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -40,7 +42,9 @@ export default {
   'Account deleted.': 'Kontoen er slettet.',
   'Accounts': 'Kontoer',
   'Across the instance': 'I hele instansen',
+  'Add Attachment': 'Legg til vedlegg',
   'Add Creator': 'Legg til opphaver',
+  'Add File…': 'Legg til fil…',
   'Add Note': 'Legg til notat',
   'Add Related': 'Legg til relatert',
   'Add Tag': 'Legg til emneord',
@@ -103,8 +107,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Be den som driver denne serveren om en ny. Det nåværende passordet ditt virker fortsatt.',
   'At least {count} characters': 'Minst {count} tegn',
+  'Attach': 'Legg ved',
+  'Attach File…': 'Legg ved fil…',
+  'Attach Web Link': 'Legg ved nettlenke',
+  'Attach Web Link…': 'Legg ved nettlenke…',
   'Attachments': 'Vedlegg',
   'Attachments directory': 'Vedleggsmappe',
+  'Audio': 'Lyd',
   'Authenticator app': 'Autentiseringsapp',
   'Authenticator enabled.': 'Autentiseringsappen er slått på.',
   'Authenticator removed.': 'Autentiseringsappen er fjernet.',
@@ -123,6 +132,7 @@ export default {
   'Callback address': 'Tilbakekallsadresse',
   'Can': 'Kan',
   'Cancel': 'Avbryt',
+  'Cancel upload of {name}': 'Avbryt opplastingen av {name}',
   'Change': 'Endre',
   'Change Item Type': 'Endre elementtype',
   'Change password': 'Endre passord',
@@ -253,6 +263,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Dra for å flytte denne skillelinjen. Dobbeltklikk for å sette den tilbake.',
   'Duplicate Items': 'Dupliserte elementer',
+  'Ebook': 'E-bok',
   'Edit': 'Rediger',
   'Edit the title': 'Rediger tittelen',
   'Email': 'E-post',
@@ -294,6 +305,8 @@ export default {
     'Filer som ligger på en WebDAV-server, lagres ikke på zotero.org, så en migrering kan ikke ta dem med. Fortsett å synkronisere filer via WebDAV, eller last dem opp fra en Zotero-klient som fortsatt har dem.',
   'Finished.': 'Ferdig.',
   'First or last item': 'Første eller siste element',
+  'Folders cannot be added. Add the files inside them.':
+    'Mapper kan ikke legges til. Legg til filene i dem.',
   'Follow this device ({name})': 'Følg denne enheten ({name})',
   'For example, my laptop': 'For eksempel: min bærbare',
   'Forgotten password': 'Glemt passord',
@@ -328,6 +341,7 @@ export default {
   'I created this work.': 'Jeg opprettet dette arbeidet.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Hvis en konto her bruker den adressen, er en lenke for å angi et nytt passord på vei.',
+  'Image': 'Bilde',
   'Import and export': 'Import og eksport',
   'In the trash': 'I søppelkorgen',
   'Include attached files': 'Inkluder vedlagte filer',
@@ -361,6 +375,7 @@ export default {
   'Language': 'Språk',
   'Language and time zone': 'Språk og tidssone',
   'Language and time zone saved.': 'Språk og tidssone er lagret.',
+  'Larger than the {size} this server accepts': 'Større enn de {size} denne serveren tar imot',
   'Last opened {date}': 'Sist åpnet {date}',
   'Last time you limited it to:': 'Sist begrenset du den til:',
   'Last used {when}': 'Sist brukt {when}',
@@ -376,6 +391,7 @@ export default {
   'Libraries': 'Biblioteker',
   'Library': 'Bibliotek',
   'Limited to:': 'Begrenset til:',
+  'Link': 'Lenke',
   'Link issued.': 'Lenken er utstedt.',
   'Links to this collection': 'Lenker til denne samlingen',
   'Loading…': 'Laster inn…',
@@ -492,6 +508,7 @@ export default {
     'Andre programmer du har gitt tilgang til denne kontoen. Hvert av dem fikk bare tillatelsene du godkjente.',
   'Overview': 'Oversikt',
   'Owner': 'Eier',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Lim inn begge mens leverandøren bytter nøkkel.',
   'Page Down': 'Page Down',
@@ -568,6 +585,7 @@ export default {
   'Render': 'Formater',
   'Rendering…': 'Formaterer…',
   'Repeat password': 'Gjenta passordet',
+  'Replace File…': 'Erstatt fil…',
   'Replace what my library here already holds':
     'Erstatt det biblioteket mitt her allerede inneholder',
   'Replace what this library already holds': 'Erstatt det dette biblioteket allerede inneholder',
@@ -703,6 +721,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Basis-URL-en. Konfigurasjonen leses fra /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Samlingen og alt inni den',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Filen ble erstattet et annet sted først. Dette er den nye.',
   'The following fields will be lost:': 'De følgende feltene vil da gå tapt:',
   'The group has a new owner.': 'Gruppen har fått en ny eier.',
   'The items in it stay in the library.': 'Elementene i den blir værende i biblioteket.',
@@ -730,7 +750,10 @@ export default {
     'Dette oppretter en nøkkel som fortsetter å virke til du fjerner den under Innstillinger, også etter at du har logget ut her.',
   'This instance has no accounts yet, so this one will be yours.':
     'Denne instansen har ingen kontoer ennå, så denne blir din.',
+  'This is not an address. Check it and try again.':
+    'Dette er ikke en adresse. Sjekk den og prøv igjen.',
   'This is your public page.': 'Dette er den offentlige siden din.',
+  'This kind of address cannot be attached.': 'Denne typen adresse kan ikke legges ved.',
   'This link does not include the files themselves.': 'Denne lenken omfatter ikke selve filene.',
   'This link has been revoked, has expired, or never existed.':
     'Denne lenken er tilbakekalt, har utløpt eller har aldri eksistert.',
@@ -741,6 +764,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Serverens entitets-ID er dens egen offentlige URL.',
   'Time zone': 'Tidssone',
+  'Title': 'Tittel',
   'Trash': 'Søppelkorg',
   'Try Again': 'Prøv igjen',
   'Turn off codes by email': 'Slå av koder på e-post',
@@ -753,6 +777,8 @@ export default {
   'Unlink': 'Opphev kobling',
   'Unread': 'Ulest',
   'Unreferenced files deleted.': 'Filene uten referanser er slettet.',
+  'Uploading {name}': 'Laster opp {name}',
+  'Uploads': 'Opplastinger',
   'Use a code by email instead': 'Bruk en kode på e-post i stedet',
   'Use a passkey instead': 'Bruk en tilgangsnøkkel i stedet',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -763,8 +789,10 @@ export default {
   'Verify': 'Bekreft',
   'Version': 'Versjon',
   'Version {version}': 'Versjon {version}',
+  'Video': 'Video',
   'Visibility': 'Synlighet',
   'Web API version': 'Web API-versjon',
+  'Webpage': 'Nettside',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Hvilke gruppevarsler som er sendt. Ingen blir varslet to ganger, og dette avgjør bare hvor lenge oppføringen beholdes.',
   'What is it for?': 'Hva skal den brukes til?',

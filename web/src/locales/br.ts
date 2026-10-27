@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Un anv a zo ezhomm evit an dastumadeg.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     "Ur restr stag en div levraoueg a vez stoket ur wech ha kontet en div. An niver kentañ eo ar pezh a rank ar servijer-mañ derc'hel; an eil eo ar pezh a gostfe al levraouegoù dispartiet.",
+  'A file on your computer cannot be linked from the browser.':
+    'Ne c\'haller ket liammañ ur restr eus hoc\'h urzhiataer adalek ar merdeer.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     "Ur restr en doa ar c'hliant c'hoant da gas ha n'eo ket bet kaset biskoazh. Netra n'eo kollet: goulenn a raio en-dro.",
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'Kont dilamet.',
   'Accounts': 'Kontoù',
   'Across the instance': 'War ar servijer a-bezh',
+  'Add Attachment': 'Ouzhpennañ ur pezh-stag',
   'Add Creator': 'Ouzhpennañ ur c\'hrouer',
+  'Add File…': 'Ouzhpennañ ur restr…',
   'Add Note': 'Ouzhpennañ un notenn',
   'Add Related': 'Ouzhpennañ un elfenn gevreet',
   'Add Tag': 'Ouzhpennañ ur valiz',
@@ -105,8 +109,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     "Goulennit unan nevez digant an hini a vera ar servijer-mañ. Ho ker-tremen a-vremañ a ya en-dro c'hoazh.",
   'At least {count} characters': "{count} arouezenn d'an nebeutañ",
+  'Attach': 'Stagañ',
+  'Attach File…': 'Stagañ ur restr…',
+  'Attach Web Link': 'Stagañ ul liamm Web',
+  'Attach Web Link…': 'Stagañ ul liamm Web…',
   'Attachments': 'Pezhioù-stag',
   'Attachments directory': "Kavlec'h ar pezhioù-stag",
+  'Audio': 'Aodio',
   'Authenticator app': 'Arload dilesa',
   'Authenticator enabled.': 'Arload dilesa gweredekaet.',
   'Authenticator removed.': 'Arload dilesa dilamet.',
@@ -125,6 +134,7 @@ export default {
   'Callback address': "Chomlec'h distreiñ",
   'Can': 'Gwirioù',
   'Cancel': 'Nullañ',
+  'Cancel upload of {name}': 'Nullañ pellgasadenn {name}',
   'Change': 'Cheñch',
   'Change Item Type': 'Cheñch an doare teuliad',
   'Change password': 'Cheñch ar ger-tremen',
@@ -256,6 +266,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Riklit evit fiñval an harz-mañ. Daouglikit evit e adlakaat.',
   'Duplicate Items': 'Elfennoù doubl',
+  'Ebook': 'Levr elektronek',
   'Edit': 'Aozañ',
   'Edit the title': 'Aozañ an titl',
   'Email': 'Postel',
@@ -297,6 +308,8 @@ export default {
     "N'eo ket stoket war zotero.org ar restroù miret war ur servijer WebDAV, setu ne c'hall ket un treuzkas o degas. Kendalc'hit da sinkronelaat ar restroù dre WebDAV, pe pellgasit anezho adalek ur c'hliant Zotero a zalc'h anezho c'hoazh.",
   'Finished.': 'Echu.',
   'First or last item': 'Elfenn gentañ pe ziwezhañ',
+  'Folders cannot be added. Add the files inside them.':
+    'Ne c\'haller ket ouzhpennañ teuliadoù. Ouzhpennit ar restroù a zo e-barzh.',
   'Follow this device ({name})': 'Heuliañ an trevnad-mañ ({name})',
   'For example, my laptop': 'Da skouer, ma urzhiataer hezoug',
   'Forgotten password': 'Ger-tremen ankouaet',
@@ -332,6 +345,7 @@ export default {
   'I created this work.': 'Me eo am eus krouet al labour-mañ.',
   'If an account here uses that address, a link to set a new password is on its way.':
     "Mard eo implijet ar chomlec'h-se gant ur gont amañ, emañ ul liamm evit termeniñ ur ger-tremen nevez en hent.",
+  'Image': 'Skeudenn',
   'Import and export': 'Emporzhiañ hag ezporzhiañ',
   'In the trash': 'Er pod-lastez',
   'Include attached files': 'Lakaat ar restroù stag',
@@ -365,6 +379,8 @@ export default {
   'Language': 'Yezh',
   'Language and time zone': 'Yezh ha takad-eur',
   'Language and time zone saved.': 'Yezh ha takad-eur enrollet.',
+  'Larger than the {size} this server accepts':
+    'Brasoc\'h eget ar {size} a zegemer ar servijer-mañ',
   'Last opened {date}': 'Digoret da ziwezhañ {date}',
   'Last time you limited it to:': 'Ar wech diwezhañ ho poa bevennet anezhañ da:',
   'Last used {when}': 'Implijet da ziwezhañ {when}',
@@ -380,6 +396,7 @@ export default {
   'Libraries': 'Levraouegoù',
   'Library': 'Levraoueg',
   'Limited to:': 'Bevennet da:',
+  'Link': 'Liamm',
   'Link issued.': 'Liamm roet.',
   'Links to this collection': 'Liammoù davet an dastumadeg-mañ',
   'Loading…': 'O kargañ…',
@@ -498,6 +515,7 @@ export default {
     "Arloadoù all ho peus aotreet da dizhout ar gont-mañ. N'eus bet roet da bep hini nemet an aotreoù ho peus asantet.",
   'Overview': 'Alberz',
   'Owner': "Perc'henn",
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     "PEM. Pegit an daou e-pad ma vez o cheñch e alc'hwez gant ar pourchaser.",
   'Page Down': 'Page Down',
@@ -574,6 +592,7 @@ export default {
   'Render': 'Krouiñ',
   'Rendering…': 'O krouiñ…',
   'Repeat password': 'Adskrivit ar ger-tremen',
+  'Replace File…': 'Erlec\'hiañ ar restr…',
   'Replace what my library here already holds': "Erlec'hiañ ar pezh a zo em levraoueg amañ dija",
   'Replace what this library already holds': "Erlec'hiañ ar pezh a zo el levraoueg-mañ dija",
   'Required claim': 'Doareenn ret',
@@ -710,6 +729,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'An URL diazez. Lennet e vez e gefluniadur e /.well-known/openid-configuration.',
   'The collection and everything inside it': 'An dastumadeg ha kement tra a zo enni',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Erlec\'hiet eo bet ar restr e lec\'h all da gentañ. Houmañ eo an hini nevez.',
   'The following fields will be lost:': 'Ar maeziennoù da-heul a vo kollet:',
   'The group has a new owner.': "Ur perc'henn nevez en deus ar strollad.",
   'The items in it stay in the library.': 'An elfennoù a zo enni a chom el levraoueg.',
@@ -737,7 +758,10 @@ export default {
     "Gant an dra-se e vez krouet un alc'hwez a chom en implij betek ma tilamot anezhañ en Arventennoù, ha pa zigevreit amañ zoken.",
   'This instance has no accounts yet, so this one will be yours.':
     "N'eus kont ebet c'hoazh war ar servijer-mañ, setu e vo deoc'h houmañ.",
+  'This is not an address. Check it and try again.':
+    'N\'eo ket ur chomlec\'h. Gwiriit anezhañ ha klaskit en-dro.',
   'This is your public page.': 'Setu ho pajenn foran.',
+  'This kind of address cannot be attached.': 'Ne c\'haller ket stagañ ar seurt chomlec\'h-se.',
   'This link does not include the files themselves.':
     'Al liamm-mañ ne zegas ket ar restroù o-unan.',
   'This link has been revoked, has expired, or never existed.':
@@ -748,6 +772,7 @@ export default {
   'This server': 'Ar servijer-mañ',
   'This server’s entity ID is its own public URL.': 'ID entite ar servijer-mañ eo e URL foran.',
   'Time zone': 'Takad-eur',
+  'Title': 'Titl',
   'Trash': 'Pod-lastez',
   'Try Again': 'Klask en-dro',
   'Turn off codes by email': "Lazhañ ar c'hodoù dre bostel",
@@ -760,6 +785,8 @@ export default {
   'Unlink': 'Diliammañ',
   'Unread': 'Anlennet',
   'Unreferenced files deleted.': 'Restroù hep dave dilamet.',
+  'Uploading {name}': 'O pellgas {name}',
+  'Uploads': 'Pellgasadennoù',
   'Use a code by email instead': "Implijout ur c'hod dre bostel kentoc'h",
   'Use a passkey instead': "Implijout un alc'hwez-tremen kentoc'h",
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -771,8 +798,10 @@ export default {
   'Verify': 'Gwiriañ',
   'Version': 'Handelv',
   'Version {version}': 'Handelv {version}',
+  'Video': 'Video',
   'Visibility': 'Gwelusted',
   'Web API version': 'Handelv ar Web API',
+  'Webpage': 'Pajenn web',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'An enrolladenn eus ar pezh a zo bet kaset e rebuzadurioù ar strolladoù. Den ne vez kelaouet div wech, ha ne ra an arventenn-mañ nemet divizout pegeit e vez miret an enrolladenn.',
   'What is it for?': 'Evit petra eo?',

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface adds files — picked or dragged in from the computer — and web links, and replaces a file, with progress shown ([files]).
 - `ALTERO_MAX_UPLOAD_MB` sets the largest attachment file accepted from any client; the default stays 1 GiB ([config]).
 - An attachment's `md5` is checked to be a digest on write and when a file is served, closing an authenticated path traversal. Reported by [@arminbahl] in [Issue#62].
 - Desktop acceptance covers notes: browser notes reach both desktops intact, and Zotero's own note editor output is the browser editor's test corpus.
@@ -258,6 +259,7 @@ The first release meant to be used by somebody other than its author.
 [parents]: docs/compatibility.md#what-may-be-a-child-of-what
 [editing]: docs/web/library.md#editing-an-item
 [notes]: docs/web/library.md#writing-a-note
+[files]: docs/web/library.md#adding-files-and-links
 [build]: docs/deployment.md#build-the-image-instead-of-pulling-it
 [items]: docs/web/library.md#items
 [install]: docs/web-interface.md#installing-it-as-an-app

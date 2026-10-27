@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ApiError, request } from './client'
+import { ApiError, isCancelled, request, upload } from './client'
 
 function respond(body: unknown, init: ResponseInit = {}): Response {
   return new Response(body === null ? null : JSON.stringify(body), {
@@ -118,5 +118,114 @@ describe('the api client', () => {
     const error = await request('/web/config').catch((e: unknown) => e)
     expect(error).toBeInstanceOf(ApiError)
     expect((error as ApiError).status).toBe(0)
+  })
+})
+
+/** An `XMLHttpRequest` that answers when told to, and remembers what it was sent. */
+class FakeRequest {
+  static last: FakeRequest
+  method = ''
+  url = ''
+  headers: Record<string, string> = {}
+  body: unknown = null
+  status = 0
+  responseText = ''
+  upload: { onprogress: ((event: ProgressEvent) => void) | null } = { onprogress: null }
+  onload: (() => void) | null = null
+  onerror: (() => void) | null = null
+  onabort: (() => void) | null = null
+
+  constructor() {
+    FakeRequest.last = this
+  }
+
+  open(method: string, url: string): void {
+    this.method = method
+    this.url = url
+  }
+
+  setRequestHeader(name: string, value: string): void {
+    this.headers[name] = value
+  }
+
+  send(body: unknown): void {
+    this.body = body
+  }
+
+  abort(): void {
+    this.onabort?.()
+  }
+
+  answer(status: number, body: unknown): void {
+    this.status = status
+    this.responseText = JSON.stringify(body)
+    this.onload?.()
+  }
+}
+
+describe('uploading a file', () => {
+  beforeEach(() => {
+    document.cookie = 'altero_csrf=token-from-cookie; path=/'
+    vi.stubGlobal('XMLHttpRequest', FakeRequest)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('sends the file itself, typed as the file, with the CSRF token', async () => {
+    const file = new File(['%PDF'], 'paper.pdf', { type: 'application/pdf' })
+
+    const sent = upload('/web/libraries/1/attachments?filename=paper.pdf', file, {
+      headers: { 'If-Match': 'abc' },
+    })
+    FakeRequest.last.answer(201, { key: 'ABCD2345' })
+
+    expect(await sent).toEqual({ key: 'ABCD2345' })
+    expect(FakeRequest.last.method).toBe('POST')
+    expect(FakeRequest.last.body).toBe(file)
+    expect(FakeRequest.last.headers).toMatchObject({
+      'Content-Type': 'application/pdf',
+      'X-CSRF-Token': 'token-from-cookie',
+      'If-Match': 'abc',
+    })
+  })
+
+  it('calls a file of no known type octet-stream', async () => {
+    const sent = upload('/up', new File(['x'], 'x'))
+    FakeRequest.last.answer(201, {})
+    await sent
+
+    expect(FakeRequest.last.headers['Content-Type']).toBe('application/octet-stream')
+  })
+
+  it('reports progress', async () => {
+    const seen: number[] = []
+    const sent = upload('/up', new File(['abcd'], 'a'), { onProgress: (done) => seen.push(done) })
+    FakeRequest.last.upload.onprogress?.({ lengthComputable: true, loaded: 2, total: 4 } as ProgressEvent)
+    FakeRequest.last.upload.onprogress?.({ lengthComputable: true, loaded: 4, total: 4 } as ProgressEvent)
+    FakeRequest.last.answer(201, {})
+    await sent
+
+    expect(seen).toEqual([2, 4])
+  })
+
+  it('turns a refusal into the server’s message', async () => {
+    const sent = upload('/up', new File(['x'], 'x'))
+    FakeRequest.last.answer(413, { message: 'File is too large' })
+
+    const error = await sent.catch((e: unknown) => e)
+    expect(error).toBeInstanceOf(ApiError)
+    expect((error as ApiError).status).toBe(413)
+    expect((error as ApiError).message).toBe('File is too large')
+    expect(isCancelled(error)).toBe(false)
+  })
+
+  it('says when it was cancelled', async () => {
+    const controller = new AbortController()
+    const sent = upload('/up', new File(['x'], 'x'), { signal: controller.signal })
+    controller.abort()
+
+    expect(isCancelled(await sent.catch((e: unknown) => e))).toBe(true)
   })
 })

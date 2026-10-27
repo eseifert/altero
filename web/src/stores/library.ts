@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-import { ApiError, request } from '@/api/client'
+import { ApiError, request, upload } from '@/api/client'
+import { formatBytes } from '@/formats'
+import { t } from '@/i18n'
+import { attachmentTitles } from '@/items/attachments'
+import { useUploadStore } from '@/stores/uploads'
 
 /**
  * How far a change may go, when the library is writable at all.
@@ -29,6 +33,11 @@ export interface LibrarySummary {
    *  `writable` alone cannot say "may add but not remove", so the trash button
    *  would be drawn, pressed, and refused. */
   permission: LibraryPermission
+  /** Whether files may be put here. A group says who may upload separately
+   *  from who may edit, and the server refuses an upload by that rule. */
+  filesEditable: boolean
+  /** The largest file the server takes, in bytes. */
+  maxUploadBytes: number
 }
 
 export interface ItemEnvelope {
@@ -290,6 +299,7 @@ export const useLibraryStore = defineStore('library', () => {
   const hasMore = computed(() => items.value.length < total.value)
   const writable = computed(() => library.value?.writable === true)
   const permission = computed<LibraryPermission>(() => library.value?.permission ?? 'inherit')
+  const filesEditable = computed(() => writable.value && library.value?.filesEditable === true)
 
   /** Whose account is reading. Set by the view, so the store stays free of it. */
   const viewerId = ref<number | null>(null)
@@ -809,10 +819,12 @@ export const useLibraryStore = defineStore('library', () => {
    */
   async function createItem(
     itemType: string,
-    options: { parentItem?: string } = {},
+    options: { parentItem?: string; link?: { url: string; title: string } } = {},
   ): Promise<ItemEnvelope | null> {
     if (libraryId.value === null) return null
     const body: Record<string, unknown> = { itemType }
+    // A web link is the one attachment made here, and comes with its address.
+    if (options.link) Object.assign(body, { linkMode: 'linked_url', ...options.link })
     // A child is filed by its parent, so only an item on its own goes into
     // the collection being shown.
     if (options.parentItem) body.parentItem = options.parentItem
@@ -824,6 +836,126 @@ export const useLibraryStore = defineStore('library', () => {
     await Promise.all([refresh(), loadCollections()])
     await select(items.value.find((entry) => entry.key === fresh.key) ?? fresh)
     return fresh
+  }
+
+  /**
+   * Put ``files`` into the library as attachments, one after another.
+   *
+   * Under ``parentItem`` when one is named, otherwise on their own in
+   * ``collection``. Each is its own request and its own new version, because
+   * each is a file on its own way up: one that fails or is cancelled leaves
+   * the others standing, and the uploads panel says which. A file larger than
+   * the server takes is not sent at all.
+   *
+   * The titles are the desktop's (see `attachmentTitles`), worked out against
+   * the item's children as they stand. The list and the open item are read
+   * again once, after the last.
+   */
+  async function uploadFiles(
+    files: File[],
+    place: { parentItem?: string | null; collection?: string | null } = {},
+  ): Promise<ItemEnvelope[]> {
+    if (libraryId.value === null || !files.length) return []
+    const id = libraryId.value
+    const uploads = useUploadStore()
+    const limit = library.value?.maxUploadBytes ?? Infinity
+    const parent = place.parentItem ?? null
+    const siblings = parent
+      ? selected.value?.key === parent
+        ? children.value
+        : await childrenOf(parent)
+      : null
+    const titles = attachmentTitles(files, siblings, t)
+
+    const made: ItemEnvelope[] = []
+    for (const [index, file] of files.entries()) {
+      if (file.size > limit) {
+        uploads.refuse(
+          file.name,
+          t('Larger than the {size} this server accepts', { size: formatBytes(limit) }),
+        )
+        continue
+      }
+      const params = new URLSearchParams({ filename: file.name, mtime: String(file.lastModified) })
+      const title = titles[index]
+      if (title) params.set('title', title)
+      if (parent) params.set('parentItem', parent)
+      else if (place.collection) params.set('collections', place.collection)
+      try {
+        const answer = await uploads.track(file.name, file.size, (progress, signal) =>
+          upload<ItemEnvelope>(`/web/libraries/${id}/attachments?${params}`, file, {
+            onProgress: progress,
+            signal,
+          }),
+        )
+        if (answer) {
+          seen(answer.version)
+          made.push(answer)
+        }
+      } catch {
+        // Shown on the uploads panel, which keeps it until it is dismissed.
+      }
+    }
+    if (made.length && libraryId.value === id) {
+      await afterItemWrite()
+      if (parent && selected.value?.key === parent) await reloadChildren()
+    }
+    return made
+  }
+
+  /**
+   * Put ``file`` on ``item`` in place of the file it holds.
+   *
+   * Stating the digest being replaced, as a syncing client does: if another
+   * client replaced the file meanwhile, the server refuses rather than write
+   * over it, and the item is read again so the reader sees the file that is
+   * there now before deciding again.
+   */
+  async function replaceFile(item: ItemEnvelope, file: File): Promise<ItemEnvelope | null> {
+    if (libraryId.value === null) return null
+    const id = libraryId.value
+    const limit = library.value?.maxUploadBytes ?? Infinity
+    const uploads = useUploadStore()
+    if (file.size > limit) {
+      uploads.refuse(
+        file.name,
+        t('Larger than the {size} this server accepts', { size: formatBytes(limit) }),
+      )
+      return null
+    }
+    const md5 = typeof item.data.md5 === 'string' && item.data.md5 ? item.data.md5 : null
+    const headers: Record<string, string> = md5 ? { 'If-Match': md5 } : { 'If-None-Match': '*' }
+    const params = new URLSearchParams({ filename: file.name, mtime: String(file.lastModified) })
+    try {
+      const answer = await uploads.track(file.name, file.size, async (progress, signal) => {
+        try {
+          return await upload<ItemEnvelope>(
+            `/web/libraries/${id}/items/${item.key}/file?${params}`,
+            file,
+            { method: 'PUT', headers, onProgress: progress, signal },
+          )
+        } catch (thrown) {
+          if (thrown instanceof ApiError && thrown.status === 412) {
+            put(await request<ItemEnvelope>(`/web/libraries/${id}/items/${item.key}`))
+            throw new Error(t('The file was replaced elsewhere first. This is the new one.'))
+          }
+          throw thrown
+        }
+      })
+      if (answer) put(answer)
+      return answer
+    } catch {
+      // Shown on the uploads panel.
+      return null
+    }
+  }
+
+  /** Read the open item's notes and attachments again, as they now stand. */
+  async function reloadChildren(): Promise<void> {
+    const key = selected.value?.key
+    if (!key) return
+    const fresh = await childrenOf(key)
+    if (selected.value?.key === key) children.value = fresh
   }
 
   /** Put ``key`` into My Publications on the terms the wizard collected. */
@@ -1224,6 +1356,7 @@ export const useLibraryStore = defineStore('library', () => {
     hasMore,
     writable,
     permission,
+    filesEditable,
     viewerId,
     changeable,
     removable,
@@ -1248,6 +1381,9 @@ export const useLibraryStore = defineStore('library', () => {
     childrenOf,
     saveItem,
     createItem,
+    uploadFiles,
+    replaceFile,
+    reloadChildren,
     relatedOf,
     findItems,
     relateItems,

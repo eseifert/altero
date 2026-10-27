@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'En samling måste ha ett namn.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'En fil som är bifogad i två bibliotek lagras en gång och räknas i båda. Den första siffran är vad den här servern måste rymma; den andra är vad biblioteken skulle kosta var för sig.',
+  'A file on your computer cannot be linked from the browser.':
+    'En fil på din dator kan inte länkas från webbläsaren.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'En fil som klienten bad om att få skicka men aldrig skickade. Inget går förlorat: den frågar igen.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -40,7 +42,9 @@ export default {
   'Account deleted.': 'Kontot har raderats.',
   'Accounts': 'Konton',
   'Across the instance': 'I hela instansen',
+  'Add Attachment': 'Lägg till bilaga',
   'Add Creator': 'Lägg till upphovsperson',
+  'Add File…': 'Lägg till fil…',
   'Add Note': 'Lägg till anteckning',
   'Add Related': 'Lägg till relaterad post',
   'Add Tag': 'Lägg till etikett',
@@ -102,8 +106,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Be den som driver den här servern om en ny. Ditt nuvarande lösenord fungerar fortfarande.',
   'At least {count} characters': 'Minst {count} tecken',
+  'Attach': 'Bifoga',
+  'Attach File…': 'Bifoga fil…',
+  'Attach Web Link': 'Bifoga webblänk',
+  'Attach Web Link…': 'Bifoga webblänk…',
   'Attachments': 'Bilagor',
   'Attachments directory': 'Mapp för bilagor',
+  'Audio': 'Ljud',
   'Authenticator app': 'Autentiseringsapp',
   'Authenticator enabled.': 'Autentiseringsappen har aktiverats.',
   'Authenticator removed.': 'Autentiseringsappen har tagits bort.',
@@ -122,6 +131,7 @@ export default {
   'Callback address': 'Återanropsadress',
   'Can': 'Får',
   'Cancel': 'Avbryt',
+  'Cancel upload of {name}': 'Avbryt uppladdningen av {name}',
   'Change': 'Ändra',
   'Change Item Type': 'Ändra källtyp',
   'Change password': 'Byt lösenord',
@@ -252,6 +262,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Dra för att flytta avgränsningen. Dubbelklicka för att återställa den.',
   'Duplicate Items': 'Källdubbletter',
+  'Ebook': 'E-bok',
   'Edit': 'Redigera',
   'Edit the title': 'Redigera titeln',
   'Email': 'E-post',
@@ -293,6 +304,8 @@ export default {
     'Filer som ligger på en WebDAV-server lagras inte på zotero.org, så en flytt kan inte ta med dem. Fortsätt synkronisera filer via WebDAV, eller ladda upp dem från en Zotero-klient som fortfarande har dem.',
   'Finished.': 'Klart.',
   'First or last item': 'Första eller sista posten',
+  'Folders cannot be added. Add the files inside them.':
+    'Mappar kan inte läggas till. Lägg till filerna i dem.',
   'Follow this device ({name})': 'Följ den här enheten ({name})',
   'For example, my laptop': 'Till exempel min bärbara dator',
   'Forgotten password': 'Glömt lösenord',
@@ -327,6 +340,7 @@ export default {
   'I created this work.': 'Jag skapade detta verk.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Om ett konto här använder den adressen är en länk för att välja ett nytt lösenord på väg.',
+  'Image': 'Bild',
   'Import and export': 'Import och export',
   'In the trash': 'I papperskorgen',
   'Include attached files': 'Inkludera bifogade filer',
@@ -360,6 +374,7 @@ export default {
   'Language': 'Språk',
   'Language and time zone': 'Språk och tidszon',
   'Language and time zone saved.': 'Språk och tidszon har sparats.',
+  'Larger than the {size} this server accepts': 'Större än de {size} som den här servern tar emot',
   'Last opened {date}': 'Senast öppnad {date}',
   'Last time you limited it to:': 'Förra gången begränsade du det till:',
   'Last used {when}': 'Senast använd {when}',
@@ -375,6 +390,7 @@ export default {
   'Libraries': 'Bibliotek',
   'Library': 'Bibliotek',
   'Limited to:': 'Begränsat till:',
+  'Link': 'Länk',
   'Link issued.': 'Länken har utfärdats.',
   'Links to this collection': 'Länkar till den här samlingen',
   'Loading…': 'Laddar…',
@@ -489,6 +505,7 @@ export default {
     'Andra program som du har gett åtkomst till det här kontot. Vart och ett fick bara de behörigheter du godkände.',
   'Overview': 'Översikt',
   'Owner': 'Ägare',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Klistra in båda medan leverantören byter nyckel.',
   'Page Down': 'Page Down',
@@ -565,6 +582,7 @@ export default {
   'Render': 'Skapa',
   'Rendering…': 'Skapar…',
   'Repeat password': 'Upprepa lösenordet',
+  'Replace File…': 'Ersätt fil…',
   'Replace what my library here already holds':
     'Ersätt det som mitt bibliotek här redan innehåller',
   'Replace what this library already holds': 'Ersätt det som det här biblioteket redan innehåller',
@@ -701,6 +719,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Bas-URL:en. Dess konfiguration läses från /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Samlingen och allt inuti den',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Filen ersattes någon annanstans först. Det här är den nya.',
   'The following fields will be lost:': 'Följande fält kommer att försvinna:',
   'The group has a new owner.': 'Gruppen har en ny ägare.',
   'The items in it stay in the library.': 'Källorna i den finns kvar i biblioteket.',
@@ -728,7 +748,10 @@ export default {
     'Detta skapar en nyckel som fortsätter att fungera tills du tar bort den under Inställningar, även efter att du loggat ut här.',
   'This instance has no accounts yet, so this one will be yours.':
     'Den här instansen har inga konton ännu, så det här blir ditt.',
+  'This is not an address. Check it and try again.':
+    'Det här är ingen adress. Kontrollera den och försök igen.',
   'This is your public page.': 'Det här är din offentliga sida.',
+  'This kind of address cannot be attached.': 'Den här typen av adress kan inte bifogas.',
   'This link does not include the files themselves.':
     'Den här länken omfattar inte själva filerna.',
   'This link has been revoked, has expired, or never existed.':
@@ -740,6 +763,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Den här serverns entitets-ID är dess egen offentliga URL.',
   'Time zone': 'Tidszon',
+  'Title': 'Titel',
   'Trash': 'Papperskorg',
   'Try Again': 'Försök igen',
   'Turn off codes by email': 'Stäng av koder via e-post',
@@ -752,6 +776,8 @@ export default {
   'Unlink': 'Ta bort länk',
   'Unread': 'Oläst',
   'Unreferenced files deleted.': 'Filer utan referenser har raderats.',
+  'Uploading {name}': 'Laddar upp {name}',
+  'Uploads': 'Uppladdningar',
   'Use a code by email instead': 'Använd en kod via e-post i stället',
   'Use a passkey instead': 'Använd en lösennyckel i stället',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -763,8 +789,10 @@ export default {
   'Verify': 'Verifiera',
   'Version': 'Version',
   'Version {version}': 'Version {version}',
+  'Video': 'Video',
   'Visibility': 'Synlighet',
   'Web API version': 'Webb-API-version',
+  'Webpage': 'Webbsida',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Det som gruppaviseringarna byggde på. Ingen aviseras två gånger, och detta avgör bara hur länge posten sparas.',
   'What is it for?': 'Vad ska den användas till?',

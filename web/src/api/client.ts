@@ -121,3 +121,80 @@ async function readBody(response: Response): Promise<unknown> {
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
+
+export interface UploadOptions {
+  method?: 'POST' | 'PUT'
+  /** Headers besides the CSRF token and the file's own type: a precondition. */
+  headers?: Record<string, string>
+  /** Told how many of the file's bytes have gone, as they go. */
+  onProgress?: (sent: number, total: number) => void
+  signal?: AbortSignal
+}
+
+/**
+ * Send ``file`` as the body of a request, reporting how far it has got.
+ *
+ * `XMLHttpRequest` rather than `fetch`, which says nothing about an upload
+ * until it is over -- and a file of a few hundred megabytes on a slow line is
+ * minutes of a page that looks as if it has stopped. The file is the body as
+ * it is, with its own type as `Content-Type`, which is what the server asks
+ * for: a form would be written to disk twice on the way in.
+ *
+ * A cancelled upload rejects with an {@link ApiError} of status 0 whose
+ * `cancelled` is set, so a caller can tell somebody changing their mind from a
+ * connection that dropped.
+ */
+export function upload<T = unknown>(
+  path: string,
+  file: Blob,
+  { method = 'POST', headers = {}, onProgress, signal }: UploadOptions = {},
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    // Same-origin, so the session cookie goes with it unasked.
+    xhr.open(method, path)
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
+    const token = readCookie(CSRF_COOKIE)
+    if (token) xhr.setRequestHeader(CSRF_HEADER, token)
+    for (const [name, value] of Object.entries(headers)) xhr.setRequestHeader(name, value)
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress?.(event.loaded, event.total)
+    }
+    xhr.onload = () => {
+      const payload = parse(xhr.responseText)
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(payload as T)
+        return
+      }
+      const message =
+        (isRecord(payload) && typeof payload.message === 'string' && payload.message) ||
+        `The server answered ${xhr.status}`
+      const data = isRecord(payload) && isRecord(payload.data) ? payload.data : undefined
+      reject(new ApiError(message, xhr.status, { data }))
+    }
+    xhr.onerror = () => reject(new ApiError('Could not reach the server', 0))
+    xhr.onabort = () => reject(Object.assign(new ApiError('Cancelled', 0), { cancelled: true }))
+
+    if (signal?.aborted) {
+      reject(Object.assign(new ApiError('Cancelled', 0), { cancelled: true }))
+      return
+    }
+    signal?.addEventListener('abort', () => xhr.abort(), { once: true })
+    xhr.send(file)
+  })
+}
+
+/** Whether ``error`` is an upload the person cancelled. */
+export function isCancelled(error: unknown): boolean {
+  return error instanceof ApiError && (error as ApiError & { cancelled?: boolean }).cancelled === true
+}
+
+function parse(text: string): unknown {
+  if (!text) return null
+  try {
+    return JSON.parse(text)
+  } catch {
+    return null
+  }
+}

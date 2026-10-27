@@ -26,7 +26,7 @@ bytes. See [the reproduced client behavior](client-compatibility.md#run-two-real
 | My Publications                           |   ✅   | Includes browser publishing and profile pages                                                                            |
 | Citations and bibliographies              |   ✅   | CSL-based styles and Zotero-compatible formats                                                                           |
 | Zotero export formats                     |   ✅   | API and browser export support                                                                                           |
-| Browser interface                         |   ✅   | Library browsing, item and note editing, account settings, groups and administration; installable as an app        |
+| Browser interface                         |   ✅   | Library browsing, item and note editing, file uploads, account settings, groups and administration; installable as an app |
 | OIDC and SAML browser sign-in             |   ✅   | Sign-in only; never a v3 API credential                                                                                  |
 | OAuth 2.0 and OIDC provider               |   ✅   | Scoped tokens for third-party applications, confinable to chosen libraries and collections; requires a stable public URL |
 | Passkeys and optional second factors      |   ✅   | Passkeys require a stable public URL                                                                                     |

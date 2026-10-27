@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Una col·lecció necessita un nom.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Un fitxer adjunt en dues biblioteques s’emmagatzema una sola vegada i es compta en totes dues. La primera xifra és el que aquest servidor ha de guardar; la segona, el que ocuparien les biblioteques per separat.',
+  'A file on your computer cannot be linked from the browser.':
+    'Un fitxer del vostre ordinador no es pot enllaçar des del navegador.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Un fitxer que el client va demanar enviar i no va enviar mai. No es perd res: ho tornarà a demanar.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'S’ha suprimit el compte.',
   'Accounts': 'Comptes',
   'Across the instance': 'A tota la instància',
+  'Add Attachment': 'Afegeix una adjunció',
   'Add Creator': 'Afegeix un creador',
+  'Add File…': 'Afegeix un fitxer…',
   'Add Note': 'Afegeix una nota',
   'Add Related': 'Afegeix un element relacionat',
   'Add Tag': 'Afegeix una etiqueta',
@@ -104,8 +108,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Demaneu-ne un de nou a qui administri aquest servidor. La vostra contrasenya actual continua funcionant.',
   'At least {count} characters': 'Com a mínim {count} caràcters',
+  'Attach': 'Adjunta',
+  'Attach File…': 'Adjunta un fitxer…',
+  'Attach Web Link': 'Adjunta un enllaç web',
+  'Attach Web Link…': 'Adjunta un enllaç web…',
   Attachments: 'Adjunts',
   'Attachments directory': 'Directori dels adjunts',
+  'Audio': 'Àudio',
   'Authenticator app': 'Aplicació d’autenticació',
   'Authenticator enabled.': 'S’ha activat l’autenticador.',
   'Authenticator removed.': 'S’ha eliminat l’autenticador.',
@@ -124,6 +133,7 @@ export default {
   'Can': 'Pot',
   Cancel: 'Cancel·la',
   'By library': 'Per biblioteca',
+  'Cancel upload of {name}': 'Cancel·la la pujada de {name}',
   'Change': 'Canvia',
   'Change Item Type': 'Canvia el tipus d\'element',
   'Change password': 'Canvia la contrasenya',
@@ -255,6 +265,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Arrossegueu per moure aquesta divisió. Feu doble clic per restablir-la.',
   'Duplicate Items': 'Elements duplicats',
+  'Ebook': 'Llibre electrònic',
   'Edit': 'Edita',
   'Edit the title': 'Edita el títol',
   'Email': 'Correu electrònic',
@@ -296,6 +307,8 @@ export default {
     'Els fitxers desats en un servidor WebDAV no s’emmagatzemen a zotero.org, de manera que una migració no els pot portar. Continueu sincronitzant els fitxers mitjançant WebDAV, o pugeu-los des d’un client del Zotero que encara els tingui.',
   'Finished.': 'Acabat.',
   'First or last item': 'Primer o darrer element',
+  'Folders cannot be added. Add the files inside them.':
+    'No es poden afegir carpetes. Afegiu els fitxers que contenen.',
   'Follow this device ({name})': 'Segueix aquest dispositiu ({name})',
   'For example, my laptop': 'Per exemple, el meu portàtil',
   'Forgotten password': 'Contrasenya oblidada',
@@ -330,6 +343,7 @@ export default {
   'I created this work.': 'He creat aquest treball.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Si algun compte d’aquí utilitza aquesta adreça, hi ha un enllaç en camí per establir una contrasenya nova.',
+  'Image': 'Imatge',
   'Import and export': 'Importació i exportació',
   'In the trash': 'A la paperera',
   'Include attached files': 'Inclou els fitxers adjunts',
@@ -362,6 +376,8 @@ export default {
   'Keyboard shortcuts': 'Dreceres de teclat',
   'Language and time zone': 'Idioma i fus horari',
   'Language and time zone saved.': 'S’han desat l’idioma i el fus horari.',
+  'Larger than the {size} this server accepts':
+    'Més gran que els {size} que accepta aquest servidor',
   'Last opened {date}': 'Obert per darrera vegada el {date}',
   'Last time you limited it to:': 'L’última vegada el vau limitar a:',
   'Last used {when}': 'Darrer ús: {when}',
@@ -376,6 +392,7 @@ export default {
   Libraries: 'Biblioteques',
   Library: 'Biblioteca',
   'Limited to:': 'Limitat a:',
+  'Link': 'Enllaç',
   'Link issued.': 'S’ha emès l’enllaç.',
   'Links to this collection': 'Enllaços a aquesta col·lecció',
   'Loading…': 'S’està carregant…',
@@ -489,6 +506,7 @@ export default {
     'Obriu zotero.org → Settings → Security → Applications i creeu una clau privada nova.',
   Optional: 'Opcional',
   Owner: 'Propietari',
+  'PDF': 'PDF',
   Password: 'Contrasenya',
   'Orange': 'Taronja',
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.':
@@ -567,6 +585,7 @@ export default {
     'En eliminar-lo també s’elimina la connexió de tots els comptes amb ell.',
   'Rename tag': 'Canvia el nom de l’etiqueta',
   'Rename “{name}”': 'Canvia el nom de «{name}»',
+  'Replace File…': 'Substitueix el fitxer…',
   Resend: 'Torna a enviar',
   Restore: 'Restaura',
   'Rendering…': 'S’està generant…',
@@ -708,6 +727,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'L’URL base. La seva configuració es llegeix de /.well-known/openid-configuration.',
   'The collection and everything inside it': 'La col·lecció i tot el que conté',
+  'The file was replaced elsewhere first. This is the new one.':
+    'El fitxer ja s’havia substituït en un altre lloc. Aquest és el nou.',
   'The following fields will be lost:': 'Es perdran els camps següents:',
   'The group has a new owner.': 'El grup té un propietari nou.',
   'The items in it stay in the library.': 'Els elements que conté es queden a la biblioteca.',
@@ -735,7 +756,10 @@ export default {
     'Això crea una clau que continua funcionant fins que l’elimineu a la Configuració, fins i tot després de tancar la sessió aquí.',
   'This instance has no accounts yet, so this one will be yours.':
     'Aquesta instància encara no té cap compte, així que aquest serà el vostre.',
+  'This is not an address. Check it and try again.':
+    'Això no és una adreça. Comproveu-la i torneu-ho a provar.',
   'This is your public page.': 'Aquesta és la vostra pàgina pública.',
+  'This kind of address cannot be attached.': 'Aquest tipus d’adreça no es pot adjuntar.',
   'This link does not include the files themselves.': 'Aquest enllaç no inclou els fitxers en si.',
   'This link has been revoked, has expired, or never existed.':
     'Aquest enllaç s’ha revocat, ha caducat o no ha existit mai.',
@@ -746,6 +770,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'L’ID d’entitat d’aquest servidor és el seu propi URL públic.',
   'Time zone': 'Fus horari',
+  'Title': 'Títol',
   Trash: 'Paperera',
   'Try Again': 'Torna-ho a provar',
   'Turn off codes by email': 'Desactiva els codis per correu electrònic',
@@ -758,6 +783,8 @@ export default {
   Unread: 'Sense llegir',
   'Unlink': 'Desenllaça',
   'Unreferenced files deleted.': 'S’han suprimit els fitxers sense referències.',
+  'Uploading {name}': 'S’està pujant {name}',
+  'Uploads': 'Pujades',
   'Use a code by email instead': 'Utilitza un codi per correu electrònic',
   'Use a passkey instead': 'Utilitza una clau d’accés',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -769,8 +796,10 @@ export default {
   'Username claim': 'Atribut del nom d’usuari',
   'Version': 'Versió',
   'Version {version}': 'Versió {version}',
+  'Video': 'Vídeo',
   Visibility: 'Visibilitat',
   'Web API version': 'Versió de l’API web',
+  'Webpage': 'Pàgina web',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Allò a partir del qual es van enviar les notificacions de grup. Ningú no rep cap avís dues vegades; això només decideix quant de temps es conserva el registre.',
   'What is it for?': 'Per a què serveix?',

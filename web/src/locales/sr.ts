@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Збирка мора имати назив.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Датотека приложена у две библиотеке чува се једном, а рачуна се у обе. Први број је оно што овај сервер мора да чува; други је колико би библиотеке заузимале засебно.',
+  'A file on your computer cannot be linked from the browser.':
+    'Датотека на вашем рачунару не може да се повеже из прегледача.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Датотека коју је клијент најавио, а никад није послао. Ништа није изгубљено: клијент ће је поново најавити.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -39,7 +41,9 @@ export default {
   'Account deleted.': 'Налог је обрисан.',
   'Accounts': 'Налози',
   'Across the instance': 'На целом серверу',
+  'Add Attachment': 'Додај прилог',
   'Add Creator': 'Dodaj autora',
+  'Add File…': 'Додај датотеку…',
   'Add Note': 'Додај белешку',
   'Add Related': 'Додај сродно',
   'Add Tag': 'Додај ознаку',
@@ -101,8 +105,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Затражите нову од онога ко одржава овај сервер. Ваша тренутна лозинка и даље важи.',
   'At least {count} characters': 'Најмање {count} знакова',
+  'Attach': 'Приложи',
+  'Attach File…': 'Приложи датотеку…',
+  'Attach Web Link': 'Приложи везу на вебу',
+  'Attach Web Link…': 'Приложи везу на вебу…',
   'Attachments': 'Прилози',
   'Attachments directory': 'Директоријум за прилоге',
+  'Audio': 'Звук',
   'Authenticator app': 'Апликација за аутентификацију',
   'Authenticator enabled.': 'Аутентификатор је укључен.',
   'Authenticator removed.': 'Аутентификатор је уклоњен.',
@@ -121,6 +130,7 @@ export default {
   'Callback address': 'Адреса за повратни позив',
   'Can': 'Овлашћења',
   'Cancel': 'Откажи',
+  'Cancel upload of {name}': 'Откажи слање датотеке {name}',
   'Change': 'Промени',
   'Change Item Type': 'Промени врсту ставке',
   'Change password': 'Промени лозинку',
@@ -252,6 +262,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Превуците да померите ову преграду. Двоструки клик је враћа на место.',
   'Duplicate Items': 'Дуплиране ставке',
+  'Ebook': 'Е-књига',
   'Edit': 'Уреди',
   'Edit the title': 'Уреди наслов',
   'Email': 'Е-пошта',
@@ -293,6 +304,8 @@ export default {
     'Датотеке које се чувају на WebDAV серверу не налазе се на zotero.org, па их пресељење не може пренети. Наставите да усклађујете датотеке преко WebDAV-а или их пошаљите из Zotero клијента који их још има.',
   'Finished.': 'Завршено.',
   'First or last item': 'Прва или последња ставка',
+  'Folders cannot be added. Add the files inside them.':
+    'Фасцикле не могу да се додају. Додајте датотеке које се налазе у њима.',
   'Follow this device ({name})': 'Као на овом уређају ({name})',
   'For example, my laptop': 'На пример, мој лаптоп',
   'Forgotten password': 'Заборављена лозинка',
@@ -327,6 +340,7 @@ export default {
   'I created this work.': 'Ја сам направио овај рад.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ако неки овдашњи налог користи ту адресу, веза за постављање нове лозинке је на путу.',
+  'Image': 'Слика',
   'Import and export': 'Увоз и извоз',
   'In the trash': 'У Смећу',
   'Include attached files': 'Укључи приложене датотеке',
@@ -360,6 +374,7 @@ export default {
   'Language': 'Језик',
   'Language and time zone': 'Језик и временска зона',
   'Language and time zone saved.': 'Језик и временска зона су сачувани.',
+  'Larger than the {size} this server accepts': 'Веће од {size}, колико прихвата овај сервер',
   'Last opened {date}': 'Последњи пут отворена {date}',
   'Last time you limited it to:': 'Прошли пут сте је ограничили на:',
   'Last used {when}': 'Последњи пут коришћен {when}',
@@ -375,6 +390,7 @@ export default {
   'Libraries': 'Библиотеке',
   'Library': 'Библиотека',
   'Limited to:': 'Ограничено на:',
+  'Link': 'Веза',
   'Link issued.': 'Веза је издата.',
   'Links to this collection': 'Везе ка овој збирци',
   'Loading…': 'Учитавам…',
@@ -489,6 +505,7 @@ export default {
     'Друге апликације којима сте дозволили приступ овом налогу. Свака је добила само дозволе које сте одобрили.',
   'Overview': 'Преглед',
   'Owner': 'Власник',
+  'PDF': 'ПДФ',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Налепите оба док добављач мења свој кључ.',
   'Page Down': 'Page Down',
@@ -565,6 +582,7 @@ export default {
   'Render': 'Прикажи',
   'Rendering…': 'Приказујем…',
   'Repeat password': 'Поновите лозинку',
+  'Replace File…': 'Замени датотеку…',
   'Replace what my library here already holds': 'Замени оно што моја овдашња библиотека већ садржи',
   'Replace what this library already holds': 'Замени оно што ова библиотека већ садржи',
   'Required claim': 'Обавезна тврдња',
@@ -699,6 +717,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Основни URL. Његова конфигурација се учитава са /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Збирка и све што се налази у њој',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Датотека је у међувремену замењена на другом месту. Ово је нова.',
   'The following fields will be lost:': 'Следећа поља ће бити изгубљена:',
   'The group has a new owner.': 'Група има новог власника.',
   'The items in it stay in the library.': 'Ставке из ње остају у библиотеци.',
@@ -726,7 +746,10 @@ export default {
     'Ово прави кључ који важи док га не уклоните у Подешавањима, чак и након што се овде одјавите.',
   'This instance has no accounts yet, so this one will be yours.':
     'Овај сервер још нема ниједан налог, па ће овај бити ваш.',
+  'This is not an address. Check it and try again.':
+    'Ово није адреса. Проверите је и покушајте поново.',
   'This is your public page.': 'Ово је ваша јавна страница.',
+  'This kind of address cannot be attached.': 'Ова врста адресе не може да се приложи.',
   'This link does not include the files themselves.': 'Ова веза не обухвата саме датотеке.',
   'This link has been revoked, has expired, or never existed.':
     'Ова веза је опозвана, истекла је или никад није постојала.',
@@ -737,6 +760,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'Entity ID овог сервера је његов сопствени јавни URL.',
   'Time zone': 'Временска зона',
+  'Title': 'Наслов',
   'Trash': 'Смеће',
   'Try Again': 'Покушај поново',
   'Turn off codes by email': 'Искључи кодове е-поштом',
@@ -749,6 +773,8 @@ export default {
   'Unlink': 'Уклони везу',
   'Unread': 'Непрочитано',
   'Unreferenced files deleted.': 'Датотеке без референци су обрисане.',
+  'Uploading {name}': 'Шаљем {name}',
+  'Uploads': 'Слање датотека',
   'Use a code by email instead': 'Уместо тога користи код е-поштом',
   'Use a passkey instead': 'Уместо тога користи приступни кључ',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -760,8 +786,10 @@ export default {
   'Verify': 'Провери',
   'Version': 'Верзија',
   'Version {version}': 'Верзија {version}',
+  'Video': 'Видео',
   'Visibility': 'Видљивост',
   'Web API version': 'Верзија Web API-ја',
+  'Webpage': 'Веб страница',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Записи на основу којих су слата обавештења група. Нико не добија исто обавештење двапут, а ово одређује само колико дуго запис остаје.',
   'What is it for?': 'За шта служи?',

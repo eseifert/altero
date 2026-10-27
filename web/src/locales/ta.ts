@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'சேகரிப்புக்கு ஒரு பெயர் தேவை.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'இரண்டு நூலகங்களில் இணைக்கப்பட்ட கோப்பு ஒருமுறை மட்டுமே சேமிக்கப்படுகிறது, ஆனால் இரண்டிலும் கணக்கிடப்படுகிறது. முதல் எண் இந்தச் சேவையகம் வைத்திருக்க வேண்டிய அளவு; இரண்டாவது, நூலகங்கள் தனித்தனியாக எடுத்துக்கொள்ளும் அளவு.',
+  'A file on your computer cannot be linked from the browser.':
+    'உங்கள் கணினியில் உள்ள கோப்புக்கு உலாவியிலிருந்து தொடுப்பு அமைக்க முடியாது.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'பயன்பாடு அனுப்பக் கேட்டு, ஒருபோதும் அனுப்பாத கோப்பு. எதுவும் இழக்கப்படவில்லை: அது மீண்டும் கேட்கும்.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -41,7 +43,9 @@ export default {
   'Account deleted.': 'கணக்கு நீக்கப்பட்டது.',
   'Accounts': 'கணக்குகள்',
   'Across the instance': 'முழு நிறுவலிலும்',
+  'Add Attachment': 'இணைப்பைச் சேர்',
   'Add Creator': 'உருவாக்கியவரைச் சேர்',
+  'Add File…': 'கோப்பு சேர்…',
   'Add Note': 'குறிப்பைச் சேர்',
   'Add Related': 'தொடர்புடையதைச் சேர்',
   'Add Tag': 'குறிச்சொல்லைச் சேர்',
@@ -103,8 +107,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'இந்தச் சேவையகத்தை நடத்துபவரிடம் புதிய ஒன்றைக் கேட்கவும். உங்கள் தற்போதைய கடவுச்சொல் இன்னும் வேலை செய்கிறது.',
   'At least {count} characters': 'குறைந்தது {count} எழுத்துக்கள்',
+  'Attach': 'இணை',
+  'Attach File…': 'கோப்பை இணை…',
+  'Attach Web Link': 'இணையத் தொடுப்பை இணை',
+  'Attach Web Link…': 'இணையத் தொடுப்பை இணை…',
   'Attachments': 'இணைப்புகள்',
   'Attachments directory': 'இணைப்புகளின் கோப்பகம்',
+  'Audio': 'ஒலி',
   'Authenticator app': 'அங்கீகரிப்புப் பயன்பாடு',
   'Authenticator enabled.': 'அங்கீகரிப்புப் பயன்பாடு இயக்கப்பட்டது.',
   'Authenticator removed.': 'அங்கீகரிப்புப் பயன்பாடு அகற்றப்பட்டது.',
@@ -123,6 +132,7 @@ export default {
   'Callback address': 'திரும்பும் முகவரி',
   'Can': 'செய்யக்கூடியது',
   'Cancel': 'ரத்துசெய்',
+  'Cancel upload of {name}': '{name} இன் பதிவேற்றத்தை ரத்துசெய்',
   'Change': 'மாற்று',
   'Change Item Type': 'உருப்படி வகையை மாற்று',
   'Change password': 'கடவுச்சொல்லை மாற்று',
@@ -257,6 +267,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'இந்தப் பிரிகோட்டை நகர்த்த இழுக்கவும். பழைய இடத்திற்குத் திருப்ப இருமுறை சொடுக்கவும்.',
   'Duplicate Items': 'நகல் உருப்படிகள்',
+  'Ebook': 'மின்புத்தகம்',
   'Edit': 'திருத்து',
   'Edit the title': 'தலைப்பைத் திருத்து',
   'Email': 'மின்னஞ்சல்',
@@ -298,6 +309,8 @@ export default {
     'WebDAV சேவையகத்தில் வைக்கப்பட்ட கோப்புகள் zotero.org இல் சேமிக்கப்படுவதில்லை, எனவே இடம்பெயர்வால் அவற்றைக் கொண்டுவர முடியாது. WebDAV மூலம் கோப்புகளைத் தொடர்ந்து ஒத்திசைக்கவும், அல்லது அவற்றை இன்னும் வைத்திருக்கும் Zotero பயன்பாட்டிலிருந்து பதிவேற்றவும்.',
   'Finished.': 'முடிந்தது.',
   'First or last item': 'முதல் அல்லது கடைசி உருப்படி',
+  'Folders cannot be added. Add the files inside them.':
+    'கோப்புறைகளைச் சேர்க்க முடியாது. அவற்றின் உள்ளே உள்ள கோப்புகளைச் சேர்க்கவும்.',
   'Follow this device ({name})': 'இந்தச் சாதனத்தைப் பின்பற்று ({name})',
   'For example, my laptop': 'எடுத்துக்காட்டாக, எனது மடிக்கணினி',
   'Forgotten password': 'மறந்த கடவுச்சொல்',
@@ -333,6 +346,7 @@ export default {
   'I created this work.': 'இந்தப் படைப்பை நான் உருவாக்கினேன்.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'இங்குள்ள ஒரு கணக்கு அந்த முகவரியைப் பயன்படுத்தினால், புதிய கடவுச்சொல்லை அமைப்பதற்கான தொடுப்பு அனுப்பப்படுகிறது.',
+  'Image': 'படம்',
   'Import and export': 'இறக்குமதி மற்றும் ஏற்றுமதி',
   'In the trash': 'குப்பையில்',
   'Include attached files': 'இணைக்கப்பட்ட கோப்புகளைச் சேர்',
@@ -366,6 +380,7 @@ export default {
   'Language': 'மொழி',
   'Language and time zone': 'மொழி மற்றும் நேர வலயம்',
   'Language and time zone saved.': 'மொழியும் நேர வலயமும் சேமிக்கப்பட்டன.',
+  'Larger than the {size} this server accepts': 'இந்தச் சேவையகம் ஏற்கும் {size} அளவை விடப் பெரியது',
   'Last opened {date}': 'கடைசியாகத் திறக்கப்பட்டது: {date}',
   'Last time you limited it to:': 'கடந்த முறை நீங்கள் இதற்கு மட்டுப்படுத்தினீர்கள்:',
   'Last used {when}': 'கடைசியாகப் பயன்படுத்தியது: {when}',
@@ -381,6 +396,7 @@ export default {
   'Libraries': 'நூலகங்கள்',
   'Library': 'நூலகம்',
   'Limited to:': 'இதற்கு மட்டும்:',
+  'Link': 'தொடுப்பு',
   'Link issued.': 'தொடுப்பு வழங்கப்பட்டது.',
   'Links to this collection': 'இந்தச் சேகரிப்புக்கான தொடுப்புகள்',
   'Loading…': 'ஏற்றுகிறது…',
@@ -501,6 +517,7 @@ export default {
     'இந்தக் கணக்கை அணுக நீங்கள் அனுமதித்த பிற பயன்பாடுகள். ஒவ்வொன்றுக்கும் நீங்கள் ஒப்புதல் அளித்த அனுமதிகள் மட்டுமே வழங்கப்பட்டன.',
   'Overview': 'மேலோட்டம்',
   'Owner': 'உரிமையாளர்',
+  'PDF': 'எஆவ',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. வழங்குநர் தனது விசையை மாற்றிக்கொண்டிருக்கும்போது இரண்டையும் ஒட்டவும்.',
   'Page Down': 'Page Down',
@@ -577,6 +594,7 @@ export default {
   'Render': 'உருவாக்கு',
   'Rendering…': 'உருவாக்குகிறது…',
   'Repeat password': 'கடவுச்சொல்லை மீண்டும் உள்ளிடவும்',
+  'Replace File…': 'கோப்பை மாற்று…',
   'Replace what my library here already holds': 'இங்குள்ள எனது நூலகத்தில் ஏற்கனவே உள்ளதை மாற்று',
   'Replace what this library already holds': 'இந்த நூலகத்தில் ஏற்கனவே உள்ளதை மாற்று',
   'Required claim': 'தேவையான கோரல்',
@@ -716,6 +734,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'அடிப்படை URL. அதன் உள்ளமைவு /.well-known/openid-configuration இலிருந்து படிக்கப்படுகிறது.',
   'The collection and everything inside it': 'சேகரிப்பும் அதனுள் உள்ள அனைத்தும்',
+  'The file was replaced elsewhere first. This is the new one.':
+    'கோப்பு முதலில் வேறிடத்தில் மாற்றப்பட்டது. இதுவே புதியது.',
   'The following fields will be lost:': 'பின்வரும் புலங்கள் இழக்கப்படும்:',
   'The group has a new owner.': 'குழுவுக்குப் புதிய உரிமையாளர் உள்ளார்.',
   'The items in it stay in the library.': 'அதில் உள்ள உருப்படிகள் நூலகத்திலேயே இருக்கும்.',
@@ -743,7 +763,10 @@ export default {
     'இது ஒரு விசையை உருவாக்குகிறது; நீங்கள் இங்கிருந்து வெளியேறிய பிறகும், அமைப்புகளில் அதை அகற்றும் வரை அது வேலை செய்யும்.',
   'This instance has no accounts yet, so this one will be yours.':
     'இந்த நிறுவலில் இன்னும் கணக்குகள் இல்லை, எனவே இது உங்களுடையதாக இருக்கும்.',
+  'This is not an address. Check it and try again.':
+    'இது ஒரு முகவரி அல்ல. சரிபார்த்து மீண்டும் முயற்சிக்கவும்.',
   'This is your public page.': 'இது உங்கள் பொதுப் பக்கம்.',
+  'This kind of address cannot be attached.': 'இவ்வகை முகவரியை இணைக்க முடியாது.',
   'This link does not include the files themselves.':
     'இந்தத் தொடுப்பில் கோப்புகள் சேர்க்கப்படவில்லை.',
   'This link has been revoked, has expired, or never existed.':
@@ -755,6 +778,7 @@ export default {
   'This server’s entity ID is its own public URL.':
     'இந்தச் சேவையகத்தின் entity ID அதன் சொந்தப் பொது URL ஆகும்.',
   'Time zone': 'நேர வலயம்',
+  'Title': 'தலைப்பு',
   'Trash': 'குப்பை',
   'Try Again': 'மீண்டும் முயற்சி செய்',
   'Turn off codes by email': 'மின்னஞ்சல் மூலம் குறியீடுகளை முடக்கு',
@@ -767,6 +791,8 @@ export default {
   'Unlink': 'துண்டி',
   'Unread': 'படிக்காதது',
   'Unreferenced files deleted.': 'குறிப்பிடப்படாத கோப்புகள் நீக்கப்பட்டன.',
+  'Uploading {name}': '{name} பதிவேற்றப்படுகிறது',
+  'Uploads': 'பதிவேற்றங்கள்',
   'Use a code by email instead': 'பதிலாக மின்னஞ்சல் குறியீட்டைப் பயன்படுத்து',
   'Use a passkey instead': 'பதிலாகக் கடவுச்சாவியைப் பயன்படுத்து',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -778,8 +804,10 @@ export default {
   'Verify': 'சரிபார்',
   'Version': 'பதிப்பு',
   'Version {version}': 'பதிப்பு {version}',
+  'Video': 'நிகழ்படம்',
   'Visibility': 'தெரிவுநிலை',
   'Web API version': 'Web API பதிப்பு',
+  'Webpage': 'வலைப்பக்கம்',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'குழு அறிவிப்புகள் அனுப்பப்பட்ட மூலப் பதிவு. யாருக்கும் இருமுறை அறிவிக்கப்படாது; பதிவு எவ்வளவு காலம் இருக்கும் என்பதை மட்டுமே இது தீர்மானிக்கிறது.',
   'What is it for?': 'இது எதற்காக?',

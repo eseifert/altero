@@ -18,6 +18,7 @@ export default {
   'A collection needs a name.': '컬렉션 이름을 입력하세요.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     '두 라이브러리에 첨부된 파일은 한 번만 저장되지만 양쪽에서 모두 집계됩니다. 첫 번째 수치는 서버가 실제로 저장하는 용량이고, 두 번째 수치는 라이브러리를 따로 저장할 때 필요한 용량입니다.',
+  'A file on your computer cannot be linked from the browser.': '컴퓨터에 있는 파일은 브라우저에서 링크할 수 없습니다.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     '클라이언트가 전송을 요청했지만 보내지 않은 파일입니다. 데이터는 손실되지 않으며 클라이언트가 다시 요청합니다.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -42,7 +43,9 @@ export default {
   'Account deleted.': '계정을 삭제했습니다.',
   'Accounts': '계정',
   'Across the instance': '인스턴스 전체',
+  'Add Attachment': '첨부 추가',
   'Add Creator': '창작가 추가',
+  'Add File…': '파일 추가…',
   'Add Note': '노트 추가',
   'Add Related': '연관 항목 추가',
   'Add Tag': '태그 추가',
@@ -98,8 +101,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     '서버 운영자에게 새 링크를 요청하세요. 현재 비밀번호는 계속 사용할 수 있습니다.',
   'At least {count} characters': '{count}자 이상',
+  'Attach': '첨부',
+  'Attach File…': '파일 첨부…',
+  'Attach Web Link': '웹 링크 첨부',
+  'Attach Web Link…': '웹 링크 첨부…',
   'Attachments': '첨부 파일',
   'Attachments directory': '첨부 파일 디렉터리',
+  'Audio': '오디오',
   'Authenticator app': '인증 앱',
   'Authenticator enabled.': '인증 앱을 활성화했습니다.',
   'Authenticator removed.': '인증 앱을 제거했습니다.',
@@ -118,6 +126,7 @@ export default {
   'Callback address': '콜백 주소',
   'Can': '허용 작업',
   'Cancel': '취소',
+  'Cancel upload of {name}': '{name} 업로드 취소',
   'Change': '변경',
   'Change Item Type': '항목 종류 변경',
   'Change password': '비밀번호 변경',
@@ -247,6 +256,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     '드래그하여 구분선을 이동하세요. 두 번 클릭하면 원래 위치로 돌아갑니다.',
   'Duplicate Items': '중복 항목',
+  'Ebook': '전자책',
   'Edit': '편집',
   'Edit the title': '제목 편집',
   'Email': '이메일',
@@ -285,6 +295,7 @@ export default {
     'WebDAV 서버의 파일은 zotero.org에 저장되지 않으므로 이전할 수 없습니다. 계속 WebDAV로 파일을 동기화하거나 파일을 보유한 Zotero 클라이언트에서 업로드하세요.',
   'Finished.': '완료했습니다.',
   'First or last item': '첫 번째 또는 마지막 항목',
+  'Folders cannot be added. Add the files inside them.': '폴더는 추가할 수 없습니다. 폴더 안의 파일을 추가하세요.',
   'Follow this device ({name})': '이 기기 설정 따르기 ({name})',
   'For example, my laptop': '예: 내 노트북',
   'Forgotten password': '비밀번호 찾기',
@@ -319,6 +330,7 @@ export default {
   'I created this work.': '이 저작물을 직접 만들었습니다.',
   'If an account here uses that address, a link to set a new password is on its way.':
     '이 주소를 사용하는 계정이 있으면 새 비밀번호를 설정할 링크를 보내드립니다.',
+  'Image': '이미지',
   'Import and export': '가져오기 및 내보내기',
   'In the trash': '휴지통에 있음',
   'Include attached files': '첨부 파일 포함',
@@ -349,6 +361,7 @@ export default {
   'Language': '언어',
   'Language and time zone': '언어 및 시간대',
   'Language and time zone saved.': '언어와 시간대를 저장했습니다.',
+  'Larger than the {size} this server accepts': '이 서버가 허용하는 {size}보다 큽니다',
   'Last opened {date}': '마지막으로 연 날짜: {date}',
   'Last time you limited it to:': '이전에 제한한 범위:',
   'Last used {when}': '마지막 사용: {when}',
@@ -362,6 +375,7 @@ export default {
   'Libraries': '라이브러리',
   'Library': '라이브러리',
   'Limited to:': '제한 범위:',
+  'Link': '링크',
   'Link issued.': '링크를 발급했습니다.',
   'Links to this collection': '이 컬렉션의 공유 링크',
   'Loading…': '불러오는 중…',
@@ -470,6 +484,7 @@ export default {
     '이 계정에 접근하도록 허용한 다른 애플리케이션입니다. 각 애플리케이션에는 승인한 권한만 부여되었습니다.',
   'Overview': '개요',
   'Owner': '소유자',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM 형식입니다. 제공자가 키를 교체하는 동안에는 두 키를 모두 붙여 넣으세요.',
   'Page Down': 'Page Down',
@@ -542,6 +557,7 @@ export default {
   'Render': '렌더링',
   'Rendering…': '렌더링 중…',
   'Repeat password': '비밀번호 다시 입력',
+  'Replace File…': '파일 교체…',
   'Replace what my library here already holds': '이 서버의 내 라이브러리 내용 교체',
   'Replace what this library already holds': '이 라이브러리의 내용 교체',
   'Required claim': '필수 클레임',
@@ -669,6 +685,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     '기본 URL입니다. /.well-known/openid-configuration에서 구성을 읽습니다.',
   'The collection and everything inside it': '컬렉션 및 모든 하위 내용',
+  'The file was replaced elsewhere first. This is the new one.':
+    '다른 곳에서 파일이 먼저 교체되었습니다. 이것이 새 파일입니다.',
   'The following fields will be lost:': '다음 필드를 잃을 수 있습니다.',
   'The group has a new owner.': '그룹 소유자가 변경되었습니다.',
   'The items in it stay in the library.': '컬렉션의 항목은 라이브러리에 유지됩니다.',
@@ -695,7 +713,9 @@ export default {
     '여기서 로그아웃해도 설정에서 제거할 때까지 계속 사용할 수 있는 키를 만듭니다.',
   'This instance has no accounts yet, so this one will be yours.':
     '아직 이 인스턴스에 계정이 없으므로 첫 계정을 만들 수 있습니다.',
+  'This is not an address. Check it and try again.': '주소가 아닙니다. 확인 후 다시 시도하세요.',
   'This is your public page.': '내 공개 페이지입니다.',
+  'This kind of address cannot be attached.': '이런 종류의 주소는 첨부할 수 없습니다.',
   'This link does not include the files themselves.': '이 링크에는 파일 자체가 포함되지 않습니다.',
   'This link has been revoked, has expired, or never existed.': '링크가 폐기되었거나 만료되었거나 존재하지 않습니다.',
   'This link stops working {date}.': '이 링크의 만료 날짜는 {date}입니다.',
@@ -704,6 +724,7 @@ export default {
   'This server': '이 서버',
   'This server’s entity ID is its own public URL.': '이 서버의 엔터티 ID는 서버의 공개 URL입니다.',
   'Time zone': '시간대',
+  'Title': '제목',
   'Trash': '휴지통',
   'Try Again': '다시 시도',
   'Turn off codes by email': '이메일 인증 코드 비활성화',
@@ -716,6 +737,8 @@ export default {
   'Unlink': '연결 해제',
   'Unread': '읽지 않음',
   'Unreferenced files deleted.': '참조되지 않는 파일을 삭제했습니다.',
+  'Uploading {name}': '{name} 업로드 중',
+  'Uploads': '업로드',
   'Use a code by email instead': '이메일 인증 코드 사용',
   'Use a passkey instead': '패스키 사용',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -726,8 +749,10 @@ export default {
   'Verify': '검증',
   'Version': '버전',
   'Version {version}': '버전 {version}',
+  'Video': '동영상',
   'Visibility': '공개 범위',
   'Web API version': '웹 API 버전',
+  'Webpage': '웹 페이지',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     '그룹 알림을 전송할 때 사용한 활동 기록입니다. 같은 알림은 두 번 보내지 않으며 이 설정은 기록 보관 기간만 결정합니다.',
   'What is it for?': '용도',

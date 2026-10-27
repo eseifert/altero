@@ -15,6 +15,8 @@ export default {
   'A collection needs a name.': 'Kolekcijai ir vajadzīgs nosaukums.',
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     'Fails, kas pievienots divās bibliotēkās, tiek glabāts vienreiz, bet uzskaitīts abās. Pirmais skaitlis ir tas, kas šim serverim jāglabā; otrais — cik vietas bibliotēkas aizņemtu atsevišķi.',
+  'A file on your computer cannot be linked from the browser.':
+    'No pārlūkprogrammas nevar izveidot saiti uz failu jūsu datorā.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     'Fails, ko klients lūdza atļauju nosūtīt, bet tā arī nenosūtīja. Nekas nav zaudēts: klients palūgs vēlreiz.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -39,7 +41,9 @@ export default {
   'Account deleted.': 'Konts izdzēsts.',
   Accounts: 'Konti',
   'Across the instance': 'Visā serverī',
+  'Add Attachment': 'Pievienot pielikumu',
   'Add Creator': 'Pievienot autoru',
+  'Add File…': 'Pievienot failu…',
   'Add Note': 'Pievienot piezīmi',
   'Add Related': 'Pievienot saistīto',
   'Add Tag': 'Pievienot birku',
@@ -101,8 +105,13 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.':
     'Lūdziet jaunu šī servera uzturētājam. Jūsu pašreizējā parole joprojām darbojas.',
   'At least {count} characters': 'Vismaz {count} rakstzīmes',
+  'Attach': 'Pievienot',
+  'Attach File…': 'Pievienot failu kā pielikumu…',
+  'Attach Web Link': 'Pievienot tīmekļa saiti',
+  'Attach Web Link…': 'Pievienot tīmekļa saiti…',
   Attachments: 'Pielikumi',
   'Attachments directory': 'Pielikumu direktorijs',
+  'Audio': 'Audio',
   'Authenticator app': 'Autentifikācijas lietotne',
   'Authenticator enabled.': 'Autentifikācijas lietotne ieslēgta.',
   'Authenticator removed.': 'Autentifikācijas lietotne noņemta.',
@@ -121,6 +130,7 @@ export default {
   'Callback address': 'Atgriešanās adrese',
   Can: 'Tiesības',
   Cancel: 'Atcelt',
+  'Cancel upload of {name}': 'Atcelt {name} augšupielādi',
   Change: 'Mainīt',
   'Change Item Type': 'Mainīt vienuma tipu',
   'Change password': 'Mainīt paroli',
@@ -251,6 +261,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Velciet, lai pārvietotu šo atdalītāju. Veiciet dubultklikšķi, lai to atjaunotu.',
   'Duplicate Items': 'Vienumu dublikāti',
+  'Ebook': 'E-grāmata',
   Email: 'E-pasts',
   'Edit': 'Rediģēt',
   'Edit the title': 'Rediģēt nosaukumu',
@@ -292,6 +303,8 @@ export default {
     'WebDAV serverī glabātie faili netiek glabāti zotero.org, tāpēc migrācija tos nevar pārnest. Turpiniet sinhronizēt failus caur WebDAV vai augšupielādējiet tos no Zotero klienta, kurā tie joprojām ir.',
   'Finished.': 'Pabeigts.',
   'First or last item': 'Pirmais vai pēdējais ieraksts',
+  'Folders cannot be added. Add the files inside them.':
+    'Mapes nevar pievienot. Pievienojiet tajās esošos failus.',
   'Follow this device ({name})': 'Sekot šai ierīcei ({name})',
   'For example, my laptop': 'Piemēram, mans klēpjdators',
   'Forgotten password': 'Aizmirsta parole',
@@ -326,6 +339,7 @@ export default {
   'I created this work.': 'Es radīju šo darbu.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ja kāds šī servera konts izmanto šo adresi, saite jaunas paroles iestatīšanai ir ceļā.',
+  'Image': 'Attēls',
   'Import and export': 'Imports un eksports',
   'In the trash': 'Miskastē',
   'Include attached files': 'Iekļaut pievienotos failus',
@@ -359,6 +373,7 @@ export default {
   Language: 'Valoda',
   'Language and time zone': 'Valoda un laika josla',
   'Language and time zone saved.': 'Valoda un laika josla saglabāta.',
+  'Larger than the {size} this server accepts': 'Lielāks par {size}, ko pieņem šis serveris',
   'Last opened {date}': 'Pēdējoreiz atvērta {date}',
   'Last time you limited it to:': 'Iepriekšējo reizi ierobežojāt to līdz:',
   'Last used {when}': 'Pēdējoreiz izmantota {when}',
@@ -374,6 +389,7 @@ export default {
   Libraries: 'Bibliotēkas',
   Library: 'Bibliotēka',
   'Limited to:': 'Ierobežots līdz:',
+  'Link': 'Saite',
   'Link issued.': 'Saite izsniegta.',
   'Links to this collection': 'Saites uz šo kolekciju',
   'Loading…': 'Ielādē…',
@@ -488,6 +504,7 @@ export default {
     'Citas lietotnes, kurām atļāvāt piekļūt šim kontam. Katrai ir piešķirtas tikai jūsu apstiprinātās atļaujas.',
   Overview: 'Pārskats',
   Owner: 'Īpašnieks',
+  'PDF': 'PDF',
   'PEM. Paste both while the provider is rolling its key over.':
     'PEM. Kamēr nodrošinātājs nomaina atslēgu, ielīmējiet abas.',
   'Page Down': 'Page Down',
@@ -564,6 +581,7 @@ export default {
   Render: 'Ģenerēt',
   'Rendering…': 'Ģenerē…',
   'Repeat password': 'Atkārtojiet paroli',
+  'Replace File…': 'Aizstāt failu…',
   'Replace what my library here already holds': 'Aizstāt to, kas manā bibliotēkā šeit jau ir',
   'Replace what this library already holds': 'Aizstāt to, kas šajā bibliotēkā jau ir',
   'Required claim': 'Obligātā prasība',
@@ -700,6 +718,8 @@ export default {
   'The base URL. Its configuration is read from /.well-known/openid-configuration.':
     'Bāzes URL. Konfigurācija tiek nolasīta no /.well-known/openid-configuration.',
   'The collection and everything inside it': 'Kolekcija un viss tās saturs',
+  'The file was replaced elsewhere first. This is the new one.':
+    'Fails jau tika aizstāts citur. Šis ir jaunais.',
   'The following fields will be lost:': 'Tiks zaudēti šādi lauki:',
   'The group has a new owner.': 'Grupai ir jauns īpašnieks.',
   'The items in it stay in the library.': 'Tajā esošie vienumi paliek bibliotēkā.',
@@ -727,7 +747,10 @@ export default {
     'Tiek izveidota atslēga, kas darbojas, līdz to noņemat iestatījumos, arī pēc tam, kad šeit izrakstāties.',
   'This instance has no accounts yet, so this one will be yours.':
     'Šajā serverī vēl nav kontu, tāpēc šis būs jūsējais.',
+  'This is not an address. Check it and try again.':
+    'Šī nav adrese. Pārbaudiet to un mēģiniet vēlreiz.',
   'This is your public page.': 'Šī ir jūsu publiskā lapa.',
+  'This kind of address cannot be attached.': 'Šāda veida adresi nevar pievienot.',
   'This link does not include the files themselves.': 'Šī saite neietver pašus failus.',
   'This link has been revoked, has expired, or never existed.':
     'Šī saite ir atsaukta, tās derīguma termiņš ir beidzies, vai tā nekad nav eksistējusi.',
@@ -737,6 +760,7 @@ export default {
   'This server': 'Šis serveris',
   'This server’s entity ID is its own public URL.': 'Šī servera entītijas ID ir tā publiskais URL.',
   'Time zone': 'Laika josla',
+  'Title': 'Nosaukums',
   Trash: 'Miskaste',
   'Try Again': 'Mēģināt vēlreiz',
   'Turn off codes by email': 'Izslēgt kodus pa e-pastu',
@@ -749,6 +773,8 @@ export default {
   Unread: 'Nelasīti',
   'Unlink': 'Noņemt saiti',
   'Unreferenced files deleted.': 'Faili, uz kuriem nav atsauču, izdzēsti.',
+  'Uploading {name}': 'Augšupielādē {name}',
+  'Uploads': 'Augšupielādes',
   'Use a code by email instead': 'Tā vietā izmantot kodu pa e-pastu',
   'Use a passkey instead': 'Tā vietā izmantot piekļuves atslēgu',
   'Use the address the invitation was sent to, and you will be able to answer it.':
@@ -760,8 +786,10 @@ export default {
   Verify: 'Pārbaudīt',
   Version: 'Versija',
   'Version {version}': 'Versija {version}',
+  'Video': 'Video',
   Visibility: 'Redzamība',
   'Web API version': 'Web API versija',
+  'Webpage': 'Tīmekļa lapa',
   'What group notifications were sent from. Nobody is notified twice, and this only decides how long the record stays.':
     'Ieraksti, no kuriem tika sūtīti grupas paziņojumi. Neviens netiek informēts divreiz, un šis iestatījums nosaka tikai to, cik ilgi ieraksts tiek glabāts.',
   'What is it for?': 'Kam tā paredzēta?',
