@@ -6,6 +6,7 @@ import { request } from '@/api/client'
 import AppIcon from '@/components/AppIcon.vue'
 import InfoPane from '@/components/InfoPane.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
+import RelatedSection from '@/components/RelatedSection.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import { exportable } from '@/exportformats'
 import { itemTypeLabel } from '@/items/labels'
@@ -307,6 +308,8 @@ function childTitle(child: ItemEnvelope): string {
         <li v-for="tag in tags" :key="tag.tag" class="detail__tag">{{ tag.tag }}</li>
       </ul>
     </section>
+
+    <RelatedSection :item="item" :editable="editable" @open="emit('open', $event)" />
 
     <section v-if="children.length" class="detail__section">
       <h3 class="detail__heading">{{ t('Attachments and notes') }}</h3>

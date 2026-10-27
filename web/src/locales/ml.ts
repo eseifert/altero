@@ -39,6 +39,7 @@ export default {
   Accounts: 'അക്കൗണ്ടുകൾ',
   'Across the instance': 'ഈ ഇൻസ്റ്റൻസിലാകെ',
   'Add Creator': 'സ്രഷ്ടാവിനെ ചേർക്കുക',
+  'Add Related': 'ബന്ധപ്പെട്ടത് ചേർക്കുക',
   'Add a SAML provider': 'ഒരു SAML ദാതാവിനെ ചേർക്കുക',
   'Add a passkey': 'ഒരു പാസ്‌കീ ചേർക്കുക',
   'Add a provider': 'ഒരു ദാതാവിനെ ചേർക്കുക',
@@ -489,7 +490,9 @@ export default {
   'Registration is open on this server.': 'ഈ സെർവറിൽ രജിസ്ട്രേഷൻ തുറന്നിരിക്കുന്നു.',
   Reinstate: 'വീണ്ടും സജീവമാക്കുക',
   Remove: 'നീക്കം ചെയ്യുക',
+  'Related': 'ബന്ധപ്പെട്ടവ',
   'Remove Creator': 'സ്രഷ്ടാവിനെ നീക്കം ചെയ്യുക',
+  'Remove Related': 'ബന്ധപ്പെട്ടത് നീക്കം ചെയ്യുക',
   'Remove authenticator': 'ഓതന്റിക്കേറ്റർ നീക്കം ചെയ്യുക',
   'Remove from My Publications': 'എന്റെ പ്രസിദ്ധീകരണങ്ങളിൽ നിന്ന് നീക്കം ചെയ്യുക',
   'Remove “{name}” from My Publications?':

@@ -55,7 +55,7 @@ A collection can also be shared by link without exposing the whole library or re
 
 ## Items
 
-The browser supports editing an item's fields, type and creators, and filing, trashing, restoring, deleting and copying items. Tags and notes are still edited in Zotero Desktop. See [Browsing and organizing a library](web/library.md).
+The browser supports editing an item's fields, type, creators and related items, and filing, trashing, restoring, deleting and copying items. Tags and notes are still edited in Zotero Desktop. See [Browsing and organizing a library](web/library.md).
 
 <a id="writing-items-out"></a>
 ### Exporting items

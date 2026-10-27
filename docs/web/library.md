@@ -6,7 +6,7 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 
 - Browse collections, tags and search results from the library view.
 - Create, rename, move and remove collections.
-- Edit an item's fields and creators, and change its type.
+- Edit an item's fields and creators, change its type, and relate it to others.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
 - Use the same actions with mouse, keyboard or touch where the interface provides them.
@@ -111,6 +111,10 @@ item's type, empty ones included, in the order Zotero Desktop shows them.
   emptied is removed when you leave it. Drag the grip beside the role to
   reorder, or use **Move Up** and **Move Down** under **More Options…**.
 - **Rights** is set with the license chooser, as for My Publications.
+- **Relate items** under **Related**: **+** searches the library, and pressing
+  a result relates the two. Both items name each other, as in Zotero Desktop,
+  and **−** removes the link from both. Pressing a related item opens it.
+  Related items in the trash are listed only while the item itself is there.
 
 Each save is one change, which Zotero Desktop receives on its next sync. If
 someone else changed the item since you opened it, the save is refused rather

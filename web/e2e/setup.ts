@@ -144,6 +144,12 @@ export default async function setup(): Promise<() => void> {
     },
   ])
 
+  // Related and unrelated again by the related-items test, both projects.
+  await create(call, [
+    { itemType: 'book', title: 'On the Economy of Machinery and Manufactures' },
+    { itemType: 'letter', title: 'Letter to Charles Babbage' },
+  ])
+
   const state: State = { baseURL: BASE, key, book: book!, note: note!, page: page! }
   writeFileSync(STATE_FILE, JSON.stringify(state))
 

@@ -421,6 +421,41 @@ class TestBrowsing:
 
         assert [entry["data"]["title"] for entry in body["items"]] == ["Whales"]
 
+    async def test_item_keys_narrow_the_list_to_those_items(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """How the Related section reads the items another one names."""
+        library_id, key = await self._seed(client, session)
+        written = (
+            await client.post(
+                "/users/1/items",
+                headers={"Zotero-API-Key": key},
+                json=[
+                    {"itemType": "book", "title": "Whales"},
+                    {"itemType": "book", "title": "Squid"},
+                    {"itemType": "book", "title": "Krill"},
+                ],
+            )
+        ).json()["successful"]
+        parent = written["0"]["key"]
+        note = (
+            await client.post(
+                "/users/1/items",
+                headers={"Zotero-API-Key": key},
+                json=[{"itemType": "note", "note": "<p>Ink</p>", "parentItem": parent}],
+            )
+        ).json()["successful"]["0"]["key"]
+        wanted = f"{written['1']['key']},{note}"
+
+        body = (
+            await client.get(
+                f"/web/libraries/{library_id}/items?scope=all&sort=title&itemKey={wanted}"
+            )
+        ).json()
+
+        assert body["total"] == 2
+        assert sorted(entry["key"] for entry in body["items"]) == sorted(wanted.split(","))
+
     async def test_items_can_be_filtered_by_tag(
         self, client: httpx.AsyncClient, session: AsyncSession
     ) -> None:

@@ -234,6 +234,7 @@ async def list_library_items(
     direction: Direction | None = None,
     collection: str | None = None,
     tag: Annotated[list[str] | None, Query()] = None,
+    item_key: Annotated[str | None, Query(alias="itemKey")] = None,
     scope: Scope = Scope.TOP,
 ) -> Response:
     """Return one page of items, in the v3 API's own item shape.
@@ -243,7 +244,8 @@ async def list_library_items(
     three views the desktop client offers beside the collections — unfiled
     items, duplicates, and what has been read lately. A collection narrows it
     to that collection's own top-level items, which is what the desktop client
-    shows when you click one.
+    shows when you click one. ``itemKey`` narrows any of them to the items
+    named, which is how the Related section reads the items one names.
     """
     library = await _readable_library(session, user, library_id)
 
@@ -255,6 +257,7 @@ async def list_library_items(
         sort=sort,
         direction=direction,
         tag=tag,
+        item_keys=[key for key in (item_key or "").split(",") if key],
         limit=limit,
         start=start,
     )

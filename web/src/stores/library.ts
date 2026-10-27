@@ -47,6 +47,7 @@ export interface ItemEnvelope {
     inPublications?: boolean
     tags?: { tag: string; type?: number }[]
     collections?: string[]
+    relations?: Record<string, string | string[]>
   }
   meta: {
     creatorSummary?: string
@@ -118,6 +119,24 @@ export type Scope =
 
 /** How many items one page holds. */
 export const PAGE_SIZE = 50
+
+/** How many related items one request reads: the listing's own maximum. */
+const RELATED_BATCH = 100
+
+/**
+ * The keys of the items ``item`` names in `dc:relation`, in the order named.
+ *
+ * Read the way `Zotero.Item.relatedItems` reads them: the key out of each
+ * item URI, whichever library the URI names, to be looked up in this one.
+ */
+export function relatedKeys(item: ItemEnvelope): string[] {
+  const named = item.data.relations?.['dc:relation']
+  const uris = Array.isArray(named) ? named : named ? [named] : []
+  const keys = uris
+    .map((uri) => /\/items\/([A-Z0-9]{8})$/.exec(uri)?.[1])
+    .filter((key): key is string => Boolean(key) && key !== item.key)
+  return [...new Set(keys)]
+}
 
 function tree(collections: CollectionEnvelope[]): CollectionNode[] {
   const nodes = new Map<string, CollectionNode>(
@@ -625,6 +644,66 @@ export const useLibraryStore = defineStore('library', () => {
     if (child >= 0) children.value[child] = fresh
   }
 
+  /**
+   * Read the items ``item`` names as related, in this library.
+   *
+   * The desktop's rules: a key is taken from each `dc:relation` and looked up
+   * here, one that is not found is passed over, and a related item in the
+   * trash is left out unless ``item`` is in the trash itself.
+   */
+  async function relatedOf(item: ItemEnvelope): Promise<ItemEnvelope[]> {
+    const keys = relatedKeys(item)
+    if (libraryId.value === null || !keys.length) return []
+    const scopes = item.data.deleted ? ['all', 'trash'] : ['all']
+    const found: ItemEnvelope[] = []
+    for (let start = 0; start < keys.length; start += RELATED_BATCH) {
+      const itemKey = keys.slice(start, start + RELATED_BATCH).join(',')
+      for (const scope of scopes) {
+        const params = new URLSearchParams({ scope, itemKey, limit: String(RELATED_BATCH) })
+        const payload = await request<{ items: ItemEnvelope[] }>(
+          `/web/libraries/${libraryId.value}/items?${params}`,
+        )
+        found.push(...payload.items)
+      }
+    }
+    return found
+  }
+
+  /** Items whose title, creators or text match ``text``, for the Related
+   *  section's search. Children too, since a note can be related. */
+  async function findItems(text: string): Promise<ItemEnvelope[]> {
+    if (libraryId.value === null || !text.trim()) return []
+    const params = new URLSearchParams({ scope: 'all', q: text.trim(), sort: 'title', limit: '20' })
+    const payload = await request<{ items: ItemEnvelope[] }>(
+      `/web/libraries/${libraryId.value}/items?${params}`,
+    )
+    return payload.items
+  }
+
+  /**
+   * Relate ``key`` to ``others``, or take one such link off again.
+   *
+   * Both sides are written by the server in one version, as the desktop's
+   * related box writes both; each item comes back and replaces the page's copy.
+   */
+  async function relateItems(key: string, others: string[]): Promise<void> {
+    if (libraryId.value === null || !others.length) return
+    const payload = await request<{ items: ItemEnvelope[] }>(
+      `/web/libraries/${libraryId.value}/items/${key}/related`,
+      { method: 'POST', body: { items: others } },
+    )
+    payload.items.forEach(put)
+  }
+
+  async function unrelateItems(key: string, other: string): Promise<void> {
+    if (libraryId.value === null) return
+    const payload = await request<{ items: ItemEnvelope[] }>(
+      `/web/libraries/${libraryId.value}/items/${key}/related/${other}`,
+      { method: 'DELETE' },
+    )
+    payload.items.forEach(put)
+  }
+
   /** Put ``key`` into My Publications on the terms the wizard collected. */
   async function publishItem(
     key: string,
@@ -943,6 +1022,10 @@ export const useLibraryStore = defineStore('library', () => {
     childrenOf,
     editItem,
     saveItem,
+    relatedOf,
+    findItems,
+    relateItems,
+    unrelateItems,
     publishItem,
     unpublishItem,
     refresh,

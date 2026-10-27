@@ -98,3 +98,27 @@ test('a creator is renamed in place', async ({ page }, testInfo) => {
     )
     .toContain(first)
 })
+
+test('an item related in the pane names the other, and both stop when it is removed', async ({ page }) => {
+  await signIn(page)
+  await page.getByText('On the Economy of Machinery').first().click()
+
+  const related = page.locator('.detail .related')
+  await related.getByRole('button', { name: 'Add Related' }).click()
+  await related.getByRole('searchbox').fill('Letter to Charles')
+  await related.locator('.related__search .related__item').filter({ hasText: 'Letter to Charles Babbage' }).click()
+  await expect(related.locator('.related__list .related__label')).toHaveText(['Letter to Charles Babbage'])
+
+  // Both sides were written: the letter names the book after a reload.
+  await page.reload()
+  await page.getByText('On the Economy of Machinery').first().click()
+  await related.locator('.related__item').filter({ hasText: 'Letter to Charles Babbage' }).click()
+  await expect(page.locator('.detail__title')).toHaveText('Letter to Charles Babbage')
+  await expect(related.locator('.related__label')).toHaveText(['On the Economy of Machinery and Manufactures'])
+
+  await related.getByRole('button', { name: 'Remove Related' }).click()
+  await expect(related.locator('.related__label')).toHaveCount(0)
+  await page.reload()
+  await page.getByText('On the Economy of Machinery').first().click()
+  await expect(page.locator('.detail .related .related__label')).toHaveCount(0)
+})
