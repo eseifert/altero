@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- An attachment's `md5` is checked to be a digest on write and when a file is served, closing an authenticated path traversal. Reported by [@arminbahl] in [Issue#62].
 - Desktop acceptance covers notes: browser notes reach both desktops intact, and Zotero's own note editor output is the browser editor's test corpus.
 - Building the image with `compose.build.yaml` fetches current base images and uv; a cached old `uv:latest` failed the uv version check ([build]).
 - The browser interface writes notes, standalone or under an item: format by selecting or typing `/`, full screen, saved as you type ([notes]).
@@ -296,3 +297,4 @@ The first release meant to be used by somebody other than its author.
 [Issue#22]: https://github.com/eseifert/altero/issues/22
 [Issue#29]: https://github.com/eseifert/altero/issues/29
 [Issue#30]: https://github.com/eseifert/altero/issues/30
+[Issue#62]: https://github.com/eseifert/altero/issues/62

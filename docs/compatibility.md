@@ -134,7 +134,7 @@ These were confirmed against a live library.
 
 ### Fields the published schema does not list
 
-The published schema gives attachments only `title`, `accessDate` and `url`, and notes and annotations no fields at all. In reality an attachment also has `linkMode`, `contentType`, `charset`, `filename`, `md5`, `mtime` and `path`; a note has `note`; and an annotation has the `annotation*` fields. Validating strictly against the published schema would even reject the server's own `/items/new` template, so altero accepts these fields too. Any other field outside the schema is still refused, so a storage field on a book is an error.
+The published schema gives attachments only `title`, `accessDate` and `url`, and notes and annotations no fields at all. In reality an attachment also has `linkMode`, `contentType`, `charset`, `filename`, `md5`, `mtime` and `path`; a note has `note`; and an annotation has the `annotation*` fields. Validating strictly against the published schema would even reject the server's own `/items/new` template, so altero accepts these fields too. Any other field outside the schema is still refused, so a storage field on a book is an error. `md5` must be a 32-character digest, as zotero.org requires: the server serves the file a stored digest names, so a value that is not a digest is refused rather than allowed to name a file outside the store.
 
 If a write is refused with `Invalid field`, this is the first thing to check.
 

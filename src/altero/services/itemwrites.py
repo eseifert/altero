@@ -8,6 +8,7 @@ migration, the command line -- and every route hands its caller's
 :class:`~altero.services.auth.Access` instead.
 """
 
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -120,6 +121,24 @@ UNLISTED_FIELDS: dict[str, tuple[str, ...]] = {
         "annotationPosition",
     ),
 }
+
+
+_MD5 = re.compile(r"[0-9a-f]{32}")
+
+
+def _checked_md5(value: Any) -> str:
+    """A file digest, lowercased, or a clean refusal.
+
+    An attachment's ``md5`` is stored verbatim and later joined onto the file
+    store's root to decide which file to serve. A value that is not 32 hex
+    characters -- ``/etc/passwd``, ``../../secret`` -- would resolve a path
+    outside the store, so it is refused here on the way in, as upstream refuses
+    it ("is not a valid MD5 hash"). Case is normalised as the upload path does.
+    """
+    digest = str(value).lower()
+    if not _MD5.fullmatch(digest):
+        raise InvalidInputError(f"'{value}' is not a valid MD5 hash")
+    return digest
 
 
 def _parse_timestamp(value: Any, name: str) -> datetime | None:
@@ -289,7 +308,7 @@ def validate_item(
             # absent rather than the string "None". Upstream skips them empty as
             # well, so they are never stored as "" and are served as null.
             if value is not None and not (name in FILE_STATE_FIELDS and value == ""):
-                fields[name] = str(value)
+                fields[name] = _checked_md5(value) if name == "md5" else str(value)
             continue
         if name not in schema.all_field_names:
             raise InvalidInputError(f"Invalid field '{name}'")

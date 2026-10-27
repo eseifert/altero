@@ -294,7 +294,13 @@ async def export_library(
 
 def _present(storage_root: Path, digests: list[str]) -> list[tuple[str, Path]]:
     """The stored files among ``digests``, with where each one is."""
-    found = [(digest, storage.file_path(storage_root, digest)) for digest in digests]
+    # A non-digest md5 is a poisoned row; it names no file this server holds,
+    # so it is skipped rather than left to `file_path` to refuse.
+    found = [
+        (digest, storage.file_path(storage_root, digest))
+        for digest in digests
+        if storage.is_file_digest(digest)
+    ]
     return [(digest, path) for digest, path in found if path.is_file()]
 
 

@@ -14,6 +14,7 @@ import asyncio
 import hashlib
 import logging
 import os
+import re
 import shutil
 import tempfile
 import time
@@ -52,9 +53,18 @@ FILE_FIELDS = ("filename", "md5", "mtime", "contentType", "charset")
 DOWNLOAD_LIFETIME = timedelta(minutes=5)
 
 
+#: A stored file is named by its digest and nothing else.
+_FILE_DIGEST = re.compile(r"[0-9a-f]{32}")
+
+
 def file_digest(body: bytes) -> str:
     """Return the digest a file is stored under."""
     return hashlib.md5(body, usedforsecurity=False).hexdigest()
+
+
+def is_file_digest(md5: str) -> bool:
+    """Whether ``md5`` is a 32-character hexadecimal digest and nothing more."""
+    return bool(_FILE_DIGEST.fullmatch(md5))
 
 
 def file_path(root: Path, md5: str) -> Path:
@@ -62,7 +72,15 @@ def file_path(root: Path, md5: str) -> Path:
 
     Fanned out by the first two characters so one directory does not end up
     holding every file in the library.
+
+    The digest names the file to serve and is joined onto ``root`` to find it,
+    so a value that is not a digest -- an absolute or dotted string left in a
+    row written before ``md5`` was validated on the way in -- would resolve a
+    path outside the store. It is refused here, the one place every read, write
+    and sweep turns a digest into a path, so nothing downstream can escape.
     """
+    if not is_file_digest(md5):
+        raise NotFoundError("Not found")
     return root / md5[:2] / md5
 
 
@@ -278,7 +296,10 @@ def stored_md5(item: Item, root: Path) -> str | None:
     write.
     """
     md5 = current_md5(item)
-    return md5 if md5 is not None and file_path(root, md5).is_file() else None
+    # A non-digest here is a poisoned row; `is_file_digest` keeps this answering
+    # ``None`` for it rather than letting `file_path` refuse, as the docstring
+    # promises. The read routes still answer 404 through `stored_file`.
+    return md5 if md5 and is_file_digest(md5) and file_path(root, md5).is_file() else None
 
 
 def check_preconditions(
