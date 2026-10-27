@@ -7,6 +7,7 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 - Browse collections, tags and search results from the library view.
 - Create, rename, move and remove collections.
 - Make an item, edit its fields, creators and tags, change its type, and relate it to others.
+- Write notes, on their own or under an item.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
 - Use the same actions with mouse, keyboard or touch where the interface provides them; `?` lists the keys.
@@ -144,7 +145,40 @@ rename is made on top of theirs.
 
 An item in the trash cannot be edited, as in Zotero Desktop: restore it first.
 A group member who may only read sees the fields without editing controls.
-Notes are still edited in Zotero Desktop.
+
+### Writing a note
+
+A note opens in an editor in the right pane, and is saved a second after you
+stop typing, as in Zotero Desktop; **Saved.** beside the toolbar says so. A note
+left before then — another item opened, the tab closed — is saved on the way out.
+
+- **Make a note** with the note button over the item list: **New Standalone
+  Note** files it into the collection being shown, **New Item Note** puts it
+  under the item picked out. **+** beside **Attachments and notes** in an item's
+  pane adds one under that item. The note opens ready to type.
+- **Format text** from the toolbar, which is Zotero Desktop's: the format menu
+  (paragraph, headings, monospaced, lists, block quote, and underline,
+  strikethrough, subscript and superscript), bold, italic, link, text and
+  highlight colour, alignment and indent, and clear formatting. Zotero Desktop's
+  keys work too — Ctrl+B, Ctrl+K for a link, Tab to indent or move a list item
+  in, Shift+Ctrl+1 to 6 for headings — and so does Markdown typed at the start
+  of a line: `#`, `-`, `1.`, `>`, ```` ``` ````, `---`.
+- **Links** are edited in the bar under the toolbar, which also opens the link
+  under the cursor in a new tab.
+- **Leave the text** with Escape, which moves to the toolbar; Alt+F10 does the
+  same from anywhere in the note. Tab inside a note indents, as on the desktop.
+
+A note is saved as Zotero Desktop's note editor would write it, so a note
+edited here and opened there reads the same. Opening a note writes nothing:
+only a change you make is saved. Citations, annotations and embedded images
+made in Zotero Desktop are shown and kept, but cannot be added here, and maths
+shows as its TeX source. A note written by a newer version of Zotero than this
+interface knows is shown read-only, as older versions of Zotero Desktop do.
+
+If the note changed elsewhere while you were typing, nothing is written: the
+pane names the local version and the remote version by their first lines, and
+**Choose this version** keeps one. A note changed elsewhere while you are only
+reading it shows the change straight away.
 
 ### Collections
 

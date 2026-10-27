@@ -29,10 +29,11 @@ export function state(): State {
  *
  * Chrome reports an inline handler as soon as markup carrying one is parsed,
  * even into an inert document where nothing can run -- and parsing a note is
- * how the sanitizer finds the handler to remove. The tests that show a note
- * check separately that nothing ran.
+ * how the sanitizer finds the handler to remove, and how the note editor reads
+ * the note it opens. The tests that show a note check separately that nothing
+ * ran.
  */
-const EXPECTED = /^script-src-attr inline at \S*\/assets\/sanitize-[\w-]+\.js:/
+const EXPECTED = /^script-src-attr inline at \S*\/assets\/(?:sanitize|NotePane)-[\w-]+\.js:/
 
 /**
  * Every test fails if the page broke the Content-Security-Policy.

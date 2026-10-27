@@ -43,6 +43,8 @@ const props = defineProps<{
 const emit = defineEmits<{ choose: [id: string]; closed: [] }>()
 
 const open = ref(false)
+/** Where the list is drawn, worked out from the button when it opens. */
+const place = ref<Record<string, string>>({})
 const root = ref<HTMLElement | null>(null)
 const list = ref<HTMLElement | null>(null)
 const button = ref<HTMLButtonElement | null>(null)
@@ -58,8 +60,41 @@ async function toggle(): Promise<void> {
   }
   open.value = true
   await nextTick()
+  position()
   const all = items()
   ;(all.find(item => item.getAttribute('aria-checked') === 'true') ?? all[0])?.focus()
+}
+
+/*
+ * The list is fixed to the window rather than hung under the button, because
+ * the toolbar scrolls sideways and so clips whatever hangs out of it. It
+ * opens below the button where there is room and above it where there is not
+ * -- on a phone the toolbar sits on the keyboard, at the bottom of the screen.
+ */
+function position(): void {
+  const rect = button.value?.getBoundingClientRect()
+  if (!rect) return
+  const height = window.visualViewport?.height ?? window.innerHeight
+  const below = height - rect.bottom
+  const above = rect.top
+  const style: Record<string, string> = {}
+  if (below >= Math.min(320, above)) {
+    style.top = `${rect.bottom + 4}px`
+    style.maxHeight = `${Math.max(below - 12, 120)}px`
+  } else {
+    style.bottom = `${window.innerHeight - rect.top + 4}px`
+    style.maxHeight = `${Math.max(above - 12, 120)}px`
+  }
+  const width = list.value?.offsetWidth ?? 0
+  const rtl = getComputedStyle(button.value!).direction === 'rtl'
+  const start = rtl ? rect.right - width : rect.left
+  style.left = `${Math.max(8, Math.min(start, window.innerWidth - width - 8))}px`
+  place.value = style
+}
+
+/** A page scrolled under an open menu would leave it pointing at nothing. */
+function scrolled(event: Event): void {
+  if (open.value && !list.value?.contains(event.target as Node)) close()
 }
 
 function close(): void {
@@ -100,8 +135,16 @@ function outside(event: PointerEvent): void {
   if (open.value && !root.value?.contains(event.target as Node)) close()
 }
 
-onMounted(() => document.addEventListener('pointerdown', outside))
-onBeforeUnmount(() => document.removeEventListener('pointerdown', outside))
+onMounted(() => {
+  document.addEventListener('pointerdown', outside)
+  window.addEventListener('scroll', scrolled, true)
+  window.addEventListener('resize', close)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', outside)
+  window.removeEventListener('scroll', scrolled, true)
+  window.removeEventListener('resize', close)
+})
 
 defineExpose({ button })
 </script>
@@ -126,7 +169,7 @@ defineExpose({ button })
       </span>
       <AppIcon name="chevron-down" :size="12" />
     </button>
-    <ul v-if="open" ref="list" class="menu note-menu__list" role="menu" :aria-label="props.label" @keydown="keydown">
+    <ul v-if="open" ref="list" class="menu note-menu__list" :style="place" role="menu" :aria-label="props.label" @keydown="keydown">
       <template v-for="entry in props.entries" :key="entry.id">
         <li v-if="entry.separated" role="separator" class="note-menu__separator"></li>
         <li role="none">
@@ -182,9 +225,8 @@ defineExpose({ button })
 }
 
 .note-menu__list {
-  inset-block-start: calc(100% + 0.25rem);
-  inset-inline-start: 0;
-  max-height: min(24rem, 60vh);
+  position: fixed;
+  z-index: 30;
   overflow-y: auto;
 }
 

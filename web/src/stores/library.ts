@@ -807,10 +807,16 @@ export const useLibraryStore = defineStore('library', () => {
    * the new item has to appear, and the item opens in the pane even where the
    * view would not list it.
    */
-  async function createItem(itemType: string): Promise<ItemEnvelope | null> {
+  async function createItem(
+    itemType: string,
+    options: { parentItem?: string } = {},
+  ): Promise<ItemEnvelope | null> {
     if (libraryId.value === null) return null
     const body: Record<string, unknown> = { itemType }
-    if (collectionKey.value) body.collections = [collectionKey.value]
+    // A child is filed by its parent, so only an item on its own goes into
+    // the collection being shown.
+    if (options.parentItem) body.parentItem = options.parentItem
+    else if (collectionKey.value) body.collections = [collectionKey.value]
     const fresh = await request<ItemEnvelope>(`/web/libraries/${libraryId.value}/items`, {
       method: 'POST',
       body,

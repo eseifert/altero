@@ -123,6 +123,10 @@ export function createNoteEditor(options: NoteEditorOptions): NoteEditor {
       if (editor.isEditable) options.onChange?.(serializeNote(editor.state.doc.content, metadata))
     },
     editorProps: {
+      // Room under the cursor for a toolbar docked on a phone's keyboard,
+      // so the line being typed never scrolls behind it.
+      scrollMargin: { top: 8, right: 8, bottom: 72, left: 8 },
+      scrollThreshold: { top: 8, right: 8, bottom: 72, left: 8 },
       // The element that takes the text is a multi-line text field, and a
       // field needs a name (WCAG 4.1.2).
       attributes: {

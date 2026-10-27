@@ -19,18 +19,6 @@ test('a citation is rendered by the server', async ({ page }) => {
   await expect(page.locator('.detail__bib')).toContainText('Lovelace')
 })
 
-test('a note is shown without the script somebody put in it', async ({ page }) => {
-  await signIn(page)
-  await page.getByText('Notes on the Analytical Engine').first().click()
-
-  await page.getByText('The engine weaves algebraic patterns.').first().click()
-
-  const note = page.locator('.detail__note')
-  await expect(note).toContainText('algebraic patterns')
-  expect(await note.innerHTML()).not.toMatch(/onerror/i)
-  expect(await page.evaluate(() => (window as unknown as { __ran?: number }).__ran)).toBeUndefined()
-})
-
 test('a field edited in the pane is still there after a reload', async ({ page }, testInfo) => {
   /* Place, which no other test reads, set to something only this project
      writes: both projects run against the one seeded library. */

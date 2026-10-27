@@ -69,14 +69,24 @@ for a European language, about 1 MB the first time somebody reads Japanese —
 and the system stack shows the words while that happens. Fingerprinted assets
 are cached for good, so the second visit fetches none of it.
 
+### The note editor
+
+Notes are edited with Tiptap over a port of Zotero's own note-editor schema
+(`web/src/notes/`), so a note saved here is the HTML Zotero Desktop would save:
+the specs, the HTML reading and writing and the keymap are the original's, and
+a differential run against the original code at the revision Zotero pins found
+no difference. The editor is loaded the first time a note is opened. Tiptap's
+injected stylesheet is switched off, because the interface's
+Content-Security-Policy refuses inline styles; `notes/editor.css` carries it.
+
 ### Not built yet
 
-Editing notes, and adding attachments. An item can be made and its fields,
-type, creators, tags and related items edited, collections can be made, renamed, moved and
+Adding attachments. An item or note can be made and its fields, type,
+creators, tags, related items and note text edited, collections can be made, renamed, moved and
 removed, an item can be filed, trashed, restored, deleted, copied to another
 library, published to My Publications and written out as a file, a tag can be
 renamed, and a whole library can be restored from an archive or copied in from
-zotero.org — but no note can be written here, no file uploaded, and a tag
+zotero.org — but no file can be uploaded, and a tag
 cannot be deleted from the whole library at once. Moving in from zotero.org brings
 the personal library only; a group has to be made here and its members invited.
 

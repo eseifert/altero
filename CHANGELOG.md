@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface writes notes, standalone or under an item, with Zotero Desktop's toolbar and keys, saving as you type ([notes]).
+
 ## [1.0.0-beta.5] — 2026-10-27
 
 This version edits items in the browser — fields, type, creators, tags, related
@@ -251,6 +253,7 @@ The first release meant to be used by somebody other than its author.
 [dependencies]: docs/compatibility.md#an-object-that-depends-on-one-the-server-lacks
 [parents]: docs/compatibility.md#what-may-be-a-child-of-what
 [editing]: docs/web/library.md#editing-an-item
+[notes]: docs/web/library.md#writing-a-note
 [items]: docs/web/library.md#items
 [install]: docs/web-interface.md#installing-it-as-an-app
 [source]: docs/deployment.md#from-a-source-checkout

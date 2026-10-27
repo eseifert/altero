@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
@@ -16,6 +16,10 @@ import { cleanBibliography, cleanNote } from '@/sanitize'
 import type { ItemEnvelope, SaveItem } from '@/stores/library'
 
 const { t } = useI18n()
+
+/* The note editor is most of a text editor, and only a note needs it: it is
+   fetched the first time one is opened, not with the library. */
+const NotePane = defineAsyncComponent(() => import('@/components/NotePane.vue'))
 
 const props = defineProps<{
   item: ItemEnvelope
@@ -59,6 +63,8 @@ const emit = defineEmits<{
   unpublish: []
   rights: []
   export: []
+  /** Make a note under this item, which the view opens. */
+  addNote: []
 }>()
 
 /** Whether this item has a bibliography entry to write out. A note has none,
@@ -115,6 +121,11 @@ const isAttachment = computed(
 
 const isNote = computed(() => props.item.data.itemType === 'note')
 
+/** Whether this item takes notes under it: a regular item, as on the desktop. */
+const takesNotes = computed(
+  () => editable.value && !['note', 'attachment', 'annotation'].includes(props.item.data.itemType),
+)
+
 /* ---- Citation, rendered by the server in the chosen style. ---- */
 
 const STYLES = [
@@ -158,8 +169,20 @@ watch(
 
 const info = ref<InstanceType<typeof InfoPane> | null>(null)
 const heading = ref<HTMLElement | null>(null)
+const notePane = ref<{ focus: () => void } | null>(null)
+/** A note just made wants the cursor, which waits for the editor to arrive. */
+const noteAutofocus = ref(false)
+watch(
+  () => props.item.key,
+  () => (noteAutofocus.value = false),
+)
 
 defineExpose({
+  /** Put the cursor in the note, as for a note just made. */
+  focusNote: () => {
+    if (notePane.value) notePane.value.focus()
+    else noteAutofocus.value = true
+  },
   /** Open one of the Info pane's fields for typing, as for a new item. */
   editField: (name: string) => info.value?.edit(name),
   /** Move the keyboard into the pane, at its heading, as Enter in the list does. */
@@ -301,7 +324,17 @@ function childTitle(child: ItemEnvelope): string {
       </template>
     </div>
 
-    <div v-if="isNote" class="card__inset detail__note" v-html="cleanNote(item.data.note)"></div>
+    <NotePane
+      v-if="isNote && editable && save"
+      ref="notePane"
+      :key="item.key"
+      :item="item"
+      :editable="editable"
+      :save="save"
+      :image-url="(key) => fileUrl(key)"
+      :autofocus="noteAutofocus"
+    />
+    <div v-else-if="isNote" class="card__inset detail__note" v-html="cleanNote(item.data.note)"></div>
 
 
     <InfoPane ref="info" :item="item" :editable="editable" :save="save" @rights="emit('rights')" />
@@ -315,8 +348,20 @@ function childTitle(child: ItemEnvelope): string {
 
     <RelatedSection :item="item" :editable="editable" @open="emit('open', $event)" />
 
-    <section v-if="children.length" class="detail__section">
-      <h3 class="detail__heading">{{ t('Attachments and notes') }}</h3>
+    <section v-if="children.length || takesNotes" class="detail__section">
+      <div class="detail__heading-row">
+        <h3 class="detail__heading detail__heading--in-row">{{ t('Attachments and notes') }}</h3>
+        <button
+          v-if="takesNotes"
+          class="icon-button detail__add"
+          type="button"
+          :aria-label="t('Add Note')"
+          :title="t('Add Note')"
+          @click="emit('addNote')"
+        >
+          <AppIcon name="plus" :size="18" />
+        </button>
+      </div>
       <ul class="detail__children">
         <li v-for="child in children" :key="child.key">
           <button class="detail__child" type="button" @click="emit('open', child)">
@@ -420,6 +465,32 @@ function childTitle(child: ItemEnvelope): string {
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-medium-size);
   font-weight: var(--md-sys-typescale-weight-medium);
+}
+
+/* A heading with its own errand beside it, drawn as the Related section draws
+   one: the rule runs under both. */
+.detail__heading-row {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-2);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.detail__heading--in-row {
+  flex: 1;
+  border-bottom: none;
+}
+
+.detail__add {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+@media (pointer: coarse) {
+  .detail__add {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 }
 
 .detail__section {

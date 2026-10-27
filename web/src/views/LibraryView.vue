@@ -15,6 +15,7 @@ import ItemDetail from '@/components/ItemDetail.vue'
 import ItemSelection from '@/components/ItemSelection.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import NewItemMenu from '@/components/NewItemMenu.vue'
+import NoteMenu from '@/components/NoteMenu.vue'
 import PublicationsDialog from '@/components/PublicationsDialog.vue'
 import ShortcutSheet from '@/components/ShortcutSheet.vue'
 import RightsDialog from '@/components/RightsDialog.vue'
@@ -628,6 +629,31 @@ function createItem(itemType: string): Promise<void> {
     await library.createItem(itemType)
     await nextTick()
     detailPane.value?.editField(titleField(itemType))
+  })
+}
+
+/**
+ * The desktop's New Note menu: a note on its own, filed where the list is,
+ * or one under the item picked out, which has to be a regular item.
+ */
+const noteParent = computed(() => {
+  const item = library.selected
+  return item && !item.data.parentItem && !['note', 'attachment', 'annotation'].includes(item.data.itemType)
+    ? item
+    : null
+})
+
+const newNoteEntries = computed(() => [
+  { id: 'standalone', label: t('New Standalone Note'), kind: 'action' as const },
+  ...(noteParent.value ? [{ id: 'child', label: t('New Item Note'), kind: 'action' as const }] : []),
+])
+
+/** Make a note and put the cursor in it. */
+function createNote(parentItem?: string): Promise<void> {
+  return runOnItem(async () => {
+    await library.createItem('note', { parentItem })
+    await nextTick()
+    detailPane.value?.focusNote()
   })
 }
 
@@ -1583,6 +1609,13 @@ function sortLabel(column: { field: string; label: string }): string {
         <div class="library__tools toolbar">
           <!-- First, as on the desktop's toolbar. -->
           <NewItemMenu v-if="offersNewItem" @create="createItem" />
+          <NoteMenu
+            v-if="offersNewItem"
+            :label="t('New Note')"
+            icon="new-note"
+            :entries="newNoteEntries"
+            @choose="createNote($event === 'child' ? noteParent?.key : undefined)"
+          />
 
           <!--
             Checkboxes on demand: the way in for a finger, which has no
@@ -1946,6 +1979,7 @@ function sortLabel(column: { field: string; label: string }): string {
         @unpublish="askToUnpublish(library.selected!)"
         @rights="editingRights = library.selected"
         @export="exportItem(library.selected!)"
+        @add-note="createNote(library.selected!.key)"
       />
       <!-- More than one row picked out: a count and the errands, because what
            several items have in common is what can be done to them rather than

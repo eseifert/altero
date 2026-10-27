@@ -644,6 +644,11 @@ onBeforeUnmount(() => {
  * try it on.
  */
 @media (pointer: coarse) and (max-width: 600px) {
+  /* Room for the toolbar, which no longer takes any in the flow. */
+  .note-editor:focus-within {
+    padding-block-end: 4rem;
+  }
+
   .note-editor:focus-within .note-editor__toolbar {
     position: fixed;
     z-index: 20;
