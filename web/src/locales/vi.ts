@@ -104,7 +104,6 @@ export default {
     'Hãy nhờ người quản lý máy chủ này cấp một liên kết mới. Mật khẩu hiện tại của bạn vẫn dùng được.',
   'At least {count} characters': 'Ít nhất {count} ký tự',
   'Attachments': 'Phần đính kèm',
-  'Attachments and notes': 'Phần đính kèm và ghi chú',
   'Attachments directory': 'Thư mục tệp đính kèm',
   'Authenticator app': 'Ứng dụng xác thực',
   'Authenticator enabled.': 'Đã bật ứng dụng xác thực.',

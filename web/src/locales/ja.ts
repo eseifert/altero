@@ -93,7 +93,6 @@ export default {
     'このサーバーの管理者に新しいリンクを頼んでください。今のパスワードはそのまま使えます。',
   'At least {count} characters': '{count} 文字以上',
   Attachments: '添付ファイル',
-  'Attachments and notes': '添付ファイルとメモ',
   'Attachments directory': '添付ファイルのディレクトリ',
   'Authenticator app': '認証アプリ',
   'Authenticator enabled.': '認証アプリを有効にしました。',

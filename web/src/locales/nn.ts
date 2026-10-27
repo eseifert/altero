@@ -103,7 +103,6 @@ export default {
     'Be den som driv denne tenaren, om ei ny. Det noverande passordet ditt verkar framleis.',
   'At least {count} characters': 'Minst {count} teikn',
   'Attachments': 'Vedlegg',
-  'Attachments and notes': 'Vedlegg og notat',
   'Attachments directory': 'Vedleggsmappe',
   'Authenticator app': 'Autentiseringsapp',
   'Authenticator enabled.': 'Autentiseringsappen er slått på.',

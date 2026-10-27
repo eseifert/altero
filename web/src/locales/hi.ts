@@ -100,7 +100,6 @@ export default {
     'इस सर्वर को चलाने वाले व्यक्ति से नया लिंक माँगें। आपका मौजूदा पासवर्ड अब भी काम करता है।',
   'At least {count} characters': 'कम से कम {count} वर्ण',
   'Attachments': 'अनुलग्नक',
-  'Attachments and notes': 'अनुलग्नक और नोट',
   'Attachments directory': 'अनुलग्नक निर्देशिका',
   'Authenticator app': 'ऑथेंटिकेटर ऐप',
   'Authenticator enabled.': 'ऑथेंटिकेटर चालू किया गया।',

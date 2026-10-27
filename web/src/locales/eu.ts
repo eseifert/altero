@@ -103,7 +103,6 @@ export default {
     'Eskatu beste bat zerbitzari hau kudeatzen duenari. Zure oraingo pasahitzak balio du oraindik.',
   'At least {count} characters': 'Gutxienez {count} karaktere',
   Attachments: 'Eranskinak',
-  'Attachments and notes': 'Eranskinak eta oharrak',
   'Attachments directory': 'Eranskinen direktorioa',
   'Authenticator app': 'Autentifikazio-aplikazioa',
   'Authenticator enabled.': 'Autentifikazio-aplikazioa gaitu da.',

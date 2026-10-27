@@ -103,7 +103,6 @@ export default {
     'Be den som driver den här servern om en ny. Ditt nuvarande lösenord fungerar fortfarande.',
   'At least {count} characters': 'Minst {count} tecken',
   'Attachments': 'Bilagor',
-  'Attachments and notes': 'Bilagor och anteckningar',
   'Attachments directory': 'Mapp för bilagor',
   'Authenticator app': 'Autentiseringsapp',
   'Authenticator enabled.': 'Autentiseringsappen har aktiverats.',

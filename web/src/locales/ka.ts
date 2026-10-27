@@ -99,7 +99,6 @@ export default {
     'ახალი მოითხოვეთ ამ სერვერის ადმინისტრატორისგან. თქვენი ამჟამინდელი პაროლი კვლავ მოქმედებს.',
   'At least {count} characters': 'მინიმუმ {count} სიმბოლო',
   Attachments: 'დანართები',
-  'Attachments and notes': 'დანართები და შენიშვნები',
   'Attachments directory': 'დანართების საქაღალდე',
   'Authenticator app': 'ავთენტიფიკატორის აპი',
   'Authenticator enabled.': 'ავთენტიფიკატორი ჩაირთო.',

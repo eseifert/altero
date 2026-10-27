@@ -112,7 +112,6 @@ export default {
     'Peça outra a quem administra este servidor. A sua senha atual continua funcionando.',
   'At least {count} characters': 'Pelo menos {count} caracteres',
   Attachments: 'Anexos',
-  'Attachments and notes': 'Anexos e notas',
   'Attachments directory': 'Diretório de anexos',
   'Authenticator app': 'Aplicativo de autenticação',
   'Authenticator enabled.': 'Autenticação ativada.',

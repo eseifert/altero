@@ -101,7 +101,6 @@ export default {
     '向管理這台伺服器的人要一個新的。你目前的密碼仍然有效。',
   'At least {count} characters': '至少 {count} 個字元',
   Attachments: '附件',
-  'Attachments and notes': '附件和筆記',
   'Attachments directory': '附件目錄',
   'Authenticator app': '驗證器應用程式',
   'Authenticator enabled.': '驗證器已啟用。',

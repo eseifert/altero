@@ -107,7 +107,6 @@ export default {
     'Попросіть нове в того, хто обслуговує цей сервер. Ваш теперішній пароль досі діє.',
   'At least {count} characters': 'Щонайменше {count} символів',
   'Attachments': 'Вкладення',
-  'Attachments and notes': 'Вкладення та примітки',
   'Attachments directory': 'Каталог вкладень',
   'Authenticator app': 'Застосунок-автентифікатор',
   'Authenticator enabled.': 'Автентифікатор увімкнено.',

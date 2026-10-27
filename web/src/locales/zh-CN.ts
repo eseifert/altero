@@ -94,7 +94,6 @@ export default {
     '向运行这台服务器的人要一个新的。你当前的密码仍然有效。',
   'At least {count} characters': '至少 {count} 个字符',
   'Attachments': '附件',
-  'Attachments and notes': '附件和笔记',
   'Attachments directory': '附件目录',
   'Authenticator app': '身份验证器应用',
   'Authenticator enabled.': '身份验证器已启用。',

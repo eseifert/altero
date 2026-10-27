@@ -103,7 +103,6 @@ export default {
     'Zatražite novu od administratora ovog poslužitelja. Vaša trenutna lozinka i dalje vrijedi.',
   'At least {count} characters': 'Najmanje {count} znakova',
   Attachments: 'Prilozi',
-  'Attachments and notes': 'Prilozi i bilješke',
   'Attachments directory': 'Mapa priloga',
   'Authenticator app': 'Aplikacija za autentifikaciju',
   'Authenticator enabled.': 'Aplikacija za autentifikaciju je omogućena.',

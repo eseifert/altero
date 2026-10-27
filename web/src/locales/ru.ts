@@ -106,7 +106,6 @@ export default {
     'Попросите новую у того, кто ведёт этот сервер. Ваш нынешний пароль по-прежнему работает.',
   'At least {count} characters': 'Не менее {count} символов',
   'Attachments': 'Вложения',
-  'Attachments and notes': 'Вложения и заметки',
   'Attachments directory': 'Каталог вложений',
   'Authenticator app': 'Приложение-аутентификатор',
   'Authenticator enabled.': 'Аутентификатор включён.',

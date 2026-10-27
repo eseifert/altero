@@ -104,7 +104,6 @@ export default {
     'Bu sunucuyu yöneten kişiden yenisini isteyiniz. Mevcut şifreniz hâlâ geçerli.',
   'At least {count} characters': 'En az {count} karakter',
   'Attachments': 'Ekler',
-  'Attachments and notes': 'Ekler ve notlar',
   'Attachments directory': 'Ekler dizini',
   'Authenticator app': 'Kimlik doğrulama uygulaması',
   'Authenticator enabled.': 'Kimlik doğrulama uygulaması etkinleştirildi.',

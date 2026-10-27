@@ -106,7 +106,6 @@ export default {
     "Goulennit unan nevez digant an hini a vera ar servijer-mañ. Ho ker-tremen a-vremañ a ya en-dro c'hoazh.",
   'At least {count} characters': "{count} arouezenn d'an nebeutañ",
   'Attachments': 'Pezhioù-stag',
-  'Attachments and notes': 'Pezhioù-stag ha notennoù',
   'Attachments directory': "Kavlec'h ar pezhioù-stag",
   'Authenticator app': 'Arload dilesa',
   'Authenticator enabled.': 'Arload dilesa gweredekaet.',

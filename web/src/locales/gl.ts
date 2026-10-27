@@ -105,7 +105,6 @@ export default {
     'Pídelle unha nova a quen administre este servidor. O teu contrasinal actual segue funcionando.',
   'At least {count} characters': 'Polo menos {count} caracteres',
   Attachments: 'Anexos',
-  'Attachments and notes': 'Anexos e notas',
   'Attachments directory': 'Cartafol de anexos',
   'Authenticator app': 'Aplicación de autenticación',
   'Authenticator enabled.': 'Aplicación de autenticación activada.',

@@ -105,7 +105,6 @@ export default {
     'Энэ серверийг ажиллуулдаг хүнээс шинийг хүснэ үү. Одоогийн нууц үг тань хүчинтэй хэвээр байна.',
   'At least {count} characters': 'Хамгийн багадаа {count} тэмдэгт',
   'Attachments': 'Хавсралтууд',
-  'Attachments and notes': 'Хавсралт ба тэмдэглэлүүд',
   'Attachments directory': 'Хавсралтын хавтас',
   'Authenticator app': 'Баталгаажуулагч апп',
   'Authenticator enabled.': 'Баталгаажуулагч апп идэвхжлээ.',

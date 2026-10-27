@@ -102,7 +102,6 @@ export default {
     'Lūdziet jaunu šī servera uzturētājam. Jūsu pašreizējā parole joprojām darbojas.',
   'At least {count} characters': 'Vismaz {count} rakstzīmes',
   Attachments: 'Pielikumi',
-  'Attachments and notes': 'Pielikumi un piezīmes',
   'Attachments directory': 'Pielikumu direktorijs',
   'Authenticator app': 'Autentifikācijas lietotne',
   'Authenticator enabled.': 'Autentifikācijas lietotne ieslēgta.',

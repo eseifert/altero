@@ -91,7 +91,6 @@ export default {
     'Peça outra a quem administra este servidor. A sua palavra-passe atual continua a funcionar.',
   'At least {count} characters': 'Pelo menos {count} caracteres',
   Attachments: 'Anexos',
-  'Attachments and notes': 'Anexos e notas',
   'Attachments directory': 'Diretoria de anexos',
   'Authenticator app': 'Aplicação de autenticação',
   'Authenticator enabled.': 'Autenticação ativada.',

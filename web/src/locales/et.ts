@@ -103,7 +103,6 @@ export default {
     'Küsige uut selle serveri haldajalt. Teie praegune salasõna kehtib endiselt.',
   'At least {count} characters': 'Vähemalt {count} märki',
   Attachments: 'Manused',
-  'Attachments and notes': 'Manused ja märkused',
   'Attachments directory': 'Manuste kataloog',
   'Authenticator app': 'Autentimisrakendus',
   'Authenticator enabled.': 'Autentimisrakendus lubatud.',

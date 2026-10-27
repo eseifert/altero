@@ -99,7 +99,6 @@ export default {
     'Bed den, der driver denne server, om et nyt. Din nuværende adgangskode virker stadig.',
   'At least {count} characters': 'Mindst {count} tegn',
   'Attachments': 'Vedhæftede filer',
-  'Attachments and notes': 'Vedhæftede filer og noter',
   'Attachments directory': 'Mappe til vedhæftede filer',
   'Authenticator app': 'Godkendelsesapp',
   'Authenticator enabled.': 'Godkendelsesappen er slået til.',

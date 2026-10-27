@@ -102,7 +102,6 @@ export default {
     'Затражите нову од онога ко одржава овај сервер. Ваша тренутна лозинка и даље важи.',
   'At least {count} characters': 'Најмање {count} знакова',
   'Attachments': 'Прилози',
-  'Attachments and notes': 'Прилози и белешке',
   'Attachments directory': 'Директоријум за прилоге',
   'Authenticator app': 'Апликација за аутентификацију',
   'Authenticator enabled.': 'Аутентификатор је укључен.',

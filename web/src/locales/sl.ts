@@ -103,7 +103,6 @@ export default {
     'Za novo prosite skrbnika tega strežnika. Vaše trenutno geslo še vedno deluje.',
   'At least {count} characters': 'Najmanj {count} znakov',
   Attachments: 'Priponke',
-  'Attachments and notes': 'Priponke in opombe',
   'Attachments directory': 'Mapa s priponkami',
   'Authenticator app': 'Aplikacija za preverjanje pristnosti',
   'Authenticator enabled.': 'Aplikacija za preverjanje pristnosti je omogočena.',

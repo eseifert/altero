@@ -104,7 +104,6 @@ export default {
     'Biddu þann sem rekur þennan þjón um nýjan. Núverandi lykilorð þitt virkar enn.',
   'At least {count} characters': 'Að minnsta kosti {count} stafir',
   'Attachments': 'Viðhengi',
-  'Attachments and notes': 'Viðhengi og athugasemdir',
   'Attachments directory': 'Mappa viðhengja',
   'Authenticator app': 'Auðkenningarforrit',
   'Authenticator enabled.': 'Auðkenningarforrit virkjað.',

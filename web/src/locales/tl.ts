@@ -106,7 +106,6 @@ export default {
     'Humingi ng bago sa namamahala ng server na ito. Gumagana pa rin ang kasalukuyan mong password.',
   'At least {count} characters': 'Hindi bababa sa {count} character',
   'Attachments': 'Mga attachment',
-  'Attachments and notes': 'Mga attachment at tala',
   'Attachments directory': 'Direktoryo ng mga attachment',
   'Authenticator app': 'Authenticator app',
   'Authenticator enabled.': 'Na-enable ang authenticator.',

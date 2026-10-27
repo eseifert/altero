@@ -91,7 +91,6 @@ export default {
     'Pide otro a quien administre este servidor. Tu contraseña actual sigue funcionando.',
   'At least {count} characters': 'Al menos {count} caracteres',
   Attachments: 'Adjuntos',
-  'Attachments and notes': 'Adjuntos y notas',
   'Attachments directory': 'Directorio de adjuntos',
   'Authenticator app': 'Aplicación de autenticación',
   'Authenticator enabled.': 'Autenticación activada.',

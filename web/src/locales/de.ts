@@ -92,7 +92,6 @@ export default {
     'Bitte wer diesen Server betreibt um einen neuen. Dein bisheriges Passwort gilt weiterhin.',
   'At least {count} characters': 'Mindestens {count} Zeichen',
   Attachments: 'Anhänge',
-  'Attachments and notes': 'Anhänge und Notizen',
   'Attachments directory': 'Verzeichnis der Anhänge',
   'Authenticator app': 'Authenticator-App',
   'Authenticator enabled.': 'Authenticator aktiviert.',

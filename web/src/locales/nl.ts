@@ -102,7 +102,6 @@ export default {
     'Vraag degene die deze server beheert om een nieuwe. Uw huidige wachtwoord werkt nog.',
   'At least {count} characters': 'Minstens {count} tekens',
   'Attachments': 'Bijlagen',
-  'Attachments and notes': 'Bijlagen en aantekeningen',
   'Attachments directory': 'Map met bijlagen',
   'Authenticator app': 'Authenticator-app',
   'Authenticator enabled.': 'Authenticator ingeschakeld.',

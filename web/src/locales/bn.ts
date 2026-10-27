@@ -107,7 +107,6 @@ export default {
     'নতুন একটির জন্য এই সার্ভারের পরিচালকের কাছে অনুরোধ করুন। আপনার বর্তমান পাসওয়ার্ড এখনও কাজ করে।',
   'At least {count} characters': 'কমপক্ষে {count}টি অক্ষর',
   'Attachments': 'সংযুক্তি',
-  'Attachments and notes': 'সংযুক্তি ও নোট',
   'Attachments directory': 'সংযুক্তির ডিরেক্টরি',
   'Authenticator app': 'অথেনটিকেটর অ্যাপ',
   'Authenticator enabled.': 'অথেনটিকেটর চালু হয়েছে।',

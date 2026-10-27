@@ -96,7 +96,6 @@ export default {
     'Paprašykite šio serverio administratoriaus naujos. Dabartinis slaptažodis vis dar veikia.',
   'At least {count} characters': 'Ne mažiau kaip {count} simb.',
   Attachments: 'Priedai',
-  'Attachments and notes': 'Priedai ir pastabos',
   'Attachments directory': 'Priedų katalogas',
   'Authenticator app': 'Autentifikavimo programėlė',
   'Authenticator enabled.': 'Autentifikavimo programėlė įjungta.',

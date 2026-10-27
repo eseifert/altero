@@ -101,7 +101,6 @@ export default {
     'Chiedine uno nuovo a chi gestisce questo server. La tua password attuale funziona ancora.',
   'At least {count} characters': 'Almeno {count} caratteri',
   'Attachments': 'Allegati',
-  'Attachments and notes': 'Allegati e note',
   'Attachments directory': 'Cartella degli allegati',
   'Authenticator app': 'App di autenticazione',
   'Authenticator enabled.': 'App di autenticazione attivata.',

@@ -104,7 +104,6 @@ export default {
     'Vra wie ook al hierdie bediener bestuur vir ’n nuwe een. U huidige wagwoord werk steeds.',
   'At least {count} characters': 'Minstens {count} karakters',
   'Attachments': 'Aanhegsels',
-  'Attachments and notes': 'Aanhegsels en notas',
   'Attachments directory': 'Gids vir aanhegsels',
   'Authenticator app': 'Verifikasie-app',
   'Authenticator enabled.': 'Verifikasie-app geaktiveer.',

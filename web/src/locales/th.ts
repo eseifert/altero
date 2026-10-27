@@ -102,7 +102,6 @@ export default {
     'ขอลิงก์ใหม่จากผู้ดูแลเซิร์ฟเวอร์นี้ รหัสผ่านปัจจุบันของคุณยังใช้ได้',
   'At least {count} characters': 'อย่างน้อย {count} ตัวอักษร',
   Attachments: 'ไฟล์แนบ',
-  'Attachments and notes': 'ไฟล์แนบและหมายเหตุ',
   'Attachments directory': 'ไดเรกทอรีไฟล์แนบ',
   'Authenticator app': 'แอปยืนยันตัวตน',
   'Authenticator enabled.': 'เปิดใช้แอปยืนยันตัวตนแล้ว',

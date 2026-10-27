@@ -107,7 +107,6 @@ export default {
     'Požádejte o nový správce tohoto serveru. Vaše současné heslo stále platí.',
   'At least {count} characters': 'Alespoň {count} znaků',
   'Attachments': 'Přílohy',
-  'Attachments and notes': 'Přílohy a poznámky',
   'Attachments directory': 'Adresář příloh',
   'Authenticator app': 'Ověřovací aplikace',
   'Authenticator enabled.': 'Ověřovací aplikace byla zapnuta.',

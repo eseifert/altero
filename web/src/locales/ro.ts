@@ -105,7 +105,6 @@ export default {
     'Cere unul nou de la cine administrează acest server. Parola ta actuală funcționează în continuare.',
   'At least {count} characters': 'Cel puțin {count} caractere',
   Attachments: 'Anexe',
-  'Attachments and notes': 'Anexe și note',
   'Attachments directory': 'Dosarul anexelor',
   'Authenticator app': 'Aplicație de autentificare',
   'Authenticator enabled.': 'Aplicația de autentificare a fost activată.',

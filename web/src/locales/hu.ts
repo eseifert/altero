@@ -77,7 +77,6 @@ export default {
   'Ask whoever runs this server for a new one. Your current password still works.': 'Kérjen újat a szerver üzemeltetőjétől. A jelenlegi jelszava továbbra is működik.',
   'At least {count} characters': 'Legalább {count} karakter',
   'Attachments': 'Csatolmányok',
-  'Attachments and notes': 'Csatolmányok és jegyzetek',
   'Attachments directory': 'Csatolmányok mappája',
   'Authenticator app': 'Hitelesítő alkalmazás',
   'Authenticator enabled.': 'Hitelesítő alkalmazás bekapcsolva.',

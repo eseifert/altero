@@ -104,7 +104,6 @@ export default {
     'Be den som driver denne serveren om en ny. Det nåværende passordet ditt virker fortsatt.',
   'At least {count} characters': 'Minst {count} tegn',
   'Attachments': 'Vedlegg',
-  'Attachments and notes': 'Vedlegg og notater',
   'Attachments directory': 'Vedleggsmappe',
   'Authenticator app': 'Autentiseringsapp',
   'Authenticator enabled.': 'Autentiseringsappen er slått på.',

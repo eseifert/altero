@@ -103,7 +103,6 @@ export default {
     'សូមស្នើសុំតំណថ្មីពីអ្នកដែលគ្រប់គ្រងម៉ាស៊ីនបម្រើនេះ។ ពាក្យសម្ងាត់បច្ចុប្បន្នរបស់អ្នកនៅតែប្រើបាន។',
   'At least {count} characters': 'យ៉ាងហោចណាស់ {count} តួអក្សរ',
   Attachments: 'ឯកសារកម្ជាប់',
-  'Attachments and notes': 'ឯកសារកម្ជាប់ និងកំណត់ចំណាំ',
   'Attachments directory': 'ថតឯកសារកម្ជាប់',
   'Authenticator app': 'កម្មវិធីផ្ទៀងផ្ទាត់',
   'Authenticator enabled.': 'បានបើកកម្មវិធីផ្ទៀងផ្ទាត់។',

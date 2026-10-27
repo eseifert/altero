@@ -105,7 +105,6 @@ export default {
     'Demaneu-ne un de nou a qui administri aquest servidor. La vostra contrasenya actual continua funcionant.',
   'At least {count} characters': 'Com a mínim {count} caràcters',
   Attachments: 'Adjunts',
-  'Attachments and notes': 'Adjunts i notes',
   'Attachments directory': 'Directori dels adjunts',
   'Authenticator app': 'Aplicació d’autenticació',
   'Authenticator enabled.': 'S’ha activat l’autenticador.',

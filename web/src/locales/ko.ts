@@ -99,7 +99,6 @@ export default {
     '서버 운영자에게 새 링크를 요청하세요. 현재 비밀번호는 계속 사용할 수 있습니다.',
   'At least {count} characters': '{count}자 이상',
   'Attachments': '첨부 파일',
-  'Attachments and notes': '첨부 파일 및 노트',
   'Attachments directory': '첨부 파일 디렉터리',
   'Authenticator app': '인증 앱',
   'Authenticator enabled.': '인증 앱을 활성화했습니다.',

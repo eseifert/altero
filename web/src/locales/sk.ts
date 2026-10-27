@@ -106,7 +106,6 @@ export default {
     'Požiadajte o nový toho, kto prevádzkuje tento server. Vaše súčasné heslo naďalej platí.',
   'At least {count} characters': 'Aspoň {count} znakov',
   'Attachments': 'Prílohy',
-  'Attachments and notes': 'Prílohy a poznámky',
   'Attachments directory': 'Adresár príloh',
   'Authenticator app': 'Overovacia aplikácia',
   'Authenticator enabled.': 'Overovacia aplikácia je zapnutá.',

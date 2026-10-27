@@ -98,7 +98,6 @@ export default {
     'Ask whoever runs this server for a new one. Your current password still works.',
   'At least {count} characters': 'At least {count} characters',
   Attachments: 'Attachments',
-  'Attachments and notes': 'Attachments and notes',
   'Attachments directory': 'Attachments directory',
   'Authenticator app': 'Authenticator app',
   'Authenticator enabled.': 'Authenticator enabled.',

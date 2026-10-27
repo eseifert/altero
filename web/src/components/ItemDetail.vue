@@ -121,6 +121,9 @@ const isAttachment = computed(
 
 const isNote = computed(() => props.item.data.itemType === 'note')
 
+const notes = computed(() => props.children.filter((child) => child.data.itemType === 'note'))
+const attachments = computed(() => props.children.filter((child) => child.data.itemType !== 'note'))
+
 /** Whether this item takes notes under it: a regular item, as on the desktop. */
 const takesNotes = computed(
   () => editable.value && !['note', 'attachment', 'annotation'].includes(props.item.data.itemType),
@@ -348,9 +351,33 @@ function childTitle(child: ItemEnvelope): string {
 
     <RelatedSection :item="item" :editable="editable" @open="emit('open', $event)" />
 
-    <section v-if="children.length || takesNotes" class="detail__section">
+    <!--
+      Attachments, then notes, each under its own heading: the order and the
+      words of Zotero's item pane, where a note is added from its own section
+      rather than from a list it shares with files.
+    -->
+    <section v-if="attachments.length" class="detail__section">
+      <h3 class="detail__heading">{{ t('Attachments') }}</h3>
+      <ul class="detail__children">
+        <li v-for="child in attachments" :key="child.key">
+          <button class="detail__child" type="button" @click="emit('open', child)">
+            <ItemTypeIcon :item-type="child.data.itemType" :size="16" />
+            <span dir="auto">{{ childTitle(child) }}</span>
+          </button>
+          <a
+            v-if="child.data.filename"
+            class="detail__link"
+            :href="fileUrl(child.key)"
+            target="_blank"
+            rel="noopener"
+          >{{ t('open') }}</a>
+        </li>
+      </ul>
+    </section>
+
+    <section v-if="notes.length || takesNotes" class="detail__section">
       <div class="detail__heading-row">
-        <h3 class="detail__heading detail__heading--in-row">{{ t('Attachments and notes') }}</h3>
+        <h3 class="detail__heading detail__heading--in-row">{{ t('Notes') }}</h3>
         <button
           v-if="takesNotes"
           class="icon-button detail__add"
@@ -362,19 +389,12 @@ function childTitle(child: ItemEnvelope): string {
           <AppIcon name="plus" :size="18" />
         </button>
       </div>
-      <ul class="detail__children">
-        <li v-for="child in children" :key="child.key">
+      <ul v-if="notes.length" class="detail__children">
+        <li v-for="child in notes" :key="child.key">
           <button class="detail__child" type="button" @click="emit('open', child)">
             <ItemTypeIcon :item-type="child.data.itemType" :size="16" />
-            <span>{{ childTitle(child) }}</span>
+            <span dir="auto">{{ childTitle(child) }}</span>
           </button>
-          <a
-            v-if="child.data.itemType === 'attachment' && child.data.filename"
-            class="detail__link"
-            :href="fileUrl(child.key)"
-            target="_blank"
-            rel="noopener"
-          >{{ t('open') }}</a>
         </li>
       </ul>
     </section>

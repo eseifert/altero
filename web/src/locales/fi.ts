@@ -102,7 +102,6 @@ export default {
     'Pyydä uutta tämän palvelimen ylläpitäjältä. Nykyinen salasanasi toimii edelleen.',
   'At least {count} characters': 'Vähintään {count} merkkiä',
   'Attachments': 'Liitteet',
-  'Attachments and notes': 'Liitteet ja muistiinpanot',
   'Attachments directory': 'Liitteiden hakemisto',
   'Authenticator app': 'Todennussovellus',
   'Authenticator enabled.': 'Todennussovellus otettu käyttöön.',

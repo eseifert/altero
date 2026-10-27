@@ -107,7 +107,6 @@ export default {
     'Minta tautan baru kepada pengelola server ini. Kata sandi Anda saat ini masih berlaku.',
   'At least {count} characters': 'Setidaknya {count} karakter',
   'Attachments': 'Lampiran',
-  'Attachments and notes': 'Lampiran dan catatan',
   'Attachments directory': 'Direktori lampiran',
   'Authenticator app': 'Aplikasi autentikator',
   'Authenticator enabled.': 'Autentikator diaktifkan.',

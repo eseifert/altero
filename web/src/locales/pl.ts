@@ -105,7 +105,6 @@ export default {
     'Poproś o nowy osobę prowadzącą ten serwer. Twoje obecne hasło nadal działa.',
   'At least {count} characters': 'Co najmniej {count} znaków',
   'Attachments': 'Załączniki',
-  'Attachments and notes': 'Załączniki i notatki',
   'Attachments directory': 'Katalog załączników',
   'Authenticator app': 'Aplikacja uwierzytelniająca',
   'Authenticator enabled.': 'Aplikacja uwierzytelniająca została włączona.',

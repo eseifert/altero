@@ -104,7 +104,6 @@ export default {
     'Поискайте нова от администратора на този сървър. Сегашната ви парола продължава да работи.',
   'At least {count} characters': 'Поне {count} знака',
   Attachments: 'Прикачени файлове',
-  'Attachments and notes': 'Прикачени файлове и бележки',
   'Attachments directory': 'Директория с прикачени файлове',
   'Authenticator app': 'Приложение за удостоверяване',
   'Authenticator enabled.': 'Приложението за удостоверяване е включено.',

@@ -98,7 +98,6 @@ export default {
     'Ζητήστε νέο από τον διαχειριστή αυτού του διακομιστή. Ο τρέχων κωδικός πρόσβασής σας εξακολουθεί να ισχύει.',
   'At least {count} characters': 'Τουλάχιστον {count} χαρακτήρες',
   'Attachments': 'Συνημμένα',
-  'Attachments and notes': 'Συνημμένα και σημειώσεις',
   'Attachments directory': 'Κατάλογος συνημμένων',
   'Authenticator app': 'Εφαρμογή ελέγχου ταυτότητας',
   'Authenticator enabled.': 'Η εφαρμογή ελέγχου ταυτότητας ενεργοποιήθηκε.',

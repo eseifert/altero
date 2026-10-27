@@ -92,7 +92,6 @@ export default {
     'Demandez-en un nouveau à qui administre ce serveur. Votre mot de passe actuel fonctionne toujours.',
   'At least {count} characters': 'Au moins {count} caractères',
   Attachments: 'Fichiers joints',
-  'Attachments and notes': 'Pièces jointes et notes',
   'Attachments directory': 'Répertoire des pièces jointes',
   'Authenticator app': "Application d'authentification",
   'Authenticator enabled.': "Application d'authentification activée.",
