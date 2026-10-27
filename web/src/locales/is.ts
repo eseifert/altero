@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' frá {address}',
+  '(empty)': '(tómt)',
   '(untitled)': '(enginn titill)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons-leyfi heimilar öðrum að afrita verkið þitt og dreifa því áfram, svo framarlega sem þeir geta höfundar á viðeigandi hátt, vísa á leyfið og taka fram hvort breytingar hafi verið gerðar. Hægt er að tilgreina viðbótarskilyrði hér fyrir neðan.',
@@ -119,6 +120,7 @@ export default {
   'Change the rights': 'Breyta réttindunum',
   'Change this provider': 'Breyta þessari veitu',
   'Change who can see it': 'Breyta því hver getur séð hana',
+  'Changed elsewhere while you were editing.': 'Breytt annars staðar á meðan þú varst að breyta.',
   'Checked.': 'Athugað.',
   'Checking the link…': 'Athuga tengilinn…',
   'Checking the request…': 'Athuga beiðnina…',
@@ -128,6 +130,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Veldu að minnsta kosti eitt færslusafn eða safn, eða leyfðu allt hér að ofan.',
   'Choose how your work may be shared': 'Veldu hvernig deila má verkinu þínu',
+  'Choose this version': 'Veldu þessa útgáfu',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Ef þú velur safn fylgir allt sem er inni í því líka með. Forritið mun ekki geta breytt söfnunum þínum, vistuðum leitum, stillingum eða merkjum.',
   'Citation': 'Tilvitnun',
@@ -339,6 +342,7 @@ export default {
   'Link issued.': 'Tengill gefinn út.',
   'Links to this collection': 'Tenglar á þetta safn',
   'Loading…': 'Hleð…',
+  'Local version: {value}': 'Staðbundin útgáfa: {value}',
   'Made {date}': 'Búinn til {date}',
   'Make a member': 'Gera að meðlimi',
   'Make administrator': 'Gera að stjórnanda',
@@ -490,6 +494,7 @@ export default {
   'Registration is open on this server.': 'Nýskráning er opin á þessum þjóni.',
   'Reinstate': 'Endurvirkja',
   'Related': 'Venslað',
+  'Remote version: {value}': 'Fjarútgáfa: {value}',
   'Remove': 'Fjarlægja',
   'Remove Creator': 'Fjarlægja höfund',
   'Remove Related': 'Fjarlægja venslaða færslu',

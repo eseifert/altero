@@ -3,9 +3,11 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppIcon from '@/components/AppIcon.vue'
+import ConflictNotice from '@/components/ConflictNotice.vue'
 import { useCarry } from '@/dragging'
 import { fieldLabel } from '@/items/labels'
-import type { CreatorEntry, ItemChanges } from '@/stores/library'
+import { EditConflict } from '@/stores/library'
+import type { CreatorEntry, SaveItem } from '@/stores/library'
 
 /*
  * An item's creators, as rows of the Info pane: the desktop's creator rows.
@@ -30,7 +32,7 @@ const props = defineProps<{
   /** The roles this item type allows, its primary one first. */
   roles: string[]
   editable: boolean
-  save?: (changes: ItemChanges) => Promise<unknown>
+  save?: SaveItem
 }>()
 
 interface Row {
@@ -64,6 +66,8 @@ function blank(role: string, single: boolean): Row {
 
 const rows = ref<Row[]>([])
 const failure = ref<string | null>(null)
+/** The list written here while somebody else changed the creators. */
+const conflict = ref<CreatorEntry[] | null>(null)
 const busy = ref(false)
 
 /** Read the stored creators, and give an editable item with none a row to fill. */
@@ -73,6 +77,11 @@ function reset(): void {
     rows.value = [blank(props.roles[0], false)]
   }
 }
+
+watch(
+  () => props.itemKey,
+  () => (conflict.value = null),
+)
 
 watch(() => [props.itemKey, props.creators, props.editable, props.roles] as const, reset, {
   immediate: true,
@@ -95,16 +104,40 @@ function written(): CreatorEntry[] {
 async function commit(): Promise<void> {
   const list = written()
   if (!props.save || JSON.stringify(list) === JSON.stringify(props.creators)) return
+  await write(list)
+}
+
+async function write(list: CreatorEntry[]): Promise<void> {
+  if (!props.save) return
   busy.value = true
   failure.value = null
+  conflict.value = null
   try {
     await props.save({ creators: list })
   } catch (thrown) {
-    failure.value = thrown instanceof Error ? thrown.message : String(thrown)
+    // The rows go back to what is stored, which after a conflict is the
+    // other person's list; the notice holds this one.
+    if (thrown instanceof EditConflict) conflict.value = list
+    else failure.value = thrown instanceof Error ? thrown.message : String(thrown)
     reset()
   } finally {
     busy.value = false
   }
+}
+
+function resolve(keepMine: boolean): void {
+  const list = conflict.value
+  conflict.value = null
+  if (list && keepMine) void write(list)
+}
+
+/** A list of creators in one line, last name first, for the conflict notice. */
+function summary(list: CreatorEntry[]): string {
+  return list
+    .map((creator) =>
+      creator.name ?? [creator.lastName, creator.firstName].filter(Boolean).join(', '),
+    )
+    .join('; ')
 }
 
 /* ---- Names, saved when the creator is left ---- */
@@ -362,6 +395,15 @@ function rolesFor(row: Row): string[] {
       <p v-if="failure && index === rows.length - 1" class="creator__error" role="alert">{{ failure }}</p>
     </dd>
   </template>
+  <dd v-if="conflict" class="creator__conflict">
+    <ConflictNotice
+      :id="`creator-${itemKey}-conflict`"
+      :mine="summary(conflict)"
+      :theirs="summary(creators)"
+      @mine="resolve(true)"
+      @theirs="resolve(false)"
+    />
+  </dd>
 </template>
 
 <style scoped>
@@ -486,6 +528,11 @@ function rolesFor(row: Row): string[] {
 /* Where a dropped creator lands: a line along the top of its row. */
 .creator--target {
   box-shadow: inset 0 2px 0 var(--md-sys-color-primary);
+}
+
+.creator__conflict {
+  grid-column: 1 / -1;
+  margin: 0;
 }
 
 .creator__error {

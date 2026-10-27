@@ -9,6 +9,7 @@
 
 export default {
   ' from {address}': ' z naslova {address}',
+  '(empty)': '(prazno)',
   '(untitled)': '(brez naslova)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Dovoljenje Creative Commons drugim omogoča kopiranje in razširjanje vašega dela, če ustrezno navedejo avtorstvo, ponudijo povezavo do dovoljenja in označijo morebitne spremembe. Dodatne pogoje lahko navedete spodaj.',
@@ -118,6 +119,7 @@ export default {
   'Change the rights': 'Spremeni pravice',
   'Change this provider': 'Spremeni tega ponudnika',
   'Change who can see it': 'Spremeni, kdo jo lahko vidi',
+  'Changed elsewhere while you were editing.': 'Spremenjeno drugje, medtem ko ste urejali.',
   'Checked.': 'Preverjeno.',
   'Checking the link…': 'Preverjanje povezave …',
   'Checking the request…': 'Preverjanje zahteve …',
@@ -127,6 +129,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Izberite vsaj eno knjižnico ali zbirko ali pa dovolite vse zgoraj.',
   'Choose how your work may be shared': 'Izberite, kako se sme vaše delo deliti',
+  'Choose this version': 'Izberite to različico',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Izbrana zbirka vključuje tudi vse, kar je v njej. Aplikacija ne bo mogla spreminjati vaših zbirk, shranjenih iskanj, nastavitev ali značk.',
   'Citation': 'Citat',
@@ -335,6 +338,7 @@ export default {
   'Link issued.': 'Povezava je izdana.',
   'Links to this collection': 'Povezave do te zbirke',
   'Loading…': 'Nalaganje …',
+  'Local version: {value}': 'Krajevna različica: {value}',
   'Made {date}': 'Ustvarjeno {date}',
   'Make a member': 'Naredi za člana',
   'Make administrator': 'Naredi za skrbnika',
@@ -477,6 +481,7 @@ export default {
   'Registration is open on this server.': 'Registracija na tem strežniku je odprta.',
   'Reinstate': 'Ponovno omogoči',
   'Related': 'Sorodno',
+  'Remote version: {value}': 'Oddaljena različica: {value}',
   'Remove': 'Odstrani',
   'Remove Creator': 'Odstrani ustvarjalca',
   'Remove Related': 'Odstrani sorodno',

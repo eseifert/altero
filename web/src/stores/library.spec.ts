@@ -1,7 +1,9 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { useLibraryStore } from './library'
+import { ApiError } from '@/api/client'
+
+import { EditConflict, useLibraryStore } from './library'
 
 const { requestMock } = vi.hoisted(() => ({ requestMock: vi.fn() }))
 
@@ -802,5 +804,97 @@ describe('making an item', () => {
     await store.createItem('film')
 
     expect(posted()).toEqual([{ itemType: 'film' }])
+  })
+})
+
+describe('saving over a change made elsewhere', () => {
+  const OPEN = { key: 'AAAA2345', version: 3, data: { itemType: 'book', title: 'Whales', place: 'London' }, meta: {} }
+
+  /** The server: a stale version is refused, and the item reads back as ``stored``. */
+  function server(stored: typeof OPEN & { data: Record<string, unknown> }) {
+    requestMock.mockImplementation((path: string, options?: { method?: string; body?: { version?: number } }) => {
+      if (options?.method === 'PATCH') {
+        if (options.body?.version !== stored.version) {
+          return Promise.reject(new ApiError('The item has changed since you read it', 412))
+        }
+        return Promise.resolve({ ...stored, version: stored.version + 1 })
+      }
+      if (path === `/web/libraries/1/items/${stored.key}`) return Promise.resolve(stored)
+      if (path === '/web/libraries') return Promise.resolve(LIBRARIES)
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      return Promise.resolve({ total: 0, items: [] })
+    })
+  }
+
+  function patches(): { version?: number }[] {
+    return requestMock.mock.calls.filter(([, options]) => options?.method === 'PATCH').map(([, options]) => options.body)
+  }
+
+  async function opened() {
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    await store.select(OPEN)
+    return store
+  }
+
+  it('sends the edit again when somebody else changed another field', async () => {
+    server({ ...OPEN, version: 5, data: { ...OPEN.data, place: 'Paris' } })
+    const store = await opened()
+
+    await store.saveItem(OPEN.key, { fields: { title: 'Squid' } })
+
+    expect(patches()).toEqual([
+      { fields: { title: 'Squid' }, version: 3 },
+      { fields: { title: 'Squid' }, version: 5 },
+    ])
+  })
+
+  it('writes nothing over a change to the same field, and shows what is stored', async () => {
+    server({ ...OPEN, version: 5, data: { ...OPEN.data, title: 'Krill' } })
+    const store = await opened()
+
+    const saving = store.saveItem(OPEN.key, { fields: { title: 'Squid' } })
+
+    await expect(saving).rejects.toBeInstanceOf(EditConflict)
+    expect(patches()).toHaveLength(1)
+    expect(store.selected?.data.title).toBe('Krill')
+    expect(store.selected?.version).toBe(5)
+  })
+
+  it('counts a field filled in elsewhere as a change to it', async () => {
+    server({ ...OPEN, version: 5, data: { ...OPEN.data, edition: '2' } })
+    const store = await opened()
+
+    await expect(store.saveItem(OPEN.key, { fields: { edition: '3' } })).rejects.toBeInstanceOf(EditConflict)
+  })
+
+  it('works an errand out again on the item as it now stands', async () => {
+    server({ ...OPEN, version: 5, data: { ...OPEN.data, tags: [{ tag: 'theirs' }] } })
+    const store = await opened()
+
+    await store.saveItem(
+      OPEN.key,
+      { tags: [{ tag: 'mine' }] },
+      { rebase: (fresh) => ({ tags: [...(fresh.data.tags ?? []), { tag: 'mine' }] }) },
+    )
+
+    expect(patches()[1]).toEqual({ tags: [{ tag: 'theirs' }, { tag: 'mine' }], version: 5 })
+  })
+
+  it('passes any other refusal on as it came', async () => {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method === 'PATCH') return Promise.reject(new ApiError('Invalid field', 400))
+      if (path === '/web/libraries') return Promise.resolve(LIBRARIES)
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: 0, items: [] })
+    })
+    const store = await opened()
+
+    await expect(store.saveItem(OPEN.key, { fields: { title: 'Squid' } })).rejects.toThrow('Invalid field')
+    expect(patches()).toHaveLength(1)
   })
 })

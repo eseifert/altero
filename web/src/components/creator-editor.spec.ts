@@ -3,7 +3,8 @@ import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resetLabels } from '@/items/labels'
-import type { CreatorEntry, ItemChanges } from '@/stores/library'
+import { EditConflict } from '@/stores/library'
+import type { CreatorEntry, ItemChanges, ItemEnvelope } from '@/stores/library'
 
 import CreatorEditor from './CreatorEditor.vue'
 
@@ -232,5 +233,31 @@ describe('CreatorEditor', () => {
 
     expect(wrapper.get('[role="alert"]').text()).toBe('The item has changed since you read it')
     expect((names(wrapper)[0].element as HTMLInputElement).value).toBe('Lovelace')
+  })
+
+  it('shows both lists when somebody else changed the creators, and writes the chosen one', async () => {
+    const stored: ItemEnvelope = { key: 'AAAA2345', version: 5, data: { itemType: 'book', creators: [CHARLES] }, meta: {} }
+    const save = vi
+      .fn()
+      .mockRejectedValueOnce(new EditConflict(stored, { creators: [{ ...ADA, lastName: 'King' }] }))
+      .mockResolvedValue(null)
+    const wrapper = editor([ADA], { save })
+
+    const [last] = names(wrapper)
+    await last.setValue('King')
+    await last.trigger('blur')
+    await wrapper.setProps({ creators: [CHARLES] })
+    await flushPromises()
+
+    const notice = wrapper.get('.conflict')
+    expect(notice.text()).toContain('Local version: King, Ada')
+    expect(notice.text()).toContain('Remote version: Babbage, Charles')
+    expect((names(wrapper)[0].element as HTMLInputElement).value).toBe('Babbage')
+
+    await notice.findAll('.conflict__choose')[0].trigger('click')
+    await flushPromises()
+
+    expect(save).toHaveBeenCalledTimes(2)
+    expect(save).toHaveBeenLastCalledWith({ creators: [{ ...ADA, lastName: 'King' }] })
   })
 })

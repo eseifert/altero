@@ -7,6 +7,7 @@
 
 export default {
   ' from {address}': ' ({address} থেকে)',
+  '(empty)': '(খালি)',
   '(untitled)': '(শিরোনামহীন)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons লাইসেন্স অন্যদের আপনার কাজ অনুলিপি ও পুনর্বিতরণ করার অনুমতি দেয়, যদি তারা যথাযথ কৃতিত্ব দেয়, লাইসেন্সের লিঙ্ক দেয় এবং কোনো পরিবর্তন করা হলে তা উল্লেখ করে। নিচে অতিরিক্ত শর্ত নির্ধারণ করা যায়।',
@@ -123,6 +124,7 @@ export default {
   'Change the rights': 'অধিকার পরিবর্তন করুন',
   'Change this provider': 'এই প্রদানকারী পরিবর্তন করুন',
   'Change who can see it': 'কে দেখতে পারবে তা পরিবর্তন করুন',
+  'Changed elsewhere while you were editing.': 'আপনি সম্পাদনা করার সময় অন্য কোথাও পরিবর্তন করা হয়েছে।',
   'Checked.': 'যাচাই করা হয়েছে।',
   'Checking the link…': 'লিঙ্ক যাচাই করা হচ্ছে…',
   'Checking the request…': 'অনুরোধ যাচাই করা হচ্ছে…',
@@ -132,6 +134,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'অন্তত একটি লাইব্রেরি বা সংগ্রহ বেছে নিন, অথবা ওপরের সবকিছুর অনুমতি দিন।',
   'Choose how your work may be shared': 'আপনার কাজ কীভাবে শেয়ার করা যাবে তা বেছে নিন',
+  'Choose this version': 'এই সংস্করণটি বেছে নিন',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'একটি সংগ্রহ বেছে নিলে তার ভেতরে থাকা সবকিছুও অন্তর্ভুক্ত হয়। অ্যাপ্লিকেশনটি আপনার সংগ্রহ, সংরক্ষিত অনুসন্ধান, সেটিংস বা ট্যাগ পরিবর্তন করতে পারবে না।',
   'Citation': 'উদ্ধৃতি',
@@ -341,6 +344,7 @@ export default {
   'Link issued.': 'লিঙ্ক তৈরি হয়েছে।',
   'Links to this collection': 'এই সংগ্রহের লিঙ্ক',
   'Loading…': 'লোড হচ্ছে…',
+  'Local version: {value}': 'স্থানীয় সংস্করণ: {value}',
   'Made {date}': 'তৈরি: {date}',
   'Make a member': 'সাধারণ সদস্য করুন',
   'Make administrator': 'প্রশাসক করুন',
@@ -490,6 +494,7 @@ export default {
   'Registration is open on this server.': 'এই সার্ভারে নিবন্ধন খোলা আছে।',
   'Reinstate': 'পুনর্বহাল করুন',
   'Related': 'সম্পর্কিত',
+  'Remote version: {value}': 'দূরবর্তী সংস্করণ: {value}',
   'Remove': 'সরান',
   'Remove Creator': 'স্রষ্টা সরান',
   'Remove Related': 'সম্পর্কিত সরান',

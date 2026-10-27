@@ -7,6 +7,7 @@
 
 export default {
   ' from {address}': ' ({address}-დან)',
+  '(empty)': '(ცარიელი)',
   '(untitled)': '(უსათაურო)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons-ის ლიცენზია სხვებს აძლევს უფლებას, დააკოპირონ და გაავრცელონ თქვენი ნაშრომი, თუ ისინი სათანადოდ მიუთითებენ ავტორს, დაურთავენ ბმულს ლიცენზიაზე და აღნიშნავენ, შეიტანეს თუ არა ცვლილებები. დამატებითი პირობების მითითება ქვემოთ შეგიძლიათ.',
@@ -114,6 +115,7 @@ export default {
   'Change the rights': 'უფლებების შეცვლა',
   'Change this provider': 'ამ პროვაიდერის შეცვლა',
   'Change who can see it': 'იმის შეცვლა, ვის შეუძლია ნახვა',
+  'Changed elsewhere while you were editing.': 'რედაქტირებისას სხვაგან შეიცვალა.',
   'Checked.': 'შემოწმდა.',
   'Checking the link…': 'ბმული მოწმდება…',
   'Checking the request…': 'მოთხოვნა მოწმდება…',
@@ -123,6 +125,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'აირჩიეთ მინიმუმ ერთი ბიბლიოთეკა ან კოლექცია, ან დაუშვით ზემოთ ჩამოთვლილი ყველაფერი.',
   'Choose how your work may be shared': 'აირჩიეთ, როგორ შეიძლება თქვენი ნაშრომის გაზიარება',
+  'Choose this version': 'ამ ვერსიის არჩევა',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'კოლექციის არჩევისას ჩაირთვება ყველაფერი, რაც მასშია ჩადგმული. აპლიკაცია ვერ შეცვლის თქვენს კოლექციებს, შენახულ ძიებებს, პარამეტრებს ან ტეგებს.',
   'Citation': 'ციტატა',
@@ -324,6 +327,7 @@ export default {
   'Link issued.': 'ბმული შეიქმნა.',
   'Links to this collection': 'ბმულები ამ კოლექციაზე',
   'Loading…': 'იტვირთება…',
+  'Local version: {value}': 'ლოკალური ვერსია: {value}',
   'Made {date}': 'შეიქმნა: {date}',
   'Make a member': 'წევრად გადაყვანა',
   'Make administrator': 'ადმინისტრატორად დანიშვნა',
@@ -463,6 +467,7 @@ export default {
   'Registration is open on this server.': 'ამ სერვერზე რეგისტრაცია ღიაა.',
   'Reinstate': 'აღდგენა',
   'Related': 'დაკავშირებული',
+  'Remote version: {value}': 'დისტანციური ვერსია: {value}',
   'Remove': 'წაშლა',
   'Remove Creator': 'ავტორის წაშლა',
   'Remove Related': 'დაკავშირებულის წაშლა',

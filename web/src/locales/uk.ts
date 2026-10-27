@@ -8,6 +8,7 @@
 
 export default {
   ' from {address}': ' з {address}',
+  '(empty)': '(порожньо)',
   '(untitled)': '(без назви)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Ліцензія Creative Commons дозволяє іншим копіювати й поширювати вашу роботу за умови, що вони зазначать авторство, дадуть посилання на ліцензію та вкажуть, чи вносилися зміни. Додаткові умови можна задати нижче.',
@@ -122,6 +123,7 @@ export default {
   'Change the rights': 'Змінити права',
   'Change this provider': 'Змінити цього постачальника',
   'Change who can see it': 'Змінити, хто це бачить',
+  'Changed elsewhere while you were editing.': 'Змінено деінде, поки ви редагували.',
   'Checked.': 'Перевірено.',
   'Checking the link…': 'Перевірка посилання…',
   'Checking the request…': 'Перевірка запиту…',
@@ -131,6 +133,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Оберіть хоча б одну бібліотеку чи колекцію або дозвольте все, що вказано вище.',
   'Choose how your work may be shared': 'Оберіть, як можна поширювати вашу роботу',
+  'Choose this version': 'Вибрати цю версію',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Обрана колекція включає й усе, що вкладено в неї. Застосунок не зможе змінювати ваші колекції, збережені пошуки, налаштування чи теги.',
   'Citation': 'Цитата',
@@ -339,6 +342,7 @@ export default {
   'Link issued.': 'Посилання видано.',
   'Links to this collection': 'Посилання на цю колекцію',
   'Loading…': 'Завантаження…',
+  'Local version: {value}': 'Локальна версія: {value}',
   'Made {date}': 'Створено {date}',
   'Make a member': 'Зробити учасником',
   'Make administrator': 'Зробити адміністратором',
@@ -489,6 +493,7 @@ export default {
   'Registration is open on this server.': 'На цьому сервері реєстрація відкрита.',
   'Reinstate': 'Поновити',
   'Related': 'Пов’язані',
+  'Remote version: {value}': 'Віддалена версія: {value}',
   'Remove': 'Прибрати',
   'Remove Creator': 'Вилучити автора',
   'Remove Related': 'Вилучити пов’язаний',

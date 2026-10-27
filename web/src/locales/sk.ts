@@ -9,6 +9,7 @@
 
 export default {
   ' from {address}': ' z adresy {address}',
+  '(empty)': '(prázdne)',
   '(untitled)': '(bez názvu)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Licencia Creative Commons umožňuje ostatným kopírovať a ďalej šíriť vašu prácu, pokiaľ vám dajú primerané uznanie, poskytnú odkaz na licenciu a označia prípadné zmeny. Ďalšie podmienky môžete určiť nižšie.',
@@ -121,6 +122,7 @@ export default {
   'Change the rights': 'Zmeniť práva',
   'Change this provider': 'Upraviť tohto poskytovateľa',
   'Change who can see it': 'Zmeniť, kto ju môže vidieť',
+  'Changed elsewhere while you were editing.': 'Zmenené inde, kým ste upravovali.',
   'Checked.': 'Skontrolované.',
   'Checking the link…': 'Kontrolujem odkaz…',
   'Checking the request…': 'Kontrolujem požiadavku…',
@@ -130,6 +132,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Zvoľte aspoň jednu knižnicu alebo kolekciu, alebo povoľte všetko uvedené vyššie.',
   'Choose how your work may be shared': 'Vyberte si spôsob zdieľania vašej práce',
+  'Choose this version': 'Zvoľte si túto verziu',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Zvolená kolekcia zahŕňa aj všetko, čo je v nej vnorené. Aplikácia nebude môcť meniť vaše kolekcie, uložené vyhľadávania, nastavenia ani značky.',
   'Citation': 'Citácia',
@@ -340,6 +343,7 @@ export default {
   'Link issued.': 'Odkaz bol vydaný.',
   'Links to this collection': 'Odkazy na túto kolekciu',
   'Loading…': 'Načítavam…',
+  'Local version: {value}': 'Lokálna verzia: {value}',
   'Made {date}': 'Vytvorené {date}',
   'Make a member': 'Urobiť členom',
   'Make administrator': 'Urobiť správcom',
@@ -493,6 +497,7 @@ export default {
   'Registration is open on this server.': 'Registrácia na tomto serveri je otvorená.',
   'Reinstate': 'Obnoviť prístup',
   'Related': 'Súvisiace',
+  'Remote version: {value}': 'Vzdialená verzia: {value}',
   'Remove': 'Odstrániť',
   'Remove Creator': 'Odstrániť autora',
   'Remove Related': 'Odstrániť súvisiace',

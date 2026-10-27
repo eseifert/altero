@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import AppIcon from '@/components/AppIcon.vue'
 import { colorIndex, compareTags } from '@/items/tags'
 import { useLibraryStore } from '@/stores/library'
-import type { ItemChanges, ItemEnvelope } from '@/stores/library'
+import type { ItemEnvelope, SaveItem } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 
 /*
@@ -17,7 +17,8 @@ import { useLocaleStore } from '@/stores/locale'
  * the box open for the next, as on the desktop; leaving the box adds what is
  * in it. Each change writes the whole list, one request after another, so a
  * second tag typed while the first is saving states the version the first
- * produced.
+ * produced. If somebody else changed the tags meanwhile, the change is made
+ * again on theirs: adding, removing and renaming are errands, not values.
  */
 
 const { t } = useI18n()
@@ -31,7 +32,7 @@ const props = defineProps<{
   /** Whether this account may change this item, which the server decides. */
   editable: boolean
   /** Writes an edit and resolves once the server has answered. */
-  save?: (changes: ItemChanges) => Promise<unknown>
+  save?: SaveItem
 }>()
 
 const colors = computed(() => colorIndex(library.tagColors))
@@ -62,7 +63,18 @@ function write(change: (current: Tag[]) => Tag[]): Promise<void> {
     if (!props.save || same(current, next)) return
     failure.value = null
     try {
-      await props.save({ tags: next })
+      // Changed elsewhere meanwhile: the same errand on the tags it has now,
+      // which keeps whatever the other person added or took off.
+      await props.save(
+        { tags: next },
+        {
+          rebase: (fresh) => {
+            const stored = fresh.data.tags ?? []
+            const again = change(stored)
+            return same(stored, again) ? null : { tags: again }
+          },
+        },
+      )
       // The sidebar lists the library's tags, and this may have made or
       // emptied one.
       void library.loadTags().catch(() => {})

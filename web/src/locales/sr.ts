@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' са адресе {address}',
+  '(empty)': '(празно)',
   '(untitled)': '(без назива)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons лиценца дозвољава другима да копирају и даље деле ваш рад, док год вас наводе као аутора, дају везу до лиценце и назначе да ли су уносили измене. Додатни услови могу се одредити у наставку.',
@@ -117,6 +118,7 @@ export default {
   'Change the rights': 'Промени права',
   'Change this provider': 'Измени овог добављача',
   'Change who can see it': 'Промени ко може да је види',
+  'Changed elsewhere while you were editing.': 'Промењено на другом месту док сте уређивали.',
   'Checked.': 'Проверено.',
   'Checking the link…': 'Проверавам везу…',
   'Checking the request…': 'Проверавам захтев…',
@@ -126,6 +128,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Изаберите бар једну библиотеку или збирку, или дозволите све наведено изнад.',
   'Choose how your work may be shared': 'Изаберите како ће се ваш рад делити',
+  'Choose this version': 'Изабери ову верзију',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Избор збирке обухвата и све што се налази унутар ње. Апликација неће моћи да мења ваше збирке, сачуване претраге, подешавања ни ознаке.',
   'Citation': 'Цитат',
@@ -337,6 +340,7 @@ export default {
   'Link issued.': 'Веза је издата.',
   'Links to this collection': 'Везе ка овој збирци',
   'Loading…': 'Учитавам…',
+  'Local version: {value}': 'Локална верзија: {value}',
   'Made {date}': 'Направљена {date}',
   'Make a member': 'Учини чланом',
   'Make administrator': 'Учини администратором',
@@ -487,6 +491,7 @@ export default {
   'Registration is open on this server.': 'Регистрација на овом серверу је отворена.',
   'Reinstate': 'Поново омогући',
   'Related': 'Сродно',
+  'Remote version: {value}': 'Удаљена верзија: {value}',
   'Remove': 'Уклони',
   'Remove Creator': 'Ukloni autora',
   'Remove Related': 'Уклони сродно',

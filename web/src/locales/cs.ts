@@ -9,6 +9,7 @@
 
 export default {
   ' from {address}': ' z {address}',
+  '(empty)': '(prázdné)',
   '(untitled)': '(bez názvu)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Licence Creative Commons umožňuje ostatním kopírovat a šířit vaše dílo za předpokladu, že uvedou autora, připojí odkaz na licenci a vyznačí případné změny. Další podmínky můžete upřesnit níže.',
@@ -122,6 +123,7 @@ export default {
   'Change the rights': 'Změnit práva',
   'Change this provider': 'Upravit tohoto poskytovatele',
   'Change who can see it': 'Změnit, kdo ji může vidět',
+  'Changed elsewhere while you were editing.': 'Změněno jinde, zatímco jste upravovali.',
   'Checked.': 'Zkontrolováno.',
   'Checking the link…': 'Kontrola odkazu…',
   'Checking the request…': 'Kontrola požadavku…',
@@ -131,6 +133,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Vyberte alespoň jednu knihovnu nebo kolekci, nebo povolte vše výše uvedené.',
   'Choose how your work may be shared': 'Vyberte, jak má být vaše práce sdílena',
+  'Choose this version': 'Vybrat tuto verzi',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Výběr kolekce zahrnuje i vše, co je v ní vnořeno. Aplikace nebude moci měnit vaše kolekce, uložená hledání, nastavení ani štítky.',
   'Citation': 'Citace',
@@ -342,6 +345,7 @@ export default {
   'Link issued.': 'Odkaz byl vydán.',
   'Links to this collection': 'Odkazy na tuto kolekci',
   'Loading…': 'Načítání…',
+  'Local version: {value}': 'Lokální verze: {value}',
   'Made {date}': 'Vytvořeno {date}',
   'Make a member': 'Udělat řadovým členem',
   'Make administrator': 'Udělit práva správce',
@@ -493,6 +497,7 @@ export default {
   'Registration is open on this server.': 'Registrace na tomto serveru je otevřená.',
   'Reinstate': 'Obnovit přístup',
   'Related': 'Související',
+  'Remote version: {value}': 'Vzdálená verze: {value}',
   'Remove': 'Odebrat',
   'Remove Creator': 'Odebrat tvůrce',
   'Remove Related': 'Odebrat související',

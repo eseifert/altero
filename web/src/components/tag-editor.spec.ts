@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { colorIndex, compareTags, containsEmoji } from '@/items/tags'
 import { useLibraryStore } from '@/stores/library'
-import type { ItemChanges, ItemEnvelope } from '@/stores/library'
+import type { ItemChanges, ItemEnvelope, SaveOptions } from '@/stores/library'
 
 import TagEditor from './TagEditor.vue'
 
@@ -104,7 +104,7 @@ describe('TagEditor', () => {
     await box.trigger('keydown', { key: 'Enter' })
     await flushPromises()
 
-    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whales', type: 1 }, { tag: 'squid' }] })
+    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whales', type: 1 }, { tag: 'squid' }] }, expect.anything())
     expect(wrapper.find('input').exists()).toBe(true)
     expect((wrapper.find('input').element as HTMLInputElement).value).toBe('')
   })
@@ -118,7 +118,7 @@ describe('TagEditor', () => {
     await wrapper.find('input').trigger('blur')
     await flushPromises()
 
-    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'squid' }] })
+    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'squid' }] }, expect.anything())
     expect(wrapper.find('input').exists()).toBe(false)
   })
 
@@ -160,7 +160,7 @@ describe('TagEditor', () => {
     await wrapper.find('input').trigger('keydown', { key: 'Enter' })
     await flushPromises()
 
-    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whales' }, { tag: 'squid' }] })
+    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whales' }, { tag: 'squid' }] }, expect.anything())
   })
 
   it('removes a tag whose name is cleared', async () => {
@@ -172,7 +172,7 @@ describe('TagEditor', () => {
     await wrapper.find('input').trigger('blur')
     await flushPromises()
 
-    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whale' }] })
+    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whale' }] }, expect.anything())
   })
 
   it('puts a name back on Escape', async () => {
@@ -195,7 +195,7 @@ describe('TagEditor', () => {
     await wrapper.findAll('[aria-label="Remove Tag"]')[1].trigger('click')
     await flushPromises()
 
-    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'squid' }] })
+    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'squid' }] }, expect.anything())
   })
 
   it('reads several lines pasted as several tags', async () => {
@@ -209,7 +209,7 @@ describe('TagEditor', () => {
     await flushPromises()
 
     expect(event.defaultPrevented).toBe(true)
-    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'squid' }, { tag: 'krill' }, { tag: 'plankton' }] })
+    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'squid' }, { tag: 'krill' }, { tag: 'plankton' }] }, expect.anything())
   })
 
   it('offers the library’s tags the item lacks, those starting with the text first', async () => {
@@ -235,7 +235,24 @@ describe('TagEditor', () => {
     await wrapper.find('input').trigger('keydown', { key: 'Enter' })
     await flushPromises()
 
-    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whales' }, { tag: 'whale song' }] })
+    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whales' }, { tag: 'whale song' }] }, expect.anything())
+  })
+
+  it('adds the tag again to the tags somebody else saved meanwhile', async () => {
+    const save = vi.fn().mockResolvedValue(null)
+    const wrapper = editor(article([{ tag: 'whales' }]), { save })
+
+    await addTag(wrapper)
+    await wrapper.find('input').setValue('squid')
+    await wrapper.find('input').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+
+    const { rebase } = save.mock.calls[0][1] as SaveOptions
+    expect(rebase!(article([{ tag: 'whales' }, { tag: 'krill' }]))).toEqual({
+      tags: [{ tag: 'whales' }, { tag: 'krill' }, { tag: 'squid' }],
+    })
+    // Added there as well: nothing left to write.
+    expect(rebase!(article([{ tag: 'squid' }, { tag: 'whales' }]))).toBeNull()
   })
 
   it('shows the server’s refusal', async () => {

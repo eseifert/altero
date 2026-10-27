@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' fra {address}',
+  '(empty)': '(tom)',
   '(untitled)': '(uten tittel)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'En Creative Commons-lisens tillater andre å kopiere og videredistribuere arbeidet ditt så lenge de krediterer deg på riktig måte, lenker til lisensen og opplyser om det er gjort endringer. Tilleggsbetingelser kan angis nedenfor.',
@@ -119,6 +120,7 @@ export default {
   'Change the rights': 'Endre rettighetene',
   'Change this provider': 'Endre denne leverandøren',
   'Change who can see it': 'Endre hvem som kan se den',
+  'Changed elsewhere while you were editing.': 'Endret et annet sted mens du redigerte.',
   'Checked.': 'Kontrollert.',
   'Checking the link…': 'Kontrollerer lenken…',
   'Checking the request…': 'Kontrollerer forespørselen…',
@@ -128,6 +130,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Velg minst ett bibliotek eller én samling, eller tillat alt ovenfor.',
   'Choose how your work may be shared': 'Velg hvordan arbeidet ditt kan bli delt',
+  'Choose this version': 'Velg denne versjonen',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Når du velger en samling, følger alt som ligger inni den, med. Programmet vil ikke kunne endre samlingene, de lagrede søkene, innstillingene eller emneordene dine.',
   'Citation': 'Henvisning',
@@ -338,6 +341,7 @@ export default {
   'Link issued.': 'Lenken er utstedt.',
   'Links to this collection': 'Lenker til denne samlingen',
   'Loading…': 'Laster inn…',
+  'Local version: {value}': 'Lokal versjon: {value}',
   'Made {date}': 'Laget {date}',
   'Make a member': 'Gjør til medlem',
   'Make administrator': 'Gjør til administrator',
@@ -490,6 +494,7 @@ export default {
   'Registration is open on this server.': 'Registrering er åpen på denne serveren.',
   'Reinstate': 'Gjeninnsett',
   'Related': 'Relatert',
+  'Remote version: {value}': 'Ekstern versjon: {value}',
   'Remove': 'Fjern',
   'Remove Creator': 'Fjern opphaver',
   'Remove Related': 'Fjern relatert',

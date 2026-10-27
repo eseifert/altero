@@ -8,6 +8,7 @@
 
 export default {
   ' from {address}': ' dari {address}',
+  '(empty)': '(kosong)',
   '(untitled)': '(tanpa judul)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Lisensi Creative Commons mengizinkan orang lain untuk menyalin dan mendistribusikan ulang karya Anda selama mereka memberikan kredit yang sesuai, memberikan tautan ke lisensi, dan menunjukkan jika ada perubahan yang dilakukan. Ketentuan tambahan dapat ditentukan di bawah ini.',
@@ -123,6 +124,7 @@ export default {
   'Change the rights': 'Ubah hak',
   'Change this provider': 'Ubah penyedia ini',
   'Change who can see it': 'Ubah siapa yang dapat melihatnya',
+  'Changed elsewhere while you were editing.': 'Diubah di tempat lain saat Anda menyunting.',
   'Checked.': 'Diperiksa.',
   'Checking the link…': 'Memeriksa tautan…',
   'Checking the request…': 'Memeriksa permintaan…',
@@ -132,6 +134,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Pilih setidaknya satu perpustakaan atau koleksi, atau izinkan semua yang di atas.',
   'Choose how your work may be shared': 'Atur bagaimana karya Anda dapat dibagikan',
+  'Choose this version': 'Pilih versi ini',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Memilih sebuah koleksi juga mencakup semua yang ada di dalamnya. Aplikasi ini tidak akan dapat mengubah koleksi, pencarian tersimpan, pengaturan, atau tag Anda.',
   'Citation': 'Sitasi',
@@ -343,6 +346,7 @@ export default {
   'Link issued.': 'Tautan dibuat.',
   'Links to this collection': 'Tautan ke koleksi ini',
   'Loading…': 'Memuat…',
+  'Local version: {value}': 'Versi lokal: {value}',
   'Made {date}': 'Dibuat {date}',
   'Make a member': 'Jadikan anggota',
   'Make administrator': 'Jadikan administrator',
@@ -495,6 +499,7 @@ export default {
   'Registration is open on this server.': 'Pendaftaran dibuka di server ini.',
   'Reinstate': 'Aktifkan kembali',
   'Related': 'Terkait',
+  'Remote version: {value}': 'Versi jarak jauh: {value}',
   'Remove': 'Buang',
   'Remove Creator': 'Hapus Penyusun',
   'Remove Related': 'Hapus Terkait',

@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' ({address} хаягаас)',
+  '(empty)': '(хоосон)',
   '(untitled)': '(гарчиггүй)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons лиценз нь бусад хүмүүст таны бүтээлийг зохих ёсоор эх сурвалжийг нь дурдаж, лицензийн холбоосыг өгч, өөрчлөлт хийсэн эсэхийг заасан тохиолдолд хуулбарлаж, дахин түгээхийг зөвшөөрдөг. Нэмэлт нөхцөлийг доор зааж болно.',
@@ -120,6 +121,7 @@ export default {
   'Change the rights': 'Эрхийг өөрчлөх',
   'Change this provider': 'Энэ үйлчилгээ үзүүлэгчийг өөрчлөх',
   'Change who can see it': 'Хэн харж болохыг өөрчлөх',
+  'Changed elsewhere while you were editing.': 'Таныг засварлаж байх хооронд өөр газар өөрчлөгдсөн.',
   'Checked.': 'Шалгалаа.',
   'Checking the link…': 'Холбоосыг шалгаж байна…',
   'Checking the request…': 'Хүсэлтийг шалгаж байна…',
@@ -129,6 +131,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Дор хаяж нэг номын сан эсвэл цуглуулга сонгох, эсвэл дээрх бүгдийг зөвшөөрнө үү.',
   'Choose how your work may be shared': 'Бүтээлээ хэрхэн хуваалцаж болохыг сонгоно уу',
+  'Choose this version': 'Энэ хувилбарыг сонгох',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Цуглуулга сонговол түүний доторх бүх зүйл мөн багтана. Програм таны цуглуулгууд, хадгалсан хайлтууд, тохиргоо эсвэл таагуудыг өөрчлөх боломжгүй.',
   'Citation': 'Эшлэл',
@@ -339,6 +342,7 @@ export default {
   'Link issued.': 'Холбоос үүслээ.',
   'Links to this collection': 'Энэ цуглуулгын холбоосууд',
   'Loading…': 'Ачаалж байна…',
+  'Local version: {value}': 'Дотоод хувилбар: {value}',
   'Made {date}': 'Үүсгэсэн: {date}',
   'Make a member': 'Гишүүн болгох',
   'Make administrator': 'Администратор болгох',
@@ -489,6 +493,7 @@ export default {
   'Registration is open on this server.': 'Энэ серверт бүртгэл нээлттэй байна.',
   'Reinstate': 'Сэргээх',
   'Related': 'Холбоотой',
+  'Remote version: {value}': 'Алсын хувилбар: {value}',
   'Remove': 'Хасах',
   'Remove Creator': 'Зохиогч хасах',
   'Remove Related': 'Холбоотой зүйл хасах',

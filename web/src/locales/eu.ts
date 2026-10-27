@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' helbide honetatik: {address}',
+  '(empty)': '(hutsik)',
   '(untitled)': '(izenburugabea)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons lizentzia batek besteei zure lana kopiatu eta birbanatzeko aukera ematen die, betiere iturria behar bezala aitortu, lizentziarako esteka eman eta aldaketarik egin den adierazten badute. Baldintza gehigarriak behean zehaztu daitezke.',
@@ -118,6 +119,7 @@ export default {
   'Change the rights': 'Aldatu eskubideak',
   'Change this provider': 'Aldatu hornitzaile hau',
   'Change who can see it': 'Aldatu nork ikus dezakeen',
+  'Changed elsewhere while you were editing.': 'Beste nonbait aldatu da editatzen ari zinen bitartean.',
   'Checked.': 'Egiaztatuta.',
   'Checking the link…': 'Esteka egiaztatzen…',
   'Checking the request…': 'Eskaera egiaztatzen…',
@@ -127,6 +129,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Hautatu gutxienez liburutegi edo bilduma bat, edo baimendu goiko guztia.',
   'Choose how your work may be shared': 'Hautatu zure lana nola partekatu daitekeen',
+  'Choose this version': 'Aukeratu bertsio hau',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Bilduma bat hautatzean, haren barruko guztia ere sartzen da. Aplikazioak ezin izango ditu aldatu zure bildumak, gordetako bilaketak, ezarpenak edo etiketak.',
   'Citation': 'Aipua',
@@ -336,6 +339,7 @@ export default {
   'Link issued.': 'Esteka sortu da.',
   'Links to this collection': 'Bilduma honetarako estekak',
   'Loading…': 'Kargatzen…',
+  'Local version: {value}': 'Bertsio lokala: {value}',
   'Made {date}': 'Sortua: {date}',
   'Make a member': 'Egin kide',
   'Make administrator': 'Egin administratzaile',
@@ -486,6 +490,7 @@ export default {
   'Registration is open on this server.': 'Izen-ematea irekita dago zerbitzari honetan.',
   'Reinstate': 'Berrezarri',
   'Related': 'Erlazionatutakoak',
+  'Remote version: {value}': 'Urrutiko bertsioa: {value}',
   'Remove': 'Kendu',
   'Remove Creator': 'Kendu sortzailea',
   'Remove Related': 'Kendu erlazionatutakoa',

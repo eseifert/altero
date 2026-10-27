@@ -8,6 +8,7 @@
 
 export default {
   ' from {address}': ' từ {address}',
+  '(empty)': '(trống)',
   '(untitled)': '(không nhan đề)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Giấy phép Creative Commons cho phép người khác sao chép và phân phối lại tác phẩm của bạn, miễn là họ ghi nhận tác giả phù hợp, cung cấp liên kết tới giấy phép và cho biết nếu có thay đổi. Bạn có thể đặt thêm điều kiện ở bên dưới.',
@@ -119,6 +120,7 @@ export default {
   'Change the rights': 'Thay đổi bản quyền',
   'Change this provider': 'Thay đổi nhà cung cấp này',
   'Change who can see it': 'Thay đổi người được xem',
+  'Changed elsewhere while you were editing.': 'Đã được thay đổi ở nơi khác trong khi bạn đang chỉnh sửa.',
   'Checked.': 'Đã kiểm tra.',
   'Checking the link…': 'Đang kiểm tra liên kết…',
   'Checking the request…': 'Đang kiểm tra yêu cầu…',
@@ -128,6 +130,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Hãy chọn ít nhất một thư viện hoặc bộ sưu tập, hoặc cho phép tất cả ở trên.',
   'Choose how your work may be shared': 'Chọn cách tác phẩm của bạn được chia sẻ',
+  'Choose this version': 'Chọn phiên bản này',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Chọn một bộ sưu tập cũng bao gồm mọi thứ lồng bên trong nó. Ứng dụng sẽ không thể thay đổi các bộ sưu tập, tìm kiếm định sẵn, cài đặt hoặc thẻ của bạn.',
   'Citation': 'Trích dẫn',
@@ -334,6 +337,7 @@ export default {
   'Link issued.': 'Đã tạo liên kết.',
   'Links to this collection': 'Liên kết tới bộ sưu tập này',
   'Loading…': 'Đang tải…',
+  'Local version: {value}': 'Phiên bản cục bộ: {value}',
   'Made {date}': 'Tạo vào {date}',
   'Make a member': 'Đặt làm thành viên',
   'Make administrator': 'Đặt làm quản trị viên',
@@ -476,6 +480,7 @@ export default {
   'Registration is open on this server.': 'Máy chủ này đang mở đăng ký.',
   'Reinstate': 'Cho hoạt động lại',
   'Related': 'Liên quan',
+  'Remote version: {value}': 'Phiên bản từ xa: {value}',
   'Remove': 'Gỡ bỏ',
   'Remove Creator': 'Xóa người tạo lập',
   'Remove Related': 'Xóa mục liên quan',

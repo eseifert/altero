@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' aadressilt {address}',
+  '(empty)': '(tühi)',
   '(untitled)': '(pealkirjata)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commonsi litsents lubab teistel teie teost kopeerida ja edasi levitada, kui nad viitavad autorile nõuetekohaselt, lisavad lingi litsentsile ja märgivad, kas teost on muudetud. Allpool saab määrata lisatingimusi.',
@@ -118,6 +119,7 @@ export default {
   'Change the rights': 'Muuda õigusi',
   'Change this provider': 'Muuda seda teenusepakkujat',
   'Change who can see it': 'Muuda, kes seda näeb',
+  'Changed elsewhere while you were editing.': 'Muudeti mujal, samal ajal kui sina seda redigeerisid.',
   'Checked.': 'Kontrollitud.',
   'Checking the link…': 'Lingi kontrollimine…',
   'Checking the request…': 'Päringu kontrollimine…',
@@ -127,6 +129,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Valige vähemalt üks raamatukogu või kogu või lubage ülal kõik.',
   'Choose how your work may be shared': 'Valige, kuidas teie teost võib jagada',
+  'Choose this version': 'Vali see versioon',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Kogu valimisel kaasatakse ka kõik selle sees olev. Rakendus ei saa muuta teie kogusid, salvestatud otsinguid, seadeid ega lipikuid.',
   'Citation': 'Viide',
@@ -337,6 +340,7 @@ export default {
   'Link issued.': 'Link väljastatud.',
   'Links to this collection': 'Lingid sellele kogule',
   'Loading…': 'Laadimine…',
+  'Local version: {value}': 'Kohalik versioon: {value}',
   'Made {date}': 'Loodud {date}',
   'Make a member': 'Tee liikmeks',
   'Make administrator': 'Tee administraatoriks',
@@ -488,6 +492,7 @@ export default {
   'Registration is open on this server.': 'Selles serveris on registreerumine avatud.',
   'Reinstate': 'Taasta',
   'Related': 'Seotud',
+  'Remote version: {value}': 'Kaugversioon: {value}',
   'Remove': 'Eemalda',
   'Remove Creator': 'Eemalda autor',
   'Remove Related': 'Eemalda seotud kirje',

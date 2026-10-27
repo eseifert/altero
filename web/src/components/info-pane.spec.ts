@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '@/api/client'
 import { loadLabels, resetLabels } from '@/items/labels'
+import { EditConflict } from '@/stores/library'
 import type { ItemChanges, ItemEnvelope } from '@/stores/library'
 
 import InfoPane from './InfoPane.vue'
@@ -220,6 +221,64 @@ describe('InfoPane', () => {
     await flushPromises()
 
     expect(wrapper.get('[role="alert"]').text()).toBe('The item has changed since you read it')
+  })
+
+  it('shows both versions when somebody else changed the field, and writes neither', async () => {
+    const theirs = { ...BOOK, version: 5, data: { ...BOOK.data, title: 'SICP, second edition' } }
+    const save = vi.fn().mockRejectedValue(new EditConflict(theirs, { fields: { title: 'Mine' } }))
+    const wrapper = pane({ save })
+
+    await wrapper.get('.info__value').trigger('click')
+    await wrapper.get('textarea').setValue('Mine')
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+    /* The store has put the stored item on the page by now. */
+    await wrapper.setProps({ item: theirs })
+    await flushPromises()
+
+    const notice = wrapper.get('.conflict')
+    expect(notice.text()).toContain('Changed elsewhere while you were editing.')
+    expect(notice.text()).toContain('Local version: Mine')
+    expect(notice.text()).toContain('Remote version: SICP, second edition')
+    expect(save).toHaveBeenCalledTimes(1)
+  })
+
+  it('writes the local version when it is chosen', async () => {
+    const theirs = { ...BOOK, version: 5, data: { ...BOOK.data, title: 'Theirs' } }
+    const save = vi
+      .fn()
+      .mockRejectedValueOnce(new EditConflict(theirs, { fields: { title: 'Mine' } }))
+      .mockResolvedValue(theirs)
+    const wrapper = pane({ save })
+    await wrapper.get('.info__value').trigger('click')
+    await wrapper.get('textarea').setValue('Mine')
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+    await wrapper.setProps({ item: theirs })
+    await flushPromises()
+
+    await wrapper.findAll('.conflict__choose')[0].trigger('click')
+    await flushPromises()
+
+    expect(save).toHaveBeenCalledTimes(2)
+    expect(save).toHaveBeenLastCalledWith({ fields: { title: 'Mine' } })
+    expect(wrapper.find('.conflict').exists()).toBe(false)
+  })
+
+  it('keeps the remote version without writing anything', async () => {
+    const theirs = { ...BOOK, version: 5, data: { ...BOOK.data, title: 'Theirs' } }
+    const save = vi.fn().mockRejectedValue(new EditConflict(theirs, { fields: { title: 'Mine' } }))
+    const wrapper = pane({ save })
+    await wrapper.get('.info__value').trigger('click')
+    await wrapper.get('textarea').setValue('Mine')
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+    await wrapper.setProps({ item: theirs })
+    await flushPromises()
+
+    await wrapper.findAll('.conflict__choose')[1].trigger('click')
+    await flushPromises()
+
+    expect(save).toHaveBeenCalledTimes(1)
+    expect(wrapper.find('.conflict').exists()).toBe(false)
+    expect(wrapper.get('.info__value').text()).toBe('Theirs')
   })
 
   it('changes the type straight away when nothing would be lost', async () => {

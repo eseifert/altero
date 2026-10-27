@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' ពី {address}',
+  '(empty)': '(ទទេ)',
   '(untitled)': '(គ្មានចំណងជើង)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'អាជ្ញាប័ណ្ណ Creative Commons អនុញ្ញាតឱ្យអ្នកដទៃចម្លង និងចែកចាយស្នាដៃរបស់អ្នកបន្ត ដរាបណាពួកគេបញ្ជាក់ប្រភពឱ្យបានត្រឹមត្រូវ ផ្តល់តំណទៅកាន់អាជ្ញាប័ណ្ណ និងបញ្ជាក់ថាតើមានការកែប្រែឬទេ។ អ្នកអាចកំណត់លក្ខខណ្ឌបន្ថែមនៅខាងក្រោម។',
@@ -118,6 +119,7 @@ export default {
   'Change the rights': 'ផ្លាស់ប្តូរសិទ្ធិ',
   'Change this provider': 'កែប្រែអ្នកផ្តល់សេវានេះ',
   'Change who can see it': 'ផ្លាស់ប្តូរអ្នកដែលអាចមើលវាបាន',
+  'Changed elsewhere while you were editing.': 'បានផ្លាស់ប្ដូរនៅកន្លែងផ្សេង ពេលអ្នកកំពុងកែសម្រួល។',
   'Checked.': 'បានពិនិត្យ។',
   'Checking the link…': 'កំពុងពិនិត្យតំណ…',
   'Checking the request…': 'កំពុងពិនិត្យសំណើ…',
@@ -127,6 +129,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'សូមជ្រើសរើសបណ្ណាល័យ ឬកម្រងឯកសារយ៉ាងហោចណាស់មួយ ឬអនុញ្ញាតអ្វីៗទាំងអស់ខាងលើ។',
   'Choose how your work may be shared': 'ជ្រើសរើសរបៀបដែលស្នាដៃរបស់អ្នកអាចត្រូវបានចែករំលែក',
+  'Choose this version': 'ជ្រើសកំណែនេះ',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'ការជ្រើសរើសកម្រងឯកសារមួយ ក៏រួមបញ្ចូលអ្វីៗទាំងអស់ដែលនៅខាងក្នុងវាដែរ។ កម្មវិធីនឹងមិនអាចកែប្រែកម្រងឯកសារ ការស្រាវជ្រាវដែលបានរក្សាទុក ការកំណត់ ឬស្លាករបស់អ្នកបានទេ។',
   Citation: 'អាគតដ្ឋាន',
@@ -337,6 +340,7 @@ export default {
   'Link issued.': 'បានចេញតំណ។',
   'Links to this collection': 'តំណទៅកាន់កម្រងឯកសារនេះ',
   'Loading…': 'កំពុងផ្ទុក…',
+  'Local version: {value}': 'កំណែមូលដ្ឋាន៖ {value}',
   'Made {date}': 'បានបង្កើត {date}',
   'Make a member': 'ប្តូរជាសមាជិក',
   'Make administrator': 'ប្តូរជាអ្នកគ្រប់គ្រង',
@@ -486,6 +490,7 @@ export default {
   Reinstate: 'ស្តារសិទ្ធិវិញ',
   Remove: 'ដកចេញ',
   'Related': 'ពាក់ព័ន្ធ',
+  'Remote version: {value}': 'កំណែពីចម្ងាយ៖ {value}',
   'Remove Creator': 'លុបអ្នកនិពន្ធ',
   'Remove Related': 'លុបធាតុពាក់ព័ន្ធ',
   'Remove Tag': 'លុបស្លាក',

@@ -13,7 +13,7 @@ import { exportable } from '@/exportformats'
 import { itemTypeLabel } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
 import { cleanBibliography, cleanNote } from '@/sanitize'
-import type { ItemChanges, ItemEnvelope } from '@/stores/library'
+import type { ItemEnvelope, SaveItem } from '@/stores/library'
 
 const { t } = useI18n()
 
@@ -37,7 +37,7 @@ const props = defineProps<{
   inPublicationsView?: boolean
   /** Writes an edit of this item, for the Info pane. Absent where nothing
    *  may be edited, which leaves every field as text. */
-  save?: (changes: ItemChanges) => Promise<unknown>
+  save?: SaveItem
 }>()
 
 /*

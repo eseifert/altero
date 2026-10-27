@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' från {address}',
+  '(empty)': '(tom)',
   '(untitled)': '(utan titel)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'En Creative Commons-licens låter andra kopiera och vidaredistribuera ditt verk, så länge de anger upphovsperson på lämpligt sätt, länkar till licensen och anger om ändringar har gjorts. Ytterligare villkor kan anges nedan.',
@@ -118,6 +119,7 @@ export default {
   'Change the rights': 'Ändra rättigheterna',
   'Change this provider': 'Ändra den här leverantören',
   'Change who can see it': 'Ändra vem som kan se den',
+  'Changed elsewhere while you were editing.': 'Ändrad någon annanstans medan du redigerade.',
   'Checked.': 'Kontrollerat.',
   'Checking the link…': 'Kontrollerar länken…',
   'Checking the request…': 'Kontrollerar begäran…',
@@ -127,6 +129,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Välj minst ett bibliotek eller en samling, eller tillåt allt ovan.',
   'Choose how your work may be shared': 'Välj hur ditt verk får delas',
+  'Choose this version': 'Välj denna version',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Om du väljer en samling ingår även allt som ligger inuti den. Programmet kommer inte att kunna ändra dina samlingar, sparade sökningar, inställningar eller etiketter.',
   'Citation': 'Referens',
@@ -337,6 +340,7 @@ export default {
   'Link issued.': 'Länken har utfärdats.',
   'Links to this collection': 'Länkar till den här samlingen',
   'Loading…': 'Laddar…',
+  'Local version: {value}': 'Lokal version: {value}',
   'Made {date}': 'Skapad {date}',
   'Make a member': 'Gör till medlem',
   'Make administrator': 'Gör till administratör',
@@ -487,6 +491,7 @@ export default {
   'Registration is open on this server.': 'Registreringen är öppen på den här servern.',
   'Reinstate': 'Återaktivera',
   'Related': 'Liknande källor',
+  'Remote version: {value}': 'Fjärrversion: {value}',
   'Remove': 'Ta bort',
   'Remove Creator': 'Ta bort upphovsperson',
   'Remove Related': 'Ta bort relaterad post',

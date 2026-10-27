@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' iš {address}',
+  '(empty)': '(tuščia)',
   '(untitled)': '(nepavadinta)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     '„Creative Commons“ licencija leidžia kitiems kopijuoti ir platinti jūsų darbą su sąlyga, kad jie nurodo jus kaip autorių, pateikia nuorodą į licenciją ir nurodo, ar darbas buvo pakeistas. Žemiau galite nurodyti papildomas sąlygas.',
@@ -111,6 +112,7 @@ export default {
   'Change the rights': 'Keisti teises',
   'Change this provider': 'Keisti šį teikėją',
   'Change who can see it': 'Keisti, kas gali matyti',
+  'Changed elsewhere while you were editing.': 'Pakeista kitur, kol redagavote.',
   'Checked.': 'Patikrinta.',
   'Checking the link…': 'Tikrinama nuoroda…',
   'Checking the request…': 'Tikrinama užklausa…',
@@ -120,6 +122,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Pasirinkite bent vieną biblioteką ar rinkinį arba aukščiau leiskite viską.',
   'Choose how your work may be shared': 'Nurodykite, kaip jūsų darbas gali būti platinamas',
+  'Choose this version': 'Pasirinkite šią versiją',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Pasirinkus rinkinį, įtraukiama ir viskas, kas jame yra. Programa negalės keisti jūsų rinkinių, įsimintų paieškų, nuostatų ar gairių.',
   'Citation': 'Citata',
@@ -323,6 +326,7 @@ export default {
   'Link issued.': 'Nuoroda sukurta.',
   'Links to this collection': 'Nuorodos į šį rinkinį',
   'Loading…': 'Įkeliama…',
+  'Local version: {value}': 'Vietinė versija: {value}',
   'Made {date}': 'Sukurta {date}',
   'Make a member': 'Padaryti nariu',
   'Make administrator': 'Padaryti administratoriumi',
@@ -464,6 +468,7 @@ export default {
   'Registration is open on this server.': 'Šiame serveryje registracija atvira.',
   'Reinstate': 'Vėl aktyvinti',
   'Related': 'Susiję',
+  'Remote version: {value}': 'Nuotolinė versija: {value}',
   'Remove': 'Pašalinti',
   'Remove Creator': 'Pašalinti autorių',
   'Remove Related': 'Pašalinti susijusį',

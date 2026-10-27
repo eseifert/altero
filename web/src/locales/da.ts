@@ -2,6 +2,7 @@
 
 export default {
   ' from {address}': ' fra {address}',
+  '(empty)': '(tom)',
   '(untitled)': '(uden titel)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'En Creative Commons-licens tillader andre at kopiere og videredistribuere dit værk, så længe de krediterer dig korrekt, henviser til licensen og oplyser, om der er foretaget ændringer. Yderligere betingelser kan angives nedenfor.',
@@ -114,6 +115,7 @@ export default {
   'Change the rights': 'Ret rettighederne',
   'Change this provider': 'Ret denne udbyder',
   'Change who can see it': 'Ret hvem der kan se den',
+  'Changed elsewhere while you were editing.': 'Ændret et andet sted, mens du redigerede.',
   'Checked.': 'Kontrolleret.',
   'Checking the link…': 'Kontrollerer linket…',
   'Checking the request…': 'Kontrollerer forespørgslen…',
@@ -123,6 +125,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Vælg mindst ét bibliotek eller én samling, eller tillad alt ovenfor.',
   'Choose how your work may be shared': 'Vælg, hvordan dit værk må deles',
+  'Choose this version': 'Vælg denne version',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Vælger du en samling, følger alt inde i den med. Programmet vil ikke kunne ændre dine samlinger, gemte søgninger, indstillinger eller mærker.',
   'Citation': 'Henvisning',
@@ -332,6 +335,7 @@ export default {
   'Link issued.': 'Linket er udstedt.',
   'Links to this collection': 'Links til denne samling',
   'Loading…': 'Indlæser…',
+  'Local version: {value}': 'Lokal version: {value}',
   'Made {date}': 'Lavet {date}',
   'Make a member': 'Gør til medlem',
   'Make administrator': 'Gør til administrator',
@@ -481,6 +485,7 @@ export default {
   'Registration is open on this server.': 'Der er åbent for oprettelse på denne server.',
   'Reinstate': 'Genindsæt',
   'Related': 'Relationer',
+  'Remote version: {value}': 'Ekstern version: {value}',
   'Remove': 'Fjern',
   'Remove Creator': 'Fjern ophav',
   'Remove Related': 'Fjern relation',

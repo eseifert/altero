@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' s adrese {address}',
+  '(empty)': '(prazno)',
   '(untitled)': '(bez naslova)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Licencija Creative Commons dopušta drugima kopiranje i redistribuciju Vašeg rada sve dok navedu odgovarajuću zaslugu, daju poveznicu na licenciju i naznače jesu li napravljene promjene. Dodatni uvjeti mogu se navesti u nastavku.',
@@ -118,6 +119,7 @@ export default {
   'Change the rights': 'Promijeni prava',
   'Change this provider': 'Promijeni ovog pružatelja',
   'Change who can see it': 'Promijeni tko je može vidjeti',
+  'Changed elsewhere while you were editing.': 'Promijenjeno drugdje dok ste uređivali.',
   'Checked.': 'Provjereno.',
   'Checking the link…': 'Provjera poveznice…',
   'Checking the request…': 'Provjera zahtjeva…',
@@ -127,6 +129,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Odaberite barem jednu biblioteku ili zbirku ili dopustite sve navedeno gore.',
   'Choose how your work may be shared': 'Odaberite kako se Vaš rad može dijeliti',
+  'Choose this version': 'Odaberi ovu verziju',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Odabirom zbirke uključuje se i sve što se nalazi u njoj. Aplikacija neće moći mijenjati Vaše zbirke, spremljene pretrage, postavke ni oznake.',
   'Citation': 'Citat',
@@ -338,6 +341,7 @@ export default {
   'Link issued.': 'Poveznica je izdana.',
   'Links to this collection': 'Poveznice na ovu zbirku',
   'Loading…': 'Učitavanje…',
+  'Local version: {value}': 'Lokalna verzija: {value}',
   'Made {date}': 'Stvoreno {date}',
   'Make a member': 'Učini članom',
   'Make administrator': 'Učini administratorom',
@@ -488,6 +492,7 @@ export default {
   'Registration is open on this server.': 'Registracija na ovom poslužitelju je otvorena.',
   'Reinstate': 'Ponovno omogući',
   'Related': 'Srodno',
+  'Remote version: {value}': 'Udaljena verzija: {value}',
   'Remove': 'Ukloni',
   'Remove Creator': 'Ukloni stvoritelja',
   'Remove Related': 'Ukloni srodno',

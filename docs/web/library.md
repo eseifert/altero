@@ -128,9 +128,14 @@ item's type, empty ones included, in the order Zotero Desktop shows them.
   and **−** removes the link from both. Pressing a related item opens it.
   Related items in the trash are listed only while the item itself is there.
 
-Each save is one change, which Zotero Desktop receives on its next sync. If
-someone else changed the item since you opened it, the save is refused rather
-than written over their change; open the item again and repeat the edit.
+Each save is one change, which Zotero Desktop receives on its next sync.
+
+If someone else changed the item since you opened it, the pane shows the item
+as it is now. Your edit is saved anyway when they changed something else. When
+they changed the same field, or the creators, nothing is written: the pane
+shows the local version (yours) and the remote version (theirs), and **Choose
+this version** keeps one. Tags are always saved — your addition, removal or
+rename is made on top of theirs.
 
 An item in the trash cannot be edited, as in Zotero Desktop: restore it first.
 A group member who may only read sees the fields without editing controls.

@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' ({address} adresinden)',
+  '(empty)': '(boş)',
   '(untitled)': '(başlıksız)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Bir Creative Commons lisansı, size uygun bir atıfta bulunulduğu, lisansa bir bağlantı verildiği ve yapılmış değişiklikler belirtildiği sürece başkalarının eserinizi kopyalamasına ve yeniden dağıtmasına izin verir. Ek koşulları aşağıda belirtebilirsiniz.',
@@ -119,6 +120,7 @@ export default {
   'Change the rights': 'Telifi değiştir',
   'Change this provider': 'Bu sağlayıcıyı değiştir',
   'Change who can see it': 'Kimlerin görebileceğini değiştir',
+  'Changed elsewhere while you were editing.': 'Siz düzenlerken başka bir yerde değiştirildi.',
   'Checked.': 'Denetlendi.',
   'Checking the link…': 'Bağlantı denetleniyor…',
   'Checking the request…': 'İstek denetleniyor…',
@@ -128,6 +130,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'En az bir kitaplık ya da derme seçiniz veya yukarıdakilerin tümüne izin veriniz.',
   'Choose how your work may be shared': 'Eserinizin nasıl paylaşılacağını seçiniz',
+  'Choose this version': 'Bu versiyonu seç',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Bir derme seçmek, içindeki her şeyi de kapsar. Uygulama dermelerinizi, kayıtlı aramalarınızı, ayarlarınızı ya da etiketlerinizi değiştiremeyecektir.',
   'Citation': 'Alıntı',
@@ -340,6 +343,7 @@ export default {
   'Link issued.': 'Bağlantı oluşturuldu.',
   'Links to this collection': 'Bu dermeye verilen bağlantılar',
   'Loading…': 'Yükleniyor…',
+  'Local version: {value}': 'Yerel versiyon: {value}',
   'Made {date}': 'Oluşturulma: {date}',
   'Make a member': 'Üye yap',
   'Make administrator': 'Yönetici yap',
@@ -491,6 +495,7 @@ export default {
   'Registration is open on this server.': 'Bu sunucuda kayıt açık.',
   'Reinstate': 'Yeniden etkinleştir',
   'Related': 'İlişkili',
+  'Remote version: {value}': 'Uzaktaki versiyon: {value}',
   'Remove': 'Kaldır',
   'Remove Creator': 'Oluşturanı kaldır',
   'Remove Related': 'İlişkiliyi kaldır',

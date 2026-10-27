@@ -2,6 +2,7 @@
 
 export default {
   ' from {address}': ' 来自 {address}',
+  '(empty)': '（空）',
   '(untitled)': '(无标题)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     '知识共享许可协议允许他人复制和再分发你的作品，只要他们给予适当的署名、提供许可协议的链接，并说明是否作了修改。附加条件可以在下面指定。',
@@ -109,6 +110,7 @@ export default {
   'Change the rights': '更改版权',
   'Change this provider': '更改此提供方',
   'Change who can see it': '更改谁可以看到',
+  'Changed elsewhere while you were editing.': '您编辑时已在别处被更改。',
   'Checked.': '已检查。',
   'Checking the link…': '正在检查链接…',
   'Checking the request…': '正在检查请求…',
@@ -118,6 +120,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     '请至少选择一个文库或分类，或者允许上面的全部内容。',
   'Choose how your work may be shared': '选择你分享作品的方式',
+  'Choose this version': '选择此版本',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     '选择一个分类时，其下嵌套的内容也一并包含。该应用将无法更改您的分类、保存的搜索、设置或标签。',
   'Citation': '引注',
@@ -322,6 +325,7 @@ export default {
   'Link issued.': '链接已签发。',
   'Links to this collection': '指向此分类的链接',
   'Loading…': '正在加载…',
+  'Local version: {value}': '本地版本：{value}',
   'Made {date}': '创建于 {date}',
   'Make a member': '设为成员',
   'Make administrator': '设为管理员',
@@ -462,6 +466,7 @@ export default {
   'Registration is open on this server.': '这台服务器开放注册。',
   'Reinstate': '恢复',
   'Related': '相关',
+  'Remote version: {value}': '远程版本：{value}',
   'Remove': '移除',
   'Remove Creator': '移除创作者',
   'Remove Related': '移除关联',

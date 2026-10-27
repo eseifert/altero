@@ -11,6 +11,7 @@
 
 export default {
   ' from {address}': ' 來自 {address}',
+  '(empty)': '（空）',
   '(untitled)': '(無標題)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     '創用 CC 授權條款允許他人複製並再散布你的作品，只要他們給予適當的姓名標示、提供授權條款的連結，並指出是否作了修改。附加條件可以在下面指定。',
@@ -116,6 +117,7 @@ export default {
   'Change the rights': '變更版權',
   'Change this provider': '變更此提供者',
   'Change who can see it': '變更誰可以看到',
+  'Changed elsewhere while you were editing.': '您編輯時已在別處被變更。',
   'Checked.': '已檢查。',
   'Checking the link…': '正在檢查連結…',
   'Checking the request…': '正在檢查要求…',
@@ -125,6 +127,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     '請至少選擇一個文獻庫或文獻集，或者允許上面的全部內容。',
   'Choose how your work may be shared': '選擇你分享作品的方式',
+  'Choose this version': '選此版',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     '選擇一個文獻集時，其下巢狀的內容也一併包含。該應用程式將無法更改你的文獻集、儲存的搜尋、設定或標籤。',
   Citation: '引用',
@@ -323,6 +326,7 @@ export default {
   'Link issued.': '連結已簽發。',
   'Links to this collection': '指向此文獻集的連結',
   'Loading…': '正在載入…',
+  'Local version: {value}': '本機版：{value}',
   'Made {date}': '建立於 {date}',
   'Make a member': '設為成員',
   'Make administrator': '設為管理員',
@@ -461,6 +465,7 @@ export default {
   Reinstate: '恢復',
   Remove: '移除',
   'Related': '相關',
+  'Remote version: {value}': '遠端版：{value}',
   'Remove Creator': '移除創作者',
   'Remove Related': '移除關聯',
   'Remove Tag': '移除標籤',

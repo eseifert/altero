@@ -15,6 +15,7 @@
 
 export default {
   ' from {address}': ' from {address}',
+  '(empty)': '(empty)',
   '(untitled)': '(untitled)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.',
@@ -112,6 +113,7 @@ export default {
   'Change the rights': 'Change the rights',
   'Change this provider': 'Change this provider',
   'Change who can see it': 'Change who can see it',
+  'Changed elsewhere while you were editing.': 'Changed elsewhere while you were editing.',
   'Checked.': 'Checked.',
   'Checking the link…': 'Checking the link…',
   'Checking the request…': 'Checking the request…',
@@ -121,6 +123,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Choose at least one library or collection, or allow everything above.',
   'Choose how your work may be shared': 'Choose how your work may be shared',
+  'Choose this version': 'Choose this version',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.',
   'Citation': 'Citation',
@@ -313,6 +316,7 @@ export default {
   'Link issued.': 'Link issued.',
   'Links to this collection': 'Links to this collection',
   'Loading…': 'Loading…',
+  'Local version: {value}': 'Local version: {value}',
   'Made {date}': 'Made {date}',
   'Make a member': 'Make a member',
   'Make administrator': 'Make administrator',
@@ -447,6 +451,7 @@ export default {
   'Registration is open on this server.': 'Registration is open on this server.',
   'Reinstate': 'Reinstate',
   'Related': 'Related',
+  'Remote version: {value}': 'Remote version: {value}',
   'Remove': 'Remove',
   'Remove Creator': 'Remove Creator',
   'Remove Related': 'Remove Related',

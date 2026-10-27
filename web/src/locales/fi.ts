@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' osoitteesta {address}',
+  '(empty)': '(tyhjä)',
   '(untitled)': '(nimetön)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons -lisenssi sallii muiden kopioida ja levittää julkaisuasi edelleen, kunhan tekijä mainitaan asianmukaisesti, lisenssiin linkitetään ja kerrotaan, mikäli teosta on muutettu. Alla voit määritellä lisäehtoja.',
@@ -117,6 +118,7 @@ export default {
   'Change the rights': 'Muuta oikeuksia',
   'Change this provider': 'Muokkaa tätä palveluntarjoajaa',
   'Change who can see it': 'Muuta, kuka voi nähdä sen',
+  'Changed elsewhere while you were editing.': 'Muutettu muualla muokatessasi.',
   'Checked.': 'Tarkistettu.',
   'Checking the link…': 'Tarkistetaan linkkiä…',
   'Checking the request…': 'Tarkistetaan pyyntöä…',
@@ -126,6 +128,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Valitse vähintään yksi kirjasto tai kokoelma tai salli yllä kaikki.',
   'Choose how your work may be shared': 'Valitse, millä ehdoilla julkaisujasi saa jakaa',
+  'Choose this version': 'Valitse tämä versio',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Kokoelman valinta kattaa myös kaiken sen sisällä olevan. Sovellus ei voi muuttaa kokoelmiasi, tallennettuja hakujasi, asetuksiasi eikä merkkejäsi.',
   'Citation': 'Viite',
@@ -335,6 +338,7 @@ export default {
   'Link issued.': 'Linkki luotu.',
   'Links to this collection': 'Linkit tähän kokoelmaan',
   'Loading…': 'Ladataan…',
+  'Local version: {value}': 'Paikallinen versio: {value}',
   'Made {date}': 'Luotu {date}',
   'Make a member': 'Tee jäseneksi',
   'Make administrator': 'Tee ylläpitäjäksi',
@@ -486,6 +490,7 @@ export default {
   'Registration is open on this server.': 'Rekisteröityminen on avoinna tällä palvelimella.',
   'Reinstate': 'Palauta käyttöön',
   'Related': 'Liittyvät',
+  'Remote version: {value}': 'Etäversio: {value}',
   'Remove': 'Poista',
   'Remove Creator': 'Poista tekijä',
   'Remove Related': 'Poista liittyvä',

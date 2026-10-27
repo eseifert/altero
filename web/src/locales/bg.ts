@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' от {address}',
+  '(empty)': '(празно)',
   '(untitled)': '(без заглавие)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Лицензът Creative Commons позволява на другите да копират и разпространяват вашата творба, стига да посочат авторството, да дадат връзка към лиценза и да отбележат дали са правени промени. По-долу можете да зададете допълнителни условия.',
@@ -119,6 +120,7 @@ export default {
   'Change the rights': 'Промяна на правата',
   'Change this provider': 'Промяна на този доставчик',
   'Change who can see it': 'Промяна на това кой я вижда',
+  'Changed elsewhere while you were editing.': 'Променено другаде, докато редактирахте.',
   'Checked.': 'Проверено.',
   'Checking the link…': 'Проверка на връзката…',
   'Checking the request…': 'Проверка на заявката…',
@@ -128,6 +130,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Изберете поне една библиотека или колекция или разрешете всичко по-горе.',
   'Choose how your work may be shared': 'Изберете как може да бъде споделяна вашата творба',
+  'Choose this version': 'Избор на тази версия',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Изборът на колекция включва и всичко, вложено в нея. Приложението няма да може да променя вашите колекции, съхранени търсения, настройки или маркери.',
   'Citation': 'Цитат',
@@ -338,6 +341,7 @@ export default {
   'Link issued.': 'Връзката е издадена.',
   'Links to this collection': 'Връзки към тази колекция',
   'Loading…': 'Зареждане…',
+  'Local version: {value}': 'Локална версия: {value}',
   'Made {date}': 'Създадена на {date}',
   'Make a member': 'Задаване на роля „член“',
   'Make administrator': 'Даване на администраторски права',
@@ -488,6 +492,7 @@ export default {
   'Registration is open on this server.': 'Регистрацията на този сървър е отворена.',
   'Reinstate': 'Възстановяване',
   'Related': 'Свързани',
+  'Remote version: {value}': 'Отдалечена версия: {value}',
   'Remove': 'Премахване',
   'Remove Creator': 'Премахване на създател',
   'Remove Related': 'Премахване на свързан запис',

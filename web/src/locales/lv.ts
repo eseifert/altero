@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' no {address}',
+  '(empty)': '(tukšs)',
   '(untitled)': '(bez nosaukuma)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons licence ļauj citiem kopēt un tālāk izplatīt jūsu darbu ar nosacījumu, ka viņi pienācīgi norāda autoru, sniedz saiti uz licenci un norāda, vai darbā ir veiktas izmaiņas. Tālāk var norādīt papildu nosacījumus.',
@@ -117,6 +118,7 @@ export default {
   'Change the rights': 'Mainīt tiesības',
   'Change this provider': 'Mainīt šo nodrošinātāju',
   'Change who can see it': 'Mainīt, kas to var redzēt',
+  'Changed elsewhere while you were editing.': 'Mainīts citur, kamēr jūs rediģējāt.',
   'Checked.': 'Pārbaudīts.',
   'Checking the link…': 'Pārbauda saiti…',
   'Checking the request…': 'Pārbauda pieprasījumu…',
@@ -126,6 +128,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Izvēlieties vismaz vienu bibliotēku vai kolekciju vai atļaujiet visu iepriekš minēto.',
   'Choose how your work may be shared': 'Izvēlieties, kā jūsu darbu drīkst kopīgot',
+  'Choose this version': 'Izvēlēties šo versiju',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Izvēloties kolekciju, tiek iekļauts arī viss, kas atrodas tajā. Lietotne nevarēs mainīt jūsu kolekcijas, saglabātās meklēšanas, iestatījumus vai birkas.',
   Citation: 'Atsauce',
@@ -336,6 +339,7 @@ export default {
   'Link issued.': 'Saite izsniegta.',
   'Links to this collection': 'Saites uz šo kolekciju',
   'Loading…': 'Ielādē…',
+  'Local version: {value}': 'Lokālā versija: {value}',
   'Made {date}': 'Izveidota {date}',
   'Make a member': 'Padarīt par dalībnieku',
   'Make administrator': 'Padarīt par administratoru',
@@ -487,6 +491,7 @@ export default {
   Reinstate: 'Aktivizēt no jauna',
   Remove: 'Noņemt',
   'Related': 'Saistītie',
+  'Remote version: {value}': 'Attālā versija: {value}',
   'Remove Creator': 'Noņemt autoru',
   'Remove Related': 'Noņemt saistīto',
   'Remove Tag': 'Noņemt birku',

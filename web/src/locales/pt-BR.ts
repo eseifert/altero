@@ -11,6 +11,7 @@
 
 export default {
   ' from {address}': ' de {address}',
+  '(empty)': '(vazio)',
   '(untitled)': '(sem título)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Uma licença Creative Commons permite que outros copiem e redistribuam o seu trabalho, desde que deem o devido crédito, incluam um link para a licença e indiquem se foram feitas alterações. Condições adicionais podem ser especificadas abaixo.',
@@ -127,6 +128,7 @@ export default {
   'Change the rights': 'Alterar os direitos',
   'Change this provider': 'Alterar este provedor',
   'Change who can see it': 'Alterar quem pode vê-la',
+  'Changed elsewhere while you were editing.': 'Alterado em outro lugar enquanto você editava.',
   'Checked.': 'Verificado.',
   'Checking the link…': 'Verificando o link…',
   'Checking the request…': 'Verificando a requisição…',
@@ -136,6 +138,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Escolha pelo menos uma biblioteca ou coleção, ou permita tudo acima.',
   'Choose how your work may be shared': 'Escolha como o seu trabalho pode ser compartilhado',
+  'Choose this version': 'Escolha essa versão',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Escolher uma coleção também inclui tudo o que está dentro dela. O aplicativo não vai poder mudar suas coleções, buscas salvas, configurações nem etiquetas.',
   Citation: 'Citação',
@@ -345,6 +348,7 @@ export default {
   'Link issued.': 'Link emitido.',
   'Links to this collection': 'Links para esta coleção',
   'Loading…': 'Carregando…',
+  'Local version: {value}': 'Versão local: {value}',
   'Made {date}': 'Criada {date}',
   'Make a member': 'Tornar membro',
   'Make administrator': 'Tornar administrador',
@@ -495,6 +499,7 @@ export default {
   Remove: 'Remover',
   Reinstate: 'Reativar',
   'Related': 'Relacionar',
+  'Remote version: {value}': 'Versão remota: {value}',
   'Remove Creator': 'Remover autor',
   'Remove Related': 'Remover relacionado',
   'Remove Tag': 'Remover etiqueta',

@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' จาก {address}',
+  '(empty)': '(ว่าง)',
   '(untitled)': '(ไม่มีชื่อเรื่อง)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'สัญญาอนุญาต Creative Commons อนุญาตให้ผู้อื่นทำสำเนาและเผยแพร่ผลงานของคุณต่อได้ ตราบใดที่ให้เครดิตอย่างเหมาะสม ให้ลิงก์ไปยังสัญญาอนุญาต และระบุว่ามีการเปลี่ยนแปลงหรือไม่ คุณสามารถกำหนดเงื่อนไขเพิ่มเติมได้ด้านล่าง',
@@ -117,6 +118,7 @@ export default {
   'Change the rights': 'เปลี่ยนสิทธิ์',
   'Change this provider': 'เปลี่ยนผู้ให้บริการนี้',
   'Change who can see it': 'เปลี่ยนผู้ที่ดูได้',
+  'Changed elsewhere while you were editing.': 'มีการเปลี่ยนแปลงจากที่อื่นระหว่างที่คุณกำลังแก้ไข',
   'Checked.': 'ตรวจสอบแล้ว',
   'Checking the link…': 'กำลังตรวจสอบลิงก์…',
   'Checking the request…': 'กำลังตรวจสอบคำขอ…',
@@ -126,6 +128,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'เลือกไลบรารีหรือคอลเล็กชั่นอย่างน้อยหนึ่งรายการ หรืออนุญาตทั้งหมดด้านบน',
   'Choose how your work may be shared': 'เลือกวิธีที่ผลงานของคุณจะถูกแบ่งปันได้',
+  'Choose this version': 'เลือกรุ่นนี้',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'การเลือกคอลเล็กชั่นจะรวมทุกอย่างที่อยู่ภายในด้วย แอปพลิเคชันจะไม่สามารถเปลี่ยนแปลงคอลเล็กชั่น การค้นหาที่บันทึกไว้ การตั้งค่า หรือแท็กของคุณได้',
   Citation: 'การอ้างอิง',
@@ -332,6 +335,7 @@ export default {
   'Link issued.': 'ออกลิงก์แล้ว',
   'Links to this collection': 'ลิงก์ไปยังคอลเล็กชั่นนี้',
   'Loading…': 'กำลังโหลด…',
+  'Local version: {value}': 'รุ่นในเครื่อง: {value}',
   'Made {date}': 'สร้างเมื่อ {date}',
   'Make a member': 'เปลี่ยนเป็นสมาชิก',
   'Make administrator': 'ตั้งเป็นผู้ดูแลระบบ',
@@ -480,6 +484,7 @@ export default {
   Reinstate: 'คืนสิทธิ์การใช้งาน',
   Remove: 'ลบออก',
   'Related': 'เชื่อมโยงกับ',
+  'Remote version: {value}': 'รุ่นระยะไกล: {value}',
   'Remove Creator': 'ลบผู้สร้างสรรค์',
   'Remove Related': 'ลบรายการที่เชื่อมโยง',
   'Remove Tag': 'ลบแท็ก',

@@ -8,6 +8,7 @@
 
 export default {
   ' from {address}': ' od {address}',
+  '(empty)': '(puste)',
   '(untitled)': '(bez tytułu)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Licencja Creative Commons pozwala innym kopiować i rozpowszechniać twoją pracę, o ile podadzą odpowiednie uznanie autorstwa, odnośnik do licencji oraz informację o wprowadzonych zmianach. Dodatkowe warunki możesz określić poniżej.',
@@ -120,6 +121,7 @@ export default {
   'Change the rights': 'Zmień prawa',
   'Change this provider': 'Zmień tego dostawcę',
   'Change who can see it': 'Zmień, kto może to zobaczyć',
+  'Changed elsewhere while you were editing.': 'Zmieniono w innym miejscu podczas edycji.',
   'Checked.': 'Sprawdzone.',
   'Checking the link…': 'Sprawdzanie odnośnika…',
   'Checking the request…': 'Sprawdzanie żądania…',
@@ -129,6 +131,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Wybierz co najmniej jedną bibliotekę lub kolekcję albo zezwól na wszystko powyżej.',
   'Choose how your work may be shared': 'Wybierz sposób współdzielenia swojej pracy',
+  'Choose this version': 'Wybierz tę wersję',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Wybranie kolekcji obejmuje też wszystko, co się w niej znajduje. Aplikacja nie będzie mogła zmieniać Twoich kolekcji, zapisanych wyszukiwań, ustawień ani etykiet.',
   'Citation': 'Cytowanie',
@@ -338,6 +341,7 @@ export default {
   'Link issued.': 'Odnośnik został wydany.',
   'Links to this collection': 'Odnośniki do tej kolekcji',
   'Loading…': 'Wczytywanie…',
+  'Local version: {value}': 'Lokalna wersja: {value}',
   'Made {date}': 'Utworzono {date}',
   'Make a member': 'Uczyń członkiem',
   'Make administrator': 'Uczyń administratorem',
@@ -490,6 +494,7 @@ export default {
   'Registration is open on this server.': 'Na tym serwerze rejestracja jest otwarta.',
   'Reinstate': 'Przywróć',
   'Related': 'Powiązane',
+  'Remote version: {value}': 'Zdalna wersja: {value}',
   'Remove': 'Usuń',
   'Remove Creator': 'Usuń twórcę',
   'Remove Related': 'Usuń powiązane',

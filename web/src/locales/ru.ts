@@ -8,6 +8,7 @@
 
 export default {
   ' from {address}': ' от {address}',
+  '(empty)': '(пусто)',
   '(untitled)': '(без названия)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Лицензия Creative Commons разрешает другим копировать и распространять вашу работу при условии, что они укажут авторство, дадут ссылку на лицензию и сообщат, вносились ли изменения. Дополнительные условия можно задать ниже.',
@@ -121,6 +122,7 @@ export default {
   'Change the rights': 'Изменить права',
   'Change this provider': 'Изменить этого поставщика',
   'Change who can see it': 'Изменить, кто это видит',
+  'Changed elsewhere while you were editing.': 'Изменено в другом месте, пока вы редактировали.',
   'Checked.': 'Проверено.',
   'Checking the link…': 'Проверка ссылки…',
   'Checking the request…': 'Проверка запроса…',
@@ -130,6 +132,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Выберите хотя бы одну библиотеку или коллекцию либо разрешите всё, что указано выше.',
   'Choose how your work may be shared': 'Выберите, как ваша работа будет распространяться',
+  'Choose this version': 'Выбрать эту версию',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Выбранная коллекция включает и всё, что вложено в неё. Приложение не сможет изменять ваши коллекции, сохранённые поиски, настройки и теги.',
   'Citation': 'Ссылка',
@@ -338,6 +341,7 @@ export default {
   'Link issued.': 'Ссылка выдана.',
   'Links to this collection': 'Ссылки на эту коллекцию',
   'Loading…': 'Загрузка…',
+  'Local version: {value}': 'Версия (локально): {value}',
   'Made {date}': 'Создано {date}',
   'Make a member': 'Сделать участником',
   'Make administrator': 'Сделать администратором',
@@ -488,6 +492,7 @@ export default {
   'Registration is open on this server.': 'На этом сервере регистрация открыта.',
   'Reinstate': 'Восстановить',
   'Related': 'Связанные',
+  'Remote version: {value}': 'Версия (удалённое расположение): {value}',
   'Remove': 'Убрать',
   'Remove Creator': 'Удалить Создателя',
   'Remove Related': 'Удалить Относящееся',

@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' des de {address}',
+  '(empty)': '(buit)',
   '(untitled)': '(sense títol)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Una llicència Creative Commons permet que altres copiïn i redistribueixin el vostre treball sempre que en facin el reconeixement adequat, proporcionin un enllaç a la llicència i indiquin si s’hi han fet canvis. A continuació es poden especificar condicions addicionals.',
@@ -121,6 +122,7 @@ export default {
   'Change the rights': 'Canvia els drets',
   'Change this provider': 'Canvia aquest proveïdor',
   'Change who can see it': 'Canvia qui la pot veure',
+  'Changed elsewhere while you were editing.': 'S’ha canviat en un altre lloc mentre l’editàveu.',
   'Checked.': 'Comprovat.',
   'Checking the link…': 'S’està comprovant l’enllaç…',
   'Checking the request…': 'S’està comprovant la sol·licitud…',
@@ -130,6 +132,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Trieu almenys una biblioteca o col·lecció, o permeteu tot el que hi ha a dalt.',
   'Choose how your work may be shared': 'Trieu com es pot compartir el vostre treball',
+  'Choose this version': 'Tria aquesta versió',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Triar una col·lecció també inclou tot el que hi ha a dins. L’aplicació no podrà canviar les vostres col·leccions, cerques desades, configuració ni etiquetes.',
   Citation: 'Cita',
@@ -338,6 +341,7 @@ export default {
   'Link issued.': 'S’ha emès l’enllaç.',
   'Links to this collection': 'Enllaços a aquesta col·lecció',
   'Loading…': 'S’està carregant…',
+  'Local version: {value}': 'Versió local: {value}',
   'Made {date}': 'Creat el {date}',
   'Make a member': 'Converteix en membre',
   'Make administrator': 'Fes administrador',
@@ -493,6 +497,7 @@ export default {
   Remove: 'Elimina',
   'Reinstate': 'Restableix',
   'Related': 'Elements relacionats',
+  'Remote version: {value}': 'Versió remota: {value}',
   'Remove Creator': 'Elimina el creador',
   'Remove Related': 'Elimina l’element relacionat',
   'Remove Tag': 'Elimina l’etiqueta',

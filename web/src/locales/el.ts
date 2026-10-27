@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' από {address}',
+  '(empty)': '(κενό)',
   '(untitled)': '(χωρίς τίτλο)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Μια άδεια Creative Commons επιτρέπει σε άλλους να αντιγράφουν και να αναδιανέμουν την εργασία σας, εφόσον αναφέρουν κατάλληλα την προέλευσή της, παρέχουν σύνδεσμο προς την άδεια και υποδεικνύουν αν έγιναν αλλαγές. Πρόσθετες προϋποθέσεις μπορούν να καθοριστούν παρακάτω.',
@@ -113,6 +114,7 @@ export default {
   'Change the rights': 'Αλλαγή των δικαιωμάτων',
   'Change this provider': 'Αλλαγή αυτού του παρόχου',
   'Change who can see it': 'Αλλαγή του ποιος μπορεί να τη δει',
+  'Changed elsewhere while you were editing.': 'Άλλαξε αλλού όσο το επεξεργαζόσασταν.',
   'Checked.': 'Ελέγχθηκε.',
   'Checking the link…': 'Έλεγχος του συνδέσμου…',
   'Checking the request…': 'Έλεγχος του αιτήματος…',
@@ -122,6 +124,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Επιλέξτε τουλάχιστον μία βιβλιοθήκη ή συλλογή ή επιτρέψτε όλα τα παραπάνω.',
   'Choose how your work may be shared': 'Επιλέξτε πώς μπορεί να γίνει κοινή χρήση της εργασίας σας',
+  'Choose this version': 'Επιλέξτε αυτήν την έκδοση',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Η επιλογή μιας συλλογής περιλαμβάνει και όλο το περιεχόμενο που βρίσκεται μέσα της. Η εφαρμογή δεν θα μπορεί να αλλάξει τις συλλογές, τις αποθηκευμένες αναζητήσεις, τις ρυθμίσεις ή τις ετικέτες σας.',
   'Citation': 'Παραπομπή',
@@ -327,6 +330,7 @@ export default {
   'Link issued.': 'Ο σύνδεσμος εκδόθηκε.',
   'Links to this collection': 'Σύνδεσμοι προς αυτή τη συλλογή',
   'Loading…': 'Φόρτωση…',
+  'Local version: {value}': 'Τοπική έκδοση: {value}',
   'Made {date}': 'Δημιουργήθηκε: {date}',
   'Make a member': 'Μετατροπή σε μέλος',
   'Make administrator': 'Μετατροπή σε διαχειριστή',
@@ -471,6 +475,7 @@ export default {
   'Registration is open on this server.': 'Η εγγραφή είναι ανοιχτή σε αυτόν τον διακομιστή.',
   'Reinstate': 'Επαναφορά',
   'Related': 'Σχετικό',
+  'Remote version: {value}': 'Απομακρυσμένη έκδοση: {value}',
   'Remove': 'Αφαίρεση',
   'Remove Creator': 'Αφαίρεση δημιουργού',
   'Remove Related': 'Αφαίρεση σχετικού',

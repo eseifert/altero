@@ -2,6 +2,7 @@
 
 export default {
   ' from {address}': ' von {address}',
+  '(empty)': '(leer)',
   '(untitled)': '(ohne Titel)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Eine Creative-Commons-Lizenz erlaubt es anderen, dein Werk zu vervielfältigen und weiterzuverbreiten, solange du als Urheber korrekt genannt wirst, ein Link zur Lizenz vorhanden ist und kenntlich gemacht wird, ob Bearbeitungen vorgenommen wurden. Zusätzliche Bedingungen kannst du unten auswählen.',
@@ -107,6 +108,7 @@ export default {
   'Change the rights': 'Rechte ändern',
   'Change this provider': 'Diesen Anbieter ändern',
   'Change who can see it': 'Ändern, wer sie sehen kann',
+  'Changed elsewhere while you were editing.': 'Während der Bearbeitung anderswo geändert.',
   'Checked.': 'Geprüft.',
   'Checking the link…': 'Link wird geprüft…',
   'Checking the request…': 'Anfrage wird geprüft …',
@@ -116,6 +118,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Wählen Sie mindestens eine Bibliothek oder Sammlung, oder erlauben Sie alles von oben.',
   'Choose how your work may be shared': 'Wähle, wie dein Werk geteilt werden darf',
+  'Choose this version': 'Diese Version auswählen',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Eine gewählte Sammlung schließt alles darin Verschachtelte ein. Die Anwendung kann Ihre Sammlungen, gespeicherten Suchen, Einstellungen und Tags nicht ändern.',
   Citation: 'Zitat',
@@ -320,6 +323,7 @@ export default {
   'Link issued.': 'Link ausgestellt.',
   'Links to this collection': 'Links zu dieser Sammlung',
   'Loading…': 'Wird geladen …',
+  'Local version: {value}': 'Lokale Version: {value}',
   'Made {date}': 'Erstellt {date}',
   'Make a member': 'Zum Mitglied machen',
   'Make administrator': 'Zum Verwalter machen',
@@ -467,6 +471,7 @@ export default {
   Remove: 'Entfernen',
   'Reinstate': 'Wieder freigeben',
   'Related': 'Zugehörig',
+  'Remote version: {value}': 'Nicht-lokale Version: {value}',
   'Remove Creator': 'Urheber entfernen',
   'Remove Related': 'Verwandten Eintrag entfernen',
   'Remove Tag': 'Tag entfernen',

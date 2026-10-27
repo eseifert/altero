@@ -8,6 +8,7 @@
 
 export default {
   ' from {address}': ' ({address}에서)',
+  '(empty)': '(비어 있음)',
   '(untitled)': '(제목없음)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons 라이선스는 적절한 저작자 표시, 라이선스 링크 제공, 변경 사항 명시를 조건으로 다른 사람이 저작물을 복제하고 재배포하도록 허용합니다. 아래에서 추가 조건을 지정할 수 있습니다.',
@@ -114,6 +115,7 @@ export default {
   'Change the rights': '권한 변경',
   'Change this provider': '제공자 변경',
   'Change who can see it': '공개 대상 변경',
+  'Changed elsewhere while you were editing.': '편집하는 동안 다른 곳에서 변경되었습니다.',
   'Checked.': '확인했습니다.',
   'Checking the link…': '링크 확인 중…',
   'Checking the request…': '요청 확인 중…',
@@ -123,6 +125,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     '라이브러리나 컬렉션을 하나 이상 선택하거나 위의 모든 내용을 허용하세요.',
   'Choose how your work may be shared': '저작물 공유 방식 선택',
+  'Choose this version': '이 버전 선택',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     '컬렉션을 선택하면 모든 하위 내용도 포함됩니다. 애플리케이션은 컬렉션, 저장된 검색내용, 설정, 태그를 변경할 수 없습니다.',
   'Citation': '인용',
@@ -324,6 +327,7 @@ export default {
   'Link issued.': '링크를 발급했습니다.',
   'Links to this collection': '이 컬렉션의 공유 링크',
   'Loading…': '불러오는 중…',
+  'Local version: {value}': '로컬 버전: {value}',
   'Made {date}': '생성 날짜: {date}',
   'Make a member': '멤버로 변경',
   'Make administrator': '관리자로 변경',
@@ -465,6 +469,7 @@ export default {
   'Registration is open on this server.': '이 서버는 계정 등록을 허용합니다.',
   'Reinstate': '활성화',
   'Related': '연관',
+  'Remote version: {value}': '원격 버전: {value}',
   'Remove': '제거',
   'Remove Creator': '창작가 제거',
   'Remove Related': '연관 항목 제거',

@@ -7,6 +7,7 @@
 
 export default {
   ' from {address}': '（{address} から）',
+  '(empty)': '（空）',
   '(untitled)': '（無題）',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'クリエイティブ・コモンズ・ライセンスは、適切なクレジット表示とライセンスへのリンクを提供し、変更が加えられたかどうかを示す限り、他の人があなたの著作物をコピーして再配布することを許可するものです。以下に追加条件を指定することができます。',
@@ -108,6 +109,7 @@ export default {
   'Change the rights': '権利を変更',
   'Change this provider': 'このプロバイダーを変更',
   'Change who can see it': '見られる人を変更',
+  'Changed elsewhere while you were editing.': '編集中に別の場所で変更されました。',
   'Checked.': '確認しました。',
   'Checking the link…': 'リンクを確認しています…',
   'Checking the request…': 'リクエストを確認しています…',
@@ -117,6 +119,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'ライブラリまたはコレクションを少なくとも 1 つ選ぶか、上のすべてを許可してください。',
   'Choose how your work may be shared': 'あなたの著作物を共有する方法を選択してください',
+  'Choose this version': 'このバージョンを選択',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'コレクションを選ぶと、その中に入れ子になっているものもすべて含まれます。アプリケーションはコレクション、保存された検索、設定、タグを変更できません。',
   Citation: '引用',
@@ -312,6 +315,7 @@ export default {
   'Link issued.': 'リンクを発行しました。',
   'Links to this collection': 'このコレクションへのリンク',
   'Loading…': '読み込み中…',
+  'Local version: {value}': 'ローカルのバージョン : {value}',
   'Made {date}': '作成 {date}',
   'Make a member': 'メンバーにする',
   'Make administrator': '管理者にする',
@@ -450,6 +454,7 @@ export default {
   Remove: '削除',
   'Reinstate': '利用を再開',
   'Related': '関連項目',
+  'Remote version: {value}': 'リモートのバージョン : {value}',
   'Remove Creator': '作成者を削除',
   'Remove Related': '関連項目を削除',
   'Remove Tag': 'タグを削除',

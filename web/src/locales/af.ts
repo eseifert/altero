@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' vanaf {address}',
+  '(empty)': '(leeg)',
   '(untitled)': '(sonder titel)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Met ’n Creative Commons-lisensie mag ander u werk kopieer en herversprei, solank hulle u behoorlik erken, ’n skakel na die lisensie verskaf en aandui of veranderinge aangebring is. U kan hieronder bykomende voorwaardes stel.',
@@ -119,6 +120,7 @@ export default {
   'Change the rights': 'Verander die regte',
   'Change this provider': 'Verander hierdie verskaffer',
   'Change who can see it': 'Verander wie dit kan sien',
+  'Changed elsewhere while you were editing.': 'Elders verander terwyl jy dit gewysig het.',
   'Checked.': 'Gekontroleer.',
   'Checking the link…': 'Kontroleer die skakel…',
   'Checking the request…': 'Kontroleer die versoek…',
@@ -128,6 +130,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Kies minstens een biblioteek of versameling, of laat alles hierbo toe.',
   'Choose how your work may be shared': 'Kies hoe u werk gedeel mag word',
+  'Choose this version': 'Kies hierdie weergawe',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     '’n Gekose versameling sluit ook alles in wat daarbinne geneste is. Die toepassing sal nie u versamelings, gestoorde soektogte, instellings of etikette kan verander nie.',
   'Citation': 'Aanhaling',
@@ -337,6 +340,7 @@ export default {
   'Link issued.': 'Skakel uitgereik.',
   'Links to this collection': 'Skakels na hierdie versameling',
   'Loading…': 'Laai tans…',
+  'Local version: {value}': 'Plaaslike weergawe: {value}',
   'Made {date}': 'Gemaak op {date}',
   'Make a member': 'Maak lid',
   'Make administrator': 'Maak administrateur',
@@ -486,6 +490,7 @@ export default {
   'Registration is open on this server.': 'Registrasie is oop op hierdie bediener.',
   'Reinstate': 'Herstel',
   'Related': 'Verwant',
+  'Remote version: {value}': 'Afgeleë weergawe: {value}',
   'Remove': 'Verwyder',
   'Remove Creator': 'Verwyder skepper',
   'Remove Related': 'Verwyder verwante item',

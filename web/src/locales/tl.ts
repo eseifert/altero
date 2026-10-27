@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' mula sa {address}',
+  '(empty)': '(walang laman)',
   '(untitled)': '(walang pamagat)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Pinapayagan ng lisensyang Creative Commons ang iba na kopyahin at muling ipamahagi ang iyong akda basta’t magbigay sila ng angkop na pagkilala, maglagay ng link sa lisensya, at ipahiwatig kung may binago. Maaaring magtakda ng mga karagdagang kondisyon sa ibaba.',
@@ -122,6 +123,7 @@ export default {
   'Change the rights': 'Baguhin ang mga karapatan',
   'Change this provider': 'Baguhin ang provider na ito',
   'Change who can see it': 'Baguhin kung sino ang makakakita nito',
+  'Changed elsewhere while you were editing.': 'Binago sa ibang lugar habang nag-e-edit ka.',
   'Checked.': 'Nasuri na.',
   'Checking the link…': 'Sinusuri ang link…',
   'Checking the request…': 'Sinusuri ang request…',
@@ -131,6 +133,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Pumili ng kahit isang library o koleksyon, o payagan ang lahat sa itaas.',
   'Choose how your work may be shared': 'Piliin kung paano maaaring ibahagi ang iyong akda',
+  'Choose this version': 'Piliin ang bersyong ito',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Kapag pumili ka ng koleksyon, kasama na rin ang lahat ng nasa loob nito. Hindi mababago ng application ang iyong mga koleksyon, naka-save na paghahanap, setting o tag.',
   'Citation': 'Sitasyon',
@@ -343,6 +346,7 @@ export default {
   'Link issued.': 'Nagawa ang link.',
   'Links to this collection': 'Mga link sa koleksyong ito',
   'Loading…': 'Naglo-load…',
+  'Local version: {value}': 'Lokal na bersyon: {value}',
   'Made {date}': 'Ginawa {date}',
   'Make a member': 'Gawing miyembro',
   'Make administrator': 'Gawing administrator',
@@ -494,6 +498,7 @@ export default {
   'Registration is open on this server.': 'Bukas ang pagpaparehistro sa server na ito.',
   'Reinstate': 'Ibalik',
   'Related': 'Kaugnay',
+  'Remote version: {value}': 'Malayong bersyon: {value}',
   'Remove': 'Alisin',
   'Remove Creator': 'Alisin ang Lumikha',
   'Remove Related': 'Alisin ang Kaugnay',

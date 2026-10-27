@@ -1,4 +1,4 @@
-import { expect, signIn, test } from './state'
+import { expect, signIn, state, test } from './state'
 
 test('a library shows what a client synced, and an item opens', async ({ page }) => {
   await signIn(page)
@@ -172,4 +172,62 @@ test('a new item opens with its title ready to type, and is kept', async ({ page
   await page.reload()
   await page.getByText(title).first().click()
   await expect(page.locator('.detail__type')).toHaveText('Book')
+})
+
+/** Change an item through the v3 API, as a desktop syncing meanwhile would. */
+async function changeElsewhere(title: string, fields: Record<string, string>): Promise<void> {
+  const { baseURL, key } = state()
+  const headers = { 'Zotero-API-Key': key, 'Content-Type': 'application/json' }
+  const found = await fetch(`${baseURL}/users/1/items?q=${encodeURIComponent(title)}`, { headers })
+  const [item] = (await found.json()) as [{ key: string; version: number }]
+  const written = await fetch(`${baseURL}/users/1/items/${item.key}`, {
+    method: 'PATCH',
+    headers: { ...headers, 'If-Unmodified-Since-Version': String(item.version) },
+    body: JSON.stringify(fields),
+  })
+  expect(written.status).toBe(204)
+}
+
+test('an edit over a change made elsewhere to another field is saved', async ({ page }, testInfo) => {
+  const date = testInfo.project.name === 'phone' ? '1834' : '1833'
+  await signIn(page)
+  await page.getByText('Letter to Charles Babbage').first().click()
+  await changeElsewhere('Letter to Charles Babbage', { extra: `synced (${testInfo.project.name})` })
+
+  const row = page.locator('.detail dd').filter({ has: page.locator('[aria-labelledby$="-date"]') })
+  await row.locator('.info__value').click()
+  await row.locator('textarea').fill(date)
+  await row.locator('textarea').press('Enter')
+  await expect(row.getByRole('status')).toHaveText('Saved.')
+
+  await page.reload()
+  await page.getByText('Letter to Charles Babbage').first().click()
+  await expect(page.locator('.detail .info__value[aria-labelledby$="-date"]')).toHaveText(date)
+  await expect(page.locator('.detail .info__value[aria-labelledby$="-extra"]')).toHaveText(
+    `synced (${testInfo.project.name})`,
+  )
+})
+
+test('an edit over a change made elsewhere to the same field asks which to keep', async ({ page }, testInfo) => {
+  const mine = `Mine (${testInfo.project.name})`
+  const theirs = `Theirs (${testInfo.project.name})`
+  await signIn(page)
+  await page.getByText('Letter to Charles Babbage').first().click()
+  await changeElsewhere('Letter to Charles Babbage', { letterType: theirs })
+
+  const row = page.locator('.detail dd').filter({ has: page.locator('[aria-labelledby$="-letterType"]') })
+  await row.locator('.info__value').click()
+  await row.locator('textarea').fill(mine)
+  await row.locator('textarea').press('Enter')
+
+  const notice = row.locator('.conflict')
+  await expect(notice).toContainText(`Local version: ${mine}`)
+  await expect(notice).toContainText(`Remote version: ${theirs}`)
+  await expect(row.locator('.info__value')).toHaveText(theirs)
+
+  await notice.getByRole('button', { name: 'Choose this version' }).first().click()
+  await expect(row.getByRole('status')).toHaveText('Saved.')
+  await page.reload()
+  await page.getByText('Letter to Charles Babbage').first().click()
+  await expect(page.locator('.detail .info__value[aria-labelledby$="-letterType"]')).toHaveText(mine)
 })

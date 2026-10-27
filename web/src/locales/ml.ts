@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' · വിലാസം: {address}',
+  '(empty)': '(ശൂന്യം)',
   '(untitled)': '(പേരില്ലാത്തത്)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'ഉചിതമായ കടപ്പാട് നൽകുകയും ലൈസൻസിലേക്കുള്ള ലിങ്ക് നൽകുകയും മാറ്റങ്ങൾ വരുത്തിയിട്ടുണ്ടെങ്കിൽ അത് സൂചിപ്പിക്കുകയും ചെയ്യുന്നിടത്തോളം, നിങ്ങളുടെ കൃതി പകർത്താനും പുനർവിതരണം ചെയ്യാനും Creative Commons ലൈസൻസ് മറ്റുള്ളവരെ അനുവദിക്കുന്നു. കൂടുതൽ വ്യവസ്ഥകൾ താഴെ വ്യക്തമാക്കാം.',
@@ -118,6 +119,7 @@ export default {
   'Change the rights': 'അവകാശങ്ങൾ മാറ്റുക',
   'Change this provider': 'ഈ ദാതാവിനെ തിരുത്തുക',
   'Change who can see it': 'ഇത് ആർക്കൊക്കെ കാണാമെന്ന് മാറ്റുക',
+  'Changed elsewhere while you were editing.': 'നിങ്ങൾ തിരുത്തുന്നതിനിടെ മറ്റൊരിടത്ത് മാറ്റം വരുത്തി.',
   'Checked.': 'പരിശോധിച്ചു.',
   'Checking the link…': 'ലിങ്ക് പരിശോധിക്കുന്നു…',
   'Checking the request…': 'അഭ്യർത്ഥന പരിശോധിക്കുന്നു…',
@@ -127,6 +129,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'കുറഞ്ഞത് ഒരു ലൈബ്രറിയോ ശേഖരമോ തിരഞ്ഞെടുക്കുക, അല്ലെങ്കിൽ മുകളിലുള്ളതെല്ലാം അനുവദിക്കുക.',
   'Choose how your work may be shared': 'നിങ്ങളുടെ കൃതി എങ്ങനെ പങ്കിടാമെന്ന് തിരഞ്ഞെടുക്കുക',
+  'Choose this version': 'ഈ പതിപ്പ് തിരഞ്ഞെടുക്കുക',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'ഒരു ശേഖരം തിരഞ്ഞെടുക്കുമ്പോൾ അതിനുള്ളിലുള്ളതെല്ലാം ഉൾപ്പെടും. ആപ്ലിക്കേഷന് നിങ്ങളുടെ ശേഖരങ്ങൾ, സംരക്ഷിച്ച തിരയലുകൾ, ക്രമീകരണങ്ങൾ, ടാഗുകൾ എന്നിവ മാറ്റാനാവില്ല.',
   Citation: 'ഉദ്ധരണി',
@@ -339,6 +342,7 @@ export default {
   'Link issued.': 'ലിങ്ക് നൽകി.',
   'Links to this collection': 'ഈ ശേഖരത്തിലേക്കുള്ള ലിങ്കുകൾ',
   'Loading…': 'ലോഡ് ചെയ്യുന്നു…',
+  'Local version: {value}': 'പ്രാദേശിക പതിപ്പ്: {value}',
   'Made {date}': 'സൃഷ്ടിച്ചത്: {date}',
   'Make a member': 'അംഗമാക്കുക',
   'Make administrator': 'അഡ്‌മിനിസ്ട്രേറ്ററാക്കുക',
@@ -494,6 +498,7 @@ export default {
   Reinstate: 'വീണ്ടും സജീവമാക്കുക',
   Remove: 'നീക്കം ചെയ്യുക',
   'Related': 'ബന്ധപ്പെട്ടവ',
+  'Remote version: {value}': 'വിദൂര പതിപ്പ്: {value}',
   'Remove Creator': 'സ്രഷ്ടാവിനെ നീക്കം ചെയ്യുക',
   'Remove Related': 'ബന്ധപ്പെട്ടത് നീക്കം ചെയ്യുക',
   'Remove Tag': 'ടാഗ് നീക്കം ചെയ്യുക',

@@ -2,6 +2,7 @@
 
 export default {
   ' from {address}': ' van {address}',
+  '(empty)': '(leeg)',
   '(untitled)': '(zonder titel)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Een Creative Commons-licentie staat anderen toe uw werk te kopiëren en te verspreiden, zolang zij u naar behoren vermelden, een link naar de licentie geven en aangeven of er wijzigingen zijn aangebracht. Hieronder kunt u aanvullende voorwaarden opgeven.',
@@ -117,6 +118,7 @@ export default {
   'Change the rights': 'De rechten wijzigen',
   'Change this provider': 'Deze aanbieder wijzigen',
   'Change who can see it': 'Wijzigen wie het kan zien',
+  'Changed elsewhere while you were editing.': 'Elders gewijzigd terwijl u aan het bewerken was.',
   'Checked.': 'Gecontroleerd.',
   'Checking the link…': 'De link wordt gecontroleerd…',
   'Checking the request…': 'Het verzoek wordt gecontroleerd…',
@@ -126,6 +128,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Kies ten minste één bibliotheek of verzameling, of sta alles hierboven toe.',
   'Choose how your work may be shared': 'Kiezen hoe uw werk gedeeld mag worden',
+  'Choose this version': 'Kies deze versie',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Een gekozen verzameling omvat ook alles wat erin zit. De toepassing kan je verzamelingen, bewaarde zoekopdrachten, instellingen en labels niet wijzigen.',
   'Citation': 'Verwijzing',
@@ -335,6 +338,7 @@ export default {
   'Link issued.': 'Link uitgegeven.',
   'Links to this collection': 'Links naar deze verzameling',
   'Loading…': 'Laden…',
+  'Local version: {value}': 'Lokale versie: {value}',
   'Made {date}': 'Gemaakt {date}',
   'Make a member': 'Tot lid maken',
   'Make administrator': 'Tot beheerder maken',
@@ -488,6 +492,7 @@ export default {
   'Registration is open on this server.': 'Registratie staat open op deze server.',
   'Reinstate': 'Herstellen',
   'Related': 'Gerelateerd',
+  'Remote version: {value}': 'Versie op server: {value}',
   'Remove': 'Verwijderen',
   'Remove Creator': 'Maker verwijderen',
   'Remove Related': 'Gerelateerd item verwijderen',

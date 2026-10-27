@@ -55,11 +55,10 @@ is an ordinary field in its Info pane. The dialog offers the same eight
 licenses the wizard does, by code and by name, and free text for everything
 else a Rights field says — “© 1974 the author” as readily as a license.
 
-It is the only field this interface writes, and it states the version it is
-replacing: filing and trashing are add-and-remove errands the server works out
-against what is stored, so a stale page cannot express a wrong one, but typing
-over a license that another client changed while the page sat open is a lost
-write. A stale edit is refused rather than applied.
+If another client changed the Rights field while the page was open, the
+chooser says so and writes nothing; choosing again writes over their change.
+A change to any other field is no obstacle. See
+[Editing an item](library.md#editing-an-item).
 
 **Taking it out again** is `Delete` in the My Publications view, or a button in
 the detail pane, and it asks first. The work leaves the published list with its

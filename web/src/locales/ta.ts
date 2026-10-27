@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' · முகவரி: {address}',
+  '(empty)': '(வெறுமை)',
   '(untitled)': '(தலைப்பிடப்படாத)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons உரிமம், மற்றவர்கள் உங்களுக்கு உரிய மதிப்பளித்து, உரிமத்திற்கான தொடுப்பை வழங்கி, மாற்றங்கள் செய்யப்பட்டிருந்தால் அதைக் குறிப்பிடும் வரை, உங்கள் படைப்பை நகலெடுக்கவும் மறுபகிர்வு செய்யவும் அனுமதிக்கிறது. கூடுதல் நிபந்தனைகளைக் கீழே குறிப்பிடலாம்.',
@@ -119,6 +120,7 @@ export default {
   'Change the rights': 'உரிமைகளை மாற்று',
   'Change this provider': 'இந்த வழங்குநரை மாற்று',
   'Change who can see it': 'யார் பார்க்கலாம் என்பதை மாற்று',
+  'Changed elsewhere while you were editing.': 'நீங்கள் திருத்திக்கொண்டிருக்கும்போது வேறிடத்தில் மாற்றப்பட்டது.',
   'Checked.': 'சரிபார்க்கப்பட்டது.',
   'Checking the link…': 'தொடுப்பைச் சரிபார்க்கிறது…',
   'Checking the request…': 'கோரிக்கையைச் சரிபார்க்கிறது…',
@@ -130,6 +132,7 @@ export default {
     'குறைந்தது ஒரு நூலகத்தையோ சேகரிப்பையோ தேர்ந்தெடுக்கவும், அல்லது மேலே உள்ள அனைத்தையும் அனுமதிக்கவும்.',
   'Choose how your work may be shared':
     'உங்கள் படைப்பு எவ்வாறு பகிரப்படலாம் என்பதைத் தேர்ந்தெடுக்கவும்',
+  'Choose this version': 'இந்த பதிப்பைத் தேர்வுசெய்க',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'ஒரு சேகரிப்பைத் தேர்ந்தெடுத்தால், அதனுள் உள்ள அனைத்தும் சேர்க்கப்படும். பயன்பாட்டால் உங்கள் சேகரிப்புகள், சேமித்த தேடல்கள், அமைப்புகள் அல்லது குறிச்சொற்களை மாற்ற முடியாது.',
   'Citation': 'மேற்கோள்',
@@ -343,6 +346,7 @@ export default {
   'Link issued.': 'தொடுப்பு வழங்கப்பட்டது.',
   'Links to this collection': 'இந்தச் சேகரிப்புக்கான தொடுப்புகள்',
   'Loading…': 'ஏற்றுகிறது…',
+  'Local version: {value}': 'உள்ளக பதிப்பு: {value}',
   'Made {date}': 'உருவாக்கப்பட்டது: {date}',
   'Make a member': 'உறுப்பினராக்கு',
   'Make administrator': 'நிர்வாகியாக்கு',
@@ -499,6 +503,7 @@ export default {
   'Registration is open on this server.': 'இந்தச் சேவையகத்தில் பதிவு திறந்துள்ளது.',
   'Reinstate': 'மீண்டும் செயல்படுத்து',
   'Related': 'தொடர்புடைய',
+  'Remote version: {value}': 'தொலை பதிப்பு: {value}',
   'Remove': 'அகற்று',
   'Remove Creator': 'உருவாக்கியவரை நீக்கு',
   'Remove Related': 'தொடர்புடையதை நீக்கு',

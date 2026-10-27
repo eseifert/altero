@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' frå {address}',
+  '(empty)': '(tom)',
   '(untitled)': '(utan tittel)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Ein Creative Commons-lisens lèt andre kopiere og vidarespreie arbeidet ditt så lenge dei krediterer deg på rett måte, lenkjer til lisensen og opplyser om det er gjort endringar. Tilleggsvilkår kan du setje nedanfor.',
@@ -118,6 +119,7 @@ export default {
   'Change the rights': 'Endre rettane',
   'Change this provider': 'Endre denne leverandøren',
   'Change who can see it': 'Endre kven som kan sjå ho',
+  'Changed elsewhere while you were editing.': 'Endra ein annan stad medan du redigerte.',
   'Checked.': 'Kontrollert.',
   'Checking the link…': 'Kontrollerer lenkja…',
   'Checking the request…': 'Kontrollerer førespurnaden…',
@@ -127,6 +129,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Vel minst eitt bibliotek eller éi samling, eller tillat alt ovanfor.',
   'Choose how your work may be shared': 'Vel korleis arbeidet ditt kan delast',
+  'Choose this version': 'Vel denne versjonen',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Vel du ei samling, følgjer alt som ligg inni ho, med. Programmet vil ikkje kunne endre samlingane, dei lagra søka, innstillingane eller taggane dine.',
   'Citation': 'Sitering',
@@ -336,6 +339,7 @@ export default {
   'Link issued.': 'Lenkja er laga.',
   'Links to this collection': 'Lenkjer til denne samlinga',
   'Loading…': 'Lastar…',
+  'Local version: {value}': 'Lokal versjon: {value}',
   'Made {date}': 'Laga {date}',
   'Make a member': 'Gjer til medlem',
   'Make administrator': 'Gjer til administrator',
@@ -489,6 +493,7 @@ export default {
   'Registration is open on this server.': 'Registreringa er open på denne tenaren.',
   'Reinstate': 'Gjeninnset',
   'Related': 'Relatert',
+  'Remote version: {value}': 'Ekstern versjon: {value}',
   'Remove': 'Fjern',
   'Remove Creator': 'Fjern opphavar',
   'Remove Related': 'Fjern relatert',

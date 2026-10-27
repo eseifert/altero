@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-import { request } from '@/api/client'
+import { ApiError, request } from '@/api/client'
 
 /**
  * How far a change may go, when the library is writable at all.
@@ -81,6 +81,54 @@ export interface ItemChanges {
   note?: string
   itemType?: string
   discard?: string[]
+}
+
+/**
+ * How a save is carried over a change somebody else made meanwhile.
+ *
+ * `rebase` works the edit out again against the item as it now stands, for an
+ * edit that is an errand rather than a value -- "add this tag" applies as well
+ * to the new list as to the old. It answers `null` when nothing is left to do.
+ */
+export interface SaveOptions {
+  rebase?: (fresh: ItemEnvelope) => ItemChanges | null
+}
+
+/** What the item pane is handed to write an edit with. */
+export type SaveItem = (changes: ItemChanges, options?: SaveOptions) => Promise<unknown>
+
+/**
+ * A save refused because the item changed elsewhere, in what was being saved.
+ *
+ * By the time it is thrown the page holds the item as it now stands, so
+ * `fresh` is what the screen shows; saving `changes` again writes over it,
+ * which only the person who made both may choose to do.
+ */
+export class EditConflict extends Error {
+  readonly fresh: ItemEnvelope
+  readonly changes: ItemChanges
+
+  constructor(fresh: ItemEnvelope, changes: ItemChanges) {
+    super('The item was changed elsewhere while it was being edited')
+    this.name = 'EditConflict'
+    this.fresh = fresh
+    this.changes = changes
+  }
+}
+
+/** Whether what ``changes`` writes stands in ``after`` as it stood in ``before``. */
+export function untouched(before: ItemEnvelope, after: ItemEnvelope, changes: ItemChanges): boolean {
+  const text = (value: unknown) => (typeof value === 'string' ? value : '')
+  const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null)
+  for (const name of Object.keys(changes.fields ?? {})) {
+    if (text(before.data[name]) !== text(after.data[name])) return false
+  }
+  if (changes.creators && !same(before.data.creators ?? [], after.data.creators ?? [])) return false
+  if (changes.tags && !same(before.data.tags ?? [], after.data.tags ?? [])) return false
+  if (changes.relations && !same(before.data.relations ?? {}, after.data.relations ?? {})) return false
+  if (changes.note !== undefined && text(before.data.note) !== text(after.data.note)) return false
+  if (changes.itemType && before.data.itemType !== after.data.itemType) return false
+  return true
 }
 
 export interface CollectionEnvelope {
@@ -615,46 +663,54 @@ export const useLibraryStore = defineStore('library', () => {
   }
 
   /**
-   * Write the fields of ``key`` the browser is allowed to write.
-   *
-   * One field today — Rights, which is a published work's licence — and the
-   * version is sent with it. The server refuses a stale one rather than
-   * letting a page that has sat open all afternoon type over what somebody
-   * else changed; the other item writes need no such thing, being errands the
-   * server works out against what is stored.
-   */
-  async function editItem(key: string, fields: Record<string, string>): Promise<void> {
-    if (libraryId.value === null) return
-    const current = items.value.find((entry) => entry.key === key) ?? selected.value
-    await request(`/web/libraries/${libraryId.value}/items/${key}`, {
-      method: 'PATCH',
-      body: { fields, version: current?.version },
-    })
-    await afterItemWrite()
-  }
-
-  /**
    * Write one edit of ``key``, stating the version it replaces.
    *
    * The answer is the item as it now stands, and it goes straight into the
    * pane, the row and the children rather than through a reload of the whole
    * list: a field saved on every blur would otherwise cost three requests and
-   * a redraw for a change the reader can already see. A stale version is
-   * refused with 412 and thrown to the caller, which knows what was being
-   * edited and so what to tell the reader.
+   * a redraw for a change the reader can already see.
+   *
+   * A stale version is refused with 412, and then the item is read again and
+   * put on the page. Where what this edit writes is as it was -- somebody else
+   * changed another field -- the edit is sent again on the new version, and
+   * an edit that is an errand is worked out again by ``rebase``. Otherwise it
+   * would write over their change, and that is the reader's decision: an
+   * {@link EditConflict} says so, and nothing is written.
    */
-  async function saveItem(key: string, changes: ItemChanges): Promise<ItemEnvelope | null> {
+  async function saveItem(
+    key: string,
+    changes: ItemChanges,
+    options: SaveOptions = {},
+  ): Promise<ItemEnvelope | null> {
     if (libraryId.value === null) return null
+    const library = libraryId.value
     const current =
       (selected.value?.key === key ? selected.value : undefined) ??
       items.value.find((entry) => entry.key === key) ??
       children.value.find((entry) => entry.key === key)
-    const fresh = await request<ItemEnvelope>(`/web/libraries/${libraryId.value}/items/${key}`, {
-      method: 'PATCH',
-      body: { ...changes, version: current?.version },
-    })
+    const send = async (body: ItemChanges, version: number | undefined) => {
+      const answer = await request<ItemEnvelope>(`/web/libraries/${library}/items/${key}`, {
+        method: 'PATCH',
+        body: { ...body, version },
+      })
+      put(answer)
+      return answer
+    }
+
+    try {
+      return await send(changes, current?.version)
+    } catch (thrown) {
+      if (!(thrown instanceof ApiError && thrown.status === 412)) throw thrown
+    }
+
+    const fresh = await request<ItemEnvelope>(`/web/libraries/${library}/items/${key}`)
     put(fresh)
-    return fresh
+    if (options.rebase) {
+      const again = options.rebase(fresh)
+      return again ? send(again, fresh.version) : fresh
+    }
+    if (current && untouched(current, fresh, changes)) return send(changes, fresh.version)
+    throw new EditConflict(fresh, changes)
   }
 
   /** Replace every copy of an item the page holds with ``fresh``. */
@@ -1066,7 +1122,6 @@ export const useLibraryStore = defineStore('library', () => {
     emptyTrash,
     copyItems,
     childrenOf,
-    editItem,
     saveItem,
     createItem,
     relatedOf,

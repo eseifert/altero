@@ -5,11 +5,13 @@ import { useI18n } from 'vue-i18n'
 import { ApiError } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/AppIcon.vue'
+import ConflictNotice from '@/components/ConflictNotice.vue'
 import CreatorEditor from '@/components/CreatorEditor.vue'
 import { formatDateTime } from '@/formats'
 import { dateOrder } from '@/items/dates'
 import { fieldLabel, itemTypeLabel, regularItemTypes, typeOutline } from '@/items/labels'
-import type { CreatorEntry, ItemChanges, ItemEnvelope } from '@/stores/library'
+import { EditConflict } from '@/stores/library'
+import type { CreatorEntry, ItemEnvelope, SaveItem } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 
 /*
@@ -31,7 +33,7 @@ const props = defineProps<{
   /** Whether this account may change this item, which the server decides. */
   editable: boolean
   /** Writes an edit and resolves once the server has answered. */
-  save?: (changes: ItemChanges) => Promise<unknown>
+  save?: SaveItem
 }>()
 
 const emit = defineEmits<{
@@ -137,6 +139,8 @@ const draft = ref('')
 const busy = ref<string | null>(null)
 const saved = ref<string | null>(null)
 const failure = ref<{ name: string; message: string } | null>(null)
+/** A value typed here while somebody else changed the same field. */
+const conflict = ref<{ name: string; mine: string } | null>(null)
 const input = ref<HTMLTextAreaElement | HTMLTextAreaElement[] | null>(null)
 /** The height of the value being edited, which its box starts at. */
 const openHeight = ref(0)
@@ -162,6 +166,7 @@ async function open(name: string): Promise<void> {
   editing.value = name
   draft.value = value(name)
   failure.value = null
+  conflict.value = null
   await nextTick()
   grow()
   box()?.focus()
@@ -180,18 +185,35 @@ async function commit(): Promise<void> {
   if (!MULTILINE.has(name)) draft.value = draft.value.replace(/\r?\n/g, ' ')
   if (draft.value === value(name) || !props.save) return
 
+  await write(name, draft.value)
+}
+
+async function write(name: string, text: string): Promise<void> {
+  if (!props.save) return
   busy.value = name
   saved.value = null
+  conflict.value = null
   try {
-    await props.save({ fields: { [name]: draft.value } })
+    await props.save({ fields: { [name]: text } })
     saved.value = name
     clearTimeout(savedTimer)
     savedTimer = setTimeout(() => (saved.value = null), 2000)
   } catch (thrown) {
-    failure.value = { name, message: thrown instanceof Error ? thrown.message : String(thrown) }
+    if (thrown instanceof EditConflict) {
+      conflict.value = { name, mine: text }
+    } else {
+      failure.value = { name, message: thrown instanceof Error ? thrown.message : String(thrown) }
+    }
   } finally {
     busy.value = null
   }
+}
+
+/** The reader's answer to a conflict: their own value written over, or let go. */
+function resolve(keepMine: boolean): void {
+  const found = conflict.value
+  conflict.value = null
+  if (found && keepMine) void write(found.name, found.mine)
 }
 
 function keydown(event: KeyboardEvent, name: string): void {
@@ -231,7 +253,12 @@ async function changeType(itemType: string, discard?: string[]): Promise<void> {
     if (thrown instanceof ApiError && thrown.status === 409 && Array.isArray(lost)) {
       pendingType.value = { itemType, lost: lost.map(String) }
     } else {
-      typeFailure.value = thrown instanceof Error ? thrown.message : String(thrown)
+      typeFailure.value =
+        thrown instanceof EditConflict
+          ? t('Changed elsewhere while you were editing.')
+          : thrown instanceof Error
+            ? thrown.message
+            : String(thrown)
       revertType()
     }
   } finally {
@@ -255,6 +282,7 @@ watch(
   () => {
     editing.value = null
     failure.value = null
+    conflict.value = null
     saved.value = null
     pendingType.value = null
     typeFailure.value = null
@@ -390,6 +418,14 @@ watch(
           </span>
           <span v-if="saved === name" class="info__saved" role="status">{{ t('Saved.') }}</span>
           <p v-if="failure?.name === name" class="info__error" role="alert">{{ failure.message }}</p>
+          <ConflictNotice
+            v-if="conflict?.name === name"
+            :id="`info-${item.key}-${name}-conflict`"
+            :mine="conflict.mine"
+            :theirs="value(name)"
+            @mine="resolve(true)"
+            @theirs="resolve(false)"
+          />
         </dd>
         <CreatorEditor
           v-if="name === creatorsAfter"

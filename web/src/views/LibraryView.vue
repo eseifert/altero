@@ -28,10 +28,12 @@ import { libraryLabel } from '@/librarylabel'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
 import { useAuthStore } from '@/stores/auth'
 import {
+  EditConflict,
   useLibraryStore,
   type CollectionNode,
   type ItemChanges,
   type ItemEnvelope,
+  type SaveOptions,
   type TagEntry,
 } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
@@ -798,10 +800,10 @@ async function startPublishing(item: ItemEnvelope): Promise<void> {
 const editingRights = ref<ItemEnvelope | null>(null)
 
 /** One edit from the Info pane, of the item the pane is showing. */
-function saveSelected(changes: ItemChanges): Promise<unknown> {
+function saveSelected(changes: ItemChanges, options?: SaveOptions): Promise<unknown> {
   const item = library.selected
   if (!item) return Promise.resolve()
-  return library.saveItem(item.key, changes)
+  return library.saveItem(item.key, changes, options)
 }
 
 async function submitRights(rights: string): Promise<void> {
@@ -811,10 +813,15 @@ async function submitRights(rights: string): Promise<void> {
   itemBusy.value = true
   itemError.value = null
   try {
-    await library.editItem(item.key, { rights })
+    await library.saveItem(item.key, { fields: { rights } })
     editingRights.value = null
   } catch (thrown) {
-    itemError.value = thrown instanceof Error ? thrown.message : String(thrown)
+    itemError.value =
+      thrown instanceof EditConflict
+        ? t('Changed elsewhere while you were editing.')
+        : thrown instanceof Error
+          ? thrown.message
+          : String(thrown)
   } finally {
     itemBusy.value = false
   }

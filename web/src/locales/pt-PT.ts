@@ -2,6 +2,7 @@
 
 export default {
   ' from {address}': ' a partir de {address}',
+  '(empty)': '(vazio)',
   '(untitled)': '(sem título)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Uma licença Creative Commons permite que outros copiem e redistribuam o seu trabalho, desde que lhe dêem o devido crédito, incluam uma ligação para a licença e indiquem que alterações foram feitas. Condições adicionais podem ser especificadas mais abaixo.',
@@ -106,6 +107,7 @@ export default {
   'Change the rights': 'Alterar os direitos',
   'Change this provider': 'Alterar este fornecedor',
   'Change who can see it': 'Alterar quem pode vê-la',
+  'Changed elsewhere while you were editing.': 'Alterado noutro local enquanto editava.',
   'Checked.': 'Verificado.',
   'Checking the link…': 'A verificar a ligação…',
   'Checking the request…': 'A verificar o pedido…',
@@ -115,6 +117,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Escolha pelo menos uma biblioteca ou coleção, ou permita tudo o que está acima.',
   'Choose how your work may be shared': 'Escolha a forma de partilha do seu trabalho',
+  'Choose this version': 'Escolher esta versão',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Escolher uma coleção inclui também tudo o que está dentro dela. A aplicação não poderá alterar as suas coleções, pesquisas guardadas, definições nem etiquetas.',
   Citation: 'Citação',
@@ -318,6 +321,7 @@ export default {
   'Link issued.': 'Ligação emitida.',
   'Links to this collection': 'Ligações para esta coleção',
   'Loading…': 'A carregar…',
+  'Local version: {value}': 'Versão local: {value}',
   'Made {date}': 'Criada {date}',
   'Make a member': 'Tornar membro',
   'Make administrator': 'Tornar administrador',
@@ -461,6 +465,7 @@ export default {
   Remove: 'Remover',
   'Reinstate': 'Reativar',
   'Related': 'Relações',
+  'Remote version: {value}': 'Versão remota: {value}',
   'Remove Creator': 'Remover criador',
   'Remove Related': 'Remover relação',
   'Remove Tag': 'Remover etiqueta',

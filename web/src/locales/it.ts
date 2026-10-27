@@ -2,6 +2,7 @@
 
 export default {
   ' from {address}': ' da {address}',
+  '(empty)': '(vuoto)',
   '(untitled)': '(senza titolo)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Una licenza Creative Commons permette ad altri di copiare e ridistribuire la tua opera, purché ti attribuiscano correttamente la paternità, forniscano un collegamento alla licenza e indichino se sono state apportate modifiche. Ulteriori condizioni si possono indicare qui sotto.',
@@ -116,6 +117,7 @@ export default {
   'Change the rights': 'Cambia i diritti',
   'Change this provider': 'Modifica questo fornitore',
   'Change who can see it': 'Cambia chi può vederla',
+  'Changed elsewhere while you were editing.': 'Modificato altrove mentre lo stavi modificando.',
   'Checked.': 'Verificato.',
   'Checking the link…': 'Verifica del collegamento…',
   'Checking the request…': 'Verifica della richiesta…',
@@ -125,6 +127,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Scegli almeno una biblioteca o collezione, oppure consenti tutto quanto sopra.',
   'Choose how your work may be shared': 'Scegli il metodo di condivisione della tua opera',
+  'Choose this version': 'Scegli questa versione',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Scegliere una collezione include anche tutto ciò che si trova al suo interno. L’applicazione non potrà modificare le tue collezioni, le ricerche salvate, le impostazioni né i tag.',
   'Citation': 'Citazione',
@@ -334,6 +337,7 @@ export default {
   'Link issued.': 'Collegamento emesso.',
   'Links to this collection': 'Collegamenti a questa collezione',
   'Loading…': 'Caricamento…',
+  'Local version: {value}': 'Versione locale: {value}',
   'Made {date}': 'Creato {date}',
   'Make a member': 'Rendi membro',
   'Make administrator': 'Rendi amministratore',
@@ -487,6 +491,7 @@ export default {
   'Registration is open on this server.': 'Su questo server la registrazione è aperta.',
   'Reinstate': 'Riattiva',
   'Related': 'Correlazioni',
+  'Remote version: {value}': 'Versione remota: {value}',
   'Remove': 'Rimuovi',
   'Remove Creator': 'Rimuovi autore',
   'Remove Related': 'Rimuovi elemento correlato',

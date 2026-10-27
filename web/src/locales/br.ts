@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' adalek {address}',
+  '(empty)': '(goullo)',
   '(untitled)': '(hep titl)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     "Gant ul lisañs Creative Commons e c'hall tud all eilañ ha dasparzhañ ho labour, gant ma roint ar c'hred dleet deoc'h, ma lakaint ul liamm davet al lisañs ha ma lavarint hag-eñ ez eus bet degaset cheñchamantoù. Divizoù ouzhpenn a c'haller termeniñ amañ dindan.",
@@ -121,6 +122,7 @@ export default {
   'Change the rights': 'Cheñch al lisañs',
   'Change this provider': 'Cheñch ar pourchaser-mañ',
   'Change who can see it': "Cheñch piv a c'hall e welet",
+  'Changed elsewhere while you were editing.': 'Kemmet e lec\'h all e-pad ma oac\'h oc\'h aozañ.',
   'Checked.': 'Gwiriet.',
   'Checking the link…': 'O wiriañ al liamm…',
   'Checking the request…': 'O wiriañ ar reked…',
@@ -130,6 +132,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     "Dibabit ul levraoueg pe un dastumadeg d'an nebeutañ, pe aotreit pep tra a-us.",
   'Choose how your work may be shared': "Dibabit penaos e c'hall ho labour bezañ rannet",
+  'Choose this version': 'Dibab ar stumm-mañ',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     "Dibab un dastumadeg a lak ivez kement tra a zo enni. An arload ne c'hallo ket cheñch ho tastumadegoù, hoc'h enklaskoù enrollet, hoc'h arventennoù pe ho palizoù.",
   'Citation': 'Arroudenn',
@@ -342,6 +345,7 @@ export default {
   'Link issued.': 'Liamm roet.',
   'Links to this collection': 'Liammoù davet an dastumadeg-mañ',
   'Loading…': 'O kargañ…',
+  'Local version: {value}': 'Stumm lec\'hel: {value}',
   'Made {date}': 'Graet {date}',
   'Make a member': 'Lakaat da ezel',
   'Make administrator': 'Lakaat da verour',
@@ -496,6 +500,7 @@ export default {
   'Registration is open on this server.': 'Digor eo an enskrivañ war ar servijer-mañ.',
   'Reinstate': 'Adweredekaat',
   'Related': 'Kevreet',
+  'Remote version: {value}': 'Stumm a-bell: {value}',
   'Remove': 'Tennañ',
   'Remove Creator': 'Dilemel ar c\'hrouer',
   'Remove Related': 'Dilemel an elfenn gevreet',

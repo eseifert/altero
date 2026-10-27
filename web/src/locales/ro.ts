@@ -5,6 +5,7 @@
 
 export default {
   ' from {address}': ' de la {address}',
+  '(empty)': '(gol)',
   '(untitled)': '(fără titlu)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'O licență Creative Commons le permite altora să copieze și să redistribuie lucrarea ta, cu condiția să specifice cui îi aparține, să ofere un link către licență și să indice dacă au fost făcute modificări. Condiții suplimentare pot fi specificate mai jos.',
@@ -121,6 +122,7 @@ export default {
   'Change the rights': 'Schimbă drepturile',
   'Change this provider': 'Modifică acest furnizor',
   'Change who can see it': 'Schimbă cine o poate vedea',
+  'Changed elsewhere while you were editing.': 'Modificat în altă parte în timp ce editați.',
   'Checked.': 'Verificat.',
   'Checking the link…': 'Se verifică linkul…',
   'Checking the request…': 'Se verifică cererea…',
@@ -130,6 +132,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'Alege cel puțin o bibliotecă sau o colecție ori permite totul mai sus.',
   'Choose how your work may be shared': 'Alege cum poate fi distribuită lucrarea ta',
+  'Choose this version': 'Alege această versiune',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'Alegerea unei colecții include și tot ce se află în interiorul ei. Aplicația nu va putea modifica colecțiile, căutările salvate, setările sau etichetele tale.',
   Citation: 'Citare',
@@ -341,6 +344,7 @@ export default {
   'Link issued.': 'Link emis.',
   'Links to this collection': 'Linkuri către această colecție',
   'Loading…': 'Se încarcă…',
+  'Local version: {value}': 'Versiunea locală: {value}',
   'Made {date}': 'Creat pe {date}',
   'Make a member': 'Fă-l membru',
   'Make administrator': 'Fă administrator',
@@ -495,6 +499,7 @@ export default {
   Reinstate: 'Reactivează',
   Remove: 'Elimină',
   'Related': 'Relații',
+  'Remote version: {value}': 'Versiunea la distanță: {value}',
   'Remove Creator': 'Elimină creatorul',
   'Remove Related': 'Elimină relația',
   'Remove Tag': 'Elimină eticheta',

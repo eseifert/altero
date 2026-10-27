@@ -7,6 +7,7 @@
 
 export default {
   ' from {address}': ' ({address} से)',
+  '(empty)': '(खाली)',
   '(untitled)': '(शीर्षकहीन)',
   'A Creative Commons license allows others to copy and redistribute your work as long as they give appropriate credit, provide a link to the license, and indicate if changes were made. Additional conditions can be specified below.':
     'Creative Commons लाइसेंस दूसरों को आपकी कृति की प्रतिलिपि बनाने और उसे फिर से वितरित करने की अनुमति देता है, बशर्ते वे उचित श्रेय दें, लाइसेंस का लिंक दें और बताएँ कि कोई बदलाव किए गए हैं या नहीं। नीचे अतिरिक्त शर्तें तय की जा सकती हैं।',
@@ -115,6 +116,7 @@ export default {
   'Change the rights': 'अधिकार बदलें',
   'Change this provider': 'यह प्रदाता बदलें',
   'Change who can see it': 'बदलें कि इसे कौन देख सकता है',
+  'Changed elsewhere while you were editing.': 'आपके संपादन के दौरान इसे कहीं और बदला गया।',
   'Checked.': 'जाँच पूरी हुई।',
   'Checking the link…': 'लिंक की जाँच हो रही है…',
   'Checking the request…': 'अनुरोध की जाँच हो रही है…',
@@ -124,6 +126,7 @@ export default {
   'Choose at least one library or collection, or allow everything above.':
     'कम से कम एक लाइब्रेरी या संग्रह चुनें, या ऊपर दी गई हर चीज़ की अनुमति दें।',
   'Choose how your work may be shared': 'चुनें कि आपकी कृति को कैसे साझा किया जा सकता है',
+  'Choose this version': 'यह संस्करण चुनें',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
     'किसी संग्रह को चुनने पर उसके भीतर मौजूद हर चीज़ भी शामिल हो जाती है। ऐप्लिकेशन आपके संग्रह, सहेजी गई खोजें, सेटिंग या टैग नहीं बदल पाएगा।',
   'Citation': 'उद्धरण',
@@ -328,6 +331,7 @@ export default {
   'Link issued.': 'लिंक जारी किया गया।',
   'Links to this collection': 'इस संग्रह के लिंक',
   'Loading…': 'लोड हो रहा है…',
+  'Local version: {value}': 'स्थानीय संस्करण: {value}',
   'Made {date}': '{date} को बनाया गया',
   'Make a member': 'सदस्य बनाएँ',
   'Make administrator': 'व्यवस्थापक बनाएँ',
@@ -470,6 +474,7 @@ export default {
   'Registration is open on this server.': 'इस सर्वर पर पंजीकरण खुला है।',
   'Reinstate': 'बहाल करें',
   'Related': 'संबंधित',
+  'Remote version: {value}': 'दूरस्थ संस्करण: {value}',
   'Remove': 'हटाएँ',
   'Remove Creator': 'रचनाकार हटाएँ',
   'Remove Related': 'संबंधित हटाएँ',
