@@ -2304,10 +2304,10 @@ for the verified sync behavior.</p>
 <h2 id="from-a-source-checkout">From a source checkout<a class="headerlink" href="#from-a-source-checkout" title="Permanent link">&para;</a></h2>
 <p>Requirements:</p>
 <ul>
-<li>Python 3.14 or newer;</li>
+<li>Python 3.14.10 or newer — earlier releases still trust the eMudhra intermediate certificates whose keys were exposed in October 2026;</li>
 <li>a database meeting the <a href="#database-requirements">database requirements</a>;</li>
-<li><a href="https://docs.astral.sh/uv/">uv</a>; and</li>
-<li>Node 24 and npm to build the browser interface.</li>
+<li><a href="https://docs.astral.sh/uv/">uv</a> 0.13.4 or newer, for the same reason; and</li>
+<li>Node 24.22.1 or newer and npm to build the browser interface; earlier releases carry the Brotli decoder flaw CVE-2026-111497 and the eMudhra certificates.</li>
 </ul>
 <p>SQLite is the default. For PostgreSQL outside Docker, install the extra dependency:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>postgres
@@ -2427,9 +2427,10 @@ for the verified sync behavior.</p>
 <p><code>ALTERO_GROUP_DIGEST_INTERVAL=0</code> disables delivery. Activity is still recorded, so it can be delivered after the feature is re-enabled.</p>
 <p>See <a href="../email/#group-notifications">Email</a>.</p>
 <h2 id="behind-a-reverse-proxy">Behind a reverse proxy<a class="headerlink" href="#behind-a-reverse-proxy" title="Permanent link">&para;</a></h2>
-<p>Three things have to be right, and a default configuration gets two of them wrong.</p>
+<p>Four things have to be right, and a default configuration gets two of them wrong.</p>
 <p><strong>Attachment uploads need a large request body.</strong> altero accepts a file of up to 1 GiB. nginx allows 1 MB by default and answers <code>413</code> above it, which rejects most PDFs; Zotero reports the attachment as failing to sync. Caddy and Traefik impose no limit of their own.</p>
 <p><strong><code>/stream</code> is a WebSocket.</strong> It needs the upgrade headers, and a read timeout longer than an idle connection. The connection is not silently idle — the server pings every 20 seconds — so a 60-second timeout is already enough, but a proxy that drops the upgrade entirely leaves Zotero without live updates. Worse, a streaming URL that does not resolve is why <a href="../clients/">Connecting a Zotero client</a> insists on setting <code>extensions.zotero.streaming.url</code>: left at its default, the client sends the altero API key to zotero.org.</p>
+<p><strong><code>/web/libraries/&lt;id&gt;/events</code> is a stream that does not end.</strong> It is how an open browser page hears of changes made elsewhere, as Server-Sent Events. It sends something every 25 seconds, so a 60-second read timeout is enough, and it must not be buffered: nginx honours the <code>X-Accel-Buffering: no</code> altero sends, and a proxy that buffers anyway delivers the changes late or not at all. Like <code>/stream</code>, it works within one server process: run several workers and a page hears only of changes made through its own.</p>
 <p><strong>Forwarded headers are believed only when a proxy is named.</strong> Set <code>ALTERO_FORWARDED_ALLOW_IPS</code> to the address the proxy connects from. Until then altero ignores <code>X-Forwarded-Proto</code> and <code>X-Forwarded-For</code>, which has two effects:</p>
 <ul>
 <li>Behind a TLS terminator, the URLs altero returns start with <code>http://</code>. That includes the upload URL Zotero sends attachment files to, so attachments fail to sync. Links in API responses and upload URLs come from the request, not from <code>ALTERO_PUBLIC_URL</code>.</li>
@@ -2439,6 +2440,7 @@ for the verified sync behavior.</p>
 <p>In the Compose stack the proxy is a container, so the value is that container's address on the Docker network — not <code>127.0.0.1</code>, which is altero's own container.</p>
 <p>Set <code>ALTERO_PUBLIC_URL</code> to the URL people actually open. See <a href="#public-url">Public URL</a>; passkeys in particular are bound to that host.</p>
 <p>The proxy need not compress anything. altero sends the browser interface's scripts and stylesheets in the Brotli or gzip copies its build writes, and leaves API responses as they are.</p>
+<p><strong>Don't cache <code>/app/sw.js</code> or <code>/app/manifest.webmanifest</code>.</strong> altero sends them with <code>Cache-Control: no-cache</code>, because a new service worker is how an installed app learns of an upgrade. A proxy that keeps a copy holds every installed app on the old version.</p>
 <p><strong>Leave altero's security headers in place.</strong> Every response carries <code>X-Content-Type-Options: nosniff</code> and a <code>Content-Security-Policy</code>: the interface's own under <code>/app</code>, and <code>sandbox</code> everywhere else, so an attachment opened in a browser tab runs no script. A proxy that replaces or strips them undoes that. <code>Strict-Transport-Security</code> is the proxy's to add.</p>
 <h3 id="nginx">nginx<a class="headerlink" href="#nginx" title="Permanent link">&para;</a></h3>
 <div class="language-nginx highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">server</span><span class="w"> </span><span class="p">{</span>

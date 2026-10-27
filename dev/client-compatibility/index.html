@@ -2347,6 +2347,10 @@ The final settled sync checks convergence and an unchanged server watermark.</p>
 <td>Make collection, filing, tag and trash changes through the browser's authenticated HTTP routes; execute the real retention sweep; observe changes and deletion logs in both desktops.</td>
 </tr>
 <tr>
+<td><code>web-editing</code></td>
+<td>Edit an item's fields, creators and tags, relate two items, change a type and make an item through the browser's routes; both desktops store exactly that; a desktop edit then makes the browser's stale save fail with 412.</td>
+</tr>
+<tr>
 <td><code>resync</code></td>
 <td>Discard pending edits through the original reset helper; replace the server from a desktop; restore an older server archive, lift its watermark and recover from the surviving authoritative desktop.</td>
 </tr>
