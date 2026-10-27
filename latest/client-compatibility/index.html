@@ -2610,8 +2610,23 @@ a catalogue entry and is normally unset.</p>
 </tr>
 <tr>
 <td><code>parent-rejection</code></td>
-<td>Passed (7 phases)</td>
-<td>Passed (7 phases)</td>
+<td>Passed (8 phases)</td>
+<td>Passed (8 phases)</td>
+</tr>
+<tr>
+<td><code>missing-parent</code></td>
+<td>Passed (8 phases)</td>
+<td>Passed (8 phases)</td>
+</tr>
+<tr>
+<td><code>child-promotion</code></td>
+<td>Passed (6 phases)</td>
+<td>Passed (6 phases)</td>
+</tr>
+<tr>
+<td><code>type-change</code></td>
+<td>Passed (6 phases)</td>
+<td>Passed (6 phases)</td>
 </tr>
 <tr>
 <td><code>reader-rendering</code></td>
@@ -2638,50 +2653,40 @@ a catalogue entry and is normally unset.</p>
 <td>Passed (12 phases)</td>
 <td>Passed (12 phases)</td>
 </tr>
+<tr>
+<td><code>web-editing</code></td>
+<td>Passed (7 phases)</td>
+<td>Passed (7 phases)</td>
+</tr>
 </tbody>
 </table>
 <!-- /desktop-matrix -->
 
 <p>Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on 2026-10-26, against the code prepared for 1.0.0-beta.4. PostgreSQL
-uses the existing 18.4 container, with a fresh database per scenario.
+archive on 2026-10-27, against the code prepared for 1.0.0-beta.5, on Python
+3.14.10. PostgreSQL uses the existing 18.4 container, with a fresh database per
+scenario. Each database ran all 31 scenarios in one run, and none was repeated.
 <strong>Not run</strong> means there is no successful result recorded for that combination;
-executable inventory entries and scheduled CI jobs do not count as passes. A
-successful scenario in a run that later failed is reported independently:
-<code>reader-rendering</code> ran on its own on both databases, and on PostgreSQL
-<code>graph-races</code> and <code>credential-limits</code> ran again after <code>graph-races</code> failed once.</p>
-<p>That failure did not repeat. In the first PostgreSQL run, desktop B finished a
-sync while its read of the items was held, without the parent and child it had
-not received, so the two desktops disagreed. The rerun, on an otherwise idle
-machine, passed all 19 phases, as did the SQLite run. During the failing run the
-machine was also running the other database's scenarios and building the
-release artifacts; that the desktop gave up on the held request under that load
-is a guess, not a finding.</p>
-<p><code>reader-rendering</code> passes again on both databases. At beta.3 it failed on this
-machine after its X server, Mesa and LLVM were updated, with the server not
-involved; it now passes with the same Zotero build.</p>
+executable inventory entries and scheduled CI jobs do not count as passes.</p>
 <p>The machine-readable evidence summary is
 <a href="../assets/compatibility-10.0.6.json"><code>compatibility-10.0.6.json</code></a>. It records
 phase counts and SHA-256 hashes of each report and its phase snapshots. Retained
 reports, profiles, files and failed attempts live in ignored local run
 directories. Regenerate the matrix from them with:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>matrix<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.6<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.6-beta4/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.6-beta4-reader/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.6-postgres-beta4/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.6-postgres-beta4-rest/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/desktop-10.0.6-postgres-beta4-reader/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/results.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/matrix.md
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta5-sqlite-2/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta5-pg-2/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/results.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/matrix.md
 </span></code></pre></div>
 <p>The command verifies scenario completion, nonempty phases, snapshot existence,
 the requested desktop version and recorded database backend. It rejects missing
 or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.</p>
-<p>The matrix records 54 successful database/scenario combinations and 694
-actual desktop phases: all 27 scenarios pass on both databases. The
+<p>The matrix records 62 successful database/scenario combinations and 750
+actual desktop phases: all 31 scenarios pass on both databases. The
 baseline includes all 40 schema types. The source-replay suite passes 323 tests
-with no skips against the pinned 10.0.6 sources, with Node 24.18.0, and the
+with no skips against the pinned 10.0.6 sources, with Node 24.22.1, and the
 network-consumer review gate passes with no stale or unreviewed consumers.</p>
 <p>Two harness defects surfaced while moving to 10.0.6 and are fixed: profiles
 followed the machine's language, so a German system showed prompts the dialog
