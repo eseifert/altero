@@ -2,8 +2,8 @@
 
 This page is the feature-level status of altero's Zotero v3 compatibility.
 
-**Release:** 1.0.0-beta.4. Two real Zotero 10.0.6 profiles passed 54
-database/scenario combinations and 694 phases on Linux, across SQLite and
+**Release:** 1.0.0-beta.5. Two real Zotero 10.0.6 profiles passed 62
+database/scenario combinations and 750 phases on Linux, across SQLite and
 PostgreSQL 18.4. This verifies the recorded transitions, not every client path
 or platform. See
 [desktop compatibility coverage and gaps](client-compatibility.md).
@@ -26,7 +26,7 @@ bytes. See [the reproduced client behavior](client-compatibility.md#run-two-real
 | My Publications                           |   ✅   | Includes browser publishing and profile pages                                                                            |
 | Citations and bibliographies              |   ✅   | CSL-based styles and Zotero-compatible formats                                                                           |
 | Zotero export formats                     |   ✅   | API and browser export support                                                                                           |
-| Browser interface                         |   ✅   | Library browsing, account settings, groups and administration                                                            |
+| Browser interface                         |   ✅   | Library browsing and item editing (not notes), account settings, groups and administration; installable as an app        |
 | OIDC and SAML browser sign-in             |   ✅   | Sign-in only; never a v3 API credential                                                                                  |
 | OAuth 2.0 and OIDC provider               |   ✅   | Scoped tokens for third-party applications, confinable to chosen libraries and collections; requires a stable public URL |
 | Passkeys and optional second factors      |   ✅   | Passkeys require a stable public URL                                                                                     |

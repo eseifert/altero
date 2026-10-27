@@ -12,19 +12,19 @@ This guide gets a local altero instance running and connects a **test** Zotero D
 The image is published, so a checkout is optional. In an empty directory:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.4/docker/compose.yaml
-ALTERO_IMAGE_TAG=1.0.0-beta.4 docker compose up -d
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.5/docker/compose.yaml
+ALTERO_IMAGE_TAG=1.0.0-beta.5 docker compose up -d
 ```
 
 From a checkout of the repository, name the file where it lives instead:
 
 ```sh
-ALTERO_IMAGE_TAG=1.0.0-beta.4 docker compose -f docker/compose.yaml up -d
+ALTERO_IMAGE_TAG=1.0.0-beta.5 docker compose -f docker/compose.yaml up -d
 ```
 
 This starts PostgreSQL, altero and persistent attachment storage. The API is published on the loopback interface, on port 8000.
 
-To keep this version pinned for later upgrades, put `ALTERO_IMAGE_TAG=1.0.0-beta.4`
+To keep this version pinned for later upgrades, put `ALTERO_IMAGE_TAG=1.0.0-beta.5`
 in `.env` beside the downloaded Compose file, or in `docker/.env` for a checkout.
 Without a pin, Compose follows `latest`, including future prereleases.
 

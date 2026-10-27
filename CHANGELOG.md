@@ -7,6 +7,15 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-beta.5] — 2026-10-27
+
+This version edits items in the browser — fields, type, creators, tags, related
+items and new items — and shows changes made elsewhere as they happen. It also
+fixes a sync stop in every earlier beta: changing an item's type in Zotero
+Desktop so that it lost fields stopped that library syncing. Pull the new image:
+it runs Python 3.14.10, which distrusts the leaked eMudhra certificate keys.
+Upgrading needs no database changes.
+
 - Building from source needs uv 0.13.4, Python 3.14.10 and Node 24.22.1, which distrust the leaked eMudhra keys ([source]).
 - altero makes its outbound requests with httpx2 in place of httpx, verifying TLS against the system's trust store instead of certifi's.
 - The browser interface can be installed as an app on phones and computers, and opens offline; no library data is kept on the device ([install]).
@@ -246,6 +255,7 @@ The first release meant to be used by somebody other than its author.
 [install]: docs/web-interface.md#installing-it-as-an-app
 [source]: docs/deployment.md#from-a-source-checkout
 [config]: docs/configuration.md
+[1.0.0-beta.5]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.5
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3
 [1.0.0-beta.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.2
