@@ -1,0 +1,4 @@
+{
+  "standalone": "<div data-schema-version=\"9\"><h1>Written in a browser</h1>\n<ul>\n<li>\none\n</li>\n<li>\ntwo\n</li>\n</ul>\n<p>See <a href=\"https://www.zotero.org\" rel=\"noopener noreferrer nofollow\">Zotero</a>, a &nbsp;gap.</p>\n</div>",
+  "child": "<div data-schema-version=\"9\"><p><strong>Bold</strong> and <span style=\"color: rgb(255, 32, 32);\">red</span>.</p>\n<blockquote>\n<p>quoted</p>\n</blockquote>\n</div>"
+}

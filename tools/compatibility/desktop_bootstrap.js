@@ -3,6 +3,7 @@ function startup(data) {
   Services.scriptloader.loadSubScript(data.rootURI + "dialogs.js", globalThis);
   Services.scriptloader.loadSubScript(data.rootURI + "streaming.js", globalThis);
   Services.scriptloader.loadSubScript(data.rootURI + "reader.js", globalThis);
+  Services.scriptloader.loadSubScript(data.rootURI + "notes.js", globalThis);
   Zotero.initializationPromise.then(runAcceptance).catch(writeFailure);
 }
 function shutdown() {}
@@ -36,6 +37,12 @@ async function runAcceptance() {
   for (const operation of config.operations) {
     if (operation.action === "reader-open") {
       reader = await observeAcceptanceReader(operation, libraryID);
+    } else if (operation.action === "note-resave") {
+      await resaveAcceptanceNotes(operation, libraryID);
+    } else if (operation.action === "note-view") {
+      await viewAcceptanceNotes(operation, libraryID);
+    } else if (operation.action === "note-from-annotations") {
+      await noteFromAcceptanceAnnotations(operation, libraryID);
     } else if (operation.action === "stream-watch") {
       streaming = await watchAcceptanceStreaming(operation, libraryID);
     } else if (operation.action === "login-start") {

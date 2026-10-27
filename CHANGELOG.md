@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Desktop acceptance covers notes: browser notes reach both desktops intact, and Zotero's own note editor output is the browser editor's test corpus.
 - Building the image with `compose.build.yaml` fetches current base images and uv; a cached old `uv:latest` failed the uv version check ([build]).
 - The browser interface writes notes, standalone or under an item: format by selecting or typing `/`, full screen, saved as you type ([notes]).
 

@@ -214,6 +214,16 @@ operation = "convergence"
 status = "executable"
 tests = ["tools/compatibility/acceptance_web_editing.py"]
 
+[scenarios.desktop_note_editor_output]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_notes.py"]
+
+[scenarios.browser_note_writing]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_notes.py"]
+
 [scenarios.library_resets_and_backup_recovery]
 operation = "convergence"
 status = "executable"

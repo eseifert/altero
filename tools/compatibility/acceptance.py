@@ -210,6 +210,8 @@ SCENARIOS = (
     "graph-races",
     "credential-limits",
     "web-editing",
+    "note-corpus",
+    "web-notes",
 )
 
 
@@ -236,6 +238,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_graphs import graphs
     from tools.compatibility.acceptance_groups import groups
     from tools.compatibility.acceptance_http import http_policy
+    from tools.compatibility.acceptance_notes import note_corpus, web_notes
     from tools.compatibility.acceptance_parent_rejection import parent_rejection
     from tools.compatibility.acceptance_parents import child_promotion, missing_parent
     from tools.compatibility.acceptance_partial import partial_failures
@@ -287,6 +290,8 @@ async def run_acceptance(
     drivers["graph-races"] = graph_races
     drivers["credential-limits"] = credential_limits
     drivers["web-editing"] = web_editing
+    drivers["note-corpus"] = note_corpus
+    drivers["web-notes"] = web_notes
 
     selected = tuple(scenarios or SCENARIOS)
     if not selected or any(name not in SCENARIOS for name in selected):

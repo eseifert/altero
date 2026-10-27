@@ -83,6 +83,75 @@ export function preprocessHTML(html: string): {
   return { html: container.innerHTML, metadataAttributes }
 }
 
+/**
+ * A note from the note editor's first schema, brought up to its second.
+ *
+ * `Zotero.Notes.upgradeSchemaV1` from zotero/zotero, which the desktop runs on
+ * every note it opens for editing -- and saves at once. Here it is applied in
+ * memory only, so a note opened and left stays as it was, and one edited is
+ * saved as the desktop would save it. Item data moves from each citation into
+ * the container, and an annotation keeps only the properties schema 2 knew.
+ */
+export function upgradeSchemaV1(html: string): string {
+  const doc = new DOMParser().parseFromString(html, 'text/html')
+  const container = doc.querySelector('body > div[data-schema-version]')
+  if (!container || parseInt(container.getAttribute('data-schema-version')!) !== 1) {
+    return html
+  }
+
+  let stored: { uris: string[]; itemData: unknown }[] = []
+  try {
+    const data = JSON.parse(decodeURIComponent(container.getAttribute('data-citation-items')!))
+    if (Array.isArray(data)) stored = data
+  } catch {
+    // As in the original: unreadable item data is none.
+  }
+
+  const pullItemData = (citationItem: { uris: string[]; itemData?: unknown }) => {
+    const { uris, itemData } = citationItem
+    if (itemData) {
+      delete citationItem.itemData
+      if (!stored.find(item => item.uris.some(uri => uris.includes(uri)))) {
+        stored.push({ uris, itemData })
+      }
+    }
+  }
+
+  for (const node of Array.from(doc.querySelectorAll('.citation[data-citation]'))) {
+    try {
+      const citation = JSON.parse(decodeURIComponent(node.getAttribute('data-citation')!))
+      citation.citationItems.forEach(pullItemData)
+      node.setAttribute('data-citation', encodeURIComponent(JSON.stringify(citation)))
+    } catch {
+      // Left as it was, as the original logs and moves on.
+    }
+  }
+
+  for (const node of Array.from(doc.querySelectorAll('*[data-annotation]'))) {
+    try {
+      const annotation = JSON.parse(decodeURIComponent(node.getAttribute('data-annotation')!))
+      if (annotation.citationItem) pullItemData(annotation.citationItem)
+      const kept = {
+        uri: annotation.uri,
+        text: annotation.text,
+        color: annotation.color,
+        pageLabel: annotation.pageLabel,
+        position: annotation.position,
+        citationItem: annotation.citationItem,
+      }
+      node.setAttribute('data-annotation', encodeURIComponent(JSON.stringify(kept)))
+    } catch {
+      // Left as it was.
+    }
+  }
+
+  if (stored.length) {
+    container.setAttribute('data-citation-items', encodeURIComponent(JSON.stringify(stored)))
+  }
+  container.setAttribute('data-schema-version', '2')
+  return doc.body.innerHTML
+}
+
 // Additional transformations that can't be described with schema alone
 export function schemaTransform(state: EditorState): Transaction | null {
   const { tr } = state
@@ -115,7 +184,9 @@ export function parseNote(
   const metadata = new Metadata()
   setNoteContext(schema, metadata, options.words)
 
-  const { html: body, metadataAttributes } = preprocessHTML(html)
+  const { html: body, metadataAttributes } = preprocessHTML(
+    options.editable ? upgradeSchemaV1(html) : html,
+  )
   metadata.parseAttributes(metadataAttributes)
   const unsupportedSchema = metadata.schemaVersion > SCHEMA_VERSION
 

@@ -75,7 +75,9 @@ Notes are edited with Tiptap over a port of Zotero's own note-editor schema
 (`web/src/notes/`), so a note saved here is the HTML Zotero Desktop would save:
 the specs, the HTML reading and writing and the keymap are the original's, and
 a differential run against the original code at the revision Zotero pins found
-no difference. The editor is loaded the first time a note is opened. Tiptap's
+no difference. `web/src/notes/corpus/` holds notes as Zotero 10.0.6's shipped
+editor saved them, recorded by the `note-corpus` desktop acceptance scenario,
+and the editor here is tested to save each the same way. The editor is loaded the first time a note is opened. Tiptap's
 injected stylesheet is switched off, because the interface's
 Content-Security-Policy refuses inline styles; `notes/editor.css` carries it.
 

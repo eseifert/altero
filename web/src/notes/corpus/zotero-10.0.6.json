@@ -1,0 +1,180 @@
+{
+ "desktop": "10.0.6",
+ "produced_by": "python -m tools.compatibility acceptance --scenario note-corpus (.compatibility/note-corpus-5)",
+ "cases": [
+  {
+   "name": "plain paragraph",
+   "sent": "<p>The engine weaves algebraic patterns.</p>",
+   "stored": "<p>The engine weaves algebraic patterns.</p>",
+   "written": "<div data-schema-version=\"9\"><p>The engine weaves algebraic patterns.</p>\n</div>"
+  },
+  {
+   "name": "plain text without markup",
+   "sent": "Typed into an old client",
+   "stored": "Typed into an old client",
+   "written": "<div data-schema-version=\"9\"><p>Typed into an old client</p>\n</div>"
+  },
+  {
+   "name": "current editor output",
+   "sent": "<div data-schema-version=\"9\"><h1>Title</h1>\n<p>Some <strong>bold</strong> and <em>italic</em>.</p>\n</div>",
+   "stored": "<div data-schema-version=\"9\"><h1>Title</h1>\n<p>Some <strong>bold</strong> and <em>italic</em>.</p>\n</div>",
+   "written": "<div data-schema-version=\"9\"><h1>Title</h1>\n<p>Some <strong>bold</strong> and <em>italic</em>.</p>\n</div>"
+  },
+  {
+   "name": "headings one to six",
+   "sent": "<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><h5>Heading 5</h5><h6>Heading 6</h6>",
+   "stored": "<h1>Heading 1</h1><h2>Heading 2</h2><h3>Heading 3</h3><h4>Heading 4</h4><h5>Heading 5</h5><h6>Heading 6</h6>",
+   "written": "<div data-schema-version=\"9\"><h1>Heading 1</h1>\n<h2>Heading 2</h2>\n<h3>Heading 3</h3>\n<h4>Heading 4</h4>\n<h5>Heading 5</h5>\n<h6>Heading 6</h6>\n</div>"
+  },
+  {
+   "name": "nested lists",
+   "sent": "<ul><li>one</li><li>two<ul><li>nested</li></ul></li></ul><ol start=\"3\"><li><p>three</p><p>four</p></li></ol>",
+   "stored": "<ul><li>one</li><li>two<ul><li>nested</li></ul></li></ul><ol start=\"3\"><li><p>three</p><p>four</p></li></ol>",
+   "written": "<div data-schema-version=\"9\"><ul>\n<li>\none\n</li>\n<li>\n<p>two</p>\n<ul>\n<li>\nnested\n</li>\n</ul>\n</li>\n</ul>\n<ol start=\"3\">\n<li>\n<p>three</p>\n<p>four</p>\n</li>\n</ol>\n</div>"
+  },
+  {
+   "name": "table with spans and colour",
+   "sent": "<table><tbody><tr><th>head</th><td colspan=\"2\" style=\"background-color: #ffd400\">cell</td></tr><tr><td rowspan=\"2\">a</td></tr></tbody></table>",
+   "stored": "<table><tbody><tr><th>head</th><td colspan=\"2\" style=\"background-color: #ffd400\">cell</td></tr><tr><td rowspan=\"2\">a</td></tr></tbody></table>",
+   "written": "<div data-schema-version=\"9\"><table>\n<tbody>\n<tr>\n<th>\n<p>head</p>\n</th>\n<td colspan=\"2\" style=\"background-color: rgb(255, 212, 0);\">\n<p><span style=\"background-color: rgb(255, 212, 0);\">cell</span></p>\n</td>\n</tr>\n<tr>\n<td>\n<p>a</p>\n</td>\n<td>\n<p></p>\n</td>\n<td>\n<p></p>\n</td>\n</tr>\n</tbody>\n</table>\n</div>"
+  },
+  {
+   "name": "table without tbody, ragged",
+   "sent": "<table><tr><td>one</td><td>two</td></tr><tr><td>three</td></tr></table>",
+   "stored": "<table><tr><td>one</td><td>two</td></tr><tr><td>three</td></tr></table>",
+   "written": "<div data-schema-version=\"9\"><table>\n<tbody>\n<tr>\n<td>\n<p>one</p>\n</td>\n<td>\n<p>two</p>\n</td>\n</tr>\n<tr>\n<td>\n<p>three</p>\n</td>\n<td>\n<p></p>\n</td>\n</tr>\n</tbody>\n</table>\n</div>"
+  },
+  {
+   "name": "TinyMCE indent, alignment and direction",
+   "sent": "<p style=\"padding-left: 40px;\">one</p><p style=\"padding-left: 80px; text-align: center;\">two</p><p dir=\"rtl\" style=\"padding-right: 40px\">שלום</p><p style=\"text-align: justify\">just</p>",
+   "stored": "<p style=\"padding-left: 40px;\">one</p><p style=\"padding-left: 80px; text-align: center;\">two</p><p dir=\"rtl\" style=\"padding-right: 40px\">שלום</p><p style=\"text-align: justify\">just</p>",
+   "written": "<div data-schema-version=\"9\"><p style=\"padding-left: 40px;\" data-indent=\"1\">one</p>\n<p style=\"text-align: center; padding-left: 80px;\" data-indent=\"2\">two</p>\n<p style=\"padding-right: 40px;\" dir=\"rtl\" data-indent=\"1\">שלום</p>\n<p style=\"text-align: justify;\">just</p>\n</div>"
+  },
+  {
+   "name": "TinyMCE formatting tags",
+   "sent": "<p><b>b</b> <i>i</i> <u>u</u> <strike>s</strike> <sub>2</sub> <sup>3</sup> <font color=\"#ff0000\" face=\"Arial\">font</font> <span style=\"text-decoration: underline;\">su</span></p>",
+   "stored": "<p><b>b</b> <i>i</i> <u>u</u> <strike>s</strike> <sub>2</sub> <sup>3</sup> <font color=\"#ff0000\" face=\"Arial\">font</font> <span style=\"text-decoration: underline;\">su</span></p>",
+   "written": "<div data-schema-version=\"9\"><p><strong>b</strong> <em>i</em> <u>u</u> <span style=\"text-decoration: line-through;\">s</span> <sub>2</sub> <sup>3</sup> font <u>su</u></p>\n</div>"
+  },
+  {
+   "name": "colours: hex, names, functions, highlight",
+   "sent": "<p><span style=\"color: #ff2020\">red</span> <span style=\"color: blue\">blue</span> <span style=\"color: rgb(0, 128, 0)\">green</span> <span style=\"background-color: #ffd40080\">hi</span> <span style=\"background-color: #FFD400\">HI</span> <span style=\"background: yellow\">bg</span></p>",
+   "stored": "<p><span style=\"color: #ff2020\">red</span> <span style=\"color: blue\">blue</span> <span style=\"color: rgb(0, 128, 0)\">green</span> <span style=\"background-color: #ffd40080\">hi</span> <span style=\"background-color: #FFD400\">HI</span> <span style=\"background: yellow\">bg</span></p>",
+   "written": "<div data-schema-version=\"9\"><p><span style=\"color: rgb(255, 32, 32);\">red</span> <span style=\"color: blue;\">blue</span> <span style=\"color: rgb(0, 128, 0);\">green</span> <span style=\"background-color: rgba(255, 212, 0, 0.5);\">hi</span> <span style=\"background-color: rgb(255, 212, 0);\">HI</span> <span style=\"background-color: yellow;\">bg</span></p>\n</div>"
+  },
+  {
+   "name": "links and code",
+   "sent": "<p><a href=\"https://example.org/a?b=1&amp;c=2\" title=\"T\">link</a> <a href=\"mailto:a@example.org\">mail</a> <code>x  y</code> <kbd>k</kbd></p>",
+   "stored": "<p><a href=\"https://example.org/a?b=1&amp;c=2\" title=\"T\">link</a> <a href=\"mailto:a@example.org\">mail</a> <code>x  y</code> <kbd>k</kbd></p>",
+   "written": "<div data-schema-version=\"9\"><p><a href=\"https://example.org/a?b=1&amp;c=2\" title=\"T\" rel=\"noopener noreferrer nofollow\">link</a> <a href=\"mailto:a@example.org\" rel=\"noopener noreferrer nofollow\">mail</a> <code>x y</code> <code>k</code></p>\n</div>"
+  },
+  {
+   "name": "code block with runs of spaces",
+   "sent": "<pre>def f():\n    return  1\n\n</pre>",
+   "stored": "<pre>def f():\n    return  1\n\n</pre>",
+   "written": "<div data-schema-version=\"9\"><pre>def f():\n &nbsp; &nbsp;return &nbsp;1\n\n</pre>\n</div>"
+  },
+  {
+   "name": "maths",
+   "sent": "<pre class=\"math\">$$x^2 + y^2$$</pre><p>inline <span class=\"math\">$a  b$</span> maths</p>",
+   "stored": "<pre class=\"math\">$$x^2 + y^2$$</pre><p>inline <span class=\"math\">$a  b$</span> maths</p>",
+   "written": "<div data-schema-version=\"9\"><pre class=\"math\">$$x^2 + y^2$$</pre>\n<p>inline <span class=\"math\">$a  b$</span> maths</p>\n</div>"
+  },
+  {
+   "name": "quote and rule",
+   "sent": "<blockquote><p>quoted</p><blockquote>nested</blockquote></blockquote><hr><p>after</p>",
+   "stored": "<blockquote><p>quoted</p><blockquote>nested</blockquote></blockquote><hr><p>after</p>",
+   "written": "<div data-schema-version=\"9\"><blockquote>\n<p>quoted</p>\n<blockquote>\n<p>nested</p>\n</blockquote>\n</blockquote>\n<hr>\n<p>after</p>\n</div>"
+  },
+  {
+   "name": "line breaks",
+   "sent": "<p>one<br>two<br></p><h2>head<br>line</h2>",
+   "stored": "<p>one<br>two<br></p><h2>head<br>line</h2>",
+   "written": "<div data-schema-version=\"9\"><p>one<br>two<br></p>\n<h2>head<br>line</h2>\n</div>"
+  },
+  {
+   "name": "Google Docs paste",
+   "sent": "<p><b style=\"font-weight:normal\" id=\"docs-internal-guid-1\"><span style=\"font-weight: 700\">bold</span> <span style=\"font-style: italic\">it</span> <span style=\"font-family: monospace\">mono</span></b></p>",
+   "stored": "<p><b style=\"font-weight:normal\" id=\"docs-internal-guid-1\"><span style=\"font-weight: 700\">bold</span> <span style=\"font-style: italic\">it</span> <span style=\"font-family: monospace\">mono</span></b></p>",
+   "written": "<div data-schema-version=\"9\"><p><strong>bold</strong> <em>it</em> <code>mono</code></p>\n</div>"
+  },
+  {
+   "name": "sequential and non-breaking spaces",
+   "sent": "<p>a  b   c  d</p><p>   lead</p>",
+   "stored": "<p>a  b   c  d</p><p>   lead</p>",
+   "written": "<div data-schema-version=\"9\"><p>a&nbsp; b c&nbsp;&nbsp;d</p>\n<p>&nbsp;&nbsp;&nbsp;lead</p>\n</div>"
+  },
+  {
+   "name": "decomposed accents",
+   "sent": "<p>été Å</p>",
+   "stored": "<p>été Å</p>",
+   "written": "<div data-schema-version=\"9\"><p>été Å</p>\n</div>"
+  },
+  {
+   "name": "entities and quotes",
+   "sent": "<p>&lt;tag&gt; &amp; &quot;q&quot; ‘single’ «guill» „low“</p>",
+   "stored": "<p>&lt;tag&gt; &amp; &quot;q&quot; ‘single’ «guill» „low“</p>",
+   "written": "<div data-schema-version=\"9\"><p>&lt;tag&gt; &amp; \"q\" ‘single’ «guill» „low“</p>\n</div>"
+  },
+  {
+   "name": "citations with item data",
+   "sent": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"9\"><p>As shown <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%2212%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(stale)</span> and <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22prefix%22%3A%22see%22%7D%2C%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%223-5%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(x)</span>.</p>\n</div>",
+   "stored": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"9\"><p>As shown <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%2212%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(stale)</span> and <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22prefix%22%3A%22see%22%7D%2C%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%223-5%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(x)</span>.</p>\n</div>",
+   "written": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"9\"><p>As shown <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%2212%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">Babbage, 1832, p. 12</span>)</span> and <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22prefix%22%3A%22see%22%7D%2C%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%223-5%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">see Babbage, 1832</span>; <span class=\"citation-item\">Babbage, 1832, pp. 3-5</span>)</span>.</p>\n</div>"
+  },
+  {
+   "name": "highlight annotation",
+   "sent": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"9\"><p><span class=\"highlight\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\">“quoted”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%2212%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(x)</span></p>\n</div>",
+   "stored": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"9\"><p><span class=\"highlight\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\">“quoted”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%2212%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(x)</span></p>\n</div>",
+   "written": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"9\"><p><span class=\"highlight\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\">“quoted”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%2212%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">Babbage, 1832, p. 12</span>)</span></p>\n</div>"
+  },
+  {
+   "name": "underline annotation, schema 10",
+   "sent": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"10\"><p><span class=\"underline\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\">under</span></p>\n</div>",
+   "stored": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"10\"><p><span class=\"underline\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\">under</span></p>\n</div>",
+   "written": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22On%20the%20Economy%20of%20Machinery%20and%20Manufactures%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%2C%22given%22%3A%22Charles%22%7D%5D%2C%22issued%22%3A%7B%22date-parts%22%3A%5B%5B%221832%22%5D%5D%7D%7D%7D%5D\" data-schema-version=\"10\"><p><span class=\"underline\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\">under</span></p>\n</div>"
+  },
+  {
+   "name": "annotation in its pre-v4 form",
+   "sent": "<p><span class=\"highlight\" data-annotation=\"%7B%22uri%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22text%22%3A%22old%22%2C%22position%22%3A%7B%22pageIndex%22%3A0%7D%7D\">old</span></p>",
+   "stored": "<p><span class=\"highlight\" data-annotation=\"%7B%22uri%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22text%22%3A%22old%22%2C%22position%22%3A%7B%22pageIndex%22%3A0%7D%7D\">old</span></p>",
+   "written": "<div data-schema-version=\"9\"><p><span class=\"highlight\" data-annotation=\"%7B%22position%22%3A%7B%22pageIndex%22%3A0%7D%2C%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%7D\">old</span></p>\n</div>"
+  },
+  {
+   "name": "embedded image attachment",
+   "sent": "<p><img data-attachment-key=\"IMAGEKY2\" width=\"200\" height=\"100\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\"></p>",
+   "stored": "<p><img data-attachment-key=\"IMAGEKY2\" width=\"200\" height=\"100\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\"></p>",
+   "written": "<div data-schema-version=\"9\"><p><img alt=\"\" width=\"200\" height=\"100\" data-attachment-key=\"IMAGEKY2\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FPDFFILE2%22%2C%22annotationKey%22%3A%22ANNOT234%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%224%22%2C%22position%22%3A%7B%22pageIndex%22%3A3%2C%22rects%22%3A%5B%5B10%2C20%2C30%2C40%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22locator%22%3A%224%22%7D%7D\"></p>\n</div>"
+  },
+  {
+   "name": "remote image",
+   "sent": "<p><img src=\"https://example.org/a.png\" alt=\"A\" title=\"T\" width=\"50\"></p>",
+   "stored": "<p><img src=\"https://example.org/a.png\" alt=\"A\" title=\"T\" width=\"50\"></p>",
+   "written": "<div data-schema-version=\"9\"><p><img src=\"https://example.org/a.png\" alt=\"A\" title=\"T\" width=\"50\"></p>\n</div>"
+  },
+  {
+   "name": "schema version 1",
+   "sent": "<div data-schema-version=\"1\"><p><span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22type%22%3A%22book%22%2C%22title%22%3A%22Embedded%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%7D%5D%7D%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(x)</span></p></div>",
+   "stored": "<div data-schema-version=\"2\" data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22type%22%3A%22book%22%2C%22title%22%3A%22Embedded%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%7D%5D%7D%7D%5D\"><p><span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(x)</span></p></div>",
+   "written": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%2C%22itemData%22%3A%7B%22type%22%3A%22book%22%2C%22title%22%3A%22Embedded%22%2C%22author%22%3A%5B%7B%22family%22%3A%22Babbage%22%7D%5D%7D%7D%5D\" data-schema-version=\"9\"><p><span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FCITED234%22%5D%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">Babbage</span>)</span></p>\n</div>"
+  },
+  {
+   "name": "unknown elements",
+   "sent": "<div><div>nested</div><span>span</span></div><center>c</center><dl><dt>t</dt><dd>d</dd></dl>",
+   "stored": "<div><div>nested</div><span>span</span></div><center>c</center><dl><dt>t</dt><dd>d</dd></dl>",
+   "written": "<div data-schema-version=\"9\"><p>nested</p>\n<p>span</p>\n<p>c</p>\n<p><strong>t</strong></p>\n<p>d</p>\n</div>"
+  },
+  {
+   "name": "right-to-left list",
+   "sent": "<ul dir=\"rtl\"><li>א</li><li>ב</li></ul>",
+   "stored": "<ul dir=\"rtl\"><li>א</li><li>ב</li></ul>",
+   "written": "<div data-schema-version=\"9\"><ul dir=\"rtl\">\n<li>\nא\n</li>\n<li>\nב\n</li>\n</ul>\n</div>"
+  },
+  {
+   "name": "made from annotations",
+   "sent": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22Notes%20on%20notes%22%7D%7D%5D\" data-schema-version=\"10\"><h1>Annotations<br/>(10/27/2026, 7:02:35 PM)</h1>\n<p><span class=\"highlight\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FDDPH4H5H%22%2C%22annotationKey%22%3A%22HIGHLIT2%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%221%22%2C%22position%22%3A%7B%22pageIndex%22%3A0%2C%22rects%22%3A%5B%5B20%2C20%2C80%2C80%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%7D\">“A highlighted passage”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span> and a comment on it</p><p><span class=\"underline\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FDDPH4H5H%22%2C%22annotationKey%22%3A%22UNDERLN2%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%221%22%2C%22position%22%3A%7B%22pageIndex%22%3A0%2C%22rects%22%3A%5B%5B20%2C20%2C80%2C80%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%7D\">“An underlined passage”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span></p><p><span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span> A note on the page</p>\n</div>",
+   "stored": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22Notes%20on%20notes%22%7D%7D%5D\" data-schema-version=\"10\"><h1>Annotations<br/>(10/27/2026, 7:02:35 PM)</h1>\n<p><span class=\"highlight\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FDDPH4H5H%22%2C%22annotationKey%22%3A%22HIGHLIT2%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%221%22%2C%22position%22%3A%7B%22pageIndex%22%3A0%2C%22rects%22%3A%5B%5B20%2C20%2C80%2C80%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%7D\">“A highlighted passage”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span> and a comment on it</p><p><span class=\"underline\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FDDPH4H5H%22%2C%22annotationKey%22%3A%22UNDERLN2%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%221%22%2C%22position%22%3A%7B%22pageIndex%22%3A0%2C%22rects%22%3A%5B%5B20%2C20%2C80%2C80%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%7D\">“An underlined passage”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span></p><p><span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span> A note on the page</p>\n</div>",
+   "written": "<div data-citation-items=\"%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22itemData%22%3A%7B%22id%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%2C%22type%22%3A%22book%22%2C%22title%22%3A%22Notes%20on%20notes%22%7D%7D%5D\" data-schema-version=\"10\"><h1>Annotations<br>(10/27/2026, 7:02:35 PM)</h1>\n<p><span class=\"highlight\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FDDPH4H5H%22%2C%22annotationKey%22%3A%22HIGHLIT2%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%221%22%2C%22position%22%3A%7B%22pageIndex%22%3A0%2C%22rects%22%3A%5B%5B20%2C20%2C80%2C80%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%7D\">“A highlighted passage”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span> and a comment on it</p>\n<p><span class=\"underline\" data-annotation=\"%7B%22attachmentURI%22%3A%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FDDPH4H5H%22%2C%22annotationKey%22%3A%22UNDERLN2%22%2C%22color%22%3A%22%23ffd400%22%2C%22pageLabel%22%3A%221%22%2C%22position%22%3A%7B%22pageIndex%22%3A0%2C%22rects%22%3A%5B%5B20%2C20%2C80%2C80%5D%5D%7D%2C%22citationItem%22%3A%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%7D\">“An underlined passage”</span> <span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span></p>\n<p><span class=\"citation\" data-citation=\"%7B%22citationItems%22%3A%5B%7B%22uris%22%3A%5B%22http%3A%2F%2Fzotero.org%2Fusers%2F1%2Fitems%2FNTPARNT2%22%5D%2C%22locator%22%3A%221%22%7D%5D%2C%22properties%22%3A%7B%7D%7D\">(<span class=\"citation-item\">“Notes on notes”, p. 1</span>)</span> A note on the page</p>\n</div>"
+  }
+ ]
+}
