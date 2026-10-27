@@ -20,5 +20,9 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+      # Resolve every image the Dockerfile names afresh on each build -- the
+      # Python and Node bases and `uv:latest` -- rather than whichever copy
+      # Docker pulled last: a stale uv fails pyproject.toml's required-version.
+      pull: true
     # Never reach for the registry for `altero:local`; there is nothing there.
     pull_policy: build

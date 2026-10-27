@@ -127,7 +127,7 @@ A change to the source, the Dockerfile or the web interface wants a locally buil
 docker compose -f docker/compose.yaml -f docker/compose.build.yaml up -d --build
 ```
 
-It builds `altero:local`, deliberately not the published name, so that a later `docker compose pull` cannot replace a built image without saying so. Both files carry the same project name, so the built stack uses the volumes an earlier pulled one wrote.
+It builds `altero:local`, deliberately not the published name, so that a later `docker compose pull` cannot replace a built image without saying so. Each build fetches the current base images and uv rather than reusing cached ones. Both files carry the same project name, so the built stack uses the volumes an earlier pulled one wrote.
 
 ### Try the image on its own
 

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Building the image with `compose.build.yaml` fetches current base images and uv; a cached old `uv:latest` failed the uv version check ([build]).
 - The browser interface writes notes, standalone or under an item: format by selecting or typing `/`, full screen, saved as you type ([notes]).
 
 ## [1.0.0-beta.5] — 2026-10-27
@@ -254,6 +255,7 @@ The first release meant to be used by somebody other than its author.
 [parents]: docs/compatibility.md#what-may-be-a-child-of-what
 [editing]: docs/web/library.md#editing-an-item
 [notes]: docs/web/library.md#writing-a-note
+[build]: docs/deployment.md#build-the-image-instead-of-pulling-it
 [items]: docs/web/library.md#items
 [install]: docs/web-interface.md#installing-it-as-an-app
 [source]: docs/deployment.md#from-a-source-checkout
