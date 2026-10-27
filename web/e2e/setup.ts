@@ -132,6 +132,17 @@ export default async function setup(): Promise<() => void> {
     { itemType: 'attachment', linkMode: 'imported_file', title: 'A page', parentItem: book },
   ])
   await attach(call, page!, '<!doctype html><script>document.title = "ran"</script>', 'text/html')
+  // Edited by the creator tests, which no other test reads.
+  await create(call, [
+    {
+      itemType: 'book',
+      title: 'Sketch of the Analytical Engine',
+      creators: [
+        { creatorType: 'author', firstName: 'Luigi', lastName: 'Menabrea' },
+        { creatorType: 'translator', firstName: 'Ada', lastName: 'Lovelace' },
+      ],
+    },
+  ])
 
   const state: State = { baseURL: BASE, key, book: book!, note: note!, page: page! }
   writeFileSync(STATE_FILE, JSON.stringify(state))

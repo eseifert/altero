@@ -5,10 +5,11 @@ import { useI18n } from 'vue-i18n'
 import { ApiError } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppIcon from '@/components/AppIcon.vue'
+import CreatorEditor from '@/components/CreatorEditor.vue'
 import { formatDateTime } from '@/formats'
 import { dateOrder } from '@/items/dates'
 import { fieldLabel, itemTypeLabel, regularItemTypes, typeOutline } from '@/items/labels'
-import type { ItemChanges, ItemEnvelope } from '@/stores/library'
+import type { CreatorEntry, ItemChanges, ItemEnvelope } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 
 /*
@@ -110,6 +111,13 @@ const rows = computed(() => {
     return (first < 0 ? order.length : first) - (second < 0 ? order.length : second)
   })
 })
+
+const creators = computed<CreatorEntry[]>(() =>
+  Array.isArray(props.item.data.creators) ? (props.item.data.creators as CreatorEntry[]) : [],
+)
+
+/** Creators follow the title, where the desktop draws them; first, without one. */
+const creatorsAfter = computed(() => (rows.value.includes('title') ? 'title' : null))
 
 const stamps = computed(() =>
   TIMESTAMPS.filter((name) => value(name) !== '').map((name) => ({
@@ -291,6 +299,14 @@ watch(
     </div>
 
     <dl class="info">
+      <CreatorEditor
+        v-if="creatorsAfter === null"
+        :item-key="item.key"
+        :creators="creators"
+        :roles="outline?.creatorTypes ?? []"
+        :editable="editing_"
+        :save="save"
+      />
       <template v-for="name in rows" :key="name">
         <dt :id="`info-${item.key}-${name}`">{{ fieldLabel(name) }}</dt>
         <dd :aria-busy="busy === name">
@@ -370,6 +386,14 @@ watch(
           <span v-if="saved === name" class="info__saved" role="status">{{ t('Saved.') }}</span>
           <p v-if="failure?.name === name" class="info__error" role="alert">{{ failure.message }}</p>
         </dd>
+        <CreatorEditor
+          v-if="name === creatorsAfter"
+          :item-key="item.key"
+          :creators="creators"
+          :roles="outline?.creatorTypes ?? []"
+          :editable="editing_"
+          :save="save"
+        />
       </template>
 
       <!-- Stamped by the server, never typed: drawn quieter than what can be

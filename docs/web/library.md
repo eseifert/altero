@@ -6,7 +6,7 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 
 - Browse collections, tags and search results from the library view.
 - Create, rename, move and remove collections.
-- Edit an item's fields and change its type.
+- Edit an item's fields and creators, and change its type.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
 - Use the same actions with mouse, keyboard or touch where the interface provides them.
@@ -104,6 +104,12 @@ item's type, empty ones included, in the order Zotero Desktop shows them.
   for some fields, the pane lists them and changes nothing until you confirm.
   Fields move to their counterpart where there is one: a book's publisher
   becomes a report's institution, and a book's author a film's director.
+- **Edit creators** below the title. Each has a role, chosen from those the
+  item type allows, and a last and first name — or one full name, for an
+  institution, switched under **More Options…**. **+** adds a creator after
+  the row in the same role, **−** removes one, and a creator whose names are
+  emptied is removed when you leave it. Drag the grip beside the role to
+  reorder, or use **Move Up** and **Move Down** under **More Options…**.
 - **Rights** is set with the license chooser, as for My Publications.
 
 Each save is one change, which Zotero Desktop receives on its next sync. If
@@ -112,7 +118,7 @@ than written over their change; open the item again and repeat the edit.
 
 An item in the trash cannot be edited, as in Zotero Desktop: restore it first.
 A group member who may only read sees the fields without editing controls.
-Creators, tags and notes are still edited in Zotero Desktop.
+Tags and notes are still edited in Zotero Desktop.
 
 ### Collections
 
@@ -235,7 +241,7 @@ which tokens are real. Deleting a collection deletes its links with it.
 
 An item can be filed, trashed, restored, deleted and copied to another library
 — all of it by dragging rows of the item list somewhere, and all of it also
-without a pointer. Its fields and type are edited in the right pane; see
+without a pointer. Its fields, creators and type are edited in the right pane; see
 [Editing an item](#editing-an-item).
 
 **Several rows can be picked out and carried together.** `Ctrl`-click — `Cmd`

@@ -72,9 +72,12 @@ describe('InfoPane', () => {
   it('shows every field of the type where it can, so an empty one can be filled', () => {
     const wrapper = pane()
 
+    // A book with no creators is offered one, after the title, in its
+    // primary role.
     expect(labels(wrapper)).toEqual([
       'Item Type',
       'Title',
+      'Author',
       'Abstract',
       'Date',
       'URL',

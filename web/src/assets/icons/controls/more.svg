@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="3.2" stroke-linecap="round">
+  <title>More</title>
+  <!-- Three dots in a row, the desktop's options button: strokes of no length
+       whose round caps are the dots. -->
+  <path d="M5.5 12h0M12 12h0M18.5 12h0" />
+</svg>

@@ -267,3 +267,43 @@
 .card__rows > * + * {
   border-top: 1px solid var(--md-sys-color-outline-variant);
 }
+
+/*
+ * A menu that opens under the control that asked for it: a short list of
+ * things to do to one row. Raised a step above what it covers, with the same
+ * corner and border the theme menu has, because it floats over the page
+ * rather than sitting in it.
+ */
+.menu {
+  position: absolute;
+  z-index: 5;
+  min-width: 12rem;
+  margin: 0;
+  padding: 0.25rem 0;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: var(--md-sys-color-surface-container-high);
+  box-shadow: 0 6px 16px rgb(0 0 0 / 18%);
+  list-style: none;
+}
+
+.menu__item {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.9rem;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.menu__item:hover:not(:disabled) {
+  background: var(--md-sys-state-hover-surface);
+}
+
+.menu__item:disabled {
+  color: var(--md-sys-color-on-surface-variant);
+  cursor: default;
+}

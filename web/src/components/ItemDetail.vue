@@ -8,7 +8,7 @@ import InfoPane from '@/components/InfoPane.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import { exportable } from '@/exportformats'
-import { fieldLabel, itemTypeLabel } from '@/items/labels'
+import { itemTypeLabel } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
 import { cleanBibliography, cleanNote } from '@/sanitize'
 import type { ItemChanges, ItemEnvelope } from '@/stores/library'
@@ -100,19 +100,8 @@ const offersPublishing = computed(
     (!child.value || Boolean(props.inPublicationsView)),
 )
 
-interface Creator {
-  creatorType: string
-  firstName?: string
-  lastName?: string
-  name?: string
-}
-
 const title = computed(
   () => getItemTitle(props.item) || t(props.item.data.itemType === 'note' ? 'Note' : '(untitled)'),
-)
-
-const creators = computed<Creator[]>(() =>
-  Array.isArray(props.item.data.creators) ? (props.item.data.creators as Creator[]) : [],
 )
 
 const tags = computed(() => props.item.data.tags ?? [])
@@ -304,12 +293,6 @@ function childTitle(child: ItemEnvelope): string {
 
     <div v-if="isNote" class="card__inset detail__note" v-html="cleanNote(item.data.note)"></div>
 
-    <dl v-if="creators.length" class="detail__fields">
-      <template v-for="(creator, index) in creators" :key="index">
-        <dt>{{ fieldLabel(creator.creatorType) }}</dt>
-        <dd>{{ creator.name ?? `${creator.firstName ?? ''} ${creator.lastName ?? ''}`.trim() }}</dd>
-      </template>
-    </dl>
 
     <InfoPane :item="item" :editable="editable" :save="save" @rights="emit('rights')" />
 
@@ -430,65 +413,6 @@ function childTitle(child: ItemEnvelope): string {
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-medium-size);
   font-weight: var(--md-sys-typescale-weight-medium);
-}
-
-.detail__fields {
-  display: grid;
-  grid-template-columns: minmax(6rem, 9rem) 1fr;
-  gap: 0.35rem var(--md-spacing-3);
-  margin: 0;
-  font-size: var(--md-sys-typescale-body-medium-size);
-}
-
-.detail__fields dt {
-  color: var(--md-sys-color-on-surface-variant);
-}
-
-.detail__fields dd {
-  margin: 0;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-/*
- * In a narrow pane the label column is a third of the width, and an abstract
- * is left reading twenty characters to the line. Below that the label goes
- * above its value instead, which costs a line and buys the whole width.
- *
- * Twice over, because the two questions are not the same one. The media query
- * is the phone: a narrow *window*, where the panes are stacked and the pane is
- * as wide as the screen. The container query is a narrow *pane* in a wide
- * window, which is what dragging the grip to the right produces — and which
- * Safari only understood from 16, so the phone cannot be left to it.
- */
-@media (max-width: 32rem) {
-  .detail__fields {
-    grid-template-columns: 1fr;
-    gap: 0.15rem;
-  }
-
-  .detail__fields dt {
-    font-size: var(--md-sys-typescale-body-small-size);
-  }
-
-  .detail__fields dd:not(:last-child) {
-    margin-bottom: 0.5rem;
-  }
-}
-
-@container (max-width: 26rem) {
-  .detail__fields {
-    grid-template-columns: 1fr;
-    gap: 0.15rem;
-  }
-
-  .detail__fields dt {
-    font-size: var(--md-sys-typescale-body-small-size);
-  }
-
-  .detail__fields dd:not(:last-child) {
-    margin-bottom: 0.5rem;
-  }
 }
 
 .detail__section {

@@ -71,8 +71,8 @@ are cached for good, so the second visit fetches none of it.
 
 ### Not built yet
 
-Editing an item's creators, tags and notes, and creating an item. An item's
-fields and type can be edited, collections can be made, renamed, moved and
+Editing an item's tags and notes, and creating an item. An item's fields,
+type and creators can be edited, collections can be made, renamed, moved and
 removed, an item can be filed, trashed, restored, deleted, copied to another
 library, published to My Publications and written out as a file, a tag can be
 renamed, and a whole library can be restored from an archive or copied in from
