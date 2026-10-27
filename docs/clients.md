@@ -80,7 +80,7 @@ Files stored on WebDAV are never present on zotero.org, so a migration cannot br
 Step 2 is required. Zotero otherwise treats the files as already synchronized, because the migrated attachments carry the same `md5` and `mtime` the WebDAV server recorded, and uploads nothing. The reset marks every attachment whose file is present locally for upload.
 
 > [!WARNING]
-> This uploads the whole attachment store in one sync. altero accepts up to 1 GB per file; a reverse proxy needs its own request-size limit raised, as described under [Behind a reverse proxy](deployment.md#behind-a-reverse-proxy).
+> This uploads the whole attachment store in one sync. altero accepts up to 1 GiB per file by default ([`ALTERO_MAX_UPLOAD_MB`](configuration.md#server-and-storage)); a reverse proxy needs its own request-size limit raised, as described under [Behind a reverse proxy](deployment.md#behind-a-reverse-proxy).
 
 An attachment whose file no longer exists anywhere stays a metadata-only item. altero answers 404 for its bytes, and Zotero records it as in sync rather than reporting an error.
 

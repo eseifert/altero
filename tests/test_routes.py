@@ -155,6 +155,10 @@ EXPECTED = [
     ("/web/libraries/{library_id}/items/{item_key}", "PATCH"),
     ("/web/libraries/{library_id}/items/{item_key}/related", "POST"),
     ("/web/libraries/{library_id}/items/{item_key}/related/{other_key}", "DELETE"),
+    # A file put into the library as a new attachment, and one put on an
+    # attachment in place of its own. Same module; the body is the file.
+    ("/web/libraries/{library_id}/attachments", "POST"),
+    ("/web/libraries/{library_id}/items/{item_key}/file", "PUT"),
     # An item put into My Publications on the desktop client's terms, and taken
     # out again with its children. Same module; see its docstring.
     ("/web/libraries/{library_id}/publications/items/{item_key}", "PUT"),

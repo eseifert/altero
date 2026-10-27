@@ -11,9 +11,11 @@ from typing import IO, Any
 
 import httpx2
 import pytest
+from fastapi import FastAPI
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from altero.api.deps import get_upload_limit
 from altero.models import Library, LibraryType, StorageDownload
 from altero.services import storage
 from altero.services.auth import get_library
@@ -572,12 +574,10 @@ class TestTheBytesOnTheWayIn:
         assert file_path(settings.storage_path, MD5).read_bytes() == CONTENT
 
     async def test_a_declared_size_over_the_limit_is_refused_unread(
-        self, client: httpx2.AsyncClient, attachment: str, monkeypatch: pytest.MonkeyPatch
+        self, client: httpx2.AsyncClient, app: FastAPI, attachment: str
     ) -> None:
-        from altero.api.routes import files
-
         authorized = await self._authorized(client, attachment)
-        monkeypatch.setattr(files, "MAX_UPLOAD_BYTES", 10)
+        app.dependency_overrides[get_upload_limit] = lambda: 10
         sent: list[bytes] = []
 
         async def body() -> AsyncIterator[bytes]:

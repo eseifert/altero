@@ -26,6 +26,9 @@ DEBUG = False
 # Directory holding attachment files.
 STORAGE_PATH = "./storage"
 
+# Largest attachment file accepted, in MiB, from a sync client or the browser.
+MAX_UPLOAD_MB = 1024
+
 # Requests allowed per API key, or per address when unauthenticated, in each
 # window. Zero disables the limit. A caller over it gets 429 with Retry-After.
 RATE_LIMIT = 0

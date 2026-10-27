@@ -13,11 +13,13 @@ told the upload is unnecessary.
 import asyncio
 import hashlib
 import logging
+import mimetypes
 import os
 import re
 import shutil
 import tempfile
 import time
+import unicodedata
 import zipfile
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
@@ -172,8 +174,13 @@ def store_stream(root: Path, md5: str, source: IO[bytes]) -> None:
 
 def _staging_file(path: Path) -> tuple[BinaryIO, Path]:
     """Open a file of its own beside ``path`` for bytes on their way there."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, name = tempfile.mkstemp(dir=path.parent, prefix=STAGING_PREFIX)
+    return _staging_in(path.parent)
+
+
+def _staging_in(directory: Path) -> tuple[BinaryIO, Path]:
+    """Open a file of its own in ``directory`` for bytes on their way into the store."""
+    directory.mkdir(parents=True, exist_ok=True)
+    descriptor, name = tempfile.mkstemp(dir=directory, prefix=STAGING_PREFIX)
     handle = os.fdopen(descriptor, "wb")
     os.fchmod(handle.fileno(), 0o644)
     return handle, Path(name)
@@ -257,6 +264,107 @@ async def receive_file(
         # task should not have to wait for a thread to clean up after it.
         _abandon(handle, staged)
         raise
+
+
+async def receive_bytes(root: Path, chunks: AsyncIterator[bytes], *, limit: int) -> tuple[str, int]:
+    """Write bytes nobody described in advance into the store. Returns their digest and size.
+
+    :func:`receive_file` for an upload with no authorization step before it,
+    which is the browser's: the file is the request, so its digest is learnt
+    by reading it rather than checked against a promise. That decides where it
+    is staged -- in the store's root, since the directory it belongs in is not
+    known until the last byte -- and nothing else: the same staging name, the
+    same sync and the same one-step move, so the store still holds a file
+    whole or not at all.
+
+    Bytes already held under that digest are kept and the new copy dropped, as
+    :func:`authorize` answers ``{"exists": 1}`` for them. The two are the same
+    file -- or the held one is an archive of it, a snapshot, which is what the
+    desktop asked to keep.
+
+    Raises:
+        RequestTooLargeError: As soon as more than ``limit`` bytes arrive.
+    """
+    handle, staged = await asyncio.to_thread(_staging_in, root)
+    digest = hashlib.md5(usedforsecurity=False)
+    size = 0
+    pending: list[bytes] = []
+    pending_size = 0
+    try:
+        async for chunk in chunks:
+            size += len(chunk)
+            if size > limit:
+                raise RequestTooLargeError("File is too large")
+            pending.append(chunk)
+            pending_size += len(chunk)
+            if pending_size >= WRITE_BUFFER_BYTES:
+                await asyncio.to_thread(_absorb, handle, digest, b"".join(pending))
+                pending, pending_size = [], 0
+        if pending:
+            await asyncio.to_thread(_absorb, handle, digest, b"".join(pending))
+        md5 = digest.hexdigest()
+        path = file_path(root, md5)
+        if path.is_file():
+            _abandon(handle, staged)
+        else:
+            await asyncio.to_thread(path.parent.mkdir, parents=True, exist_ok=True)
+            await asyncio.to_thread(_put_in_place, handle, staged, path)
+    except BaseException:
+        _abandon(handle, staged)
+        raise
+    return md5, size
+
+
+#: Characters the desktop takes out of a file name, and what it does with the rest.
+_UNSAFE_IN_NAME = re.compile(r'[/\\?*:|"<>]')
+_BLANKS_IN_NAME = re.compile(r"[\r\n\t]+")
+_THIN_SPACES = re.compile(r"[\u2000-\u200A]")
+_ZERO_WIDTH = re.compile(r"[\u200B-\u200E]")
+_LINE_SEPARATORS = re.compile(r"[\u2028-\u2029]")
+_NOT_XML = re.compile(r"[\u0000-\u0008\u000b\u000c\u000e-\u001f\ud800-\udfff\ufffe\uffff]")
+_BIDI_ISOLATES = re.compile(r"[\u2068\u2069]")
+
+
+def valid_file_name(name: str) -> str:
+    """Return ``name`` as the desktop would store it, ``Zotero.File.getValidFileName``.
+
+    In the same order, so a file put here is called what the desktop would
+    have called it. That includes its quirks: one leading dot goes and a
+    second stays, and a name with nothing left is ``_``.
+    """
+    name = _UNSAFE_IN_NAME.sub("", name)
+    name = _BLANKS_IN_NAME.sub(" ", name)
+    name = _THIN_SPACES.sub(" ", name)
+    name = _ZERO_WIDTH.sub("", name)
+    name = _LINE_SEPARATORS.sub(" ", name)
+    name = _NOT_XML.sub("", name)
+    name = unicodedata.normalize("NFC", name)
+    name = _BIDI_ISOLATES.sub("", name)
+    name = name.removeprefix(".")
+    if name in ("", ".", ".."):
+        return "_"
+    return name
+
+
+def describe_file(content_type: str | None, filename: str) -> tuple[str, str]:
+    """Return the content type and charset to record for a file sent as ``content_type``.
+
+    What the sender said, when it said something: a browser names a file's
+    type from the operating system's table. ``application/octet-stream`` and
+    nothing at all are a sender that does not know, and the name is asked
+    instead -- the desktop sniffs the bytes, which is more than a name can
+    tell, so a file whose type neither knows is recorded as unknown.
+    """
+    media, _, parameters = (content_type or "").partition(";")
+    media = media.strip().lower()
+    charset = ""
+    for parameter in parameters.split(";"):
+        name, _, value = parameter.partition("=")
+        if name.strip().lower() == "charset":
+            charset = value.strip().strip('"').lower()
+    if not media or media == "application/octet-stream":
+        media = mimetypes.guess_type(filename, strict=False)[0] or "application/octet-stream"
+    return media, charset
 
 
 def _discard(path: Path) -> None:

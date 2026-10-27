@@ -570,7 +570,16 @@ async def get_group_context(
     One query with an outer join rather than two, because this runs on every
     request addressed to a group library.
     """
-    if api_key is None or library.type is not LibraryType.GROUP:
+    if api_key is None:
+        return None, None
+    return await _membership(session, library, api_key.user_id)
+
+
+async def _membership(
+    session: AsyncSession, library: Library, user_id: int
+) -> tuple[GroupMember | None, Group | None]:
+    """:func:`get_group_context` for a person rather than a credential."""
+    if library.type is not LibraryType.GROUP:
         return None, None
 
     row = (
@@ -581,7 +590,7 @@ async def get_group_context(
                 GroupMember,
                 and_(
                     GroupMember.library_id == Group.library_id,
-                    GroupMember.user_id == api_key.user_id,
+                    GroupMember.user_id == user_id,
                 ),
             )
             .where(Group.library_id == library.id)
@@ -755,8 +764,20 @@ async def require_file_write(
     """
     if not access.write:
         raise ForbiddenError("Forbidden")
+    _require_file_editing(*await get_group_context(session, library, api_key))
 
-    membership, group = await get_group_context(session, library, api_key)
+
+async def require_user_file_write(
+    session: AsyncSession, library: Library, user_id: int, access: Access
+) -> None:
+    """:func:`require_file_write` for a signed-in person, who presents no key."""
+    if not access.write:
+        raise ForbiddenError("You cannot change this library")
+    _require_file_editing(*await _membership(session, library, user_id))
+
+
+def _require_file_editing(membership: GroupMember | None, group: Group | None) -> None:
+    """Raise unless the group's ``fileEditing`` policy lets this member upload."""
     if group is None or membership is None:
         return
 

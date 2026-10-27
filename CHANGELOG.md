@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- `ALTERO_MAX_UPLOAD_MB` sets the largest attachment file accepted from any client; the default stays 1 GiB ([config]).
 - An attachment's `md5` is checked to be a digest on write and when a file is served, closing an authenticated path traversal. Reported by [@arminbahl] in [Issue#62].
 - Desktop acceptance covers notes: browser notes reach both desktops intact, and Zotero's own note editor output is the browser editor's test corpus.
 - Building the image with `compose.build.yaml` fetches current base images and uv; a cached old `uv:latest` failed the uv version check ([build]).

@@ -325,7 +325,7 @@ See [Email](email.md#group-notifications).
 
 Four things have to be right, and a default configuration gets two of them wrong.
 
-**Attachment uploads need a large request body.** altero accepts a file of up to 1 GiB. nginx allows 1 MB by default and answers `413` above it, which rejects most PDFs; Zotero reports the attachment as failing to sync. Caddy and Traefik impose no limit of their own.
+**Attachment uploads need a large request body.** altero accepts a file of up to 1 GiB, or [`ALTERO_MAX_UPLOAD_MB`](configuration.md#server-and-storage). nginx allows 1 MB by default and answers `413` above it, which rejects most PDFs; Zotero reports the attachment as failing to sync. Caddy and Traefik impose no limit of their own.
 
 **`/stream` is a WebSocket.** It needs the upgrade headers, and a read timeout longer than an idle connection. The connection is not silently idle — the server pings every 20 seconds — so a 60-second timeout is already enough, but a proxy that drops the upgrade entirely leaves Zotero without live updates. Worse, a streaming URL that does not resolve is why [Connecting a Zotero client](clients.md) insists on setting `extensions.zotero.streaming.url`: left at its default, the client sends the altero API key to zotero.org.
 

@@ -51,6 +51,15 @@ class Settings(BaseSettings):
         default=Path("./storage"),
         description="Directory holding attachment files.",
     )
+    max_upload_mb: int = Field(
+        default=1024,
+        ge=1,
+        description=(
+            "Largest attachment file accepted, in mebibytes, so that a stray "
+            "request cannot fill the disk. Every upload is held to it: a "
+            "syncing client's and the browser's."
+        ),
+    )
 
     open_registration: bool = Field(
         default=False,
@@ -196,6 +205,11 @@ class Settings(BaseSettings):
             "sent and nothing is shown, though activity is still recorded."
         ),
     )
+
+    @property
+    def max_upload_bytes(self) -> int:
+        """:attr:`max_upload_mb` in the unit an upload is counted in."""
+        return self.max_upload_mb * 1024 * 1024
 
 
 def _read_config_module(path: Path) -> dict[str, Any]:

@@ -9,7 +9,9 @@ One item is also created here, from the type picker (:func:`create_item`), and
 edited: its fields, creators, tags, relations and note, or its type, through
 :func:`update_item`. Its parent, its collections, the trash and My
 Publications are each an errand of their own and are refused there by name
-(:data:`NOT_EDITED_HERE`).
+(:data:`NOT_EDITED_HERE`). A file comes in here as well, as a new attachment
+(:func:`upload_attachment`) or in place of one's own (:func:`replace_file`),
+the request body being the file.
 
 The rules are the ones the rest of ``/web`` follows: a cookie and never an API
 key, a CSRF token on anything that changes something, who may write decided by
@@ -65,15 +67,20 @@ also the one write here that is about a single item and says so in its path,
 because a version belongs to an item and a selection has no shared one.
 """
 
+import re
+import time
+from collections.abc import AsyncIterator
+from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Body, Query
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-from altero.api.deps import BaseUrlDep, SessionDep
+from altero.api.deps import BaseUrlDep, SessionDep, UploadLimitDep
 from altero.api.responses import library_headers
 from altero.api.routes.web import CsrfDep, CurrentUserDep
 from altero.db import chunked
@@ -85,12 +92,13 @@ from altero.errors import (
     NotFoundError,
     PreconditionFailedError,
     PreconditionRequiredError,
+    RequestTooLargeError,
 )
 from altero.itemschema import get_schema
 from altero.itemschema.typechange import change_type
 from altero.models import ActivityKind, Item, Library, User
 from altero.serializers import item as render_item
-from altero.services import auth, groupactivity, itemwrites, publications, writes
+from altero.services import auth, groupactivity, itemwrites, publications, storage, writes
 from altero.services import collections as collections_service
 from altero.services import items as items_service
 
@@ -466,18 +474,11 @@ async def create_item(
 
     library = await writes.lock_library(session, library)
     if body.parent_item is not None:
-        # Asked here before `save_item` asks its own, wider question, so that
-        # the browser's answers are the browser's: it makes notes only, under
-        # a regular item its list shows, and a refusal is a 400 rather than
-        # the sync protocol's 409.
         if body.item_type != "note":
             raise InvalidInputError("Only a note can be made under another item")
-        parent = await items_service.get_item(session, library, body.parent_item, permit=access)
-        if parent.parent_id is not None or parent.item_type in itemwrites.NOTE_BEARING_TYPES:
-            raise InvalidInputError("A note can be made only under a regular item")
-        if parent.deleted:
-            raise InvalidInputError("Restore the item from the trash to add a note to it")
-        payload["parentItem"] = parent.key
+        payload["parentItem"] = await _parent_key(
+            session, library, body.parent_item, access, child="a note"
+        )
 
     version = await writes.bump_library_version(session, library)
     try:
@@ -504,6 +505,274 @@ async def create_item(
     await session.commit()
 
     return JSONResponse(rendered, status_code=201, headers=library_headers(version))
+
+
+async def _parent_key(
+    session: AsyncSession, library: Library, key: str, access: auth.Access, *, child: str
+) -> str:
+    """The key of the item a new child is made under, if it may have one.
+
+    Asked here before `save_item` asks its own, wider question, so that the
+    browser's answers are the browser's: a child goes under a regular item its
+    list shows, and a refusal is a 400 rather than the sync protocol's 409.
+    """
+    parent = await items_service.get_item(session, library, key, permit=access)
+    if parent.parent_id is not None or parent.item_type in itemwrites.NOTE_BEARING_TYPES:
+        raise InvalidInputError(f"{child.capitalize()} can be added only to a regular item")
+    if parent.deleted:
+        raise InvalidInputError(f"Restore the item from the trash to add {child} to it")
+    return parent.key
+
+
+#: The link modes whose file lives here, and so can be put here.
+#:
+#: Not ``embedded_image``, which is a note's picture and is written by whatever
+#: wrote the note; and not a linked file, whose bytes are on somebody's own disk.
+REPLACEABLE_LINK_MODES = frozenset({"imported_file", "imported_url"})
+
+
+def _mtime(value: int | None) -> int:
+    """The file's modification time in milliseconds, as the desktop records it.
+
+    A browser reads it off the file it was handed. A sender that has none is
+    putting the file here now, so now is when it was last changed as far as
+    this library knows.
+    """
+    return value if value is not None else int(time.time() * 1000)
+
+
+def _not_a_form(request: Request) -> None:
+    """Refuse a body that is a form rather than the file itself.
+
+    Stored as it came, a form's boundaries and part headers would become the
+    attachment -- a file every client downloads and none can open.
+    """
+    if request.headers.get("Content-Type", "").lower().startswith("multipart/"):
+        raise InvalidInputError("Send the file itself as the request body, not a form")
+
+
+def _declared_too_large(request: Request, limit: int) -> None:
+    """Refuse an upload whose declared length is over the limit, before a byte is read."""
+    declared = request.headers.get("Content-Length", "")
+    if declared.isdigit() and int(declared) > limit:
+        raise RequestTooLargeError("File is too large")
+
+
+async def _let_go(session: AsyncSession) -> None:
+    """End the transaction before the body is read, and forget what it read.
+
+    Nothing is held open while a file arrives, which may take minutes. And
+    nothing read before is believed after: the session keeps what it loaded,
+    so an item asked for again under the lock would come back as it was before
+    the upload began -- with the digest another replacement has since moved
+    on from -- rather than as it is.
+    """
+    await session.commit()
+    session.expunge_all()
+
+
+async def _body(request: Request) -> AsyncIterator[bytes]:
+    async for chunk in request.stream():
+        if chunk:
+            yield chunk
+
+
+@router.post("/libraries/{library_id}/attachments", status_code=201)
+async def upload_attachment(
+    request: Request,
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    limit: UploadLimitDep,
+    library_id: int,
+    _csrf: CsrfDep,
+    filename: Annotated[str, Query()],
+    parent_item: Annotated[str | None, Query(alias="parentItem")] = None,
+    collections: Annotated[list[str] | None, Query()] = None,
+    title: Annotated[str | None, Query()] = None,
+    mtime: Annotated[int | None, Query()] = None,
+) -> Response:
+    """Make an attachment holding the file that is the request body.
+
+    One request rather than the v3 three, because the browser has the file in
+    hand and nothing to negotiate: there is no digest to check against a
+    promise and no client deciding whether to send at all. What is left of
+    the protocol is what made it safe. Every permission is asked before a byte
+    is read -- the library, the group's ``fileEditing`` policy, the parent --
+    and again under the lock afterwards; the bytes are hashed on their way into
+    the store and moved into place whole; and the attachment is written once,
+    at one new library version, already describing them. So a desktop syncing
+    afterwards finds what its own upload would have left: an ``imported_file``
+    whose ``md5``, ``mtime`` and ``filename`` it can download.
+
+    The body is the file, not a form: a form's parser spools a file part to
+    disk before anything can read it, which would be every upload written
+    twice. Its ``Content-Type`` is the file's. ``title`` is the browser's,
+    because the desktop's default for a first PDF or image under an item is a
+    word in the language of whoever adds it; without one the file is named
+    after itself, which is the desktop's own fallback.
+    """
+    library, access = await _library(session, user, library_id, write=True)
+    await auth.require_user_file_write(session, library, user.id, access)
+    _not_a_form(request)
+    if parent_item is not None and collections:
+        # A child is in its parent's collections and nowhere else of its own,
+        # which is why the desktop refuses to be given both.
+        raise InvalidInputError("An attachment under an item cannot be filed as well")
+    if parent_item is not None:
+        await _parent_key(session, library, parent_item, access, child="a file")
+    _declared_too_large(request, limit)
+    await _let_go(session)
+
+    root = Path(request.app.state.settings.storage_path)
+    md5, _ = await storage.receive_bytes(root, _body(request), limit=limit)
+
+    name = storage.valid_file_name(filename)
+    content_type, charset = storage.describe_file(request.headers.get("Content-Type"), name)
+    payload = get_schema().template("attachment", "imported_file")
+    payload.update(
+        {
+            "title": title.strip() if title and title.strip() else _title_from(name),
+            "filename": name,
+            "contentType": content_type,
+            "charset": charset,
+            "md5": md5,
+            "mtime": _mtime(mtime),
+        }
+    )
+    if collections:
+        payload["collections"] = list(dict.fromkeys(collections))
+
+    library = await writes.lock_library(session, library)
+    # Asked again: the parent may have gone to the trash while the file came.
+    access = await auth.user_access(session, library, user.id)
+    await auth.require_user_file_write(session, library, user.id, access)
+    if parent_item is not None:
+        payload["parentItem"] = await _parent_key(
+            session, library, parent_item, access, child="a file"
+        )
+
+    version = await writes.bump_library_version(session, library)
+    try:
+        item = await itemwrites.save_item(
+            session, library, payload, version, actor_id=user.id, permit=access
+        )
+    except MissingObjectError as missing:
+        # A collection gone since the page loaded, as for any new item.
+        raise NotFoundError(missing.message) from None
+    assert item is not None
+    await session.flush()
+
+    rendered = await _rendered(session, item, library, base_url)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=user.id,
+        kind=ActivityKind.ITEMS_CHANGED,
+        count=1,
+        objects=await groupactivity.name_items(session, library, [item.key]),
+    )
+    await session.commit()
+
+    return JSONResponse(rendered, status_code=201, headers=library_headers(version))
+
+
+def _title_from(filename: str) -> str:
+    """The desktop's title for a file with no better one: its name, less the extension."""
+    return re.sub(r"\.[^.]+$", "", filename)
+
+
+@router.put("/libraries/{library_id}/items/{item_key}/file")
+async def replace_file(
+    request: Request,
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    limit: UploadLimitDep,
+    library_id: int,
+    item_key: str,
+    _csrf: CsrfDep,
+    filename: Annotated[str, Query()],
+    mtime: Annotated[int | None, Query()] = None,
+) -> Response:
+    """Put the file that is the request body on an attachment, in place of its own.
+
+    The precondition is the v3 upload's rather than the item's version:
+    ``If-Match`` names the digest being replaced, or ``If-None-Match: *`` says
+    there are no bytes here to replace. What is at stake is overwriting a file
+    another client replaced meanwhile, and a tag added to the attachment since
+    the page loaded is not that.
+
+    The attachment takes the new file's name, type and digest, as a desktop's
+    upload of a changed file gives it, and keeps its title: a title is what
+    somebody called the attachment, not the file.
+    """
+    library, access = await _library(session, user, library_id, write=True)
+    await auth.require_user_file_write(session, library, user.id, access)
+    _not_a_form(request)
+    root = Path(request.app.state.settings.storage_path)
+    item = await items_service.get_item(session, library, item_key, permit=access)
+    _replaceable(item, access, request, root)
+    _declared_too_large(request, limit)
+    await _let_go(session)
+
+    md5, _ = await storage.receive_bytes(root, _body(request), limit=limit)
+    name = storage.valid_file_name(filename)
+    content_type, charset = storage.describe_file(request.headers.get("Content-Type"), name)
+
+    library = await writes.lock_library(session, library)
+    access = await auth.user_access(session, library, user.id)
+    await auth.require_user_file_write(session, library, user.id, access)
+    item = await items_service.get_item(session, library, item_key, permit=access)
+    # Asked again under the lock, which is the answer that counts: a second
+    # replacement that finished while these bytes came has moved the digest.
+    _replaceable(item, access, request, root)
+
+    version = await writes.bump_library_version(session, library)
+    await itemwrites.save_item(
+        session,
+        library,
+        {
+            "filename": name,
+            "contentType": content_type,
+            "charset": charset,
+            "md5": md5,
+            "mtime": _mtime(mtime),
+        },
+        version,
+        key=item.key,
+        replace=False,
+        actor_id=user.id,
+        permit=access,
+        stored=item,
+    )
+
+    rendered = await _rendered(session, item, library, base_url)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=user.id,
+        kind=ActivityKind.ITEMS_CHANGED,
+        count=1,
+        objects=await groupactivity.name_items(session, library, [item.key]),
+    )
+    await session.commit()
+
+    return JSONResponse(rendered, headers=library_headers(version))
+
+
+def _replaceable(item: Item, access: auth.Access, request: Request, root: Path) -> None:
+    """Refuse unless this attachment's file is here to replace, by this person, now."""
+    if item.item_type != "attachment":
+        raise InvalidInputError("Only an attachment holds a file")
+    if item.field_values().get("linkMode") not in REPLACEABLE_LINK_MODES:
+        raise InvalidInputError("This attachment's file is not stored here")
+    if item.deleted:
+        raise InvalidInputError("Restore the attachment from the trash to change it")
+    access.require_change(item.created_by_user_id)
+    storage.check_preconditions(
+        item, request.headers.get("If-Match"), request.headers.get("If-None-Match"), root
+    )
 
 
 @router.patch("/libraries/{library_id}/items/{item_key}")

@@ -191,3 +191,16 @@ def get_base_url(request: Request) -> str:
 
 
 BaseUrlDep = Annotated[str, Depends(get_base_url)]
+
+
+def get_upload_limit(request: Request) -> int:
+    """Return the largest file an upload may carry, in bytes.
+
+    A dependency rather than a read of the settings where it is needed, so that
+    every door a file comes in by asks the same question -- and a test can make
+    the answer ten bytes without sending a gigabyte.
+    """
+    return request.app.state.settings.max_upload_bytes
+
+
+UploadLimitDep = Annotated[int, Depends(get_upload_limit)]

@@ -85,6 +85,7 @@ Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. D
 | `ALTERO_HOST`                  | `127.0.0.1`                         | Interface to bind. The container sets `0.0.0.0`.                                                         |
 | `ALTERO_PORT`                  | `8000`                              | Port to bind, 1–65535.                                                                                   |
 | `ALTERO_STORAGE_PATH`          | `./storage`                         | Directory holding attachment files. The container sets `/data/storage`.                                  |
+| `ALTERO_MAX_UPLOAD_MB`         | `1024`                              | Largest attachment file accepted, in MiB, from a sync client or the browser. Larger uploads get `413`.   |
 | `ALTERO_DEBUG`                 | `false`                             | Debug behavior, SQL echoing and auto-reload. Never enable in production.                                 |
 
 ## Accounts

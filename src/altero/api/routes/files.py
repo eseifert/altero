@@ -21,6 +21,7 @@ from altero.api.deps import (
     FileReadableLibraryDep,
     FileWritableLibraryDep,
     SessionDep,
+    UploadLimitDep,
 )
 from altero.api.responses import library_headers
 from altero.errors import (
@@ -34,9 +35,6 @@ from altero.services import auth, storage, writes
 from altero.services import items as items_service
 
 router = APIRouter(tags=["files"])
-
-#: Largest upload accepted, so a stray request cannot fill the disk.
-MAX_UPLOAD_BYTES = 1024 * 1024 * 1024
 
 #: How much of a form's file part is read at a time.
 UPLOAD_CHUNK_BYTES = 1024 * 1024
@@ -55,6 +53,7 @@ async def upload_file(
     library: FileWritableLibraryDep,
     access: AccessDep,
     base_url: BaseUrlDep,
+    limit: UploadLimitDep,
 ) -> Response:
     """Authorize an upload, or register one that has finished.
 
@@ -96,7 +95,7 @@ async def upload_file(
         headers = library_headers(item.version) if storage.current_md5(item) else {}
         return PlainTextResponse(error.message, status_code=412, headers=headers)
     declared = storage.parse_authorization(form)
-    if declared["filesize"] > MAX_UPLOAD_BYTES:
+    if declared["filesize"] > limit:
         raise RequestTooLargeError("File is too large")
 
     result = await storage.authorize(
@@ -135,7 +134,9 @@ async def _attachment(
 
 
 @router.post("/storage/upload/{upload_key}")
-async def receive_upload(upload_key: str, request: Request, session: SessionDep) -> Response:
+async def receive_upload(
+    upload_key: str, request: Request, session: SessionDep, limit: UploadLimitDep
+) -> Response:
     """Take the bytes of an authorized upload.
 
     This stands in for the storage service the upstream server hands out. The
@@ -146,22 +147,20 @@ async def receive_upload(upload_key: str, request: Request, session: SessionDep)
 
     multipart = _is_multipart(request)
     declared = request.headers.get("Content-Length", "")
-    if not multipart and declared.isdigit() and int(declared) > MAX_UPLOAD_BYTES:
+    if not multipart and declared.isdigit() and int(declared) > limit:
         # Refused before a byte is read.
         raise RequestTooLargeError("File is too large")
 
     if multipart:
-        async with request.form(max_part_size=MAX_UPLOAD_BYTES) as form:
+        async with request.form(max_part_size=limit) as form:
             file = form.get("file")
             if not isinstance(file, UploadFile):
                 raise InvalidInputError("No file provided")
             await storage.receive_file(
-                _storage_root(request), upload, _read_part(file), limit=MAX_UPLOAD_BYTES
+                _storage_root(request), upload, _read_part(file), limit=limit
             )
     else:
-        await storage.receive_file(
-            _storage_root(request), upload, _read_body(request), limit=MAX_UPLOAD_BYTES
-        )
+        await storage.receive_file(_storage_root(request), upload, _read_body(request), limit=limit)
     upload.received = True
     await session.commit()
 
