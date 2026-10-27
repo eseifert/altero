@@ -2351,6 +2351,14 @@ The final settled sync checks convergence and an unchanged server watermark.</p>
 <td>Edit an item's fields, creators and tags, relate two items, change a type and make an item through the browser's routes; both desktops store exactly that; a desktop edit then makes the browser's stale save fail with 412.</td>
 </tr>
 <tr>
+<td><code>note-corpus</code></td>
+<td>Store notes as clients wrote them, from TinyMCE-era HTML to schema 10 and a note built from PDF annotations; have the shipped note editor save each unedited; record both for the browser editor's tests, and check the server keeps the desktop's HTML exactly.</td>
+</tr>
+<tr>
+<td><code>web-notes</code></td>
+<td>Write a standalone and a child note through the browser's routes; both desktops store exactly that HTML; the desktop's editor opens them editable and writes nothing; a desktop edit reaches the browser.</td>
+</tr>
+<tr>
 <td><code>resync</code></td>
 <td>Discard pending edits through the original reset helper; replace the server from a desktop; restore an older server archive, lift its watermark and recover from the surviving authoritative desktop.</td>
 </tr>
