@@ -489,6 +489,27 @@ class TestBrowsing:
         body = (await client.get(f"/web/libraries/{library_id}/tags")).json()
 
         assert body["tags"] == [{"tag": "toread", "type": 0, "numItems": 2}]
+        assert body["colors"] == []
+
+    async def test_tag_colours_come_from_the_synced_setting(
+        self, client: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """In the desktop's order, which is the order its keys 1 to 9 assign."""
+        library_id, key = await self._seed(client, session)
+        colours = [
+            {"name": "urgent", "color": "#FF6666"},
+            {"name": "toread", "color": "#5FB236"},
+        ]
+        written = await client.put(
+            "/users/1/settings/tagColors",
+            headers={"Zotero-API-Key": key},
+            json={"value": colours},
+        )
+        assert written.status_code == 204
+
+        body = (await client.get(f"/web/libraries/{library_id}/tags")).json()
+
+        assert body["colors"] == colours
 
     async def test_one_item_is_readable_on_its_own(
         self, client: httpx.AsyncClient, session: AsyncSession

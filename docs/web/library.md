@@ -6,7 +6,7 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 
 - Browse collections, tags and search results from the library view.
 - Create, rename, move and remove collections.
-- Edit an item's fields and creators, change its type, and relate it to others.
+- Edit an item's fields, creators and tags, change its type, and relate it to others.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
 - Use the same actions with mouse, keyboard or touch where the interface provides them.
@@ -111,6 +111,13 @@ item's type, empty ones included, in the order Zotero Desktop shows them.
   emptied is removed when you leave it. Drag the grip beside the role to
   reorder, or use **Move Up** and **Move Down** under **More Options…**.
 - **Rights** is set with the license chooser, as for My Publications.
+- **Tag an item** under **Tags**: **+** opens a box that offers the library's
+  tags as you type. Enter adds the tag and leaves the box open for the next;
+  several lines pasted at once add one tag each. Press a tag to rename it on
+  this item, or clear it to remove it; **×** removes it too. Tags coloured in
+  Zotero Desktop come first, with their colour, then tags with an emoji, then
+  the rest alphabetically. A dashed outline marks a tag added automatically,
+  by a translator or an import.
 - **Relate items** under **Related**: **+** searches the library, and pressing
   a result relates the two. Both items name each other, as in Zotero Desktop,
   and **−** removes the link from both. Pressing a related item opens it.
@@ -122,7 +129,7 @@ than written over their change; open the item again and repeat the edit.
 
 An item in the trash cannot be edited, as in Zotero Desktop: restore it first.
 A group member who may only read sees the fields without editing controls.
-Tags and notes are still edited in Zotero Desktop.
+Notes are still edited in Zotero Desktop.
 
 ### Collections
 
@@ -447,11 +454,10 @@ in under a pointer are simply drawn.
 
 ### Tags
 
-A tag can be renamed here. It is the one thing the browser does that reaches
-items, and it reaches them the only way a tag can be changed at all: a tag has
-no existence apart from the items carrying it, so renaming one rewrites every
-one of them. Nothing here chooses *which* items, adds a tag or removes one —
-that is editing an item's tags, which the browser does not do yet.
+A tag can be renamed here, throughout the library: a tag has no existence
+apart from the items carrying it, so renaming one rewrites every one of them.
+To add or remove a tag on one item, or rename it there alone, use the item's
+**Tags** section; see [Editing an item](#editing-an-item).
 
 It is the pencil on the tag, beside its name in the panel, dimmed until the
 pointer or the keyboard reaches it. A dialog opens holding the name the tag

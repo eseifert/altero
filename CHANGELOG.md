@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface edits an item's tags, offering the library's tags as you type, and shows colours set in Zotero Desktop ([editing]).
 - The browser interface relates items under **Related**: search the library to add one, remove one, or open it ([editing]).
 - The browser interface edits an item's creators: role, one or two name fields, add, remove, and reorder by drag or menu ([editing]).
 - Icons in the browser interface are larger: 22px in toolbars and the sidebar instead of 16–18px, in slightly larger buttons.

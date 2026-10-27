@@ -71,13 +71,13 @@ are cached for good, so the second visit fetches none of it.
 
 ### Not built yet
 
-Editing an item's tags and notes, and creating an item. An item's fields,
-type and creators can be edited, collections can be made, renamed, moved and
+Editing an item's notes, and creating an item. An item's fields,
+type, creators, tags and related items can be edited, collections can be made, renamed, moved and
 removed, an item can be filed, trashed, restored, deleted, copied to another
 library, published to My Publications and written out as a file, a tag can be
 renamed, and a whole library can be restored from an archive or copied in from
-zotero.org — but no item can be created here, and a tag cannot be deleted or
-put on something. Moving in from zotero.org brings
+zotero.org — but no item can be created here, and a tag cannot be deleted from
+the whole library at once. Moving in from zotero.org brings
 the personal library only; a group has to be made here and its members invited.
 
 The two things the desktop client does with a set of items that this does not

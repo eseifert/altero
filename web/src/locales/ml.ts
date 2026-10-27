@@ -40,6 +40,7 @@ export default {
   'Across the instance': 'ഈ ഇൻസ്റ്റൻസിലാകെ',
   'Add Creator': 'സ്രഷ്ടാവിനെ ചേർക്കുക',
   'Add Related': 'ബന്ധപ്പെട്ടത് ചേർക്കുക',
+  'Add Tag': 'ടാഗ് ചേർക്കുക',
   'Add a SAML provider': 'ഒരു SAML ദാതാവിനെ ചേർക്കുക',
   'Add a passkey': 'ഒരു പാസ്‌കീ ചേർക്കുക',
   'Add a provider': 'ഒരു ദാതാവിനെ ചേർക്കുക',
@@ -100,6 +101,7 @@ export default {
   'Authenticator enabled.': 'ഓതന്റിക്കേറ്റർ പ്രവർത്തനക്ഷമമാക്കി.',
   'Authenticator removed.': 'ഓതന്റിക്കേറ്റർ നീക്കം ചെയ്തു.',
   Back: 'തിരികെ',
+  'Automatically added tag': 'സ്വയം ചേർത്ത ടാഗ്',
   'Back in service.': 'വീണ്ടും സജീവമാക്കി.',
   'Back to groups': 'ഗ്രൂപ്പുകളിലേക്ക് മടങ്ങുക',
   'Back to sign in': 'സൈൻ ഇന്നിലേക്ക് മടങ്ങുക',
@@ -493,6 +495,7 @@ export default {
   'Related': 'ബന്ധപ്പെട്ടവ',
   'Remove Creator': 'സ്രഷ്ടാവിനെ നീക്കം ചെയ്യുക',
   'Remove Related': 'ബന്ധപ്പെട്ടത് നീക്കം ചെയ്യുക',
+  'Remove Tag': 'ടാഗ് നീക്കം ചെയ്യുക',
   'Remove authenticator': 'ഓതന്റിക്കേറ്റർ നീക്കം ചെയ്യുക',
   'Remove from My Publications': 'എന്റെ പ്രസിദ്ധീകരണങ്ങളിൽ നിന്ന് നീക്കം ചെയ്യുക',
   'Remove “{name}” from My Publications?':

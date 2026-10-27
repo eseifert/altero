@@ -96,6 +96,12 @@ export interface TagEntry {
   numItems: number
 }
 
+/** One entry of the synced `tagColors` setting, as the desktop writes it. */
+export interface TagColor {
+  name: string
+  color: string
+}
+
 /** A collection with its children, as the sidebar draws it. */
 export interface CollectionNode extends CollectionEnvelope {
   children: CollectionNode[]
@@ -186,6 +192,8 @@ export const useLibraryStore = defineStore('library', () => {
 
   const collections = ref<CollectionNode[]>([])
   const tags = ref<TagEntry[]>([])
+  /** The library's coloured tags, in the order the desktop assigns them. */
+  const tagColors = ref<TagColor[]>([])
 
   const items = ref<ItemEnvelope[]>([])
   const total = ref(0)
@@ -371,6 +379,7 @@ export const useLibraryStore = defineStore('library', () => {
     libraryId.value = id
     collections.value = []
     tags.value = []
+    tagColors.value = []
     collectionKey.value = null
     selectedTags.value = []
     scope.value = 'top'
@@ -451,8 +460,21 @@ export const useLibraryStore = defineStore('library', () => {
 
   async function loadTags(): Promise<void> {
     if (libraryId.value === null) return
-    const payload = await request<{ tags: TagEntry[] }>(`/web/libraries/${libraryId.value}/tags`)
+    const payload = await request<{ tags: TagEntry[]; colors?: TagColor[] }>(
+      `/web/libraries/${libraryId.value}/tags`,
+    )
     tags.value = payload.tags
+    tagColors.value = payload.colors ?? []
+  }
+
+  /** The library's tags containing ``text``, for completing one being typed. */
+  async function findTags(text: string): Promise<TagEntry[]> {
+    if (libraryId.value === null || !text.trim()) return []
+    const params = new URLSearchParams({ q: text.trim(), limit: '50' })
+    const payload = await request<{ tags: TagEntry[] }>(
+      `/web/libraries/${libraryId.value}/tags?${params}`,
+    )
+    return payload.tags
   }
 
   /**
@@ -962,6 +984,7 @@ export const useLibraryStore = defineStore('library', () => {
     libraryId.value = null
     collections.value = []
     tags.value = []
+    tagColors.value = []
     items.value = []
     selection.value = []
     anchor.value = null
@@ -982,6 +1005,7 @@ export const useLibraryStore = defineStore('library', () => {
     selectedCollection,
     pathTo,
     tags,
+    tagColors,
     selectedTags,
     items,
     total,
@@ -1011,6 +1035,7 @@ export const useLibraryStore = defineStore('library', () => {
     updateCollection,
     deleteCollection,
     loadTags,
+    findTags,
     renameTag,
     loadItems,
     loadMore,

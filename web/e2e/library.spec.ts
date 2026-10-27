@@ -122,3 +122,36 @@ test('an item related in the pane names the other, and both stop when it is remo
   await page.getByText('On the Economy of Machinery').first().click()
   await expect(page.locator('.detail .related .related__label')).toHaveCount(0)
 })
+
+test('a tag added in the pane is still there after a reload, and goes when removed', async ({ page }, testInfo) => {
+  const name = `machinery (${testInfo.project.name})`
+  await signIn(page)
+  await page.getByText('On the Economy of Machinery').first().click()
+
+  const tags = page.locator('.detail .tags')
+  await tags.getByRole('button', { name: 'Add Tag' }).click()
+  await tags.getByRole('combobox').fill(name)
+  await tags.getByRole('combobox').press('Enter')
+  await expect(tags.locator('.tags__name')).toHaveText([name])
+
+  await page.reload()
+  await page.getByText('On the Economy of Machinery').first().click()
+  await expect(tags.locator('.tags__name')).toHaveText([name])
+  // The sidebar lists it too, being a tag of the library now.
+  await expect(page.locator('.library__tag').filter({ hasText: name }).first()).toBeAttached()
+
+  await tags.getByRole('button', { name: 'Remove Tag' }).click()
+  await expect(tags.locator('.tags__name')).toHaveCount(0)
+  await page.reload()
+  await page.getByText('On the Economy of Machinery').first().click()
+  await expect(page.locator('.detail .tags__name')).toHaveCount(0)
+})
+
+test('a tag the desktop coloured shows its colour', async ({ page }) => {
+  await signIn(page)
+  await page.getByText('Notes on the Analytical Engine').first().click()
+
+  const tag = page.locator('.detail .tags__tag--colored')
+  await expect(tag).toContainText('computing')
+  await expect(tag.locator('.tags__swatch')).toHaveCSS('background-color', 'rgb(95, 178, 54)')
+})

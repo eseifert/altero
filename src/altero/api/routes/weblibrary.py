@@ -27,6 +27,7 @@ from altero import __version__, cite, serializers
 from altero.api.deps import BaseUrlDep, SessionDep
 from altero.api.responses import CONTENT_TYPES
 from altero.api.routes.web import CurrentUserDep
+from altero.errors import NotFoundError
 from altero.itemschema import get_schema
 from altero.models import Item, Library, LibraryType
 from altero.query import (
@@ -39,7 +40,7 @@ from altero.query import (
     default_direction,
 )
 from altero.search import parse_expressions
-from altero.services import auth, collections, itemexport, items, storage, tags
+from altero.services import auth, collections, itemexport, items, settings, storage, tags
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -528,11 +529,20 @@ async def list_library_tags(
     limit: Annotated[int, Query(ge=1, le=MAX_TAGS)] = MAX_TAGS,
     q: str | None = None,
 ) -> Response:
-    """Return the library's tags with their item counts, for the tag selector."""
+    """Return the library's tags with their item counts, for the tag selector.
+
+    ``colors`` is the synced ``tagColors`` setting as the desktop wrote it, a
+    list of names and colours in the order its keys 1 to 9 assign them.
+    """
     library = await _readable_library(session, user, library_id)
 
     query = ListQuery(limit=limit, q=q, qmode=TagSearchMode.CONTAINS, sort="title")
     page = await tags.list_tags(session, library, query)
+    try:
+        setting = await settings.get_setting(session, library, "tagColors")
+        colors = settings.render(setting)["value"]
+    except NotFoundError:
+        colors = []
 
     return JSONResponse(
         {
@@ -541,5 +551,6 @@ async def list_library_tags(
                 {"tag": summary.name, "type": summary.type, "numItems": summary.num_items}
                 for summary in page.objects
             ],
+            "colors": colors if isinstance(colors, list) else [],
         }
     )

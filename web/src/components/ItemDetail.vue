@@ -8,6 +8,7 @@ import InfoPane from '@/components/InfoPane.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import RelatedSection from '@/components/RelatedSection.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
+import TagEditor from '@/components/TagEditor.vue'
 import { exportable } from '@/exportformats'
 import { itemTypeLabel } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
@@ -104,8 +105,6 @@ const offersPublishing = computed(
 const title = computed(
   () => getItemTitle(props.item) || t(props.item.data.itemType === 'note' ? 'Note' : '(untitled)'),
 )
-
-const tags = computed(() => props.item.data.tags ?? [])
 
 const isAttachment = computed(
   () =>
@@ -302,12 +301,7 @@ function childTitle(child: ItemEnvelope): string {
       <a class="detail__link" :href="fileUrl(item.key, { download: true })">{{ t('Download') }}</a>
     </p>
 
-    <section v-if="tags.length" class="detail__section">
-      <h3 class="detail__heading">{{ t('Tags') }}</h3>
-      <ul class="detail__tags">
-        <li v-for="tag in tags" :key="tag.tag" class="detail__tag">{{ tag.tag }}</li>
-      </ul>
-    </section>
+    <TagEditor :item="item" :editable="editable" :save="save" />
 
     <RelatedSection :item="item" :editable="editable" @open="emit('open', $event)" />
 
@@ -422,27 +416,6 @@ function childTitle(child: ItemEnvelope): string {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-2);
-}
-
-.detail__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* The same pill the sidebar draws. Outlined rather than filled, because
-   nothing here is selected: these say what the item is tagged with, and the
-   filled ones over there say what the list is being narrowed by. */
-.detail__tag {
-  padding: 0.2rem 0.55rem;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: var(--md-sys-shape-corner-medium);
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
-  line-height: 1.35;
 }
 
 .detail__children {

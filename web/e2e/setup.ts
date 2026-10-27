@@ -150,6 +150,13 @@ export default async function setup(): Promise<() => void> {
     { itemType: 'letter', title: 'Letter to Charles Babbage' },
   ])
 
+  // A colour for the seeded book's tag, as the desktop syncs one.
+  await call('/users/1/settings/tagColors', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value: [{ name: 'computing', color: '#5FB236' }] }),
+  })
+
   const state: State = { baseURL: BASE, key, book: book!, note: note!, page: page! }
   writeFileSync(STATE_FILE, JSON.stringify(state))
 
