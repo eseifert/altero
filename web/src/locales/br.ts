@@ -102,6 +102,8 @@ export default {
     "Gwelet e vez er chomlec'h kevreañ. Lizherennoù bihan, sifroù ha barrennigoù-stagañ.",
   'Apply them now': 'Arloañ anezho bremañ',
   'Archive': 'Diell',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Ha fellout a ra deoc\'h cheñch astenn ar restr eus “{from}” da “{to}”?',
   'Are you sure you want to change the item type?':
     'Ha fellout a ra deoc\'h cheñch an doare elfenn?',
   'Ask for a new one. Your current password still works.':
@@ -304,6 +306,7 @@ export default {
   'Exported Items': 'Elfennoù ezporzhiet',
   'Export…': 'Ezporzhiañ…',
   'Extend the selection': 'Astenn an dibab',
+  'Filename': 'Anv ar restr',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     "N'eo ket stoket war zotero.org ar restroù miret war ur servijer WebDAV, setu ne c'hall ket un treuzkas o degas. Kendalc'hit da sinkronelaat ar restroù dre WebDAV, pe pellgasit anezho adalek ur c'hliant Zotero a zalc'h anezho c'hoazh.",
   'Finished.': 'Echu.',
@@ -345,6 +348,8 @@ export default {
   'I created this work.': 'Me eo am eus krouet al labour-mañ.',
   'If an account here uses that address, a link to set a new password is on its way.':
     "Mard eo implijet ar chomlec'h-se gant ur gont amañ, emañ ul liamm evit termeniñ ur ger-tremen nevez en hent.",
+  'If you change the extension, the file may open in a different application.':
+    'Ma cheñchit an astenn e c\'hallo ar restr bezañ digoret gant un arload all.',
   'Image': 'Skeudenn',
   'Import and export': 'Emporzhiañ hag ezporzhiañ',
   'In the trash': 'Er pod-lastez',
@@ -372,6 +377,7 @@ export default {
   'Items deleted': 'Elfennoù dilamet',
   'Items in {name}': 'Elfennoù e {name}',
   'Keep the existing Rights field': 'Mirout ar vaezienn Lisañs a zo anezhi',
+  'Keep {extension}': 'Mirout {extension}',
   'Key created. Copy it now — it is not shown again.':
     "Alc'hwez krouet. Eilit anezhañ bremañ — ne vo ket diskouezet en-dro.",
   'Keyboard shortcuts': 'Berradennoù klavier',
@@ -791,6 +797,7 @@ export default {
   'Use a passkey instead': "Implijout un alc'hwez-tremen kentoc'h",
   'Use the address the invitation was sent to, and you will be able to answer it.':
     "Implijit ar chomlec'h ma oa bet kaset ar bedadenn dezhañ, ha gallout a reot respont dezhi.",
+  'Use {extension}': 'Implijout {extension}',
   'Used for security notifications and invitations':
     'Implijet evit ar rebuzadurioù surentez hag ar pedadennoù',
   'Username': 'Anv-implijer',

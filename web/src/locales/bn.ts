@@ -103,6 +103,8 @@ export default {
     'সাইন-ইন ঠিকানায় দেখা যায়। ছোট হাতের ইংরেজি অক্ষর, অঙ্ক ও হাইফেন।',
   'Apply them now': 'এখনই প্রয়োগ করুন',
   'Archive': 'আর্কাইভ',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'আপনি কি নিশ্চিত যে আপনি ফাইলের এক্সটেনশন “{from}” থেকে “{to}”-তে পরিবর্তন করতে চান?',
   'Are you sure you want to change the item type?':
     'আপনি কি নিশ্চিত যে আপনি আইটেমের ধরন পরিবর্তন করতে চান?',
   'Ask for a new one. Your current password still works.':
@@ -305,6 +307,7 @@ export default {
   'Exported Items': 'এক্সপোর্ট করা আইটেম',
   'Export…': 'এক্সপোর্ট…',
   'Extend the selection': 'নির্বাচন বাড়ান',
+  'Filename': 'ফাইলের নাম',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV সার্ভারে রাখা ফাইল zotero.org-এ সংরক্ষিত থাকে না, তাই মাইগ্রেশন সেগুলো আনতে পারে না। WebDAV-এর মাধ্যমে ফাইল সিঙ্ক করা চালিয়ে যান, অথবা যে Zotero ক্লায়েন্টে সেগুলো এখনও আছে সেখান থেকে আপলোড করুন।',
   'Finished.': 'সম্পন্ন হয়েছে।',
@@ -345,6 +348,8 @@ export default {
   'I created this work.': 'আমি এই কাজটি তৈরি করেছি।',
   'If an account here uses that address, a link to set a new password is on its way.':
     'এখানের কোনো অ্যাকাউন্ট ওই ঠিকানা ব্যবহার করলে, নতুন পাসওয়ার্ড সেট করার একটি লিঙ্ক পাঠানো হচ্ছে।',
+  'If you change the extension, the file may open in a different application.':
+    'এক্সটেনশন পরিবর্তন করলে ফাইলটি অন্য কোনো অ্যাপ্লিকেশনে খুলতে পারে।',
   'Image': 'ছবি',
   'Import and export': 'ইমপোর্ট ও এক্সপোর্ট',
   'In the trash': 'ট্র্যাশে',
@@ -372,6 +377,7 @@ export default {
   'Items deleted': 'আইটেম মুছে ফেলা',
   'Items in {name}': '{name}-এর আইটেম',
   'Keep the existing Rights field': 'বিদ্যমান অধিকার ফিল্ডটি রাখুন',
+  'Keep {extension}': '{extension} রাখুন',
   'Key created. Copy it now — it is not shown again.':
     'কী তৈরি হয়েছে। এখনই কপি করুন — এটি আর দেখানো হবে না।',
   'Keyboard shortcuts': 'কিবোর্ড শর্টকাট',
@@ -782,6 +788,7 @@ export default {
   'Use a passkey instead': 'এর বদলে পাসকি ব্যবহার করুন',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'যে ঠিকানায় আমন্ত্রণ পাঠানো হয়েছে সেটি ব্যবহার করুন, তাহলে আপনি এর উত্তর দিতে পারবেন।',
+  'Use {extension}': '{extension} ব্যবহার করুন',
   'Used for security notifications and invitations':
     'নিরাপত্তা বিজ্ঞপ্তি ও আমন্ত্রণের জন্য ব্যবহৃত হয়',
   'Username': 'ব্যবহারকারীর নাম',

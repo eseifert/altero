@@ -95,6 +95,8 @@ export default {
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.': 'Appears in the sign-in address. Lower-case letters, digits and hyphens.',
   'Apply them now': 'Apply them now',
   'Archive': 'Archive',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Are you sure you want to change the file extension from “{from}” to “{to}”?',
   'Are you sure you want to change the item type?':
     'Are you sure you want to change the item type?',
   'Ask for a new one. Your current password still works.': 'Ask for a new one. Your current password still works.',
@@ -283,6 +285,7 @@ export default {
   'Exported Items': 'Exported Items',
   'Export…': 'Export…',
   'Extend the selection': 'Extend the selection',
+  'Filename': 'Filename',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.',
   'Finished.': 'Finished.',
@@ -321,6 +324,8 @@ export default {
     'I created this work and have the rights to distribute the files included.',
   'I created this work.': 'I created this work.',
   'If an account here uses that address, a link to set a new password is on its way.': 'If an account here uses that address, a link to set a new password is on its way.',
+  'If you change the extension, the file may open in a different application.':
+    'If you change the extension, the file may open in a different application.',
   'Image': 'Image',
   'Import and export': 'Import and export',
   'In the trash': 'In the trash',
@@ -347,6 +352,7 @@ export default {
   'Items deleted': 'Items deleted',
   'Items in {name}': 'Items in {name}',
   'Keep the existing Rights field': 'Keep the existing Rights field',
+  'Keep {extension}': 'Keep {extension}',
   'Key created. Copy it now — it is not shown again.': 'Key created. Copy it now — it is not shown again.',
   'Keyboard shortcuts': 'Keyboard shortcuts',
   'Know who you are': 'Know who you are',
@@ -721,6 +727,7 @@ export default {
   'Use a code by email instead': 'Use a code by email instead',
   'Use a passkey instead': 'Use a passkey instead',
   'Use the address the invitation was sent to, and you will be able to answer it.': 'Use the address the invitation was sent to, and you will be able to answer it.',
+  'Use {extension}': 'Use {extension}',
   'Used for security notifications and invitations': 'Used for security notifications and invitations',
   'Username': 'Username',
   'Username claim': 'Username claim',

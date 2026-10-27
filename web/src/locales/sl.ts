@@ -100,6 +100,8 @@ export default {
     'Pojavi se v naslovu za prijavo. Male črke, števke in vezaji.',
   'Apply them now': 'Uveljavi zdaj',
   'Archive': 'Arhiv',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Ali ste prepričani, da želite spremeniti končnico datoteke iz »{from}« v »{to}«?',
   'Are you sure you want to change the item type?':
     'Ste prepričani, da želite spremeniti vrsto vnosa?',
   'Ask for a new one. Your current password still works.': 'Zahtevajte novo. Vaše trenutno geslo še vedno deluje.',
@@ -300,6 +302,7 @@ export default {
   'Exported Items': 'Izvoženi vnosi',
   'Export…': 'Izvozi …',
   'Extend the selection': 'Razširi izbor',
+  'Filename': 'Ime datoteke',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Datoteke na strežniku WebDAV niso shranjene na zotero.org, zato jih selitev ne more prenesti. Datoteke še naprej usklajujte prek WebDAV ali pa jih naložite iz odjemalca Zotero, ki jih še ima.',
   'Finished.': 'Dokončano.',
@@ -340,6 +343,8 @@ export default {
   'I created this work.': 'To je moje delo.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Če ta naslov uporablja kateri od tukajšnjih računov, je povezava za nastavitev novega gesla na poti.',
+  'If you change the extension, the file may open in a different application.':
+    'Če spremenite končnico, se bo datoteka morda odprla z drugim programom.',
   'Image': 'Slika',
   'Import and export': 'Uvoz in izvoz',
   'In the trash': 'V košu',
@@ -367,6 +372,7 @@ export default {
   'Items deleted': 'Izbrisani vnosi',
   'Items in {name}': 'Vnosi: {name}',
   'Keep the existing Rights field': 'Ohrani obstoječe polje Pravice',
+  'Keep {extension}': 'Ohrani {extension}',
   'Key created. Copy it now — it is not shown again.': 'Ključ je ustvarjen. Kopirajte ga zdaj — ne bo več prikazan.',
   'Keyboard shortcuts': 'Bližnjice na tipkovnici',
   'Know who you are': 'Vedeti, kdo ste',
@@ -765,6 +771,7 @@ export default {
   'Use a passkey instead': 'Raje uporabi ključ za dostop',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Uporabite naslov, na katerega je bilo poslano povabilo, in nanj boste lahko odgovorili.',
+  'Use {extension}': 'Uporabi {extension}',
   'Used for security notifications and invitations': 'Uporablja se za varnostna obvestila in povabila',
   'Username': 'Uporabniško ime',
   'Username claim': 'Trditev z uporabniškim imenom',

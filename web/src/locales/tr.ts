@@ -100,6 +100,8 @@ export default {
     'Oturum açma adresinde görünür. Küçük harfler, rakamlar ve kısa çizgiler.',
   'Apply them now': 'Şimdi uygula',
   'Archive': 'Arşiv',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Dosya uzantısını “{from}” uzantısından “{to}” uzantısına değiştirmek istediğinize emin misiniz?',
   'Are you sure you want to change the item type?':
     'Eser türünü değiştirmek istediğinize emin misiniz?',
   'Ask for a new one. Your current password still works.':
@@ -302,6 +304,7 @@ export default {
   'Exported Items': 'Dışarı Aktarılan Eserler',
   'Export…': 'Dışarı aktar…',
   'Extend the selection': 'Seçimi genişlet',
+  'Filename': 'Dosya adı',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV sunucusunda tutulan dosyalar zotero.org’da saklanmaz, bu yüzden taşıma işlemi onları getiremez. Dosyaları WebDAV üzerinden eşitlemeye devam ediniz ya da onları hâlâ barındıran bir Zotero istemcisinden yükleyiniz.',
   'Finished.': 'Tamamlandı.',
@@ -343,6 +346,8 @@ export default {
   'I created this work.': 'Bu eseri ben yarattım.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Buradaki bir hesap bu adresi kullanıyorsa, yeni bir şifre belirlemek için bir bağlantı yolda.',
+  'If you change the extension, the file may open in a different application.':
+    'Eğer dosya uzantısını değiştirirseniz, bu dosya başka bir uygulama ile açılabilir.',
   'Image': 'Resim',
   'Import and export': 'İçeri ve dışarı aktarım',
   'In the trash': 'Çöp Sepetinde',
@@ -370,6 +375,7 @@ export default {
   'Items deleted': 'Silinen eserler',
   'Items in {name}': '{name} içindeki eserler',
   'Keep the existing Rights field': 'Mevcut Telif alanını aynen tut',
+  'Keep {extension}': '{extension} uzantısını tut',
   'Key created. Copy it now — it is not shown again.':
     'Anahtar oluşturuldu. Şimdi kopyalayınız — bir daha gösterilmeyecek.',
   'Keyboard shortcuts': 'Klavye kısayolları',
@@ -787,6 +793,7 @@ export default {
   'Use a passkey instead': 'Bunun yerine geçiş anahtarı kullan',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Davetin gönderildiği adresi kullanırsanız daveti yanıtlayabilirsiniz.',
+  'Use {extension}': '{extension} uzantısını kullan',
   'Used for security notifications and invitations':
     'Güvenlik bildirimleri ve davetler için kullanılır',
   'Username': 'Kullanıcı adı',

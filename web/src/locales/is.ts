@@ -101,6 +101,8 @@ export default {
     'Birtist í innskráningarslóðinni. Lágstafir, tölustafir og bandstrik.',
   'Apply them now': 'Beita þeim núna',
   'Archive': 'Safnskrá',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Ertu viss um að þú viljir breyta skráarendingunni úr „{from}“ í „{to}“?',
   'Are you sure you want to change the item type?': 'Ertu viss um að þú viljir breyta gerð færslu?',
   'Ask for a new one. Your current password still works.':
     'Biddu um nýjan. Núverandi lykilorð þitt virkar enn.',
@@ -302,6 +304,7 @@ export default {
   'Exported Items': 'Útfluttar færslur',
   'Export…': 'Flytja út…',
   'Extend the selection': 'Stækka valið',
+  'Filename': 'Skráarnafn',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Skrár sem geymdar eru á WebDAV-þjóni eru ekki vistaðar á zotero.org, svo flutningur getur ekki tekið þær með. Haltu áfram að samstilla skrár um WebDAV, eða hladdu þeim upp úr Zotero-biðlara sem hefur þær enn.',
   'Finished.': 'Lokið.',
@@ -343,6 +346,8 @@ export default {
   'I created this work.': 'Ég bjó til þetta verk.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ef aðgangur hér notar þetta netfang er tengill til að velja nýtt lykilorð á leiðinni.',
+  'If you change the extension, the file may open in a different application.':
+    'Ef þú breytir endingunni gæti skráin opnast í öðru forriti.',
   'Image': 'Mynd',
   'Import and export': 'Innflutningur og útflutningur',
   'In the trash': 'Í ruslinu',
@@ -370,6 +375,7 @@ export default {
   'Items deleted': 'Eyddar færslur',
   'Items in {name}': 'Færslur í {name}',
   'Keep the existing Rights field': 'Halda núverandi réttindareit',
+  'Keep {extension}': 'Halda {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Lykill búinn til. Afritaðu hann núna — hann verður ekki sýndur aftur.',
   'Keyboard shortcuts': 'Flýtilyklar',
@@ -785,6 +791,7 @@ export default {
   'Use a passkey instead': 'Nota aðgangslykil í staðinn',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Notaðu netfangið sem boðið var sent á, þá geturðu svarað því.',
+  'Use {extension}': 'Nota {extension}',
   'Used for security notifications and invitations': 'Notað fyrir öryggistilkynningar og boð',
   'Username': 'Notandanafn',
   'Username claim': 'Krafa fyrir notandanafn',

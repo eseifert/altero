@@ -101,6 +101,8 @@ export default {
     'Нэвтрэх хаягт харагдана. Жижиг үсэг, цифр болон зураас.',
   'Apply them now': 'Одоо хэрэгжүүлэх',
   'Archive': 'Архив',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Та файлын “{from}” өргөтгөлийг “{to}” болгон өөрчлөхдөө итгэлтэй байна уу?',
   'Are you sure you want to change the item type?':
     'Та зүйлийн төрлийг өөрчлөхдөө итгэлтэй байна уу?',
   'Ask for a new one. Your current password still works.':
@@ -302,6 +304,7 @@ export default {
   'Exported Items': 'Гаргасан зүйлс',
   'Export…': 'Гаргах…',
   'Extend the selection': 'Сонголтыг өргөтгөх',
+  'Filename': 'Файлын нэр',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV сервер дээр хадгалсан файлууд zotero.org-д хадгалагддаггүй тул шилжүүлэлтээр тэдгээрийг авчрах боломжгүй. Файлуудаа WebDAV-аар үргэлжлүүлэн синхрончлох эсвэл тэдгээрийг одоо ч хадгалж буй Zotero клиентээс байршуулна уу.',
   'Finished.': 'Дууслаа.',
@@ -342,6 +345,8 @@ export default {
   'I created this work.': 'Би энэ бүтээлийг туурвисан.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Хэрэв энд тэр хаягийг ашигладаг бүртгэл байвал шинэ нууц үг тохируулах холбоос илгээгдэж байна.',
+  'If you change the extension, the file may open in a different application.':
+    'Өргөтгөлийг өөрчилбөл файл өөр програмаар нээгдэж магадгүй.',
   'Image': 'Зураг',
   'Import and export': 'Оруулах ба гаргах',
   'In the trash': 'Хогийн саванд',
@@ -369,6 +374,7 @@ export default {
   'Items deleted': 'Устгасан зүйлс',
   'Items in {name}': '{name} доторх зүйлс',
   'Keep the existing Rights field': 'Одоогийн Эрх талбарыг хэвээр үлдээх',
+  'Keep {extension}': '{extension} хэвээр үлдээх',
   'Key created. Copy it now — it is not shown again.':
     'Түлхүүр үүслээ. Одоо хуулж авна уу — дахин харуулахгүй.',
   'Keyboard shortcuts': 'Гарын товчлол',
@@ -784,6 +790,7 @@ export default {
   'Use a passkey instead': 'Оронд нь нэвтрэх түлхүүр ашиглах',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Урилга илгээсэн хаягийг ашиглавал та урилгад хариулах боломжтой болно.',
+  'Use {extension}': '{extension} ашиглах',
   'Used for security notifications and invitations':
     'Аюулгүй байдлын мэдэгдэл болон урилгад ашиглана',
   'Username': 'Хэрэглэгчийн нэр',

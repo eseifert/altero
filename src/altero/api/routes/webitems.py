@@ -99,6 +99,7 @@ from altero.itemschema import get_schema
 from altero.itemschema.typechange import change_type
 from altero.models import ActivityKind, Item, Library, User
 from altero.serializers import item as render_item
+from altero.serializers import timestamp
 from altero.services import auth, groupactivity, itemwrites, publications, storage, writes
 from altero.services import collections as collections_service
 from altero.services import items as items_service
@@ -109,13 +110,16 @@ router = APIRouter(prefix="/web", tags=["web"])
 #: Properties of an item that an edit may not name, in ``fields`` or beside it.
 #:
 #: The first four are the server's or the client's bookkeeping and nobody's to
-#: type. The rest are each changed by an errand of their own -- the parent by
+#: type. The next four are each changed by an errand of their own -- the parent by
 #: what a note or attachment is created under, collections by filing, the trash
 #: by trashing and My Publications by the wizard -- and an edit that carried
 #: them would be a second, less careful way of doing the same thing. Named in ``fields``
 #: they would otherwise have reached :func:`~altero.services.itemwrites
 #: .save_item` as the property itself, since a v3 payload keeps both in one
-#: object.
+#: object. The last six describe an attachment's bytes, and the upload writes
+#: them from the bytes themselves: typed here, a digest would name a file the
+#: attachment does not hold. Its ``filename`` is the one a person may change
+#: (:func:`_renamed`).
 NOT_EDITED_HERE = frozenset(
     {
         "key",
@@ -126,6 +130,12 @@ NOT_EDITED_HERE = frozenset(
         "collections",
         "deleted",
         "inPublications",
+        "linkMode",
+        "md5",
+        "mtime",
+        "contentType",
+        "charset",
+        "path",
     }
 )
 
@@ -246,6 +256,31 @@ class ItemEdit(BaseModel):
         if not patch:
             raise InvalidInputError("Nothing to change")
         return patch
+
+
+def _renamed(item: Item, patch: dict[str, Any]) -> dict[str, Any]:
+    """``patch`` with its new file name made the one the desktop would store.
+
+    The desktop's attachment box renames the file and relinks the attachment to
+    it (`renameAttachmentFile`, `relinkAttachmentFile`): the name goes through
+    `getValidFileName`, the title stays, and the save skips `dateModified`,
+    which a rename on its own here restates for the same effect. Nothing is
+    uploaded again -- another desktop renames its own copy when it syncs the
+    new `filename` -- so only a file stored on this server has a name to
+    change; a link, and a linked file on somebody's disk, have none.
+    """
+    if (
+        item.item_type != "attachment"
+        or item.field_values().get("linkMode") not in REPLACEABLE_LINK_MODES
+    ):
+        raise InvalidInputError("Only a file stored here can be renamed")
+    name = str(patch["filename"]).strip()
+    if not name:
+        raise InvalidInputError("A file needs a name")
+    patch = {**patch, "filename": storage.valid_file_name(name)}
+    if set(patch) == {"filename"}:
+        patch["dateModified"] = timestamp(item.date_modified)
+    return patch
 
 
 def _retyped(item: Item, item_type: str, discard: list[str]) -> dict[str, Any]:
@@ -880,6 +915,8 @@ async def update_item(
         raise InvalidInputError("Restore the item from the trash to change it")
     if body.item_type is not None:
         patch = _retyped(item, body.item_type, body.discard)
+    if "filename" in patch:
+        patch = _renamed(item, patch)
 
     previous_version = library.version
     version = await writes.bump_library_version(session, library)

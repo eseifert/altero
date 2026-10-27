@@ -102,6 +102,8 @@ export default {
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.':
     'Aparece no enderezo de inicio de sesión. Letras minúsculas, díxitos e guións.',
   'Apply them now': 'Aplicalos agora',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Seguro que queres cambiar a extensión do ficheiro de “{from}” a “{to}”?',
   'Are you sure you want to change the item type?': 'Seguro que queres cambiar o tipo de elemento?',
   'Ask for a new one. Your current password still works.':
     'Pide unha nova. O teu contrasinal actual segue funcionando.',
@@ -303,6 +305,7 @@ export default {
   'Exported Items': 'Elementos exportados',
   'Export…': 'Exportar…',
   'Extend the selection': 'Ampliar a selección',
+  'Filename': 'Nome de ficheiro',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Os ficheiros gardados nun servidor WebDAV non están almacenados en zotero.org, así que unha migración non os pode traer. Continúa sincronizando os ficheiros por WebDAV ou súbeos desde un cliente de Zotero que aínda os teña.',
   'Finished.': 'Rematado.',
@@ -343,6 +346,8 @@ export default {
   'I created this work.': 'Creei esta obra.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Se algunha conta de aquí usa ese enderezo, hai de camiño unha ligazón para definir un novo contrasinal.',
+  'If you change the extension, the file may open in a different application.':
+    'Se cambias a extensión, o ficheiro pode abrirse cunha aplicación diferente.',
   'Image': 'Imaxe',
   'Import and export': 'Importar e exportar',
   'In the trash': 'No lixo',
@@ -370,6 +375,7 @@ export default {
   'Items deleted': 'Elementos eliminados',
   'Items in {name}': 'Elementos en {name}',
   'Keep the existing Rights field': 'Manter o contido actual do campo Licenza',
+  'Keep {extension}': 'Manter {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Chave creada. Cópiaa agora: non se volverá amosar.',
   Language: 'Idioma',
@@ -784,6 +790,7 @@ export default {
   'Use a passkey instead': 'Usar no seu lugar unha chave de acceso',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Usa o enderezo ao que se enviou o convite e poderás respondelo.',
+  'Use {extension}': 'Usar {extension}',
   'Used for security notifications and invitations': 'Úsase para avisos de seguranza e convites',
   Username: 'Nome de usuario',
   Verify: 'Verificar',

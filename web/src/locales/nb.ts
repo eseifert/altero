@@ -100,6 +100,8 @@ export default {
     'Vises i innloggingsadressen. Små bokstaver, sifre og bindestreker.',
   'Apply them now': 'Bruk dem nå',
   'Archive': 'Arkiv',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Er du sikker på at du vil endre filtypen fra «{from}» til «{to}»?',
   'Are you sure you want to change the item type?':
     'Er du sikker på at du vil endre  elementtypen?',
   'Ask for a new one. Your current password still works.':
@@ -301,6 +303,7 @@ export default {
   'Exported Items': 'Eksporterte elementer',
   'Export…': 'Eksporter…',
   'Extend the selection': 'Utvid utvalget',
+  'Filename': 'Filnavn',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Filer som ligger på en WebDAV-server, lagres ikke på zotero.org, så en migrering kan ikke ta dem med. Fortsett å synkronisere filer via WebDAV, eller last dem opp fra en Zotero-klient som fortsatt har dem.',
   'Finished.': 'Ferdig.',
@@ -341,6 +344,8 @@ export default {
   'I created this work.': 'Jeg opprettet dette arbeidet.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Hvis en konto her bruker den adressen, er en lenke for å angi et nytt passord på vei.',
+  'If you change the extension, the file may open in a different application.':
+    'Hvis du endrer utvidelsen, kan filen åpnes med et annet program.',
   'Image': 'Bilde',
   'Import and export': 'Import og eksport',
   'In the trash': 'I søppelkorgen',
@@ -368,6 +373,7 @@ export default {
   'Items deleted': 'Elementer slettet',
   'Items in {name}': 'Elementer i {name}',
   'Keep the existing Rights field': 'Behold det eksisterende rettighetsfeltet',
+  'Keep {extension}': 'Behold {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Nøkkelen er opprettet. Kopier den nå – den vises ikke igjen.',
   'Keyboard shortcuts': 'Hurtigtaster',
@@ -783,6 +789,7 @@ export default {
   'Use a passkey instead': 'Bruk en tilgangsnøkkel i stedet',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Bruk adressen invitasjonen ble sendt til, så kan du svare på den.',
+  'Use {extension}': 'Bruk {extension}',
   'Used for security notifications and invitations': 'Brukes til sikkerhetsvarsler og invitasjoner',
   'Username': 'Brukernavn',
   'Username claim': 'Claim for brukernavn',

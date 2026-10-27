@@ -95,6 +95,8 @@ export default {
     'Indgår i login-adressen. Små bogstaver, tal og bindestreger.',
   'Apply them now': 'Anvend dem nu',
   'Archive': 'Arkiv',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Er du sikker på at du vil ændre filtypenavnet fra “{from}” til “{to}”?',
   'Are you sure you want to change the item type?':
     'Er du sikker på at du vil ændre elementets type?',
   'Ask for a new one. Your current password still works.':
@@ -296,6 +298,7 @@ export default {
   'Exported Items': 'Eksporterede elementer',
   'Export…': 'Eksportér…',
   'Extend the selection': 'Udvid markeringen',
+  'Filename': 'Filnavn',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Filer, der ligger på en WebDAV-server, er ikke gemt hos zotero.org, så en migrering kan ikke tage dem med. Bliv ved med at synkronisere filerne via WebDAV, eller upload dem fra en Zotero-klient, der stadig har dem.',
   'Finished.': 'Færdig.',
@@ -336,6 +339,8 @@ export default {
   'I created this work.': 'Jeg har lavet dette værk.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Hvis en konto her bruger den adresse, er et link til at sætte en ny adgangskode på vej.',
+  'If you change the extension, the file may open in a different application.':
+    'Hvis du ændrer filtypenavnet, åbnes filen muligvis i et andet program.',
   'Image': 'Grafik',
   'Import and export': 'Import og eksport',
   'In the trash': 'I papirkurven',
@@ -362,6 +367,7 @@ export default {
   'Items deleted': 'Elementer slettet',
   'Items in {name}': 'Elementer i {name}',
   'Keep the existing Rights field': 'Behold det eksisterende Rettigheder-felt',
+  'Keep {extension}': 'Behold {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Nøglen er oprettet. Kopiér den nu — den vises ikke igen.',
   'Keyboard shortcuts': 'Tastaturgenveje',
@@ -772,6 +778,7 @@ export default {
   'Use a passkey instead': 'Brug en adgangsnøgle i stedet',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Brug den adresse, invitationen blev sendt til, så kan du svare på den.',
+  'Use {extension}': 'Brug {extension}',
   'Used for security notifications and invitations':
     'Bruges til sikkerhedsbeskeder og invitationer',
   'Username': 'Brugernavn',

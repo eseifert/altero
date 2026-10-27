@@ -100,6 +100,8 @@ export default {
     'Xuất hiện trong địa chỉ đăng nhập. Gồm chữ thường, chữ số và dấu gạch nối.',
   'Apply them now': 'Áp dụng ngay',
   'Archive': 'Bản lưu trữ',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Bạn có chắc muốn đổi phần mở rộng của tệp từ “{from}” thành “{to}”?',
   'Are you sure you want to change the item type?':
     'Bạn có chắc bạn muốn đổi kiểu cho biểu ghi này?',
   'Ask for a new one. Your current password still works.':
@@ -299,6 +301,7 @@ export default {
   'Exported Items': 'Các mục đã xuất',
   'Export…': 'Xuất…',
   'Extend the selection': 'Mở rộng vùng chọn',
+  'Filename': 'Tên tệp',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Các tệp lưu trên máy chủ WebDAV không được lưu tại zotero.org, nên quá trình chuyển không thể mang chúng sang. Hãy tiếp tục đồng bộ tệp qua WebDAV, hoặc tải chúng lên từ một ứng dụng Zotero vẫn còn giữ chúng.',
   'Finished.': 'Đã hoàn tất.',
@@ -339,6 +342,8 @@ export default {
   'I created this work.': 'Tôi đã tạo ra tác phẩm này.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Nếu có tài khoản ở đây dùng địa chỉ đó, một liên kết để đặt mật khẩu mới đang được gửi đến.',
+  'If you change the extension, the file may open in a different application.':
+    'Nếu bạn đổi phần mở rộng, tệp có thể được mở bằng một ứng dụng khác.',
   'Image': 'Hình ảnh',
   'Import and export': 'Nhập và xuất',
   'In the trash': 'Trong thùng rác',
@@ -366,6 +371,7 @@ export default {
   'Items deleted': 'Mục bị xóa',
   'Items in {name}': 'Các mục trong {name}',
   'Keep the existing Rights field': 'Giữ nguyên trường Bản quyền hiện có',
+  'Keep {extension}': 'Giữ {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Đã tạo khóa. Hãy sao chép ngay — khóa sẽ không được hiển thị lại.',
   'Keyboard shortcuts': 'Phím tắt',
@@ -762,6 +768,7 @@ export default {
   'Use a passkey instead': 'Dùng khóa truy cập thay thế',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Hãy dùng địa chỉ mà lời mời được gửi tới, khi đó bạn sẽ trả lời được lời mời.',
+  'Use {extension}': 'Dùng {extension}',
   'Used for security notifications and invitations': 'Dùng cho thông báo bảo mật và lời mời',
   'Username': 'Tên người dùng',
   'Username claim': 'Claim tên người dùng',

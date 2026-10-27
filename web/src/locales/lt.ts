@@ -94,6 +94,8 @@ export default {
     'Rodomas prisijungimo adrese. Mažosios raidės, skaitmenys ir brūkšneliai.',
   'Apply them now': 'Taikyti dabar',
   'Archive': 'Archyvas',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Tikrai norite pakeisti rinkmenos galūnę iš „{from}“ į „{to}“?',
   'Are you sure you want to change the item type?': 'Tikrai norėtumėte pakeisti įrašo tipą?',
   'Ask for a new one. Your current password still works.': 'Paprašykite naujos. Dabartinis slaptažodis vis dar veikia.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -290,6 +292,7 @@ export default {
   'Exported Items': 'Eksportuoti įrašai',
   'Export…': 'Eksportuoti…',
   'Extend the selection': 'Išplėsti žymėjimą',
+  'Filename': 'Rinkmenos vardas',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV serveryje laikomos rinkmenos nesaugomos zotero.org, todėl perkeliant biblioteką jų perkelti nepavyks. Toliau sinchronizuokite rinkmenas per WebDAV arba įkelkite jas iš Zotero kliento, kuriame jos dar yra.',
   'Finished.': 'Baigta.',
@@ -330,6 +333,8 @@ export default {
   'I created this work.': 'Esu šio darbo kūrėjas.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Jei šiame serveryje yra paskyra tokiu adresu, nuoroda naujam slaptažodžiui nustatyti jau siunčiama.',
+  'If you change the extension, the file may open in a different application.':
+    'Pakeitus galūnę, rinkmena gali atsiverti kitoje programoje.',
   'Image': 'Paveikslas',
   'Import and export': 'Importavimas ir eksportavimas',
   'In the trash': 'Šiukšlinėje',
@@ -356,6 +361,7 @@ export default {
   'Items deleted': 'Pašalinti įrašai',
   'Items in {name}': 'Įrašai: {name}',
   'Keep the existing Rights field': 'Palikti esamą teisių lauką',
+  'Keep {extension}': 'Išlaikyti {extension}',
   'Key created. Copy it now — it is not shown again.': 'Raktas sukurtas. Nukopijuokite jį dabar – daugiau jis nebus rodomas.',
   'Keyboard shortcuts': 'Spartieji klavišai',
   'Know who you are': 'Žinoti, kas jūs esate',
@@ -748,6 +754,7 @@ export default {
   'Use a passkey instead': 'Vietoj to naudoti prieigos raktą',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Naudokite adresą, kuriuo buvo išsiųstas kvietimas, ir galėsite į jį atsakyti.',
+  'Use {extension}': 'Naudoti {extension}',
   'Used for security notifications and invitations': 'Naudojamas saugumo pranešimams ir kvietimams',
   'Username': 'Naudotojo vardas',
   'Username claim': 'Naudotojo vardo teiginys',

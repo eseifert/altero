@@ -89,6 +89,8 @@ export default {
   Archive: 'Archiv',
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.': 'Erscheint in der Anmelde-Adresse. Kleinbuchstaben, Ziffern und Bindestriche.',
   'Apply them now': 'Jetzt anwenden',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Dateiendung wirklich von „{from}“ zu „{to}“ ändern?',
   'Are you sure you want to change the item type?':
     'Sind Sie sicher, dass Sie den Eintragstyp ändern wollen?',
   'Ask for a new one. Your current password still works.': 'Fordern Sie einen neuen an. Ihr aktuelles Passwort funktioniert weiterhin.',
@@ -288,6 +290,7 @@ export default {
   'Exported Items': 'Exportierte Einträge',
   'Export…': 'Exportieren…',
   'Extend the selection': 'Auswahl erweitern',
+  'Filename': 'Dateiname',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Dateien auf einem WebDAV-Server liegen nicht bei zotero.org, eine Migration kann sie also nicht mitbringen. Nutze für die Dateien weiterhin WebDAV, oder lade sie aus einem Zotero-Programm hoch, das sie noch hat.',
   'Finished.': 'Fertig.',
@@ -326,6 +329,8 @@ export default {
     'Ich habe dieses Werk erstellt und habe die Rechte, die enthaltenen Dateien zu verbreiten.',
   'I created this work.': 'Ich habe dieses Werk erstellt.',
   'If an account here uses that address, a link to set a new password is on its way.': 'Falls ein Konto hier diese Adresse verwendet, ist ein Link zum Setzen eines neuen Passworts unterwegs.',
+  'If you change the extension, the file may open in a different application.':
+    'Wenn die Dateiendung geändert wird, wird die Datei möglicherweise mit einer anderen Anwendung geöffnet.',
   'Image': 'Bild',
   'Import and export': 'Import und Export',
   'In the trash': 'Im Papierkorb',
@@ -352,6 +357,7 @@ export default {
   'Items deleted': 'Gelöschte Einträge',
   'Items in {name}': 'Einträge in {name}',
   'Keep the existing Rights field': 'Bestehendes Rechte-Feld beibehalten',
+  'Keep {extension}': '{extension} behalten',
   'Key created. Copy it now — it is not shown again.':
     'Schlüssel erstellt. Kopiere ihn jetzt – er wird nicht noch einmal angezeigt.',
   Language: 'Sprache',
@@ -746,6 +752,7 @@ export default {
   'Use a passkey instead': 'Stattdessen Passkey verwenden',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Nimm die Adresse, an die die Einladung ging, dann kannst du darauf antworten.',
+  'Use {extension}': '{extension} verwenden',
   'Used for security notifications and invitations': 'Für Sicherheitshinweise und Einladungen',
   Username: 'Benutzername',
   Verify: 'Bestätigen',

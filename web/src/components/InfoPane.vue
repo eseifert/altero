@@ -8,6 +8,7 @@ import AppIcon from '@/components/AppIcon.vue'
 import ConflictNotice from '@/components/ConflictNotice.vue'
 import CreatorEditor from '@/components/CreatorEditor.vue'
 import { formatDateTime } from '@/formats'
+import { holdsStoredFile } from '@/items/attachments'
 import { dateOrder } from '@/items/dates'
 import { fieldLabel, itemTypeLabel, regularItemTypes, typeOutline } from '@/items/labels'
 import { EditConflict } from '@/stores/library'
@@ -75,8 +76,22 @@ const TIMESTAMPS = ['dateAdded', 'dateModified']
 
 const outline = computed(() => typeOutline(props.item.data.itemType))
 
-/** Whether the pane edits this item: it can be changed, and it has fields. */
-const editing_ = computed(() => props.editable && outline.value !== null && Boolean(props.save))
+const isAttachment = computed(() => props.item.data.itemType === 'attachment')
+
+/** What the desktop's attachment box lets a person type: the rest it shows. */
+const ATTACHMENT_EDITED = new Set(['title', 'filename'])
+
+/** Whether the pane edits this item: it can be changed, and it has fields. An
+ *  attachment has no outline in the schema -- its content is a file or a link
+ *  -- and is edited as the attachment box edits it. */
+const editing_ = computed(
+  () => props.editable && Boolean(props.save) && (outline.value !== null || isAttachment.value),
+)
+
+/** Whether ``name`` is typed into here, rather than only shown. */
+function fieldEditable(name: string): boolean {
+  return editing_.value && (!isAttachment.value || ATTACHMENT_EDITED.has(name))
+}
 
 function value(name: string): string {
   const found = props.item.data[name]
@@ -97,6 +112,16 @@ const rightsEditable = computed(
 
 const rows = computed(() => {
   const order = outline.value?.fields ?? []
+  if (editing_.value && isAttachment.value) {
+    // The attachment box's rows: the title, a stored file's name -- the one
+    // field here the schema does not list -- and the address and the date it
+    // was read, where it has them.
+    return [
+      'title',
+      ...(holdsStoredFile(props.item) ? ['filename'] : []),
+      ...['url', 'accessDate'].filter((name) => value(name) !== ''),
+    ]
+  }
   if (editing_.value) {
     return order.filter((name) => !HIDDEN.has(name))
   }
@@ -132,6 +157,11 @@ function href(name: string, text: string): string {
   return name === 'DOI' ? `https://doi.org/${text}` : text
 }
 
+/** A field's name as the pane shows it; the schema names every field but the file's. */
+function labelOf(name: string): string {
+  return name === 'filename' ? t('Filename') : fieldLabel(name)
+}
+
 /* ---- Editing a field in place ---- */
 
 const editing = ref<string | null>(null)
@@ -163,7 +193,7 @@ function grow(): void {
 }
 
 async function open(name: string): Promise<void> {
-  if (!editing_.value || busy.value) return
+  if (!fieldEditable(name) || busy.value) return
   const shown = document.getElementById(`info-${props.item.key}-${name}-value`)
   openHeight.value = shown?.offsetHeight ?? 0
   editing.value = name
@@ -187,6 +217,7 @@ async function commit(): Promise<void> {
   editing.value = null
   // A line break pasted into a field of one line is a space, as on the desktop.
   if (!MULTILINE.has(name)) draft.value = draft.value.replace(/\r?\n/g, ' ')
+  if (name === 'filename' && !renaming()) return
   if (draft.value === value(name) || !props.save) return
   // Changed elsewhere while it was open: saving now would write over that
   // without anybody having seen it, so the reader is asked, as after a 412.
@@ -196,6 +227,47 @@ async function commit(): Promise<void> {
   }
 
   await write(name, draft.value)
+}
+
+/* ---- Renaming a file ---- */
+
+/** What the desktop's attachment box takes for an extension. */
+const EXTENSION = /\.\w{1,10}$/
+
+function extension(name: string): string {
+  return EXTENSION.exec(name)?.[0] ?? ''
+}
+
+/** A new name whose extension differs from the file's, waiting for the reader's word. */
+const pendingName = ref<{ name: string; from: string; to: string } | null>(null)
+
+/**
+ * The attachment box's rules for a new file name, applied to the draft.
+ *
+ * Trimmed, and an empty one puts the old name back. A name typed without an
+ * extension keeps the file's. A different extension is asked about first,
+ * since the file may then open in a different application: the reader keeps
+ * the old one or uses the new. Whether to go on and save is the answer.
+ */
+function renaming(): boolean {
+  const name = draft.value.trim()
+  const old = value('filename')
+  if (!name || name === old) return false
+  const from = extension(old)
+  const to = extension(name)
+  draft.value = !to && from ? name + from : name
+  if (to && from && to !== from) {
+    pendingName.value = { name, from, to }
+    return false
+  }
+  return true
+}
+
+function settleName(keep: boolean): void {
+  const pending = pendingName.value
+  pendingName.value = null
+  if (!pending) return
+  void write('filename', keep ? pending.name.replace(EXTENSION, pending.from) : pending.name)
 }
 
 async function write(name: string, text: string): Promise<void> {
@@ -295,6 +367,7 @@ watch(
     conflict.value = null
     saved.value = null
     pendingType.value = null
+    pendingName.value = null
     typeFailure.value = null
   },
 )
@@ -307,7 +380,7 @@ watch(
       <dt :id="`info-${item.key}-itemType`">{{ fieldLabel('itemType') }}</dt>
       <dd>
         <select
-          v-if="editing_"
+          v-if="editing_ && !isAttachment"
           ref="typeSelect"
           class="info__type"
           :value="item.data.itemType"
@@ -343,7 +416,7 @@ watch(
 
     <dl class="info">
       <CreatorEditor
-        v-if="creatorsAfter === null"
+        v-if="creatorsAfter === null && !isAttachment"
         :item-key="item.key"
         :creators="creators"
         :roles="outline?.creatorTypes ?? []"
@@ -351,7 +424,7 @@ watch(
         :save="save"
       />
       <template v-for="name in rows" :key="name">
-        <dt :id="`info-${item.key}-${name}`">{{ fieldLabel(name) }}</dt>
+        <dt :id="`info-${item.key}-${name}`">{{ labelOf(name) }}</dt>
         <dd :aria-busy="busy === name">
           <!-- Rights is set through the licence chooser, which knows the names a
                licence has to be stated in; it is pressed like any other value. -->
@@ -389,7 +462,7 @@ watch(
           ></textarea>
 
           <button
-            v-else-if="editing_"
+            v-else-if="fieldEditable(name)"
             :id="`info-${item.key}-${name}-value`"
             class="info__value"
             :class="{ 'info__value--multiline': MULTILINE.has(name) }"
@@ -408,12 +481,12 @@ watch(
             dir="auto"
           >{{ value(name) }}</a>
 
-          <span v-else dir="auto">{{ value(name) }}</span>
+          <span v-else dir="auto" :class="{ info__fixed: editing_ }">{{ value(name) }}</span>
 
           <!-- An address is opened from a button of its own, beside a value that
                is edited like any other. -->
           <a
-            v-if="editing_ && LINKS.has(name) && value(name) && editing !== name"
+            v-if="fieldEditable(name) && LINKS.has(name) && value(name) && editing !== name"
             class="info__open"
             :href="href(name, value(name))"
             target="_blank"
@@ -427,6 +500,23 @@ watch(
             {{ dateOrder(value(name), locale.formatting) }}
           </span>
           <span v-if="saved === name" class="info__saved" role="status">{{ t('Saved.') }}</span>
+          <div
+            v-if="name === 'filename' && pendingName"
+            class="card__inset info__confirm"
+            role="alertdialog"
+            :aria-label="labelOf('filename')"
+          >
+            <p>
+              {{ t('Are you sure you want to change the file extension from “{from}” to “{to}”?', pendingName) }}
+            </p>
+            <p>{{ t('If you change the extension, the file may open in a different application.') }}</p>
+            <div class="info__buttons">
+              <AppButton variant="text" @click="settleName(true)">
+                {{ t('Keep {extension}', { extension: pendingName.from }) }}
+              </AppButton>
+              <AppButton @click="settleName(false)">{{ t('Use {extension}', { extension: pendingName.to }) }}</AppButton>
+            </div>
+          </div>
           <p v-if="failure?.name === name" class="info__error" role="alert">{{ failure.message }}</p>
           <ConflictNotice
             v-if="conflict?.name === name"
@@ -438,7 +528,7 @@ watch(
           />
         </dd>
         <CreatorEditor
-          v-if="name === creatorsAfter"
+          v-if="name === creatorsAfter && !isAttachment"
           :item-key="item.key"
           :creators="creators"
           :roles="outline?.creatorTypes ?? []"

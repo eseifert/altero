@@ -99,6 +99,8 @@ export default {
     'Redzams pierakstīšanās adresē. Mazie burti, cipari un defises.',
   'Apply them now': 'Piemērot tagad',
   Archive: 'Arhīvs',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Vai tiešām vēlaties mainīt faila paplašinājumu no „{from}” uz „{to}”?',
   'Are you sure you want to change the item type?': 'Vai tiešām vēlaties mainīt vienuma tipu?',
   'Ask for a new one. Your current password still works.':
     'Pieprasiet jaunu. Jūsu pašreizējā parole joprojām darbojas.',
@@ -299,6 +301,7 @@ export default {
   'Exported Items': 'Eksportētie vienumi',
   'Export…': 'Eksportēt…',
   'Extend the selection': 'Paplašināt atlasi',
+  'Filename': 'Faila nosaukums',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV serverī glabātie faili netiek glabāti zotero.org, tāpēc migrācija tos nevar pārnest. Turpiniet sinhronizēt failus caur WebDAV vai augšupielādējiet tos no Zotero klienta, kurā tie joprojām ir.',
   'Finished.': 'Pabeigts.',
@@ -339,6 +342,8 @@ export default {
   'I created this work.': 'Es radīju šo darbu.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ja kāds šī servera konts izmanto šo adresi, saite jaunas paroles iestatīšanai ir ceļā.',
+  'If you change the extension, the file may open in a different application.':
+    'Ja mainīsiet paplašinājumu, fails var tikt atvērts citā lietotnē.',
   'Image': 'Attēls',
   'Import and export': 'Imports un eksports',
   'In the trash': 'Miskastē',
@@ -366,6 +371,7 @@ export default {
   'Items deleted': 'Izdzēsti vienumi',
   'Items in {name}': 'Vienumi: {name}',
   'Keep the existing Rights field': 'Paturēt esošo lauku „Tiesības”',
+  'Keep {extension}': 'Paturēt {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Atslēga izveidota. Nokopējiet to tagad — tā vairs netiks parādīta.',
   'Keyboard shortcuts': 'Īsinājumtaustiņi',
@@ -779,6 +785,7 @@ export default {
   'Use a passkey instead': 'Tā vietā izmantot piekļuves atslēgu',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Izmantojiet adresi, uz kuru tika nosūtīts ielūgums, un varēsiet uz to atbildēt.',
+  'Use {extension}': 'Izmantot {extension}',
   'Used for security notifications and invitations':
     'Tiek izmantota drošības paziņojumiem un ielūgumiem',
   Username: 'Lietotājvārds',

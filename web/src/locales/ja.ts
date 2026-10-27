@@ -90,6 +90,8 @@ export default {
   Archive: 'アーカイブ',
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.': 'サインインアドレスに表示されます。小文字・数字・ハイフンが使えます。',
   'Apply them now': '今すぐ適用',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'ファイルの拡張子を「{from}」から「{to}」に変更しますか？',
   'Are you sure you want to change the item type?': '項目の種類を変更しますか？',
   'Ask for a new one. Your current password still works.': '新しいリンクをリクエストしてください。現在のパスワードは引き続き使用できます。',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -282,6 +284,7 @@ export default {
   'Exported Items': 'エクスポートされた項目',
   'Export…': 'エクスポート…',
   'Extend the selection': '選択範囲を広げる',
+  'Filename': 'ファイル名',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV サーバーに置かれたファイルは zotero.org には保存されていないため、移行では取り込めません。ファイルは引き続き WebDAV で同期するか、まだファイルを持っている Zotero クライアントからアップロードしてください。',
   'Finished.': '完了しました。',
@@ -319,6 +322,8 @@ export default {
     '私がこの著作を作成し、これに含まれるファイルを配布する権利を有します。',
   'I created this work.': '私がこの作品を作りました。',
   'If an account here uses that address, a link to set a new password is on its way.': 'そのアドレスを使用しているアカウントがある場合、新しいパスワードを設定するリンクを送信しました。',
+  'If you change the extension, the file may open in a different application.':
+    '拡張子を変更すると、ファイルが別のアプリケーションで開かれる可能性があります。',
   'Image': '画像',
   'Import and export': 'インポートとエクスポート',
   'In the trash': 'ゴミ箱の中',
@@ -344,6 +349,7 @@ export default {
   'Items deleted': '削除されたアイテム',
   'Items in {name}': '{name} の項目',
   'Keep the existing Rights field': '既存の権利フィールドを維持する',
+  'Keep {extension}': '{extension} を保持',
   'Key created. Copy it now — it is not shown again.':
     'キーを作成しました。今コピーしてください。再表示はされません。',
   Language: '言語',
@@ -723,6 +729,7 @@ export default {
   'Use a passkey instead': '代わりにパスキーを使用',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     '招待が届いたアドレスを使うと、その招待に返答できます。',
+  'Use {extension}': '{extension} を使用',
   'Used for security notifications and invitations': 'セキュリティ通知と招待に使用します',
   Username: 'ユーザー名',
   Verify: '確認',

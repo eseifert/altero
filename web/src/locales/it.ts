@@ -98,6 +98,8 @@ export default {
     'Compare nell’indirizzo di accesso. Lettere minuscole, cifre e trattini.',
   'Apply them now': 'Applicali adesso',
   'Archive': 'Archivio',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Vuoi cambiare l’estensione del file da “{from}” a “{to}”?',
   'Are you sure you want to change the item type?': 'Vuoi modificare il tipo di elemento?',
   'Ask for a new one. Your current password still works.':
     'Chiedine uno nuovo. La tua password attuale funziona ancora.',
@@ -298,6 +300,7 @@ export default {
   'Exported Items': 'Elementi esportati',
   'Export…': 'Esporta…',
   'Extend the selection': 'Estendi la selezione',
+  'Filename': 'Nome file',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'I file conservati su un server WebDAV non sono archiviati su zotero.org, quindi una migrazione non può portarli con sé. Continua a sincronizzare i file tramite WebDAV, oppure caricali da un client Zotero che li ha ancora.',
   'Finished.': 'Terminato.',
@@ -339,6 +342,8 @@ export default {
   'I created this work.': 'Ho creato io quest’opera.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Se un account qui usa quell’indirizzo, un collegamento per impostare una nuova password è in arrivo.',
+  'If you change the extension, the file may open in a different application.':
+    'Se si modifica l’estensione, il file potrebbe aprirsi con un programma diverso.',
   'Image': 'Immagine',
   'Import and export': 'Importazione ed esportazione',
   'In the trash': 'Nel cestino',
@@ -365,6 +370,7 @@ export default {
   'Items deleted': 'Elementi eliminati',
   'Items in {name}': 'Elementi in {name}',
   'Keep the existing Rights field': 'Mantieni il campo Diritti esistente',
+  'Keep {extension}': 'Mantieni {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Chiave creata. Copiala adesso: non verrà mostrata di nuovo.',
   'Keyboard shortcuts': 'Scorciatoie da tastiera',
@@ -782,6 +788,7 @@ export default {
   'Use a passkey instead': 'Usa invece una passkey',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Usa l’indirizzo a cui è stato inviato l’invito, e potrai rispondere.',
+  'Use {extension}': 'Usa {extension}',
   'Used for security notifications and invitations':
     'Serve per le notifiche di sicurezza e gli inviti',
   'Username': 'Nome utente',

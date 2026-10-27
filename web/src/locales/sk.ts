@@ -103,6 +103,8 @@ export default {
     'Zobrazuje sa v prihlasovacej adrese. Malé písmená, číslice a spojovníky.',
   'Apply them now': 'Uplatniť ich teraz',
   'Archive': 'Archív',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Naozaj chcete zmeniť príponu súboru z „{from}“ na „{to}“?',
   'Are you sure you want to change the item type?': 'Naozaj chcete zmeniť typ záznamu?',
   'Ask for a new one. Your current password still works.':
     'Požiadajte o nový. Vaše súčasné heslo naďalej platí.',
@@ -303,6 +305,7 @@ export default {
   'Exported Items': 'Exportované záznamy',
   'Export…': 'Exportovať…',
   'Extend the selection': 'Rozšíriť výber',
+  'Filename': 'Názov súboru',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Súbory uložené na serveri WebDAV nie sú na zotero.org, takže migrácia ich nedokáže preniesť. Synchronizujte súbory naďalej cez WebDAV alebo ich nahrajte z klienta Zotero, ktorý ich ešte má.',
   'Finished.': 'Dokončené.',
@@ -343,6 +346,8 @@ export default {
   'I created this work.': 'Toto dielo je moje vlastné.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ak tu túto adresu používa nejaký účet, odkaz na nastavenie nového hesla je na ceste.',
+  'If you change the extension, the file may open in a different application.':
+    'Ak zmeníte príponu, súbor sa môže otvoriť v inej aplikácii.',
   'Image': 'Obrázok',
   'Import and export': 'Import a export',
   'In the trash': 'V koši',
@@ -370,6 +375,7 @@ export default {
   'Items deleted': 'Vymazané záznamy',
   'Items in {name}': 'Záznamy – {name}',
   'Keep the existing Rights field': 'Zachovať existujúce pole Práva',
+  'Keep {extension}': 'Ponechať {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Kľúč bol vytvorený. Skopírujte si ho teraz — znova sa už nezobrazí.',
   'Keyboard shortcuts': 'Klávesové skratky',
@@ -789,6 +795,7 @@ export default {
   'Use a passkey instead': 'Použiť radšej prístupový kľúč',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Použite adresu, na ktorú bola pozvánka odoslaná, a budete na ňu môcť odpovedať.',
+  'Use {extension}': 'Použiť {extension}',
   'Used for security notifications and invitations':
     'Používa sa na bezpečnostné upozornenia a pozvánky',
   'Username': 'Používateľské meno',

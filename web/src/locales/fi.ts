@@ -99,6 +99,8 @@ export default {
     'Näkyy kirjautumisosoitteessa. Pieniä kirjaimia, numeroita ja yhdysmerkkejä.',
   'Apply them now': 'Sovella niitä nyt',
   'Archive': 'Arkisto',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Haluatko varmasti muuttaa tiedostopäätteen “{from}” muotoon “{to}”?',
   'Are you sure you want to change the item type?': 'Haluatko varmasti vaihtaa kohteen tyypin?',
   'Ask for a new one. Your current password still works.':
     'Pyydä uusi. Nykyinen salasanasi toimii edelleen.',
@@ -299,6 +301,7 @@ export default {
   'Exported Items': 'Viedyt nimikkeet',
   'Export…': 'Vie…',
   'Extend the selection': 'Laajenna valintaa',
+  'Filename': 'Tiedostonimi',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV-palvelimella säilytettyjä tiedostoja ei tallenneta zotero.org:iin, joten siirto ei voi tuoda niitä mukanaan. Synkronoi tiedostot edelleen WebDAVin kautta tai lataa ne palvelimelle Zotero-sovelluksesta, jossa ne vielä ovat.',
   'Finished.': 'Valmis.',
@@ -339,6 +342,8 @@ export default {
   'I created this work.': 'Olen itse luonut tämän teoksen.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Jos jokin täkäläinen tili käyttää tätä osoitetta, linkki uuden salasanan asettamiseen on matkalla.',
+  'If you change the extension, the file may open in a different application.':
+    'Jos vaihdat tiedostopäätteen, tiedosto saattaa avautua eri sovelluksessa.',
   'Image': 'Kuva',
   'Import and export': 'Tuonti ja vienti',
   'In the trash': 'Roskakorissa',
@@ -366,6 +371,7 @@ export default {
   'Items deleted': 'Nimikkeitä poistettu',
   'Items in {name}': 'Nimikkeet: {name}',
   'Keep the existing Rights field': 'Säilytä olemassa oleva Oikeudet-kenttä',
+  'Keep {extension}': 'Pidä {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Avain luotu. Kopioi se nyt — sitä ei näytetä uudelleen.',
   'Keyboard shortcuts': 'Pikanäppäimet',
@@ -778,6 +784,7 @@ export default {
   'Use a passkey instead': 'Käytä sen sijaan pääsyavainta',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Käytä osoitetta, johon kutsu lähetettiin, niin voit vastata siihen.',
+  'Use {extension}': 'Käytä {extension}',
   'Used for security notifications and invitations': 'Käytetään tietoturvailmoituksiin ja kutsuihin',
   'Username': 'Käyttäjänimi',
   'Username claim': 'Käyttäjänimen väite',

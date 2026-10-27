@@ -98,6 +98,8 @@ export default {
     '出現在登入位址中。小寫字母、數字和連字號。',
   'Apply them now': '立即套用',
   Archive: '封存檔',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    '你確定要把副檔名從「{from}」改成「{to}」嗎？',
   'Are you sure you want to change the item type?': '確定要改變項目的類型嗎？',
   'Ask for a new one. Your current password still works.': '申請一個新的。你目前的密碼仍然有效。',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -291,6 +293,7 @@ export default {
   'Exported Items': '匯出的項目',
   'Export…': '匯出…',
   'Extend the selection': '擴大選取範圍',
+  'Filename': '檔名',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     '存放在 WebDAV 伺服器上的檔案不會保存在 zotero.org，因此轉移無法一併帶過來。可以繼續用 WebDAV 同步檔案，或從仍然保有這些檔案的 Zotero 用戶端上傳。',
   'Finished.': '已完成。',
@@ -330,6 +333,8 @@ export default {
   'I created this work.': '這是我創作的作品。',
   'If an account here uses that address, a link to set a new password is on its way.':
     '如果這裡有帳號使用該位址，設定新密碼的連結已在寄送途中。',
+  'If you change the extension, the file may open in a different application.':
+    '如果你更改副檔名，檔案可能會以不同的應用程式開啟。',
   'Image': '圖片',
   'Import and export': '匯入和匯出',
   'In the trash': '在垃圾筒中',
@@ -355,6 +360,7 @@ export default {
   'Items deleted': '已刪除的項目',
   'Items in {name}': '{name} 中的項目',
   'Keep the existing Rights field': '保留現有的版權欄位',
+  'Keep {extension}': '保留 {extension}',
   'Key created. Copy it now — it is not shown again.': '金鑰已建立。現在就複製——它不會再次顯示。',
   'Keyboard shortcuts': '鍵盤快速鍵',
   'Know who you are': '知道你是誰',
@@ -734,6 +740,7 @@ export default {
   'Use a passkey instead': '改用通行金鑰',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     '使用邀請寄到的那個位址，你就能回應它。',
+  'Use {extension}': '使用 {extension}',
   'Used for security notifications and invitations': '用於安全通知和邀請',
   Username: '使用者名稱',
   'Username claim': '使用者名稱宣告',

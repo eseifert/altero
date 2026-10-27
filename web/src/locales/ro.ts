@@ -101,6 +101,8 @@ export default {
     'Apare în adresa de autentificare. Litere mici, cifre și cratime.',
   'Apply them now': 'Aplică-le acum',
   Archive: 'Arhivă',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Ești sigur că vrei să schimbi extensia fișierului din „{from}” în „{to}”?',
   'Are you sure you want to change the item type?':
     'Ești sigur că vrei să schimbi tipul înregistrării?',
   'Ask for a new one. Your current password still works.':
@@ -304,6 +306,7 @@ export default {
   'Exported Items': 'Înregistrări exportate',
   'Export…': 'Exportă…',
   'Extend the selection': 'Extinde selecția',
+  'Filename': 'Nume fișier',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Fișierele păstrate pe un server WebDAV nu sunt stocate pe zotero.org, așa că o migrare nu le poate aduce. Continuă să sincronizezi fișierele prin WebDAV sau încarcă-le dintr-un client Zotero care le mai are.',
   'Finished.': 'Finalizat.',
@@ -344,6 +347,8 @@ export default {
   'I created this work.': 'Am creat această lucrare.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Dacă un cont de aici folosește această adresă, un link pentru setarea unei parole noi este pe drum.',
+  'If you change the extension, the file may open in a different application.':
+    'Dacă schimbi extensia, fișierul s-ar putea deschide cu o altă aplicație.',
   'Image': 'Imagine',
   'Import and export': 'Import și export',
   'In the trash': 'În coșul de gunoi',
@@ -371,6 +376,7 @@ export default {
   'Items deleted': 'Înregistrări șterse',
   'Items in {name}': 'Înregistrări în {name}',
   'Keep the existing Rights field': 'Păstrează câmpul Drepturi existent',
+  'Keep {extension}': 'Păstrează {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Cheie creată. Copiaz-o acum — nu va mai fi afișată.',
   'Keyboard shortcuts': 'Comenzi rapide de la tastatură',
@@ -792,6 +798,7 @@ export default {
   'Use a passkey instead': 'Folosește în schimb o cheie de acces',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Folosește adresa la care a fost trimisă invitația și vei putea răspunde la ea.',
+  'Use {extension}': 'Folosește {extension}',
   'Used for security notifications and invitations':
     'Folosită pentru notificări de securitate și invitații',
   Username: 'Nume de utilizator',

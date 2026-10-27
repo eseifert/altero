@@ -100,6 +100,8 @@ export default {
     'Saioa hasteko helbidean agertzen da. Letra xeheak, digituak eta marratxoak.',
   'Apply them now': 'Aplikatu orain',
   'Archive': 'Artxiboa',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Ziur zaude fitxategiaren luzapena “{from}” izatetik “{to}” izatera aldatu nahi duzula?',
   'Are you sure you want to change the item type?': 'Ziur zaude elementu mota alduatu nahi duzula?',
   'Ask for a new one. Your current password still works.':
     'Eskatu beste bat. Zure oraingo pasahitzak balio du oraindik.',
@@ -300,6 +302,7 @@ export default {
   'Exported Items': 'Esportatutako elementuak',
   'Export…': 'Esportatu…',
   'Extend the selection': 'Zabaldu hautapena',
+  'Filename': 'Fitxategiaren izena',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV zerbitzari batean gordetako fitxategiak ez daude zotero.org-en, beraz migrazio batek ezin ditu ekarri. Jarraitu fitxategiak WebDAV bidez sinkronizatzen, edo igo itzazu oraindik dituen Zotero bezero batetik.',
   'Finished.': 'Amaituta.',
@@ -340,6 +343,8 @@ export default {
   'I created this work.': 'Nik sortu dut lan hau.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Hemengo kontu batek helbide hori erabiltzen badu, pasahitz berria ezartzeko esteka bat bidean da.',
+  'If you change the extension, the file may open in a different application.':
+    'Luzapena aldatzen baduzu, fitxategia beste aplikazio batekin ireki daiteke.',
   'Image': 'Irudia',
   'Import and export': 'Inportatu eta esportatu',
   'In the trash': 'Zaborrean',
@@ -367,6 +372,7 @@ export default {
   'Items deleted': 'Ezabatutako elementuak',
   'Items in {name}': 'Elementuak bilduma honetan: {name}',
   'Keep the existing Rights field': 'Gorde uneko Eskubideak eremua',
+  'Keep {extension}': 'Mantendu {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Gakoa sortu da. Kopiatu orain; ez da berriro erakutsiko.',
   'Keyboard shortcuts': 'Laster-teklak',
@@ -783,6 +789,7 @@ export default {
   'Use a passkey instead': 'Erabili sarbide-gako bat horren ordez',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Erabili gonbidapena bidali zen helbidea, eta erantzun ahal izango diozu.',
+  'Use {extension}': 'Erabili {extension}',
   'Used for security notifications and invitations':
     'Segurtasun-jakinarazpenetarako eta gonbidapenetarako erabiltzen da',
   'Username': 'Erabiltzaile-izena',

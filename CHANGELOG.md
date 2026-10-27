@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface renames an attachment's file and edits its title, as Zotero Desktop's attachment pane does ([files]).
 - The browser interface adds files — picked or dragged in from the computer — and web links, and replaces a file, with progress shown ([files]).
 - `ALTERO_MAX_UPLOAD_MB` sets the largest attachment file accepted from any client; the default stays 1 GiB ([config]).
 - An attachment's `md5` is checked to be a digest on write and when a file is served, closing an authenticated path traversal. Reported by [@arminbahl] in [Issue#62].

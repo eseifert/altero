@@ -102,6 +102,8 @@ export default {
     'Lumalabas sa address ng pag-sign in. Maliliit na titik, numero at gitling.',
   'Apply them now': 'Ilapat na ngayon',
   'Archive': 'Archive',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Sigurado ka bang gusto mong palitan ang extension ng file mula “{from}” patungong “{to}”?',
   'Are you sure you want to change the item type?':
     'Sigurado ka bang gusto mong palitan ang uri ng item?',
   'Ask for a new one. Your current password still works.':
@@ -306,6 +308,7 @@ export default {
   'Exported Items': 'Mga Na-export na Item',
   'Export…': 'I-export…',
   'Extend the selection': 'Palawakin ang pinili',
+  'Filename': 'Pangalan ng file',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Hindi iniimbak sa zotero.org ang mga file na nasa WebDAV server, kaya hindi ito madadala ng migration. Ipagpatuloy ang pag-sync ng mga file sa pamamagitan ng WebDAV, o i-upload ang mga ito mula sa Zotero client na may hawak pa ng mga ito.',
   'Finished.': 'Natapos na.',
@@ -346,6 +349,8 @@ export default {
   'I created this work.': 'Ako ang lumikha ng akdang ito.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Kung may account dito na gumagamit ng address na iyon, papunta na ang link para magtakda ng bagong password.',
+  'If you change the extension, the file may open in a different application.':
+    'Kapag pinalitan mo ang extension, maaaring mabuksan ang file sa ibang application.',
   'Image': 'Larawan',
   'Import and export': 'Pag-import at pag-export',
   'In the trash': 'Nasa basurahan',
@@ -373,6 +378,7 @@ export default {
   'Items deleted': 'Mga item na na-delete',
   'Items in {name}': 'Mga item sa {name}',
   'Keep the existing Rights field': 'Panatilihin ang kasalukuyang field na Rights',
+  'Keep {extension}': 'Panatilihin ang {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Nagawa ang key. Kopyahin ito ngayon — hindi na ito ipapakitang muli.',
   'Keyboard shortcuts': 'Mga keyboard shortcut',
@@ -793,6 +799,7 @@ export default {
   'Use a passkey instead': 'Gumamit na lang ng passkey',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Gamitin ang address kung saan ipinadala ang imbitasyon, at matutugunan mo ito.',
+  'Use {extension}': 'Gamitin ang {extension}',
   'Used for security notifications and invitations':
     'Ginagamit para sa mga notification sa seguridad at mga imbitasyon',
   'Username': 'Username',

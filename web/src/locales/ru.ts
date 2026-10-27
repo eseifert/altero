@@ -103,6 +103,8 @@ export default {
     'Входит в адрес входа. Строчные буквы, цифры и дефисы.',
   'Apply them now': 'Применить сейчас',
   'Archive': 'Архив',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Вы уверены, что хотите изменить расширение файла с «{from}» на «{to}»?',
   'Are you sure you want to change the item type?': 'Вы уверены, что хотите изменить тип записи?',
   'Ask for a new one. Your current password still works.':
     'Попросите новую. Ваш нынешний пароль по-прежнему работает.',
@@ -303,6 +305,7 @@ export default {
   'Exported Items': 'Экспортированные записи',
   'Export…': 'Экспорт…',
   'Extend the selection': 'Расширить выделение',
+  'Filename': 'Имя файла',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Файлы, хранящиеся на сервере WebDAV, не лежат на zotero.org, поэтому перенос не может их забрать. Продолжайте синхронизировать файлы через WebDAV или загрузите их из клиента Zotero, где они ещё есть.',
   'Finished.': 'Завершено.',
@@ -343,6 +346,8 @@ export default {
   'I created this work.': 'Я создал эту работу.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Если какая-то здешняя учётная запись использует этот адрес, ссылка для задания нового пароля уже в пути.',
+  'If you change the extension, the file may open in a different application.':
+    'Если изменить расширение, файл может открыться в другом приложении.',
   'Image': 'Изображение',
   'Import and export': 'Импорт и экспорт',
   'In the trash': 'В корзине',
@@ -369,6 +374,7 @@ export default {
   'Items deleted': 'Записей удалено',
   'Items in {name}': 'Записи в {name}',
   'Keep the existing Rights field': 'Оставить существующее поле «Права»',
+  'Keep {extension}': 'Оставить {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Ключ создан. Скопируйте его сейчас — снова показан не будет.',
   'Keyboard shortcuts': 'Сочетания клавиш',
@@ -779,6 +785,7 @@ export default {
   'Use a passkey instead': 'Использовать вместо этого ключ доступа',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Используйте адрес, на который отправлено приглашение, и вы сможете на него ответить.',
+  'Use {extension}': 'Использовать {extension}',
   'Used for security notifications and invitations':
     'Используется для уведомлений о безопасности и приглашений',
   'Username': 'Имя пользователя',

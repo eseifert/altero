@@ -8,7 +8,7 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 - Create, rename, move and remove collections.
 - Make an item, edit its fields, creators and tags, change its type, and relate it to others.
 - Write notes, on their own or under an item.
-- Add files and web links, on their own or under an item, and replace a file.
+- Add files and web links, on their own or under an item, and rename or replace a file.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
 - Use the same actions with mouse, keyboard or touch where the interface provides them; `?` lists the keys.
@@ -201,6 +201,11 @@ file the desktop added: the desktop downloads it, under the name it had.
 - **Attach a web link** with **Attach Web Link…**: an address and, if you want
   one, a title. Without a title the link is named after its address, as in
   Zotero Desktop. An address typed without `https://` gets `http://`.
+- **Rename a file** by pressing its **Filename** in the attachment's pane, as
+  in Zotero Desktop: a name typed without an extension keeps the old one, and
+  a different extension is asked about first. The title stays as it was, and
+  nothing is uploaded again; Zotero Desktop renames its own copy when it syncs.
+  An attachment's title is edited the same way.
 - **Replace a file** with **Replace File…** in an attachment's pane. The
   attachment keeps its title and takes the new file's name.
 

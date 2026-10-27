@@ -102,6 +102,8 @@ export default {
   'Appears in the sign-in address. Lower-case letters, digits and hyphens.':
     'Apareix a l’adreça d’inici de sessió. Lletres minúscules, xifres i guionets.',
   'Apply them now': 'Aplica’ls ara',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Esteu segur que voleu canviar l’extensió de fitxer de «{from}» a «{to}»?',
   'Are you sure you want to change the item type?': 'Segur que voleu canviar el tipus d\'element?',
   'Ask for a new one. Your current password still works.':
     'Demaneu-ne un de nou. La vostra contrasenya actual continua funcionant.',
@@ -303,6 +305,7 @@ export default {
   'Exported Items': 'Elements exportats',
   'Export…': 'Exporta…',
   'Extend the selection': 'Amplia la selecció',
+  'Filename': 'Nom de fitxer',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Els fitxers desats en un servidor WebDAV no s’emmagatzemen a zotero.org, de manera que una migració no els pot portar. Continueu sincronitzant els fitxers mitjançant WebDAV, o pugeu-los des d’un client del Zotero que encara els tingui.',
   'Finished.': 'Acabat.',
@@ -343,6 +346,8 @@ export default {
   'I created this work.': 'He creat aquest treball.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Si algun compte d’aquí utilitza aquesta adreça, hi ha un enllaç en camí per establir una contrasenya nova.',
+  'If you change the extension, the file may open in a different application.':
+    'Si canvieu l’extensió, el fitxer es podria obrir amb una aplicació diferent.',
   'Image': 'Imatge',
   'Import and export': 'Importació i exportació',
   'In the trash': 'A la paperera',
@@ -370,6 +375,7 @@ export default {
   'Items deleted': 'Elements suprimits',
   'Items in {name}': 'Elements de {name}',
   'Keep the existing Rights field': 'Mantén el camp Drets existent',
+  'Keep {extension}': 'Mantingues {extension}',
   'Key created. Copy it now — it is not shown again.':
     'S’ha creat la clau. Copieu-la ara: no es tornarà a mostrar.',
   Language: 'Idioma',
@@ -789,6 +795,7 @@ export default {
   'Use a passkey instead': 'Utilitza una clau d’accés',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Utilitzeu l’adreça a la qual es va enviar la invitació i la podreu respondre.',
+  'Use {extension}': 'Utilitza {extension}',
   'Used for security notifications and invitations':
     'S’utilitza per als avisos de seguretat i les invitacions',
   Username: 'Nom d’usuari',

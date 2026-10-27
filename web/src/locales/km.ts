@@ -100,6 +100,8 @@ export default {
     'បង្ហាញក្នុងអាសយដ្ឋានចូល។ អក្សរឡាតាំងតូច លេខ និងសញ្ញា (-)។',
   'Apply them now': 'អនុវត្តឥឡូវនេះ',
   Archive: 'បណ្ណសារ',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'តើអ្នកប្រាកដថាចង់ប្តូរកន្ទុយឯកសារពី “{from}” ទៅ “{to}” ឬ?',
   'Are you sure you want to change the item type?': 'តើអ្នកចង់ផ្លាស់ប្តូរប្រភេទឯកសារ?',
   'Ask for a new one. Your current password still works.':
     'សូមស្នើសុំតំណថ្មី។ ពាក្យសម្ងាត់បច្ចុប្បន្នរបស់អ្នកនៅតែប្រើបាន។',
@@ -301,6 +303,7 @@ export default {
   'Exported Items': 'ឯកសារដែលបាននាំចេញ',
   'Export…': 'នាំចេញ…',
   'Extend the selection': 'ពង្រីកការជ្រើសរើស',
+  'Filename': 'ឈ្មោះឯកសារ',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'ឯកសារដែលរក្សាទុកនៅលើម៉ាស៊ីនបម្រើ WebDAV មិនត្រូវបានរក្សាទុកនៅ zotero.org ទេ ដូច្នេះការផ្ទេរមិនអាចនាំវាមកបានឡើយ។ សូមបន្តធ្វើសមកាលកម្មឯកសារតាម WebDAV ឬផ្ទុកវាឡើងពីកម្មវិធី Zotero ដែលនៅមានឯកសារទាំងនោះ។',
   'Finished.': 'បានបញ្ចប់។',
@@ -341,6 +344,8 @@ export default {
   'I created this work.': 'ខ្ញុំបានបង្កើតស្នាដៃនេះ។',
   'If an account here uses that address, a link to set a new password is on its way.':
     'ប្រសិនបើមានគណនីនៅទីនេះប្រើអាសយដ្ឋាននោះ តំណសម្រាប់កំណត់ពាក្យសម្ងាត់ថ្មីកំពុងផ្ញើទៅ។',
+  'If you change the extension, the file may open in a different application.':
+    'ប្រសិនបើអ្នកប្តូរកន្ទុយឯកសារ ឯកសារនេះអាចនឹងបើកក្នុងកម្មវិធីផ្សេង។',
   'Image': 'រូបភាព',
   'Import and export': 'នាំចូល និងនាំចេញ',
   'In the trash': 'នៅក្នុងធុងសំរាម',
@@ -368,6 +373,7 @@ export default {
   'Items deleted': 'ឯកសារដែលបានលុប',
   'Items in {name}': 'ឯកសារនៅក្នុង {name}',
   'Keep the existing Rights field': 'រក្សាវាលសិទ្ធិដែលមានស្រាប់',
+  'Keep {extension}': 'រក្សា {extension}',
   'Key created. Copy it now — it is not shown again.':
     'បានបង្កើតកូនសោ។ សូមចម្លងវាឥឡូវនេះ — វានឹងមិនបង្ហាញម្តងទៀតទេ។',
   'Keyboard shortcuts': 'ផ្លូវកាត់ក្ដារចុច',
@@ -778,6 +784,7 @@ export default {
   'Use a passkey instead': 'ប្រើកូនសោសម្ងាត់ជំនួសវិញ',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'សូមប្រើអាសយដ្ឋានដែលការអញ្ជើញត្រូវបានផ្ញើទៅ នោះអ្នកនឹងអាចឆ្លើយតបវាបាន។',
+  'Use {extension}': 'ប្រើ {extension}',
   'Used for security notifications and invitations':
     'ប្រើសម្រាប់ការជូនដំណឹងសុវត្ថិភាព និងការអញ្ជើញ',
   Username: 'ឈ្មោះអ្នកប្រើ',

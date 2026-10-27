@@ -104,6 +104,8 @@ export default {
     'Muncul di alamat masuk. Huruf kecil, angka, dan tanda hubung.',
   'Apply them now': 'Terapkan sekarang',
   'Archive': 'Arsip',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Apakah Anda yakin ingin mengubah ekstensi berkas dari “{from}” menjadi “{to}”?',
   'Are you sure you want to change the item type?': 'Apakah Anda yakin ingin mengubah jenis item?',
   'Ask for a new one. Your current password still works.':
     'Minta tautan baru. Kata sandi Anda saat ini masih berlaku.',
@@ -306,6 +308,7 @@ export default {
   'Exported Items': 'Item-item Terekspor',
   'Export…': 'Ekspor…',
   'Extend the selection': 'Perluas pilihan',
+  'Filename': 'Nama berkas',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Berkas yang disimpan di server WebDAV tidak tersimpan di zotero.org, sehingga migrasi tidak dapat membawanya. Tetap sinkronkan berkas melalui WebDAV, atau unggah berkas dari klien Zotero yang masih menyimpannya.',
   'Finished.': 'Selesai.',
@@ -346,6 +349,8 @@ export default {
   'I created this work.': 'Saya membuat karya ini.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Jika ada akun di sini yang menggunakan alamat tersebut, tautan untuk mengatur kata sandi baru sedang dikirim.',
+  'If you change the extension, the file may open in a different application.':
+    'Jika Anda mengubah ekstensi, berkas mungkin akan terbuka di aplikasi lain.',
   'Image': 'Gambar',
   'Import and export': 'Impor dan ekspor',
   'In the trash': 'Di Keranjang Sampah',
@@ -373,6 +378,7 @@ export default {
   'Items deleted': 'Item dihapus',
   'Items in {name}': 'Item di {name}',
   'Keep the existing Rights field': 'Pertahankan isian Hak yang sudah ada',
+  'Keep {extension}': 'Pertahankan {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Kunci dibuat. Salin sekarang — kunci ini tidak akan ditampilkan lagi.',
   'Keyboard shortcuts': 'Pintasan papan ketik',
@@ -787,6 +793,7 @@ export default {
   'Use a passkey instead': 'Gunakan kunci sandi',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Gunakan alamat yang menerima undangan itu, dan Anda akan dapat menjawabnya.',
+  'Use {extension}': 'Gunakan {extension}',
   'Used for security notifications and invitations':
     'Digunakan untuk notifikasi keamanan dan undangan',
   'Username': 'Nama pengguna',

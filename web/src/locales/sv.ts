@@ -100,6 +100,8 @@ export default {
     'Visas i inloggningsadressen. Små bokstäver, siffror och bindestreck.',
   'Apply them now': 'Tillämpa dem nu',
   'Archive': 'Arkiv',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Är du säker på att du vill ändra filändelsen från ”{from}” till ”{to}”?',
   'Are you sure you want to change the item type?': 'Är du säker på att du vill ändra källtyp?',
   'Ask for a new one. Your current password still works.':
     'Be om en ny. Ditt nuvarande lösenord fungerar fortfarande.',
@@ -300,6 +302,7 @@ export default {
   'Exported Items': 'Exporterade källor',
   'Export…': 'Exportera…',
   'Extend the selection': 'Utöka markeringen',
+  'Filename': 'Filnamn',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Filer som ligger på en WebDAV-server lagras inte på zotero.org, så en flytt kan inte ta med dem. Fortsätt synkronisera filer via WebDAV, eller ladda upp dem från en Zotero-klient som fortfarande har dem.',
   'Finished.': 'Klart.',
@@ -340,6 +343,8 @@ export default {
   'I created this work.': 'Jag skapade detta verk.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Om ett konto här använder den adressen är en länk för att välja ett nytt lösenord på väg.',
+  'If you change the extension, the file may open in a different application.':
+    'Om du ändrar filändelsen kan filen öppnas i ett annat program.',
   'Image': 'Bild',
   'Import and export': 'Import och export',
   'In the trash': 'I papperskorgen',
@@ -367,6 +372,7 @@ export default {
   'Items deleted': 'Raderade källor',
   'Items in {name}': 'Källor i {name}',
   'Keep the existing Rights field': 'Behåll nuvarande rättighetsfält',
+  'Keep {extension}': 'Behåll {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Nyckeln har skapats. Kopiera den nu — den visas inte igen.',
   'Keyboard shortcuts': 'Kortkommandon',
@@ -782,6 +788,7 @@ export default {
   'Use a passkey instead': 'Använd en lösennyckel i stället',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Använd adressen som inbjudan skickades till, så kan du svara på den.',
+  'Use {extension}': 'Använd {extension}',
   'Used for security notifications and invitations':
     'Används för säkerhetsaviseringar och inbjudningar',
   'Username': 'Användarnamn',

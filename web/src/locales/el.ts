@@ -95,6 +95,8 @@ export default {
     'Εμφανίζεται στη διεύθυνση σύνδεσης. Πεζά λατινικά γράμματα, ψηφία και παύλες.',
   'Apply them now': 'Εφαρμογή τώρα',
   'Archive': 'Αρχείο αρχειοθέτησης',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Είστε βέβαιοι ότι θέλετε να αλλάξετε την επέκταση του αρχείου από «{from}» σε «{to}»;',
   'Are you sure you want to change the item type?':
     'Είστε βέβαιοι ότι θέλετε να αλλάξετε τον τύπο στοιχείου;',
   'Ask for a new one. Your current password still works.': 'Ζητήστε νέο. Ο τρέχων κωδικός πρόσβασής σας εξακολουθεί να ισχύει.',
@@ -293,6 +295,7 @@ export default {
   'Exported Items': 'Εξαγόμενα Στοιχεία',
   'Export…': 'Εξαγωγή…',
   'Extend the selection': 'Επέκταση της επιλογής',
+  'Filename': 'Όνομα αρχείου',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Τα αρχεία που φυλάσσονται σε διακομιστή WebDAV δεν αποθηκεύονται στο zotero.org, οπότε η μεταφορά δεν μπορεί να τα φέρει. Συνεχίστε να συγχρονίζετε τα αρχεία μέσω WebDAV ή μεταφορτώστε τα από ένα πρόγραμμα-πελάτη Zotero που τα έχει ακόμη.',
   'Finished.': 'Ολοκληρώθηκε.',
@@ -333,6 +336,8 @@ export default {
   'I created this work.': 'Δημιούργησα αυτό το έργο.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Αν κάποιος λογαριασμός εδώ χρησιμοποιεί αυτή τη διεύθυνση, ένας σύνδεσμος για τον ορισμό νέου κωδικού πρόσβασης είναι καθ’ οδόν.',
+  'If you change the extension, the file may open in a different application.':
+    'Αν αλλάξετε την επέκταση, το αρχείο μπορεί να ανοίξει με διαφορετική εφαρμογή.',
   'Image': 'Εικόνα',
   'Import and export': 'Εισαγωγή και εξαγωγή',
   'In the trash': 'Στον Κάδο απορριμμάτων',
@@ -359,6 +364,7 @@ export default {
   'Items deleted': 'Στοιχεία που διαγράφηκαν',
   'Items in {name}': 'Στοιχεία σε: {name}',
   'Keep the existing Rights field': 'Διατήρηση του υπάρχοντος πεδίου Δικαιώματα',
+  'Keep {extension}': 'Διατήρηση {extension}',
   'Key created. Copy it now — it is not shown again.': 'Το κλειδί δημιουργήθηκε. Αντιγράψτε το τώρα — δεν θα εμφανιστεί ξανά.',
   'Keyboard shortcuts': 'Συντομεύσεις πληκτρολογίου',
   'Know who you are': 'Να γνωρίζει ποιος είστε',
@@ -760,6 +766,7 @@ export default {
   'Use a passkey instead': 'Χρήση κλειδιού πρόσβασης',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Χρησιμοποιήστε τη διεύθυνση στην οποία στάλθηκε η πρόσκληση και θα μπορείτε να την απαντήσετε.',
+  'Use {extension}': 'Χρήση {extension}',
   'Used for security notifications and invitations': 'Χρησιμοποιείται για ειδοποιήσεις ασφαλείας και προσκλήσεις',
   'Username': 'Όνομα χρήστη',
   'Username claim': 'Δήλωση ονόματος χρήστη',

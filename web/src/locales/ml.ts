@@ -100,6 +100,8 @@ export default {
     'സൈൻ-ഇൻ വിലാസത്തിൽ കാണിക്കും. ഇംഗ്ലീഷ് ചെറിയക്ഷരങ്ങൾ, അക്കങ്ങൾ, ഹൈഫനുകൾ.',
   'Apply them now': 'ഇപ്പോൾ നടപ്പാക്കുക',
   Archive: 'ആർക്കൈവ്',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'ഫയൽ എക്സ്റ്റൻഷൻ “{from}” എന്നതിൽ നിന്ന് “{to}” എന്നതിലേക്ക് മാറ്റണമെന്ന് ഉറപ്പാണോ?',
   'Are you sure you want to change the item type?': 'ഇനത്തിന്റെ തരം മാറ്റണമെന്ന് ഉറപ്പാണോ?',
   'Ask for a new one. Your current password still works.':
     'പുതിയൊരെണ്ണം ആവശ്യപ്പെടുക. നിങ്ങളുടെ നിലവിലെ പാസ്‌വേഡ് ഇപ്പോഴും പ്രവർത്തിക്കും.',
@@ -302,6 +304,7 @@ export default {
   'Exported Items': 'എക്സ്‌പോർട്ട് ചെയ്ത ഇനങ്ങൾ',
   'Export…': 'എക്സ്‌പോർട്ട് ചെയ്യുക…',
   'Extend the selection': 'തിരഞ്ഞെടുപ്പ് വികസിപ്പിക്കുക',
+  'Filename': 'ഫയലിന്റെ പേര്',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV സെർവറിൽ സൂക്ഷിച്ച ഫയലുകൾ zotero.org-ൽ സംഭരിക്കുന്നില്ല, അതിനാൽ മൈഗ്രേഷന് അവ കൊണ്ടുവരാനാവില്ല. WebDAV വഴി ഫയലുകൾ സമന്വയിപ്പിക്കുന്നത് തുടരുക, അല്ലെങ്കിൽ അവ ഇപ്പോഴും ഉള്ള ഒരു Zotero ക്ലയന്റിൽ നിന്ന് അപ്‌ലോഡ് ചെയ്യുക.',
   'Finished.': 'പൂർത്തിയായി.',
@@ -342,6 +345,8 @@ export default {
   'I created this work.': 'ഈ കൃതി ഞാൻ സൃഷ്ടിച്ചതാണ്.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'ഇവിടെ ഏതെങ്കിലും അക്കൗണ്ട് ആ വിലാസം ഉപയോഗിക്കുന്നുണ്ടെങ്കിൽ, പുതിയ പാസ്‌വേഡ് സജ്ജീകരിക്കാനുള്ള ലിങ്ക് വരുന്നുണ്ട്.',
+  'If you change the extension, the file may open in a different application.':
+    'എക്സ്റ്റൻഷൻ മാറ്റിയാൽ, ഫയൽ മറ്റൊരു ആപ്ലിക്കേഷനിൽ തുറന്നേക്കാം.',
   'Image': 'ചിത്രം',
   'Import and export': 'ഇമ്പോർട്ടും എക്സ്‌പോർട്ടും',
   'In the trash': 'ട്രാഷിൽ',
@@ -369,6 +374,7 @@ export default {
   'Items deleted': 'ഇല്ലാതാക്കിയ ഇനങ്ങൾ',
   'Items in {name}': '{name} എന്നതിലെ ഇനങ്ങൾ',
   'Keep the existing Rights field': 'നിലവിലുള്ള അവകാശങ്ങൾ (Rights) ഫീൽഡ് നിലനിർത്തുക',
+  'Keep {extension}': '{extension} നിലനിർത്തുക',
   'Key created. Copy it now — it is not shown again.':
     'കീ സൃഷ്ടിച്ചു. ഇപ്പോൾ തന്നെ പകർത്തുക — ഇത് വീണ്ടും കാണിക്കില്ല.',
   'Keyboard shortcuts': 'കീബോർഡ് കുറുക്കുവഴികൾ',
@@ -789,6 +795,7 @@ export default {
   'Use a passkey instead': 'പകരം പാസ്‌കീ ഉപയോഗിക്കുക',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'ക്ഷണം അയച്ച വിലാസം ഉപയോഗിക്കുക, അപ്പോൾ നിങ്ങൾക്ക് അതിന് മറുപടി നൽകാനാകും.',
+  'Use {extension}': '{extension} ഉപയോഗിക്കുക',
   'Used for security notifications and invitations':
     'സുരക്ഷാ അറിയിപ്പുകൾക്കും ക്ഷണങ്ങൾക്കും ഉപയോഗിക്കുന്നു',
   Username: 'ഉപയോക്തൃനാമം',

@@ -99,6 +99,8 @@ export default {
     'Појављује се у адреси за пријаву. Мала слова, цифре и цртице.',
   'Apply them now': 'Примени их сада',
   'Archive': 'Архива',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Да ли заиста желите да промените екстензију датотеке из „{from}“ у „{to}“?',
   'Are you sure you want to change the item type?': 'Да ли желите да промените врсту ставке?',
   'Ask for a new one. Your current password still works.':
     'Затражите нову. Ваша тренутна лозинка и даље важи.',
@@ -300,6 +302,7 @@ export default {
   'Exported Items': 'Извезене ставке',
   'Export…': 'Извези…',
   'Extend the selection': 'Прошири избор',
+  'Filename': 'Име датотеке',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Датотеке које се чувају на WebDAV серверу не налазе се на zotero.org, па их пресељење не може пренети. Наставите да усклађујете датотеке преко WebDAV-а или их пошаљите из Zotero клијента који их још има.',
   'Finished.': 'Завршено.',
@@ -340,6 +343,8 @@ export default {
   'I created this work.': 'Ја сам направио овај рад.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Ако неки овдашњи налог користи ту адресу, веза за постављање нове лозинке је на путу.',
+  'If you change the extension, the file may open in a different application.':
+    'Уколико промените екстензију датотеке, можда ће бити отворена другим програмом.',
   'Image': 'Слика',
   'Import and export': 'Увоз и извоз',
   'In the trash': 'У Смећу',
@@ -367,6 +372,7 @@ export default {
   'Items deleted': 'Обрисане ставке',
   'Items in {name}': 'Ставке — {name}',
   'Keep the existing Rights field': 'Задржи постојеће поље „Права“',
+  'Keep {extension}': 'Задржи {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Кључ је направљен. Копирајте га сада — више неће бити приказан.',
   'Keyboard shortcuts': 'Пречице на тастатури',
@@ -779,6 +785,7 @@ export default {
   'Use a passkey instead': 'Уместо тога користи приступни кључ',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Користите адресу на коју је позивница послата и моћи ћете да одговорите на њу.',
+  'Use {extension}': 'Користи {extension}',
   'Used for security notifications and invitations':
     'Користи се за безбедносна обавештења и позивнице',
   'Username': 'Корисничко име',

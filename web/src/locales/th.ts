@@ -99,6 +99,8 @@ export default {
     'ปรากฏในที่อยู่สำหรับลงชื่อเข้าใช้ ใช้ได้เฉพาะอักษรตัวพิมพ์เล็ก ตัวเลข และขีดกลาง',
   'Apply them now': 'นำไปใช้เดี๋ยวนี้',
   Archive: 'ไฟล์เก็บถาวร',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'คุณต้องการเปลี่ยนนามสกุลไฟล์จาก “{from}” เป็น “{to}” ใช่หรือไม่?',
   'Are you sure you want to change the item type?': 'คุณต้องการเปลี่ยนประเภทรายการใช่หรือไม่?',
   'Ask for a new one. Your current password still works.':
     'ขอลิงก์ใหม่ รหัสผ่านปัจจุบันของคุณยังใช้ได้',
@@ -297,6 +299,7 @@ export default {
   'Exported Items': 'รายการที่ส่งออก',
   'Export…': 'ส่งออก…',
   'Extend the selection': 'ขยายการเลือก',
+  'Filename': 'ชื่อไฟล์',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'ไฟล์ที่เก็บไว้บนเซิร์ฟเวอร์ WebDAV ไม่ได้เก็บอยู่ที่ zotero.org การย้ายจึงนำไฟล์เหล่านั้นมาด้วยไม่ได้ ให้ประสานข้อมูลไฟล์ผ่าน WebDAV ต่อไป หรืออัปโหลดจากไคลเอนต์ Zotero ที่ยังมีไฟล์อยู่',
   'Finished.': 'เสร็จสิ้น',
@@ -337,6 +340,8 @@ export default {
   'I created this work.': 'ฉันเป็นผู้สร้างผลงานนี้',
   'If an account here uses that address, a link to set a new password is on its way.':
     'หากมีบัญชีที่นี่ที่ใช้ที่อยู่นั้น ลิงก์สำหรับตั้งรหัสผ่านใหม่กำลังส่งไปให้',
+  'If you change the extension, the file may open in a different application.':
+    'หากคุณเปลี่ยนนามสกุล ไฟล์อาจเปิดด้วยแอปพลิเคชันอื่น',
   'Image': 'ภาพ',
   'Import and export': 'นำเข้าและส่งออก',
   'In the trash': 'อยู่ในถังขยะ',
@@ -364,6 +369,7 @@ export default {
   'Items deleted': 'รายการที่ถูกลบ',
   'Items in {name}': 'รายการใน {name}',
   'Keep the existing Rights field': 'คงช่องสิทธิ์ที่มีอยู่ไว้',
+  'Keep {extension}': 'คง {extension} ไว้',
   'Key created. Copy it now — it is not shown again.':
     'สร้างคีย์แล้ว คัดลอกไว้เดี๋ยวนี้ — จะไม่แสดงอีก',
   'Keyboard shortcuts': 'แป้นพิมพ์ลัด',
@@ -768,6 +774,7 @@ export default {
   'Use a passkey instead': 'ใช้พาสคีย์แทน',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'ใช้ที่อยู่อีเมลที่ได้รับคำเชิญ แล้วคุณจะตอบรับคำเชิญได้',
+  'Use {extension}': 'ใช้ {extension}',
   'Used for security notifications and invitations':
     'ใช้สำหรับการแจ้งเตือนด้านความปลอดภัยและคำเชิญ',
   Username: 'ชื่อผู้ใช้',

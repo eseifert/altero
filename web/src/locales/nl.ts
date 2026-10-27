@@ -98,6 +98,8 @@ export default {
     'Komt voor in het aanmeldadres. Kleine letters, cijfers en koppeltekens.',
   'Apply them now': 'Nu toepassen',
   'Archive': 'Archief',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Weet u zeker dat u de bestandsextensie wilt wijzigen van “{from}” naar “{to}”?',
   'Are you sure you want to change the item type?':
     'Weet u zeker dat u het item-type wil veranderen?',
   'Ask for a new one. Your current password still works.':
@@ -299,6 +301,7 @@ export default {
   'Exported Items': 'Geëxporteerde items',
   'Export…': 'Exporteren…',
   'Extend the selection': 'Selectie uitbreiden',
+  'Filename': 'Bestandsnaam',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Bestanden op een WebDAV-server staan niet bij zotero.org, dus een migratie kan ze niet meenemen. Blijf de bestanden via WebDAV synchroniseren, of upload ze vanuit een Zotero-programma dat ze nog heeft.',
   'Finished.': 'Voltooid.',
@@ -339,6 +342,8 @@ export default {
   'I created this work.': 'Ik heb dit werk gemaakt.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Als een account hier dat adres gebruikt, is er een link onderweg om een nieuw wachtwoord in te stellen.',
+  'If you change the extension, the file may open in a different application.':
+    'Als u de extensie wijzigt, wordt het bestand mogelijk met een ander programma geopend.',
   'Image': 'Afbeelding',
   'Import and export': 'Importeren en exporteren',
   'In the trash': 'In de prullenbak',
@@ -365,6 +370,7 @@ export default {
   'Items deleted': 'Items verwijderd',
   'Items in {name}': 'Items in {name}',
   'Keep the existing Rights field': 'Het bestaande veld Rechten behouden',
+  'Keep {extension}': '{extension} behouden',
   'Key created. Copy it now — it is not shown again.':
     'Sleutel aangemaakt. Kopieer hem nu — hij wordt niet nogmaals getoond.',
   'Keyboard shortcuts': 'Sneltoetsen',
@@ -782,6 +788,7 @@ export default {
   'Use a passkey instead': 'Gebruik in plaats daarvan een passkey',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Gebruik het adres waarnaar de uitnodiging is gestuurd, dan kunt u erop antwoorden.',
+  'Use {extension}': '{extension} gebruiken',
   'Used for security notifications and invitations':
     'Wordt gebruikt voor beveiligingsmeldingen en uitnodigingen',
   'Username': 'Gebruikersnaam',

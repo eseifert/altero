@@ -96,6 +96,8 @@ export default {
     'ჩანს შესვლის მისამართში. ქვედა რეგისტრის ლათინური ასოები, ციფრები და დეფისები.',
   'Apply them now': 'ახლავე გამოყენება',
   'Archive': 'არქივი',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'დარწმუნებული ხართ, რომ გსურთ ფაილის გაფართოების შეცვლა „{from}“-დან „{to}“-ზე?',
   'Are you sure you want to change the item type?':
     'დარწმუნებული ხართ, რომ გსურთ ელემენტის ტიპის შეცვლა?',
   'Ask for a new one. Your current password still works.': 'მოითხოვეთ ახალი. თქვენი ამჟამინდელი პაროლი კვლავ მოქმედებს.',
@@ -293,6 +295,7 @@ export default {
   'Exported Items': 'ექსპორტირებული ჩანაწერები',
   'Export…': 'ექსპორტი…',
   'Extend the selection': 'მონიშვნის გაფართოება',
+  'Filename': 'ფაილის სახელი',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV სერვერზე შენახული ფაილები zotero.org-ზე არ ინახება, ამიტომ მიგრაცია მათ ვერ გადმოიტანს. განაგრძეთ ფაილების სინქრონიზაცია WebDAV-ით ან ატვირთეთ ისინი Zotero კლიენტიდან, რომელსაც ისინი ჯერ კიდევ აქვს.',
   'Finished.': 'დასრულდა.',
@@ -333,6 +336,8 @@ export default {
   'I created this work.': 'ეს ნაშრომი მე შევქმენი.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'თუ აქ რომელიმე ანგარიში ამ მისამართს იყენებს, ახალი პაროლის დასაყენებელი ბმული უკვე იგზავნება.',
+  'If you change the extension, the file may open in a different application.':
+    'გაფართოების შეცვლის შემთხვევაში ფაილი შეიძლება სხვა აპლიკაციაში გაიხსნას.',
   'Image': 'სურათი',
   'Import and export': 'იმპორტი და ექსპორტი',
   'In the trash': 'სანაგვეში',
@@ -358,6 +363,7 @@ export default {
   'Items deleted': 'წაშლილი ჩანაწერები',
   'Items in {name}': 'ჩანაწერები: {name}',
   'Keep the existing Rights field': 'არსებული „უფლებების“ ველის შენარჩუნება',
+  'Keep {extension}': '{extension}-ის შენარჩუნება',
   'Key created. Copy it now — it is not shown again.': 'გასაღები შეიქმნა. დააკოპირეთ ახლავე — ის აღარ გამოჩნდება.',
   'Keyboard shortcuts': 'კლავიატურის მალსახმობები',
   'Know who you are': 'იცოდეს, ვინ ხართ',
@@ -744,6 +750,7 @@ export default {
   'Use a passkey instead': 'ამის ნაცვლად წვდომის გასაღების გამოყენება',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'გამოიყენეთ მისამართი, რომელზეც მოწვევა გაიგზავნა, და შეძლებთ მასზე პასუხის გაცემას.',
+  'Use {extension}': '{extension}-ის გამოყენება',
   'Used for security notifications and invitations': 'გამოიყენება უსაფრთხოების შეტყობინებებისა და მოწვევებისთვის',
   'Username': 'მომხმარებლის სახელი',
   'Username claim': 'მომხმარებლის სახელის ატრიბუტი',

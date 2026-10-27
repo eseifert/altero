@@ -96,6 +96,8 @@ export default {
     '로그인 주소에 표시됩니다. 영문 소문자, 숫자, 하이픈을 사용하세요.',
   'Apply them now': '지금 적용',
   'Archive': '아카이브',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    '정말로 파일 확장자를 “{from}”에서 “{to}”(으)로 변경하시겠습니까?',
   'Are you sure you want to change the item type?': '정말로 항목 종류를 변경하길 원하십니까?',
   'Ask for a new one. Your current password still works.': '새 링크를 요청하세요. 현재 비밀번호는 계속 사용할 수 있습니다.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -291,6 +293,7 @@ export default {
   'Exported Items': '내보낸 항목',
   'Export…': '내보내기…',
   'Extend the selection': '선택 영역 확장',
+  'Filename': '파일 이름',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV 서버의 파일은 zotero.org에 저장되지 않으므로 이전할 수 없습니다. 계속 WebDAV로 파일을 동기화하거나 파일을 보유한 Zotero 클라이언트에서 업로드하세요.',
   'Finished.': '완료했습니다.',
@@ -330,6 +333,8 @@ export default {
   'I created this work.': '이 저작물을 직접 만들었습니다.',
   'If an account here uses that address, a link to set a new password is on its way.':
     '이 주소를 사용하는 계정이 있으면 새 비밀번호를 설정할 링크를 보내드립니다.',
+  'If you change the extension, the file may open in a different application.':
+    '확장자를 변경하면 파일이 다른 애플리케이션에서 열릴 수 있습니다.',
   'Image': '이미지',
   'Import and export': '가져오기 및 내보내기',
   'In the trash': '휴지통에 있음',
@@ -355,6 +360,7 @@ export default {
   'Items deleted': '삭제된 항목',
   'Items in {name}': '{name}의 항목',
   'Keep the existing Rights field': '기존 권한 필드 유지',
+  'Keep {extension}': '{extension} 유지',
   'Key created. Copy it now — it is not shown again.': '키를 만들었습니다. 다시 표시되지 않으므로 지금 복사하세요.',
   'Keyboard shortcuts': '키보드 단축키',
   'Know who you are': '본인 정보 확인',
@@ -743,6 +749,7 @@ export default {
   'Use a passkey instead': '패스키 사용',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     '초대를 받은 이메일 주소를 사용하면 응답할 수 있습니다.',
+  'Use {extension}': '{extension} 사용',
   'Used for security notifications and invitations': '보안 알림 및 초대에 사용',
   'Username': '사용자 이름',
   'Username claim': '사용자 이름 클레임',

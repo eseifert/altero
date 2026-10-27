@@ -139,3 +139,26 @@ test('a file is replaced, and a web link attached', async ({ page }, testInfo) =
   const link = (await childrenOf(book)).find((child) => child.data.linkMode === 'linked_url')
   expect(link!.data).toMatchObject({ url: 'http://example.org/paper', title: 'paper' })
 })
+
+test('a file renamed in the browser keeps its bytes, and downloads under the new name', async ({ page }, testInfo) => {
+  const title = `Renamed by ${testInfo.project.name}`
+  const book = await seedBook(title)
+  const bytes = Buffer.from('%PDF renamed')
+  await openBook(page, title)
+  await attachMenu(page)
+  const chooser = page.waitForEvent('filechooser')
+  await page.getByRole('menuitem', { name: 'Attach File…' }).click()
+  await (await chooser).setFiles({ name: 'scan0001.pdf', mimeType: 'application/pdf', buffer: bytes })
+  await page.locator('.detail__children').getByText('PDF', { exact: true }).click()
+
+  await page.getByRole('button', { name: 'Filename' }).click()
+  await page.keyboard.press('ControlOrMeta+a')
+  await page.keyboard.type('Smith 2024')
+  await page.keyboard.press('Enter')
+
+  await expect.poll(async () => (await childrenOf(book))[0]?.data.filename).toBe('Smith 2024.pdf')
+  const [renamed] = await childrenOf(book)
+  expect(renamed!.data).toMatchObject({ title: 'PDF', md5: md5(bytes) })
+  const download = await page.request.get(`/web/libraries/1/items/${renamed!.key}/file?download=true`)
+  expect(download.headers()['content-disposition']).toContain('Smith%202024.pdf')
+})

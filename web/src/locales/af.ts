@@ -101,6 +101,8 @@ export default {
     'Verskyn in die aanmeldadres. Kleinletters, syfers en koppeltekens.',
   'Apply them now': 'Pas hulle nou toe',
   'Archive': 'Argief',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Is jy seker jy wil die lêeruitbreiding van “{from}” na “{to}” verander?',
   'Are you sure you want to change the item type?': 'Is jy seker jy wil die itemtipe verander?',
   'Ask for a new one. Your current password still works.':
     'Vra vir ’n nuwe een. U huidige wagwoord werk steeds.',
@@ -301,6 +303,7 @@ export default {
   'Exported Items': 'Uitgevoerde items',
   'Export…': 'Voer uit…',
   'Extend the selection': 'Brei die keuse uit',
+  'Filename': 'Lêernaam',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Lêers wat op ’n WebDAV-bediener gehou word, word nie by zotero.org gestoor nie, dus kan ’n migrasie hulle nie oorbring nie. Hou aan om lêers deur WebDAV te sinkroniseer, of laai hulle op vanaf ’n Zotero-kliënt wat hulle nog het.',
   'Finished.': 'Voltooi.',
@@ -341,6 +344,8 @@ export default {
   'I created this work.': 'Ek het hierdie werk geskep.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'As ’n rekening hier daardie adres gebruik, is ’n skakel om ’n nuwe wagwoord te stel op pad.',
+  'If you change the extension, the file may open in a different application.':
+    'As jy die uitbreiding verander, kan die lêer in ’n ander toepassing oopmaak.',
   'Image': 'Beeld',
   'Import and export': 'Invoer en uitvoer',
   'In the trash': 'In die asblik',
@@ -368,6 +373,7 @@ export default {
   'Items deleted': 'Items geskrap',
   'Items in {name}': 'Items in {name}',
   'Keep the existing Rights field': 'Behou die bestaande Regte-veld',
+  'Keep {extension}': 'Behou {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Sleutel geskep. Kopieer dit nou — dit word nie weer gewys nie.',
   'Keyboard shortcuts': 'Kortpadsleutels',
@@ -781,6 +787,7 @@ export default {
   'Use a passkey instead': 'Gebruik eerder ’n toegangsleutel',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Gebruik die adres waarheen die uitnodiging gestuur is, dan sal u dit kan beantwoord.',
+  'Use {extension}': 'Gebruik {extension}',
   'Used for security notifications and invitations':
     'Word gebruik vir sekuriteitskennisgewings en uitnodigings',
   'Username': 'Gebruikersnaam',

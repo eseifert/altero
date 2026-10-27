@@ -103,6 +103,8 @@ export default {
     'Входить до адреси входу. Малі літери, цифри й дефіси.',
   'Apply them now': 'Застосувати зараз',
   'Archive': 'Архів',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Ви впевнені, що бажаєте змінити розширення файлу з «{from}» на «{to}»?',
   'Are you sure you want to change the item type?':
     'Ви впевнені, що бажаєте змінити тип документу?',
   'Ask for a new one. Your current password still works.':
@@ -304,6 +306,7 @@ export default {
   'Exported Items': 'Експортовані документи',
   'Export…': 'Експорт…',
   'Extend the selection': 'Розширити виділення',
+  'Filename': 'Ім’я файлу',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Файли, що зберігаються на сервері WebDAV, не лежать на zotero.org, тож перенесення не може їх забрати. Синхронізуйте файли й далі через WebDAV або вивантажте їх із клієнта Zotero, де вони ще є.',
   'Finished.': 'Завершено.',
@@ -344,6 +347,8 @@ export default {
   'I created this work.': 'Це моя власна робота.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Якщо якийсь тутешній обліковий запис використовує цю адресу, посилання для нового пароля вже в дорозі.',
+  'If you change the extension, the file may open in a different application.':
+    'Якщо змінити розширення, файл може відкритися в іншій програмі.',
   'Image': 'Зображення',
   'Import and export': 'Імпорт та експорт',
   'In the trash': 'У Кошику',
@@ -370,6 +375,7 @@ export default {
   'Items deleted': 'Документів видалено',
   'Items in {name}': 'Документи в {name}',
   'Keep the existing Rights field': 'Залишити наявне поле «Права»',
+  'Keep {extension}': 'Залишити {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Ключ створено. Скопіюйте його зараз — більше його не буде показано.',
   'Keyboard shortcuts': 'Комбінації клавіш',
@@ -780,6 +786,7 @@ export default {
   'Use a passkey instead': 'Натомість використати ключ доступу',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Використайте адресу, на яку надіслано запрошення, і ви зможете на нього відповісти.',
+  'Use {extension}': 'Використати {extension}',
   'Used for security notifications and invitations':
     'Використовується для сповіщень безпеки та запрошень',
   'Username': 'Ім’я користувача',

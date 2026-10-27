@@ -98,6 +98,8 @@ export default {
     'साइन-इन पते में दिखता है। छोटे अक्षर, अंक और हाइफ़न।',
   'Apply them now': 'इन्हें अभी लागू करें',
   'Archive': 'आर्काइव',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'क्या आप वाकई फ़ाइल एक्सटेंशन “{from}” से “{to}” में बदलना चाहते हैं?',
   'Are you sure you want to change the item type?': 'क्या आप वाकई आइटम का प्रकार बदलना चाहते हैं?',
   'Ask for a new one. Your current password still works.': 'नया लिंक माँगें। आपका मौजूदा पासवर्ड अब भी काम करता है।',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -295,6 +297,7 @@ export default {
   'Exported Items': 'निर्यात किए गए आइटम',
   'Export…': 'निर्यात करें…',
   'Extend the selection': 'चयन बढ़ाएँ',
+  'Filename': 'फ़ाइल नाम',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV सर्वर पर रखी गई फ़ाइलें zotero.org पर संग्रहीत नहीं होतीं, इसलिए माइग्रेशन उन्हें यहाँ नहीं ला सकता। फ़ाइलें WebDAV से सिंक करते रहें, या उन्हें किसी ऐसे Zotero क्लाइंट से अपलोड करें जिसमें वे अब भी मौजूद हों।',
   'Finished.': 'पूरा हुआ।',
@@ -335,6 +338,8 @@ export default {
   'I created this work.': 'मैंने यह कृति बनाई है।',
   'If an account here uses that address, a link to set a new password is on its way.':
     'अगर यहाँ कोई खाता उस पते का उपयोग करता है, तो नया पासवर्ड सेट करने का लिंक भेजा जा रहा है।',
+  'If you change the extension, the file may open in a different application.':
+    'एक्सटेंशन बदलने पर फ़ाइल किसी दूसरे ऐप्लिकेशन में खुल सकती है।',
   'Image': 'छवि',
   'Import and export': 'आयात और निर्यात',
   'In the trash': 'ट्रैश में',
@@ -362,6 +367,7 @@ export default {
   'Items deleted': 'हटाए गए आइटम',
   'Items in {name}': '{name} में आइटम',
   'Keep the existing Rights field': 'मौजूदा अधिकार फ़ील्ड रखें',
+  'Keep {extension}': '{extension} रखें',
   'Key created. Copy it now — it is not shown again.': 'कुंजी बनाई गई। इसे अभी कॉपी करें — यह फिर नहीं दिखाई जाएगी।',
   'Keyboard shortcuts': 'कीबोर्ड शॉर्टकट',
   'Know who you are': 'आपकी पहचान जानना',
@@ -756,6 +762,7 @@ export default {
   'Use a passkey instead': 'इसके बजाय पासकी का उपयोग करें',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'वह पता इस्तेमाल करें जिस पर आमंत्रण भेजा गया था, तब आप उसका जवाब दे पाएँगे।',
+  'Use {extension}': '{extension} का उपयोग करें',
   'Used for security notifications and invitations': 'सुरक्षा सूचनाओं और आमंत्रणों के लिए उपयोग किया जाता है',
   'Username': 'उपयोगकर्ता नाम',
   'Username claim': 'उपयोगकर्ता नाम क्लेम',

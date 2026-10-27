@@ -101,6 +101,8 @@ export default {
     'உள்நுழைவு முகவரியில் தோன்றும். சிற்றெழுத்துகள், இலக்கங்கள் மற்றும் இணைப்புக்கோடுகள்.',
   'Apply them now': 'இப்போதே பயன்படுத்து',
   'Archive': 'காப்பகம்',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'கோப்பு நீட்டிப்பை “{from}” இலிருந்து “{to}” ஆக மாற்ற விரும்புகிறீர்களா?',
   'Are you sure you want to change the item type?': 'உருப்படி வகையை மாற்ற விரும்புகிறீர்களா?',
   'Ask for a new one. Your current password still works.':
     'புதிய ஒன்றைக் கேட்கவும். உங்கள் தற்போதைய கடவுச்சொல் இன்னும் வேலை செய்கிறது.',
@@ -305,6 +307,7 @@ export default {
   'Exported Items': 'ஏற்றுமதி செய்யப்பட்ட உருப்படிகள்',
   'Export…': 'ஏற்றுமதி…',
   'Extend the selection': 'தேர்வை நீட்டி',
+  'Filename': 'கோப்புப்பெயர்',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV சேவையகத்தில் வைக்கப்பட்ட கோப்புகள் zotero.org இல் சேமிக்கப்படுவதில்லை, எனவே இடம்பெயர்வால் அவற்றைக் கொண்டுவர முடியாது. WebDAV மூலம் கோப்புகளைத் தொடர்ந்து ஒத்திசைக்கவும், அல்லது அவற்றை இன்னும் வைத்திருக்கும் Zotero பயன்பாட்டிலிருந்து பதிவேற்றவும்.',
   'Finished.': 'முடிந்தது.',
@@ -346,6 +349,8 @@ export default {
   'I created this work.': 'இந்தப் படைப்பை நான் உருவாக்கினேன்.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'இங்குள்ள ஒரு கணக்கு அந்த முகவரியைப் பயன்படுத்தினால், புதிய கடவுச்சொல்லை அமைப்பதற்கான தொடுப்பு அனுப்பப்படுகிறது.',
+  'If you change the extension, the file may open in a different application.':
+    'நீட்டிப்பை மாற்றினால், கோப்பு வேறொரு பயன்பாட்டில் திறக்கப்படலாம்.',
   'Image': 'படம்',
   'Import and export': 'இறக்குமதி மற்றும் ஏற்றுமதி',
   'In the trash': 'குப்பையில்',
@@ -373,6 +378,7 @@ export default {
   'Items deleted': 'நீக்கப்பட்ட உருப்படிகள்',
   'Items in {name}': 'உருப்படிகள்: {name}',
   'Keep the existing Rights field': 'ஏற்கனவே உள்ள உரிமைகள் புலத்தை வைத்திரு',
+  'Keep {extension}': '{extension} ஐ வைத்திரு',
   'Key created. Copy it now — it is not shown again.':
     'விசை உருவாக்கப்பட்டது. இப்போதே நகலெடுக்கவும் — அது மீண்டும் காட்டப்படாது.',
   'Keyboard shortcuts': 'விசைப்பலகை குறுக்குவழிகள்',
@@ -797,6 +803,7 @@ export default {
   'Use a passkey instead': 'பதிலாகக் கடவுச்சாவியைப் பயன்படுத்து',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'அழைப்பு அனுப்பப்பட்ட முகவரியைப் பயன்படுத்தினால், அதற்குப் பதிலளிக்க முடியும்.',
+  'Use {extension}': '{extension} ஐப் பயன்படுத்து',
   'Used for security notifications and invitations':
     'பாதுகாப்பு அறிவிப்புகளுக்கும் அழைப்புகளுக்கும் பயன்படுத்தப்படும்',
   'Username': 'பயனர்பெயர்',

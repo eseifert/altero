@@ -10,6 +10,7 @@ upload would have left: the item at one new library version, its ``md5``,
 """
 
 import hashlib
+from datetime import datetime
 from typing import Any
 
 import httpx2
@@ -879,3 +880,143 @@ class TestWhatTheInterfaceIsTold:
         library_id = await personal_library(ada)
 
         assert (await self.summary(ada, library_id))["maxUploadBytes"] == 10
+
+
+async def rename(
+    client: httpx2.AsyncClient, library_id: int, key: str, name: str, *, version: int
+) -> httpx2.Response:
+    return await client.patch(
+        f"/web/libraries/{library_id}/items/{key}",
+        json={"fields": {"filename": name}, "version": version},
+        headers=csrf_headers(client),
+    )
+
+
+class TestRenamingAFile:
+    """The desktop's attachment box: the file takes a new name and nothing is sent again.
+
+    A rename reaches another desktop as a changed `filename`, which renames its
+    own copy (`Zotero.Sync.Data.Local`); the bytes and their digest stay.
+    """
+
+    async def test_the_file_takes_the_new_name_and_keeps_the_rest(
+        self, ada: httpx2.AsyncClient, settings: Settings
+    ) -> None:
+        library_id = await personal_library(ada)
+        made = (await upload(ada, library_id, title="Draft")).json()
+        before = await library_version(ada, library_id)
+
+        response = await rename(
+            ada, library_id, made["key"], "Smith 2024.pdf", version=made["version"]
+        )
+
+        assert response.status_code == 200
+        data = response.json()["data"]
+        assert data["filename"] == "Smith 2024.pdf"
+        assert data["title"] == "Draft"
+        assert data["md5"] == MD5
+        assert data["mtime"] == MTIME
+        assert data["version"] == before + 1
+        assert stored_files(settings) == [f"{MD5[:2]}/{MD5}"]
+
+    async def test_the_date_modified_is_left_alone(
+        self, ada: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
+        """`relinkAttachmentFile` saves with `skipDateModifiedUpdate`."""
+        library_id = await personal_library(ada)
+        library = await session.get(Library, library_id)
+        assert library is not None
+        item = await factories.make_item(
+            session,
+            library,
+            item_type="attachment",
+            fields={"linkMode": "imported_file", "md5": MD5, "filename": "old.pdf"},
+        )
+        item.date_modified = datetime(2020, 1, 2, 3, 4, 5)
+        await session.commit()
+
+        response = await rename(ada, library_id, item.key, "renamed.pdf", version=item.version)
+
+        assert response.status_code == 200
+        assert response.json()["data"]["dateModified"] == "2020-01-02T03:04:05Z"
+
+    async def test_downloads_are_offered_under_the_new_name(
+        self, ada: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        made = (await upload(ada, library_id)).json()
+        await rename(ada, library_id, made["key"], "Smith 2024.pdf", version=made["version"])
+        api_key = await admin.create_api_key(session, username="ada", name="laptop")
+
+        web = await ada.get(f"/web/libraries/{library_id}/items/{made['key']}/file?download=true")
+        redirect = await ada.get(
+            f"/users/1/items/{made['key']}/file", headers={"Zotero-API-Key": api_key.key}
+        )
+        synced = await ada.get(redirect.headers["Location"])
+
+        for answer in (web, synced):
+            assert "Smith%202024.pdf" in answer.headers["Content-Disposition"]
+            assert answer.content == CONTENT
+
+    async def test_the_name_is_made_valid_as_the_desktop_makes_it(
+        self, ada: httpx2.AsyncClient
+    ) -> None:
+        library_id = await personal_library(ada)
+        made = (await upload(ada, library_id)).json()
+
+        response = await rename(
+            ada, library_id, made["key"], " a/b:c.pdf ", version=made["version"]
+        )
+
+        assert response.json()["data"]["filename"] == "abc.pdf"
+
+    @pytest.mark.parametrize("name", ["", "   "])
+    async def test_an_empty_name_is_refused(self, ada: httpx2.AsyncClient, name: str) -> None:
+        library_id = await personal_library(ada)
+        made = (await upload(ada, library_id)).json()
+
+        response = await rename(ada, library_id, made["key"], name, version=made["version"])
+
+        assert response.status_code == 400
+
+    @pytest.mark.parametrize(
+        ("item_type", "fields"),
+        [
+            ("attachment", {"linkMode": "linked_url", "url": "https://example.org"}),
+            ("attachment", {"linkMode": "linked_file", "path": "/home/ada/a.pdf"}),
+            ("book", {"title": "A book"}),
+        ],
+    )
+    async def test_only_a_file_stored_here_has_a_name_to_change(
+        self,
+        ada: httpx2.AsyncClient,
+        session: AsyncSession,
+        item_type: str,
+        fields: dict[str, str],
+    ) -> None:
+        library_id = await personal_library(ada)
+        library = await session.get(Library, library_id)
+        assert library is not None
+        item = await factories.make_item(session, library, item_type=item_type, fields=fields)
+        await session.commit()
+
+        response = await rename(ada, library_id, item.key, "x.pdf", version=item.version)
+
+        assert response.status_code == 400
+
+    @pytest.mark.parametrize("name", ["md5", "mtime", "linkMode", "contentType", "charset", "path"])
+    async def test_what_describes_the_bytes_is_not_edited_here(
+        self, ada: httpx2.AsyncClient, name: str
+    ) -> None:
+        """The upload writes those, from the bytes themselves."""
+        library_id = await personal_library(ada)
+        made = (await upload(ada, library_id)).json()
+
+        response = await ada.patch(
+            f"/web/libraries/{library_id}/items/{made['key']}",
+            json={"fields": {name: "f" * 32}, "version": made["version"]},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+        assert name in response.json()["message"]

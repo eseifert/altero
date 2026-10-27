@@ -100,6 +100,8 @@ export default {
     'Kuvatakse sisselogimisaadressis. Väiketähed, numbrid ja sidekriipsud.',
   'Apply them now': 'Rakenda kohe',
   'Archive': 'Arhiiv',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Kas soovite kindlasti muuta faililaiendi „{from}“ laiendiks „{to}“?',
   'Are you sure you want to change the item type?': 'Soovite kindlasti selle kirje tüüpi muutma?',
   'Ask for a new one. Your current password still works.':
     'Küsige uus. Teie praegune salasõna kehtib endiselt.',
@@ -300,6 +302,7 @@ export default {
   'Exported Items': 'Eksporditud kirjed',
   'Export…': 'Ekspordi…',
   'Extend the selection': 'Laienda valikut',
+  'Filename': 'Faili nimi',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV-serveris hoitavaid faile ei salvestata zotero.org-is, seega ei saa üleviimine neid kaasa tuua. Jätkake failide sünkroonimist WebDAV-i kaudu või laadige need üles Zotero kliendist, kus need veel olemas on.',
   'Finished.': 'Lõpetatud.',
@@ -340,6 +343,8 @@ export default {
   'I created this work.': 'Olen selle teose looja.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Kui mõni siinne konto kasutab seda aadressi, on uue salasõna määramise link teel.',
+  'If you change the extension, the file may open in a different application.':
+    'Laiendi muutmisel võidakse fail avada mõne teise rakendusega.',
   'Image': 'Kujutis',
   'Import and export': 'Import ja eksport',
   'In the trash': 'Prügikastis',
@@ -367,6 +372,7 @@ export default {
   'Items deleted': 'Kirjed kustutatud',
   'Items in {name}': 'Kirjed kogus {name}',
   'Keep the existing Rights field': 'Säilita olemasolev väli Õigused',
+  'Keep {extension}': 'Säilita {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Võti loodud. Kopeerige see kohe — seda ei näidata enam.',
   'Keyboard shortcuts': 'Kiirklahvid',
@@ -783,6 +789,7 @@ export default {
   'Use a passkey instead': 'Kasuta selle asemel pääsuvõtit',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Kasutage aadressi, kuhu kutse saadeti, ja saate sellele vastata.',
+  'Use {extension}': 'Kasuta {extension}',
   'Used for security notifications and invitations': 'Kasutatakse turvateavituste ja kutsete jaoks',
   'Username': 'Kasutajanimi',
   'Username claim': 'Kasutajanime väide',

@@ -100,6 +100,8 @@ export default {
     'Står i innloggingsadressa. Små bokstavar, siffer og bindestrekar.',
   'Apply them now': 'Bruk dei no',
   'Archive': 'Arkiv',
+  'Are you sure you want to change the file extension from “{from}” to “{to}”?':
+    'Er du sikker på at du vil endra filtypen frå «{from}» til «{to}»?',
   'Are you sure you want to change the item type?': 'Vil du verkeleg forandra kjeldetypen?',
   'Ask for a new one. Your current password still works.':
     'Be om ei ny. Det noverande passordet ditt verkar framleis.',
@@ -300,6 +302,7 @@ export default {
   'Exported Items': 'Eksporterte element',
   'Export…': 'Eksporter…',
   'Extend the selection': 'Utvid utvalet',
+  'Filename': 'Filnamn',
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'Filer som ligg på ein WebDAV-tenar, blir ikkje lagra på zotero.org, så ei migrering kan ikkje ta dei med. Hald fram med å synkronisere filer via WebDAV, eller last dei opp frå ein Zotero-klient som framleis har dei.',
   'Finished.': 'Ferdig.',
@@ -340,6 +343,8 @@ export default {
   'I created this work.': 'Eg har skapt dette arbeidet.',
   'If an account here uses that address, a link to set a new password is on its way.':
     'Om ein konto her brukar den adressa, er ei lenkje for å setje nytt passord på veg.',
+  'If you change the extension, the file may open in a different application.':
+    'Viss du endrar filtypen, kan fila bli opna med eit anna program.',
   'Image': 'Bilete',
   'Import and export': 'Import og eksport',
   'In the trash': 'I søppelkorga',
@@ -367,6 +372,7 @@ export default {
   'Items deleted': 'Element sletta',
   'Items in {name}': 'Element i {name}',
   'Keep the existing Rights field': 'Behald det eksisterande rettsfeltet',
+  'Keep {extension}': 'Behald {extension}',
   'Key created. Copy it now — it is not shown again.':
     'Nøkkelen er oppretta. Kopier han no – han blir ikkje vist igjen.',
   'Keyboard shortcuts': 'Snøggtastar',
@@ -781,6 +787,7 @@ export default {
   'Use a passkey instead': 'Bruk ein tilgangsnøkkel i staden',
   'Use the address the invitation was sent to, and you will be able to answer it.':
     'Bruk adressa invitasjonen vart send til, så kan du svare på han.',
+  'Use {extension}': 'Bruk {extension}',
   'Used for security notifications and invitations':
     'Blir brukt til tryggingsvarsel og invitasjonar',
   'Username': 'Brukarnamn',
