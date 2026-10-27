@@ -890,6 +890,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#writing-a-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Writing a note
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#collections" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1703,6 +1714,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#writing-a-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Writing a note
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#collections" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1821,6 +1843,7 @@
 <li>Browse collections, tags and search results from the library view.</li>
 <li>Create, rename, move and remove collections.</li>
 <li>Make an item, edit its fields, creators and tags, change its type, and relate it to others.</li>
+<li>Write notes, on their own or under an item.</li>
 <li>File, trash, restore, delete or copy items.</li>
 <li>Rename tags across a library.</li>
 <li>Use the same actions with mouse, keyboard or touch where the interface provides them; <code>?</code> lists the keys.</li>
@@ -1943,8 +1966,44 @@ shows the local version (yours) and the remote version (theirs), and <strong>Cho
 this version</strong> keeps one. Tags are always saved — your addition, removal or
 rename is made on top of theirs.</p>
 <p>An item in the trash cannot be edited, as in Zotero Desktop: restore it first.
-A group member who may only read sees the fields without editing controls.
-Notes are still edited in Zotero Desktop.</p>
+A group member who may only read sees the fields without editing controls.</p>
+<h3 id="writing-a-note">Writing a note<a class="headerlink" href="#writing-a-note" title="Permanent link">&para;</a></h3>
+<p>A note opens in an editor in the right pane, and is saved a second after you
+stop typing, as in Zotero Desktop; <strong>Saved.</strong> above the note says so. A note
+left before then — another item opened, the tab closed — is saved on the way out.</p>
+<ul>
+<li><strong>Make a note</strong> with the note button over the item list: <strong>New Standalone
+  Note</strong> files it into the collection being shown, <strong>New Item Note</strong> puts it
+  under the item picked out. <strong>+</strong> beside <strong>Attachments and notes</strong> in an item's
+  pane adds one under that item. The note opens ready to type.</li>
+<li><strong>Format text</strong> by selecting it: a bar appears over the selection with the
+  block type (paragraph, headings, monospaced, lists, block quote), bold,
+  italic, underline, strikethrough, code, link, text and highlight colour, and
+  under <strong>More</strong> alignment, indent, subscript, superscript and clear
+  formatting. On a phone or tablet the same tools sit on the keyboard while you
+  write instead, with undo and redo.</li>
+<li><strong>Type <code>/</code></strong> at the start of a line or after a space for a list of block
+  types; keep typing to narrow it (<code>/h2</code>, <code>/quote</code>, <code>/ul</code>), and press Enter.
+  Zotero Desktop's keys work too — Ctrl+B, Ctrl+K for a link, Tab to indent or
+  move a list item in, Shift+Ctrl+1 to 6 for headings — and so does Markdown
+  typed at the start of a line: <code>#</code>, <code>-</code>, <code>1.</code>, <code>&gt;</code>, <code>```</code>, <code>---</code>.</li>
+<li><strong>Links</strong> are edited in the bar over them, which also opens the link under
+  the cursor in a new tab.</li>
+<li><strong>Write full screen</strong> with the button above the note: the note fills the
+  window until you press it again or Escape.</li>
+<li><strong>Leave the text</strong> with Escape or Alt+F10, which move to the tools; Escape
+  there comes back. Tab inside a note indents, as on the desktop.</li>
+</ul>
+<p>A note is saved as Zotero Desktop's note editor would write it, so a note
+edited here and opened there reads the same. Opening a note writes nothing:
+only a change you make is saved. Citations, annotations and embedded images
+made in Zotero Desktop are shown and kept, but cannot be added here, and maths
+shows as its TeX source. A note written by a newer version of Zotero than this
+interface knows is shown read-only, as older versions of Zotero Desktop do.</p>
+<p>If the note changed elsewhere while you were typing, nothing is written: the
+pane names the local version and the remote version by their first lines, and
+<strong>Choose this version</strong> keeps one. A note changed elsewhere while you are only
+reading it shows the change straight away.</p>
 <h3 id="collections">Collections<a class="headerlink" href="#collections" title="Permanent link">&para;</a></h3>
 <p>Collections can be made, renamed, moved and removed here.</p>
 <p><strong>Where a collection goes is half of making one</strong>, so it is settled before the
