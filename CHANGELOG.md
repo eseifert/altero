@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser's item list offers *Show more* until every item is shown; it stopped after the second page, hiding the rest.
 - The browser's item list is worked with the arrow keys, Home, End, Enter and F2, as on the desktop; `?` lists the shortcuts ([items]).
 - An edit in the browser over a change made elsewhere is saved when they differ, and asks which version to keep when they clash ([editing]).
 - The browser interface makes new items: **+** over the item list, recently used types first, filed into the open collection ([editing]).

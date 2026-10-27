@@ -247,6 +247,18 @@ describe('paging', () => {
     expect(itemRequests().at(-1)).toContain('start=1')
   })
 
+  it('offers more until every row has been fetched, however many pages that takes', async () => {
+    /* A page of one, three rows in all: after the second page one is left. */
+    respond({ '/items?': { total: 3, items: [item('AAAA2345', 'One')] } })
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    await store.loadMore()
+
+    expect(store.items).toHaveLength(2)
+    expect(store.hasMore).toBe(true)
+  })
+
   it('stops when everything has been fetched', async () => {
     respond({ '/items?': { total: 1, items: [item('AAAA2345', 'One')] } })
     const store = useLibraryStore()

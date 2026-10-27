@@ -279,7 +279,7 @@ export const useLibraryStore = defineStore('library', () => {
   const library = computed(
     () => libraries.value.find((entry) => entry.id === libraryId.value) ?? null,
   )
-  const hasMore = computed(() => start.value + items.value.length < total.value)
+  const hasMore = computed(() => items.value.length < total.value)
   const writable = computed(() => library.value?.writable === true)
   const permission = computed<LibraryPermission>(() => library.value?.permission ?? 'inherit')
 
