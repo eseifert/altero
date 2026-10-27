@@ -209,6 +209,7 @@ SCENARIOS = (
     "backup-rewind",
     "graph-races",
     "credential-limits",
+    "web-editing",
 )
 
 
@@ -250,6 +251,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_transient import transient_errors
     from tools.compatibility.acceptance_types import type_change
     from tools.compatibility.acceptance_uploads import upload_interruption
+    from tools.compatibility.acceptance_web_editing import web_editing
     from tools.compatibility.acceptance_zip_race import zipped_digest_race
     from tools.compatibility.process_server import process_server
 
@@ -284,6 +286,7 @@ async def run_acceptance(
     drivers["backup-rewind"] = backup_rewind
     drivers["graph-races"] = graph_races
     drivers["credential-limits"] = credential_limits
+    drivers["web-editing"] = web_editing
 
     selected = tuple(scenarios or SCENARIOS)
     if not selected or any(name not in SCENARIOS for name in selected):

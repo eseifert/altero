@@ -1671,6 +1671,23 @@ class TestRelatedItems:
 
         assert response.status_code == 403
 
+    async def test_a_member_held_to_their_own_cannot_relate_somebody_elses(
+        self, ada: httpx.AsyncClient, session: AsyncSession
+    ) -> None:
+        """Relating writes both items, so the other one has to be Ada's too."""
+        group = await TestEditingAnItem().group_with_ada(session, MemberPermission.OWN)
+        mine = await factories.make_item(session, group, fields={"title": "Mine"})
+        also_mine = await factories.make_item(session, group, fields={"title": "Also mine"})
+        mine.created_by_user_id = also_mine.created_by_user_id = 1
+        theirs = await factories.make_item(session, group, fields={"title": "Theirs"})
+        await session.commit()
+
+        refused = await self.relate(ada, group.id, mine.key, theirs.key)
+        allowed = await self.relate(ada, group.id, mine.key, also_mine.key)
+
+        assert refused.status_code == 403
+        assert allowed.status_code == 200, allowed.text
+
 
 class TestCreatingAnItem:
     """A new item from the type picker: the v3 template, written by `save_item`.

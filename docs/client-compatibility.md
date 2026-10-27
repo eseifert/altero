@@ -517,6 +517,7 @@ The final settled sync checks convergence and an unchanged server watermark.
 | `graphs` | Merge duplicate parents and retain children and relations; publish with CC0 and withdraw; copy notes and attachment bytes into a group; repeat the original copy without duplicates. |
 | `http-policy` | Induce a real server 429; let the original desktop HTTP policy retry; upload once and converge without continued version changes. |
 | `server-writes` | Make collection, filing, tag and trash changes through the browser's authenticated HTTP routes; execute the real retention sweep; observe changes and deletion logs in both desktops. |
+| `web-editing` | Edit an item's fields, creators and tags, relate two items, change a type and make an item through the browser's routes; both desktops store exactly that; a desktop edit then makes the browser's stale save fail with 412. |
 | `resync` | Discard pending edits through the original reset helper; replace the server from a desktop; restore an older server archive, lift its watermark and recover from the surviving authoritative desktop. |
 | `file-lifecycle` | Rename Unicode filenames; reuse a stored digest and delete one reference; recover a missing local file; refuse a stale download redirect with 404, observe the expected storage failure, then recover current bytes and hashes. |
 | `upload-interruption` | Kill the desktop process group while the server has consumed only part of a large incompressible upload; assert no premature registration; restart and compare complete bytes and settled storage states. |
