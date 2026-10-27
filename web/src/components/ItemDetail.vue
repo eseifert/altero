@@ -184,7 +184,7 @@ function childTitle(child: ItemEnvelope): string {
         <p class="detail__type">{{ itemTypeLabel(item.data.itemType) }}</p>
       </div>
       <button class="icon-button detail__close" type="button" :aria-label="t('Close details')" @click="emit('close')">
-        <AppIcon name="close" :size="18" />
+        <AppIcon name="close" :size="22" />
       </button>
     </header>
 
@@ -211,7 +211,7 @@ function childTitle(child: ItemEnvelope): string {
         :title="t('Move or copy…')"
         @click="emit('move')"
       >
-        <SidebarIcon name="move" :size="18" />
+        <SidebarIcon name="move" :size="22" />
       </button>
 
       <!--
@@ -229,7 +229,7 @@ function childTitle(child: ItemEnvelope): string {
           :title="child ? t('Show in My Publications') : t('Add to My Publications…')"
           @click="emit('publish')"
         >
-          <SidebarIcon name="publish" :size="18" />
+          <SidebarIcon name="publish" :size="22" />
         </button>
         <button
           v-else
@@ -239,7 +239,7 @@ function childTitle(child: ItemEnvelope): string {
           :title="child ? t('Hide from My Publications') : t('Remove from My Publications')"
           @click="emit('unpublish')"
         >
-          <SidebarIcon name="unpublish" :size="18" />
+          <SidebarIcon name="unpublish" :size="22" />
         </button>
       </template>
 
@@ -254,7 +254,7 @@ function childTitle(child: ItemEnvelope): string {
         :title="t('Export…')"
         @click="emit('export')"
       >
-        <SidebarIcon name="export" :size="18" />
+        <SidebarIcon name="export" :size="22" />
       </button>
 
       <template v-if="showsTools">
@@ -269,7 +269,7 @@ function childTitle(child: ItemEnvelope): string {
           :title="t('Move to trash')"
           @click="emit('trash')"
         >
-          <SidebarIcon name="trash" :size="18" />
+          <SidebarIcon name="trash" :size="22" />
         </button>
         <template v-else>
           <!-- Zotero's own words for this, and a key of its own: "Restore"
@@ -283,7 +283,7 @@ function childTitle(child: ItemEnvelope): string {
             :title="t('Restore to Library')"
             @click="emit('restore')"
           >
-            <SidebarIcon name="restore" :size="18" />
+            <SidebarIcon name="restore" :size="22" />
           </button>
           <!-- A bin with a cross through it rather than the bin: this is the
                one thing here that cannot be undone, and it must not look like
@@ -296,7 +296,7 @@ function childTitle(child: ItemEnvelope): string {
             :title="t('Delete')"
             @click="emit('remove')"
           >
-            <SidebarIcon name="deleteforever" :size="18" />
+            <SidebarIcon name="deleteforever" :size="22" />
           </button>
         </template>
       </template>

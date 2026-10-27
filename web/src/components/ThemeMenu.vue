@@ -122,7 +122,7 @@ onBeforeUnmount(() => {
       :aria-expanded="open"
       @click="toggle"
     >
-      <AppIcon :name="`theme-${current.value}`" :size="20" />
+      <AppIcon :name="`theme-${current.value}`" :size="24" />
     </button>
 
     <ul v-if="open" class="theme-menu__list" role="menu" :aria-label="t('Color theme')">
@@ -136,13 +136,13 @@ onBeforeUnmount(() => {
           @click="choose(option.value)"
           @keydown="onKeydown($event, index)"
         >
-          <AppIcon :name="`theme-${option.value}`" :size="18" />
+          <AppIcon :name="`theme-${option.value}`" :size="22" />
           <span class="theme-menu__label">{{ t(option.label) }}</span>
           <AppIcon
             v-if="theme.preference === option.value"
             name="check"
             class="theme-menu__check"
-            :size="16"
+            :size="20"
           />
         </button>
       </li>

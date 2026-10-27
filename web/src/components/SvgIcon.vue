@@ -2,7 +2,7 @@
 import type { SvgIcon } from '@/icons'
 
 withDefaults(defineProps<{ icon: SvgIcon; size?: number; labelled?: boolean }>(), {
-  size: 20,
+  size: 24,
   labelled: false,
 })
 </script>

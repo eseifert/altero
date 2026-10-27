@@ -109,7 +109,7 @@ async function signOut(): Promise<void> {
               : t('Notifications')
           "
         >
-          <AppIcon name="notifications" :size="20" />
+          <AppIcon name="notifications" :size="24" />
           <span v-if="notifications.hasUnread" class="shell__badge">
             {{ notifications.unread > 9 ? '9+' : notifications.unread }}
           </span>
@@ -120,7 +120,7 @@ async function signOut(): Promise<void> {
           :to="{ name: 'groups' }"
           :aria-label="t('Groups')"
         >
-          <AppIcon name="groups" :size="20" />
+          <AppIcon name="groups" :size="24" />
         </RouterLink>
         <!-- Only for the account that administers the instance, which is
              usually nobody on a personal server. The server refuses these
@@ -134,7 +134,7 @@ async function signOut(): Promise<void> {
         >
           <!-- Two racked units with a light apiece, matching the sidebar's
                own `server` glyph. -->
-          <SvgIcon :icon="sidebarIcon('server')" :size="20" />
+          <SvgIcon :icon="sidebarIcon('server')" :size="24" />
         </RouterLink>
         <RouterLink
           v-if="auth.isAuthenticated"
@@ -142,7 +142,7 @@ async function signOut(): Promise<void> {
           :to="{ name: 'settings' }"
           :aria-label="t('Settings')"
         >
-          <AppIcon name="settings" :size="20" />
+          <AppIcon name="settings" :size="24" />
         </RouterLink>
           <ThemeMenu />
         </div>

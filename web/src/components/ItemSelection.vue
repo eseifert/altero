@@ -60,7 +60,7 @@ const { t } = useI18n()
         :aria-label="t('Clear the selection')"
         @click="emit('close')"
       >
-        <AppIcon name="close" :size="18" />
+        <AppIcon name="close" :size="22" />
       </button>
     </header>
 
@@ -77,7 +77,7 @@ const { t } = useI18n()
           :title="t('Move or copy…')"
           @click="emit('move')"
         >
-          <SidebarIcon name="move" :size="18" />
+          <SidebarIcon name="move" :size="22" />
         </button>
         <!-- Throwing away and deleting for good are both removals, and a
              member of a group who may add and not remove is offered neither.
@@ -91,7 +91,7 @@ const { t } = useI18n()
           :title="t('Move to trash')"
           @click="emit('trash')"
         >
-          <SidebarIcon name="trash" :size="18" />
+          <SidebarIcon name="trash" :size="22" />
         </button>
         <template v-else>
           <button
@@ -101,7 +101,7 @@ const { t } = useI18n()
             :title="t('Restore to Library')"
             @click="emit('restore')"
           >
-            <SidebarIcon name="restore" :size="18" />
+            <SidebarIcon name="restore" :size="22" />
           </button>
           <button
             v-if="removable !== false"
@@ -111,7 +111,7 @@ const { t } = useI18n()
             :title="t('Delete')"
             @click="emit('remove')"
           >
-            <SidebarIcon name="deleteforever" :size="18" />
+            <SidebarIcon name="deleteforever" :size="22" />
           </button>
         </template>
       </template>
@@ -124,7 +124,7 @@ const { t } = useI18n()
         :title="t('Export…')"
         @click="emit('export')"
       >
-        <SidebarIcon name="export" :size="18" />
+        <SidebarIcon name="export" :size="22" />
       </button>
     </div>
 

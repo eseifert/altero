@@ -157,7 +157,7 @@
 /*
  * One icon-only button, inside a toolbar or standing alone.
  *
- * 2rem of container around a 1rem glyph, which clears the 24 by 24 CSS pixels
+ * 2.25rem of container around a 22px glyph, which clears the 24 by 24 CSS pixels
  * WCAG 2.2 asks of a target (2.5.8) with room to spare, and grows on a coarse
  * pointer where the target is a fingertip.
  */
@@ -165,8 +165,8 @@
   display: grid;
   flex: none;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem;
+  height: 2.25rem;
   padding: 0;
   border: none;
   border-radius: var(--md-sys-shape-corner-full);

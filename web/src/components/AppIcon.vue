@@ -2,7 +2,7 @@
 import { CONTROL_ICONS } from '@/icons'
 import SvgIcon from './SvgIcon.vue'
 
-withDefaults(defineProps<{ name: string; size?: number }>(), { size: 20 })
+withDefaults(defineProps<{ name: string; size?: number }>(), { size: 24 })
 </script>
 
 <template>

@@ -1221,7 +1221,7 @@ function sortLabel(column: { field: string; label: string }): string {
             >
               <AppIcon
                 name="chevron-right"
-                :size="14"
+                :size="18"
                 :class="['library__chevron', { 'library__chevron--open': entry.id === library.libraryId }]"
               />
             </button>
@@ -1255,7 +1255,7 @@ function sortLabel(column: { field: string; label: string }): string {
                 :title="t('New collection')"
                 @click="startNew(null)"
               >
-                <AppIcon name="plus" :size="14" />
+                <AppIcon name="plus" :size="18" />
               </button>
             </span>
           </div>
@@ -1420,7 +1420,7 @@ function sortLabel(column: { field: string; label: string }): string {
               :title="renameTagLabel"
               @click="startRename(tag)"
             >
-              <AppIcon name="edit" :size="12" />
+              <AppIcon name="edit" :size="16" />
             </button>
           </li>
         </ul>
@@ -1469,7 +1469,7 @@ function sortLabel(column: { field: string; label: string }): string {
             :title="selecting ? t('Done selecting') : t('Select')"
             @click="toggleSelecting()"
           >
-            <SidebarIcon name="select" :size="18" />
+            <SidebarIcon name="select" :size="22" />
           </button>
 
           <!--
@@ -1486,7 +1486,7 @@ function sortLabel(column: { field: string; label: string }): string {
             :title="t('Export…')"
             @click="exportSelectionOrView()"
           >
-            <SidebarIcon name="export" :size="18" />
+            <SidebarIcon name="export" :size="22" />
           </button>
 
           <!-- Emptying the trash is the one errand that reaches items nobody
@@ -1511,7 +1511,7 @@ function sortLabel(column: { field: string; label: string }): string {
             :title="t('Empty the trash')"
             @click="askToEmpty()"
           >
-            <SidebarIcon name="deleteforever" :size="18" />
+            <SidebarIcon name="deleteforever" :size="22" />
           </button>
 
           <!--
@@ -1527,7 +1527,7 @@ function sortLabel(column: { field: string; label: string }): string {
             :title="t('See your public page')"
             :to="{ name: 'profile', params: { username: auth.user.username } }"
           >
-            <SidebarIcon name="account" :size="18" />
+            <SidebarIcon name="account" :size="22" />
           </RouterLink>
 
           <!--
@@ -1547,12 +1547,12 @@ function sortLabel(column: { field: string; label: string }): string {
               :title="t('Search this library')"
               @click="openSearch"
             >
-              <AppIcon name="search" :size="18" />
+              <AppIcon name="search" :size="22" />
             </button>
             <template v-else>
               <AppIcon
                 name="search"
-                :size="16"
+                :size="20"
                 class="library__search-icon"
               />
               <input
@@ -1572,7 +1572,7 @@ function sortLabel(column: { field: string; label: string }): string {
                 :aria-label="t('Clear search')"
                 @click="clearSearch"
               >
-                <AppIcon name="close" :size="16" />
+                <AppIcon name="close" :size="20" />
               </button>
             </template>
           </div>

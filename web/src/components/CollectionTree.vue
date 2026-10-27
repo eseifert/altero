@@ -108,7 +108,7 @@ function toggle(key: string): void {
         >
           <AppIcon
             name="chevron-right"
-            :size="14"
+            :size="18"
             :class="['tree__chevron', { 'tree__chevron--open': expanded.has(node.key) }]"
           />
         </button>
@@ -147,7 +147,7 @@ function toggle(key: string): void {
             :title="t('New subcollection inside “{name}”', { name: node.data.name })"
             @click="emit('add', node)"
           >
-            <AppIcon name="plus" :size="14" />
+            <AppIcon name="plus" :size="18" />
           </button>
           <button
             class="tree__action"
@@ -156,7 +156,7 @@ function toggle(key: string): void {
             :title="t('Settings for “{name}”', { name: node.data.name })"
             @click="emit('settings', node)"
           >
-            <AppIcon name="edit" :size="14" />
+            <AppIcon name="edit" :size="18" />
           </button>
         </span>
       </div>

@@ -126,7 +126,7 @@ becoming six filled circles competing with the content they act on.
 - `.toolbar` takes `surface-container-high` wherever it sits — on the page it
   is a container inside the page, and inside a card it steps up from the card.
   One value that works in both places beats two that have to be chosen right.
-- `.icon-button` is 2rem around a 1rem glyph, growing to 2.5rem where the
+- `.icon-button` is 2.25rem around a 22px glyph, growing to 2.5rem where the
   pointer is coarse. `.icon-button--on` stays lit for a tool that is switched
   on, which is the only thing telling a reader it is theirs to switch off;
   `.icon-button--danger` is red at rest rather than only under a pointer, which
@@ -140,7 +140,9 @@ becoming six filled circles competing with the content they act on.
 ## Icons
 
 Single-weight line glyphs on a 24-unit grid, `stroke-width: 1.5`, round caps and
-joins, no fill. Small controls use slightly heavier strokes. The library's
+joins, no fill. Small controls use slightly heavier strokes. Controls and sidebar
+rows draw them at 22px, and at 20px inline beside text; item type icons keep the
+sizes of the desktop's item tree. The library's
 are drawn to read like the desktop client's sidebar; the ones with no
 counterpart there follow the same rules so they sit with them. They are drawn
 rather than copied: Zotero's assets are the client's and carry its license.

@@ -12,7 +12,7 @@ import { sidebarIcon } from '@/items/sidebaricons'
  * title back on for a row that has no visible text of its own.
  */
 const props = withDefaults(defineProps<{ name: string; size?: number; labelled?: boolean }>(), {
-  size: 16,
+  size: 20,
   labelled: false,
 })
 

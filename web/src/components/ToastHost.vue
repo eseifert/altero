@@ -43,7 +43,7 @@ const store = useToastStore()
           :aria-label="t('Dismiss')"
           @click="store.dismiss(toast.id)"
         >
-          <AppIcon name="close" :size="18" />
+          <AppIcon name="close" :size="22" />
         </button>
       </div>
     </TransitionGroup>
