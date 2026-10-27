@@ -370,6 +370,7 @@ export default {
   'Never opened': 'ഒരിക്കലും തുറന്നിട്ടില്ല',
   'Never shown again once saved.': 'സംരക്ഷിച്ചുകഴിഞ്ഞാൽ പിന്നീട് ഒരിക്കലും കാണിക്കില്ല.',
   'Never used': 'ഒരിക്കലും ഉപയോഗിച്ചിട്ടില്ല',
+  'New Item': 'പുതിയ ഇനം',
   'New address': 'പുതിയ വിലാസം',
   'New collection': 'പുതിയ ശേഖരം',
   'New group': 'പുതിയ ഗ്രൂപ്പ്',

@@ -357,6 +357,7 @@ export default {
   'Never opened': 'कभी नहीं खोला गया',
   'Never shown again once saved.': 'सहेजने के बाद फिर कभी नहीं दिखाया जाता।',
   'Never used': 'कभी उपयोग नहीं किया गया',
+  'New Item': 'नया आइटम',
   'New address': 'नया पता',
   'New collection': 'नया संग्रह',
   'New group': 'नया समूह',

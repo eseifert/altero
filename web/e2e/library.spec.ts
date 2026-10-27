@@ -155,3 +155,21 @@ test('a tag the desktop coloured shows its colour', async ({ page }) => {
   await expect(tag).toContainText('computing')
   await expect(tag.locator('.tags__swatch')).toHaveCSS('background-color', 'rgb(95, 178, 54)')
 })
+
+test('a new item opens with its title ready to type, and is kept', async ({ page }, testInfo) => {
+  const title = `A new book (${testInfo.project.name})`
+  await signIn(page)
+
+  await page.getByRole('button', { name: 'New Item' }).click()
+  await page.getByRole('menu', { name: 'New Item' }).getByRole('menuitem', { name: 'Book', exact: true }).first().click()
+
+  const box = page.locator('.detail textarea')
+  await expect(box).toBeFocused()
+  await box.fill(title)
+  await box.press('Enter')
+  await expect(page.locator('.detail__title')).toHaveText(title)
+
+  await page.reload()
+  await page.getByText(title).first().click()
+  await expect(page.locator('.detail__type')).toHaveText('Book')
+})

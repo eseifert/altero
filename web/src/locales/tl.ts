@@ -374,6 +374,7 @@ export default {
   'Never opened': 'Hindi pa nabubuksan',
   'Never shown again once saved.': 'Hindi na ipapakitang muli kapag na-save na.',
   'Never used': 'Hindi pa nagagamit',
+  'New Item': 'Bagong Item',
   'New address': 'Bagong address',
   'New collection': 'Bagong koleksyon',
   'New group': 'Bagong grupo',

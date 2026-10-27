@@ -366,6 +366,7 @@ export default {
   'Never opened': 'Ei koskaan avattu',
   'Never shown again once saved.': 'Ei näytetä enää tallentamisen jälkeen.',
   'Never used': 'Ei koskaan käytetty',
+  'New Item': 'Uusi nimike',
   'New address': 'Uusi osoite',
   'New collection': 'Uusi kokoelma',
   'New group': 'Uusi ryhmä',

@@ -356,6 +356,7 @@ export default {
   'Never opened': 'Δεν ανοίχτηκε ποτέ',
   'Never shown again once saved.': 'Δεν εμφανίζεται ξανά μετά την αποθήκευση.',
   'Never used': 'Δεν χρησιμοποιήθηκε ποτέ',
+  'New Item': 'Νέο στοιχείο',
   'New address': 'Νέα διεύθυνση',
   'New collection': 'Νέα συλλογή',
   'New group': 'Νέα ομάδα',

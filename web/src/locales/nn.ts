@@ -367,6 +367,7 @@ export default {
   'Never opened': 'Aldri opna',
   'Never shown again once saved.': 'Blir aldri vist igjen når ho er lagra.',
   'Never used': 'Aldri brukt',
+  'New Item': 'Nytt element',
   'New address': 'Ny adresse',
   'New collection': 'Ny samling',
   'New group': 'Ny gruppe',

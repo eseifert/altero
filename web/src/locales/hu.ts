@@ -308,6 +308,7 @@ export default {
   'Never opened': 'Még nem nyitották meg',
   'Never shown again once saved.': 'Mentés után többé nem jelenik meg.',
   'Never used': 'Még nem használták',
+  'New Item': 'Új elem',
   'New address': 'Új cím',
   'New collection': 'Új gyűjtemény',
   'New group': 'Új csoport',

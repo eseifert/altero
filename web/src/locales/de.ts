@@ -350,6 +350,7 @@ export default {
   'Never opened': 'Nie geöffnet',
   'Never shown again once saved.': 'Nach dem Speichern nicht mehr sichtbar.',
   'Never used': 'Nie benutzt',
+  'New Item': 'Neuer Eintrag',
   'New address': 'Neue Adresse',
   'New collection': 'Neue Sammlung',
   'New group': 'Neue Gruppe',

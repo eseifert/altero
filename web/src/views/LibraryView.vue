@@ -14,6 +14,7 @@ import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemSelection from '@/components/ItemSelection.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
+import NewItemMenu from '@/components/NewItemMenu.vue'
 import PublicationsDialog from '@/components/PublicationsDialog.vue'
 import RightsDialog from '@/components/RightsDialog.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
@@ -21,7 +22,7 @@ import PaneSplitter from '@/components/PaneSplitter.vue'
 import TagDialog from '@/components/TagDialog.vue'
 import { useCarry } from '@/dragging'
 import { exportable } from '@/exportformats'
-import { fieldLabel, loadLabels } from '@/items/labels'
+import { fieldLabel, loadLabels, titleField } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
 import { libraryLabel } from '@/librarylabel'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
@@ -599,6 +600,26 @@ function accepts(target: string): boolean {
 
 /* Whatever the failure was, it is shown above the list rather than swallowed:
    a carry that quietly did nothing is indistinguishable from a bug. */
+/*
+ * Making an item, which the desktop offers wherever items can be changed but
+ * the trash and My Publications -- the one being a list of what is on its way
+ * out, the other a list things are put on through the wizard.
+ */
+const offersNewItem = computed(
+  () => library.writable && library.scope !== 'trash' && library.scope !== 'publications',
+)
+
+const detailPane = useTemplateRef<InstanceType<typeof ItemDetail>>('detailPane')
+
+/** Make an item of ``itemType`` and open its title for typing, as the desktop does. */
+function createItem(itemType: string): Promise<void> {
+  return runOnItem(async () => {
+    await library.createItem(itemType)
+    await nextTick()
+    detailPane.value?.editField(titleField(itemType))
+  })
+}
+
 async function runOnItem(action: () => Promise<void>): Promise<void> {
   itemError.value = null
   try {
@@ -1453,6 +1474,9 @@ function sortLabel(column: { field: string; label: string }): string {
           rebus.
         -->
         <div class="library__tools toolbar">
+          <!-- First, as on the desktop's toolbar. -->
+          <NewItemMenu v-if="offersNewItem" @create="createItem" />
+
           <!--
             Checkboxes on demand: the way in for a finger, which has no
             modifier keys, and for a keyboard, which cannot press a row with
@@ -1791,6 +1815,7 @@ function sortLabel(column: { field: string; label: string }): string {
     <aside v-if="showDetail && library.libraryId !== null" class="pane library__detail">
       <ItemDetail
         v-if="library.selected"
+        ref="detailPane"
         :item="library.selected"
         :children="library.children"
         :library-id="library.libraryId"

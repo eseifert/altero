@@ -370,6 +370,7 @@ export default {
   'Never opened': 'Жодного разу не відкривалося',
   'Never shown again once saved.': 'Після збереження більше не показується.',
   'Never used': 'Жодного разу не використовувався',
+  'New Item': 'Новий документ',
   'New address': 'Нова адреса',
   'New collection': 'Нова колекція',
   'New group': 'Нова група',

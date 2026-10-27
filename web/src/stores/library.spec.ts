@@ -763,3 +763,44 @@ describe('a restricted membership', () => {
     expect(store.selectionRemovable).toBe(false)
   })
 })
+
+describe('making an item', () => {
+  function answerWith(created: ReturnType<typeof item>) {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method === 'POST') return Promise.resolve(created)
+      if (path === '/web/libraries') return Promise.resolve(LIBRARIES)
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      if (path.includes('/items?')) return Promise.resolve({ total: 1, items: [created] })
+      return Promise.resolve({ tags: [] })
+    })
+  }
+
+  function posted(): unknown[] {
+    return requestMock.mock.calls.filter(([, options]) => options?.method === 'POST').map(([, options]) => options.body)
+  }
+
+  it('files the new item into the collection being shown, and opens it', async () => {
+    const created = item('EEEE2345', '')
+    answerWith(created)
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    await store.selectCollection('CCCC2345')
+
+    await store.createItem('book')
+
+    expect(posted()).toEqual([{ itemType: 'book', collections: ['CCCC2345'] }])
+    expect(store.selected?.key).toBe('EEEE2345')
+    expect(store.selection).toEqual(['EEEE2345'])
+  })
+
+  it('files it nowhere at the top of the library', async () => {
+    answerWith(item('EEEE2345', ''))
+    const store = useLibraryStore()
+    await store.loadLibraries()
+
+    await store.createItem('film')
+
+    expect(posted()).toEqual([{ itemType: 'film' }])
+  })
+})

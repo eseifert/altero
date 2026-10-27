@@ -351,6 +351,7 @@ export default {
   'Never opened': '从未打开',
   'Never shown again once saved.': '保存后不会再次显示。',
   'Never used': '从未使用',
+  'New Item': '新建条目',
   'New address': '新地址',
   'New collection': '新建分类',
   'New group': '新建群组',

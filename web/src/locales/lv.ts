@@ -367,6 +367,7 @@ export default {
   'Never opened': 'Nekad nav atvērta',
   'Never shown again once saved.': 'Pēc saglabāšanas vairs netiek rādīts.',
   'Never used': 'Nekad nav izmantota',
+  'New Item': 'Jauns ieraksts',
   'New address': 'Jaunā adrese',
   'New collection': 'Jauna kolekcija',
   'New group': 'Jauna grupa',

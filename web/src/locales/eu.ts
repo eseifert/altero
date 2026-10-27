@@ -366,6 +366,7 @@ export default {
   'Never opened': 'Inoiz ireki gabea',
   'Never shown again once saved.': 'Gorde ondoren ez da berriro erakusten.',
   'Never used': 'Inoiz erabili gabea',
+  'New Item': 'Elementu berria',
   'New address': 'Helbide berria',
   'New collection': 'Bilduma berria',
   'New group': 'Talde berria',

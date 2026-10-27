@@ -353,6 +353,7 @@ export default {
   'Never opened': '열어 본 적 없음',
   'Never shown again once saved.': '저장하면 다시 표시되지 않습니다.',
   'Never used': '사용한 적 없음',
+  'New Item': '새 항목',
   'New address': '새 주소',
   'New collection': '새 컬렉션',
   'New group': '새 그룹',

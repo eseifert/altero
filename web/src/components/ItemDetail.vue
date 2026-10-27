@@ -156,6 +156,13 @@ watch(
   },
 )
 
+const info = ref<InstanceType<typeof InfoPane> | null>(null)
+
+defineExpose({
+  /** Open one of the Info pane's fields for typing, as for a new item. */
+  editField: (name: string) => info.value?.edit(name),
+})
+
 function childTitle(child: ItemEnvelope): string {
   if (child.data.itemType === 'note') {
     return getItemTitle(child) || t('Note')
@@ -294,7 +301,7 @@ function childTitle(child: ItemEnvelope): string {
     <div v-if="isNote" class="card__inset detail__note" v-html="cleanNote(item.data.note)"></div>
 
 
-    <InfoPane :item="item" :editable="editable" :save="save" @rights="emit('rights')" />
+    <InfoPane ref="info" :item="item" :editable="editable" :save="save" @rights="emit('rights')" />
 
     <p v-if="isAttachment" class="detail__actions">
       <a class="detail__link" :href="fileUrl(item.key)" target="_blank" rel="noopener">{{ t('Open file') }}</a>

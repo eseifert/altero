@@ -6,7 +6,7 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 
 - Browse collections, tags and search results from the library view.
 - Create, rename, move and remove collections.
-- Edit an item's fields, creators and tags, change its type, and relate it to others.
+- Make an item, edit its fields, creators and tags, change its type, and relate it to others.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
 - Use the same actions with mouse, keyboard or touch where the interface provides them.
@@ -91,6 +91,11 @@ act name shows “(untitled)”.
 
 Where you may change the library, the right pane shows every field of the
 item's type, empty ones included, in the order Zotero Desktop shows them.
+
+- **Make an item** with **+** over the item list, then choose its type. The
+  five types you used last come first, as in Zotero Desktop, then every type.
+  The item opens with its title ready to type, and is filed into the
+  collection being shown. **+** is not offered in the trash or My Publications.
 
 - **Edit a field** by pressing its value; a frame under the pointer shows
   which values can be edited. Enter or leaving the field saves it, and Escape

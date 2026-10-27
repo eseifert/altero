@@ -363,6 +363,7 @@ export default {
   'Never opened': 'Chưa từng được mở',
   'Never shown again once saved.': 'Không bao giờ hiển thị lại sau khi lưu.',
   'Never used': 'Chưa từng dùng',
+  'New Item': 'Tạo mục mới',
   'New address': 'Địa chỉ mới',
   'New collection': 'Bộ sưu tập mới',
   'New group': 'Nhóm mới',

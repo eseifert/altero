@@ -370,6 +370,7 @@ export default {
   'Never opened': 'Nunca aberta',
   'Never shown again once saved.': 'Non se volve amosar unha vez gardado.',
   'Never used': 'Nunca usada',
+  'New Item': 'Novo elemento',
   'New address': 'Novo enderezo',
   'New collection': 'Colección nova',
   'New group': 'Grupo novo',

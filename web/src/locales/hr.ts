@@ -369,6 +369,7 @@ export default {
   'Never opened': 'Nikad otvoreno',
   'Never shown again once saved.': 'Nakon spremanja više se nikad ne prikazuje.',
   'Never used': 'Nikad upotrijebljeno',
+  'New Item': 'Nova stavka',
   'New address': 'Nova adresa',
   'New collection': 'Nova zbirka',
   'New group': 'Nova grupa',

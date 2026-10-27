@@ -370,6 +370,7 @@ export default {
   'Never opened': 'Aldrei opnað',
   'Never shown again once saved.': 'Aldrei sýnt aftur eftir að það hefur verið vistað.',
   'Never used': 'Aldrei notað',
+  'New Item': 'Ný færsla',
   'New address': 'Nýtt netfang',
   'New collection': 'Nýtt safn',
   'New group': 'Nýr hópur',

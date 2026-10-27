@@ -373,6 +373,7 @@ export default {
   'Never opened': "N'eo bet digoret biskoazh",
   'Never shown again once saved.': 'Ne vez ket diskouezet en-dro ur wech enrollet.',
   'Never used': "N'eo bet implijet biskoazh",
+  'New Item': 'Elfenn nevez',
   'New address': "Chomlec'h nevez",
   'New collection': 'Dastumadeg nevez',
   'New group': 'Strollad nevez',

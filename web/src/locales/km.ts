@@ -367,6 +367,7 @@ export default {
   'Never opened': 'មិនដែលបើក',
   'Never shown again once saved.': 'នឹងមិនបង្ហាញម្តងទៀតទេ បន្ទាប់ពីរក្សាទុក។',
   'Never used': 'មិនដែលប្រើ',
+  'New Item': 'ឯកសារថ្មី',
   'New address': 'អាសយដ្ឋានថ្មី',
   'New collection': 'កម្រងឯកសារថ្មី',
   'New group': 'ក្រុមថ្មី',

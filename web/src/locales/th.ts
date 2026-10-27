@@ -362,6 +362,7 @@ export default {
   'Never opened': 'ยังไม่เคยเปิด',
   'Never shown again once saved.': 'จะไม่แสดงอีกเมื่อบันทึกแล้ว',
   'Never used': 'ยังไม่เคยใช้',
+  'New Item': 'รายการใหม่',
   'New address': 'ที่อยู่ใหม่',
   'New collection': 'คอลเล็กชั่นใหม่',
   'New group': 'กลุ่มใหม่',

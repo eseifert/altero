@@ -368,6 +368,7 @@ export default {
   'Never opened': 'Никад отворена',
   'Never shown again once saved.': 'Након чувања више се никад не приказује.',
   'Never used': 'Никад коришћен',
+  'New Item': 'Нова ставка',
   'New address': 'Нова адреса',
   'New collection': 'Нова збирка',
   'New group': 'Нова група',

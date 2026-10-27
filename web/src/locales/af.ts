@@ -368,6 +368,7 @@ export default {
   'Never opened': 'Nog nooit oopgemaak nie',
   'Never shown again once saved.': 'Word nooit weer gewys nadat dit gestoor is nie.',
   'Never used': 'Nog nooit gebruik nie',
+  'New Item': 'Nuwe item',
   'New address': 'Nuwe adres',
   'New collection': 'Nuwe versameling',
   'New group': 'Nuwe groep',

@@ -374,6 +374,7 @@ export default {
   'Never opened': 'ஒருபோதும் திறக்கப்படவில்லை',
   'Never shown again once saved.': 'சேமித்த பிறகு மீண்டும் ஒருபோதும் காட்டப்படாது.',
   'Never used': 'ஒருபோதும் பயன்படுத்தப்படவில்லை',
+  'New Item': 'புதிய பொருள்',
   'New address': 'புதிய முகவரி',
   'New collection': 'புதிய சேகரிப்பு',
   'New group': 'புதிய குழு',

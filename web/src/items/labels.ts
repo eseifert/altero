@@ -120,6 +120,11 @@ export function getBaseMappedValue(
   return data[field]
 }
 
+/** The field that is a type's title: Case Name for a case, Subject for an email. */
+export function titleField(itemType: string): string {
+  return names.mappings[itemType]?.title ?? 'title'
+}
+
 /** Discard what has been loaded. Used by tests, and by nothing else. */
 export function resetLabels(): void {
   names.itemTypes = {}

@@ -371,6 +371,7 @@ export default {
   'Never opened': 'Hiç açılmadı',
   'Never shown again once saved.': 'Kaydedildikten sonra bir daha gösterilmez.',
   'Never used': 'Hiç kullanılmadı',
+  'New Item': 'Yeni Eser',
   'New address': 'Yeni adres',
   'New collection': 'Yeni derme',
   'New group': 'Yeni grup',

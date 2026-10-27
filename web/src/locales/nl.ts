@@ -366,6 +366,7 @@ export default {
   'Never opened': 'Nooit geopend',
   'Never shown again once saved.': 'Wordt na opslaan nooit meer getoond.',
   'Never used': 'Nooit gebruikt',
+  'New Item': 'Nieuw item',
   'New address': 'Nieuw adres',
   'New collection': 'Nieuwe verzameling',
   'New group': 'Nieuwe groep',

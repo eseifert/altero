@@ -373,6 +373,7 @@ export default {
   'Never opened': 'Never opened',
   'Never shown again once saved.': 'Never shown again once saved.',
   'Never used': 'Never used',
+  'New Item': 'New Item',
   'New address': 'New address',
   'New collection': 'New collection',
   'New group': 'New group',

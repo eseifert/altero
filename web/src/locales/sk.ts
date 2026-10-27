@@ -371,6 +371,7 @@ export default {
   'Never opened': 'Nikdy neotvorené',
   'Never shown again once saved.': 'Po uložení sa už nikdy nezobrazí.',
   'Never used': 'Nikdy nepoužité',
+  'New Item': 'Nový záznam',
   'New address': 'Nová adresa',
   'New collection': 'Nová kolekcia',
   'New group': 'Nová skupina',

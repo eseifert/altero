@@ -342,6 +342,7 @@ export default {
   'Never opened': '一度も開かれていません',
   'Never shown again once saved.': '保存後は二度と表示されません。',
   'Never used': '未使用',
+  'New Item': '新規項目',
   'New address': '新しいアドレス',
   'New collection': '新規コレクション',
   'New group': '新しいグループ',

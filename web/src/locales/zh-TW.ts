@@ -352,6 +352,7 @@ export default {
   'Never opened': '從未開啟',
   'Never shown again once saved.': '儲存後不會再次顯示。',
   'Never used': '從未使用',
+  'New Item': '新增項目',
   'New address': '新位址',
   'New collection': '新增文獻集',
   'New group': '新增群組',

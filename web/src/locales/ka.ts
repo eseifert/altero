@@ -353,6 +353,7 @@ export default {
   'Never opened': 'არასოდეს გახსნილა',
   'Never shown again once saved.': 'შენახვის შემდეგ აღარასოდეს გამოჩნდება.',
   'Never used': 'არასოდეს გამოყენებულა',
+  'New Item': 'ახალი ჩანაწერი',
   'New address': 'ახალი მისამართი',
   'New collection': 'ახალი კოლექცია',
   'New group': 'ახალი ჯგუფი',

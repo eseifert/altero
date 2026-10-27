@@ -367,6 +367,7 @@ export default {
   'Never opened': 'Pole kunagi avatud',
   'Never shown again once saved.': 'Pärast salvestamist enam ei näidata.',
   'Never used': 'Pole kunagi kasutatud',
+  'New Item': 'Uus kirje',
   'New address': 'Uus aadress',
   'New collection': 'Uus kogu',
   'New group': 'Uus grupp',

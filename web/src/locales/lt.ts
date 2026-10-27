@@ -352,6 +352,7 @@ export default {
   'Never opened': 'Niekada neatverta',
   'Never shown again once saved.': 'Įrašius daugiau niekada nerodoma.',
   'Never used': 'Niekada nenaudota',
+  'New Item': 'Naujas įrašas',
   'New address': 'Naujas adresas',
   'New collection': 'Naujas rinkinys',
   'New group': 'Nauja grupė',

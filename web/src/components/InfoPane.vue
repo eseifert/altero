@@ -244,6 +244,11 @@ function revertType(): void {
   if (typeSelect.value) typeSelect.value.value = props.item.data.itemType
 }
 
+defineExpose({
+  /** Open ``name`` for typing, as a press on its value does. */
+  edit: open,
+})
+
 /* What was being edited belongs to the item it was opened on. */
 watch(
   () => props.item.key,

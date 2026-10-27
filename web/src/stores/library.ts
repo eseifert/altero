@@ -726,6 +726,27 @@ export const useLibraryStore = defineStore('library', () => {
     payload.items.forEach(put)
   }
 
+  /**
+   * Make an empty item of ``itemType`` and open it.
+   *
+   * Filed into the collection being shown, as the desktop files a new item
+   * into the selected collection. The list is read again, since that is where
+   * the new item has to appear, and the item opens in the pane even where the
+   * view would not list it.
+   */
+  async function createItem(itemType: string): Promise<ItemEnvelope | null> {
+    if (libraryId.value === null) return null
+    const body: Record<string, unknown> = { itemType }
+    if (collectionKey.value) body.collections = [collectionKey.value]
+    const fresh = await request<ItemEnvelope>(`/web/libraries/${libraryId.value}/items`, {
+      method: 'POST',
+      body,
+    })
+    await Promise.all([refresh(), loadCollections()])
+    await select(items.value.find((entry) => entry.key === fresh.key) ?? fresh)
+    return fresh
+  }
+
   /** Put ``key`` into My Publications on the terms the wizard collected. */
   async function publishItem(
     key: string,
@@ -1047,6 +1068,7 @@ export const useLibraryStore = defineStore('library', () => {
     childrenOf,
     editItem,
     saveItem,
+    createItem,
     relatedOf,
     findItems,
     relateItems,

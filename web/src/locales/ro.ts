@@ -372,6 +372,7 @@ export default {
   'Never opened': 'Nedeschis niciodată',
   'Never shown again once saved.': 'Nu mai este afișat după salvare.',
   'Never used': 'Nefolosită niciodată',
+  'New Item': 'Înregistrare nouă',
   'New address': 'Adresă nouă',
   'New collection': 'Colecție nouă',
   'New group': 'Grup nou',

@@ -369,6 +369,7 @@ export default {
   'Never opened': 'Mai obert',
   'Never shown again once saved.': 'Un cop desat, no es torna a mostrar.',
   'Never used': 'Mai utilitzada',
+  'New Item': 'Element nou',
   'New address': 'Adreça nova',
   'New collection': 'Col·lecció nova',
   'New group': 'Grup nou',

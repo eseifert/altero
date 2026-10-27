@@ -374,6 +374,7 @@ export default {
   'Never opened': 'Belum pernah dibuka',
   'Never shown again once saved.': 'Tidak akan ditampilkan lagi setelah disimpan.',
   'Never used': 'Belum pernah digunakan',
+  'New Item': 'Item Baru',
   'New address': 'Alamat baru',
   'New collection': 'Koleksi baru',
   'New group': 'Grup baru',

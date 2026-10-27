@@ -370,6 +370,7 @@ export default {
   'Never opened': 'Хэзээ ч нээгээгүй',
   'Never shown again once saved.': 'Хадгалсны дараа дахин хэзээ ч харуулахгүй.',
   'Never used': 'Хэзээ ч ашиглаагүй',
+  'New Item': 'Шинэ бичлэг',
   'New address': 'Шинэ хаяг',
   'New collection': 'Шинэ цуглуулга',
   'New group': 'Шинэ бүлэг',
