@@ -776,6 +776,15 @@ async def require_user_file_write(
     _require_file_editing(*await _membership(session, library, user_id))
 
 
+def _file_editing_allows(membership: GroupMember | None, group: Group | None) -> bool:
+    """Whether the group's ``fileEditing`` policy lets this member upload."""
+    try:
+        _require_file_editing(membership, group)
+    except ForbiddenError:
+        return False
+    return True
+
+
 def _require_file_editing(membership: GroupMember | None, group: Group | None) -> None:
     """Raise unless the group's ``fileEditing`` policy lets this member upload."""
     if group is None or membership is None:
@@ -825,6 +834,34 @@ async def user_accesses(
     session: AsyncSession, libraries: Sequence[Library], user_id: int
 ) -> dict[int, Access]:
     """:func:`user_access` for several libraries, by library id, in one statement."""
+    found = await _memberships(session, libraries, user_id)
+    return {
+        library.id: _person_access(library, user_id, *found.get(library.id, (None, None)))
+        for library in libraries
+    }
+
+
+async def user_rights(
+    session: AsyncSession, libraries: Sequence[Library], user_id: int
+) -> dict[int, tuple[Access, bool]]:
+    """:func:`user_accesses`, each with whether this person may put files there.
+
+    The second is :func:`require_user_file_write`'s answer, read from the same
+    statement rather than asked per group.
+    """
+    found = await _memberships(session, libraries, user_id)
+    rights: dict[int, tuple[Access, bool]] = {}
+    for library in libraries:
+        membership, group = found.get(library.id, (None, None))
+        access = _person_access(library, user_id, membership, group)
+        rights[library.id] = (access, access.write and _file_editing_allows(membership, group))
+    return rights
+
+
+async def _memberships(
+    session: AsyncSession, libraries: Sequence[Library], user_id: int
+) -> dict[int, tuple[GroupMember | None, Group]]:
+    """This person's membership of each group among ``libraries``, and its policy."""
     groups = [library.id for library in libraries if library.type is LibraryType.GROUP]
     found: dict[int, tuple[GroupMember | None, Group]] = {}
     for chunk in chunked(groups):
@@ -841,10 +878,7 @@ async def user_accesses(
             .where(Group.library_id.in_(chunk))
         )
         found.update((group.library_id, (membership, group)) for membership, group in rows.tuples())
-    return {
-        library.id: _person_access(library, user_id, *found.get(library.id, (None, None)))
-        for library in libraries
-    }
+    return found
 
 
 def _person_access(

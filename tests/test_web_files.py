@@ -722,3 +722,160 @@ class TestReplacingAFile:
         response = await replace(ada, group.id, item.key)
 
         assert response.status_code == 403
+
+
+async def link(client: httpx2.AsyncClient, library_id: int, **body: Any) -> httpx2.Response:
+    return await client.post(
+        f"/web/libraries/{library_id}/items",
+        json={"itemType": "attachment", "linkMode": "linked_url", **body},
+        headers=csrf_headers(client),
+    )
+
+
+class TestAWebLink:
+    """The desktop's *Attach Web Link…*: a `linked_url` attachment, made by P1.2's route."""
+
+    async def test_a_link_is_attached_with_its_title(
+        self, ada: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        parent = await seed_item(ada, session)
+
+        response = await link(
+            ada, library_id, parentItem=parent, url="https://example.org/a", title="The paper"
+        )
+
+        assert response.status_code == 201
+        data = response.json()["data"]
+        assert data["linkMode"] == "linked_url"
+        assert data["parentItem"] == parent
+        assert data["url"] == "https://example.org/a"
+        assert data["title"] == "The paper"
+        assert "md5" not in data
+
+    @pytest.mark.parametrize(
+        ("url", "title"),
+        [
+            ("https://example.org/", "example.org"),
+            ("https://example.org/papers/smith.pdf?download=1#page=2", "smith.pdf"),
+            ("https://example.org/papers/smith/", "smith"),
+            ("ftp://example.org/papers/smith.pdf", "ftp://example.org/papers/smith.pdf"),
+        ],
+    )
+    async def test_without_a_title_it_is_named_after_the_address(
+        self, ada: httpx2.AsyncClient, url: str, title: str
+    ) -> None:
+        """`Zotero.Attachments.linkFromURL`: a web path's last part, else the host or the URL."""
+        library_id = await personal_library(ada)
+
+        response = await link(ada, library_id, url=url)
+
+        assert response.json()["data"]["title"] == title
+
+    async def test_a_pdf_address_is_a_pdf(self, ada: httpx2.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+
+        response = await link(ada, library_id, url="https://example.org/Smith.PDF")
+
+        assert response.json()["data"]["contentType"] == "application/pdf"
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "javascript:alert(1)",
+            "data:text/html,<script>alert(1)</script>",
+            "file:///home/ada/paper.pdf",
+            "mailto:ada@example.org",
+            "example.org",
+            "",
+        ],
+    )
+    async def test_an_address_the_desktop_would_not_link_is_refused(
+        self, ada: httpx2.AsyncClient, url: str
+    ) -> None:
+        library_id = await personal_library(ada)
+
+        response = await link(ada, library_id, url=url)
+
+        assert response.status_code == 400
+        assert (await ada.get(f"/web/libraries/{library_id}/items")).json()["items"] == []
+
+    async def test_a_file_attachment_is_not_made_this_way(self, ada: httpx2.AsyncClient) -> None:
+        """A stored file comes with its bytes, through the upload."""
+        library_id = await personal_library(ada)
+
+        response = await ada.post(
+            f"/web/libraries/{library_id}/items",
+            json={"itemType": "attachment", "linkMode": "imported_file"},
+            headers=csrf_headers(ada),
+        )
+
+        assert response.status_code == 400
+
+    async def test_a_note_cannot_hold_one(
+        self, ada: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
+        library_id = await personal_library(ada)
+        library = await session.get(Library, library_id)
+        assert library is not None
+        note = await factories.make_item(session, library, item_type="note")
+        await session.commit()
+
+        response = await link(ada, library_id, parentItem=note.key, url="https://example.org")
+
+        assert response.status_code == 400
+
+    async def test_a_group_without_files_still_takes_one(
+        self, ada: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
+        """A link holds no file: the desktop offers it where files are not allowed."""
+        group = await group_with_ada(session, file_editing="none")
+
+        response = await link(ada, group.id, url="https://example.org")
+
+        assert response.status_code == 201
+
+
+class TestWhatTheInterfaceIsTold:
+    async def summary(self, client: httpx2.AsyncClient, library_id: int) -> dict[str, Any]:
+        listed = (await client.get("/web/libraries")).json()
+        return next(entry for entry in listed if entry["id"] == library_id)
+
+    async def test_ones_own_library_takes_files(self, ada: httpx2.AsyncClient) -> None:
+        library_id = await personal_library(ada)
+
+        assert (await self.summary(ada, library_id))["filesEditable"] is True
+
+    @pytest.mark.parametrize(
+        ("file_editing", "role", "editable"),
+        [
+            ("members", "member", True),
+            ("admins", "member", False),
+            ("admins", "admin", True),
+            ("none", "admin", False),
+        ],
+    )
+    async def test_a_group_says_by_its_policy(
+        self,
+        ada: httpx2.AsyncClient,
+        session: AsyncSession,
+        file_editing: str,
+        role: str,
+        editable: bool,
+    ) -> None:
+        group = await group_with_ada(session, file_editing=file_editing, role=role)
+
+        assert (await self.summary(ada, group.id))["filesEditable"] is editable
+
+    async def test_a_reader_is_told_no(
+        self, ada: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
+        group = await group_with_ada(session, permission=MemberPermission.READ.value)
+
+        assert (await self.summary(ada, group.id))["filesEditable"] is False
+
+    async def test_and_the_largest_file(self, ada: httpx2.AsyncClient, app: FastAPI) -> None:
+        app.dependency_overrides[get_upload_limit] = lambda: 10
+        library_id = await personal_library(ada)
+
+        assert (await self.summary(ada, library_id))["maxUploadBytes"] == 10

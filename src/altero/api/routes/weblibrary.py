@@ -24,7 +24,7 @@ from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
 from altero import __version__, cite, serializers
-from altero.api.deps import BaseUrlDep, SessionDep
+from altero.api.deps import BaseUrlDep, SessionDep, UploadLimitDep
 from altero.api.responses import CONTENT_TYPES
 from altero.api.routes.web import CurrentUserDep
 from altero.errors import NotFoundError
@@ -99,7 +99,7 @@ async def _readable_library(session: SessionDep, user: CurrentUserDep, library_i
 
 @router.get("/libraries")
 async def list_libraries(
-    session: SessionDep, user: CurrentUserDep, base_url: BaseUrlDep
+    session: SessionDep, user: CurrentUserDep, base_url: BaseUrlDep, limit: UploadLimitDep
 ) -> Response:
     """Return every library this user can open, personal first."""
     from altero.models import GroupMember
@@ -115,10 +115,10 @@ async def list_libraries(
 
     visible = ([personal] if personal is not None else []) + groups
 
-    accesses = await auth.user_accesses(session, visible, user.id)
+    rights = await auth.user_rights(session, visible, user.id)
     payload = []
     for library in visible:
-        access = accesses[library.id]
+        access, files_editable = rights[library.id]
         payload.append(
             {
                 "id": library.id,
@@ -138,6 +138,12 @@ async def list_libraries(
                 # button would be drawn, pressed, and refused. A read-only
                 # member is already `writable: false` and needs nothing here.
                 "permission": access.permission,
+                # Whether files may be put here: a group's `fileEditing` policy
+                # is separate from who may edit, and the upload is refused by it.
+                "filesEditable": files_editable,
+                # The same for every library; here because this is what the
+                # interface reads before offering an upload.
+                "maxUploadBytes": limit,
             }
         )
     return JSONResponse(payload)

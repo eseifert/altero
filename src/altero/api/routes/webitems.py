@@ -70,8 +70,9 @@ because a version belongs to an item and a selection has no shared one.
 import re
 import time
 from collections.abc import AsyncIterator
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Annotated, Any
+from urllib.parse import SplitResult, urlsplit
 
 from fastapi import APIRouter, Body, Query
 from pydantic import BaseModel, ConfigDict, Field
@@ -136,9 +137,20 @@ EDITED_PROPERTIES = ("creators", "tags", "relations", "note")
 #: Item types the browser does not make from a bare template.
 #:
 #: An attachment is made with the file or the link it holds, and a template
-#: alone would be one with neither; an annotation belongs to a reader. Each has
-#: its own way in, or will have.
+#: alone would be one with neither: a file comes in by the upload, and a web
+#: link is the one attachment made here, with its address (:data:`WEB_LINK`).
+#: An annotation belongs to a reader.
 NOT_CREATED_HERE = frozenset({"attachment", "annotation"})
+
+#: The one attachment made from a template here: the desktop's *Attach Web Link…*.
+WEB_LINK = "linked_url"
+
+#: Schemes `Zotero.Attachments.linkFromURL` refuses, and ``file``, which its
+#: dialog sends to *Attach Link to File…* instead -- a path on somebody's own
+#: computer, which nothing on this server can open.
+UNLINKABLE_SCHEMES = frozenset({"javascript", "data", "chrome", "resource", "mailto", "file"})
+
+_SCHEME = re.compile(r"^([a-z][a-z0-9+.-]+):", re.IGNORECASE)
 
 
 class NewItem(BaseModel):
@@ -150,10 +162,16 @@ class NewItem(BaseModel):
     """
 
     item_type: str = Field(alias="itemType")
-    #: The item a note is made under. Only a note may have one here.
+    #: The item a note or a web link is made under.
     parent_item: str | None = Field(default=None, alias="parentItem")
     #: The collection being looked at when it was made, usually.
     collections: list[str] = Field(default_factory=list)
+    #: For an attachment, which can only be :data:`WEB_LINK`.
+    link_mode: str | None = Field(default=None, alias="linkMode")
+    #: A web link's address and title: an attachment with neither would be a
+    #: link to nothing, so the content comes with it here.
+    url: str | None = None
+    title: str | None = None
 
 
 class ItemErrands(BaseModel):
@@ -463,21 +481,30 @@ async def create_item(
     and the template's one nameless creator is dropped there, as upstream drops
     it. One request, one new version, and no precondition: nothing exists yet
     for a page to be stale about.
+
+    A web link is the exception to "empty": its address and title come with
+    it, as they come with the desktop's *Attach Web Link…*. It holds no file,
+    so the group's ``fileEditing`` policy does not reach it, as the desktop
+    offers it where files are not allowed.
     """
     library, access = await _library(session, user, library_id, write=True)
-    if body.item_type in NOT_CREATED_HERE:
+    linking = body.item_type == "attachment" and body.link_mode == WEB_LINK
+    if body.item_type in NOT_CREATED_HERE and not linking:
         raise InvalidInputError(f"'{body.item_type}' items cannot be created here")
 
-    payload = get_schema().template(body.item_type)
+    if linking:
+        payload = _web_link(body.url or "", body.title)
+    else:
+        payload = get_schema().template(body.item_type)
     if body.collections:
         payload["collections"] = list(dict.fromkeys(body.collections))
 
     library = await writes.lock_library(session, library)
     if body.parent_item is not None:
-        if body.item_type != "note":
-            raise InvalidInputError("Only a note can be made under another item")
+        if not linking and body.item_type != "note":
+            raise InvalidInputError("Only a note or a link can be made under another item")
         payload["parentItem"] = await _parent_key(
-            session, library, body.parent_item, access, child="a note"
+            session, library, body.parent_item, access, child="a link" if linking else "a note"
         )
 
     version = await writes.bump_library_version(session, library)
@@ -505,6 +532,43 @@ async def create_item(
     await session.commit()
 
     return JSONResponse(rendered, status_code=201, headers=library_headers(version))
+
+
+def _web_link(url: str, title: str | None) -> dict[str, Any]:
+    """A ``linked_url`` attachment to ``url``, as `Zotero.Attachments.linkFromURL` makes one.
+
+    Refused for an address with no scheme and for the schemes the desktop
+    refuses, since the link is drawn as one and pressed. Without a title it is
+    named after the address the desktop's way: a web address after the last
+    part of its path, or its host when the path is ``/``; anything else after
+    the whole address. And a link ending in ``.pdf`` is a PDF whatever the
+    server would say, as the desktop decides it.
+    """
+    url = url.strip()
+    scheme = _SCHEME.match(url)
+    if scheme is None:
+        raise InvalidInputError(f"'{url}' is not an address")
+    if scheme.group(1).lower() in UNLINKABLE_SCHEMES:
+        raise InvalidInputError(f"A link to a '{scheme.group(1)}' address cannot be attached")
+
+    parts = urlsplit(url)
+    payload = get_schema().template("attachment", WEB_LINK)
+    payload["url"] = url
+    payload["title"] = (title or "").strip() or _title_of(parts) or url
+    if PurePosixPath(parts.path).suffix.lower() == ".pdf":
+        payload["contentType"] = "application/pdf"
+    return payload
+
+
+def _title_of(parts: SplitResult) -> str:
+    """The desktop's title for a web address: its file name, else its last directory."""
+    if parts.scheme.lower() not in ("http", "https"):
+        return ""
+    if parts.path in ("", "/"):
+        return parts.hostname or ""
+    # Escaped as it stands, as `nsIURL.fileName` hands it back.
+    directories, _, name = parts.path.rpartition("/")
+    return name or directories.rpartition("/")[2]
 
 
 async def _parent_key(
