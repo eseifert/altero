@@ -70,8 +70,12 @@ const failure = ref<string | null>(null)
 const conflict = ref<CreatorEntry[] | null>(null)
 const busy = ref(false)
 
+/** The stored list the rows were last read from, as the API writes it. */
+let base = '[]'
+
 /** Read the stored creators, and give an editable item with none a row to fill. */
 function reset(): void {
+  base = JSON.stringify(props.creators)
   rows.value = props.creators.map(rowOf)
   if (!rows.value.length && props.editable && props.roles.length) {
     rows.value = [blank(props.roles[0], false)]
@@ -83,10 +87,26 @@ watch(
   () => (conflict.value = null),
 )
 
-watch(() => [props.itemKey, props.creators, props.editable, props.roles] as const, reset, {
-  immediate: true,
-  deep: true,
-})
+/** Whether a name in one of these rows is being typed in. */
+function typing(): boolean {
+  const field = document.activeElement?.closest('[data-creator]')
+  return Boolean(field) && rows.value.some((row) => field?.getAttribute('data-creator') === String(row.id))
+}
+
+let shownKey: string | null = null
+
+/* Read again when the item changes -- but not under somebody typing, when the
+   change is one made elsewhere arriving: the rows keep what is being typed,
+   and leaving the creator finds the difference. */
+watch(
+  () => [props.itemKey, props.creators, props.editable, props.roles] as const,
+  () => {
+    if (props.itemKey === shownKey && typing()) return
+    shownKey = props.itemKey
+    reset()
+  },
+  { immediate: true, deep: true },
+)
 
 function entry(row: Row): CreatorEntry | null {
   const last = row.lastName.trim()
@@ -103,7 +123,16 @@ function written(): CreatorEntry[] {
 
 async function commit(): Promise<void> {
   const list = written()
-  if (!props.save || JSON.stringify(list) === JSON.stringify(props.creators)) return
+  const stored = JSON.stringify(props.creators)
+  if (stored !== base) {
+    // Changed elsewhere while a creator was being typed in: if the reader
+    // changed something too, saving would write over the other change
+    // unseen, so both are shown, as after a 412.
+    if (JSON.stringify(list) !== base) conflict.value = list
+    reset()
+    return
+  }
+  if (!props.save || JSON.stringify(list) === stored) return
   await write(list)
 }
 
@@ -114,6 +143,11 @@ async function write(list: CreatorEntry[]): Promise<void> {
   conflict.value = null
   try {
     await props.save({ creators: list })
+    // The answer is the list as stored now, and the rows already say it; it
+    // is the base the next change is compared with, even if focus has moved
+    // on to another creator and the rows were not read again.
+    await nextTick()
+    base = JSON.stringify(props.creators)
   } catch (thrown) {
     // The rows go back to what is stored, which after a conflict is the
     // other person's list; the notice holds this one.

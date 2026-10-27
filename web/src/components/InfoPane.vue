@@ -136,6 +136,9 @@ function href(name: string, text: string): string {
 
 const editing = ref<string | null>(null)
 const draft = ref('')
+/** What the field said when it was opened. The item can change under an open
+ *  field -- a change made elsewhere arriving -- and the draft is kept. */
+let openedWith = ''
 const busy = ref<string | null>(null)
 const saved = ref<string | null>(null)
 const failure = ref<{ name: string; message: string } | null>(null)
@@ -165,6 +168,7 @@ async function open(name: string): Promise<void> {
   openHeight.value = shown?.offsetHeight ?? 0
   editing.value = name
   draft.value = value(name)
+  openedWith = draft.value
   failure.value = null
   conflict.value = null
   await nextTick()
@@ -184,6 +188,12 @@ async function commit(): Promise<void> {
   // A line break pasted into a field of one line is a space, as on the desktop.
   if (!MULTILINE.has(name)) draft.value = draft.value.replace(/\r?\n/g, ' ')
   if (draft.value === value(name) || !props.save) return
+  // Changed elsewhere while it was open: saving now would write over that
+  // without anybody having seen it, so the reader is asked, as after a 412.
+  if (value(name) !== openedWith) {
+    conflict.value = { name, mine: draft.value }
+    return
+  }
 
   await write(name, draft.value)
 }

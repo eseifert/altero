@@ -323,11 +323,13 @@ See [Email](email.md#group-notifications).
 
 ## Behind a reverse proxy
 
-Three things have to be right, and a default configuration gets two of them wrong.
+Four things have to be right, and a default configuration gets two of them wrong.
 
 **Attachment uploads need a large request body.** altero accepts a file of up to 1 GiB. nginx allows 1 MB by default and answers `413` above it, which rejects most PDFs; Zotero reports the attachment as failing to sync. Caddy and Traefik impose no limit of their own.
 
 **`/stream` is a WebSocket.** It needs the upgrade headers, and a read timeout longer than an idle connection. The connection is not silently idle — the server pings every 20 seconds — so a 60-second timeout is already enough, but a proxy that drops the upgrade entirely leaves Zotero without live updates. Worse, a streaming URL that does not resolve is why [Connecting a Zotero client](clients.md) insists on setting `extensions.zotero.streaming.url`: left at its default, the client sends the altero API key to zotero.org.
+
+**`/web/libraries/<id>/events` is a stream that does not end.** It is how an open browser page hears of changes made elsewhere, as Server-Sent Events. It sends something every 25 seconds, so a 60-second read timeout is enough, and it must not be buffered: nginx honours the `X-Accel-Buffering: no` altero sends, and a proxy that buffers anyway delivers the changes late or not at all. Like `/stream`, it works within one server process: run several workers and a page hears only of changes made through its own.
 
 **Forwarded headers are believed only when a proxy is named.** Set `ALTERO_FORWARDED_ALLOW_IPS` to the address the proxy connects from. Until then altero ignores `X-Forwarded-Proto` and `X-Forwarded-For`, which has two effects:
 

@@ -281,6 +281,35 @@ describe('InfoPane', () => {
     expect(wrapper.get('.info__value').text()).toBe('Theirs')
   })
 
+  it('keeps what is being typed when the field changes elsewhere, and asks on saving', async () => {
+    const save = vi.fn().mockResolvedValue(BOOK)
+    const wrapper = pane({ save })
+
+    await wrapper.get('.info__value').trigger('click')
+    await wrapper.get('textarea').setValue('Mine')
+    await wrapper.setProps({ item: { ...BOOK, version: 5, data: { ...BOOK.data, title: 'Theirs' } } })
+    expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('Mine')
+
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+
+    expect(save).not.toHaveBeenCalled()
+    expect(wrapper.get('.conflict').text()).toContain('Remote version: Theirs')
+  })
+
+  it('saves as usual when another field changed meanwhile', async () => {
+    const save = vi.fn().mockResolvedValue(BOOK)
+    const wrapper = pane({ save })
+
+    await wrapper.get('.info__value').trigger('click')
+    await wrapper.get('textarea').setValue('Mine')
+    await wrapper.setProps({ item: { ...BOOK, version: 5, data: { ...BOOK.data, date: '1985' } } })
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+
+    expect(save).toHaveBeenCalledWith({ fields: { title: 'Mine' } })
+  })
+
   it('changes the type straight away when nothing would be lost', async () => {
     const save = vi.fn().mockResolvedValue(BOOK)
     const wrapper = pane({ save })

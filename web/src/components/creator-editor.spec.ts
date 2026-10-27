@@ -260,4 +260,44 @@ describe('CreatorEditor', () => {
     expect(save).toHaveBeenCalledTimes(2)
     expect(save).toHaveBeenLastCalledWith({ creators: [{ ...ADA, lastName: 'King' }] })
   })
+
+  it('keeps a name being typed when the creators change elsewhere, and asks on leaving it', async () => {
+    const save = vi.fn().mockResolvedValue(null)
+    const wrapper = editor([ADA], { save })
+
+    const [last] = names(wrapper)
+    ;(last.element as HTMLInputElement).focus()
+    await last.setValue('King')
+    await wrapper.setProps({ creators: [CHARLES] })
+    expect((names(wrapper)[0].element as HTMLInputElement).value).toBe('King')
+
+    await names(wrapper)[0].trigger('blur')
+    await flushPromises()
+
+    expect(save).not.toHaveBeenCalled()
+    expect(wrapper.get('.conflict').text()).toContain('Remote version: Babbage, Charles')
+    expect((names(wrapper)[0].element as HTMLInputElement).value).toBe('Babbage')
+  })
+
+  it('does not take its own save, followed by typing in the next creator, for a change elsewhere', async () => {
+    let wrapper!: ReturnType<typeof editor>
+    const save = vi.fn(async (changes: ItemChanges) => {
+      await wrapper.setProps({ creators: changes.creators })
+    })
+    wrapper = editor([ADA, CHARLES], { save })
+
+    const [adaLast] = names(wrapper, 0)
+    const [charlesLast] = names(wrapper, 1)
+    ;(adaLast.element as HTMLInputElement).focus()
+    await adaLast.setValue('King')
+    // Tab to the next creator: the save goes out with focus already there.
+    ;(charlesLast.element as HTMLInputElement).focus()
+    await flushPromises()
+    await charlesLast.setValue('Babbage-Smith')
+    await charlesLast.trigger('blur')
+    await flushPromises()
+
+    expect(save).toHaveBeenCalledTimes(2)
+    expect(wrapper.find('.conflict').exists()).toBe(false)
+  })
 })

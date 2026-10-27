@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- An open browser page shows changes made elsewhere — a desktop syncing, a group member — without a reload ([editing]).
 - The browser's item list offers *Show more* until every item is shown; it stopped after the second page, hiding the rest.
 - The browser's item list is worked with the arrow keys, Home, End, Enter and F2, as on the desktop; `?` lists the shortcuts ([items]).
 - An edit in the browser over a change made elsewhere is saved when they differ, and asks which version to keep when they clash ([editing]).

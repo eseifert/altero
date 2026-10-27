@@ -117,7 +117,15 @@ onBeforeUnmount(() => {
     storeWidth(key === SIDEBAR.key ? SIDEBAR : DETAIL, pending.width)
   }
   widthTimers.clear()
+  library.unfollow()
 })
+
+/* Changes made elsewhere reach whichever library is open. */
+watch(
+  () => library.libraryId,
+  () => library.follow(),
+  { immediate: true },
+)
 
 function resizeSidebar(width: number): void {
   sidebarWidth.value = width

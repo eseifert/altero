@@ -254,3 +254,13 @@ test('the item list is worked with the keyboard, and ? says how', async ({ page 
   await page.keyboard.press('Escape')
   await expect(sheet).toBeHidden()
 })
+
+test('a change made elsewhere reaches the open page without a reload', async ({ page }, testInfo) => {
+  const extra = `pushed (${testInfo.project.name})`
+  await signIn(page)
+  await page.getByText('Sketch of the Analytical Engine').first().click()
+
+  await changeElsewhere('Sketch of the Analytical Engine', { extra })
+
+  await expect(page.locator('.detail .info__value[aria-labelledby$="-extra"]')).toHaveText(extra)
+})

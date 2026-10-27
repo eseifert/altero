@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '@/api/client'
 
@@ -908,5 +908,153 @@ describe('saving over a change made elsewhere', () => {
 
     await expect(store.saveItem(OPEN.key, { fields: { title: 'Squid' } })).rejects.toThrow('Invalid field')
     expect(patches()).toHaveLength(1)
+  })
+})
+
+describe('following changes made elsewhere', () => {
+  /** An `EventSource` the test speaks through; jsdom has none. */
+  class FakeSource {
+    static opened: FakeSource[] = []
+    readonly listeners = new Map<string, (event: MessageEvent<string>) => void>()
+    closed = false
+    constructor(readonly url: string) {
+      FakeSource.opened.push(this)
+    }
+    addEventListener(name: string, listener: (event: MessageEvent<string>) => void): void {
+      this.listeners.set(name, listener)
+    }
+    close(): void {
+      this.closed = true
+    }
+    announce(version: number): void {
+      this.listeners.get('version')?.({ data: JSON.stringify({ version }) } as MessageEvent<string>)
+    }
+  }
+
+  const ROWS = Array.from({ length: 120 }, (_, index) => item(`R${String(index).padStart(7, '0')}`, `Row ${index}`))
+
+  /** A library of 120 rows at version 7, answered a page at a time. */
+  function server(version = 7) {
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/libraries') return Promise.resolve(LIBRARIES)
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      if (path.includes('/items?')) {
+        const params = new URL(path, 'http://x').searchParams
+        const start = Number(params.get('start'))
+        const limit = Number(params.get('limit'))
+        return Promise.resolve({ total: ROWS.length, libraryVersion: version, items: ROWS.slice(start, start + limit) })
+      }
+      return Promise.resolve(ROWS[0])
+    })
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers()
+    FakeSource.opened = []
+    vi.stubGlobal('EventSource', FakeSource)
+    server()
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  async function following() {
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    store.follow()
+    return { store, source: FakeSource.opened.at(-1)! }
+  }
+
+  it('listens to the library that is open, and only to that one', async () => {
+    const { store, source } = await following()
+    expect(source.url).toBe('/web/libraries/1/events')
+
+    await store.openLibrary(2)
+    store.follow()
+
+    expect(source.closed).toBe(true)
+    expect(FakeSource.opened.at(-1)!.url).toBe('/web/libraries/2/events')
+  })
+
+  it('passes over a version the page has already read', async () => {
+    const { source } = await following()
+    requestMock.mockClear()
+
+    source.announce(7)
+    await vi.advanceTimersByTimeAsync(1000)
+
+    expect(itemRequests()).toEqual([])
+  })
+
+  it('reads as many rows again as are shown, once for a burst of changes', async () => {
+    const { store, source } = await following()
+    await store.loadMore()
+    await store.loadMore()
+    expect(store.items).toHaveLength(120)
+    requestMock.mockClear()
+
+    source.announce(8)
+    source.announce(9)
+    await vi.advanceTimersByTimeAsync(1000)
+
+    const pages = itemRequests().map((path) => {
+      const params = new URL(path, 'http://x').searchParams
+      return [params.get('start'), params.get('limit')]
+    })
+    expect(pages).toEqual([
+      ['0', '100'],
+      ['100', '20'],
+    ])
+    expect(store.items).toHaveLength(120)
+    expect(store.knownVersion).toBe(9)
+  })
+
+  it('reads the open item and its children again', async () => {
+    const { store, source } = await following()
+    await store.select(ROWS[3])
+    requestMock.mockClear()
+
+    source.announce(8)
+    await vi.advanceTimersByTimeAsync(1000)
+
+    const paths = requestMock.mock.calls.map(([path]) => path as string)
+    expect(paths).toContain(`/web/libraries/1/items/${ROWS[3].key}`)
+    expect(paths).toContain(`/web/libraries/1/items/${ROWS[3].key}/children`)
+  })
+
+  it('closes the pane on an item that no longer exists', async () => {
+    const { store, source } = await following()
+    await store.select(ROWS[3])
+    requestMock.mockImplementation((path: string) => {
+      if (path.endsWith(`/items/${ROWS[3].key}`)) return Promise.reject(new ApiError('Not found', 404))
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      return Promise.resolve({ total: 0, items: [] })
+    })
+
+    source.announce(8)
+    await vi.advanceTimersByTimeAsync(1000)
+
+    expect(store.selected).toBeNull()
+  })
+
+  it('counts the page’s own write as read, and so reads nothing for it', async () => {
+    const { store, source } = await following()
+    requestMock.mockImplementation((_path: string, options?: { method?: string }) => {
+      if (options?.method === 'PATCH') return Promise.resolve({ ...ROWS[0], version: 8 })
+      return Promise.resolve({ total: 0, items: [] })
+    })
+    await store.saveItem(ROWS[0].key, { fields: { title: 'Mine' } })
+    requestMock.mockClear()
+
+    source.announce(8)
+    await vi.advanceTimersByTimeAsync(1000)
+
+    expect(itemRequests()).toEqual([])
   })
 })

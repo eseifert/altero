@@ -135,6 +135,7 @@ EXPECTED = [
     ("/web/libraries/{library_id}/items/{item_key}/file", "GET"),
     ("/web/libraries/{library_id}/collections", "GET"),
     ("/web/libraries/{library_id}/tags", "GET"),
+    ("/web/libraries/{library_id}/events", "GET"),
     ("/web/libraries/{library_id}/items/{item_key}/citation", "GET"),
     # One collection made, renamed or moved, and one removed. See
     # altero/api/routes/webcollections.py.

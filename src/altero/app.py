@@ -32,6 +32,7 @@ from altero.api.routes import (
     webaccount,
     webadmin,
     webcollections,
+    webevents,
     webgroups,
     webidentity,
     webitems,
@@ -202,6 +203,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # The web interface's own namespace, before the library-scoped routes.
     app.include_router(web.router)
     app.include_router(weblibrary.router)
+    app.include_router(webevents.router)
     app.include_router(webcollections.router)
     app.include_router(webitems.router)
     app.include_router(webtags.router)

@@ -129,9 +129,14 @@ item's type, empty ones included, in the order Zotero Desktop shows them.
   Related items in the trash are listed only while the item itself is there.
 
 Each save is one change, which Zotero Desktop receives on its next sync.
+Changes arrive the other way too: while the page is open, a change made
+elsewhere — Zotero Desktop syncing, someone else in a group — shows up in the
+list and the open item within a moment, without a reload. A field you are
+typing in is left as you have it. This needs a single server process; see
+[Behind a reverse proxy](../deployment.md#behind-a-reverse-proxy).
 
-If someone else changed the item since you opened it, the pane shows the item
-as it is now. Your edit is saved anyway when they changed something else. When
+If someone else changed the item while you were editing it, the pane shows
+the item as it is now. Your edit is saved anyway when they changed something else. When
 they changed the same field, or the creators, nothing is written: the pane
 shows the local version (yours) and the remote version (theirs), and **Choose
 this version** keeps one. Tags are always saved — your addition, removal or

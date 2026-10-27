@@ -177,6 +177,10 @@ export const PAGE_SIZE = 50
 /** How many related items one request reads: the listing's own maximum. */
 const RELATED_BATCH = 100
 
+/** How long a change announced by the feed waits, so that a burst is read once
+ *  and the page's own writes have answered before it is compared with them. */
+const CATCH_UP_DELAY = 400
+
 /**
  * The keys of the items ``item`` names in `dc:relation`, in the order named.
  *
@@ -274,6 +278,10 @@ export const useLibraryStore = defineStore('library', () => {
   const failure = ref<string | null>(null)
 
   let itemsRequest: AbortController | null = null
+  /** The highest library version anything this page holds was read at. */
+  const knownVersion = ref(0)
+  let feed: EventSource | null = null
+  let catchUpTimer: ReturnType<typeof setTimeout> | undefined
   let childrenRequest: AbortController | null = null
 
   const library = computed(
@@ -437,6 +445,7 @@ export const useLibraryStore = defineStore('library', () => {
     selected.value = null
     children.value = []
     start.value = 0
+    knownVersion.value = 0
 
     await Promise.all([loadCollections(), loadTags(), loadItems()])
   }
@@ -713,8 +722,16 @@ export const useLibraryStore = defineStore('library', () => {
     throw new EditConflict(fresh, changes)
   }
 
+  /** Note that the page has read the library at ``version``. */
+  function seen(version: number | undefined): void {
+    if (version !== undefined && version > knownVersion.value) knownVersion.value = version
+  }
+
   /** Replace every copy of an item the page holds with ``fresh``. */
   function put(fresh: ItemEnvelope): void {
+    // An item's version is the library's at the write that last changed it,
+    // so the page's own writes need no catching up with.
+    seen(fresh.version)
     if (selected.value?.key === fresh.key) selected.value = fresh
     const row = items.value.findIndex((entry) => entry.key === fresh.key)
     if (row >= 0) items.value[row] = fresh
@@ -883,11 +900,16 @@ export const useLibraryStore = defineStore('library', () => {
 
     loading.value = true
     try {
-      const payload = await request<{ total: number; items: ItemEnvelope[] }>(itemsUrl(), {
+      const payload = await request<{
+        total: number
+        items: ItemEnvelope[]
+        libraryVersion?: number
+      }>(itemsUrl(), {
         signal: controller.signal,
       })
       items.value = append ? [...items.value, ...payload.items] : payload.items
       total.value = payload.total
+      seen(payload.libraryVersion)
       failure.value = null
     } catch (thrown) {
       if (controller.signal.aborted) return
@@ -1056,7 +1078,103 @@ export const useLibraryStore = defineStore('library', () => {
     return `/web/libraries/${libraryId.value}/items/${key}/file${suffix}`
   }
 
+  /*
+   * Following the library open on the page, so that a change made elsewhere
+   * -- a desktop syncing, a colleague in the same group -- reaches it.
+   *
+   * The feed says only that the library has a new version; what changed is
+   * read the ordinary way. A version the page has already seen is its own
+   * write, or one it has read, and is passed over. A burst of them is read
+   * once, a moment after the last.
+   */
+  function follow(): void {
+    unfollow()
+    if (libraryId.value === null || typeof EventSource === 'undefined') return
+    const id = libraryId.value
+    const source = new EventSource(`/web/libraries/${id}/events`)
+    source.addEventListener('version', (event) => {
+      const version = Number(JSON.parse((event as MessageEvent<string>).data).version)
+      if (libraryId.value !== id || !(version > knownVersion.value)) return
+      clearTimeout(catchUpTimer)
+      catchUpTimer = setTimeout(() => {
+        if (version > knownVersion.value) void catchUp(version)
+      }, CATCH_UP_DELAY)
+    })
+    feed = source
+  }
+
+  function unfollow(): void {
+    clearTimeout(catchUpTimer)
+    feed?.close()
+    feed = null
+  }
+
+  /**
+   * Read again what the page shows, after the library moved to ``version``.
+   *
+   * As many rows as are shown, not the first page: a list somebody has paged
+   * through should not fold back to fifty because a colleague saved. The open
+   * item is read again and stays open even if it has left the list -- it was
+   * changed under the reader, not by them, and closing it would lose their
+   * place; only an item that no longer exists closes. What is being typed is
+   * not touched: the panes keep their drafts and compare on saving.
+   */
+  async function catchUp(version: number): Promise<void> {
+    if (libraryId.value === null) return
+    const id = libraryId.value
+    const view = viewParams().toString()
+    const wanted = Math.max(items.value.length, PAGE_SIZE)
+    const rows: ItemEnvelope[] = []
+    let count = total.value
+    try {
+      for (let at = 0; at < wanted; at += RELATED_BATCH) {
+        const params = viewParams()
+        params.set('limit', String(Math.min(RELATED_BATCH, wanted - at)))
+        params.set('start', String(at))
+        const payload = await request<{ total: number; items: ItemEnvelope[] }>(
+          `/web/libraries/${id}/items?${params}`,
+        )
+        rows.push(...payload.items)
+        count = payload.total
+        if (payload.items.length < RELATED_BATCH) break
+      }
+      // The reader may have moved on meanwhile, and what they asked for since
+      // is newer than this.
+      if (libraryId.value !== id || viewParams().toString() !== view) return
+      seen(version)
+      items.value = rows
+      total.value = count
+      start.value = Math.max(0, rows.length - PAGE_SIZE)
+      selection.value = selectionKeys.value
+      await Promise.all([loadCollections(), loadTags(), catchUpSelected()])
+    } catch {
+      // The next change, or the next action, reads it again.
+    }
+  }
+
+  async function catchUpSelected(): Promise<void> {
+    const key = selected.value?.key
+    if (!key || libraryId.value === null) return
+    const id = libraryId.value
+    try {
+      const [fresh, kids] = await Promise.all([
+        request<ItemEnvelope>(`/web/libraries/${id}/items/${key}`),
+        request<{ items: ItemEnvelope[] }>(`/web/libraries/${id}/items/${key}/children`),
+      ])
+      if (selected.value?.key !== key) return
+      put(fresh)
+      children.value = kids.items
+    } catch (thrown) {
+      if (thrown instanceof ApiError && thrown.status === 404 && selected.value?.key === key) {
+        selected.value = null
+        children.value = []
+      }
+    }
+  }
+
   function reset(): void {
+    unfollow()
+    knownVersion.value = 0
     libraries.value = []
     libraryId.value = null
     collections.value = []
@@ -1143,6 +1261,10 @@ export const useLibraryStore = defineStore('library', () => {
     clearSelection,
     fileUrl,
     exportUrl,
+    follow,
+    unfollow,
+    catchUp,
+    knownVersion,
     reset,
   }
 })
