@@ -40,8 +40,8 @@ test('a field edited in the pane is still there after a reload', async ({ page }
 
   const row = page.locator('.detail dd').filter({ has: page.locator('[aria-labelledby$="-place"]') })
   await row.locator('.info__value').click()
-  await row.locator('input').fill(place)
-  await row.locator('input').press('Enter')
+  await row.locator('textarea').fill(place)
+  await row.locator('textarea').press('Enter')
   await expect(row.getByRole('status')).toHaveText('Saved.')
 
   await page.reload()

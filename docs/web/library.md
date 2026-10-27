@@ -92,9 +92,12 @@ act name shows “(untitled)”.
 Where you may change the library, the right pane shows every field of the
 item's type, empty ones included, in the order Zotero Desktop shows them.
 
-- **Edit a field** by pressing its value. Enter or leaving the field saves it,
-  and Escape puts it back. Abstract and Extra take several lines: there,
-  Shift+Enter saves. A URL or DOI stays a link; press the pencil beside it.
+- **Edit a field** by pressing its value; a frame under the pointer shows
+  which values can be edited. Enter or leaving the field saves it, and Escape
+  puts it back. Abstract and Extra take several lines: there, Shift+Enter
+  saves. A URL or DOI is edited the same way and opened with the button
+  beside it. Date Added and Date Modified are set by the server and shown
+  dimmed.
 - **Check a date.** Beside it, `y m d` shows how Zotero reads what you typed —
   `d m y` for `26.10.2026` in Germany, `m d y` in the United States.
 - **Change the type** from the menu at the top. If the new type has no place

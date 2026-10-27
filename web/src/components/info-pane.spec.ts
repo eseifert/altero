@@ -89,13 +89,13 @@ describe('InfoPane', () => {
     const wrapper = pane({ save })
 
     await wrapper.get('.info__value').trigger('click')
-    const input = wrapper.get('input')
+    const input = wrapper.get('textarea')
     await input.setValue('Structure and Interpretation')
     await input.trigger('keydown', { key: 'Enter' })
     await flushPromises()
 
     expect(save).toHaveBeenCalledWith({ fields: { title: 'Structure and Interpretation' } })
-    expect(wrapper.find('input').exists()).toBe(false)
+    expect(wrapper.find('textarea').exists()).toBe(false)
     expect(wrapper.get('[role="status"]').text()).toBe('Saved.')
   })
 
@@ -104,8 +104,8 @@ describe('InfoPane', () => {
     const wrapper = pane({ save })
 
     await wrapper.get('.info__value').trigger('click')
-    await wrapper.get('input').setValue('Left behind')
-    await wrapper.get('input').trigger('blur')
+    await wrapper.get('textarea').setValue('Left behind')
+    await wrapper.get('textarea').trigger('blur')
     await flushPromises()
 
     expect(save).toHaveBeenCalledWith({ fields: { title: 'Left behind' } })
@@ -116,8 +116,8 @@ describe('InfoPane', () => {
     const wrapper = pane({ save })
 
     await wrapper.get('.info__value').trigger('click')
-    await wrapper.get('input').setValue('Never mind')
-    await wrapper.get('input').trigger('keydown', { key: 'Escape' })
+    await wrapper.get('textarea').setValue('Never mind')
+    await wrapper.get('textarea').trigger('keydown', { key: 'Escape' })
     await flushPromises()
 
     expect(save).not.toHaveBeenCalled()
@@ -129,7 +129,7 @@ describe('InfoPane', () => {
     const wrapper = pane({ save })
 
     await wrapper.get('.info__value').trigger('click')
-    await wrapper.get('input').trigger('keydown', { key: 'Enter' })
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
     await flushPromises()
 
     expect(save).not.toHaveBeenCalled()
@@ -151,14 +151,54 @@ describe('InfoPane', () => {
     expect(save).toHaveBeenCalledWith({ fields: { abstractNote: 'One line\nand another' } })
   })
 
-  it('keeps a URL a link, and edits it from its own button', async () => {
+  it('edits a URL like any field, and opens it from a button of its own', async () => {
     const wrapper = pane()
 
-    const link = wrapper.get('a')
-    expect(link.attributes('href')).toBe('https://example.org/sicp')
-    await wrapper.get('button[aria-label="Change"]').trigger('click')
+    const open = wrapper.get('a.info__open')
+    expect(open.attributes('href')).toBe('https://example.org/sicp')
+    expect(open.attributes('target')).toBe('_blank')
+    await wrapper.get('#info-AAAA2345-url-value').trigger('click')
 
-    expect((wrapper.get('input').element as HTMLInputElement).value).toBe('https://example.org/sicp')
+    expect((wrapper.get('textarea').element as HTMLTextAreaElement).value).toBe('https://example.org/sicp')
+    expect(wrapper.find('a.info__open').exists()).toBe(false)
+  })
+
+  it('keeps a URL a plain link where nothing can be edited', () => {
+    const wrapper = pane({ editable: false })
+
+    expect(wrapper.get('dd a').attributes('href')).toBe('https://example.org/sicp')
+    expect(wrapper.find('a.info__open').exists()).toBe(false)
+  })
+
+  it('opens a field at the height of the value it replaces', async () => {
+    /* So that nothing around it moves; jsdom lays nothing out, so the height
+       is the one the value is said to have. */
+    const wrapper = pane()
+    const shown = wrapper.get('#info-AAAA2345-abstractNote-value').element
+    Object.defineProperty(shown, 'offsetHeight', { value: 57 })
+
+    await wrapper.get('#info-AAAA2345-abstractNote-value').trigger('click')
+
+    expect((wrapper.get('textarea').element as HTMLTextAreaElement).style.minHeight).toBe('57px')
+  })
+
+  it('takes a pasted line break in a field of one line as a space', async () => {
+    const save = vi.fn().mockResolvedValue(BOOK)
+    const wrapper = pane({ save })
+
+    await wrapper.get('.info__value').trigger('click')
+    await wrapper.get('textarea').setValue('Structure\nand Interpretation')
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+
+    expect(save).toHaveBeenCalledWith({ fields: { title: 'Structure and Interpretation' } })
+  })
+
+  it('draws what the server stamps quieter than what can be edited', () => {
+    const fixed = pane().findAll('dd.info__fixed')
+
+    expect(fixed.map((dd) => dd.text())).toHaveLength(1)
+    expect(pane({ editable: false }).find('dd.info__fixed').exists()).toBe(false)
   })
 
   it('says how Zotero reads the date', () => {
@@ -172,8 +212,8 @@ describe('InfoPane', () => {
     const wrapper = pane({ save })
 
     await wrapper.get('.info__value').trigger('click')
-    await wrapper.get('input').setValue('Too late')
-    await wrapper.get('input').trigger('keydown', { key: 'Enter' })
+    await wrapper.get('textarea').setValue('Too late')
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
     await flushPromises()
 
     expect(wrapper.get('[role="alert"]').text()).toBe('The item has changed since you read it')

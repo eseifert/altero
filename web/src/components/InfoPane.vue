@@ -129,17 +129,34 @@ const draft = ref('')
 const busy = ref<string | null>(null)
 const saved = ref<string | null>(null)
 const failure = ref<{ name: string; message: string } | null>(null)
-const input = ref<HTMLInputElement | HTMLTextAreaElement | null>(null)
+const input = ref<HTMLTextAreaElement | HTMLTextAreaElement[] | null>(null)
+/** The height of the value being edited, which its box starts at. */
+const openHeight = ref(0)
 let savedTimer: ReturnType<typeof setTimeout> | undefined
+
+function box(): HTMLTextAreaElement | null {
+  return (Array.isArray(input.value) ? input.value[0] : input.value) ?? null
+}
+
+/** Fit the box to what it holds, never shorter than the value it opened from. */
+function grow(): void {
+  const element = box()
+  if (!element) return
+  element.style.height = 'auto'
+  const borders = element.offsetHeight - element.clientHeight
+  element.style.height = `${Math.max(element.scrollHeight + borders, openHeight.value)}px`
+}
 
 async function open(name: string): Promise<void> {
   if (!editing_.value || busy.value) return
+  const shown = document.getElementById(`info-${props.item.key}-${name}-value`)
+  openHeight.value = shown?.offsetHeight ?? 0
   editing.value = name
   draft.value = value(name)
   failure.value = null
   await nextTick()
-  const element = Array.isArray(input.value) ? input.value[0] : input.value
-  element?.focus()
+  grow()
+  box()?.focus()
 }
 
 function cancel(): void {
@@ -151,6 +168,8 @@ async function commit(): Promise<void> {
   if (name === null) return
   // Closed first, so that the blur which follows an Enter finds nothing to save.
   editing.value = null
+  // A line break pasted into a field of one line is a space, as on the desktop.
+  if (!MULTILINE.has(name)) draft.value = draft.value.replace(/\r?\n/g, ' ')
   if (draft.value === value(name) || !props.save) return
 
   busy.value = name
@@ -276,64 +295,43 @@ watch(
         <dt :id="`info-${item.key}-${name}`">{{ fieldLabel(name) }}</dt>
         <dd :aria-busy="busy === name">
           <!-- Rights is set through the licence chooser, which knows the names a
-               licence has to be stated in. -->
+               licence has to be stated in; it is pressed like any other value. -->
           <template v-if="name === 'rights' && rightsEditable">
-            <span v-if="value('rights')">{{ value('rights') }}</span>
             <button
               v-if="value('rights')"
-              class="info__pencil"
+              class="info__value"
               type="button"
+              dir="auto"
               :aria-label="t('Change the rights')"
               :title="t('Change the rights')"
               @click="emit('rights')"
-            >
-              <AppIcon name="edit" :size="12" />
-            </button>
+            >{{ value('rights') }}</button>
             <button v-else class="info__offer" type="button" @click="emit('rights')">
               {{ t('Not stated — say what it is') }}
             </button>
           </template>
 
-          <template v-else-if="editing === name">
-            <textarea
-              v-if="MULTILINE.has(name)"
-              ref="input"
-              v-model="draft"
-              class="info__input info__input--multiline"
-              rows="4"
-              dir="auto"
-              :aria-labelledby="`info-${item.key}-${name}`"
-              @keydown="keydown($event, name)"
-              @blur="commit"
-            ></textarea>
-            <input
-              v-else
-              ref="input"
-              v-model="draft"
-              class="info__input"
-              dir="auto"
-              :aria-labelledby="`info-${item.key}-${name}`"
-              @keydown="keydown($event, name)"
-              @blur="commit"
-            />
-          </template>
-
-          <template v-else-if="LINKS.has(name) && value(name)">
-            <a :href="href(name, value(name))" target="_blank" rel="noopener noreferrer">{{ value(name) }}</a>
-            <button
-              v-if="editing_"
-              class="info__pencil"
-              type="button"
-              :aria-label="t('Change')"
-              :aria-describedby="`info-${item.key}-${name}`"
-              @click="open(name)"
-            >
-              <AppIcon name="edit" :size="12" />
-            </button>
-          </template>
+          <!-- One box for every field, the height of the value it replaces and
+               growing as it fills, so that opening a field moves nothing. A
+               field of one line takes no line break: Enter saves it. -->
+          <textarea
+            v-else-if="editing === name"
+            ref="input"
+            v-model="draft"
+            class="info__input"
+            rows="1"
+            dir="auto"
+            :aria-multiline="MULTILINE.has(name)"
+            :aria-labelledby="`info-${item.key}-${name}`"
+            :style="{ minHeight: `${openHeight}px` }"
+            @input="grow"
+            @keydown="keydown($event, name)"
+            @blur="commit"
+          ></textarea>
 
           <button
             v-else-if="editing_"
+            :id="`info-${item.key}-${name}-value`"
             class="info__value"
             :class="{ 'info__value--multiline': MULTILINE.has(name) }"
             type="button"
@@ -343,8 +341,29 @@ watch(
             @click="open(name)"
           >{{ value(name) }}</button>
 
+          <a
+            v-else-if="LINKS.has(name)"
+            :href="href(name, value(name))"
+            target="_blank"
+            rel="noopener noreferrer"
+            dir="auto"
+          >{{ value(name) }}</a>
+
           <span v-else dir="auto">{{ value(name) }}</span>
 
+          <!-- An address is opened from a button of its own, beside a value that
+               is edited like any other. -->
+          <a
+            v-if="editing_ && LINKS.has(name) && value(name) && editing !== name"
+            class="info__open"
+            :href="href(name, value(name))"
+            target="_blank"
+            rel="noopener noreferrer"
+            :aria-label="href(name, value(name))"
+            :title="href(name, value(name))"
+          >
+            <AppIcon name="open" :size="20" />
+          </a>
           <span v-if="DATES.has(name) && value(name) && editing !== name" class="info__order" aria-hidden="true">
             {{ dateOrder(value(name), locale.formatting) }}
           </span>
@@ -353,9 +372,11 @@ watch(
         </dd>
       </template>
 
+      <!-- Stamped by the server, never typed: drawn quieter than what can be
+           edited, where anything can, and with nothing to press. -->
       <template v-for="stamp in stamps" :key="stamp.name">
         <dt>{{ fieldLabel(stamp.name) }}</dt>
-        <dd>{{ stamp.text }}</dd>
+        <dd :class="{ info__fixed: editing_ }">{{ stamp.text }}</dd>
       </template>
     </dl>
   </div>
@@ -437,14 +458,21 @@ watch(
  * pressed only by the hover a pointer gives it and the outline a keyboard
  * does. An empty one keeps its height so there is somewhere to press.
  */
-/* Drawn flush with plain text: the padding that gives a press somewhere to
-   land is taken back out of the margin, so values that can and cannot be
-   edited start at the same edge. */
-.info__value {
+/*
+ * A value that can be edited is drawn as the text it is, and says it can be
+ * pressed by the frame a pointer brings up over it and the outline a keyboard
+ * does. Its box, when it opens, has the same font, line, padding and border,
+ * so nothing around it moves. The padding that gives a press somewhere to land
+ * is taken back out of the margin, so values that can and cannot be edited
+ * start at the same edge. An empty value keeps a line's height.
+ */
+.info__value,
+.info__input {
+  box-sizing: border-box;
   display: block;
   flex: 1 1 0;
   min-width: 0;
-  min-height: 1.6em;
+  min-height: calc(1.4em + 0.3rem + 2px);
   margin: 0;
   margin-inline-start: -0.3rem;
   padding: 0.15rem 0.3rem;
@@ -453,13 +481,18 @@ watch(
   background: none;
   color: inherit;
   font: inherit;
+  line-height: 1.4;
   text-align: start;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.info__value {
   cursor: text;
 }
 
 .info__value:hover {
-  border-color: var(--md-sys-color-outline-variant);
+  border-color: var(--md-sys-color-outline);
 }
 
 .info__value:disabled {
@@ -467,49 +500,54 @@ watch(
 }
 
 .info__value--multiline {
-  min-height: 3.2em;
+  min-height: calc(2.8em + 0.3rem + 2px);
 }
 
-.info__input,
+.info__input {
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-surface);
+  overflow: hidden;
+  resize: none;
+}
+
 .info__type {
   box-sizing: border-box;
   flex: 1 1 0;
   min-width: 0;
   margin-inline-start: -0.3rem;
   padding: 0.15rem 0.3rem;
-  border: 1px solid var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-outline);
   border-radius: var(--md-sys-shape-corner-small);
   background: var(--md-sys-color-surface);
   color: inherit;
   font: inherit;
 }
 
-.info__type {
-  border-color: var(--md-sys-color-outline);
-}
-
-.info__input--multiline {
-  resize: vertical;
-}
-
-.info__pencil {
+/* An address opens from here: a control of its own, outlined like the
+   controls are, so it does not read as part of the text beside it. */
+.info__open {
   display: inline-grid;
+  flex: none;
   place-items: center;
-  min-width: 1.5rem;
-  min-height: 1.5rem;
-  padding: 0.1rem 0.25rem;
-  border: none;
+  align-self: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: var(--md-sys-shape-corner-small);
-  background: none;
-  color: var(--md-sys-color-on-surface-variant);
-  cursor: pointer;
-  vertical-align: middle;
+  color: var(--md-sys-color-primary);
 }
 
-.info__pencil:hover {
+.info__open:hover {
+  border-color: var(--md-sys-color-primary);
   background: var(--md-sys-state-hover-surface);
-  color: var(--md-sys-color-on-surface);
 }
+
+/* What the server stamps, in a pane where the rest can be edited. */
+.info__fixed {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+
 
 .info__offer {
   padding: 0;
