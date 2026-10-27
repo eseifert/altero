@@ -645,35 +645,25 @@ Zotero 10.0.6 Linux x86-64; actual desktop profiles.
 | `server-crash` | Passed (7 phases) | Passed (7 phases) |
 | `transient-errors` | Passed (22 phases) | Passed (22 phases) |
 | `streaming-reconnect` | Passed (6 phases) | Passed (6 phases) |
-| `parent-rejection` | Passed (7 phases) | Passed (7 phases) |
+| `parent-rejection` | Passed (8 phases) | Passed (8 phases) |
+| `missing-parent` | Passed (8 phases) | Passed (8 phases) |
+| `child-promotion` | Passed (6 phases) | Passed (6 phases) |
+| `type-change` | Passed (6 phases) | Passed (6 phases) |
 | `reader-rendering` | Passed (12 phases) | Passed (12 phases) |
 | `zipped-digest-race` | Passed (13 phases) | Passed (13 phases) |
 | `backup-rewind` | Passed (10 phases) | Passed (10 phases) |
 | `graph-races` | Passed (19 phases) | Passed (19 phases) |
 | `credential-limits` | Passed (12 phases) | Passed (12 phases) |
+| `web-editing` | Passed (7 phases) | Passed (7 phases) |
 
 <!-- /desktop-matrix -->
 
 Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on 2026-10-26, against the code prepared for 1.0.0-beta.4. PostgreSQL
-uses the existing 18.4 container, with a fresh database per scenario.
+archive on 2026-10-27, against the code prepared for 1.0.0-beta.5, on Python
+3.14.10. PostgreSQL uses the existing 18.4 container, with a fresh database per
+scenario. Each database ran all 31 scenarios in one run, and none was repeated.
 **Not run** means there is no successful result recorded for that combination;
-executable inventory entries and scheduled CI jobs do not count as passes. A
-successful scenario in a run that later failed is reported independently:
-`reader-rendering` ran on its own on both databases, and on PostgreSQL
-`graph-races` and `credential-limits` ran again after `graph-races` failed once.
-
-That failure did not repeat. In the first PostgreSQL run, desktop B finished a
-sync while its read of the items was held, without the parent and child it had
-not received, so the two desktops disagreed. The rerun, on an otherwise idle
-machine, passed all 19 phases, as did the SQLite run. During the failing run the
-machine was also running the other database's scenarios and building the
-release artifacts; that the desktop gave up on the held request under that load
-is a guess, not a finding.
-
-`reader-rendering` passes again on both databases. At beta.3 it failed on this
-machine after its X server, Mesa and LLVM were updated, with the server not
-involved; it now passes with the same Zotero build.
+executable inventory entries and scheduled CI jobs do not count as passes.
 
 The machine-readable evidence summary is
 [`compatibility-10.0.6.json`](assets/compatibility-10.0.6.json). It records
@@ -683,11 +673,8 @@ directories. Regenerate the matrix from them with:
 
 ```sh
 uv run python -m tools.compatibility matrix --desktop-version 10.0.6 \
-  --report .compatibility/desktop-10.0.6-beta4/acceptance.json \
-  --report .compatibility/desktop-10.0.6-beta4-reader/acceptance.json \
-  --report .compatibility/desktop-10.0.6-postgres-beta4/acceptance.json \
-  --report .compatibility/desktop-10.0.6-postgres-beta4-rest/acceptance.json \
-  --report .compatibility/desktop-10.0.6-postgres-beta4-reader/acceptance.json \
+  --report .compatibility/beta5-sqlite-2/acceptance.json \
+  --report .compatibility/beta5-pg-2/acceptance.json \
   --output .compatibility/results.json --markdown .compatibility/matrix.md
 ```
 
@@ -697,10 +684,10 @@ or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.
 
-The matrix records 54 successful database/scenario combinations and 694
-actual desktop phases: all 27 scenarios pass on both databases. The
+The matrix records 62 successful database/scenario combinations and 750
+actual desktop phases: all 31 scenarios pass on both databases. The
 baseline includes all 40 schema types. The source-replay suite passes 323 tests
-with no skips against the pinned 10.0.6 sources, with Node 24.18.0, and the
+with no skips against the pinned 10.0.6 sources, with Node 24.22.1, and the
 network-consumer review gate passes with no stale or unreviewed consumers.
 
 Two harness defects surfaced while moving to 10.0.6 and are fixed: profiles

@@ -303,43 +303,41 @@ The web CI job builds both Python artifacts after building the interface and
 checks their actual contents, including rebuilding the wheel through the source
 archive.
 
-### Beta.4 validation
+### Beta.5 validation
 
-Local release checks on 2026-10-26 passed:
+Local release checks on 2026-10-27 passed, on Python 3.14.10, uv 0.13.6 and
+Node 24.22.1:
 
-- The full Python suite: 2,963 tests, no skips, including concurrency checks
-  against a fresh disposable PostgreSQL database. A statement-count test that
-  failed about one run in ten, depending on where a second boundary fell, was
-  made deterministic first.
+- The full Python suite: 3,119 tests, no skips and no warnings, including
+  concurrency checks against a fresh disposable PostgreSQL database.
 - The optional desktop source-replay suite: 323 tests, no skips, against the
-  pinned Zotero 10.0.6 source with Node 24.18.0.
-- The web interface: 1,288 tests, types and production build with Node 24.18.0;
-  installed dependency versions matched the lockfile. The new end-to-end suite
-  passed 22 tests in Chromium at desktop and phone sizes, with no
-  Content-Security-Policy violation and no serious or critical axe finding.
+  pinned Zotero 10.0.6 source.
+- The web interface: 1,511 tests, types and production build, after `npm ci`
+  installed exactly the lockfile. The end-to-end suite passed 48 tests in
+  Chromium at desktop and phone sizes, including the installable app opening
+  offline, with no Content-Security-Policy violation and no serious or critical
+  axe finding.
 - Pinned Zotero and dataserver source verification (30 client functions), plus
   the network-consumer review gate: 324 files, 88 consumers, no parse errors or
   stale reviews.
 - Ruff formatting/lint, Ty, the locked dependency check and strict documentation
   build.
-- Upgrades from beta.3: the migrations are unchanged and `alembic check` finds
-  no drift. A SQLite database created and filled by beta.3 opened under beta.4
+- Upgrades from beta.4: the migrations are unchanged and `alembic check` finds
+  no drift. A SQLite database created and filled by beta.4 opened under beta.5
   with no upgrade step, keeping object versions, the library version, a setting
   and a deletion record; a search for `über` found “Über” in the old data, and
   a write moved the library on by one version.
-- The wheel built through the source archive: all 568 browser files survived,
-  and real HTTP from the extracted wheel served `/health` (`1.0.0b4`), `/app/`
-  with its Content-Security-Policy, the index's assets and a font. Authenticated
-  API reads and writes passed, with `sandbox` and `nosniff` on their answers.
+- The wheel built through the source archive: all 575 browser files survived,
+  and real HTTP from the extracted wheel served `/health` (`1.0.0b5`), `/app/`
+  with its Content-Security-Policy, the index's assets and a font, and the
+  service worker and manifest with `no-cache`. Authenticated API reads and
+  writes passed, with `sandbox` and `nosniff` on their answers.
 
 The [recorded desktop matrix](docs/client-compatibility.md#successfully-tested-matrix)
-has 54 SQLite/PostgreSQL combinations and 694 phases with Zotero 10.0.6 on Linux,
-run against the release candidate: all 27 scenarios pass on both databases.
-`reader-rendering`, which failed on this machine at beta.3, passes again.
-`graph-races` failed once on PostgreSQL while the machine was under other load
-and passed on its rerun; the matrix page records what differed. Remote CI,
-including the new end-to-end job, and multi-architecture image publication must
-still be checked after pushing.
+has 62 SQLite/PostgreSQL combinations and 750 phases with Zotero 10.0.6 on Linux,
+run against the release candidate: all 31 scenarios pass on both databases, each
+database in a single run. Remote CI and multi-architecture image publication
+must still be checked after pushing.
 
 ## Before opening a pull request
 
