@@ -58,6 +58,10 @@ export default {
   'Administrators': 'Amministratori',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Dopo, Zotero sul tuo computer si accorgerà di parlare con un altro account e proporrà di azzerare i suoi dati locali. Lascialo fare: tutto ciò che gli serve ora si trova su questo server.',
+  'Align': 'Allineamento',
+  'Align Center': 'Allineamento al centro',
+  'Align Left': 'Allineamento a sinistra',
+  'Align Right': 'Allineamento a destra',
   'All items': 'Tutti gli elementi',
   'All of it': 'Tutta quanta',
   'Allow': 'Consenti',
@@ -106,8 +110,12 @@ export default {
   'Back in service.': 'Di nuovo in servizio.',
   'Back to groups': 'Torna ai gruppi',
   'Back to sign in': 'Torna all’accesso',
+  'Block Quote': 'Citazione testuale lunga',
+  'Blue': 'Blu',
+  'Bold': 'Grassetto',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Entrambi seguono questo dispositivo se non scegli diversamente, e viaggiano con il tuo account.',
+  'Bulleted List': 'Elenco puntato',
   'By library': 'Per biblioteca',
   'Callback address': 'Indirizzo di callback',
   'Can': 'Può',
@@ -134,6 +142,7 @@ export default {
     'Scegliere una collezione include anche tutto ciò che si trova al suo interno. L’applicazione non potrà modificare le tue collezioni, le ricerche salvate, le impostazioni né i tag.',
   'Citation': 'Citazione',
   'Citation style': 'Stile citazionale',
+  'Clear Formatting': 'Cancella la formattazione',
   'Clear search': 'Cancella la ricerca',
   'Clear the selection': 'Annulla la selezione',
   'Client ID': 'ID client',
@@ -202,6 +211,7 @@ export default {
     'Giorni di conservazione di una registrazione di attività di gruppo già recapitata',
   'Days an item stays in the trash': 'Giorni di permanenza di un elemento nel cestino',
   'Decline': 'Rifiuta',
+  'Decrease Indent': 'Riduci rientro',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Destinare la tua opera al pubblico dominio non si può annullare, nemmeno se in seguito scegli condizioni diverse o smetti di pubblicare l’opera.',
   'Del': 'Canc',
@@ -239,6 +249,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Trascina per spostare questa divisione. Fai doppio clic per rimetterla a posto.',
   'Duplicate Items': 'Elementi duplicati',
+  'Edit': 'Modifica',
   'Edit the title': 'Modifica il titolo',
   'Email': 'Email',
   'Email address': 'Indirizzo email',
@@ -247,6 +258,7 @@ export default {
   'Empty the trash': 'Svuota il cestino',
   'End': 'Fine',
   'Enter': 'Invio',
+  'Enter Link': 'Inserisci il collegamento',
   'Enter the code shown on your device.': 'Inserisci il codice mostrato sul tuo dispositivo.',
   'Enter the six-digit code from your authenticator app.':
     'Inserisci il codice di sei cifre della tua app di autenticazione.',
@@ -280,12 +292,16 @@ export default {
   'For example, my laptop': 'Per esempio, il mio portatile',
   'Forgotten password': 'Password dimenticata',
   'Forgotten password?': 'Password dimenticata?',
+  'Format Text': 'Formatta il testo',
   'Format:': 'Formato:',
+  'Formatting': 'Formattazione',
   'Give the address on your account and we will send a link to set a new one.':
     'Indica l’indirizzo del tuo account e invieremo un collegamento per impostarne una nuova.',
   'Give them this link. It is good for {hours} hours and can be used once.':
     'Dai loro questo collegamento. Vale {hours} ore e può essere usato una volta sola.',
   'Go to your library': 'Vai alla tua biblioteca',
+  'Gray': 'Grigio',
+  'Green': 'Verde',
   'Group Libraries': 'Biblioteche dei gruppi',
   'Group created.': 'Gruppo creato.',
   'Group deleted.': 'Gruppo eliminato.',
@@ -293,7 +309,11 @@ export default {
   'Group {id}': 'Gruppo {id}',
   'Groups': 'Gruppi',
   'Hand over the group': 'Cedi il gruppo',
+  'Heading 1': 'Intestazione 1',
+  'Heading 2': 'Intestazione 2',
+  'Heading 3': 'Intestazione 3',
   'Hide from My Publications': 'Nascondi da Le mie pubblicazioni',
+  'Highlight Text': 'Evidenzia il testo',
   'Home': 'Home',
   'Hours an unfinished upload is remembered':
     'Ore per cui viene ricordato un caricamento incompiuto',
@@ -310,6 +330,8 @@ export default {
   'Include group libraries': 'Includi le biblioteche dei gruppi',
   'Include notes': 'Includi le note',
   'Include the collections inside this one': 'Includi le collezioni contenute in questa',
+  'Increase Indent': 'Aumenta rientro',
+  'Insert Link': 'Inserisci collegamento',
   'Inside': 'In',
   'Invitation declined.': 'Invito rifiutato.',
   'Invitation sent.': 'Invito inviato.',
@@ -320,6 +342,7 @@ export default {
   'It stays in your library, with its notes and files.':
     'Resta nella tua biblioteca, con le sue note e i suoi file.',
   'It will be able to:': 'Potrà:',
+  'Italic': 'Corsivo',
   'Items': 'Elementi',
   'Items added or changed': 'Elementi aggiunti o modificati',
   'Items deleted': 'Elementi eliminati',
@@ -351,6 +374,7 @@ export default {
   'Loading…': 'Caricamento…',
   'Local version: {value}': 'Versione locale: {value}',
   'Made {date}': 'Creato {date}',
+  'Magenta': 'Magenta',
   'Make a member': 'Rendi membro',
   'Make administrator': 'Rendi amministratore',
   'Make an account for anyone who signs in this way':
@@ -362,6 +386,7 @@ export default {
   'Member': 'Membro',
   'Members': 'Membri',
   'Migration revision': 'Revisione della migrazione',
+  'Monospaced': 'Larghezza fissa',
   'More Options…': 'Altre opzioni...',
   'Move Down': 'Sposta in basso',
   'Move Up': 'Sposta in alto',
@@ -431,6 +456,7 @@ export default {
   'Nothing to show.': 'Non c’è nulla da mostrare.',
   'Notifications': 'Notifiche',
   'Notifications, {count} unread': 'Notifiche, {count} non lette',
+  'Numbered List': 'Elenco numerato',
   'Off': 'Disattivato',
   'Offer this on the sign-in page': 'Offri questa opzione nella pagina di accesso',
   'On a work in My Publications, this is the license its files are published under.':
@@ -445,10 +471,12 @@ export default {
   'Only the libraries and collections I choose':
     'Solo le biblioteche e le collezioni che scelgo io',
   'Only their own items': 'Soltanto i propri elementi',
+  'Open Link': 'Apri collegamento',
   'Open file': 'Apri il file',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
     'Apri zotero.org → Settings → Security → Applications e crea una nuova chiave privata.',
   'Optional': 'Facoltativo',
+  'Orange': 'Arancione',
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.': 'Altre applicazioni a cui hai consentito di accedere a questo account. A ciascuna sono stati concessi solo i permessi che hai approvato.',
   'Overview': 'Panoramica',
   'Owner': 'Proprietario',
@@ -456,6 +484,7 @@ export default {
     'PEM. Incollali entrambi mentre il fornitore sta cambiando la sua chiave.',
   'Page Down': 'PagGiù',
   'Page Up': 'PagSu',
+  'Paragraph': 'Paragrafo',
   'Passkey added.': 'Passkey aggiunta.',
   'Passkeys': 'Passkey',
   'Password': 'Password',
@@ -478,6 +507,7 @@ export default {
   'Public': 'Pubblico',
   'Public page': 'Pagina pubblica',
   'Public, invitation only': 'Pubblico, solo su invito',
+  'Purple': 'Viola',
   'Put it in': 'Mettilo in',
   'Put them in': 'Mettili in',
   'Read and change any group library you belong to':
@@ -502,6 +532,8 @@ export default {
     'Legge la tua biblioteca personale da zotero.org — elementi, collezioni, tag, ricerche salvate, note e file allegati — e la mette qui, conservando le versioni che i tuoi client Zotero conoscono.',
   'Recent activity': 'Attività recente',
   'Recently Read': 'Letti di recente',
+  'Red': 'Rosso',
+  'Redo': 'Ripeti',
   'Refused. Zotero has been told to stop waiting.':
     'Rifiutato. A Zotero è stato detto di smettere di aspettare.',
   'Registration is open on this server.': 'Su questo server la registrazione è aperta.',
@@ -510,6 +542,7 @@ export default {
   'Reload': 'Ricarica',
   'Remote version: {value}': 'Versione remota: {value}',
   'Remove': 'Rimuovi',
+  'Remove Color': 'Rimuovi il colore',
   'Remove Creator': 'Rimuovi autore',
   'Remove Related': 'Rimuovi elemento correlato',
   'Remove Tag': 'Rimuovi tag',
@@ -565,6 +598,7 @@ export default {
   'Sent to {address}.': 'Inviato a {address}.',
   'Sent to {email}, once a group has been quiet for a while.':
     'Inviato a {email}, quando un gruppo è rimasto silenzioso per un po’.',
+  'Set': 'Imposta',
   'Set a password': 'Imposta una password',
   'Set password': 'Imposta la password',
   'Set up an authenticator': 'Configura un’app di autenticazione',
@@ -617,6 +651,9 @@ export default {
   'Stops working on': 'Smette di funzionare il',
   'Stops working {date}': 'Smette di funzionare {date}',
   'Storage': 'Spazio di archiviazione',
+  'Strikethrough': 'Barrato',
+  'Subscript': 'Pedice',
+  'Superscript': 'Apice',
   'Suspend': 'Sospendi',
   'Suspended': 'Sospeso',
   'Suspended. Their libraries are untouched.': 'Sospeso. Le sue biblioteche restano intatte.',
@@ -631,6 +668,7 @@ export default {
   'Taking you back to the application…': 'Ritorno all’applicazione…',
   'Tell me about': 'Avvisami di',
   'Ten items up or down': 'Dieci elementi su o giù',
+  'Text Color': 'Colore del testo',
   'That confirmation link is not valid or has expired.':
     'Quel collegamento di conferma non è valido oppure è scaduto.',
   'That connection was removed.': 'Quel collegamento è stato rimosso.',
@@ -686,6 +724,8 @@ export default {
   'This link has been revoked, has expired, or never existed.':
     'Questo collegamento è stato revocato, è scaduto, oppure non è mai esistito.',
   'This link stops working {date}.': 'Questo collegamento smette di funzionare {date}.',
+  'This note was written by a newer version of Zotero. It can be read here but not changed.':
+    'Questa nota è stata scritta da una versione più recente di Zotero. Qui si può leggere ma non modificare.',
   'This server': 'Questo server',
   'This server’s entity ID is its own public URL.':
     'L’entity ID di questo server è il suo stesso URL pubblico.',
@@ -694,8 +734,11 @@ export default {
   'Turn off codes by email': 'Disattiva i codici via email',
   'Turn on': 'Attiva',
   'Turn on codes by email': 'Attiva i codici via email',
+  'Underline': 'Sottolineato',
+  'Undo': 'Annulla',
   'Unfiled Items': 'Elementi non collocati',
   'Unknown browser': 'Browser sconosciuto',
+  'Unlink': 'Rimuovi collegamento',
   'Unread': 'Non letto',
   'Unreferenced files deleted.': 'File non più referenziati eliminati.',
   'Use a code by email instead': 'Usa invece un codice via email',
@@ -734,7 +777,9 @@ export default {
   'Would delete:': 'Eliminerebbe:',
   'Would you like to allow your work to be shared by others?':
     'Vuoi permettere che altri condividano la tua opera?',
+  'Write a note…': 'Scrivi una nota…',
   'Writing it into your library…': 'Scrittura nella tua biblioteca…',
+  'Yellow': 'Giallo',
   'Yes': 'Sì',
   'Yes, and place my work in the public domain':
     'Sì, e metti la mia opera nel pubblico dominio',
@@ -762,8 +807,10 @@ export default {
   'Zero keeps the trash for good, which is what this server does until you say otherwise. zotero.org uses 30.':
     'Zero conserva il cestino per sempre, ed è ciò che questo server fa finché non dici altrimenti. zotero.org usa 30.',
   'altero version': 'versione di altero',
+  'and': 'e',
   'confirmed': 'confermato',
   'date unknown': 'data sconosciuta',
+  'et al.': 'et al.',
   'first': 'nome',
   'full name': 'nome completo',
   'in use now': 'in uso ora',

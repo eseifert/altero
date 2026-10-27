@@ -62,6 +62,10 @@ export default {
   'Administration': 'Administración',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Despois, o Zotero do teu computador notará que está a falar cunha conta diferente e ofrecerase a restablecer os seus datos locais. Déixao: todo o que necesita está agora neste servidor.',
+  'Align': 'Aliñar',
+  'Align Center': 'Aliñado no centro',
+  'Align Left': 'Aliñado á esquerda',
+  'Align Right': 'Aliñado á dereita',
   'All items': 'Todos os elementos',
   'All of it': 'Toda',
   'Allow': 'Permitir',
@@ -110,8 +114,12 @@ export default {
   'Back in service.': 'De novo en servizo.',
   'Back to groups': 'Volver aos grupos',
   'Back to sign in': 'Volver ao inicio de sesión',
+  'Block Quote': 'Cita',
+  'Blue': 'Azul',
+  'Bold': 'Grosa',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Ambos seguen este dispositivo, salvo que escollas outra cousa, e van coa túa conta.',
+  'Bulleted List': 'Lista de puntos',
   'Callback address': 'Enderezo de retorno',
   'Can': 'Pode',
   Cancel: 'Cancelar',
@@ -138,6 +146,7 @@ export default {
     'Escoller unha colección inclúe tamén todo o que haxa dentro dela. A aplicación non poderá cambiar as túas coleccións, buscas gardadas, configuración nin etiquetas.',
   Citation: 'Cita',
   'Citation style': 'Estilo de cita',
+  'Clear Formatting': 'Borrar o formatado',
   'Clear search': 'Limpar a busca',
   'Clear the selection': 'Limpar a selección',
   'Client ID': 'ID de cliente',
@@ -206,6 +215,7 @@ export default {
   'Days a delivered group activity record is kept':
     'Días que se conserva un rexistro de actividade de grupo xa enviado',
   'Days an item stays in the trash': 'Días que un elemento permanece no lixo',
+  'Decrease Indent': 'Diminuír a sangría',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Ceder a túa obra ao dominio público non se pode desfacer, aínda que máis adiante escollas outras condicións ou deixes de publicar a obra.',
   Delete: 'Eliminar',
@@ -243,6 +253,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Arrastra para mover esta división. Fai dobre clic para devolvela ao seu sitio.',
   'Duplicate Items': 'Elementos duplicados',
+  'Edit': 'Editar',
   'Edit the title': 'Editar o título',
   'Email': 'Correo electrónico',
   'Email address': 'Enderezo de correo electrónico',
@@ -251,6 +262,7 @@ export default {
   'Empty the trash': 'Baleirar o lixo',
   'End': 'Fin',
   'Enter': 'Intro',
+  'Enter Link': 'Introduce ligazón',
   'Enter the code shown on your device.': 'Introduce o código que se amosa no teu dispositivo.',
   'Enter the six-digit code from your authenticator app.':
     'Introduce o código de seis díxitos da túa aplicación de autenticación.',
@@ -285,12 +297,16 @@ export default {
   'For example, my laptop': 'Por exemplo, o meu portátil',
   'Forgotten password': 'Contrasinal esquecido',
   'Forgotten password?': 'Esqueciches o contrasinal?',
+  'Format Text': 'Texto formatado',
   'Format:': 'Formato:',
+  'Formatting': 'Formato',
   'Give the address on your account and we will send a link to set a new one.':
     'Indica o enderezo da túa conta e enviarémosche unha ligazón para definir un novo.',
   'Give them this link. It is good for {hours} hours and can be used once.':
     'Dálle esta ligazón. É válida durante {hours} horas e só se pode usar unha vez.',
   'Go to your library': 'Ir á túa biblioteca',
+  'Gray': 'Gris',
+  'Green': 'Verde',
   'Group Libraries': 'Bibliotecas de grupo',
   'Group created.': 'Grupo creado.',
   'Group deleted.': 'Grupo eliminado.',
@@ -298,7 +314,11 @@ export default {
   'Group {id}': 'Grupo {id}',
   Groups: 'Grupos',
   'Hand over the group': 'Ceder o grupo',
+  'Heading 1': 'Cabeceira 1',
+  'Heading 2': 'Cabeceira 2',
+  'Heading 3': 'Cabeceira 3',
   'Hide from My Publications': 'Agochar de As miñas publicacións',
+  'Highlight Text': 'Resaltar texto',
   'Home': 'Inicio',
   'Hours an unfinished upload is remembered': 'Horas que se lembra unha subida sen rematar',
   'How long things are kept': 'Canto tempo se conservan as cousas',
@@ -314,6 +334,8 @@ export default {
   'Include group libraries': 'Incluír bibliotecas de grupo',
   'Include notes': 'Incluír notas',
   'Include the collections inside this one': 'Incluír as coleccións que hai dentro desta',
+  'Increase Indent': 'Aumentar a sangría',
+  'Insert Link': 'Inserir ligazón',
   'Inside': 'Dentro de',
   'Invitation declined.': 'Convite rexeitado.',
   'Invitation sent.': 'Convite enviado.',
@@ -325,6 +347,7 @@ export default {
   'It stays in your library, with its notes and files.':
     'Permanece na túa biblioteca, coas súas notas e ficheiros.',
   'It will be able to:': 'Poderá:',
+  'Italic': 'Cursiva',
   'Items': 'Elementos',
   'Items added or changed': 'Elementos engadidos ou cambiados',
   'Items deleted': 'Elementos eliminados',
@@ -356,6 +379,7 @@ export default {
   'Loading…': 'Cargando…',
   'Local version: {value}': 'Versión local: {value}',
   'Made {date}': 'Creada: {date}',
+  'Magenta': 'Maxenta',
   'Make a member': 'Facer membro',
   'Make administrator': 'Facer administrador',
   'Make an account for anyone who signs in this way':
@@ -367,6 +391,7 @@ export default {
   Member: 'Membro',
   Members: 'Membros',
   'Migration revision': 'Revisión da migración',
+  'Monospaced': 'Monoespazado',
   'More Options…': 'Máis opcións...',
   'Move Down': 'Baixar',
   'Move Up': 'Subir',
@@ -435,6 +460,7 @@ export default {
   'Nothing to show.': 'Non hai nada que amosar.',
   Notifications: 'Notificacións',
   'Notifications, {count} unread': 'Notificacións, {count} sen ler',
+  'Numbered List': 'Lista numerada',
   'Off': 'Desactivado',
   'Offer this on the sign-in page': 'Ofrecer isto na páxina de inicio de sesión',
   'On a work in My Publications, this is the license its files are published under.':
@@ -447,12 +473,14 @@ export default {
     'Só as persoas con sesión iniciada neste servidor poden ver esta páxina.',
   'Only the libraries and collections I choose': 'Só as bibliotecas e coleccións que eu escolla',
   'Only their own items': 'Só os seus propios elementos',
+  'Open Link': 'Abrir a ligazón',
   'Open file': 'Abrir o ficheiro',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
     'Abre zotero.org → Settings → Security → Applications e crea unha nova chave privada.',
   Optional: 'Opcional',
   Owner: 'Propietario',
   Password: 'Contrasinal',
+  'Orange': 'Laranxa',
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.':
     'Outras aplicacións ás que permitiches acceder a esta conta. Cada unha recibiu só os permisos que aprobaches.',
   'Overview': 'Visión xeral',
@@ -460,6 +488,7 @@ export default {
     'PEM. Pega ambos mentres o fornecedor está a renovar a súa chave.',
   'Page Down': 'AvPág',
   'Page Up': 'RePág',
+  'Paragraph': 'Parágrafo',
   'Passkey added.': 'Chave de acceso engadida.',
   'Passkeys': 'Chaves de acceso',
   'Password changed. Every other browser was signed out.':
@@ -481,6 +510,7 @@ export default {
   'Provider entity ID': 'ID de entidade do fornecedor',
   'Public page': 'Páxina pública',
   'Public, invitation only': 'Público, só con convite',
+  'Purple': 'Morado',
   'Put it in': 'Poñelo en',
   'Put them in': 'Poñelos en',
   'Read and change any group library you belong to':
@@ -504,6 +534,8 @@ export default {
     'Le a túa biblioteca persoal de zotero.org —elementos, coleccións, etiquetas, buscas gardadas, notas e ficheiros anexos— e tráea aquí, mantendo as versións que coñecen os teus clientes de Zotero.',
   'Recent activity': 'Actividade recente',
   'Recently Read': 'Lido recentemente',
+  'Red': 'Vermello',
+  'Redo': 'Refacer',
   'Refused. Zotero has been told to stop waiting.':
     'Rexeitado. Avisouse a Zotero de que deixe de agardar.',
   'Registration is open on this server.': 'O rexistro está aberto neste servidor.',
@@ -512,6 +544,7 @@ export default {
   'Related': 'Relacionados',
   'Reload': 'Recargar',
   'Remote version: {value}': 'Versión remota: {value}',
+  'Remove Color': 'Eliminar a cor',
   'Remove Creator': 'Eliminar creador',
   'Remove Related': 'Eliminar relacionado',
   'Remove Tag': 'Eliminar etiqueta',
@@ -566,6 +599,7 @@ export default {
   'Sent to {address}.': 'Enviado a {address}.',
   'Sent to {email}, once a group has been quiet for a while.':
     'Enviado a {email} cando un grupo leva un tempo sen actividade.',
+  'Set': 'Definir',
   'Set a password': 'Definir un contrasinal',
   'Set password': 'Definir o contrasinal',
   'Set up an authenticator': 'Configurar unha aplicación de autenticación',
@@ -618,6 +652,9 @@ export default {
   'Stops working on': 'Deixa de funcionar o día',
   'Stops working {date}': 'Deixa de funcionar: {date}',
   'Storage': 'Almacenamento',
+  'Strikethrough': 'Riscar',
+  'Subscript': 'Subíndice',
+  'Superscript': 'Superíndice',
   'Suspend': 'Suspender',
   'Suspended': 'Suspendida',
   'Suspended. Their libraries are untouched.': 'Suspendida. As súas bibliotecas quedan intactas.',
@@ -633,6 +670,7 @@ export default {
   'Taking you back to the application…': 'Levándote de volta á aplicación…',
   'Tell me about': 'Avisarme de',
   'Ten items up or down': 'Dez elementos arriba ou abaixo',
+  'Text Color': 'Cor de texto',
   'That confirmation link is not valid or has expired.':
     'Esa ligazón de confirmación non é válida ou caducou.',
   'That connection was removed.': 'Quitouse esa conexión.',
@@ -689,6 +727,8 @@ export default {
   'This link has been revoked, has expired, or never existed.':
     'Esta ligazón foi revogada, caducou ou nunca existiu.',
   'This link stops working {date}.': 'Esta ligazón deixa de funcionar: {date}.',
+  'This note was written by a newer version of Zotero. It can be read here but not changed.':
+    'Esta nota foi escrita cunha versión máis recente de Zotero. Pódese ler aquí, pero non modificar.',
   'This server': 'Este servidor',
   'This server’s entity ID is its own public URL.':
     'O ID de entidade deste servidor é o seu propio URL público.',
@@ -697,9 +737,12 @@ export default {
   'Turn off codes by email': 'Desactivar os códigos por correo electrónico',
   'Turn on': 'Activar',
   'Turn on codes by email': 'Activar os códigos por correo electrónico',
+  'Underline': 'Subliñar',
+  'Undo': 'Desfacer',
   'Unfiled Items': 'Elementos sen clasificar',
   'Unknown browser': 'Navegador descoñecido',
   Unread: 'Sen ler',
+  'Unlink': 'Retirar ligazón',
   'Unreferenced files deleted.': 'Elimináronse os ficheiros sen referencias.',
   'Use a code by email instead': 'Usar no seu lugar un código por correo electrónico',
   'Use a passkey instead': 'Usar no seu lugar unha chave de acceso',
@@ -736,8 +779,10 @@ export default {
   'Would delete:': 'Eliminaría:',
   'Would you like to allow your work to be shared by others?':
     'Queres permitir que outras persoas compartan a túa obra?',
+  'Write a note…': 'Escribe unha nota…',
   'Writing it into your library…': 'Escribíndoa na túa biblioteca…',
   Yes: 'Si',
+  'Yellow': 'Amarelo',
   'Yes, and place my work in the public domain': 'Si, e ceder a miña obra ao dominio público',
   'Yes, as long as others share alike': 'Si, sempre que as demais persoas compartan igual',
   'Yes, under a Creative Commons license': 'Si, baixo unha licenza Creative Commons',
@@ -766,7 +811,9 @@ export default {
   'Zero keeps the trash for good, which is what this server does until you say otherwise. zotero.org uses 30.':
     'Cero conserva o lixo para sempre, que é o que fai este servidor ata que digas outra cousa. zotero.org usa 30.',
   'altero version': 'Versión de altero',
+  'and': 'e',
   'date unknown': 'data descoñecida',
+  'et al.': 'et al.',
   'first': 'nome',
   'full name': 'nome completo',
   'in use now': 'en uso agora',

@@ -62,6 +62,10 @@ export default {
   'Administrators': 'நிர்வாகிகள்',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'அதன் பிறகு, உங்கள் கணினியில் உள்ள Zotero தான் வேறொரு கணக்குடன் தொடர்புகொள்வதைக் கவனித்து, அதன் உள்ளகத் தரவை மீட்டமைக்க முன்வரும். அதை அனுமதிக்கவும்: அதற்குத் தேவையான அனைத்தும் இப்போது இந்தச் சேவையகத்தில் உள்ளன.',
+  'Align': 'சீரமை',
+  'Align Center': 'நடுவில் சீரமை',
+  'Align Left': 'இடதுபுறம் சீரமை',
+  'Align Right': 'வலதுபுறம் சீரமை',
   'All items': 'அனைத்து உருப்படிகளும்',
   'All of it': 'அனைத்தும்',
   'Allow': 'அனுமதி',
@@ -109,8 +113,12 @@ export default {
   'Back in service.': 'மீண்டும் செயல்பாட்டில் உள்ளது.',
   'Back to groups': 'குழுக்களுக்குத் திரும்பு',
   'Back to sign in': 'உள்நுழைவுக்குத் திரும்பு',
+  'Block Quote': 'தொகுதி மேற்கோள்',
+  'Blue': 'நீலம்',
+  'Bold': 'தடிமான',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'நீங்கள் வேறுவிதமாகத் தேர்ந்தெடுக்காவிட்டால் இரண்டும் இந்தச் சாதனத்தைப் பின்பற்றும், உங்கள் கணக்குடன் எங்கும் உடன் வரும்.',
+  'Bulleted List': 'புள்ளியிட்ட பட்டியல்',
   'By library': 'நூலகவாரியாக',
   'Callback address': 'திரும்பும் முகவரி',
   'Can': 'செய்யக்கூடியது',
@@ -139,6 +147,7 @@ export default {
     'ஒரு சேகரிப்பைத் தேர்ந்தெடுத்தால், அதனுள் உள்ள அனைத்தும் சேர்க்கப்படும். பயன்பாட்டால் உங்கள் சேகரிப்புகள், சேமித்த தேடல்கள், அமைப்புகள் அல்லது குறிச்சொற்களை மாற்ற முடியாது.',
   'Citation': 'மேற்கோள்',
   'Citation style': 'மேற்கோள் நடை',
+  'Clear Formatting': 'வடிவமைப்பை அழி',
   'Clear search': 'தேடலை அழி',
   'Clear the selection': 'தேர்வை அழி',
   'Client ID': 'கிளையன்ட் ID',
@@ -209,6 +218,7 @@ export default {
     'வழங்கப்பட்ட குழுச் செயல்பாட்டுப் பதிவு வைத்திருக்கப்படும் நாட்கள்',
   'Days an item stays in the trash': 'உருப்படி குப்பையில் இருக்கும் நாட்கள்',
   'Decline': 'நிராகரி',
+  'Decrease Indent': 'உள்தள்ளலைக் குறை',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'பின்னர் நீங்கள் வேறு விதிமுறைகளைத் தேர்ந்தெடுத்தாலும் அல்லது படைப்பை வெளியிடுவதை நிறுத்தினாலும், உங்கள் படைப்பைப் பொது களத்திற்கு அர்ப்பணித்ததைச் செயல்தவிர்க்க முடியாது.',
   'Del': 'Del',
@@ -246,6 +256,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'இந்தப் பிரிகோட்டை நகர்த்த இழுக்கவும். பழைய இடத்திற்குத் திருப்ப இருமுறை சொடுக்கவும்.',
   'Duplicate Items': 'நகல் உருப்படிகள்',
+  'Edit': 'திருத்து',
   'Edit the title': 'தலைப்பைத் திருத்து',
   'Email': 'மின்னஞ்சல்',
   'Email address': 'மின்னஞ்சல் முகவரி',
@@ -254,6 +265,7 @@ export default {
   'Empty the trash': 'குப்பையைக் காலியாக்கு',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Link': 'தொடுப்பை உள்ளிடவும்',
   'Enter the code shown on your device.': 'உங்கள் சாதனத்தில் காட்டப்படும் குறியீட்டை உள்ளிடவும்.',
   'Enter the six-digit code from your authenticator app.':
     'உங்கள் அங்கீகரிப்புப் பயன்பாட்டிலிருந்து ஆறு இலக்கக் குறியீட்டை உள்ளிடவும்.',
@@ -287,12 +299,16 @@ export default {
   'For example, my laptop': 'எடுத்துக்காட்டாக, எனது மடிக்கணினி',
   'Forgotten password': 'மறந்த கடவுச்சொல்',
   'Forgotten password?': 'கடவுச்சொல் மறந்துவிட்டதா?',
+  'Format Text': 'உரையை வடிவமை',
   'Format:': 'வடிவம்:',
+  'Formatting': 'வடிவமைப்பு',
   'Give the address on your account and we will send a link to set a new one.':
     'உங்கள் கணக்கில் உள்ள முகவரியைக் கொடுங்கள், புதிய கடவுச்சொல்லை அமைக்க நாங்கள் ஒரு தொடுப்பை அனுப்புவோம்.',
   'Give them this link. It is good for {hours} hours and can be used once.':
     'அவருக்கு இந்தத் தொடுப்பைக் கொடுங்கள். அது {hours} மணிநேரம் செல்லுபடியாகும், ஒருமுறை மட்டுமே பயன்படுத்த முடியும்.',
   'Go to your library': 'உங்கள் நூலகத்திற்குச் செல்',
+  'Gray': 'சாம்பல்',
+  'Green': 'பச்சை',
   'Group Libraries': 'குழு நூலகங்கள்',
   'Group created.': 'குழு உருவாக்கப்பட்டது.',
   'Group deleted.': 'குழு நீக்கப்பட்டது.',
@@ -300,7 +316,11 @@ export default {
   'Group {id}': 'குழு {id}',
   'Groups': 'குழுக்கள்',
   'Hand over the group': 'குழுவை ஒப்படை',
+  'Heading 1': 'தலைப்பு 1',
+  'Heading 2': 'தலைப்பு 2',
+  'Heading 3': 'தலைப்பு 3',
   'Hide from My Publications': 'எனது வெளியீடுகளிலிருந்து மறை',
+  'Highlight Text': 'உரையை முன்னிலைப்படுத்து',
   'Home': 'Home',
   'Hours an unfinished upload is remembered':
     'முடிக்கப்படாத பதிவேற்றம் நினைவில் வைக்கப்படும் மணிநேரங்கள்',
@@ -317,6 +337,8 @@ export default {
   'Include group libraries': 'குழு நூலகங்களைச் சேர்',
   'Include notes': 'குறிப்புகளைச் சேர்க்கவும்',
   'Include the collections inside this one': 'இதனுள் உள்ள சேகரிப்புகளையும் சேர்',
+  'Increase Indent': 'உள்தள்ளலை அதிகரி',
+  'Insert Link': 'தொடுப்பைச் செருகு',
   'Inside': 'இதனுள்',
   'Invitation declined.': 'அழைப்பு நிராகரிக்கப்பட்டது.',
   'Invitation sent.': 'அழைப்பு அனுப்பப்பட்டது.',
@@ -328,6 +350,7 @@ export default {
   'It stays in your library, with its notes and files.':
     'அது அதன் குறிப்புகள் மற்றும் கோப்புகளுடன் உங்கள் நூலகத்திலேயே இருக்கும்.',
   'It will be able to:': 'அதனால் செய்ய முடிபவை:',
+  'Italic': 'சாய்வு',
   'Items': 'உருப்படிகள்',
   'Items added or changed': 'சேர்க்கப்பட்ட அல்லது மாற்றப்பட்ட உருப்படிகள்',
   'Items deleted': 'நீக்கப்பட்ட உருப்படிகள்',
@@ -360,6 +383,7 @@ export default {
   'Loading…': 'ஏற்றுகிறது…',
   'Local version: {value}': 'உள்ளக பதிப்பு: {value}',
   'Made {date}': 'உருவாக்கப்பட்டது: {date}',
+  'Magenta': 'மெஜந்தா',
   'Make a member': 'உறுப்பினராக்கு',
   'Make administrator': 'நிர்வாகியாக்கு',
   'Make an account for anyone who signs in this way':
@@ -371,6 +395,7 @@ export default {
   'Member': 'உறுப்பினர்',
   'Members': 'உறுப்பினர்கள்',
   'Migration revision': 'இடம்பெயர்வுத் திருத்தம்',
+  'Monospaced': 'ஒற்றைவெளியுடைய',
   'More Options…': 'மேலும் விருப்பங்கள்...',
   'Move Down': 'கீழே இறங்கு',
   'Move Up': 'மேலே நகர்த்து',
@@ -443,6 +468,7 @@ export default {
   'Nothing to show.': 'காட்டுவதற்கு எதுவும் இல்லை.',
   'Notifications': 'அறிவிப்புகள்',
   'Notifications, {count} unread': 'அறிவிப்புகள், படிக்காதவை: {count}',
+  'Numbered List': 'எண் பட்டியல்',
   'Off': 'முடக்கப்பட்டது',
   'Offer this on the sign-in page': 'உள்நுழைவுப் பக்கத்தில் இதை வழங்கு',
   'On a work in My Publications, this is the license its files are published under.':
@@ -457,10 +483,12 @@ export default {
   'Only the libraries and collections I choose':
     'நான் தேர்ந்தெடுக்கும் நூலகங்களும் சேகரிப்புகளும் மட்டும்',
   'Only their own items': 'தங்கள் சொந்த உருப்படிகள் மட்டும்',
+  'Open Link': 'தொடுப்பைத் திற',
   'Open file': 'கோப்பைத் திற',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
     'zotero.org → Settings → Security → Applications ஐத் திறந்து, புதிய தனிப்பட்ட விசையை உருவாக்கவும்.',
   'Optional': 'விருப்பத்தேர்வு',
+  'Orange': 'ஆரஞ்சு',
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.':
     'இந்தக் கணக்கை அணுக நீங்கள் அனுமதித்த பிற பயன்பாடுகள். ஒவ்வொன்றுக்கும் நீங்கள் ஒப்புதல் அளித்த அனுமதிகள் மட்டுமே வழங்கப்பட்டன.',
   'Overview': 'மேலோட்டம்',
@@ -469,6 +497,7 @@ export default {
     'PEM. வழங்குநர் தனது விசையை மாற்றிக்கொண்டிருக்கும்போது இரண்டையும் ஒட்டவும்.',
   'Page Down': 'Page Down',
   'Page Up': 'Page Up',
+  'Paragraph': 'பத்தி',
   'Passkey added.': 'கடவுச்சாவி சேர்க்கப்பட்டது.',
   'Passkeys': 'கடவுச்சாவிகள்',
   'Password': 'கடவுச்சொல்',
@@ -491,6 +520,7 @@ export default {
   'Public': 'பொது',
   'Public page': 'பொதுப் பக்கம்',
   'Public, invitation only': 'பொது, அழைப்பின் மூலம் மட்டும்',
+  'Purple': 'ஊதா',
   'Put it in': 'இதில் வை',
   'Put them in': 'இவற்றில் வை',
   'Read and change any group library you belong to':
@@ -514,6 +544,8 @@ export default {
     'zotero.org இலிருந்து உங்கள் தனிப்பட்ட நூலகத்தை — உருப்படிகள், சேகரிப்புகள், குறிச்சொற்கள், சேமித்த தேடல்கள், குறிப்புகள் மற்றும் இணைக்கப்பட்ட கோப்புகள் — படித்து, உங்கள் Zotero பயன்பாடுகளுக்குத் தெரிந்த பதிப்புகளைப் பாதுகாத்து, இங்கே வைக்கிறது.',
   'Recent activity': 'அண்மைச் செயல்பாடு',
   'Recently Read': 'அண்மையில் படித்தது',
+  'Red': 'சிவப்பு',
+  'Redo': 'மீட்டல்',
   'Refused. Zotero has been told to stop waiting.':
     'மறுக்கப்பட்டது. காத்திருப்பதை நிறுத்தும்படி Zotero வுக்குத் தெரிவிக்கப்பட்டது.',
   'Registration is open on this server.': 'இந்தச் சேவையகத்தில் பதிவு திறந்துள்ளது.',
@@ -522,6 +554,7 @@ export default {
   'Reload': 'மீண்டும் ஏற்று',
   'Remote version: {value}': 'தொலை பதிப்பு: {value}',
   'Remove': 'அகற்று',
+  'Remove Color': 'நிறத்தை அகற்று',
   'Remove Creator': 'உருவாக்கியவரை நீக்கு',
   'Remove Related': 'தொடர்புடையதை நீக்கு',
   'Remove Tag': 'குறிச்சொல்லை நீக்கு',
@@ -576,6 +609,7 @@ export default {
   'Sent to {address}.': '{address} என்ற முகவரிக்கு அனுப்பப்பட்டது.',
   'Sent to {email}, once a group has been quiet for a while.':
     'ஒரு குழு சிறிது நேரம் அமைதியாக இருந்த பிறகு, {email} என்ற முகவரிக்கு அனுப்பப்படும்.',
+  'Set': 'அமை',
   'Set a password': 'கடவுச்சொல்லை அமை',
   'Set password': 'கடவுச்சொல்லை அமை',
   'Set up an authenticator': 'அங்கீகரிப்புப் பயன்பாட்டை அமை',
@@ -630,6 +664,9 @@ export default {
   'Stops working on': 'வேலை செய்வதை நிறுத்தும் நாள்',
   'Stops working {date}': 'வேலை செய்வதை நிறுத்தும் நாள்: {date}',
   'Storage': 'சேமிப்பகம்',
+  'Strikethrough': 'குறுக்குக்கோடு',
+  'Subscript': 'கீழ்க்குறியீடு',
+  'Superscript': 'மேற்குறியீடு',
   'Suspend': 'இடைநிறுத்து',
   'Suspended': 'இடைநிறுத்தப்பட்டது',
   'Suspended. Their libraries are untouched.':
@@ -646,6 +683,7 @@ export default {
   'Taking you back to the application…': 'உங்களைப் பயன்பாட்டுக்குத் திருப்பி அனுப்புகிறது…',
   'Tell me about': 'இவற்றைப் பற்றி எனக்குத் தெரிவி',
   'Ten items up or down': 'பத்து உருப்படிகள் மேலே அல்லது கீழே',
+  'Text Color': 'உரை நிறம்',
   'That confirmation link is not valid or has expired.':
     'அந்த உறுதிப்படுத்தல் தொடுப்பு செல்லாதது அல்லது காலாவதியானது.',
   'That connection was removed.': 'அந்த இணைப்பு அகற்றப்பட்டது.',
@@ -702,6 +740,8 @@ export default {
   'This link has been revoked, has expired, or never existed.':
     'இந்தத் தொடுப்பு திரும்பப் பெறப்பட்டது, காலாவதியானது, அல்லது ஒருபோதும் இருந்ததில்லை.',
   'This link stops working {date}.': 'இந்தத் தொடுப்பு வேலை செய்வதை நிறுத்தும் நாள்: {date}.',
+  'This note was written by a newer version of Zotero. It can be read here but not changed.':
+    'இந்தக் குறிப்பு Zotero வின் புதிய பதிப்பில் எழுதப்பட்டது. இதை இங்கே படிக்கலாம், ஆனால் மாற்ற முடியாது.',
   'This server': 'இந்தச் சேவையகம்',
   'This server’s entity ID is its own public URL.':
     'இந்தச் சேவையகத்தின் entity ID அதன் சொந்தப் பொது URL ஆகும்.',
@@ -710,8 +750,11 @@ export default {
   'Turn off codes by email': 'மின்னஞ்சல் மூலம் குறியீடுகளை முடக்கு',
   'Turn on': 'இயக்கு',
   'Turn on codes by email': 'மின்னஞ்சல் மூலம் குறியீடுகளை இயக்கு',
+  'Underline': 'அடிக்கோடிட்டு',
+  'Undo': 'செயல்தவிர்',
   'Unfiled Items': 'சேகரிப்பில் இல்லாத உருப்படிகள்',
   'Unknown browser': 'அறியப்படாத உலாவி',
+  'Unlink': 'துண்டி',
   'Unread': 'படிக்காதது',
   'Unreferenced files deleted.': 'குறிப்பிடப்படாத கோப்புகள் நீக்கப்பட்டன.',
   'Use a code by email instead': 'பதிலாக மின்னஞ்சல் குறியீட்டைப் பயன்படுத்து',
@@ -750,7 +793,9 @@ export default {
   'Would delete:': 'நீக்கப்படக்கூடியவை:',
   'Would you like to allow your work to be shared by others?':
     'உங்கள் படைப்பை மற்றவர்கள் பகிர அனுமதிக்க விரும்புகிறீர்களா?',
+  'Write a note…': 'குறிப்பு எழுதுங்கள்…',
   'Writing it into your library…': 'உங்கள் நூலகத்தில் எழுதுகிறது…',
+  'Yellow': 'மஞ்சள்',
   'Yes': 'ஆம்',
   'Yes, and place my work in the public domain': 'ஆம், எனது படைப்பைப் பொது களத்தில் வை',
   'Yes, as long as others share alike': 'ஆம், மற்றவர்களும் அதே உரிமத்தின் கீழ் பகிரும் வரை',
@@ -779,8 +824,10 @@ export default {
   'Zero keeps the trash for good, which is what this server does until you say otherwise. zotero.org uses 30.':
     'பூஜ்ஜியம் என்றால் குப்பை என்றென்றும் வைத்திருக்கப்படும்; நீங்கள் மாற்றும் வரை இந்தச் சேவையகம் அதையே செய்கிறது. zotero.org 30 ஐப் பயன்படுத்துகிறது.',
   'altero version': 'altero பதிப்பு',
+  'and': 'மற்றும்',
   'confirmed': 'உறுதிப்படுத்தப்பட்டது',
   'date unknown': 'தேதி தெரியவில்லை',
+  'et al.': 'மற்றும் பலர்',
   'first': 'முதல்',
   'full name': 'முழு பெயர்',
   'in use now': 'இப்போது பயன்பாட்டில்',

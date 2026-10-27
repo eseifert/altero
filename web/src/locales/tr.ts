@@ -60,6 +60,10 @@ export default {
   'Administrators': 'Yöneticiler',
   'Afterwards, Zotero on your computer will notice it is talking to a different account and offer to reset its local data. Let it: everything it needs is now on this server.':
     'Ardından bilgisayarınızdaki Zotero farklı bir hesapla konuştuğunu fark edecek ve yerel verilerini sıfırlamayı önerecek. İzin veriniz: ihtiyaç duyduğu her şey artık bu sunucuda.',
+  'Align': 'Hizalama',
+  'Align Center': 'Metni Ortala',
+  'Align Left': 'Sola Hizala',
+  'Align Right': 'Sağa Hizala',
   'All items': 'Tüm eserler',
   'All of it': 'Tamamı',
   'Allow': 'İzin ver',
@@ -109,8 +113,12 @@ export default {
   'Back in service.': 'Hesap yeniden etkin.',
   'Back to groups': 'Gruplara dön',
   'Back to sign in': 'Oturum açmaya dön',
+  'Block Quote': 'Alıntı Bloğu',
+  'Blue': 'Mavi',
+  'Bold': 'Kalın',
   'Both follow this device unless you choose otherwise, and travel with your account.':
     'Aksini seçmediğiniz sürece ikisi de bu cihazı izler ve hesabınızla birlikte taşınır.',
+  'Bulleted List': 'Madde İşaretli Liste',
   'By library': 'Kitaplığa göre',
   'Callback address': 'Geri çağırma adresi',
   'Can': 'Yetki',
@@ -137,6 +145,7 @@ export default {
     'Bir derme seçmek, içindeki her şeyi de kapsar. Uygulama dermelerinizi, kayıtlı aramalarınızı, ayarlarınızı ya da etiketlerinizi değiştiremeyecektir.',
   'Citation': 'Alıntı',
   'Citation style': 'Alıntı stili',
+  'Clear Formatting': 'Biçimlendirmeleri Temizle',
   'Clear search': 'Aramayı temizle',
   'Clear the selection': 'Seçimi temizle',
   'Client ID': 'İstemci kimliği',
@@ -206,6 +215,7 @@ export default {
     'Teslim edilmiş bir grup etkinliği kaydının saklandığı gün sayısı',
   'Days an item stays in the trash': 'Bir eserin Çöp Sepetinde kaldığı gün sayısı',
   'Decline': 'Reddet',
+  'Decrease Indent': 'Girintiyi Azalt',
   'Dedicating your work to the public domain cannot be undone, even if you later choose different terms or stop publishing the work.':
     'Eserinizi kamu alanına sunmak, daha sonra farklı koşullar seçseniz ya da eseri yayınlamayı bıraksanız bile geri alınamaz.',
   'Del': 'Del',
@@ -243,6 +253,7 @@ export default {
   'Drag to move this divide. Double-click to put it back.':
     'Bu ayırıcıyı taşımak için sürükleyiniz. Eski yerine koymak için çift tıklayınız.',
   'Duplicate Items': 'Yinelenmiş Eserler',
+  'Edit': 'Düzenle',
   'Edit the title': 'Başlığı düzenle',
   'Email': 'E-posta',
   'Email address': 'E-posta adresi',
@@ -251,6 +262,7 @@ export default {
   'Empty the trash': 'Çöp Sepetini boşalt',
   'End': 'End',
   'Enter': 'Enter',
+  'Enter Link': 'Bağlantıyı Gir',
   'Enter the code shown on your device.': 'Cihazınızda gösterilen kodu giriniz.',
   'Enter the six-digit code from your authenticator app.':
     'Kimlik doğrulama uygulamanızdaki altı haneli kodu giriniz.',
@@ -284,12 +296,16 @@ export default {
   'For example, my laptop': 'Örneğin, dizüstü bilgisayarım',
   'Forgotten password': 'Unutulan şifre',
   'Forgotten password?': 'Şifrenizi mi unuttunuz?',
+  'Format Text': 'Metni Biçimlendir',
   'Format:': 'Biçim:',
+  'Formatting': 'Biçimlendirme',
   'Give the address on your account and we will send a link to set a new one.':
     'Hesabınızdaki adresi giriniz; yeni bir şifre belirlemeniz için bir bağlantı gönderelim.',
   'Give them this link. It is good for {hours} hours and can be used once.':
     'Kendisine bu bağlantıyı veriniz. Bağlantı {hours} saat geçerlidir ve bir kez kullanılabilir.',
   'Go to your library': 'Kitaplığa git',
+  'Gray': 'Gri',
+  'Green': 'Yeşil',
   'Group Libraries': 'Grup Kitaplıkları',
   'Group created.': 'Grup oluşturuldu.',
   'Group deleted.': 'Grup silindi.',
@@ -297,7 +313,11 @@ export default {
   'Group {id}': 'Grup {id}',
   'Groups': 'Gruplar',
   'Hand over the group': 'Grubu devret',
+  'Heading 1': 'Başlık 1',
+  'Heading 2': 'Başlık 2',
+  'Heading 3': 'Başlık 3',
   'Hide from My Publications': 'Yayınlarım’da gizle',
+  'Highlight Text': 'Metni Vurgula',
   'Home': 'Home',
   'Hours an unfinished upload is remembered':
     'Tamamlanmamış bir yüklemenin hatırlandığı saat sayısı',
@@ -314,6 +334,8 @@ export default {
   'Include group libraries': 'Grup kitaplıklarını dahil et',
   'Include notes': 'Notları dahil et',
   'Include the collections inside this one': 'Bunun içindeki dermeleri dahil et',
+  'Increase Indent': 'Girintiyi Artır',
+  'Insert Link': 'Bağlantı Ekle',
   'Inside': 'Üst derme',
   'Invitation declined.': 'Davet reddedildi.',
   'Invitation sent.': 'Davet gönderildi.',
@@ -325,6 +347,7 @@ export default {
   'It stays in your library, with its notes and files.':
     'Notları ve dosyalarıyla birlikte kitaplığınızda kalır.',
   'It will be able to:': 'Şunları yapabilecek:',
+  'Italic': 'İtalik',
   'Items': 'Eserler',
   'Items added or changed': 'Eklenen ya da değiştirilen eserler',
   'Items deleted': 'Silinen eserler',
@@ -357,6 +380,7 @@ export default {
   'Loading…': 'Yükleniyor…',
   'Local version: {value}': 'Yerel versiyon: {value}',
   'Made {date}': 'Oluşturulma: {date}',
+  'Magenta': 'Eflatun',
   'Make a member': 'Üye yap',
   'Make administrator': 'Yönetici yap',
   'Make an account for anyone who signs in this way':
@@ -368,6 +392,7 @@ export default {
   'Member': 'Üye',
   'Members': 'Üyeler',
   'Migration revision': 'Geçiş revizyonu',
+  'Monospaced': 'Tek Aralıklı',
   'More Options…': 'Diğer Seçenekler...',
   'Move Down': 'Bir Aşağı Taşı',
   'Move Up': 'Bir Yukarı Taşı',
@@ -436,6 +461,7 @@ export default {
   'Nothing to show.': 'Gösterilecek bir şey yok.',
   'Notifications': 'Bildirimler',
   'Notifications, {count} unread': 'Bildirimler, {count} okunmamış',
+  'Numbered List': 'Numaralandırılmış Liste',
   'Off': 'Kapalı',
   'Offer this on the sign-in page': 'Bunu oturum açma sayfasında sun',
   'On a work in My Publications, this is the license its files are published under.':
@@ -449,10 +475,12 @@ export default {
     'Bu sayfayı sadece bu sunucuda oturum açmış kişiler görebilir.',
   'Only the libraries and collections I choose': 'Sadece seçtiğim kitaplıklar ve dermeler',
   'Only their own items': 'Sadece kendi eserleri',
+  'Open Link': 'Bağlantıyı Aç',
   'Open file': 'Dosyayı aç',
   'Open zotero.org → Settings → Security → Applications and create a new private key.':
     'zotero.org → Settings → Security → Applications sayfasını açınız ve yeni bir özel anahtar oluşturunuz.',
   'Optional': 'İsteğe bağlı',
+  'Orange': 'Turuncu',
   'Other applications you have allowed to reach this account. Each was given only the permissions you approved.':
     'Bu hesaba erişmesine izin verdiğiniz diğer uygulamalar. Her birine yalnızca onayladığınız izinler verildi.',
   'Overview': 'Genel bakış',
@@ -461,6 +489,7 @@ export default {
     'PEM. Sağlayıcı anahtarını yenilerken ikisini birden yapıştırınız.',
   'Page Down': 'Page Down',
   'Page Up': 'Page Up',
+  'Paragraph': 'Paragraf',
   'Passkey added.': 'Geçiş anahtarı eklendi.',
   'Passkeys': 'Geçiş anahtarları',
   'Password': 'Şifre',
@@ -483,6 +512,7 @@ export default {
   'Public': 'Herkese açık',
   'Public page': 'Herkese açık sayfa',
   'Public, invitation only': 'Herkese açık, yalnızca davetle',
+  'Purple': 'Mor',
   'Put it in': 'Şuraya koy',
   'Put them in': 'Şuraya koy',
   'Read and change any group library you belong to':
@@ -506,6 +536,8 @@ export default {
     'Kişisel kitaplığınızı — eserleri, dermeleri, etiketleri, kayıtlı aramaları, notları ve ekli dosyaları — zotero.org’dan okur ve Zotero istemcilerinizin bildiği sürümleri koruyarak buraya koyar.',
   'Recent activity': 'Son etkinlikler',
   'Recently Read': 'Son Okunanlar',
+  'Red': 'Kırmızı',
+  'Redo': 'Yinele',
   'Refused. Zotero has been told to stop waiting.':
     'Reddedildi. Zotero’ya beklemeyi bırakması bildirildi.',
   'Registration is open on this server.': 'Bu sunucuda kayıt açık.',
@@ -514,6 +546,7 @@ export default {
   'Reload': 'Yeniden yükle',
   'Remote version: {value}': 'Uzaktaki versiyon: {value}',
   'Remove': 'Kaldır',
+  'Remove Color': 'Rengi Kaldır',
   'Remove Creator': 'Oluşturanı kaldır',
   'Remove Related': 'İlişkiliyi kaldır',
   'Remove Tag': 'Etiketi kaldır',
@@ -569,6 +602,7 @@ export default {
   'Sent to {address}.': '{address} adresine gönderildi.',
   'Sent to {email}, once a group has been quiet for a while.':
     'Bir grup bir süre sessiz kaldığında {email} adresine gönderilir.',
+  'Set': 'Kur',
   'Set a password': 'Şifre belirle',
   'Set password': 'Şifreyi belirle',
   'Set up an authenticator': 'Kimlik doğrulama uygulaması kur',
@@ -621,6 +655,9 @@ export default {
   'Stops working on': 'Son geçerlilik tarihi',
   'Stops working {date}': 'Son geçerlilik: {date}',
   'Storage': 'Depolama',
+  'Strikethrough': 'Üstü Çizili',
+  'Subscript': 'Alt Simge',
+  'Superscript': 'Üst Simge',
   'Suspend': 'Askıya al',
   'Suspended': 'Askıda',
   'Suspended. Their libraries are untouched.':
@@ -637,6 +674,7 @@ export default {
   'Taking you back to the application…': 'Uygulamaya geri yönlendiriliyorsunuz…',
   'Tell me about': 'Bana şunları bildir',
   'Ten items up or down': 'On eser yukarı veya aşağı',
+  'Text Color': 'Metin Rengi',
   'That confirmation link is not valid or has expired.':
     'Bu doğrulama bağlantısı geçersiz ya da süresi dolmuş.',
   'That connection was removed.': 'Bu bağlantı kaldırıldı.',
@@ -692,6 +730,8 @@ export default {
   'This link has been revoked, has expired, or never existed.':
     'Bu bağlantı iptal edilmiş, süresi dolmuş ya da hiç var olmamış.',
   'This link stops working {date}.': 'Bu bağlantının son geçerlilik tarihi: {date}.',
+  'This note was written by a newer version of Zotero. It can be read here but not changed.':
+    'Bu not, Zotero’nun daha yeni bir sürümüyle yazılmış. Burada okunabilir ama değiştirilemez.',
   'This server': 'Bu sunucu',
   'This server’s entity ID is its own public URL.':
     'Bu sunucunun varlık kimliği kendi herkese açık URL’sidir.',
@@ -700,8 +740,11 @@ export default {
   'Turn off codes by email': 'E-posta kodlarını kapat',
   'Turn on': 'Aç',
   'Turn on codes by email': 'E-posta kodlarını aç',
+  'Underline': 'Altı Çizili',
+  'Undo': 'Geri al',
   'Unfiled Items': 'Dosyalanmamış Eserler',
   'Unknown browser': 'Bilinmeyen tarayıcı',
+  'Unlink': 'Bağlantıyı Kaldır',
   'Unread': 'Okunmamış',
   'Unreferenced files deleted.': 'Başvurulmayan dosyalar silindi.',
   'Use a code by email instead': 'Bunun yerine e-postayla kod kullan',
@@ -740,7 +783,9 @@ export default {
   'Would delete:': 'Silinecekler:',
   'Would you like to allow your work to be shared by others?':
     'Eserinizin başkaları tarafından paylaşılabilmesine izin veriyor musunuz?',
+  'Write a note…': 'Bir not yazın…',
   'Writing it into your library…': 'Kitaplığınıza yazılıyor…',
+  'Yellow': 'Sarı',
   'Yes': 'Evet',
   'Yes, and place my work in the public domain': 'Evet, eserimi kamu alanına serbestçe koy',
   'Yes, as long as others share alike': 'Evet, başkaları da aynı şekilde paylaşacaksa',
@@ -769,8 +814,10 @@ export default {
   'Zero keeps the trash for good, which is what this server does until you say otherwise. zotero.org uses 30.':
     'Sıfır, Çöp Sepetindekileri süresiz saklar; aksini belirtmediğiniz sürece bu sunucu böyle davranır. zotero.org 30 kullanır.',
   'altero version': 'altero sürümü',
+  'and': 've',
   'confirmed': 'doğrulandı',
   'date unknown': 'tarih bilinmiyor',
+  'et al.': 'vd.',
   'first': 'ilk',
   'full name': 'tam isim',
   'in use now': 'şu an kullanımda',

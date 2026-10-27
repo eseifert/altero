@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <title>Format text</title>
+  <!-- A capital and a small letter, the "Aa" every editor uses for a menu of
+       text styles. -->
+  <path d="M2.5 19L7.5 5l5 14M4.3 14h6.4" />
+  <path d="M21 13v6M21 16a2.75 2.75 0 10-5.5 0 2.75 2.75 0 005.5 0z" />
+</svg>

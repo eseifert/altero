@@ -29,10 +29,11 @@ const SOURCE = fileURLToPath(new URL('../', import.meta.url))
 /**
  * Where a surface may be painted.
  *
- * The four shared stylesheets are the vocabulary itself. The three components
- * are the exceptions and each is a different one: the application bar is
- * chrome rather than a card, the theme menu is a floating menu, and the
- * publications dialog fills a step above the dialog it sits in.
+ * The four shared stylesheets are the vocabulary itself. The others are the
+ * exceptions and each is a different one: the application bar is chrome rather
+ * than a card, the theme menu is a floating menu, the publications dialog
+ * fills a step above the dialog it sits in, and the note editor's stylesheet
+ * shades a note's code -- the note's own content, not an area of the page.
  */
 const MAY_PAINT = [
   'styles/surfaces.css',
@@ -42,6 +43,7 @@ const MAY_PAINT = [
   'App.vue',
   'components/ThemeMenu.vue',
   'components/PublicationsDialog.vue',
+  'notes/editor.css',
 ]
 
 /** Every file that can carry CSS, as a path relative to `src/`. */

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <title>Text color</title>
+  <!-- A letter over the bar the button paints in the colour last chosen. -->
+  <path d="M6.5 16L12 3l5.5 13M8.6 11.5h6.8" />
+</svg>

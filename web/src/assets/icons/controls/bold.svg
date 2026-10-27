@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+     stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+  <title>Bold</title>
+  <!-- A B drawn heavier than the other glyphs, as the thing it does. -->
+  <path d="M7 5h5.5a3.5 3.5 0 010 7H7zM7 12h6.5a3.5 3.5 0 010 7H7z" />
+</svg>

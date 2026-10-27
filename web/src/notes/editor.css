@@ -1,0 +1,211 @@
+/*
+ * The note editor's page: what ProseMirror needs to behave, and how a note
+ * reads.
+ *
+ * The first part is Tiptap's own base stylesheet, which it would otherwise put
+ * on the page as a <style> element of its own — refused by this interface's
+ * Content-Security-Policy, which takes stylesheets from this server only. It is
+ * here instead, under `.note-editor`, so nothing else on the page is touched.
+ */
+
+.note-editor .ProseMirror {
+  position: relative;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  white-space: break-spaces;
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0;
+}
+
+.note-editor .ProseMirror [contenteditable='false'] {
+  white-space: normal;
+}
+
+.note-editor .ProseMirror [contenteditable='false'] [contenteditable='true'] {
+  white-space: pre-wrap;
+}
+
+.note-editor .ProseMirror pre {
+  white-space: pre-wrap;
+}
+
+.note-editor img.ProseMirror-separator {
+  display: inline !important;
+  border: none !important;
+  margin: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.note-editor .ProseMirror-gapcursor {
+  display: none;
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+}
+
+.note-editor .ProseMirror-gapcursor::after {
+  content: '';
+  display: block;
+  position: absolute;
+  inset-block-start: -2px;
+  width: 20px;
+  border-block-start: 1px solid var(--md-sys-color-on-surface);
+  animation: note-editor-cursor-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes note-editor-cursor-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.note-editor .ProseMirror-hideselection *::selection {
+  background: transparent;
+}
+
+.note-editor .ProseMirror-hideselection * {
+  caret-color: transparent;
+}
+
+.note-editor .ProseMirror-focused .ProseMirror-gapcursor {
+  display: block;
+}
+
+/* ---- How a note reads. ---- */
+
+.note-editor .ProseMirror {
+  min-height: 8rem;
+  outline: none;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+.note-editor .ProseMirror > :first-child {
+  margin-block-start: 0;
+}
+
+.note-editor .ProseMirror > :last-child {
+  margin-block-end: 0;
+}
+
+.note-editor .ProseMirror p {
+  margin-block: 0 0.6em;
+}
+
+.note-editor .ProseMirror h1,
+.note-editor .ProseMirror h2,
+.note-editor .ProseMirror h3,
+.note-editor .ProseMirror h4,
+.note-editor .ProseMirror h5,
+.note-editor .ProseMirror h6 {
+  margin-block: 0.9em 0.4em;
+  line-height: 1.25;
+}
+
+.note-editor .ProseMirror h1 { font-size: 1.45em; }
+.note-editor .ProseMirror h2 { font-size: 1.25em; }
+.note-editor .ProseMirror h3 { font-size: 1.1em; }
+.note-editor .ProseMirror h4,
+.note-editor .ProseMirror h5,
+.note-editor .ProseMirror h6 { font-size: 1em; }
+
+.note-editor .ProseMirror ul,
+.note-editor .ProseMirror ol {
+  margin-block: 0 0.6em;
+  padding-inline-start: 1.6em;
+}
+
+.note-editor .ProseMirror li > p {
+  margin-block-end: 0.2em;
+}
+
+.note-editor .ProseMirror blockquote {
+  margin: 0 0 0.6em;
+  padding-inline-start: 0.9em;
+  border-inline-start: 3px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.note-editor .ProseMirror pre,
+.note-editor .ProseMirror code {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.note-editor .ProseMirror pre {
+  margin-block: 0 0.6em;
+  padding: 0.6em 0.75em;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.note-editor .ProseMirror code {
+  padding: 0.05em 0.25em;
+  border-radius: 0.25em;
+  background: var(--md-sys-color-surface-container-high);
+}
+
+.note-editor .ProseMirror hr {
+  margin-block: 1em;
+  border: none;
+  border-block-start: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.note-editor .ProseMirror a {
+  color: var(--md-sys-color-primary);
+}
+
+.note-editor .ProseMirror table {
+  width: 100%;
+  margin-block: 0 0.6em;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.note-editor .ProseMirror td,
+.note-editor .ProseMirror th {
+  padding: 0.3em 0.45em;
+  border: 1px solid var(--md-sys-color-outline-variant);
+  vertical-align: top;
+}
+
+.note-editor .ProseMirror td > :last-child,
+.note-editor .ProseMirror th > :last-child {
+  margin-block-end: 0;
+}
+
+.note-editor .ProseMirror .selectedCell {
+  background: var(--md-sys-state-hover-surface);
+}
+
+.note-editor .ProseMirror img.note-image {
+  max-width: 100%;
+  height: auto;
+}
+
+/* What the desktop puts into a note from a PDF and from the library: drawn so
+   that it reads as a quotation and a reference, and neither can be typed into
+   here (ProseMirror marks both as not editable). */
+.note-editor .ProseMirror .citation {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.note-editor .ProseMirror .math {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.note-editor .ProseMirror-selectednode {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 1px;
+}
+
+/* Tiptap's placeholder, on the empty first paragraph. */
+.note-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: inline-start;
+  height: 0;
+  color: var(--md-sys-color-on-surface-variant);
+  pointer-events: none;
+}
