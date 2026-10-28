@@ -36,7 +36,7 @@ from sqlalchemy import ColumnElement, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute
 
-from altero.models import Collection, Item, ItemField, Library, LibraryType, Tag, User
+from altero.models import Collection, Item, Library, LibraryType, Tag, User
 from altero.services.storage import STAGING_PREFIX, file_path
 
 logger = logging.getLogger("altero.storagestats")
@@ -146,9 +146,7 @@ async def _digests_by_library(session: AsyncSession) -> dict[int, set[str]]:
     the same file attached to two items in it costs it once.
     """
     rows = await session.execute(
-        select(Item.library_id, ItemField.value)
-        .join(ItemField, ItemField.item_id == Item.id)
-        .where(ItemField.field == "md5", ItemField.value != "")
+        select(Item.library_id, Item.registered_md5).where(Item.registered_md5.is_not(None))
     )
     digests: dict[int, set[str]] = defaultdict(set)
     for library_id, digest in rows:

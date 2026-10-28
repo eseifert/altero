@@ -72,6 +72,15 @@ class Item(Base, Timestamped):
     sort_creator: Mapped[str] = mapped_column(String(255), default="")
     sort_date: Mapped[str] = mapped_column(String(32), default="")
 
+    #: The digest of the bytes an upload registered for this attachment, which
+    #: is what a download serves. Not its ``md5`` field: that is metadata any
+    #: client may write, as upstream's `attachmentStorageHash` is, and the file
+    #: comes from `storageFileItems`, which only an upload writes. Served from
+    #: the field instead, a client could name any digest the shared store held
+    #: and read another library's file. Null where no bytes were registered: a
+    #: link, a linked file, or a file kept on WebDAV.
+    registered_md5: Mapped[str | None] = mapped_column(String(32), default=None)
+
     fields: Mapped[list[ItemField]] = relationship(
         back_populates="item", lazy="selectin", cascade="all, delete-orphan"
     )

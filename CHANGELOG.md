@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Downloads serve the file an upload registered, not any digest an attachment's `md5` names; zotero.org draws the same line ([registered]).
 - The browser interface renames an attachment's file and edits its title, as Zotero Desktop's attachment pane does ([files]).
 - The browser interface adds files — picked or dragged in from the computer — and web links, and replaces a file, with progress shown ([files]).
 - `ALTERO_MAX_UPLOAD_MB` sets the largest attachment file accepted from any client; the default stays 1 GiB ([config]).
@@ -261,6 +262,7 @@ The first release meant to be used by somebody other than its author.
 [editing]: docs/web/library.md#editing-an-item
 [notes]: docs/web/library.md#writing-a-note
 [files]: docs/web/library.md#adding-files-and-links
+[registered]: docs/compatibility.md#the-file-protocol
 [build]: docs/deployment.md#build-the-image-instead-of-pulling-it
 [items]: docs/web/library.md#items
 [install]: docs/web-interface.md#installing-it-as-an-app

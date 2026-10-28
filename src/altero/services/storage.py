@@ -395,6 +395,10 @@ def current_md5(item: Item) -> str | None:
 def stored_md5(item: Item, root: Path) -> str | None:
     """Return the digest of the file the item actually has, if it has one.
 
+    The digest an upload registered (:attr:`Item.registered_md5`), not the one
+    the item claims: a claim is metadata a client may write, and the bytes are
+    what was sent.
+
     An attachment can name a digest this server has never held. A library
     migrated out of zotero.org whose files were kept on WebDAV is the ordinary
     way in -- zotero.org serves the digest and mtime the WebDAV server recorded
@@ -403,7 +407,7 @@ def stored_md5(item: Item, root: Path) -> str | None:
     already answers 404 for those, and this is the same question asked before a
     write.
     """
-    md5 = current_md5(item)
+    md5 = item.registered_md5
     # A non-digest here is a poisoned row; `is_file_digest` keeps this answering
     # ``None`` for it rather than letting `file_path` refuse, as the docstring
     # promises. The read routes still answer 404 through `stored_file`.
@@ -498,10 +502,11 @@ async def authorize(
     """
     _require_attachment(item)
 
-    if file_path(root, declared["md5"]).is_file():
+    if _already_held(root, declared):
         # Someone has already uploaded these exact bytes, so only the metadata
         # needs attaching.
         await attach(session, item, declared)
+        item.registered_md5 = declared["md5"]
         return {"exists": 1}
 
     upload = StorageUpload(
@@ -537,6 +542,24 @@ async def authorize(
         "suffix": "",
         "uploadKey": upload.key,
     }
+
+
+def _already_held(root: Path, declared: dict[str, Any]) -> bool:
+    """Whether the store holds the file declared, so that it need not be sent.
+
+    Upstream's test (`ItemsController`, "Specified file size incorrect for
+    known file"): the digest *and* the exact size. Answering ``exists`` hands
+    the file to whoever asked, so a digest alone -- which another library's
+    metadata may have shown somebody -- is not enough. Where the size differs
+    the client is asked for the bytes instead of refused, as upstream refuses:
+    the store keeps one file per digest, and a snapshot zipped by another
+    client is the same digest at another size.
+    """
+    path = file_path(root, declared["md5"])
+    try:
+        return path.stat().st_size == declared["filesize"]
+    except OSError:
+        return False
 
 
 async def get_upload(session: AsyncSession, key: str, *, fresh: bool = False) -> StorageUpload:
@@ -718,15 +741,21 @@ async def register(session: AsyncSession, item: Item, upload: StorageUpload, ver
         },
     )
     item.version = version
+    item.registered_md5 = upload.md5
     await session.delete(upload)
 
 
 async def stored_file(item: Item, root: Path) -> tuple[Path, dict[str, str]]:
-    """Return the path of the file attached to ``item`` and its metadata."""
-    fields = item.field_values()
-    md5 = fields.get("md5")
+    """Return the path of the file attached to ``item`` and its metadata.
+
+    The file an upload registered for it, whatever its ``md5`` field now
+    claims; ``md5`` in the metadata returned is that file's, as upstream's
+    download headers describe the stored file rather than the claim.
+    """
+    md5 = item.registered_md5
     if not md5:
         raise NotFoundError("Not found")
+    fields = {**item.field_values(), "md5": md5}
 
     path = file_path(root, md5)
     if not path.is_file():

@@ -215,6 +215,10 @@ Registration therefore checks the stored file against its digest before attachin
 
 **An attachment can claim a file the server does not have.** A library moved from zotero.org whose files were kept on WebDAV names a digest for every attachment, but none of the files. So `If-None-Match: *` ("is there a file to protect?") is answered by looking for the file itself, not at what the attachment claims; otherwise the upload that would repair the attachment is refused. `If-Match` is still checked against the attachment, because that is how the client proves it is not working from stale information.
 
+**A download serves the file an upload registered, not the one the attachment claims**, as on zotero.org. `md5` is metadata any client may write, and files are shared by digest across libraries, so serving the claim would hand anybody who knew a digest the file behind it. Writing `md5` therefore changes what the attachment says and not which bytes it serves; an attachment no upload gave a file answers 404. A library copied from another, restored from an archive that carries the file, or upgraded from an earlier altero keeps the file it had.
+
+**`{"exists": 1}` needs the digest and the exact size**, as on zotero.org: that answer gives the client the stored file without receiving a byte. Where the size differs, zotero.org refuses with 400; altero asks for the bytes instead, because it stores one file per digest and a snapshot zipped by another client has the same digest at another size.
+
 #### Downloading is a redirect, and has to be
 
 Asking for an attachment's file answers **302**, with three headers:
@@ -222,7 +226,7 @@ Asking for an attachment's file answers **302**, with three headers:
 | Header                          | What it says                                             |
 |---------------------------------|----------------------------------------------------------|
 | `Zotero-File-Modification-Time` | the modification time the uploading client declared      |
-| `Zotero-File-MD5`               | the digest the attachment claims                         |
+| `Zotero-File-MD5`               | the digest of the file an upload registered              |
 | `Zotero-File-Compressed`        | `Yes` when the stored bytes are a ZIP around that file   |
 
 The desktop reads these headers from the redirect and nowhere else. Answering 200 with the bytes makes every download fail with "A file sync error occurred". The redirect also lets the client skip the download entirely when the modification time shows its copy is current.

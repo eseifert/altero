@@ -1151,9 +1151,10 @@ async def copy_item(
     on the strength of a drag.
 
     An attached file needs no copying at all: files are stored under their
-    digest, so the copy names the same bytes the original does. Full-text
-    content is not carried over -- it is indexed from the file, and the client
-    that holds the file will send it again.
+    digest, so the copy names the same bytes the original does -- the bytes
+    registered for the original, carried over, since whoever copies may read
+    them. Full-text content is not carried over -- it is indexed from the
+    file, and the client that holds the file will send it again.
     """
     payload = await _copyable(session, item)
     if collection_key:
@@ -1161,6 +1162,7 @@ async def copy_item(
 
     copy = await save_item(session, target, payload, version, actor_id=actor_id)
     assert copy is not None  # A new item is never "unchanged".
+    copy.registered_md5 = item.registered_md5
 
     # Children go with it. A note or an attachment cannot stand on its own, and
     # a copy of a book without the note somebody wrote on it is not the copy
@@ -1171,7 +1173,9 @@ async def copy_item(
     for child in list(children):
         child_payload = await _copyable(session, child)
         child_payload["parentItem"] = copy.key
-        await save_item(session, target, child_payload, version, actor_id=actor_id)
+        copied = await save_item(session, target, child_payload, version, actor_id=actor_id)
+        assert copied is not None
+        copied.registered_md5 = child.registered_md5
 
     return copy
 

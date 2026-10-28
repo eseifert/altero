@@ -760,6 +760,8 @@ async def upload_attachment(
         # A collection gone since the page loaded, as for any new item.
         raise NotFoundError(missing.message) from None
     assert item is not None
+    # The bytes just sent are what downloads serve; see `Item.registered_md5`.
+    item.registered_md5 = md5
     await session.flush()
 
     rendered = await _rendered(session, item, library, base_url)
@@ -845,6 +847,7 @@ async def replace_file(
         permit=access,
         stored=item,
     )
+    item.registered_md5 = md5
 
     rendered = await _rendered(session, item, library, base_url)
     await groupactivity.record(

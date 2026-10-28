@@ -155,6 +155,7 @@ async def export_library(
                 "dateAdded": _moment(item.date_added),
                 "dateModified": _moment(item.date_modified),
                 "serverDateModified": _moment(item.server_date_modified),
+                "registeredMd5": item.registered_md5,
                 "fields": [{"field": f.field, "value": f.value} for f in item.fields],
                 "creators": [
                     {
@@ -254,14 +255,9 @@ async def export_library(
 
     # Attachments are stored once per digest, so the archive carries them the
     # same way: two items sharing a file do not carry it twice.
-    digests = sorted(
-        {
-            value
-            for item in items
-            for field, value in ((f.field, f.value) for f in item.fields)
-            if field == "md5" and value
-        }
-    )
+    # The bytes registered for each attachment, not the digest it claims: an
+    # export would otherwise carry any file a claim could name.
+    digests = sorted({item.registered_md5 for item in items if item.registered_md5})
     present = await asyncio.to_thread(_present, storage_root, digests)
 
     manifest = {
@@ -475,6 +471,11 @@ async def import_library(
         # Items first and parents second: a child cannot name a row that does
         # not exist yet, and the archive stores parents by key.
         item_records = documents["items.json"]
+        carried = {
+            entry[len(FILE_PREFIX) :]
+            for entry in bundle.namelist()
+            if entry.startswith(FILE_PREFIX)
+        }
         item_ids = await _insert_returning_ids(
             session,
             Item,
@@ -493,6 +494,7 @@ async def import_library(
                     "date_added": _parse(record["dateAdded"]),
                     "date_modified": _parse(record["dateModified"]),
                     "server_date_modified": _parse(record["serverDateModified"]),
+                    "registered_md5": _registered(record, carried),
                 }
                 for record in item_records
             ],
@@ -708,6 +710,22 @@ async def import_library(
 
     await session.commit()
     return library
+
+
+def _registered(record: dict[str, Any], carried: set[str]) -> str | None:
+    """The file a restored attachment is given: one the archive itself carries.
+
+    The archive's own record of it where it has one, and otherwise -- an older
+    archive, or one `zoteroimport` built -- the digest the item claims. Either
+    way only a file the archive brings along: a digest it merely names, whose
+    bytes another library put in the store, is not this library's to read.
+    """
+    if "registeredMd5" in record:
+        digest = record["registeredMd5"]
+    else:
+        claimed = {f["field"]: f["value"] for f in record["fields"]}
+        digest = (claimed.get("md5") or "").lower() or None
+    return digest if digest in carried else None
 
 
 #: Rows sent to the database in one statement when a library is restored.

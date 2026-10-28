@@ -132,11 +132,15 @@ async def make_item(
     parent: Item | None = None,
     deleted: bool = False,
     in_publications: bool = False,
+    registered: bool = True,
 ) -> Item:
     """Create an item with its fields, creators and derived sort keys.
 
     Args:
         creators: ``(creatorType, firstName, lastName)`` triples.
+        registered: Whether an attachment's ``md5`` is also the file an upload
+            registered for it, as it is for one a client synced. ``False``
+            makes it a claim alone, as a client writing the field makes it.
     """
     from altero.keys import generate_key
     from altero.services.itemdata import derive_sort_creator, derive_sort_date, derive_sort_title
@@ -150,6 +154,7 @@ async def make_item(
         parent_id=parent.id if parent else None,
         deleted=deleted,
         in_publications=in_publications,
+        registered_md5=fields.get("md5") if registered and item_type == "attachment" else None,
     )
     item.fields = [ItemField(field=name, value=value) for name, value in fields.items()]
     item.creators = [
