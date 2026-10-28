@@ -2504,7 +2504,6 @@ not a mutation score for production source. <code>ALTERO_COMPAT_MUTATION</code> 
 a catalogue entry and is normally unset.</p>
 <h2 id="successfully-tested-matrix">Successfully tested matrix<a class="headerlink" href="#successfully-tested-matrix" title="Permanent link">&para;</a></h2>
 <!-- desktop-matrix -->
-
 <p>Zotero 10.0.6 Linux x86-64; actual desktop profiles.</p>
 <table>
 <thead>
@@ -2517,8 +2516,8 @@ a catalogue entry and is normally unset.</p>
 <tbody>
 <tr>
 <td><code>baseline</code></td>
-<td>Passed (15 phases)</td>
-<td>Passed (15 phases)</td>
+<td>Passed (13 phases)</td>
+<td>Passed (13 phases)</td>
 </tr>
 <tr>
 <td><code>conflicts</code></td>
@@ -2670,14 +2669,29 @@ a catalogue entry and is normally unset.</p>
 <td>Passed (7 phases)</td>
 <td>Passed (7 phases)</td>
 </tr>
+<tr>
+<td><code>note-corpus</code></td>
+<td>Passed (5 phases)</td>
+<td>Passed (5 phases)</td>
+</tr>
+<tr>
+<td><code>web-notes</code></td>
+<td>Passed (8 phases)</td>
+<td>Passed (8 phases)</td>
+</tr>
+<tr>
+<td><code>web-files</code></td>
+<td>Passed (11 phases)</td>
+<td>Passed (11 phases)</td>
+</tr>
 </tbody>
 </table>
 <!-- /desktop-matrix -->
 
 <p>Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on 2026-10-27, against the code prepared for 1.0.0-beta.5, on Python
+archive on 2026-10-28, against the code prepared for 1.0.0-beta.6, on Python
 3.14.10. PostgreSQL uses the existing 18.4 container, with a fresh database per
-scenario. Each database ran all 31 scenarios in one run, and none was repeated.
+scenario. Each database ran all 34 scenarios in one run, and none was repeated.
 <strong>Not run</strong> means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes.</p>
 <p>The machine-readable evidence summary is
@@ -2686,8 +2700,8 @@ phase counts and SHA-256 hashes of each report and its phase snapshots. Retained
 reports, profiles, files and failed attempts live in ignored local run
 directories. Regenerate the matrix from them with:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>matrix<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.6<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta5-sqlite-2/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta5-pg-2/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta6-sqlite-1/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta6-pg-1/acceptance.json<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/results.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/matrix.md
 </span></code></pre></div>
 <p>The command verifies scenario completion, nonempty phases, snapshot existence,
@@ -2695,8 +2709,8 @@ the requested desktop version and recorded database backend. It rejects missing
 or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.</p>
-<p>The matrix records 62 successful database/scenario combinations and 750
-actual desktop phases: all 31 scenarios pass on both databases. The
+<p>The matrix records 68 successful database/scenario combinations and 794
+actual desktop phases: all 34 scenarios pass on both databases. The
 baseline includes all 40 schema types. The source-replay suite passes 323 tests
 with no skips against the pinned 10.0.6 sources, with Node 24.22.1, and the
 network-consumer review gate passes with no stale or unreviewed consumers.</p>

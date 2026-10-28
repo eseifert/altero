@@ -5,559 +5,613 @@
       "scenario": "baseline",
       "backend": "sqlite",
       "status": "passed",
-      "phases": 15,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "ca1c871f8df46aba9ab8dc914786de229f637134895f35b237f1997844fe2b46",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "phases": 13,
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "8fbf829f6b3d8028b097e4569a1f810349962c2e21fbc1e8d85e7b69cd5957ae",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "conflicts",
       "backend": "sqlite",
       "status": "passed",
       "phases": 21,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "ac52ebad77f1df9bb14e5a50295c28f4f4bf7048cfb7865ebbc858ba591bc766",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "5b7e70dedbe64ff99cf4994e3cc186bc981d2f91cf8da9fc5b9475d993050c93",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "filing",
       "backend": "sqlite",
       "status": "passed",
       "phases": 7,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "b69c39a0a34c2c69f19f5f18d12ef12d32f2f8fffff29f8fae923e3ae531d86e",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "83c4a78c6663db7c2f5fd8ddf3377c44cab142b5c93161e56a9ef2a43dc95364",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "groups",
       "backend": "sqlite",
       "status": "passed",
       "phases": 19,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "8604dc48b99271ce390f190f6a1ff835c41b4fac25a498548cac4277f004e3f1",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "bc167b209ccaa7167d96a6379db9abc29337e987b0645caf482e2b8e6c3dcaa3",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "files",
       "backend": "sqlite",
       "status": "passed",
       "phases": 20,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "308971d2e7711ea744ed3f59b0675981ccbc1aa0d27bbd0a8f995ef80a6024c2",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "087626de218facfcc37df2baa0f9e6ddcd1c6bbe12ad62e556281df93f595495",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "relationships",
       "backend": "sqlite",
       "status": "passed",
       "phases": 6,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "8b33990775709683cc0e82b702e6db164f3b20b8a72407fc77f94d024a6368d6",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "ad57d8837b84140769e0af6f91f7415fcd90443dd47c09ab394d4f7c492b0f55",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "recovery",
       "backend": "sqlite",
       "status": "passed",
       "phases": 16,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "5837a3cb174e1865a80e6f137165675b82fe72873169a8ba33496e14c32c50f5",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "2adef076bb78c074ae6355b77b608f75b86eea13303d92416af1c75b0446e404",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "credentials",
       "backend": "sqlite",
       "status": "passed",
       "phases": 12,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "a4bae4418764304feb82a4e6eb7ab721d6086f8f40866dd00958d5f22a860369",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "a269ee931a5dfe654208af666096180823554337be3d33febb7c3a0d6ed9addd",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "fulltext",
       "backend": "sqlite",
       "status": "passed",
       "phases": 9,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "3c5a22111520eacd1dcb957fed7e5e64c057d500d004d2726305c050a3bec093",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "b1e419daccf89d2cfafea75ab8e2a9d5043b64c696d0be3503cecfb67e1285d9",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "read-races",
       "backend": "sqlite",
       "status": "passed",
       "phases": 24,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "7e5644ed2010e496c001fc82012b057e78bac85ab8fd28298f715ca5d7a4d54e",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "0df0fca7199a986afc9b099a1aa57fa1639566af559b294a8c4970d07aae49cf",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "settings",
       "backend": "sqlite",
       "status": "passed",
       "phases": 11,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
       "snapshots_sha256": "e8fc56d45aa4f01a7596ffd2701b642e86c843a10055de706d4b7e3f4a105055",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "partial-failures",
       "backend": "sqlite",
       "status": "passed",
       "phases": 10,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "4cdf429b11cc11ffedd993ce6eab8257458d70cb75790d6c051fa7c33332efa9",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "d0eae6fadc8416741ffe840b813355916c552ec1565b2489faabf57655a31701",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "graphs",
       "backend": "sqlite",
       "status": "passed",
       "phases": 17,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "c2311bd9665b884f9294b9c6fd7083f93950bc4afa53bfe63a11de839010d7cf",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "fe9585d426c3ac5cdf03a1d587a3866e585f293585a4e1810cd7d4f53aade1ab",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "http-policy",
       "backend": "sqlite",
       "status": "passed",
       "phases": 7,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "b924aab888f8ff4f644729d1e0c6af21a2e613f2ced5d790105efd51dd260027",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "e24a20201698a24c5f0fecdff97af7d14185c96a3b7ad4b599a8a027065aefb8",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "server-writes",
       "backend": "sqlite",
       "status": "passed",
       "phases": 8,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "36f27b2455c812ced8ffdc81e7bf75fb8e14aa430a98aa1783d376f76f73e00c",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "8c955477a9201ced1de10113ddfabfc8d4247de8821a4d282fe380cca4fba1a0",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "resync",
       "backend": "sqlite",
       "status": "passed",
       "phases": 13,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "8fb6f5ded405ba3c8eccce765498d3c62f5b667d286298efa9372174de48cdbf",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "ed5f2c99287ac69c3d2696d4a937d0b8c09bf900b709bcecc417a20ef6f618c7",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "file-lifecycle",
       "backend": "sqlite",
       "status": "passed",
       "phases": 16,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "9604a0a1e1573efd27d28a22e7607376dfba069d8939ccb417319bcf73ce66a7",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "11442981db98f132bbb16d822e3d6cd5c56e84271ad9e432851c4dddb69a5e18",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "upload-interruption",
       "backend": "sqlite",
       "status": "passed",
       "phases": 8,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "eafe059eea430587f41880c9dbb705515ee8d11dc75f96ab8118c002ba119a45",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "cac405a63d944c3483dbbf43823ca0758b4672ae5d38ca5c26a57772e9026fca",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "server-crash",
       "backend": "sqlite",
       "status": "passed",
       "phases": 7,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "a24f833ec1a52681f98cf4b74aaa300f6913e7eeb5055e699c85a2545b1f0ce5",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "969b3c2a982d331c6a66f6894ed037b1a0c256159dc06b89f35b7a633b02ba5a",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "transient-errors",
       "backend": "sqlite",
       "status": "passed",
       "phases": 22,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "59aaff754bae749b0da65f00aca3af86a90c0bdb18d32bcd119db718bce563a4",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "697da3635ff058232e7f83c946ca462bed3f9ffcc85aff282337ca4e2088f2aa",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "streaming-reconnect",
       "backend": "sqlite",
       "status": "passed",
       "phases": 6,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "d878e792149cbaddded9690c37ac3e505a2b91bc6e98868a5156b9c717f0c70e",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "050c84183a0b3ad20129d8e4152ae201971f4d832c9a5c3e7ddb2a332166130c",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "parent-rejection",
       "backend": "sqlite",
       "status": "passed",
       "phases": 8,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "15da0a547f2e8af7fabe8a87575def9b092c87bb892d82577dd3b48742a505c5",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "bf9ba7565995bc045928b9240d7233c115744dc7b7ebb736d9cccc1ec690b761",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "missing-parent",
       "backend": "sqlite",
       "status": "passed",
       "phases": 8,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "57d0505a167a75a35c1f402c996f74100489a66d026f941fdd7574b2fd9181d7",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "49b72555e871f648249e5d6a75c3c797a0cc3f67119f51420710df72b3926596",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "child-promotion",
       "backend": "sqlite",
       "status": "passed",
       "phases": 6,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "0acd127082adbdc181052d76fef945c2aeedd7e1362095acdd925bb472163dde",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "17c7abe42f8161a58748ca20de1d6a2eefe465d8cdc0d0481e312b8f78528a07",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "type-change",
       "backend": "sqlite",
       "status": "passed",
       "phases": 6,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "816e2b552dcb20be0f8064b186757421e8dbedf1bf4d4a5b2df97e85f5a279fb",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "53395e6d383db1d58760d871641163b51840620a0aea8ec6d4a9810f21d6d4d2",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "reader-rendering",
       "backend": "sqlite",
       "status": "passed",
       "phases": 12,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "34060a0dd8d8bc709cd827d2025ff53776f9c33b78a19d595f4fb62915b4b29d",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "008e7b101085ac822dc13d22d19dab892d72807efb1413058cf738e83570e696",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "zipped-digest-race",
       "backend": "sqlite",
       "status": "passed",
       "phases": 13,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "fadfb411338e791d3fe4c121f182cad3f9533d56bfd788e56b26247d0f2d7d3b",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "e44802a2ff41b925b4a28fb21abdcc4ad4425e013af723b037be3a686deb5be6",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "backup-rewind",
       "backend": "sqlite",
       "status": "passed",
       "phases": 10,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "080db5e7673cc3f2852ab8063e17254a21aae19bba914babfb00e58f9e3066a0",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "ba438c618cd191a71bda00455f07ba5df97d5d43ebe616cc18bfc36858a5eded",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "graph-races",
       "backend": "sqlite",
       "status": "passed",
       "phases": 19,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "6177acdf436c458de3fcd196111c54e9e8caa415acdcffc871ddaff56a5b2e1b",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "0d4bb373929b2b862275b78b2636a73883e0251f8d3538014b50e39d878842aa",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "credential-limits",
       "backend": "sqlite",
       "status": "passed",
       "phases": 12,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "2ba98fbe16bcc5bc018274723c5ae05c916493ed2d8e7c52c6ed22f601947291",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "d6d32d9f60a4addf185b75c78ea88dcb91af7fd058748f7a69110cb69af285d7",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "web-editing",
       "backend": "sqlite",
       "status": "passed",
       "phases": 7,
-      "report_sha256": "e62ae65bb882cdfc97643a9ada73c06792f325eccdcea0479566bead7f0f934c",
-      "snapshots_sha256": "4a2c13f240179f85ebb6094163731d363c03337426ba0d857c89575c6daeb869",
-      "finished_at": "2026-10-27T11:46:29.992815+00:00"
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "ab5c858523f669c78a5bff75194198eb93babb852271e3eaa0f8ae9a93be6ec1",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
+    },
+    {
+      "scenario": "note-corpus",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 5,
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "17565e20884c4aa7b33eefbeb7b13f19d62d9b3f0e5b0a46e1ae4e1912785caa",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
+    },
+    {
+      "scenario": "web-notes",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 8,
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "0991e4c91ec902985d8cc7a261ae870ab3b6e6e8b57e0af721e0c12050e3610a",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
+    },
+    {
+      "scenario": "web-files",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 11,
+      "report_sha256": "3eb6599719306f70f03cec9bbaad23496f1a33d2d70c399c44a60724951c5041",
+      "snapshots_sha256": "3b6002b37517871d13e1229fc034a5593530ae070a6fc20d597e0036803de706",
+      "finished_at": "2026-10-28T13:42:46.200189+00:00"
     },
     {
       "scenario": "baseline",
       "backend": "postgresql",
       "status": "passed",
-      "phases": 15,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "23cf9531e1b3cc825d11406d6135bd6cdf95d698dd4866bd97ba60d7be4a9b98",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "phases": 13,
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "56044ca65670d7816c5f99307be922b0ca28fc06bafeb3265e0055aee3d815f7",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "conflicts",
       "backend": "postgresql",
       "status": "passed",
       "phases": 21,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "6627c9bab703ea3a34c34a21c58d8cf165ed210b6174c7ce7b5c3ae2d9fffdab",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "d881aafee5b46d6839ec98a425344cd6f6f471374c23f785f363ea07277b976b",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "filing",
       "backend": "postgresql",
       "status": "passed",
       "phases": 7,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "4d901734c2899d942fbfc1ac9dbf216f9ed42c3b600620f1c9c3847e9272a2f9",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "d2e4d267b2a55212983f65751725c315c92f3e2d56179d86c1412f4df73b05de",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "groups",
       "backend": "postgresql",
       "status": "passed",
       "phases": 19,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "208ee4ff8c8622cc0d1d163be5c5a1e83b091bd43e9b09e1e1508669f4215fb1",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "a3b3e0454670c39160700a2ce236be20bd1781bf9a4829f1e66036d135a12ac3",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "files",
       "backend": "postgresql",
       "status": "passed",
       "phases": 20,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "4286efa737ebc22bfeb26a1a22d38632a1d26a10f7d741fb92937590c6f8987a",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "866467ba66d0aa5723d40168e867ed6cdce3d9c66eca76e1a8c98fa59db0265d",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "relationships",
       "backend": "postgresql",
       "status": "passed",
       "phases": 6,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "acd6b8dc11d428e2e36b1f8b91f96d6655a2f6d7adb9e428c35dcf94d14758fc",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "f61a469ff5972fd331b5c70f461821d77e11b6a3cf14a82da7a2230d9d5e213f",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "recovery",
       "backend": "postgresql",
       "status": "passed",
       "phases": 16,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "bf6c2a753669a81658589acf962d41cc63ce339f64ec2ccfaa836a654252f616",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "b9c3775fa2b51c30c5de55966082678811295769083bfc8846527d38ec9e139f",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "credentials",
       "backend": "postgresql",
       "status": "passed",
       "phases": 12,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "887d31abecbedf4c9cbcdacdcf741d1e3804a6bb45bde913d17b0d0bc3cb59cf",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "77bbcf9d9a5f1f62ee3796155e813370cafbe0e70cf8a4bbee18aa84e1f7894e",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "fulltext",
       "backend": "postgresql",
       "status": "passed",
       "phases": 9,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "d57090a6823d76d8fcef911b33ae974d6b5d1b9edf6edfb5c272688dc7ca55b0",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "b1fdb9083a89beb065da7a449ff173fec6cb500b2b30cd6d8098b6fd24901a90",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "read-races",
       "backend": "postgresql",
       "status": "passed",
       "phases": 24,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "b6c633ce49425f66fb2feda1fbb15ff63cba95edaa4a4225dd8a6591085d698e",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "28b7a5dd5188156cc1366286abef7198caa03ae0000a42fad9d4e64d717e12f0",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "settings",
       "backend": "postgresql",
       "status": "passed",
       "phases": 11,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
       "snapshots_sha256": "e8fc56d45aa4f01a7596ffd2701b642e86c843a10055de706d4b7e3f4a105055",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "partial-failures",
       "backend": "postgresql",
       "status": "passed",
       "phases": 10,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "28f0b7a579ba0a8e2e55c2be1a5ac3cb68fe1ea0d96e0ef33b453a446c528220",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "eee94e1fcab1a0f330ed06a402fea98218c5c5abe57977e9b382b9d4452c5979",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "graphs",
       "backend": "postgresql",
       "status": "passed",
       "phases": 17,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "7611747279a3ac32f8da72c41ca9e17008d724fbfe6843b28f4c08956d53d0bc",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "130636023de3b893c70cd210d17acba2c00fcc61901385cbfc2bb4c94f12ba83",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "http-policy",
       "backend": "postgresql",
       "status": "passed",
       "phases": 7,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "ff2b89daa2671511fd68c5c8f8866046fa15e838f09b47094b57f95fb3cbde80",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "7f438975b2782b4f4b1c469cd5da03da76616f05812d111ee5053562d1ef98a9",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "server-writes",
       "backend": "postgresql",
       "status": "passed",
       "phases": 8,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "c0880dd2f8ae18abd42580d87cda10d328b2b7e513c6d4b19e058402e5b38049",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "b6735c4ea44031f298cd09d6f2770ce230b2c9f56666708d287473847b029345",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "resync",
       "backend": "postgresql",
       "status": "passed",
       "phases": 13,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "0222892322211745d98db0ebd97a84a946d5101cbed2b439dda63d21e8077dd6",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "dd667acb6738cce8682feffeb025f85fd343320ec3b90338538e4f8e16072750",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "file-lifecycle",
       "backend": "postgresql",
       "status": "passed",
       "phases": 16,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "c3fdb3a8a69e113a24fe3a4a760a832cf5447963275c8803c157944fa3a1c2bd",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "ebd2e36381eb4e28e20e2e198b49d7678d03e27fb9526a5deb1dc8866aff4b47",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "upload-interruption",
       "backend": "postgresql",
       "status": "passed",
       "phases": 8,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "86f4f68ac1535ef1a63a7d4836be0f5d9933b6fabc6bf96e592d97426f7632e9",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "6ec68fa002a9215043ad818b2414fc57379f40115ca0545d5a061e3f89924a0f",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "server-crash",
       "backend": "postgresql",
       "status": "passed",
       "phases": 7,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "b358cf2a79ceaeb5824ddfacc7bbb5af7acd214bc8a2795a43b37a13de539215",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "27d913a13128a5235a5602df5e10eae928a8f2097f17967a0dc9df0d018a0913",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "transient-errors",
       "backend": "postgresql",
       "status": "passed",
       "phases": 22,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "cef47a82128d38ecb95b21878c793809ad9444bbe217b7bacccf64e296c7ca47",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "8952eb30bec43694c44666b307a4db19ebcd1d3a25a20c780b7212eb7e6959d0",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "streaming-reconnect",
       "backend": "postgresql",
       "status": "passed",
       "phases": 6,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "924d9aef2ed1133090144852b07560e2bf0855f5abc2520e38998241b3e930c8",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "32d28eb4839e9d8bdf6be1de94eb02cd658cbe7bed80424b4694992cbc8e49cf",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "parent-rejection",
       "backend": "postgresql",
       "status": "passed",
       "phases": 8,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "5ccdadd5f9123be5c875161650222802bdc66cb9dee2d9797ebec6a880fad479",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "1c35d11a2886eab8b69aaa5c3877b994fa3a50fd479803444c25121a3a8e4e6a",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "missing-parent",
       "backend": "postgresql",
       "status": "passed",
       "phases": 8,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "c9013c78e4d7d72bd2e44fe1428f98527a2f3f087188a7656fac54693d2c2504",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "0a3bca09949e673d61baa8bf942fa05549bf086db2a5c1b977f2292532a1160b",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "child-promotion",
       "backend": "postgresql",
       "status": "passed",
       "phases": 6,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "fb7de2ef5f9c497aadd8a19a117a1fa640949c2a93d7a5bee1642e6f8a326c09",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "4c006853283d439b93f736713e912aebd3e902cd35f6add0b1e4a9e183c7e0a1",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "type-change",
       "backend": "postgresql",
       "status": "passed",
       "phases": 6,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "7d4351cc0d63070d5b70439e26e2a035508f9deccf282c965645fcf01ec32bbc",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "9735b160ee6f0f395f1b03bb20e00f99124fcfb0ba41a9cf12683ec9d2e77df7",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "reader-rendering",
       "backend": "postgresql",
       "status": "passed",
       "phases": 12,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "ba57edb176886e1705fc35952cdef37508519f12e60174b67268327092e85085",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "779fd302514b5f1c201cf649977ecac161ac15b0264c7f358c20db0709212323",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "zipped-digest-race",
       "backend": "postgresql",
       "status": "passed",
       "phases": 13,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "9bf85702ddbe2014cdee658990342c7377e6ac71b03080160eba26c75bf4393a",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "ce43e1a01090faa0f86b4fb22e51ec4189bed7a81f448ca60b610cdba7fab0a0",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "backup-rewind",
       "backend": "postgresql",
       "status": "passed",
       "phases": 10,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "1a0280a087ce1b219d58359b6b07ec9ded37ffdf5e08ef7198150015dbf02672",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "34f111c36f931e6323f71a2a47c626de203b83c77611a7646fd0ce25dc3d1b27",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "graph-races",
       "backend": "postgresql",
       "status": "passed",
       "phases": 19,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "a8396e904f26c42c728d71d0b376db2e4a6379777f8ab6cafa32f32e008f3cd7",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "a5ee00a05219468f78b30abd7366074b82aa0af8f242830a6fe9676980d293c8",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "credential-limits",
       "backend": "postgresql",
       "status": "passed",
       "phases": 12,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "dd8f3659341e11c32ccfb6bc274a3204ee1947ec32289c3828dfd4fc421f5675",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "0c8aecd3b3da1c315b9183d2ad3b132f67560ac59e7208651322689889ae86bf",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     },
     {
       "scenario": "web-editing",
       "backend": "postgresql",
       "status": "passed",
       "phases": 7,
-      "report_sha256": "ce012c9e87e42bc5186f5e037ac93fcd2595f236e3e2ec43edade72d721c1948",
-      "snapshots_sha256": "950ea60cd631b1b9624e9915525785341299e04aba314ad4abc0f293d44cfeb6",
-      "finished_at": "2026-10-27T12:41:36.869164+00:00"
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "589b54ccd2053ac14e819289343368259c0cc327ce8bb7595e3cff93afff0586",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
+    },
+    {
+      "scenario": "note-corpus",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 5,
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "8f33a24e1e16f066f6ad9be47680a6cfc15e81f135553b3fe7e370d9030d4b6f",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
+    },
+    {
+      "scenario": "web-notes",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 8,
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "ef051256db755f087a0cbf469f2c03fa8a0a6d440be09f120cf2202e517432dc",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
+    },
+    {
+      "scenario": "web-files",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 11,
+      "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
+      "snapshots_sha256": "f312092587b94a39cb93c719c4d816648083fcdb66183a7acc22ae7fca16d572",
+      "finished_at": "2026-10-28T14:48:18.224725+00:00"
     }
   ]
 }
