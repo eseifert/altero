@@ -2359,6 +2359,10 @@ The final settled sync checks convergence and an unchanged server watermark.</p>
 <td>Write a standalone and a child note through the browser's routes; both desktops store exactly that HTML; the desktop's editor opens them editable and writes nothing; a desktop edit reaches the browser.</td>
 </tr>
 <tr>
+<td><code>web-files</code></td>
+<td>Upload a child and a standalone file and attach a web link through the browser's routes; both desktops download the bytes under the browser's name; a rename renames each desktop's copy without fetching it; a replacement brings new bytes; a desktop's replacement makes the browser's stale one fail with 412.</td>
+</tr>
+<tr>
 <td><code>resync</code></td>
 <td>Discard pending edits through the original reset helper; replace the server from a desktop; restore an older server archive, lift its watermark and recover from the surviving authoritative desktop.</td>
 </tr>
