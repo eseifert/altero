@@ -211,6 +211,40 @@ test('a note added to an item goes under it', async ({ page }, testInfo) => {
   expect((await stored(marker)).parentItem).toBe(letter.key)
 })
 
+test('a note under an item goes to the trash from its pane, and back out of it', async ({ page }, testInfo) => {
+  const marker = `trashed-${testInfo.project.name}`
+  const { baseURL } = state()
+  const found = await fetch(`${baseURL}/users/1/items?q=${encodeURIComponent('Letter to Charles Babbage')}`, {
+    headers: headers(),
+  })
+  const [letter] = (await found.json()) as [{ key: string }]
+  const made = await fetch(`${baseURL}/users/1/items`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify([{ itemType: 'note', note: `<p>Trashed ${marker}</p>`, parentItem: letter.key, tags: [], relations: {} }]),
+  })
+  expect(made.status).toBe(200)
+  /** Whether the server holds the note in the trash; the default listing leaves trashed items out. */
+  const trashed = async () => {
+    const answer = await fetch(`${baseURL}/users/1/items?itemType=note&includeTrashed=1&q=${marker}`, { headers: headers() })
+    const [item] = (await answer.json()) as [{ data: { deleted?: boolean } }]
+    return Boolean(item.data.deleted)
+  }
+  await signIn(page)
+  await page.getByText('Letter to Charles Babbage').first().click()
+  await page.locator('.detail__child', { hasText: `Trashed ${marker}` }).click()
+
+  await page.getByRole('button', { name: 'Move to trash' }).click()
+  await expect(page.locator('.detail__title')).toHaveText('Letter to Charles Babbage')
+  await expect(page.locator('.detail__child', { hasText: `Trashed ${marker}` })).toHaveCount(0)
+  expect(await trashed()).toBe(true)
+
+  await page.locator('.library__sidebar').getByText('Trash', { exact: true }).click()
+  await page.getByText(`Trashed ${marker}`).first().click()
+  await page.getByRole('button', { name: 'Restore to Library' }).click()
+  await expect.poll(trashed).toBe(false)
+})
+
 test('a note changed elsewhere reaches the open editor while nothing is unsaved', async ({ page }, testInfo) => {
   const marker = `pushed-${testInfo.project.name}`
   await seedNote(`<p>Before ${marker}</p>`)

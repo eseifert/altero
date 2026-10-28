@@ -1035,6 +1035,20 @@ function askToRemove(items: ItemEnvelope[]): void {
 }
 
 /**
+ * Move the item in the pane to the trash.
+ *
+ * A note or attachment was opened from its parent's pane and is no row of the
+ * list, so the pane goes back to that parent rather than closing on nothing.
+ */
+async function trashOpenItem(item: ItemEnvelope): Promise<void> {
+  await runOnItem(async () => {
+    await library.trashItems([item.key])
+    const parent = library.items.find((entry) => entry.key === item.data.parentItem)
+    if (parent) await library.select(parent)
+  })
+}
+
+/**
  * Take an item out of My Publications: the question, or the act.
  *
  * A work is asked about, because it takes its notes and files out with it and
@@ -2115,7 +2129,7 @@ function sortLabel(column: { field: string; label: string }): string {
         @open="library.select($event)"
         @close="library.select(null)"
         @move="moving = [library.selected]"
-        @trash="runOnItem(() => library.trashItems([library.selected!.key]))"
+        @trash="trashOpenItem(library.selected!)"
         @restore="runOnItem(() => library.trashItems([library.selected!.key], false))"
         @remove="askToRemove([library.selected!])"
         @publish="startPublishing(library.selected!)"

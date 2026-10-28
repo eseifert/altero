@@ -430,6 +430,12 @@ this library's collections and the other libraries it could be copied to,
 “Move to trash”, and “Restore” and “Delete” for something already in the trash.
 A control only a pointer can reach is a control some readers do not have.
 
+**A note or attachment under an item is trashed from its own pane**, opened from
+the parent's: it is not a row of the list, so neither a drag nor `Delete`
+reaches it. The pane then goes back to the parent. In the trash it is a row like
+any other, and restoring it brings back that note or file alone, as in Zotero
+Desktop; a parent still in the trash stays there.
+
 They are glyphs, like the tools over the item list, and each carries its name
 twice — as `aria-label`, which is what a screen reader announces, and as
 `title`, which is what a pointer reveals. Two of them are drawn apart from their

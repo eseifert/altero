@@ -426,6 +426,49 @@ describe('ItemDetail', () => {
 
     expect(wrapper.emitted('open')).toEqual([[child]])
   })
+
+  describe('on a note or attachment under an item', () => {
+    const NOTE: ItemEnvelope = {
+      key: 'EEEE2345',
+      version: 1,
+      data: { itemType: 'note', note: '<p>A thought</p>', parentItem: 'AAAA2345' },
+      meta: {},
+    }
+    const ATTACHMENT: ItemEnvelope = {
+      key: 'FFFF2345',
+      version: 1,
+      data: {
+        itemType: 'attachment',
+        linkMode: 'imported_file',
+        title: 'PDF',
+        filename: 'x.pdf',
+        parentItem: 'AAAA2345',
+      },
+      meta: {},
+    }
+
+    function tools(item: ItemEnvelope): string[] {
+      return mount(ItemDetail, {
+        props: { item, children: [], libraryId: 1, writable: true, removable: true, fileUrl: () => '' },
+      })
+        .findAll('.detail__tools .icon-button')
+        .map((button) => button.attributes('aria-label') ?? '')
+    }
+
+    /* The desktop trashes one child on its own; its parent files it, so no
+       collection is offered. */
+    it.each([NOTE, ATTACHMENT])('offers the trash but not a collection: $data.itemType', (item) => {
+      expect(tools(item)).toContain('Move to trash')
+      expect(tools(item)).not.toContain('Move or copy…')
+    })
+
+    it.each([NOTE, ATTACHMENT])('offers to restore or delete one in the trash: $data.itemType', (item) => {
+      const offered = tools({ ...item, data: { ...item.data, deleted: true } })
+
+      expect(offered).toContain('Restore to Library')
+      expect(offered).toContain('Delete')
+    })
+  })
 })
 
 describe('labels', () => {

@@ -3257,3 +3257,67 @@ describe('the keyboard in the item list', () => {
     expect(wrapper.find('.shortcuts').exists()).toBe(false)
   })
 })
+
+describe('a note or attachment under an item', () => {
+  const NOTE = {
+    key: 'NNNN2345',
+    version: 1,
+    data: { itemType: 'note', note: '<p>A passing thought</p>', parentItem: 'AAAA2345' },
+    meta: {},
+  }
+  const ATTACHMENT = {
+    key: 'FFFF2345',
+    version: 1,
+    data: {
+      itemType: 'attachment',
+      linkMode: 'imported_file',
+      title: 'Full Text PDF',
+      filename: 'sicp.pdf',
+      parentItem: 'AAAA2345',
+    },
+    meta: {},
+  }
+
+  function withChildren(children: unknown[]) {
+    requestMock.mockImplementation((path: string, options?: { method?: string }) => {
+      if (options?.method && options.method !== 'GET') return Promise.resolve({ items: [] })
+      if (path === '/web/libraries') return Promise.resolve(libraries)
+      if (path.startsWith('/web/schema')) {
+        return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
+      }
+      if (path.includes('/collections')) return Promise.resolve({ collections: [] })
+      if (path.includes('/tags')) return Promise.resolve({ tags: [] })
+      if (path.includes('/AAAA2345/children')) return Promise.resolve({ items: children })
+      if (path.includes('/children')) return Promise.resolve({ items: [] })
+      if (/\/items\/[A-Z0-9]+$/.test(path)) return Promise.resolve(ITEM)
+      return Promise.resolve({ total: contents.length, items: contents })
+    })
+  }
+
+  /* Opened from its parent's pane, it is no row of the list, so neither a drag
+     nor the selection reaches it: the pane is the one way to throw it away.
+     Afterwards the pane goes back to the parent it was opened from, rather than
+     closing on the reader. */
+  it.each([
+    ['A note', NOTE],
+    ['An attachment', ATTACHMENT],
+  ])('%s is moved to the trash from its pane, and the parent is shown again', async (_, child) => {
+    withChildren([child])
+    const wrapper = await open()
+    await wrapper.findAll('.library__row:not(.library__row--head)')[0]!.trigger('click')
+    await settle(wrapper)
+    await wrapper.get('.detail__child').trigger('click')
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    await itemTool(wrapper, 'Move to trash')
+    await settle(wrapper)
+
+    expect(
+      requestMock.mock.calls.filter(([, options]) => options?.method === 'PATCH'),
+    ).toEqual([
+      ['/web/libraries/1/items', { method: 'PATCH', body: { items: [child.key], deleted: true } }],
+    ])
+    expect(wrapper.get('.detail__title').text()).toBe('Structure and Interpretation')
+  })
+})

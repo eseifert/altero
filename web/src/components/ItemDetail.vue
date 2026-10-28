@@ -91,12 +91,20 @@ const published = computed(() => Boolean(props.item.data.inPublications))
 const child = computed(() => Boolean(props.item.data.parentItem))
 
 /**
- * Whether the pane offers to move, trash or restore this item.
+ * Whether the pane offers to move or copy this item.
  *
- * A child item is filed by its parent and trashed with it: an attachment does
- * not belong in a collection of its own, and Zotero does not offer it either.
+ * A child item is filed by its parent: an attachment does not belong in a
+ * collection of its own, and Zotero does not offer it either.
  */
 const showsTools = computed(() => Boolean(props.writable) && !child.value)
+
+/**
+ * Whether the pane offers to trash this item, or to restore or delete it.
+ *
+ * A child too: Zotero trashes and restores one on its own, and this pane is
+ * the only way to reach one, a child being no row of the list.
+ */
+const discards = computed(() => Boolean(props.writable))
 
 /** Whether the Info pane edits this item. Not in the trash, which the desktop
  *  draws read-only and the server refuses to change. */
@@ -238,9 +246,9 @@ function childTitle(child: ItemEnvelope): string {
     </header>
 
     <!--
-      What can be done to this item. Filing and trashing are the top-level
-      item's alone — see `showsTools` — and publishing has a rule of its own, so
-      the row appears when any of them has something to offer. Exporting is the
+      What can be done to this item. Filing is the top-level item's alone —
+      see `showsTools` — trashing any item's, and publishing has a rule of its
+      own, so the row appears when any of them has something to offer. Exporting is the
       one that is not a write, and so is offered on its own in a library this
       account may only read.
 
@@ -251,7 +259,7 @@ function childTitle(child: ItemEnvelope): string {
       it is about to go — the label alone would be a sentence nobody sees until
       after they have pressed it.
     -->
-    <div v-if="showsTools || offersPublishing || offersExport" class="detail__tools toolbar">
+    <div v-if="discards || offersPublishing || offersExport" class="detail__tools toolbar">
       <button
         v-if="showsTools"
         class="icon-button"
@@ -306,7 +314,7 @@ function childTitle(child: ItemEnvelope): string {
         <SidebarIcon name="export" :size="22" />
       </button>
 
-      <template v-if="showsTools">
+      <template v-if="discards">
         <!-- Throwing away is a removal, which is what a member who may add to
              a group and not remove from it is not offered. -->
         <button
