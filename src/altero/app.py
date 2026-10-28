@@ -4,6 +4,7 @@ import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from datetime import timedelta
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,6 +59,7 @@ from altero.services import (
     passkeys,
     passwordreset,
     retention,
+    storelayout,
 )
 from altero.services.groupsweeper import Sweeper
 from altero.services.mail import build_mailer
@@ -101,6 +103,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        # Before anything is served: a store written by an earlier altero names
+        # files a download no longer looks under. See services/storelayout.
+        async with database.session_factory() as session:
+            await storelayout.ensure_current(session, Path(settings.storage_path))
         try:
             # Inside the dispose, so that leaving this block stops the sweepers
             # -- and waits for a sweep in flight -- while the database they are

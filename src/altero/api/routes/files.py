@@ -5,7 +5,6 @@ hands out an S3 URL for the middle step; altero takes the bytes itself, so the
 authorization step points back here.
 """
 
-import asyncio
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -197,13 +196,12 @@ async def _file_response(item: Item, root: Path, *, expected_md5: str | None = N
     """
     path, fields = await storage.stored_file(item, root)
 
-    if expected_md5 is not None and fields["md5"] != expected_md5:
+    if expected_md5 is not None and item.registered_md5 != expected_md5:
         # The file moved on between the redirect and this request. Serving the
         # new bytes would break the promise the 302 made in `Zotero-File-MD5`.
         raise NotFoundError("File not found")
 
-    # Off the event loop: telling a wrapper apart hashes the whole archive.
-    if await asyncio.to_thread(storage.is_compressed, path, fields["md5"]):
+    if item.registered_zip:
         # Describing the archive as the file it holds would be a lie in the one
         # header a browser acts on.
         return FileResponse(path, media_type="application/zip", filename=f"{item.key}.zip")
@@ -246,10 +244,11 @@ async def download_file(
     permission for this one file. See services/storage.authorize_download.
     """
     item = await items_service.get_item(session, library, item_key, permit=access)
-    path, fields = await storage.stored_file(item, _storage_root(request))
+    _, fields = await storage.stored_file(item, _storage_root(request))
 
-    compressed = await asyncio.to_thread(storage.is_compressed, path, fields["md5"])
-    permission = await storage.authorize_download(session, library, item, fields["md5"])
+    # The permission names the stored bytes, so it cannot be spent on others.
+    assert item.registered_md5 is not None
+    permission = await storage.authorize_download(session, library, item, item.registered_md5)
     await session.commit()
 
     return Response(
@@ -258,7 +257,7 @@ async def download_file(
             "Location": f"{base_url}/storage/download/{permission.key}",
             "Zotero-File-Modification-Time": fields.get("mtime") or "0",
             "Zotero-File-MD5": fields["md5"],
-            "Zotero-File-Compressed": "Yes" if compressed else "No",
+            "Zotero-File-Compressed": "Yes" if item.registered_zip else "No",
             # The location is a credential, so no shared cache may keep it and
             # hand it to the next caller asking for this file.
             "Cache-Control": "no-store",

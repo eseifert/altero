@@ -49,7 +49,7 @@ from altero.models import (
     StorageUpload,
     Tag,
 )
-from altero.services import duplicates, storage
+from altero.services import duplicates, storage, storelayout
 
 #: Bumped when the archive layout changes in a way an older altero cannot read.
 FORMAT_VERSION = 1
@@ -91,6 +91,7 @@ async def export_library(
     destination: Path,
 ) -> Path:
     """Write the whole of one library to ``destination`` and return the path."""
+    await storelayout.ensure_current(session, storage_root)
     library = await _resolve(session, library_type, owner_id)
 
     items = list(
@@ -156,6 +157,7 @@ async def export_library(
                 "dateModified": _moment(item.date_modified),
                 "serverDateModified": _moment(item.server_date_modified),
                 "registeredMd5": item.registered_md5,
+                "registeredZip": item.registered_zip,
                 "fields": [{"field": f.field, "value": f.value} for f in item.fields],
                 "creators": [
                     {
@@ -436,6 +438,7 @@ async def import_library(
     it; see "After recreating the database" in docs/administration.md.
     """
     manifest = read_manifest(archive)
+    await storelayout.ensure_current(session, storage_root)
 
     with zipfile.ZipFile(archive) as bundle:
         documents: dict[str, Any] = {
@@ -471,11 +474,9 @@ async def import_library(
         # Items first and parents second: a child cannot name a row that does
         # not exist yet, and the archive stores parents by key.
         item_records = documents["items.json"]
-        carried = {
-            entry[len(FILE_PREFIX) :]
-            for entry in bundle.namelist()
-            if entry.startswith(FILE_PREFIX)
-        }
+        # First, so that each file carried is known by the name its content
+        # earns before any attachment is given one.
+        carried = await _unpack_files(bundle, storage_root)
         item_ids = await _insert_returning_ids(
             session,
             Item,
@@ -494,7 +495,7 @@ async def import_library(
                     "date_added": _parse(record["dateAdded"]),
                     "date_modified": _parse(record["dateModified"]),
                     "server_date_modified": _parse(record["serverDateModified"]),
-                    "registered_md5": _registered(record, carried),
+                    **_registered(record, carried),
                 }
                 for record in item_records
             ],
@@ -704,28 +705,29 @@ async def import_library(
         if into is None:
             library.name = manifest.get("name", library.name)
 
-        # In a thread, a file at a time and a chunk at a time: an archive can
-        # carry gigabytes of attachments.
-        await asyncio.to_thread(_unpack_files, bundle, storage_root)
-
     await session.commit()
     return library
 
 
-def _registered(record: dict[str, Any], carried: set[str]) -> str | None:
+def _registered(record: dict[str, Any], carried: dict[str, tuple[str, bool]]) -> dict[str, Any]:
     """The file a restored attachment is given: one the archive itself carries.
 
     The archive's own record of it where it has one, and otherwise -- an older
     archive, or one `zoteroimport` built -- the digest the item claims. Either
-    way only a file the archive brings along: a digest it merely names, whose
-    bytes another library put in the store, is not this library's to read.
+    way only a file the archive brings along, and under the name its content
+    earned on the way in: a digest the archive merely names, whose bytes
+    another library put in the store, is not this library's to read, and bytes
+    it carries under somebody else's digest do not become theirs.
     """
     if "registeredMd5" in record:
-        digest = record["registeredMd5"]
+        name = record["registeredMd5"]
     else:
         claimed = {f["field"]: f["value"] for f in record["fields"]}
-        digest = (claimed.get("md5") or "").lower() or None
-    return digest if digest in carried else None
+        name = (claimed.get("md5") or "").lower() or None
+    if name not in carried:
+        return {"registered_md5": None, "registered_zip": False}
+    digest, wrapped = carried[name]
+    return {"registered_md5": digest, "registered_zip": record.get("registeredZip", wrapped)}
 
 
 #: Rows sent to the database in one statement when a library is restored.
@@ -766,18 +768,30 @@ async def _set_parents(
         )
 
 
-def _unpack_files(bundle: zipfile.ZipFile, storage_root: Path) -> None:
-    """Put every file the archive carries into the store."""
+async def _unpack_files(bundle: zipfile.ZipFile, storage_root: Path) -> dict[str, tuple[str, bool]]:
+    """Put every file the archive carries into the store, by its own digest.
+
+    Returns, for each name the archive files one under, the digest it is now
+    stored as and whether it is a ZIP around the attachment's file. The bytes
+    are not checked against the name: an archive from an earlier altero
+    carries a snapshot under the digest of the file inside it, and a library
+    read out of zotero.org keeps files whose digest disagrees with what the
+    item claims, so a mismatch is the ordinary case rather than damage. They
+    are stored by their content instead -- whole or not at all, a chunk at a
+    time, as an upload is -- and one whose name is not its digest and that
+    begins like a ZIP is such a wrapper, as the store used to tell them apart.
+    """
+    carried: dict[str, tuple[str, bool]] = {}
     for entry in bundle.namelist():
         if not entry.startswith(FILE_PREFIX):
             continue
         # A digest, and nothing that could climb out of the store: checked by
         # read_manifest before a single row was written.
-        digest = entry[len(FILE_PREFIX) :]
-        # Whole or not at all, as an upload is. The bytes are not checked
-        # against the name: an archive carries a snapshot under the digest of
-        # the file inside it, and a library read out of zotero.org keeps files
-        # whose digest disagrees with what the item claims, so a mismatch here
-        # is the ordinary case rather than damage.
+        name = entry[len(FILE_PREFIX) :]
         with bundle.open(entry) as source:
-            storage.store_stream(storage_root, digest, source)
+            digest = await storage.store_by_content(storage_root, source)
+        wrapped = digest != name and await asyncio.to_thread(
+            storage.starts_like_zip, storage.file_path(storage_root, digest)
+        )
+        carried[name] = (digest, wrapped)
+    return carried

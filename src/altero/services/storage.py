@@ -5,9 +5,13 @@ what it is about to send, sends the bytes, then tells the server they arrived.
 The upstream server hands out an S3 URL for the middle step; altero has no S3, so
 it takes the bytes itself and the authorization step points back at this server.
 
-Files are stored under their MD5 rather than their name, so the same file
-attached twice is stored once, and a client that already knows the digest can be
-told the upload is unnecessary.
+Files are stored under the MD5 of their own bytes rather than their name, so
+the same file attached twice is stored once, and a client that already knows
+the digest can be told the upload is unnecessary. A snapshot ZIP is stored
+under the ZIP's digest, as upstream keys it: its ``md5`` describes the file
+inside, which other bytes -- another client's ZIP of the same page, or a file
+that is not that page at all -- can claim too. Named by anything but their own
+content, the bytes behind a digest could be replaced by whoever claimed it.
 """
 
 import asyncio
@@ -20,7 +24,6 @@ import shutil
 import tempfile
 import time
 import unicodedata
-import zipfile
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
@@ -227,7 +230,7 @@ async def receive_file(
         RequestTooLargeError: As soon as more than ``limit`` bytes arrive.
         InvalidInputError: If the size or the digest is not the one promised.
     """
-    path = file_path(root, upload.md5)
+    path = file_path(root, stored_digest(upload))
     handle, staged = await asyncio.to_thread(_staging_file, path)
     digest = hashlib.md5(usedforsecurity=False)
     size = 0
@@ -255,7 +258,7 @@ async def receive_file(
             )
         # For a zipped upload the bytes are the archive, so they are checked
         # against its digest; `md5` still identifies the original file.
-        expected = upload.zip_md5 or upload.md5
+        expected = stored_digest(upload)
         if digest.hexdigest() != expected:
             raise InvalidInputError(f"Uploaded file has wrong md5 (expected {expected})")
         await asyncio.to_thread(_put_in_place, handle, staged, path)
@@ -264,6 +267,28 @@ async def receive_file(
         # task should not have to wait for a thread to clean up after it.
         _abandon(handle, staged)
         raise
+
+
+def stored_digest(upload: StorageUpload) -> str:
+    """The name an upload's bytes go under: their own digest, the archive's for a snapshot."""
+    return upload.zip_md5 or upload.md5
+
+
+async def store_by_content(root: Path, source: IO[bytes]) -> str:
+    """:func:`receive_bytes` for a file read from ``source``. Returns its digest.
+
+    For bytes whose name came from somebody else -- an archive's ``files/``
+    entry names what it says is inside -- so the name the store gives them is
+    the one their content earns, and no archive can put bytes under a digest
+    another library's attachment uses.
+    """
+
+    async def chunks() -> AsyncIterator[bytes]:
+        while chunk := await asyncio.to_thread(source.read, WRITE_BUFFER_BYTES):
+            yield chunk
+
+    md5, _ = await receive_bytes(root, chunks(), limit=1 << 62)
+    return md5
 
 
 async def receive_bytes(root: Path, chunks: AsyncIterator[bytes], *, limit: int) -> tuple[str, int]:
@@ -506,7 +531,8 @@ async def authorize(
         # Someone has already uploaded these exact bytes, so only the metadata
         # needs attaching.
         await attach(session, item, declared)
-        item.registered_md5 = declared["md5"]
+        item.registered_md5 = declared.get("zip_md5") or declared["md5"]
+        item.registered_zip = bool(declared.get("zip_md5"))
         return {"exists": 1}
 
     upload = StorageUpload(
@@ -548,14 +574,15 @@ def _already_held(root: Path, declared: dict[str, Any]) -> bool:
     """Whether the store holds the file declared, so that it need not be sent.
 
     Upstream's test (`ItemsController`, "Specified file size incorrect for
-    known file"): the digest *and* the exact size. Answering ``exists`` hands
-    the file to whoever asked, so a digest alone -- which another library's
-    metadata may have shown somebody -- is not enough. Where the size differs
-    the client is asked for the bytes instead of refused, as upstream refuses:
-    the store keeps one file per digest, and a snapshot zipped by another
-    client is the same digest at another size.
+    known file"): the digest of the bytes to be sent -- the archive's, for a
+    snapshot -- *and* their exact size. Answering ``exists`` hands the file to
+    whoever asked, so a digest alone, which another library's metadata may
+    have shown somebody, is not enough. Where the size differs the client is
+    asked for the bytes rather than refused, as upstream refuses: the bytes
+    then prove themselves, and a size that disagrees with a digest's own file
+    is a client describing something else.
     """
-    path = file_path(root, declared["md5"])
+    path = file_path(root, declared.get("zip_md5") or declared["md5"])
     try:
         return path.stat().st_size == declared["filesize"]
     except OSError:
@@ -662,15 +689,6 @@ async def attach(session: AsyncSession, item: Item, declared: dict[str, Any]) ->
     await session.flush()
 
 
-def _intact_archive(path: Path) -> bool:
-    """Whether the stored file is an archive with every member whole."""
-    try:
-        with zipfile.ZipFile(path) as archive:
-            return archive.testzip() is None
-    except zipfile.BadZipFile, OSError:
-        return False
-
-
 async def _confirm_stored_file(upload: StorageUpload, root: Path) -> None:
     """Fail unless the store holds the file this upload sent.
 
@@ -683,39 +701,29 @@ async def _confirm_stored_file(upload: StorageUpload, root: Path) -> None:
     the one that was sent is refused here, and the upload becomes one the
     client repeats on its next sync.
 
-    Against ``zip_md5 or md5``, as the upload itself was: a snapshot is stored
-    under the digest of the file *inside* the archive, and the archive's own
-    digest lives on this row, which `register` is about to delete. This is the
-    last moment one can be checked at all.
+    The file is named by its own digest, so one that does not hash to its name
+    is damage, whoever uploaded it, and is removed: `stored_md5` then answers
+    ``None``, and the client holding the bytes can send them again.
 
     The stat is not only a cheaper way to the common answer; it is also what
     keeps a full read off the path when the file is simply gone. The hash
     itself runs in a thread, off the event loop, and the route asks before it
     locks the library, so no other writer waits on it.
     """
-    path = file_path(root, upload.md5)
+    path = file_path(root, stored_digest(upload))
     try:
         described = path.stat()
     except OSError:
         raise InvalidInputError("The uploaded file is no longer in the store") from None
 
-    if described.st_size < upload.filesize:
-        # Another client's whole ZIP can be smaller due to metadata/compression.
-        if upload.zip_md5 is None or not await asyncio.to_thread(_intact_archive, path):
-            _discard(path)
-        raise InvalidInputError("The stored file is shorter than the one that was uploaded")
+    if described.st_size != upload.filesize:
+        _discard(path)
+        raise InvalidInputError("The stored file is not the size of the one that was uploaded")
 
     digest = await asyncio.to_thread(_digest_of, path, described.st_size, described.st_mtime_ns)
-    if digest == (upload.zip_md5 or upload.md5):
-        return
-
-    # One mismatch is not damage: two clients zipping the same snapshot make
-    # different archives under one digest, so the other one's may be in place
-    # by now. It is kept if it is a whole archive of something -- the retry
-    # then finds it through `authorize` -- and a torn one fails its own CRCs.
-    if upload.zip_md5 is None or not await asyncio.to_thread(_intact_archive, path):
+    if digest != stored_digest(upload):
         _discard(path)
-    raise InvalidInputError("The stored file is not the one that was uploaded")
+        raise InvalidInputError("The stored file is not the one that was uploaded")
 
 
 async def confirm_upload(upload: StorageUpload, item: Item, root: Path) -> None:
@@ -741,7 +749,8 @@ async def register(session: AsyncSession, item: Item, upload: StorageUpload, ver
         },
     )
     item.version = version
-    item.registered_md5 = upload.md5
+    item.registered_md5 = stored_digest(upload)
+    item.registered_zip = upload.zip_md5 is not None
     await session.delete(upload)
 
 
@@ -749,15 +758,18 @@ async def stored_file(item: Item, root: Path) -> tuple[Path, dict[str, str]]:
     """Return the path of the file attached to ``item`` and its metadata.
 
     The file an upload registered for it, whatever its ``md5`` field now
-    claims; ``md5`` in the metadata returned is that file's, as upstream's
-    download headers describe the stored file rather than the claim.
+    claims. ``md5`` in the metadata returned is the digest of the attachment's
+    file: the registered bytes' own, or for a snapshot ZIP the file inside it,
+    which the attachment states -- what the client compares its copy against
+    and what it has always been sent.
     """
-    md5 = item.registered_md5
-    if not md5:
+    stored = item.registered_md5
+    if not stored:
         raise NotFoundError("Not found")
-    fields = {**item.field_values(), "md5": md5}
+    values = item.field_values()
+    fields = {**values, "md5": (values.get("md5") or stored) if item.registered_zip else stored}
 
-    path = file_path(root, md5)
+    path = file_path(root, stored)
     if not path.is_file():
         # The row says there is a file but the bytes are gone.
         raise NotFoundError("Not found")
@@ -783,28 +795,10 @@ def _digest_of(path: Path, size: int, modified: int) -> str:
     return digest.hexdigest()
 
 
-def is_compressed(path: Path, md5: str) -> bool:
-    """Whether the stored bytes are an archive wrapping the file the item names.
-
-    The client zips a snapshot before uploading it, and a snapshot migrated out
-    of zotero.org arrives the same way. ``md5`` then describes the
-    file *inside* the archive rather than the bytes on the wire, and the client
-    has to be told so on download: given ``Zotero-File-Compressed: No`` it
-    writes the archive itself to disk under the attachment's name.
-
-    Nothing records which of the two a stored file is. It does not have to: the
-    store is addressed by the digest the item claims, so a wrapper is exactly a
-    file whose own digest is not the name it is stored under. The magic number
-    is checked first, so only archives are ever hashed -- a .docx or .epub
-    attachment is one too, and is told apart from a wrapper by hashing to the
-    digest the item claims.
-    """
+def starts_like_zip(path: Path) -> bool:
+    """Whether the file at ``path`` begins as every ZIP archive does."""
     with path.open("rb") as handle:
-        if handle.read(len(_ZIP_MAGIC)) != _ZIP_MAGIC:
-            return False
-
-    stat = path.stat()
-    return _digest_of(path, stat.st_size, stat.st_mtime_ns) != md5
+        return handle.read(len(_ZIP_MAGIC)) == _ZIP_MAGIC
 
 
 async def purge_stale_uploads(session: AsyncSession, before: Any) -> int:

@@ -11,6 +11,7 @@ digest and its exact size is answered ``exists`` and given the file.
 """
 
 import hashlib
+import io
 import json
 import zipfile
 from pathlib import Path
@@ -267,18 +268,94 @@ class TestWhatCarriesARegistration:
         assert item.registered_md5 == SECRET_MD5
 
 
-def _forge(archive: Path, claimed: str | None) -> None:
+class TestNobodyReplacesAnothersFile:
+    """The store names a file by its own bytes, so a claim cannot reach another's."""
+
+    async def test_a_zip_claiming_her_digest_is_stored_as_itself(
+        self, client: httpx2.AsyncClient, settings: Settings, secret: str
+    ) -> None:
+        """A snapshot ZIP's `md5` names the file inside, which anybody can claim."""
+        key = await attachment(
+            client, ADA, "/users/1", linkMode="imported_url", url="https://example.org"
+        )
+        body = _zip_of(b"<p>not Grace's file</p>")
+        form = {
+            **authorization(size=len(body)),
+            "zipMD5": hashlib.md5(body).hexdigest(),
+            "zipFilename": f"{key}.zip",
+        }
+        authorized = (
+            await client.post(
+                f"/users/1/items/{key}/file", headers=ADA | {"If-None-Match": "*"}, data=form
+            )
+        ).json()
+        assert (await client.post(authorized["url"], content=body)).status_code == 201
+        registered = await client.post(
+            f"/users/1/items/{key}/file",
+            headers=ADA | {"If-None-Match": "*"},
+            data={"upload": authorized["uploadKey"]},
+        )
+
+        assert registered.status_code == 204
+        assert (await client.get(f"/users/1/items/{key}/file/content", headers=ADA)).content == body
+        hers = await client.get(f"/users/2/items/{secret}/file/content", headers=GRACE)
+        assert hers.content == SECRET
+        assert storage.file_path(settings.storage_path, SECRET_MD5).read_bytes() == SECRET
+
+    async def test_a_restore_carrying_her_digest_stores_its_own_bytes(
+        self,
+        client: httpx2.AsyncClient,
+        session: AsyncSession,
+        settings: Settings,
+        secret: str,
+        tmp_path: Path,
+    ) -> None:
+        claimed = await attachment(
+            client, ADA, "/users/1", md5=SECRET_MD5, mtime=1, filename="x.txt"
+        )
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=settings.storage_path,
+            destination=tmp_path / "ada.zip",
+        )
+        forged = b"not Grace's file"
+        _forge(archive, None, files={SECRET_MD5: forged})
+
+        await transfer.import_library(
+            session, archive=archive, storage_root=settings.storage_path, replace=True
+        )
+
+        hers = await client.get(f"/users/2/items/{secret}/file/content", headers=GRACE)
+        assert hers.content == SECRET
+        mine = await client.get(f"/users/1/items/{claimed}/file/content", headers=ADA)
+        assert mine.content == forged
+
+
+def _zip_of(content: bytes) -> bytes:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as bundle:
+        bundle.writestr("page.html", content)
+    return buffer.getvalue()
+
+
+def _forge(archive: Path, claimed: str | None, *, files: dict[str, bytes] | None = None) -> None:
     """Rewrite ``archive``'s items: ``claimed`` registers the secret it does not carry,
-    and with ``None``, every record loses `registeredMd5`, as an older archive has none."""
+    and with ``None``, every record loses `registeredMd5`, as an older archive has none.
+    ``files`` are put in it under the names given, whatever they hold."""
     with zipfile.ZipFile(archive) as bundle:
         contents = {name: bundle.read(name) for name in bundle.namelist()}
     items = json.loads(contents["items.json"])
     for record in items:
         if claimed is None:
             record.pop("registeredMd5", None)
+            record.pop("registeredZip", None)
         elif record["key"] == claimed:
             record["registeredMd5"] = SECRET_MD5
     contents["items.json"] = json.dumps(items).encode()
+    for name, data in (files or {}).items():
+        contents[f"files/{name}"] = data
     with zipfile.ZipFile(archive, "w") as bundle:
         for name, data in contents.items():
             bundle.writestr(name, data)

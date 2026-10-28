@@ -1,6 +1,6 @@
 """Items and everything hanging off them."""
 
-from sqlalchemy import ForeignKey, Index, String, Text, UniqueConstraint, text
+from sqlalchemy import ForeignKey, Index, String, Text, UniqueConstraint, false, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from altero.db import Base, Timestamped
@@ -80,6 +80,11 @@ class Item(Base, Timestamped):
     #: and read another library's file. Null where no bytes were registered: a
     #: link, a linked file, or a file kept on WebDAV.
     registered_md5: Mapped[str | None] = mapped_column(String(32), default=None)
+    #: Whether those bytes are a ZIP around the attachment's file, as a
+    #: snapshot is uploaded. Recorded when they are registered, because the
+    #: store names a file by its own content and that cannot tell a snapshot
+    #: from a .docx or an .epub, which are ZIPs as well.
+    registered_zip: Mapped[bool] = mapped_column(default=False, server_default=false())
 
     fields: Mapped[list[ItemField]] = relationship(
         back_populates="item", lazy="selectin", cascade="all, delete-orphan"

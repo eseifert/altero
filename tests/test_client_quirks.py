@@ -259,8 +259,12 @@ class TestZippedUploads:
     ZIPPED = b"PK\x03\x04 pretend this is a zip"
 
     def original_md5(self) -> str:
-        """The digest the item claims, and the name the archive is stored under."""
+        """The digest the item claims: the file inside the archive."""
         return hashlib.md5(self.CONTENT, usedforsecurity=False).hexdigest()
+
+    def zip_md5(self) -> str:
+        """The archive's own digest, which it is stored under."""
+        return hashlib.md5(self.ZIPPED, usedforsecurity=False).hexdigest()
 
     async def test_a_zipped_upload_is_validated_against_the_zip_digest(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
@@ -352,11 +356,11 @@ class TestZippedUploads:
 
         assert response.status_code == 400
 
-    async def send(self, client: httpx2.AsyncClient) -> str:
+    async def send(self, client: httpx2.AsyncClient, key: str = "AAAA2345") -> str:
         """Authorize a snapshot and send its archive. Returns the upload key."""
         authorized = (
             await client.post(
-                "/users/1/items/AAAA2345/file",
+                f"/users/1/items/{key}/file",
                 headers=AUTH | {"If-None-Match": "*"},
                 data={
                     "md5": hashlib.md5(self.CONTENT, usedforsecurity=False).hexdigest(),
@@ -364,7 +368,7 @@ class TestZippedUploads:
                     "filesize": str(len(self.ZIPPED)),
                     "mtime": "1700000000000",
                     "zipMD5": hashlib.md5(self.ZIPPED, usedforsecurity=False).hexdigest(),
-                    "zipFilename": "AAAA2345.zip",
+                    "zipFilename": f"{key}.zip",
                 },
             )
         ).json()
@@ -380,14 +384,13 @@ class TestZippedUploads:
     ) -> None:
         """And the check is against the archive, not the file inside it.
 
-        A snapshot is stored under the digest of the file the item claims, so
-        reading the stored bytes back against `md5` would refuse every
-        snapshot ever uploaded. `zipMD5` is the only thing that describes
-        them, and it goes when the upload row does.
+        A snapshot is stored under the archive's own digest, `zipMD5`, which is
+        what its bytes are read back against; checking them against `md5`
+        would refuse every snapshot ever uploaded.
         """
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         upload_key = await self.send(client)
-        stored = file_path(Path(settings.storage_path), self.original_md5())
+        stored = file_path(Path(settings.storage_path), self.zip_md5())
         # Same length, so only reading the bytes back catches it.
         stored.write_bytes(b"PK\x03\x04 PRETEND THIS IS A ZIP")
 
@@ -400,48 +403,41 @@ class TestZippedUploads:
         assert response.status_code == 400
         assert not stored.exists()
 
-    @pytest.mark.parametrize("smaller_replacement", [False, True])
-    async def test_another_clients_archive_of_the_same_page_is_kept(
+    async def test_another_clients_archive_of_the_same_page_is_its_own_file(
         self,
         client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         settings: Settings,
-        smaller_replacement: bool,
     ) -> None:
-        """Two clients zipping one snapshot make different archives.
+        """Two clients zipping one snapshot make different archives, and both stay.
 
-        They share a digest, because the digest is the file inside, so the
-        second to arrive replaces the first under a name both were promised.
-        The registration is still refused -- the server cannot say the bytes
-        it holds are the ones this client sent -- but a whole archive is not
-        damage, and removing it would take the file out from under the item
-        that registered it.
+        They share `md5`, the file inside, and each is stored under its own
+        `zipMD5`, as upstream stores them: neither can replace the other, and
+        each attachment downloads the archive its own client sent.
         """
-        if smaller_replacement:
-            original = io.BytesIO()
-            with zipfile.ZipFile(original, "w") as archive:
-                archive.writestr("page.html", self.CONTENT)
-                archive.comment = b"Different ZIP metadata" * 100
-            self.ZIPPED = original.getvalue()
         await make_item(session, library, key="AAAA2345", item_type="attachment")
-        upload_key = await self.send(client)
-        stored = file_path(Path(settings.storage_path), self.original_md5())
-        somebody_elses = io.BytesIO()
-        with zipfile.ZipFile(somebody_elses, "w") as archive:
+        await make_item(session, library, key="BBBB2345", item_type="attachment")
+        first = self.ZIPPED
+        second = io.BytesIO()
+        with zipfile.ZipFile(second, "w") as archive:
             archive.writestr("page.html", self.CONTENT)
-        if smaller_replacement:
-            assert len(somebody_elses.getvalue()) < len(self.ZIPPED)
-        stored.write_bytes(somebody_elses.getvalue())
 
-        response = await client.post(
-            "/users/1/items/AAAA2345/file",
-            headers=AUTH | {"If-None-Match": "*"},
-            data={"upload": upload_key},
-        )
+        for key, body in (("AAAA2345", first), ("BBBB2345", second.getvalue())):
+            self.ZIPPED = body
+            upload_key = await self.send(client, key)
+            registered = await client.post(
+                f"/users/1/items/{key}/file",
+                headers=AUTH | {"If-None-Match": "*"},
+                data={"upload": upload_key},
+            )
+            assert registered.status_code == 204
 
-        assert response.status_code == 400
-        assert stored.is_file()
+        for key, body in (("AAAA2345", first), ("BBBB2345", second.getvalue())):
+            stored = file_path(Path(settings.storage_path), hashlib.md5(body).hexdigest())
+            assert stored.read_bytes() == body
+            served = await client.get(f"/users/1/items/{key}/file/content", headers=AUTH)
+            assert served.content == body
 
 
 class TestGroupVersions:
@@ -595,39 +591,50 @@ class TestFileDownloads:
 
         assert response.headers["Zotero-File-Compressed"] == "Yes"
 
-    async def test_telling_a_wrapper_apart_happens_off_the_event_loop(
+    async def test_it_names_the_file_inside_the_archive(
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """What the attachment says it is, which is what the client keeps as synced."""
+        await make_item(session, library, key="AAAA2345", item_type="attachment")
+        digest = await self._upload(
+            client, "AAAA2345", self.ZIPPED, filename="page.html", zipped=True
+        )
+
+        response = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
+
+        assert response.headers["Zotero-File-MD5"] == digest
+
+    async def test_telling_a_wrapper_apart_reads_nothing(
         self,
         client: httpx2.AsyncClient,
         session: AsyncSession,
         library: Library,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        """It hashes the whole archive, which for a large snapshot takes a while."""
-        import threading
-
+        """Recorded when the archive was registered, so no download hashes it."""
         from altero.services import storage
 
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         await self._upload(client, "AAAA2345", self.ZIPPED, filename="page.html", zipped=True)
-        hashed_on: list[str] = []
+        hashed: list[object] = []
         digest_of = storage._digest_of
 
         def recording(*args: Any) -> str:
-            hashed_on.append(threading.current_thread().name)
+            hashed.append(args)
             return digest_of(*args)
 
         monkeypatch.setattr(storage, "_digest_of", recording)
         redirect = await client.get("/users/1/items/AAAA2345/file", headers=AUTH)
-        await client.get(redirect.headers["Location"])
+        served = await client.get(redirect.headers["Location"])
 
-        assert len(hashed_on) == 2
-        assert threading.main_thread().name not in hashed_on
+        assert served.content == self.ZIPPED
+        assert hashed == []
 
     async def test_an_attachment_that_is_itself_a_zip_is_not_compressed(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         # A .docx or .epub is a ZIP too. What distinguishes the wrapper is that
-        # its bytes hash to something other than the digest the item claims.
+        # it was uploaded as one, with a `zipMD5`.
         await make_item(session, library, key="AAAA2345", item_type="attachment")
         await self._upload(client, "AAAA2345", self.ZIPPED, filename="thesis.docx")
 

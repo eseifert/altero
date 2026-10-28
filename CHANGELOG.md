@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Files are stored under their own digest, so no upload or restore can replace another library's; the first start renames them ([upgrade]).
 - Downloads serve the file an upload registered, not any digest an attachment's `md5` names; zotero.org draws the same line ([registered]).
 - The browser interface renames an attachment's file and edits its title, as Zotero Desktop's attachment pane does ([files]).
 - The browser interface adds files — picked or dragged in from the computer — and web links, and replaces a file, with progress shown ([files]).
@@ -263,6 +264,7 @@ The first release meant to be used by somebody other than its author.
 [notes]: docs/web/library.md#writing-a-note
 [files]: docs/web/library.md#adding-files-and-links
 [registered]: docs/compatibility.md#the-file-protocol
+[upgrade]: docs/deployment.md#upgrade-altero
 [build]: docs/deployment.md#build-the-image-instead-of-pulling-it
 [items]: docs/web/library.md#items
 [install]: docs/web-interface.md#installing-it-as-an-app

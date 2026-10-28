@@ -1,4 +1,8 @@
-"""Unequal-size archives race through actual authorization, upload and registration."""
+"""Unequal-size archives of one page race through actual authorization, upload and registration.
+
+Each is stored under its own digest, as upstream stores it, so neither replaces
+the other and both attachments register and download what their client sent.
+"""
 
 import hashlib
 import io
@@ -9,7 +13,7 @@ import httpx2
 from tools.compatibility.runtime import disposable_server
 
 
-async def test_smaller_whole_archive_survives_the_other_uploads_registration(tmp_path):
+async def test_unequal_archives_of_one_page_are_each_kept(tmp_path):
     content = b"<html>same main file</html>"
     digest = hashlib.md5(content, usedforsecurity=False).hexdigest()
     archives = []
@@ -57,20 +61,16 @@ async def test_smaller_whole_archive_survives_the_other_uploads_registration(tmp
             permissions.append(authorization.json())
         for permission, body in zip(permissions, archives, strict=True):
             assert (await client.post(permission["url"], content=body)).status_code == 201
-        refused = await client.post(
-            f"/users/1/items/{keys[0]}/file",
-            headers={"If-None-Match": "*"},
-            data=dict(upload=permissions[0]["uploadKey"]),
-        )
-        assert refused.status_code == 400
-        accepted = await client.post(
-            f"/users/1/items/{keys[1]}/file",
-            headers={"If-None-Match": "*"},
-            data=dict(upload=permissions[1]["uploadKey"]),
-        )
-        assert accepted.status_code == 204, "Refused registration removed another complete archive"
-        downloaded = await client.get(f"/users/1/items/{keys[1]}/file", follow_redirects=True)
-        assert downloaded.content == archives[1]
-        with zipfile.ZipFile(io.BytesIO(downloaded.content)) as archive:
-            assert archive.testzip() is None
-            assert archive.read("page.html") == content
+        for key, permission in zip(keys, permissions, strict=True):
+            registered = await client.post(
+                f"/users/1/items/{key}/file",
+                headers={"If-None-Match": "*"},
+                data=dict(upload=permission["uploadKey"]),
+            )
+            assert registered.status_code == 204
+        for key, body in zip(keys, archives, strict=True):
+            downloaded = await client.get(f"/users/1/items/{key}/file", follow_redirects=True)
+            assert downloaded.content == body
+            with zipfile.ZipFile(io.BytesIO(downloaded.content)) as archive:
+                assert archive.testzip() is None
+                assert archive.read("page.html") == content

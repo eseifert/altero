@@ -1163,6 +1163,7 @@ async def copy_item(
     copy = await save_item(session, target, payload, version, actor_id=actor_id)
     assert copy is not None  # A new item is never "unchanged".
     copy.registered_md5 = item.registered_md5
+    copy.registered_zip = item.registered_zip
 
     # Children go with it. A note or an attachment cannot stand on its own, and
     # a copy of a book without the note somebody wrote on it is not the copy
@@ -1176,6 +1177,7 @@ async def copy_item(
         copied = await save_item(session, target, child_payload, version, actor_id=actor_id)
         assert copied is not None
         copied.registered_md5 = child.registered_md5
+        copied.registered_zip = child.registered_zip
 
     return copy
 

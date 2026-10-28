@@ -762,6 +762,7 @@ async def upload_attachment(
     assert item is not None
     # The bytes just sent are what downloads serve; see `Item.registered_md5`.
     item.registered_md5 = md5
+    item.registered_zip = False
     await session.flush()
 
     rendered = await _rendered(session, item, library, base_url)
@@ -848,6 +849,7 @@ async def replace_file(
         stored=item,
     )
     item.registered_md5 = md5
+    item.registered_zip = False
 
     rendered = await _rendered(session, item, library, base_url)
     await groupactivity.record(

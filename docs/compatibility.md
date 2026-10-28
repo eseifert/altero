@@ -26,7 +26,7 @@ A partial write that leaves out `note` keeps the existing note text, for notes a
 
 When the client uploads a web snapshot, `md5` describes the file inside the archive and `zipMD5` the archive itself. Two clients zipping the same snapshot produce archives of different sizes with the same `md5`.
 
-If a registration does not match the archive already stored, altero refuses it but keeps the stored archive, even when it is smaller, because another upload or attachment may already depend on it. Truncated files and ZIPs with broken checksums are still removed.
+Each archive is stored under its own `zipMD5`, as on zotero.org, so neither replaces the other: both registrations succeed, and each attachment downloads the archive its own client sent.
 
 ### Search syntax
 
@@ -211,13 +211,15 @@ The middle step differs. zotero.org hands the client an Amazon S3 address plus a
 
 **A file is stored whole or not at all.** An upload that stops part way — a full disk, a dropped network mount — leaves no file rather than a short one. That matters because files are stored by content: a damaged file would be reported as `{"exists": 1}` to every later client holding the same bytes, and each would mark its attachment as synced for good.
 
-Registration therefore checks the stored file against its digest before attaching it. A file that is not what was sent is removed and the registration refused; the client treats that as a file-sync error and sends the file again on its next sync. One mismatch is not damage: two clients zipping the same snapshot produce different archives, so the stored archive may be somebody else's. The registration is still refused, but an intact archive stays (see [Racing ZIP archives of different sizes](#racing-zip-archives-of-different-sizes)).
+Registration therefore checks the stored file against its digest before attaching it. A file that is not what was sent is removed and the registration refused; the client treats that as a file-sync error and sends the file again on its next sync. Every stored file is named by the digest of its own bytes, so a mismatch is always damage.
 
 **An attachment can claim a file the server does not have.** A library moved from zotero.org whose files were kept on WebDAV names a digest for every attachment, but none of the files. So `If-None-Match: *` ("is there a file to protect?") is answered by looking for the file itself, not at what the attachment claims; otherwise the upload that would repair the attachment is refused. `If-Match` is still checked against the attachment, because that is how the client proves it is not working from stale information.
 
 **A download serves the file an upload registered, not the one the attachment claims**, as on zotero.org. `md5` is metadata any client may write, and files are shared by digest across libraries, so serving the claim would hand anybody who knew a digest the file behind it. Writing `md5` therefore changes what the attachment says and not which bytes it serves; an attachment no upload gave a file answers 404. A library copied from another, restored from an archive that carries the file, or upgraded from an earlier altero keeps the file it had.
 
-**`{"exists": 1}` needs the digest and the exact size**, as on zotero.org: that answer gives the client the stored file without receiving a byte. Where the size differs, zotero.org refuses with 400; altero asks for the bytes instead, because it stores one file per digest and a snapshot zipped by another client has the same digest at another size.
+**`{"exists": 1}` needs the digest and the exact size**, as on zotero.org: that answer gives the client the stored file without receiving a byte. The digest is the archive's, `zipMD5`, for a snapshot. Where the size differs, zotero.org refuses with 400; altero asks for the bytes instead, which then prove themselves, so a stored file that was damaged can be repaired by the next client that holds it.
+
+**No upload or restore can replace another library's file.** A snapshot's `md5` names the file inside the archive, and an archive's `files/` entry names whatever its maker wrote there; neither is checked against the bytes. So the bytes are stored under their own digest, never under a name somebody gave them.
 
 #### Downloading is a redirect, and has to be
 
@@ -226,7 +228,7 @@ Asking for an attachment's file answers **302**, with three headers:
 | Header                          | What it says                                             |
 |---------------------------------|----------------------------------------------------------|
 | `Zotero-File-Modification-Time` | the modification time the uploading client declared      |
-| `Zotero-File-MD5`               | the digest of the file an upload registered              |
+| `Zotero-File-MD5`               | the attachment's file: for a snapshot, the one inside    |
 | `Zotero-File-Compressed`        | `Yes` when the stored bytes are a ZIP around that file   |
 
 The desktop reads these headers from the redirect and nowhere else. Answering 200 with the bytes makes every download fail with "A file sync error occurred". The redirect also lets the client skip the download entirely when the modification time shows its copy is current.
@@ -248,7 +250,7 @@ Appending the caller's API key to the location (`?key=…`) would also work, and
 
 The desktop zips a web snapshot before uploading it. If a download then says `Zotero-File-Compressed: No`, the client saves the ZIP itself under the attachment's name, and the snapshot is quietly lost.
 
-altero needs no stored flag to tell the two apart. A stored file whose content does not match the digest it is filed under is an archive around the real file. Only files that start like a ZIP are checked, and a `.docx` or `.epub` — which are ZIPs themselves — matches its own digest and is served as it is. Each archive is checked once, not on every sync.
+altero records which is which when the file is registered: an upload that came with a `zipMD5` is an archive around the attachment's file, and a `.docx` or `.epub` — a ZIP itself — uploaded without one is served as it is. An archive restored into a library is one when its own digest is not the name the archive filed it under and it starts like a ZIP, which is how earlier altero versions stored snapshots.
 
 ## Authentication and client login
 
@@ -316,7 +318,7 @@ zotero.org advances the library version once per item in the batch; altero once 
 
 **Uploads are compressed.** The client gzips large request bodies, including full-text batches, which the documentation never mentions. altero decompresses them first; a body that does not decompress is a 400. Because this happens before authentication, compressed bodies and what they expand to are both limited to 128 MiB (413 beyond that). The client's largest write — 50 notes at zotero.org's length limit — is about 100 MB.
 
-**Snapshots arrive as ZIPs, with two digests.** `md5` describes the original file and `zipMD5` the archive actually sent. altero checks the transfer against `zipMD5` and records `md5` on the item, which is what the client sends back next time.
+**Snapshots arrive as ZIPs, with two digests.** `md5` describes the original file and `zipMD5` the archive actually sent. altero checks the transfer against `zipMD5`, stores the archive under it, and records `md5` on the item, which is what the client sends back next time.
 
 **The upload address must be a full URL.** The client refuses a bare path.
 

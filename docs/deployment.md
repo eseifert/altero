@@ -107,6 +107,8 @@ Database migrations run when altero starts. If a migration fails, the applicatio
 
 Upgrading from beta.2 or earlier builds the full-text search index once: about a minute per 30,000 attachment texts, and more disk. Check the [database requirements](#database-requirements) first.
 
+Upgrading from beta.5 or earlier renames attachment storage once, on the first start: every attachment file is read and hashed, so starting takes about as long as reading the storage directory from disk. Web snapshots are renamed to the digest of their own bytes. A file on a mount that cannot make hard links is copied first, so keep free space for your largest snapshot. Do not downgrade afterwards without restoring the storage backup as well.
+
 To update only the PostgreSQL image within the currently compatible major version:
 
 ```sh

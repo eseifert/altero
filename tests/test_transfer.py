@@ -37,7 +37,7 @@ from altero.models import (
     Setting,
     Tag,
 )
-from altero.services import storage, transfer
+from altero.services import storage, storelayout, transfer
 from altero.services.auth import get_library
 from altero.settings import Settings
 from tests.factories import (
@@ -386,6 +386,8 @@ class TestTheCostOfARestore:
         )
         async with target.session_factory() as session:
             await make_user(session, user_id=1, username="octocat")
+            # Once per store rather than per restore, so not what is measured.
+            await storelayout.ensure_current(session, tmp_path / "target-storage")
             statements.clear()
             restored = await transfer.import_library(
                 session, archive=archive, storage_root=tmp_path / "target-storage"
@@ -430,6 +432,7 @@ class TestRestoringFiles:
         archive = await self.make_archive(session, tmp_path)
         target_session, target_storage = target
         await make_user(target_session, user_id=1, username="octocat")
+        await storelayout.ensure_current(target_session, target_storage)
 
         def refuse(*arguments: object) -> None:
             raise OSError(errno.EIO, "Input/output error")
@@ -441,7 +444,9 @@ class TestRestoringFiles:
                 target_session, archive=archive, storage_root=target_storage
             )
 
-        assert [path for path in target_storage.rglob("*") if path.is_file()] == []
+        layout = {storelayout.MARKER, storelayout.LOCK}
+        left = [path for path in target_storage.rglob("*") if path.is_file()]
+        assert [path for path in left if path.name not in layout] == []
 
     async def test_a_restored_file_is_kept_even_when_its_digest_disagrees(
         self,
@@ -449,13 +454,14 @@ class TestRestoringFiles:
         tmp_path: Path,
         target: tuple[AsyncSession, Path],
     ) -> None:
-        """Deliberate, and the opposite of what the upload path does.
+        """Kept, under the digest it has rather than the one it was filed under.
 
         An archive carries a snapshot under the digest of the file inside it,
         and a library read out of zotero.org keeps files whose digest is not
-        the one the item claims -- a WebDAV library is full of them. Checking
-        an entry against its name would refuse exactly the files a migration
-        is trying to rescue.
+        the one the item claims -- a WebDAV library is full of them. Refusing
+        an entry that disagrees with its name would refuse exactly the files a
+        migration is trying to rescue; storing it under that name would let an
+        archive replace another library's file.
         """
         archive = await self.make_archive(session, tmp_path)
         digest = storage.file_digest(SNAPSHOT)
@@ -472,7 +478,13 @@ class TestRestoringFiles:
         await make_user(target_session, user_id=1, username="octocat")
         await transfer.import_library(target_session, archive=tampered, storage_root=target_storage)
 
-        assert storage.file_path(target_storage, digest).read_bytes() == b"something else"
+        own = storage.file_digest(b"something else")
+        assert storage.file_path(target_storage, own).read_bytes() == b"something else"
+        assert not storage.file_path(target_storage, digest).exists()
+        attachment = await target_session.scalar(select(Item).where(Item.key == "BG92XXQJ"))
+        assert attachment is not None
+        assert attachment.registered_md5 == own
+        assert attachment.field_values()["md5"] == digest
 
 
 class TestRefusals:

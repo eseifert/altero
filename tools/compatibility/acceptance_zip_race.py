@@ -1,4 +1,8 @@
-"""Two original desktops upload different archives under the same file digest."""
+"""Two original desktops upload different archives under the same file digest.
+
+Each archive is stored under its own digest, so both registrations succeed and
+neither desktop sees a file sync error: the race no longer has a loser.
+"""
 
 import asyncio
 import hashlib
@@ -49,7 +53,7 @@ async def zipped_digest_race(run: AcceptanceRun) -> None:
             await barrier.reached.wait()
             other = barrier.fork()
             other.arm("POST", "/storage/upload/", "response", prefix=True)
-            second = asyncio.create_task(run.phase("B", timeout=180, expected_file_sync_error=True))
+            second = asyncio.create_task(run.phase("B", timeout=180))
             await other.reached.wait()
             assert run.server.session_factory is not None
             async with run.server.session_factory() as session:
@@ -71,7 +75,7 @@ async def zipped_digest_race(run: AcceptanceRun) -> None:
                 task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
     left, right = await run.phase("A"), await run.phase("B")
-    # B's recovery registers its attachment after A's preceding metadata read.
+    # B registered after A's upload read the library, so A syncs once more.
     left = await run.phase("A")
     await run.converged(left, right)
     expected = hashlib.md5(content, usedforsecurity=False).hexdigest()
