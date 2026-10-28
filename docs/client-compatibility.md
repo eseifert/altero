@@ -622,12 +622,11 @@ a catalogue entry and is normally unset.
 ## Successfully tested matrix
 
 <!-- desktop-matrix -->
-
 Zotero 10.0.6 Linux x86-64; actual desktop profiles.
 
 | Scenario | SQLite | PostgreSQL |
 |---|---|---|
-| `baseline` | Passed (15 phases) | Passed (15 phases) |
+| `baseline` | Passed (13 phases) | Passed (13 phases) |
 | `conflicts` | Passed (21 phases) | Passed (21 phases) |
 | `filing` | Passed (7 phases) | Passed (7 phases) |
 | `groups` | Passed (19 phases) | Passed (19 phases) |
@@ -658,13 +657,16 @@ Zotero 10.0.6 Linux x86-64; actual desktop profiles.
 | `graph-races` | Passed (19 phases) | Passed (19 phases) |
 | `credential-limits` | Passed (12 phases) | Passed (12 phases) |
 | `web-editing` | Passed (7 phases) | Passed (7 phases) |
+| `note-corpus` | Passed (5 phases) | Passed (5 phases) |
+| `web-notes` | Passed (8 phases) | Passed (8 phases) |
+| `web-files` | Passed (11 phases) | Passed (11 phases) |
 
 <!-- /desktop-matrix -->
 
 Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on 2026-10-27, against the code prepared for 1.0.0-beta.5, on Python
+archive on 2026-10-28, against the code prepared for 1.0.0-beta.6, on Python
 3.14.10. PostgreSQL uses the existing 18.4 container, with a fresh database per
-scenario. Each database ran all 31 scenarios in one run, and none was repeated.
+scenario. Each database ran all 34 scenarios in one run, and none was repeated.
 **Not run** means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes.
 
@@ -676,8 +678,8 @@ directories. Regenerate the matrix from them with:
 
 ```sh
 uv run python -m tools.compatibility matrix --desktop-version 10.0.6 \
-  --report .compatibility/beta5-sqlite-2/acceptance.json \
-  --report .compatibility/beta5-pg-2/acceptance.json \
+  --report .compatibility/beta6-sqlite-1/acceptance.json \
+  --report .compatibility/beta6-pg-1/acceptance.json \
   --output .compatibility/results.json --markdown .compatibility/matrix.md
 ```
 
@@ -687,8 +689,8 @@ or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.
 
-The matrix records 62 successful database/scenario combinations and 750
-actual desktop phases: all 31 scenarios pass on both databases. The
+The matrix records 68 successful database/scenario combinations and 794
+actual desktop phases: all 34 scenarios pass on both databases. The
 baseline includes all 40 schema types. The source-replay suite passes 323 tests
 with no skips against the pinned 10.0.6 sources, with Node 24.22.1, and the
 network-consumer review gate passes with no stale or unreviewed consumers.
