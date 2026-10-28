@@ -312,11 +312,11 @@ Node 24.22.1:
   including concurrency checks against a fresh disposable PostgreSQL database.
 - The optional desktop source-replay suite: 323 tests, no skips, against the
   pinned Zotero 10.0.6 source.
-- The web interface: 1,728 tests, types and production build, after `npm ci`
-  installed exactly the lockfile. The end-to-end suite passed 76 tests in
+- The web interface: 1,734 tests, types and production build, after `npm ci`
+  installed exactly the lockfile. The end-to-end suite passed 78 tests in
   Chromium at desktop and phone sizes, including uploading, replacing and
-  renaming a file, with no Content-Security-Policy violation and no serious or
-  critical axe finding.
+  renaming a file and trashing and restoring a note under an item, with no
+  Content-Security-Policy violation and no serious or critical axe finding.
 - Pinned Zotero and dataserver source verification (30 client functions), plus
   the network-consumer review gate: 324 files, 88 consumers, no parse errors or
   stale reviews.
