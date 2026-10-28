@@ -2235,6 +2235,11 @@ errands as controls of its own: “Move or copy…”, which opens one list hold
 this library's collections and the other libraries it could be copied to,
 “Move to trash”, and “Restore” and “Delete” for something already in the trash.
 A control only a pointer can reach is a control some readers do not have.</p>
+<p><strong>A note or attachment under an item is trashed from its own pane</strong>, opened from
+the parent's: it is not a row of the list, so neither a drag nor <code>Delete</code>
+reaches it. The pane then goes back to the parent. In the trash it is a row like
+any other, and restoring it brings back that note or file alone, as in Zotero
+Desktop; a parent still in the trash stays there.</p>
 <p>They are glyphs, like the tools over the item list, and each carries its name
 twice — as <code>aria-label</code>, which is what a screen reader announces, and as
 <code>title</code>, which is what a pointer reveals. Two of them are drawn apart from their
