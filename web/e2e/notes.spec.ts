@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test'
+import type { Editor } from '@tiptap/core'
 
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
@@ -117,8 +118,20 @@ test('"/" offers the block types and makes the one chosen', async ({ page }, tes
   await signIn(page)
   await page.getByText(`Slash ${marker}`).first().click()
 
-  await page.locator('.note-editor .ProseMirror').click()
-  await page.keyboard.press('End')
+  const text = page.locator('.note-editor .ProseMirror')
+  await text.click()
+  // ProseMirror learns where a key moved the caret from `selectionchange`,
+  // which the next key can overtake on a busy machine: Enter then splits the
+  // line where the editor last saw the caret, at its start. Typing is read
+  // from the page and needs no such wait.
+  await expect(async () => {
+    await page.keyboard.press('End')
+    const atEnd = await text.evaluate((dom) => {
+      const { $head } = (dom as HTMLElement & { editor: Editor }).editor.state.selection
+      return $head.parentOffset === $head.parent.content.size
+    })
+    expect(atEnd).toBe(true)
+  }).toPass()
   await page.keyboard.press('Enter')
   await page.keyboard.type('/num')
   await expect(page.getByRole('option')).toHaveText(['Numbered List'])
