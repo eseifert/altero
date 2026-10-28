@@ -226,10 +226,10 @@ the copies cost nothing.
 
 ## Preparing a release
 
-The release version is **1.0.0-beta.5**, with tag `v1.0.0-beta.5`.
+The release version is **1.0.0-beta.6**, with tag `v1.0.0-beta.6`.
 
-1. Set the package version in `src/altero/__init__.py` (`1.0.0b5` in PEP 440).
-   Set the matching SemVer version (`1.0.0-beta.5`) in `web/package.json` and
+1. Set the package version in `src/altero/__init__.py` (`1.0.0b6` in PEP 440).
+   Set the matching SemVer version (`1.0.0-beta.6`) in `web/package.json` and
    both the top-level and root-package entries of `web/package-lock.json`.
    `pyproject.toml` reads the Python version dynamically; `uv.lock` carries no
    project version to change. Keep the development-status classifier in
@@ -243,7 +243,7 @@ The release version is **1.0.0-beta.5**, with tag `v1.0.0-beta.5`.
    a disposable test database, never an existing library database.
 
    ```sh
-   uv run python tools/release.py --tag v1.0.0-beta.5
+   uv run python tools/release.py --tag v1.0.0-beta.6
    uv run ruff format --check .
    uv run ruff check .
    uv run ty check
@@ -254,7 +254,7 @@ The release version is **1.0.0-beta.5**, with tag `v1.0.0-beta.5`.
    npm --prefix web run build
    release_artifacts=$(mktemp -d /tmp/altero-release.XXXXXX)
    uv build --out-dir "$release_artifacts"
-   uv run python tools/release.py --tag v1.0.0-beta.5 --artifacts "$release_artifacts"
+   uv run python tools/release.py --tag v1.0.0-beta.6 --artifacts "$release_artifacts"
    ```
 
    Install the docs group for Zensical and put Node 24 on PATH for the web
@@ -285,12 +285,12 @@ The release version is **1.0.0-beta.5**, with tag `v1.0.0-beta.5`.
 
    ```sh
    git push origin master
-   git tag -a v1.0.0-beta.5 -m "altero 1.0.0-beta.5"
-   git push origin v1.0.0-beta.5
+   git tag -a v1.0.0-beta.6 -m "altero 1.0.0-beta.6"
+   git push origin v1.0.0-beta.6
    ```
 
-The tag publishes multi-architecture container images under `1.0.0-beta.5` and
-`latest`, and documentation under `https://altero.run/1.0.0-beta.5/`. Prerelease
+The tag publishes multi-architecture container images under `1.0.0-beta.6` and
+`latest`, and documentation under `https://altero.run/1.0.0-beta.6/`. Prerelease
 documentation does not take the docs site's `latest` alias; that policy is
 separate from the image's `latest` tag. A tag does not create a GitHub Release
 or upload Python packages. If creating a GitHub Release, mark it as a prerelease

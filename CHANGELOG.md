@@ -7,6 +7,16 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-beta.6] — 2026-10-28
+
+This version writes notes in the browser, in Zotero's own note format, and puts
+files into a library: picked or dragged in, replaced and renamed, with web links
+beside them. It also closes three ways an account could reach files outside its
+libraries — through a path in an attachment's `md5`, by naming another file's
+digest, and by uploading or restoring bytes under one. Upgrading runs two
+migrations and renames attachment storage once, on the first start: back up the
+database and storage together first ([upgrade]).
+
 - The note editor's `/` menu test waits for the editor to see the caret move, which a busy CI machine overtook.
 - Desktop acceptance covers files added, renamed and replaced in the browser, and a desktop's replacement winning a race.
 - Files are stored under their own digest, so no upload or restore can replace another library's; the first start renames them ([upgrade]).
@@ -272,6 +282,7 @@ The first release meant to be used by somebody other than its author.
 [install]: docs/web-interface.md#installing-it-as-an-app
 [source]: docs/deployment.md#from-a-source-checkout
 [config]: docs/configuration.md
+[1.0.0-beta.6]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.6
 [1.0.0-beta.5]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.5
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
 [1.0.0-beta.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.3
