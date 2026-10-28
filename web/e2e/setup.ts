@@ -3,11 +3,14 @@
  *
  * The account and its key come from the command line, as on a real instance;
  * the library comes in through the v3 API, as a desktop client would sync it.
- * What was made is written to `e2e/.state.json` for the tests to read.
+ * What was made is written to `e2e/.state.json` for the tests to read, and
+ * what the server printed to `test-results/server.log`, which CI keeps when a
+ * run fails: a server that dies mid-run otherwise leaves only refused
+ * connections behind.
  */
 import { type ChildProcess, execFileSync, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { appendFileSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, openSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
@@ -16,6 +19,7 @@ import { PASSWORD, STATE_FILE, type State, USERNAME } from './state'
 const ROOT = resolve(import.meta.dirname, '..', '..')
 const PORT = process.env.ALTERO_E2E_PORT ?? '8766'
 const BASE = `http://127.0.0.1:${PORT}`
+const RESULTS = resolve(import.meta.dirname, '..', 'test-results')
 
 /** The installed environment when there is one, as the rest of the checks use. */
 function command(name: string): [string, string[]] {
@@ -107,7 +111,12 @@ export default async function setup(): Promise<() => void> {
   if (!key) throw new Error('No API key was printed')
 
   const [program, prefix] = command('altero')
-  const server: ChildProcess = spawn(program, [...prefix, 'serve'], { cwd: ROOT, env, stdio: 'ignore' })
+  const log = join(directory, 'server.log')
+  const output = openSync(log, 'a')
+  const server: ChildProcess = spawn(program, [...prefix, 'serve'], { cwd: ROOT, env, stdio: ['ignore', output, output] })
+  // A signal says how it ended where the log cannot: SIGSEGV, or SIGKILL from
+  // the kernel running out of memory, prints nothing.
+  server.on('exit', (code, signal) => appendFileSync(log, `\nserver exited: code ${code}, signal ${signal}\n`))
   await waitFor(`${BASE}/health`)
 
   const call = api(key)
@@ -162,6 +171,8 @@ export default async function setup(): Promise<() => void> {
 
   return () => {
     server.kill()
+    mkdirSync(RESULTS, { recursive: true })
+    copyFileSync(log, join(RESULTS, 'server.log'))
     rmSync(directory, { recursive: true, force: true })
     rmSync(STATE_FILE, { force: true })
   }

@@ -19,6 +19,7 @@ database and storage together first ([upgrade]).
 
 - A note or attachment under an item can be moved to the trash from its pane in the browser, and restored or deleted from the trash ([items]).
 - The note editor's `/` menu test waits for the editor to see the caret move, which a busy CI machine overtook.
+- The end-to-end suite keeps the test server's output and how it exited, which CI uploads when a run fails.
 - Desktop acceptance covers files added, renamed and replaced in the browser, and a desktop's replacement winning a race.
 - Files are stored under their own digest, so no upload or restore can replace another library's; the first start renames them ([upgrade]).
 - Downloads serve the file an upload registered, not any digest an attachment's `md5` names; zotero.org draws the same line ([registered]).
