@@ -224,6 +224,11 @@ operation = "convergence"
 status = "executable"
 tests = ["tools/compatibility/acceptance_notes.py"]
 
+[scenarios.browser_file_uploads_and_renames]
+operation = "files"
+status = "executable"
+tests = ["tools/compatibility/acceptance_web_files.py"]
+
 [scenarios.library_resets_and_backup_recovery]
 operation = "convergence"
 status = "executable"

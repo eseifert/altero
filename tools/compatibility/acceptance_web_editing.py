@@ -1,10 +1,5 @@
 """Items edited in the browser reach both desktops, and a desktop's edit wins a race."""
 
-import httpx2
-from sqlalchemy import select
-
-from altero.models import Library, User
-from altero.services import websessions
 from tools.compatibility.acceptance_runtime import AcceptanceRun
 
 EDITED = "WEBEDIT2"
@@ -44,20 +39,7 @@ async def web_editing(run: AcceptanceRun) -> None:
     )
     await run.phase("B", files=False)
 
-    assert run.server.session_factory is not None
-    async with run.server.session_factory() as session:
-        user = await session.get(User, 1)
-        assert user is not None
-        token, _ = await websessions.create(session, user)
-        library = await session.scalar(select(Library).where(Library.owner_id == 1))
-        assert library is not None
-        library_id = library.id
-
-    async with httpx2.AsyncClient(
-        base_url=f"{run.server.url}/web/libraries/{library_id}",
-        cookies={"altero_session": token, "altero_csrf": "acceptance-csrf"},
-        headers={"X-CSRF-Token": "acceptance-csrf"},
-    ) as browser:
+    async with run.browser() as browser:
 
         async def version(key: str) -> int:
             read = await browser.get(f"/items/{key}")

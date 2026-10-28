@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Desktop acceptance covers files added, renamed and replaced in the browser, and a desktop's replacement winning a race.
 - Files are stored under their own digest, so no upload or restore can replace another library's; the first start renames them ([upgrade]).
 - Downloads serve the file an upload registered, not any digest an attachment's `md5` names; zotero.org draws the same line ([registered]).
 - The browser interface renames an attachment's file and edits its title, as Zotero Desktop's attachment pane does ([files]).

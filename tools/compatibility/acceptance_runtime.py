@@ -1,10 +1,15 @@
 """Compare actual desktop persistence with the server after explicit phases."""
 
 import json
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import httpx2
+from sqlalchemy import select
 
+from altero.models import Library, User
+from altero.services import websessions
 from tools.compatibility.desktop import prepare_profile, run_phase
 from tools.compatibility.runtime import TestServer
 
@@ -41,6 +46,28 @@ class AcceptanceRun:
             )
         response.raise_for_status()
         return response
+
+    @asynccontextmanager
+    async def browser(self) -> AsyncIterator[httpx2.AsyncClient]:
+        """The web interface signed in as the desktops' user, on their personal library.
+
+        Its routes are relative to `/web/libraries/<id>`; the cookie and the
+        CSRF token are those a page holds after signing in.
+        """
+        assert self.server.session_factory is not None
+        async with self.server.session_factory() as session:
+            user = await session.get(User, 1)
+            assert user is not None
+            token, _ = await websessions.create(session, user)
+            library = await session.scalar(select(Library).where(Library.owner_id == 1))
+            assert library is not None
+            library_id = library.id
+        async with httpx2.AsyncClient(
+            base_url=f"{self.server.url}/web/libraries/{library_id}",
+            cookies={"altero_session": token, "altero_csrf": "acceptance-csrf"},
+            headers={"X-CSRF-Token": "acceptance-csrf"},
+        ) as client:
+            yield client
 
     async def converged(self, left: dict, right: dict, prefix="/users/1") -> None:
         """Check every object and unsynced queue, not just matching screen titles."""
