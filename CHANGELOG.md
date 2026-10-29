@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Duplicate candidates stay in complete groups through search and pagination, with their oldest item first.
 - Merge duplicates in the browser, choosing the master and fields to keep; matching attachments are deduplicated, including parsed PDFs.
 - Vue I18n is upgraded to 11.4.16, fixing the published translation-escaping XSS advisories.
 - Trash retention rechecks items after locking the library, preserving items restored or changed while the sweep waited.

@@ -661,7 +661,7 @@ class TestDuplicatesArePagedNotRecomputed:
         computed = 0
         find = duplicates._find
 
-        async def counting(*args: Any) -> set[int]:
+        async def counting(*args: Any) -> tuple[tuple[int, ...], ...]:
             nonlocal computed
             computed += 1
             return await find(*args)

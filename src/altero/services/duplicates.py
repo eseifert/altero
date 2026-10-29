@@ -77,7 +77,7 @@ def _year(date: str) -> str | None:
 #: version moves with every write to the library, so an entry is exact for as
 #: long as it is asked for; paging through the view no longer redoes the whole
 #: comparison for every page. Per process, like the streaming broker.
-_FOUND: OrderedDict[tuple[int, int], frozenset[int]] = OrderedDict()
+_FOUND: OrderedDict[tuple[int, int], tuple[tuple[int, ...], ...]] = OrderedDict()
 
 #: How many libraries' sets are kept.
 _KEPT = 16
@@ -105,27 +105,34 @@ async def duplicate_item_ids(session: AsyncSession, library: Library) -> set[int
     comparison is between items, so there is no predicate to hand a database
     that would not first have to read the same three columns of every row.
     """
+    return {item_id for group in await duplicate_item_groups(session, library) for item_id in group}
+
+
+async def duplicate_item_groups(
+    session: AsyncSession, library: Library
+) -> tuple[tuple[int, ...], ...]:
+    """Connected candidate groups, with oldest members first; cached per watermark."""
     remembered = (library.id, library.version)
     if (found := _FOUND.get(remembered)) is not None:
         _FOUND.move_to_end(remembered)
-        return set(found)
-    found = frozenset(await _find(session, library))
+        return found
+    found = await _find(session, library)
     _FOUND[remembered] = found
     while len(_FOUND) > _KEPT:
         _FOUND.popitem(last=False)
-    return set(found)
+    return found
 
 
-async def _find(session: AsyncSession, library: Library) -> set[int]:
+async def _find(session: AsyncSession, library: Library) -> tuple[tuple[int, ...], ...]:
     compared = select(Item.id).where(
         Item.library_id == library.id,
         Item.parent_id.is_(None),
         Item.deleted.is_(False),
         Item.item_type.not_in(UNCOMPARED),
     )
-    candidates = list(await session.scalars(compared))
+    candidates = list(await session.scalars(compared.order_by(Item.date_added, Item.key)))
     if len(candidates) < 2:
-        return set()
+        return ()
 
     # The candidates are named by the query that found them rather than by
     # their ids, which in a large library are more than a statement can bind.
@@ -151,7 +158,16 @@ async def _find(session: AsyncSession, library: Library) -> set[int]:
         if written:
             surnames[item_id].add(written)
 
-    duplicates: set[int] = set()
+    parents = {item_id: item_id for item_id in candidates}
+
+    def root(item_id: int) -> int:
+        while parents[item_id] != item_id:
+            parents[item_id] = parents[parents[item_id]]
+            item_id = parents[item_id]
+        return item_id
+
+    def join(first: int, second: int) -> None:
+        parents[root(second)] = root(first)
 
     # The identifiers first, and on their own: two records with one DOI are the
     # same work even where every other field disagrees.
@@ -163,7 +179,8 @@ async def _find(session: AsyncSession, library: Library) -> set[int]:
                 by_identifier[value].append(item_id)
         for group in by_identifier.values():
             if len(group) > 1:
-                duplicates.update(group)
+                for other in group[1:]:
+                    join(group[0], other)
 
     # Then the titles, each group checked pair by pair for a creator or a year
     # to stand behind the title.
@@ -181,9 +198,12 @@ async def _find(session: AsyncSession, library: Library) -> set[int]:
         for index, first in enumerate(group):
             for second in group[index + 1 :]:
                 if _agrees(fields, surnames, first, second):
-                    duplicates.update((first, second))
+                    join(first, second)
 
-    return duplicates
+    groups: dict[int, list[int]] = defaultdict(list)
+    for item_id in candidates:
+        groups[root(item_id)].append(item_id)
+    return tuple(tuple(group) for group in groups.values() if len(group) > 1)
 
 
 def _agrees(

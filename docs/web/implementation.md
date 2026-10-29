@@ -83,6 +83,18 @@ Content-Security-Policy refuses inline styles; `notes/editor.css` carries it.
 
 ### Duplicate merge endpoint
 
+The duplicates listing accepts `grouped=true` with `scope=duplicates`. It returns
+`groups` (lists of item keys), `totalGroups`, and the usual item envelopes and
+library watermark. In this mode `start` and `limit` count groups. Search, tag and
+collection filters find groups; every member readable by the viewer is included,
+oldest first. The requested sort orders groups by their first matching record.
+Without `grouped`, the existing item-based pagination is unchanged.
+
+Groups are connected components of the existing candidate matches. A matching
+identifier can connect records whose titles differ, and a title match can connect
+another record to that group. Membership is a suggestion for review, not a claim
+that every pair has the same identifier or item type.
+
 The duplicates pane uses
 `POST /web/libraries/{id}/items/merge`, authenticated by the browser session
 and CSRF token. It accepts:

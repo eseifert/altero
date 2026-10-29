@@ -40,7 +40,16 @@ from altero.query import (
     default_direction,
 )
 from altero.search import parse_expressions
-from altero.services import auth, collections, itemexport, items, settings, storage, tags
+from altero.services import (
+    auth,
+    collections,
+    duplicategroups,
+    itemexport,
+    items,
+    settings,
+    storage,
+    tags,
+)
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -243,6 +252,7 @@ async def list_library_items(
     tag: Annotated[list[str] | None, Query()] = None,
     item_key: Annotated[str | None, Query(alias="itemKey")] = None,
     scope: Scope = Scope.TOP,
+    grouped: bool = False,
 ) -> Response:
     """Return one page of items, in the v3 API's own item shape.
 
@@ -256,6 +266,9 @@ async def list_library_items(
     """
     library = await _readable_library(session, user, library_id)
 
+    if grouped and scope is not Scope.DUPLICATES:
+        raise HTTPException(status_code=400, detail="Grouping requires the duplicates scope")
+
     query, item_scope = _item_query(
         library,
         scope=scope,
@@ -268,6 +281,30 @@ async def list_library_items(
         limit=limit,
         start=start,
     )
+    if grouped:
+        group_page = await duplicategroups.list_groups(
+            session,
+            library,
+            query,
+            item_scope,
+            collection,
+            permit=await auth.user_access(session, library, user.id),
+        )
+        return JSONResponse(
+            {
+                "total": group_page.total,
+                "totalGroups": group_page.total_groups,
+                "libraryVersion": group_page.library_version,
+                "groups": [[item.key for item in group] for group in group_page.groups],
+                "items": await render_items(
+                    session,
+                    [item for group in group_page.groups for item in group],
+                    library,
+                    base_url,
+                ),
+            }
+        )
+
     page = await items.list_items(session, library, query, scope=item_scope, key=collection)
 
     return JSONResponse(
