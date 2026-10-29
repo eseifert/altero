@@ -278,6 +278,78 @@ async def test_group_author_of_every_changed_item_is_recorded(
     assert relations(master) == {("dc:replaces", items.item_uri(group, other.key))}
 
 
+async def test_selected_fields_and_creators_are_part_of_the_merge_write(
+    session: AsyncSession, library: Library
+) -> None:
+    master = await factories.make_item(
+        session, library, fields={"title": "Original", "extra": "Keep"}
+    )
+    other = await factories.make_item(session, library, fields={"title": "Chosen"})
+    await writes.lock_library(session, library)
+    version = await writes.bump_library_version(session, library)
+    changed = await merge.merge_items(
+        session,
+        library,
+        master,
+        [other],
+        version,
+        fields={"title": "Chosen", "creators": [{"creatorType": "author", "name": "A collective"}]},
+    )
+    await session.commit()
+    assert master.field_values() == {"title": "Chosen", "extra": "Keep"}
+    assert master.creators[0].name == "A collective"
+    assert master.sort_title == "Chosen"
+    assert {item.version for item in changed} == {version}
+    assert other.deleted
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"tags": []},
+        {"collections": []},
+        {"relations": {}},
+        {"deleted": True},
+        {"dateAdded": "2000-01-01T00:00:00Z"},
+        {"dateModified": "2000-01-01T00:00:00Z"},
+        {"itemType": "note"},
+        {"parentItem": False},
+        {"inPublications": True},
+        {"key": "MASTER22"},
+        {"version": 11},
+        {"md5": "a" * 32},
+        {"filename": "a.pdf"},
+        {"notAField": "x"},
+        {"title": {"nested": "x"}},
+        {"title": 123},
+        {"creators": "wrong shape"},
+    ],
+)
+async def test_selected_fields_cannot_change_the_graph_or_bypass_schema(
+    session: AsyncSession, library: Library, fields: dict[str, object]
+) -> None:
+    master, other = [await factories.make_item(session, library) for _ in range(2)]
+    with pytest.raises(InvalidInputError):
+        await merge.merge_items(session, library, master, [other], 11, fields=fields)
+    assert not other.deleted
+    assert master.version == other.version == 1
+
+
+async def test_selected_fields_can_clear_a_field_and_creators(
+    session: AsyncSession, library: Library
+) -> None:
+    master = await factories.make_item(
+        session, library, fields={"title": "Original"}, creators=[("author", "Ada", "Lovelace")]
+    )
+    other = await factories.make_item(session, library)
+    await merge.merge_items(
+        session, library, master, [other], 11, fields={"title": None, "creators": []}
+    )
+    await session.commit()
+    assert not master.field_values().get("title")
+    assert not master.creators
+
+
 @pytest.mark.parametrize(
     "invalid", ["empty", "self", "repeated", "foreign", "note", "trash", "type"]
 )

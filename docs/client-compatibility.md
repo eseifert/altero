@@ -96,6 +96,11 @@ source; they do not execute the desktop merge code. A live HTTP check verifies
 the resulting incremental item download, annotation parent and original PDF
 bytes. The browser route and desktop merge acceptance are still pending.
 
+The service accepts chosen bibliographic fields and creators as part of the
+same master-item write. Omitted values stay on the master; empty values clear
+them. Structural properties and timestamps cannot be chosen this way, and
+field and creator validation runs before attachment inspection.
+
 The PDF inspector has generated-file tests for extraction, all 17 desktop
 markup annotation types, non-markup annotations, encryption, malformed files
 and timeouts. A separate source-replay check compares common-word fingerprints

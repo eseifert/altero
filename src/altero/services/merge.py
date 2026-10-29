@@ -18,6 +18,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError
+from altero.itemschema import get_schema
 from altero.models import FullText, Item, ItemRelation, Library
 from altero.serializers import timestamp
 from altero.services import items, itemwrites, mergeattachments
@@ -107,10 +108,12 @@ async def merge_items(
     permit: Access | None = None,
     storage_root: Path | None = None,
     locale: str = "en-US",
+    fields: dict[str, Any] | None = None,
 ) -> list[Item]:
     """Keep ``master``, move the duplicates' children and links, then trash them.
 
-    Keeps the master's fields and creators, takes the earliest ``dateAdded``,
+    Keeps the master's fields and creators unless ``fields`` chooses others,
+    takes the earliest ``dateAdded``,
     unions collections and tags (manual wins), transfers merge history, and
     redirects incoming relations within this library. Normal relations on the
     trashed originals remain, as on the desktop. Returns each changed item
@@ -122,6 +125,16 @@ async def merge_items(
     merge, because incoming relations can originate outside its collections.
     """
     _validate(library, master, others)
+    chosen = fields or {}
+    allowed = get_schema().get_item_type(master.item_type).field_names
+    for name, value in chosen.items():
+        if name != "creators":
+            if name not in allowed:
+                raise InvalidInputError(f"'{name}' cannot be chosen in a merge")
+            if value is not None and not isinstance(value, str):
+                raise InvalidInputError(f"'{name}' must be text or null")
+    # Includes creator shape/type checks, before any file parsing or writes.
+    itemwrites.validate_item(chosen, master, library.type)
     if permit is not None:
         if permit.confined:
             raise ForbiddenError("Merging requires access to the whole library")
@@ -186,6 +199,7 @@ async def merge_items(
     # Plans are built from the stored graph, then written once per item. In
     # particular an incoming subject can also be a duplicate or a moved note.
     patches: dict[int, dict[str, Any]] = {item.id: {} for item in affected.values()}
+    patches[master.id].update(chosen)
     patches.update(attachment_plan.patches)
     relation_sets = {
         item.id: {(relation.predicate, relation.object) for relation in item.relations}
