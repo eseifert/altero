@@ -1139,6 +1139,8 @@ async def copy_item(
     *,
     collection_key: str | None = None,
     actor_id: int | None = None,
+    include_files: bool = True,
+    files_writable: bool = True,
 ) -> Item:
     """Copy ``item`` and its children into ``target``, and return the copy.
 
@@ -1153,8 +1155,10 @@ async def copy_item(
     An attached file needs no copying at all: files are stored under their
     digest, so the copy names the same bytes the original does -- the bytes
     registered for the original, carried over, since whoever copies may read
-    them. Full-text content is not carried over -- it is indexed from the
-    file, and the client that holds the file will send it again.
+    them. ``include_files=False`` copies metadata alone when the source is
+    public but its files were not granted. Full-text content is not carried
+    over -- it is indexed from the file, and the client that holds the file
+    will send it again.
     """
     payload = await _copyable(session, item)
     if collection_key:
@@ -1162,8 +1166,7 @@ async def copy_item(
 
     copy = await save_item(session, target, payload, version, actor_id=actor_id)
     assert copy is not None  # A new item is never "unchanged".
-    copy.registered_md5 = item.registered_md5
-    copy.registered_zip = item.registered_zip
+    _copy_file(item, copy, include=include_files, writable=files_writable)
 
     # Children go with it. A note or an attachment cannot stand on its own, and
     # a copy of a book without the note somebody wrote on it is not the copy
@@ -1176,10 +1179,23 @@ async def copy_item(
         child_payload["parentItem"] = copy.key
         copied = await save_item(session, target, child_payload, version, actor_id=actor_id)
         assert copied is not None
-        copied.registered_md5 = child.registered_md5
-        copied.registered_zip = child.registered_zip
+        _copy_file(child, copied, include=include_files, writable=files_writable)
 
     return copy
+
+
+def _copy_file(source: Item, target: Item, *, include: bool, writable: bool) -> None:
+    """Grant the copied bytes only when both libraries' permissions allow it.
+
+    Checked for each registration as it is copied: checking whether a selection
+    has any files earlier can be overtaken by an upload to the source library.
+    """
+    if not include:
+        return
+    if source.registered_md5 is not None and not writable:
+        raise ForbiddenError("You cannot add files to this library")
+    target.registered_md5 = source.registered_md5
+    target.registered_zip = source.registered_zip
 
 
 #: How deep the walk below the named items goes before it gives up. Zotero

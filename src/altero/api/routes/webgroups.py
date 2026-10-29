@@ -524,9 +524,9 @@ async def answer_invitation(
 
     record = await invitations.by_token(session, token)
     if decision == "accept":
-        await invitations.accept(session, record, user)
+        await invitations.accept(session, record, user, token=token)
     else:
-        await invitations.decline(session, record, user)
+        await invitations.decline(session, record, user, token=token)
 
     return JSONResponse({"status": record.status, "libraryId": record.library_id})
 

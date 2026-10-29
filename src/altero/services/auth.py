@@ -888,12 +888,12 @@ def _person_access(
     if library.type is LibraryType.USER:
         if library.owner_id == user_id:
             return Access(read=True, write=True, user_id=user_id)
-        return Access(read=library.public, write=False, user_id=user_id)
+        return Access(read=library.public, write=False, files=False, user_id=user_id)
 
     if membership is None:
         # A stranger to the group. A public one is still readable, and still
         # not writable, exactly as it is for a key.
-        return Access(read=library.public, write=False, user_id=user_id)
+        return Access(read=library.public, write=False, files=False, user_id=user_id)
 
     write = not (
         group is not None and group.library_editing == "admins" and membership.role != "admin"

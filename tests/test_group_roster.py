@@ -14,6 +14,8 @@ tests checked, and they passed while every member of every group but its owner
 synced a read-only library. Found by @alpichlabs in PR #14.
 """
 
+from datetime import UTC, datetime
+
 import httpx2
 import pytest
 from fastapi import FastAPI
@@ -250,6 +252,7 @@ class TestTheVersionMoves:
         assert alice is not None
         assert carol is not None
         carol.email = "carol@example.org"
+        carol.email_verified = datetime.now(UTC).replace(tzinfo=None)
         await session.commit()
         invitation = await invitations.invite(
             session, library=library, inviter=alice, email="carol@example.org"

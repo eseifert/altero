@@ -421,6 +421,8 @@ async def download_item_file(
     filing it away.
     """
     library = await _readable_library(session, user, library_id)
+    if not (await auth.user_access(session, library, user.id)).files:
+        raise HTTPException(status_code=403, detail="You cannot read this library's files")
     item = await items.get_item(session, library, item_key)
     path, fields = await storage.stored_file(item, Path(request.app.state.settings.storage_path))
 

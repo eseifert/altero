@@ -30,7 +30,7 @@ import pytest
 
 from altero.app import create_app
 from altero.db import Base, Database
-from altero.services import admin, invitations, notifications, webauth
+from altero.services import admin, emailverify, invitations, notifications, webauth
 from altero.settings import Settings
 
 POSTGRES_URL = os.environ.get("ALTERO_TEST_POSTGRES_URL")
@@ -115,10 +115,10 @@ class TestAnAccountWithNoAddress:
         assert response.json()["user"]["email"] is None
         assert response.json()["user"]["emailVerified"] is False
 
-    async def test_they_can_still_be_invited_by_link(
+    async def test_a_linked_user_id_does_not_replace_address_proof(
         self, client: httpx2.AsyncClient, database: Database
     ) -> None:
-        """Matched on the invitation's user_id, since there is no address to match."""
+        """Legacy links do not establish control of the invited address."""
         await make_cli_account(database)
 
         async with database.session_factory() as session:
@@ -136,7 +136,7 @@ class TestAnAccountWithNoAddress:
             invitation, _ = await invitations.invite_with_token(
                 session, library=library, inviter=grace, email="ada-elsewhere@example.org"
             )
-            # Linked by hand, as accepting an emailed link would do.
+            # Legacy rows may link an account without proving its address.
             invitation.user_id = ada.id
             await session.commit()
             await notifications.raise_for(
@@ -151,9 +151,9 @@ class TestAnAccountWithNoAddress:
         body = (await client.get("/web/notifications")).json()
 
         assert body["unread"] == 1
-        assert [entry["libraryName"] for entry in body["invitations"]] == ["Analytical Engine"]
+        assert body["invitations"] == []
 
-    async def test_they_can_answer_that_invitation(
+    async def test_an_account_without_an_address_cannot_answer_a_legacy_link(
         self, client: httpx2.AsyncClient, database: Database
     ) -> None:
         await make_cli_account(database)
@@ -182,8 +182,8 @@ class TestAnAccountWithNoAddress:
             f"/web/invitations/{invitation_id}/accept", headers=csrf(client)
         )
 
-        assert response.status_code == 200
-        assert len((await client.get("/web/libraries")).json()) == 2
+        assert response.status_code == 403
+        assert len((await client.get("/web/libraries")).json()) == 1
 
 
 class TestTheOrdinaryPathsAlsoWorkHere:
@@ -214,6 +214,10 @@ class TestTheOrdinaryPathsAlsoWorkHere:
         )
 
         async with database.session_factory() as session:
+            ada = await admin.get_user_by_name(session, "ada")
+            await emailverify.confirm(
+                session, await emailverify.issue(session, ada, ada.email or "")
+            )
             grace = await webauth.register(
                 session,
                 username="grace",

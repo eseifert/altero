@@ -7,6 +7,10 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Group invitations require a verified matching address or the emailed link; an unverified registration cannot claim membership.
+- Revoked or reissued invitations cannot be answered from a stale page.
+- Public-library files require ownership or membership in the browser too; copying items cannot bypass file access or upload policy.
+
 ## [1.0.0-beta.6] — 2026-10-28
 
 This version writes notes in the browser, in Zotero's own note format, and puts

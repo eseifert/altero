@@ -15,7 +15,7 @@ import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import or_, select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
@@ -116,6 +116,11 @@ async def invite_with_token(
     address = emailverify.normalise(email)
 
     invited = await session.scalar(select(User).where(User.email == address))
+    # A registration's address is only a claim until its mailbox is proved.
+    # Linking it here would disclose the invitation and let whoever typed the
+    # address join the group without ever seeing the mailed token.
+    if invited is not None and not emailverify.is_verified(invited):
+        invited = None
     if invited is not None:
         existing_member = await session.scalar(
             select(GroupMember).where(
@@ -217,29 +222,24 @@ async def pending_for_library(session: AsyncSession, library: Library) -> list[I
 async def pending_for_user(session: AsyncSession, user: User) -> list[Invitation]:
     """Return invitations this person can answer.
 
-    Matched on the address as well as the link, so one issued before they
-    registered still reaches them.
-
-    An account with no address -- one made by `altero user add` -- is matched on
-    the link alone. The clause is left out rather than compared against an
-    impossible value: the first version of this used "\\0" as that value, which
-    SQLite accepts happily and PostgreSQL refuses outright, so every one of
-    those accounts got a 500 from the notifications panel on a real deployment.
+    Only a verified, matching address proves who may answer without the mailed
+    token. A stored user_id is not proof: older invitations linked accounts
+    before verifying their addresses, and an account may since have changed its
+    address.
     """
-    answerable = Invitation.user_id == user.id
-    if user.email:
-        answerable = or_(answerable, Invitation.email == user.email)
+    if not emailverify.is_verified(user):
+        return []
 
     result = await session.scalars(
         select(Invitation)
         .where(Invitation.status == PENDING, Invitation.expires >= _now())
-        .where(answerable)
+        .where(Invitation.email == user.email)
         .order_by(Invitation.created.desc())
     )
     return list(result)
 
 
-def _require_answerable(invitation: Invitation, user: User) -> None:
+def _require_answerable(invitation: Invitation, user: User, *, token: str | None) -> None:
     """Raise unless ``user`` may answer ``invitation`` right now."""
     if invitation.status != PENDING:
         raise ForbiddenError("That invitation has already been answered")
@@ -247,14 +247,26 @@ def _require_answerable(invitation: Invitation, user: User) -> None:
         raise ForbiddenError("That invitation has expired")
     # The invitation names an address. Holding the row, or its id, is not the
     # same as being the person it was offered to.
-    if invitation.user_id != user.id and invitation.email != (user.email or ""):
+    if invitation.email != (user.email or ""):
         raise ForbiddenError("That invitation was not addressed to you")
+    has_token = token is not None and secrets.compare_digest(
+        invitation.token_hash, hash_token(token)
+    )
+    if not has_token and not emailverify.is_verified(user):
+        raise ForbiddenError("Confirm your email address or use the emailed invitation link")
 
 
-async def accept(session: AsyncSession, invitation: Invitation, user: User) -> GroupMember:
+async def accept(
+    session: AsyncSession, invitation: Invitation, user: User, *, token: str | None = None
+) -> GroupMember:
     """Take up an invitation, becoming a member at the role it offered."""
-    _require_answerable(invitation, user)
+    _require_answerable(invitation, user, token=token)
 
+    library = await session.get(Library, invitation.library_id)
+    if library is None:  # pragma: no cover - defensive
+        raise NotFoundError("No such library")
+    library = await writes.lock_library(session, library)
+    await _answer(session, invitation, user, ACCEPTED)
     existing = await session.scalar(
         select(GroupMember).where(
             GroupMember.library_id == invitation.library_id,
@@ -262,10 +274,6 @@ async def accept(session: AsyncSession, invitation: Invitation, user: User) -> G
         )
     )
     if existing is None:
-        library = await session.get(Library, invitation.library_id)
-        if library is None:  # pragma: no cover - defensive
-            raise NotFoundError("No such library")
-        library = await writes.lock_library(session, library)
         existing = GroupMember(
             library_id=invitation.library_id,
             user_id=user.id,
@@ -277,22 +285,36 @@ async def accept(session: AsyncSession, invitation: Invitation, user: User) -> G
         # client reads comes with a version of its own.
         await writes.bump_library_version(session, library)
 
-    invitation.status = ACCEPTED
-    invitation.user_id = user.id
-    invitation.answered = _now()
     await session.commit()
 
     await notifications.mark_read_for_invitation(session, user, invitation.id)
     return existing
 
 
-async def decline(session: AsyncSession, invitation: Invitation, user: User) -> None:
-    """Turn an invitation down, without joining anything."""
-    _require_answerable(invitation, user)
+async def _answer(session: AsyncSession, invitation: Invitation, user: User, status: str) -> None:
+    """Claim the current invitation; a revoked or reissued one cannot be answered."""
+    claimed = await session.scalar(
+        update(Invitation)
+        .where(
+            Invitation.id == invitation.id,
+            Invitation.status == PENDING,
+            Invitation.token_hash == invitation.token_hash,
+            Invitation.expires >= _now(),
+        )
+        .values(status=status, user_id=user.id, answered=_now())
+        .returning(Invitation.id)
+    )
+    if claimed is None:
+        raise ForbiddenError("That invitation has already been answered or changed")
 
-    invitation.status = DECLINED
-    invitation.user_id = user.id
-    invitation.answered = _now()
+
+async def decline(
+    session: AsyncSession, invitation: Invitation, user: User, *, token: str | None = None
+) -> None:
+    """Turn an invitation down, without joining anything."""
+    _require_answerable(invitation, user, token=token)
+
+    await _answer(session, invitation, user, DECLINED)
     await session.commit()
 
     await notifications.mark_read_for_invitation(session, user, invitation.id)
@@ -308,6 +330,12 @@ async def revoke(session: AsyncSession, invitation: Invitation, actor: User) -> 
     if invitation.status != PENDING:
         raise InvalidInputError("That invitation has already been answered")
 
-    invitation.status = REVOKED
-    invitation.answered = _now()
+    claimed = await session.scalar(
+        update(Invitation)
+        .where(Invitation.id == invitation.id, Invitation.status == PENDING)
+        .values(status=REVOKED, answered=_now())
+        .returning(Invitation.id)
+    )
+    if claimed is None:
+        raise InvalidInputError("That invitation has already been answered")
     await session.commit()

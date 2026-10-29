@@ -20,8 +20,9 @@ from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.api.deps import get_upload_limit
-from altero.models import Group, Library, MemberPermission, User
-from altero.services import admin, groups, storage
+from altero.models import Group, Item, Library, LibraryType, MemberPermission, User
+from altero.services import admin, groups, itemwrites, storage
+from altero.services.auth import get_library
 from altero.settings import Settings
 from tests import factories
 from tests.test_web_items import make_collection, personal_library, seed_item
@@ -103,6 +104,137 @@ async def group_with_ada(
 
 
 class TestANewAttachment:
+    async def test_a_file_registered_after_copy_preflight_cannot_bypass_policy(
+        self,
+        ada: httpx2.AsyncClient,
+        session: AsyncSession,
+        settings: Settings,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        source_id = await personal_library(ada)
+        source = await session.get(Library, source_id)
+        assert source is not None
+        attachment = await factories.make_item(
+            session,
+            source,
+            item_type="attachment",
+            registered=False,
+            fields={
+                "title": "Pending upload",
+                "linkMode": "imported_file",
+                "filename": "paper.pdf",
+                "md5": MD5,
+            },
+        )
+        storage.store_file(settings.storage_path, MD5, CONTENT)
+        target = await group_with_ada(session, file_editing="none")
+        before = await library_version(ada, target.id)
+        copy = itemwrites.copy_item
+
+        async def registered_since_preflight(session, target, item, version, **kwargs):
+            # Arrange a registration becoming visible after the route's scan.
+            # This uses the request transaction because SQLite serializes
+            # writers; PostgreSQL source-library writes can run independently.
+            item.registered_md5 = MD5
+            await session.flush()
+            return await copy(session, target, item, version, **kwargs)
+
+        monkeypatch.setattr(itemwrites, "copy_item", registered_since_preflight)
+        response = await ada.post(
+            f"/web/libraries/{source_id}/items/copy",
+            json={"items": [attachment.key], "library": target.id},
+            headers=csrf_headers(ada),
+        )
+        assert response.status_code == 403
+        assert await library_version(ada, target.id) == before
+
+    @pytest.mark.parametrize("library_type", [LibraryType.USER, LibraryType.GROUP])
+    @pytest.mark.parametrize("operation", ["read", "copy", "copy_parent"])
+    async def test_public_metadata_does_not_grant_a_stranger_the_files(
+        self,
+        ada: httpx2.AsyncClient,
+        session: AsyncSession,
+        settings: Settings,
+        library_type: LibraryType,
+        operation: str,
+    ) -> None:
+        grace = await admin.create_user(session, username="grace")
+        source = (
+            await get_library(session, LibraryType.USER, grace.id)
+            if library_type is LibraryType.USER
+            else await factories.make_group(session, owner_id=grace.id, group_id=60)
+        )
+        source.public = True
+        await session.commit()
+        parent = await factories.make_item(session, source, fields={"title": "Public metadata"})
+        attachment = await factories.make_item(
+            session,
+            source,
+            item_type="attachment",
+            parent=parent,
+            fields={
+                "title": "Members' file",
+                "linkMode": "imported_file",
+                "filename": "paper.pdf",
+                "md5": MD5,
+            },
+        )
+        storage.store_file(settings.storage_path, MD5, CONTENT)
+        assert (await ada.get(f"/web/libraries/{source.id}/items/{parent.key}")).status_code == 200
+        if operation == "read":
+            response = await ada.get(f"/web/libraries/{source.id}/items/{attachment.key}/file")
+            assert response.status_code == 403
+        else:
+            target_id = await personal_library(ada)
+            key = parent.key if operation == "copy_parent" else attachment.key
+            copied = await ada.post(
+                f"/web/libraries/{source.id}/items/copy",
+                json={"items": [key], "library": target_id},
+                headers=csrf_headers(ada),
+            )
+            assert copied.status_code == 201
+            rows = list(await session.scalars(select(Item).where(Item.library_id == target_id)))
+            files = [row for row in rows if row.item_type == "attachment"]
+            assert len(files) == 1
+            assert files[0].registered_md5 is None
+            assert (
+                await ada.get(f"/web/libraries/{target_id}/items/{files[0].key}/file")
+            ).status_code == 404
+
+    @pytest.mark.parametrize("parented", [False, True])
+    @pytest.mark.parametrize("file_editing", ["none", "admins", "members"])
+    async def test_copying_a_registered_file_obeys_the_destination_file_policy(
+        self,
+        ada: httpx2.AsyncClient,
+        session: AsyncSession,
+        parented: bool,
+        file_editing: str,
+    ) -> None:
+        source_id = await personal_library(ada)
+        parent_key = await seed_item(ada, session) if parented else None
+        query = {"parentItem": parent_key} if parent_key else {}
+        attachment = (await upload(ada, source_id, **query)).json()["key"]
+        target = await group_with_ada(session, file_editing=file_editing)
+        before = await library_version(ada, target.id)
+        response = await ada.post(
+            f"/web/libraries/{source_id}/items/copy",
+            json={"items": [parent_key or attachment], "library": target.id},
+            headers=csrf_headers(ada),
+        )
+        if file_editing == "members":
+            assert response.status_code == 201
+            files = list(
+                await session.scalars(
+                    select(Item).where(Item.library_id == target.id, Item.item_type == "attachment")
+                )
+            )
+            assert len(files) == 1
+            assert await downloaded(ada, target.id, files[0].key) == CONTENT
+        else:
+            assert response.status_code == 403
+            assert await library_version(ada, target.id) == before
+            assert (await ada.get(f"/web/libraries/{target.id}/items")).json()["total"] == 0
+
     async def test_a_file_becomes_a_child_attachment(
         self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:

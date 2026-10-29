@@ -1212,16 +1212,19 @@ async def copy_items(
     the order they were named, so a selection arrives as a selection rather than
     as a scattering of separately-versioned items.
     """
-    source, _ = await _library(session, user, library_id, write=False)
+    source, source_access = await _library(session, user, library_id, write=False)
 
     keys = list(dict.fromkeys(body.items))
-    items = [await items_service.get_item(session, source, key) for key in keys]
+    items = [
+        await items_service.get_item(session, source, key, permit=source_access) for key in keys
+    ]
 
     if body.library == library_id:
         raise InvalidInputError("An item is already in its own library")
     target, _ = await _library(session, user, body.library, write=True)
 
     target = await writes.lock_library(session, target)
+    _, files_writable = (await auth.user_rights(session, [target], user.id))[target.id]
     if body.collection:
         # Resolved before anything is written, so a collection key from another
         # library is a 404 rather than half a copy.
@@ -1236,6 +1239,8 @@ async def copy_items(
             version,
             collection_key=body.collection,
             actor_id=user.id,
+            include_files=source_access.files,
+            files_writable=files_writable,
         )
         for item in items
     ]

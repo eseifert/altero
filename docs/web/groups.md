@@ -40,6 +40,10 @@ client, and why the other two show up as sync errors when a desktop client
 tries anyway. The item list here knows about all of them and does not draw a
 control the server would refuse.
 
+Public library metadata does not make its files public: those remain available
+to members. Copying metadata as a nonmember does not copy the files. A copy that
+carries files must also satisfy the destination group's file-upload policy.
+
 What a screen offers follows the role the *server* resolved and sends back with
 the group. Deciding it in the browser would mean a second implementation of the
 permission rules, drifting against the one that actually refuses the request,
@@ -59,10 +63,12 @@ the same thing whichever door set it.
 ### Notifications and invitations
 
 An administrator of a group library can invite an email address to it. If that
-address belongs to an account here, the invitation appears in that person's
-notifications and can be accepted or declined in the interface; if it does not,
+address is verified by an account here, the invitation appears in that person's
+notifications and can be accepted or declined in the interface; otherwise,
 the emailed link carries a token and whoever registers with that address can
-accept it afterwards.
+accept it afterwards using the link. Without the link, confirm the address
+first. Typing an invited address when registering does not grant membership.
+An invitation that was revoked or reissued cannot be answered from a stale page.
 
 Both channels are used deliberately. Mail may be unconfigured, unconfirmed,
 filtered or simply lost, and an invitation that exists only in an inbox is one

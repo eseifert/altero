@@ -8,11 +8,13 @@ and one that depends on their mail working.
 """
 
 import pytest
+from fastapi import FastAPI
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
-from altero.models import GroupMember, Library, User
-from altero.services import admin, invitations, notifications, webauth
+from altero.models import GroupMember, Invitation, Library, User
+from altero.services import admin, emailverify, invitations, notifications, webauth
 
 PASSWORD = "correct horse battery staple"
 
@@ -26,16 +28,79 @@ async def setup_group(session: AsyncSession) -> tuple[User, Library]:
 
 
 async def make_member(session: AsyncSession, username: str = "grace") -> User:
-    return await webauth.register(
+    user = await webauth.register(
         session,
         username=username,
         password=PASSWORD,
         email=f"{username}@example.org",
         allow_registration=True,
     )
+    await emailverify.confirm(session, await emailverify.issue(session, user, user.email or ""))
+    return user
 
 
 class TestInviting:
+    @pytest.mark.parametrize("decision", ["accept", "decline"])
+    @pytest.mark.parametrize("change", ["revoked", "reissued"])
+    async def test_an_answer_cannot_overwrite_a_concurrent_change(
+        self, session: AsyncSession, app: FastAPI, decision: str, change: str
+    ) -> None:
+        owner, library = await setup_group(session)
+        grace = await make_member(session)
+        invitation, token = await invitations.invite_with_token(
+            session, library=library, inviter=owner, email=grace.email or ""
+        )
+        async with app.state.database.session_factory() as other:
+            values = (
+                {"status": invitations.REVOKED}
+                if change == "revoked"
+                else {"token_hash": invitations.hash_token("replacement token"), "role": "admin"}
+            )
+            await other.execute(
+                update(Invitation).where(Invitation.id == invitation.id).values(**values)
+            )
+            await other.commit()
+        answer = invitations.accept if decision == "accept" else invitations.decline
+        with pytest.raises(ForbiddenError):
+            await answer(session, invitation, grace, token=token)
+
+    async def test_an_unverified_account_is_not_linked_or_notified(
+        self, session: AsyncSession
+    ) -> None:
+        owner, library = await setup_group(session)
+        claimant = await webauth.register(
+            session,
+            username="claimant",
+            password=PASSWORD,
+            email="grace@example.org",
+            allow_registration=True,
+        )
+        invitation = await invitations.invite(
+            session, library=library, inviter=owner, email="grace@example.org"
+        )
+        assert invitation.user_id is None
+        assert await notifications.list_for(session, claimant) == []
+        assert await invitations.pending_for_user(session, claimant) == []
+        with pytest.raises(ForbiddenError):
+            await invitations.accept(session, invitation, claimant)
+
+    async def test_a_legacy_link_does_not_prove_control_of_the_address(
+        self, session: AsyncSession
+    ) -> None:
+        owner, library = await setup_group(session)
+        claimant = await make_member(session)
+        invitation = await invitations.invite(
+            session, library=library, inviter=owner, email=claimant.email or ""
+        )
+        # Older versions linked unverified accounts. Confirming a different
+        # address later must not turn that stale link into a membership.
+        claimant.email = "different@example.org"
+        await session.commit()
+        assert invitation.user_id == claimant.id
+        assert await invitations.pending_for_user(session, claimant) == []
+        with pytest.raises(ForbiddenError):
+            await invitations.accept(session, invitation, claimant)
+
     async def test_an_admin_can_invite_an_address(self, session: AsyncSession) -> None:
         owner, library = await setup_group(session)
 
@@ -302,7 +367,7 @@ class TestByToken:
             allow_registration=True,
         )
         found = await invitations.by_token(session, token)
-        await invitations.accept(session, found, newcomer)
+        await invitations.accept(session, found, newcomer, token=token)
 
         assert found.status == invitations.ACCEPTED
 

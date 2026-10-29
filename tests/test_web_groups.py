@@ -62,6 +62,33 @@ async def ada(client: httpx2.AsyncClient) -> httpx2.AsyncClient:
 
 
 class TestGroups:
+    @pytest.mark.parametrize("decision", ["read", "accept", "decline"])
+    async def test_an_unverified_address_cannot_claim_an_invitation(
+        self, ada: httpx2.AsyncClient, decision: str
+    ) -> None:
+        group = (await ada.post("/web/groups", json={"name": "Private"}, headers=csrf(ada))).json()
+        record = (
+            await ada.post(
+                f"/web/libraries/{group['id']}/invitations",
+                json={"email": "victim@example.org", "role": "admin"},
+                headers=csrf(ada),
+            )
+        ).json()["invitation"]
+
+        # Registration is allowed for an invited address, but typing it proves
+        # no control over its mailbox. The attacker never sees the mailed token.
+        assert (await sign_up(ada, "mallory", email="victim@example.org")).status_code == 201
+        if decision == "read":
+            pending = (await ada.get("/web/notifications")).json()
+            assert pending["invitations"] == []
+            assert pending["notifications"] == []
+        else:
+            response = await ada.post(
+                f"/web/invitations/{record['id']}/{decision}", headers=csrf(ada)
+            )
+            assert response.status_code == 403
+        assert (await ada.get("/web/groups")).json()["groups"] == []
+
     async def test_a_new_account_is_in_no_groups(self, ada: httpx2.AsyncClient) -> None:
         response = await ada.get("/web/groups")
 

@@ -9,6 +9,7 @@ from altero.models import User, WebSession
 from altero.services import (
     account,
     admin,
+    emailverify,
     invitations,
     reauth,
     totp,
@@ -220,6 +221,7 @@ class TestNotificationsAndInvitations:
         """The point of the in-app list: it does not depend on mail working."""
         await register(client)
         ada = await admin.get_user_by_name(session, "ada")
+        await emailverify.confirm(session, await emailverify.issue(session, ada, ada.email or ""))
         grace = await webauth.register(
             session,
             username="grace",
@@ -244,6 +246,8 @@ class TestNotificationsAndInvitations:
         self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
+        ada = await admin.get_user_by_name(session, "ada")
+        await emailverify.confirm(session, await emailverify.issue(session, ada, ada.email or ""))
         grace = await webauth.register(
             session,
             username="grace",
@@ -272,6 +276,8 @@ class TestNotificationsAndInvitations:
         self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
         await register(client)
+        ada = await admin.get_user_by_name(session, "ada")
+        await emailverify.confirm(session, await emailverify.issue(session, ada, ada.email or ""))
         grace = await webauth.register(
             session,
             username="grace",
