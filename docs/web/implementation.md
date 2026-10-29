@@ -83,7 +83,7 @@ Content-Security-Policy refuses inline styles; `notes/editor.css` carries it.
 
 ### Duplicate merge endpoint
 
-The merge pane is still being implemented. Its endpoint is
+The duplicates pane uses
 `POST /web/libraries/{id}/items/merge`, authenticated by the browser session
 and CSRF token. It accepts:
 

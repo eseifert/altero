@@ -1,6 +1,14 @@
 /** Chinese, in Simplified characters. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Merge Items": "合并条目",
+  "Choose the version of the item to use as the master item:": "选择作为主条目的条目版本.",
+  "Select fields to keep from other versions of the item:": "选择需要保留的域, 防止被其他版本的域覆盖.",
+  "Merged items must all be of the same item type.": "合并的项必须是相同类型",
+  "Creators": "创建者",
+  "Items merged.": "条目已合并。",
+  "Other versions will be moved to the trash.": "其他版本将被移至回收站。",
+  "Could not load the item fields.": "无法加载条目字段。",
   ' from {address}': ' 来自 {address}',
   '(empty)': '（空）',
   '(untitled)': '(无标题)',

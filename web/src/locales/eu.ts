@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Elementuak bateratu",
+  "Choose the version of the item to use as the master item:": "Elementu nagusi gisa erabiltzeko elementuaren bertsioa aukeratu:",
+  "Select fields to keep from other versions of the item:": "Elementuaren beste bertsioetatik mantentzeko eremuak hautatu:",
+  "Merged items must all be of the same item type.": "Bateratzeko elementu guztiek mota berekoak izan behar dute.",
+  "Creators": "Sortzaileak",
+  "Items merged.": "Elementuak bateratu dira.",
+  "Other versions will be moved to the trash.": "Beste bertsioak zakarrontzira eramango dira.",
+  "Could not load the item fields.": "Ezin izan dira elementuaren eremuak kargatu.",
   ' from {address}': ' helbide honetatik: {address}',
   '(empty)': '(hutsik)',
   '(untitled)': '(izenburugabea)',

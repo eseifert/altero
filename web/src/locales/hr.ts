@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Merge Items",
+  "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",
+  "Select fields to keep from other versions of the item:": "Select fields to keep from other versions of the item:",
+  "Merged items must all be of the same item type.": "Merged items must all be of the same item type.",
+  "Creators": "Stvaratelji",
+  "Items merged.": "Stavke su spojene.",
+  "Other versions will be moved to the trash.": "Ostale verzije bit će premještene u smeće.",
+  "Could not load the item fields.": "Nije moguće učitati polja stavke.",
   ' from {address}': ' s adrese {address}',
   '(empty)': '(prazno)',
   '(untitled)': '(bez naslova)',

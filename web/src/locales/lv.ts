@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Apvienot ierakstus",
+  "Choose the version of the item to use as the master item:": "Izvēlieties ieraksta versiju, ko izmantot kā galveno ierakstu:",
+  "Select fields to keep from other versions of the item:": "Atlasiet laukus, kurus paturēt no citām ieraksta versijām:",
+  "Merged items must all be of the same item type.": "Visiem apvienojamajiem ierakstiem jābūt viena tipa.",
+  "Creators": "Veidotāji",
+  "Items merged.": "Ieraksti apvienoti.",
+  "Other versions will be moved to the trash.": "Pārējās versijas tiks pārvietotas uz atkritni.",
+  "Could not load the item fields.": "Neizdevās ielādēt ieraksta laukus.",
   ' from {address}': ' no {address}',
   '(empty)': '(tukšs)',
   '(untitled)': '(bez nosaukuma)',

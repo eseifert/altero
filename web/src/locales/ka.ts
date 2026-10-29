@@ -6,6 +6,14 @@
  */
 
 export default {
+  "Merge Items": "ჩანაწერების გაერთიანება",
+  "Choose the version of the item to use as the master item:": "აირჩიეთ ჩანაწერის ვერსია, რომელიც მთავარ ჩანაწერად გამოიყენება:",
+  "Select fields to keep from other versions of the item:": "აირჩიეთ ველები ჩანაწერის სხვა ვერსიებიდან შესანარჩუნებლად:",
+  "Merged items must all be of the same item type.": "გასაერთიანებელი ჩანაწერები ერთი ტიპის უნდა იყოს.",
+  "Creators": "შემქმნელები",
+  "Items merged.": "ჩანაწერები გაერთიანდა.",
+  "Other versions will be moved to the trash.": "სხვა ვერსიები სანაგვეში გადავა.",
+  "Could not load the item fields.": "ჩანაწერის ველების ჩატვირთვა ვერ მოხერხდა.",
   ' from {address}': ' ({address}-დან)',
   '(empty)': '(ცარიელი)',
   '(untitled)': '(უსათაურო)',

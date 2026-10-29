@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Unește înregistrările",
+  "Choose the version of the item to use as the master item:": "Alege versiunea înregistrării pe care o folosești ca înregistrare master:",
+  "Select fields to keep from other versions of the item:": "Selectează câmpurile pentru a le păstra față de alte versiuni ale înregistrării:",
+  "Merged items must all be of the same item type.": "Înregistrările unite trebuie să fie toate de același tip.",
+  "Creators": "Creatori",
+  "Items merged.": "Elementele au fost îmbinate.",
+  "Other versions will be moved to the trash.": "Celelalte versiuni vor fi mutate în coșul de gunoi.",
+  "Could not load the item fields.": "Nu s-au putut încărca câmpurile elementului.",
   ' from {address}': ' de la {address}',
   '(empty)': '(gol)',
   '(untitled)': '(fără titlu)',

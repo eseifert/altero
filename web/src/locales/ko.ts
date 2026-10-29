@@ -7,6 +7,14 @@
  */
 
 export default {
+  "Merge Items": "항목 병합",
+  "Choose the version of the item to use as the master item:": "원본 항목으로 사용할 항목의 버전 선택:",
+  "Select fields to keep from other versions of the item:": "항목의 다른 버전과 무관하게 유지할 필드 선택:",
+  "Merged items must all be of the same item type.": "반드시 병합할 항목의 종류가 같아야 합니다.",
+  "Creators": "생성자",
+  "Items merged.": "항목을 병합했습니다.",
+  "Other versions will be moved to the trash.": "다른 버전은 휴지통으로 이동됩니다.",
+  "Could not load the item fields.": "항목 필드를 불러오지 못했습니다.",
   ' from {address}': ' ({address}에서)',
   '(empty)': '(비어 있음)',
   '(untitled)': '(제목없음)',

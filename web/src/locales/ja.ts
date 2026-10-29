@@ -6,6 +6,14 @@
  */
 
 export default {
+  "Merge Items": "項目の統合",
+  "Choose the version of the item to use as the master item:": "マスターとして使用する項目のバージョンを選択 :",
+  "Select fields to keep from other versions of the item:": "項目の他のバージョンから保持するフィールドを選択 :",
+  "Merged items must all be of the same item type.": "統合される項目はすべて同じ項目の種類に属していなければなりません。",
+  "Creators": "作成者",
+  "Items merged.": "アイテムを統合しました。",
+  "Other versions will be moved to the trash.": "他のバージョンはゴミ箱に移動されます。",
+  "Could not load the item fields.": "アイテムのフィールドを読み込めませんでした。",
   ' from {address}': '（{address} から）',
   '(empty)': '（空）',
   '(untitled)': '（無題）',

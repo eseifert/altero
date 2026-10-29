@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "ഇനങ്ങൾ ലയിപ്പിക്കുക",
+  "Choose the version of the item to use as the master item:": "പ്രധാന ഇനമായി ഉപയോഗിക്കേണ്ട പതിപ്പ് തിരഞ്ഞെടുക്കുക:",
+  "Select fields to keep from other versions of the item:": "ഇനത്തിന്റെ മറ്റ് പതിപ്പുകളിൽ നിന്ന് നിലനിർത്തേണ്ട ഫീൽഡുകൾ തിരഞ്ഞെടുക്കുക:",
+  "Merged items must all be of the same item type.": "ലയിപ്പിക്കുന്ന എല്ലാ ഇനങ്ങളും ഒരേ തരത്തിലുള്ളതായിരിക്കണം.",
+  "Creators": "സ്രഷ്ടാക്കൾ",
+  "Items merged.": "ഇനങ്ങൾ ലയിപ്പിച്ചു.",
+  "Other versions will be moved to the trash.": "മറ്റ് പതിപ്പുകൾ ചവറ്റുകുട്ടയിലേക്ക് നീക്കും.",
+  "Could not load the item fields.": "ഇനത്തിന്റെ ഫീൽഡുകൾ ലോഡ് ചെയ്യാനായില്ല.",
   ' from {address}': ' · വിലാസം: {address}',
   '(empty)': '(ശൂന്യം)',
   '(untitled)': '(പേരില്ലാത്തത്)',

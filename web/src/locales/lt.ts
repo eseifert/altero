@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Apjungti įrašus",
+  "Choose the version of the item to use as the master item:": "Pasirinkite pagrindinę įrašo versiją:",
+  "Select fields to keep from other versions of the item:": "Pasirinkite senesnių įrašo versijų laukus:",
+  "Merged items must all be of the same item type.": "Apjungti galima tik to paties tipo įrašus.",
+  "Creators": "Kūrėjai",
+  "Items merged.": "Įrašai sujungti.",
+  "Other versions will be moved to the trash.": "Kitos versijos bus perkeltos į šiukšlinę.",
+  "Could not load the item fields.": "Nepavyko įkelti įrašo laukų.",
   ' from {address}': ' iš {address}',
   '(empty)': '(tuščia)',
   '(untitled)': '(nepavadinta)',

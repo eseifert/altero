@@ -6,6 +6,14 @@
  */
 
 export default {
+  "Merge Items": "আইটেম একত্র করুন",
+  "Choose the version of the item to use as the master item:": "মূল আইটেম হিসেবে ব্যবহার করার সংস্করণটি বেছে নিন:",
+  "Select fields to keep from other versions of the item:": "অন্য সংস্করণ থেকে রাখতে চান এমন ক্ষেত্রগুলো বেছে নিন:",
+  "Merged items must all be of the same item type.": "একত্র করা সব আইটেম একই ধরনের হতে হবে।",
+  "Creators": "স্রষ্টা",
+  "Items merged.": "আইটেমগুলো একত্র করা হয়েছে।",
+  "Other versions will be moved to the trash.": "অন্য সংস্করণগুলো ট্র্যাশে সরানো হবে।",
+  "Could not load the item fields.": "আইটেমের ক্ষেত্রগুলো লোড করা যায়নি।",
   ' from {address}': ' ({address} থেকে)',
   '(empty)': '(খালি)',
   '(untitled)': '(শিরোনামহীন)',

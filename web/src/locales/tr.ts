@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Eserleri Birleştir",
+  "Choose the version of the item to use as the master item:": "Eserin hangi versiyonunun asıl eser olarak kullanılacağını seç:",
+  "Select fields to keep from other versions of the item:": "Eserin diğer versiyonlarından hangi alanların tutulacağını seç:",
+  "Merged items must all be of the same item type.": "Birleştirilen eserlerin hepsi aynı eser türünden olmalıdırlar.",
+  "Creators": "Oluşturanlar",
+  "Items merged.": "Ögeler birleştirildi.",
+  "Other versions will be moved to the trash.": "Diğer sürümler çöp kutusuna taşınacak.",
+  "Could not load the item fields.": "Ögenin alanları yüklenemedi.",
   ' from {address}': ' ({address} adresinden)',
   '(empty)': '(boş)',
   '(untitled)': '(başlıksız)',

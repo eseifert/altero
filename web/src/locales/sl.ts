@@ -8,6 +8,14 @@
  */
 
 export default {
+  "Merge Items": "Spoji vnose ",
+  "Choose the version of the item to use as the master item:": "Izberite različico vnosa, ki naj bo osrednja:",
+  "Select fields to keep from other versions of the item:": "Izberite polja, ki jih želite izvzeti iz drugih različic vnosa:",
+  "Merged items must all be of the same item type.": "Spojeni vnosi morajo biti iste vrste.",
+  "Creators": "Ustvarjalci",
+  "Items merged.": "Predmeti so združeni.",
+  "Other versions will be moved to the trash.": "Druge različice bodo premaknjene v smeti.",
+  "Could not load the item fields.": "Polj predmeta ni bilo mogoče naložiti.",
   ' from {address}': ' z naslova {address}',
   '(empty)': '(prazno)',
   '(untitled)': '(brez naslova)',

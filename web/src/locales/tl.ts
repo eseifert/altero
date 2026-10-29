@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Pagsamahin ang mga item",
+  "Choose the version of the item to use as the master item:": "Piliin ang bersyon ng item na gagamiting pangunahing item:",
+  "Select fields to keep from other versions of the item:": "Piliin ang mga field na pananatilihin mula sa ibang bersyon ng item:",
+  "Merged items must all be of the same item type.": "Dapat magkakapareho ang uri ng lahat ng item na pagsasamahin.",
+  "Creators": "Mga lumikha",
+  "Items merged.": "Pinagsama na ang mga item.",
+  "Other versions will be moved to the trash.": "Ililipat sa basurahan ang iba pang bersyon.",
+  "Could not load the item fields.": "Hindi ma-load ang mga field ng item.",
   ' from {address}': ' mula sa {address}',
   '(empty)': '(walang laman)',
   '(untitled)': '(walang pamagat)',

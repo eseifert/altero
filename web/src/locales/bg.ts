@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Сливане на записите",
+  "Choose the version of the item to use as the master item:": "Изберете версията на записа, която да използвате като главен запис",
+  "Select fields to keep from other versions of the item:": "Изберете полета за запазване от другите версии на записа",
+  "Merged items must all be of the same item type.": "Merged items must all be of the same item type.",
+  "Creators": "Създатели",
+  "Items merged.": "Елементите са слети.",
+  "Other versions will be moved to the trash.": "Другите версии ще бъдат преместени в кошчето.",
+  "Could not load the item fields.": "Полетата на елемента не можаха да бъдат заредени.",
   ' from {address}': ' от {address}',
   '(empty)': '(празно)',
   '(untitled)': '(без заглавие)',

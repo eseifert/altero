@@ -1,6 +1,14 @@
 /** Dutch. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Merge Items": "Items samenvoegen",
+  "Choose the version of the item to use as the master item:": "Kies de versie van het item om te gebruiken als het meest voornaamste item:",
+  "Select fields to keep from other versions of the item:": "Selecteer velden om te behouden ten opzichte van andere versie van het item:",
+  "Merged items must all be of the same item type.": "Alle samen te voegen items moet van hetzelfde type zijn.",
+  "Creators": "Makers",
+  "Items merged.": "Items samengevoegd.",
+  "Other versions will be moved to the trash.": "Andere versies worden naar de prullenbak verplaatst.",
+  "Could not load the item fields.": "De velden van het item konden niet worden geladen.",
   ' from {address}': ' van {address}',
   '(empty)': '(leeg)',
   '(untitled)': '(zonder titel)',

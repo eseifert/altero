@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Xunguir os elemento",
+  "Choose the version of the item to use as the master item:": "Escolle que versión deste elemento queres usar como o principal:",
+  "Select fields to keep from other versions of the item:": "Escolle os campos a manter das outras versións do elemento:",
+  "Merged items must all be of the same item type.": "Os elementos xunguidos ten que ser todos do mesmo tipo.",
+  "Creators": "Creadores",
+  "Items merged.": "Elementos fusionados.",
+  "Other versions will be moved to the trash.": "As outras versións moveranse ao lixo.",
+  "Could not load the item fields.": "Non se puideron cargar os campos do elemento.",
   ' from {address}': ' desde {address}',
   '(empty)': '(baleiro)',
   '(untitled)': '(sen título)',

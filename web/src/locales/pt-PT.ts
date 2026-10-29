@@ -1,6 +1,14 @@
 /** Portuguese, as written in Portugal. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Merge Items": "Fundir itens",
+  "Choose the version of the item to use as the master item:": "Escolha a versão do item a usar como item principal:",
+  "Select fields to keep from other versions of the item:": "Seleccione os campos a manter de outras versões do item:",
+  "Merged items must all be of the same item type.": "Os itens fundidos têm de ser todos do mesmo tipo de item.",
+  "Creators": "Criadores",
+  "Items merged.": "Itens fundidos.",
+  "Other versions will be moved to the trash.": "As outras versões serão movidas para o lixo.",
+  "Could not load the item fields.": "Não foi possível carregar os campos do item.",
   ' from {address}': ' a partir de {address}',
   '(empty)': '(vazio)',
   '(untitled)': '(sem título)',

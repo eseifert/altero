@@ -1,6 +1,14 @@
 /** French. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Merge Items": "Fusionner les documents",
+  "Choose the version of the item to use as the master item:": "Choisissez la version du document à utiliser comme document maître :",
+  "Select fields to keep from other versions of the item:": "Sélectionnez les champs à conserver depuis les autres versions du document :",
+  "Merged items must all be of the same item type.": "Les documents à fusionner doivent tous être du même type.",
+  "Creators": "Créateurs",
+  "Items merged.": "Documents fusionnés.",
+  "Other versions will be moved to the trash.": "Les autres versions seront placées dans la corbeille.",
+  "Could not load the item fields.": "Impossible de charger les champs du document.",
   ' from {address}': ' depuis {address}',
   '(empty)': '(vide)',
   '(untitled)': '(sans titre)',

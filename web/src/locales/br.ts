@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Kendeuziñ an elfennoù",
+  "Choose the version of the item to use as the master item:": "Dibabit stumm an elfenn da implijout evel elfenn mestr:",
+  "Select fields to keep from other versions of the item:": "Diuzañ ar maeziennoù da virout diwar stummoù all an elfenn:",
+  "Merged items must all be of the same item type.": "An elfennoù da gendeuziñ a rank bezañ er memes doare elfenn.",
+  "Creators": "Krouerien",
+  "Items merged.": "An elfennoù zo bet kendeuzet.",
+  "Other versions will be moved to the trash.": "Ar stummoù all a vo kaset d'ar boubellenn.",
+  "Could not load the item fields.": "N'eus ket bet gallet kargañ maeziennoù an elfenn.",
   ' from {address}': ' adalek {address}',
   '(empty)': '(goullo)',
   '(untitled)': '(hep titl)',

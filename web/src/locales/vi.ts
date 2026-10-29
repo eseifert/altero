@@ -7,6 +7,14 @@
  */
 
 export default {
+  "Merge Items": "Ghộp các mục",
+  "Choose the version of the item to use as the master item:": "Chọn phiên bản của mục đề dùng như mục mẫu:",
+  "Select fields to keep from other versions of the item:": "Chọn các trường muốn giữ lại từ các bản khác của mục này:",
+  "Merged items must all be of the same item type.": "Merged items must all be of the same item type.",
+  "Creators": "Người tạo",
+  "Items merged.": "Đã hợp nhất các mục.",
+  "Other versions will be moved to the trash.": "Các phiên bản khác sẽ được chuyển vào thùng rác.",
+  "Could not load the item fields.": "Không thể tải các trường của mục.",
   ' from {address}': ' từ {address}',
   '(empty)': '(trống)',
   '(untitled)': '(không nhan đề)',

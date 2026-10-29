@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Slå saman element",
+  "Choose the version of the item to use as the master item:": "Velj kva versjon som skal vere utgangspunkt:",
+  "Select fields to keep from other versions of the item:": "Velj felt som skal behaldast frå andre versjonar av elementet:",
+  "Merged items must all be of the same item type.": "Alle kjelder som skal slåast saman må vere av same type.",
+  "Creators": "Opphavspersonar",
+  "Items merged.": "Elementa er slått saman.",
+  "Other versions will be moved to the trash.": "Andre versjonar vert flytta til papirkorga.",
+  "Could not load the item fields.": "Klarte ikkje å lasta inn felta til elementet.",
   ' from {address}': ' frå {address}',
   '(empty)': '(tom)',
   '(untitled)': '(utan tittel)',

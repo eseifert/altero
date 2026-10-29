@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Combina els elements",
+  "Choose the version of the item to use as the master item:": "Triaeu la versió de l'element com a element prinicpal:",
+  "Select fields to keep from other versions of the item:": "Seleccioneu els camps que voleu mantenir de les altres versions de l'element:",
+  "Merged items must all be of the same item type.": "Els elements combinats han de ser elements del mateix tipus.",
+  "Creators": "Creadors",
+  "Items merged.": "S'han fusionat els elements.",
+  "Other versions will be moved to the trash.": "Les altres versions es mouran a la paperera.",
+  "Could not load the item fields.": "No s'han pogut carregar els camps de l'element.",
   ' from {address}': ' des de {address}',
   '(empty)': '(buit)',
   '(untitled)': '(sense títol)',

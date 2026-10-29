@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Sameina færslur",
+  "Choose the version of the item to use as the master item:": "Veldu útgáfuna af þeirri færslu sem nota skal sem móðurfærslu:",
+  "Select fields to keep from other versions of the item:": "Veldu svæði sem nota skal frá öðrum útgáfum af færslunni:",
+  "Merged items must all be of the same item type.": "Sameinaðar færslu verða allar að vera sömu gerðar.",
+  "Creators": "Höfundar",
+  "Items merged.": "Færslur sameinaðar.",
+  "Other versions will be moved to the trash.": "Aðrar útgáfur verða færðar í ruslið.",
+  "Could not load the item fields.": "Ekki tókst að hlaða reitum færslunnar.",
   ' from {address}': ' frá {address}',
   '(empty)': '(tómt)',
   '(untitled)': '(enginn titill)',

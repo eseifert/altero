@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Споји ставке",
+  "Choose the version of the item to use as the master item:": "Изаберите верзију ставке која ће постати главна ставка:",
+  "Select fields to keep from other versions of the item:": "Изаберите поља која желите да преузмете из друге верзије ставке:",
+  "Merged items must all be of the same item type.": "Све ставке које спајате морају бити истог типа.",
+  "Creators": "Ствараоци",
+  "Items merged.": "Ставке су спојене.",
+  "Other versions will be moved to the trash.": "Остале верзије биће премештене у отпад.",
+  "Could not load the item fields.": "Није могуће учитати поља ставке.",
   ' from {address}': ' са адресе {address}',
   '(empty)': '(празно)',
   '(untitled)': '(без назива)',

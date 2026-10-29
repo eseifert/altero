@@ -8,6 +8,14 @@
  */
 
 export default {
+  "Merge Items": "Sloučit položky",
+  "Choose the version of the item to use as the master item:": "Vyberte verzi položky, jež bude použita jako hlavní položka:",
+  "Select fields to keep from other versions of the item:": "Vyberte pole z jiných verzí položky, která se mají zachovat:",
+  "Merged items must all be of the same item type.": "Sloučené položky musí být všechny stejného typu.",
+  "Creators": "Tvůrci",
+  "Items merged.": "Položky byly sloučeny.",
+  "Other versions will be moved to the trash.": "Ostatní verze budou přesunuty do koše.",
+  "Could not load the item fields.": "Pole položky se nepodařilo načíst.",
   ' from {address}': ' z {address}',
   '(empty)': '(prázdné)',
   '(untitled)': '(bez názvu)',

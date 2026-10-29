@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Yhdistä kohteet",
+  "Choose the version of the item to use as the master item:": "Valitse se nimikkeen versio, jota haluat käyttää pääversiona:",
+  "Select fields to keep from other versions of the item:": "Valise kentät, jotka säilytetään muista versioista:",
+  "Merged items must all be of the same item type.": "Yhteenliitettävien nimikkeiden tulee olla samaa tyyppiä.",
+  "Creators": "Tekijät",
+  "Items merged.": "Kohteet yhdistetty.",
+  "Other versions will be moved to the trash.": "Muut versiot siirretään roskakoriin.",
+  "Could not load the item fields.": "Kohteen kenttiä ei voitu ladata.",
   ' from {address}': ' osoitteesta {address}',
   '(empty)': '(tyhjä)',
   '(untitled)': '(nimetön)',

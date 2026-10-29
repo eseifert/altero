@@ -7,6 +7,14 @@
  */
 
 export default {
+  "Merge Items": "Объединить элементы",
+  "Choose the version of the item to use as the master item:": "Выберите версию элемента для использования в качестве главной:",
+  "Select fields to keep from other versions of the item:": "Выберите поля для сохранения из других версий элемента:",
+  "Merged items must all be of the same item type.": "Записи для объединения должны иметь одинаковый тип.",
+  "Creators": "Создатели",
+  "Items merged.": "Записи объединены.",
+  "Other versions will be moved to the trash.": "Остальные версии будут перемещены в корзину.",
+  "Could not load the item fields.": "Не удалось загрузить поля записи.",
   ' from {address}': ' от {address}',
   '(empty)': '(пусто)',
   '(untitled)': '(без названия)',

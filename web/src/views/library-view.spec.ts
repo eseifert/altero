@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { i18n } from '@/i18n'
+import { setLocale } from '@/i18n'
 import { resetLabels } from '@/items/labels'
 import {
   DETAIL_DEFAULT,
@@ -16,6 +16,8 @@ import {
 } from '@/panewidths'
 import { useLibraryStore } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
+import { useToastStore } from '@/stores/toasts'
+import MergePane from '@/components/MergePane.vue'
 
 import LibraryView from './LibraryView.vue'
 
@@ -87,12 +89,13 @@ const GERMAN_NAMES = {
   creatorTypes: { creator: 'Ersteller' },
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   setActivePinia(createPinia())
   // The display names and the language in force outlive a component, so a test
   // that changes either would otherwise decide what the next one starts from.
   resetLabels()
-  i18n.global.locale.value = 'en-US'
+  // Supersede a lazy catalogue switch still resolving from the previous test.
+  await setLocale('en-US')
   libraries = [PERSONAL]
   contents = [ITEM]
   requestMock.mockReset()
@@ -119,6 +122,41 @@ async function open() {
   await settle(wrapper)
   return wrapper
 }
+
+describe('the duplicates merge pane', () => {
+  it.each([true, false])('offers merging only with removal permission (%s)', async (writable) => {
+    libraries = [{ ...PERSONAL, writable }]
+    contents = [ITEM, { ...ITEM, key: 'BBBB2345' }]
+    const wrapper = mount(LibraryView, { global: { stubs: { MergePane: true } } })
+    await settle(wrapper)
+    const store = useLibraryStore()
+    store.scope = 'duplicates'
+    store.selection = ['AAAA2345', 'BBBB2345']
+    await settle(wrapper)
+    expect(wrapper.findComponent(MergePane).exists()).toBe(writable)
+    if (!writable) expect(wrapper.find('.selection').exists()).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('reports success even when the merge refresh removes the pane', async () => {
+    contents = [ITEM, { ...ITEM, key: 'BBBB2345' }]
+    const wrapper = mount(LibraryView, { global: { stubs: { MergePane: true } } })
+    await settle(wrapper)
+    const store = useLibraryStore()
+    store.scope = 'duplicates'
+    store.selection = ['AAAA2345', 'BBBB2345']
+    await settle(wrapper)
+    const pane = wrapper.getComponent(MergePane)
+    const merge = vi.spyOn(store, 'mergeItems').mockImplementation(async () => { store.selection = [] })
+    const snapshot = { libraryId: 1, version: 4, items: [ITEM] }
+    await pane.props('merge')(snapshot, ITEM.key, {})
+    await settle(wrapper)
+    expect(merge).toHaveBeenCalledWith(snapshot, ITEM.key, {}, 'en-US')
+    expect(wrapper.findComponent(MergePane).exists()).toBe(false)
+    expect(useToastStore().toasts.at(-1)?.message).toBe('Items merged.')
+    wrapper.unmount()
+  })
+})
 
 /**
  * The tools over the item list, which are glyphs and so are found by name.

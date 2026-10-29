@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Merge Items",
+  "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",
+  "Select fields to keep from other versions of the item:": "Select fields to keep from other versions of the item:",
+  "Merged items must all be of the same item type.": "Merged items must all be of the same item type.",
+  "Creators": "ผู้สร้าง",
+  "Items merged.": "รวมรายการแล้ว",
+  "Other versions will be moved to the trash.": "เวอร์ชันอื่นจะถูกย้ายไปที่ถังขยะ",
+  "Could not load the item fields.": "ไม่สามารถโหลดฟิลด์ของรายการได้",
   ' from {address}': ' จาก {address}',
   '(empty)': '(ว่าง)',
   '(untitled)': '(ไม่มีชื่อเรื่อง)',

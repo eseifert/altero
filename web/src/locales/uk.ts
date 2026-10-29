@@ -7,6 +7,14 @@
  */
 
 export default {
+  "Merge Items": "Об'єднати документи",
+  "Choose the version of the item to use as the master item:": "Виберіть версію документа для використання в якості головної:",
+  "Select fields to keep from other versions of the item:": "Виберіть поля для збереження з іншої версії документа:",
+  "Merged items must all be of the same item type.": "Документи для об'єднання повинні мати однаковий тип.",
+  "Creators": "Творці",
+  "Items merged.": "Записи об’єднано.",
+  "Other versions will be moved to the trash.": "Інші версії буде переміщено до смітника.",
+  "Could not load the item fields.": "Не вдалося завантажити поля запису.",
   ' from {address}': ' з {address}',
   '(empty)': '(порожньо)',
   '(untitled)': '(без назви)',

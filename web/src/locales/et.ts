@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Kirjete liitmine",
+  "Choose the version of the item to use as the master item:": "Palun valida aluskirje, millele liidetakse teise kirje andmed:",
+  "Select fields to keep from other versions of the item:": "Valida väljad, mida säilitada teistest versioonidest:",
+  "Merged items must all be of the same item type.": "Liidetud kirjed peavad olema sama tüüpi.",
+  "Creators": "Autorid",
+  "Items merged.": "Kirjed on ühendatud.",
+  "Other versions will be moved to the trash.": "Teised versioonid teisaldatakse prügikasti.",
+  "Could not load the item fields.": "Kirje välju ei saanud laadida.",
   ' from {address}': ' aadressilt {address}',
   '(empty)': '(tühi)',
   '(untitled)': '(pealkirjata)',

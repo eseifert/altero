@@ -1,6 +1,14 @@
 /** Italian. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Merge Items": "Unisci gli elementi",
+  "Choose the version of the item to use as the master item:": "Scegli la versione dell'elemento da usare come master:",
+  "Select fields to keep from other versions of the item:": "Scegli i campi da mantenere dalle altre versioni dell'elemento:",
+  "Merged items must all be of the same item type.": "Gli elementi da unire devono essere tutti dello stesso tipo.",
+  "Creators": "Autori",
+  "Items merged.": "Elementi uniti.",
+  "Other versions will be moved to the trash.": "Le altre versioni verranno spostate nel cestino.",
+  "Could not load the item fields.": "Impossibile caricare i campi dell'elemento.",
   ' from {address}': ' da {address}',
   '(empty)': '(vuoto)',
   '(untitled)': '(senza titolo)',

@@ -8,6 +8,14 @@
  */
 
 export default {
+  "Merge Items": "Zlúčiť záznamy",
+  "Choose the version of the item to use as the master item:": "Zvoľte verziu záznamu, ktorý chcete použiť ako hlavný záznam:",
+  "Select fields to keep from other versions of the item:": "Vyberte polia, ktoré chcete zachovať z ostatných verzií záznamu:",
+  "Merged items must all be of the same item type.": "Všetky zlučované záznamy musia mať rovnaký typ záznamu.",
+  "Creators": "Tvorcovia",
+  "Items merged.": "Položky boli zlúčené.",
+  "Other versions will be moved to the trash.": "Ostatné verzie budú presunuté do koša.",
+  "Could not load the item fields.": "Nepodarilo sa načítať polia položky.",
   ' from {address}': ' z adresy {address}',
   '(empty)': '(prázdne)',
   '(untitled)': '(bez názvu)',

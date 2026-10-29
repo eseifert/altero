@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Elemek összefésülése",
+  "Choose the version of the item to use as the master item:": "Válassza ki azt az elemverziót, amit mester elemnek kíván használni: ",
+  "Select fields to keep from other versions of the item:": "Válassza ki az elem más verzióiból megtartandó mezőket:",
+  "Merged items must all be of the same item type.": "Az összefésült elemeknek mind ugyanabba a típusba kell tartozniuk.",
+  "Creators": "Alkotók",
+  "Items merged.": "Az elemek egyesítve.",
+  "Other versions will be moved to the trash.": "A többi változat a kukába kerül.",
+  "Could not load the item fields.": "Nem sikerült betölteni az elem mezőit.",
   ' from {address}': ' innen: {address}',
   '(empty)': '(üres)',
   '(untitled)': '(cím nélkül)',

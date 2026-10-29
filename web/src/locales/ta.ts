@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "உருப்படிகளை ஒன்றிணைக்கவும்",
+  "Choose the version of the item to use as the master item:": "முதன்மை உருப்படியாகப் பயன்படுத்த உருப்படியின் பதிப்பைத் தேர்வுசெய்க:",
+  "Select fields to keep from other versions of the item:": "உருப்படியின் பிற பதிப்புகளிலிருந்து வைத்திருக்கப் புலங்களைத் தேர்ந்தெடுக்கவும்:",
+  "Merged items must all be of the same item type.": "இணைக்கப்பட்ட உருப்படிகள் அனைத்தும் ஒரே உருப்படி வகையாக இருக்க வேண்டும்.",
+  "Creators": "படைப்பாளர்கள்",
+  "Items merged.": "உருப்படிகள் ஒன்றிணைக்கப்பட்டன.",
+  "Other versions will be moved to the trash.": "பிற பதிப்புகள் குப்பைத்தொட்டிக்கு நகர்த்தப்படும்.",
+  "Could not load the item fields.": "உருப்படியின் புலங்களை ஏற்ற முடியவில்லை.",
   ' from {address}': ' · முகவரி: {address}',
   '(empty)': '(வெறுமை)',
   '(untitled)': '(தலைப்பிடப்படாத)',

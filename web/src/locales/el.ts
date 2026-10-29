@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Συνένωση Στοιχείων",
+  "Choose the version of the item to use as the master item:": "Επιλέξτε την έκδοση του Στοιχείου που θα χρησιμοποιηθεί ως κύριο στοιχείο:",
+  "Select fields to keep from other versions of the item:": "Επιλέξτε πεδία που θα διατηρηθούν από άλλες εκδόσεις του στοιχείου:",
+  "Merged items must all be of the same item type.": "Τα συγχωνευμένα στοιχεία πρέπει να είναι όλα του ίδιου τύπου.",
+  "Creators": "Δημιουργοί",
+  "Items merged.": "Τα στοιχεία συγχωνεύτηκαν.",
+  "Other versions will be moved to the trash.": "Οι άλλες εκδόσεις θα μεταφερθούν στον κάδο απορριμμάτων.",
+  "Could not load the item fields.": "Δεν ήταν δυνατή η φόρτωση των πεδίων του στοιχείου.",
   ' from {address}': ' από {address}',
   '(empty)': '(κενό)',
   '(untitled)': '(χωρίς τίτλο)',

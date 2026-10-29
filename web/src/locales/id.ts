@@ -7,6 +7,14 @@
  */
 
 export default {
+  "Merge Items": "Gabungkan Item",
+  "Choose the version of the item to use as the master item:": "Pilih versi item untuk digunakan sebagai item utama:",
+  "Select fields to keep from other versions of the item:": "Pilih kolom untuk dipertahankan dari versi lain item ini:",
+  "Merged items must all be of the same item type.": "Merged items must all be of the same item type.",
+  "Creators": "Kreator",
+  "Items merged.": "Item digabungkan.",
+  "Other versions will be moved to the trash.": "Versi lain akan dipindahkan ke tempat sampah.",
+  "Could not load the item fields.": "Kolom item tidak dapat dimuat.",
   ' from {address}': ' dari {address}',
   '(empty)': '(kosong)',
   '(untitled)': '(tanpa judul)',

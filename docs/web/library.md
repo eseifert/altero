@@ -11,11 +11,30 @@ The browser interface is a companion to Zotero Desktop. It lets you browse, sear
 - Add files and web links, on their own or under an item, and rename or replace a file.
 - File, trash, restore, delete or copy items.
 - Rename tags across a library.
+- Merge duplicate items, choosing the master and the fields to keep.
 - Use the same actions with mouse, keyboard or touch where the interface provides them; `?` lists the keys.
 
 ## Detailed behavior
 
 The sections below retain the technical and behavioral detail needed for troubleshooting and development. You can stop after the task summary if you only need to use the feature.
+
+### Merging duplicates
+
+Open **Duplicate Items**, press **Select**, and pick the items to merge. You can
+also use Ctrl/Cmd-click or Shift-click. The pane opens for two or more selected
+items when you may change and remove all of them. Candidates are a flat list;
+check that the selected records describe the same work. They must have the same
+item type.
+
+The oldest item is the default master. Choose another if needed, then choose
+which differing fields and creator list to keep. Changing the master resets
+those choices. Press **Merge Items**, review the warning, and confirm. Other
+versions move to the trash; collections, tags, relations and children are
+combined, with matching attachments deduplicated. The duplicates list refreshes
+and a message confirms success.
+
+If the library changed while you were reviewing, the merge stops. Press
+**Reload** and review the current versions before confirming again.
 
 ### Browsing a library
 

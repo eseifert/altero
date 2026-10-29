@@ -10,6 +10,14 @@
  */
 
 export default {
+  "Merge Items": "Mesclar itens",
+  "Choose the version of the item to use as the master item:": "Escolha a versão do item a ser utilizada como mestre:",
+  "Select fields to keep from other versions of the item:": "Selecione os campos a serem mantidos das outras versões do item:",
+  "Merged items must all be of the same item type.": "Itens mesclado devem ser todos de um mesmo tipo.",
+  "Creators": "Criadores",
+  "Items merged.": "Itens mesclados.",
+  "Other versions will be moved to the trash.": "As outras versões serão movidas para a lixeira.",
+  "Could not load the item fields.": "Não foi possível carregar os campos do item.",
   ' from {address}': ' de {address}',
   '(empty)': '(vazio)',
   '(untitled)': '(sem título)',

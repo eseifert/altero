@@ -1,6 +1,14 @@
 /** Danish. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Merge Items": "Flet elementer",
+  "Choose the version of the item to use as the master item:": "Vælg den version af elementet som du vil bruge som hovedelement:",
+  "Select fields to keep from other versions of the item:": "Vælg felter som skal bevares fra andre versioner af elementet",
+  "Merged items must all be of the same item type.": "Sammenføjede elementer skal alle være af samme type.",
+  "Creators": "Ophavspersoner",
+  "Items merged.": "Elementerne er flettet.",
+  "Other versions will be moved to the trash.": "Andre versioner flyttes til papirkurven.",
+  "Could not load the item fields.": "Elementets felter kunne ikke indlæses.",
   ' from {address}': ' fra {address}',
   '(empty)': '(tom)',
   '(untitled)': '(uden titel)',

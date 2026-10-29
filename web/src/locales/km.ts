@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Merge Items",
+  "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",
+  "Select fields to keep from other versions of the item:": "Select fields to keep from other versions of the item:",
+  "Merged items must all be of the same item type.": "Merged items must all be of the same item type.",
+  "Creators": "អ្នកបង្កើត",
+  "Items merged.": "បានបញ្ចូលធាតុចូលគ្នា។",
+  "Other versions will be moved to the trash.": "កំណែផ្សេងទៀតនឹងត្រូវបានផ្លាស់ទីទៅធុងសំរាម។",
+  "Could not load the item fields.": "មិនអាចផ្ទុកវាលរបស់ធាតុបានទេ។",
   ' from {address}': ' ពី {address}',
   '(empty)': '(ទទេ)',
   '(untitled)': '(គ្មានចំណងជើង)',

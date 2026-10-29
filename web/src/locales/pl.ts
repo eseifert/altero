@@ -7,6 +7,14 @@
  */
 
 export default {
+  "Merge Items": "Złącz elementy",
+  "Choose the version of the item to use as the master item:": "Wybierz wersję elementu, którą chcesz użyć jako element główny:",
+  "Select fields to keep from other versions of the item:": "Wybierz pola, które chcesz zachować z innych wersji elementu:",
+  "Merged items must all be of the same item type.": "Łączone elementy muszą wszystkie być tego samego typu.",
+  "Creators": "Twórcy",
+  "Items merged.": "Elementy zostały scalone.",
+  "Other versions will be moved to the trash.": "Pozostałe wersje zostaną przeniesione do kosza.",
+  "Could not load the item fields.": "Nie udało się wczytać pól elementu.",
   ' from {address}': ' od {address}',
   '(empty)': '(puste)',
   '(untitled)': '(bez tytułu)',

@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Merge Items",
+  "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",
+  "Select fields to keep from other versions of the item:": "Select fields to keep from other versions of the item:",
+  "Merged items must all be of the same item type.": "Merged items must all be of the same item type.",
+  "Creators": "Skeppers",
+  "Items merged.": "Items saamgevoeg.",
+  "Other versions will be moved to the trash.": "Ander weergawes sal na die asblik geskuif word.",
+  "Could not load the item fields.": "Kon nie die itemvelde laai nie.",
   ' from {address}': ' vanaf {address}',
   '(empty)': '(leeg)',
   '(untitled)': '(sonder titel)',

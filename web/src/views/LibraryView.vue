@@ -13,6 +13,7 @@ import ExportDialog from '@/components/ExportDialog.vue'
 import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemSelection from '@/components/ItemSelection.vue'
+import MergePane from '@/components/MergePane.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import NewItemMenu from '@/components/NewItemMenu.vue'
 import NoteMenu from '@/components/NoteMenu.vue'
@@ -38,17 +39,26 @@ import {
   type CollectionNode,
   type ItemChanges,
   type ItemEnvelope,
+  type MergeSnapshot,
+  type MergeValues,
   type SaveOptions,
   type TagEntry,
 } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 import { useShareStore } from '@/stores/shares'
+import { useToastStore } from '@/stores/toasts'
 
 const { t, locale } = useI18n()
 
 const library = useLibraryStore()
 const locales = useLocaleStore()
 const shares = useShareStore()
+const toasts = useToastStore()
+
+async function mergeSelection(snapshot: MergeSnapshot, master: string, fields: MergeValues) {
+  await library.mergeItems(snapshot, master, fields, locales.active)
+  toasts.show(t('Items merged.'))
+}
 /* The account's own username, which is what its public page is addressed by,
    and its id, which is the only thing a member restricted to their own items
    can be compared against -- `createdByUser` on an item is an id. What may be
@@ -2113,8 +2123,16 @@ function sortLabel(column: { field: string; label: string }): string {
     />
 
     <aside v-if="showDetail && library.libraryId !== null" class="pane library__detail">
+      <MergePane
+        v-if="library.scope === 'duplicates' && library.selection.length > 1 && library.selectionRemovable"
+        :key="`${library.libraryId}:${[...library.selection].sort().join(',')}`"
+        :keys="library.selectionKeys"
+        :load="library.prepareMerge"
+        :merge="mergeSelection"
+        @close="library.clearSelection()"
+      />
       <ItemDetail
-        v-if="library.selected"
+        v-else-if="library.selected"
         ref="detailPane"
         :item="library.selected"
         :children="library.children"

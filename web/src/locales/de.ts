@@ -1,6 +1,14 @@
 /** German. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Merge Items": "Einträge zusammenführen",
+  "Choose the version of the item to use as the master item:": "Wählen Sie die Version des Eintrags, die als Master-Eintrag verwendet werden soll:",
+  "Select fields to keep from other versions of the item:": "Wählen Sie die beizubehaltenden Felder aus anderen Versionen des Eintrags:",
+  "Merged items must all be of the same item type.": "Zusammenzuführende Einträge müssen vom selben Typ sein.",
+  "Creators": "Urheber",
+  "Items merged.": "Einträge zusammengeführt.",
+  "Other versions will be moved to the trash.": "Andere Versionen werden in den Papierkorb verschoben.",
+  "Could not load the item fields.": "Die Felder des Eintrags konnten nicht geladen werden.",
   ' from {address}': ' von {address}',
   '(empty)': '(leer)',
   '(untitled)': '(ohne Titel)',

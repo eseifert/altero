@@ -6,6 +6,14 @@
  */
 
 export default {
+  "Merge Items": "आइटम मिलाएँ",
+  "Choose the version of the item to use as the master item:": "मुख्य आइटम के रूप में उपयोग करने वाला संस्करण चुनें:",
+  "Select fields to keep from other versions of the item:": "आइटम के अन्य संस्करणों से रखने वाले फ़ील्ड चुनें:",
+  "Merged items must all be of the same item type.": "मिलाए जाने वाले सभी आइटम एक ही प्रकार के होने चाहिए।",
+  "Creators": "रचनाकार",
+  "Items merged.": "आइटम मिला दिए गए।",
+  "Other versions will be moved to the trash.": "अन्य संस्करण ट्रैश में भेज दिए जाएँगे।",
+  "Could not load the item fields.": "आइटम के फ़ील्ड लोड नहीं हो सके।",
   ' from {address}': ' ({address} से)',
   '(empty)': '(खाली)',
   '(untitled)': '(शीर्षकहीन)',

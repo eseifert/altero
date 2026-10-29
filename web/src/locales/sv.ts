@@ -4,6 +4,14 @@
  */
 
 export default {
+  "Merge Items": "Sammanfoga källor",
+  "Choose the version of the item to use as the master item:": "Välj vilken version av källan som ska vara utgångspunkt:",
+  "Select fields to keep from other versions of the item:": "Välj fält att behålla från andra versioner av källan:",
+  "Merged items must all be of the same item type.": "Alla sammanfogade källor måste vara av samma källtyp.",
+  "Creators": "Upphovspersoner",
+  "Items merged.": "Poster sammanfogade.",
+  "Other versions will be moved to the trash.": "Andra versioner flyttas till papperskorgen.",
+  "Could not load the item fields.": "Kunde inte läsa in postens fält.",
   ' from {address}': ' från {address}',
   '(empty)': '(tom)',
   '(untitled)': '(utan titel)',

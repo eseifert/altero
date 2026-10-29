@@ -10,6 +10,14 @@
  */
 
 export default {
+  "Merge Items": "合併項目…",
+  "Choose the version of the item to use as the master item:": "選擇要做為主項目的項目版本：",
+  "Select fields to keep from other versions of the item:": "選取一個須從有其他版本進行保護的欄位區域：",
+  "Merged items must all be of the same item type.": "合併的項目一定得同類型。",
+  "Creators": "建立者",
+  "Items merged.": "已合併項目。",
+  "Other versions will be moved to the trash.": "其他版本將移至垃圾桶。",
+  "Could not load the item fields.": "無法載入項目欄位。",
   ' from {address}': ' 來自 {address}',
   '(empty)': '（空）',
   '(untitled)': '(無標題)',
