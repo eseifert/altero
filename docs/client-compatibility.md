@@ -88,6 +88,13 @@ in a desktop profile. A missing remote file exercises ZFS's settled-file path.
 The schema corpus checks server wire round trips. Actual desktop serialization
 and persistence belong to the disposable-profile acceptance runner.
 
+Duplicate merging currently has service-level database checks in
+`tests/test_merge.py`: child moves, note links, tag precedence, collections,
+merge history, incoming relations, permissions and transaction rollback. These
+follow the reviewed Zotero 10.0.6 source; they do not execute the desktop merge
+code. Attachment deduplication, the browser route and desktop merge acceptance
+are still pending.
+
 Source replay adapters provide facades for the database and application UI.
 The real acceptance runner below exercises complete synchronization separately.
 Group-removal prompts raise an explicit error in source replay; continue to use
