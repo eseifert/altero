@@ -44,12 +44,12 @@ test('a browser merge request keeps the chosen title and survives a reload', asy
   await expect(page.locator('.detail__title')).toHaveText(title)
 })
 
-async function seedPair(label: string) {
+async function seedPair(label: string, identifier?: string) {
   const { baseURL, key } = state()
   const headers = { 'Zotero-API-Key': key, 'Content-Type': 'application/json' }
   const isbns = ['9780262510875', '9780131103627', '9780201633610', '9780321125217']
   const index = (label.startsWith('Stale') ? 2 : 0) + (label.endsWith('phone') ? 1 : 0)
-  const isbn = isbns[index]!
+  const isbn = identifier ?? isbns[index]!
   const response = await fetch(`${baseURL}/users/1/items`, {
     method: 'POST', headers,
     body: JSON.stringify([
@@ -67,17 +67,17 @@ test('the duplicates pane confirms field choices and refreshes the list', async 
   const pair = await seedPair(label)
   await signIn(page)
   await page.locator('.library__scope').filter({ hasText: 'Duplicate Items' }).click()
-  await page.getByRole('button', { name: 'Select', exact: true }).click()
-  await page.getByRole('checkbox', { name: `Select “${label} original”`, exact: true }).check()
-  await page.getByRole('checkbox', { name: `Select “${label} chosen”`, exact: true }).check()
+  const row = page.locator('.duplicate-group__row').filter({ hasText: `${label} chosen` })
+  if (info.project.name === 'phone') await row.tap()
+  else await row.click()
   const pane = page.locator('.merge-pane')
-  await expect(pane.locator('input[name="merge-master"]:checked')).toHaveValue(pair.master.key)
-  await pane.locator('input[name="merge-title"][value="1"]').check()
+  await expect(pane.locator('select[name="merge-master"]')).toHaveValue(pair.master.key)
+  await pane.locator('select[name="merge-title"]').selectOption('1')
   await pane.locator('[data-merge-review]').click()
   await expect(pane.locator('[data-merge-confirm]')).toBeFocused()
   await pane.locator('[data-merge-cancel]').click()
   await expect(pane.locator('[data-merge-review]')).toBeFocused()
-  await expect(pane.locator('input[name="merge-title"]:checked')).toHaveValue('1')
+  await expect(pane.locator('select[name="merge-title"]')).toHaveValue('1')
   await pane.locator('[data-merge-review]').click()
   expect(await accessibilityProblems(page)).toEqual([])
   await page.screenshot({ path: `/tmp/altero-p43-${info.project.name}.png`, fullPage: true })
@@ -102,9 +102,9 @@ test('a stale merge requires reloading and reviewing the selected items', async 
   const pair = await seedPair(label)
   await signIn(page)
   await page.locator('.library__scope').filter({ hasText: 'Duplicate Items' }).click()
-  await page.getByRole('button', { name: 'Select', exact: true }).click()
-  await page.getByRole('checkbox', { name: `Select “${label} original”`, exact: true }).check()
-  await page.getByRole('checkbox', { name: `Select “${label} chosen”`, exact: true }).check()
+  const row = page.locator('.duplicate-group__row').filter({ hasText: `${label} chosen` })
+  if (info.project.name === 'phone') await row.tap()
+  else await row.click()
   const pane = page.locator('.merge-pane')
   await expect(pane.locator('[data-merge-review]')).toBeVisible()
   const changed = await fetch(`${pair.baseURL}/users/1/items/${pair.other.key}`, {
@@ -120,8 +120,73 @@ test('a stale merge requires reloading and reviewing the selected items', async 
   await expect(pane.locator('[data-merge-review]')).toHaveCount(0)
   await pane.getByRole('button', { name: 'Reload', exact: true }).click()
   await expect(pane).toContainText(`${label} updated elsewhere`)
-  await pane.locator('input[name="merge-title"][value="1"]').check()
+  await pane.locator('select[name="merge-title"]').selectOption('1')
   await pane.locator('[data-merge-review]').click()
   await pane.locator('[data-merge-confirm]').click()
   await expect(page.getByText('Items merged.', { exact: true })).toBeVisible()
+})
+
+
+test('duplicate groups can be tapped, inspected and refined without modifier keys', async ({ page }, info) => {
+  const phone = info.project.name === 'phone'
+  const first = `Grouped first ${info.project.name}`
+  const second = `Grouped second ${info.project.name}`
+  await seedPair(first, phone ? '9780132350884' : '9780596007126')
+  const pair = await seedPair(second, phone ? '9780201616224' : '9781491957660')
+  await signIn(page)
+  await page.locator('.library__scope').filter({ hasText: 'Duplicate Items' }).click()
+  const tap = async (title: string) => {
+    const row = page.locator('.duplicate-group__row').filter({ hasText: title })
+    if (phone) await row.tap()
+    else await row.click()
+  }
+  await tap(`${first} chosen`)
+  await expect(page.locator('.merge-pane')).toBeInViewport()
+  const firstGroup = page.locator('.duplicate-group').filter({ hasText: `${first} original` })
+  const secondGroup = page.locator('.duplicate-group').filter({ hasText: `${second} original` })
+  await expect(firstGroup.locator('[aria-pressed="true"]')).toHaveCount(2)
+  await tap(`${second} chosen`)
+  await expect(firstGroup.locator('[aria-pressed="true"]')).toHaveCount(0)
+  await expect(secondGroup.locator('[aria-pressed="true"]')).toHaveCount(2)
+  const pane = page.locator('.merge-pane')
+  await pane.getByRole('button', { name: 'Edit', exact: true }).click()
+  await pane.locator(`[data-merge-inspect="${pair.other.key}"]`).click()
+  await expect(page.locator('.detail__title')).toHaveText(`${second} chosen`)
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await expect(pane).toBeVisible()
+  await page.getByRole('button', { name: 'Search this library', exact: true }).click()
+  const search = page.getByRole('searchbox', { name: 'Search this library' })
+  await search.fill(`${second} chosen`)
+  await expect(page.locator('.duplicate-group')).toHaveCount(1)
+  await pane.getByRole('button', { name: 'Export…', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Export…', exact: true })
+  await dialog.getByLabel('Format:').selectOption('ris')
+  for (const scope of ['selection', 'view']) {
+    await dialog.locator(`input[value="${scope}"]`).check()
+    const href = (await dialog.getByRole('link', { name: 'Export', exact: true }).getAttribute('href'))!
+    const text = await page.evaluate(async (url) => (await fetch(url)).text(), href)
+    expect(text.match(/TY  - /g)).toHaveLength(2)
+    expect(text).toContain(`${second} original`)
+    expect(text).toContain(`${second} chosen`)
+  }
+  await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await search.fill('')
+  await expect(firstGroup).toHaveCount(1)
+  await pane.getByRole('button', { name: 'Select', exact: true }).click()
+  const included = pane.getByRole('checkbox', { name: `Select “${second} chosen”`, exact: true })
+  await included.uncheck()
+  await expect(secondGroup.locator('[aria-pressed="true"]')).toHaveCount(1)
+  await expect(pane.locator('[data-merge-review]')).toBeDisabled()
+  await included.check()
+  await expect(secondGroup.locator('[aria-pressed="true"]')).toHaveCount(2)
+  await pane.locator('select[name="merge-master"]').selectOption(pair.other.key)
+  await expect(secondGroup.locator('[data-row]').first()).toHaveAttribute('data-row', pair.other.key)
+  if (phone) {
+    for (const control of [pane.getByRole('button', { name: 'Edit', exact: true }), pane.locator('select[name="merge-master"]')]) {
+      expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+    }
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  expect(await accessibilityProblems(page)).toEqual([])
+  await page.screenshot({ path: `/tmp/altero-duplicate-groups-${info.project.name}.png`, fullPage: true })
 })

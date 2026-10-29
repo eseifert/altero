@@ -219,6 +219,11 @@ operation = "objects"
 status = "executable"
 tests = ["web/src/stores/merging.spec.ts", "web/src/items/merging.spec.ts", "web/src/components/merge-pane.spec.ts", "web/src/views/library-view.spec.ts", "web/e2e/merge.spec.ts"]
 
+[scenarios.browser_duplicate_groups]
+operation = "objects"
+status = "executable"
+tests = ["tests/test_duplicate_groups.py", "web/src/stores/duplicate-groups.spec.ts", "web/src/components/duplicate-groups.spec.ts", "web/e2e/merge.spec.ts"]
+
 [scenarios.browser_merge_desktop_acceptance]
 operation = "convergence"
 status = "pending"
