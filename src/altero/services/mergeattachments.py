@@ -57,7 +57,8 @@ async def plan_attachments(
 
     Follows the pinned client's order and matching maps, including its title
     fallback for linked URLs. Linked files are retained: their local paths
-    cannot be read by a server. Missing or unreadable PDFs are retained too.
+    cannot be read by a server. Missing files cannot match; PDF parse failures
+    are treated as possible embedded markup, as in the desktop.
     """
     from altero.services.merge import _replace_note_key
 

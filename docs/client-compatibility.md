@@ -89,7 +89,7 @@ The schema corpus checks server wire round trips. Actual desktop serialization
 and persistence belong to the disposable-profile acceptance runner.
 
 Duplicate merging has service-level database checks in `tests/test_merge.py`
-and `tests/test_merge_attachments.py`: child moves, note links, tag precedence,
+and `tests/test_merge_attachment*.py`: child moves, note links, tag precedence,
 collections, merge history, incoming relations, permissions, transaction
 rollback and attachment deduplication. These follow the reviewed Zotero 10.0.6
 source; they do not execute the desktop merge code. A live HTTP check verifies
@@ -112,6 +112,11 @@ too, becoming a child note if the survivor already has one. Web attachments
 match by title and link mode, preferring an equal URL; the pinned client also
 falls back to title for linked URLs. Linked files have no server-side bytes to
 compare and are kept.
+
+The attachment transition cases also check repeated PDF swaps, notes promoted
+after an attachment already moved, cached full text, missing files, and the PDF
+attachments that participate in the subsequent web-attachment pass. Server
+merge coverage and pending desktop acceptance are separate inventory entries.
 
 Source replay adapters provide facades for the database and application UI.
 The real acceptance runner below exercises complete synchronization separately.

@@ -199,6 +199,21 @@ operation = "objects"
 status = "executable"
 tests = ["tools/compatibility/acceptance_graphs.py"]
 
+[scenarios.server_merge_service]
+operation = "objects"
+status = "executable"
+tests = ["tests/test_merge.py", "tests/test_merge_attachments.py", "tests/test_merge_attachment_edges.py", "compatibility_tests/test_merge_service.py"]
+
+[scenarios.pdf_merge_word_fingerprint]
+operation = "files"
+status = "executable"
+tests = ["compatibility_tests/test_merge_words.py"]
+
+[scenarios.browser_merge_desktop_acceptance]
+operation = "convergence"
+status = "pending"
+reason = "The server merge service has database and HTTP checks; the browser route, pane and actual desktop acceptance remain roadmap tasks P4.2–P4.4."
+
 [scenarios.desktop_http_rate_limit_retry]
 operation = "http"
 status = "executable"
