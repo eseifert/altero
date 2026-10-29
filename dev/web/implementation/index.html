@@ -1514,6 +1514,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#duplicate-merge-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Duplicate merge endpoint
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#not-built-yet" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1680,6 +1691,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#duplicate-merge-endpoint" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Duplicate merge endpoint
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#not-built-yet" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1789,6 +1811,35 @@ editor saved them, recorded by the <code>note-corpus</code> desktop acceptance s
 and the editor here is tested to save each the same way. The editor is loaded the first time a note is opened. Tiptap's
 injected stylesheet is switched off, because the interface's
 Content-Security-Policy refuses inline styles; <code>notes/editor.css</code> carries it.</p>
+<h3 id="duplicate-merge-endpoint">Duplicate merge endpoint<a class="headerlink" href="#duplicate-merge-endpoint" title="Permanent link">&para;</a></h3>
+<p>The merge pane is still being implemented. Its endpoint is
+<code>POST /web/libraries/{id}/items/merge</code>, authenticated by the browser session
+and CSRF token. It accepts:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;master&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MASTER22&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;others&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;DUPL2345&quot;</span><span class="p">],</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;fields&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Chosen title&quot;</span><span class="p">,</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">&quot;creators&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;creatorType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;author&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A collective&quot;</span><span class="p">}]</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Send <code>If-Unmodified-Since-Version</code> with the library version at which the items
+were read. The version must match exactly, checked under the library lock.
+An absent header answers 428; a stale or future one answers 412. On 412, read
+the selected items again and review the choices before retrying.</p>
+<p>The items must be untrashed regular items of one type in this library, named
+once each. <code>fields</code> is optional: omitted fields and creators stay on the
+master, text or null replaces a bibliographic field, and a <code>creators</code> array
+replaces the whole creator list. An empty string or null clears a field;
+<code>creators: []</code> clears creators. Structural properties, type changes and
+timestamps are refused. Tags, collections and relations are combined by the
+merge itself, including attachment deduplication and child moves, in one new
+library version.</p>
+<p>The 200 response is <code>{"items": [...]}</code>, with the master first and each changed
+item in its ordinary envelope. <code>Last-Modified-Version</code> gives their shared new
+version. An optional <code>locale</code> query selects the interface language for PDF
+word ordering; it defaults to the account language, then <code>en-US</code>.</p>
 <h3 id="not-built-yet">Not built yet<a class="headerlink" href="#not-built-yet" title="Permanent link">&para;</a></h3>
 <p>Adding attachments. An item or note can be made and its fields, type,
 creators, tags, related items and note text edited, collections can be made, renamed, moved and
