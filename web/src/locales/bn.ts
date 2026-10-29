@@ -6,6 +6,7 @@
  */
 
 export default {
+  "Master item": "মূল আইটেম",
   "Merge Items": "আইটেম একত্র করুন",
   "Choose the version of the item to use as the master item:": "মূল আইটেম হিসেবে ব্যবহার করার সংস্করণটি বেছে নিন:",
   "Select fields to keep from other versions of the item:": "অন্য সংস্করণ থেকে রাখতে চান এমন ক্ষেত্রগুলো বেছে নিন:",

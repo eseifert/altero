@@ -7,6 +7,7 @@
  */
 
 export default {
+  "Master item": "기준 항목",
   "Merge Items": "항목 병합",
   "Choose the version of the item to use as the master item:": "원본 항목으로 사용할 항목의 버전 선택:",
   "Select fields to keep from other versions of the item:": "항목의 다른 버전과 무관하게 유지할 필드 선택:",

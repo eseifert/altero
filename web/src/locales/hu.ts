@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Fő elem",
   "Merge Items": "Elemek összefésülése",
   "Choose the version of the item to use as the master item:": "Válassza ki azt az elemverziót, amit mester elemnek kíván használni: ",
   "Select fields to keep from other versions of the item:": "Válassza ki az elem más verzióiból megtartandó mezőket:",

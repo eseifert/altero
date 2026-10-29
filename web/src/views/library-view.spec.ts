@@ -124,7 +124,7 @@ async function open() {
 }
 
 describe('the duplicates merge pane', () => {
-  it.each([true, false])('offers merging only with removal permission (%s)', async (writable) => {
+  it.each([true, false])('keeps group review available with write permission %s', async (writable) => {
     libraries = [{ ...PERSONAL, writable }]
     contents = [ITEM, { ...ITEM, key: 'BBBB2345' }]
     const wrapper = mount(LibraryView, { global: { stubs: { MergePane: true } } })
@@ -133,8 +133,34 @@ describe('the duplicates merge pane', () => {
     store.scope = 'duplicates'
     store.selection = ['AAAA2345', 'BBBB2345']
     await settle(wrapper)
-    expect(wrapper.findComponent(MergePane).exists()).toBe(writable)
-    if (!writable) expect(wrapper.find('.selection').exists()).toBe(true)
+    expect(wrapper.findComponent(MergePane).exists()).toBe(true)
+    expect(wrapper.getComponent(MergePane).props('removable')).toBe(writable)
+    wrapper.unmount()
+  })
+
+  it('opens a whole group from one row and returns after inspecting an individual item', async () => {
+    const second = { ...ITEM, key: 'BBBB2345', data: { ...ITEM.data, title: 'Another version' } }
+    contents = [ITEM, second]
+    const usual = requestMock.getMockImplementation()!
+    requestMock.mockImplementation((path: string) => path.includes('grouped=true')
+      ? Promise.resolve({ items: contents, groups: [[ITEM.key, second.key]], total: 2, totalGroups: 1, libraryVersion: 4 })
+      : usual(path))
+    const wrapper = mount(LibraryView, { global: { stubs: { MergePane: true } } })
+    await settle(wrapper)
+    await useLibraryStore().selectScope('duplicates')
+    await settle(wrapper)
+    await wrapper.get(`[data-row="${second.key}"]`).trigger('click')
+    await settle(wrapper)
+    expect(useLibraryStore().selection).toEqual([ITEM.key, second.key])
+    expect(wrapper.findAll('.duplicate-group__row[aria-pressed="true"]')).toHaveLength(2)
+    wrapper.getComponent(MergePane).vm.$emit('inspect', second.key)
+    await settle(wrapper)
+    expect(wrapper.findComponent(MergePane).exists()).toBe(false)
+    expect(wrapper.get('.detail__title').text()).toBe('Another version')
+    await wrapper.get('[aria-label="Back"]').trigger('click')
+    await settle(wrapper)
+    expect(wrapper.findComponent(MergePane).exists()).toBe(true)
+    expect(useLibraryStore().selection).toEqual([ITEM.key, second.key])
     wrapper.unmount()
   })
 

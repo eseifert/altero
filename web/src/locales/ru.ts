@@ -7,6 +7,7 @@
  */
 
 export default {
+  "Master item": "Основная запись",
   "Merge Items": "Объединить элементы",
   "Choose the version of the item to use as the master item:": "Выберите версию элемента для использования в качестве главной:",
   "Select fields to keep from other versions of the item:": "Выберите поля для сохранения из других версий элемента:",

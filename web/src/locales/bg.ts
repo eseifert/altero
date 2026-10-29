@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Основен елемент",
   "Merge Items": "Сливане на записите",
   "Choose the version of the item to use as the master item:": "Изберете версията на записа, която да използвате като главен запис",
   "Select fields to keep from other versions of the item:": "Изберете полета за запазване от другите версии на записа",

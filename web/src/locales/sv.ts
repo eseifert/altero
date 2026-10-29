@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Huvudpost",
   "Merge Items": "Sammanfoga källor",
   "Choose the version of the item to use as the master item:": "Välj vilken version av källan som ska vara utgångspunkt:",
   "Select fields to keep from other versions of the item:": "Välj fält att behålla från andra versioner av källan:",

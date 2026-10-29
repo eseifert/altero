@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Aðalfærsla",
   "Merge Items": "Sameina færslur",
   "Choose the version of the item to use as the master item:": "Veldu útgáfuna af þeirri færslu sem nota skal sem móðurfærslu:",
   "Select fields to keep from other versions of the item:": "Veldu svæði sem nota skal frá öðrum útgáfum af færslunni:",

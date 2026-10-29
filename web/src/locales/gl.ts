@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Elemento principal",
   "Merge Items": "Xunguir os elemento",
   "Choose the version of the item to use as the master item:": "Escolle que versión deste elemento queres usar como o principal:",
   "Select fields to keep from other versions of the item:": "Escolle os campos a manter das outras versións do elemento:",

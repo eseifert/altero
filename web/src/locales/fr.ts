@@ -1,6 +1,7 @@
 /** French. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Master item": "Document maître",
   "Merge Items": "Fusionner les documents",
   "Choose the version of the item to use as the master item:": "Choisissez la version du document à utiliser comme document maître :",
   "Select fields to keep from other versions of the item:": "Sélectionnez les champs à conserver depuis les autres versions du document :",

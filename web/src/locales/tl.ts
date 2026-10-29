@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Pangunahing item",
   "Merge Items": "Pagsamahin ang mga item",
   "Choose the version of the item to use as the master item:": "Piliin ang bersyon ng item na gagamiting pangunahing item:",
   "Select fields to keep from other versions of the item:": "Piliin ang mga field na pananatilihin mula sa ibang bersyon ng item:",

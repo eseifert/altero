@@ -8,6 +8,7 @@
  */
 
 export default {
+  "Master item": "Glavni predmet",
   "Merge Items": "Spoji vnose ",
   "Choose the version of the item to use as the master item:": "Izberite različico vnosa, ki naj bo osrednja:",
   "Select fields to keep from other versions of the item:": "Izberite polja, ki jih želite izvzeti iz drugih različic vnosa:",

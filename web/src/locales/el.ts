@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Κύριο στοιχείο",
   "Merge Items": "Συνένωση Στοιχείων",
   "Choose the version of the item to use as the master item:": "Επιλέξτε την έκδοση του Στοιχείου που θα χρησιμοποιηθεί ως κύριο στοιχείο:",
   "Select fields to keep from other versions of the item:": "Επιλέξτε πεδία που θα διατηρηθούν από άλλες εκδόσεις του στοιχείου:",

@@ -1,6 +1,7 @@
 /** German. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Master item": "Haupteintrag",
   "Merge Items": "Einträge zusammenführen",
   "Choose the version of the item to use as the master item:": "Wählen Sie die Version des Eintrags, die als Master-Eintrag verwendet werden soll:",
   "Select fields to keep from other versions of the item:": "Wählen Sie die beizubehaltenden Felder aus anderen Versionen des Eintrags:",

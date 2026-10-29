@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Elementu nagusia",
   "Merge Items": "Elementuak bateratu",
   "Choose the version of the item to use as the master item:": "Elementu nagusi gisa erabiltzeko elementuaren bertsioa aukeratu:",
   "Select fields to keep from other versions of the item:": "Elementuaren beste bertsioetatik mantentzeko eremuak hautatu:",

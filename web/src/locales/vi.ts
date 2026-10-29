@@ -7,6 +7,7 @@
  */
 
 export default {
+  "Master item": "Mục chính",
   "Merge Items": "Ghộp các mục",
   "Choose the version of the item to use as the master item:": "Chọn phiên bản của mục đề dùng như mục mẫu:",
   "Select fields to keep from other versions of the item:": "Chọn các trường muốn giữ lại từ các bản khác của mục này:",

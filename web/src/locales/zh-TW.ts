@@ -10,6 +10,7 @@
  */
 
 export default {
+  "Master item": "主項目",
   "Merge Items": "合併項目…",
   "Choose the version of the item to use as the master item:": "選擇要做為主項目的項目版本：",
   "Select fields to keep from other versions of the item:": "選取一個須從有其他版本進行保護的欄位區域：",

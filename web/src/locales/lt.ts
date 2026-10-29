@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Pagrindinis įrašas",
   "Merge Items": "Apjungti įrašus",
   "Choose the version of the item to use as the master item:": "Pasirinkite pagrindinę įrašo versiją:",
   "Select fields to keep from other versions of the item:": "Pasirinkite senesnių įrašo versijų laukus:",

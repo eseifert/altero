@@ -20,18 +20,27 @@ The sections below retain the technical and behavioral detail needed for trouble
 
 ### Merging duplicates
 
-Open **Duplicate Items**, press **Select**, and pick the items to merge. You can
-also use Ctrl/Cmd-click or Shift-click. The pane opens for two or more selected
-items when you may change and remove all of them. Candidates are a flat list;
-check that the selected records describe the same work. They must have the same
-item type.
+Open **Duplicate Items**. Candidates appear in separate groups with the proposed
+master at the top. Click or tap any member to highlight its whole group and open
+the merge pane. Search and tags find groups without hiding their other members;
+pages keep groups together. Check that the records describe the same work.
 
-The oldest item is the default master. Choose another if needed, then choose
-which differing fields and creator list to keep. Changing the master resets
-those choices. Press **Merge Items**, review the warning, and confirm. Other
+The oldest item is the default master. Choose another in the date picker if
+needed, then use the field pickers to choose the values and creator list to keep.
+These use the device's native picker, including on touch screens. Long values
+can be expanded with **Show more**.
+
+The toolbar offers **Edit** to inspect an individual version, **Select** to
+exclude or include group members, and move/copy, trash, export and reload.
+**Back** returns from an individual item to its group. Changing the master or
+the included members resets field choices. Merging requires at least two items
+of the same type and permission to change and remove all of them; read-only
+groups can still be inspected. Ctrl/Cmd-A selects the active group.
+
+Press **Merge Items**, review the warning, and confirm. Other
 versions move to the trash; collections, tags, relations and children are
 combined, with matching attachments deduplicated. The duplicates list refreshes
-and a message confirms success.
+and a message confirms success. Keyboard focus returns to a remaining group.
 
 If the library changed while you were reviewing, the merge stops. Press
 **Reload** and review the current versions before confirming again.

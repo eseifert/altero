@@ -34,8 +34,8 @@ async function open(items = snapshot) {
 describe('merging selected duplicates', () => {
   it('defaults to the oldest master and requires a separate confirmation', async () => {
     const { wrapper, merge } = await open()
-    expect((wrapper.get('input[name="merge-master"]:checked').element as HTMLInputElement).value).toBe('OLDER234')
-    await wrapper.get('input[name="merge-title"][value="1"]').setValue()
+    expect((wrapper.get('select[name="merge-master"]').element as HTMLSelectElement).value).toBe('OLDER234')
+    await wrapper.get('select[name="merge-title"]').setValue('1')
     await wrapper.get('[data-merge-review]').trigger('click')
     expect(merge).not.toHaveBeenCalled()
     expect(wrapper.text()).toContain('Other versions will be moved to the trash.')
@@ -46,15 +46,15 @@ describe('merging selected duplicates', () => {
 
   it('cancels confirmation without losing field choices, and a new master resets them', async () => {
     const { wrapper, merge } = await open()
-    await wrapper.get('input[name="merge-title"][value="1"]').setValue()
+    await wrapper.get('select[name="merge-title"]').setValue('1')
     await wrapper.get('[data-merge-review]').trigger('click')
     await wrapper.get('[data-merge-cancel]').trigger('click')
     expect(merge).not.toHaveBeenCalled()
-    expect((wrapper.get('input[name="merge-title"]:checked').element as HTMLInputElement).value).toBe('1')
-    await wrapper.get('input[name="merge-master"][value="NEWER234"]').setValue()
-    expect((wrapper.get('input[name="merge-title"]:checked').element as HTMLInputElement).value).toBe('1')
-    await wrapper.get('input[name="merge-master"][value="OLDER234"]').setValue()
-    expect((wrapper.get('input[name="merge-title"]:checked').element as HTMLInputElement).value).toBe('0')
+    expect((wrapper.get('select[name="merge-title"]').element as HTMLSelectElement).value).toBe('1')
+    await wrapper.get('select[name="merge-master"]').setValue('NEWER234')
+    expect((wrapper.get('select[name="merge-title"]').element as HTMLSelectElement).value).toBe('1')
+    await wrapper.get('select[name="merge-master"]').setValue('OLDER234')
+    expect((wrapper.get('select[name="merge-title"]').element as HTMLSelectElement).value).toBe('0')
   })
 
   it('freezes a stale draft until explicit reload; selection reordering does not reread it', async () => {
@@ -79,7 +79,7 @@ describe('merging selected duplicates', () => {
     mixed.items[0]!.data.itemType = 'journalArticle'
     const { wrapper } = await open(mixed)
     expect(wrapper.text()).toContain('Merged items must all be of the same item type.')
-    expect(wrapper.find('[data-merge-review]').exists()).toBe(false)
+    expect(wrapper.get('[data-merge-review]').attributes('disabled')).toBeDefined()
   })
 
   it('cannot merge without the item schema', async () => {
@@ -87,6 +87,39 @@ describe('merging selected duplicates', () => {
     const { wrapper } = await open()
     expect(wrapper.get('[role="alert"]').text()).toContain('Could not load the item fields.')
     expect(wrapper.find('[data-merge-review]').exists()).toBe(false)
+  })
+
+  it('offers inspection and subset selection with ordinary toolbar clicks', async () => {
+    const { wrapper, load } = await open()
+    await wrapper.get('[aria-label="Edit"]').trigger('click')
+    await wrapper.get('[data-merge-inspect="NEWER234"]').trigger('click')
+    expect(wrapper.emitted('inspect')).toEqual([['NEWER234']])
+    await wrapper.get('[aria-label="Select"]').trigger('click')
+    await wrapper.get('input[type="checkbox"][value="NEWER234"]').setValue(false)
+    expect(wrapper.emitted('selection')?.at(-1)).toEqual([['OLDER234']])
+    await wrapper.setProps({ selected: ['OLDER234'] })
+    expect(wrapper.get('[data-merge-review]').attributes('disabled')).toBeDefined()
+    expect(load).toHaveBeenCalledTimes(1)
+  })
+
+  it('merges only included members while keeping the original review version', async () => {
+    const extra = row('EXTRA234', 'Excluded candidate', '2021-01-01T00:00:00Z')
+    const { wrapper, merge } = await open({ ...snapshot, items: [...snapshot.items, extra] })
+    await wrapper.setProps({ selected: ['NEWER234', 'OLDER234'] })
+    expect(wrapper.get('select[name="merge-title"]').text()).not.toContain('Excluded candidate')
+    await wrapper.get('[data-merge-review]').trigger('click')
+    await wrapper.get('[data-merge-confirm]').trigger('click')
+    await flushPromises()
+    expect(merge).toHaveBeenCalledWith(snapshot, 'OLDER234', { title: 'Old title' })
+  })
+
+  it('keeps inspection and export available in a read-only group', async () => {
+    const { wrapper } = await open()
+    await wrapper.setProps({ writable: false, removable: false })
+    expect(wrapper.get('[data-merge-review]').attributes('disabled')).toBeDefined()
+    expect(wrapper.get('[aria-label="Edit"]').attributes('disabled')).toBeUndefined()
+    expect(wrapper.find('[aria-label="Export…"]').exists()).toBe(true)
+    expect(wrapper.find('[aria-label="Move to trash"]').exists()).toBe(false)
   })
 
   it('disables confirmation and dismissal while the write is pending', async () => {

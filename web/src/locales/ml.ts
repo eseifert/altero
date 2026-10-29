@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "പ്രധാന ഇനം",
   "Merge Items": "ഇനങ്ങൾ ലയിപ്പിക്കുക",
   "Choose the version of the item to use as the master item:": "പ്രധാന ഇനമായി ഉപയോഗിക്കേണ്ട പതിപ്പ് തിരഞ്ഞെടുക്കുക:",
   "Select fields to keep from other versions of the item:": "ഇനത്തിന്റെ മറ്റ് പതിപ്പുകളിൽ നിന്ന് നിലനിർത്തേണ്ട ഫീൽഡുകൾ തിരഞ്ഞെടുക്കുക:",

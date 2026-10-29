@@ -7,6 +7,7 @@
  */
 
 export default {
+  "Master item": "Item utama",
   "Merge Items": "Gabungkan Item",
   "Choose the version of the item to use as the master item:": "Pilih versi item untuk digunakan sebagai item utama:",
   "Select fields to keep from other versions of the item:": "Pilih kolom untuk dipertahankan dari versi lain item ini:",

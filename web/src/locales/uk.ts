@@ -7,6 +7,7 @@
  */
 
 export default {
+  "Master item": "Основний запис",
   "Merge Items": "Об'єднати документи",
   "Choose the version of the item to use as the master item:": "Виберіть версію документа для використання в якості головної:",
   "Select fields to keep from other versions of the item:": "Виберіть поля для збереження з іншої версії документа:",

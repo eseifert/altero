@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Ana öge",
   "Merge Items": "Eserleri Birleştir",
   "Choose the version of the item to use as the master item:": "Eserin hangi versiyonunun asıl eser olarak kullanılacağını seç:",
   "Select fields to keep from other versions of the item:": "Eserin diğer versiyonlarından hangi alanların tutulacağını seç:",

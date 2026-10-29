@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "முதன்மை உருப்படி",
   "Merge Items": "உருப்படிகளை ஒன்றிணைக்கவும்",
   "Choose the version of the item to use as the master item:": "முதன்மை உருப்படியாகப் பயன்படுத்த உருப்படியின் பதிப்பைத் தேர்வுசெய்க:",
   "Select fields to keep from other versions of the item:": "உருப்படியின் பிற பதிப்புகளிலிருந்து வைத்திருக்கப் புலங்களைத் தேர்ந்தெடுக்கவும்:",

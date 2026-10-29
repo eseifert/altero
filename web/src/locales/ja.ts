@@ -6,6 +6,7 @@
  */
 
 export default {
+  "Master item": "マスターアイテム",
   "Merge Items": "項目の統合",
   "Choose the version of the item to use as the master item:": "マスターとして使用する項目のバージョンを選択 :",
   "Select fields to keep from other versions of the item:": "項目の他のバージョンから保持するフィールドを選択 :",

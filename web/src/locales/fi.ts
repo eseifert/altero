@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Pääkohde",
   "Merge Items": "Yhdistä kohteet",
   "Choose the version of the item to use as the master item:": "Valitse se nimikkeen versio, jota haluat käyttää pääversiona:",
   "Select fields to keep from other versions of the item:": "Valise kentät, jotka säilytetään muista versioista:",

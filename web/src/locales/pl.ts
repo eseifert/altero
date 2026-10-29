@@ -7,6 +7,7 @@
  */
 
 export default {
+  "Master item": "Element główny",
   "Merge Items": "Złącz elementy",
   "Choose the version of the item to use as the master item:": "Wybierz wersję elementu, którą chcesz użyć jako element główny:",
   "Select fields to keep from other versions of the item:": "Wybierz pola, które chcesz zachować z innych wersji elementu:",

@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Element principal",
   "Merge Items": "Unește înregistrările",
   "Choose the version of the item to use as the master item:": "Alege versiunea înregistrării pe care o folosești ca înregistrare master:",
   "Select fields to keep from other versions of the item:": "Selectează câmpurile pentru a le păstra față de alte versiuni ale înregistrării:",

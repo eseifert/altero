@@ -10,6 +10,7 @@
  */
 
 export default {
+  "Master item": "Master item",
   "Merge Items": "Merge Items",
   "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",
   "Select fields to keep from other versions of the item:": "Select fields to keep from other versions of the item:",

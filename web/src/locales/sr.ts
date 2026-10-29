@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Главна ставка",
   "Merge Items": "Споји ставке",
   "Choose the version of the item to use as the master item:": "Изаберите верзију ставке која ће постати главна ставка:",
   "Select fields to keep from other versions of the item:": "Изаберите поља која желите да преузмете из друге верзије ставке:",

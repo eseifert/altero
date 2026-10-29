@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Element principal",
   "Merge Items": "Combina els elements",
   "Choose the version of the item to use as the master item:": "Triaeu la versió de l'element com a element prinicpal:",
   "Select fields to keep from other versions of the item:": "Seleccioneu els camps que voleu mantenir de les altres versions de l'element:",

@@ -8,6 +8,7 @@
  */
 
 export default {
+  "Master item": "Hlavní položka",
   "Merge Items": "Sloučit položky",
   "Choose the version of the item to use as the master item:": "Vyberte verzi položky, jež bude použita jako hlavní položka:",
   "Select fields to keep from other versions of the item:": "Vyberte pole z jiných verzí položky, která se mají zachovat:",

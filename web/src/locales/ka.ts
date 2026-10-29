@@ -6,6 +6,7 @@
  */
 
 export default {
+  "Master item": "მთავარი ჩანაწერი",
   "Merge Items": "ჩანაწერების გაერთიანება",
   "Choose the version of the item to use as the master item:": "აირჩიეთ ჩანაწერის ვერსია, რომელიც მთავარ ჩანაწერად გამოიყენება:",
   "Select fields to keep from other versions of the item:": "აირჩიეთ ველები ჩანაწერის სხვა ვერსიებიდან შესანარჩუნებლად:",

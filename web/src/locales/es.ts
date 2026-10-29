@@ -1,6 +1,7 @@
 /** Spanish. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Master item": "Elemento principal",
   "Merge Items": "Fusionar elementos",
   "Choose the version of the item to use as the master item:": "Elija la versión del elemento a usar como  elemento maestro:",
   "Select fields to keep from other versions of the item:": "Selecciona los campos a conservar de otras versiones del elemento:",

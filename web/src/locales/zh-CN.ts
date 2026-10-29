@@ -1,6 +1,7 @@
 /** Chinese, in Simplified characters. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Master item": "主条目",
   "Merge Items": "合并条目",
   "Choose the version of the item to use as the master item:": "选择作为主条目的条目版本.",
   "Select fields to keep from other versions of the item:": "选择需要保留的域, 防止被其他版本的域覆盖.",

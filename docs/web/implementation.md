@@ -103,6 +103,13 @@ identifier can connect records whose titles differ, and a title match can connec
 another record to that group. Membership is a suggestion for review, not a claim
 that every pair has the same identifier or item type.
 
+The comparison follows Zotero 10.0.6's master-and-field-choice model, reviewed in
+`duplicatesMergePane.js` and `itemBox.js`. The browser uses native select controls
+instead of desktop field popups. Group selection, individual inspection and
+membership changes have ordinary click/tap controls; coarse pointers retain
+44-pixel targets. On a narrow screen, activating a group reveals its pane and
+closing it returns focus to the group.
+
 The duplicates pane uses
 `POST /web/libraries/{id}/items/merge`, authenticated by the browser session
 and CSRF token. It accepts:

@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Galvenais ieraksts",
   "Merge Items": "Apvienot ierakstus",
   "Choose the version of the item to use as the master item:": "Izvēlieties ieraksta versiju, ko izmantot kā galveno ierakstu:",
   "Select fields to keep from other versions of the item:": "Atlasiet laukus, kurus paturēt no citām ieraksta versijām:",

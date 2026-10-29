@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Elfenn bennañ",
   "Merge Items": "Kendeuziñ an elfennoù",
   "Choose the version of the item to use as the master item:": "Dibabit stumm an elfenn da implijout evel elfenn mestr:",
   "Select fields to keep from other versions of the item:": "Diuzañ ar maeziennoù da virout diwar stummoù all an elfenn:",

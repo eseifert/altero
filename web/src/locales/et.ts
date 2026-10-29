@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Põhikirje",
   "Merge Items": "Kirjete liitmine",
   "Choose the version of the item to use as the master item:": "Palun valida aluskirje, millele liidetakse teise kirje andmed:",
   "Select fields to keep from other versions of the item:": "Valida väljad, mida säilitada teistest versioonidest:",

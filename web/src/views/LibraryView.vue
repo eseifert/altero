@@ -13,6 +13,7 @@ import ExportDialog from '@/components/ExportDialog.vue'
 import ItemDestinationDialog from '@/components/ItemDestinationDialog.vue'
 import ItemDetail from '@/components/ItemDetail.vue'
 import ItemSelection from '@/components/ItemSelection.vue'
+import DuplicateGroups from '@/components/DuplicateGroups.vue'
 import MergePane from '@/components/MergePane.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import NewItemMenu from '@/components/NewItemMenu.vue'
@@ -54,9 +55,73 @@ const library = useLibraryStore()
 const locales = useLocaleStore()
 const shares = useShareStore()
 const toasts = useToastStore()
+const duplicateInspection = ref(false)
+const duplicateMaster = ref<string | null>(null)
+const activeDuplicateGroup = computed(() => library.scope === 'duplicates'
+  ? library.duplicateGroups.find((keys) => library.selection.some((key) => keys.includes(key))) : undefined)
+const duplicateReviewKeys = computed(() => activeDuplicateGroup.value ?? library.selectionKeys)
+const overviewItems = computed(() => {
+  if (library.scope !== 'duplicates' || !library.duplicateGroups.length) return library.items
+  const byKey = new Map(library.items.map((item) => [item.key, item]))
+  return library.duplicateGroups.flatMap((keys) => {
+    const ordered = duplicateMaster.value && keys.includes(duplicateMaster.value)
+      ? [duplicateMaster.value, ...keys.filter((key) => key !== duplicateMaster.value)] : keys
+    return ordered.map((key) => byKey.get(key)).filter((item): item is ItemEnvelope => Boolean(item))
+  })
+})
+watch(() => `${library.libraryId}:${library.scope}`, () => {
+  duplicateInspection.value = false
+  duplicateMaster.value = null
+})
+
+async function activateDuplicate(item: ItemEnvelope, reveal = false) {
+  duplicateInspection.value = false
+  await library.select(item)
+  if (reveal && window.matchMedia('(max-width: 700px)').matches) {
+    await nextTick()
+    document.querySelector<HTMLElement>('.merge-pane')?.scrollIntoView({ block: 'start' })
+  }
+}
+
+async function closeMergeReview() {
+  const key = activeDuplicateGroup.value?.[0]
+  await library.clearSelection()
+  if (key) {
+    focusKey.value = key
+    await nextTick()
+    document.querySelector<HTMLElement>(`[data-row="${CSS.escape(key)}"]`)?.focus()
+  }
+}
+
+async function inspectDuplicate(key: string) {
+  const item = library.items.find((item) => item.key === key)
+  if (!item) return
+  duplicateInspection.value = true
+  await library.inspectItem(item)
+}
+
+async function closeItemDetail() {
+  if (duplicateInspection.value && activeDuplicateGroup.value) {
+    duplicateInspection.value = false
+    const item = library.items.find((item) => item.key === activeDuplicateGroup.value?.[0])
+    if (item) await library.select(item)
+  } else {
+    duplicateInspection.value = false
+    await library.select(null)
+  }
+}
 
 async function mergeSelection(snapshot: MergeSnapshot, master: string, fields: MergeValues) {
+  const groupIndex = library.duplicateGroups.findIndex((keys) => keys.includes(master))
   await library.mergeItems(snapshot, master, fields, locales.active)
+  if (snapshot.libraryId === library.libraryId && groupIndex >= 0 && !library.selection.length) {
+    const next = library.duplicateGroups[Math.min(groupIndex, library.duplicateGroups.length - 1)]?.[0]
+    if (next) {
+      focusKey.value = next
+      await nextTick()
+      document.querySelector<HTMLElement>(`[data-row="${CSS.escape(next)}"]`)?.focus()
+    }
+  }
   toasts.show(t('Items merged.'))
 }
 /* The account's own username, which is what its public page is addressed by,
@@ -1263,13 +1328,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', pageKey))
 async function listKey(event: KeyboardEvent): Promise<void> {
   const row = (event.target as HTMLElement).closest<HTMLElement>('[data-row]')
   if (!row || event.altKey) return
-  const at = library.items.findIndex((entry) => entry.key === row.dataset.row)
-  const item = library.items[at]
+  const at = overviewItems.value.findIndex((entry) => entry.key === row.dataset.row)
+  const item = overviewItems.value[at]
   if (!item) return
   const modified = event.ctrlKey || event.metaKey
 
   if ((event.key === 'Enter' || event.key === 'F2') && !modified && !event.shiftKey && !selecting.value) {
     event.preventDefault()
+    if (library.scope === 'duplicates' && library.duplicateGroups.length) {
+      if (event.key === 'F2') await inspectDuplicate(item.key)
+      else await activateDuplicate(item)
+      return
+    }
     if (library.selected?.key !== item.key || library.selection.length !== 1) await library.select(item)
     await nextTick()
     if (event.key === 'F2') detailPane.value?.editField(titleField(item.data.itemType))
@@ -1285,7 +1355,7 @@ async function listKey(event: KeyboardEvent): Promise<void> {
     return
   }
 
-  const last = library.items.length - 1
+  const last = overviewItems.value.length - 1
   const steps: Record<string, number> = {
     ArrowDown: at + 1,
     ArrowUp: at - 1,
@@ -1300,15 +1370,17 @@ async function listKey(event: KeyboardEvent): Promise<void> {
   let to = steps[event.key]
   // Past the last row fetched is the next page, when there is one.
   if (to > last && library.hasMore && !library.loading) await library.loadMore()
-  to = Math.max(0, Math.min(to, library.items.length - 1))
-  const next = library.items[to]
+  to = Math.max(0, Math.min(to, overviewItems.value.length - 1))
+  const next = overviewItems.value[to]
   if (!next) return
 
   focusKey.value = next.key
   await nextTick()
   document.querySelector<HTMLElement>(`[data-row="${CSS.escape(next.key)}"]`)?.focus()
   if (next.key === item.key && !event.shiftKey) return
-  if (event.shiftKey) await library.extendSelection(next)
+  if (library.scope === 'duplicates' && library.duplicateGroups.length) {
+    if (!modified) await activateDuplicate(next)
+  } else if (event.shiftKey) await library.extendSelection(next)
   else if (!modified && !selecting.value) await library.select(next)
 }
 
@@ -1788,7 +1860,7 @@ function sortLabel(column: { field: string; label: string }): string {
             `Ctrl`-click and `Shift`-click work whether this is on or off.
           -->
           <button
-            v-if="library.items.length"
+            v-if="library.items.length && library.scope !== 'duplicates'"
             class="icon-button library__tool"
             :class="{ 'icon-button--on': selecting }"
             type="button"
@@ -1978,7 +2050,7 @@ function sortLabel(column: { field: string; label: string }): string {
                of checkboxes over a list nobody is picking from is a column of
                questions nobody asked. It sits beside the grid rather than in
                it, so that the columns underneath line up with the headings. -->
-          <span v-if="selecting" class="library__cell library__cell--check">
+          <span v-if="selecting && library.scope !== 'duplicates'" class="library__cell library__cell--check">
             <input
               type="checkbox"
               :checked="allSelected"
@@ -2026,6 +2098,25 @@ function sortLabel(column: { field: string; label: string }): string {
           {{ emptyMessage }}
         </p>
 
+        <DuplicateGroups
+          v-else-if="library.scope === 'duplicates' && library.duplicateGroups.length"
+          :items="library.items"
+          :groups="library.duplicateGroups"
+          :selection="library.selectionKeys"
+          :master="duplicateMaster"
+          :tab-key="tabKey"
+          :carried="[...carriedKeys]"
+          :file-target="fileDrop.target.value"
+          :takes-files="takesFilesUnder"
+          @select="activateDuplicate($event, true)"
+          @inspect="inspectDuplicate($event.key)"
+          @focus="focusKey = $event"
+          @carry="carryItem"
+          @remove="removeKey"
+          @keydown="listKey"
+          @keydown.a="selectAllKey"
+          @keydown.esc="library.clearSelection()"
+        />
         <ul
           v-else
           class="library__items table-rows"
@@ -2049,7 +2140,7 @@ function sortLabel(column: { field: string; label: string }): string {
             <!-- The checkbox is a sibling of the row rather than inside it: a
                  checkbox within a button is neither, and a reader tabbing
                  through would find one control where there are two. -->
-            <span v-if="selecting" class="library__cell library__cell--check">
+            <span v-if="selecting && library.scope !== 'duplicates'" class="library__cell library__cell--check">
               <input
                 type="checkbox"
                 :checked="selectedKeys.has(item.key)"
@@ -2123,13 +2214,27 @@ function sortLabel(column: { field: string; label: string }): string {
     />
 
     <aside v-if="showDetail && library.libraryId !== null" class="pane library__detail">
+      <div v-if="duplicateInspection" class="toolbar library__duplicate-back">
+        <button type="button" class="icon-button" :aria-label="t('Back')" :title="t('Back')" @click="closeItemDetail">
+          <AppIcon name="undo" :size="22" />
+        </button>
+      </div>
       <MergePane
-        v-if="library.scope === 'duplicates' && library.selection.length > 1 && library.selectionRemovable"
-        :key="`${library.libraryId}:${[...library.selection].sort().join(',')}`"
-        :keys="library.selectionKeys"
+        v-if="library.scope === 'duplicates' && !duplicateInspection && duplicateReviewKeys.length > 1"
+        :key="`${library.libraryId}:${[...duplicateReviewKeys].sort().join(',')}`"
+        :keys="duplicateReviewKeys"
+        :selected="library.selectionKeys"
+        :writable="library.selectionChangeable"
+        :removable="library.selectionRemovable"
         :load="library.prepareMerge"
         :merge="mergeSelection"
-        @close="library.clearSelection()"
+        @selection="library.selection = $event"
+        @master="duplicateMaster = $event"
+        @inspect="inspectDuplicate"
+        @move="moving = [...library.selectedItems]"
+        @trash="runOnItem(() => library.trashItems(library.selectionKeys))"
+        @export="exportSelectionOrView()"
+        @close="closeMergeReview()"
       />
       <ItemDetail
         v-else-if="library.selected"
@@ -2145,7 +2250,7 @@ function sortLabel(column: { field: string; label: string }): string {
         :save="saveSelected"
         :files-editable="library.filesEditable"
         @open="library.select($event)"
-        @close="library.select(null)"
+        @close="closeItemDetail()"
         @move="moving = [library.selected]"
         @trash="trashOpenItem(library.selected!)"
         @restore="runOnItem(() => library.trashItems([library.selected!.key], false))"
@@ -2685,6 +2790,11 @@ function sortLabel(column: { field: string; label: string }): string {
 
 /* A press held on a row is a carry, so the browser's own answer to a held
    press must not land on top of it. */
+.library__duplicate-back {
+  margin: var(--md-spacing-3);
+  inline-size: fit-content;
+}
+
 .library__row {
   user-select: none;
   -webkit-touch-callout: none;

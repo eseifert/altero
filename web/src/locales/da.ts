@@ -1,6 +1,7 @@
 /** Danish. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Master item": "Hovedelement",
   "Merge Items": "Flet elementer",
   "Choose the version of the item to use as the master item:": "Vælg den version af elementet som du vil bruge som hovedelement:",
   "Select fields to keep from other versions of the item:": "Vælg felter som skal bevares fra andre versioner af elementet",

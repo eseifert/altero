@@ -4,6 +4,7 @@
  */
 
 export default {
+  "Master item": "Hovedelement",
   "Merge Items": "Slå sammen elementer",
   "Choose the version of the item to use as the master item:": "Velg versjon av element til bruk som hovedelement:",
   "Select fields to keep from other versions of the item:": "Velg felt å bevare fra andre versjoner av elementet:",

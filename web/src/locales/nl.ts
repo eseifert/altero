@@ -1,6 +1,7 @@
 /** Dutch. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Master item": "Hoofditem",
   "Merge Items": "Items samenvoegen",
   "Choose the version of the item to use as the master item:": "Kies de versie van het item om te gebruiken als het meest voornaamste item:",
   "Select fields to keep from other versions of the item:": "Selecteer velden om te behouden ten opzichte van andere versie van het item:",

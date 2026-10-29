@@ -1,6 +1,7 @@
 /** Portuguese, as written in Portugal. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Master item": "Item principal",
   "Merge Items": "Fundir itens",
   "Choose the version of the item to use as the master item:": "Escolha a versão do item a usar como item principal:",
   "Select fields to keep from other versions of the item:": "Seleccione os campos a manter de outras versões do item:",
