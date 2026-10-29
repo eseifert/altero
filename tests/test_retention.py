@@ -11,19 +11,22 @@ from datetime import UTC, datetime, timedelta
 
 import httpx2
 import pytest
-from sqlalchemy import select
+from fastapi import FastAPI
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import (
     ActivityKind,
+    DeletedObject,
     GroupActivity,
     Item,
+    Library,
     LibraryType,
     StorageDownload,
     StorageUpload,
     WebSession,
 )
-from altero.services import retention
+from altero.services import retention, writes
 from altero.services.auth import get_library
 from tests.factories import make_api_key, make_group, make_item, make_user
 
@@ -48,6 +51,43 @@ async def trashed_long_ago(session: AsyncSession, library, *, days: int) -> Item
 
 
 class TestTheTrash:
+    @pytest.mark.parametrize("change", ["restored", "recently_trashed"])
+    async def test_candidates_are_checked_again_after_locking(
+        self,
+        session: AsyncSession,
+        app: FastAPI,
+        monkeypatch: pytest.MonkeyPatch,
+        change: str,
+    ) -> None:
+        await make_user(session)
+        library = await get_library(session, LibraryType.USER, 1)
+        item = await trashed_long_ago(session, library, days=40)
+        before = library.version
+        lock = writes.lock_library
+
+        async def changed_before_lock(session: AsyncSession, library: Library) -> Library:
+            # A real competing transaction commits after the sweep collects
+            # candidates, before it obtains the library's write lock.
+            async with app.state.database.session_factory() as other:
+                await other.execute(
+                    update(Item)
+                    .where(Item.id == item.id)
+                    .values(deleted=change != "restored", server_date_modified=now())
+                )
+                await other.commit()
+            return await lock(session, library)
+
+        monkeypatch.setattr(writes, "lock_library", changed_before_lock)
+        report = await retention.sweep(session, NOTHING | {"trashRetentionDays": 30})
+
+        assert report.items_deleted == 0
+        assert report.libraries == 0
+        await session.refresh(item)
+        await session.refresh(library)
+        assert item.deleted == (change != "restored")
+        assert library.version == before
+        assert await session.scalar(select(DeletedObject)) is None
+
     async def test_an_item_past_the_period_is_deleted(self, session: AsyncSession) -> None:
         await make_user(session)
         library = await get_library(session, LibraryType.USER, 1)

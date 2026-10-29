@@ -238,6 +238,8 @@ uv run altero retention run
 
 When retention removes trashed Zotero objects, the library advances by one version and the deletions are recorded. A client that later asks `/deleted?since=` can therefore learn what disappeared.
 
+Items restored or changed while a sweep waits are checked again before deletion.
+
 Removing database rows without the deletion log would leave offline clients holding objects the server had silently forgotten.
 
 Unreferenced attachment files are not deleted by the timed retention sweep. They are handled separately from the Storage screen to avoid racing uploads that have written their bytes before committing their item rows.
@@ -266,6 +268,10 @@ uv run altero library import library.zip
 ```
 
 The archive contains JSON metadata and attachment bytes, including object keys, object versions, the library version and the deletion log. Accounts and API keys are not included.
+
+Exporting holds library writes until the archive is built, so its contents
+describe one consistent version. The lock is released before downloading.
+Restoring also locks the target library before checking or replacing its contents.
 
 Importing into a non-empty target is refused unless `--replace` is used.
 

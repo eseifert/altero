@@ -136,12 +136,29 @@ async def _sweep_trash(
         return sum(len(keys) for keys in by_library.values()), len(by_library)
 
     deleted = 0
-    for library_id, keys in by_library.items():
+    libraries = 0
+    for library_id in by_library:
         library = await session.get(Library, library_id)
         if library is None:  # pragma: no cover - defensive
             continue
 
         library = await writes.lock_library(session, library)
+        # Candidates were read before the lock. Another request may have
+        # restored, changed or deleted one while the sweep was waiting.
+        # Re-read the eligibility predicate under the same lock all writers
+        # take, before permanently removing anything.
+        keys = list(
+            await session.scalars(
+                select(Item.key).where(
+                    Item.library_id == library.id,
+                    Item.deleted.is_(True),
+                    Item.server_date_modified < cutoff,
+                )
+            )
+        )
+        if not keys:
+            await session.commit()
+            continue
         # Named before they go: there is nothing left to read afterwards.
         named = await groupactivity.name_items(session, library, keys)
         version = await writes.bump_library_version(session, library)
@@ -158,8 +175,9 @@ async def _sweep_trash(
         )
         await session.commit()
         deleted += len(keys)
+        libraries += 1
 
-    return deleted, len(by_library)
+    return deleted, libraries
 
 
 async def _remove(

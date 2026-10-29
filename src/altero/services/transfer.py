@@ -49,7 +49,7 @@ from altero.models import (
     StorageUpload,
     Tag,
 )
-from altero.services import duplicates, storage, storelayout
+from altero.services import duplicates, storage, storelayout, writes
 
 #: Bumped when the archive layout changes in a way an older altero cannot read.
 FORMAT_VERSION = 1
@@ -92,7 +92,30 @@ async def export_library(
 ) -> Path:
     """Write the whole of one library to ``destination`` and return the path."""
     await storelayout.ensure_current(session, storage_root)
+    # Own the snapshot transaction so its lock ends once the archive is built,
+    # before a browser starts a potentially slow download. Reusing the caller's
+    # transaction would hold that lock for the whole response lifetime.
+    async with AsyncSession(session.bind, expire_on_commit=False) as snapshot:
+        return await _export_snapshot(
+            snapshot,
+            library_type=library_type,
+            owner_id=owner_id,
+            storage_root=storage_root,
+            destination=destination,
+        )
+
+
+async def _export_snapshot(
+    session: AsyncSession,
+    *,
+    library_type: LibraryType,
+    owner_id: int,
+    storage_root: Path,
+    destination: Path,
+) -> Path:
+    """Read all tables at one library version, excluding concurrent writers."""
     library = await _resolve(session, library_type, owner_id)
+    library = await writes.lock_library(session, library)
 
     items = list(
         await session.scalars(select(Item).where(Item.library_id == library.id).order_by(Item.id))
@@ -460,6 +483,7 @@ async def import_library(
             if into is not None
             else await _resolve(session, LibraryType(described["type"]), described["id"])
         )
+        library = await writes.lock_library(session, library)
 
         if not await is_empty(session, library):
             if not replace:
