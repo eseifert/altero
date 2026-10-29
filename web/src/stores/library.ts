@@ -438,9 +438,11 @@ export const useLibraryStore = defineStore('library', () => {
        no collection, no search and no tags. It is what somebody means by "all
        of it" while standing in a collection, and it cannot be expressed by
        leaving parameters off, since the view supplies them. */
-    const params = whole
-      ? new URLSearchParams({ scope: 'top', sort: sort.value, direction: direction.value })
+    const explicitGroupMembers = scope.value === 'duplicates' && Boolean(keys?.length)
+    const params = whole || explicitGroupMembers
+      ? new URLSearchParams({ scope: whole ? 'top' : 'all', sort: sort.value, direction: direction.value })
       : viewParams()
+    if (scope.value === 'duplicates' && !whole && !keys?.length) params.set('grouped', 'true')
     params.set('format', format)
     if (keys?.length) params.set('itemKey', keys.join(','))
     if (name) params.set('name', name)

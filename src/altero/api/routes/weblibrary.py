@@ -333,6 +333,7 @@ async def export_library_items(
     tag: Annotated[list[str] | None, Query()] = None,
     item_key: Annotated[str | None, Query(alias="itemKey")] = None,
     scope: Scope = Scope.TOP,
+    grouped: bool = False,
 ) -> Response:
     """Write what the item list is showing as a file, and send it.
 
@@ -352,6 +353,8 @@ async def export_library_items(
     copy goes once the response has been sent.
     """
     library = await _readable_library(session, user, library_id)
+    if grouped and scope is not Scope.DUPLICATES:
+        raise HTTPException(status_code=400, detail="Grouping requires the duplicates scope")
 
     offered = sorted(str(entry) for entry in itemexport.EXPORT_FORMATS)
     if response_format not in offered:
@@ -389,6 +392,8 @@ async def export_library_items(
             query=query,
             scope=item_scope,
             key=collection,
+            grouped=grouped,
+            permit=await auth.user_access(session, library, user.id),
         )
     except BaseException:
         shutil.rmtree(workspace, ignore_errors=True)

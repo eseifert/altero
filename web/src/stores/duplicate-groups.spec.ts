@@ -65,6 +65,22 @@ describe('duplicate group selection', () => {
     expect(store.hasMore).toBe(false)
   })
 
+  it('exports complete filtered groups or the explicitly selected members', () => {
+    const store = useLibraryStore()
+    store.libraryId = 1
+    store.scope = 'duplicates'
+    store.search = 'Beta'
+    store.selectedTags = ['read']
+    const selected = store.exportUrl('ris', { keys: ['AAAA2345', 'BBBB2345'] })
+    expect(selected).toContain('scope=all')
+    expect(selected).toContain('itemKey=AAAA2345%2CBBBB2345')
+    expect(selected).not.toContain('q=')
+    expect(selected).not.toContain('tag=')
+    expect(store.exportUrl('ris')).toContain('grouped=true')
+    expect(store.exportUrl('ris')).toContain('q=Beta')
+    expect(store.exportUrl('ris', { whole: true })).not.toContain('grouped=')
+  })
+
   it('restarts pagination when the group watermark changes between pages', async () => {
     const store = useLibraryStore()
     store.libraryId = 1

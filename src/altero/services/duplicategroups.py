@@ -20,7 +20,7 @@ class GroupPage:
     library_version: int
 
 
-async def list_groups(
+async def matching_groups(
     session: AsyncSession,
     library: Library,
     query: ListQuery,
@@ -28,12 +28,11 @@ async def list_groups(
     collection: str | None = None,
     *,
     permit: Access | None = None,
-) -> GroupPage:
-    """Filters find groups; members remain complete within the reader's access.
+) -> list[tuple[int, ...]]:
+    """Find complete permitted groups, ordered by their first matching member.
 
-    Group order follows the first matching item in the requested sort. Members
-    retain the finder's oldest-first order, independently of that sort. Offsets
-    and limits count groups, so neither filtering nor paging can split one.
+    The query's page bounds are ignored. Members retain the finder's oldest-first
+    order, independently of the requested sort.
     """
     groups = await duplicates.duplicate_item_groups(session, library)
     matching = await items.ordered_item_ids(
@@ -54,6 +53,25 @@ async def list_groups(
         group for group in visible if len(group) > 1 and any(item_id in rank for item_id in group)
     ]
     found.sort(key=lambda group: min(rank[item_id] for item_id in group if item_id in rank))
+    return found
+
+
+async def list_groups(
+    session: AsyncSession,
+    library: Library,
+    query: ListQuery,
+    scope: items.Scope,
+    collection: str | None = None,
+    *,
+    permit: Access | None = None,
+) -> GroupPage:
+    """Filters find groups; members remain complete within the reader's access.
+
+    Group order follows the first matching item in the requested sort. Members
+    retain the finder's oldest-first order, independently of that sort. Offsets
+    and limits count groups, so neither filtering nor paging can split one.
+    """
+    found = await matching_groups(session, library, query, scope, collection, permit=permit)
     page = found[query.start : query.start + query.limit]
     page_ids = [item_id for group in page for item_id in group]
     loaded = {

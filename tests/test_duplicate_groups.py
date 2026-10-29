@@ -88,3 +88,18 @@ async def test_grouping_requires_the_duplicates_scope_and_library_access(
     assert (
         await client.get(f"/web/libraries/{other.id}/items?scope=duplicates&grouped=true")
     ).status_code == 403
+
+
+async def test_grouped_export_includes_members_that_did_not_match_the_search(
+    client: httpx2.AsyncClient, session: AsyncSession
+) -> None:
+    library, _ = await seed(client, session)
+    response = await client.get(
+        f"/web/libraries/{library}/items/export?scope=duplicates&grouped=true&q=Beta&format=ris"
+    )
+    assert response.status_code == 200
+    assert response.text.count("TY  - ") == 3
+    assert "Alpha" in response.text
+    assert (
+        await client.get(f"/web/libraries/{library}/items/export?grouped=true&format=ris")
+    ).status_code == 400

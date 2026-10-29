@@ -25,6 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.cite import exportitem, formats
 from altero.models import Item, Library
 from altero.query import Format, ListQuery
+from altero.services import duplicategroups
 from altero.services import items as items_service
 from altero.services.auth import Access
 
@@ -100,6 +101,7 @@ async def write_items(
     scope: items_service.Scope = items_service.Scope.TOP,
     key: str | None = None,
     permit: Access | None = None,
+    grouped: bool = False,
 ) -> int:
     """Write every item ``query`` matches to ``destination``; return how many.
 
@@ -126,9 +128,15 @@ async def write_items(
         # Found once and in order, then fetched a batch at a time by id: paging
         # through them counted every match and skipped every earlier batch
         # again for each one.
-        ids = await items_service.ordered_item_ids(
-            session, library, query, scope, key, permit=permit
-        )
+        if grouped:
+            groups = await duplicategroups.matching_groups(
+                session, library, query, scope, key, permit=permit
+            )
+            ids = [item_id for group in groups for item_id in group]
+        else:
+            ids = await items_service.ordered_item_ids(
+                session, library, query, scope, key, permit=permit
+            )
         for start in range(0, len(ids), BATCH):
             wanted = ids[start : start + BATCH]
             loaded = {

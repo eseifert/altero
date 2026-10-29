@@ -90,6 +90,10 @@ collection filters find groups; every member readable by the viewer is included,
 oldest first. The requested sort orders groups by their first matching record.
 Without `grouped`, the existing item-based pagination is unchanged.
 
+The export endpoint accepts the same `grouped=true` flag, expanding matching
+groups before writing them in batches. Explicit group-member selections export
+by key with `scope=all`, so the current search cannot remove a selected member.
+
 The library store requests group pages and selects a whole group from any member.
 Select-all stays within the active group. Explicit individual inspection remains
 available, and an append at a different watermark restarts group pagination.
