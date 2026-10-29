@@ -20,7 +20,8 @@ async def display(root: Path, xvfb: bool) -> AsyncIterator[None]:
     if not xvfb:
         yield
         return
-    previous = os.environ.get("DISPLAY")
+    names = ("DISPLAY", "GDK_BACKEND", "MOZ_ENABLE_WAYLAND", "WAYLAND_DISPLAY")
+    previous = {name: os.environ.get(name) for name in names}
     with (root / "xvfb.log").open("wb") as log:
         process = await asyncio.create_subprocess_exec(
             "Xvfb",
@@ -41,12 +42,18 @@ async def display(root: Path, xvfb: bool) -> AsyncIterator[None]:
             if not number.isdigit():
                 raise CompatibilityError("Xvfb failed to allocate a display")
             os.environ["DISPLAY"] = ":" + number
+            # DISPLAY alone does not confine GTK/Gecko on a Wayland host.
+            # Force the allocated X server instead of opening a real window.
+            os.environ["GDK_BACKEND"] = "x11"
+            os.environ["MOZ_ENABLE_WAYLAND"] = "0"
+            os.environ.pop("WAYLAND_DISPLAY", None)
             yield
         finally:
-            if previous is None:
-                os.environ.pop("DISPLAY", None)
-            else:
-                os.environ["DISPLAY"] = previous
+            for name, value in previous.items():
+                if value is None:
+                    os.environ.pop(name, None)
+                else:
+                    os.environ[name] = value
             if process.returncode is None:
                 process.terminate()
             await process.wait()

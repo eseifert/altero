@@ -412,7 +412,8 @@ uv run python -m tools.compatibility acceptance \
 ```
 
 This requires an installed Zotero binary and Xvfb (or omit `--xvfb` to use an
-existing display). The version is checked by the running application. The
+existing display). With `--xvfb`, GTK and Gecko are forced onto its X11 display,
+even on a Wayland host. The version is checked by the running application. The
 command creates two isolated profiles and a loopback server, drives the actual
 sync engine and ZFS filesystem path, and preserves phase snapshots, databases
 and logs. It refuses an existing state directory.
