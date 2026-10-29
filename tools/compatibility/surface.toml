@@ -214,10 +214,15 @@ operation = "objects"
 status = "executable"
 tests = ["tests/test_web_merge.py", "compatibility_tests/test_merge_route.py", "web/e2e/merge.spec.ts"]
 
+[scenarios.browser_merge_pane]
+operation = "objects"
+status = "executable"
+tests = ["web/src/stores/merging.spec.ts", "web/src/items/merging.spec.ts", "web/src/components/merge-pane.spec.ts", "web/src/views/library-view.spec.ts", "web/e2e/merge.spec.ts"]
+
 [scenarios.browser_merge_desktop_acceptance]
 operation = "convergence"
 status = "pending"
-reason = "The merge endpoint has HTTP checks; the merge pane and actual desktop acceptance remain roadmap tasks P4.3–P4.4."
+reason = "The merge endpoint and pane have HTTP and browser checks; actual desktop merge acceptance remains roadmap task P4.4."
 
 [scenarios.desktop_http_rate_limit_retry]
 operation = "http"

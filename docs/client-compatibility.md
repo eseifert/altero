@@ -97,8 +97,9 @@ the resulting incremental item download, annotation parent and original PDF
 bytes. The [browser merge endpoint](web/implementation.md#duplicate-merge-endpoint)
 also has permission, stale-version and rollback checks, plus a live HTTP test
 that uploads different PDF byte streams with matching text and verifies the
-surviving file and moved annotation. The merge pane and actual desktop merge
-acceptance are still pending.
+surviving file and moved annotation. Browser tests exercise master and field
+selection, confirmation, stale-review reloads and persisted results on desktop
+and phone layouts. Actual desktop merge acceptance remains pending.
 
 The service accepts chosen bibliographic fields and creators as part of the
 same master-item write. Omitted values stay on the master; empty values clear
