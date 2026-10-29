@@ -114,9 +114,14 @@ async def confirm(session: AsyncSession, token: str) -> User:
         raise ForbiddenError("That confirmation link is not valid")
 
     pending = await session.scalar(
-        select(EmailVerification).where(EmailVerification.token_hash == hash_token(token))
+        delete(EmailVerification)
+        .where(
+            EmailVerification.token_hash == hash_token(token),
+            EmailVerification.expires >= _now(),
+        )
+        .returning(EmailVerification)
     )
-    if pending is None or pending.expires < _now():
+    if pending is None:
         raise ForbiddenError("That confirmation link is not valid or has expired")
 
     user = await session.get(User, pending.user_id)
@@ -127,7 +132,6 @@ async def confirm(session: AsyncSession, token: str) -> User:
     user.email_verified = _now()
     # Single use: the row goes, so following the link twice fails the second
     # time rather than silently re-confirming.
-    await session.delete(pending)
     await session.commit()
     return user
 

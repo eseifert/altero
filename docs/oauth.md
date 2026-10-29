@@ -274,6 +274,8 @@ If a refresh token is ever presented *after* it was rotated away, somebody has a
 copy. There is no telling which of the two callers is the thief, so every token
 descended from that authorization is revoked and both have to start again. The
 same happens if an authorization code is presented twice.
+These rules also apply to simultaneous requests: only one exchange succeeds,
+and a detected replay revokes its token family.
 
 ## Endpoints
 
@@ -306,6 +308,9 @@ that address — or follows `verification_uri_complete`, which carries it — an
 shown **the same consent screen every other application gets**. A second consent
 screen written for devices would be a second place for the two to disagree about
 what is being granted.
+
+The first completed decision stands. Another open consent screen cannot change
+an approved or denied device authorization.
 
 Meanwhile the device polls the token endpoint:
 

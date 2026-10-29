@@ -7,6 +7,9 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Passkey enrolment is bound to the account that proved itself when starting it, closing a way to bypass that proof.
+- One-use sign-in credentials and OAuth tokens cannot be redeemed twice by concurrent requests; parallel email guesses share one attempt limit.
+- Completed device authorizations cannot be overwritten by stale consent screens.
 - Group invitations require a verified matching address or the emailed link; an unverified registration cannot claim membership.
 - Revoked or reissued invitations cannot be answered from a stale page.
 - Public-library files require ownership or membership in the browser too; copying items cannot bypass file access or upload policy.

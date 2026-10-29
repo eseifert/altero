@@ -13,6 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import ApiKey, PasskeyCredential, User
+from altero.services import webauth
 from altero.settings import Settings
 from tests.authenticator import Authenticator
 from tests.test_web_routes import PASSWORD, csrf_headers, register
@@ -67,6 +68,39 @@ async def sign_in(client: httpx2.AsyncClient, device: Authenticator) -> httpx2.R
 
 
 class TestEnrolling:
+    async def test_another_accounts_ceremony_cannot_bypass_proof(
+        self, client: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
+        """A borrowed session cannot enrol a key using the attacker's proof."""
+        await register(client)
+        await webauth.register(
+            session,
+            username="mallory",
+            password=PASSWORD,
+            email="mallory@example.org",
+            allow_registration=True,
+        )
+        victim_cookies = dict(client.cookies)
+        await client.post("/web/auth/login", json={"username": "mallory", "password": PASSWORD})
+        options = await client.post(
+            "/web/account/passkeys/options",
+            json={"currentPassword": PASSWORD},
+            headers=csrf_headers(client),
+        )
+        assert options.status_code == 201
+        answer = Authenticator().register(options.json(), origin=ORIGIN, rp_id=RP_ID)
+
+        client.cookies.clear()
+        client.cookies.update(victim_cookies)
+        response = await client.post(
+            "/web/account/passkeys",
+            json={"credential": answer},
+            headers=csrf_headers(client),
+        )
+
+        assert response.status_code == 403
+        assert (await client.get("/web/account/passkeys")).json()["passkeys"] == []
+
     async def test_a_signed_in_account_can_add_one(self, client: httpx2.AsyncClient) -> None:
         await register(client)
 

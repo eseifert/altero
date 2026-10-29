@@ -23,7 +23,7 @@ import hashlib
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError
@@ -122,12 +122,24 @@ async def verify(session: AsyncSession, record: WebSession, code: str) -> None:
     which is what stops six digits from being enumerable. A correct code takes
     the row with it too, so it works once.
     """
-    pending = await session.scalar(select(LoginCode).where(LoginCode.session_id == record.id))
-    if pending is None or pending.expires < _now():
+    # Charge the attempt in the database before checking it. This both locks
+    # out concurrent replay of a correct code and prevents parallel wrong
+    # guesses from overwriting each other's attempt counts.
+    pending = await session.scalar(
+        update(LoginCode)
+        .where(
+            LoginCode.session_id == record.id,
+            LoginCode.expires >= _now(),
+            LoginCode.attempts < MAX_ATTEMPTS,
+        )
+        .values(attempts=LoginCode.attempts + 1)
+        .returning(LoginCode)
+        .execution_options(populate_existing=True)
+    )
+    if pending is None:
         raise ForbiddenError(BAD_CODE)
 
     if not secrets.compare_digest(pending.code_hash, hash_code(code.strip())):
-        pending.attempts += 1
         if pending.attempts >= MAX_ATTEMPTS:
             await session.delete(pending)
         await session.commit()

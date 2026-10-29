@@ -21,6 +21,7 @@ from altero.app import create_app
 from altero.db import Database
 from altero.models import ApiKey, Item, Library, LibraryType, Tag, User
 from altero.settings import Settings
+from tests.test_credential_races import assert_one_winner, hold_reads, prepare
 
 KEY = "P9NiFoyLeZu2bZNvvuQPDWsd"
 AUTH = {"Zotero-API-Key": KEY}
@@ -90,6 +91,32 @@ async def test_concurrent_creates_each_get_their_own_version(
     versions = [int(r.headers["Last-Modified-Version"]) for r in responses]
     assert len(set(versions)) == 10, f"versions collided: {sorted(versions)}"
     assert sorted(versions) == list(range(1, 11))
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "federated",
+        "passkey",
+        "reset",
+        "verification",
+        "email_code",
+        "totp",
+        "oauth_code",
+        "refresh",
+        "device",
+        "consent",
+    ],
+)
+async def test_concurrent_credentials_have_one_winner(
+    database: Database,
+    monkeypatch: pytest.MonkeyPatch,
+    kind: str,
+) -> None:
+    async with database.session_factory() as session:
+        model, redeem = await prepare(session, kind)
+    hold_reads(monkeypatch, model)
+    await assert_one_winner(database, redeem, kind=kind)
 
 
 async def test_no_write_is_lost(client: httpx2.AsyncClient, database: Database) -> None:

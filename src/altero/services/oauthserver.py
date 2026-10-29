@@ -35,7 +35,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlencode, urlparse
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
@@ -490,6 +490,22 @@ async def _grant_for(session: AsyncSession, user_id: int, client_id: int) -> OAu
     )
 
 
+async def _consume_request(session: AsyncSession, handle: str) -> OAuthAuthorizationRequest:
+    """Claim a consent decision atomically, in the decision's transaction."""
+    request = await session.scalar(
+        delete(OAuthAuthorizationRequest)
+        .where(
+            OAuthAuthorizationRequest.handle == handle,
+            OAuthAuthorizationRequest.expires >= _now(),
+        )
+        .returning(OAuthAuthorizationRequest)
+        .execution_options(populate_existing=True)
+    )
+    if request is None:
+        raise NotFoundError("This authorization has expired or was never started")
+    return request
+
+
 async def approve(
     session: AsyncSession,
     handle: str,
@@ -505,9 +521,7 @@ async def approve(
             is the default and is what every approval meant before this
             existed. See :func:`set_grant_resources`.
     """
-    request = await session.get(OAuthAuthorizationRequest, handle)
-    if request is None or request.expires < _now():
-        raise NotFoundError("This authorization has expired or was never started")
+    request = await _consume_request(session, handle)
 
     client = await session.get(OAuthClient, request.client_id)
     if client is None or client.disabled_at is not None:
@@ -551,7 +565,6 @@ async def approve(
     )
     # The request is spent whether or not the exchange succeeds, so a handle
     # cannot be approved twice.
-    await session.delete(request)
     await session.commit()
 
     return Redirect(_redirect_with(redirect_uri, code=raw_code, state=state))
@@ -634,30 +647,44 @@ async def _approve_device(
     all -- the device is waiting on its own poll. Where the *browser* goes next
     is a question about the interface, and the route answers it.
     """
-    device = await session.get(OAuthDeviceCode, request.device_code_id)
-    if device is None or device.expires < _now():
-        raise NotFoundError("That device has stopped waiting")
-
     now = _now()
-    device.grant_id = grant.id
-    device.approved_at = now
-    device.authenticated_at = now
-    await session.delete(request)
+    claimed = await session.scalar(
+        update(OAuthDeviceCode)
+        .where(
+            OAuthDeviceCode.id == request.device_code_id,
+            OAuthDeviceCode.expires >= now,
+            OAuthDeviceCode.approved_at.is_(None),
+            OAuthDeviceCode.denied_at.is_(None),
+            OAuthDeviceCode.consumed_at.is_(None),
+        )
+        .values(grant_id=grant.id, approved_at=now, authenticated_at=now)
+        .returning(OAuthDeviceCode.id)
+    )
+    if claimed is None:
+        raise NotFoundError("That device has stopped waiting")
     await session.commit()
     return Redirect("")
 
 
 async def deny(session: AsyncSession, handle: str) -> Redirect:
     """Refuse an authorization and tell the application so, as RFC 6749 §4.1.2.1 asks."""
-    request = await session.get(OAuthAuthorizationRequest, handle)
-    if request is None or request.expires < _now():
-        raise NotFoundError("This authorization has expired or was never started")
+    request = await _consume_request(session, handle)
 
     if request.device_code_id is not None:
-        device = await session.get(OAuthDeviceCode, request.device_code_id)
-        if device is not None:
-            device.denied_at = _now()
-        await session.delete(request)
+        claimed = await session.scalar(
+            update(OAuthDeviceCode)
+            .where(
+                OAuthDeviceCode.id == request.device_code_id,
+                OAuthDeviceCode.expires >= _now(),
+                OAuthDeviceCode.approved_at.is_(None),
+                OAuthDeviceCode.denied_at.is_(None),
+                OAuthDeviceCode.consumed_at.is_(None),
+            )
+            .values(denied_at=_now())
+            .returning(OAuthDeviceCode.id)
+        )
+        if claimed is None:
+            raise NotFoundError("That device has stopped waiting")
         await session.commit()
         return Redirect("")
 
@@ -667,7 +694,6 @@ async def deny(session: AsyncSession, handle: str) -> Redirect:
         error_description="The account holder refused this authorization",
         state=request.state,
     )
-    await session.delete(request)
     await session.commit()
     return Redirect(target)
 
@@ -843,7 +869,14 @@ async def exchange_device(
     if user is None or user.disabled_at is not None:
         raise OAuthError("invalid_grant", "This account is not active")
 
-    row.consumed_at = _now()
+    claimed = await session.scalar(
+        update(OAuthDeviceCode)
+        .where(OAuthDeviceCode.id == row.id, OAuthDeviceCode.consumed_at.is_(None))
+        .values(consumed_at=_now())
+        .returning(OAuthDeviceCode.id)
+    )
+    if claimed is None:
+        raise OAuthError("invalid_grant", "This device code has already been exchanged")
     raw_access, raw_refresh = await _issue_pair(
         session, grant, row.scopes, secrets.token_urlsafe(16)
     )
@@ -1166,7 +1199,16 @@ async def exchange(
     if user is None or user.disabled_at is not None:
         raise OAuthError("invalid_grant", "This account is not active")
 
-    row.consumed_at = _now()
+    claimed = await session.scalar(
+        update(OAuthCode)
+        .where(OAuthCode.id == row.id, OAuthCode.consumed_at.is_(None))
+        .values(consumed_at=_now())
+        .returning(OAuthCode.id)
+    )
+    if claimed is None:
+        await _burn_family(session, row.family)
+        await session.commit()
+        raise OAuthError("invalid_grant", "This authorization code has already been used")
     raw_access, raw_refresh = await _issue_pair(session, grant, row.scopes, row.family)
 
     payload: dict[str, object] = {
@@ -1232,7 +1274,16 @@ async def refresh(
     if user is None or user.disabled_at is not None:
         raise OAuthError("invalid_grant", "This account is not active")
 
-    row.revoked_at = _now()
+    claimed = await session.scalar(
+        update(OAuthToken)
+        .where(OAuthToken.id == row.id, OAuthToken.revoked_at.is_(None))
+        .values(revoked_at=_now())
+        .returning(OAuthToken.id)
+    )
+    if claimed is None:
+        await _burn_family(session, row.family)
+        await session.commit()
+        raise OAuthError("invalid_grant", "This refresh token was already used")
     # The scopes come from the token, never from the request: RFC 6749 §6 allows
     # a refresh to narrow and never to widen, and narrowing is not worth the
     # surface here.

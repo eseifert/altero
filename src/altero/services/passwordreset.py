@@ -153,6 +153,16 @@ async def consume(session: AsyncSession, token: str) -> User:
     time rather than quietly setting a second password.
     """
     user = await resolve(session, token)
-    await session.execute(delete(PasswordReset).where(PasswordReset.user_id == user.id))
+    spent = await session.scalar(
+        delete(PasswordReset)
+        .where(
+            PasswordReset.token_hash == hash_token(token),
+            PasswordReset.user_id == user.id,
+            PasswordReset.expires >= _now(),
+        )
+        .returning(PasswordReset.user_id)
+    )
+    if spent is None:
+        raise ForbiddenError("That link is not valid or has expired")
     await session.commit()
     return user

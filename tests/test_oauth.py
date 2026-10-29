@@ -158,6 +158,30 @@ def code_from(redirect: str) -> str:
     return parse_qs(urlparse(redirect).query)["code"][0]
 
 
+@pytest.mark.parametrize("first", ["approve", "deny"])
+@pytest.mark.parametrize("second", ["approve", "deny"])
+async def test_an_older_device_consent_cannot_change_an_answer(
+    session: AsyncSession, first: str, second: str
+) -> None:
+    from altero.errors import NotFoundError
+
+    user = await admin.create_user(session, username="ada")
+    await make_client(session)
+    device = await oauthserver.begin_device(session, client_id="notebook", scope="library.read")
+    handles = [await oauthserver.claim_user_code(session, device.user_code) for _ in range(2)]
+    if first == "approve":
+        await oauthserver.approve(session, handles[0], user)
+    else:
+        await oauthserver.deny(session, handles[0])
+
+    if second == "approve":
+        with pytest.raises(NotFoundError):
+            await oauthserver.approve(session, handles[1], user)
+    else:
+        with pytest.raises(NotFoundError):
+            await oauthserver.deny(session, handles[1])
+
+
 async def full_flow(
     client: httpx2.AsyncClient,
     session: AsyncSession,

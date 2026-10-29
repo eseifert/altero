@@ -15,7 +15,7 @@ authorization code replayed with the same state finds nothing the second time.
 import secrets
 from datetime import UTC, datetime
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import AuthRequest, IdentityProvider
@@ -71,7 +71,10 @@ async def consume(session: AsyncSession, state: str) -> AuthRequest | None:
     if not state:
         return None
 
-    pending = await session.scalar(select(AuthRequest).where(AuthRequest.state == state))
+    # DELETE RETURNING chooses one winner even when workers arrive together.
+    pending = await session.scalar(
+        delete(AuthRequest).where(AuthRequest.state == state).returning(AuthRequest)
+    )
     if pending is None:
         return None
 
@@ -88,7 +91,6 @@ async def consume(session: AsyncSession, state: str) -> AuthRequest | None:
     )
     expired = pending.expires < _now()
 
-    await session.delete(pending)
     await session.commit()
 
     return None if expired else detached

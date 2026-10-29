@@ -18,7 +18,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError
@@ -380,6 +380,18 @@ async def complete_totp(session: AsyncSession, record: WebSession, code: str) ->
     if step is None or step <= enrolled.last_step:
         raise ForbiddenError("That code is not valid")
 
-    enrolled.last_step = step
+    claimed = await session.scalar(
+        update(TotpCredential)
+        .where(
+            TotpCredential.user_id == record.user_id,
+            TotpCredential.secret == enrolled.secret,
+            TotpCredential.confirmed.is_(True),
+            TotpCredential.last_step < step,
+        )
+        .values(last_step=step)
+        .returning(TotpCredential.user_id)
+    )
+    if claimed is None:
+        raise ForbiddenError("That code is not valid")
     record.pending_factor = None
     await session.commit()

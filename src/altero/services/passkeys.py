@@ -142,9 +142,15 @@ async def _spend(session: AsyncSession, challenge: str, *, purpose: str) -> WebA
     for enrolling must not answer a sign-in.
     """
     row = await session.scalar(
-        select(WebAuthnChallenge).where(WebAuthnChallenge.challenge == challenge)
+        delete(WebAuthnChallenge)
+        .where(
+            WebAuthnChallenge.challenge == challenge,
+            WebAuthnChallenge.expires >= _now(),
+            WebAuthnChallenge.purpose == purpose,
+        )
+        .returning(WebAuthnChallenge)
     )
-    if row is None or row.expires < _now() or row.purpose != purpose:
+    if row is None:
         raise ForbiddenError("That did not answer a request from here")
 
     kept = WebAuthnChallenge(
@@ -153,7 +159,6 @@ async def _spend(session: AsyncSession, challenge: str, *, purpose: str) -> WebA
         purpose=row.purpose,
         expires=row.expires,
     )
-    await session.delete(row)
     await session.commit()
     return kept
 
@@ -201,7 +206,12 @@ async def finish_registration(
 ) -> PasskeyCredential:
     """Check what the authenticator produced and store the passkey."""
     challenge = _client_challenge(credential)
-    await _spend(session, challenge, purpose="register")
+    request = await _spend(session, challenge, purpose="register")
+    # Proof is required when the ceremony starts. Letting another account
+    # finish it would let an attacker use their own proof to add a way into a
+    # borrowed session, without ever proving control of that account.
+    if request.user_id != user.id:
+        raise ForbiddenError("That passkey enrolment belongs to a different account")
 
     try:
         verified = webauthn.verify_registration_response(

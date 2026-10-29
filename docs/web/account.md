@@ -117,6 +117,9 @@ this site, and the assertion says whose it is. There is no form here that
 behaves differently for a name that exists, so the sign-in page cannot be used
 to ask who has an account.
 
+An enrolment can only be completed by the account that started it. Challenges
+are single use, including when simultaneous requests present the same answer.
+
 Adding one asks for your password, because a passkey is a way *in* rather than
 a hurdle in front of one — the same rule an API key follows. Removing one asks
 too, and the last way in cannot be removed: an account with no password and one
