@@ -95,6 +95,14 @@ follow the reviewed Zotero 10.0.6 source; they do not execute the desktop merge
 code. Attachment deduplication, the browser route and desktop merge acceptance
 are still pending.
 
+The PDF inspector has generated-file tests for extraction, all 17 desktop
+markup annotation types, non-markup annotations, encryption, malformed files
+and timeouts. A separate source-replay check compares common-word fingerprints
+against the original function in seven locales. pypdf supplies extraction in
+place of Zotero's PDF worker; these checks do not establish identical text
+extraction for arbitrary PDFs. Parsing runs in a disposable, time-limited
+process, with CPU and memory limits on Unix; a failure preserves the files.
+
 Source replay adapters provide facades for the database and application UI.
 The real acceptance runner below exercises complete synchronization separately.
 Group-removal prompts raise an explicit error in source replay; continue to use

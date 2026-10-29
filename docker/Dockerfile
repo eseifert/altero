@@ -26,6 +26,10 @@ RUN cd web && npm run build
 # altero and its dependencies are installed here, and only the result reaches
 # the served image: uv is a build tool, and 50 MB of one.
 FROM python:3.14-slim-trixie AS build
+# PyICU supplies the desktop's collation for duplicate PDF fingerprints. Only
+# its runtime library reaches the final image; headers and compiler stay here.
+RUN apt-get update && apt-get install -y --no-install-recommends g++ pkg-config libicu-dev \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # The interpreter this base ships, never one uv downloads: the stage below is
 # the same base, so the environment's links to it still hold there. Nothing is
@@ -51,6 +55,8 @@ COPY --from=web /build/src/altero/web/static ./src/altero/web/static
 RUN uv sync --frozen --no-dev --extra postgres
 
 FROM python:3.14-slim-trixie
+RUN apt-get update && apt-get install -y --no-install-recommends libicu76 \
+    && rm -rf /var/lib/apt/lists/*
 
 # All of /app, exactly as the stage above left it: the project is installed
 # editable, so the environment expects the source at the same path.

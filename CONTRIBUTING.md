@@ -6,6 +6,9 @@ shapes almost everything below: the question is rarely "is this good design" but
 
 ## Getting set up
 
+Install the [ICU build prerequisites](docs/deployment.md#from-a-source-checkout)
+first (`libicu-dev pkg-config g++` on Debian or Ubuntu).
+
 ```sh
 uv sync
 uv run pre-commit install

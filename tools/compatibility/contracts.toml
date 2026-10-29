@@ -15,6 +15,13 @@ client_globs = [
 ]
 server_globs = ["src/altero/api/routes/*.py"]
 
+[contracts.merge_words]
+source = "chrome/content/zotero/mergeItems.mjs"
+selector = "getMostCommonWords"
+sha256 = "2f8681ea22aa48db1091a47231f55d36449fef24cbceee84a0f47550c8bb6586"
+tests = ["compatibility_tests/test_merge_words.py"]
+notes = "PDF merge word selection is checked against the original in seven ICU locales. PDF parsing is tested separately."
+
 [contracts.group_permissions]
 source = "chrome/content/zotero/xpcom/data/groups.js"
 selector = "this.getPermissionsFromJSON"

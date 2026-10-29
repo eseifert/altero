@@ -176,6 +176,12 @@ Requirements:
 - [uv](https://docs.astral.sh/uv/) 0.13.4 or newer, for the same reason; and
 - Node 24.22.1 or newer and npm to build the browser interface; earlier releases carry the Brotli decoder flaw CVE-2026-111497 and the eMudhra certificates.
 
+Source installations also need ICU development libraries, `pkg-config` and a
+C++ compiler to build PyICU, used for duplicate PDF matching. On Debian or
+Ubuntu, install `libicu-dev pkg-config g++` before `uv sync`. The Docker image
+includes the ICU runtime. See [PyICU's installation instructions](https://pypi.org/project/PyICU/)
+for other systems.
+
 SQLite is the default. For PostgreSQL outside Docker, install the extra dependency:
 
 ```sh

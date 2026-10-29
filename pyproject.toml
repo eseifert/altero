@@ -53,6 +53,10 @@ dependencies = [
     # exactly where the bugs live. It brings cbor2, pyasn1 and pyOpenSSL on top
     # of the cryptography signxml already pulled in.
     "webauthn>=3.0.0",
+    # Duplicate merging reads PDF text and embedded annotations. ICU matches
+    # the desktop's locale-sensitive tie ordering of equally frequent words.
+    "pypdf>=6.21.4",
+    "PyICU>=2.17",
 ]
 
 [project.optional-dependencies]
