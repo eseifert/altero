@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Vue I18n is upgraded to 11.4.16, fixing the published translation-escaping XSS advisories.
 - Trash retention rechecks items after locking the library, preserving items restored or changed while the sweep waited.
 - Library archives keep a consistent snapshot during sync, and restores cannot silently merge with concurrent writes.
 - Passkey enrolment is bound to the account that proved itself when starting it, closing a way to bypass that proof.
