@@ -100,9 +100,10 @@ from altero.itemschema.typechange import change_type
 from altero.models import ActivityKind, Item, Library, User
 from altero.serializers import item as render_item
 from altero.serializers import timestamp
-from altero.services import auth, groupactivity, itemwrites, publications, storage, writes
+from altero.services import auth, groupactivity, itemwrites, locales, publications, storage, writes
 from altero.services import collections as collections_service
 from altero.services import items as items_service
+from altero.services import merge as merge_service
 
 router = APIRouter(prefix="/web", tags=["web"])
 
@@ -336,6 +337,16 @@ class CopyRequest(BaseModel):
     items: list[str] = Field(min_length=1)
     library: int
     collection: str | None = None
+
+
+class MergeRequest(BaseModel):
+    """A master, its duplicates and the bibliographic values chosen to keep."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    master: str
+    others: list[str] = Field(min_length=1)
+    fields: dict[str, Any] = Field(default_factory=dict)
 
 
 class PublicationTerms(BaseModel):
@@ -1190,6 +1201,62 @@ async def empty_trash(
     await session.commit()
 
     return JSONResponse({"deleted": len(trashed)}, headers=library_headers(version))
+
+
+@router.post("/libraries/{library_id}/items/merge")
+async def merge_items(
+    request: Request,
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    library_id: int,
+    _csrf: CsrfDep,
+    body: Annotated[MergeRequest, Body()],
+    locale: str | None = None,
+) -> Response:
+    """Merge regular items and their attachment graphs in one library version.
+
+    Chosen text and the duplicates being discarded belong to one snapshot.
+    Require its exact version under the lock, including on retries. Unlike
+    the v3 precondition helper, this also refuses a future version; nothing
+    in a browser page justifies replacing content from an unread snapshot.
+    """
+    library, access = await _library(session, user, library_id, write=True)
+    expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
+    if expected is None:
+        raise PreconditionRequiredError("If-Unmodified-Since-Version not provided")
+    language = locales.normalise_language(locale or user.language) or locales.DEFAULT_LANGUAGE
+
+    library = await writes.lock_library(session, library)
+    if library.version != expected:
+        raise PreconditionFailedError("The library has changed; review the items before merging")
+    master, *others = await items_service.get_items(
+        session, library, [body.master, *body.others], permit=access
+    )
+    version = await writes.bump_library_version(session, library)
+    changed = await merge_service.merge_items(
+        session,
+        library,
+        master,
+        others,
+        version,
+        actor_id=user.id,
+        permit=access,
+        storage_root=request.app.state.settings.storage_path,
+        locale=language,
+        fields=body.fields,
+    )
+    rendered = await _rendered_all(session, changed, library, base_url)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=user.id,
+        kind=ActivityKind.ITEMS_CHANGED,
+        count=len(changed),
+        objects=await groupactivity.name_items(session, library, [item.key for item in changed]),
+    )
+    await session.commit()
+    return JSONResponse({"items": rendered}, headers=library_headers(version))
 
 
 @router.post("/libraries/{library_id}/items/copy", status_code=201)

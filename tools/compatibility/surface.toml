@@ -209,10 +209,15 @@ operation = "files"
 status = "executable"
 tests = ["compatibility_tests/test_merge_words.py"]
 
+[scenarios.browser_merge_endpoint]
+operation = "objects"
+status = "executable"
+tests = ["tests/test_web_merge.py", "compatibility_tests/test_merge_route.py", "web/e2e/merge.spec.ts"]
+
 [scenarios.browser_merge_desktop_acceptance]
 operation = "convergence"
 status = "pending"
-reason = "The server merge service has database and HTTP checks; the browser route, pane and actual desktop acceptance remain roadmap tasks P4.2–P4.4."
+reason = "The merge endpoint has HTTP checks; the merge pane and actual desktop acceptance remain roadmap tasks P4.3–P4.4."
 
 [scenarios.desktop_http_rate_limit_retry]
 operation = "http"

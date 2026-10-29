@@ -94,7 +94,11 @@ collections, merge history, incoming relations, permissions, transaction
 rollback and attachment deduplication. These follow the reviewed Zotero 10.0.6
 source; they do not execute the desktop merge code. A live HTTP check verifies
 the resulting incremental item download, annotation parent and original PDF
-bytes. The browser route and desktop merge acceptance are still pending.
+bytes. The [browser merge endpoint](web/implementation.md#duplicate-merge-endpoint)
+also has permission, stale-version and rollback checks, plus a live HTTP test
+that uploads different PDF byte streams with matching text and verifies the
+surviving file and moved annotation. The merge pane and actual desktop merge
+acceptance are still pending.
 
 The service accepts chosen bibliographic fields and creators as part of the
 same master-item write. Omitted values stay on the master; empty values clear

@@ -149,6 +149,7 @@ EXPECTED = [
     ("/web/libraries/{library_id}/items", "PATCH"),
     ("/web/libraries/{library_id}/items", "DELETE"),
     ("/web/libraries/{library_id}/items/copy", "POST"),
+    ("/web/libraries/{library_id}/items/merge", "POST"),
     ("/web/libraries/{library_id}/trash", "DELETE"),
     # The one write about a single item: a version belongs to an item, and a
     # selection has no shared one. Same module; see its docstring.

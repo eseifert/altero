@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Duplicate merging gains a transactional service that combines item graphs and deduplicates PDF and web attachments.
+- A browser merge endpoint applies field choices and deduplicates attachments in one version; its merge pane is still being implemented.
 - Vue I18n is upgraded to 11.4.16, fixing the published translation-escaping XSS advisories.
 - Trash retention rechecks items after locking the library, preserving items restored or changed while the sweep waited.
 - Library archives keep a consistent snapshot during sync, and restores cannot silently merge with concurrent writes.

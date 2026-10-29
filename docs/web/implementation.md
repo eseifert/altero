@@ -81,6 +81,42 @@ and the editor here is tested to save each the same way. The editor is loaded th
 injected stylesheet is switched off, because the interface's
 Content-Security-Policy refuses inline styles; `notes/editor.css` carries it.
 
+### Duplicate merge endpoint
+
+The merge pane is still being implemented. Its endpoint is
+`POST /web/libraries/{id}/items/merge`, authenticated by the browser session
+and CSRF token. It accepts:
+
+```json
+{
+  "master": "MASTER22",
+  "others": ["DUPL2345"],
+  "fields": {
+    "title": "Chosen title",
+    "creators": [{"creatorType": "author", "name": "A collective"}]
+  }
+}
+```
+
+Send `If-Unmodified-Since-Version` with the library version at which the items
+were read. The version must match exactly, checked under the library lock.
+An absent header answers 428; a stale or future one answers 412. On 412, read
+the selected items again and review the choices before retrying.
+
+The items must be untrashed regular items of one type in this library, named
+once each. `fields` is optional: omitted fields and creators stay on the
+master, text or null replaces a bibliographic field, and a `creators` array
+replaces the whole creator list. An empty string or null clears a field;
+`creators: []` clears creators. Structural properties, type changes and
+timestamps are refused. Tags, collections and relations are combined by the
+merge itself, including attachment deduplication and child moves, in one new
+library version.
+
+The 200 response is `{"items": [...]}`, with the master first and each changed
+item in its ordinary envelope. `Last-Modified-Version` gives their shared new
+version. An optional `locale` query selects the interface language for PDF
+word ordering; it defaults to the account language, then `en-US`.
+
 ### Not built yet
 
 Adding attachments. An item or note can be made and its fields, type,
