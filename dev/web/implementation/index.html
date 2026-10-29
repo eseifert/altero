@@ -1812,7 +1812,29 @@ and the editor here is tested to save each the same way. The editor is loaded th
 injected stylesheet is switched off, because the interface's
 Content-Security-Policy refuses inline styles; <code>notes/editor.css</code> carries it.</p>
 <h3 id="duplicate-merge-endpoint">Duplicate merge endpoint<a class="headerlink" href="#duplicate-merge-endpoint" title="Permanent link">&para;</a></h3>
-<p>The merge pane is still being implemented. Its endpoint is
+<p>The duplicates listing accepts <code>grouped=true</code> with <code>scope=duplicates</code>. It returns
+<code>groups</code> (lists of item keys), <code>totalGroups</code>, and the usual item envelopes and
+library watermark. In this mode <code>start</code> and <code>limit</code> count groups. Search, tag and
+collection filters find groups; every member readable by the viewer is included,
+oldest first. The requested sort orders groups by their first matching record.
+Without <code>grouped</code>, the existing item-based pagination is unchanged.</p>
+<p>The export endpoint accepts the same <code>grouped=true</code> flag, expanding matching
+groups before writing them in batches. Explicit group-member selections export
+by key with <code>scope=all</code>, so the current search cannot remove a selected member.</p>
+<p>The library store requests group pages and selects a whole group from any member.
+Select-all stays within the active group. Explicit individual inspection remains
+available, and an append at a different watermark restarts group pagination.</p>
+<p>Groups are connected components of the existing candidate matches. A matching
+identifier can connect records whose titles differ, and a title match can connect
+another record to that group. Membership is a suggestion for review, not a claim
+that every pair has the same identifier or item type.</p>
+<p>The comparison follows Zotero 10.0.6's master-and-field-choice model, reviewed in
+<code>duplicatesMergePane.js</code> and <code>itemBox.js</code>. The browser uses native select controls
+instead of desktop field popups. Group selection, individual inspection and
+membership changes have ordinary click/tap controls; coarse pointers retain
+44-pixel targets. On a narrow screen, activating a group reveals its pane and
+closing it returns focus to the group.</p>
+<p>The duplicates pane uses
 <code>POST /web/libraries/{id}/items/merge</code>, authenticated by the browser session
 and CSRF token. It accepts:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
@@ -1828,6 +1850,11 @@ and CSRF token. It accepts:</p>
 were read. The version must match exactly, checked under the library lock.
 An absent header answers 428; a stale or future one answers 412. On 412, read
 the selected items again and review the choices before retrying.</p>
+<p>The browser prepares a separate review snapshot with <code>scope=all</code> and the selected
+keys, in batches of at most 100. Every batch must report the same library version
+and include every selected key. Live list refreshes do not advance that snapshot's
+version. Confirmation sends it once; a failed list refresh after a committed merge
+does not turn success into an invitation to submit the merge again.</p>
 <p>The items must be untrashed regular items of one type in this library, named
 once each. <code>fields</code> is optional: omitted fields and creators stay on the
 master, text or null replaces a bibliographic field, and a <code>creators</code> array

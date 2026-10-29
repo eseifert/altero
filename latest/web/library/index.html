@@ -868,6 +868,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#merging-duplicates" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Merging duplicates
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#browsing-a-library" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1703,6 +1714,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#merging-duplicates" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Merging duplicates
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#browsing-a-library" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1869,10 +1891,32 @@
 <li>Add files and web links, on their own or under an item, and rename or replace a file.</li>
 <li>File, trash, restore, delete or copy items.</li>
 <li>Rename tags across a library.</li>
+<li>Merge duplicate items, choosing the master and the fields to keep.</li>
 <li>Use the same actions with mouse, keyboard or touch where the interface provides them; <code>?</code> lists the keys.</li>
 </ul>
 <h2 id="detailed-behavior">Detailed behavior<a class="headerlink" href="#detailed-behavior" title="Permanent link">&para;</a></h2>
 <p>The sections below retain the technical and behavioral detail needed for troubleshooting and development. You can stop after the task summary if you only need to use the feature.</p>
+<h3 id="merging-duplicates">Merging duplicates<a class="headerlink" href="#merging-duplicates" title="Permanent link">&para;</a></h3>
+<p>Open <strong>Duplicate Items</strong>. Candidates appear in separate groups with the proposed
+master at the top. Click or tap any member to highlight its whole group and open
+the merge pane. Search and tags find groups without hiding their other members;
+pages keep groups together. Check that the records describe the same work.</p>
+<p>The oldest item is the default master. Choose another in the date picker if
+needed, then use the field pickers to choose the values and creator list to keep.
+These use the device's native picker, including on touch screens. Long values
+can be expanded with <strong>Show more</strong>.</p>
+<p>The toolbar offers <strong>Edit</strong> to inspect an individual version, <strong>Select</strong> to
+exclude or include group members, and move/copy, trash, export and reload.
+<strong>Back</strong> returns from an individual item to its group. Changing the master or
+the included members resets field choices. Merging requires at least two items
+of the same type and permission to change and remove all of them; read-only
+groups can still be inspected. Ctrl/Cmd-A selects the active group.</p>
+<p>Press <strong>Merge Items</strong>, review the warning, and confirm. Other
+versions move to the trash; collections, tags, relations and children are
+combined, with matching attachments deduplicated. The duplicates list refreshes
+and a message confirms success. Keyboard focus returns to a remaining group.</p>
+<p>If the library changed while you were reviewing, the merge stops. Press
+<strong>Reload</strong> and review the current versions before confirming again.</p>
 <h3 id="browsing-a-library">Browsing a library<a class="headerlink" href="#browsing-a-library" title="Permanent link">&para;</a></h3>
 <p>Three panes, as the desktop client has: what to show on the left, the items in
 the middle, the selected item on the right.</p>
