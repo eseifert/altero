@@ -112,7 +112,7 @@ def _inspect(path: Path, locale: str, *, text: bool) -> PDFInfo:
 
 
 async def inspect_pdf(path: Path, locale: str = "en-US", *, text: bool = True) -> PDFInfo:
-    """Read a PDF in a disposable worker, retaining both files on failure.
+    """Read a PDF in a disposable worker, assuming possible markup on failure.
 
     ``text=False`` only inspects annotations, used when byte hashes already
     matched. The worker never reads a path supplied by an HTTP client: the

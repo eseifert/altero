@@ -88,12 +88,13 @@ in a desktop profile. A missing remote file exercises ZFS's settled-file path.
 The schema corpus checks server wire round trips. Actual desktop serialization
 and persistence belong to the disposable-profile acceptance runner.
 
-Duplicate merging currently has service-level database checks in
-`tests/test_merge.py`: child moves, note links, tag precedence, collections,
-merge history, incoming relations, permissions and transaction rollback. These
-follow the reviewed Zotero 10.0.6 source; they do not execute the desktop merge
-code. Attachment deduplication, the browser route and desktop merge acceptance
-are still pending.
+Duplicate merging has service-level database checks in `tests/test_merge.py`
+and `tests/test_merge_attachments.py`: child moves, note links, tag precedence,
+collections, merge history, incoming relations, permissions, transaction
+rollback and attachment deduplication. These follow the reviewed Zotero 10.0.6
+source; they do not execute the desktop merge code. A live HTTP check verifies
+the resulting incremental item download, annotation parent and original PDF
+bytes. The browser route and desktop merge acceptance are still pending.
 
 The PDF inspector has generated-file tests for extraction, all 17 desktop
 markup annotation types, non-markup annotations, encryption, malformed files
@@ -101,7 +102,16 @@ and timeouts. A separate source-replay check compares common-word fingerprints
 against the original function in seven locales. pypdf supplies extraction in
 place of Zotero's PDF worker; these checks do not establish identical text
 extraction for arbitrary PDFs. Parsing runs in a disposable, time-limited
-process, with CPU and memory limits on Unix; a failure preserves the files.
+process, with CPU and memory limits on Unix; failures are treated as possible
+embedded annotations, as on the desktop.
+
+PDF matches use file bytes first and common words second. Embedded markup
+decides which copy survives; both survive when both contain markup. Database
+annotations move to the surviving attachment. An embedded attachment note moves
+too, becoming a child note if the survivor already has one. Web attachments
+match by title and link mode, preferring an equal URL; the pinned client also
+falls back to title for linked URLs. Linked files have no server-side bytes to
+compare and are kept.
 
 Source replay adapters provide facades for the database and application UI.
 The real acceptance runner below exercises complete synchronization separately.
