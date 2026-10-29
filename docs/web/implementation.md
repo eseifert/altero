@@ -103,6 +103,12 @@ were read. The version must match exactly, checked under the library lock.
 An absent header answers 428; a stale or future one answers 412. On 412, read
 the selected items again and review the choices before retrying.
 
+The browser prepares a separate review snapshot with `scope=all` and the selected
+keys, in batches of at most 100. Every batch must report the same library version
+and include every selected key. Live list refreshes do not advance that snapshot's
+version. Confirmation sends it once; a failed list refresh after a committed merge
+does not turn success into an invitation to submit the merge again.
+
 The items must be untrashed regular items of one type in this library, named
 once each. `fields` is optional: omitted fields and creators stay on the
 master, text or null replaces a bibliographic field, and a `creators` array

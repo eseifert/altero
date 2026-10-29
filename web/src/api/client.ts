@@ -40,6 +40,8 @@ export interface RequestOptions {
   method?: string
   body?: unknown
   signal?: AbortSignal
+  /** A write precondition, alongside the session cookie and CSRF token. */
+  headers?: Record<string, string>
 }
 
 /** Return one cookie's value, matching the whole name rather than a prefix. */
@@ -53,14 +55,14 @@ export function readCookie(name: string): string | null {
 
 export async function request<T = unknown>(
   path: string,
-  { method = 'GET', body, signal }: RequestOptions = {},
+  { method = 'GET', body, signal, headers: extraHeaders }: RequestOptions = {},
 ): Promise<T> {
   // A form is sent as it is: it carries a file, and the browser has to write
   // the Content-Type itself because only it knows the multipart boundary.
   // Setting the header here would produce a body the server cannot parse.
   const form = body instanceof FormData
 
-  const headers = new Headers()
+  const headers = new Headers(extraHeaders)
   if (body !== undefined && !form) {
     headers.set('Content-Type', 'application/json')
   }

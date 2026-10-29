@@ -48,6 +48,17 @@ describe('the api client', () => {
     expect(headers.get('X-CSRF-Token')).toBeNull()
   })
 
+  it('carries a version precondition together with the csrf token', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(respond({ items: [] }))
+    vi.stubGlobal('fetch', fetchMock)
+    await request('/web/libraries/1/items/merge', {
+      method: 'POST', body: {}, headers: { 'If-Unmodified-Since-Version': '17' },
+    })
+    const headers = new Headers(fetchMock.mock.calls[0][1].headers)
+    expect(headers.get('If-Unmodified-Since-Version')).toBe('17')
+    expect(headers.get('X-CSRF-Token')).toBe('token-from-cookie')
+  })
+
   it('picks the right cookie when the browser holds several', async () => {
     document.cookie = 'other=nope; path=/'
     document.cookie = 'altero_csrf_extra=wrong; path=/'

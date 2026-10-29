@@ -75,6 +75,15 @@ export interface CreatorEntry {
   name?: string
 }
 
+/** A separately read selection. Its version must never follow the live feed. */
+export interface MergeSnapshot {
+  readonly libraryId: number
+  readonly version: number
+  readonly items: readonly ItemEnvelope[]
+}
+
+export type MergeValues = Record<string, string | CreatorEntry[]>
+
 /**
  * What an edit of one item can carry, each part as the v3 API spells it.
  *
@@ -611,6 +620,60 @@ export const useLibraryStore = defineStore('library', () => {
       selected.value = null
       children.value = []
     }
+  }
+
+  /** Read every selected item at one watermark, apart from the live list. */
+  async function prepareMerge(keys: string[], signal?: AbortSignal): Promise<MergeSnapshot> {
+    const id = libraryId.value
+    if (id === null || new Set(keys).size !== keys.length || keys.length < 2) {
+      throw new ApiError('Choose at least two distinct items', 400)
+    }
+    const found = new Map<string, ItemEnvelope>()
+    let version: number | undefined
+    for (let at = 0; at < keys.length; at += RELATED_BATCH) {
+      const batch = keys.slice(at, at + RELATED_BATCH)
+      const params = new URLSearchParams({ scope: 'all', itemKey: batch.join(','), limit: '100' })
+      const page = await request<{ items: ItemEnvelope[]; libraryVersion: number }>(
+        `/web/libraries/${id}/items?${params}`, { signal },
+      )
+      if (libraryId.value !== id || !Number.isSafeInteger(page.libraryVersion)
+        || (version !== undefined && version !== page.libraryVersion)) {
+        throw new ApiError(t('Changed elsewhere while you were editing.'), 412)
+      }
+      version = page.libraryVersion
+      for (const item of page.items) found.set(item.key, item)
+    }
+    if (keys.some((key) => !found.has(key))) {
+      throw new ApiError(t('Changed elsewhere while you were editing.'), 412)
+    }
+    return { libraryId: id, version: version!, items: keys.map((key) => found.get(key)!) }
+  }
+
+  /** Confirm this snapshot once. A 412 belongs to the person reviewing it. */
+  async function mergeItems(
+    snapshot: MergeSnapshot, master: string, fields: MergeValues, locale: string,
+  ): Promise<void> {
+    if (snapshot.libraryId !== libraryId.value) {
+      throw new ApiError(t('Changed elsewhere while you were editing.'), 412)
+    }
+    if (!snapshot.items.some((item) => item.key === master)) {
+      throw new ApiError('The master must belong to the reviewed selection', 400)
+    }
+    const answer = await request<{ items: ItemEnvelope[] }>(
+      `/web/libraries/${snapshot.libraryId}/items/merge?locale=${encodeURIComponent(locale)}`, {
+        method: 'POST', headers: { 'If-Unmodified-Since-Version': String(snapshot.version) },
+        body: { master, others: snapshot.items.filter((item) => item.key !== master).map((item) => item.key), fields },
+      },
+    )
+    if (libraryId.value !== snapshot.libraryId) return
+    for (const item of answer.items) seen(item.version)
+    const keys = new Set(snapshot.items.map((item) => item.key))
+    if (selection.value.length === keys.size && selection.value.every((key) => keys.has(key))) {
+      await clearSelection()
+    }
+    // The write has committed. A failed refresh must not report it as a
+    // failed merge or invite a second POST. The list retains its error state.
+    await Promise.allSettled([afterItemWrite(), loadTags()])
   }
 
   /**
@@ -1377,6 +1440,8 @@ export const useLibraryStore = defineStore('library', () => {
     trashItems,
     deleteItems,
     emptyTrash,
+    prepareMerge,
+    mergeItems,
     copyItems,
     childrenOf,
     saveItem,
