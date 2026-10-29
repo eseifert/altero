@@ -2106,7 +2106,9 @@ client library that reads it needs none of the above:</p>
 <p>If a refresh token is ever presented <em>after</em> it was rotated away, somebody has a
 copy. There is no telling which of the two callers is the thief, so every token
 descended from that authorization is revoked and both have to start again. The
-same happens if an authorization code is presented twice.</p>
+same happens if an authorization code is presented twice.
+These rules also apply to simultaneous requests: only one exchange succeeds,
+and a detected replay revokes its token family.</p>
 <h2 id="endpoints">Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2167,6 +2169,8 @@ that address — or follows <code>verification_uri_complete</code>, which carrie
 shown <strong>the same consent screen every other application gets</strong>. A second consent
 screen written for devices would be a second place for the two to disagree about
 what is being granted.</p>
+<p>The first completed decision stands. Another open consent screen cannot change
+an approved or denied device authorization.</p>
 <p>Meanwhile the device polls the token endpoint:</p>
 <div class="language-http highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="err">POST /oauth/token</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="err">grant_type=urn:ietf:params:oauth:grant-type:device_code</span>
