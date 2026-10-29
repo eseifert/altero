@@ -90,6 +90,10 @@ collection filters find groups; every member readable by the viewer is included,
 oldest first. The requested sort orders groups by their first matching record.
 Without `grouped`, the existing item-based pagination is unchanged.
 
+The library store requests group pages and selects a whole group from any member.
+Select-all stays within the active group. Explicit individual inspection remains
+available, and an append at a different watermark restarts group pagination.
+
 Groups are connected components of the existing candidate matches. A matching
 identifier can connect records whose titles differ, and a title match can connect
 another record to that group. Membership is a suggestion for review, not a claim

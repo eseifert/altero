@@ -267,6 +267,9 @@ export const useLibraryStore = defineStore('library', () => {
 
   const items = ref<ItemEnvelope[]>([])
   const total = ref(0)
+  const duplicateGroups = ref<string[][]>([])
+  const totalGroups = ref<number | null>(null)
+  let listingVersion: number | undefined
   const start = ref(0)
 
   const scope = ref<Scope>('top')
@@ -305,7 +308,8 @@ export const useLibraryStore = defineStore('library', () => {
   const library = computed(
     () => libraries.value.find((entry) => entry.id === libraryId.value) ?? null,
   )
-  const hasMore = computed(() => items.value.length < total.value)
+  const hasMore = computed(() => scope.value === 'duplicates' && totalGroups.value !== null
+    ? duplicateGroups.value.length < totalGroups.value : items.value.length < total.value)
   const writable = computed(() => library.value?.writable === true)
   const permission = computed<LibraryPermission>(() => library.value?.permission ?? 'inherit')
   const filesEditable = computed(() => writable.value && library.value?.filesEditable === true)
@@ -407,6 +411,7 @@ export const useLibraryStore = defineStore('library', () => {
 
   function itemsUrl(): string {
     const params = viewParams()
+    if (scope.value === 'duplicates') params.set('grouped', 'true')
     params.set('limit', String(PAGE_SIZE))
     params.set('start', String(start.value))
     return `/web/libraries/${libraryId.value}/items?${params}`
@@ -1105,10 +1110,23 @@ export const useLibraryStore = defineStore('library', () => {
         total: number
         items: ItemEnvelope[]
         libraryVersion?: number
+        groups?: string[][]
+        totalGroups?: number
       }>(itemsUrl(), {
         signal: controller.signal,
       })
+      if (controller.signal.aborted) return
+      if (append && payload.groups && payload.libraryVersion !== listingVersion) {
+        // Membership or ordering may have changed between pages. Start again
+        // instead of appending an inconsistent slice or silently losing a group.
+        await refresh()
+        return
+      }
       items.value = append ? [...items.value, ...payload.items] : payload.items
+      duplicateGroups.value = append
+        ? [...duplicateGroups.value, ...(payload.groups ?? [])] : payload.groups ?? []
+      totalGroups.value = payload.totalGroups ?? null
+      listingVersion = payload.libraryVersion
       total.value = payload.total
       seen(payload.libraryVersion)
       failure.value = null
@@ -1131,7 +1149,8 @@ export const useLibraryStore = defineStore('library', () => {
 
   async function loadMore(): Promise<void> {
     if (!hasMore.value || loading.value) return
-    start.value = items.value.length
+    start.value = scope.value === 'duplicates' && totalGroups.value !== null
+      ? duplicateGroups.value.length : items.value.length
     await loadItems({ append: true })
   }
 
@@ -1184,6 +1203,19 @@ export const useLibraryStore = defineStore('library', () => {
    * and shrinks one range rather than walking the anchor along behind it.
    */
   async function select(item: ItemEnvelope | null): Promise<void> {
+    const group = scope.value === 'duplicates' && item
+      ? duplicateGroups.value.find((keys) => keys.includes(item.key)) : undefined
+    if (group) {
+      selection.value = [...group]
+      anchor.value = item!.key
+      await open(null)
+      return
+    }
+    await inspectItem(item)
+  }
+
+  /** Explicit individual inspection, also available from a duplicate group. */
+  async function inspectItem(item: ItemEnvelope | null): Promise<void> {
     selection.value = item ? [item.key] : []
     anchor.value = item?.key ?? null
     await open(item)
@@ -1196,6 +1228,13 @@ export const useLibraryStore = defineStore('library', () => {
    * than one and there is no single row to describe.
    */
   async function toggleSelected(item: ItemEnvelope): Promise<void> {
+    if (scope.value === 'duplicates') {
+      const group = duplicateGroups.value.find((keys) => keys.includes(item.key))
+      if (group && !selection.value.some((key) => group.includes(key))) {
+        await select(item)
+        return
+      }
+    }
     selection.value = selection.value.includes(item.key)
       ? selection.value.filter((key) => key !== item.key)
       : [...selection.value, item.key]
@@ -1227,6 +1266,12 @@ export const useLibraryStore = defineStore('library', () => {
   /** Every row loaded. Not every row there is: the list pages, and a promise to
    *  act on what has not been fetched is one the interface cannot keep. */
   async function selectAll(): Promise<void> {
+    if (scope.value === 'duplicates' && duplicateGroups.value.length) {
+      const group = duplicateGroups.value.find((keys) => selection.value.some((key) => keys.includes(key)))
+        ?? duplicateGroups.value[0]!
+      await select(items.value.find((item) => item.key === group[0])!)
+      return
+    }
     selection.value = items.value.map((entry) => entry.key)
     anchor.value = items.value.length ? items.value[0].key : null
     await followSelection()
@@ -1404,6 +1449,7 @@ export const useLibraryStore = defineStore('library', () => {
     tagColors,
     selectedTags,
     items,
+    duplicateGroups,
     total,
     scope,
     search,
@@ -1462,6 +1508,7 @@ export const useLibraryStore = defineStore('library', () => {
     setSearch,
     sortBy,
     select,
+    inspectItem,
     toggleSelected,
     extendSelection,
     selectAll,
