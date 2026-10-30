@@ -177,20 +177,50 @@ test('a note opened and left is not written', async ({ page }, testInfo) => {
   expect(after.note).toBe(html)
 })
 
-test('a new standalone note opens ready to type, and is kept', async ({ page }, testInfo) => {
-  const marker = `standalone-${testInfo.project.name}`
-  await signIn(page)
+test('a new standalone note opens ready to type, and is kept', async ({ page, request }, testInfo) => {
+  const marker = `standalone-${testInfo.project.name}-${testInfo.repeatEachIndex}`
+  // A populated sidebar puts the toolbar below the fold on a phone. Opening
+  // its fixed menu must not scroll the document and dismiss the menu itself.
+  const made = await request.post('/users/1/collections', {
+    headers: headers(), data: Array.from({ length: 24 }, (_, index) => ({ name: `Note menu ${marker} ${index}` })),
+  })
+  expect(made.ok()).toBe(true)
+  const created = await made.json()
+  expect(created.failed).toEqual({})
+  const keys = Object.values(created.successful as Record<string, { key: string }>).map(entry => entry.key)
+  try {
+    await signIn(page)
+    await expect(page.locator('.tree__label').filter({ hasText: `Note menu ${marker}` })).toHaveCount(24)
 
-  await page.getByRole('button', { name: 'New Note' }).click()
-  await page.getByRole('menuitem', { name: 'New Standalone Note' }).click()
-  await expect(page.locator('.note-editor .ProseMirror')).toBeFocused()
-  await page.keyboard.type(`Fresh ${marker}`)
-  await expect(page.locator('.note-pane__state')).toHaveText('Saved.')
+    const button = page.getByRole('button', { name: 'New Note', exact: true })
+    await button.evaluate(element => {
+      element.scrollIntoView({ block: 'end' })
+      // Focusing the trigger may itself scroll. Capture the page at the click,
+      // before the menu opens, rather than before Playwright brings it into view.
+      element.addEventListener('click', () => {
+        element.setAttribute('data-opening-scroll-y', String(window.scrollY))
+      }, { capture: true, once: true })
+    })
+    await button.click()
+    await expect(page.getByRole('menu', { name: 'New Note', exact: true })).toBeVisible()
+    const scroll = await button.getAttribute('data-opening-scroll-y')
+    await expect.poll(() => page.evaluate(() => String(window.scrollY))).toBe(scroll)
+    await page.getByRole('menuitem', { name: 'New Standalone Note' }).click()
+    await expect(page.locator('.note-editor .ProseMirror')).toBeFocused()
+    await page.keyboard.type(`Fresh ${marker}`)
+    await expect(page.locator('.note-pane__state')).toHaveText('Saved.')
 
-  const note = await stored(marker)
-  expect(note.note).toBe(`<div data-schema-version="9"><p>Fresh ${marker}</p>\n</div>`)
-  expect(note.parentItem).toBeUndefined()
-  await expect(page.locator('.detail__title')).toHaveText(`Fresh ${marker}`)
+    const note = await stored(marker)
+    expect(note.note).toBe(`<div data-schema-version="9"><p>Fresh ${marker}</p>\n</div>`)
+    expect(note.parentItem).toBeUndefined()
+    await expect(page.locator('.detail__title')).toHaveText(`Fresh ${marker}`)
+  } finally {
+    const version = (await request.get('/users/1/collections', { headers: headers() })).headers()['last-modified-version']!
+    const removed = await request.delete(`/users/1/collections?collectionKey=${keys.join(',')}`, {
+      headers: { ...headers(), 'If-Unmodified-Since-Version': version },
+    })
+    expect(removed.ok()).toBe(true)
+  }
 })
 
 test('a note added to an item goes under it', async ({ page }, testInfo) => {

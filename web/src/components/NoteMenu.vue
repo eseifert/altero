@@ -51,9 +51,21 @@ const place = ref<Record<string, string>>({})
 const root = ref<HTMLElement | null>(null)
 const list = ref<HTMLElement | null>(null)
 const button = ref<HTMLButtonElement | null>(null)
+let anchor: DOMRect | null = null
 
 function items(): HTMLButtonElement[] {
   return Array.from(list.value?.querySelectorAll<HTMLButtonElement>('[role^="menuitem"]') ?? [])
+}
+
+/** Native focus can scroll an ancestor toolbar even though the menu is fixed.
+ *  Keep the document still, and reveal the focused entry within the list only. */
+function focusItem(item: HTMLButtonElement | undefined): void {
+  const menu = list.value
+  if (!item || !menu) return
+  item.focus({ preventScroll: true })
+  const bottom = item.offsetTop + item.offsetHeight
+  if (item.offsetTop < menu.scrollTop) menu.scrollTop = item.offsetTop
+  else if (bottom > menu.scrollTop + menu.clientHeight) menu.scrollTop = bottom - menu.clientHeight
 }
 
 async function toggle(): Promise<void> {
@@ -64,8 +76,11 @@ async function toggle(): Promise<void> {
   open.value = true
   await nextTick()
   position()
+  // Apply the fixed coordinates before focus can scroll the unpositioned list
+  // into view and dismiss it through the document's scroll handler.
+  await nextTick()
   const all = items()
-  ;(all.find(item => item.getAttribute('aria-checked') === 'true') ?? all[0])?.focus()
+  focusItem(all.find(item => item.getAttribute('aria-checked') === 'true') ?? all[0])
 }
 
 /*
@@ -77,6 +92,7 @@ async function toggle(): Promise<void> {
 function position(): void {
   const rect = button.value?.getBoundingClientRect()
   if (!rect) return
+  anchor = rect
   const height = window.visualViewport?.height ?? window.innerHeight
   const below = height - rect.bottom
   const above = rect.top
@@ -99,9 +115,14 @@ function position(): void {
   place.value = style
 }
 
-/** A page scrolled under an open menu would leave it pointing at nothing. */
+/** A scroll that brought the trigger into view can arrive after the click.
+ *  Dismiss only when the anchor moves, not on that queued notification. */
 function scrolled(event: Event): void {
-  if (open.value && !list.value?.contains(event.target as Node)) close()
+  if (!open.value || list.value?.contains(event.target as Node)) return
+  const rect = button.value?.getBoundingClientRect()
+  if (rect && anchor && rect.top === anchor.top && rect.left === anchor.left
+      && rect.bottom === anchor.bottom && rect.right === anchor.right) return
+  close()
 }
 
 function close(): void {
@@ -126,7 +147,7 @@ function keydown(event: KeyboardEvent): void {
   }
   if (event.key in to) {
     event.preventDefault()
-    all[to[event.key]!]?.focus()
+    focusItem(all[to[event.key]!])
   } else if (event.key === 'Escape') {
     event.preventDefault()
     event.stopPropagation()

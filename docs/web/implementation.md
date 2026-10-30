@@ -95,6 +95,16 @@ and the editor here is tested to save each the same way. The editor is loaded th
 injected stylesheet is switched off, because the interface's
 Content-Security-Policy refuses inline styles; `notes/editor.css` carries it.
 
+Toolbar menus use fixed viewport positions. Apply those coordinates before
+moving keyboard focus into the menu: focusing the unpositioned list can scroll
+the document, whose scroll handler then dismisses it. Focus also disables native
+ancestor scrolling; only the menu list scrolls to reveal the selected option.
+Scroll notifications dismiss the menu when its anchor moves. A notification
+queued while the trigger was focused can arrive after opening and must leave
+the menu open when its anchor is unchanged. The browser regression opens New
+Note below a populated collection sidebar and checks that the menu stays open
+without moving the page.
+
 ### Duplicate merge endpoint
 
 The duplicates listing accepts `grouped=true` with `scope=duplicates`. It returns

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Note and attachment menus no longer close themselves when opened below the fold on a phone.
 - RTL mirroring uses browser-compatible transforms; regressions cover mixed text, actual font rendering, gestures, screenshots and axe.
 - Arabic and Hebrew Plex fonts load locally on demand, with Persian, Urdu and Shahmukhi Punjabi coverage and no install telemetry.
 - The theme menu translates Light, Dark and System in every catalogue, including its accessible current-theme label.
