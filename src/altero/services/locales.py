@@ -43,6 +43,7 @@ LANGUAGES: dict[str, str] = {
     "af": "Afrikaans",
     "ar": "العربية",
     "fa": "فارسی",
+    "he-IL": "עברית",
     "da": "Dansk",
     "nb": "Norsk bokmål",
     "nn": "Norsk nynorsk",
@@ -97,6 +98,7 @@ LANGUAGES: dict[str, str] = {
 DEFAULT_VARIANTS: dict[str, str | None] = {
     "en": "en-US",
     "fil": "tl",
+    "he": "he-IL",  # Match the tag in Zotero's schema.
     "no": "nb",
     # Bare Punjabi implies Gurmukhi in CLDR. Only Shahmukhi is translated here.
     "pa": None,
@@ -123,6 +125,7 @@ VARIANT_SUBTAGS: dict[str, dict[str, str | None]] = {
         "za": "en-GB",
     },
     "fil": {},  # One catalogue, Tagalog; see `DEFAULT_VARIANTS`.
+    "he": {},  # One catalogue, with Zotero's schema tag.
     "no": {},  # One catalogue, Bokmål; see `DEFAULT_VARIANTS`.
     "pa": {
         "arab": "pa-Arab",

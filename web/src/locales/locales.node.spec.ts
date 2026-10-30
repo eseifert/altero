@@ -25,6 +25,7 @@ import fa from './fa'
 import fi from './fi'
 import fr from './fr'
 import gl from './gl'
+import heIL from './he-IL'
 import hi from './hi'
 import hr from './hr'
 import hu from './hu'
@@ -90,6 +91,7 @@ const CATALOGUES = {
   af,
   ar,
   fa,
+  'he-IL': heIL,
   da,
   nb,
   nn,
@@ -139,7 +141,11 @@ const CATALOGUES = {
  * them. A Polish message with two branches would render "2 elementów" and
  * never fail a test that only counted English's forms.
  */
-const PLURAL_BRANCHES: Record<string, number> = { ar: 6, pl: 3, cs: 3, sk: 3, hr: 3, sr: 3, lt: 3, lv: 3, ro: 3, ru: 3, uk: 3, sl: 4, br: 5 }
+const PLURAL_BRANCHES: Record<string, number> = {
+  ar: 6, 'he-IL': 3,
+  pl: 3, cs: 3, sk: 3, hr: 3, sr: 3, lt: 3, lv: 3, ro: 3, ru: 3, uk: 3,
+  sl: 4, br: 5,
+}
 
 const SOURCE = fileURLToPath(new URL('../', import.meta.url))
 
@@ -232,6 +238,13 @@ describe('Shahmukhi Punjabi', () => {
 })
 
 describe('the American English catalogue', () => {
+  it('checks every catalogue in the source tree', () => {
+    const tags = readdirSync(new URL('./', import.meta.url))
+      .filter((name) => name.endsWith('.ts') && !name.endsWith('.spec.ts'))
+      .map((name) => name.slice(0, -3))
+    expect(['en-US', ...Object.keys(CATALOGUES)].sort()).toEqual(tags.sort())
+  })
+
   it('holds every key the interface asks for', () => {
     const missing = [...usedKeys()].filter((key) => !(key in en)).sort()
 

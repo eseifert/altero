@@ -192,16 +192,16 @@ How an operator registers an application, and what a client developer needs:
 ### Language and time zone
 
 The interface speaks English, German, French, Breton, Spanish, Portuguese,
-Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Arabic, Persian, Danish, Norwegian Bokmål,
-Norwegian Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak,
+Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Arabic, Persian, Hebrew,
+Danish, Norwegian Bokmål, Norwegian Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak,
 Slovenian, Croatian, Serbian, Hungarian, Romanian, Lithuanian, Latvian,
-Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish, Urdu,
-Punjabi (Shahmukhi),
-Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese,
-Indonesian, Tagalog and Chinese — 55 catalogs, because three of those are
+Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish,
+Urdu, Punjabi (Shahmukhi), Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese,
+Indonesian, Tagalog and Chinese — 56 catalogs, because three of those are
 written differently in different places and are carried twice: American and
 British English, Brazilian and European Portuguese, Simplified and Traditional
 Chinese. They are the same three Zotero splits.
+Hebrew uses `he-IL`, matching Zotero's schema; a bare `he` resolves to it too.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
 and both default to following the browser — which is a setting in itself, not
@@ -316,6 +316,8 @@ number of forms its own language has rather than to English's — a check
 against English would have called "2 elementów" correct.
 Arabic has six forms, ordered zero, one, two, few, many and other; counts such
 as 3, 11 and 100 use different branches.
+Hebrew uses three forms: one, two and other. Persian and Shahmukhi Punjabi
+use two and count zero with one.
 
 The translations beyond American English are mine rather than a native
 speaker's, and are worth reviewing before an institution relies on them. That

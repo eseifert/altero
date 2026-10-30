@@ -1,5 +1,22 @@
 import { accessibilityProblems, expect, signIn, test } from './state'
 
+test.describe('Hebrew', () => {
+  test.use({ locale: 'he' })
+
+  test('resolves bare Hebrew and loads Zotero field names', async ({ page }, testInfo) => {
+    await page.goto('/app/sign-in')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'he-IL')
+    await expect(page.getByRole('button', { name: 'כניסה', exact: true })).toBeVisible()
+    expect(await accessibilityProblems(page)).toEqual([])
+
+    await signIn(page)
+    await expect(page.getByText('הספרייה שלי', { exact: true }).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'מיון לפי כותרת', exact: true })).toBeVisible()
+    await page.screenshot({ path: testInfo.outputPath('hebrew-library.png'), fullPage: true })
+    expect(await accessibilityProblems(page)).toEqual([])
+  })
+})
+
 test.describe('Persian', () => {
   test.use({ locale: 'fa-IR' })
 
@@ -75,4 +92,37 @@ test.describe('Gurmukhi Punjabi', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
     await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible()
   })
+})
+
+test('all new account languages survive reload and override the browser', async ({ page }) => {
+  test.setTimeout(60_000)
+  await signIn(page)
+  await page.goto('/app/settings/language')
+  const language = page.getByRole('combobox').first()
+  const responseForSave = () => page.waitForResponse(
+    (response) => response.url().endsWith('/web/account/locale') && response.request().method() === 'PUT',
+  )
+  try {
+    for (const [tag, save] of [
+      ['ar', 'حفظ'], ['fa', 'ذخیره'], ['he-IL', 'שמירה'],
+      ['ur', 'محفوظ کریں'], ['pa-Arab', 'سنبھالو'],
+    ] as const) {
+      await language.selectOption(tag)
+      const saved = responseForSave()
+      // There is one form action; its caption changes with the selected catalogue.
+      await page.locator('main section.card button').click()
+      expect((await saved).ok()).toBe(true)
+      await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await expect(page.getByRole('button', { name: save, exact: true })).toBeVisible()
+      await page.reload()
+      await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await expect(language).toHaveValue(tag)
+    }
+  } finally {
+    await language.selectOption('')
+    const saved = responseForSave()
+    await page.locator('main section.card button').click()
+    expect((await saved).ok()).toBe(true)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
+  }
 })

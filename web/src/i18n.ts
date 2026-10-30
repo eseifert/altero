@@ -42,6 +42,7 @@ export const LOCALES = [
   'af',
   'ar',
   'fa',
+  'he-IL',
   'da',
   'nb',
   'nn',
@@ -263,6 +264,7 @@ export function isLocale(value: unknown): value is Locale {
 export const DEFAULT_VARIANTS: Record<string, Locale | null> = {
   en: 'en-US',
   fil: 'tl',
+  he: 'he-IL', // Match the tag in Zotero's schema.
   no: 'nb',
   // Bare Punjabi implies Gurmukhi; only Shahmukhi has a catalogue here.
   pa: null,
@@ -290,6 +292,7 @@ export const VARIANT_SUBTAGS: Record<string, Record<string, Locale | null>> = {
     za: 'en-GB',
   },
   fil: {}, // One catalogue, Tagalog; see `DEFAULT_VARIANTS`.
+  he: {}, // One catalogue, with Zotero's schema tag.
   no: {}, // One catalogue, Bokmål; see `DEFAULT_VARIANTS`.
   pa: {
     arab: 'pa-Arab',

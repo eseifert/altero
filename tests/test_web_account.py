@@ -627,8 +627,11 @@ class TestManagingKeys:
 class TestLanguageAndTimeZone:
     """Both are account settings, so they follow the person between browsers."""
 
-    @pytest.mark.parametrize(("tag", "catalogue"), [("ur-PK", "ur"), ("pa-PK", "pa-Arab")])
-    async def test_pakistani_language_preference_is_normalised_and_retained(
+    @pytest.mark.parametrize(
+        ("tag", "catalogue"),
+        [("ur-PK", "ur"), ("pa-PK", "pa-Arab"), ("ar-EG", "ar"), ("fa-IR", "fa"), ("he", "he-IL")],
+    )
+    async def test_new_language_preference_is_normalised_and_retained(
         self, client: httpx2.AsyncClient, tag: str, catalogue: str
     ) -> None:
         await register(client)
@@ -805,6 +808,7 @@ class TestLanguageAndTimeZone:
             "af",
             "ar",
             "fa",
+            "he-IL",
             "da",
             "nb",
             "nn",

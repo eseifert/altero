@@ -40,6 +40,12 @@ afterEach(() => {
 })
 
 describe('the languages on offer', () => {
+  it('resolves Hebrew to the schema’s he-IL catalogue', () => {
+    expect(LOCALES).toContain('he-IL')
+    for (const tag of ['he', 'he-IL', 'HE_il', 'he-US']) {
+      expect(matchLocale(tag), tag).toBe('he-IL')
+    }
+  })
   it('offers Persian and recognises its regional tags', () => {
     expect(LOCALES).toContain('fa')
     expect(matchLocale('fa-IR')).toBe('fa')
@@ -219,6 +225,15 @@ describe('Arabic catalogue counts', () => {
     [100, '100 عنصر'], [102, '102 عنصر'], [103, '103 عناصر'],
   ])('renders %i', (count, expected) => {
     expect(items('ar', count)).toBe(expected)
+  })
+})
+
+describe('Hebrew catalogue counts', () => {
+  it.each([
+    [0, '0 פריטים'], [1, 'פריט אחד (1)'], [2, 'שני פריטים (2)'],
+    [3, '3 פריטים'], [10, '10 פריטים'], [20, '20 פריטים'],
+  ])('renders %i', (count, expected) => {
+    expect(items('he-IL', count)).toBe(expected)
   })
 })
 

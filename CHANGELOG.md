@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface adds Hebrew, resolving Hebrew preferences to Zotero's schema locale and using three plural forms.
 - The browser interface adds Persian, with Zotero's vocabulary and localized counts.
 - The browser interface adds Arabic, including all six plural forms.
 - The browser interface adds Punjabi in Shahmukhi script, recognizing Pakistani Punjabi browser preferences.
