@@ -192,13 +192,13 @@ How an operator registers an application, and what a client developer needs:
 ### Language and time zone
 
 The interface speaks English, German, French, Breton, Spanish, Portuguese,
-Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Danish, Norwegian Bokmål,
+Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Arabic, Danish, Norwegian Bokmål,
 Norwegian Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak,
 Slovenian, Croatian, Serbian, Hungarian, Romanian, Lithuanian, Latvian,
 Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish, Urdu,
 Punjabi (Shahmukhi),
 Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese,
-Indonesian, Tagalog and Chinese — 53 catalogs, because three of those are
+Indonesian, Tagalog and Chinese — 54 catalogs, because three of those are
 written differently in different places and are carried twice: American and
 British English, Brazilian and European Portuguese, Simplified and Traditional
 Chinese. They are the same three Zotero splits.
@@ -314,6 +314,8 @@ chooses between them. A catalog written with English's two would be wrong on
 every count from 2 to 4, so `locales.node.spec.ts` holds each catalog to the
 number of forms its own language has rather than to English's — a check
 against English would have called "2 elementów" correct.
+Arabic has six forms, ordered zero, one, two, few, many and other; counts such
+as 3, 11 and 100 use different branches.
 
 The translations beyond American English are mine rather than a native
 speaker's, and are worth reviewing before an institution relies on them. That

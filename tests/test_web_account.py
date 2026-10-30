@@ -803,6 +803,7 @@ class TestLanguageAndTimeZone:
             "it",
             "nl",
             "af",
+            "ar",
             "da",
             "nb",
             "nn",

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface adds Arabic, including all six plural forms.
 - The browser interface adds Punjabi in Shahmukhi script, recognizing Pakistani Punjabi browser preferences.
 - The browser interface adds Urdu, with translated messages and language selection across devices.
 - Plural rendering supports Arabic's six forms, Hebrew's dual, and Persian and Shahmukhi Punjabi counting rules.

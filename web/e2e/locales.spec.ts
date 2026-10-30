@@ -1,5 +1,22 @@
 import { accessibilityProblems, expect, signIn, test } from './state'
 
+test.describe('Arabic', () => {
+  test.use({ locale: 'ar-EG' })
+
+  test('loads Arabic messages and Zotero field names', async ({ page }, testInfo) => {
+    await page.goto('/app/sign-in')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
+    await expect(page.getByRole('button', { name: 'تسجيل الدخول', exact: true })).toBeVisible()
+    expect(await accessibilityProblems(page)).toEqual([])
+
+    await signIn(page)
+    await expect(page.getByText('مكتبتي', { exact: true }).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'الترتيب حسب العنوان', exact: true })).toBeVisible()
+    await page.screenshot({ path: testInfo.outputPath('arabic-library.png'), fullPage: true })
+    expect(await accessibilityProblems(page)).toEqual([])
+  })
+})
+
 test.describe('Urdu', () => {
   test.use({ locale: 'ur-PK' })
 

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import af from './af'
+import ar from './ar'
 import bg from './bg'
 import bn from './bn'
 import br from './br'
@@ -86,6 +87,7 @@ const CATALOGUES = {
   it: italian,
   nl,
   af,
+  ar,
   da,
   nb,
   nn,
@@ -135,7 +137,7 @@ const CATALOGUES = {
  * them. A Polish message with two branches would render "2 elementów" and
  * never fail a test that only counted English's forms.
  */
-const PLURAL_BRANCHES: Record<string, number> = { pl: 3, cs: 3, sk: 3, hr: 3, sr: 3, lt: 3, lv: 3, ro: 3, ru: 3, uk: 3, sl: 4, br: 5 }
+const PLURAL_BRANCHES: Record<string, number> = { ar: 6, pl: 3, cs: 3, sk: 3, hr: 3, sr: 3, lt: 3, lv: 3, ro: 3, ru: 3, uk: 3, sl: 4, br: 5 }
 
 const SOURCE = fileURLToPath(new URL('../', import.meta.url))
 

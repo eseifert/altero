@@ -47,6 +47,7 @@ class TestTheOfferedLanguages:
     def test_each_is_named_in_itself(self) -> None:
         """A language list in one language is only useful to people who read it."""
         assert LANGUAGES["af"] == "Afrikaans"
+        assert LANGUAGES["ar"] == "العربية"
         assert LANGUAGES["bg"] == "Български"
         assert LANGUAGES["bn"] == "বাংলা"
         assert LANGUAGES["br"] == "Brezhoneg"
@@ -150,6 +151,10 @@ class TestTheBrowserAgreesAboutThem:
 
 
 class TestNormalisingALanguage:
+    @pytest.mark.parametrize("tag", ["ar", "ar-EG", "AR_sa"])
+    def test_arabic_tags_use_the_arabic_catalogue(self, tag: str) -> None:
+        assert normalise_language(tag) == "ar"
+
     @pytest.mark.parametrize("tag", ["pa-Arab", "pa-PK", "PA_arab_pk", "pa-Arab-IN"])
     def test_shahmukhi_punjabi_keeps_its_script(self, tag: str) -> None:
         assert normalise_language(tag) == "pa-Arab"

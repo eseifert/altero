@@ -40,6 +40,11 @@ afterEach(() => {
 })
 
 describe('the languages on offer', () => {
+  it('offers Arabic and recognises its regional tags', () => {
+    expect(LOCALES).toContain('ar')
+    expect(matchLocale('ar-EG')).toBe('ar')
+    expect(matchLocale('AR_sa')).toBe('ar')
+  })
   it('offers Shahmukhi Punjabi without substituting it for Gurmukhi', () => {
     expect(LOCALES).toContain('pa-Arab')
     for (const tag of ['pa-Arab', 'pa-PK', 'PA_arab_pk', 'pa-Arab-IN']) {
@@ -199,6 +204,16 @@ describe('the languages on offer', () => {
   it('falls back to the default variant for a territory it has never heard of', () => {
     expect(matchLocale('en-CA')).toBe('en-US')
     expect(matchLocale('kl-GL')).toBeNull()
+  })
+})
+
+describe('Arabic catalogue counts', () => {
+  it.each([
+    [0, 'لا عناصر (0)'], [1, 'عنصر واحد (1)'], [2, 'عنصران (2)'],
+    [3, '3 عناصر'], [10, '10 عناصر'], [11, '11 عنصرًا'], [99, '99 عنصرًا'],
+    [100, '100 عنصر'], [102, '102 عنصر'], [103, '103 عناصر'],
+  ])('renders %i', (count, expected) => {
+    expect(items('ar', count)).toBe(expected)
   })
 })
 
