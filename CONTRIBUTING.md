@@ -197,6 +197,16 @@ Three things follow. A string quoted from the interface is copied from
 headers, file names and quoted upstream text are left alone: `loginCancelled`
 is a name in the client, not a spelling.
 
+### Translating the interface
+
+Plural messages need one branch per cardinal form of the target language,
+including the same placeholders in every branch. Arabic uses six branches
+(zero, one, two, few, many, other); Hebrew uses three (one, two, other).
+Persian and Shahmukhi Punjabi use two and count zero with one. The selectors
+in `web/src/i18n.ts` use CLDR categories in that order. Add catalogue checks
+in `web/src/locales/locales.node.spec.ts` and rendered examples in the plural
+tests when introducing another rule.
+
 ### How a version gets published
 
 `.github/workflows/docs.yml` publishes to the `gh-pages` branch on every push to

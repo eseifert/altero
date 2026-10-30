@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Plural rendering supports Arabic's six forms, Hebrew's dual, and Persian and Shahmukhi Punjabi counting rules.
 - Desktop acceptance verifies browser merges, replacement history and PDF deduplication on SQLite and PostgreSQL.
 - PDF merges keep both files when transferring a note would trigger Zotero's attachment-parent sync bug.
 - Headless desktop acceptance forces X11 so Zotero cannot open on an inherited Wayland display.

@@ -131,6 +131,14 @@ function zeroAsOne(choice: number, branches: number): number {
   return choice <= 1 ? 0 : Math.min(1, branches - 1)
 }
 
+/** CLDR cardinal categories in the order used by a catalogue. Intl handles
+ * fractions and negative counts as well as whole numbers. */
+function byCategory(locale: string, categories: Intl.LDMLPluralRule[]) {
+  const rules = new Intl.PluralRules(locale)
+  return (choice: number, branches: number): number =>
+    Math.min(categories.indexOf(rules.select(choice)), branches - 1)
+}
+
 /**
  * Which branch of a plural message a number asks for, per language.
  *
@@ -162,6 +170,11 @@ function zeroAsOne(choice: number, branches: number): number {
  * -- renders its last branch instead of nothing at all.
  */
 export const PLURAL_RULES = {
+  // https://unicode.org/cldr/charts/49/supplemental/language_plural_rules.html
+  ar: byCategory('ar', ['zero', 'one', 'two', 'few', 'many', 'other']),
+  'he-IL': byCategory('he', ['one', 'two', 'other']),
+  fa: byCategory('fa', ['one', 'other']),
+  'pa-Arab': byCategory('pa', ['one', 'other']),
   /* Exactly one; 2-4 but not 12-14; everything else. */
   pl: (choice: number, branches: number) => {
     const tens = choice % 10
