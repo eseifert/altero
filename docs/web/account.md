@@ -192,13 +192,13 @@ How an operator registers an application, and what a client developer needs:
 ### Language and time zone
 
 The interface speaks English, German, French, Breton, Spanish, Portuguese,
-Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Arabic, Danish, Norwegian Bokmål,
+Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Arabic, Persian, Danish, Norwegian Bokmål,
 Norwegian Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak,
 Slovenian, Croatian, Serbian, Hungarian, Romanian, Lithuanian, Latvian,
 Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish, Urdu,
 Punjabi (Shahmukhi),
 Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese,
-Indonesian, Tagalog and Chinese — 54 catalogs, because three of those are
+Indonesian, Tagalog and Chinese — 55 catalogs, because three of those are
 written differently in different places and are carried twice: American and
 British English, Brazilian and European Portuguese, Simplified and Traditional
 Chinese. They are the same three Zotero splits.

@@ -58,6 +58,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["et"] == "Eesti"
         assert LANGUAGES["eu"] == "Euskara"
         assert LANGUAGES["fi"] == "Suomi"
+        assert LANGUAGES["fa"] == "فارسی"
         assert LANGUAGES["gl"] == "Galego"
         assert LANGUAGES["hi"] == "हिन्दी"
         assert LANGUAGES["hr"] == "Hrvatski"
@@ -151,6 +152,10 @@ class TestTheBrowserAgreesAboutThem:
 
 
 class TestNormalisingALanguage:
+    @pytest.mark.parametrize("tag", ["fa", "fa-IR", "FA_af"])
+    def test_persian_tags_use_the_persian_catalogue(self, tag: str) -> None:
+        assert normalise_language(tag) == "fa"
+
     @pytest.mark.parametrize("tag", ["ar", "ar-EG", "AR_sa"])
     def test_arabic_tags_use_the_arabic_catalogue(self, tag: str) -> None:
         assert normalise_language(tag) == "ar"

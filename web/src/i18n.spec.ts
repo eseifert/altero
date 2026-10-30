@@ -40,6 +40,11 @@ afterEach(() => {
 })
 
 describe('the languages on offer', () => {
+  it('offers Persian and recognises its regional tags', () => {
+    expect(LOCALES).toContain('fa')
+    expect(matchLocale('fa-IR')).toBe('fa')
+    expect(matchLocale('FA_af')).toBe('fa')
+  })
   it('offers Arabic and recognises its regional tags', () => {
     expect(LOCALES).toContain('ar')
     expect(matchLocale('ar-EG')).toBe('ar')

@@ -21,6 +21,7 @@ import en from './en-US'
 import es from './es'
 import et from './et'
 import eu from './eu'
+import fa from './fa'
 import fi from './fi'
 import fr from './fr'
 import gl from './gl'
@@ -88,6 +89,7 @@ const CATALOGUES = {
   nl,
   af,
   ar,
+  fa,
   da,
   nb,
   nn,

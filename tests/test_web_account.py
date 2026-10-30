@@ -804,6 +804,7 @@ class TestLanguageAndTimeZone:
             "nl",
             "af",
             "ar",
+            "fa",
             "da",
             "nb",
             "nn",

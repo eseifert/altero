@@ -1,5 +1,22 @@
 import { accessibilityProblems, expect, signIn, test } from './state'
 
+test.describe('Persian', () => {
+  test.use({ locale: 'fa-IR' })
+
+  test('loads Persian messages and Zotero field names', async ({ page }, testInfo) => {
+    await page.goto('/app/sign-in')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fa')
+    await expect(page.getByRole('button', { name: 'ورود', exact: true })).toBeVisible()
+    expect(await accessibilityProblems(page)).toEqual([])
+
+    await signIn(page)
+    await expect(page.getByText('کتابخانه', { exact: true }).first()).toBeVisible()
+    await expect(page.getByRole('button', { name: 'مرتب‌سازی بر اساس عنوان', exact: true })).toBeVisible()
+    await page.screenshot({ path: testInfo.outputPath('persian-library.png'), fullPage: true })
+    expect(await accessibilityProblems(page)).toEqual([])
+  })
+})
+
 test.describe('Arabic', () => {
   test.use({ locale: 'ar-EG' })
 

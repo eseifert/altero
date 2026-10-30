@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The browser interface adds Persian, with Zotero's vocabulary and localized counts.
 - The browser interface adds Arabic, including all six plural forms.
 - The browser interface adds Punjabi in Shahmukhi script, recognizing Pakistani Punjabi browser preferences.
 - The browser interface adds Urdu, with translated messages and language selection across devices.
