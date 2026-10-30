@@ -196,8 +196,9 @@ Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Danish, Norwegian Bokmål,
 Norwegian Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak,
 Slovenian, Croatian, Serbian, Hungarian, Romanian, Lithuanian, Latvian,
 Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish, Urdu,
+Punjabi (Shahmukhi),
 Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese,
-Indonesian, Tagalog and Chinese — 52 catalogs, because three of those are
+Indonesian, Tagalog and Chinese — 53 catalogs, because three of those are
 written differently in different places and are carried twice: American and
 British English, Brazilian and European Portuguese, Simplified and Traditional
 Chinese. They are the same three Zotero splits.
@@ -261,8 +262,14 @@ list's column headings included. Where the interface's own messages name
 something Zotero also names, they use Zotero's word for it, so the two
 applications read as one vocabulary.
 
-Urdu messages are translated throughout the interface. Item types, field names
-and creator roles use English where Zotero's schema has no Urdu translation.
+Urdu and Shahmukhi Punjabi messages are translated throughout the interface.
+Punjabi uses the `pa-Arab` tag; `pa-PK` selects it too. Bare `pa` and Gurmukhi
+tags (`pa-Guru`, `pa-IN`) have no catalog and fall through to the browser's next
+language. An explicit script takes precedence over a region. Item types, field
+names and creator roles use English where Zotero's schema lacks translations
+for these languages.
+Shahmukhi also keeps its script in formatted dates, even when a browser asks
+for Punjabi in Gurmukhi; a Pakistani browser region is kept when scripts agree.
 
 A personal library is called **My Library** everywhere the interface names one
 — the sidebar, the dialogs, and the export and restore lists in settings — from

@@ -65,6 +65,7 @@ export const LOCALES = [
   'mn',
   'tr',
   'ur',
+  'pa-Arab',
   'hi',
   'bn',
   'ta',
@@ -257,10 +258,12 @@ export function isLocale(value: unknown): value is Locale {
  * to resolve a tag before it has asked the server anything, so both sides carry
  * it.
  */
-export const DEFAULT_VARIANTS: Record<string, Locale> = {
+export const DEFAULT_VARIANTS: Record<string, Locale | null> = {
   en: 'en-US',
   fil: 'tl',
   no: 'nb',
+  // Bare Punjabi implies Gurmukhi; only Shahmukhi has a catalogue here.
+  pa: null,
   pt: 'pt-BR',
   zh: 'zh-CN',
 }
@@ -273,7 +276,7 @@ export const DEFAULT_VARIANTS: Record<string, Locale> = {
  * Portuguese, and Hong Kong and Macau read Traditional characters. Anything not
  * named here falls through to `DEFAULT_VARIANTS`.
  */
-export const VARIANT_SUBTAGS: Record<string, Record<string, Locale>> = {
+export const VARIANT_SUBTAGS: Record<string, Record<string, Locale | null>> = {
   en: {
     us: 'en-US',
     au: 'en-GB',
@@ -286,6 +289,11 @@ export const VARIANT_SUBTAGS: Record<string, Record<string, Locale>> = {
   },
   fil: {}, // One catalogue, Tagalog; see `DEFAULT_VARIANTS`.
   no: {}, // One catalogue, Bokmål; see `DEFAULT_VARIANTS`.
+  pa: {
+    arab: 'pa-Arab',
+    guru: null, // An explicit script wins even with a Pakistani region.
+    pk: 'pa-Arab',
+  },
   pt: {
     br: 'pt-BR',
     ao: 'pt-PT',
@@ -316,7 +324,7 @@ export const VARIANT_SUBTAGS: Record<string, Record<string, Locale>> = {
  * catalogue of its own, translated to the one that territory reads.
  */
 export function matchLocale(tag: string): Locale | null {
-  const subtags = tag.replace('_', '-').split('-')
+  const subtags = tag.replaceAll('_', '-').split('-')
   const language = subtags[0].toLowerCase()
 
   if (isLocale(language)) return language
@@ -325,8 +333,7 @@ export function matchLocale(tag: string): Locale | null {
   if (!variants) return null
 
   for (const subtag of subtags.slice(1)) {
-    const found = variants[subtag.toLowerCase()]
-    if (found) return found
+    if (Object.hasOwn(variants, subtag.toLowerCase())) return variants[subtag.toLowerCase()]
   }
   return DEFAULT_VARIANTS[language]
 }

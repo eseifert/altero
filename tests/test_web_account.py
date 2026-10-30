@@ -3,6 +3,7 @@
 from datetime import UTC, datetime
 
 import httpx2
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import User, WebSession
@@ -626,19 +627,20 @@ class TestManagingKeys:
 class TestLanguageAndTimeZone:
     """Both are account settings, so they follow the person between browsers."""
 
-    async def test_urdu_preference_is_normalised_and_retained(
-        self, client: httpx2.AsyncClient
+    @pytest.mark.parametrize(("tag", "catalogue"), [("ur-PK", "ur"), ("pa-PK", "pa-Arab")])
+    async def test_pakistani_language_preference_is_normalised_and_retained(
+        self, client: httpx2.AsyncClient, tag: str, catalogue: str
     ) -> None:
         await register(client)
         response = await client.put(
             "/web/account/locale",
             headers=csrf_headers(client),
-            json={"language": "ur-PK", "timeZone": "Asia/Karachi"},
+            json={"language": tag, "timeZone": "Asia/Karachi"},
         )
         assert response.status_code == 200
-        assert response.json()["user"]["language"] == "ur"
+        assert response.json()["user"]["language"] == catalogue
         body = (await client.get("/web/account")).json()
-        assert body["user"]["language"] == "ur"
+        assert body["user"]["language"] == catalogue
         assert body["user"]["timeZone"] == "Asia/Karachi"
 
     async def test_a_new_account_follows_the_browser(self, client: httpx2.AsyncClient) -> None:
@@ -826,6 +828,7 @@ class TestLanguageAndTimeZone:
             "mn",
             "tr",
             "ur",
+            "pa-Arab",
             "hi",
             "bn",
             "ta",

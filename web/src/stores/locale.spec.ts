@@ -92,6 +92,21 @@ describe('the locale store', () => {
     expect(store.formatting).toBe('de')
   })
 
+  it('keeps Shahmukhi dates when the browser asks for Gurmukhi', () => {
+    const store = browser(['pa-Guru-PK'], 'Asia/Karachi')
+    store.adopt({ language: 'pa-Arab', timeZone: null })
+
+    expect(store.formatting).toBe('pa-Arab')
+    expect(formatDate('2019-04-03T12:00:00Z')).toContain('اپریل')
+  })
+
+  it('keeps a Punjabi browser region when its script agrees', () => {
+    const store = browser(['pa-PK'], 'Asia/Karachi')
+    store.adopt({ language: 'pa-Arab', timeZone: null })
+
+    expect(store.formatting).toBe('pa-PK')
+  })
+
   it('sets the document language, which assistive technology reads', async () => {
     browser(['fr-FR'], 'Europe/Paris')
 

@@ -86,6 +86,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["tr"] == "Türkçe"
         assert LANGUAGES["uk"] == "Українська"
         assert LANGUAGES["ur"] == "اردو"
+        assert LANGUAGES["pa-Arab"] == "پنجابی (شاہ مکھی)"
         assert LANGUAGES["vi"] == "Tiếng Việt"
         assert LANGUAGES["zh-CN"] == "简体中文"
 
@@ -109,7 +110,7 @@ class TestTheOfferedLanguages:
         for variants in VARIANT_SUBTAGS.values():
             resolved |= set(variants.values())
 
-        assert resolved <= set(LANGUAGES)
+        assert resolved - {None} <= set(LANGUAGES)
 
     def test_only_a_language_without_a_catalogue_of_its_own_has_variants(self) -> None:
         """`de` is carried once, so nothing should be deciding between German
@@ -128,11 +129,14 @@ class TestTheBrowserAgreesAboutThem:
     """
 
     @staticmethod
-    def _table(name: str) -> dict[str, str]:
+    def _table(name: str) -> dict[str, str | None]:
         source = I18N.read_text(encoding="utf-8")
         body = source[source.index(f"export const {name}") :]
         body = body[body.index("{") : body.index("\n}") + 2]
-        return dict(re.findall(r"'?([A-Za-z-]+)'?:\s*'([a-zA-Z-]+)'", body))
+        return {
+            key: None if value == "null" else value.strip("'")
+            for key, value in re.findall(r"'?([A-Za-z-]+)'?:\s*(null|'[a-zA-Z-]+')", body)
+        }
 
     def test_the_default_variants_match(self) -> None:
         assert self._table("DEFAULT_VARIANTS") == DEFAULT_VARIANTS
@@ -146,6 +150,15 @@ class TestTheBrowserAgreesAboutThem:
 
 
 class TestNormalisingALanguage:
+    @pytest.mark.parametrize("tag", ["pa-Arab", "pa-PK", "PA_arab_pk", "pa-Arab-IN"])
+    def test_shahmukhi_punjabi_keeps_its_script(self, tag: str) -> None:
+        assert normalise_language(tag) == "pa-Arab"
+
+    @pytest.mark.parametrize("tag", ["pa", "pa-IN", "pa-Guru", "pa-Guru-PK"])
+    def test_gurmukhi_punjabi_does_not_read_shahmukhi(self, tag: str) -> None:
+        with pytest.raises(InvalidInputError, match="Unsupported language"):
+            normalise_language(tag)
+
     @pytest.mark.parametrize("tag", ["ur", "ur-PK", "ur_IN", "UR-pk"])
     def test_urdu_tags_use_the_urdu_catalogue(self, tag: str) -> None:
         assert normalise_language(tag) == "ur"

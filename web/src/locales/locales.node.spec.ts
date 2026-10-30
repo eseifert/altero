@@ -43,6 +43,7 @@ import nb from './nb'
 import nl from './nl'
 import nn from './nn'
 import pl from './pl'
+import paArab from './pa-Arab'
 import ptBR from './pt-BR'
 import ptPT from './pt-PT'
 import ro from './ro'
@@ -105,6 +106,7 @@ const CATALOGUES = {
   ru,
   uk,
   ur,
+  'pa-Arab': paArab,
   bg,
   el,
   ka,
@@ -213,6 +215,14 @@ describe.each(Object.entries(CATALOGUES))('the %s catalogue', (name, catalogue) 
       const source = (en as Record<string, string>)[key]
       if (!source || source.includes('|')) continue
       expect(translated, key).not.toContain('|')
+    }
+  })
+})
+
+describe('Shahmukhi Punjabi', () => {
+  it('uses the Arabic script throughout, without Gurmukhi characters', () => {
+    for (const translated of Object.values(paArab)) {
+      expect(translated).not.toMatch(/[\u0a00-\u0a7f]/u)
     }
   })
 })

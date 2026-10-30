@@ -41,8 +41,12 @@ export const useLocaleStore = defineStore('locale', () => {
    */
   const formatting = computed(() => {
     const language = active.value.split('-')[0]
+    // A catalogue naming a script must keep it in month names too. Punjabi
+    // in Shahmukhi cannot borrow Gurmukhi dates merely because both are `pa`.
+    const script = new Intl.Locale(active.value).script
     const preferred = browserLanguages.value.find(
-      (tag) => tag.replace('_', '-').split('-')[0].toLowerCase() === language,
+      (tag) => tag.replaceAll('_', '-').split('-')[0].toLowerCase() === language &&
+        (!script || new Intl.Locale(tag.replaceAll('_', '-')).maximize().script === script),
     )
     return preferred ?? active.value
   })

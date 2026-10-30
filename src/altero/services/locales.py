@@ -66,6 +66,7 @@ LANGUAGES: dict[str, str] = {
     "mn": "Монгол",
     "tr": "Türkçe",
     "ur": "اردو",
+    "pa-Arab": "پنجابی (شاہ مکھی)",
     "hi": "हिन्दी",
     "bn": "বাংলা",
     "ta": "தமிழ்",
@@ -91,10 +92,12 @@ LANGUAGES: dict[str, str] = {
 #: Bokmål, which most Norwegians write; Nynorsk (`nn`) has a catalogue of its
 #: own and is not sent there. `fil` is Filipino, the standardised Tagalog that browsers
 #: in the Philippines report, and reads the Tagalog catalogue.
-DEFAULT_VARIANTS: dict[str, str] = {
+DEFAULT_VARIANTS: dict[str, str | None] = {
     "en": "en-US",
     "fil": "tl",
     "no": "nb",
+    # Bare Punjabi implies Gurmukhi in CLDR. Only Shahmukhi is translated here.
+    "pa": None,
     "pt": "pt-BR",
     "zh": "zh-CN",
 }
@@ -106,7 +109,7 @@ DEFAULT_VARIANTS: dict[str, str] = {
 #: Portuguese, and Hong Kong and Macau read Traditional characters. A subtag
 #: absent here falls through to `DEFAULT_VARIANTS`, so `en-CA` is American
 #: rather than nothing.
-VARIANT_SUBTAGS: dict[str, dict[str, str]] = {
+VARIANT_SUBTAGS: dict[str, dict[str, str | None]] = {
     "en": {
         "us": "en-US",
         "au": "en-GB",
@@ -119,6 +122,11 @@ VARIANT_SUBTAGS: dict[str, dict[str, str]] = {
     },
     "fil": {},  # One catalogue, Tagalog; see `DEFAULT_VARIANTS`.
     "no": {},  # One catalogue, Bokmål; see `DEFAULT_VARIANTS`.
+    "pa": {
+        "arab": "pa-Arab",
+        "guru": None,  # An explicit script wins even with a Pakistani region.
+        "pk": "pa-Arab",
+    },
     "pt": {
         "br": "pt-BR",
         "ao": "pt-PT",
@@ -170,11 +178,14 @@ def normalise_language(value: str | None) -> str | None:
     if variants is None:
         raise InvalidInputError(f"Unsupported language '{value}'")
 
+    matched = DEFAULT_VARIANTS[language]
     for subtag in subtags[1:]:
-        found = variants.get(subtag.lower())
-        if found is not None:
-            return found
-    return DEFAULT_VARIANTS[language]
+        if subtag.lower() in variants:
+            matched = variants[subtag.lower()]
+            break
+    if matched is None:
+        raise InvalidInputError(f"Unsupported language '{value}'")
+    return matched
 
 
 def normalise_time_zone(value: str | None) -> str | None:

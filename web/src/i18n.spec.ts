@@ -40,6 +40,16 @@ afterEach(() => {
 })
 
 describe('the languages on offer', () => {
+  it('offers Shahmukhi Punjabi without substituting it for Gurmukhi', () => {
+    expect(LOCALES).toContain('pa-Arab')
+    for (const tag of ['pa-Arab', 'pa-PK', 'PA_arab_pk', 'pa-Arab-IN']) {
+      expect(matchLocale(tag), tag).toBe('pa-Arab')
+    }
+    for (const tag of ['pa', 'pa-IN', 'pa-Guru', 'pa-Guru-PK']) {
+      expect(matchLocale(tag), tag).toBeNull()
+    }
+    expect(resolveLocale(null, ['pa-Guru-PK', 'ur-PK'])).toBe('ur')
+  })
   it('offers Urdu and recognises regional Urdu tags', () => {
     expect(LOCALES).toContain('ur')
     expect(matchLocale('ur-PK')).toBe('ur')
