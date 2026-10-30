@@ -612,6 +612,42 @@
       "report_sha256": "fbe8a9488b31ba7137c2b5d1e3326ef6e4cd69346c563373fc7bde456f294951",
       "snapshots_sha256": "f312092587b94a39cb93c719c4d816648083fcdb66183a7acc22ae7fca16d572",
       "finished_at": "2026-10-28T14:48:18.224725+00:00"
+    },
+    {
+      "scenario": "web-merge",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 11,
+      "report_sha256": "45999d9344809127f3c14339c5dd2d27a80cc1c71a3c2b3f4b4aa85679cfe736",
+      "snapshots_sha256": "e913bb7ed55c39146f535f885392987a014c5aac9677b6960ae9307afea318b4",
+      "finished_at": "2026-10-30T02:34:00.030212+00:00"
+    },
+    {
+      "scenario": "web-merge-files",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 9,
+      "report_sha256": "45999d9344809127f3c14339c5dd2d27a80cc1c71a3c2b3f4b4aa85679cfe736",
+      "snapshots_sha256": "014820b9523887b288895dde87103a3ba05719b298429f1c2be5ae48cf2ad66d",
+      "finished_at": "2026-10-30T02:34:00.030212+00:00"
+    },
+    {
+      "scenario": "web-merge",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 11,
+      "report_sha256": "9bbe6942b736f9ff54d082d3fc80a31dc2fc44eb148f53378dcfa9aabb346b3b",
+      "snapshots_sha256": "24e6b970ea21e059c12c0f0d278c671f652f7885c468f2a8fbfa88260e0a525b",
+      "finished_at": "2026-10-30T02:34:06.985154+00:00"
+    },
+    {
+      "scenario": "web-merge-files",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 9,
+      "report_sha256": "9bbe6942b736f9ff54d082d3fc80a31dc2fc44eb148f53378dcfa9aabb346b3b",
+      "snapshots_sha256": "e3f9dca124df8adc54e7f09f7e34fea45b6da06382907685d0e4b9d397588c17",
+      "finished_at": "2026-10-30T02:34:06.985154+00:00"
     }
   ]
 }

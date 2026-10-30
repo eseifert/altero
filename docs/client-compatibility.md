@@ -723,13 +723,16 @@ Zotero 10.0.6 Linux x86-64; actual desktop profiles.
 | `note-corpus` | Passed (5 phases) | Passed (5 phases) |
 | `web-notes` | Passed (8 phases) | Passed (8 phases) |
 | `web-files` | Passed (11 phases) | Passed (11 phases) |
+| `web-merge` | Passed (11 phases) | Passed (11 phases) |
+| `web-merge-files` | Passed (9 phases) | Passed (9 phases) |
 
 <!-- /desktop-matrix -->
 
 Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on 2026-10-28, against the code prepared for 1.0.0-beta.6, on Python
-3.14.10. PostgreSQL uses the existing 18.4 container, with a fresh database per
-scenario. Each database ran all 34 scenarios in one run, and none was repeated.
+archive on Python 3.14.10. The original 34 scenarios ran on 2026-10-28 against
+the code prepared for 1.0.0-beta.6. The two browser-merge scenarios ran on
+2026-10-30: 11 metadata phases and nine PDF phases per database. PostgreSQL uses
+the existing 18.4 container, with a fresh database per scenario.
 **Not run** means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes.
 
@@ -743,6 +746,8 @@ directories. Regenerate the matrix from them with:
 uv run python -m tools.compatibility matrix --desktop-version 10.0.6 \
   --report .compatibility/beta6-sqlite-1/acceptance.json \
   --report .compatibility/beta6-pg-1/acceptance.json \
+  --report .compatibility/web-merge-sqlite-3/acceptance.json \
+  --report .compatibility/web-merge-pg-2/acceptance.json \
   --output .compatibility/results.json --markdown .compatibility/matrix.md
 ```
 
@@ -752,11 +757,18 @@ or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.
 
-The matrix records 68 successful database/scenario combinations and 794
-actual desktop phases: all 34 scenarios pass on both databases. The
-baseline includes all 40 schema types. The source-replay suite passes 323 tests
-with no skips against the pinned 10.0.6 sources, with Node 24.22.1, and the
-network-consumer review gate passes with no stale or unreviewed consumers.
+The matrix records 72 successful database/scenario combinations and 834
+actual desktop phases: all 36 scenarios have successful results on both
+databases, from the dates above. The baseline includes all 40 schema types.
+The 2026-10-28 source-replay run passed 323 tests with no skips against the
+pinned 10.0.6 sources, with Node 24.22.1; its network-consumer review gate had
+no stale or unreviewed consumers.
+
+The browser-merge checks were also run with deliberate omissions after their
+intact baselines passed. Missing replacement history failed at
+`Desktop merge history is missing` after five phases; disabling PDF text
+matching failed at `Incorrect surviving PDFs for matching-text` after seven.
+Those failed runs and the restored-source hashes are retained locally.
 
 Two harness defects surfaced while moving to 10.0.6 and are fixed: profiles
 followed the machine's language, so a German system showed prompts the dialog
