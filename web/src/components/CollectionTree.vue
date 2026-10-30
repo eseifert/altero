@@ -222,7 +222,7 @@ function toggle(key: string): void {
 }
 
 .tree__chevron--open {
-  transform: rotate(90deg);
+  --icon-angle: 90deg;
 }
 
 .tree__name {

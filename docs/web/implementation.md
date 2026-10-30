@@ -79,6 +79,9 @@ splitter keys, mouse drags and touch holds. Font checks inspect the faces that
 Chromium actually used to draw every script letter in the five RTL catalogues.
 These are Chromium checks at two viewport sizes; Safari and native-device
 verification remain separate.
+Mirroring uses composed transforms and ancestor selectors compatible with the
+build's browser targets. A compiled-selector check keeps scoped CSS from
+applying a splitter transform to the document itself.
 
 ### The note editor
 

@@ -23,8 +23,13 @@ withDefaults(defineProps<{ icon: SvgIcon; size?: number; labelled?: boolean }>()
 </template>
 
 <style scoped>
-/* Independent scale preserves the tree twisty's open/closed rotation. */
-svg[data-mirror-rtl]:dir(rtl) {
-  scale: -1 1;
+/* Compose the mirror after rotation without independent transforms or :dir(),
+   which are newer than the supported Safari/Chromium targets. */
+svg[data-mirror-rtl] {
+  transform: scaleX(var(--icon-scale, 1)) rotate(var(--icon-angle, 0deg));
+}
+
+[dir='rtl'] svg[data-mirror-rtl] {
+  --icon-scale: -1;
 }
 </style>

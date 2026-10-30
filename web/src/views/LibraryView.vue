@@ -2525,7 +2525,7 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__chevron--open {
-  transform: rotate(90deg);
+  --icon-angle: 90deg;
 }
 
 /* Every row in this column is something to click and the controls that act on

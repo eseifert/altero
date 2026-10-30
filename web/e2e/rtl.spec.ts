@@ -120,17 +120,16 @@ for (const [direction, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const)
       await expect(page.locator('html')).toHaveAttribute('dir', direction)
 
       const parentRow = page.locator(`.tree__row[data-drop="collection:${parent}"]`)
+      const chevron = parentRow.locator('.tree__chevron')
+      await expect(chevron).toHaveCSS('transform', direction === 'rtl'
+        ? 'matrix(-1, 0, 0, 1, 0, 0)' : 'matrix(1, 0, 0, 1, 0, 0)')
       await parentRow.locator('.tree__twisty').click()
       const childRow = page.locator(`.tree__row[data-drop="collection:${child}"]`)
       await expect(childRow).toBeVisible()
-      const chevron = parentRow.locator('.tree__chevron')
-      expect(await chevron.evaluate((element) => getComputedStyle(element).scale)).toBe(
-        direction === 'rtl' ? '-1 1' : 'none',
-      )
       await expect.poll(
         () => chevron.evaluate((element) => getComputedStyle(element).transform),
         { message: 'opening the mirrored chevron still rotates it down' },
-      ).toBe('matrix(0, 1, -1, 0, 0, 0)')
+      ).toBe(direction === 'rtl' ? 'matrix(0, 1, 1, 0, 0, 0)' : 'matrix(0, 1, -1, 0, 0, 0)')
       const padding = await childRow.evaluate((element) => {
         const css = getComputedStyle(element)
         return { left: parseFloat(css.paddingLeft), right: parseFloat(css.paddingRight) }
@@ -147,6 +146,8 @@ for (const [direction, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const)
 
       const trigger = page.locator('.theme-menu__trigger')
       await trigger.click()
+      await expect(page.locator('.theme-menu__label')).toHaveText(direction === 'rtl'
+        ? ['فاتح', 'مظلم', 'تلقائي'] : ['Light', 'Dark', 'System'])
       const control = (await trigger.boundingBox())!
       const menu = (await page.locator('.theme-menu__list').boundingBox())!
       const offset = direction === 'rtl'

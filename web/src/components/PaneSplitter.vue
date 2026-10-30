@@ -135,7 +135,7 @@ function onKeydown(event: KeyboardEvent): void {
   cursor: col-resize;
 }
 
-.splitter:dir(rtl) {
+[dir='rtl'] .splitter {
   transform: translateX(calc(-1 * var(--splitter-offset, -50%)));
 }
 
