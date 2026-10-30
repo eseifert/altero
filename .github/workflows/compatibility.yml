@@ -213,6 +213,7 @@ jobs:
           - zipped-digest-race
           - backup-rewind
           - web-merge
+          - web-merge-files
     services:
       postgres:
         image: postgres:18-alpine

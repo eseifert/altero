@@ -107,6 +107,13 @@ profiles. It checks chosen fields and creators, moved children, combined tags
 and collections, incoming relations, transferred replacement history, a stale
 review's refusal and restoring the trashed duplicate record.
 
+`web-merge-files` uploads actual PDFs through the browser route and checks both
+desktops' downloaded bytes, notes, annotation parents and settled storage
+states. Its five cases cover identical bytes, matching text with different
+bytes, retaining the PDF with embedded markup, the parent/note compatibility
+fallback, and keeping two PDFs with markup. The server has no cached full text
+for these files, so the text match requires PDF extraction.
+
 The service accepts chosen bibliographic fields and creators as part of the
 same master-item write. Omitted values stay on the master; empty values clear
 them. Structural properties and timestamps cannot be chosen this way, and
@@ -128,6 +135,13 @@ too, becoming a child note if the survivor already has one. Web attachments
 match by title and link mode, preferring an equal URL; the pinned client also
 falls back to title for linked URLs. Linked files have no server-side bytes to
 compare and are kept.
+
+An exception keeps both PDFs when transferring a note would also move its
+recipient to the master. Zotero 10.0.6 can save that note but lose the parent
+change; this was reproduced both with zotero.org and offline. The fallback
+preserves each file's original note and annotations; a three-record regression
+also checks a move planned earlier in the same merge. See the
+[compatibility decision](compatibility.md#merging-pdfs-with-embedded-notes).
 
 The attachment transition cases also check repeated PDF swaps, notes promoted
 after an attachment already moved, cached full text, missing files, and the PDF
@@ -569,6 +583,7 @@ The final settled sync checks convergence and an unchanged server watermark.
 | `web-notes` | Write a standalone and a child note through the browser's routes; both desktops store exactly that HTML; the desktop's editor opens them editable and writes nothing; a desktop edit reaches the browser. |
 | `web-files` | Upload a child and a standalone file and attach a web link through the browser's routes; both desktops download the bytes under the browser's name; a rename renames each desktop's copy without fetching it; a replacement brings new bytes; a desktop's replacement makes the browser's stale one fail with 412. |
 | `web-merge` | Merge through the browser route; both desktops retain chosen fields, moved notes and links, tags, collections, incoming relations and replacement history; refuse a stale review; restore the duplicate record without reversing the merge. |
+| `web-merge-files` | Match PDFs by bytes or extracted text, retain embedded markup, preserve notes and annotation parents, keep both files when needed for safe parent sync, and verify original bytes and settled storage on both desktops. |
 | `resync` | Discard pending edits through the original reset helper; replace the server from a desktop; restore an older server archive, lift its watermark and recover from the surviving authoritative desktop. |
 | `file-lifecycle` | Rename Unicode filenames; reuse a stored digest and delete one reference; recover a missing local file; refuse a stale download redirect with 404, observe the expected storage failure, then recover current bytes and hashes. |
 | `upload-interruption` | Kill the desktop process group while the server has consumed only part of a large incompressible upload; assert no premature registration; restart and compare complete bytes and settled storage states. |

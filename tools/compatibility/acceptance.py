@@ -221,6 +221,7 @@ SCENARIOS = (
     "web-notes",
     "web-files",
     "web-merge",
+    "web-merge-files",
 )
 
 
@@ -266,6 +267,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_web_editing import web_editing
     from tools.compatibility.acceptance_web_files import web_files
     from tools.compatibility.acceptance_web_merge import web_merge
+    from tools.compatibility.acceptance_web_merge_files import web_merge_files
     from tools.compatibility.acceptance_zip_race import zipped_digest_race
     from tools.compatibility.process_server import process_server
 
@@ -305,6 +307,7 @@ async def run_acceptance(
     drivers["web-notes"] = web_notes
     drivers["web-files"] = web_files
     drivers["web-merge"] = web_merge
+    drivers["web-merge-files"] = web_merge_files
 
     selected = tuple(scenarios or SCENARIOS)
     if not selected or any(name not in SCENARIOS for name in selected):

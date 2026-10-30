@@ -229,6 +229,11 @@ operation = "convergence"
 status = "executable"
 tests = ["tools/compatibility/acceptance_web_merge.py"]
 
+[scenarios.browser_merge_files_desktop_acceptance]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_web_merge_files.py"]
+
 [scenarios.desktop_http_rate_limit_retry]
 operation = "http"
 status = "executable"
