@@ -121,7 +121,7 @@ async function decline(): Promise<void> {
     <template v-else>
       <p class="auth-form__lead">
         {{ t('A Zotero client is asking to connect to') }}
-        <strong>{{ auth.user?.username }}</strong
+        <strong dir="auto">{{ auth.user?.username }}</strong
         >.
       </p>
 

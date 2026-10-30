@@ -163,7 +163,7 @@ async function signOut(): Promise<void> {
     <p v-if="unconfirmed" class="shell__notice" role="status">
       <span>
         <i18n-t keypath="Confirm {address} to receive security notifications and invitations. Your library works either way.">
-          <template #address><strong>{{ auth.user?.email }}</strong></template>
+          <template #address><strong dir="auto">{{ auth.user?.email }}</strong></template>
         </i18n-t>
       </span>
       <AppButton variant="text" @click="auth.resendVerification()">{{ t('Resend') }}</AppButton>

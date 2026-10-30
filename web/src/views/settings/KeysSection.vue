@@ -113,8 +113,8 @@ function lastSeen(entry: KeyEntry): string {
       <li v-for="entry in keys" :key="entry.id">
         <div>
           <p class="settings__entry">
-            {{ entry.name }}
-            <code class="settings__suffix">…{{ entry.suffix }}</code>
+            <span dir="auto">{{ entry.name }}</span>
+            <code class="settings__suffix" dir="ltr">…{{ entry.suffix }}</code>
           </p>
           <p class="settings__detail">
             {{ t('{what} · created {when}', { what: describe(entry), when: when(entry.created) }) }}

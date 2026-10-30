@@ -215,6 +215,7 @@ Item titles, creators, tags, field values, collection names and text inputs
 choose their own direction from their contents. An English interface can show
 Arabic items, and an Arabic interface can show English items, without changing
 the surrounding controls. Shared collections and public profiles work the same way.
+Account, group and connected-application names also choose their own direction.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
 and both default to following the browser — which is a setting in itself, not

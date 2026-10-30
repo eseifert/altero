@@ -191,8 +191,8 @@ const remove = (account: Account) =>
         <li v-for="account in sorted" :key="account.id" class="accounts__entry">
           <button class="accounts__row" type="button" @click="open(account)">
             <span class="accounts__name">
-              {{ account.displayName || account.username }}
-              <span class="accounts__username">{{ account.username }}</span>
+              <span dir="auto">{{ account.displayName || account.username }}</span>
+              <span class="accounts__username" dir="auto">{{ account.username }}</span>
             </span>
             <span class="accounts__marks">
               <span v-if="account.administrator" class="chip">

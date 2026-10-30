@@ -117,8 +117,8 @@ const disconnect = (entry: Authorization) =>
     <ul v-if="applications.length" class="settings__list">
       <li v-for="entry in applications" :key="entry.id">
         <div>
-          <p class="settings__entry">{{ entry.name }}</p>
-          <p v-if="entry.description" class="settings__detail">
+          <p class="settings__entry" dir="auto">{{ entry.name }}</p>
+          <p v-if="entry.description" class="settings__detail" dir="auto">
             {{ entry.description }}
           </p>
           <p class="settings__detail">

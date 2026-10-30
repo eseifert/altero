@@ -182,10 +182,10 @@ const remove = (provider: Provider) =>
 
   <section v-for="provider in providers" :key="provider.id" class="card">
     <h2 class="card__title">
-      {{ provider.displayName || provider.slug }}
+      <span dir="auto">{{ provider.displayName || provider.slug }}</span>
       <span v-if="!provider.enabled" class="chip">{{ t('Off') }}</span>
     </h2>
-    <p class="settings__detail">{{ provider.issuer || provider.idpEntityId }}</p>
+    <p class="settings__detail" dir="auto">{{ provider.issuer || provider.idpEntityId }}</p>
     <p v-if="provider.kind === 'saml'" class="settings__detail">{{ t('SAML') }}</p>
     <p v-else class="settings__detail">
       <template v-if="provider.discovered">

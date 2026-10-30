@@ -45,7 +45,7 @@ function when(iso: string): string {
       <ul class="notifications__list">
         <li v-for="invitation in store.invitations" :key="invitation.id" class="card invitation">
           <div>
-            <p class="invitation__title">{{ invitation.libraryName }}</p>
+            <p class="invitation__title" dir="auto">{{ invitation.libraryName }}</p>
             <p class="invitation__detail">
               {{
                 invitation.role === 'admin'
@@ -91,8 +91,8 @@ function when(iso: string): string {
             <span v-if="!entry.read" class="visually-hidden">{{ t('Unread') }}</span>
           </span>
           <div>
-            <p class="notice__subject">{{ entry.subject }}</p>
-            <p v-if="entry.body" class="notice__body">{{ entry.body }}</p>
+            <p class="notice__subject" dir="auto">{{ entry.subject }}</p>
+            <p v-if="entry.body" class="notice__body" dir="auto">{{ entry.body }}</p>
             <p class="notice__when">{{ when(entry.created) }}</p>
           </div>
         </li>

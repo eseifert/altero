@@ -283,7 +283,7 @@ function when(iso: string | null): string {
     <ul v-if="keys.length" class="settings__list">
       <li v-for="entry in keys" :key="entry.id">
         <div>
-          <p class="settings__entry">{{ entry.name }}</p>
+          <p class="settings__entry" dir="auto">{{ entry.name }}</p>
           <p class="settings__detail">
             <template v-if="entry.lastUsed">
               {{ t('Last used {when}', { when: formatDate(entry.lastUsed) }) }}
@@ -329,9 +329,9 @@ function when(iso: string | null): string {
     <ul v-if="connections.length" class="settings__list">
       <li v-for="entry in connections" :key="entry.id">
         <div>
-          <p class="settings__entry">{{ entry.displayName || entry.provider }}</p>
+          <p class="settings__entry" dir="auto">{{ entry.displayName || entry.provider }}</p>
           <p class="settings__detail">
-            {{ entry.assertedName }}
+            <span dir="auto">{{ entry.assertedName }}</span>
             <span v-if="entry.lastSeen"> · {{ formatDate(entry.lastSeen) }}</span>
           </p>
         </div>

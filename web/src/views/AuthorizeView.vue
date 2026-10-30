@@ -259,12 +259,12 @@ async function decide(approve: boolean): Promise<void> {
 
     <template v-else-if="pending">
       <p class="authorize__lead">
-        <strong>{{ pending.name }}</strong>
+        <strong dir="auto">{{ pending.name }}</strong>
         {{ t('wants to connect to your account') }}
-        <strong>{{ auth.user?.username }}</strong
+        <strong dir="auto">{{ auth.user?.username }}</strong
         >.
       </p>
-      <p v-if="pending.description" class="authorize__description">
+      <p v-if="pending.description" class="authorize__description" dir="auto">
         {{ pending.description }}
       </p>
 
@@ -328,7 +328,7 @@ async function decide(approve: boolean): Promise<void> {
             :key="library.id"
             class="authorize__library"
           >
-            <legend>{{ library.name }}</legend>
+            <legend dir="auto">{{ library.name }}</legend>
             <label class="authorize__choice">
               <input
                 type="checkbox"
@@ -349,7 +349,7 @@ async function decide(approve: boolean): Promise<void> {
                 :checked="chosen.has(`${library.id}/collections/${row.entry.key}`)"
                 @change="toggle(`${library.id}/collections/${row.entry.key}`)"
               />
-              <span>{{ row.entry.name }}</span>
+              <span dir="auto">{{ row.entry.name }}</span>
             </label>
             <p v-if="library.collections.length === 0" class="authorize__note">
               {{ t('No collections yet.') }}

@@ -271,7 +271,7 @@ const editedDescription = computed({
       <ul v-else class="groups__list">
         <li v-for="group in store.groups" :key="group.id">
           <button class="card card--interactive" type="button" @click="show(group)">
-            <span class="card__title">{{ group.name }}</span>
+            <span class="card__title" dir="auto">{{ group.name }}</span>
             <span class="card__detail">
               {{ t('{count} member | {count} members', { count: group.numMembers }, group.numMembers) }}
               ·
@@ -279,7 +279,7 @@ const editedDescription = computed({
               ·
               {{ group.role === 'admin' ? t('Administrator') : t('Member') }}
             </span>
-            <span v-if="group.description" class="card__detail">{{ group.description }}</span>
+            <span v-if="group.description" class="card__detail" dir="auto">{{ group.description }}</span>
           </button>
         </li>
       </ul>
@@ -287,7 +287,7 @@ const editedDescription = computed({
 
     <!-- One group -->
     <div v-if="open" class="card panel">
-      <h2>{{ open.name }}</h2>
+      <h2 dir="auto">{{ open.name }}</h2>
       <p class="panel__lead">
         {{ t('Sync clients see this as group {id}.', { id: open.groupId }) }}
       </p>
@@ -354,7 +354,7 @@ const editedDescription = computed({
         <li v-for="entry in log" :key="entry.id" class="activity__entry">
           <span class="activity__what">{{ describe(entry) }}</span>
           <span class="activity__who">
-            {{ entry.actor ? entry.actor.name || entry.actor.username : t('Somebody') }}
+            <span dir="auto">{{ entry.actor ? entry.actor.name || entry.actor.username : t('Somebody') }}</span>
             ·
             {{ formatDate(entry.when) }}
           </span>
@@ -363,6 +363,7 @@ const editedDescription = computed({
               v-for="touched in entry.objects.slice(0, NAMES_SHOWN)"
               :key="touched.key"
               class="activity__object"
+              dir="auto"
             >
               {{ touched.name || t('(untitled)') }}
             </li>
@@ -408,7 +409,7 @@ const editedDescription = computed({
       <ul class="members">
         <li v-for="member in open.members" :key="member.id" class="card__inset member">
           <div>
-            <p class="member__name">{{ member.displayName || member.username }}</p>
+            <p class="member__name" dir="auto">{{ member.displayName || member.username }}</p>
             <p class="member__detail">
               {{ member.owner ? t('Owner') : member.role === 'admin' ? t('Administrator') : t('Member') }}
             </p>
@@ -474,7 +475,7 @@ const editedDescription = computed({
         <ul v-if="open.invitations?.length" class="members">
           <li v-for="invitation in open.invitations" :key="invitation.id" class="card__inset member">
             <div>
-              <p class="member__name">{{ invitation.email }}</p>
+              <p class="member__name" dir="auto">{{ invitation.email }}</p>
               <p class="member__detail">
                 {{ invitation.role === 'admin' ? t('Administrator') : t('Member') }}
                 <template v-if="invitation.permission !== 'inherit'">
