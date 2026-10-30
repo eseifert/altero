@@ -91,7 +91,7 @@ and persistence belong to the disposable-profile acceptance runner.
 Duplicate merging has service-level database checks in `tests/test_merge.py`
 and `tests/test_merge_attachment*.py`: child moves, note links, tag precedence,
 collections, merge history, incoming relations, permissions, transaction
-rollback and attachment deduplication. These follow the reviewed Zotero 10.0.6
+rollback and attachment deduplication. These follow the reviewed Zotero 10.0.7
 source; they do not execute the desktop merge code. A live HTTP check verifies
 the resulting incremental item download, annotation parent and original PDF
 bytes. The [browser merge endpoint](web/implementation.md#duplicate-merge-endpoint)
@@ -445,7 +445,7 @@ are retained on success and failure for inspection; drop those generated
 databases explicitly when finished. Desktop profiles and files remain under
 the new state directory. Without the flag the server uses SQLite there.
 
-The 15-phase baseline passes with Zotero 10.0.6: parent/note/file download,
+The 15-phase baseline passes with Zotero 10.0.7: parent/note/file download,
 collection filing, persisted attachment bytes, disjoint offline edits and
 convergence, trash/restore propagation, deletion of parent and children, and
 all 40 schema types serialized by desktop A and downloaded into desktop B.
@@ -458,7 +458,7 @@ leave the library watermark unchanged. Unexpected or missing dialogs fail the
 phase; prompt/reconciliation methods are never replaced.
 
 The conflict scenario also covers an offline edit against a remote deletion.
-Zotero 10.0.6's
+Zotero 10.0.7's
 local choice for the deletion conflict retains the old object version, so the
 server's correct 404 triggers full sync and a repeated prompt. Cancelling that
 prompt must preserve the pending edit. Choosing local on the next sync lets
@@ -510,7 +510,7 @@ Zotero 10.0.1 bug: choosing Remote can keep and upload the local bytes.
 `Zotero.Sync.Storage.Local.resolveConflicts` identifies the selected side by its
 date instead of a side identifier, so either choice matches the local side.
 This was reproduced with 10.0.1; the equal-date failure has not been rerun
-with a later release. The passing 10.0.6 scenario uses distinct displayed dates to
+with a later release. The passing 10.0.7 scenario uses distinct displayed dates to
 verify both working choices.
 A multi-file HTML snapshot also checks that ZIP transfer restores its HTML
 and CSS on disk.
@@ -564,7 +564,7 @@ actual desktop reconnect timing and UI scheduling are not exercised.
 
 ## Additional desktop scenarios
 
-Each scenario uses two actual 10.0.6 profiles, original desktop operations,
+Each scenario uses two actual 10.0.7 profiles, original desktop operations,
 real HTTP, persistent databases and files. Unexpected sync errors fail the run.
 The final settled sync checks convergence and an unchanged server watermark.
 
@@ -627,7 +627,7 @@ browser sign-in UI. Archive recovery follows the documented surviving-client
 procedure; it does not claim that raising a watermark rewinds synced desktops
 to an older archive.
 
-All of the scenarios above pass with Zotero 10.0.6 on SQLite and PostgreSQL.
+All of the scenarios above pass with Zotero 10.0.7 on SQLite and PostgreSQL.
 Login expiry and personal-library read scope do not cover every credential
 transition. Streaming reconnect observes the original reconnect delay and
 notification-driven synchronization. Seven further scenarios cover the
@@ -644,7 +644,7 @@ remaining declared transitions:
 | `backup-rewind` | Restore an older archive after both profiles synced newer objects; show that an increased library watermark preserves newer desktop copies while the server remains older; explicitly restore the surviving authoritative desktop and converge. |
 
 `parent-rejection`, `reader-rendering`, `zipped-digest-race` and
-`backup-rewind` pass with Zotero 10.0.6 on both databases, and so do
+`backup-rewind` pass with Zotero 10.0.7 on both databases, and so do
 `missing-parent`, `child-promotion`, `type-change` and the revised
 `parent-rejection`. The
 automatic rewind entry is explicitly unsupported: an increased library counter
@@ -684,11 +684,11 @@ a catalogue entry and is normally unset.
 ## Successfully tested matrix
 
 <!-- desktop-matrix -->
-Zotero 10.0.6 Linux x86-64; actual desktop profiles.
+Zotero 10.0.7 Linux x86-64; actual desktop profiles.
 
 | Scenario | SQLite | PostgreSQL |
 |---|---|---|
-| `baseline` | Passed (13 phases) | Passed (13 phases) |
+| `baseline` | Passed (15 phases) | Passed (15 phases) |
 | `conflicts` | Passed (21 phases) | Passed (21 phases) |
 | `filing` | Passed (7 phases) | Passed (7 phases) |
 | `groups` | Passed (19 phases) | Passed (19 phases) |
@@ -727,26 +727,23 @@ Zotero 10.0.6 Linux x86-64; actual desktop profiles.
 
 <!-- /desktop-matrix -->
 
-Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on Python 3.14.10. The original 34 scenarios ran on 2026-10-28 against
-the code prepared for 1.0.0-beta.6. The two browser-merge scenarios ran on
-2026-10-30: 11 metadata phases and nine PDF phases per database. PostgreSQL uses
-the existing 18.4 container, with a fresh database per scenario.
+Results above are local executions with the pinned Linux x86-64 Zotero 10.0.7
+archive on Python 3.14.10. All 36 scenarios ran on each database on 2026-10-30
+against the beta.7 release candidate, including the 15-phase schema baseline.
+PostgreSQL uses the existing 18.4 container, with a fresh database per scenario.
 **Not run** means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes.
 
 The machine-readable evidence summary is
-[`compatibility-10.0.6.json`](assets/compatibility-10.0.6.json). It records
+[`compatibility-10.0.7.json`](assets/compatibility-10.0.7.json). It records
 phase counts and SHA-256 hashes of each report and its phase snapshots. Retained
 reports, profiles, files and failed attempts live in ignored local run
 directories. Regenerate the matrix from them with:
 
 ```sh
 uv run python -m tools.compatibility matrix --desktop-version 10.0.7 \
-  --report .compatibility/beta6-sqlite-1/acceptance.json \
-  --report .compatibility/beta6-pg-1/acceptance.json \
-  --report .compatibility/web-merge-sqlite-3/acceptance.json \
-  --report .compatibility/web-merge-pg-2/acceptance.json \
+  --report .compatibility/beta7-10.0.7-sqlite-1/acceptance.json \
+  --report .compatibility/beta7-10.0.7-pg-1/acceptance.json \
   --output .compatibility/results.json --markdown .compatibility/matrix.md
 ```
 
@@ -756,15 +753,16 @@ or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.
 
-The matrix records 72 successful database/scenario combinations and 834
+The matrix records 72 successful database/scenario combinations and 838
 actual desktop phases: all 36 scenarios have successful results on both
-databases, from the dates above. The baseline includes all 40 schema types.
-The 2026-10-28 source-replay run passed 323 tests with no skips against the
-pinned 10.0.6 sources, with Node 24.22.1; its network-consumer review gate had
-no stale or unreviewed consumers.
+databases. The baseline includes all 40 schema types.
+The 2026-10-30 source-replay run passed 333 tests with no skips against the
+pinned 10.0.7 sources, with Node 24.22.1; its network-consumer review gate had
+no stale or unreviewed consumers. Regressions cover the restore request marker
+and reconnecting after WebSocket close 4429; both fail against the older source.
 
-The browser-merge checks were also run with deliberate omissions after their
-intact baselines passed. Missing replacement history failed at
+The earlier 10.0.6 browser-merge checks also ran with deliberate omissions
+after their intact baselines passed. Missing replacement history failed at
 `Desktop merge history is missing` after five phases; disabling PDF text
 matching failed at `Incorrect surviving PDFs for matching-text` after seven.
 Those failed runs and the restored-source hashes are retained locally.
