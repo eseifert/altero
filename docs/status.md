@@ -2,8 +2,8 @@
 
 This page is the feature-level status of altero's Zotero v3 compatibility.
 
-**Release:** 1.0.0-beta.6. Two real Zotero 10.0.6 profiles passed 68
-database/scenario combinations and 794 phases on Linux, across SQLite and
+**Release:** 1.0.0-beta.7. Two real Zotero 10.0.6 profiles passed 72
+database/scenario combinations and 834 phases on Linux, across SQLite and
 PostgreSQL 18.4. This verifies the recorded transitions, not every client path
 or platform. See
 [desktop compatibility coverage and gaps](client-compatibility.md).

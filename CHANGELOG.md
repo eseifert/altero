@@ -7,6 +7,18 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-beta.7] — 2026-10-30
+
+This version merges duplicates in the browser and adds Arabic, Persian, Hebrew,
+Urdu and Shahmukhi Punjabi, with layouts and text direction for right-to-left
+languages. It also closes races in one-use sign-in credentials and OAuth tokens,
+and tightens group invitations and browser file access. Upgrading from beta.6
+needs no database or storage changes; older installations should follow the
+[upgrade instructions][upgrade].
+
+This is the last feature beta before the release candidate. Remaining 1.0 work
+focuses on polish, hardening and testing against real identity providers.
+
 - Note and attachment menus no longer close themselves when opened below the fold on a phone.
 - RTL mirroring uses browser-compatible transforms; regressions cover mixed text, actual font rendering, gestures, screenshots and axe.
 - Arabic and Hebrew Plex fonts load locally on demand, with Persian, Urdu and Shahmukhi Punjabi coverage and no install telemetry.
@@ -317,6 +329,7 @@ The first release meant to be used by somebody other than its author.
 [install]: docs/web-interface.md#installing-it-as-an-app
 [source]: docs/deployment.md#from-a-source-checkout
 [config]: docs/configuration.md
+[1.0.0-beta.7]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.7
 [1.0.0-beta.6]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.6
 [1.0.0-beta.5]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.5
 [1.0.0-beta.4]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.4
