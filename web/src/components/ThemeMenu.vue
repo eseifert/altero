@@ -18,10 +18,10 @@ const { t } = useI18n()
  */
 const theme = useThemeStore()
 
-const OPTIONS: Array<{ value: ThemePreference; label: string }> = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
+const OPTIONS: Array<{ value: ThemePreference; label: () => string }> = [
+  { value: 'light', label: () => t('Light') },
+  { value: 'dark', label: () => t('Dark') },
+  { value: 'system', label: () => t('System') },
 ]
 
 const open = ref(false)
@@ -117,7 +117,7 @@ onBeforeUnmount(() => {
       ref="trigger"
       type="button"
       class="theme-menu__trigger"
-      :aria-label="t('Color theme: {name}', { name: t(current.label) })"
+      :aria-label="t('Color theme: {name}', { name: current.label() })"
       aria-haspopup="menu"
       :aria-expanded="open"
       @click="toggle"
@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
           @keydown="onKeydown($event, index)"
         >
           <AppIcon :name="`theme-${option.value}`" :size="22" />
-          <span class="theme-menu__label">{{ t(option.label) }}</span>
+          <span class="theme-menu__label">{{ option.label() }}</span>
           <AppIcon
             v-if="theme.preference === option.value"
             name="check"

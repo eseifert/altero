@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { useThemeStore } from '@/stores/theme'
+import { setLocale } from '@/i18n'
 
 import ThemeMenu from './ThemeMenu.vue'
 
@@ -18,6 +19,24 @@ beforeEach(() => {
 })
 
 describe('ThemeMenu', () => {
+  afterEach(async () => { await setLocale('en-US') })
+
+  it.each([
+    ['ar', ['فاتح', 'مظلم', 'تلقائي']],
+    ['fa', ['روشن', 'تیره', 'خودکار']],
+    ['he-IL', ['בהירה', 'כהה', 'אוטומטי']],
+    ['ur', ['روشن', 'گہرا', 'سسٹم']],
+    ['pa-Arab', ['چانن', 'ہنیرا', 'سسٹم']],
+  ] as const)('translates the options and current theme in %s', async (tag, labels) => {
+    await setLocale(tag)
+    const wrapper = open()
+    try {
+      await wrapper.get('.theme-menu__trigger').trigger('click')
+      expect(wrapper.findAll('.theme-menu__label').map(label => label.text())).toEqual(labels)
+      expect(wrapper.get('.theme-menu__trigger').attributes('aria-label')).toContain(labels[2])
+    } finally { wrapper.unmount() }
+  })
+
   it('is one control until it is asked for more', () => {
     const wrapper = open()
 

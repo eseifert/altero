@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- The theme menu translates Light, Dark and System in every catalogue, including its accessible current-theme label.
 - Library text, public item details and text inputs choose direction from their content, independently of the UI language.
 - The profile-owner notice uses its surface's foreground color so its settings link meets contrast requirements.
 - Note paragraphs choose their own text direction in the editor and public views, preserving stored author directions and note HTML.
