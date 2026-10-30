@@ -85,7 +85,7 @@ function toggle(key: string): void {
 </script>
 
 <template>
-  <ul class="tree" role="group">
+  <ul class="tree">
     <li v-for="node in nodes" :key="node.key">
       <!--
         Dropping an item here files it in this collection: adding rather than
