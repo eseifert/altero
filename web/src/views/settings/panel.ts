@@ -42,7 +42,7 @@ export interface SettingsPanel {
   /** Re-read the account. Called after anything that changes it. */
   reload(): Promise<void>
   /** Run one settings action, reporting whichever way it went. */
-  attempt(work: () => Promise<void>, success: string): Promise<void>
+  attempt(work: () => Promise<void>, success: string | (() => string)): Promise<void>
 }
 
 const KEY: InjectionKey<SettingsPanel> = Symbol('settings-panel')
@@ -65,12 +65,12 @@ export function providePanel(): SettingsPanel {
     }
   }
 
-  async function attempt(work: () => Promise<void>, success: string): Promise<void> {
+  async function attempt(work: () => Promise<void>, success: string | (() => string)): Promise<void> {
     busy.value = true
     clear()
     try {
       await work()
-      notice.value = success
+      notice.value = typeof success === 'function' ? success() : success
       await reload()
     } catch (thrown) {
       failure.value = message(thrown)

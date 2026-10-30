@@ -1,9 +1,10 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory, createRouter } from 'vue-router'
 
-import { i18n } from '@/i18n'
+import { i18n, loadLocale, setLocale } from '@/i18n'
+import { useLocaleStore } from '@/stores/locale'
 
 import SettingsView from './SettingsView.vue'
 
@@ -445,5 +446,73 @@ describe('who can see the profile page', () => {
     const radios = wrapper.findAll('.audience input[type="radio"]')
     expect((radios[0].element as HTMLInputElement).checked).toBe(true)
     expect((radios[2].element as HTMLInputElement).checked).toBe(false)
+  })
+})
+
+describe('confirmation after changing language', () => {
+  afterEach(async () => {
+    vi.restoreAllMocks()
+    await setLocale('en-US')
+  })
+
+  function server(initial: string) {
+    let language: string | null = initial
+    requestMock.mockImplementation((path: string, options?: { body?: { language?: string | null } }) => {
+      if (path === '/web/account/locale') {
+        language = options?.body?.language ?? null
+        return Promise.resolve({})
+      }
+      if (path === '/web/account') return Promise.resolve({ ...ACCOUNT, user: { ...ACCOUNT.user, language } })
+      if (path === '/web/account/locales') return Promise.resolve({
+        languages: ['en-US', 'ar', 'fa', 'he-IL'].map((tag) => ({ tag, name: tag })), timeZones: [],
+      })
+      return Promise.resolve({})
+    })
+  }
+
+  it.each([
+    ['en-US', 'ar', 'حُفظت اللغة والمنطقة الزمنية.', 'rtl'],
+    ['en-US', 'fa', 'زبان و منطقهٔ زمانی ذخیره شدند.', 'rtl'],
+    ['ar', 'en-US', 'Language and time zone saved.', 'ltr'],
+    ['ar', 'he-IL', 'השפה ואזור הזמן נשמרו.', 'rtl'],
+    ['fa', '', 'Language and time zone saved.', 'ltr'],
+  ] as const)('confirms %s → %s in the new language', async (initial, chosen, expected, direction) => {
+    await loadLocale(chosen || 'en-US')
+    await setLocale(initial)
+    useLocaleStore().language = initial
+    server(initial)
+    const { wrapper } = await open('language')
+
+    await wrapper.get('select').setValue(chosen)
+    await wrapper.get('.card button').trigger('click')
+    await vi.waitFor(() => expect(wrapper.get('.section-panel__notice').text()).toBe(expected))
+    expect(document.documentElement.dir).toBe(direction)
+  })
+
+  it('waits for the new catalogue before confirming success', async () => {
+    await loadLocale('ar')
+    await setLocale('en-US')
+    server('en-US')
+    const store = useLocaleStore()
+    const adopt = store.adopt.bind(store)
+    let release!: () => void
+    const ready = new Promise<void>((resolve) => { release = resolve })
+    vi.spyOn(store, 'adopt').mockImplementation(async (preferences) => {
+      await ready
+      return adopt(preferences)
+    })
+    const { wrapper } = await open('language')
+    await wrapper.get('select').setValue('ar')
+    try {
+      await wrapper.get('.card button').trigger('click')
+      await settle(wrapper)
+      expect(wrapper.find('.section-panel__notice').exists()).toBe(false)
+      expect(wrapper.get('.card button').attributes('disabled')).toBeDefined()
+      expect(document.documentElement.lang).toBe('en-US')
+    } finally {
+      release()
+      await settle(wrapper)
+    }
+    await vi.waitFor(() => expect(wrapper.get('.section-panel__notice').text()).toBe('حُفظت اللغة والمنطقة الزمنية.'))
   })
 })

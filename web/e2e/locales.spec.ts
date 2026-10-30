@@ -122,9 +122,12 @@ test('all new account languages survive reload and override the browser', async 
     (response) => response.url().endsWith('/web/account/locale') && response.request().method() === 'PUT',
   )
   try {
-    for (const [tag, save] of [
-      ['ar', 'حفظ'], ['fa', 'ذخیره'], ['he-IL', 'שמירה'],
-      ['ur', 'محفوظ کریں'], ['pa-Arab', 'سنبھالو'],
+    for (const [tag, save, confirmation] of [
+      ['ar', 'حفظ', 'حُفظت اللغة والمنطقة الزمنية.'],
+      ['fa', 'ذخیره', 'زبان و منطقهٔ زمانی ذخیره شدند.'],
+      ['he-IL', 'שמירה', 'השפה ואזור הזמן נשמרו.'],
+      ['ur', 'محفوظ کریں', 'زبان اور منطقۂ وقت محفوظ ہو گئے۔'],
+      ['pa-Arab', 'سنبھالو', 'بولی تے ویلے دا خطہ سنبھال لیا۔'],
     ] as const) {
       await language.selectOption(tag)
       const saved = responseForSave()
@@ -134,6 +137,8 @@ test('all new account languages survive reload and override the browser', async 
       await expect(page.locator('html')).toHaveAttribute('lang', tag)
       await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
       await expect(page.getByRole('button', { name: save, exact: true })).toBeVisible()
+      await expect(page.locator('.section-panel__notice')).toHaveText(confirmation)
+      await expect(page.locator('.section-panel__notice')).toHaveCSS('direction', 'rtl')
       await page.reload()
       await expect(page.locator('html')).toHaveAttribute('lang', tag)
       await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
@@ -146,5 +151,7 @@ test('all new account languages survive reload and override the browser', async 
     expect((await saved).ok()).toBe(true)
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
     await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
+    await expect(page.locator('.section-panel__notice')).toHaveText('Language and time zone saved.')
+    await expect(page.locator('.section-panel__notice')).toHaveCSS('direction', 'ltr')
   }
 })

@@ -206,6 +206,7 @@ The document direction follows the interface language: Arabic, Persian, Hebrew,
 Urdu and Shahmukhi Punjabi use right to left. Language and direction change
 together after the selected catalog loads, including when switching back to a
 left-to-right language.
+Saving these settings shows the confirmation in the newly selected language.
 Menus, collection indentation, spacing and text alignment follow that direction.
 Directional icons mirror too. Splitter arrows move the divider in the direction
 pressed, and dragging resizes the pane on its displayed side. Drag previews

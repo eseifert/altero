@@ -50,17 +50,19 @@ onMounted(async () => {
   }
 })
 
-const saveLocale = () =>
-  attempt(async () => {
+const saveLocale = () => {
+  const preferences = {
+    language: chosenLanguage.value || null,
+    timeZone: chosenTimeZone.value || null,
+  }
+  return attempt(async () => {
     await request('/web/account/locale', {
       method: 'PUT',
-      body: { language: chosenLanguage.value || null, timeZone: chosenTimeZone.value || null },
+      body: preferences,
     })
-    locale.adopt({
-      language: chosenLanguage.value || null,
-      timeZone: chosenTimeZone.value || null,
-    })
-  }, t('Language and time zone saved.'))
+    await locale.adopt(preferences)
+  }, () => t('Language and time zone saved.'))
+}
 </script>
 
 <template>

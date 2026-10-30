@@ -71,15 +71,15 @@ export const useLocaleStore = defineStore('locale', () => {
     apply()
   }
 
-  /** Take the settings from the account, as the session reports them. */
-  function adopt(preferences: { language: string | null; timeZone: string | null }): void {
+  /** Take account settings; let callers await the language switch. */
+  function adopt(preferences: { language: string | null; timeZone: string | null }): Promise<void> {
     language.value = preferences.language
     timeZone.value = preferences.timeZone
-    apply()
+    return apply()
   }
 
-  function apply(): void {
-    void setLocale(active.value)
+  function apply(): Promise<void> {
+    return setLocale(active.value)
   }
 
   return {
