@@ -1794,13 +1794,26 @@ to 1.03:1 and a screen at an angle shows nothing at all.
 it lands on, and checks the one ordering that matters: a selected row is marked
 more strongly than the row under the pointer, or hovering would look like
 choosing.</p>
-<p>It is set in IBM Plex Sans, with IBM Plex Sans JP behind it for Japanese, and
-both are served by this application: nothing is loaded from a third party, no
-CDN, no request that tells anyone else who is reading. The faces are split by
-<code>unicode-range</code>, so a page fetches only the subsets its text needs — some 60 kB
-for a European language, about 1 MB the first time somebody reads Japanese —
-and the system stack shows the words while that happens. Fingerprinted assets
-are cached for good, so the second visit fetches none of it.</p>
+<p>It is set in IBM Plex Sans, with Plex Sans JP for Japanese, Plex Sans Arabic
+for Arabic, Persian, Urdu and Shahmukhi Punjabi, and Plex Sans Hebrew for Hebrew.
+All are served by this application: no CDN or other third party receives a
+font request. The Latin and Japanese faces are split by <code>unicode-range</code>, so a
+page fetches only the subsets its text needs. The Arabic and Hebrew packages
+provide complete faces; regular, medium and bold are included, with italic
+synthesized by the browser. Their stylesheets are deferred alongside Japanese,
+and font files are fetched only when text needs them, including mixed-language
+libraries. Every face uses <code>font-display: swap</code>, so system fonts show the text
+while it loads. Fingerprinted assets are cached for later visits. Package
+installation scripts remain disabled to prevent IBM's telemetry hook.</p>
+<p>The RTL checks cover Arabic screenshots and axe on desktop and phone, mixed
+item and note directions in both UI directions, public profiles and shares,
+splitter keys, mouse drags and touch holds. Font checks inspect the faces that
+Chromium actually used to draw every script letter in the five RTL catalogues.
+These are Chromium checks at two viewport sizes; Safari and native-device
+verification remain separate.
+Mirroring uses composed transforms and ancestor selectors compatible with the
+build's browser targets. A compiled-selector check keeps scoped CSS from
+applying a splitter transform to the document itself.</p>
 <h3 id="the-note-editor">The note editor<a class="headerlink" href="#the-note-editor" title="Permanent link">&para;</a></h3>
 <p>Notes are edited with Tiptap over a port of Zotero's own note-editor schema
 (<code>web/src/notes/</code>), so a note saved here is the HTML Zotero Desktop would save:
@@ -1868,19 +1881,21 @@ item in its ordinary envelope. <code>Last-Modified-Version</code> gives their sh
 version. An optional <code>locale</code> query selects the interface language for PDF
 word ordering; it defaults to the account language, then <code>en-US</code>.</p>
 <h3 id="not-built-yet">Not built yet<a class="headerlink" href="#not-built-yet" title="Permanent link">&para;</a></h3>
-<p>Adding attachments. An item or note can be made and its fields, type,
-creators, tags, related items and note text edited, collections can be made, renamed, moved and
-removed, an item can be filed, trashed, restored, deleted, copied to another
-library, published to My Publications and written out as a file, a tag can be
-renamed, and a whole library can be restored from an archive or copied in from
-zotero.org — but no file can be uploaded, and a tag
-cannot be deleted from the whole library at once. Moving in from zotero.org brings
-the personal library only; a group has to be made here and its members invited.</p>
-<p>The two things the desktop client does with a set of items that this does not
-are the ones that produce a document rather than a file: Create Bibliography
-from Items…, which needs a citation style chosen out of thousands, and Generate
-Report…. The server renders both — <code>format=bib</code> is what the detail pane's
-citation comes from — so what is missing is the asking, not the writing.</p>
+<p>Items, notes and attachments can be created and edited in the browser, and
+duplicate items can be merged. Remaining browser gaps include:</p>
+<ul>
+<li>An integrated PDF reader and annotation tools.</li>
+<li>Offline library access. The installed app opens offline, but library data is
+  not stored on the device.</li>
+<li>Advanced search and a saved-search builder.</li>
+<li>Adding items by DOI, ISBN or PMID.</li>
+<li>A citation-style picker and a multi-item bibliography or report interface.
+  The server already renders bibliographies and reports; the detail pane's
+  citation uses <code>format=bib</code>.</li>
+<li>Deleting a tag from the whole library at once.</li>
+</ul>
+<p>Moving in from zotero.org brings the personal library only; a group has to be
+made here and its members invited.</p>
 <p>Making an account for somebody else, resetting a password, suspending an
 account and the operator's view of the instance are under <strong>Administration</strong>
 above. <a href="../../administration/">administration.md</a> says what the shell covers alone

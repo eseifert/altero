@@ -1792,7 +1792,7 @@
 
 <h1 id="why-altero-exists">Why altero exists<a class="headerlink" href="#why-altero-exists" title="Permanent link">&para;</a></h1>
 <p>altero exists for people and organizations that want to run the <strong>Zotero synchronization service itself</strong> on infrastructure they control.</p>
-<p>It is not intended to replace Zotero for most users, and it is not a new Zotero client. The goal is narrower: make an unmodified Zotero Desktop application synchronize against a self-hosted server.</p>
+<p>Its core requirement is to let an unmodified Zotero Desktop application synchronize against a self-hosted server. The <a href="../web-interface/">browser interface</a> also covers most everyday reference management, including editing items and notes, managing attachments and merging duplicates, so it can be used on its own or alongside the desktop application.</p>
 <h2 id="the-core-requirement">The core requirement<a class="headerlink" href="#the-core-requirement" title="Permanent link">&para;</a></h2>
 <p>Everything depends on compatibility with the normal desktop client.</p>
 <p>A useful self-hosted server must let Zotero Desktop synchronize without patches, custom builds or a separate workflow. That is why altero reproduces upstream behavior even when the behavior is surprising. Where protocol purity and client compatibility conflict, compatibility wins.</p>
