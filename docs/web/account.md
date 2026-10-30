@@ -207,6 +207,9 @@ Urdu and Shahmukhi Punjabi use right to left. Language and direction change
 together after the selected catalog loads, including when switching back to a
 left-to-right language.
 Menus, collection indentation, spacing and text alignment follow that direction.
+Directional icons mirror too. Splitter arrows move the divider in the direction
+pressed, and dragging resizes the pane on its displayed side. Drag previews
+appear beside the pointer in either direction, including after a touch hold.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
 and both default to following the browser — which is a setting in itself, not

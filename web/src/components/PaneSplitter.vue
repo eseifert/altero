@@ -2,6 +2,8 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { paneWidthDelta } from '@/panewidths'
+
 const { t } = useI18n()
 
 /**
@@ -26,9 +28,9 @@ const props = defineProps<{
   /** What the grip is called, since a window can hold more than one. */
   label: string
   /**
-   * Whether the pane being sized is to the *right* of the grip.
+   * Whether the pane being sized follows the list in the document's direction.
    *
-   * The detail pane is, and it therefore grows as the pointer goes left. Both
+   * The detail pane is trailing, on the right in LTR and left in RTL. Both
    * grips still move the same way under the same key: the arrow keys move the
    * grip, not the pane, so `ArrowRight` always moves the divide rightwards.
    */
@@ -58,10 +60,11 @@ function startDrag(event: PointerEvent): void {
 
   const originX = event.clientX
   const originWidth = props.width
+  const rtl = document.documentElement.dir === 'rtl'
   dragging.value = true
 
   const move = (moved: PointerEvent) =>
-    set(originWidth + (props.trailing ? originX - moved.clientX : moved.clientX - originX))
+    set(originWidth + paneWidthDelta(moved.clientX - originX, Boolean(props.trailing), rtl))
   const stop = () => {
     dragging.value = false
     window.removeEventListener('pointermove', move)
@@ -76,12 +79,14 @@ function startDrag(event: PointerEvent): void {
 }
 
 function onKeydown(event: KeyboardEvent): void {
-  const towards = (grip: number) => (props.trailing ? -grip : grip)
+  const towards = (grip: number) =>
+    paneWidthDelta(grip, Boolean(props.trailing), document.documentElement.dir === 'rtl')
+  const growsRight = towards(1) > 0
   const moves: Record<string, number | undefined> = {
     ArrowLeft: props.width + towards(-STEP),
     ArrowRight: props.width + towards(STEP),
-    Home: props.trailing ? props.max : props.min,
-    End: props.trailing ? props.min : props.max,
+    Home: growsRight ? props.min : props.max,
+    End: growsRight ? props.max : props.min,
     Backspace: props.preferred,
   }
 
@@ -124,10 +129,14 @@ function onKeydown(event: KeyboardEvent): void {
   top: 0;
   bottom: 0;
   width: 0.75rem;
-  transform: translateX(-50%);
+  transform: translateX(var(--splitter-offset, -50%));
   /* A pointer that is about to drag horizontally must not also scroll. */
   touch-action: none;
   cursor: col-resize;
+}
+
+.splitter:dir(rtl) {
+  transform: translateX(calc(-1 * var(--splitter-offset, -50%)));
 }
 
 @media (pointer: coarse) {

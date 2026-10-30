@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- RTL layouts mirror directional icons, keep splitter keys and dragging physical, and place drag previews beside the pointer.
 - Menus, collection indentation, spacing and text alignment follow the interface direction; the logical-CSS guard has no legacy exceptions.
 - Nested collections retain native list semantics, fixing an accessibility error when collections are present.
 - Document direction follows the interface language, including Urdu and Shahmukhi Punjabi, and resets when switching back.

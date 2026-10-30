@@ -68,6 +68,11 @@ export function clampWidth(pane: PaneWidth, width: number): number {
   return Math.min(pane.max, Math.max(pane.min, Math.round(width)))
 }
 
+/** Turn physical pointer/key movement into growth of a leading or trailing pane. */
+export function paneWidthDelta(movement: number, trailing: boolean, rtl: boolean): number {
+  return movement * (trailing !== rtl ? -1 : 1)
+}
+
 /**
  * The stored width of ``pane``, or its default.
  *

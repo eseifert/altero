@@ -21,3 +21,10 @@ withDefaults(defineProps<{ icon: SvgIcon; size?: number; labelled?: boolean }>()
     <g v-html="icon.markup" />
   </svg>
 </template>
+
+<style scoped>
+/* Independent scale preserves the tree twisty's open/closed rotation. */
+svg[data-mirror-rtl]:dir(rtl) {
+  scale: -1 1;
+}
+</style>

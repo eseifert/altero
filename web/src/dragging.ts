@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { computed, ref, type ComputedRef, type Ref } from 'vue'
 
 /**
  * Carrying something from one row to another, with a pointer or a finger.
@@ -55,6 +55,8 @@ export interface Carry<T> {
   target: Ref<string | null>
   /** Where to draw what is being carried. */
   position: Ref<{ x: number; y: number }>
+  /** Preview offset from the viewport's inline start; hit testing stays physical. */
+  transform: ComputedRef<string>
   /** Begin a possible carry from a press. */
   begin: (event: PointerEvent, carried: Carried<T>, drop: Drop) => void
   /** Give up on the carry in progress, if there is one. */
@@ -72,6 +74,13 @@ export function useCarry<T>(): Carry<T> {
   const carrying = ref<Carried<T> | null>(null) as Ref<Carried<T> | null>
   const target = ref<string | null>(null)
   const position = ref({ x: 0, y: 0 })
+  const transform = computed(() => {
+    // A stable scrollbar gutter can shrink this edge while clientWidth still
+    // reports the full viewport. Undo document scrolling for fixed positioning.
+    const edge = document.documentElement.getBoundingClientRect().right + window.scrollX
+    const x = position.value.x - (document.documentElement.dir === 'rtl' ? edge : 0)
+    return `translate(${x}px, ${position.value.y}px)`
+  })
 
   let stop: (() => void) | null = null
 
@@ -191,5 +200,5 @@ export function useCarry<T>(): Carry<T> {
     window.addEventListener('pointercancel', cancelled)
   }
 
-  return { carrying, target, position, begin, cancel }
+  return { carrying, target, position, transform, begin, cancel }
 }

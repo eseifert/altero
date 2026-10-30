@@ -2332,9 +2332,7 @@ function sortLabel(column: { field: string; label: string }): string {
     <div
       v-if="carry.carrying.value"
       class="library__cargo"
-      :style="{
-        transform: `translate(${carry.position.value.x}px, ${carry.position.value.y}px)`,
-      }"
+      :style="{ transform: carry.transform.value }"
       aria-hidden="true"
     >
       {{ carry.carrying.value.label }}
@@ -2455,7 +2453,7 @@ function sortLabel(column: { field: string; label: string }): string {
 
 .library__grip--detail {
   inset-inline-end: calc(var(--detail-width) + var(--md-spacing-4) / 2);
-  transform: translateX(50%);
+  --splitter-offset: 50%;
 }
 
 /* Stacked, so there is no vertical divide left to move. */
@@ -2665,7 +2663,7 @@ function sortLabel(column: { field: string; label: string }): string {
 /*
  * What is being carried, following the pointer.
  *
- * Offset down and to the right so that a fingertip is not covering the thing
+ * Offset down and towards inline end so that a fingertip is not covering the thing
  * it is holding, and `pointer-events: none` so it never becomes what is under
  * the pointer -- which is how the drop target is found.
  */
