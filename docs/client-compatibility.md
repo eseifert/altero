@@ -171,7 +171,7 @@ removed consumer, parse error or new consumer fails the review gate:
 
 ```sh
 .venv/bin/python -m tools.compatibility interactions \
-  --zotero-source .compatibility/zotero-10.0.6 --check \
+  --zotero-source .compatibility/zotero-10.0.7 --check \
   --output .compatibility/interactions.json --markdown .compatibility/interactions.md
 ```
 
@@ -318,8 +318,8 @@ consumers now have explicit manifest selectors as well as live scenario tests.
 
 The real desktop CI job runs nightly and on manual dispatch. Its official Linux
 archive, SHA-256 and version are pinned in `tools/compatibility/desktop.toml`.
-The 10.0.6 archive was downloaded through Zotero's official download endpoint
-and its application metadata inspected on 2026-10-19. CI checks the archive hash
+The 10.0.7 archive was downloaded through Zotero's official download endpoint
+and its application metadata inspected on 2026-10-30. CI checks the archive hash
 and running version, runs under Xvfb, and uploads snapshots, logs and desktop
 databases even on failure. A successful download is not a successful acceptance
 run; the test matrix below records runs separately. The GitHub jobs themselves
@@ -418,15 +418,14 @@ automatic sync, streaming, updates and word-processor installation, and leaves
 sync logic intact. `run_phase` applies explicit operations through Zotero's
 item APIs, runs the real sync runner, exports a JSON snapshot and exits. Each
 phase enforces the requested application version and a timeout, and preserves
-the desktop log on failure. The verified Zotero 10.0.6 binary and the Node
-replay source both use the 10.0.6 release; archive and source hashes are
-independent pins.
+the desktop log on failure. The desktop archive and Node replay source both pin the 10.0.7 release;
+archive and source hashes are independent pins.
 
 
 ```sh
 uv run python -m tools.compatibility acceptance \
-  --desktop-executable /path/to/Zotero_linux-x86_64/zotero --desktop-version 10.0.6 \
-  --xvfb --schema-corpus --state-dir .compatibility/desktop-10.0.6
+  --desktop-executable /path/to/Zotero_linux-x86_64/zotero --desktop-version 10.0.7 \
+  --xvfb --schema-corpus --state-dir .compatibility/desktop-10.0.7
 ```
 
 This requires an installed Zotero binary and Xvfb (or omit `--xvfb` to use an
@@ -743,7 +742,7 @@ reports, profiles, files and failed attempts live in ignored local run
 directories. Regenerate the matrix from them with:
 
 ```sh
-uv run python -m tools.compatibility matrix --desktop-version 10.0.6 \
+uv run python -m tools.compatibility matrix --desktop-version 10.0.7 \
   --report .compatibility/beta6-sqlite-1/acceptance.json \
   --report .compatibility/beta6-pg-1/acceptance.json \
   --report .compatibility/web-merge-sqlite-3/acceptance.json \

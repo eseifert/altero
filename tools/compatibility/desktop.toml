@@ -1,7 +1,7 @@
-# Downloaded from the official endpoint and inspected on 2026-10-19.
+# Downloaded from the official endpoint and inspected on 2026-10-30.
 # Acceptance also checks the version reported by the running application.
 [desktop]
-version = "10.0.6"
-url = "https://www.zotero.org/download/client/dl?channel=release&platform=linux-x86_64&version=10.0.6"
-sha256 = "246c2574a9ac526abeaf3027ffd22fc45536a5ab25f227bb1df932fca9cedd63"
-source_revision = "536244c2771f590abab9c09a3c27e615e0b318ff"
+version = "10.0.7"
+url = "https://www.zotero.org/download/client/dl?channel=release&platform=linux-x86_64&version=10.0.7"
+sha256 = "ddf43b50413f00ea9ba863c7913a4f1350288c1e81b45c2aaf192227b67d9549"
+source_revision = "35429ad62024032e0888b6cc1b6b51f96f8a8f1d"

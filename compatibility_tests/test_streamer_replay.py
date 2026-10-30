@@ -46,7 +46,7 @@ async def test_live_notifications_schedule_only_outdated_selected_libraries(desk
         assert result["syncs"] == []
 
 
-@pytest.mark.parametrize(("code", "delays"), [(1006, [2000]), (4401, [])])
+@pytest.mark.parametrize(("code", "delays"), [(1006, [2000]), (4401, []), (4429, [2000])])
 def test_original_reconnect_policy_uses_virtual_delay(zotero_client, code, delays):
     result = zotero_client.call(
         "streamer_connect",

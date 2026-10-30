@@ -19,6 +19,7 @@ needs no database or storage changes; older installations should follow the
 This is the last feature beta before the release candidate. Remaining 1.0 work
 focuses on polish, hardening and testing against real identity providers.
 
+- Compatibility checks pin Zotero 10.0.7, including restore markers and rate-limited streaming reconnects.
 - Note and attachment menus no longer close themselves when opened below the fold on a phone.
 - RTL mirroring uses browser-compatible transforms; regressions cover mixed text, actual font rendering, gestures, screenshots and axe.
 - Arabic and Hebrew Plex fonts load locally on demand, with Persian, Urdu and Shahmukhi Punjabi coverage and no install telemetry.

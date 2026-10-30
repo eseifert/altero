@@ -6,17 +6,22 @@ from tests.factories import make_api_key, make_user
 from tools.compatibility.live import DesktopAPI
 
 
+@pytest.mark.parametrize("restore", [False, True])
 async def test_original_request_builder_and_headers_reach_the_server(
-    session, socket_client, zotero_client
+    session, socket_client, zotero_client, restore
 ) -> None:
     await make_user(session)
     await make_api_key(session)
     api = DesktopAPI(zotero_client, str(socket_client.base_url), "P9NiFoyLeZu2bZNvvuQPDWsd")
-    result = await api.call("getVersions", ["user", 1, "item", {"since": 0}])
+    options = {"since": 0} | ({"restoreToServer": 1} if restore else {})
+    result = await api.call("getVersions", ["user", 1, "item", options])
     assert result["error"] is None
     assert result["value"] == {"libraryVersion": "0", "versions": {}}
     request = result["requests"][0]
-    assert request["url"].endswith("/users/1/items?format=versions&since=0&includeTrashed=1")
+    marker = "&restoreToServer=1" if restore else ""
+    assert request["url"].endswith(
+        f"/users/1/items?format=versions&since=0{marker}&includeTrashed=1"
+    )
     assert request["headers"]["Zotero-API-Version"] == "3"
     assert request["authenticated"] is True
     assert "Zotero-API-Key" not in request["headers"]
