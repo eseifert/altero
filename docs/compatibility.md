@@ -650,6 +650,18 @@ The desktop's sidebar shows **Recently Read**, **Duplicate Items** and **Unfiled
 
 **Recently Read** is a guess. Zotero 7 records when an attachment was last read and syncs it, but which items the desktop lists, and over what period, is not documented. altero lists items whose attachments were read in the last 90 days, newest first where the sort allows, and stand-alone attachments themselves. **The 90 days is a guess**, chosen so the view does not grow into "everything ever opened".
 
+### Merging PDFs with embedded notes
+
+When deduplication would both move a surviving PDF to the master and transfer
+another PDF's embedded note to it, altero keeps both PDFs under the master.
+Each keeps its original note and annotations. Other PDF matching follows the
+desktop's byte and common-word checks.
+
+Zotero 10.0.6 can save the changed note while losing the attachment's parent
+change, leaving the surviving file under the trashed duplicate. This was
+reproduced with zotero.org and without a server. Keeping both files avoids
+that combination without detaching the note from its original PDF.
+
 ### Reading a library out of zotero.org
 
 This is the one place altero makes requests instead of answering them: it reads a personal library from api.zotero.org and turns it into the same archive `altero library export` writes, then restores that archive.

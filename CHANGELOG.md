@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- PDF merges keep both files when transferring a note would trigger Zotero's attachment-parent sync bug.
 - Headless desktop acceptance forces X11 so Zotero cannot open on an inherited Wayland display.
 - Merge duplicate groups in the browser with compact field choices, touch controls, and PDF attachment deduplication.
 - Vue I18n is upgraded to 11.4.16, fixing the published translation-escaping XSS advisories.

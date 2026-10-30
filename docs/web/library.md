@@ -42,6 +42,13 @@ versions move to the trash; collections, tags, relations and children are
 combined, with matching attachments deduplicated. The duplicates list refreshes
 and a message confirms success. Keyboard focus returns to a remaining group.
 
+Both PDFs are kept when deduplication would move a file and transfer a note to
+it together, avoiding a [Zotero sync bug](../compatibility.md#merging-pdfs-with-embedded-notes).
+Each file keeps its note and annotations.
+
+Restoring a duplicate from the trash brings back that record. It does not undo
+the merged fields or move children back to their previous parent.
+
 If the library changed while you were reviewing, the merge stops. Press
 **Reload** and review the current versions before confirming again.
 

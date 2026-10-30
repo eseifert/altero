@@ -73,6 +73,31 @@ async def merged(
     return changed
 
 
+async def test_keeps_both_pdfs_when_swapping_would_move_a_parent_and_change_a_note(
+    session: AsyncSession, library: Library, tmp_path: Path
+) -> None:
+    """Zotero 10.0.6 loses that parent move when saving the changed note."""
+    master = await factories.make_item(session, library)
+    other = await factories.make_item(session, library)
+    original = await attachment(session, library, master, tmp_path, note="<p>Keep this note</p>")
+    marked = await attachment(session, library, other, tmp_path, body=pdf_bytes(subtype="/Text"))
+    annotation = await factories.make_item(
+        session,
+        library,
+        item_type="annotation",
+        parent=original,
+        fields={"annotationType": "highlight"},
+    )
+    await session.commit()
+    await merged(session, library, master, [other], tmp_path)
+    assert not original.deleted, "The original PDF and its note must remain together"
+    assert not marked.deleted
+    assert original.parent_id == marked.parent_id == master.id
+    assert original.field_values()["note"] == "<p>Keep this note</p>"
+    assert marked.field_values()["note"] == ""
+    assert annotation.parent_id == original.id
+
+
 async def test_identical_pdfs_move_annotations_notes_and_relations(
     session: AsyncSession, library: Library, tmp_path: Path
 ) -> None:

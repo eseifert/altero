@@ -84,6 +84,24 @@ async def test_promoted_note_on_an_already_moved_pdf_stays_on_the_master(
     assert note.field_values()["note"] == html
 
 
+async def test_note_transfer_to_a_previously_moved_pdf_keeps_both_files(
+    session: AsyncSession, library: Library, tmp_path: Path
+) -> None:
+    master, other, third = [await factories.make_item(session, library) for _ in range(3)]
+    first = await attachment(session, library, other, tmp_path)
+    second = await attachment(
+        session, library, third, tmp_path, body=pdf_bytes(TEXT + " "), note="<p>Keep</p>"
+    )
+    annotation = await factories.make_item(session, library, item_type="annotation", parent=second)
+    await merged(session, library, master, [other, third], tmp_path)
+    assert not first.deleted
+    assert not second.deleted
+    assert first.parent_id == second.parent_id == master.id
+    assert first.field_values().get("note", "") == ""
+    assert second.field_values()["note"] == "<p>Keep</p>"
+    assert annotation.parent_id == second.id
+
+
 async def test_repeated_pdf_swaps_use_the_already_moved_annotation_parent(
     session: AsyncSession, library: Library, tmp_path: Path
 ) -> None:
@@ -184,20 +202,23 @@ async def test_retaining_the_other_pdf_preserves_both_embedded_notes(
             field.value = html
     await session.commit()
     changed = await merged(session, library, master, [other], tmp_path)
-    assert first.deleted
     assert not second.deleted
     assert second.parent_id == master.id
+    if not target_has_note:
+        # Keep both rather than make Zotero 10.0.6 lose a simultaneous
+        # attachment-parent and embedded-note update during sync.
+        assert not first.deleted
+        assert first.field_values()["note"] == html
+        assert second.field_values().get("note", "") == ""
+        return
+    assert first.deleted
     assert first.field_values().get("note", "") == ""
-    if target_has_note:
-        assert second.field_values()["note"] == "<p>Keep target</p>"
-        new_note = next(item for item in changed if item.item_type == "note")
-        assert new_note.parent_id == master.id
-        assert (
-            new_note.field_values()["note"]
-            == f"<p>%2Fitems%2F{second.key} %2Fitems%2F{master.key}</p>"
-        )
-    else:
-        assert second.field_values()["note"] == html.replace(first.key, second.key)
+    assert second.field_values()["note"] == "<p>Keep target</p>"
+    new_note = next(item for item in changed if item.item_type == "note")
+    assert new_note.parent_id == master.id
+    assert (
+        new_note.field_values()["note"] == f"<p>%2Fitems%2F{second.key} %2Fitems%2F{master.key}</p>"
+    )
 
 
 async def test_an_unmodified_master_attachment_needs_no_edit_permission(

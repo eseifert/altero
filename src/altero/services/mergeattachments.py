@@ -182,20 +182,31 @@ async def plan_attachments(
                     continue
                 source, target = target, item
                 swapped = True
+            note = plan.patches.get(source.id, {}).get(
+                "note", source.field_values().get("note", "")
+            )
+            target_note = plan.patches.get(target.id, {}).get(
+                "note", target.field_values().get("note", "")
+            )
+            # Zotero 10.0.6 item.js skips the itemAttachments parent update
+            # when only parentKey and the embedded note change together.
+            # Keeping both files avoids stranding the survivor under the
+            # trashed duplicate; retain existing note/annotation associations.
+            # Compare the stored parent: a previous step in this same plan
+            # may already have scheduled the target's move to the master.
+            if note and not target_note and target.parent_id != master.id:
+                plan.patch(target)["parentItem"] = master.key
+                if source.parent_id != master.id:
+                    plan.patch(source)["parentItem"] = master.key
+                continue
             used.add(target.id)
             for child in grandchildren:
                 if parent_key(child) == source.key:
                     plan.patch(child)["parentItem"] = target.key
             # moveEmbeddedNote: keep an existing target note, promote the
             # source note to a child in that case, and remap its attachment URL.
-            note = plan.patches.get(source.id, {}).get(
-                "note", source.field_values().get("note", "")
-            )
             if note:
                 note = _replace_note_key(note, source.key, target.key)
-                target_note = plan.patches.get(target.id, {}).get(
-                    "note", target.field_values().get("note", "")
-                )
                 if target_note:
                     target_parent = parent_key(target)
                     assert target_parent is not None
