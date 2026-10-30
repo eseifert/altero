@@ -56,6 +56,7 @@ import th from './th'
 import tl from './tl'
 import tr from './tr'
 import uk from './uk'
+import ur from './ur'
 import vi from './vi'
 import zhCN from './zh-CN'
 import zhTW from './zh-TW'
@@ -103,6 +104,7 @@ const CATALOGUES = {
   et,
   ru,
   uk,
+  ur,
   bg,
   el,
   ka,

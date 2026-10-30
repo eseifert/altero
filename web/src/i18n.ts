@@ -64,6 +64,7 @@ export const LOCALES = [
   'ka',
   'mn',
   'tr',
+  'ur',
   'hi',
   'bn',
   'ta',

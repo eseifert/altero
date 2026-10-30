@@ -195,9 +195,9 @@ The interface speaks English, German, French, Breton, Spanish, Portuguese,
 Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Danish, Norwegian Bokmål,
 Norwegian Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak,
 Slovenian, Croatian, Serbian, Hungarian, Romanian, Lithuanian, Latvian,
-Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish,
+Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish, Urdu,
 Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese,
-Indonesian, Tagalog and Chinese — 51 catalogs, because three of those are
+Indonesian, Tagalog and Chinese — 52 catalogs, because three of those are
 written differently in different places and are carried twice: American and
 British English, Brazilian and European Portuguese, Simplified and Traditional
 Chinese. They are the same three Zotero splits.
@@ -260,6 +260,9 @@ translations in 48 locales, and they follow the account's language — the item
 list's column headings included. Where the interface's own messages name
 something Zotero also names, they use Zotero's word for it, so the two
 applications read as one vocabulary.
+
+Urdu messages are translated throughout the interface. Item types, field names
+and creator roles use English where Zotero's schema has no Urdu translation.
 
 A personal library is called **My Library** everywhere the interface names one
 — the sidebar, the dialogs, and the export and restore lists in settings — from

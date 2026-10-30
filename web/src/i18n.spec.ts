@@ -40,6 +40,11 @@ afterEach(() => {
 })
 
 describe('the languages on offer', () => {
+  it('offers Urdu and recognises regional Urdu tags', () => {
+    expect(LOCALES).toContain('ur')
+    expect(matchLocale('ur-PK')).toBe('ur')
+    expect(matchLocale('UR_in')).toBe('ur')
+  })
   it('holds a catalogue for each', () => {
     expect(LOCALES).toEqual(
       expect.arrayContaining([
@@ -188,6 +193,11 @@ describe('the languages on offer', () => {
 })
 
 describe('counting in a language with two forms', () => {
+  it.each([
+    [0, '0 اندراجات'], [1, '1 اندراج'], [2, '2 اندراجات'], [11, '11 اندراجات'],
+  ])('renders Urdu %i', (count, expected) => {
+    expect(items('ur', count)).toBe(expected)
+  })
   it.each([
     ['en-US', 1, '1 item'],
     ['en-US', 2, '2 items'],

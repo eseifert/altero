@@ -85,6 +85,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["tl"] == "Tagalog"
         assert LANGUAGES["tr"] == "Türkçe"
         assert LANGUAGES["uk"] == "Українська"
+        assert LANGUAGES["ur"] == "اردو"
         assert LANGUAGES["vi"] == "Tiếng Việt"
         assert LANGUAGES["zh-CN"] == "简体中文"
 
@@ -145,6 +146,10 @@ class TestTheBrowserAgreesAboutThem:
 
 
 class TestNormalisingALanguage:
+    @pytest.mark.parametrize("tag", ["ur", "ur-PK", "ur_IN", "UR-pk"])
+    def test_urdu_tags_use_the_urdu_catalogue(self, tag: str) -> None:
+        assert normalise_language(tag) == "ur"
+
     @pytest.mark.parametrize("tag", ["ko", "ko-KR", "ko_KR", "KO-kr"])
     def test_korean_tags_use_the_korean_catalogue(self, tag: str) -> None:
         assert normalise_language(tag) == "ko"

@@ -626,6 +626,21 @@ class TestManagingKeys:
 class TestLanguageAndTimeZone:
     """Both are account settings, so they follow the person between browsers."""
 
+    async def test_urdu_preference_is_normalised_and_retained(
+        self, client: httpx2.AsyncClient
+    ) -> None:
+        await register(client)
+        response = await client.put(
+            "/web/account/locale",
+            headers=csrf_headers(client),
+            json={"language": "ur-PK", "timeZone": "Asia/Karachi"},
+        )
+        assert response.status_code == 200
+        assert response.json()["user"]["language"] == "ur"
+        body = (await client.get("/web/account")).json()
+        assert body["user"]["language"] == "ur"
+        assert body["user"]["timeZone"] == "Asia/Karachi"
+
     async def test_a_new_account_follows_the_browser(self, client: httpx2.AsyncClient) -> None:
         """Null is the setting, not the absence of one."""
         await register(client)
@@ -810,6 +825,7 @@ class TestLanguageAndTimeZone:
             "ka",
             "mn",
             "tr",
+            "ur",
             "hi",
             "bn",
             "ta",
