@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Docs describe the browser as covering most everyday reference management and update its remaining gaps.
 - Saving language settings confirms success in the newly selected language and text direction.
 - RTL layouts mirror directional icons, keep splitter keys and dragging physical, and place drag previews beside the pointer.
 - Menus, collection indentation, spacing and text alignment follow the interface direction; the logical-CSS guard has no legacy exceptions.

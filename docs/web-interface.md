@@ -1,17 +1,17 @@
 # The web interface
 
-altero includes a browser application at `/app/` for account management, library browsing, groups, sharing and instance administration.
+altero includes a browser application at `/app/` for reference management, accounts, groups, sharing and instance administration.
 
 **Important boundary:** the browser session does not authenticate the Zotero v3 API. Zotero Desktop continues to use an API key.
 
-The web interface is a companion to Zotero Desktop, not a replacement for the full reference manager. An item's fields, type, creators, tags and notes can be edited here, and files and web links attached.
+The web interface can replace Zotero Desktop for most everyday reference management. Create items, edit their fields, type, creators, tags and notes, upload, rename and replace attachments, organize collections and merge duplicates. It also works alongside Zotero Desktop, with changes synchronized between them.
 
 ## What you can do
 
 | Area                    | Main capabilities                                                                                       | Detailed guide                                               |
 |-------------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
 | Accounts and settings   | Sign in, password/email settings, API keys, connected applications, language, time zone, second factors | [Accounts and personal settings](web/account.md)             |
-| Library                 | Browse, search, collections, item actions, tags                                                         | [Browsing and organizing a library](web/library.md)          |
+| Library                 | Browse, search, edit items and notes, manage attachments and collections, merge duplicates              | [Browsing and organizing a library](web/library.md)          |
 | Publishing and sharing  | My Publications, profile pages, shared collections                                                      | [Publishing and sharing](web/sharing.md)                     |
 | Data transfer           | Move from zotero.org, backup/restore archives, exports                                                  | [Moving, importing and exporting data](web/data-transfer.md) |
 | Groups                  | Membership, invitations, activity, notifications                                                        | [Groups, invitations and activity](web/groups.md)            |
@@ -135,4 +135,4 @@ The browser follows the altero design system. Contributor-facing details are in 
 
 ## Not built yet
 
-The browser is intentionally not a complete Zotero Desktop replacement. See [Web implementation notes](web/implementation.md) for the current browser-specific gaps and [What works](status.md) for the server feature status.
+Some workflows still need Zotero Desktop, including PDF annotation and offline library access. See [Web implementation notes](web/implementation.md#not-built-yet) for the current browser gaps and [What works](status.md) for the server feature status.

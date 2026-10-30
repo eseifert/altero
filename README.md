@@ -104,9 +104,9 @@ Compatibility comes first, but running your own server also makes features possi
 
 ## Web interface
 
-The browser application at `/app/` covers registration and sign-in, account settings, API keys, connected applications, library browsing, search, item details and citations, groups, My Publications, shared links, imports and exports, and the administration screens. It is translated into 48 languages, held in 51 catalogs, and takes item types, fields and creator types from Zotero's own schema translations so the two applications read as one vocabulary.
+The browser application at `/app/` covers registration and sign-in, account settings, API keys, connected applications, library management, citations, groups, My Publications, shared links, imports and exports, and the administration screens. It is translated into 53 languages, held in 56 catalogs, and takes item types, fields and creator types from Zotero's own schema translations so the two applications read as one vocabulary.
 
-It is not intended to replace Zotero Desktop as a full reference manager: editing bibliographic fields remains the desktop client's job. See [The web interface](https://altero.run/latest/web-interface/).
+For most everyday reference management, altero can replace Zotero Desktop: create items, edit bibliographic fields, creators and tags, write notes, upload, rename and replace attachments, organize collections and merge duplicates. Zotero Desktop remains useful for workflows such as PDF annotation and offline library access. See [The web interface](https://altero.run/latest/web-interface/) and [current browser gaps](https://altero.run/latest/web/implementation/#not-built-yet).
 
 ## Compatibility over purity
 

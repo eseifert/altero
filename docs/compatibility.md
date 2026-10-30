@@ -447,7 +447,7 @@ These requests belong to the browser interface and cannot be made with an API ke
 Three deliberate differences:
 
 - **The license name is written in English**, whatever language the account uses. The desktop writes the name in the language of its own window, so the same license reaches the field in German from one client and in English from another. **Rights** is data that gets exported and cited, not a label, so it should not depend on who published.
-- **The license can be changed afterwards.** The desktop never shows its wizard twice for an item; a different license is typed into the **Rights** field. The browser has no field editor, so it allows editing **Rights** and nothing else. The edit is refused if the item changed in the meantime.
+- **The license chooser remains available afterwards.** The desktop never shows its wizard twice for an item; a different license is typed into the **Rights** field. The browser offers a chooser with the same licenses and free text. It refuses the edit if **Rights** changed in the meantime; changes to other fields do not prevent saving.
 - **The generic "Creative Commons" choice is not offered.** It is what the desktop reports while a license is still being chosen; here, choosing Creative Commons always leads on to the two questions that pick one of the six licenses.
 
 ### Trashing a collection or a saved search

@@ -1,6 +1,6 @@
 # Browsing and organizing a library
 
-The browser interface is a companion to Zotero Desktop. It lets you browse, search and organize a library and edit an item's fields, but it is not intended to replace the desktop application.
+The browser interface covers most everyday reference management: browse, search and organize a library, create and edit items and notes, manage attachments and merge duplicates. You can use it on its own or alongside Zotero Desktop. See [current browser gaps](implementation.md#not-built-yet) for workflows that still need the desktop application.
 
 ## Common tasks
 

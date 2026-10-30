@@ -2,7 +2,7 @@
 
 altero exists for people and organizations that want to run the **Zotero synchronization service itself** on infrastructure they control.
 
-It is not intended to replace Zotero for most users, and it is not a new Zotero client. The goal is narrower: make an unmodified Zotero Desktop application synchronize against a self-hosted server.
+Its core requirement is to let an unmodified Zotero Desktop application synchronize against a self-hosted server. The [browser interface](web-interface.md) also covers most everyday reference management, including editing items and notes, managing attachments and merging duplicates, so it can be used on its own or alongside the desktop application.
 
 ## The core requirement
 

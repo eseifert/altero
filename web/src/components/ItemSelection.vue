@@ -14,10 +14,9 @@ import SidebarIcon from '@/components/SidebarIcon.vue'
  * uses for one — a reader who has learnt "Move or copy…" on one row should not
  * meet a different phrase for the same thing on three.
  *
- * There is no field editor here for the same reason there is none there: this
- * interface does not edit items. Publishing is missing too, and that is not an
- * omission — the wizard's questions are about the item in front of it, so a
- * selection has no single set of answers to give it. Writing the rows out as a
+ * Fields are edited in the single-item detail pane. Publishing also needs one
+ * item: the wizard's questions are about the item in front of it, so a selection
+ * has no single set of answers to give it. Writing the rows out as a
  * file is here, and is the one errand that is not a write, so it appears in a
  * library this account may only read.
  */

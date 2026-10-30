@@ -11,11 +11,8 @@ import { LICENSES, licenseCode } from '@/publications/licenses'
  * What an item's Rights field says, and how to change it.
  *
  * The desktop client has no dialog for this: Rights is an ordinary field in its
- * Info pane, typed into like any other. This interface has no field editor, and
- * it does have a way to publish a work — so the one field it must be able to
- * change is this one, because the client's My Publications wizard refuses to
- * run twice on the same item and the licence would otherwise be set once and
- * for ever.
+ * Info pane, typed into like any other. The browser keeps this chooser available
+ * after publication, since the My Publications wizard runs only once per item.
  *
  * A picker rather than a bare text box, because the licence the wizard offers
  * is the licence somebody who published here is most likely to want, and

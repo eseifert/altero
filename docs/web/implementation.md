@@ -152,20 +152,21 @@ word ordering; it defaults to the account language, then `en-US`.
 
 ### Not built yet
 
-Adding attachments. An item or note can be made and its fields, type,
-creators, tags, related items and note text edited, collections can be made, renamed, moved and
-removed, an item can be filed, trashed, restored, deleted, copied to another
-library, published to My Publications and written out as a file, a tag can be
-renamed, and a whole library can be restored from an archive or copied in from
-zotero.org — but no file can be uploaded, and a tag
-cannot be deleted from the whole library at once. Moving in from zotero.org brings
-the personal library only; a group has to be made here and its members invited.
+Items, notes and attachments can be created and edited in the browser, and
+duplicate items can be merged. Remaining browser gaps include:
 
-The two things the desktop client does with a set of items that this does not
-are the ones that produce a document rather than a file: Create Bibliography
-from Items…, which needs a citation style chosen out of thousands, and Generate
-Report…. The server renders both — `format=bib` is what the detail pane's
-citation comes from — so what is missing is the asking, not the writing.
+- An integrated PDF reader and annotation tools.
+- Offline library access. The installed app opens offline, but library data is
+  not stored on the device.
+- Advanced search and a saved-search builder.
+- Adding items by DOI, ISBN or PMID.
+- A citation-style picker and a multi-item bibliography or report interface.
+  The server already renders bibliographies and reports; the detail pane's
+  citation uses `format=bib`.
+- Deleting a tag from the whole library at once.
+
+Moving in from zotero.org brings the personal library only; a group has to be
+made here and its members invited.
 
 Making an account for somebody else, resetting a password, suspending an
 account and the operator's view of the instance are under **Administration**
