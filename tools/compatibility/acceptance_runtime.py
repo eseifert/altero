@@ -78,6 +78,11 @@ class AcceptanceRun:
                     return int(content or 0)
                 if field == "collections":
                     return sorted(content)
+                if field == "tags":
+                    return sorted(
+                        ({"tag": tag["tag"], "type": tag.get("type", 0)} for tag in content),
+                        key=lambda tag: (tag["tag"], tag["type"]),
+                    )
                 if field == "relations":
                     return {
                         name: sorted(value if isinstance(value, list) else [value])

@@ -11,6 +11,38 @@ from tools.compatibility.acceptance_runtime import AcceptanceRun
 from tools.compatibility.runtime import TestServer as DisposableServer
 
 
+async def test_tag_order_can_differ_but_membership_and_types_must_match(tmp_path):
+    runner = AcceptanceRun(
+        Path("/unused"), "10.0.6", tmp_path, DisposableServer("http://localhost")
+    )
+    item: dict = dict(
+        key="ABCD2345",
+        version=1,
+        itemType="book",
+        tags=[
+            dict(tag="manual"),
+            dict(tag="automatic", type=1),
+        ],
+    )
+    snapshot = dict(items=[item], collections=[], searches=[], files={}, unsynced={})
+
+    async def request(method, path, **options):
+        return httpx2.Response(
+            200, json=[dict(data=value) for value in snapshot[path.split("/")[-1]]]
+        )
+
+    runner.request = AsyncMock(side_effect=request)
+    other = deepcopy(snapshot)
+    other["items"][0]["tags"].reverse()
+    await runner.converged(snapshot, other)
+    other["items"][0]["tags"][0]["type"] = 0
+    with pytest.raises(AssertionError):
+        await runner.converged(snapshot, other)
+    other["items"][0]["tags"].pop(0)
+    with pytest.raises(AssertionError):
+        await runner.converged(snapshot, other)
+
+
 @pytest.mark.parametrize("failure", ["server-title", "server-version", "desktop-title", "pending"])
 async def test_convergence_rejects_divergent_state(tmp_path, failure):
     runner = AcceptanceRun(

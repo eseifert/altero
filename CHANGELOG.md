@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Desktop acceptance verifies browser merges, replacement history and PDF deduplication on SQLite and PostgreSQL.
 - PDF merges keep both files when transferring a note would trigger Zotero's attachment-parent sync bug.
 - Headless desktop acceptance forces X11 so Zotero cannot open on an inherited Wayland display.
 - Merge duplicate groups in the browser with compact field choices, touch controls, and PDF attachment deduplication.

@@ -212,6 +212,7 @@ jobs:
           - reader-rendering
           - zipped-digest-race
           - backup-rewind
+          - web-merge
     services:
       postgres:
         image: postgres:18-alpine
@@ -280,6 +281,7 @@ jobs:
             .compatibility/desktop-run/acceptance.json
             .compatibility/desktop-run/*/acceptance.json
             .compatibility/desktop-run/*/phase-*.json
+            .compatibility/desktop-run/*/browser-merge-*.json
             .compatibility/desktop-run/*/server/database.json
             .compatibility/desktop-run/*/server/seed/database.json
             .compatibility/desktop-run/*/http-trace.json

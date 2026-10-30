@@ -101,7 +101,11 @@ surviving file and moved annotation. Browser tests exercise complete candidate
 groups, ordinary click/tap selection, individual inspection and return, member
 exclusion, master and field choices, confirmation, stale-review reloads and
 persisted results on desktop and phone layouts. They check touch target sizes
-and accessibility. Actual desktop merge acceptance remains pending.
+and accessibility. `web-merge` submits a merge through the cookie-authenticated
+browser route, then runs the original sync engine in two actual desktop
+profiles. It checks chosen fields and creators, moved children, combined tags
+and collections, incoming relations, transferred replacement history, a stale
+review's refusal and restoring the trashed duplicate record.
 
 The service accepts chosen bibliographic fields and creators as part of the
 same master-item write. Omitted values stay on the master; empty values clear
@@ -128,7 +132,7 @@ compare and are kept.
 The attachment transition cases also check repeated PDF swaps, notes promoted
 after an attachment already moved, cached full text, missing files, and the PDF
 attachments that participate in the subsequent web-attachment pass. Server
-merge coverage and pending desktop acceptance are separate inventory entries.
+merge coverage and desktop acceptance are separate inventory entries.
 
 Source replay adapters provide facades for the database and application UI.
 The real acceptance runner below exercises complete synchronization separately.
@@ -564,6 +568,7 @@ The final settled sync checks convergence and an unchanged server watermark.
 | `note-corpus` | Store notes as clients wrote them, from TinyMCE-era HTML to schema 10 and a note built from PDF annotations; have the shipped note editor save each unedited; record both for the browser editor's tests, and check the server keeps the desktop's HTML exactly. |
 | `web-notes` | Write a standalone and a child note through the browser's routes; both desktops store exactly that HTML; the desktop's editor opens them editable and writes nothing; a desktop edit reaches the browser. |
 | `web-files` | Upload a child and a standalone file and attach a web link through the browser's routes; both desktops download the bytes under the browser's name; a rename renames each desktop's copy without fetching it; a replacement brings new bytes; a desktop's replacement makes the browser's stale one fail with 412. |
+| `web-merge` | Merge through the browser route; both desktops retain chosen fields, moved notes and links, tags, collections, incoming relations and replacement history; refuse a stale review; restore the duplicate record without reversing the merge. |
 | `resync` | Discard pending edits through the original reset helper; replace the server from a desktop; restore an older server archive, lift its watermark and recover from the surviving authoritative desktop. |
 | `file-lifecycle` | Rename Unicode filenames; reuse a stored digest and delete one reference; recover a missing local file; refuse a stale download redirect with 404, observe the expected storage failure, then recover current bytes and hashes. |
 | `upload-interruption` | Kill the desktop process group while the server has consumed only part of a large incompressible upload; assert no premature registration; restart and compare complete bytes and settled storage states. |

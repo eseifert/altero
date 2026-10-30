@@ -226,8 +226,8 @@ tests = ["tests/test_duplicate_groups.py", "web/src/stores/duplicate-groups.spec
 
 [scenarios.browser_merge_desktop_acceptance]
 operation = "convergence"
-status = "pending"
-reason = "The merge endpoint and pane have HTTP and browser checks; actual desktop merge acceptance remains roadmap task P4.4."
+status = "executable"
+tests = ["tools/compatibility/acceptance_web_merge.py"]
 
 [scenarios.desktop_http_rate_limit_retry]
 operation = "http"
