@@ -217,6 +217,10 @@ made in Zotero Desktop are shown and kept, but cannot be added here, and maths
 shows as its TeX source. A note written by a newer version of Zotero than this
 interface knows is shown read-only, as older versions of Zotero Desktop do.
 
+Notes can mix left-to-right and right-to-left paragraphs independently of the UI.
+Automatic direction affects the displayed note only; explicit directions saved
+by its author stay in effect.
+
 If the note changed elsewhere while you were typing, nothing is written: the
 pane names the local version and the remote version by their first lines, and
 **Choose this version** keeps one. A note changed elsewhere while you are only

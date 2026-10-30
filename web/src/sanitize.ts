@@ -81,6 +81,16 @@ const FORBID_TAGS = [
 const PLAIN_VALUE = /^[\w\s#%.,+-]*$/
 const COLOR_FUNCTION = /^(?:rgba?|hsla?)\([\d\s.,%/]+\)$/i
 
+const TEXT_BLOCKS = new Set(['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'BLOCKQUOTE', 'PRE', 'TD', 'TH'])
+
+/** A stored direction wins, including one set on a surrounding list or quote. */
+function explicitlyDirected(node: Element): boolean {
+  for (let current: Element | null = node; current; current = current.parentElement) {
+    if (['ltr', 'rtl'].includes(current.getAttribute('dir')?.toLowerCase() ?? '')) return true
+  }
+  return false
+}
+
 function keepStyles(value: string, allowed: ReadonlySet<string>): string {
   const kept: string[] = []
   for (const declaration of value.split(';')) {
@@ -112,6 +122,9 @@ function cleaner(policy: Policy): (html: string | null | undefined) => string {
   // A link leaves the page rather than replacing it, and tells its target
   // neither where it came from nor how to reach back.
   purify.addHook('afterSanitizeAttributes', (node) => {
+    if ((TEXT_BLOCKS.has(node.tagName) || node.classList.contains('csl-entry')) && !explicitlyDirected(node)) {
+      node.setAttribute('dir', 'auto')
+    }
     if (node.tagName === 'A' && node.hasAttribute('href')) {
       node.setAttribute('target', '_blank')
       node.setAttribute('rel', 'noopener noreferrer')
@@ -127,7 +140,7 @@ function cleaner(policy: Policy): (html: string | null | undefined) => string {
       : ''
 }
 
-/** A note's HTML, safe to put on a page. */
+/** A note's HTML, safe to display, with automatic direction per undirected block. */
 export const cleanNote = cleaner(NOTE)
 
 /** A rendered bibliography or citation, safe to put on a page. */

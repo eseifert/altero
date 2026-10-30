@@ -19,6 +19,7 @@ import { Editor, type Node } from '@tiptap/vue-3'
 import { NoteBehaviour } from './behaviour'
 import type { CitationWords } from './citations'
 import { type Metadata, setNoteContext } from './context'
+import { NoteDirection } from './direction'
 import { parseNote, serializeNote } from './html'
 import { noteSchema, noteSchemaExtensions } from './schema'
 
@@ -117,6 +118,7 @@ export function createNoteEditor(options: NoteEditorOptions): NoteEditor {
       }),
       Dropcursor,
       Gapcursor,
+      NoteDirection,
       Placeholder.configure({ placeholder: options.placeholder ?? '' }),
       ...(options.extensions ?? []),
     ],
@@ -134,6 +136,7 @@ export function createNoteEditor(options: NoteEditorOptions): NoteEditor {
       // The element that takes the text is a multi-line text field, and a
       // field needs a name (WCAG 4.1.2).
       attributes: {
+        dir: 'auto',
         role: 'textbox',
         'aria-multiline': 'true',
         ...(options.label ? { 'aria-label': options.label } : {}),

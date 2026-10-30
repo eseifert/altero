@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Note paragraphs choose their own text direction in the editor and public views, preserving stored author directions and note HTML.
 - Docs describe the browser as covering most everyday reference management and update its remaining gaps.
 - Saving language settings confirms success in the newly selected language and text direction.
 - RTL layouts mirror directional icons, keep splitter keys and dragging physical, and place drag previews beside the pointer.

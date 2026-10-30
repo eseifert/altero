@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { cleanBibliography, cleanNote } from './sanitize'
 
 describe('cleaning a note', () => {
+  it('chooses direction per displayed block while keeping explicit author directions', () => {
+    const root = document.createElement('div')
+    root.innerHTML = cleanNote('<p>שלום</p><p>English</p><ul dir="rtl"><li>English</li></ul>')
+    expect(root.querySelectorAll('p[dir="auto"]')).toHaveLength(2)
+    expect(root.querySelector('ul')?.getAttribute('dir')).toBe('rtl')
+    expect(root.querySelector('li')?.getAttribute('dir')).toBeNull()
+  })
+
   it.each([
     ['an image handler', '<p>Hi</p><img src="x" onerror="alert(1)">', /onerror/i],
     ['a script', '<p>Hi</p><script>alert(1)</script>', /<script/i],
@@ -32,12 +40,12 @@ describe('cleaning a note', () => {
     expect(cleaned).toContain('data-citation="%7B%7D"')
     expect(cleaned).toContain('style="text-align: center"')
     expect(cleaned).toContain('style="color: #ff2020"')
-    expect(cleaned).toContain('<td>cell</td>')
+    expect(cleaned).toContain('<td dir="auto">cell</td>')
   })
 
   it("drops a class that would borrow the interface's own", () => {
-    expect(cleanNote('<p class="modal highlight">Hi</p>')).toBe('<p class="highlight">Hi</p>')
-    expect(cleanNote('<p class="modal">Hi</p>')).toBe('<p>Hi</p>')
+    expect(cleanNote('<p class="modal highlight">Hi</p>')).toBe('<p class="highlight" dir="auto">Hi</p>')
+    expect(cleanNote('<p class="modal">Hi</p>')).toBe('<p dir="auto">Hi</p>')
   })
 
   it('opens a link elsewhere and tells it nothing', () => {
@@ -64,7 +72,7 @@ describe('cleaning a bibliography', () => {
 
     expect(cleaned).toContain('class="csl-bib-body"')
     expect(cleaned).toContain('line-height: 1.35; padding-left: 2em; text-indent: -2em')
-    expect(cleaned).toContain('<div class="csl-entry">Doe, J. <i>A study</i>.</div>')
+    expect(cleaned).toContain('<div class="csl-entry" dir="auto">Doe, J. <i>A study</i>.</div>')
   })
 
   it('drops a handler however it got there', () => {
