@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Menus, collection indentation, spacing and text alignment follow the interface direction; the logical-CSS guard has no legacy exceptions.
 - Nested collections retain native list semantics, fixing an accessibility error when collections are present.
 - Document direction follows the interface language, including Urdu and Shahmukhi Punjabi, and resets when switching back.
 - The browser interface adds Hebrew, resolving Hebrew preferences to Zotero's schema locale and using three plural forms.

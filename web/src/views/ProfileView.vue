@@ -509,7 +509,8 @@ const audience = computed(() => {
   display: flex;
   flex-direction: column;
   gap: var(--md-spacing-3);
-  padding: 0 var(--md-spacing-2) var(--md-spacing-5) calc(var(--md-spacing-3) + 18px);
+  padding-block: 0 var(--md-spacing-5);
+  padding-inline: calc(var(--md-spacing-3) + 18px) var(--md-spacing-2);
 }
 
 .publication__abstract {

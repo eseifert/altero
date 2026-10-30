@@ -206,6 +206,7 @@ The document direction follows the interface language: Arabic, Persian, Hebrew,
 Urdu and Shahmukhi Punjabi use right to left. Language and direction change
 together after the selected catalog loads, including when switching back to a
 left-to-right language.
+Menus, collection indentation, spacing and text alignment follow that direction.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
 and both default to following the browser — which is a setting in itself, not

@@ -262,7 +262,7 @@ async function begin(): Promise<void> {
   flex-direction: column;
   gap: 0.35rem;
   margin: 0;
-  padding-left: 1.2rem;
+  padding-inline-start: 1.2rem;
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-medium-size);
 }

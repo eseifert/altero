@@ -137,7 +137,7 @@ function submit(): void {
 }
 
 .dialog__separator {
-  margin-right: 0.15rem;
+  margin-inline-end: 0.15rem;
   color: var(--md-sys-color-on-surface-variant);
 }
 

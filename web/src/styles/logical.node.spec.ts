@@ -4,6 +4,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
+import { list, parse } from 'postcss'
 import { describe, expect, it } from 'vitest'
 
 /**
@@ -15,34 +16,9 @@ import { describe, expect, it } from 'vitest'
  * difference between an interface that can be mirrored by setting `dir` and
  * one that has to be found and fixed a rule at a time.
  *
- * New CSS says it logically. The files below said it physically before this
- * check existed; each number is how many such declarations the file has, and
- * goes down as they are converted until the list is empty. A file that gains
- * one fails, and so does a file that loses one without its number following,
- * so the list never claims more than is there.
- *
- * Only declarations in stylesheets and `<style>` blocks are read. Shorthands
- * with four sides (`margin: 0 1rem 0 0`) and style bindings in templates are
- * not, and need the same care by hand.
+ * Stylesheets, component style blocks, asymmetric margin/padding shorthands
+ * and inline style bindings must all follow the document's direction.
  */
-const NOT_YET_LOGICAL: Record<string, number> = {
-  'App.vue': 1,
-  'components/CollectionDialog.vue': 1,
-  'components/CollectionTree.vue': 2,
-  'components/ItemDetail.vue': 1,
-  'components/PublicationsDialog.vue': 1,
-  'components/ThemeMenu.vue': 2,
-  'styles/base.css': 1,
-  'styles/dialog.css': 2,
-  'styles/surfaces.css': 1,
-  'views/AuthorizeView.vue': 2,
-  'views/LibraryView.vue': 12,
-  'views/LinkClientView.vue': 1,
-  'views/admin/AccountsSection.vue': 1,
-  'views/admin/StorageSection.vue': 2,
-  'views/settings/KeysSection.vue': 1,
-  'views/settings/MigrateSection.vue': 1,
-}
 
 /** A declaration that names a physical side, with what to write instead. */
 const PHYSICAL =
@@ -77,32 +53,52 @@ function physical(name: string): string[] {
   return (css(name).match(PHYSICAL) ?? []).map((found) => found.trim())
 }
 
+/** Four-sided shorthands hide a physical start/end when the sides differ. */
+function asymmetric(text: string): string[] {
+  const found: string[] = []
+  parse(text).walkDecls(/^(margin|padding)$/, (decl) => {
+    const sides = list.space(decl.value)
+    if (sides.length === 4 && sides[1] !== sides[3]) found.push(decl.toString())
+  })
+  return found
+}
+
+function bindings(text: string): string[] {
+  return [...text.matchAll(/:style="([^"]*)"/g)].flatMap((binding) =>
+    binding[1].match(/\b(?:margin|padding|border)(?:Left|Right|-(?:left|right))\b|\b(?:left|right)'?\s*:|\btextAlign\s*:\s*'(?:left|right)'/g) ?? [],
+  )
+}
+
 describe('sides in the stylesheets', () => {
   it('finds the tree to check', () => {
     expect(stylesheets().length).toBeGreaterThan(20)
   })
 
-  it('are said as start and end in new CSS', () => {
-    const offenders = stylesheets()
-      .filter((name) => !(name in NOT_YET_LOGICAL))
-      .flatMap((name) => physical(name).map((found) => `${name}: ${found}`))
+  it('are said as start and end throughout the interface', () => {
+    const offenders = stylesheets().flatMap((name) => [
+      ...physical(name),
+      ...asymmetric(css(name)),
+      ...bindings(readFileSync(`${SOURCE}${name}`, 'utf8')),
+    ].map((found) => `${name}: ${found}`))
 
-    expect(offenders, 'use margin-inline-start, inset-inline-end, text-align: start…').toEqual([])
+    expect(offenders, 'use logical properties, including in shorthands and style bindings').toEqual([])
   })
 
-  it('are not said physically more often than the list allows', () => {
-    const grown = Object.entries(NOT_YET_LOGICAL)
-      .filter(([name, allowed]) => physical(name).length > allowed)
-      .map(([name, allowed]) => `${name}: ${physical(name).length} > ${allowed}`)
-
-    expect(grown).toEqual([])
+  it('detects asymmetric shorthands with functions in their values', () => {
+    expect(asymmetric('a { padding: 0 var(--gap) 1rem calc(var(--gap) + 18px) }')).toEqual([
+      'padding: 0 var(--gap) 1rem calc(var(--gap) + 18px)',
+    ])
+    expect(asymmetric('a { margin: 0.75rem 0 0 0.75rem }')).toHaveLength(1)
+    expect(asymmetric('a { padding: 1px 2px 3px 2px; margin: 1px 2px 3px }')).toEqual([])
   })
 
-  it('keep the list in step as they are converted', () => {
-    const stale = Object.entries(NOT_YET_LOGICAL)
-      .filter(([name, allowed]) => physical(name).length < allowed)
-      .map(([name, allowed]) => `${name}: lower ${allowed} to ${physical(name).length}`)
-
-    expect(stale).toEqual([])
+  it('detects physical properties in inline styles', () => {
+    expect(bindings(`<div :style="{ paddingLeft: '2rem', right: '0' }" />`)).toEqual([
+      'paddingLeft', 'right:',
+    ])
+    expect(bindings(`<div :style="{ paddingInlineStart: '2rem' }" />`)).toEqual([])
+    expect(bindings(`<div :style="{
+      'margin-left': '2rem', textAlign: 'right'
+    }" />`)).toEqual(['margin-left', "textAlign: 'right'"])
   })
 })

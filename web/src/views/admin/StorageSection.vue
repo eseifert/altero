@@ -208,7 +208,7 @@ onMounted(async () => {
 .storage__table th,
 .storage__table td {
   padding: 0.35rem 0.5rem;
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
 }
 
@@ -222,7 +222,7 @@ onMounted(async () => {
 }
 
 .storage__number {
-  text-align: right;
+  text-align: end;
   font-variant-numeric: tabular-nums;
 }
 

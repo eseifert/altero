@@ -306,7 +306,7 @@ async function signOut(): Promise<void> {
 .shell__badge {
   position: absolute;
   top: 4px;
-  right: 2px;
+  inset-inline-end: 2px;
   min-width: 16px;
   padding: 0 4px;
   border-radius: var(--md-sys-shape-corner-full);

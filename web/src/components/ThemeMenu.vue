@@ -174,7 +174,7 @@ onBeforeUnmount(() => {
 
 .theme-menu__list {
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   z-index: 10;
   min-width: 10rem;
   margin: var(--md-spacing-2) 0 0;
@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
   color: inherit;
   font: inherit;
   font-size: var(--md-sys-typescale-body-medium-size);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 

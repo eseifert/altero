@@ -344,7 +344,7 @@ function advance(): void {
 /* The licence's short name, set apart from the sentence that names it in full:
    CC BY is the thing being chosen, and the long name is what will be stored. */
 .publish__code {
-  margin-right: var(--md-spacing-2);
+  margin-inline-end: var(--md-spacing-2);
   padding: 0.1rem 0.4rem;
   border-radius: var(--md-sys-shape-corner-small);
   background: var(--md-sys-color-surface-container-highest, transparent);

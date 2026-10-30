@@ -95,7 +95,7 @@ function toggle(key: string): void {
       <div
         class="tree__row"
         :class="{ 'tree__row--over': carrying && over === target(node) }"
-        :style="{ paddingLeft: `${(depth ?? 0) * 0.9 + 0.15}rem` }"
+        :style="{ paddingInlineStart: `${(depth ?? 0) * 0.9 + 0.15}rem` }"
         :data-drop="target(node)"
       >
         <button
@@ -237,7 +237,7 @@ function toggle(key: string): void {
   background: none;
   color: inherit;
   font: inherit;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 
@@ -257,7 +257,7 @@ function toggle(key: string): void {
 }
 
 .tree__count {
-  margin-left: auto;
+  margin-inline-start: auto;
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
 }

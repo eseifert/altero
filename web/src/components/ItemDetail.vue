@@ -602,7 +602,7 @@ function childTitle(child: ItemEnvelope): string {
   background: none;
   color: inherit;
   font: inherit;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 

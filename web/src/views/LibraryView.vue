@@ -2450,11 +2450,11 @@ function sortLabel(column: { field: string; label: string }): string {
 /* Both grips sit in the middle of the gap the grid already leaves, so the
    panes stay exactly as far apart as they were. */
 .library__grip--sidebar {
-  left: calc(var(--sidebar-width) + var(--md-spacing-4) / 2);
+  inset-inline-start: calc(var(--sidebar-width) + var(--md-spacing-4) / 2);
 }
 
 .library__grip--detail {
-  right: calc(var(--detail-width) + var(--md-spacing-4) / 2);
+  inset-inline-end: calc(var(--detail-width) + var(--md-spacing-4) / 2);
   transform: translateX(50%);
 }
 
@@ -2492,9 +2492,9 @@ function sortLabel(column: { field: string; label: string }): string {
  * it is the same hairline the tag panel's heading uses.
  */
 .library__scopes--nested {
-  margin-left: 0.3rem;
-  padding-left: 0.35rem;
-  border-left: 1px solid var(--md-sys-color-outline-variant);
+  margin-inline-start: 0.3rem;
+  padding-inline-start: 0.35rem;
+  border-inline-start: 1px solid var(--md-sys-color-outline-variant);
 }
 
 /*
@@ -2541,7 +2541,7 @@ function sortLabel(column: { field: string; label: string }): string {
 }
 
 .library__scope-row {
-  padding-left: 0.15rem;
+  padding-inline-start: 0.15rem;
 }
 
 .library__twisty {
@@ -2577,7 +2577,7 @@ function sortLabel(column: { field: string; label: string }): string {
   background: none;
   color: inherit;
   font: inherit;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 
@@ -2674,11 +2674,12 @@ function sortLabel(column: { field: string; label: string }): string {
   /* Placed by `transform`, which moves it without laying the page out again
      on every frame of a drag. */
   top: 0;
-  left: 0;
+  inset-inline-start: 0;
   will-change: transform;
   z-index: 10;
   max-width: 16rem;
-  margin: 0.75rem 0 0 0.75rem;
+  margin-block: 0.75rem 0;
+  margin-inline: 0.75rem 0;
   padding: 0.3rem 0.7rem;
   border-radius: var(--md-sys-shape-corner-medium);
   background: var(--md-sys-color-secondary-container);
@@ -2892,7 +2893,7 @@ function sortLabel(column: { field: string; label: string }): string {
   font: inherit;
   font-size: inherit;
   line-height: inherit;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 
@@ -2976,7 +2977,7 @@ function sortLabel(column: { field: string; label: string }): string {
   align-items: center;
   gap: var(--md-spacing-1);
   min-width: 0;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .library__search {
@@ -3131,7 +3132,7 @@ function sortLabel(column: { field: string; label: string }): string {
   background: none;
   color: inherit;
   font: inherit;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 
@@ -3223,7 +3224,7 @@ function sortLabel(column: { field: string; label: string }): string {
   background: none;
   font: inherit;
   font-weight: 500;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 

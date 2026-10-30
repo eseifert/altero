@@ -254,7 +254,7 @@ describe('the consent screen', () => {
     const nested = wrapper
       .findAll('.authorize__choice')
       .find((label) => label.text() === '2026')
-    expect(nested?.attributes('style')).toContain('padding-left: 16px')
+    expect(nested?.attributes('style')).toContain('padding-inline-start: 16px')
   })
 
   it('sends what was ticked, addressed the way the API addresses it', async () => {

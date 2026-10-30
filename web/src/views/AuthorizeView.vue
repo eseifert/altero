@@ -341,7 +341,7 @@ async function decide(approve: boolean): Promise<void> {
               v-for="row in tree(library)"
               :key="row.entry.key"
               class="authorize__choice"
-              :style="{ paddingLeft: `${row.depth * 16}px` }"
+              :style="{ paddingInlineStart: `${row.depth * 16}px` }"
             >
               <input
                 type="checkbox"
@@ -421,7 +421,7 @@ async function decide(approve: boolean): Promise<void> {
 
 .authorize__grants {
   margin: 0;
-  padding-left: var(--md-spacing-5);
+  padding-inline-start: var(--md-spacing-5);
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-medium-size);
   display: flex;
@@ -436,7 +436,7 @@ async function decide(approve: boolean): Promise<void> {
 }
 
 .authorize__badge {
-  margin-left: var(--md-spacing-2);
+  margin-inline-start: var(--md-spacing-2);
   padding: 0 var(--md-spacing-2);
   border-radius: var(--md-sys-shape-corner-small);
   background: var(--md-sys-color-secondary-container);

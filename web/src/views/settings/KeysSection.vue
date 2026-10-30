@@ -176,7 +176,7 @@ function lastSeen(entry: KeyEntry): string {
 /* The four characters that say which key this row is. Plain, quiet text: a
    chip would say "chosen", and this is a label rather than a state. */
 .settings__suffix {
-  margin-left: var(--md-spacing-2);
+  margin-inline-start: var(--md-spacing-2);
   color: var(--md-sys-color-on-surface-variant);
   font-family: var(--md-sys-typescale-font-mono);
   font-size: var(--md-sys-typescale-body-small-size);

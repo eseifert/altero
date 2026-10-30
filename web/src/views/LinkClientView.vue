@@ -157,7 +157,7 @@ async function decline(): Promise<void> {
 
 .link__grants {
   margin: 0;
-  padding-left: var(--md-spacing-5);
+  padding-inline-start: var(--md-spacing-5);
   color: var(--md-sys-color-on-surface-variant);
   font-size: var(--md-sys-typescale-body-medium-size);
   display: flex;
