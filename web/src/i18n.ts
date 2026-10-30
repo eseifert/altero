@@ -370,6 +370,17 @@ export async function loadLocale(locale: Locale): Promise<void> {
 
 let requested: Locale = 'en-US'
 
+const RTL_LOCALES = new Set<Locale>(['ar', 'fa', 'he-IL', 'ur', 'pa-Arab'])
+
+function directionOf(locale: Locale): 'ltr' | 'rtl' {
+  // Locale Info is not available in every browser supported by the interface.
+  // https://tc39.es/proposal-intl-locale-info/#sec-Intl.Locale.prototype.getTextInfo
+  const info = new Intl.Locale(locale) as Intl.Locale & {
+    getTextInfo?: () => { direction?: 'ltr' | 'rtl' }
+  }
+  return info.getTextInfo?.().direction ?? (RTL_LOCALES.has(locale) ? 'rtl' : 'ltr')
+}
+
 /**
  * Switch the interface, and tell assistive technology what it is reading.
  *
@@ -384,6 +395,7 @@ export async function setLocale(locale: Locale): Promise<void> {
   if (requested !== locale) return
   i18n.global.locale.value = locale
   document.documentElement.lang = locale
+  document.documentElement.dir = directionOf(locale)
 }
 
 /** Translate outside a component, where `useI18n` is not available. */

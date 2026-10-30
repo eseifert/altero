@@ -6,6 +6,7 @@ test.describe('Hebrew', () => {
   test('resolves bare Hebrew and loads Zotero field names', async ({ page }, testInfo) => {
     await page.goto('/app/sign-in')
     await expect(page.locator('html')).toHaveAttribute('lang', 'he-IL')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
     await expect(page.getByRole('button', { name: 'כניסה', exact: true })).toBeVisible()
     expect(await accessibilityProblems(page)).toEqual([])
 
@@ -23,6 +24,7 @@ test.describe('Persian', () => {
   test('loads Persian messages and Zotero field names', async ({ page }, testInfo) => {
     await page.goto('/app/sign-in')
     await expect(page.locator('html')).toHaveAttribute('lang', 'fa')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
     await expect(page.getByRole('button', { name: 'ورود', exact: true })).toBeVisible()
     expect(await accessibilityProblems(page)).toEqual([])
 
@@ -37,9 +39,23 @@ test.describe('Persian', () => {
 test.describe('Arabic', () => {
   test.use({ locale: 'ar-EG' })
 
+  test('sets direction when the browser has no locale text-info method', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(Intl.Locale.prototype, 'getTextInfo', {
+        configurable: true,
+        value: undefined,
+      })
+    })
+    await page.goto('/app/sign-in')
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+    await expect(page.getByRole('button', { name: 'تسجيل الدخول', exact: true })).toBeVisible()
+  })
+
   test('loads Arabic messages and Zotero field names', async ({ page }, testInfo) => {
     await page.goto('/app/sign-in')
     await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
     await expect(page.getByRole('button', { name: 'تسجيل الدخول', exact: true })).toBeVisible()
     expect(await accessibilityProblems(page)).toEqual([])
 
@@ -57,6 +73,7 @@ test.describe('Urdu', () => {
   test('loads its catalogue before sign-in and keeps it in the library', async ({ page }, testInfo) => {
     await page.goto('/app/sign-in')
     await expect(page.locator('html')).toHaveAttribute('lang', 'ur')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
     await expect(page.getByRole('button', { name: 'سائن ان کریں', exact: true })).toBeVisible()
     expect(await accessibilityProblems(page)).toEqual([])
 
@@ -74,6 +91,7 @@ test.describe('Shahmukhi Punjabi', () => {
   test('loads the Punjabi script selected by Pakistan', async ({ page }, testInfo) => {
     await page.goto('/app/sign-in')
     await expect(page.locator('html')).toHaveAttribute('lang', 'pa-Arab')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
     await expect(page.getByRole('button', { name: 'سائن ان کرو', exact: true })).toBeVisible()
     expect(await accessibilityProblems(page)).toEqual([])
 
@@ -90,6 +108,7 @@ test.describe('Gurmukhi Punjabi', () => {
   test('does not load a Shahmukhi translation for a different script', async ({ page }) => {
     await page.goto('/app/sign-in')
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
     await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible()
   })
 })
@@ -113,9 +132,11 @@ test('all new account languages survive reload and override the browser', async 
       await page.locator('main section.card button').click()
       expect((await saved).ok()).toBe(true)
       await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
       await expect(page.getByRole('button', { name: save, exact: true })).toBeVisible()
       await page.reload()
       await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
       await expect(language).toHaveValue(tag)
     }
   } finally {
@@ -124,5 +145,6 @@ test('all new account languages survive reload and override the browser', async 
     await page.locator('main section.card button').click()
     expect((await saved).ok()).toBe(true)
     await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
   }
 })

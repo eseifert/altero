@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Document direction follows the interface language, including Urdu and Shahmukhi Punjabi, and resets when switching back.
 - The browser interface adds Hebrew, resolving Hebrew preferences to Zotero's schema locale and using three plural forms.
 - The browser interface adds Persian, with Zotero's vocabulary and localized counts.
 - The browser interface adds Arabic, including all six plural forms.

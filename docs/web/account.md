@@ -202,6 +202,10 @@ written differently in different places and are carried twice: American and
 British English, Brazilian and European Portuguese, Simplified and Traditional
 Chinese. They are the same three Zotero splits.
 Hebrew uses `he-IL`, matching Zotero's schema; a bare `he` resolves to it too.
+The document direction follows the interface language: Arabic, Persian, Hebrew,
+Urdu and Shahmukhi Punjabi use right to left. Language and direction change
+together after the selected catalog loads, including when switching back to a
+left-to-right language.
 Both settings live on the account rather than in the browser, so signing in
 from another machine gives you your own language rather than that machine's,
 and both default to following the browser — which is a setting in itself, not

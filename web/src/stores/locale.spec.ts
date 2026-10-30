@@ -2,7 +2,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { clearFormatterCache, formatBytes, formatDate, formatDateTime } from '@/formats'
-import { i18n, resolveLocale } from '@/i18n'
+import { i18n, loadLocale, resolveLocale } from '@/i18n'
 
 import { useLocaleStore } from './locale'
 
@@ -108,10 +108,13 @@ describe('the locale store', () => {
   })
 
   it('sets the document language, which assistive technology reads', async () => {
+    // This checks the store's choice, not how fast Vite compiles a lazy catalogue.
+    await loadLocale('fr')
     browser(['fr-FR'], 'Europe/Paris')
 
     // Once the catalogue has arrived, so the words and the tag change together.
     await vi.waitFor(() => expect(document.documentElement.lang).toBe('fr'))
+    expect(document.documentElement.dir).toBe('ltr')
   })
 })
 
