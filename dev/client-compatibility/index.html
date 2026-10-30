@@ -1956,7 +1956,17 @@ surviving file and moved annotation. Browser tests exercise complete candidate
 groups, ordinary click/tap selection, individual inspection and return, member
 exclusion, master and field choices, confirmation, stale-review reloads and
 persisted results on desktop and phone layouts. They check touch target sizes
-and accessibility. Actual desktop merge acceptance remains pending.</p>
+and accessibility. <code>web-merge</code> submits a merge through the cookie-authenticated
+browser route, then runs the original sync engine in two actual desktop
+profiles. It checks chosen fields and creators, moved children, combined tags
+and collections, incoming relations, transferred replacement history, a stale
+review's refusal and restoring the trashed duplicate record.</p>
+<p><code>web-merge-files</code> uploads actual PDFs through the browser route and checks both
+desktops' downloaded bytes, notes, annotation parents and settled storage
+states. Its five cases cover identical bytes, matching text with different
+bytes, retaining the PDF with embedded markup, the parent/note compatibility
+fallback, and keeping two PDFs with markup. The server has no cached full text
+for these files, so the text match requires PDF extraction.</p>
 <p>The service accepts chosen bibliographic fields and creators as part of the
 same master-item write. Omitted values stay on the master; empty values clear
 them. Structural properties and timestamps cannot be chosen this way, and
@@ -1976,10 +1986,16 @@ too, becoming a child note if the survivor already has one. Web attachments
 match by title and link mode, preferring an equal URL; the pinned client also
 falls back to title for linked URLs. Linked files have no server-side bytes to
 compare and are kept.</p>
+<p>An exception keeps both PDFs when transferring a note would also move its
+recipient to the master. Zotero 10.0.6 can save that note but lose the parent
+change; this was reproduced both with zotero.org and offline. The fallback
+preserves each file's original note and annotations; a three-record regression
+also checks a move planned earlier in the same merge. See the
+<a href="../compatibility/#merging-pdfs-with-embedded-notes">compatibility decision</a>.</p>
 <p>The attachment transition cases also check repeated PDF swaps, notes promoted
 after an attachment already moved, cached full text, missing files, and the PDF
 attachments that participate in the subsequent web-attachment pass. Server
-merge coverage and pending desktop acceptance are separate inventory entries.</p>
+merge coverage and desktop acceptance are separate inventory entries.</p>
 <p>Source replay adapters provide facades for the database and application UI.
 The real acceptance runner below exercises complete synchronization separately.
 Group-removal prompts raise an explicit error in source replay; continue to use
@@ -2225,7 +2241,8 @@ independent pins.</p>
 </span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span>--xvfb<span class="w"> </span>--schema-corpus<span class="w"> </span>--state-dir<span class="w"> </span>.compatibility/desktop-10.0.6
 </span></code></pre></div>
 <p>This requires an installed Zotero binary and Xvfb (or omit <code>--xvfb</code> to use an
-existing display). The version is checked by the running application. The
+existing display). With <code>--xvfb</code>, GTK and Gecko are forced onto its X11 display,
+even on a Wayland host. The version is checked by the running application. The
 command creates two isolated profiles and a loopback server, drives the actual
 sync engine and ZFS filesystem path, and preserves phase snapshots, databases
 and logs. It refuses an existing state directory.</p>
@@ -2398,6 +2415,14 @@ The final settled sync checks convergence and an unchanged server watermark.</p>
 <tr>
 <td><code>web-files</code></td>
 <td>Upload a child and a standalone file and attach a web link through the browser's routes; both desktops download the bytes under the browser's name; a rename renames each desktop's copy without fetching it; a replacement brings new bytes; a desktop's replacement makes the browser's stale one fail with 412.</td>
+</tr>
+<tr>
+<td><code>web-merge</code></td>
+<td>Merge through the browser route; both desktops retain chosen fields, moved notes and links, tags, collections, incoming relations and replacement history; refuse a stale review; restore the duplicate record without reversing the merge.</td>
+</tr>
+<tr>
+<td><code>web-merge-files</code></td>
+<td>Match PDFs by bytes or extracted text, retain embedded markup, preserve notes and annotation parents, keep both files when needed for safe parent sync, and verify original bytes and settled storage on both desktops.</td>
 </tr>
 <tr>
 <td><code>resync</code></td>
@@ -2721,14 +2746,25 @@ a catalogue entry and is normally unset.</p>
 <td>Passed (11 phases)</td>
 <td>Passed (11 phases)</td>
 </tr>
+<tr>
+<td><code>web-merge</code></td>
+<td>Passed (11 phases)</td>
+<td>Passed (11 phases)</td>
+</tr>
+<tr>
+<td><code>web-merge-files</code></td>
+<td>Passed (9 phases)</td>
+<td>Passed (9 phases)</td>
+</tr>
 </tbody>
 </table>
 <!-- /desktop-matrix -->
 
 <p>Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on 2026-10-28, against the code prepared for 1.0.0-beta.6, on Python
-3.14.10. PostgreSQL uses the existing 18.4 container, with a fresh database per
-scenario. Each database ran all 34 scenarios in one run, and none was repeated.
+archive on Python 3.14.10. The original 34 scenarios ran on 2026-10-28 against
+the code prepared for 1.0.0-beta.6. The two browser-merge scenarios ran on
+2026-10-30: 11 metadata phases and nine PDF phases per database. PostgreSQL uses
+the existing 18.4 container, with a fresh database per scenario.
 <strong>Not run</strong> means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes.</p>
 <p>The machine-readable evidence summary is
@@ -2739,18 +2775,26 @@ directories. Regenerate the matrix from them with:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>matrix<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.6<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta6-sqlite-1/acceptance.json<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta6-pg-1/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/results.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/matrix.md
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/web-merge-sqlite-3/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/web-merge-pg-2/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/results.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/matrix.md
 </span></code></pre></div>
 <p>The command verifies scenario completion, nonempty phases, snapshot existence,
 the requested desktop version and recorded database backend. It rejects missing
 or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.</p>
-<p>The matrix records 68 successful database/scenario combinations and 794
-actual desktop phases: all 34 scenarios pass on both databases. The
-baseline includes all 40 schema types. The source-replay suite passes 323 tests
-with no skips against the pinned 10.0.6 sources, with Node 24.22.1, and the
-network-consumer review gate passes with no stale or unreviewed consumers.</p>
+<p>The matrix records 72 successful database/scenario combinations and 834
+actual desktop phases: all 36 scenarios have successful results on both
+databases, from the dates above. The baseline includes all 40 schema types.
+The 2026-10-28 source-replay run passed 323 tests with no skips against the
+pinned 10.0.6 sources, with Node 24.22.1; its network-consumer review gate had
+no stale or unreviewed consumers.</p>
+<p>The browser-merge checks were also run with deliberate omissions after their
+intact baselines passed. Missing replacement history failed at
+<code>Desktop merge history is missing</code> after five phases; disabling PDF text
+matching failed at <code>Incorrect surviving PDFs for matching-text</code> after seven.
+Those failed runs and the restored-source hashes are retained locally.</p>
 <p>Two harness defects surfaced while moving to 10.0.6 and are fixed: profiles
 followed the machine's language, so a German system showed prompts the dialog
 rules could not find, and Zotero's automatic update could replace a pinned

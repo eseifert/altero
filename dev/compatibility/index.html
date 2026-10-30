@@ -1839,6 +1839,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#merging-pdfs-with-embedded-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Merging PDFs with embedded notes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#reading-a-library-out-of-zoteroorg" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2884,6 +2895,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#merging-pdfs-with-embedded-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Merging PDFs with embedded notes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#reading-a-library-out-of-zoteroorg" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3726,6 +3748,15 @@
 <p><strong>Unfiled Items</strong> needs no interpretation: top-level items in no collection and not in the trash.</p>
 <p><strong>Duplicate Items</strong> is a judgment. Two items count as the same work if they share a DOI or ISBN (ignoring punctuation, case and any <code>https://doi.org/</code> prefix), or if they share a title (ignoring punctuation and case) <em>and</em> a creator surname or year. A title alone is not enough, because many works are called "Introduction"; only when neither item has a creator or a year does the title stand alone. Item types are not compared, so a book and a chapter of it appear as a pair. Notes, attachments and annotations are never compared.</p>
 <p><strong>Recently Read</strong> is a guess. Zotero 7 records when an attachment was last read and syncs it, but which items the desktop lists, and over what period, is not documented. altero lists items whose attachments were read in the last 90 days, newest first where the sort allows, and stand-alone attachments themselves. <strong>The 90 days is a guess</strong>, chosen so the view does not grow into "everything ever opened".</p>
+<h3 id="merging-pdfs-with-embedded-notes">Merging PDFs with embedded notes<a class="headerlink" href="#merging-pdfs-with-embedded-notes" title="Permanent link">&para;</a></h3>
+<p>When deduplication would both move a surviving PDF to the master and transfer
+another PDF's embedded note to it, altero keeps both PDFs under the master.
+Each keeps its original note and annotations. Other PDF matching follows the
+desktop's byte and common-word checks.</p>
+<p>Zotero 10.0.6 can save the changed note while losing the attachment's parent
+change, leaving the surviving file under the trashed duplicate. This was
+reproduced with zotero.org and without a server. Keeping both files avoids
+that combination without detaching the note from its original PDF.</p>
 <h3 id="reading-a-library-out-of-zoteroorg">Reading a library out of zotero.org<a class="headerlink" href="#reading-a-library-out-of-zoteroorg" title="Permanent link">&para;</a></h3>
 <p>This is the one place altero makes requests instead of answering them: it reads a personal library from api.zotero.org and turns it into the same archive <code>altero library export</code> writes, then restores that archive.</p>
 <p><strong>It needs an API key.</strong> zotero.org offers no password sign-in for software, and OAuth would require every altero instance to register with Zotero. The key is used for the import and then forgotten.</p>
