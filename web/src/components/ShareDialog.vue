@@ -118,7 +118,7 @@ async function copy(url: string): Promise<void> {
       <div v-if="issued?.url" class="share__issued">
         <label class="dialog__label" for="share-url">{{ t('The link') }}</label>
         <div class="share__url-row">
-          <input id="share-url" class="dialog__field" type="text" readonly :value="issued.url" />
+          <input id="share-url" class="dialog__field" type="text" dir="ltr" readonly :value="issued.url" />
           <AppButton variant="text" @click="copy(issued.url)">
             {{ copied ? t('Copied') : t('Copy') }}
           </AppButton>

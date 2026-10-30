@@ -193,7 +193,7 @@ watch(
     <template v-else-if="store.shared">
       <header class="shared__header">
         <p class="shared__from">{{ t('Shared from {library}', { library: store.shared.library }) }}</p>
-        <h1 class="shared__name">{{ heading }}</h1>
+        <h1 class="shared__name" dir="auto">{{ heading }}</h1>
         <p class="shared__count">
           {{ t('{count} item | {count} items', { count: store.shared.numItems }, store.shared.numItems) }}
         </p>
@@ -204,7 +204,7 @@ watch(
 
       <form class="shared__search" @submit.prevent="submitSearch">
         <label class="shared__search-label" for="shared-search">{{ t('Search') }}</label>
-        <input id="shared-search" v-model="store.search" class="shared__field" type="search" />
+        <input id="shared-search" v-model="store.search" class="shared__field" type="search" dir="auto" />
       </form>
 
       <!-- The collections inside the shared one, when the link carries them.
@@ -222,6 +222,7 @@ watch(
         </button>
         <button
           v-for="entry in store.collections"
+          dir="auto"
           :key="entry.key"
           class="shared__crumb"
           type="button"
@@ -247,9 +248,9 @@ watch(
           >
             <ItemTypeIcon :item-type="item.data.itemType" :size="18" />
             <span class="entry__headings">
-              <span class="entry__title">{{ title(item) }}</span>
+              <span class="entry__title" dir="auto">{{ title(item) }}</span>
               <span class="entry__byline">
-                <span v-if="creators(item)">{{ creators(item) }}</span>
+                <span v-if="creators(item)" dir="auto">{{ creators(item) }}</span>
                 <span v-if="stated(item)" class="entry__date">{{ stated(item) }}</span>
                 <span class="entry__type">{{ itemTypeLabel(item.data.itemType) }}</span>
               </span>
@@ -257,12 +258,12 @@ watch(
           </button>
 
           <div v-if="store.opened === item.key" class="entry__detail">
-            <p v-if="abstract(item)" class="entry__abstract">{{ abstract(item) }}</p>
+            <p v-if="abstract(item)" class="entry__abstract" dir="auto">{{ abstract(item) }}</p>
 
             <dl v-if="shownFields(item).length" class="entry__fields">
               <template v-for="field in shownFields(item)" :key="field.name">
                 <dt>{{ field.label }}</dt>
-                <dd>
+                <dd dir="auto">
                   <a
                     v-if="field.name === 'url' || field.name === 'DOI'"
                     :href="field.name === 'DOI' ? `https://doi.org/${field.value}` : field.value"
@@ -283,7 +284,7 @@ watch(
               <ul class="entry__files">
                 <li v-for="child in attachments()" :key="child.key">
                   <template v-if="isStored(child) && store.shared.files">
-                    <a :href="store.fileUrl(props.token, child.key)" target="_blank" rel="noopener">
+                    <a :href="store.fileUrl(props.token, child.key)" target="_blank" rel="noopener" dir="auto">
                       {{ attachmentName(child) }}
                     </a>
                     <a
@@ -294,12 +295,13 @@ watch(
                   </template>
                   <a
                     v-else-if="typeof child.data.url === 'string'"
+                    dir="auto"
                     :href="child.data.url"
                     target="_blank"
                     rel="noopener noreferrer"
                     >{{ attachmentName(child) }}</a
                   >
-                  <span v-else>{{ attachmentName(child) }}</span>
+                  <span v-else dir="auto">{{ attachmentName(child) }}</span>
                 </li>
               </ul>
               <p v-if="!store.shared.files" class="entry__note">
@@ -320,7 +322,7 @@ watch(
                 </button>
               </div>
               <p v-if="citationError" class="shared__error" role="alert">{{ citationError }}</p>
-              <div v-else-if="bibliography" class="block entry__bib" v-html="cleanBibliography(bibliography)"></div>
+              <div v-else-if="bibliography" class="block entry__bib" dir="auto" v-html="cleanBibliography(bibliography)"></div>
             </section>
 
             <section v-if="notes().length" class="entry__section">
@@ -329,6 +331,7 @@ watch(
                 v-for="child in notes()"
                 :key="child.key"
                 class="entry__note-body"
+                dir="auto"
                 v-html="cleanNote(child.data.note)"
               ></div>
             </section>

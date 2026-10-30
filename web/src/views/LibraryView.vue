@@ -1610,7 +1610,7 @@ function sortLabel(column: { field: string; label: string }): string {
               @click="openLibrary(entry.id)"
             >
               <SidebarIcon :name="entry.type === 'user' ? 'library' : 'group'" />
-              <span class="library__label">{{ libraryLabel(entry) }}</span>
+              <span class="library__label" dir="auto">{{ libraryLabel(entry) }}</span>
             </button>
 
             <!--
@@ -1787,7 +1787,7 @@ function sortLabel(column: { field: string; label: string }): string {
               :aria-pressed="selectedTagNames.has(tag.tag)"
               @click="library.toggleTag(tag.tag)"
             >
-              <span class="library__label">{{ tag.tag }}</span>
+              <span class="library__label" dir="auto">{{ tag.tag }}</span>
             </button>
             <button
               v-if="library.writable"
@@ -1822,7 +1822,7 @@ function sortLabel(column: { field: string; label: string }): string {
       data-file-drop="list:"
     >
       <header class="library__header">
-        <h1 class="library__heading">{{ heading }}</h1>
+        <h1 class="library__heading" dir="auto">{{ heading }}</h1>
 
         <!--
           One row of tools at the end of the header, the search last.
@@ -1958,6 +1958,7 @@ function sortLabel(column: { field: string; label: string }): string {
               <input
                 ref="searchField"
                 v-model="searchText"
+                dir="auto"
                 class="library__search-field"
                 type="search"
                 :placeholder="t('Search')"
@@ -2177,8 +2178,8 @@ function sortLabel(column: { field: string; label: string }): string {
               <span class="library__cell library__cell--icon">
                 <ItemTypeIcon :item-type="item.data.itemType" />
               </span>
-              <span class="library__cell library__cell--title">{{ titleOf(item) }}</span>
-              <span class="library__cell">{{ item.meta?.creatorSummary ?? '' }}</span>
+              <span class="library__cell library__cell--title" dir="auto">{{ titleOf(item) }}</span>
+              <span class="library__cell" dir="auto">{{ item.meta?.creatorSummary ?? '' }}</span>
               <span class="library__cell">{{ item.meta?.parsedDate ?? '' }}</span>
             </button>
           </li>
@@ -2335,7 +2336,7 @@ function sortLabel(column: { field: string; label: string }): string {
       :style="{ transform: carry.transform.value }"
       aria-hidden="true"
     >
-      {{ carry.carrying.value.label }}
+      <span dir="auto">{{ carry.carrying.value.label }}</span>
     </div>
 
     <!-- Dropping a row on a sidebar row, said in words: the collections of

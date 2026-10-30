@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Library text, public item details and text inputs choose direction from their content, independently of the UI language.
+- The profile-owner notice uses its surface's foreground color so its settings link meets contrast requirements.
 - Note paragraphs choose their own text direction in the editor and public views, preserving stored author directions and note HTML.
 - Docs describe the browser as covering most everyday reference management and update its remaining gaps.
 - Saving language settings confirms success in the newly selected language and text direction.

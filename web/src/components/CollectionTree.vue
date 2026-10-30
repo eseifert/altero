@@ -123,7 +123,7 @@ function toggle(key: string): void {
           @pointerdown="emit('carry', { node, event: $event })"
         >
           <SidebarIcon name="collection" />
-          <span class="tree__label">{{ node.data.name }}</span>
+          <span class="tree__label" dir="auto">{{ node.data.name }}</span>
           <span v-if="node.meta.numItems" class="tree__count">{{ node.meta.numItems }}</span>
         </button>
 

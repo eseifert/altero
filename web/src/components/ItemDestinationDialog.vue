@@ -103,13 +103,13 @@ function submit(): void {
   >
     <form class="dialog__body" @submit.prevent="submit">
       <h2 class="dialog__title">{{ t('Move or copy') }}</h2>
-      <p class="dialog__what">{{ title }}</p>
+      <p class="dialog__what" dir="auto">{{ title }}</p>
 
       <label class="dialog__label" for="item-destination">
         {{ (count ?? 1) > 1 ? t('Put them in') : t('Put it in') }}
       </label>
       <select id="item-destination" ref="field" v-model="destination" class="dialog__field">
-        <option v-for="place in places" :key="place.key ?? ''" :value="`place:${place.key ?? ''}`">
+        <option v-for="place in places" :key="place.key ?? ''" :value="`place:${place.key ?? ''}`" dir="auto">
           {{ '  '.repeat(place.depth) + place.label }}
         </option>
         <option v-for="entry in libraries" :key="entry.id" :value="`library:${entry.id}`">

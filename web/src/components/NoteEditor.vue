@@ -275,6 +275,7 @@ onBeforeUnmount(() => {
           v-model="f.linkDraft.value"
           class="note-editor__link-input"
           type="url"
+          dir="ltr"
           inputmode="url"
           autocomplete="url"
           spellcheck="false"
@@ -318,6 +319,7 @@ onBeforeUnmount(() => {
           autocomplete="url"
           spellcheck="false"
           :placeholder="t('Enter Link')"
+          dir="ltr"
           @keydown.escape.prevent.stop="f.cancelLink()"
         />
         <button class="note-editor__link-button" type="submit">{{ t('Set') }}</button>

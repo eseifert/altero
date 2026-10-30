@@ -82,12 +82,12 @@ function start(): void {
 
       <!-- One thing to export and there is nothing to ask: it is named instead,
            so the dialog still says what it is about. -->
-      <p v-if="scopes.length < 2" class="dialog__what">{{ scopes[0]?.label }}</p>
+      <p v-if="scopes.length < 2" class="dialog__what" dir="auto">{{ scopes[0]?.label }}</p>
       <fieldset v-else class="dialog__choices">
         <legend class="dialog__label">{{ t('What to export') }}</legend>
         <label v-for="entry in scopes" :key="entry.id" class="dialog__check">
           <input v-model="scope" type="radio" name="export-scope" :value="entry.id" />
-          <span>{{ entry.label }}</span>
+          <span dir="auto">{{ entry.label }}</span>
         </label>
       </fieldset>
 

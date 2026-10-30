@@ -83,7 +83,7 @@ function submit(): void {
           <span v-for="(step, index) in props.path" :key="index" class="dialog__step">
             <span v-if="index > 0" class="dialog__separator" aria-hidden="true">›</span>
             <SidebarIcon :name="index === 0 ? 'library' : 'collection'" />
-            <span class="dialog__step-name">{{ step }}</span>
+            <span class="dialog__step-name" dir="auto">{{ step }}</span>
           </span>
         </div>
       </div>
@@ -95,6 +95,7 @@ function submit(): void {
         v-model="name"
         class="dialog__field"
         type="text"
+        dir="auto"
         autocomplete="off"
         :disabled="busy"
         :aria-invalid="error ? 'true' : undefined"

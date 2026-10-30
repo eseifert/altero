@@ -47,6 +47,7 @@ const message = computed(() => props.error ?? props.hint ?? null)
     <input
       :id="id"
       v-model="model"
+      dir="auto"
       class="app-field__input"
       :type="type"
       :autocomplete="autocomplete"

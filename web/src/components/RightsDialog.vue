@@ -82,7 +82,7 @@ function label(id: string, name: string): string {
            reads: the pane behind this dialog labels the same field from the
            same place, and the two must not disagree about what it is called. -->
       <h2 class="dialog__title">{{ fieldLabel('rights') }}</h2>
-      <p class="dialog__what">{{ title }}</p>
+      <p class="dialog__what" dir="auto">{{ title }}</p>
 
       <!--
         Said plainly, because changing this line on a published work changes
@@ -109,6 +109,7 @@ function label(id: string, name: string): string {
           v-model="typed"
           class="dialog__field"
           type="text"
+          dir="auto"
           autocomplete="off"
           :disabled="busy"
         />
@@ -117,7 +118,7 @@ function label(id: string, name: string): string {
 
       <!-- What will be stored, spelt out where the choice was a code: the
            field holds the licence's full name, not its abbreviation. -->
-      <p v-else class="dialog__note">{{ result }}</p>
+      <p v-else class="dialog__note" dir="auto">{{ result }}</p>
 
       <p v-if="error" class="dialog__error" role="alert">{{ error }}</p>
 

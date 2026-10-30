@@ -233,8 +233,8 @@ const audience = computed(() => {
 
     <template v-else-if="store.profile">
       <header class="profile__header">
-        <h1 class="profile__name">{{ heading }}</h1>
-        <p class="profile__handle">{{ store.profile.username }}</p>
+        <h1 class="profile__name" dir="auto">{{ heading }}</h1>
+        <p class="profile__handle" dir="auto">{{ store.profile.username }}</p>
         <p class="profile__count">
           {{
             t(
@@ -271,9 +271,9 @@ const audience = computed(() => {
           >
             <ItemTypeIcon :item-type="item.data.itemType" :size="18" />
             <span class="publication__headings">
-              <span class="publication__title">{{ title(item) }}</span>
+              <span class="publication__title" dir="auto">{{ title(item) }}</span>
               <span class="publication__byline">
-                <span v-if="creators(item)">{{ creators(item) }}</span>
+                <span v-if="creators(item)" dir="auto">{{ creators(item) }}</span>
                 <span v-if="stated(item)" class="publication__date">{{ stated(item) }}</span>
                 <span class="publication__type">{{ itemTypeLabel(item.data.itemType) }}</span>
               </span>
@@ -281,12 +281,12 @@ const audience = computed(() => {
           </button>
 
           <div v-if="store.opened === item.key" class="publication__detail">
-            <p v-if="abstract(item)" class="publication__abstract">{{ abstract(item) }}</p>
+            <p v-if="abstract(item)" class="publication__abstract" dir="auto">{{ abstract(item) }}</p>
 
             <dl v-if="shownFields(item).length" class="publication__fields">
               <template v-for="field in shownFields(item)" :key="field.name">
                 <dt>{{ field.label }}</dt>
-                <dd>
+                <dd dir="auto">
                   <a
                     v-if="field.name === 'url' || field.name === 'DOI'"
                     :href="field.name === 'DOI' ? `https://doi.org/${field.value}` : field.value"
@@ -308,9 +308,10 @@ const audience = computed(() => {
                 :href="license(item)!.url!"
                 target="_blank"
                 rel="noopener noreferrer license"
+                dir="auto"
                 >{{ license(item)!.name }}</a
               >
-              <span v-else>{{ license(item)!.name }}</span>
+              <span v-else dir="auto">{{ license(item)!.name }}</span>
             </p>
 
             <section v-if="attachments().length" class="publication__section">
@@ -322,6 +323,7 @@ const audience = computed(() => {
                   <template v-if="isStored(child)">
                     <a
                       :href="store.fileUrl(props.username, child.key)"
+                      dir="auto"
                       target="_blank"
                       rel="noopener"
                       >{{ attachmentName(child) }}</a
@@ -336,12 +338,13 @@ const audience = computed(() => {
                        were never here. -->
                   <a
                     v-else-if="typeof child.data.url === 'string'"
+                    dir="auto"
                     :href="child.data.url"
                     target="_blank"
                     rel="noopener noreferrer"
                     >{{ attachmentName(child) }}</a
                   >
-                  <span v-else>{{ attachmentName(child) }}</span>
+                  <span v-else dir="auto">{{ attachmentName(child) }}</span>
                 </li>
               </ul>
             </section>
@@ -365,7 +368,7 @@ const audience = computed(() => {
               </div>
               <p v-if="citationError" class="profile__error" role="alert">{{ citationError }}</p>
               <!-- Rendered by the server's own CSL processor from this item's data. -->
-              <div v-else-if="bibliography" class="block publication__bib" v-html="cleanBibliography(bibliography)"></div>
+              <div v-else-if="bibliography" class="block publication__bib" dir="auto" v-html="cleanBibliography(bibliography)"></div>
             </section>
 
             <section v-if="notes().length" class="publication__section">
@@ -377,6 +380,7 @@ const audience = computed(() => {
                 v-for="child in notes()"
                 :key="child.key"
                 class="publication__note"
+                dir="auto"
                 v-html="cleanNote(child.data.note)"
               ></div>
             </section>
@@ -443,6 +447,11 @@ const audience = computed(() => {
   border-radius: var(--md-sys-shape-corner-small);
   background: var(--md-sys-color-error-container);
   color: var(--md-sys-color-on-error-container);
+}
+
+/* The owner notice has its own surface; use its matching foreground. */
+.profile__own a {
+  color: inherit;
 }
 
 .profile__empty h1 {

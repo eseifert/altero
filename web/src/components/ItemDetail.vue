@@ -237,7 +237,7 @@ function childTitle(child: ItemEnvelope): string {
     <header class="detail__header">
       <ItemTypeIcon :item-type="item.data.itemType" :size="22" />
       <div class="detail__headings">
-        <h2 ref="heading" class="detail__title" tabindex="-1">{{ title }}</h2>
+        <h2 ref="heading" class="detail__title" dir="auto" tabindex="-1">{{ title }}</h2>
         <p class="detail__type">{{ itemTypeLabel(item.data.itemType) }}</p>
       </div>
       <button class="icon-button detail__close" type="button" :aria-label="t('Close details')" @click="emit('close')">
@@ -369,7 +369,7 @@ function childTitle(child: ItemEnvelope): string {
       :image-url="(key) => fileUrl(key)"
       :autofocus="noteAutofocus"
     />
-    <div v-else-if="isNote" class="card__inset detail__note" v-html="cleanNote(item.data.note)"></div>
+    <div v-else-if="isNote" class="card__inset detail__note" dir="auto" v-html="cleanNote(item.data.note)"></div>
 
 
     <InfoPane ref="info" :item="item" :editable="editable" :save="save" @rights="emit('rights')" />
@@ -457,7 +457,7 @@ function childTitle(child: ItemEnvelope): string {
       </div>
       <p v-if="citationError" class="detail__error" role="alert">{{ citationError }}</p>
       <!-- Rendered by the server's own CSL processor from this item's data. -->
-      <div v-else-if="bibliography" class="card__inset detail__bib" v-html="cleanBibliography(bibliography)"></div>
+      <div v-else-if="bibliography" class="card__inset detail__bib" dir="auto" v-html="cleanBibliography(bibliography)"></div>
     </section>
   </article>
 </template>

@@ -91,6 +91,7 @@ function submit(): void {
         v-model="name"
         class="dialog__field"
         type="text"
+        dir="auto"
         autocomplete="off"
         :disabled="busy"
         :aria-invalid="error ? 'true' : undefined"
@@ -110,7 +111,7 @@ function submit(): void {
         class="dialog__field"
         :disabled="busy"
       >
-        <option v-for="place in places" :key="place.key ?? ''" :value="place.key">
+        <option v-for="place in places" :key="place.key ?? ''" :value="place.key" dir="auto">
           {{ ' '.repeat(place.depth * 2) + place.label }}
         </option>
       </select>

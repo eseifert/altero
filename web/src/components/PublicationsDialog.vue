@@ -178,7 +178,7 @@ function advance(): void {
   >
     <form class="dialog__body" @submit.prevent="advance">
       <h2 class="dialog__title">{{ heading }}</h2>
-      <p v-if="page === 'intro'" class="dialog__what">{{ title }}</p>
+      <p v-if="page === 'intro'" class="dialog__what" dir="auto">{{ title }}</p>
 
       <template v-if="page === 'intro'">
         <!--

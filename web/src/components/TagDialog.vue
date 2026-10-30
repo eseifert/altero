@@ -79,6 +79,7 @@ function submit(): void {
         v-model="name"
         class="dialog__field"
         type="text"
+        dir="auto"
         autocomplete="off"
         :disabled="busy"
         :aria-invalid="error ? 'true' : undefined"
