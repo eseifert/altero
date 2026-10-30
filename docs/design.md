@@ -191,8 +191,9 @@ Corners: `corner-small` (8px) for something inside a card, `corner-medium`
 
 ## Type
 
-One family, IBM Plex Sans, served by this application — see
-[web-interface.md](web-interface.md#design) for why and what it costs. The scale
+The IBM Plex Sans family and its Japanese, Arabic and Hebrew cuts are served by
+this application — see [Web implementation notes](web/implementation.md#design)
+for how fonts are loaded. The scale
 is in the tokens; what matters here is which step means what:
 
 - `title-large` — the name of a screen, once.

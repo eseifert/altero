@@ -23,6 +23,8 @@
  * The Japanese faces are in `fonts-jp.css`, fetched once the page is on screen:
  * their 248 `@font-face` rules were nine tenths of this stylesheet, and a
  * stylesheet holds up the first paint until it has arrived.
+ * Arabic and Hebrew are deferred in fonts-rtl.css too; that file names the
+ * package-owned complete faces because those packages do not ship split CSS.
  */
 
 @import '@ibm/plex-sans/fonts/split/woff2/IBMPlexSans-Regular.css';

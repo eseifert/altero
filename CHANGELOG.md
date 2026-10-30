@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Arabic and Hebrew Plex fonts load locally on demand, with Persian, Urdu and Shahmukhi Punjabi coverage and no install telemetry.
 - The theme menu translates Light, Dark and System in every catalogue, including its accessible current-theme label.
 - Library text, public item details and text inputs choose direction from their content, independently of the UI language.
 - The profile-owner notice uses its surface's foreground color so its settings link meets contrast requirements.

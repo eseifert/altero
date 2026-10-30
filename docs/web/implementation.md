@@ -61,13 +61,24 @@ it lands on, and checks the one ordering that matters: a selected row is marked
 more strongly than the row under the pointer, or hovering would look like
 choosing.
 
-It is set in IBM Plex Sans, with IBM Plex Sans JP behind it for Japanese, and
-both are served by this application: nothing is loaded from a third party, no
-CDN, no request that tells anyone else who is reading. The faces are split by
-`unicode-range`, so a page fetches only the subsets its text needs — some 60 kB
-for a European language, about 1 MB the first time somebody reads Japanese —
-and the system stack shows the words while that happens. Fingerprinted assets
-are cached for good, so the second visit fetches none of it.
+It is set in IBM Plex Sans, with Plex Sans JP for Japanese, Plex Sans Arabic
+for Arabic, Persian, Urdu and Shahmukhi Punjabi, and Plex Sans Hebrew for Hebrew.
+All are served by this application: no CDN or other third party receives a
+font request. The Latin and Japanese faces are split by `unicode-range`, so a
+page fetches only the subsets its text needs. The Arabic and Hebrew packages
+provide complete faces; regular, medium and bold are included, with italic
+synthesized by the browser. Their stylesheets are deferred alongside Japanese,
+and font files are fetched only when text needs them, including mixed-language
+libraries. Every face uses `font-display: swap`, so system fonts show the text
+while it loads. Fingerprinted assets are cached for later visits. Package
+installation scripts remain disabled to prevent IBM's telemetry hook.
+
+The RTL checks cover Arabic screenshots and axe on desktop and phone, mixed
+item and note directions in both UI directions, public profiles and shares,
+splitter keys, mouse drags and touch holds. Font checks inspect the faces that
+Chromium actually used to draw every script letter in the five RTL catalogues.
+These are Chromium checks at two viewport sizes; Safari and native-device
+verification remain separate.
 
 ### The note editor
 

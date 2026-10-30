@@ -1,0 +1,52 @@
+/*
+ * Deferred alongside fonts-jp.css after mounting the interface. These packages
+ * ship complete fonts and one stylesheet for every weight and both WOFF formats;
+ * name only the three WOFF2 weights we use. Their files stay package-owned and
+ * Vite rewrites the URLs to this server's fingerprinted assets. The browser
+ * fetches a face only when text needs it, regardless of the interface language.
+ * Arabic also covers Persian, Urdu and Shahmukhi Punjabi. These families have
+ * no italic cut; the browser synthesizes italic for note and citation markup.
+ * The build adds font-display: swap to each face, as for Latin and Japanese.
+ */
+
+@font-face {
+  font-family: 'IBM Plex Sans Arabic';
+  font-style: normal;
+  font-weight: 400;
+  src: url('@ibm/plex-sans-arabic/fonts/complete/woff2/IBMPlexSansArabic-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Arabic';
+  font-style: normal;
+  font-weight: 500;
+  src: url('@ibm/plex-sans-arabic/fonts/complete/woff2/IBMPlexSansArabic-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Arabic';
+  font-style: normal;
+  font-weight: 700;
+  src: url('@ibm/plex-sans-arabic/fonts/complete/woff2/IBMPlexSansArabic-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  font-style: normal;
+  font-weight: 400;
+  src: url('@ibm/plex-sans-hebrew/fonts/complete/woff2/IBMPlexSansHebrew-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  font-style: normal;
+  font-weight: 500;
+  src: url('@ibm/plex-sans-hebrew/fonts/complete/woff2/IBMPlexSansHebrew-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Sans Hebrew';
+  font-style: normal;
+  font-weight: 700;
+  src: url('@ibm/plex-sans-hebrew/fonts/complete/woff2/IBMPlexSansHebrew-Bold.woff2') format('woff2');
+}

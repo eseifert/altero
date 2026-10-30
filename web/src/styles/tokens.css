@@ -75,11 +75,13 @@
    * from anyone else's machine. Plex Sans JP follows it and carries the
    * Japanese: Plex Sans has no CJK, so the browser falls through to it for
    * exactly the characters that need it and keeps Plex Sans for the Latin
-   * around them. The system stack stays behind both, and is what is on screen
+   * around them. Arabic and Hebrew follow with their own script coverage.
+   * The system stack stays behind these, and is what is on screen
    * while a subset loads. No token here sets `text-transform`; see
    * components.css.
    */
-  --md-sys-typescale-font: 'IBM Plex Sans', 'IBM Plex Sans JP', system-ui, -apple-system,
+  --md-sys-typescale-font: 'IBM Plex Sans', 'IBM Plex Sans JP', 'IBM Plex Sans Arabic',
+    'IBM Plex Sans Hebrew', system-ui, -apple-system,
     'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', Arial, sans-serif;
   --md-sys-typescale-font-mono: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo,
     Consolas, monospace;

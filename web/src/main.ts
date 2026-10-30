@@ -20,7 +20,8 @@ void loadLocale(guessed)
   .catch(() => undefined)
   .finally(() => {
     app.mount('#app')
-    // After the first paint rather than before it; see `styles/fonts-jp.css`.
+    // Deferred so the script-specific stylesheets do not hold up the first paint.
     void import('./styles/fonts-jp.css')
+    void import('./styles/fonts-rtl.css')
     if (import.meta.env.PROD) void registerServiceWorker()
   })
