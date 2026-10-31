@@ -316,6 +316,41 @@ The web CI job builds both Python artifacts after building the interface and
 checks their actual contents, including rebuilding the wheel through the source
 archive.
 
+### Beta.7 validation
+
+Local release checks on 2026-10-30 used Python 3.14.10, uv 0.13.6 and
+Node 24.22.1:
+
+- The full Python suite passed 3,452 tests with no skips or warnings, including
+  concurrency checks against a fresh disposable PostgreSQL database.
+- The pinned Zotero 10.0.7 source-replay suite passed 333 tests with no skips.
+- Ruff formatting/lint, Ty, the locked dependency check and strict documentation
+  build passed. The web interface passed 1,921 tests, types and production build.
+- The complete Chromium suite passed 136 desktop/phone cases with no skips,
+  failures or flaky results, including axe, fonts, RTL gestures and mixed text.
+- Pinned Zotero and dataserver source verification passed for 31 client
+  functions. The network-consumer review gate covered 324 files and 88 consumers,
+  with no parse errors or stale reviews.
+- Empty-database migrations and `alembic check` passed on SQLite and PostgreSQL,
+  using separate disposable databases.
+- A populated beta.6 SQLite database upgraded to the extracted beta.7 wheel.
+  Items, note HTML, collections, settings, deletions, object and library versions,
+  a search for `über`, and attachment download headers and bytes were unchanged.
+  A subsequent write advanced the library by exactly one version.
+- The wheel built through the source archive retained all 611 browser files.
+  Real HTTP from its isolated extraction served `/health` (`1.0.0b7`), `/app/`
+  with its Content-Security-Policy, the index's assets and a local font. The
+  service worker and manifest required revalidation. Authenticated API reads
+  and writes passed, including `sandbox` and `nosniff` headers, and a three-step
+  attachment upload downloaded with identical bytes.
+
+The [recorded desktop matrix](docs/client-compatibility.md#successfully-tested-matrix)
+passed all 36 scenarios on both SQLite and PostgreSQL with Zotero 10.0.7 on
+Linux: 72 combinations and 838 phases, including the schema corpus. Both
+full runs used fresh state against the beta.7 release candidate on 2026-10-30.
+Hosted CI and multi-architecture image publication still need checking after
+pushing; no tag was created locally.
+
 ### Beta.6 validation
 
 Local release checks on 2026-10-28 passed, on Python 3.14.10, uv 0.13.6 and
