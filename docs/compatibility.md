@@ -186,7 +186,7 @@ Three differences in formatted citations:
 - **A style given as a URL is refused** with `400 Invalid style`. zotero.org fetches it, but fetching any URL on request would turn the server into a proxy for anyone holding a key.
 - **Hanging indents and line spacing are written as zotero.org writes them**, but the alignment some numbered styles use for their numbers (`second-field-align`) is not reproduced.
 
-One known flaw comes from citeproc-py: a label can appear for a value the item does not have. In the API's default style, an in-text citation of an item without an edition ends in a stray `edition.` Bibliographies in that style are fine, as are citations in APA, MLA, IEEE, Nature, AMA and the other Chicago styles. The fix has been reported upstream.
+APA bibliographies can repeat an item's title when it has no author. This [known citeproc-py limitation](https://github.com/citeproc-py/citeproc-py/issues/91) remains unresolved.
 
 ### Item type schema
 

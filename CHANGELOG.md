@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Upgrade citeproc-py to 0.12.1, fixing stray edition labels in citations using the default style.
+
 ## [1.0.0-beta.7] — 2026-10-30
 
 This version merges duplicates in the browser and adds Arabic, Persian, Hebrew,

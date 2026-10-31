@@ -78,7 +78,7 @@ requires-dist = [
     { name = "argon2-cffi", specifier = ">=25.1.0" },
     { name = "asyncpg", marker = "extra == 'postgres'", specifier = ">=0.31.0" },
     { name = "bibtexparser", specifier = ">=1.4.4" },
-    { name = "citeproc-py", specifier = ">=0.11.0" },
+    { name = "citeproc-py", specifier = ">=0.12.1" },
     { name = "citeproc-py-styles", specifier = ">=0.1.6" },
     { name = "dateparser", specifier = ">=1.4.1" },
     { name = "fastapi", specifier = ">=0.118" },
@@ -321,14 +321,14 @@ wheels = [
 
 [[package]]
 name = "citeproc-py"
-version = "0.11.0"
+version = "0.12.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lxml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/59/7b260679722fe81bce41b85f5730c07b679681d2f84df34fbe7993beff28/citeproc_py-0.11.0.tar.gz", hash = "sha256:b96933c938aee06ff74590cdf68bae657c04e2fb29d6cd2e693aa0d97de37bc2", size = 277307, upload-time = "2026-08-20T15:21:27.86Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/44/2d265b22c554e1718b0a021aa6037f922869df2569a7f4e3e1b133baf885/citeproc_py-0.12.1.tar.gz", hash = "sha256:497c626a79e738cceb06e6144d216d120814649d7d01c157fbdbe837149f4599", size = 294688, upload-time = "2026-10-30T16:52:56.818Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/aa/7b/c7a5b46787d2fb2ddcb9710534d998ff8f2514116d783bc35dcafafdb1c2/citeproc_py-0.11.0-py3-none-any.whl", hash = "sha256:e0249b150b8f884581c4cf15e73ded54a417aeecfcd4009995f747e711101194", size = 387538, upload-time = "2026-08-20T15:21:26.556Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/e6/b4b77a734b1dd853677f968b70e73429596fb543407eedfaa6dd9aa5ebe5/citeproc_py-0.12.1-py3-none-any.whl", hash = "sha256:41f2b5d58ca65f9184ccb71f0ccd62454a17dc4a94b8a39454f447a2d94d688f", size = 388337, upload-time = "2026-10-30T16:52:54.979Z" },
 ]
 
 [[package]]
