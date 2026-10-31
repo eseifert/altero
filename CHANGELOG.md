@@ -12,6 +12,7 @@ gained a capability worth naming.
 - Verify account provisioning and group-loss suspension against real Keycloak OIDC and SAML sign-ins.
 - Fix SAML account linking and reauthentication when the identity provider's POST omits the existing browser cookie.
 - Test real Keycloak signing-key rollover, callback replay and sign-in clock-skew boundaries.
+- Test SAML sign-in and account linking against SimpleSAMLphp on patched PHP 8.4.27.
 
 ## [1.0.0-beta.7] — 2026-10-30
 

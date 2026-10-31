@@ -1,5 +1,15 @@
 # Disposable test directory only; these credentials are public fixtures.
 services:
+  simplesamlphp:
+    build: ./simplesamlphp
+    ports:
+      - "127.0.0.1:18081:8080"
+    healthcheck:
+      test: [CMD, php, -r, "exit(@file_get_contents('http://127.0.0.1:8080/health.php') === false ? 1 : 0);"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
   keycloak:
     image: quay.io/keycloak/keycloak:26.8.1@sha256:3f3c5f8e03c614774b4bd9173b88391fefa4153bfc010d8012d59ad825377332
     command: [start-dev, --import-realm]

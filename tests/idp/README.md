@@ -87,12 +87,53 @@ clock synchronization between machines or Keycloak's own clock-skew policy.
 The replay case checks the endpoint's combined single-use protections; the
 independent assertion-ID replay table has its own unit and concurrency tests.
 
-A second SAML provider and OpenID-provider conformance need separate evidence.
+`test_simplesamlphp.py` supplies a second real SAML implementation. Its fixture
+builds the upstream SimpleSAMLphp 2.5.3.1 full archive (including its dependencies
+and built assets) from an exact URL and SHA-256, on the official PHP 8.4.27 CLI
+image pinned by digest. No Composer install runs at build or startup. The
+configuration follows the upstream
+[IdP quickstart](https://simplesamlphp.org/docs/stable/simplesamlphp-idp) and
+[metadata reference](https://simplesamlphp.org/docs/stable/simplesamlphp-reference-idp-hosted).
+It generates a disposable signing key at startup, publishes the certificate
+through SAML metadata, uses persistent NameIDs derived from `uid`, and signs
+both response and assertion. The PHP development server is exposed only on
+loopback at `http://localhost:18081`; this is test configuration, not a production
+deployment recipe.
+
+PHP 8.4.27 contains the 21 October 2026 fixes for
+[CVE-2026-109618](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w)
+and [CVE-2026-109619](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp).
+The image also disables `session.upload_progress.enabled` in its startup INI
+for PHP's [23 October follow-up](https://www.php.net/archive/2026.php)
+on CVE-2026-115560. Build/start checks require PHP 8.4.27, and the readiness
+endpoint plus every live-test fixture check the actual runtime version and
+that setting. These are checks of the pinned fixed release and configuration,
+not exploit tests or a claim that all PHP dependencies have no vulnerabilities.
+
+The SimpleSAMLphp cases submit its real password form and check stable identity,
+multi-valued required groups, disabled provisioning, linking, ForceAuthn with
+an existing IdP session, reauthentication for API-key issuance, callback replay,
+tampered signed claims, and mismatched signing certificates/issuers. Both XML
+signatures and persistent NameID format are asserted on actual responses.
+Assertions are posted without cookies and handoff GETs use the retained jar.
+The fixture's `localhost` IdP and `127.0.0.1` altero are different sites; HTTP
+tests still do not enforce browser cookie policy themselves. Configurations
+that encrypt assertions, use artifact binding or require signed AuthnRequests
+are outside this fixture.
+
+Local Chromium validation on 2026-10-31 also passed linking, sign-in and forced
+reauthentication against SimpleSAMLphp across those two sites. All three actual
+ACS POSTs omitted cookies; the verified handoff retained the local account and
+fresh proof enabled API-key issuance. This browser run is separate from the
+HTTP cases required in CI.
+
+OpenID-provider conformance needs separate evidence.
 The existing mock-based identity and SAML unit suites remain useful for precise
 negative cases; they do not replace this test.
 
-An unset `ALTERO_TEST_KEYCLOAK_URL` skips these cases locally. A configured but
-unreachable service fails. CI starts the same Compose service, sets the URL and
+An unset `ALTERO_TEST_KEYCLOAK_URL` or `ALTERO_TEST_SIMPLESAMLPHP_URL` skips that
+provider's cases locally. A configured but unreachable service fails. CI starts
+the same Compose services, sets both URLs and
 rejects skips. Inspect a failed service with:
 
 ```sh

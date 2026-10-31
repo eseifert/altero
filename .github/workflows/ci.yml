@@ -149,6 +149,7 @@ jobs:
     env:
       ALTERO_TEST_POSTGRES_URL: postgresql+asyncpg://altero:altero@localhost:5432/altero
       ALTERO_TEST_KEYCLOAK_URL: http://127.0.0.1:18080
+      ALTERO_TEST_SIMPLESAMLPHP_URL: http://localhost:18081
 
     steps:
       - uses: actions/checkout@v7
@@ -162,10 +163,10 @@ jobs:
       - name: Install
         run: uv sync --locked
 
-      # Compose starts after checkout so the realm import is available. The
-      # same pinned service and readiness probe are used by local tests.
-      - name: Start Keycloak with the test realm
-        run: docker compose -p altero-idp-tests -f tests/idp/compose.yml up -d --wait
+      # Compose starts after checkout so the realm import and PHP fixture are
+      # available. Local tests use the same pinned services/readiness probes.
+      - name: Start the test identity providers
+        run: docker compose -p altero-idp-tests -f tests/idp/compose.yml up --build -d --wait
 
       - name: Test
         # Every test must run here, including PostgreSQL races and real IdP
@@ -179,11 +180,11 @@ jobs:
             exit 1
           fi
 
-      - name: Keycloak diagnostics
+      - name: Identity-provider diagnostics
         if: failure()
         run: docker compose -p altero-idp-tests -f tests/idp/compose.yml logs --no-color
 
-      - name: Stop Keycloak
+      - name: Stop the test identity providers
         if: always()
         run: docker compose -p altero-idp-tests -f tests/idp/compose.yml down
 

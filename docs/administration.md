@@ -166,7 +166,14 @@ deprovisioning are exercised for both protocols, including retained and revoked
 API keys. SAML signing-key rollover, callback replay and the five-minute
 validity tolerance are also checked against Keycloak-issued responses. The
 clock tests adjust altero's validator clock; they do not test machine clock
-synchronization. Other identity providers still need separate evidence.
+synchronization.
+
+A second SAML integration test uses SimpleSAMLphp 2.5.3.1 on patched PHP 8.4.27,
+with both response and assertion signed. It covers persistent identity, required
+groups, provisioning policy, account linking, forced reauthentication and
+refusal of replayed or altered responses. This fixture does not establish
+compatibility with other providers or with encrypted assertions, artifact
+binding or signed AuthnRequests.
 
 ### OpenID Connect
 

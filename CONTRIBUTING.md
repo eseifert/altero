@@ -34,23 +34,25 @@ export ALTERO_TEST_POSTGRES_URL=postgresql+asyncpg://altero:altero@localhost:554
 uv run pytest
 ```
 
-The identity-provider tests also need a real Keycloak. The checked-in realm
-contains public test credentials and exact loopback callback addresses; use it
-only as a disposable test directory. Start the pinned container and wait for
+The identity-provider tests also need real Keycloak and SimpleSAMLphp services.
+Their checked-in configuration contains public test credentials and exact
+loopback callback addresses; use it only for disposable test directories.
+Build the pinned SimpleSAMLphp fixture, start both providers and wait for
 readiness before running the tests:
 
 ```sh
-docker compose -p altero-idp-tests -f tests/idp/compose.yml up -d --wait
+docker compose -p altero-idp-tests -f tests/idp/compose.yml up --build -d --wait
 export ALTERO_TEST_KEYCLOAK_URL=http://127.0.0.1:18080
-uv run pytest -q tests/test_keycloak.py tests/test_keycloak_protocol.py
+export ALTERO_TEST_SIMPLESAMLPHP_URL=http://localhost:18081
+uv run pytest -q tests/test_keycloak.py tests/test_keycloak_protocol.py tests/test_simplesamlphp.py
 docker compose -p altero-idp-tests -f tests/idp/compose.yml down
 ```
 
-Keycloak uses port 18080 and the test's real altero server uses port 18765, both
-on loopback. Run these tests serially with both ports free. Each test gets its
-own altero database and file store. Without `ALTERO_TEST_KEYCLOAK_URL`, these
-tests skip; an unavailable service at a configured URL fails. CI starts the
-same Compose service after checkout and requires these tests to run. See the
+Keycloak uses port 18080, SimpleSAMLphp 18081, and the real altero server 18765,
+all on loopback. Run these tests serially with those ports free. Each test gets
+its own altero database and file store. Tests skip when their provider's URL
+variable is unset; an unavailable service at a configured URL fails. CI starts
+the same Compose services after checkout and requires these tests to run. See the
 [fixture and coverage details](tests/idp/README.md).
 
 ## The one architectural rule
@@ -418,10 +420,10 @@ uv run ty check
 uv run pytest
 ```
 
-CI runs the same checks, plus PostgreSQL for the concurrency tests, Keycloak
-for identity-provider tests, and `alembic check` for schema drift. It fails if
-any test skipped; local runs without `ALTERO_TEST_POSTGRES_URL` and
-`ALTERO_TEST_KEYCLOAK_URL` omit those checks.
+CI runs the same checks, plus PostgreSQL for the concurrency tests, Keycloak and
+SimpleSAMLphp for identity-provider tests, and `alembic check` for schema drift.
+It fails if any test skipped. Each service's tests skip locally when its
+corresponding `ALTERO_TEST_*_URL` variable is unset.
 The separate Desktop compatibility workflow runs the optional contracts and
 uploads discovery reports; its scheduled job also inspects upstream changes.
 
