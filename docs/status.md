@@ -74,6 +74,18 @@ These are not required for basic Zotero compatibility but are available on an al
 - storage reporting; and
 - whole-library export/import and migration from zotero.org.
 
+## Sign-in and authorization verification
+
+Real Keycloak OIDC/SAML, SimpleSAMLphp SAML and independent Authlib client flows
+passed [hosted CI at `fcf8460`](https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185)
+without skipped tests. The [provider recipes](administration.md#provider-recipes)
+distinguish that coverage from the unverified Entra ID, Okta, authentik and
+Shibboleth setups.
+
+The local OpenID Foundation assessment passed Config OP; Basic OP did not pass.
+See the [results and limits](oidc-conformance.md), including the mandatory-PKCE
+profile mismatch. These checks establish no OpenID certification.
+
 ## Not implemented
 
 - Zotero's **Note HTML** and **Note Markdown** translators. These create a note rather than an ordinary bibliography/export response.

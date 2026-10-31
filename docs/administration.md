@@ -256,8 +256,9 @@ the string or one entry in its list exactly.
 
 #### Keycloak
 
-**Verification:** OIDC and SAML have automated tests configured in CI and have
-passed locally with Keycloak 26.8.1. See the
+**Verification:** OIDC and SAML passed with Keycloak 26.8.1 in
+[hosted CI at `fcf8460`](https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185),
+alongside the second SAML provider, SimpleSAMLphp. See the
 [test scope](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
 for the exercised flows and browser limitations.
 

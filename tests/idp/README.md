@@ -151,6 +151,22 @@ conformance. The separate local Foundation suite assessment is recorded in
 The existing mock-based identity and SAML unit suites remain useful for precise
 negative cases; they do not replace this test.
 
+## Hosted verification
+
+The [Tests job at `fcf8460`](https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185)
+completed successfully on 31 October 2026 (UTC), with **3,556 passed and no
+skipped tests**. It built and health-checked both checked-in provider services,
+set both provider URL variables, and passed the workflow's no-skip gate.
+The suite includes 23 Keycloak, eight SimpleSAMLphp and 24 Authlib cases; the
+test modules, provider fixtures and CI workflow are unchanged between that
+revision and the recipe commit `ec50b9d`.
+
+The run reported five SQLite connection `ResourceWarning`s; it was not
+warning-free. The federated sign-in fixtures use SQLite;
+PostgreSQL in the same job exercises the concurrency suite, not a second full
+provider matrix. Local Chromium checks and the local Foundation assessment
+remain separate evidence, with the limitations described above.
+
 An unset `ALTERO_TEST_KEYCLOAK_URL` or `ALTERO_TEST_SIMPLESAMLPHP_URL` skips that
 provider's cases locally. A configured but unreachable service fails. CI starts
 the same Compose services, sets both URLs and
