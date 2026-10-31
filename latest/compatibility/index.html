@@ -383,6 +383,8 @@
       
         
       
+        
+      
     
     
     
@@ -1878,6 +1880,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#token-revocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Token revocation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#a-second-credential-for-the-v3-api" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2088,6 +2101,8 @@
       
         
       
+        
+      
     
     
     
@@ -2144,6 +2159,33 @@
     
   
   Checking desktop compatibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../oidc-conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  OpenID provider interoperability
 
     
   </span>
@@ -2943,6 +2985,17 @@
   
     <nav class="md-nav" aria-label="The authorization server">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#token-revocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Token revocation
+      </span>
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#a-second-credential-for-the-v3-api" class="md-nav__link">
@@ -3810,6 +3863,13 @@ that combination without detaching the note from its original PDF.</p>
 <p><strong><code>/tags?format=versions</code> fails on api.zotero.org</strong> with a server error, for every library tried, including Zotero's own example account. A real import stopped on it after reading everything else. So the import treats only items, collections and saved searches as essential and stops if one cannot be read. Tag versions, settings, full text, the deletion log and attachment files are read if possible and listed in the report if not. A tag without a version gets the library's, which is the safe direction: clients asking what changed hear about it.</p>
 <p><strong>Pages are fetched by position</strong>, not by following the <code>Link</code> header, because that header always points at api.zotero.org.</p>
 <h2 id="the-authorization-server">The authorization server<a class="headerlink" href="#the-authorization-server" title="Permanent link">&para;</a></h2>
+<h3 id="token-revocation">Token revocation<a class="headerlink" href="#token-revocation" title="Permanent link">&para;</a></h3>
+<p><code>/oauth/revoke</code> accepts the same client authentication methods as <code>/oauth/token</code>:
+HTTP Basic, a form secret, or a public client's ID without a secret.
+Confidential clients must authenticate, as <a href="https://www.rfc-editor.org/rfc/rfc7009.html#section-2.1">RFC 7009 §2.1</a>
+requires. An authenticated request gets 200 for an unknown token too, and cannot
+revoke another client's token. Revoking an access token leaves its refresh token
+usable; revoking a refresh token invalidates its whole family.</p>
 <h3 id="a-second-credential-for-the-v3-api">A second credential for the v3 API<a class="headerlink" href="#a-second-credential-for-the-v3-api" title="Permanent link">&para;</a></h3>
 <p>The v3 API is authenticated by a credential sent with each request, <strong>never</strong> by a browser cookie. The authorization server lets an OAuth access token be that credential, alongside an API key; the rule itself is unchanged.</p>
 <p>That distinction is the whole reason it is allowed. A browser attaches cookies to requests any website can trigger, so a cookie that worked on <code>/users/&lt;id&gt;/items</code> would expose the entire sync protocol to cross-site attacks. A token is sent only by the application holding it, and no other website can make it be sent.</p>

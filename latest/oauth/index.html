@@ -383,6 +383,8 @@
       
         
       
+        
+      
     
     
     
@@ -1234,6 +1236,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#interoperability-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Interoperability checks
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#security-notes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1450,6 +1463,8 @@
       
         
       
+        
+      
     
     
     
@@ -1506,6 +1521,33 @@
     
   
   Checking desktop compatibility
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../oidc-conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  OpenID provider interoperability
 
     
   </span>
@@ -1800,6 +1842,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         What a person sees
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interoperability-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Interoperability checks
       </span>
     </span>
   </a>
@@ -2283,6 +2336,12 @@ grant is already narrowed, the screen says what it is narrowed to.</p>
 applications</strong>, with what it may do, where it may reach, and whether it is
 currently in use. Disconnecting one takes effect immediately: the tokens go with
 the grant rather than running out an hour later.</p>
+<h2 id="interoperability-checks">Interoperability checks<a class="headerlink" href="#interoperability-checks" title="Permanent link">&para;</a></h2>
+<p>An independent Authlib client exercises the provider over live HTTP in CI.
+A local OpenID Foundation suite run passed Config OP; Basic OP did not pass,
+largely because its requests omit the PKCE challenge altero requires.
+See the <a href="../oidc-conformance/">results and limits</a> before relying on a particular
+OpenID feature. altero is not OpenID-certified.</p>
 <h2 id="security-notes">Security notes<a class="headerlink" href="#security-notes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The v3 API accepts an access token <em>in addition to</em> an API key. It never
