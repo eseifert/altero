@@ -158,6 +158,13 @@ Set `ALTERO_PUBLIC_URL` first. The administration screen shows the redirect/call
 
 A callback mismatch is rejected by the provider before altero can complete sign-in.
 
+OIDC and signed SAML sign-in have a real Keycloak integration test, including
+returning to the same account and keeping browser sessions out of the v3 API.
+The [test setup](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
+documents its scope. This does not yet establish compatibility with other
+providers or test directory deprovisioning and signing-key rollover against a
+real provider.
+
 ### OpenID Connect
 
 Store the client credentials and provider settings in the administration screen. Client secrets are write-only: the interface can replace a secret but does not display the existing value.

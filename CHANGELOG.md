@@ -8,6 +8,7 @@ gained a capability worth naming.
 ## [Unreleased]
 
 - Upgrade citeproc-py to 0.12.1, fixing stray edition labels in citations using the default style.
+- Test OIDC and SAML browser sign-in against a pinned Keycloak server in CI.
 
 ## [1.0.0-beta.7] — 2026-10-30
 

@@ -34,6 +34,25 @@ export ALTERO_TEST_POSTGRES_URL=postgresql+asyncpg://altero:altero@localhost:554
 uv run pytest
 ```
 
+The identity-provider tests also need a real Keycloak. The checked-in realm
+contains public test credentials and exact loopback callback addresses; use it
+only as a disposable test directory. Start the pinned container and wait for
+readiness before running the tests:
+
+```sh
+docker compose -p altero-idp-tests -f tests/idp/compose.yml up -d --wait
+export ALTERO_TEST_KEYCLOAK_URL=http://127.0.0.1:18080
+uv run pytest -q tests/test_keycloak.py
+docker compose -p altero-idp-tests -f tests/idp/compose.yml down
+```
+
+Keycloak uses port 18080 and the test's real altero server uses port 18765, both
+on loopback. Run these tests serially with both ports free. Each test gets its
+own altero database and file store. Without `ALTERO_TEST_KEYCLOAK_URL`, these
+tests skip; an unavailable service at a configured URL fails. CI starts the
+same Compose service after checkout and requires these tests to run. See the
+[fixture and coverage details](tests/idp/README.md).
+
 ## The one architectural rule
 
 `altero/api/` is the only package that may know about the web framework.
@@ -399,9 +418,10 @@ uv run ty check
 uv run pytest
 ```
 
-CI runs the same checks, plus PostgreSQL for the concurrency tests and
-`alembic check` for schema drift. It fails if any test skipped, so a green run
-locally without `ALTERO_TEST_POSTGRES_URL` set is weaker evidence than it looks.
+CI runs the same checks, plus PostgreSQL for the concurrency tests, Keycloak
+for identity-provider tests, and `alembic check` for schema drift. It fails if
+any test skipped; local runs without `ALTERO_TEST_POSTGRES_URL` and
+`ALTERO_TEST_KEYCLOAK_URL` omit those checks.
 The separate Desktop compatibility workflow runs the optional contracts and
 uploads discovery reports; its scheduled job also inspects upstream changes.
 

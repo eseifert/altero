@@ -1,0 +1,72 @@
+{
+  "realm": "altero",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "clients": [
+    {
+      "clientId": "altero-oidc",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "altero-test-client-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://127.0.0.1:18765/web/auth/sso/oidc/callback"],
+      "attributes": {"pkce.code.challenge.method": "S256"},
+      "defaultClientScopes": ["profile", "email"]
+    },
+    {
+      "clientId": "http://127.0.0.1:18765",
+      "protocol": "saml",
+      "enabled": true,
+      "redirectUris": ["http://127.0.0.1:18765/web/auth/saml/saml/acs"],
+      "attributes": {
+        "saml.assertion.signature": "true",
+        "saml.server.signature": "false",
+        "saml.client.signature": "false",
+        "saml.encrypt": "false",
+        "saml.signature.algorithm": "RSA_SHA256",
+        "saml_name_id_format": "persistent",
+        "saml_force_name_id_format": "true",
+        "saml.force.post.binding": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "username",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-property-mapper",
+          "config": {
+            "user.attribute": "username",
+            "attribute.name": "preferred_username",
+            "attribute.nameformat": "Basic"
+          }
+        },
+        {
+          "name": "email",
+          "protocol": "saml",
+          "protocolMapper": "saml-user-property-mapper",
+          "config": {
+            "user.attribute": "email",
+            "attribute.name": "email",
+            "attribute.nameformat": "Basic"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "grace",
+      "enabled": true,
+      "email": "grace@example.org",
+      "emailVerified": true,
+      "firstName": "Grace",
+      "lastName": "Hopper",
+      "credentials": [
+        {"type": "password", "value": "keycloak-test-password", "temporary": false}
+      ]
+    }
+  ]
+}
