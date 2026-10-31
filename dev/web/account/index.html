@@ -1801,6 +1801,11 @@ registration somebody else's way in.</p>
 has configured one — see <a href="../../administration/#sign-in-providers">administration.md</a>.
 The button appears above the password form, which stays: federation is an
 addition, not a replacement, and an instance keeps its local accounts.</p>
+<p>Repeated wrong passwords or second-factor codes make sign-in pause briefly,
+with longer pauses after further guesses, up to five minutes. Wait before
+retrying; reloading, switching between username and email, or asking for
+another code does not reset the account's allowance. See
+<a href="../../deployment/#sign-in-backoff">sign-in backoff</a> for the operator details.</p>
 <p>What a completed sign-in produces is a browser session, exactly the one a
 password produces. <strong>A Zotero client still holds an API key, and still gets it
 from Settings → API keys.</strong> That is the boundary rule doing its job rather than

@@ -1295,6 +1295,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Rate limiting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sign-in-backoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sign-in backoff
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2132,6 +2149,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Rate limiting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sign-in-backoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sign-in backoff
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2540,13 +2574,36 @@ for other systems.</p>
 </span></code></pre></div>
 <p>Under Docker Compose, altero sees the Docker network's gateway instead of <code>127.0.0.1</code>; the access log shows the address to name.</p>
 <h2 id="rate-limiting">Rate limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
-<p>Rate limiting is off by default.</p>
+<p>The optional general request limiter is off by default. Password and
+second-factor sign-in have separate, always-on protection described below.</p>
 <p>Example: allow 600 requests per 60 seconds per API key:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="nv">ALTERO_RATE_LIMIT</span><span class="o">=</span><span class="m">600</span><span class="w"> </span><span class="nv">ALTERO_RATE_LIMIT_WINDOW</span><span class="o">=</span><span class="m">60</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
 </span></code></pre></div>
 <p>Requests over the limit receive <code>429</code> with a whole-second <code>Retry-After</code>, which Zotero understands.</p>
 <p>Unauthenticated requests are counted per client address. So are requests with a key that has not authenticated in the current window, as well as per key: made-up keys share their address's allowance. <code>/health</code> is never rate limited.</p>
 <p>The limiter is process-local. With several application workers, each process has its own allowance. Use the reverse proxy or another edge component if you need a deployment-wide defensive limit.</p>
+<h3 id="sign-in-backoff">Sign-in backoff<a class="headerlink" href="#sign-in-backoff" title="Permanent link">&para;</a></h3>
+<p>Password sign-in and TOTP/email second-factor guesses share database-backed
+budgets across workers and restarts. This protection is enabled even when
+<code>ALTERO_RATE_LIMIT=0</code>. Run <code>alembic upgrade head</code> when upgrading from beta.7;
+the new <code>login_attempts</code> table contains counters, not passwords or codes.</p>
+<p>The first five attempts per account and twenty per client address can proceed
+without waiting. The fifth/twentieth reservation starts a one-second pause
+before another attempt; each further admitted guess doubles it to a maximum of
+five minutes. <code>429</code> answers carry a whole-second <code>Retry-After</code>. Requests refused
+during the pause do not extend it. Fifteen minutes without an admitted attempt
+reset the counters; expired rows are removed by the next reservation.</p>
+<p>Password and second-factor account budgets are separate. Username/email aliases
+share the account's password budget; TOTP and email share its factor budget
+across pending sessions and resends. Unknown names get the same limits. A
+successful proof resets its account budget and refunds only its own address
+attempt, preserving other failures. Concurrent attempts count before checking
+the credential; an interrupted verification counts conservatively as a failure.</p>
+<p>The address comes from the connection after uvicorn's trusted-proxy processing.
+Configure <a href="#behind-a-reverse-proxy">forwarded headers</a> correctly: an unrecognized
+proxy makes all its users share one address budget. The application never reads
+an untrusted <code>X-Forwarded-For</code> directly. Passkey/SSO ceremonies, existing browser
+sessions and v3 API credentials do not use these password/code budgets.</p>
 <h2 id="moving-or-restoring-data">Moving or restoring data<a class="headerlink" href="#moving-or-restoring-data" title="Permanent link">&para;</a></h2>
 <p>For whole-library export/import, migration from zotero.org and recovery after recreating a database, see <a href="../administration/#library-transfer-and-recovery">Administration</a>.</p>
 <h2 id="backups">Backups<a class="headerlink" href="#backups" title="Permanent link">&para;</a></h2>
