@@ -145,7 +145,8 @@ The harness approves consent through cookie/CSRF-protected HTTP endpoints and
 hands the callback URL to Authlib. It does not run a separate RP web server,
 execute consent-page JavaScript, or check browser cookie policy. Discovery uses
 loopback HTTP; Authlib's ID-token checks are not a claim of discovery-profile
-conformance. OpenID-provider conformance needs separate evidence.
+conformance. The separate local Foundation suite assessment is recorded in
+[OpenID provider interoperability](../../docs/oidc-conformance.md).
 
 The existing mock-based identity and SAML unit suites remain useful for precise
 negative cases; they do not replace this test.

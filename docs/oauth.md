@@ -427,6 +427,14 @@ applications**, with what it may do, where it may reach, and whether it is
 currently in use. Disconnecting one takes effect immediately: the tokens go with
 the grant rather than running out an hour later.
 
+## Interoperability checks
+
+An independent Authlib client exercises the provider over live HTTP in CI.
+A local OpenID Foundation suite run passed Config OP; Basic OP did not pass,
+largely because its requests omit the PKCE challenge altero requires.
+See the [results and limits](oidc-conformance.md) before relying on a particular
+OpenID feature. altero is not OpenID-certified.
+
 ## Security notes
 
 - The v3 API accepts an access token *in addition to* an API key. It never

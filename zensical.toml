@@ -49,6 +49,7 @@ nav = [
   ] },
   { "Contributing" = [
     "client-compatibility.md",
+    "oidc-conformance.md",
     "testing-two-clients.md",
     "design.md",
     "web/implementation.md",
