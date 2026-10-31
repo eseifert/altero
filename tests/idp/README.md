@@ -1,5 +1,8 @@
 # Real identity-provider tests
 
+Form parsing and the disposable live altero server are shared by the provider
+test modules through `tests/idp/http.py`.
+
 `test_keycloak.py` and `test_keycloak_protocol.py` run OIDC authorization-code + S256 PKCE and SAML
 HTTP-Redirect/HTTP-POST sign-in against Keycloak 26.8.1, pinned by image digest
 in `compose.yml`. Start it with the commands in

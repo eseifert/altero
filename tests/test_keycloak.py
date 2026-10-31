@@ -5,25 +5,18 @@ The imported clients register a loopback altero at port 18765; run serially.
 This exercises HTTP forms, not browser JavaScript or SameSite enforcement.
 """
 
-import asyncio
 import os
-import socket
 from collections.abc import AsyncIterator
-from contextlib import closing
-from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urljoin
 
 import httpx2
 import pytest
-import uvicorn
 from lxml import etree  # ty: ignore[unresolved-import]
 
-from altero.app import create_app
-from altero.settings import Settings
-from tests.test_web_routes import PASSWORD, csrf_headers, register
+from tests.idp.http import ALTERO_URL, Form, live_browser
+from tests.test_web_routes import PASSWORD, csrf_headers
 
-ALTERO_URL = "http://127.0.0.1:18765"
 # Keycloak's SecureContextResolver emits Secure cookies on HTTP loopback except
 # for Safari. Python's cookie jar does not implement browsers' loopback exception;
 # use that supported server path instead of modifying cookies or their policy.
@@ -31,33 +24,6 @@ HTTP_USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
 )
-
-
-class Form(HTMLParser):
-    """Read an actual IdP form, including HTML-escaped action parameters."""
-
-    def __init__(self, document: str, *, identifier: str) -> None:
-        super().__init__(convert_charrefs=True)
-        self.identifier = identifier
-        self.action = ""
-        self.fields: dict[str, str] = {}
-        self.inside = False
-        self.feed(document)
-        assert self.action, f"Keycloak did not return the {identifier} form"
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        attributes = dict(attrs)
-        if tag == "form":
-            self.inside = self.identifier in (attributes.get("id"), attributes.get("name"))
-            if self.inside:
-                assert (attributes.get("method") or "").lower() == "post"
-                self.action = attributes.get("action") or ""
-        if self.inside and tag == "input" and attributes.get("name"):
-            self.fields[str(attributes["name"])] = attributes.get("value") or ""
-
-    def handle_endtag(self, tag: str) -> None:
-        if tag == "form":
-            self.inside = False
 
 
 @pytest.fixture
@@ -76,35 +42,8 @@ async def keycloak() -> str:
 
 @pytest.fixture
 async def browser(keycloak: str, tmp_path: Path) -> AsyncIterator[httpx2.AsyncClient]:
-    settings = Settings(
-        database_url=f"sqlite+aiosqlite:///{tmp_path / 'identity.sqlite'}",
-        storage_path=tmp_path / "storage",
-        public_url=ALTERO_URL,
-    )
-    app = create_app(settings)
-    await app.state.database.create_all()
-    running = uvicorn.Server(
-        uvicorn.Config(app, log_level="error", access_log=False, lifespan="on")
-    )
-    with closing(socket.socket()) as listener:
-        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        listener.bind(("127.0.0.1", 18765))
-        task = asyncio.create_task(running.serve(sockets=[listener]))
-        try:
-            async with asyncio.timeout(15):
-                while not running.started:
-                    if task.done():
-                        task.result()
-                        raise RuntimeError("altero stopped before accepting requests")
-                    await asyncio.sleep(0.01)
-            async with httpx2.AsyncClient(
-                base_url=ALTERO_URL, timeout=20, headers={"User-Agent": HTTP_USER_AGENT}
-            ) as client:
-                assert (await register(client)).status_code == 201
-                yield client
-        finally:
-            running.should_exit = True
-            await asyncio.wait_for(task, timeout=15)
+    async with live_browser(tmp_path, headers={"User-Agent": HTTP_USER_AGENT}) as client:
+        yield client
 
 
 async def configure(
