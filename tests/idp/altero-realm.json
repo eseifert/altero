@@ -4,7 +4,18 @@
   "sslRequired": "none",
   "registrationAllowed": false,
   "resetPasswordAllowed": false,
+  "groups": [{"name": "researchers"}],
   "clients": [
+    {
+      "clientId": "altero-fixtures",
+      "protocol": "openid-connect",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "altero-test-management-secret",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false
+    },
     {
       "clientId": "altero-oidc",
       "protocol": "openid-connect",
@@ -15,7 +26,21 @@
       "directAccessGrantsEnabled": false,
       "redirectUris": ["http://127.0.0.1:18765/web/auth/sso/oidc/callback"],
       "attributes": {"pkce.code.challenge.method": "S256"},
-      "defaultClientScopes": ["profile", "email"]
+      "defaultClientScopes": ["profile", "email"],
+      "protocolMappers": [
+        {
+          "name": "groups in UserInfo",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "config": {
+            "claim.name": "groups",
+            "full.path": "false",
+            "id.token.claim": "false",
+            "access.token.claim": "false",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
     },
     {
       "clientId": "http://127.0.0.1:18765",
@@ -33,6 +58,17 @@
         "saml.force.post.binding": "true"
       },
       "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "saml",
+          "protocolMapper": "saml-group-membership-mapper",
+          "config": {
+            "attribute.name": "groups",
+            "attribute.nameformat": "Basic",
+            "full.path": "false",
+            "single": "true"
+          }
+        },
         {
           "name": "username",
           "protocol": "saml",
@@ -58,12 +94,19 @@
   ],
   "users": [
     {
+      "username": "service-account-altero-fixtures",
+      "enabled": true,
+      "serviceAccountClientId": "altero-fixtures",
+      "clientRoles": {"realm-management": ["realm-admin"]}
+    },
+    {
       "username": "grace",
       "enabled": true,
       "email": "grace@example.org",
       "emailVerified": true,
       "firstName": "Grace",
       "lastName": "Hopper",
+      "groups": ["/researchers"],
       "credentials": [
         {"type": "password", "value": "keycloak-test-password", "temporary": false}
       ]

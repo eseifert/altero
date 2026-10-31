@@ -107,7 +107,9 @@ async def browser(keycloak: str, tmp_path: Path) -> AsyncIterator[httpx2.AsyncCl
             await asyncio.wait_for(task, timeout=15)
 
 
-async def configure(browser: httpx2.AsyncClient, realm: str, kind: str) -> None:
+async def configure(
+    browser: httpx2.AsyncClient, realm: str, kind: str, **overrides: object
+) -> None:
     provider = {
         "slug": kind,
         "kind": kind,
@@ -140,6 +142,7 @@ async def configure(browser: httpx2.AsyncClient, realm: str, kind: str) -> None:
                 for certificate in certificates
             ),
         )
+    provider.update(overrides)
     response = await browser.post(
         "/web/admin/providers", json=provider, headers=csrf_headers(browser)
     )
@@ -147,9 +150,11 @@ async def configure(browser: httpx2.AsyncClient, realm: str, kind: str) -> None:
     assert response.json()["warning"] is None
 
 
-async def sign_in(browser: httpx2.AsyncClient, realm: str, kind: str) -> httpx2.Response:
-    """Submit Keycloak's password form, stopping at altero's final redirect."""
-    started = await browser.get(f"/web/auth/sso/{kind}/start")
+async def answer(
+    browser: httpx2.AsyncClient, realm: str, kind: str, **parameters: str
+) -> httpx2.Request:
+    """Obtain Keycloak's real answer without yet submitting it to altero."""
+    started = await browser.get(f"/web/auth/sso/{kind}/start", params=parameters)
     assert started.status_code == 303
     assert started.headers["location"].startswith(f"{realm}/protocol/")
     page = await browser.get(started.headers["location"])
@@ -165,15 +170,160 @@ async def sign_in(browser: httpx2.AsyncClient, realm: str, kind: str) -> httpx2.
         assert response.status_code == 302
         callback = response.headers["location"]
         assert callback.startswith(f"{ALTERO_URL}/web/auth/sso/oidc/callback?")
-        return await browser.get(callback)
+        return browser.build_request("GET", callback)
     assert response.status_code == 200
     assertion = Form(response.text, identifier="saml-post-binding")
     assert assertion.action == f"{ALTERO_URL}/web/auth/saml/saml/acs"
     assert assertion.fields.get("SAMLResponse")
-    # A cross-site POST does not send SameSite=Lax session cookies. Preserve
-    # Keycloak's fields, but discard cookies before this unauthenticated ACS.
-    browser.cookies.clear()
-    return await browser.post(assertion.action, data=assertion.fields)
+    # Construct the cross-site POST without the client's SameSite=Lax cookies.
+    # Keep its jar: a browser retains those cookies for later same-site requests.
+    return httpx2.Request("POST", assertion.action, data=assertion.fields)
+
+
+async def sign_in(
+    browser: httpx2.AsyncClient, realm: str, kind: str, **parameters: str
+) -> httpx2.Response:
+    return await browser.send(await answer(browser, realm, kind, **parameters))
+
+
+@pytest.fixture
+async def directory(keycloak: str) -> AsyncIterator[httpx2.AsyncClient]:
+    """Control only the disposable realm, using its fixture service account."""
+    async with httpx2.AsyncClient(timeout=20) as client:
+        token = await client.post(
+            f"{keycloak}/protocol/openid-connect/token",
+            data={
+                "grant_type": "client_credentials",
+                "client_id": "altero-fixtures",
+                "client_secret": "altero-test-management-secret",
+            },
+        )
+    assert token.status_code == 200
+    base = keycloak.removesuffix("/realms/altero")
+    async with httpx2.AsyncClient(
+        base_url=f"{base}/admin/realms/altero/",
+        headers={"Authorization": f"Bearer {token.json()['access_token']}"},
+        timeout=20,
+    ) as client:
+        yield client
+
+
+def new_browser() -> httpx2.AsyncClient:
+    return httpx2.AsyncClient(
+        base_url=ALTERO_URL, timeout=20, headers={"User-Agent": HTTP_USER_AGENT}
+    )
+
+
+def assert_refused(response: httpx2.Response, reason: str = "not-permitted") -> None:
+    assert response.status_code == 303
+    assert response.headers["location"] == f"{ALTERO_URL}/app/sign-in?error={reason}"
+
+
+@pytest.mark.parametrize("kind", ["oidc", "saml"])
+async def test_account_creation_can_be_disabled(
+    browser: httpx2.AsyncClient, keycloak: str, kind: str
+) -> None:
+    await configure(browser, keycloak, kind, createAccounts=False)
+    async with new_browser() as visitor:
+        assert_refused(await sign_in(visitor, keycloak, kind))
+        assert (await visitor.get("/web/auth/session")).status_code == 401
+    accounts = (await browser.get("/web/admin/users")).json()["users"]
+    assert [user["username"] for user in accounts] == ["ada"]
+
+
+@pytest.mark.parametrize("kind", ["oidc", "saml"])
+async def test_a_required_group_refuses_a_new_account(
+    browser: httpx2.AsyncClient, keycloak: str, kind: str
+) -> None:
+    await configure(browser, keycloak, kind, requiredClaim="groups", requiredValue="missing")
+    async with new_browser() as visitor:
+        assert_refused(await sign_in(visitor, keycloak, kind))
+        assert (await visitor.get("/web/auth/session")).status_code == 401
+    accounts = (await browser.get("/web/admin/users")).json()["users"]
+    assert [user["username"] for user in accounts] == ["ada"]
+
+
+@pytest.mark.parametrize("kind", ["oidc", "saml"])
+@pytest.mark.parametrize("revoke", [False, True])
+async def test_losing_a_directory_group_suspends_access_and_optionally_revokes_keys(
+    browser: httpx2.AsyncClient,
+    directory: httpx2.AsyncClient,
+    keycloak: str,
+    kind: str,
+    revoke: bool,
+) -> None:
+    await configure(
+        browser,
+        keycloak,
+        kind,
+        requiredClaim="groups",
+        requiredValue="researchers",
+        revokeKeysOnLoss=revoke,
+    )
+    users = await directory.get("users", params={"username": "grace", "exact": "true"})
+    assert users.status_code == 200
+    assert len(users.json()) == 1
+    directory_user = users.json()[0]["id"]
+    groups = await directory.get(f"users/{directory_user}/groups")
+    assert groups.status_code == 200
+    group = next(group for group in groups.json() if group["name"] == "researchers")
+    membership = f"users/{directory_user}/groups/{group['id']}"
+    async with new_browser() as member, new_browser() as returning:
+        signed_in = await sign_in(member, keycloak, kind)
+        assert signed_in.headers["location"] == f"{ALTERO_URL}/app/library"
+        user_id = (await member.get("/web/auth/session")).json()["user"]["id"]
+        # A local password permits key issuance without conflating this scenario
+        # with the separate SSO reauthentication tests.
+        password = await browser.post(
+            f"/web/admin/users/{user_id}/password",
+            json={"password": PASSWORD, "currentPassword": PASSWORD},
+            headers=csrf_headers(browser),
+        )
+        assert password.status_code == 204
+        # Setting a password revokes old browser sessions. Establish the live
+        # session whose access must stop when the directory group is lost.
+        logged_in = await member.post(
+            "/web/auth/login", json={"username": "grace", "password": PASSWORD}
+        )
+        assert logged_in.status_code == 200
+        created = await member.post(
+            "/web/account/keys",
+            json={"name": "desktop", "currentPassword": PASSWORD},
+            headers=csrf_headers(member),
+        )
+        assert created.status_code == 201
+        key = {"Zotero-API-Key": created.json()["key"]}
+        items_url = f"/users/{user_id}/items"
+        assert (await member.get(items_url, headers=key)).status_code == 200
+        removed = False
+        try:
+            assert (await directory.delete(membership)).status_code == 204
+            removed = True
+            # Group removal alone sends no event to altero; the check is at sign-in.
+            assert (await member.get(items_url, headers=key)).status_code == 200
+            assert_refused(await sign_in(returning, keycloak, kind))
+            assert (await returning.get("/web/auth/session")).status_code == 401
+            assert (await member.get("/web/auth/session")).status_code == 401
+            assert (await member.get(items_url, headers=key)).status_code == 403
+            accounts = (await browser.get("/web/admin/users")).json()["users"]
+            account = next(account for account in accounts if account["id"] == user_id)
+            assert account["disabled"] is True
+            assert account["keys"] == (0 if revoke else 1)
+            assert (await directory.put(membership)).status_code == 204
+            removed = False
+            returning.cookies.clear()
+            assert_refused(await sign_in(returning, keycloak, kind))
+            restored = await browser.patch(
+                f"/web/admin/users/{user_id}",
+                json={"disabled": False, "currentPassword": PASSWORD},
+                headers=csrf_headers(browser),
+            )
+            assert restored.status_code == 200
+            expected = 403 if revoke else 200
+            assert (await member.get(items_url, headers=key)).status_code == expected
+        finally:
+            if removed:
+                assert (await directory.put(membership)).status_code == 204
 
 
 @pytest.mark.parametrize("kind", ["oidc", "saml"])

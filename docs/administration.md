@@ -161,9 +161,9 @@ A callback mismatch is rejected by the provider before altero can complete sign-
 OIDC and signed SAML sign-in have a real Keycloak integration test, including
 returning to the same account and keeping browser sessions out of the v3 API.
 The [test setup](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
-documents its scope. This does not yet establish compatibility with other
-providers or test directory deprovisioning and signing-key rollover against a
-real provider.
+documents its scope. Account creation, required-group checks and sign-in-time
+deprovisioning are exercised for both protocols, including retained and revoked
+API keys. Other providers and signing-key rollover still need separate evidence.
 
 ### OpenID Connect
 
