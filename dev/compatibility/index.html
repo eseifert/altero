@@ -1982,6 +1982,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#finishing-saml-account-linking-with-the-browser-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Finishing SAML account linking with the browser session
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3038,6 +3049,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#finishing-saml-account-linking-with-the-browser-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Finishing SAML account linking with the browser session
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3256,7 +3278,7 @@
 <li><strong>A style given as a URL is refused</strong> with <code>400 Invalid style</code>. zotero.org fetches it, but fetching any URL on request would turn the server into a proxy for anyone holding a key.</li>
 <li><strong>Hanging indents and line spacing are written as zotero.org writes them</strong>, but the alignment some numbered styles use for their numbers (<code>second-field-align</code>) is not reproduced.</li>
 </ul>
-<p>One known flaw comes from citeproc-py: a label can appear for a value the item does not have. In the API's default style, an in-text citation of an item without an edition ends in a stray <code>edition.</code> Bibliographies in that style are fine, as are citations in APA, MLA, IEEE, Nature, AMA and the other Chicago styles. The fix has been reported upstream.</p>
+<p>APA bibliographies can repeat an item's title when it has no author. This <a href="https://github.com/citeproc-py/citeproc-py/issues/91">known citeproc-py limitation</a> remains unresolved.</p>
 <h3 id="item-type-schema">Item type schema<a class="headerlink" href="#item-type-schema" title="Permanent link">&para;</a></h3>
 <p>These came from comparing all 163 schema responses with the live API.</p>
 <ul>
@@ -3870,6 +3892,25 @@ that combination without detaching the note from its original PDF.</p>
 </tbody>
 </table>
 <p>Three deliberate limits: sign-in must <strong>start at altero</strong>, because an unsolicited assertion answers no request and accepting one means accepting anything the key ever signed; <strong>encrypted assertions are not supported</strong>, since TLS already protects the connection; and there is <strong>no single logout</strong>, which is unreliable in practice, and altero's session is its own.</p>
+<h3 id="finishing-saml-account-linking-with-the-browser-session">Finishing SAML account linking with the browser session<a class="headerlink" href="#finishing-saml-account-linking-with-the-browser-session" title="Permanent link">&para;</a></h3>
+<p>A SAML assertion arrives as a cross-site POST, which does not carry the existing
+<code>SameSite=Lax</code> browser session cookie. An ordinary sign-in can create a session
+there; linking an account or reauthenticating must first recover the session
+that started the request.</p>
+<p>For those two purposes, the ACS verifies and spends the assertion, then stores
+only its subject and display name in a separate <code>AuthRequest</code> continuation. It
+redirects to <code>/web/auth/saml/&lt;slug&gt;/complete</code> with a fresh opaque handle, where a
+top-level GET can present the existing cookie. That session must be authenticated
+and belong to the account that started the trip. A handle alone grants nothing,
+and this step creates no new session or cookie. The continuation expires within
+two minutes or with the original request, whichever comes first, and is consumed
+atomically once. Provider availability and identity ownership are checked again.
+Continuations are refused by both original assertion/code callbacks. Responses
+carrying the handle forbid caching and referrer disclosure.</p>
+<p>The continuation lives in the database so another worker can finish it. Ordinary
+sign-in keeps the direct ACS response, and no cookie acquires v3 API authority.
+This adds a nullable <code>auth_requests.verified_saml</code> column; existing in-flight
+requests remain unverified and keep their original lifetime.</p>
 <h2 id="deliberate-differences-from-zoteroorg">Deliberate differences from zotero.org<a class="headerlink" href="#deliberate-differences-from-zoteroorg" title="Permanent link">&para;</a></h2>
 <h3 id="deliberate-differences">Deliberate differences<a class="headerlink" href="#deliberate-differences" title="Permanent link">&para;</a></h3>
 <p>Seven places where altero does not copy zotero.org:</p>

@@ -2407,6 +2407,15 @@
 <h3 id="before-adding-a-provider">Before adding a provider<a class="headerlink" href="#before-adding-a-provider" title="Permanent link">&para;</a></h3>
 <p>Set <code>ALTERO_PUBLIC_URL</code> first. The administration screen shows the redirect/callback address that must be registered with the identity provider.</p>
 <p>A callback mismatch is rejected by the provider before altero can complete sign-in.</p>
+<p>OIDC and signed SAML sign-in have a real Keycloak integration test, including
+returning to the same account and keeping browser sessions out of the v3 API.
+The <a href="https://github.com/eseifert/altero/blob/master/tests/idp/README.md">test setup</a>
+documents its scope. Account creation, required-group checks and sign-in-time
+deprovisioning are exercised for both protocols, including retained and revoked
+API keys. SAML signing-key rollover, callback replay and the five-minute
+validity tolerance are also checked against Keycloak-issued responses. The
+clock tests adjust altero's validator clock; they do not test machine clock
+synchronization. Other identity providers still need separate evidence.</p>
 <h3 id="openid-connect">OpenID Connect<a class="headerlink" href="#openid-connect" title="Permanent link">&para;</a></h3>
 <p>Store the client credentials and provider settings in the administration screen. Client secrets are write-only: the interface can replace a secret but does not display the existing value.</p>
 <h3 id="saml-20">SAML 2.0<a class="headerlink" href="#saml-20" title="Permanent link">&para;</a></h3>
@@ -2417,6 +2426,11 @@
 <li>one or more signing certificates in PEM form.</li>
 </ul>
 <p>Multiple certificates can be stored during signing-key rollover.</p>
+<p>Linking an existing account and confirming identity return through a short-lived
+GET handoff after the assertion POST, so the browser can present its existing
+session cookie. The same signed-in account must complete it within two minutes;
+an expired or already-used handoff requires starting again. See the
+<a href="../compatibility/#finishing-saml-account-linking-with-the-browser-session">SAML session handoff</a>.</p>
 <p>The SAML implementation is deliberately limited to:</p>
 <ul>
 <li>SP-initiated sign-in;</li>
