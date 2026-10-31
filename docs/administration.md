@@ -196,6 +196,11 @@ A SAML provider requires:
 
 Multiple certificates can be stored during signing-key rollover.
 
+Register the screen's **Callback address** as the assertion consumer service
+(ACS), using HTTP-POST. For a provider whose short name is `campus`, this is
+`<public_url>/web/auth/saml/campus/acs`. The service provider entity ID is
+`public_url` without a trailing slash.
+
 Linking an existing account and confirming identity return through a short-lived
 GET handoff after the assertion POST, so the browser can present its existing
 session cookie. The same signed-in account must complete it within two minutes;

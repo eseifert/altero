@@ -129,6 +129,13 @@ def entity_id(request: Request) -> str:
     return configured or str(request.base_url).rstrip("/")
 
 
+def _provider_callback(request: Request, provider: IdentityProvider) -> str:
+    """Return the address an operator must register for this protocol."""
+    if provider.kind == "saml":
+        return acs_url(request, provider.slug)
+    return redirect_uri(request, provider.slug)
+
+
 def _app_url(request: Request, path: str, **query: str) -> str:
     """Return a URL into the interface, for a redirect out of a route."""
     configured = request.app.state.settings.public_url.rstrip("/")
@@ -558,7 +565,7 @@ async def list_providers(
                     **identityproviders.serialise(entry),
                     # The single most likely thing to be misconfigured, so it
                     # is shown rather than left to be worked out.
-                    "redirectUri": redirect_uri(request, entry.slug),
+                    "redirectUri": _provider_callback(request, entry),
                 }
                 for entry in providers
             ],
@@ -592,7 +599,7 @@ async def create_provider(
         {
             "provider": {
                 **identityproviders.serialise(provider),
-                "redirectUri": redirect_uri(request, provider.slug),
+                "redirectUri": _provider_callback(request, provider),
             },
             "warning": warning,
         },
@@ -619,7 +626,7 @@ async def change_provider(
         {
             "provider": {
                 **identityproviders.serialise(provider),
-                "redirectUri": redirect_uri(request, provider.slug),
+                "redirectUri": _provider_callback(request, provider),
             },
             "warning": warning,
         }
