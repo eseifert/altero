@@ -60,6 +60,14 @@ class ForbiddenError(AlteroError):
     """The credential does not grant the required access."""
 
 
+class LoginBackoffError(AlteroError):
+    """Another credential attempt must wait before it may be checked."""
+
+    def __init__(self, retry_after: int) -> None:
+        super().__init__("Too many sign-in attempts. Try again shortly.")
+        self.retry_after = retry_after
+
+
 class InvalidInputError(AlteroError):
     """The request data is malformed or violates the schema."""
 

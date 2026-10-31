@@ -120,6 +120,12 @@ async def test_concurrent_credentials_have_one_winner(
     await assert_one_winner(database, redeem, kind=kind)
 
 
+async def test_login_backoff_admissions_share_one_budget(database: Database) -> None:
+    from tests.test_loginlimits import assert_shared_budget
+
+    await assert_shared_budget(database)
+
+
 async def test_no_write_is_lost(client: httpx2.AsyncClient, database: Database) -> None:
     """Every concurrent create must survive."""
     await asyncio.gather(

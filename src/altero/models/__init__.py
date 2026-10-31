@@ -31,6 +31,7 @@ from altero.models.library import (
     User,
 )
 from altero.models.login import LoginSession
+from altero.models.loginattempt import LoginAttempt
 from altero.models.oauth import (
     OAuthAuthorizationRequest,
     OAuthClient,
@@ -89,6 +90,7 @@ __all__ = [
     "ItemTag",
     "Library",
     "LibraryType",
+    "LoginAttempt",
     "LoginCode",
     "LoginSession",
     "MemberPermission",

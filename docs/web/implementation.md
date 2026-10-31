@@ -83,6 +83,22 @@ Mirroring uses composed transforms and ancestor selectors compatible with the
 build's browser targets. A compiled-selector check keeps scoped CSS from
 applying a splitter transform to the document itself.
 
+### Durable sign-in budgets
+
+`services/loginlimits.py` reserves an account and address allowance in
+`login_attempts`, introduced by migration `ae39b4d8c021`. Reservations commit
+before verification so concurrent requests and worker restarts share a budget;
+no database lock spans password hashing. Call before changing other state in
+the session. The next integration step connects these reservations to sign-in.
+
+Account and address rows are locked in sorted key order on both SQLite and
+PostgreSQL. A successful proof clears only its account reservation's generation
+and refunds exactly one address attempt. An older success cannot erase a newer
+account guess or refund a new address window after expiry. Identifiers are
+SHA-256 hashes with separate namespaces; these are pseudonymous counters, not
+encrypted personal data. Idle rows expire after fifteen minutes and are pruned
+by the next reservation.
+
 ### The note editor
 
 Notes are edited with Tiptap over a port of Zotero's own note-editor schema
