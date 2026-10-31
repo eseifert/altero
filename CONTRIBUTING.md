@@ -55,6 +55,19 @@ variable is unset; an unavailable service at a configured URL fails. CI starts
 the same Compose services after checkout and requires these tests to run. See the
 [fixture and coverage details](tests/idp/README.md).
 
+The reverse direction uses Authlib as an independent OAuth/OpenID client:
+
+```sh
+uv run pytest -q tests/test_authlib.py
+```
+
+These 24 live HTTP cases need no external identity provider. They run in the
+ordinary CI suite without an opt-in variable, using Authlib's native httpx2
+integration and a fresh altero database per case. Keep loopback port 18765 free
+and run serially with the provider tests. They cover code + PKCE, signed ID
+tokens, userinfo, refresh rotation/replay, revocation, device consent and logout
+for public clients and both confidential client authentication methods.
+
 ## The one architectural rule
 
 `altero/api/` is the only package that may know about the web framework.

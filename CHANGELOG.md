@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Exercise altero's OAuth and OpenID provider with an independent Authlib client over live HTTP in CI.
 - Fix OAuth token revocation for clients using HTTP Basic authentication and require confidential clients' secrets.
 - Upgrade citeproc-py to 0.12.1, fixing stray edition labels in citations using the default style.
 - Test OIDC and SAML browser sign-in against a pinned Keycloak server in CI.

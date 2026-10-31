@@ -127,7 +127,26 @@ ACS POSTs omitted cookies; the verified handoff retained the local account and
 fresh proof enabled API-key issuance. This browser run is separate from the
 HTTP cases required in CI.
 
-OpenID-provider conformance needs separate evidence.
+`test_authlib.py` checks the reverse direction: altero is the OpenID provider
+and stock Authlib 1.9.1 is the relying party. Its native httpx2 integration
+fetches discovery and JWKS, generates state/nonce/S256 PKCE, exchanges codes,
+verifies ID-token signatures and claims, and calls userinfo. It also exercises
+rotating refresh tokens and family invalidation on replay, access/refresh
+revocation, device consent with the advertised real polling interval, and
+RP-initiated logout that ends the browser session while retaining the grant.
+Every flow runs for public clients, HTTP Basic secrets and form secrets.
+Bad verifiers and reused codes must produce Authlib's `invalid_grant` error.
+The client ID contains a literal `+`, exercising Basic credential encoding.
+
+These 24 cases always run in ordinary CI, require no IdP container, and use the
+same disposable live HTTP server on port 18765. Operator client registration
+uses the service behind the CLI; all protocol requests use real sockets.
+The harness approves consent through cookie/CSRF-protected HTTP endpoints and
+hands the callback URL to Authlib. It does not run a separate RP web server,
+execute consent-page JavaScript, or check browser cookie policy. Discovery uses
+loopback HTTP; Authlib's ID-token checks are not a claim of discovery-profile
+conformance. OpenID-provider conformance needs separate evidence.
+
 The existing mock-based identity and SAML unit suites remain useful for precise
 negative cases; they do not replace this test.
 
