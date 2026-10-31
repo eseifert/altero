@@ -19,38 +19,22 @@ needs no database or storage changes; older installations should follow the
 This is the last feature beta before the release candidate. Remaining 1.0 work
 focuses on polish, hardening and testing against real identity providers.
 
-- Compatibility checks pin Zotero 10.0.7, including restore markers and rate-limited streaming reconnects.
-- Note and attachment menus no longer close themselves when opened below the fold on a phone.
-- RTL mirroring uses browser-compatible transforms; regressions cover mixed text, actual font rendering, gestures, screenshots and axe.
-- Arabic and Hebrew Plex fonts load locally on demand, with Persian, Urdu and Shahmukhi Punjabi coverage and no install telemetry.
-- The theme menu translates Light, Dark and System in every catalogue, including its accessible current-theme label.
-- Library text, public item details and text inputs choose direction from their content, independently of the UI language.
-- The profile-owner notice uses its surface's foreground color so its settings link meets contrast requirements.
-- Note paragraphs choose their own text direction in the editor and public views, preserving stored author directions and note HTML.
-- Docs describe the browser as covering most everyday reference management and update its remaining gaps.
-- Saving language settings confirms success in the newly selected language and text direction.
-- RTL layouts mirror directional icons, keep splitter keys and dragging physical, and place drag previews beside the pointer.
-- Menus, collection indentation, spacing and text alignment follow the interface direction; the logical-CSS guard has no legacy exceptions.
-- Nested collections retain native list semantics, fixing an accessibility error when collections are present.
-- Document direction follows the interface language, including Urdu and Shahmukhi Punjabi, and resets when switching back.
-- The browser interface adds Hebrew, resolving Hebrew preferences to Zotero's schema locale and using three plural forms.
-- The browser interface adds Persian, with Zotero's vocabulary and localized counts.
-- The browser interface adds Arabic, including all six plural forms.
-- The browser interface adds Punjabi in Shahmukhi script, recognizing Pakistani Punjabi browser preferences.
-- The browser interface adds Urdu, with translated messages and language selection across devices.
-- Plural rendering supports Arabic's six forms, Hebrew's dual, and Persian and Shahmukhi Punjabi counting rules.
-- Desktop acceptance verifies browser merges, replacement history and PDF deduplication on SQLite and PostgreSQL.
-- PDF merges keep both files when transferring a note would trigger Zotero's attachment-parent sync bug.
-- Headless desktop acceptance forces X11 so Zotero cannot open on an inherited Wayland display.
 - Merge duplicate groups in the browser with compact field choices, touch controls, and PDF attachment deduplication.
-- Vue I18n is upgraded to 11.4.16, fixing the published translation-escaping XSS advisories.
-- Trash retention rechecks items after locking the library, preserving items restored or changed while the sweep waited.
-- Library archives keep a consistent snapshot during sync, and restores cannot silently merge with concurrent writes.
-- Passkey enrolment is bound to the account that proved itself when starting it, closing a way to bypass that proof.
+- PDF merges keep both files when transferring a note would trigger Zotero's attachment-parent sync bug.
+- The browser adds Arabic, Persian, Hebrew, Urdu and Shahmukhi Punjabi, with localized counts and language preferences shared across devices.
+- Right-to-left layouts mirror menus, sidebars and icons, with dragging and pane resizing working in either direction.
+- Mixed-language text reads in its own direction in items, notes, public pages and inputs, preserving authors' note directions.
+- Arabic and Hebrew fonts load locally when needed, including Persian, Urdu and Shahmukhi Punjabi characters.
+- The theme menu and confirmation after changing languages use the selected language.
+- Note and attachment menus no longer close themselves when opened below the fold on a phone.
+- Screen readers recognize nested collections, and the profile settings link has sufficient contrast.
+- Fixed vulnerabilities that could let specially crafted translations run scripts in the browser.
+- Scheduled trash cleanup preserves items restored or changed while cleanup was waiting.
+- Library archives stay consistent during sync, and restores cannot silently mix them with concurrent changes.
+- Passkey registration cannot be completed for a different account from the one that confirmed its identity.
 - One-use sign-in credentials and OAuth tokens cannot be redeemed twice by concurrent requests; parallel email guesses share one attempt limit.
 - Completed device authorizations cannot be overwritten by stale consent screens.
-- Group invitations require a verified matching address or the emailed link; an unverified registration cannot claim membership.
-- Revoked or reissued invitations cannot be answered from a stale page.
+- Group invitations require a verified matching address or the emailed link; revoked or reissued invitations cannot be accepted from an old page.
 - Public-library files require ownership or membership in the browser too; copying items cannot bypass file access or upload policy.
 
 ## [1.0.0-beta.6] — 2026-10-28
