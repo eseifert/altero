@@ -1698,6 +1698,11 @@ consent-page rendering. See the <a href="https://github.com/eseifert/altero/blob
 Combined Authlib and existing OAuth regressions passed 181 cases locally.
 Changing the nonce or access-token hash in actual server-issued ID tokens made
 Authlib reject them; the intact 24 cases passed again after restoring source.</p>
+<p>The <a href="https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185">hosted test job at <code>fcf8460</code></a>
+passed on 31 October 2026 (UTC): 3,556 tests, no skipped tests, including these
+24 Authlib cases. The same job ran the real Keycloak and SimpleSAMLphp cases.
+This is CI evidence for the supported flows, separate from the Foundation
+profile results below.</p>
 <h2 id="foundation-suite-environment">Foundation suite environment<a class="headerlink" href="#foundation-suite-environment" title="Permanent link">&para;</a></h2>
 <p>The official <a href="https://openid.net/certification/about-conformance-suite/">conformance suite</a>
 reported version <strong>5.3.4</strong>, tag <code>release-v5.3.4</code>, revision <code>e8d5167</code>.
@@ -1948,8 +1953,8 @@ to turn this profile green.</p>
 <p>Retain raw plans, per-module logs and screenshots privately: suite exports
 contain client secrets, session cookies and tokens. Publish only sanitized
 results. The local assessment retained these under <code>/tmp/altero-p74-oidf</code>;
-the containers and live server were stopped afterwards. Hosted execution of
-the new Authlib CI coverage remains pending a maintainer push.</p>
+the containers and live server were stopped afterwards. The hosted Authlib
+result is linked above; the Foundation assessment itself remains a local run.</p>
 
 
 

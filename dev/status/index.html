@@ -1253,6 +1253,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sign-in-and-authorization-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sign-in and authorization verification
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#not-implemented" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1660,6 +1671,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sign-in-and-authorization-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Sign-in and authorization verification
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#not-implemented" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1852,6 +1874,15 @@ bytes. See <a href="../client-compatibility/#run-two-real-desktop-profiles">the 
 <li>storage reporting; and</li>
 <li>whole-library export/import and migration from zotero.org.</li>
 </ul>
+<h2 id="sign-in-and-authorization-verification">Sign-in and authorization verification<a class="headerlink" href="#sign-in-and-authorization-verification" title="Permanent link">&para;</a></h2>
+<p>Real Keycloak OIDC/SAML, SimpleSAMLphp SAML and independent Authlib client flows
+passed <a href="https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185">hosted CI at <code>fcf8460</code></a>
+without skipped tests. The <a href="../administration/#provider-recipes">provider recipes</a>
+distinguish that coverage from the unverified Entra ID, Okta, authentik and
+Shibboleth setups.</p>
+<p>The local OpenID Foundation assessment passed Config OP; Basic OP did not pass.
+See the <a href="../oidc-conformance/">results and limits</a>, including the mandatory-PKCE
+profile mismatch. These checks establish no OpenID certification.</p>
 <h2 id="not-implemented">Not implemented<a class="headerlink" href="#not-implemented" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Zotero's <strong>Note HTML</strong> and <strong>Note Markdown</strong> translators. These create a note rather than an ordinary bibliography/export response.</li>
