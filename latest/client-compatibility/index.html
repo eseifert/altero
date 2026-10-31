@@ -1946,7 +1946,7 @@ and persistence belong to the disposable-profile acceptance runner.</p>
 <p>Duplicate merging has service-level database checks in <code>tests/test_merge.py</code>
 and <code>tests/test_merge_attachment*.py</code>: child moves, note links, tag precedence,
 collections, merge history, incoming relations, permissions, transaction
-rollback and attachment deduplication. These follow the reviewed Zotero 10.0.6
+rollback and attachment deduplication. These follow the reviewed Zotero 10.0.7
 source; they do not execute the desktop merge code. A live HTTP check verifies
 the resulting incremental item download, annotation parent and original PDF
 bytes. The <a href="../web/implementation/#duplicate-merge-endpoint">browser merge endpoint</a>
@@ -2014,7 +2014,7 @@ WebSocket construction. Every discovered consumer has a fingerprinted review in
 unsupported, external service, or general transport. A changed source file,
 removed consumer, parse error or new consumer fails the review gate:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>.venv/bin/python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>interactions<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--zotero-source<span class="w"> </span>.compatibility/zotero-10.0.6<span class="w"> </span>--check<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--zotero-source<span class="w"> </span>.compatibility/zotero-10.0.7<span class="w"> </span>--check<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/interactions.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/interactions.md
 </span></code></pre></div>
 <p>The initial inventory identifies 109 transport call sites in 88 consumers across
@@ -2151,8 +2151,8 @@ dispatch. Write, full-text, pagination, HTTP-policy and storage-registration
 consumers now have explicit manifest selectors as well as live scenario tests.</p>
 <p>The real desktop CI job runs nightly and on manual dispatch. Its official Linux
 archive, SHA-256 and version are pinned in <code>tools/compatibility/desktop.toml</code>.
-The 10.0.6 archive was downloaded through Zotero's official download endpoint
-and its application metadata inspected on 2026-10-19. CI checks the archive hash
+The 10.0.7 archive was downloaded through Zotero's official download endpoint
+and its application metadata inspected on 2026-10-30. CI checks the archive hash
 and running version, runs under Xvfb, and uploads snapshots, logs and desktop
 databases even on failure. A successful download is not a successful acceptance
 run; the test matrix below records runs separately. The GitHub jobs themselves
@@ -2233,12 +2233,11 @@ automatic sync, streaming, updates and word-processor installation, and leaves
 sync logic intact. <code>run_phase</code> applies explicit operations through Zotero's
 item APIs, runs the real sync runner, exports a JSON snapshot and exits. Each
 phase enforces the requested application version and a timeout, and preserves
-the desktop log on failure. The verified Zotero 10.0.6 binary and the Node
-replay source both use the 10.0.6 release; archive and source hashes are
-independent pins.</p>
+the desktop log on failure. The desktop archive and Node replay source both pin the 10.0.7 release;
+archive and source hashes are independent pins.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>acceptance<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span>--desktop-executable<span class="w"> </span>/path/to/Zotero_linux-x86_64/zotero<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.6<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span>--xvfb<span class="w"> </span>--schema-corpus<span class="w"> </span>--state-dir<span class="w"> </span>.compatibility/desktop-10.0.6
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span>--desktop-executable<span class="w"> </span>/path/to/Zotero_linux-x86_64/zotero<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.7<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span>--xvfb<span class="w"> </span>--schema-corpus<span class="w"> </span>--state-dir<span class="w"> </span>.compatibility/desktop-10.0.7
 </span></code></pre></div>
 <p>This requires an installed Zotero binary and Xvfb (or omit <code>--xvfb</code> to use an
 existing display). With <code>--xvfb</code>, GTK and Gecko are forced onto its X11 display,
@@ -2255,7 +2254,7 @@ database and leaves the database named in the URL untouched. Each scenario's
 are retained on success and failure for inspection; drop those generated
 databases explicitly when finished. Desktop profiles and files remain under
 the new state directory. Without the flag the server uses SQLite there.</p>
-<p>The 15-phase baseline passes with Zotero 10.0.6: parent/note/file download,
+<p>The 15-phase baseline passes with Zotero 10.0.7: parent/note/file download,
 collection filing, persisted attachment bytes, disjoint offline edits and
 convergence, trash/restore propagation, deletion of parent and children, and
 all 40 schema types serialized by desktop A and downloaded into desktop B.
@@ -2267,7 +2266,7 @@ clicks Finish, checks both desktops against the server and requires another sync
 leave the library watermark unchanged. Unexpected or missing dialogs fail the
 phase; prompt/reconciliation methods are never replaced.</p>
 <p>The conflict scenario also covers an offline edit against a remote deletion.
-Zotero 10.0.6's
+Zotero 10.0.7's
 local choice for the deletion conflict retains the old object version, so the
 server's correct 404 triggers full sync and a repeated prompt. Cancelling that
 prompt must preserve the pending edit. Choosing local on the next sync lets
@@ -2315,7 +2314,7 @@ Zotero 10.0.1 bug: choosing Remote can keep and upload the local bytes.
 <code>Zotero.Sync.Storage.Local.resolveConflicts</code> identifies the selected side by its
 date instead of a side identifier, so either choice matches the local side.
 This was reproduced with 10.0.1; the equal-date failure has not been rerun
-with a later release. The passing 10.0.6 scenario uses distinct displayed dates to
+with a later release. The passing 10.0.7 scenario uses distinct displayed dates to
 verify both working choices.
 A multi-file HTML snapshot also checks that ZIP transfer restores its HTML
 and CSS on disk.</p>
@@ -2361,7 +2360,7 @@ message handler. They check sync scheduling, already-current and skipped librari
 and reconnect delays. The replay supplies a socket facade and virtual clock;
 actual desktop reconnect timing and UI scheduling are not exercised.</p>
 <h2 id="additional-desktop-scenarios">Additional desktop scenarios<a class="headerlink" href="#additional-desktop-scenarios" title="Permanent link">&para;</a></h2>
-<p>Each scenario uses two actual 10.0.6 profiles, original desktop operations,
+<p>Each scenario uses two actual 10.0.7 profiles, original desktop operations,
 real HTTP, persistent databases and files. Unexpected sync errors fail the run.
 The final settled sync checks convergence and an unchanged server watermark.</p>
 <table>
@@ -2490,7 +2489,7 @@ fail. Browser writes use real sessions and CSRF tokens, but do not exercise the
 browser sign-in UI. Archive recovery follows the documented surviving-client
 procedure; it does not claim that raising a watermark rewinds synced desktops
 to an older archive.</p>
-<p>All of the scenarios above pass with Zotero 10.0.6 on SQLite and PostgreSQL.
+<p>All of the scenarios above pass with Zotero 10.0.7 on SQLite and PostgreSQL.
 Login expiry and personal-library read scope do not cover every credential
 transition. Streaming reconnect observes the original reconnect delay and
 notification-driven synchronization. Seven further scenarios cover the
@@ -2534,7 +2533,7 @@ remaining declared transitions:</p>
 </tbody>
 </table>
 <p><code>parent-rejection</code>, <code>reader-rendering</code>, <code>zipped-digest-race</code> and
-<code>backup-rewind</code> pass with Zotero 10.0.6 on both databases, and so do
+<code>backup-rewind</code> pass with Zotero 10.0.7 on both databases, and so do
 <code>missing-parent</code>, <code>child-promotion</code>, <code>type-change</code> and the revised
 <code>parent-rejection</code>. The
 automatic rewind entry is explicitly unsupported: an increased library counter
@@ -2566,7 +2565,7 @@ not a mutation score for production source. <code>ALTERO_COMPAT_MUTATION</code> 
 a catalogue entry and is normally unset.</p>
 <h2 id="successfully-tested-matrix">Successfully tested matrix<a class="headerlink" href="#successfully-tested-matrix" title="Permanent link">&para;</a></h2>
 <!-- desktop-matrix -->
-<p>Zotero 10.0.6 Linux x86-64; actual desktop profiles.</p>
+<p>Zotero 10.0.7 Linux x86-64; actual desktop profiles.</p>
 <table>
 <thead>
 <tr>
@@ -2578,8 +2577,8 @@ a catalogue entry and is normally unset.</p>
 <tbody>
 <tr>
 <td><code>baseline</code></td>
-<td>Passed (13 phases)</td>
-<td>Passed (13 phases)</td>
+<td>Passed (15 phases)</td>
+<td>Passed (15 phases)</td>
 </tr>
 <tr>
 <td><code>conflicts</code></td>
@@ -2760,38 +2759,36 @@ a catalogue entry and is normally unset.</p>
 </table>
 <!-- /desktop-matrix -->
 
-<p>Results above are local executions with the pinned Linux x86-64 Zotero 10.0.6
-archive on Python 3.14.10. The original 34 scenarios ran on 2026-10-28 against
-the code prepared for 1.0.0-beta.6. The two browser-merge scenarios ran on
-2026-10-30: 11 metadata phases and nine PDF phases per database. PostgreSQL uses
-the existing 18.4 container, with a fresh database per scenario.
+<p>Results above are local executions with the pinned Linux x86-64 Zotero 10.0.7
+archive on Python 3.14.10. All 36 scenarios ran on each database on 2026-10-30
+against the beta.7 release candidate, including the 15-phase schema baseline.
+PostgreSQL uses the existing 18.4 container, with a fresh database per scenario.
 <strong>Not run</strong> means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes.</p>
 <p>The machine-readable evidence summary is
-<a href="../assets/compatibility-10.0.6.json"><code>compatibility-10.0.6.json</code></a>. It records
+<a href="../assets/compatibility-10.0.7.json"><code>compatibility-10.0.7.json</code></a>. It records
 phase counts and SHA-256 hashes of each report and its phase snapshots. Retained
 reports, profiles, files and failed attempts live in ignored local run
 directories. Regenerate the matrix from them with:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>matrix<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.6<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta6-sqlite-1/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta6-pg-1/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/web-merge-sqlite-3/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/web-merge-pg-2/acceptance.json<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/results.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/matrix.md
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>tools.compatibility<span class="w"> </span>matrix<span class="w"> </span>--desktop-version<span class="w"> </span><span class="m">10</span>.0.7<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta7-10.0.7-sqlite-1/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">  </span>--report<span class="w"> </span>.compatibility/beta7-10.0.7-pg-1/acceptance.json<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">  </span>--output<span class="w"> </span>.compatibility/results.json<span class="w"> </span>--markdown<span class="w"> </span>.compatibility/matrix.md
 </span></code></pre></div>
 <p>The command verifies scenario completion, nonempty phases, snapshot existence,
 the requested desktop version and recorded database backend. It rejects missing
 or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.</p>
-<p>The matrix records 72 successful database/scenario combinations and 834
+<p>The matrix records 72 successful database/scenario combinations and 838
 actual desktop phases: all 36 scenarios have successful results on both
-databases, from the dates above. The baseline includes all 40 schema types.
-The 2026-10-28 source-replay run passed 323 tests with no skips against the
-pinned 10.0.6 sources, with Node 24.22.1; its network-consumer review gate had
-no stale or unreviewed consumers.</p>
-<p>The browser-merge checks were also run with deliberate omissions after their
-intact baselines passed. Missing replacement history failed at
+databases. The baseline includes all 40 schema types.
+The 2026-10-30 source-replay run passed 333 tests with no skips against the
+pinned 10.0.7 sources, with Node 24.22.1; its network-consumer review gate had
+no stale or unreviewed consumers. Regressions cover the restore request marker
+and reconnecting after WebSocket close 4429; both fail against the older source.</p>
+<p>The earlier 10.0.6 browser-merge checks also ran with deliberate omissions
+after their intact baselines passed. Missing replacement history failed at
 <code>Desktop merge history is missing</code> after five phases; disabling PDF text
 matching failed at <code>Incorrect surviving PDFs for matching-text</code> after seven.
 Those failed runs and the restored-source hashes are retained locally.</p>
