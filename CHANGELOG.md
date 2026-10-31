@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add sign-in provider recipes for Keycloak, Entra ID, Okta, authentik and Shibboleth, with verification status.
 - Show the SAML assertion consumer address when configuring a SAML sign-in provider.
 - Preserve trailing slashes in sign-in provider issuers and reject mismatched discovery metadata before sign-in.
 - Slow repeated password and second-factor guesses with account and address backoff shared across workers and restarts.

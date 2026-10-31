@@ -150,7 +150,9 @@ Deletion is also refused for your own currently signed-in administrator account 
 
 **Administration → Sign-in providers** configures OpenID Connect and SAML 2.0 for browser sign-in.
 
-The Zotero API itself remains API-key based. Institutional sign-in changes how a user reaches the browser session that can issue a key; it does not change the synchronization protocol.
+Directory sign-in creates a browser session. The v3 API accepts API keys and
+OAuth access tokens, never that session cookie. Zotero Desktop still gets its
+API key from **Settings → API keys**.
 
 ### Before adding a provider
 
@@ -221,7 +223,168 @@ A provider can also require a claim and value, such as an entitlement or group. 
 
 This check happens at sign-in time. It cannot detect a person who leaves the organization and never attempts to sign in again; administrators must handle that case through the Accounts screen or another operational process.
 
+It also needs a token or assertion to check. If the directory refuses sign-in
+before returning one, altero cannot observe the missing claim and that attempt
+does not suspend existing local sessions or API credentials.
+
 Removing a provider removes the account links to it, not the local accounts themselves.
+
+### Provider recipes
+
+Use these settings with your own HTTPS addresses and client credentials. The
+examples use `https://library.example.org` for `ALTERO_PUBLIC_URL`. Choose a
+**Short name** before registering the callback; it becomes part of that address.
+
+| Protocol | Address to register at the provider |
+| --- | --- |
+| OIDC | `https://library.example.org/web/auth/sso/<short-name>/callback` |
+| SAML, HTTP-POST ACS | `https://library.example.org/web/auth/saml/<short-name>/acs` |
+| SAML service provider entity ID | `https://library.example.org` |
+
+For OIDC, create a confidential web client using authorization code and S256
+PKCE, accepting `client_secret_post` at its token endpoint. Altero sends the
+secret in the form body. Set **Scopes** to `profile email`; `openid` is added
+automatically. The default claim names are `preferred_username`, `name` and
+`email`. Keep ID tokens unencrypted. Discovery and token endpoints must be
+reachable by the altero server, as well as the sign-in page by the browser.
+
+Choose whether the provider may create accounts. With creation off, an existing
+user first connects the provider from **Settings → Sign-in and security**.
+Matching an email address never links accounts automatically. **Required claim**
+names a literal top-level claim or SAML attribute; **Required value** must match
+the string or one entry in its list exactly.
+
+#### Keycloak
+
+**Verification:** OIDC and SAML have automated tests configured in CI and have
+passed locally with Keycloak 26.8.1. See the
+[test scope](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
+for the exercised flows and browser limitations.
+
+For OIDC, create an `openid-connect` client in the chosen realm. Enable client
+authentication and the standard authorization-code flow, require S256, and
+register the exact callback. Copy the client ID and generated secret into
+altero. Set **Issuer** to `https://<keycloak-host>/realms/<realm>`.
+[Keycloak client settings](https://www.keycloak.org/docs/latest/server_admin/index.html#_oidc_clients)
+describe these controls.
+
+To require a group, add a group-membership mapper to this client's scope,
+emitting `groups` in the ID token or UserInfo. With full paths disabled, set
+altero's requirement to `groups` and the group name, such as `researchers`.
+
+For SAML, create a `saml` client whose ID is altero's entity ID. Register the
+ACS, force POST responses and persistent NameIDs, enable assertion signing
+with RSA-SHA256, and disable assertion encryption and required client
+signatures. Copy the IdP issuer, HTTP-Redirect sign-on endpoint and signing
+certificate from the realm's `/protocol/saml/descriptor` into altero. Map user
+attributes to `preferred_username`, `name` and `email` as needed. The fixture's
+[realm settings](https://github.com/eseifert/altero/blob/master/tests/idp/altero-realm.json)
+show the tested mapper and protocol choices.
+
+#### Microsoft Entra ID
+
+**Unverified with altero.** This recipe follows Microsoft's
+[authorization-code flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow)
+and [OIDC endpoints](https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc).
+
+Register a single-tenant application in **App registrations**. Add a **Web**
+redirect URI with altero's exact OIDC callback, and create a client secret.
+Enter the application/client ID and the secret's **value**, not its identifier,
+in altero. Use `https://login.microsoftonline.com/<tenant-id>/v2.0` as **Issuer**,
+with the actual tenant UUID. The `common` and `organizations` endpoints do not
+provide the fixed issuer this configuration requires. Use authorization code;
+implicit/hybrid ID-token delivery is not needed.
+
+For an entitlement, define an [app role](https://learn.microsoft.com/en-us/entra/identity-platform/howto-add-app-roles-in-apps)
+with a value such as `altero`, assign test users to it, and set **Required claim**
+to `roles` and **Required value** to `altero`. The role must appear in the ID
+token. Altero does not resolve group-overage links through Microsoft Graph.
+
+#### Okta
+
+**Unverified with altero.** Follow Okta's
+[web application registration](https://developer.okta.com/docs/guides/sign-into-web-app-redirect/node-express/main/).
+Choose OIDC and **Web Application**, enable authorization code, register the
+exact callback, and assign the intended users or groups to the application.
+
+Configure the client's `token_endpoint_auth_method` as `client_secret_post`
+using Okta's client settings/API; its default is `client_secret_basic`, while
+altero sends form credentials. See
+[client authentication](https://developer.okta.com/docs/api/openapi/okta-oauth/guides/client-auth).
+Enter the client ID and secret in altero.
+
+Use the org issuer `https://<your-okta-domain>` for ordinary sign-in. If using a
+custom authorization server, copy its exact issuer, such as
+`https://<your-okta-domain>/oauth2/<authorization-server-id>`, and configure its
+access policy for this client. Do not assume `/oauth2/default` exists in every
+deployment; see [authorization servers](https://developer.okta.com/docs/concepts/auth-servers/).
+Additional required claims must actually be emitted for this client and scope.
+
+#### authentik
+
+**Unverified with altero.** Create an application and an **OAuth2/OIDC** provider
+using the [provider wizard](https://docs.goauthentik.io/add-secure-apps/providers/oauth2/create-oauth2-provider/).
+Choose a confidential client, set the exact callback as a strict redirect URI,
+and select the `openid`, `profile` and `email` scope mappings. Copy the client
+ID and secret into altero; leave token encryption disabled.
+
+Keep the default per-provider issuer mode and a stable subject identifier.
+Set altero's **Issuer** to
+`https://<authentik-host>/application/o/<application-slug>/`, including the final
+slash. Copy the actual value from discovery. Global issuer mode uses a
+different discovery location from its issuer and does not fit altero's
+issuer-based discovery. See authentik's
+[issuer modes and endpoints](https://docs.goauthentik.io/add-secure-apps/providers/oauth2/#issuer-mode).
+Configure application access bindings and any required claim for your policy.
+
+#### Shibboleth IdP
+
+**Unverified with altero.** Use SAML 2.0. Give the IdP administrator the entity ID
+and HTTP-POST ACS above, and register the service provider in its metadata.
+Altero does not publish a metadata endpoint; this minimal descriptor is a
+starting point, with your own host and short name substituted:
+
+```xml
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                  entityID="https://library.example.org">
+  <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"
+                   AuthnRequestsSigned="false" WantAssertionsSigned="true">
+    <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+    <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+        Location="https://library.example.org/web/auth/saml/shibboleth/acs"
+        index="0" isDefault="true"/>
+  </SPSSODescriptor>
+</EntityDescriptor>
+```
+
+Enable a [persistent NameID generator](https://shibboleth.atlassian.net/wiki/spaces/IDP5/pages/3199507892/PersistentNameIDGenerationConfiguration)
+before the first sign-in; a transient NameID changes the identity between
+sessions. For this relying party, use the `SAML2.SSO` profile with
+`signAssertions="true"`, `encryptAssertions="false"` and
+`encryptNameIDs="false"`, and accept unsigned AuthnRequests. Apply these choices
+only to altero's relying party; see
+[signing/encryption settings](https://shibboleth.atlassian.net/wiki/spaces/IDP5/pages/3199508797/SecurityConfiguration)
+and [SAML 2.0 profile options](https://shibboleth.atlassian.net/wiki/spaces/IDP5/pages/3199508364/ProfileConfiguration-SAML2).
+
+Copy the IdP entity ID, HTTP-Redirect sign-on URL and signing certificate from
+its metadata into altero. Arrange release of username, display-name and email
+attributes. If their `Name` or `FriendlyName` values are `eppn`, `displayName`
+and `mail`, use those as altero's three claim names; otherwise use the actual
+released names. Altero reads attributes from the signed assertion and makes no
+separate attribute-query request.
+
+#### Check a configuration
+
+Use a test account to sign in twice, signing out of altero between attempts.
+Both visits should reach the same local account. For an existing account with
+creation disabled, test linking from Settings first. Confirm that the provider
+also supports a fresh sign-in when Settings asks for proof to issue an API key.
+
+If using a required claim, test both an allowed and a denied identity. Losing
+that claim after linking suspends the local account at its next sign-in;
+restoring the claim alone does not reinstate it. An administrator must
+reinstate the account. This is still a sign-in-time check, not continuous
+deprovisioning. See [account creation and deprovisioning](#account-creation-and-deprovisioning).
 
 ## Third-party applications
 
