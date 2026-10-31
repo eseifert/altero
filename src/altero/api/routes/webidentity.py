@@ -273,7 +273,7 @@ async def complete_sign_in(
         return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
 
     pending = await authrequests.consume(session, state)
-    if pending is None:
+    if pending is None or pending.verified_saml is not None:
         return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
 
     provider = await session.get(IdentityProvider, pending.provider_id)
@@ -344,7 +344,7 @@ async def consume_assertion(
         return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
 
     pending = await authrequests.consume(session, request_id)
-    if pending is None or pending.provider_id != provider.id:
+    if pending is None or pending.provider_id != provider.id or pending.verified_saml is not None:
         return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
 
     try:
@@ -365,7 +365,16 @@ async def consume_assertion(
         return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
 
     if pending.purpose in ("link", "reauth"):
-        return await _finish_for_signed_in(request, session, provider, pending, verified.assertion)
+        # A cross-site POST cannot present the browser's SameSite=Lax session.
+        # Verify and spend the assertion here, then ask that browser to present
+        # its existing cookie on a top-level GET before changing its account.
+        continuation = await authrequests.defer_saml(session, pending, verified.assertion)
+        base = acs_url(request, slug).removesuffix("/acs")
+        return RedirectResponse(
+            f"{base}/complete?{urlencode({'state': continuation.state})}",
+            status_code=303,
+            headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
+        )
 
     try:
         outcome = await federation.sign_in(
@@ -379,6 +388,29 @@ async def consume_assertion(
     )
     response = RedirectResponse(_app_url(request, pending.next_path), status_code=303)
     _set_session_cookies(response, request, token)
+    return response
+
+
+@router.get("/auth/saml/{slug}/complete")
+async def complete_saml_handoff(
+    request: Request, session: SessionDep, slug: str, state: str = ""
+) -> Response:
+    """Finish a verified SAML link or proof with the browser's existing cookie."""
+    pending = await authrequests.consume(session, state)
+    if pending is None or not pending.verified_saml or pending.purpose not in ("link", "reauth"):
+        return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
+    provider = await session.get(IdentityProvider, pending.provider_id)
+    if provider is None or provider.kind != "saml" or provider.slug != slug or not provider.enabled:
+        return RedirectResponse(_app_url(request, "/sign-in", error="unknown-provider"), 303)
+    assertion = oidc.Assertion(
+        subject=pending.verified_saml["subject"],
+        display_name=pending.verified_saml["display_name"],
+        username="",
+        email="",
+    )
+    response = await _finish_for_signed_in(request, session, provider, pending, assertion)
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Referrer-Policy"] = "no-referrer"
     return response
 
 

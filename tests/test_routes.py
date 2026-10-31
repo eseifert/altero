@@ -42,6 +42,8 @@ EXPECTED = [
     # a cross-site POST, and SameSite=Lax sends nothing with one. The signed
     # assertion and its InResponseTo are what make it genuine.
     ("/web/auth/saml/{slug}/acs", "POST"),
+    # Verified link/reauth handoff: state plus the existing browser session.
+    ("/web/auth/saml/{slug}/complete", "GET"),
     # Passkeys. The sign-in pair answers with no session -- a passkey sign-in
     # starts with nobody claiming to be anybody, which is what makes account
     # enumeration impossible here. See altero/api/routes/webpasskeys.py.

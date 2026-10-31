@@ -52,7 +52,21 @@ HTTP loopback by Python's cookie jar. This follows Keycloak's
 [SecureContextResolver](https://github.com/keycloak/keycloak/blob/26.8.1/services/src/main/java/org/keycloak/utils/SecureContextResolver.java)
 Safari branch; the harness does not alter cookies or bypass a cookie policy,
 and it establishes no Safari or macOS browser coverage.
-Account linking, key rollover, replay and clock-skew cases,
+Account linking and reauthentication also run through both protocols with
+provisioning disabled. They check that the local account is retained, a later
+directory sign-in reaches it, and fresh identity proof permits API-key issuance.
+The SAML ACS POST carries no existing cookie; its verified continuation is
+completed by a GET with the browser's retained jar. Focused handoff tests cover
+expiry, replay, missing/wrong sessions, disabled/mismatched providers and misuse
+at the original callbacks.
+
+Local validation on 2026-10-31 also drove Chromium through a genuinely cross-site
+flow (`localhost` for Keycloak, `127.0.0.1` for altero). Linking, ordinary sign-in
+and reauthentication sent no cookies on their SAML POSTs; linking retained the
+local account and reauthentication enabled key issuance. This browser check was
+run locally, separately from the HTTP tests required in CI.
+
+Key rollover, replay and clock-skew cases,
 a second SAML provider and OpenID-provider conformance need separate evidence.
 The existing mock-based identity and SAML unit suites remain useful for precise
 negative cases; they do not replace this test.

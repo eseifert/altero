@@ -179,6 +179,12 @@ A SAML provider requires:
 
 Multiple certificates can be stored during signing-key rollover.
 
+Linking an existing account and confirming identity return through a short-lived
+GET handoff after the assertion POST, so the browser can present its existing
+session cookie. The same signed-in account must complete it within two minutes;
+an expired or already-used handoff requires starting again. See the
+[SAML session handoff](compatibility.md#finishing-saml-account-linking-with-the-browser-session).
+
 The SAML implementation is deliberately limited to:
 
 - SP-initiated sign-in;

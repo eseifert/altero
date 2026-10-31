@@ -36,6 +36,7 @@ from altero.services import (
     emailverify,
     logincodes,
     oauthserver,
+    oidc,
     passkeys,
     passwordreset,
     totp,
@@ -52,9 +53,15 @@ Redeem = Callable[[AsyncSession], Awaitable[object]]
 
 async def prepare(session: AsyncSession, kind: str) -> tuple[type[Any], Redeem]:
     user = await admin.create_user(session, username="ada")
-    if kind == "federated":
+    if kind in {"federated", "saml_handoff"}:
         provider = await make_provider(session)
         pending = await authrequests.create(session, provider)
+        if kind == "saml_handoff":
+            pending.purpose = "link"
+            pending.user_id = user.id
+            pending = await authrequests.defer_saml(
+                session, pending, oidc.Assertion("subject", "ada", "Ada", "")
+            )
 
         async def redeem(session: AsyncSession) -> object:
             return await authrequests.consume(session, pending.state)
@@ -202,6 +209,7 @@ def hold_reads(monkeypatch: pytest.MonkeyPatch, model: type[Any], *, count: int 
     "kind",
     [
         "federated",
+        "saml_handoff",
         "passkey",
         "reset",
         "verification",

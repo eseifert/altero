@@ -20,7 +20,17 @@ no further, and signing in is not something that may break behind two workers.
 
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, UniqueConstraint, func, true
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+    true,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from altero.db import Base
@@ -195,5 +205,10 @@ class AuthRequest(Base):
     #: session exists, because a signed-in browser starting a plain sign-in is
     #: a real case.
     purpose: Mapped[str] = mapped_column(String(8), default="login")
+    #: Only a verified SAML assertion may create this short-lived continuation.
+    #: Linking and reauthentication finish on a GET, where SameSite=Lax sends
+    #: the existing session cookie that the cross-site assertion POST lacks.
+    #: Retain only the subject and display name, not groups or other claims.
+    verified_saml: Mapped[dict[str, str] | None] = mapped_column(JSON, nullable=True)
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires: Mapped[datetime] = mapped_column(DateTime, index=True)

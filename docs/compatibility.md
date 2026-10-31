@@ -779,6 +779,29 @@ A valid signature still proves nothing on its own, so altero also checks:
 
 Three deliberate limits: sign-in must **start at altero**, because an unsolicited assertion answers no request and accepting one means accepting anything the key ever signed; **encrypted assertions are not supported**, since TLS already protects the connection; and there is **no single logout**, which is unreliable in practice, and altero's session is its own.
 
+### Finishing SAML account linking with the browser session
+
+A SAML assertion arrives as a cross-site POST, which does not carry the existing
+`SameSite=Lax` browser session cookie. An ordinary sign-in can create a session
+there; linking an account or reauthenticating must first recover the session
+that started the request.
+
+For those two purposes, the ACS verifies and spends the assertion, then stores
+only its subject and display name in a separate `AuthRequest` continuation. It
+redirects to `/web/auth/saml/<slug>/complete` with a fresh opaque handle, where a
+top-level GET can present the existing cookie. That session must be authenticated
+and belong to the account that started the trip. A handle alone grants nothing,
+and this step creates no new session or cookie. The continuation expires within
+two minutes or with the original request, whichever comes first, and is consumed
+atomically once. Provider availability and identity ownership are checked again.
+Continuations are refused by both original assertion/code callbacks. Responses
+carrying the handle forbid caching and referrer disclosure.
+
+The continuation lives in the database so another worker can finish it. Ordinary
+sign-in keeps the direct ACS response, and no cookie acquires v3 API authority.
+This adds a nullable `auth_requests.verified_saml` column; existing in-flight
+requests remain unverified and keep their original lifetime.
+
 ## Deliberate differences from zotero.org
 
 ### Deliberate differences

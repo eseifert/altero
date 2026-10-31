@@ -97,6 +97,7 @@ async def test_concurrent_creates_each_get_their_own_version(
     "kind",
     [
         "federated",
+        "saml_handoff",
         "passkey",
         "reset",
         "verification",

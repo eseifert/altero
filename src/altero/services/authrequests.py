@@ -13,7 +13,7 @@ authorization code replayed with the same state finds nothing the second time.
 """
 
 import secrets
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -86,6 +86,7 @@ async def consume(session: AsyncSession, state: str) -> AuthRequest | None:
         nonce=pending.nonce,
         next_path=pending.next_path,
         purpose=pending.purpose,
+        verified_saml=pending.verified_saml,
         user_id=pending.user_id,
         expires=pending.expires,
     )
@@ -94,3 +95,26 @@ async def consume(session: AsyncSession, state: str) -> AuthRequest | None:
     await session.commit()
 
     return None if expired else detached
+
+
+async def defer_saml(
+    session: AsyncSession, pending: AuthRequest, assertion: oidc.Assertion
+) -> AuthRequest:
+    """Carry a verified link/reauth assertion to a cookie-authenticated GET.
+
+    The original request and assertion have already been spent. This separate
+    random handle is single-use through ``consume`` and grants nothing without
+    an authenticated session belonging to the account that started the trip.
+    """
+    continuation = AuthRequest(
+        state=secrets.token_urlsafe(32),
+        provider_id=pending.provider_id,
+        purpose=pending.purpose,
+        user_id=pending.user_id,
+        next_path=pending.next_path,
+        verified_saml={"subject": assertion.subject, "display_name": assertion.display_name},
+        expires=min(pending.expires, _now() + timedelta(minutes=2)),
+    )
+    session.add(continuation)
+    await session.commit()
+    return continuation

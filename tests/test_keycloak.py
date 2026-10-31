@@ -183,7 +183,12 @@ async def answer(
 async def sign_in(
     browser: httpx2.AsyncClient, realm: str, kind: str, **parameters: str
 ) -> httpx2.Response:
-    return await browser.send(await answer(browser, realm, kind, **parameters))
+    response = await browser.send(await answer(browser, realm, kind, **parameters))
+    if response.headers.get("location", "").startswith(
+        f"{ALTERO_URL}/web/auth/saml/{kind}/complete?"
+    ):
+        return await browser.get(response.headers["location"])
+    return response
 
 
 @pytest.fixture
@@ -217,6 +222,41 @@ def new_browser() -> httpx2.AsyncClient:
 def assert_refused(response: httpx2.Response, reason: str = "not-permitted") -> None:
     assert response.status_code == 303
     assert response.headers["location"] == f"{ALTERO_URL}/app/sign-in?error={reason}"
+
+
+@pytest.mark.parametrize("kind", ["oidc", "saml"])
+async def test_linking_and_reauthentication_keep_the_existing_account(
+    browser: httpx2.AsyncClient, keycloak: str, kind: str
+) -> None:
+    await configure(browser, keycloak, kind, createAccounts=False)
+    before = (await browser.get("/web/auth/session")).json()["user"]
+    linked = await sign_in(browser, keycloak, kind, purpose="link", next="/settings/security")
+    assert linked.status_code == 303
+    assert linked.headers["location"] == f"{ALTERO_URL}/app/settings/security"
+    identities = (await browser.get("/web/account/identities")).json()["identities"]
+    assert len(identities) == 1
+    assert identities[0]["provider"] == kind
+    assert (await browser.get("/web/auth/session")).json()["user"]["id"] == before["id"]
+    browser.cookies.clear()
+    signed_in = await sign_in(browser, keycloak, kind)
+    assert signed_in.headers["location"] == f"{ALTERO_URL}/app/library"
+    assert (await browser.get("/web/auth/session")).json()["user"]["id"] == before["id"]
+    assert (await browser.get("/web/admin/users")).json()["users"][0]["username"] == "ada"
+    # An ordinary sign-in has no fresh proof. Reauthentication must establish
+    # it on this same session, allowing passwordless API-key issuance.
+    refused = await browser.post(
+        "/web/account/keys", json={"name": "desktop"}, headers=csrf_headers(browser)
+    )
+    assert refused.status_code == 403
+    for cookie in list(browser.cookies.jar):
+        if cookie.path.startswith("/realms/"):
+            browser.cookies.jar.clear(cookie.domain, cookie.path, cookie.name)
+    proved = await sign_in(browser, keycloak, kind, purpose="reauth")
+    assert proved.headers["location"] == f"{ALTERO_URL}/app/library"
+    created = await browser.post(
+        "/web/account/keys", json={"name": "desktop"}, headers=csrf_headers(browser)
+    )
+    assert created.status_code == 201
 
 
 @pytest.mark.parametrize("kind", ["oidc", "saml"])
