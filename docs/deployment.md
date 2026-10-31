@@ -438,7 +438,8 @@ Under Docker Compose, altero sees the Docker network's gateway instead of `127.0
 
 ## Rate limiting
 
-Rate limiting is off by default.
+The optional general request limiter is off by default. Password and
+second-factor sign-in have separate, always-on protection described below.
 
 Example: allow 600 requests per 60 seconds per API key:
 
@@ -451,6 +452,33 @@ Requests over the limit receive `429` with a whole-second `Retry-After`, which Z
 Unauthenticated requests are counted per client address. So are requests with a key that has not authenticated in the current window, as well as per key: made-up keys share their address's allowance. `/health` is never rate limited.
 
 The limiter is process-local. With several application workers, each process has its own allowance. Use the reverse proxy or another edge component if you need a deployment-wide defensive limit.
+
+### Sign-in backoff
+
+Password sign-in and TOTP/email second-factor guesses share database-backed
+budgets across workers and restarts. This protection is enabled even when
+`ALTERO_RATE_LIMIT=0`. Run `alembic upgrade head` when upgrading from beta.7;
+the new `login_attempts` table contains counters, not passwords or codes.
+
+The first five attempts per account and twenty per client address can proceed
+without waiting. The fifth/twentieth reservation starts a one-second pause
+before another attempt; each further admitted guess doubles it to a maximum of
+five minutes. `429` answers carry a whole-second `Retry-After`. Requests refused
+during the pause do not extend it. Fifteen minutes without an admitted attempt
+reset the counters; expired rows are removed by the next reservation.
+
+Password and second-factor account budgets are separate. Username/email aliases
+share the account's password budget; TOTP and email share its factor budget
+across pending sessions and resends. Unknown names get the same limits. A
+successful proof resets its account budget and refunds only its own address
+attempt, preserving other failures. Concurrent attempts count before checking
+the credential; an interrupted verification counts conservatively as a failure.
+
+The address comes from the connection after uvicorn's trusted-proxy processing.
+Configure [forwarded headers](#behind-a-reverse-proxy) correctly: an unrecognized
+proxy makes all its users share one address budget. The application never reads
+an untrusted `X-Forwarded-For` directly. Passkey/SSO ceremonies, existing browser
+sessions and v3 API credentials do not use these password/code budgets.
 
 ## Moving or restoring data
 

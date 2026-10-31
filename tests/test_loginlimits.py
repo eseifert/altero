@@ -139,7 +139,7 @@ async def test_identifiers_and_addresses_are_not_stored_verbatim(session: AsyncS
 
 
 async def assert_shared_budget(database: Database) -> None:
-    """Two pools and many concurrent admissions still spend one allowance."""
+    """Many concurrent admissions from independent sessions spend one allowance."""
 
     async def reserve_one() -> bool:
         async with database.session_factory() as session:

@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Add durable account and address budgets for password and second-factor sign-in backoff.
+- Slow repeated password and second-factor guesses with account and address backoff shared across workers and restarts.
 - Document the local OpenID conformance assessment: Config OP passes; Basic OP exposes the required-PKCE profile mismatch.
 - Exercise altero's OAuth and OpenID provider with an independent Authlib client over live HTTP in CI.
 - Fix OAuth token revocation for clients using HTTP Basic authentication and require confidential clients' secrets.

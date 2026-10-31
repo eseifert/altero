@@ -53,6 +53,12 @@ CSRF_COOKIE = "altero_csrf"
 CSRF_HEADER = "X-CSRF-Token"
 
 
+def _client_address(request: Request) -> str:
+    # Proxy headers are interpreted by uvicorn only for explicitly trusted
+    # peers. Never read X-Forwarded-For here: it would let callers buy budgets.
+    return request.client.host if request.client else "unknown"
+
+
 class Credentials(BaseModel):
     username: str
     password: str
@@ -329,6 +335,7 @@ async def login(session: SessionDep, request: Request, body: Credentials) -> Res
             username=body.username,
             password=body.password,
             user_agent=request.headers.get("user-agent", ""),
+            address=_client_address(request),
         )
     except ForbiddenError as error:
         # 401 rather than the 403 the domain error maps to: the credential was
@@ -358,6 +365,7 @@ async def login(session: SessionDep, request: Request, body: Credentials) -> Res
 
 @router.post("/auth/totp")
 async def submit_totp(
+    request: Request,
     session: SessionDep,
     record: PendingSessionDep,
     body: Annotated[Code, Body()],
@@ -365,7 +373,7 @@ async def submit_totp(
 ) -> Response:
     """Clear an outstanding TOTP factor on the current session."""
     try:
-        await webauth.complete_totp(session, record, body.code)
+        await webauth.complete_totp(session, record, body.code, address=_client_address(request))
     except ForbiddenError as error:
         raise HTTPException(status_code=401, detail=error.message) from error
 
@@ -406,6 +414,7 @@ async def _send_login_code(request: Request, session: SessionDep, record: WebSes
 
 @router.post("/auth/code")
 async def submit_login_code(
+    request: Request,
     session: SessionDep,
     record: PendingSessionDep,
     body: Annotated[Code, Body()],
@@ -413,7 +422,9 @@ async def submit_login_code(
 ) -> Response:
     """Clear an outstanding emailed code on the current session."""
     try:
-        await webauth.complete_email_code(session, record, body.code)
+        await webauth.complete_email_code(
+            session, record, body.code, address=_client_address(request)
+        )
     except ForbiddenError as error:
         raise HTTPException(status_code=401, detail=error.message) from error
 

@@ -28,6 +28,7 @@ from altero.services import (
     emailverify,
     invitations,
     logincodes,
+    loginlimits,
     passwords,
     totp,
     websessions,
@@ -219,6 +220,7 @@ async def login(
     username: str,
     password: str,
     user_agent: str = "",
+    address: str = "unknown",
 ) -> LoginResult:
     """Check a username and password and open a session.
 
@@ -233,6 +235,13 @@ async def login(
     identifier = username.strip().lower()
     column = User.email if "@" in identifier else User.username
     user = await session.scalar(select(User).where(func.lower(column) == identifier))
+
+    admission = await loginlimits.reserve(
+        session,
+        account=f"user:{user.id}" if user else f"unknown:{identifier}",
+        address=address,
+        stage="password",
+    )
 
     # Verified even when there is no such user, against a dummy hash, so that
     # an unknown name does not answer faster than a known one.
@@ -258,6 +267,7 @@ async def login(
     token, record = await websessions.create(
         session, user, pending_factor=pending, user_agent=user_agent
     )
+    await loginlimits.succeed(session, admission)
     return LoginResult(token=token, session=record, needs_factor=pending)
 
 
@@ -320,14 +330,20 @@ async def switch_factor(session: AsyncSession, record: WebSession, factor: str) 
     await session.commit()
 
 
-async def complete_email_code(session: AsyncSession, record: WebSession, code: str) -> None:
+async def complete_email_code(
+    session: AsyncSession, record: WebSession, code: str, *, address: str = "unknown"
+) -> None:
     """Clear an outstanding emailed code on ``record``."""
     if record.pending_factor != "email":
         raise ForbiddenError("This session is not waiting for a code")
 
+    admission = await loginlimits.reserve(
+        session, account=f"user:{record.user_id}", address=address, stage="factor"
+    )
     await logincodes.verify(session, record, code)
     record.pending_factor = None
     await session.commit()
+    await loginlimits.succeed(session, admission)
 
 
 async def enrol_totp(
@@ -362,7 +378,9 @@ async def enrol_totp(
     return secret
 
 
-async def complete_totp(session: AsyncSession, record: WebSession, code: str) -> None:
+async def complete_totp(
+    session: AsyncSession, record: WebSession, code: str, *, address: str = "unknown"
+) -> None:
     """Clear the outstanding TOTP factor on ``record``.
 
     Refuses a code at or below the last accepted step. A code is valid for its
@@ -372,6 +390,9 @@ async def complete_totp(session: AsyncSession, record: WebSession, code: str) ->
     if record.pending_factor != "totp":
         raise ForbiddenError("This session is not waiting for a code")
 
+    admission = await loginlimits.reserve(
+        session, account=f"user:{record.user_id}", address=address, stage="factor"
+    )
     enrolled = await session.get(TotpCredential, record.user_id)
     if enrolled is None:  # pragma: no cover - defensive
         raise ForbiddenError("No authenticator is enrolled")
@@ -395,3 +416,4 @@ async def complete_totp(session: AsyncSession, record: WebSession, code: str) ->
         raise ForbiddenError("That code is not valid")
     record.pending_factor = None
     await session.commit()
+    await loginlimits.succeed(session, admission)

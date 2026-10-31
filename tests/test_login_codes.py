@@ -21,7 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError
 from altero.models import EmailFactor, LoginCode, User
-from altero.services import admin, emailverify, logincodes, webauth, websessions
+from altero.services import admin, emailverify, logincodes, loginlimits, webauth, websessions
 from altero.services.mail import Message
 from altero.settings import Settings
 from tests.test_web_routes import CSRF_HEADER, PASSWORD, csrf_headers
@@ -220,7 +220,11 @@ class TestItIsBoundToOneSignIn:
 
 class TestItCannotBeGuessed:
     async def test_the_code_is_spent_after_a_few_wrong_guesses(
-        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
+        self,
+        client: httpx2.AsyncClient,
+        session: AsyncSession,
+        outbox: Outbox,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Six digits would be walkable otherwise."""
         await enrolled_account(session)
@@ -232,6 +236,12 @@ class TestItCannotBeGuessed:
                 "/web/auth/code", json={"code": "000000"}, headers=csrf_headers(client)
             )
 
+        # Get past the shared account pause, then prove the original code
+        # itself was spent rather than relying on a 429 to keep it out.
+        session.expire_all()
+        assert await session.scalar(select(LoginCode)) is None
+        later = loginlimits._now() + timedelta(seconds=1)
+        monkeypatch.setattr(loginlimits, "_now", lambda: later)
         response = await client.post(
             "/web/auth/code", json={"code": right}, headers=csrf_headers(client)
         )

@@ -89,7 +89,9 @@ applying a splitter transform to the document itself.
 `login_attempts`, introduced by migration `ae39b4d8c021`. Reservations commit
 before verification so concurrent requests and worker restarts share a budget;
 no database lock spans password hashing. Call before changing other state in
-the session. The next integration step connects these reservations to sign-in.
+the session. Password sign-in and both TOTP/email completion paths use these
+reservations; the API layer supplies the trusted connection address and maps a
+refusal to JSON `429` with a whole-second `Retry-After`.
 
 Account and address rows are locked in sorted key order on both SQLite and
 PostgreSQL. A successful proof clears only its account reservation's generation
@@ -98,6 +100,12 @@ account guess or refund a new address window after expiry. Identifiers are
 SHA-256 hashes with separate namespaces; these are pseudonymous counters, not
 encrypted personal data. Idle rows expire after fifteen minutes and are pruned
 by the next reservation.
+
+Username and email aliases resolve to the same user id before reserving the
+password budget. Unknown identifiers use the same limits with normalized names.
+TOTP and email share a second-factor budget by user id, so a new pending
+session, a resend or a factor switch cannot reset it. The existing five-guess
+limit on each emailed code remains in force independently.
 
 ### The note editor
 
