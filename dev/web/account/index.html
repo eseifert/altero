@@ -1809,9 +1809,10 @@ another code does not reset the account's allowance. See
 <p>What a completed sign-in produces is a browser session, exactly the one a
 password produces. <strong>A Zotero client still holds an API key, and still gets it
 from Settings → API keys.</strong> That is the boundary rule doing its job rather than
-a gap: the v3 API takes keys and nothing else, and no amount of single sign-on
-changes it. It is the first question an institution asks, so it is answered
-here rather than in a footnote.</p>
+a gap: the v3 API accepts API keys and OAuth access tokens, never browser
+session cookies. Directory sign-in changes none of those credentials. See the
+<a href="../../administration/#provider-recipes">provider recipes</a> for institutional
+setup and verification status.</p>
 <p>An account here is matched to a directory by its <strong>subject</strong> — the opaque
 identifier the directory issues — and never by an email address. A directory
 that can assert an address would otherwise be able to take the account holding
