@@ -1,6 +1,6 @@
 # Real identity-provider tests
 
-`test_keycloak.py` runs OIDC authorization-code + S256 PKCE and SAML
+`test_keycloak.py` and `test_keycloak_protocol.py` run OIDC authorization-code + S256 PKCE and SAML
 HTTP-Redirect/HTTP-POST sign-in against Keycloak 26.8.1, pinned by image digest
 in `compose.yml`. Start it with the commands in
 [Contributing](../../CONTRIBUTING.md#getting-set-up). The service imports
@@ -66,8 +66,25 @@ and reauthentication sent no cookies on their SAML POSTs; linking retained the
 local account and reauthentication enabled key issuance. This browser check was
 run locally, separately from the HTTP tests required in CI.
 
-Key rollover, replay and clock-skew cases,
-a second SAML provider and OpenID-provider conformance need separate evidence.
+Protocol tests replay the actual OIDC code callback and signed SAML response
+after local logout and require refusal without a new session. The SAML rollover
+test creates a higher-priority RSA signing-key provider through Keycloak's
+[Admin REST API](https://www.keycloak.org/docs-api/26.8.1/rest-api/index.html).
+It observes the active key change, refuses its signature with only the old
+certificate, accepts both PEM orders, restores the previous signing key, then
+checks that removing its certificate removes trust. The extra key provider is
+removed in `finally`.
+
+Validity-window tests use unmodified Keycloak assertions and tokens, adjusting
+only altero's validator clock to four or six minutes before the actual
+`NotBefore`/`iat` or after `NotOnOrAfter`/`exp`. The four-minute offsets are
+accepted; the six-minute offsets are refused without provisioning an account.
+This tests the configured five-minute tolerance over the real exchange, not
+clock synchronization between machines or Keycloak's own clock-skew policy.
+The replay case checks the endpoint's combined single-use protections; the
+independent assertion-ID replay table has its own unit and concurrency tests.
+
+A second SAML provider and OpenID-provider conformance need separate evidence.
 The existing mock-based identity and SAML unit suites remain useful for precise
 negative cases; they do not replace this test.
 

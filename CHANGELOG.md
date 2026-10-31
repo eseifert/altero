@@ -11,6 +11,7 @@ gained a capability worth naming.
 - Test OIDC and SAML browser sign-in against a pinned Keycloak server in CI.
 - Verify account provisioning and group-loss suspension against real Keycloak OIDC and SAML sign-ins.
 - Fix SAML account linking and reauthentication when the identity provider's POST omits the existing browser cookie.
+- Test real Keycloak signing-key rollover, callback replay and sign-in clock-skew boundaries.
 
 ## [1.0.0-beta.7] — 2026-10-30
 

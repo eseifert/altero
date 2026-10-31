@@ -42,7 +42,7 @@ readiness before running the tests:
 ```sh
 docker compose -p altero-idp-tests -f tests/idp/compose.yml up -d --wait
 export ALTERO_TEST_KEYCLOAK_URL=http://127.0.0.1:18080
-uv run pytest -q tests/test_keycloak.py
+uv run pytest -q tests/test_keycloak.py tests/test_keycloak_protocol.py
 docker compose -p altero-idp-tests -f tests/idp/compose.yml down
 ```
 

@@ -163,7 +163,10 @@ returning to the same account and keeping browser sessions out of the v3 API.
 The [test setup](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
 documents its scope. Account creation, required-group checks and sign-in-time
 deprovisioning are exercised for both protocols, including retained and revoked
-API keys. Other providers and signing-key rollover still need separate evidence.
+API keys. SAML signing-key rollover, callback replay and the five-minute
+validity tolerance are also checked against Keycloak-issued responses. The
+clock tests adjust altero's validator clock; they do not test machine clock
+synchronization. Other identity providers still need separate evidence.
 
 ### OpenID Connect
 
