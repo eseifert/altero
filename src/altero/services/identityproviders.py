@@ -182,7 +182,9 @@ def _apply(provider: IdentityProvider, values: dict[str, Any]) -> None:
             continue
         value = values[name]
         if name == "issuer" and value:
-            value = str(value).strip().rstrip("/")
+            # The issuer is an identity string: a trailing slash must match
+            # discovery and ID tokens exactly, including for authentik.
+            value = str(value).strip()
             if not value.startswith(("http://", "https://")):
                 raise InvalidInputError("An issuer is an absolute https URL")
             # Discovery has to run again: the endpoints cached below belong to

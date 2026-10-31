@@ -304,7 +304,7 @@ class Client:
         # disagrees with where it was fetched from is the shape of a mix-up
         # attack, and refusing it once at configuration time is kinder than
         # refusing every sign-in later.
-        if document["issuer"].rstrip("/") != issuer.rstrip("/"):
+        if document["issuer"] != issuer:
             raise InvalidInputError(
                 f"The configuration at {issuer} claims to be for {document['issuer']}"
             )

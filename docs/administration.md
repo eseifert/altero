@@ -179,6 +179,13 @@ binding or signed AuthnRequests.
 
 Store the client credentials and provider settings in the administration screen. Client secrets are write-only: the interface can replace a secret but does not display the existing value.
 
+Copy the provider's exact `issuer` value from its discovery document, including
+any trailing slash. Issuers must match in configuration, discovery and ID
+tokens, as required by
+[OpenID Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation).
+If a previous altero version removed that slash, edit the issuer and save it
+again; existing provider rows are not changed automatically.
+
 ### SAML 2.0
 
 A SAML provider requires:
