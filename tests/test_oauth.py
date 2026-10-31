@@ -1446,6 +1446,45 @@ class TestConfidentialClients:
 
 
 class TestRevocation:
+    @pytest.mark.parametrize("kind", ["access_token", "refresh_token"])
+    @pytest.mark.parametrize("method", ["basic", "post", "missing", "wrong"])
+    async def test_confidential_client_revocation_authenticates_the_client(
+        self, client: httpx2.AsyncClient, session: AsyncSession, method: str, kind: str
+    ) -> None:
+        _, secret = await make_client(session, confidential=True)
+        assert secret is not None
+        user_id = await make_account(client)
+        verifier, challenge = pkce()
+        started = await authorize(client, challenge=challenge)
+        redirect = await grant(client, started.headers["location"].split("request=")[1])
+        issued = await client.post(
+            "/oauth/token",
+            data={
+                "grant_type": "authorization_code",
+                "code": code_from(redirect),
+                "code_verifier": verifier,
+                "redirect_uri": REDIRECT,
+            },
+            headers=basic("notebook", secret),
+        )
+        assert issued.status_code == 200
+        tokens = issued.json()
+        data = {"token": tokens[kind]}
+        headers = {}
+        if method == "basic":
+            headers = basic("notebook", secret)
+        else:
+            data["client_id"] = "notebook"
+            if method != "missing":
+                data["client_secret"] = secret if method == "post" else "wrong"
+        response = await client.post("/oauth/revoke", data=data, headers=headers)
+        allowed = method in {"basic", "post"}
+        assert response.status_code == (200 if allowed else 401)
+        if not allowed:
+            assert response.json()["error"] == "invalid_client"
+        access = await client.get(f"/users/{user_id}/items", headers=bearer(tokens["access_token"]))
+        assert access.status_code == (403 if allowed else 200)
+
     async def test_revoking_an_access_token_stops_it(
         self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:
@@ -1476,8 +1515,11 @@ class TestRevocation:
         )
         assert response.status_code == 403
 
-    async def test_an_unknown_token_still_answers_200(self, client: httpx2.AsyncClient) -> None:
+    async def test_an_unknown_token_still_answers_200(
+        self, client: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
         """RFC 7009 §2.2: an error here would answer whether a string is live."""
+        await make_client(session)
         response = await client.post(
             "/oauth/revoke", data={"client_id": "notebook", "token": "not a token"}
         )

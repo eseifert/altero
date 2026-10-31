@@ -1309,17 +1309,16 @@ async def _authenticated_client(
     return client
 
 
-async def revoke(session: AsyncSession, *, client_id: str, token: str) -> None:
+async def revoke(
+    session: AsyncSession, *, client_id: str, token: str, client_secret: str | None = None
+) -> None:
     """Revoke a token, as RFC 7009 asks.
 
-    Presenting the token is the authorization to revoke it, so a token that
-    does not resolve is not an error: §2.2 requires 200 either way, because
-    telling a caller that a token it holds is unknown here is telling it
-    something about somebody else's token.
+    Authenticate the client before looking up the token (§2.1). A token that
+    does not resolve is not an error: §2.2 requires 200 either way, without
+    disclosing whether a token belonging to another client exists.
     """
-    client = await oauthclients.by_client_id(session, client_id)
-    if client is None:
-        return
+    client = await _authenticated_client(session, client_id, client_secret)
 
     row = await session.scalar(select(OAuthToken).where(OAuthToken.token_hash == _hash(token)))
     if row is None:

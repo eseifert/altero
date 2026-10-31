@@ -686,6 +686,15 @@ This is the one place altero makes requests instead of answering them: it reads 
 
 ## The authorization server
 
+### Token revocation
+
+`/oauth/revoke` accepts the same client authentication methods as `/oauth/token`:
+HTTP Basic, a form secret, or a public client's ID without a secret.
+Confidential clients must authenticate, as [RFC 7009 §2.1](https://www.rfc-editor.org/rfc/rfc7009.html#section-2.1)
+requires. An authenticated request gets 200 for an unknown token too, and cannot
+revoke another client's token. Revoking an access token leaves its refresh token
+usable; revoking a refresh token invalidates its whole family.
+
 ### A second credential for the v3 API
 
 The v3 API is authenticated by a credential sent with each request, **never** by a browser cookie. The authorization server lets an OAuth access token be that credential, alongside an API key; the rule itself is unchanged.

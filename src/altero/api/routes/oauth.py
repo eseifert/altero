@@ -88,6 +88,11 @@ def _metadata(request: Request) -> dict[str, Any]:
             "client_secret_basic",
             "client_secret_post",
         ],
+        "revocation_endpoint_auth_methods_supported": [
+            "none",
+            "client_secret_basic",
+            "client_secret_post",
+        ],
         "claims_supported": [
             "sub",
             "iss",
@@ -413,23 +418,25 @@ async def token(
 
 @router.post("/oauth/revoke")
 async def revoke(
+    request: Request,
     session: SessionDep,
     token: Annotated[str, Form()],
     client_id: Annotated[str, Form()] = "",
+    client_secret: Annotated[str | None, Form()] = None,
     token_type_hint: Annotated[str | None, Form()] = None,
 ) -> Response:
     """Revoke a token, answering 200 whether or not it was one.
 
-    RFC 7009 §2.2 requires that. A caller holding a token is entitled to revoke
-    it; a caller holding something that is not a token learns nothing from the
-    answer, which is the point -- an error here would turn this endpoint into a
-    way of asking whether a given string is somebody's live credential.
+    RFC 7009 §2.1 requires client authentication just as the token endpoint
+    does. After that, §2.2 requires the same answer for known and unknown tokens
+    so a caller cannot discover whether a given string is a live credential.
 
     Revoking a *refresh* token takes its whole family, since the access tokens
     beside it were issued from the same authorization and stopping one while
     leaving the others is not what anybody means by revoking.
     """
-    await oauthserver.revoke(session, client_id=client_id, token=token)
+    client_id, client_secret = _client_credentials(request, client_id, client_secret)
+    await oauthserver.revoke(session, client_id=client_id, client_secret=client_secret, token=token)
     return Response(status_code=200, headers={"Cache-Control": "no-store"})
 
 
