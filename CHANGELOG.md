@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Fix the account language-choice test to include Swahili, Hausa and Yoruba.
 - Add Yoruba translations to the browser interface.
 - Add Hausa translations to the browser interface.
 - Add Swahili translations to the browser interface.
