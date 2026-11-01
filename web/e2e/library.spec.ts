@@ -221,8 +221,23 @@ test('an edit over a change made elsewhere to the same field asks which to keep'
 })
 
 test('the item list is worked with the keyboard, and ? says how', async ({ page }) => {
+  // Keep the loading placeholders on screen until the row locator has been
+  // checked. A fast local response otherwise hides clicks on those spans.
+  let releaseItems!: () => void
+  const itemsReady = new Promise<void>((resolve) => { releaseItems = resolve })
+  await page.route(/\/web\/libraries\/\d+\/items(?:\?|$)/, async (route) => {
+    await itemsReady
+    await route.continue()
+  })
+
   await signIn(page)
-  const rows = page.locator('.library__row:not(.library__row--head)')
+  const rows = page.getByRole('list', { name: 'Items in My Library', exact: true }).getByRole('button')
+  try {
+    await expect(page.locator('.library__row--skeleton').first()).toBeVisible()
+    await expect(rows).toHaveCount(0)
+  } finally {
+    releaseItems()
+  }
   await rows.first().click()
   const first = await page.locator('.detail__title').textContent()
 

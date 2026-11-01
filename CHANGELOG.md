@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Make the keyboard browser test wait for real item buttons while the library is loading.
 - Fix the account language-choice test to include Swahili, Hausa and Yoruba.
 - Add Yoruba translations to the browser interface.
 - Add Hausa translations to the browser interface.
