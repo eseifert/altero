@@ -55,6 +55,7 @@ import sk from './sk'
 import sl from './sl'
 import sr from './sr'
 import sv from './sv'
+import sw from './sw'
 import ta from './ta'
 import th from './th'
 import tl from './tl'
@@ -89,6 +90,7 @@ const CATALOGUES = {
   it: italian,
   nl,
   af,
+  sw,
   ar,
   fa,
   'he-IL': heIL,

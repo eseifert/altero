@@ -40,6 +40,13 @@ afterEach(() => {
 })
 
 describe('the languages on offer', () => {
+  it.each([
+    ['sw-KE', 'sw'], ['SW_tz', 'sw'],
+  ])('resolves %s to %s', (tag, expected) => {
+    expect(LOCALES).toContain(expected)
+    expect(matchLocale(tag)).toBe(expected)
+    expect(resolveLocale(null, [tag, 'en-US'])).toBe(expected)
+  })
   it('resolves Hebrew to the schema’s he-IL catalogue', () => {
     expect(LOCALES).toContain('he-IL')
     for (const tag of ['he', 'he-IL', 'HE_il', 'he-US']) {
@@ -255,6 +262,9 @@ describe('counting in a language with two forms', () => {
     ['ta', 5, '5 உருப்படிகள்'],
     ['af', 1, '1 item'],
     ['af', 5, '5 items'],
+    ['sw', 0, 'Vipengee 0'],
+    ['sw', 1, 'Kipengee 1'],
+    ['sw', 2, 'Vipengee 2'],
     ['ca', 1, '1 element'],
     ['ca', 5, '5 elements'],
     ['et', 1, '1 kirje'],

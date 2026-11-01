@@ -1,5 +1,27 @@
 import { accessibilityProblems, expect, signIn, test } from './state'
 
+for (const [name, browserLocale, tag, signInLabel, library, title] of [
+  ['Swahili', 'sw-KE', 'sw', 'Ingia', 'Maktaba Yangu', 'Panga kwa Title'],
+] as const) {
+  test.describe(name, () => {
+    test.use({ locale: browserLocale })
+
+    test('loads its regional catalogue and falls back to English schema labels', async ({ page }, testInfo) => {
+      await page.goto('/app/sign-in')
+      await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
+      await expect(page.getByRole('button', { name: signInLabel, exact: true })).toBeVisible()
+      expect(await accessibilityProblems(page)).toEqual([])
+
+      await signIn(page)
+      await expect(page.getByText(library, { exact: true }).first()).toBeVisible()
+      await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible()
+      await page.screenshot({ path: testInfo.outputPath(`${tag}-library.png`), fullPage: true })
+      expect(await accessibilityProblems(page)).toEqual([])
+    })
+  })
+}
+
 test.describe('Hebrew', () => {
   test.use({ locale: 'he' })
 
@@ -114,7 +136,7 @@ test.describe('Gurmukhi Punjabi', () => {
 })
 
 test('all new account languages survive reload and override the browser', async ({ page }) => {
-  test.setTimeout(60_000)
+  test.setTimeout(90_000)
   await signIn(page)
   await page.goto('/app/settings/language')
   const language = page.getByRole('combobox').first()
@@ -122,12 +144,13 @@ test('all new account languages survive reload and override the browser', async 
     (response) => response.url().endsWith('/web/account/locale') && response.request().method() === 'PUT',
   )
   try {
-    for (const [tag, save, confirmation] of [
-      ['ar', 'حفظ', 'حُفظت اللغة والمنطقة الزمنية.'],
-      ['fa', 'ذخیره', 'زبان و منطقهٔ زمانی ذخیره شدند.'],
-      ['he-IL', 'שמירה', 'השפה ואזור הזמן נשמרו.'],
-      ['ur', 'محفوظ کریں', 'زبان اور منطقۂ وقت محفوظ ہو گئے۔'],
-      ['pa-Arab', 'سنبھالو', 'بولی تے ویلے دا خطہ سنبھال لیا۔'],
+    for (const [tag, save, confirmation, direction] of [
+      ['ar', 'حفظ', 'حُفظت اللغة والمنطقة الزمنية.', 'rtl'],
+      ['fa', 'ذخیره', 'زبان و منطقهٔ زمانی ذخیره شدند.', 'rtl'],
+      ['he-IL', 'שמירה', 'השפה ואזור הזמן נשמרו.', 'rtl'],
+      ['ur', 'محفوظ کریں', 'زبان اور منطقۂ وقت محفوظ ہو گئے۔', 'rtl'],
+      ['pa-Arab', 'سنبھالو', 'بولی تے ویلے دا خطہ سنبھال لیا۔', 'rtl'],
+      ['sw', 'Hifadhi', 'Lugha na ukanda wa saa vimehifadhiwa.', 'ltr'],
     ] as const) {
       await language.selectOption(tag)
       const saved = responseForSave()
@@ -135,13 +158,13 @@ test('all new account languages survive reload and override the browser', async 
       await page.locator('main section.card button').click()
       expect((await saved).ok()).toBe(true)
       await expect(page.locator('html')).toHaveAttribute('lang', tag)
-      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+      await expect(page.locator('html')).toHaveAttribute('dir', direction)
       await expect(page.getByRole('button', { name: save, exact: true })).toBeVisible()
       await expect(page.locator('.section-panel__notice')).toHaveText(confirmation)
-      await expect(page.locator('.section-panel__notice')).toHaveCSS('direction', 'rtl')
+      await expect(page.locator('.section-panel__notice')).toHaveCSS('direction', direction)
       await page.reload()
       await expect(page.locator('html')).toHaveAttribute('lang', tag)
-      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+      await expect(page.locator('html')).toHaveAttribute('dir', direction)
       await expect(language).toHaveValue(tag)
     }
   } finally {

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add Swahili translations to the browser interface.
 - Record passing hosted CI for real sign-in providers and independent Authlib OAuth flows.
 - Add sign-in provider recipes for Keycloak, Entra ID, Okta, authentik and Shibboleth, with verification status.
 - Show the SAML assertion consumer address when configuring a SAML sign-in provider.
