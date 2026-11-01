@@ -42,6 +42,7 @@ LANGUAGES: dict[str, str] = {
     "nl": "Nederlands",
     "af": "Afrikaans",
     "sw": "Kiswahili",
+    "ha": "Hausa",
     "ar": "العربية",
     "fa": "فارسی",
     "he-IL": "עברית",

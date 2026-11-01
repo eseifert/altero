@@ -25,6 +25,7 @@ import fa from './fa'
 import fi from './fi'
 import fr from './fr'
 import gl from './gl'
+import ha from './ha'
 import heIL from './he-IL'
 import hi from './hi'
 import hr from './hr'
@@ -91,6 +92,7 @@ const CATALOGUES = {
   nl,
   af,
   sw,
+  ha,
   ar,
   fa,
   'he-IL': heIL,

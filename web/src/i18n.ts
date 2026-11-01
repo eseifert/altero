@@ -41,6 +41,7 @@ export const LOCALES = [
   'nl',
   'af',
   'sw',
+  'ha',
   'ar',
   'fa',
   'he-IL',

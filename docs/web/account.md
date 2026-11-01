@@ -199,13 +199,13 @@ How an operator registers an application, and what a client developer needs:
 ### Language and time zone
 
 The interface speaks English, German, French, Breton, Spanish, Portuguese,
-Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Swahili,
+Catalan, Basque, Galician, Italian, Dutch, Afrikaans, Swahili, Hausa,
 Arabic, Persian, Hebrew,
 Danish, Norwegian Bokmål, Norwegian Nynorsk, Swedish, Icelandic, Finnish, Polish, Czech, Slovak,
 Slovenian, Croatian, Serbian, Hungarian, Romanian, Lithuanian, Latvian,
 Estonian, Russian, Ukrainian, Bulgarian, Greek, Georgian, Mongolian, Turkish,
 Urdu, Punjabi (Shahmukhi), Hindi, Bengali, Tamil, Malayalam, Japanese, Korean, Thai, Khmer, Vietnamese,
-Indonesian, Tagalog and Chinese — 57 catalogs, because three of those are
+Indonesian, Tagalog and Chinese — 58 catalogs, because three of those are
 written differently in different places and are carried twice: American and
 British English, Brazilian and European Portuguese, Simplified and Traditional
 Chinese. They are the same three Zotero splits.
@@ -284,9 +284,10 @@ list's column headings included. Where the interface's own messages name
 something Zotero also names, they use Zotero's word for it, so the two
 applications read as one vocabulary.
 
-Swahili (`sw`) has translated interface messages. Regional tags such as
-`sw-KE` select this catalog. Item types, field names and creator roles use
-English because Zotero's schema has no translations for this language.
+Swahili (`sw`) and Hausa (`ha`) have translated interface messages.
+Regional tags such as `sw-KE` and `ha-NG` select these catalogs. Item types,
+field names and creator roles use English because Zotero's schema has no
+translations for these languages.
 
 Urdu and Shahmukhi Punjabi messages are translated throughout the interface.
 Punjabi uses the `pa-Arab` tag; `pa-PK` selects it too. Bare `pa` and Gurmukhi
