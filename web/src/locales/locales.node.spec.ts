@@ -64,6 +64,7 @@ import tr from './tr'
 import uk from './uk'
 import ur from './ur'
 import vi from './vi'
+import yo from './yo'
 import zhCN from './zh-CN'
 import zhTW from './zh-TW'
 
@@ -93,6 +94,7 @@ const CATALOGUES = {
   af,
   sw,
   ha,
+  yo,
   ar,
   fa,
   'he-IL': heIL,

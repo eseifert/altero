@@ -3,6 +3,7 @@ import { accessibilityProblems, expect, signIn, test } from './state'
 for (const [name, browserLocale, tag, signInLabel, library, title] of [
   ['Swahili', 'sw-KE', 'sw', 'Ingia', 'Maktaba Yangu', 'Panga kwa Title'],
   ['Hausa', 'ha-NG', 'ha', 'Shiga', 'Ɗakin Karatuna', 'Jera bisa Title'],
+  ['Yoruba', 'yo-NG', 'yo', 'Wọlé', 'Ilé Ìkàwé Mi', 'Tò nípa Title'],
 ] as const) {
   test.describe(name, () => {
     test.use({ locale: browserLocale })
@@ -153,6 +154,7 @@ test('all new account languages survive reload and override the browser', async 
       ['pa-Arab', 'سنبھالو', 'بولی تے ویلے دا خطہ سنبھال لیا۔', 'rtl'],
       ['sw', 'Hifadhi', 'Lugha na ukanda wa saa vimehifadhiwa.', 'ltr'],
       ['ha', 'Adana', 'An adana harshe da yankin lokaci.', 'ltr'],
+      ['yo', 'Fi pamọ́', 'A ti fi èdè àti agbègbè àkókò pamọ́.', 'ltr'],
     ] as const) {
       await language.selectOption(tag)
       const saved = responseForSave()

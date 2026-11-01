@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add Yoruba translations to the browser interface.
 - Add Hausa translations to the browser interface.
 - Add Swahili translations to the browser interface.
 - Record passing hosted CI for real sign-in providers and independent Authlib OAuth flows.

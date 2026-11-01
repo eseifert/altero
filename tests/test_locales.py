@@ -49,6 +49,7 @@ class TestTheOfferedLanguages:
         assert LANGUAGES["af"] == "Afrikaans"
         assert LANGUAGES["sw"] == "Kiswahili"
         assert LANGUAGES["ha"] == "Hausa"
+        assert LANGUAGES["yo"] == "Yorùbá"
         assert LANGUAGES["ar"] == "العربية"
         assert LANGUAGES["bg"] == "Български"
         assert LANGUAGES["bn"] == "বাংলা"
@@ -233,6 +234,8 @@ class TestNormalisingALanguage:
             ("SW_tz", "sw"),
             ("ha-NG", "ha"),
             ("HA_ne", "ha"),
+            ("yo-NG", "yo"),
+            ("YO_bj", "yo"),
             ("lv-LV", "lv"),
             ("tl-PH", "tl"),
             ("ml-IN", "ml"),

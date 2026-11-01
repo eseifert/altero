@@ -43,6 +43,7 @@ describe('the languages on offer', () => {
   it.each([
     ['sw-KE', 'sw'], ['SW_tz', 'sw'],
     ['ha-NG', 'ha'], ['HA_ne', 'ha'],
+    ['yo-NG', 'yo'], ['YO_bj', 'yo'],
   ])('resolves %s to %s', (tag, expected) => {
     expect(LOCALES).toContain(expected)
     expect(matchLocale(tag)).toBe(expected)
@@ -269,6 +270,9 @@ describe('counting in a language with two forms', () => {
     ['ha', 0, 'Abubuwa 0'],
     ['ha', 1, 'Abu 1'],
     ['ha', 2, 'Abubuwa 2'],
+    ['yo', 0, 'Ohun 0'],
+    ['yo', 1, 'Ohun 1'],
+    ['yo', 2, 'Ohun 2'],
     ['ca', 1, '1 element'],
     ['ca', 5, '5 elements'],
     ['et', 1, '1 kirje'],
