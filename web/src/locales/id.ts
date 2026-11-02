@@ -607,7 +607,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Hapus “{name}” dari Publikasi Saya?',
   'Removing it also removes every account’s connection to it.':
     'Menghapusnya juga menghapus koneksi setiap akun ke penyedia ini.',
-  'Rename': 'Ganti nama',
   'Rename tag': 'Ganti nama tag',
   'Rename “{name}”': 'Ganti nama “{name}”',
   'Render': 'Tampilkan',

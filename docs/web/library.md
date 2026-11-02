@@ -160,11 +160,14 @@ item's type, empty ones included, in the order Zotero Desktop shows them.
 - **Rights** is set with the license chooser, as for My Publications.
 - **Tag an item** under **Tags**: **+** opens a box that offers the library's
   tags as you type. Enter adds the tag and leaves the box open for the next;
-  several lines pasted at once add one tag each. Press a tag to rename it on
-  this item, or clear it to remove it; **×** removes it too. Tags coloured in
-  Zotero Desktop come first, with their colour, then tags with an emoji, then
-  the rest alphabetically. A dashed outline marks a tag added automatically,
-  by a translator or an import.
+  several lines pasted at once add one tag each. Press its pencil to rename
+  it inline on this item; Enter or leaving the field saves, and Escape
+  cancels. **×** removes the tag from this item only. Tag names in the detail
+  pane are passive; names in the sidebar filter the item list. Tags colored in
+  Zotero Desktop come first, with their color dot, then tags with an emoji,
+  then the rest alphabetically. Both panels use the same solid pill outline
+  and hover state. Automatically added tags retain their accessible label and
+  tooltip.
 - **Relate items** under **Related**: **+** searches the library, and pressing
   a result relates the two. Both items name each other, as in Zotero Desktop,
   and **−** removes the link from both. Pressing a related item opens it.
@@ -623,12 +626,12 @@ apart from the items carrying it, so renaming one rewrites every one of them.
 To add or remove a tag on one item, or rename it there alone, use the item's
 **Tags** section; see [Editing an item](#editing-an-item).
 
-It is the pencil on the tag, beside its name in the panel, dimmed until the
-pointer or the keyboard reaches it. A dialog opens holding the name the tag
-has, selected: a rename is nearly always a correction to what is there — a
-misspelling, a capital, a stray space — rather than a different word, and
-starting from the old name saves retyping it. The dialog says what will happen,
-in Zotero's own words, and counts the items it will happen to. There is no undo.
+Press the pencil beside a tag to edit its name inline, selected for typing
+over. Enter or leaving the field saves; Escape or the cancel control keeps
+the old name. The field warns that a sidebar rename changes every item
+carrying the tag and shows their count. A refused change keeps the draft and
+its error beside the field. Clicking the sidebar tag's name filters the list.
+There is no undo for a library-wide rename.
 
 **Renaming onto a name already in use merges the two.** The items carrying
 either one end up carrying the survivor, and the panel is left with one tag

@@ -513,7 +513,6 @@ export default {
   "Remove from My Publications": "Cire daga Wallafe-wallafena",
   "Remove “{name}” from My Publications?": "A cire “{name}” daga Wallafe-wallafena?",
   "Removing it also removes every account’s connection to it.": "Cire shi yana cire haɗin kowane asusu da shi ma.",
-  "Rename": "Sake suna",
   "Rename tag": "Sake sunan alama",
   "Rename “{name}”": "Sake sunan “{name}”",
   "Render": "Nuna",

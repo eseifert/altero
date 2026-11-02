@@ -520,7 +520,6 @@ export default {
   'Remove from My Publications': 'Eltávolítás a Saját publikációkból',
   'Remove “{name}” from My Publications?': 'Eltávolítja ezt a Saját publikációkból: „{name}”?',
   'Removing it also removes every account’s connection to it.': 'Eltávolításakor minden fiók kapcsolata is megszűnik vele.',
-  'Rename': 'Átnevezés',
   'Rename tag': 'Címke átnevezése',
   'Rename “{name}”': '„{name}” átnevezése',
   'Render': 'Előállítás',

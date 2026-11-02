@@ -600,7 +600,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Kas eemaldada „{name}“ minu väljaannetest?',
   'Removing it also removes every account’s connection to it.':
     'Selle eemaldamine eemaldab ka kõigi kontode ühenduse sellega.',
-  'Rename': 'Nimeta ümber',
   'Rename tag': 'Lipiku ümbernimetamine',
   'Rename “{name}”': 'Nimeta „{name}“ ümber',
   'Render': 'Koosta',

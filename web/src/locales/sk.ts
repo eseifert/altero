@@ -605,7 +605,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Odstrániť „{name}“ z Mojich publikácií?',
   'Removing it also removes every account’s connection to it.':
     'Jeho odstránením sa zrušia aj prepojenia všetkých účtov s ním.',
-  'Rename': 'Premenovať',
   'Rename tag': 'Premenovať značku',
   'Rename “{name}”': 'Premenovať „{name}“',
   'Render': 'Vygenerovať',

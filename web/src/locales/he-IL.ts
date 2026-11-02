@@ -512,7 +512,6 @@ export default {
   "Remove from My Publications": "הסרה מהפרסומים שלי",
   "Remove “{name}” from My Publications?": "להסיר את „{name}” מהפרסומים שלי?",
   "Removing it also removes every account’s connection to it.": "הסרתו מסירה גם את החיבור אליו מכל החשבונות.",
-  "Rename": "שינוי שם",
   "Rename tag": "שינוי שם תגית",
   "Rename “{name}”": "שינוי השם של „{name}”",
   "Render": "הצגה",

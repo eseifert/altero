@@ -597,7 +597,6 @@ export default {
   'Remove “{name}” from My Publications?': 'ដក “{name}” ចេញពីការបោះពុម្ពផ្សាយរបស់ខ្ញុំឬ?',
   'Removing it also removes every account’s connection to it.':
     'ការដកវាចេញ ក៏ដកការភ្ជាប់របស់គណនីទាំងអស់ទៅកាន់វាដែរ។',
-  Rename: 'ប្តូរឈ្មោះ',
   'Rename tag': 'ផ្លាស់ឈ្មោះស្លាក',
   'Rename “{name}”': 'ប្តូរឈ្មោះ “{name}”',
   Render: 'បង្កើត',

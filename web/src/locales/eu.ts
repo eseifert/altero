@@ -599,7 +599,6 @@ export default {
   'Remove “{name}” from My Publications?': '“{name}” Nire argitalpenak ataletik kendu?',
   'Removing it also removes every account’s connection to it.':
     'Kentzean, kontu guztiek harekin duten konexioa ere kentzen da.',
-  'Rename': 'Aldatu izena',
   'Rename tag': 'Aldatu etiketaren izena',
   'Rename “{name}”': 'Aldatu “{name}” izena',
   'Render': 'Sortu',

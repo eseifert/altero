@@ -512,7 +512,6 @@ export default {
   "Remove from My Publications": "حذف از نگارش‌های من",
   "Remove “{name}” from My Publications?": "«{name}» از نگارش‌های من حذف شود؟",
   "Removing it also removes every account’s connection to it.": "حذف آن اتصال همهٔ حساب‌ها به آن را هم حذف می‌کند.",
-  "Rename": "تغییر نام",
   "Rename tag": "تغییر نام برچسب",
   "Rename “{name}”": "تغییر نام «{name}»",
   "Render": "نمایش",

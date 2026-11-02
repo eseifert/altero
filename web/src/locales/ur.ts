@@ -512,7 +512,6 @@ export default {
   "Remove from My Publications": "میری مطبوعات سے ہٹائیں",
   "Remove “{name}” from My Publications?": "“{name}” کو میری مطبوعات سے ہٹائیں؟",
   "Removing it also removes every account’s connection to it.": "اسے ہٹانے سے ہر اکاؤنٹ کا اس کے ساتھ رابطہ بھی ختم ہو جاتا ہے۔",
-  "Rename": "نام بدلیں",
   "Rename tag": "ٹیگ کا نام بدلیں",
   "Rename “{name}”": "“{name}” کا نام بدلیں",
   "Render": "تیار کریں",

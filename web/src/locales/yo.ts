@@ -514,7 +514,6 @@ export default {
   "Remove from My Publications": "Yọ kúrò nínú Àwọn Ìtẹ̀jáde Mi",
   "Remove “{name}” from My Publications?": "Ṣé kí a yọ “{name}” kúrò nínú Àwọn Ìtẹ̀jáde Mi?",
   "Removing it also removes every account’s connection to it.": "Yíyọ ọ́ kúrò tún máa yọ àsopọ̀ gbogbo àkọọ́lẹ̀ sí i kúrò.",
-  "Rename": "Tún sọ lórúkọ",
   "Rename tag": "Tún sọ àmì lórúkọ",
   "Rename “{name}”": "Tún sọ “{name}” lórúkọ",
   "Render": "Ṣàfihàn",

@@ -600,7 +600,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Да се премахне ли „{name}“ от Моите публикации?',
   'Removing it also removes every account’s connection to it.':
     'Премахването му премахва и връзката на всеки акаунт с него.',
-  'Rename': 'Преименуване',
   'Rename tag': 'Преименуване на маркера',
   'Rename “{name}”': 'Преименуване на „{name}“',
   'Render': 'Генериране',

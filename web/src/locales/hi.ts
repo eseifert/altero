@@ -582,7 +582,6 @@ export default {
   'Remove from My Publications': 'मेरे प्रकाशन से हटाएँ',
   'Remove “{name}” from My Publications?': '“{name}” को मेरे प्रकाशन से हटाएँ?',
   'Removing it also removes every account’s connection to it.': 'इसे हटाने से हर खाते का इससे कनेक्शन भी हट जाता है।',
-  'Rename': 'नाम बदलें',
   'Rename tag': 'टैग का नाम बदलें',
   'Rename “{name}”': '“{name}” का नाम बदलें',
   'Render': 'तैयार करें',

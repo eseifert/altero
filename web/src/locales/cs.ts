@@ -606,7 +606,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Odstranit „{name}“ z Mých publikací?',
   'Removing it also removes every account’s connection to it.':
     'Jeho odebráním se zruší i propojení všech účtů s ním.',
-  'Rename': 'Přejmenovat',
   'Rename tag': 'Přejmenovat štítek',
   'Rename “{name}”': 'Přejmenovat „{name}“',
   'Render': 'Vygenerovat',

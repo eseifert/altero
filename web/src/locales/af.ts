@@ -598,7 +598,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Verwyder “{name}” uit My publikasies?',
   'Removing it also removes every account’s connection to it.':
     'As u dit verwyder, word elke rekening se koppeling daaraan ook verwyder.',
-  'Rename': 'Hernoem',
   'Rename tag': 'Hernoem etiket',
   'Rename “{name}”': 'Hernoem “{name}”',
   'Render': 'Formateer',

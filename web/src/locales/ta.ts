@@ -611,7 +611,6 @@ export default {
   'Remove “{name}” from My Publications?': '“{name}” ஐ எனது வெளியீடுகளிலிருந்து அகற்றவா?',
   'Removing it also removes every account’s connection to it.':
     'அதை அகற்றினால், அதனுடன் உள்ள ஒவ்வொரு கணக்கின் இணைப்பும் அகற்றப்படும்.',
-  'Rename': 'மறுபெயரிடு',
   'Rename tag': 'குறிச்சொல்லை மறுபெயரிடு',
   'Rename “{name}”': '“{name}” ஐ மறுபெயரிடு',
   'Render': 'உருவாக்கு',

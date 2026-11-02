@@ -581,7 +581,6 @@ export default {
   'Repeat password': 'Repite la contraseña',
   'Replace what my library here already holds': 'Sustituir lo que ya hay en mi biblioteca aquí',
   'Replace what this library already holds': 'Sustituir lo que esta biblioteca ya contiene',
-  Rename: 'Renombrar',
   'Required claim': 'Atributo requerido',
   'Required value': 'Valor requerido',
   'Restore a library': 'Restaurar una biblioteca',

@@ -607,7 +607,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Alisin ang “{name}” sa Aking Mga Publikasyon?',
   'Removing it also removes every account’s connection to it.':
     'Kapag inalis ito, aalisin din ang koneksyon ng bawat account dito.',
-  'Rename': 'Palitan ang pangalan',
   'Rename tag': 'Palitan ang pangalan ng tag',
   'Rename “{name}”': 'Palitan ang pangalan ng “{name}”',
   'Render': 'I-render',

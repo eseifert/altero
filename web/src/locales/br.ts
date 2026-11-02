@@ -609,7 +609,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Tennañ “{name}” eus Ma embannadennoù?',
   'Removing it also removes every account’s connection to it.':
     'Tennañ anezhañ a ziskoulm ivez kevreadur pep kont outañ.',
-  'Rename': 'Adenvel',
   'Rename tag': 'Adenvel ar baliz',
   'Rename “{name}”': 'Adenvel “{name}”',
   'Render': 'Krouiñ',

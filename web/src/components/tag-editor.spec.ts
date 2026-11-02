@@ -39,7 +39,7 @@ function answering(wrapper: () => Wrapper) {
 }
 
 function names(wrapper: Wrapper): string[] {
-  return wrapper.findAll('.tags__name').map((chip) => chip.text())
+  return wrapper.findAll('.tag-pill__name').map((chip) => chip.text())
 }
 
 async function addTag(wrapper: Wrapper): Promise<void> {
@@ -87,7 +87,9 @@ describe('TagEditor', () => {
     expect(names(wrapper)).toEqual(['toread', 'auto, Automatically added tag', 'whales'])
     expect(wrapper.find('.tags__tag--colored').attributes('style')).toContain('--tag-color: #FF6666')
     expect(wrapper.find('.tags__tag--automatic').exists()).toBe(true)
-    expect(wrapper.find('button').exists()).toBe(false)
+    expect(wrapper.find('[aria-label="Add Tag"]').exists()).toBe(false)
+    expect(wrapper.find('[aria-label="Remove Tag"]').exists()).toBe(false)
+    expect(wrapper.find('.tag-pill__edit').exists()).toBe(false)
   })
 
   it('is not drawn for an item with no tags that cannot be changed', () => {
@@ -151,41 +153,82 @@ describe('TagEditor', () => {
     ])
   })
 
-  it('renames a tag in place, as a tag somebody typed', async () => {
+  it('keeps the name passive, with editing on the pencil', async () => {
+    const library = useLibraryStore()
+    const filter = vi.spyOn(library, 'toggleTag').mockResolvedValue()
+    const save = vi.fn()
+    const wrapper = editor(article([{ tag: 'whales' }]), { save })
+    expect(wrapper.get('.tag-pill__name').element.tagName).toBe('SPAN')
+    await wrapper.get('.tag-pill__name').trigger('click')
+    expect(filter).not.toHaveBeenCalled()
+    expect(wrapper.find('input, dialog').exists()).toBe(false)
+    expect(save).not.toHaveBeenCalled()
+  })
+
+  it('renames inline through the pencil, on this item only', async () => {
     const save = vi.fn().mockResolvedValue(null)
     const wrapper = editor(article([{ tag: 'whale', type: 1 }, { tag: 'squid' }]), { save })
 
-    await wrapper.findAll('.tags__name')[1].trigger('click')
-    await wrapper.find('input').setValue('whales')
-    await wrapper.find('input').trigger('keydown', { key: 'Enter' })
+    await wrapper.get('[aria-label="Rename “whale”"]').trigger('click')
+    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(wrapper.find('.tag-pill__hint').exists()).toBe(false)
+    expect(wrapper.get('input').element).toBe(document.activeElement)
+    await wrapper.get('input').setValue('whales')
+    await wrapper.get('input').trigger('keydown', { key: 'Enter' })
     await flushPromises()
 
     expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whales' }, { tag: 'squid' }] }, expect.anything())
   })
 
-  it('removes a tag whose name is cleared', async () => {
+  it('refuses an empty rename without removing the tag', async () => {
     const save = vi.fn().mockResolvedValue(null)
     const wrapper = editor(article([{ tag: 'squid' }, { tag: 'whale' }]), { save })
 
-    await wrapper.findAll('.tags__name')[0].trigger('click')
-    await wrapper.find('input').setValue('')
-    await wrapper.find('input').trigger('blur')
+    await wrapper.get('[aria-label="Rename “squid”"]').trigger('click')
+    await wrapper.get('input').setValue('   ')
+    await wrapper.get('input').trigger('keydown', { key: 'Enter' })
     await flushPromises()
 
-    expect(save).toHaveBeenCalledWith({ tags: [{ tag: 'whale' }] }, expect.anything())
+    expect(save).not.toHaveBeenCalled()
+    expect(wrapper.get('.tag-pill__error').text()).toBe('A tag needs a name.')
   })
 
   it('puts a name back on Escape', async () => {
     const save = vi.fn().mockResolvedValue(null)
     const wrapper = editor(article([{ tag: 'squid' }]), { save })
 
-    await wrapper.find('.tags__name').trigger('click')
+    await wrapper.get('[aria-label="Rename “squid”"]').trigger('click')
     await wrapper.find('input').setValue('octopus')
-    await wrapper.find('input').trigger('keydown', { key: 'Escape' })
+    await wrapper.get('input').trigger('keydown', { key: 'Escape' })
     await flushPromises()
 
     expect(save).not.toHaveBeenCalled()
     expect(names(wrapper)).toEqual(['squid'])
+  })
+
+  it('leaves the draft behind when another item carries the same tag', async () => {
+    const save = vi.fn().mockResolvedValue(null)
+    const wrapper = editor(article([{ tag: 'squid' }]), { save })
+    await wrapper.get('.tag-pill__edit').trigger('click')
+    await wrapper.get('input').setValue('octopus')
+
+    await wrapper.setProps({ item: { ...article([{ tag: 'squid' }]), key: 'BBBB2345' } })
+
+    expect(wrapper.find('input').exists()).toBe(false)
+    expect(names(wrapper)).toEqual(['squid'])
+    expect(save).not.toHaveBeenCalled()
+  })
+
+  it('keeps a refused rename and its draft in the inline field', async () => {
+    const save = vi.fn().mockRejectedValue(new Error('Rename refused'))
+    const wrapper = editor(article([{ tag: 'squid' }]), { save })
+    await wrapper.get('[aria-label="Rename “squid”"]').trigger('click')
+    await wrapper.get('input').setValue('octopus')
+    await wrapper.get('input').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    expect(wrapper.get('.tag-pill__error').text()).toBe('Rename refused')
+    expect((wrapper.get('input').element as HTMLInputElement).value).toBe('octopus')
+    expect(wrapper.find('.tags__error').exists()).toBe(false)
   })
 
   it('removes a tag with its cross', async () => {

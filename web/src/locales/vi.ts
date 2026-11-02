@@ -588,7 +588,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Gỡ bỏ “{name}” khỏi Các xuất bản của tôi?',
   'Removing it also removes every account’s connection to it.':
     'Gỡ bỏ nhà cung cấp này cũng gỡ bỏ kết nối của mọi tài khoản với nó.',
-  'Rename': 'Đổi tên',
   'Rename tag': 'Đổi tên thẻ',
   'Rename “{name}”': 'Đổi tên “{name}”',
   'Render': 'Kết xuất',

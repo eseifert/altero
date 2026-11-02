@@ -513,7 +513,6 @@ export default {
   "Remove from My Publications": "Ondoa kutoka Machapisho Yangu",
   "Remove “{name}” from My Publications?": "Ondoa “{name}” kutoka Machapisho Yangu?",
   "Removing it also removes every account’s connection to it.": "Kuiondoa kunaondoa pia muunganisho wa kila akaunti nayo.",
-  "Rename": "Badilisha jina",
   "Rename tag": "Badilisha jina la lebo",
   "Rename “{name}”": "Badilisha jina la “{name}”",
   "Render": "Onyesha",

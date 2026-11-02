@@ -618,7 +618,6 @@ export default {
   'Replace what my library here already holds':
     'Substituir o que a minha biblioteca aqui já contém',
   'Replace what this library already holds': 'Substituir o que esta biblioteca já contém',
-  Rename: 'Renomear',
   'Required claim': 'Atributo exigido',
   'Required value': 'Valor exigido',
   'Restore a library': 'Restaurar uma biblioteca',

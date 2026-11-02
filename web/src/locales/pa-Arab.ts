@@ -512,7 +512,6 @@ export default {
   "Remove from My Publications": "میریاں مطبوعات توں ہٹاؤ",
   "Remove “{name}” from My Publications?": "“{name}” نوں میریاں مطبوعات توں ہٹا دئیے؟",
   "Removing it also removes every account’s connection to it.": "اَیہنوں ہٹاون نال ہر کھاتے دا ایہدے نال رابطہ وی مٹ جاندا اے۔",
-  "Rename": "ناں بدلو",
   "Rename tag": "ٹیگ دا ناں بدلو",
   "Rename “{name}”": "“{name}” دا ناں بدلو",
   "Render": "تیار کرو",

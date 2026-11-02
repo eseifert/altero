@@ -602,7 +602,6 @@ export default {
   'Remove “{name}” from My Publications?': '“{name}” আমার প্রকাশনা থেকে সরাবেন?',
   'Removing it also removes every account’s connection to it.':
     'এটি সরালে প্রতিটি অ্যাকাউন্টের সাথে এর সংযোগও সরে যায়।',
-  'Rename': 'নাম পরিবর্তন করুন',
   'Rename tag': 'ট্যাগের নাম পরিবর্তন করুন',
   'Rename “{name}”': '“{name}”-এর নাম পরিবর্তন করুন',
   'Render': 'তৈরি করুন',

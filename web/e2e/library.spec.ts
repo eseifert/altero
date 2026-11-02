@@ -120,19 +120,19 @@ test('a tag added in the pane is still there after a reload, and goes when remov
   await tags.getByRole('button', { name: 'Add Tag' }).click()
   await tags.getByRole('combobox').fill(name)
   await tags.getByRole('combobox').press('Enter')
-  await expect(tags.locator('.tags__name')).toHaveText([name])
+  await expect(tags.locator('.tag-pill__name')).toHaveText([name])
 
   await page.reload()
   await page.getByText('On the Economy of Machinery').first().click()
-  await expect(tags.locator('.tags__name')).toHaveText([name])
+  await expect(tags.locator('.tag-pill__name')).toHaveText([name])
   // The sidebar lists it too, being a tag of the library now.
   await expect(page.locator('.library__tag').filter({ hasText: name }).first()).toBeAttached()
 
   await tags.getByRole('button', { name: 'Remove Tag' }).click()
-  await expect(tags.locator('.tags__name')).toHaveCount(0)
+  await expect(tags.locator('.tag-pill__name')).toHaveCount(0)
   await page.reload()
   await page.getByText('On the Economy of Machinery').first().click()
-  await expect(page.locator('.detail .tags__name')).toHaveCount(0)
+  await expect(page.locator('.detail .tag-pill__name')).toHaveCount(0)
 })
 
 test('a tag the desktop coloured shows its colour', async ({ page }) => {
@@ -141,7 +141,7 @@ test('a tag the desktop coloured shows its colour', async ({ page }) => {
 
   const tag = page.locator('.detail .tags__tag--colored')
   await expect(tag).toContainText('computing')
-  await expect(tag.locator('.tags__swatch')).toHaveCSS('background-color', 'rgb(95, 178, 54)')
+  await expect(tag.locator('.tag-pill__swatch')).toHaveCSS('background-color', 'rgb(95, 178, 54)')
 })
 
 test('a new item opens with its title ready to type, and is kept', async ({ page }, testInfo) => {

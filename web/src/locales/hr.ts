@@ -600,7 +600,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Želite li ukloniti „{name}“ iz Mojih publikacija?',
   'Removing it also removes every account’s connection to it.':
     'Uklanjanjem se uklanjaju i veze svih računa s njim.',
-  'Rename': 'Preimenuj',
   'Rename tag': 'Preimenuj oznaku',
   'Rename “{name}”': 'Preimenuj „{name}“',
   'Render': 'Oblikuj',

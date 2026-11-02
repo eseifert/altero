@@ -23,7 +23,7 @@ import ShortcutSheet from '@/components/ShortcutSheet.vue'
 import RightsDialog from '@/components/RightsDialog.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import PaneSplitter from '@/components/PaneSplitter.vue'
-import TagDialog from '@/components/TagDialog.vue'
+import TagPill from '@/components/TagPill.vue'
 import UploadProgress from '@/components/UploadProgress.vue'
 import WebLinkDialog from '@/components/WebLinkDialog.vue'
 import { useCarry } from '@/dragging'
@@ -31,6 +31,7 @@ import { useFileDrop } from '@/filedrop'
 import { exportable } from '@/exportformats'
 import { fieldLabel, loadLabels, titleField } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
+import { colorIndex } from '@/items/tags'
 import { libraryLabel } from '@/librarylabel'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
 import { useAuthStore } from '@/stores/auth'
@@ -540,47 +541,9 @@ async function confirmDelete(): Promise<void> {
   await run(() => library.deleteCollection(current.target.key))
 }
 
-/*
- * Renaming a tag.
- *
- * Its own state rather than another `Pending`: this one is not about the
- * collection tree, and it survives a failure differently — the dialog stays up
- * with what was typed still in it, so a name the server refused can be
- * corrected rather than typed again.
- */
-const renaming = ref<TagEntry | null>(null)
-const tagBusy = ref(false)
-const tagError = ref<string | null>(null)
-
-function startRename(tag: TagEntry): void {
-  renaming.value = tag
-  tagError.value = null
-}
-
-function cancelRename(): void {
-  renaming.value = null
-  tagError.value = null
-}
-
-async function submitRename(name: string): Promise<void> {
-  const current = renaming.value
-  if (!current) return
-
-  if (!name) {
-    tagError.value = t('A tag needs a name.')
-    return
-  }
-
-  tagBusy.value = true
-  tagError.value = null
-  try {
-    await library.renameTag(current.tag, name)
-    cancelRename()
-  } catch (thrown) {
-    tagError.value = thrown instanceof Error ? thrown.message : String(thrown)
-  } finally {
-    tagBusy.value = false
-  }
+/** Library-wide rename; the pill retains its draft and error on refusal. */
+async function renameTag(tag: TagEntry, name: string): Promise<void> {
+  await library.renameTag(tag.tag, name)
 }
 
 /*
@@ -619,7 +582,7 @@ const itemError = ref<string | null>(null)
 /* Looked up per row and per pill, so a set rather than a scan of a list. */
 const selectedKeys = computed(() => new Set(library.selection))
 const selectedTagNames = computed(() => new Set(library.selectedTags))
-const renameTagLabel = computed(() => t('Rename tag'))
+const tagColors = computed(() => colorIndex(library.tagColors))
 
 const carriedKeys = computed(() => {
   const cargo = carry.carrying.value?.data
@@ -1758,35 +1721,25 @@ function sortLabel(column: { field: string; label: string }): string {
           list, and a pencil, which renames the tag everywhere. They share one
           outline so the pair still reads as one tag.
         -->
-        <ul class="library__tags">
+        <ul :id="`library-${library.libraryId}-tags`" class="library__tags">
           <!-- Memoised, like the item rows: up to five thousand pills, each with
                two translated labels, were rendered again on every keystroke
                and every frame of a drag elsewhere on the screen. -->
-          <li
+          <TagPill
             v-for="tag in library.tags"
-            :key="tag.tag"
-            v-memo="[tag, selectedTagNames.has(tag.tag), library.writable, locale]"
-            :class="['library__tag', { 'library__tag--on': selectedTagNames.has(tag.tag) }]"
-          >
-            <button
-              type="button"
-              class="library__tag-name"
-              :aria-pressed="selectedTagNames.has(tag.tag)"
-              @click="library.toggleTag(tag.tag)"
-            >
-              <span class="library__label" dir="auto">{{ tag.tag }}</span>
-            </button>
-            <button
-              v-if="library.writable"
-              class="library__tag-action"
-              type="button"
-              :aria-label="t('Rename “{name}”', { name: tag.tag })"
-              :title="renameTagLabel"
-              @click="startRename(tag)"
-            >
-              <AppIcon name="edit" :size="16" />
-            </button>
-          </li>
+            :key="`${library.libraryId}:${tag.type}:${tag.tag}`"
+            v-memo="[tag, selectedTagNames.has(tag.tag), library.writable, locale, tagColors.get(tag.tag)?.color]"
+            class="library__tag"
+            :class="{ 'library__tag--on': selectedTagNames.has(tag.tag) }"
+            :name="tag.tag"
+            :automatic="tag.type === 1"
+            :color="tagColors.get(tag.tag)?.color"
+            :selected="selectedTagNames.has(tag.tag)"
+            filterable
+            :rename="library.writable ? (name) => renameTag(tag, name) : undefined"
+            :num-items="tag.numItems"
+            @filter="library.toggleTag(tag.tag)"
+          />
         </ul>
       </section>
     </aside>
@@ -2395,16 +2348,6 @@ function sortLabel(column: { field: string; label: string }): string {
     />
 
     <UploadProgress />
-
-    <TagDialog
-      v-if="renaming"
-      :name="renaming.tag"
-      :num-items="renaming.numItems"
-      :busy="tagBusy"
-      :error="tagError"
-      @submit="submitRename"
-      @cancel="cancelRename"
-    />
   </div>
 </template>
 
@@ -2710,12 +2653,6 @@ function sortLabel(column: { field: string; label: string }): string {
   .library__actions {
     opacity: 1;
   }
-
-  /* Same reason: the pencil on a tag is dimmed until the pointer arrives, and
-     a finger has no way of arriving without pressing. */
-  .library__tag-action {
-    opacity: 1;
-  }
 }
 
 /*
@@ -2742,18 +2679,9 @@ function sortLabel(column: { field: string; label: string }): string {
     height: auto;
   }
 
-  .library__tag-action {
-    width: 1.6rem;
-    height: 1.6rem;
-  }
-
   .library__library,
   .library__scope {
     padding: 0.6rem 0.5rem;
-  }
-
-  .library__tag {
-    padding: 0.4rem 0.7rem;
   }
 
   .library__row:not(.library__row--head) {
@@ -2814,109 +2742,6 @@ function sortLabel(column: { field: string; label: string }): string {
   max-height: 14rem;
   overflow-y: auto;
   list-style: none;
-}
-
-/*
- * A tag is a pill, here and in the item, and the two look the same: the same
- * outline, the same corner, the same size of type. What differs is only what
- * this one can do -- these narrow the list, so one that is doing so is filled.
- *
- * The fill brings its own border colour rather than dropping the border, so
- * that picking a tag does not move the ones after it by two pixels.
- *
- * The pill is the list item, and holds the name and, where the library can be
- * written to, the pencil that renames it. A tag is as long as somebody made it
- * and the column is narrow, so it wraps inside the pill; the alternative was a
- * sideways scrollbar for the sake of one long tag.
- */
-.library__tag {
-  display: flex;
-  align-items: center;
-  gap: 0.15rem;
-  max-width: 100%;
-  min-width: 0;
-  padding: 0.2rem 0.55rem;
-  border: 1px solid var(--md-sys-color-outline);
-  /* A fixed corner rather than a full one: a tag long enough to wrap should be
-     a rounded rectangle, and a radius that follows the height turns it into a
-     lozenge with the words rattling around in the middle. On one line it is
-     round enough to read as a pill anyway. */
-  border-radius: var(--md-sys-shape-corner-medium);
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
-  /* The body line height is set for paragraphs. Two lines of it inside a chip
-     leave a gap the chip then has to grow to hold. */
-  line-height: 1.35;
-}
-
-.library__tag:hover {
-  background: var(--md-sys-state-hover-surface);
-}
-
-.library__tag--on,
-.library__tag--on:hover {
-  border-color: var(--md-sys-color-secondary-container);
-  background: var(--md-sys-color-secondary-container);
-  color: var(--md-sys-color-on-secondary-container);
-}
-
-.library__tag-name {
-  min-width: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  color: inherit;
-  font: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  text-align: start;
-  cursor: pointer;
-}
-
-/*
- * Dimmed rather than hidden until the pointer arrives. The rows above reveal
- * their controls on hover and hold the space open meanwhile; here the space is
- * inside a pill in a wrapping list, so a pencil that appeared from nothing
- * would reflow the whole panel under the pointer.
- */
-.library__tag-action {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0;
-  border: none;
-  border-radius: var(--md-sys-shape-corner-small);
-  background: none;
-  color: inherit;
-  opacity: 0.45;
-  transition: opacity 120ms ease;
-  cursor: pointer;
-}
-
-.library__tag:hover .library__tag-action {
-  opacity: 1;
-}
-
-/* Split from the rule above rather than listed with it: `:focus-visible`
-   arrived in Safari 15.4, and a browser that does not know a selector throws
-   away the whole rule it appears in — hover included. */
-.library__tag-action:focus-visible {
-  opacity: 1;
-}
-
-.library__tag-action:hover {
-  background: var(--md-sys-state-hover-surface);
-  color: var(--md-sys-color-on-surface);
-  opacity: 1;
-}
-
-.library__tag .library__label {
-  overflow: visible;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  white-space: normal;
 }
 
 .library__list {

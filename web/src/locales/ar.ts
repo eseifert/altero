@@ -512,7 +512,6 @@ export default {
   "Remove from My Publications": "إزالة من منشوراتي",
   "Remove “{name}” from My Publications?": "إزالة «{name}» من منشوراتي؟",
   "Removing it also removes every account’s connection to it.": "تؤدي إزالته إلى إزالة اتصال كل حساب به أيضًا.",
-  "Rename": "إعادة تسمية",
   "Rename tag": "إعادة تسمية الوسم",
   "Rename “{name}”": "إعادة تسمية «{name}»",
   "Render": "عرض",

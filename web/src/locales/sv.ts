@@ -599,7 +599,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Ta bort ”{name}” från Mina publikationer?',
   'Removing it also removes every account’s connection to it.':
     'Om du tar bort den tas även alla kontons anslutningar till den bort.',
-  'Rename': 'Byt namn',
   'Rename tag': 'Byt namn på etikett',
   'Rename “{name}”': 'Byt namn på ”{name}”',
   'Render': 'Skapa',

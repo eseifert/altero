@@ -602,7 +602,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Fjerne «{name}» fra Mine publikasjoner?',
   'Removing it also removes every account’s connection to it.':
     'Når den fjernes, fjernes også alle kontoers tilkobling til den.',
-  'Rename': 'Endre navn',
   'Rename tag': 'Endre navn på emneord',
   'Rename “{name}”': 'Endre navn på «{name}»',
   'Render': 'Formater',

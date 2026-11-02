@@ -576,7 +576,6 @@ export default {
   'Remove from My Publications': 'Pašalinti iš „Nuosavų publikacijų“',
   'Remove “{name}” from My Publications?': 'Pašalinti „{name}“ iš „Nuosavų publikacijų“?',
   'Removing it also removes every account’s connection to it.': 'Jį pašalinus, pašalinami ir visų paskyrų ryšiai su juo.',
-  'Rename': 'Pervadinti',
   'Rename tag': 'Pervadinti gairę',
   'Rename “{name}”': 'Pervadinti „{name}“',
   'Render': 'Sugeneruoti',

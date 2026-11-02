@@ -598,7 +598,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Vai noņemt „{name}” no sadaļas „Manas publikācijas”?',
   'Removing it also removes every account’s connection to it.':
     'Noņemot to, tiek noņemti arī visu kontu savienojumi ar to.',
-  Rename: 'Pārdēvēt',
   'Rename tag': 'Pārdēvēt birku',
   'Rename “{name}”': 'Pārdēvēt „{name}”',
   Render: 'Ģenerēt',

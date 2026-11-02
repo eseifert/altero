@@ -569,7 +569,6 @@ export default {
   'Remove from My Publications': '從我的著作中移除',
   'Remove “{name}” from My Publications?': '將「{name}」從我的著作中移除嗎？',
   'Removing it also removes every account’s connection to it.': '移除它也會移除每個帳號與它的連接。',
-  Rename: '重新命名',
   'Rename tag': '重新命名標籤',
   'Rename “{name}”': '重新命名「{name}」',
   Render: '產生',

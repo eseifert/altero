@@ -65,7 +65,7 @@ for (const [ui, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const) {
       await input.press('Enter')
       await expect(field).toHaveText('English publisher (2026)')
       await direction(field, 'ltr')
-      await direction(page.locator('.tags__name').filter({ hasText: 'پژوهش ۱۲۳' }), 'rtl')
+      await direction(page.locator('.tags__tag .tag-pill__name').filter({ hasText: 'پژوهش ۱۲۳' }), 'rtl')
       await page.screenshot({ path: info.outputPath(`${ui}-item.png`), fullPage: true })
       expect(await accessibilityProblems(page)).toEqual([])
 

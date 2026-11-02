@@ -572,7 +572,6 @@ export default {
   'Remove “{name}” from My Publications?': '将“{name}”从我的出版物中移除吗？',
   'Removing it also removes every account’s connection to it.':
     '移除它也会移除每个账户与它的连接。',
-  'Rename': '重命名',
   'Rename tag': '重命名标签',
   'Rename “{name}”': '重命名“{name}”',
   'Render': '生成',

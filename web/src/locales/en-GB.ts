@@ -603,7 +603,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Remove “{name}” from My Publications?',
   'Removing it also removes every account’s connection to it.':
     'Removing it also removes every account’s connection to it.',
-  Rename: 'Rename',
   'Rename tag': 'Rename tag',
   'Rename “{name}”': 'Rename “{name}”',
   Render: 'Render',

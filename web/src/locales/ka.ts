@@ -574,7 +574,6 @@ export default {
   'Remove from My Publications': 'ჩემი პუბლიკაციებიდან ამოღება',
   'Remove “{name}” from My Publications?': 'ამოიღოთ „{name}“ ჩემი პუბლიკაციებიდან?',
   'Removing it also removes every account’s connection to it.': 'მისი წაშლით მასთან ყველა ანგარიშის კავშირიც წაიშლება.',
-  'Rename': 'გადარქმევა',
   'Rename tag': 'ტეგის გადარქმევა',
   'Rename “{name}”': '„{name}“-ის გადარქმევა',
   'Render': 'გენერირება',

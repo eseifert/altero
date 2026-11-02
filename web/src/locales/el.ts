@@ -584,7 +584,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Κατάργηση του «{name}» από τις Δημοσιεύσεις μου;',
   'Removing it also removes every account’s connection to it.':
     'Η αφαίρεσή του αφαιρεί επίσης τη σύνδεση κάθε λογαριασμού με αυτόν.',
-  'Rename': 'Μετονομασία',
   'Rename tag': 'Μετονομασία ετικέτας',
   'Rename “{name}”': 'Μετονομασία του «{name}»',
   'Render': 'Δημιουργία',

@@ -574,7 +574,6 @@ export default {
   'Remove from My Publications': '내 출판물에서 제거',
   'Remove “{name}” from My Publications?': '“{name}” 항목을 내 출판물에서 제거하시겠습니까?',
   'Removing it also removes every account’s connection to it.': '제공자를 제거하면 모든 계정의 해당 연결도 제거됩니다.',
-  'Rename': '이름 변경',
   'Rename tag': '태그 이름 변경',
   'Rename “{name}”': '“{name}” 이름 변경',
   'Render': '렌더링',

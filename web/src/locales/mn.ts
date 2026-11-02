@@ -601,7 +601,6 @@ export default {
   'Remove “{name}” from My Publications?': '“{name}”-г Миний нийтлэлүүдээс хасах уу?',
   'Removing it also removes every account’s connection to it.':
     'Үүнийг хасвал бүх бүртгэлийн түүнтэй холбогдсон холболт мөн хасагдана.',
-  'Rename': 'Нэр өөрчлөх',
   'Rename tag': 'Таагийн нэрийг өөрчлөх',
   'Rename “{name}”': '“{name}” таагийн нэрийг өөрчлөх',
   'Render': 'Үүсгэх',

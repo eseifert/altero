@@ -603,7 +603,6 @@ export default {
   'Remove “{name}” from My Publications?': '“{name}” Yayınlarım’dan kaldırılsın mı?',
   'Removing it also removes every account’s connection to it.':
     'Kaldırmak, tüm hesapların onunla olan bağlantısını da kaldırır.',
-  'Rename': 'Yeniden adlandır',
   'Rename tag': 'Etiketi yeniden adlandır',
   'Rename “{name}”': '“{name}” etiketini yeniden adlandır',
   'Render': 'Oluştur',

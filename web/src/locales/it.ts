@@ -600,7 +600,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Rimuovere “{name}” da Le mie pubblicazioni?',
   'Removing it also removes every account’s connection to it.':
     'Rimuoverlo rimuove anche il collegamento di ogni account a esso.',
-  'Rename': 'Rinomina',
   'Rename tag': 'Rinomina il tag',
   'Rename “{name}”': 'Rinomina “{name}”',
   'Render': 'Genera',

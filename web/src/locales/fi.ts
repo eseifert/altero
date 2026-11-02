@@ -598,7 +598,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Poistetaanko “{name}” Omista julkaisuistani?',
   'Removing it also removes every account’s connection to it.':
     'Sen poistaminen poistaa myös kaikkien tilien yhteyden siihen.',
-  'Rename': 'Nimeä uudelleen',
   'Rename tag': 'Nimeä merkki uudelleen',
   'Rename “{name}”': 'Nimeä “{name}” uudelleen',
   'Render': 'Muotoile',

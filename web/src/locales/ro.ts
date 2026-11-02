@@ -607,7 +607,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Ștergi „{name}” din Publicațiile mele?',
   'Removing it also removes every account’s connection to it.':
     'Eliminarea lui elimină și conexiunea fiecărui cont la el.',
-  Rename: 'Redenumește',
   'Rename tag': 'Redenumește eticheta',
   'Rename “{name}”': 'Redenumește „{name}”',
   Render: 'Generează',

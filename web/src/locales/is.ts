@@ -603,7 +603,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Fjarlægja „{name}“ úr Ritverkunum mínum?',
   'Removing it also removes every account’s connection to it.':
     'Ef hún er fjarlægð eru tengingar allra aðganga við hana líka fjarlægðar.',
-  'Rename': 'Endurnefna',
   'Rename tag': 'Endurnefna merki',
   'Rename “{name}”': 'Endurnefna „{name}“',
   'Render': 'Útbúa',

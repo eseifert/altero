@@ -602,7 +602,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Usunąć „{name}” z Moich publikacji?',
   'Removing it also removes every account’s connection to it.':
     'Usunięcie go usuwa także połączenie każdego konta z nim.',
-  'Rename': 'Zmień nazwę',
   'Rename tag': 'Zmień nazwę etykiety',
   'Rename “{name}”': 'Zmień nazwę „{name}”',
   'Render': 'Wygeneruj',

@@ -568,7 +568,6 @@ export default {
   'Repeat password': 'パスワードを再入力',
   'Replace what my library here already holds': 'ここのライブラリの内容を置き換える',
   'Replace what this library already holds': 'このライブラリーの現在の内容を置き換える',
-  Rename: '名称変更',
   'Required claim': '必要なクレーム',
   'Required value': '必要な値',
   'Restore a library': 'ライブラリーを復元',

@@ -591,7 +591,6 @@ export default {
   'Remove “{name}” from My Publications?': 'ลบ “{name}” ออกจากผลงานตีพิมพ์ของฉันหรือไม่?',
   'Removing it also removes every account’s connection to it.':
     'การลบนี้จะลบการเชื่อมต่อของทุกบัญชีกับผู้ให้บริการนี้ด้วย',
-  Rename: 'เปลี่ยนชื่อ',
   'Rename tag': 'เปลี่ยนชื่อแท็ก',
   'Rename “{name}”': 'เปลี่ยนชื่อ “{name}”',
   Render: 'แสดงผล',

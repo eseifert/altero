@@ -2414,7 +2414,7 @@ describe('renaming a tag', () => {
     withTags(TAGS)
     const wrapper = await open()
 
-    expect(wrapper.findAll('.library__tag-action')).toHaveLength(2)
+    expect(wrapper.findAll('.library__tag .tag-pill__edit')).toHaveLength(2)
   })
 
   it('offers nothing of the sort in a library that may only be read', async () => {
@@ -2423,16 +2423,29 @@ describe('renaming a tag', () => {
     const wrapper = await open()
 
     expect(wrapper.findAll('.library__tag')).toHaveLength(2)
-    expect(wrapper.find('.library__tag-action').exists()).toBe(false)
+    expect(wrapper.find('.library__tag .tag-pill__edit').exists()).toBe(false)
   })
 
-  it('opens a dialog holding the name the tag has', async () => {
+  it('opens an inline field holding the name the tag has', async () => {
     withTags(TAGS)
     const wrapper = await open()
 
     await pencil(wrapper, 'ficton').trigger('click')
 
-    expect((wrapper.get('.dialog__field').element as HTMLInputElement).value).toBe('ficton')
+    expect((wrapper.get('.tag-pill__input').element as HTMLInputElement).value).toBe('ficton')
+    expect(writes()).toEqual([])
+  })
+
+  it('leaves an inline draft behind when the active library changes', async () => {
+    withTags(TAGS)
+    const wrapper = await open()
+    await pencil(wrapper, 'ficton').trigger('click')
+    await wrapper.get('.tag-pill__input').setValue('fiction')
+
+    useLibraryStore().libraryId = 7
+    await settle(wrapper)
+
+    expect(wrapper.find('.tag-pill__input').exists()).toBe(false)
     expect(writes()).toEqual([])
   })
 
@@ -2442,8 +2455,8 @@ describe('renaming a tag', () => {
 
     await pencil(wrapper, 'ficton').trigger('click')
 
-    expect(wrapper.get('.dialog__note').text()).toContain('all associated items')
-    expect(wrapper.get('.dialog__note').text()).toContain('2 items')
+    expect(wrapper.get('.tag-pill__hint').text()).toContain('all associated items')
+    expect(wrapper.get('.tag-pill__hint').text()).toContain('2 items')
   })
 
   it('sends the name that was typed', async () => {
@@ -2451,14 +2464,14 @@ describe('renaming a tag', () => {
     const wrapper = await open()
     await pencil(wrapper, 'ficton').trigger('click')
 
-    await wrapper.get('.dialog__field').setValue('fiction')
-    await wrapper.get('.dialog__body').trigger('submit')
+    await wrapper.get('.tag-pill__input').setValue('fiction')
+    await wrapper.get('.tag-pill__input').trigger('keydown', { key: 'Enter' })
     await settle(wrapper)
 
     expect(writes()).toEqual([
       ['/web/libraries/1/tags/ficton', { method: 'PATCH', body: { tag: 'fiction' } }],
     ])
-    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(wrapper.find('dialog, .tag-pill__input').exists()).toBe(false)
   })
 
   it('refuses an empty name without asking the server', async () => {
@@ -2466,37 +2479,37 @@ describe('renaming a tag', () => {
     const wrapper = await open()
     await pencil(wrapper, 'ficton').trigger('click')
 
-    await wrapper.get('.dialog__field').setValue('   ')
-    await wrapper.get('.dialog__body').trigger('submit')
+    await wrapper.get('.tag-pill__input').setValue('   ')
+    await wrapper.get('.tag-pill__input').trigger('keydown', { key: 'Enter' })
     await settle(wrapper)
 
     expect(writes()).toEqual([])
-    expect(wrapper.get('.dialog__error').text()).toContain('A tag needs a name.')
+    expect(wrapper.get('.tag-pill__error').text()).toContain('A tag needs a name.')
   })
 
-  it('closes without writing when the dialog is dismissed', async () => {
+  it('closes without writing when the inline edit is canceled', async () => {
     withTags(TAGS)
     const wrapper = await open()
     await pencil(wrapper, 'ficton').trigger('click')
 
-    await wrapper.findAll('.dialog__actions button')[0].trigger('click')
+    await wrapper.get('.tag-pill__input').trigger('keydown', { key: 'Escape' })
     await settle(wrapper)
 
-    expect(wrapper.find('dialog').exists()).toBe(false)
+    expect(wrapper.find('dialog, .tag-pill__input').exists()).toBe(false)
     expect(writes()).toEqual([])
   })
 
-  it('reports a refusal in the dialog, which stays open with the name in it', async () => {
+  it('reports a refusal inline, preserving the draft', async () => {
     withTags(TAGS, () => Promise.reject(new Error('You cannot change this library')))
     const wrapper = await open()
     await pencil(wrapper, 'ficton').trigger('click')
 
-    await wrapper.get('.dialog__field').setValue('fiction')
-    await wrapper.get('.dialog__body').trigger('submit')
+    await wrapper.get('.tag-pill__input').setValue('fiction')
+    await wrapper.get('.tag-pill__input').trigger('keydown', { key: 'Enter' })
     await settle(wrapper)
 
-    expect(wrapper.get('.dialog__error').text()).toContain('You cannot change this library')
-    expect((wrapper.get('.dialog__field').element as HTMLInputElement).value).toBe('fiction')
+    expect(wrapper.get('.tag-pill__error').text()).toContain('You cannot change this library')
+    expect((wrapper.get('.tag-pill__input').element as HTMLInputElement).value).toBe('fiction')
     expect(wrapper.find('.library__state--error').exists()).toBe(false)
   })
 })

@@ -599,7 +599,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Уклонити „{name}“ из Мојих објава?',
   'Removing it also removes every account’s connection to it.':
     'Његовим уклањањем уклања се и веза сваког налога са њим.',
-  'Rename': 'Преименуј',
   'Rename tag': 'Преименуј ознаку',
   'Rename “{name}”': 'Преименуј „{name}“',
   'Render': 'Прикажи',

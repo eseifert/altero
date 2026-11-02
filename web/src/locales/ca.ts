@@ -616,7 +616,6 @@ export default {
   'Replace what my library here already holds':
     'Substitueix el que ja conté la meva biblioteca d’aquí',
   'Replace what this library already holds': 'Substitueix el que ja conté aquesta biblioteca',
-  Rename: 'Canvia el nom',
   'Required claim': 'Atribut requerit',
   'Required value': 'Valor requerit',
   'Restore a library': 'Restaura una biblioteca',

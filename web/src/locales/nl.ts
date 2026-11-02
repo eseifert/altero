@@ -600,7 +600,6 @@ export default {
   'Remove “{name}” from My Publications?': '“{name}” uit Mijn publicaties verwijderen?',
   'Removing it also removes every account’s connection to it.':
     'Als u die verwijdert, verdwijnt ook de verbinding van elk account ermee.',
-  'Rename': 'Hernoemen',
   'Rename tag': 'Label hernoemen',
   'Rename “{name}”': '“{name}” hernoemen',
   'Render': 'Opmaken',

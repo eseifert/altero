@@ -601,7 +601,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Прибрати «{name}» з Моїх публікацій?',
   'Removing it also removes every account’s connection to it.':
     'Його видалення прибирає й зв’язок із ним у кожного облікового запису.',
-  'Rename': 'Перейменувати',
   'Rename tag': 'Перейменувати тег',
   'Rename “{name}”': 'Перейменувати «{name}»',
   'Render': 'Побудувати',

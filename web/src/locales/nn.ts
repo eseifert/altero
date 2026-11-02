@@ -601,7 +601,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Fjerne «{name}» frå Publikasjonane mine?',
   'Removing it also removes every account’s connection to it.':
     'Når han blir fjerna, blir òg tilkoplinga til alle kontoar fjerna.',
-  'Rename': 'Gje nytt namn',
   'Rename tag': 'Gje taggen nytt namn',
   'Rename “{name}”': 'Gje «{name}» nytt namn',
   'Render': 'Formater',

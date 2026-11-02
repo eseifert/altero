@@ -593,7 +593,6 @@ export default {
   'Remove “{name}” from My Publications?': 'Fjern “{name}” fra Mine publikationer?',
   'Removing it also removes every account’s connection to it.':
     'Når den fjernes, fjernes også hver kontos forbindelse til den.',
-  'Rename': 'Omdøb',
   'Rename tag': 'Omdøb mærke',
   'Rename “{name}”': 'Omdøb “{name}”',
   'Render': 'Dan',
