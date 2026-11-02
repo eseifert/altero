@@ -34,6 +34,39 @@ for (const [locale, direction] of [['en-US', 'ltr'], ['ar-EG', 'rtl']] as const)
   test.describe(`shared tag pills in ${direction}`, () => {
     test.use({ locale })
 
+    test('orders global and item tags by color position, emoji and locale', async ({ page, request }, info) => {
+      const suffix = `${direction}-${info.project.name}`
+      const names = ['apple', 'a colored', 'éclair', 'reading 📚 z', 'Zebra', 'z urgent', 'reading 📚 a']
+        .map((name) => `${name}-${suffix}`)
+      const title = `Tag order ${suffix}`
+      const made = await api('items', [{ itemType: 'book', title, tags: names.map((tag) => ({ tag })) }])
+      expect(made.failed).toEqual({})
+      const previous = await api('settings/tagColors')
+      const headers = { 'Zotero-API-Key': state().key }
+      try {
+        const colored = await request.put('/users/1/settings/tagColors', { headers, data: { value: [
+          { name: names[5], color: '#FF6666' },
+          { name: names[1], color: '#5FB236' },
+          ...previous.value,
+        ] } })
+        expect(colored.ok()).toBe(true)
+        await signIn(page)
+        await page.locator('.library__row').filter({ hasText: title }).click()
+        const expected = [5, 1, 6, 3, 0, 2, 4].map((index) => names[index])
+        const global = page.locator('.library__tag')
+        await expect.poll(() => global.evaluateAll((pills, names) => pills
+          .map((pill) => (pill as HTMLElement).dataset.tagName)
+          .filter((name) => names.includes(name!)), names)).toEqual(expected)
+        expect(await page.locator('.tags__tag').evaluateAll((pills) => pills
+          .map((pill) => (pill as HTMLElement).dataset.tagName))).toEqual(expected)
+        expect(await accessibilityProblems(page)).toEqual([])
+        await page.screenshot({ path: info.outputPath('tag-order.png'), fullPage: true })
+      } finally {
+        const restored = await request.put('/users/1/settings/tagColors', { headers, data: { value: previous.value } })
+        expect(restored.ok()).toBe(true)
+      }
+    })
+
     test('matches styles and edits inline while preserving filtering and rename scopes', async ({ page }, info) => {
       const tag = `shared-${direction}-${info.project.name}`
       const title = `Tag pills ${direction} ${info.project.name}`

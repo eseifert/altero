@@ -90,7 +90,9 @@ rename operation and enables library filtering or item-only removal. Library
 pills show the item count between the name and pencil. The name reserves its
 space while an overlaid input edits it, preserving pill geometry and background;
 validation errors appear below the pill. Item tag writes remain queued and
-rebase onto newer tags as before.
+rebase onto newer tags as before. Both panels use `items/tags.ts` to order
+colored tags by position, then emoji tags, then the rest, with locale-aware
+alphabetization. The selector sorts a copy for display, preserving API order.
 
 ### Durable sign-in budgets
 

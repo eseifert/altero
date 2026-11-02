@@ -2380,7 +2380,7 @@ describe('renaming a tag', () => {
   ]
 
   /** Answer the tag panel with `tags`, and let the rename do `write`. */
-  function withTags(tags: unknown[], write?: (path: string) => Promise<unknown>) {
+  function withTags(tags: unknown[], write?: (path: string) => Promise<unknown>, colors: { name: string; color: string }[] = []) {
     requestMock.mockImplementation((path: string, options?: { method?: string }) => {
       if (options?.method && options.method !== 'GET') {
         return write
@@ -2392,7 +2392,7 @@ describe('renaming a tag', () => {
         return Promise.resolve({ itemTypes: {}, fields: {}, creatorTypes: {} })
       }
       if (path.includes('/collections')) return Promise.resolve({ collections: [] })
-      if (path.includes('/tags')) return Promise.resolve({ tags })
+      if (path.includes('/tags')) return Promise.resolve({ tags, colors })
       if (path.includes('/children')) return Promise.resolve({ items: [] })
       return Promise.resolve({ total: contents.length, items: contents })
     })
@@ -2409,6 +2409,36 @@ describe('renaming a tag', () => {
       ([, options]) => options && options.method && options.method !== 'GET',
     )
   }
+
+  it('orders global tags by color position, emoji and locale without reordering the API data', async () => {
+    const names = ['apple', 'a colored', 'éclair', 'reading 📚 z', 'Zebra', 'z urgent', 'reading 📚 a']
+    const tags = names.map((tag, index) => ({ tag, type: 0, numItems: index + 1 }))
+    withTags(tags, undefined, [
+      { name: 'z urgent', color: '#FF6666' },
+      { name: 'a colored', color: '#5FB236' },
+    ])
+    const wrapper = await open()
+    const shown = () => wrapper.findAll('.library__tag').map((pill) => pill.attributes('data-tag-name'))
+
+    expect(shown()).toEqual(['z urgent', 'a colored', 'reading 📚 a', 'reading 📚 z', 'apple', 'éclair', 'Zebra'])
+    expect(useLibraryStore().tags.map((tag) => tag.tag)).toEqual(names)
+    expect(tags.map((tag) => tag.tag)).toEqual(names)
+
+    useLibraryStore().tagColors.reverse()
+    await settle(wrapper)
+    expect(shown().slice(0, 2)).toEqual(['a colored', 'z urgent'])
+  })
+
+  it('updates global tag collation when the account language changes', async () => {
+    withTags(['Öland', 'Zebra', 'apple'].map((tag) => ({ tag, type: 0, numItems: 1 })))
+    const wrapper = await open()
+    const shown = () => wrapper.findAll('.library__tag').map((pill) => pill.attributes('data-tag-name'))
+    expect(shown()).toEqual(['apple', 'Öland', 'Zebra'])
+
+    await useLocaleStore().adopt({ language: 'sv', timeZone: null })
+    await settle(wrapper)
+    expect(shown()).toEqual(['apple', 'Zebra', 'Öland'])
+  })
 
   it('offers a rename on every tag', async () => {
     withTags(TAGS)

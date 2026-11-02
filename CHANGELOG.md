@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Order sidebar tags like the item pane: colored tags by position, then emoji tags, then the rest, alphabetized by locale.
 - Show item counts inside sidebar tag pills and preserve their size and background during inline editing.
 - Unify tag pills and pencil-triggered inline editing; keep sidebar filtering and item-only removal.
 - Align personal and group libraries in the sidebar, share the Groups icon, and remove the group heading and vertical guide.

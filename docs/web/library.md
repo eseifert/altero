@@ -626,6 +626,10 @@ apart from the items carrying it, so renaming one rewrites every one of them.
 To add or remove a tag on one item, or rename it there alone, use the item's
 **Tags** section; see [Editing an item](#editing-an-item).
 
+The selector and item pane use the same tag order: colored tags by their
+assigned position, then tags containing emoji, then the remaining tags.
+The latter two groups are alphabetized using your language settings.
+
 Press the pencil beside a tag to edit its name inline, selected for typing
 over. Enter or leaving the field saves; Escape or the cancel control keeps
 the old name. Each sidebar pill shows its item count between the name and

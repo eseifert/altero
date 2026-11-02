@@ -31,7 +31,7 @@ import { useFileDrop } from '@/filedrop'
 import { exportable } from '@/exportformats'
 import { fieldLabel, loadLabels, titleField } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
-import { colorIndex } from '@/items/tags'
+import { colorIndex, compareTags } from '@/items/tags'
 import { libraryLabel } from '@/librarylabel'
 import { DETAIL, readWidth, SIDEBAR, storeWidth, type PaneWidth } from '@/panewidths'
 import { useAuthStore } from '@/stores/auth'
@@ -583,6 +583,9 @@ const itemError = ref<string | null>(null)
 const selectedKeys = computed(() => new Set(library.selection))
 const selectedTagNames = computed(() => new Set(library.selectedTags))
 const tagColors = computed(() => colorIndex(library.tagColors))
+const orderedTags = computed(() => [...library.tags].sort((a, b) =>
+  compareTags(a.tag, b.tag, tagColors.value, locales.formatting),
+))
 
 const carriedKeys = computed(() => {
   const cargo = carry.carrying.value?.data
@@ -1726,7 +1729,7 @@ function sortLabel(column: { field: string; label: string }): string {
                two translated labels, were rendered again on every keystroke
                and every frame of a drag elsewhere on the screen. -->
           <TagPill
-            v-for="tag in library.tags"
+            v-for="tag in orderedTags"
             :key="`${library.libraryId}:${tag.type}:${tag.tag}`"
             v-memo="[tag, selectedTagNames.has(tag.tag), library.writable, locale, tagColors.get(tag.tag)?.color]"
             class="library__tag"
