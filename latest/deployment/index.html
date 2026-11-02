@@ -2336,6 +2336,11 @@ for the verified sync behavior.</p>
 <p>An instance pinned with <code>ALTERO_IMAGE_TAG</code> upgrades when that value changes, not when <code>pull</code> runs.</p>
 <p>Upgrading from beta.6 to beta.7 needs no database or storage changes.</p>
 <p>Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.</p>
+<p>The next upgrade after beta.7 repairs child notes and attachments incorrectly
+filed in collections (<a href="https://github.com/eseifert/altero/issues/64">issue #64</a>).
+Sync each desktop after upgrading. Affected items receive a new version so
+clients download the repair; their parents and attachment files stay intact.
+Source installations must run <code>uv run alembic upgrade head</code> before serving.</p>
 <p>Upgrading from beta.2 or earlier builds the full-text search index once: about a minute per 30,000 attachment texts, and more disk. Check the <a href="#database-requirements">database requirements</a> first.</p>
 <p>Upgrading from beta.5 or earlier renames attachment storage once, on the first start: every attachment file is read and hashed, so starting takes about as long as reading the storage directory from disk. Web snapshots are renamed to the digest of their own bytes. A file on a mount that cannot make hard links is copied first, so keep free space for your largest snapshot. Do not downgrade afterwards without restoring the storage backup as well.</p>
 <p>To update only the PostgreSQL image within the currently compatible major version:</p>

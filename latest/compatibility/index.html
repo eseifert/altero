@@ -3691,6 +3691,7 @@
 </table>
 <p>A note or attachment under a note or attachment fails with 409, <code>Parent item cannot be a note or attachment</code>, naming the parent in <code>data</code>. The other refusals fail with 400, including an item named as its own parent.</p>
 <p>The rules are checked when an item is created or moved to another parent. An item already stored under a parent it could not have now, for example by an earlier altero, keeps syncing as it is.</p>
+<p><strong>Child items cannot belong to collections.</strong> Making a standalone note or attachment a child removes its former collection memberships, even when the upload omits <code>collections</code>. Explicitly assigning a child to a collection fails with 400, as on zotero.org.</p>
 <h3 id="groups">Groups<a class="headerlink" href="#groups" title="Permanent link">&para;</a></h3>
 <p>zotero.org has endpoints for creating, editing and deleting groups and adding members, but only for its own administrators, in XML, and never used by the Zotero client. An ordinary key gets 403.</p>
 <p>altero serves the same paths for ordinary users, with an <strong>API key</strong> and <strong>JSON</strong> in the shape <code>GET /groups/&lt;id&gt;</code> already returns, so what was read can be sent back. Inventing a separate administrator credential would have meant a second kind of credential on a server whose permissions are otherwise per library.</p>
