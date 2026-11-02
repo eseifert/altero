@@ -2074,7 +2074,10 @@ place, <code>Collapse</code> for a section opening by its height, and the toast'
 <code>--md-sys-motion-*</code> tokens, 150 to 250 ms. A toast reports an errand that just
 happened and offers to undo it where it can; it stays while the pointer or focus
 is on it (2.2.1), sits in a live region that is always on the page, and never
-replaces the trash as the way to take back a deletion. While a list loads, its
+replaces the trash as the way to take back a deletion. Pointer and keyboard
+focus hold it independently: moving the pointer away cannot expire a focused
+action, and tabbing between its buttons does not restart the clock.
+While a list loads, its
 rows are drawn as shapes beside the status message a screen reader hears: the
 list's own rows and columns, each bar as tall as the text's capitals and as
 wide as what the column usually holds, so it reads as the table that is coming.</p>

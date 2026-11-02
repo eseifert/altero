@@ -2440,6 +2440,14 @@ The final settled sync checks convergence and an unchanged server watermark.</p>
 <td>Edit an item's fields, creators and tags, relate two items, change a type and make an item through the browser's routes; both desktops store exactly that; a desktop edit then makes the browser's stale save fail with 412.</td>
 </tr>
 <tr>
+<td><code>web-undo</code></td>
+<td>Trash and file a selection through the browser, then undo after both desktops have synced; preserve prior memberships, preexisting trash and child-note HTML/parents; a real desktop edit invalidates a stale undo.</td>
+</tr>
+<tr>
+<td><code>web-copy-undo</code></td>
+<td>Copy a parent, note and registered file into a group; sync both desktops before undo; keep the copied graph and bytes recoverable through Trash/Restore, and preserve the originals.</td>
+</tr>
+<tr>
 <td><code>note-corpus</code></td>
 <td>Store notes as clients wrote them, from TinyMCE-era HTML to schema 10 and a note built from PDF annotations; have the shipped note editor save each unedited; record both for the browser editor's tests, and check the server keeps the desktop's HTML exactly.</td>
 </tr>
@@ -2767,6 +2775,16 @@ a catalogue entry and is normally unset.</p>
 <td>Passed (7 phases)</td>
 </tr>
 <tr>
+<td><code>web-undo</code></td>
+<td>Passed (15 phases)</td>
+<td>Passed (15 phases)</td>
+</tr>
+<tr>
+<td><code>web-copy-undo</code></td>
+<td>Passed (14 phases)</td>
+<td>Passed (14 phases)</td>
+</tr>
+<tr>
 <td><code>note-corpus</code></td>
 <td>Passed (5 phases)</td>
 <td>Passed (5 phases)</td>
@@ -2796,11 +2814,23 @@ a catalogue entry and is normally unset.</p>
 <!-- /desktop-matrix -->
 
 <p>Results above are local executions with the pinned Linux x86-64 Zotero 10.0.7
-archive on Python 3.14.10. All 36 scenarios ran on each database on 2026-10-30
+archive on Python 3.14.10. The original 36 scenarios ran on each database on 2026-10-30
 against the beta.7 release candidate, including the 15-phase schema baseline.
 PostgreSQL uses the existing 18.4 container, with a fresh database per scenario.
 <strong>Not run</strong> means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes.</p>
+<p>The additional <code>web-undo</code> scenario passed on both databases on 2026-11-02,
+with 15 phases each against the current checkout. Both desktops downloaded
+filing and trash changes before undo, then converged on the restored state;
+a subsequent desktop edit made an old undo fail with 412. Its separate
+<a href="../assets/compatibility-web-undo-10.0.7.json">evidence summary</a> records report and
+phase-snapshot hashes.</p>
+<p><code>web-copy-undo</code> also passed on both databases on 2026-11-02, with 14 phases
+each. Both desktops downloaded a browser-made group copy before undo and
+retained its note and registered bytes through Trash/Restore. The original
+personal-library records and files remained intact, and settled sync preserved
+both libraries' watermarks. Its <a href="../assets/compatibility-web-copy-undo-10.0.7.json">evidence summary</a>
+records the reports and phase-snapshot hashes. Merge undo remains unimplemented.</p>
 <p>The machine-readable evidence summary is
 <a href="../assets/compatibility-10.0.7.json"><code>compatibility-10.0.7.json</code></a>. It records
 phase counts and SHA-256 hashes of each report and its phase snapshots. Retained

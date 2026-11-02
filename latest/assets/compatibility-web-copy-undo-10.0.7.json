@@ -1,0 +1,23 @@
+{
+  "desktop_version": "10.0.7",
+  "cells": [
+    {
+      "scenario": "web-copy-undo",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 14,
+      "report_sha256": "d32284bbf8db86df67768701f18b75a1dfbdb36c08b22d751036ecd83a400ca1",
+      "snapshots_sha256": "2cf59816805248a3c5a3c34ef70b30feff81de164e3a049c4c7e0c2c77e04d8c",
+      "finished_at": "2026-11-02T20:42:32.560538+00:00"
+    },
+    {
+      "scenario": "web-copy-undo",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 14,
+      "report_sha256": "867772e16e1e87d13868de85a9f7401d08c1c3e4c4e88a945d4279934c32f5ce",
+      "snapshots_sha256": "02a8f5027b04e22378b053d231a90f43d2cf491d7630350b0881efbfec4dd1e7",
+      "finished_at": "2026-11-02T20:42:34.500480+00:00"
+    }
+  ]
+}

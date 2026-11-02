@@ -1556,6 +1556,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#undoing-filing-and-trash-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Undoing filing and trash changes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#duplicate-merge-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1744,6 +1755,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#undoing-filing-and-trash-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Undoing filing and trash changes
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#duplicate-merge-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1867,6 +1889,16 @@ verification remain separate.
 Mirroring uses composed transforms and ancestor selectors compatible with the
 build's browser targets. A compiled-selector check keeps scoped CSS from
 applying a splitter transform to the document itself.</p>
+<p>Tag pills share <code>TagPill.vue</code> and <code>styles/tag-pills.css</code>, including color dots,
+solid outlines, hover, focus and touch targets. The component owns inline
+rename state, cancellation and errors. Its caller supplies the existing
+rename operation and enables library filtering or item-only removal. Library
+pills show the item count between the name and pencil. The name reserves its
+space while an overlaid input edits it, preserving pill geometry and background;
+validation errors appear below the pill. Item tag writes remain queued and
+rebase onto newer tags as before. Both panels use <code>items/tags.ts</code> to order
+colored tags by position, then emoji tags, then the rest, with locale-aware
+alphabetization. The selector sorts a copy for display, preserving API order.</p>
 <h3 id="durable-sign-in-budgets">Durable sign-in budgets<a class="headerlink" href="#durable-sign-in-budgets" title="Permanent link">&para;</a></h3>
 <p><code>services/loginlimits.py</code> reserves an account and address allowance in
 <code>login_attempts</code>, introduced by migration <code>ae39b4d8c021</code>. Reservations commit
@@ -1906,6 +1938,33 @@ queued while the trigger was focused can arrive after opening and must leave
 the menu open when its anchor is unchanged. The browser regression opens New
 Note below a populated collection sidebar and checks that the menu stays open
 without moving the page.</p>
+<h3 id="undoing-filing-and-trash-changes">Undoing filing and trash changes<a class="headerlink" href="#undoing-filing-and-trash-changes" title="Permanent link">&para;</a></h3>
+<p><code>PATCH /web/libraries/{id}/items</code> returns an <code>undo</code> object alongside <code>items</code>.
+Its <code>version</code> is the committed library watermark; its <code>items</code> hold each changed
+item's prior <code>collections</code> and/or <code>deleted</code> value. Unchanged properties and
+items are omitted. The snapshot comes from stored state under the write lock,
+so it includes memberships the browser had not loaded.</p>
+<p><code>POST /web/libraries/{id}/items/undo</code> accepts that <code>items</code> array with
+<code>If-Unmodified-Since-Version</code> set to the returned version. It requires the
+browser session, CSRF token and current item permissions. The version must
+match exactly under the write lock: a later sync, edit or undo returns 412
+without changing anything. Every item is restored in one transaction and one
+new library version. Only collection memberships and trash state can be
+restored here; permanent deletion and merge graphs are outside this endpoint.
+The browser does not persist these snapshots across page reloads.</p>
+<p>Filing, trashing and restoring through the library store show the offer after
+the write commits. A failed list refresh does not report the write as failed
+or invite a second write. Undo remains bound to its original library after
+navigation; an open parent's children are refreshed as well. A refusal is
+reported in the toast region, with a separate message for a stale watermark.</p>
+<p><code>POST /web/libraries/{source}/items/copy</code> returns the same <code>undo</code> shape, with
+the <strong>destination</strong> library version and newly created root keys set to
+<code>deleted: true</code>. Send it to the destination's undo endpoint. This moves the
+copies and their child graphs into its Trash without deleting their bytes or
+changing the originals. A source-library edit does not invalidate this offer;
+a destination edit does. The response contains <code>undo: null</code> when the caller
+may copy but cannot remove records there, such as an add-only group member.
+Permissions are checked again when undo runs.</p>
 <h3 id="duplicate-merge-endpoint">Duplicate merge endpoint<a class="headerlink" href="#duplicate-merge-endpoint" title="Permanent link">&para;</a></h3>
 <p>The duplicates listing accepts <code>grouped=true</code> with <code>scope=duplicates</code>. It returns
 <code>groups</code> (lists of item keys), <code>totalGroups</code>, and the usual item envelopes and

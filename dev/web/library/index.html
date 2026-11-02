@@ -1927,6 +1927,10 @@
 </ul>
 <h2 id="detailed-behavior">Detailed behavior<a class="headerlink" href="#detailed-behavior" title="Permanent link">&para;</a></h2>
 <p>The sections below retain the technical and behavioral detail needed for troubleshooting and development. You can stop after the task summary if you only need to use the feature.</p>
+<p>Choose <strong>My Library</strong> or a group from the same level of the sidebar. The
+personal library uses a building icon; groups use the same icon as <strong>Groups</strong>
+in the top navigation. Only the active library unfolds its collections
+and views beneath it, with indentation showing the hierarchy.</p>
 <h3 id="merging-duplicates">Merging duplicates<a class="headerlink" href="#merging-duplicates" title="Permanent link">&para;</a></h3>
 <p>Open <strong>Duplicate Items</strong>. Candidates appear in separate groups with the proposed
 master at the top. Click or tap any member to highlight its whole group and open
@@ -2046,11 +2050,14 @@ item's type, empty ones included, in the order Zotero Desktop shows them.</p>
 <li><strong>Rights</strong> is set with the license chooser, as for My Publications.</li>
 <li><strong>Tag an item</strong> under <strong>Tags</strong>: <strong>+</strong> opens a box that offers the library's
   tags as you type. Enter adds the tag and leaves the box open for the next;
-  several lines pasted at once add one tag each. Press a tag to rename it on
-  this item, or clear it to remove it; <strong>×</strong> removes it too. Tags coloured in
-  Zotero Desktop come first, with their colour, then tags with an emoji, then
-  the rest alphabetically. A dashed outline marks a tag added automatically,
-  by a translator or an import.</li>
+  several lines pasted at once add one tag each. Press its pencil to rename
+  it inline on this item; Enter or leaving the field saves, and Escape
+  cancels. <strong>×</strong> removes the tag from this item only. Tag names in the detail
+  pane are passive; names in the sidebar filter the item list. Tags colored in
+  Zotero Desktop come first, with their color dot, then tags with an emoji,
+  then the rest alphabetically. Both panels use the same solid pill outline
+  and hover state. Automatically added tags retain their accessible label and
+  tooltip.</li>
 <li><strong>Relate items</strong> under <strong>Related</strong>: <strong>+</strong> searches the library, and pressing
   a result relates the two. Both items name each other, as in Zotero Desktop,
   and <strong>−</strong> removes the link from both. Pressing a related item opens it.
@@ -2247,6 +2254,19 @@ which tokens are real. Deleting a collection deletes its links with it.</p>
 — all of it by dragging rows of the item list somewhere, and all of it also
 without a pointer. Its fields, creators and type are edited in the right pane; see
 <a href="#editing-an-item">Editing an item</a>.</p>
+<p>After filing, trashing, restoring or copying items, press <strong>Undo</strong> in the confirmation
+message to reverse that action. It stays for six seconds, pauses while the
+pointer or keyboard focus is on it, and disappears when dismissed or the page
+reloads. A later library change, including a desktop sync, makes the offer
+unavailable so it cannot overwrite newer work. Undo preserves memberships and
+trash states that the action did not change.</p>
+<p>If the message has gone, open <strong>Trash</strong> and use <strong>Restore</strong> to recover trashed
+items. Undoing a copy moves the newly created records into the destination's
+Trash, with their notes and files still available for restoration; the
+originals stay where they were. Groups that allow adding but forbid removal
+confirm the copy without an Undo button. A later write to the destination
+invalidates copy undo; a change to the source does not.</p>
+<p>Permanent deletion and merging have no undo button.</p>
 <p><strong>Several rows can be picked out and carried together.</strong> <code>Ctrl</code>-click — <code>Cmd</code>
 on a Mac — adds a row and takes one away, <code>Shift</code>-click takes everything
 between, and <code>Ctrl</code>-A takes the whole page: the conventions of every list
@@ -2431,12 +2451,16 @@ in under a pointer are simply drawn.</p>
 apart from the items carrying it, so renaming one rewrites every one of them.
 To add or remove a tag on one item, or rename it there alone, use the item's
 <strong>Tags</strong> section; see <a href="#editing-an-item">Editing an item</a>.</p>
-<p>It is the pencil on the tag, beside its name in the panel, dimmed until the
-pointer or the keyboard reaches it. A dialog opens holding the name the tag
-has, selected: a rename is nearly always a correction to what is there — a
-misspelling, a capital, a stray space — rather than a different word, and
-starting from the old name saves retyping it. The dialog says what will happen,
-in Zotero's own words, and counts the items it will happen to. There is no undo.</p>
+<p>The selector and item pane use the same tag order: colored tags by their
+assigned position, then tags containing emoji, then the remaining tags.
+The latter two groups are alphabetized using your language settings.</p>
+<p>Press the pencil beside a tag to edit its name inline, selected for typing
+over. Enter or leaving the field saves; Escape or the cancel control keeps
+the old name. Each sidebar pill shows its item count between the name and
+pencil. Editing keeps the pill's size and background; a long draft scrolls
+inside the name field. A refused change keeps the draft and shows its error
+below the pill. Clicking the sidebar tag's name filters the list.
+There is no undo for a library-wide rename.</p>
 <p><strong>Renaming onto a name already in use merges the two.</strong> The items carrying
 either one end up carrying the survivor, and the panel is left with one tag
 where it showed two. That is what the desktop client does, and it is usually
