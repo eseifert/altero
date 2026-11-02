@@ -456,10 +456,15 @@ export const useLibraryStore = defineStore('library', () => {
   }
 
   async function loadLibraries(): Promise<void> {
-    libraries.value = await request<LibrarySummary[]>('/web/libraries')
+    await refreshLibraries()
     if (libraries.value.length > 0 && libraryId.value === null) {
       await openLibrary(libraries.value[0].id)
     }
+  }
+
+  /** Read counts and permissions without navigating to the first library. */
+  async function refreshLibraries(): Promise<void> {
+    libraries.value = await request<LibrarySummary[]>('/web/libraries')
   }
 
   /** Switch libraries, discarding everything that described the previous one. */
@@ -727,7 +732,10 @@ export const useLibraryStore = defineStore('library', () => {
   /** The server's actual inverse, bound to the library and version it changed.
    *  A failed list refresh must never turn a committed write into a failed
    *  action or invite a repeat. Undo goes through the same rule after commit. */
-  function offerUndo(id: number, snapshot: UndoSnapshot | undefined, message: string): void {
+  function offerUndo(
+    id: number, snapshot: UndoSnapshot | null | undefined, message: string,
+    afterUndo?: () => Promise<void>,
+  ): void {
     if (!snapshot?.items.length) return
     const toasts = useToastStore()
     toasts.show(message, {
@@ -746,7 +754,10 @@ export const useLibraryStore = defineStore('library', () => {
           return
         }
         toasts.show(t('Change undone.'))
-        if (libraryId.value === id) await Promise.allSettled([afterItemWrite(), reloadChildren()])
+        const updates: Promise<void>[] = []
+        if (libraryId.value === id) updates.push(afterItemWrite(), reloadChildren())
+        if (afterUndo) updates.push(afterUndo())
+        await Promise.allSettled(updates)
       },
     })
   }
@@ -1110,12 +1121,21 @@ export const useLibraryStore = defineStore('library', () => {
     target: number,
     collection?: string | null,
   ): Promise<void> {
-    if (libraryId.value === null || !keys.length) return
+    const source = libraryId.value
+    if (source === null || !keys.length) return
     const body: Record<string, unknown> = { items: keys, library: target }
     if (collection) body.collection = collection
 
-    await request(`/web/libraries/${libraryId.value}/items/copy`, { method: 'POST', body })
-    libraries.value = await request<LibrarySummary[]>('/web/libraries')
+    const answer = await request<{ undo: UndoSnapshot | null }>(
+      `/web/libraries/${source}/items/copy`, { method: 'POST', body },
+    )
+    if (answer.undo?.items.length) offerUndo(target, answer.undo, t('Copied'), refreshLibraries)
+    else useToastStore().show(t('Copied'))
+    // The copy committed even if a subsequent read fails. If navigation
+    // overtook it, refresh the destination the person has already opened.
+    const updates = [refreshLibraries()]
+    if (libraryId.value === target) updates.push(afterItemWrite(), reloadChildren())
+    await Promise.allSettled(updates)
   }
 
   /** Read the open item again, so a pane showing the old name stops. */

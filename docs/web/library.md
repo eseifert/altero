@@ -389,7 +389,7 @@ An item can be filed, trashed, restored, deleted and copied to another library
 without a pointer. Its fields, creators and type are edited in the right pane; see
 [Editing an item](#editing-an-item).
 
-After filing, trashing or restoring items, press **Undo** in the confirmation
+After filing, trashing, restoring or copying items, press **Undo** in the confirmation
 message to reverse that action. It stays for six seconds, pauses while the
 pointer or keyboard focus is on it, and disappears when dismissed or the page
 reloads. A later library change, including a desktop sync, makes the offer
@@ -397,7 +397,13 @@ unavailable so it cannot overwrite newer work. Undo preserves memberships and
 trash states that the action did not change.
 
 If the message has gone, open **Trash** and use **Restore** to recover trashed
-items. Permanent deletion, copying and merging have no undo button.
+items. Undoing a copy moves the newly created records into the destination's
+Trash, with their notes and files still available for restoration; the
+originals stay where they were. Groups that allow adding but forbid removal
+confirm the copy without an Undo button. A later write to the destination
+invalidates copy undo; a change to the source does not.
+
+Permanent deletion and merging have no undo button.
 
 **Several rows can be picked out and carried together.** `Ctrl`-click — `Cmd`
 on a Mac — adds a row and takes one away, `Shift`-click takes everything
