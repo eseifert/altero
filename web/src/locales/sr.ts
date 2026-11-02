@@ -341,7 +341,6 @@ export default {
   'Go to your library': 'Иди у своју библиотеку',
   'Gray': 'Сиво',
   'Green': 'Зелено',
-  'Group Libraries': 'Групне библиотеке',
   'Group created.': 'Група је направљена.',
   'Group deleted.': 'Група је обрисана.',
   'Group saved.': 'Група је сачувана.',

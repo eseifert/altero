@@ -286,7 +286,6 @@ export default {
   "Go to your library": "Nenda kwenye maktaba yako",
   "Gray": "Kijivu",
   "Green": "Kijani",
-  "Group Libraries": "Maktaba za vikundi",
   "Group created.": "Kikundi kimeundwa.",
   "Group deleted.": "Kikundi kimefutwa.",
   "Group saved.": "Kikundi kimehifadhiwa.",

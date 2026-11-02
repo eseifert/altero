@@ -340,7 +340,6 @@ export default {
   'Go to your library': 'Đến thư viện của bạn',
   'Gray': 'Xám',
   'Green': 'Xanh lá',
-  'Group Libraries': 'Các thư viện nhóm',
   'Group created.': 'Đã tạo nhóm.',
   'Group deleted.': 'Đã xóa nhóm.',
   'Group saved.': 'Đã lưu nhóm.',

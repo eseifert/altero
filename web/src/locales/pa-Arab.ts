@@ -285,7 +285,6 @@ export default {
   "Go to your library": "اپنی لائبریری ول جاؤ",
   "Gray": "سلیٹی",
   "Green": "ہرا",
-  "Group Libraries": "گروپاں دیاں لائبریریاں",
   "Group created.": "گروپ بن گیا۔",
   "Group deleted.": "گروپ مٹ گیا۔",
   "Group saved.": "گروپ سنبھال لیا۔",

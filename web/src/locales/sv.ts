@@ -341,7 +341,6 @@ export default {
   'Go to your library': 'Gå till ditt bibliotek',
   'Gray': 'Grå',
   'Green': 'Grön',
-  'Group Libraries': 'Gruppbibliotek',
   'Group created.': 'Gruppen har skapats.',
   'Group deleted.': 'Gruppen har raderats.',
   'Group saved.': 'Gruppen har sparats.',

@@ -344,7 +344,6 @@ export default {
   'Go to your library': 'Перейти в свою библиотеку',
   'Gray': 'Серый',
   'Green': 'Зелёный',
-  'Group Libraries': 'Групповые библиотеки',
   'Group created.': 'Группа создана.',
   'Group deleted.': 'Группа удалена.',
   'Group saved.': 'Группа сохранена.',

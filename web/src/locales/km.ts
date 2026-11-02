@@ -342,7 +342,6 @@ export default {
   'Go to your library': 'ទៅកាន់បណ្ណាល័យរបស់អ្នក',
   'Gray': 'ប្រផេះ',
   'Green': 'បៃតង',
-  'Group Libraries': 'បណ្ណាល័យក្រុម',
   'Group created.': 'បានបង្កើតក្រុម។',
   'Group deleted.': 'បានលុបក្រុម។',
   'Group saved.': 'បានរក្សាទុកក្រុម។',

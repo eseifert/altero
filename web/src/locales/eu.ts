@@ -341,7 +341,6 @@ export default {
   'Go to your library': 'Joan zure liburutegira',
   'Gray': 'Grisa',
   'Green': 'Berdea',
-  'Group Libraries': 'Talde liburutegiak',
   'Group created.': 'Taldea sortu da.',
   'Group deleted.': 'Taldea ezabatu da.',
   'Group saved.': 'Taldea gorde da.',

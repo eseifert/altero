@@ -285,7 +285,6 @@ export default {
   "Go to your library": "الانتقال إلى مكتبتك",
   "Gray": "رمادي",
   "Green": "أخضر",
-  "Group Libraries": "مكتبات المجموعات",
   "Group created.": "أُنشئت المجموعة.",
   "Group deleted.": "حُذفت المجموعة.",
   "Group saved.": "حُفظت المجموعة.",

@@ -341,7 +341,6 @@ export default {
   'Go to your library': 'Mine oma raamatukokku',
   'Gray': 'Hall',
   'Green': 'Roheline',
-  'Group Libraries': 'Grupi raamatukogud',
   'Group created.': 'Grupp loodud.',
   'Group deleted.': 'Grupp kustutatud.',
   'Group saved.': 'Grupp salvestatud.',

@@ -461,7 +461,7 @@ function viewsBelongTo(wrapper: ReturnType<typeof mount>): string | null {
  * Somebody arriving from zotero.org should not have to learn a second
  * arrangement of the same library: "My Library" whatever the account is
  * called, its collections under it, then My Publications and the trash, and
- * the groups under a heading of their own.
+ * groups alongside the personal library on the same level.
  */
 describe('the library nav', () => {
   it('calls the personal library "My Library", not what the account is called', async () => {
@@ -521,14 +521,17 @@ describe('the library nav', () => {
     ])
   })
 
-  it('heads the groups, and only when there is one', async () => {
+  it('keeps personal and group libraries on one level without a group heading', async () => {
     const alone = await open()
     expect(alone.find('.library__heading-group').exists()).toBe(false)
 
     libraries = [PERSONAL, GROUP]
     const wrapper = await open()
 
-    expect(wrapper.get('.library__heading-group').text()).toBe('Group Libraries')
+    expect(wrapper.find('.library__heading-group').exists()).toBe(false)
+    const roots = wrapper.findAll('.library__nav-row')
+    expect(roots).toHaveLength(2)
+    expect(roots[0].element.parentElement).toBe(roots[1].element.parentElement)
   })
 
   it('gives a group its own name, and no My Publications', async () => {

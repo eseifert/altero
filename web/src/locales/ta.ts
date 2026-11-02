@@ -346,7 +346,6 @@ export default {
   'Go to your library': 'உங்கள் நூலகத்திற்குச் செல்',
   'Gray': 'சாம்பல்',
   'Green': 'பச்சை',
-  'Group Libraries': 'குழு நூலகங்கள்',
   'Group created.': 'குழு உருவாக்கப்பட்டது.',
   'Group deleted.': 'குழு நீக்கப்பட்டது.',
   'Group saved.': 'குழு சேமிக்கப்பட்டது.',

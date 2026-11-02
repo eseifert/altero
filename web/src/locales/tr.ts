@@ -343,7 +343,6 @@ export default {
   'Go to your library': 'Kitaplığa git',
   'Gray': 'Gri',
   'Green': 'Yeşil',
-  'Group Libraries': 'Grup Kitaplıkları',
   'Group created.': 'Grup oluşturuldu.',
   'Group deleted.': 'Grup silindi.',
   'Group saved.': 'Grup kaydedildi.',

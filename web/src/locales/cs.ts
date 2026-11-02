@@ -345,7 +345,6 @@ export default {
   'Go to your library': 'Přejít do vaší knihovny',
   'Gray': 'Šedá',
   'Green': 'Zelená',
-  'Group Libraries': 'Skupinové knihovny',
   'Group created.': 'Skupina byla vytvořena.',
   'Group deleted.': 'Skupina byla smazána.',
   'Group saved.': 'Skupina byla uložena.',

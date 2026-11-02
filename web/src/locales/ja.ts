@@ -321,7 +321,6 @@ export default {
   'Go to your library': 'ライブラリへ',
   'Gray': '灰色',
   'Green': '緑',
-  'Group Libraries': 'グループのライブラリ',
   'Group created.': 'グループを作成しました。',
   'Group deleted.': 'グループを削除しました。',
   'Group saved.': 'グループを保存しました。',

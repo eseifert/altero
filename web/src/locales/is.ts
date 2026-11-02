@@ -343,7 +343,6 @@ export default {
   'Go to your library': 'Fara í færslusafnið þitt',
   'Gray': 'Grár',
   'Green': 'Grænn',
-  'Group Libraries': 'Hópsöfn',
   'Group created.': 'Hópur búinn til.',
   'Group deleted.': 'Hópi eytt.',
   'Group saved.': 'Hópur vistaður.',

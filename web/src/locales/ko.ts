@@ -331,7 +331,6 @@ export default {
   'Go to your library': '라이브러리로 이동',
   'Gray': '회색',
   'Green': '초록',
-  'Group Libraries': '그룹 라이브러리',
   'Group created.': '그룹을 만들었습니다.',
   'Group deleted.': '그룹을 삭제했습니다.',
   'Group saved.': '그룹을 저장했습니다.',

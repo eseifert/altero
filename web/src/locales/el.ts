@@ -334,7 +334,6 @@ export default {
   'Go to your library': 'Μετάβαση στη βιβλιοθήκη σας',
   'Gray': 'Γκρι',
   'Green': 'Πράσινο',
-  'Group Libraries': 'Ομαδικές Βιβλιοθήκες',
   'Group created.': 'Η ομάδα δημιουργήθηκε.',
   'Group deleted.': 'Η ομάδα διαγράφηκε.',
   'Group saved.': 'Η ομάδα αποθηκεύτηκε.',

@@ -345,7 +345,6 @@ export default {
   'Go to your library': "Mont d'ho levraoueg",
   'Gray': 'Gris',
   'Green': 'Gwer',
-  'Group Libraries': 'Levraouegoù strollad',
   'Group created.': 'Strollad krouet.',
   'Group deleted.': 'Strollad dilamet.',
   'Group saved.': 'Strollad enrollet.',

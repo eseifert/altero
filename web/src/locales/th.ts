@@ -338,7 +338,6 @@ export default {
   'Go to your library': 'ไปที่ไลบรารีของคุณ',
   'Gray': 'เทา',
   'Green': 'เขียว',
-  'Group Libraries': 'ไลบรารีกลุ่ม',
   'Group created.': 'สร้างกลุ่มแล้ว',
   'Group deleted.': 'ลบกลุ่มแล้ว',
   'Group saved.': 'บันทึกกลุ่มแล้ว',

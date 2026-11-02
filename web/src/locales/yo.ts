@@ -287,7 +287,6 @@ export default {
   "Go to your library": "Lọ sí ilé ìkàwé rẹ",
   "Gray": "Eérú",
   "Green": "Àwọ̀ ewé",
-  "Group Libraries": "Àwọn ilé ìkàwé ẹgbẹ́",
   "Group created.": "A ti dá ẹgbẹ́ sílẹ̀.",
   "Group deleted.": "A ti pa ẹgbẹ́ rẹ́.",
   "Group saved.": "A ti fi ẹgbẹ́ pamọ́.",

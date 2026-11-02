@@ -334,7 +334,6 @@ export default {
   'Go to your library': 'თქვენს ბიბლიოთეკაზე გადასვლა',
   'Gray': 'ნაცრისფერი',
   'Green': 'მწვანე',
-  'Group Libraries': 'ჯგუფური ბიბლიოთეკები',
   'Group created.': 'ჯგუფი შეიქმნა.',
   'Group deleted.': 'ჯგუფი წაიშალა.',
   'Group saved.': 'ჯგუფი შენახულია.',

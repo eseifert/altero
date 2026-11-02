@@ -331,7 +331,6 @@ export default {
   'Go to your library': '前往你的文獻庫',
   'Gray': '灰色',
   'Green': '綠色',
-  'Group Libraries': '群組文獻庫',
   'Group created.': '群組已建立。',
   'Group deleted.': '群組已刪除。',
   'Group saved.': '群組已儲存。',

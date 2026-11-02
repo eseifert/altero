@@ -18,6 +18,11 @@ The browser interface covers most everyday reference management: browse, search 
 
 The sections below retain the technical and behavioral detail needed for troubleshooting and development. You can stop after the task summary if you only need to use the feature.
 
+Choose **My Library** or a group from the same level of the sidebar. The
+personal library uses a building icon; groups use the same icon as **Groups**
+in the top navigation. Only the active library unfolds its collections
+and views beneath it, with indentation showing the hierarchy.
+
 ### Merging duplicates
 
 Open **Duplicate Items**. Candidates appear in separate groups with the proposed

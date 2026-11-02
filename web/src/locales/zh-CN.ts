@@ -328,7 +328,6 @@ export default {
   'Go to your library': '前往你的文库',
   'Gray': '灰色',
   'Green': '绿色',
-  'Group Libraries': '群组文库',
   'Group created.': '群组已创建。',
   'Group deleted.': '群组已删除。',
   'Group saved.': '群组已保存。',

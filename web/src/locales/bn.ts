@@ -346,7 +346,6 @@ export default {
   'Go to your library': 'আপনার লাইব্রেরিতে যান',
   'Gray': 'ধূসর',
   'Green': 'সবুজ',
-  'Group Libraries': 'গ্রুপ লাইব্রেরি',
   'Group created.': 'গ্রুপ তৈরি হয়েছে।',
   'Group deleted.': 'গ্রুপ মুছে ফেলা হয়েছে।',
   'Group saved.': 'গ্রুপ সংরক্ষিত হয়েছে।',

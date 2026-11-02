@@ -292,7 +292,6 @@ export default {
   'Go to your library': 'Ugrás a könyvtárához',
   'Gray': 'Szürke',
   'Green': 'Zöld',
-  'Group Libraries': 'Csoportkönyvtárak',
   'Group created.': 'Csoport létrehozva.',
   'Group deleted.': 'Csoport törölve.',
   'Group saved.': 'Csoport mentve.',

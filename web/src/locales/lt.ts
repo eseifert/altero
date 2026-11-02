@@ -331,7 +331,6 @@ export default {
   'Go to your library': 'Eiti į biblioteką',
   'Gray': 'Pilka',
   'Green': 'Žalia',
-  'Group Libraries': 'Grupės bibliotekos',
   'Group created.': 'Grupė sukurta.',
   'Group deleted.': 'Grupė pašalinta.',
   'Group saved.': 'Grupė įrašyta.',

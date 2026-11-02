@@ -343,7 +343,6 @@ export default {
   'Go to your library': 'നിങ്ങളുടെ ലൈബ്രറിയിലേക്ക് പോകുക',
   'Gray': 'ചാരനിറം',
   'Green': 'പച്ച',
-  'Group Libraries': 'ഗ്രൂപ്പ് ലൈബ്രറികൾ',
   'Group created.': 'ഗ്രൂപ്പ് സൃഷ്ടിച്ചു.',
   'Group deleted.': 'ഗ്രൂപ്പ് ഇല്ലാതാക്കി.',
   'Group saved.': 'ഗ്രൂപ്പ് സംരക്ഷിച്ചു.',

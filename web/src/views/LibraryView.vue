@@ -383,12 +383,6 @@ const pending = ref<Pending | null>(null)
 const busy = ref(false)
 const collectionError = ref<string | null>(null)
 
-/* The heading goes above the first group and nowhere else, so an account with
-   no groups is not told it has none. */
-const firstGroup = computed(
-  () => library.libraries.find((entry) => entry.type === 'group')?.id ?? null,
-)
-
 /** Whether the list is showing the whole of ``id`` -- no collection, no view. */
 function showingWholeOf(id: number): boolean {
   return id === library.libraryId && !library.collectionKey && library.scope === 'top'
@@ -1557,12 +1551,10 @@ function sortLabel(column: { field: string; label: string }): string {
   >
     <aside class="library__sidebar">
       <!--
-        The shape of the Zotero web library, because a person arriving here
-        from it should not have to learn a second arrangement of the same
-        library. "My Library" is the personal one, whatever the account is
-        called: the row is the library, not its owner. Under it hang its
-        collections, then My Publications, then the trash — and nothing else.
-        The groups follow under a heading of their own.
+        Personal and group libraries share one level. "My Library" is the
+        personal one, whatever the account is called: the row is the library,
+        not its owner. Only the active library unfolds its collections and
+        views beneath it.
 
         The views belong to a library rather than sitting above the list of
         them: "Trash" under a group is that group's trash, and one Trash over
@@ -1570,11 +1562,6 @@ function sortLabel(column: { field: string; label: string }): string {
       -->
       <nav class="library__libraries" :aria-label="t('Libraries')">
         <template v-for="entry in library.libraries" :key="entry.id">
-          <!-- Zotero's own heading, and only where there is a group to head. -->
-          <h2 v-if="entry.id === firstGroup" class="library__panel-title library__heading-group">
-            {{ t('Group Libraries') }}
-          </h2>
-
           <!--
             A drop here means one of two things, and which one is which library
             it is: this one takes the item out of the collection being shown,
@@ -2487,21 +2474,11 @@ function sortLabel(column: { field: string; label: string }): string {
  * per level and the deepest branch is the one that has to survive the
  * narrowest setting.
  *
- * The rule down the left is the thread back up to the library they act on, and
- * it is the same hairline the tag panel's heading uses.
+ * Indentation carries the hierarchy without a vertical guide beside it.
  */
 .library__scopes--nested {
   margin-inline-start: 0.3rem;
   padding-inline-start: 0.35rem;
-  border-inline-start: 1px solid var(--md-sys-color-outline-variant);
-}
-
-/*
- * The heading over the groups. It is the tag panel's heading, because it is
- * the same kind of thing: a word over a list saying what the list is.
- */
-.library__heading-group {
-  margin-top: var(--md-spacing-3);
 }
 
 /* The twisty on a library row, in the same column the collections use, so a

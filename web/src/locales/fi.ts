@@ -340,7 +340,6 @@ export default {
   'Go to your library': 'Siirry kirjastoosi',
   'Gray': 'Harmaa',
   'Green': 'Vihreä',
-  'Group Libraries': 'Ryhmäkirjastot',
   'Group created.': 'Ryhmä luotu.',
   'Group deleted.': 'Ryhmä poistettu.',
   'Group saved.': 'Ryhmä tallennettu.',

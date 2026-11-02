@@ -345,7 +345,6 @@ export default {
   'Go to your library': 'Mergi la biblioteca ta',
   'Gray': 'Gri',
   'Green': 'Verde',
-  'Group Libraries': 'Biblioteci de grup',
   'Group created.': 'Grup creat.',
   'Group deleted.': 'Grup șters.',
   'Group saved.': 'Grup salvat.',

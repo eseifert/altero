@@ -342,7 +342,6 @@ export default {
   'Go to your library': 'Gaan na u biblioteek',
   'Gray': 'Grys',
   'Green': 'Groen',
-  'Group Libraries': 'Groepbiblioteke',
   'Group created.': 'Groep geskep.',
   'Group deleted.': 'Groep geskrap.',
   'Group saved.': 'Groep gestoor.',

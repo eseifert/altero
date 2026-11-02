@@ -340,7 +340,6 @@ export default {
   'Go to your library': 'Doties uz savu bibliotēku',
   'Gray': 'Pelēka',
   'Green': 'Zaļa',
-  'Group Libraries': 'Grupu bibliotēkas',
   'Group created.': 'Grupa izveidota.',
   'Group deleted.': 'Grupa izdzēsta.',
   'Group saved.': 'Grupa saglabāta.',

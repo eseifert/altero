@@ -328,7 +328,6 @@ export default {
   'Go to your library': 'Zur Bibliothek',
   'Gray': 'Grau',
   'Green': 'Grün',
-  'Group Libraries': 'Gruppen-Bibliotheken',
   'Group created.': 'Gruppe erstellt.',
   'Group deleted.': 'Gruppe gelöscht.',
   'Group saved.': 'Gruppe gespeichert.',

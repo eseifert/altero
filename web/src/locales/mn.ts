@@ -343,7 +343,6 @@ export default {
   'Go to your library': 'Номын сан руугаа очих',
   'Gray': 'Саарал',
   'Green': 'Ногоон',
-  'Group Libraries': 'Бүлгийн номын сангууд',
   'Group created.': 'Бүлэг үүслээ.',
   'Group deleted.': 'Бүлэг устлаа.',
   'Group saved.': 'Бүлгийг хадгаллаа.',

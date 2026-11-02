@@ -285,7 +285,6 @@ export default {
   "Go to your library": "מעבר לספרייה שלך",
   "Gray": "אפור",
   "Green": "ירוק",
-  "Group Libraries": "ספריות קבוצתיות",
   "Group created.": "הקבוצה נוצרה.",
   "Group deleted.": "הקבוצה נמחקה.",
   "Group saved.": "הקבוצה נשמרה.",

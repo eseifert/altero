@@ -286,7 +286,6 @@ export default {
   "Go to your library": "Je zuwa ɗakin karatunka",
   "Gray": "Toka",
   "Green": "Kore",
-  "Group Libraries": "Ɗakunan karatun rukuni",
   "Group created.": "An ƙirƙiri rukuni.",
   "Group deleted.": "An goge rukuni.",
   "Group saved.": "An adana rukuni.",

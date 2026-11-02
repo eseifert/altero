@@ -336,7 +336,6 @@ export default {
   'Go to your library': 'अपनी लाइब्रेरी पर जाएँ',
   'Gray': 'धूसर',
   'Green': 'हरा',
-  'Group Libraries': 'समूह लाइब्रेरी',
   'Group created.': 'समूह बनाया गया।',
   'Group deleted.': 'समूह हटाया गया।',
   'Group saved.': 'समूह सहेजा गया।',

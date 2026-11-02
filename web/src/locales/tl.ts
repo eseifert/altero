@@ -347,7 +347,6 @@ export default {
   'Go to your library': 'Pumunta sa iyong library',
   'Gray': 'Abo',
   'Green': 'Berde',
-  'Group Libraries': 'Mga Library ng Grupo',
   'Group created.': 'Nagawa ang grupo.',
   'Group deleted.': 'Na-delete ang grupo.',
   'Group saved.': 'Na-save ang grupo.',

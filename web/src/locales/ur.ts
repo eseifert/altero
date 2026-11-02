@@ -285,7 +285,6 @@ export default {
   "Go to your library": "اپنے کتب خانے پر جائیں",
   "Gray": "سرمئی",
   "Green": "سبز",
-  "Group Libraries": "گروپس کے کتب خانے",
   "Group created.": "گروپ بن گیا۔",
   "Group deleted.": "گروپ حذف ہو گیا۔",
   "Group saved.": "گروپ محفوظ ہو گیا۔",

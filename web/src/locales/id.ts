@@ -347,7 +347,6 @@ export default {
   'Go to your library': 'Buka perpustakaan Anda',
   'Gray': 'Abu-abu',
   'Green': 'Hijau',
-  'Group Libraries': 'Perpustakaan Grup',
   'Group created.': 'Grup dibuat.',
   'Group deleted.': 'Grup dihapus.',
   'Group saved.': 'Grup disimpan.',

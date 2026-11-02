@@ -285,7 +285,6 @@ export default {
   "Go to your library": "رفتن به کتابخانه",
   "Gray": "خاکستری",
   "Green": "سبز",
-  "Group Libraries": "کتابخانه‌های گروهی",
   "Group created.": "گروه ساخته شد.",
   "Group deleted.": "گروه حذف شد.",
   "Group saved.": "گروه ذخیره شد.",
