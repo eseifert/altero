@@ -755,8 +755,6 @@ export default {
     'The link works once and lasts twelve hours. Your current password still works.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'The password for {username} is {password}. Copy this now. It will not be shown again.',
-  'The tag will be changed in all associated items.':
-    'The tag will be changed in all associated items.',
   'The trash is empty.': 'The bin is empty.',
   'The two passwords do not match': 'The two passwords do not match',
   'The work you add to My Publications is shown on your public page.':
@@ -908,8 +906,6 @@ export default {
     '{count} files are no longer referenced by any library, holding {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} item added or changed | {count} items added or changed',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} item carries it. | {count} items carry it.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}',
   '{count} item deleted | {count} items deleted': '{count} item deleted | {count} items deleted',

@@ -753,8 +753,6 @@ export default {
     'Länken fungerar en gång och gäller i tolv timmar. Ditt nuvarande lösenord fungerar fortfarande.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Lösenordet för {username} är {password}. Kopiera det nu. Det visas inte igen.',
-  'The tag will be changed in all associated items.':
-    'Denna etikett kommer att ändras i alla tillhörande källor.',
   'The trash is empty.': 'Papperskorgen är tom.',
   'The two passwords do not match': 'De två lösenorden stämmer inte överens',
   'The work you add to My Publications is shown on your public page.':
@@ -906,8 +904,6 @@ export default {
     '{count} filer refereras inte längre av något bibliotek och upptar {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} källa tillagd eller ändrad | {count} källor tillagda eller ändrade',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} källa har den. | {count} källor har den.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} källa kunde inte lagras här och lämnades kvar: {keys} | {count} källor kunde inte lagras här och lämnades kvar: {keys}',
   '{count} item deleted | {count} items deleted': '{count} källa raderad | {count} källor raderade',

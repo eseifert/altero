@@ -720,7 +720,6 @@ export default {
     'ბმული ერთხელ მუშაობს და თორმეტი საათის განმავლობაში მოქმედებს. თქვენი ამჟამინდელი პაროლი კვლავ მოქმედებს.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username}-ის პაროლია {password}. დააკოპირეთ ახლავე. ის აღარ გამოჩნდება.',
-  'The tag will be changed in all associated items.': 'ტეგი შეიცვლება ყველა დაკავშირებულ ჩანაწერში.',
   'The trash is empty.': 'სანაგვე ცარიელია.',
   'The two passwords do not match': 'პაროლები არ ემთხვევა',
   'The work you add to My Publications is shown on your public page.':
@@ -863,7 +862,6 @@ export default {
     '{count} ფაილი აღარცერთ ბიბლიოთეკაში არ გამოიყენება; ისინი იკავებს {size}-ს.',
   '{count} item added or changed | {count} items added or changed':
     '{count} ჩანაწერი დაემატა ან შეიცვალა | {count} ჩანაწერი დაემატა ან შეიცვალა',
-  '{count} item carries it. | {count} items carry it.': 'მას შეიცავს {count} ჩანაწერი. | მას შეიცავს {count} ჩანაწერი.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} ჩანაწერის აქ შენახვა ვერ მოხერხდა და ის გამოტოვებულია: {keys} | {count} ჩანაწერის აქ შენახვა ვერ მოხერხდა და ისინი გამოტოვებულია: {keys}',
   '{count} item deleted | {count} items deleted': '{count} ჩანაწერი წაიშალა | {count} ჩანაწერი წაიშალა',

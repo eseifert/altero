@@ -2449,14 +2449,15 @@ describe('renaming a tag', () => {
     expect(writes()).toEqual([])
   })
 
-  it('says what renaming will do, and to how many items', async () => {
+  it('shows item counts in the pills, retaining them during editing without a notice', async () => {
     withTags(TAGS)
     const wrapper = await open()
+    expect(wrapper.findAll('.library__tag .tag-pill__count').map((count) => count.text())).toEqual(['2', '1'])
 
     await pencil(wrapper, 'ficton').trigger('click')
 
-    expect(wrapper.get('.tag-pill__hint').text()).toContain('all associated items')
-    expect(wrapper.get('.tag-pill__hint').text()).toContain('2 items')
+    expect(wrapper.findAll('.library__tag .tag-pill__count').map((count) => count.text())).toEqual(['2', '1'])
+    expect(wrapper.find('.tag-pill__hint').exists()).toBe(false)
   })
 
   it('sends the name that was typed', async () => {

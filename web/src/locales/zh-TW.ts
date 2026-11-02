@@ -712,7 +712,6 @@ export default {
     '該連結只能使用一次，有效期十二小時。你目前的密碼仍然有效。',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} 的密碼是 {password}。現在就複製。它不會再次顯示。',
-  'The tag will be changed in all associated items.': '所有相關項目裡的該標籤都將改變。',
   'The trash is empty.': '垃圾筒是空的。',
   'The two passwords do not match': '兩次輸入的密碼不一致',
   'The work you add to My Publications is shown on your public page.': '你新增到我的著作的作品會顯示在你的公開頁面上。',
@@ -849,7 +848,6 @@ export default {
     '有 {count} 個檔案不再被任何文獻庫引用，佔用 {size}。',
   '{count} item added or changed | {count} items added or changed':
     '新增或變更了 {count} 個項目 | 新增或變更了 {count} 個項目',
-  '{count} item carries it. | {count} items carry it.': '有 {count} 個項目帶有它。 | 有 {count} 個項目帶有它。',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '有 {count} 個項目無法儲存在這裡，已被留下：{keys} | 有 {count} 個項目無法儲存在這裡，已被留下：{keys}',
   '{count} item deleted | {count} items deleted': '刪除了 {count} 個項目 | 刪除了 {count} 個項目',

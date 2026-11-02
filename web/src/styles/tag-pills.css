@@ -1,5 +1,6 @@
 /* Shared by library filters and item tags: one pill and one set of controls. */
 .tag-pill {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.15rem;
@@ -26,11 +27,36 @@
   color: var(--md-sys-color-on-secondary-container);
 }
 
-.tag-pill--editing,
-.tag-pill--editing:hover {
-  flex-wrap: wrap;
+.tag-pill--editing {
   border-color: var(--md-sys-color-primary);
-  background: var(--md-sys-color-surface);
+}
+
+/* Keep the original name in layout while the field fills exactly its space. */
+.tag-pill__label {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.tag-pill__name--editing,
+.tag-pill__remove--editing {
+  visibility: hidden;
+}
+
+.tag-pill__label .tag-pill__input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  min-block-size: 0;
+  color: inherit;
+}
+
+.tag-pill__count {
+  flex: none;
+  margin-inline: 0.2rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .tag-pill__name {
@@ -95,14 +121,17 @@ button.tag-pill__name {
   outline: none;
 }
 
-.tag-pill__hint,
 .tag-pill__error {
-  flex-basis: 100%;
+  position: absolute;
+  z-index: 1;
+  inset-block-start: calc(100% + 0.25rem);
+  inset-inline: 0;
   margin: 0;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface);
   overflow-wrap: anywhere;
-}
-
-.tag-pill__error {
   color: var(--md-sys-color-error);
 }
 

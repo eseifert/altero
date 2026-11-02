@@ -756,8 +756,6 @@ export default {
     'A ligazón funciona unha vez e dura doce horas. O teu contrasinal actual segue funcionando.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'O contrasinal de {username} é {password}. Cópiao agora. Non se volverá amosar.',
-  'The tag will be changed in all associated items.':
-    'Cambiarase a etiqueta en todos os elementos asociados.',
   'The trash is empty.': 'O lixo está baleiro.',
   'The two passwords do not match': 'Os dous contrasinais non coinciden',
   'The work you add to My Publications is shown on your public page.':
@@ -907,8 +905,6 @@ export default {
     '{count} ficheiros xa non teñen referencias en ningunha biblioteca e ocupan {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} elemento engadido ou cambiado | {count} elementos engadidos ou cambiados',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} elemento ten esta etiqueta. | {count} elementos teñen esta etiqueta.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} elemento non se puido gardar aquí e quedou atrás: {keys} | {count} elementos non se puideron gardar aquí e quedaron atrás: {keys}',
   '{count} item deleted | {count} items deleted':

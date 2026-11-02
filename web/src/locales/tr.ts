@@ -759,8 +759,6 @@ export default {
     'Bağlantı bir kez çalışır ve on iki saat geçerlidir. Mevcut şifreniz hâlâ geçerli.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} için şifre: {password}. Bunu şimdi kopyalayınız. Bir daha gösterilmeyecek.',
-  'The tag will be changed in all associated items.':
-    'Bu etiket, bağlı olduğu tüm eserlerde değiştirilecektir.',
   'The trash is empty.': 'Çöp Sepeti boş.',
   'The two passwords do not match': 'İki şifre eşleşmiyor',
   'The work you add to My Publications is shown on your public page.':
@@ -911,8 +909,6 @@ export default {
     '{count} dosyaya artık hiçbir kitaplık başvurmuyor; kapladıkları alan: {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} eser eklendi ya da değiştirildi | {count} eser eklendi ya da değiştirildi',
-  '{count} item carries it. | {count} items carry it.':
-    'Bu etiketi {count} eser taşıyor. | Bu etiketi {count} eser taşıyor.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} eser burada saklanamadı ve geride bırakıldı: {keys} | {count} eser burada saklanamadı ve geride bırakıldı: {keys}',
   '{count} item deleted | {count} items deleted': '{count} eser silindi | {count} eser silindi',

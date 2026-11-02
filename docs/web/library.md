@@ -628,9 +628,10 @@ To add or remove a tag on one item, or rename it there alone, use the item's
 
 Press the pencil beside a tag to edit its name inline, selected for typing
 over. Enter or leaving the field saves; Escape or the cancel control keeps
-the old name. The field warns that a sidebar rename changes every item
-carrying the tag and shows their count. A refused change keeps the draft and
-its error beside the field. Clicking the sidebar tag's name filters the list.
+the old name. Each sidebar pill shows its item count between the name and
+pencil. Editing keeps the pill's size and background; a long draft scrolls
+inside the name field. A refused change keeps the draft and shows its error
+below the pill. Clicking the sidebar tag's name filters the list.
 There is no undo for a library-wide rename.
 
 **Renaming onto a name already in use merges the two.** The items carrying

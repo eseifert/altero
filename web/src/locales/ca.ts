@@ -761,8 +761,6 @@ export default {
     'L’enllaç funciona una sola vegada i dura dotze hores. La vostra contrasenya actual continua funcionant.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'La contrasenya de {username} és {password}. Copieu-la ara; no es tornarà a mostrar.',
-  'The tag will be changed in all associated items.':
-    'L’etiqueta es canviarà en tots els elements associats.',
   'The trash is empty.': 'La paperera és buida.',
   'The two passwords do not match': 'Les dues contrasenyes no coincideixen',
   'The work you add to My Publications is shown on your public page.':
@@ -913,8 +911,6 @@ export default {
     '{count} fitxers ja no tenen referències de cap biblioteca i ocupen {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} element afegit o modificat | {count} elements afegits o modificats',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} element la porta. | {count} elements la porten.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} element no s’ha pogut desar aquí i s’ha deixat enrere: {keys} | {count} elements no s’han pogut desar aquí i s’han deixat enrere: {keys}',
   '{count} item deleted | {count} items deleted':

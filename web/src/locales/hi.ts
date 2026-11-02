@@ -730,7 +730,6 @@ export default {
     'लिंक एक बार काम करता है और बारह घंटे तक मान्य रहता है। आपका मौजूदा पासवर्ड अब भी काम करता है।',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} का पासवर्ड {password} है। इसे अभी कॉपी करें। यह फिर नहीं दिखाया जाएगा।',
-  'The tag will be changed in all associated items.': 'यह टैग इससे जुड़े सभी आइटम में बदल दिया जाएगा।',
   'The trash is empty.': 'ट्रैश खाली है।',
   'The two passwords do not match': 'दोनों पासवर्ड मेल नहीं खाते',
   'The work you add to My Publications is shown on your public page.':
@@ -877,7 +876,6 @@ export default {
     '{count} फ़ाइलें अब किसी भी लाइब्रेरी द्वारा संदर्भित नहीं हैं, और {size} जगह घेरती हैं।',
   '{count} item added or changed | {count} items added or changed':
     '{count} आइटम जोड़ा या बदला गया | {count} आइटम जोड़े या बदले गए',
-  '{count} item carries it. | {count} items carry it.': 'यह {count} आइटम पर लगा है। | यह {count} आइटम पर लगा है।',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} आइटम यहाँ संग्रहीत नहीं किया जा सका और छूट गया: {keys} | {count} आइटम यहाँ संग्रहीत नहीं किए जा सके और छूट गए: {keys}',
   '{count} item deleted | {count} items deleted': '{count} आइटम हटाया गया | {count} आइटम हटाए गए',

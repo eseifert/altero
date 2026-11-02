@@ -733,7 +733,6 @@ export default {
     'Ο σύνδεσμος λειτουργεί μία φορά και ισχύει για δώδεκα ώρες. Ο τρέχων κωδικός πρόσβασής σας εξακολουθεί να ισχύει.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Ο κωδικός πρόσβασης για τον χρήστη {username} είναι {password}. Αντιγράψτε τον τώρα. Δεν θα εμφανιστεί ξανά.',
-  'The tag will be changed in all associated items.': 'Η ετικέτα θα αλλάξει σε όλα τα σχετιζόμενα στοιχεία.',
   'The trash is empty.': 'Ο Κάδος απορριμμάτων είναι άδειος.',
   'The two passwords do not match': 'Οι δύο κωδικοί πρόσβασης δεν ταιριάζουν',
   'The work you add to My Publications is shown on your public page.':
@@ -883,7 +882,6 @@ export default {
     '{count} αρχεία δεν αναφέρονται πλέον από καμία βιβλιοθήκη και καταλαμβάνουν {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} στοιχείο προστέθηκε ή άλλαξε | {count} στοιχεία προστέθηκαν ή άλλαξαν',
-  '{count} item carries it. | {count} items carry it.': 'Τη φέρει {count} στοιχείο. | Τη φέρουν {count} στοιχεία.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} στοιχείο δεν ήταν δυνατό να αποθηκευτεί εδώ και παραλείφθηκε: {keys} | {count} στοιχεία δεν ήταν δυνατό να αποθηκευτούν εδώ και παραλείφθηκαν: {keys}',
   '{count} item deleted | {count} items deleted': '{count} στοιχείο διαγράφηκε | {count} στοιχεία διαγράφηκαν',

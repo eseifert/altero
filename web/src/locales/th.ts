@@ -742,7 +742,6 @@ export default {
     'ลิงก์ใช้ได้ครั้งเดียวและมีอายุสิบสองชั่วโมง รหัสผ่านปัจจุบันของคุณยังใช้ได้',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'รหัสผ่านของ {username} คือ {password} คัดลอกไว้เดี๋ยวนี้ จะไม่แสดงอีก',
-  'The tag will be changed in all associated items.': 'แท็กจะถูกเปลี่ยนในทุกรายการที่เกี่ยวข้อง',
   'The trash is empty.': 'ถังขยะว่างเปล่า',
   'The two passwords do not match': 'รหัสผ่านทั้งสองไม่ตรงกัน',
   'The work you add to My Publications is shown on your public page.':
@@ -892,8 +891,6 @@ export default {
     'ไฟล์ {count} ไฟล์ไม่มีไลบรารีใดอ้างถึงแล้ว ใช้พื้นที่ {size}',
   '{count} item added or changed | {count} items added or changed':
     'เพิ่มหรือเปลี่ยนแปลง {count} รายการ | เพิ่มหรือเปลี่ยนแปลง {count} รายการ',
-  '{count} item carries it. | {count} items carry it.':
-    'มี {count} รายการที่ใช้แท็กนี้ | มี {count} รายการที่ใช้แท็กนี้',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} รายการไม่สามารถจัดเก็บที่นี่ได้และถูกข้ามไป: {keys} | {count} รายการไม่สามารถจัดเก็บที่นี่ได้และถูกข้ามไป: {keys}',
   '{count} item deleted | {count} items deleted': 'ลบ {count} รายการ | ลบ {count} รายการ',

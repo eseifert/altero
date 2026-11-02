@@ -754,7 +754,6 @@ export default {
     'Lenkja verkar éin gong og varer i tolv timar. Det noverande passordet ditt verkar framleis.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Passordet for {username} er {password}. Kopier det no. Det blir ikkje vist igjen.',
-  'The tag will be changed in all associated items.': 'Taggen blir endra i alle tilknytte element.',
   'The trash is empty.': 'Søppelkorga er tom.',
   'The two passwords do not match': 'Dei to passorda er ikkje like',
   'The work you add to My Publications is shown on your public page.':
@@ -905,8 +904,6 @@ export default {
     '{count} filer blir ikkje lenger viste til av noko bibliotek og tek opp {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} element lagt til eller endra | {count} element lagde til eller endra',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} element har han. | {count} element har han.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} element kunne ikkje lagrast her og vart ikkje teke med: {keys} | {count} element kunne ikkje lagrast her og vart ikkje tekne med: {keys}',
   '{count} item deleted | {count} items deleted': '{count} element sletta | {count} element sletta',

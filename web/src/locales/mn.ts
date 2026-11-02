@@ -757,7 +757,6 @@ export default {
     'Холбоос нэг удаа ажиллах бөгөөд арван хоёр цагийн турш хүчинтэй. Одоогийн нууц үг тань хүчинтэй хэвээр байна.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username}-ийн нууц үг: {password}. Үүнийг одоо хуулж авна уу. Дахин харуулахгүй.',
-  'The tag will be changed in all associated items.': 'Тааг холбогдох бүх зүйлд өөрчлөгдөнө.',
   'The trash is empty.': 'Хогийн сав хоосон байна.',
   'The two passwords do not match': 'Хоёр нууц үг таарахгүй байна',
   'The work you add to My Publications is shown on your public page.':
@@ -909,8 +908,6 @@ export default {
     '{count} файлыг аль ч номын сан ашиглахаа больсон бөгөөд {size} эзэлж байна.',
   '{count} item added or changed | {count} items added or changed':
     '{count} зүйл нэмсэн эсвэл өөрчилсөн | {count} зүйл нэмсэн эсвэл өөрчилсөн',
-  '{count} item carries it. | {count} items carry it.':
-    'Энэ тааг {count} зүйлд байна. | Энэ тааг {count} зүйлд байна.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} зүйлийг энд хадгалж чадаагүй тул үлдээлээ: {keys} | {count} зүйлийг энд хадгалж чадаагүй тул үлдээлээ: {keys}',
   '{count} item deleted | {count} items deleted': '{count} зүйл устгасан | {count} зүйл устгасан',

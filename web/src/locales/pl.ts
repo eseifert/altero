@@ -753,8 +753,6 @@ export default {
     'Odnośnik działa raz i jest ważny dwanaście godzin. Twoje obecne hasło nadal działa.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Hasło dla {username} to {password}. Skopiuj je teraz. Nie zostanie pokazane ponownie.',
-  'The tag will be changed in all associated items.':
-    'Nazwa etykiety zostanie zmieniona we wszystkich powiązanych elementach.',
   'The trash is empty.': 'Kosz jest pusty.',
   'The two passwords do not match': 'Oba hasła nie są takie same',
   'The work you add to My Publications is shown on your public page.':
@@ -904,8 +902,6 @@ export default {
     '{count} plików nie jest już przywoływanych przez żadną bibliotekę; zajmują {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} element dodany lub zmieniony | {count} elementy dodane lub zmienione | {count} elementów dodanych lub zmienionych',
-  '{count} item carries it. | {count} items carry it.':
-    'Ma ją {count} element. | Mają ją {count} elementy. | Ma ją {count} elementów.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} elementu nie dało się tu zapisać i został pominięty: {keys} | {count} elementów nie dało się tu zapisać i zostały pominięte: {keys} | {count} elementów nie dało się tu zapisać i zostały pominięte: {keys}',
   '{count} item deleted | {count} items deleted':

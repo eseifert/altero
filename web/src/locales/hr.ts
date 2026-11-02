@@ -752,8 +752,6 @@ export default {
     'Poveznica radi jednom i vrijedi dvanaest sati. Vaša trenutna lozinka i dalje vrijedi.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Lozinka za {username} je {password}. Kopirajte je sada. Više se neće prikazati.',
-  'The tag will be changed in all associated items.':
-    'Oznaka će biti promijenjena u svim povezanim stavkama.',
   'The trash is empty.': 'Otpad je prazan.',
   'The two passwords do not match': 'Lozinke se ne podudaraju',
   'The work you add to My Publications is shown on your public page.':
@@ -904,8 +902,6 @@ export default {
     'Datoteke na koje se više ne poziva nijedna biblioteka: {count}, ukupno {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} stavka dodana ili promijenjena | {count} stavke dodane ili promijenjene | {count} stavki dodano ili promijenjeno',
-  '{count} item carries it. | {count} items carry it.':
-    'Ima je {count} stavka. | Imaju je {count} stavke. | Ima je {count} stavki.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} stavka nije se mogla pohraniti ovdje pa je izostavljena: {keys} | {count} stavke nisu se mogle pohraniti ovdje pa su izostavljene: {keys} | {count} stavki nije se moglo pohraniti ovdje pa je izostavljeno: {keys}',
   '{count} item deleted | {count} items deleted':

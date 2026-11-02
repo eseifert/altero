@@ -755,7 +755,6 @@ export default {
     'লিঙ্কটি একবারই কাজ করে এবং বারো ঘণ্টা বৈধ থাকে। আপনার বর্তমান পাসওয়ার্ড এখনও কাজ করে।',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username}-এর পাসওয়ার্ড হলো {password}। এখনই এটি কপি করুন। এটি আর দেখানো হবে না।',
-  'The tag will be changed in all associated items.': 'সংশ্লিষ্ট সব আইটেমে ট্যাগটি পরিবর্তিত হবে।',
   'The trash is empty.': 'ট্র্যাশ খালি।',
   'The two passwords do not match': 'দুটি পাসওয়ার্ড মেলেনি',
   'The work you add to My Publications is shown on your public page.':
@@ -906,8 +905,6 @@ export default {
     '{count}টি ফাইল আর কোনো লাইব্রেরি ব্যবহার করে না, যেগুলো {size} জায়গা নিচ্ছে।',
   '{count} item added or changed | {count} items added or changed':
     '{count}টি আইটেম যোগ বা পরিবর্তন করা হয়েছে | {count}টি আইটেম যোগ বা পরিবর্তন করা হয়েছে',
-  '{count} item carries it. | {count} items carry it.':
-    '{count}টি আইটেমে এটি আছে। | {count}টি আইটেমে এটি আছে।',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count}টি আইটেম এখানে সংরক্ষণ করা যায়নি এবং বাদ পড়েছে: {keys} | {count}টি আইটেম এখানে সংরক্ষণ করা যায়নি এবং বাদ পড়েছে: {keys}',
   '{count} item deleted | {count} items deleted':

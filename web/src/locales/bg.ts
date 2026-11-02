@@ -753,8 +753,6 @@ export default {
     'Връзката работи веднъж и е валидна дванадесет часа. Сегашната ви парола продължава да работи.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Паролата на {username} е {password}. Копирайте я сега. Няма да бъде показана отново.',
-  'The tag will be changed in all associated items.':
-    'Маркерът ще бъде променен във всички свързани записи.',
   'The trash is empty.': 'Кошчето за боклук е празно.',
   'The two passwords do not match': 'Двете пароли не съвпадат',
   'The work you add to My Publications is shown on your public page.':
@@ -906,8 +904,6 @@ export default {
     'Файлове, към които вече не препраща никоя библиотека: {count}, заемащи {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} добавен или променен запис | {count} добавени или променени записа',
-  '{count} item carries it. | {count} items carry it.':
-    'Има го {count} запис. | Имат го {count} записа.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} запис не можа да бъде съхранен тук и беше пропуснат: {keys} | {count} записа не можаха да бъдат съхранени тук и бяха пропуснати: {keys}',
   '{count} item deleted | {count} items deleted': '{count} изтрит запис | {count} изтрити записа',

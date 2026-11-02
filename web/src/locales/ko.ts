@@ -719,7 +719,6 @@ export default {
     '링크는 12시간 동안 유효하며 한 번만 사용할 수 있습니다. 현재 비밀번호는 계속 사용할 수 있습니다.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} 계정의 비밀번호는 {password}입니다. 다시 표시되지 않으므로 지금 복사하세요.',
-  'The tag will be changed in all associated items.': '모든 관련 항목에서 태그가 변경됩니다.',
   'The trash is empty.': '휴지통이 비어 있습니다.',
   'The two passwords do not match': '두 비밀번호가 일치하지 않습니다',
   'The work you add to My Publications is shown on your public page.':
@@ -861,8 +860,6 @@ export default {
     '파일 {count}개는 어떤 라이브러리에서도 더 이상 참조하지 않으며 {size}의 공간을 차지합니다.',
   '{count} item added or changed | {count} items added or changed':
     '항목 {count}개 추가 또는 변경됨 | 항목 {count}개 추가 또는 변경됨',
-  '{count} item carries it. | {count} items carry it.':
-    '항목 {count}개에 이 태그가 있습니다. | 항목 {count}개에 이 태그가 있습니다.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '항목 {count}개를 이 서버에 저장하지 못해 복사하지 않았습니다: {keys} | 항목 {count}개를 이 서버에 저장하지 못해 복사하지 않았습니다: {keys}',
   '{count} item deleted | {count} items deleted': '항목 {count}개 삭제됨 | 항목 {count}개 삭제됨',

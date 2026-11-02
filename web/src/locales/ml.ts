@@ -762,7 +762,6 @@ export default {
     'ലിങ്ക് ഒരിക്കൽ മാത്രം പ്രവർത്തിക്കും, പന്ത്രണ്ട് മണിക്കൂർ സാധുവാണ്. നിങ്ങളുടെ നിലവിലെ പാസ്‌വേഡ് ഇപ്പോഴും പ്രവർത്തിക്കും.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} എന്ന ഉപയോക്താവിന്റെ പാസ്‌വേഡ് {password} ആണ്. ഇത് ഇപ്പോൾ തന്നെ പകർത്തുക. ഇത് വീണ്ടും കാണിക്കില്ല.',
-  'The tag will be changed in all associated items.': 'ബന്ധപ്പെട്ട എല്ലാ ഇനങ്ങളിലും ടാഗ് മാറ്റും.',
   'The trash is empty.': 'ട്രാഷ് ശൂന്യമാണ്.',
   'The two passwords do not match': 'രണ്ട് പാസ്‌വേഡുകളും പൊരുത്തപ്പെടുന്നില്ല',
   'The work you add to My Publications is shown on your public page.':
@@ -913,8 +912,6 @@ export default {
     '{count} ഫയലുകളെ ഇനി ഒരു ലൈബ്രറിയും പരാമർശിക്കുന്നില്ല; അവ {size} ഇടം എടുക്കുന്നു.',
   '{count} item added or changed | {count} items added or changed':
     '{count} ഇനം ചേർത്തു അല്ലെങ്കിൽ മാറ്റി | {count} ഇനങ്ങൾ ചേർത്തു അല്ലെങ്കിൽ മാറ്റി',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} ഇനത്തിൽ ഇതുണ്ട്. | {count} ഇനങ്ങളിൽ ഇതുണ്ട്.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} ഇനം ഇവിടെ സംഭരിക്കാനായില്ല, അത് ഒഴിവാക്കി: {keys} | {count} ഇനങ്ങൾ ഇവിടെ സംഭരിക്കാനായില്ല, അവ ഒഴിവാക്കി: {keys}',
   '{count} item deleted | {count} items deleted':

@@ -752,8 +752,6 @@ export default {
     'Die skakel werk een keer en bly twaalf uur lank geldig. U huidige wagwoord werk steeds.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Die wagwoord vir {username} is {password}. Kopieer dit nou. Dit sal nie weer gewys word nie.',
-  'The tag will be changed in all associated items.':
-    'Die etiket sal in alle geassosieerde items verander word.',
   'The trash is empty.': 'Die asblik is leeg.',
   'The two passwords do not match': 'Die twee wagwoorde stem nie ooreen nie',
   'The work you add to My Publications is shown on your public page.':
@@ -904,8 +902,6 @@ export default {
     'Na {count} lêers word nie meer deur enige biblioteek verwys nie; hulle beslaan {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} item bygevoeg of verander | {count} items bygevoeg of verander',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} item dra dit. | {count} items dra dit.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} item kon nie hier gestoor word nie en is agtergelaat: {keys} | {count} items kon nie hier gestoor word nie en is agtergelaat: {keys}',
   '{count} item deleted | {count} items deleted': '{count} item geskrap | {count} items geskrap',

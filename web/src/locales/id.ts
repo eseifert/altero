@@ -760,8 +760,6 @@ export default {
     'Tautan ini hanya dapat digunakan sekali dan berlaku selama dua belas jam. Kata sandi Anda saat ini masih berlaku.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Kata sandi untuk {username} adalah {password}. Salin sekarang. Ini tidak akan ditampilkan lagi.',
-  'The tag will be changed in all associated items.':
-    'Tag akan diubah pada semua item yang terkait.',
   'The trash is empty.': 'Keranjang Sampah kosong.',
   'The two passwords do not match': 'Kedua kata sandi tidak cocok',
   'The work you add to My Publications is shown on your public page.':
@@ -911,8 +909,6 @@ export default {
     '{count} berkas tidak lagi dirujuk oleh perpustakaan mana pun, dengan total {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} item ditambahkan atau diubah | {count} item ditambahkan atau diubah',
-  '{count} item carries it. | {count} items carry it.':
-    'Tag ini terpasang pada {count} item. | Tag ini terpasang pada {count} item.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} item tidak dapat disimpan di sini dan ditinggalkan: {keys} | {count} item tidak dapat disimpan di sini dan ditinggalkan: {keys}',
   '{count} item deleted | {count} items deleted': '{count} item dihapus | {count} item dihapus',

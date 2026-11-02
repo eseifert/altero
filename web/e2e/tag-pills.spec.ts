@@ -23,6 +23,13 @@ async function appearance(pill: Locator) {
   })
 }
 
+async function frame(pill: Locator) {
+  return pill.evaluate((element) => {
+    const { width, height } = element.getBoundingClientRect()
+    return { width, height, background: getComputedStyle(element).backgroundColor }
+  })
+}
+
 for (const [locale, direction] of [['en-US', 'ltr'], ['ar-EG', 'rtl']] as const) {
   test.describe(`shared tag pills in ${direction}`, () => {
     test.use({ locale })
@@ -40,6 +47,8 @@ for (const [locale, direction] of [['en-US', 'ltr'], ['ar-EG', 'rtl']] as const)
       await page.locator('.library__row').filter({ hasText: title }).filter({ hasNotText: 'sibling' }).click()
       const global = page.locator(`.library__tag[data-tag-name="${tag}"]`)
       const detail = page.locator(`.tags__tag[data-tag-name="${tag}"]`)
+      await expect(global.locator('.tag-pill__count')).toHaveText('2')
+      await expect(detail.locator('.tag-pill__count')).toHaveCount(0)
       for (const scheme of ['light', 'dark'] as const) {
         await page.emulateMedia({ colorScheme: scheme })
         await expect(page.locator('html')).toHaveAttribute('data-theme', scheme)
@@ -51,6 +60,22 @@ for (const [locale, direction] of [['en-US', 'ltr'], ['ar-EG', 'rtl']] as const)
         await detail.hover()
         expect(await appearance(detail)).toEqual(hovered)
         expect(await accessibilityProblems(page)).toEqual([])
+        for (const selected of [false, true]) {
+          if (selected) await global.locator('.tag-pill__name').click()
+          await global.hover()
+          const closed = await frame(global)
+          await global.locator('.tag-pill__edit').click()
+          await expect(global.locator('.tag-pill__hint')).toHaveCount(0)
+          expect(await frame(global)).toEqual(closed)
+          await global.locator('input').fill('A much longer draft that must scroll inside the existing name space')
+          expect(await frame(global)).toEqual(closed)
+          await global.locator('input').fill('')
+          await global.locator('input').press('Enter')
+          await expect(global.locator('.tag-pill__error')).toBeVisible()
+          expect(await frame(global)).toEqual(closed)
+          await global.locator('input').press('Escape')
+          if (selected) await global.locator('.tag-pill__name').click()
+        }
       }
       await page.screenshot({ path: info.outputPath('tag-pills.png'), fullPage: true })
 
@@ -83,7 +108,8 @@ for (const [locale, direction] of [['en-US', 'ltr'], ['ar-EG', 'rtl']] as const)
       await global.locator('.tag-pill__edit').click()
       await expect(page.locator('dialog[open]')).toHaveCount(0)
       await expect(global.locator('input')).toBeFocused()
-      await expect(global.locator('.tag-pill__hint')).toBeVisible()
+      await expect(global.locator('.tag-pill__count')).toHaveText('1')
+      await expect(global.locator('.tag-pill__hint')).toHaveCount(0)
       const globalName = `${tag}-global`
       await global.locator('input').fill(globalName)
       await page.locator('.library__list h1').click()

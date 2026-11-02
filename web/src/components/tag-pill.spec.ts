@@ -84,11 +84,21 @@ describe('a shared tag pill', () => {
     expect(wrapper.find('input').exists()).toBe(false)
   })
 
-  it('warns about the scope of a library-wide rename inside the pill', async () => {
+  it('keeps the item count between the name and action, without a rename notice', async () => {
     const wrapper = pill({ rename: vi.fn(), numItems: 2 })
+    expect(wrapper.get('.tag-pill__count').text()).toBe('2')
+    expect(wrapper.get('.tag-pill__count').attributes('aria-label')).toBe('2 items')
+    expect(wrapper.get('li').element.children[1]?.className).toBe('tag-pill__count')
+    expect(wrapper.get('li').element.children[2]?.className).toContain('tag-pill__edit')
     await wrapper.get('.tag-pill__edit').trigger('click')
-    expect(wrapper.get('.tag-pill__hint').text()).toContain('all associated items')
-    expect(wrapper.get('.tag-pill__hint').text()).toContain('2 items carry it.')
-    expect(wrapper.get('input').attributes('aria-describedby')).toBe(wrapper.get('.tag-pill__hint').attributes('id'))
+    expect(wrapper.get('.tag-pill__count').text()).toBe('2')
+    expect(wrapper.find('.tag-pill__hint').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('all associated items')
+    expect(wrapper.get('input').attributes('aria-describedby')).toBeUndefined()
+  })
+
+  it('shows a zero count in a read-only global pill and no count on item tags', () => {
+    expect(pill({ numItems: 0 }).get('.tag-pill__count').text()).toBe('0')
+    expect(pill().find('.tag-pill__count').exists()).toBe(false)
   })
 })

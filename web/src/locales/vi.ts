@@ -736,7 +736,6 @@ export default {
     'Liên kết chỉ dùng được một lần và có hiệu lực trong mười hai giờ. Mật khẩu hiện tại của bạn vẫn dùng được.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Mật khẩu của {username} là {password}. Hãy sao chép ngay. Mật khẩu sẽ không được hiển thị lại.',
-  'The tag will be changed in all associated items.': 'Tất cả các mục được gắn thẻ này sẽ được cập nhật.',
   'The trash is empty.': 'Thùng rác trống.',
   'The two passwords do not match': 'Hai mật khẩu không khớp',
   'The work you add to My Publications is shown on your public page.':
@@ -883,7 +882,6 @@ export default {
     '{count} tệp không còn được thư viện nào tham chiếu, chiếm {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} mục được thêm hoặc thay đổi | {count} mục được thêm hoặc thay đổi',
-  '{count} item carries it. | {count} items carry it.': '{count} mục mang thẻ này. | {count} mục mang thẻ này.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} mục không thể lưu ở đây và đã bị bỏ lại: {keys} | {count} mục không thể lưu ở đây và đã bị bỏ lại: {keys}',
   '{count} item deleted | {count} items deleted': '{count} mục bị xóa | {count} mục bị xóa',

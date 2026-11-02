@@ -699,7 +699,6 @@ export default {
   'The link works once and lasts twelve hours. Your current password still works.': 'リンクは一度だけ、12時間有効です。現在のパスワードは引き続き使用できます。',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} のパスワードは {password} です。今すぐ控えてください。二度と表示されません。',
-  'The tag will be changed in all associated items.': 'タグの変更がすべての関連項目に適用されます。',
   'The trash is empty.': 'ごみ箱は空です。',
   'The two passwords do not match': 'パスワードが一致しません',
   'The work you add to My Publications is shown on your public page.':
@@ -834,7 +833,6 @@ export default {
   '{count} files are no longer referenced by any library, holding {size}.':
     '{count} 件のファイルはどのライブラリからも参照されておらず、{size} を占めています。',
   '{count} item added or changed | {count} items added or changed': '{count} 件のアイテムを追加または変更 | {count} 件のアイテムを追加または変更',
-  '{count} item carries it. | {count} items carry it.': '{count} 件の項目にこのタグが付いています。 | {count} 件の項目にこのタグが付いています。',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}': '{count} 件の項目はここに保存できず、取り込まれませんでした: {keys} | {count} 件の項目はここに保存できず、取り込まれませんでした: {keys}',
   '{count} item deleted | {count} items deleted': '{count} 件のアイテムを削除 | {count} 件のアイテムを削除',
   '{count} item selected | {count} items selected': '{count} 件の項目を選択 | {count} 件の項目を選択',

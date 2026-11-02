@@ -738,7 +738,6 @@ export default {
     'Povezava deluje enkrat in velja dvanajst ur. Vaše trenutno geslo še vedno deluje.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Geslo za {username} je {password}. Kopirajte ga zdaj. Ne bo več prikazano.',
-  'The tag will be changed in all associated items.': 'Značka bo spremenjena v vseh povezanih vnosih.',
   'The trash is empty.': 'Koš je prazen.',
   'The two passwords do not match': 'Gesli se ne ujemata',
   'The work you add to My Publications is shown on your public page.':
@@ -885,8 +884,6 @@ export default {
     'Datoteke, na katere se ne sklicuje nobena knjižnica več: {count}, skupaj {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} vnos dodan ali spremenjen | {count} vnosa dodana ali spremenjena | {count} vnosi dodani ali spremenjeni | {count} vnosov dodanih ali spremenjenih',
-  '{count} item carries it. | {count} items carry it.':
-    'Ima jo {count} vnos. | Imata jo {count} vnosa. | Imajo jo {count} vnosi. | Ima jo {count} vnosov.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} vnosa ni bilo mogoče shraniti tukaj, zato je bil izpuščen: {keys} | {count} vnosov ni bilo mogoče shraniti tukaj, zato sta bila izpuščena: {keys} | {count} vnosov ni bilo mogoče shraniti tukaj, zato so bili izpuščeni: {keys} | {count} vnosov ni bilo mogoče shraniti tukaj, zato so bili izpuščeni: {keys}',
   '{count} item deleted | {count} items deleted':

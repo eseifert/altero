@@ -751,8 +751,6 @@ export default {
     'Веза се може употребити једном и важи дванаест сати. Ваша тренутна лозинка и даље важи.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Лозинка за {username} је {password}. Копирајте је сада. Више неће бити приказана.',
-  'The tag will be changed in all associated items.':
-    'Ознака ће бити промењена за све повезане ставке.',
   'The trash is empty.': 'Смеће је празно.',
   'The two passwords do not match': 'Лозинке се не поклапају',
   'The work you add to My Publications is shown on your public page.':
@@ -902,8 +900,6 @@ export default {
     'Број датотека на које више не упућује ниједна библиотека: {count}, укупне величине {size}.',
   '{count} item added or changed | {count} items added or changed':
     'Додата или измењена {count} ставка | Додате или измењене {count} ставке | Додато или измењено {count} ставки',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} ставка има ову ознаку. | {count} ставке имају ову ознаку. | {count} ставки има ову ознаку.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} ставка није могла да се сачува овде и изостављена је: {keys} | {count} ставке нису могле да се сачувају овде и изостављене су: {keys} | {count} ставки није могло да се сачува овде и изостављено је: {keys}',
   '{count} item deleted | {count} items deleted':

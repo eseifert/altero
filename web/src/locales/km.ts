@@ -750,8 +750,6 @@ export default {
     'តំណនេះប្រើបានតែម្តង និងមានសុពលភាពដប់ពីរម៉ោង។ ពាក្យសម្ងាត់បច្ចុប្បន្នរបស់អ្នកនៅតែប្រើបាន។',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'ពាក្យសម្ងាត់សម្រាប់ {username} គឺ {password}។ សូមចម្លងវាឥឡូវនេះ។ វានឹងមិនបង្ហាញម្តងទៀតទេ។',
-  'The tag will be changed in all associated items.':
-    'ស្លាកនេះនឹងត្រូវផ្លាស់ប្តូរនៅក្នុងឯកសារដែលពាក់ព័ន្ធទាំងអស់។',
   'The trash is empty.': 'ធុងសំរាមទទេ។',
   'The two passwords do not match': 'ពាក្យសម្ងាត់ទាំងពីរមិនដូចគ្នាទេ',
   'The work you add to My Publications is shown on your public page.':
@@ -902,8 +900,6 @@ export default {
     'ឯកសារ {count} លែងត្រូវបានយោងដោយបណ្ណាល័យណាមួយទៀតហើយ ដោយប្រើទំហំ {size}។',
   '{count} item added or changed | {count} items added or changed':
     'ឯកសារ {count} ត្រូវបានបន្ថែម ឬកែប្រែ | ឯកសារ {count} ត្រូវបានបន្ថែម ឬកែប្រែ',
-  '{count} item carries it. | {count} items carry it.':
-    'ឯកសារ {count} មានស្លាកនេះ។ | ឯកសារ {count} មានស្លាកនេះ។',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     'ឯកសារ {count} មិនអាចរក្សាទុកនៅទីនេះបាន ហើយត្រូវបានទុកចោល៖ {keys} | ឯកសារ {count} មិនអាចរក្សាទុកនៅទីនេះបាន ហើយត្រូវបានទុកចោល៖ {keys}',
   '{count} item deleted | {count} items deleted':

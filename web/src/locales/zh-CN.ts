@@ -717,7 +717,6 @@ export default {
     '该链接只能使用一次，有效期十二小时。你当前的密码仍然有效。',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} 的密码是 {password}。现在就复制。它不会再次显示。',
-  'The tag will be changed in all associated items.': '所有相关条目里的该标签都将改变。',
   'The trash is empty.': '回收站是空的。',
   'The two passwords do not match': '两次输入的密码不一致',
   'The work you add to My Publications is shown on your public page.':
@@ -861,8 +860,6 @@ export default {
     '有 {count} 个文件不再被任何文库引用，占用 {size}。',
   '{count} item added or changed | {count} items added or changed':
     '添加或更改了 {count} 个条目 | 添加或更改了 {count} 个条目',
-  '{count} item carries it. | {count} items carry it.':
-    '有 {count} 个条目带有它。 | 有 {count} 个条目带有它。',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '有 {count} 个条目无法存储在这里，已被留下：{keys} | 有 {count} 个条目无法存储在这里，已被留下：{keys}',
   '{count} item deleted | {count} items deleted': '删除了 {count} 个条目 | 删除了 {count} 个条目',

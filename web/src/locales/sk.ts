@@ -761,8 +761,6 @@ export default {
     'Odkaz funguje raz a platí dvanásť hodín. Vaše súčasné heslo naďalej platí.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Heslo pre {username} je {password}. Skopírujte si ho teraz. Znova sa už nezobrazí.',
-  'The tag will be changed in all associated items.':
-    'Značka bude zmenená vo všetkých záznamoch, ktoré ju obsahujú.',
   'The trash is empty.': 'Kôš je prázdny.',
   'The two passwords do not match': 'Heslá sa nezhodujú',
   'The work you add to My Publications is shown on your public page.':
@@ -913,8 +911,6 @@ export default {
     'Súbory, na ktoré už neodkazuje žiadna knižnica: {count}, spolu {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} záznam pridaný alebo zmenený | {count} záznamy pridané alebo zmenené | {count} záznamov pridaných alebo zmenených',
-  '{count} item carries it. | {count} items carry it.':
-    'Má ju {count} záznam. | Majú ju {count} záznamy. | Má ju {count} záznamov.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} záznam sa tu nepodarilo uložiť, preto sa vynechal: {keys} | {count} záznamy sa tu nepodarilo uložiť, preto sa vynechali: {keys} | {count} záznamov sa tu nepodarilo uložiť, preto sa vynechalo: {keys}',
   '{count} item deleted | {count} items deleted':

@@ -761,8 +761,6 @@ export default {
     'O link funciona uma vez e dura doze horas. A sua senha atual continua funcionando.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'A senha de {username} é {password}. Copie agora; ela não será mostrada de novo.',
-  'The tag will be changed in all associated items.':
-    'A etiqueta será alterada em todos os itens associados.',
   'The trash is empty.': 'A lixeira está vazia.',
   'The two passwords do not match': 'As duas senhas não coincidem',
   'The work you add to My Publications is shown on your public page.':
@@ -912,8 +910,6 @@ export default {
     '{count} arquivos não são mais referenciados por nenhuma biblioteca e ocupam {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} item adicionado ou alterado | {count} itens adicionados ou alterados',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} item tem esta etiqueta. | {count} itens têm esta etiqueta.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} item não pôde ser guardado aqui e ficou para trás: {keys} | {count} itens não puderam ser guardados aqui e ficaram para trás: {keys}',
   '{count} item deleted | {count} items deleted': '{count} item excluído | {count} itens excluídos',

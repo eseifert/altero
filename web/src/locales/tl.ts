@@ -763,8 +763,6 @@ export default {
     'Isang beses lang gumagana ang link at may bisa ito nang labindalawang oras. Gumagana pa rin ang kasalukuyan mong password.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Ang password para kay {username} ay {password}. Kopyahin ito ngayon. Hindi na ito ipapakitang muli.',
-  'The tag will be changed in all associated items.':
-    'Papalitan ang tag sa lahat ng kaugnay na item.',
   'The trash is empty.': 'Walang laman ang basurahan.',
   'The two passwords do not match': 'Hindi magkatugma ang dalawang password',
   'The work you add to My Publications is shown on your public page.':
@@ -917,8 +915,6 @@ export default {
     '{count} na file ang hindi na tinutukoy ng anumang library, na may kabuuang {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} item ang idinagdag o binago | {count} na item ang idinagdag o binago',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} item ang may tag na ito. | {count} na item ang may tag na ito.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} item ang hindi maiimbak dito at naiwan: {keys} | {count} na item ang hindi maiimbak dito at naiwan: {keys}',
   '{count} item deleted | {count} items deleted':

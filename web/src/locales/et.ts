@@ -755,8 +755,6 @@ export default {
     'Link töötab ühe korra ja kehtib kaksteist tundi. Teie praegune salasõna kehtib endiselt.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Kasutaja {username} salasõna on {password}. Kopeerige see kohe. Seda ei näidata enam.',
-  'The tag will be changed in all associated items.':
-    'Lipik nimetatakse ümber kõigil seostatud kirjetel.',
   'The trash is empty.': 'Prügikast on tühi.',
   'The two passwords do not match': 'Salasõnad ei kattu',
   'The work you add to My Publications is shown on your public page.':
@@ -907,8 +905,6 @@ export default {
     '{count} failile ei viita enam ükski raamatukogu; need võtavad {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} kirje lisatud või muudetud | {count} kirjet lisatud või muudetud',
-  '{count} item carries it. | {count} items carry it.':
-    'Seda kannab {count} kirje. | Seda kannab {count} kirjet.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} kirje jäi maha, sest seda ei saanud siia salvestada: {keys} | {count} kirjet jäi maha, sest neid ei saanud siia salvestada: {keys}',
   '{count} item deleted | {count} items deleted':

@@ -752,7 +752,6 @@ export default {
     'Ссылка срабатывает один раз и действует двенадцать часов. Ваш нынешний пароль по-прежнему работает.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Пароль для {username} — {password}. Скопируйте его сейчас. Снова показан не будет.',
-  'The tag will be changed in all associated items.': 'Тег будет изменён во всех записях.',
   'The trash is empty.': 'Корзина пуста.',
   'The two passwords do not match': 'Пароли не совпадают',
   'The work you add to My Publications is shown on your public page.':
@@ -902,8 +901,6 @@ export default {
     'На {count} файлов больше не ссылается ни одна библиотека; они занимают {size}.',
   '{count} item added or changed | {count} items added or changed':
     'Добавлена или изменена {count} запись | Добавлены или изменены {count} записи | Добавлено или изменено {count} записей',
-  '{count} item carries it. | {count} items carry it.':
-    'Его несёт {count} запись. | Его несут {count} записи. | Его несёт {count} записей.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} запись не удалось сохранить здесь, и она осталась позади: {keys} | {count} записи не удалось сохранить здесь, и они остались позади: {keys} | {count} записей не удалось сохранить здесь, и они остались позади: {keys}',
   '{count} item deleted | {count} items deleted':

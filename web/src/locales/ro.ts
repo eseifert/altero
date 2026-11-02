@@ -763,8 +763,6 @@ export default {
     'Linkul funcționează o singură dată și este valabil douăsprezece ore. Parola ta actuală funcționează în continuare.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Parola pentru {username} este {password}. Copiaz-o acum. Nu va mai fi afișată.',
-  'The tag will be changed in all associated items.':
-    'Eticheta va fi schimbată în toate înregistrările asociate.',
   'The trash is empty.': 'Coșul de gunoi este gol.',
   'The two passwords do not match': 'Cele două parole nu coincid',
   'The work you add to My Publications is shown on your public page.':
@@ -917,8 +915,6 @@ export default {
     'Fișiere care nu mai sunt referențiate de nicio bibliotecă: {count}, ocupând {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} înregistrare adăugată sau modificată | {count} înregistrări adăugate sau modificate | {count} de înregistrări adăugate sau modificate',
-  '{count} item carries it. | {count} items carry it.':
-    'O are {count} înregistrare. | O au {count} înregistrări. | O au {count} de înregistrări.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} înregistrare nu a putut fi stocată aici și a fost omisă: {keys} | {count} înregistrări nu au putut fi stocate aici și au fost omise: {keys} | {count} de înregistrări nu au putut fi stocate aici și au fost omise: {keys}',
   '{count} item deleted | {count} items deleted':

@@ -754,8 +754,6 @@ export default {
     'Estekak behin balio du eta hamabi orduz irauten du. Zure oraingo pasahitzak balio du oraindik.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} erabiltzailearen pasahitza hau da: {password}. Kopiatu orain. Ez da berriro erakutsiko.',
-  'The tag will be changed in all associated items.':
-    'Etiketa dagozkion elementu guztietan aldatuko da.',
   'The trash is empty.': 'Zaborra hutsik dago.',
   'The two passwords do not match': 'Bi pasahitzak ez datoz bat',
   'The work you add to My Publications is shown on your public page.':
@@ -907,8 +905,6 @@ export default {
     '{count} fitxategik ez dute jada inongo liburutegiren erreferentziarik, eta {size} hartzen dute.',
   '{count} item added or changed | {count} items added or changed':
     '{count} elementu gehitu edo aldatu da | {count} elementu gehitu edo aldatu dira',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} elementuk darama. | {count} elementuk daramate.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} elementu ezin izan da hemen gorde eta atzean geratu da: {keys} | {count} elementu ezin izan dira hemen gorde eta atzean geratu dira: {keys}',
   '{count} item deleted | {count} items deleted':

@@ -753,8 +753,6 @@ export default {
     'Il collegamento funziona una volta sola e dura dodici ore. La tua password attuale funziona ancora.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'La password di {username} è {password}. Copiala adesso. Non verrà mostrata di nuovo.',
-  'The tag will be changed in all associated items.':
-    'Il tag verrà modificato in tutti gli elementi al quale è associato.',
   'The trash is empty.': 'Il cestino è vuoto.',
   'The two passwords do not match': 'Le due password non coincidono',
   'The work you add to My Publications is shown on your public page.':
@@ -905,8 +903,6 @@ export default {
     '{count} file non sono più referenziati da alcuna biblioteca e occupano {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} elemento aggiunto o modificato | {count} elementi aggiunti o modificati',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} elemento lo porta. | {count} elementi lo portano.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} elemento non ha potuto essere memorizzato qui ed è rimasto indietro: {keys} | {count} elementi non hanno potuto essere memorizzati qui e sono rimasti indietro: {keys}',
   '{count} item deleted | {count} items deleted':

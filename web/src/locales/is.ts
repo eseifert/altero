@@ -757,8 +757,6 @@ export default {
     'Tengillinn virkar einu sinni og gildir í tólf klukkustundir. Núverandi lykilorð þitt virkar enn.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Lykilorðið fyrir {username} er {password}. Afritaðu það núna. Það verður ekki sýnt aftur.',
-  'The tag will be changed in all associated items.':
-    'Merkið mun breytast í öllum tengdum færslum.',
   'The trash is empty.': 'Ruslið er tómt.',
   'The two passwords do not match': 'Lykilorðin tvö stemma ekki',
   'The work you add to My Publications is shown on your public page.':
@@ -909,8 +907,6 @@ export default {
     'Ekkert færslusafn vísar lengur í {count} skrár, sem taka {size}.',
   '{count} item added or changed | {count} items added or changed':
     '{count} færslu bætt við eða breytt | {count} færslum bætt við eða breytt',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} færsla er með þetta merki. | {count} færslur eru með þetta merki.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} færsla gat ekki vistast hér og var skilin eftir: {keys} | {count} færslur gátu ekki vistast hér og voru skildar eftir: {keys}',
   '{count} item deleted | {count} items deleted': '{count} færslu eytt | {count} færslum eytt',

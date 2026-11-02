@@ -12,7 +12,7 @@ const props = defineProps<{
   filterable?: boolean
   removable?: boolean
   rename?: (name: string) => Promise<unknown>
-  /** Present for library-wide renames, so the inline warning names their reach. */
+  /** Shown in library filters; item-detail pills do not carry a count. */
   numItems?: number
 }>()
 const emit = defineEmits<{ filter: []; remove: []; edit: [] }>()
@@ -97,8 +97,22 @@ function leave(event: FocusEvent): void {
     @focusout="leave"
   >
     <span v-if="color" class="tag-pill__swatch" aria-hidden="true"></span>
-    <template v-if="editing">
+    <span class="tag-pill__label">
+      <component
+        :is="filterable ? 'button' : 'span'"
+        :id="id"
+        class="tag-pill__name"
+        :class="{ 'tag-pill__name--editing': editing }"
+        :type="filterable ? 'button' : undefined"
+        dir="auto"
+        :aria-pressed="filterable ? Boolean(selected) : undefined"
+        :title="automatic ? t('Automatically added tag') : undefined"
+        @click="filterable && emit('filter')"
+      >
+        {{ name }}<span v-if="automatic" class="visually-hidden">, {{ t('Automatically added tag') }}</span>
+      </component>
       <input
+        v-if="editing"
         :id="`${id}-input`"
         ref="field"
         v-model="draft"
@@ -108,64 +122,45 @@ function leave(event: FocusEvent): void {
         autocomplete="off"
         :aria-label="t('Rename tag')"
         :aria-invalid="failure ? 'true' : undefined"
-        :aria-describedby="failure ? `${id}-error` : numItems !== undefined ? `${id}-hint` : undefined"
+        :aria-describedby="failure ? `${id}-error` : undefined"
         :disabled="busy"
         @input="failure = null"
         @keydown.enter.prevent.stop="commit(true)"
         @keydown.esc.prevent.stop="cancel"
       />
-      <button
-        class="tag-pill__action"
-        type="button"
-        :aria-label="t('Cancel')"
-        :title="t('Cancel')"
-        :disabled="busy"
-        @pointerdown.prevent
-        @click="cancel"
-      >
-        <AppIcon name="close" :size="16" />
-      </button>
-      <p v-if="numItems !== undefined" :id="`${id}-hint`" class="tag-pill__hint">
-        {{ t('The tag will be changed in all associated items.') }}
-        {{ t('{count} item carries it. | {count} items carry it.', numItems) }}
-      </p>
-      <p v-if="failure" :id="`${id}-error`" class="tag-pill__error" role="alert">{{ failure }}</p>
-    </template>
-    <template v-else>
-      <component
-        :is="filterable ? 'button' : 'span'"
-        :id="id"
-        class="tag-pill__name"
-        :type="filterable ? 'button' : undefined"
-        dir="auto"
-        :aria-pressed="filterable ? Boolean(selected) : undefined"
-        :title="automatic ? t('Automatically added tag') : undefined"
-        @click="filterable && emit('filter')"
-      >
-        {{ name }}<span v-if="automatic" class="visually-hidden">, {{ t('Automatically added tag') }}</span>
-      </component>
-      <button
-        v-if="rename"
-        class="tag-pill__action tag-pill__edit"
-        type="button"
-        :aria-label="t('Rename “{name}”', { name })"
-        :title="t('Rename tag')"
-        @click="edit"
-      >
-        <AppIcon name="edit" :size="16" />
-      </button>
-      <button
-        v-if="removable"
-        class="tag-pill__action tag-pill__remove"
-        type="button"
-        :aria-label="t('Remove Tag')"
-        :aria-describedby="id"
-        :title="t('Remove Tag')"
-        @click="emit('remove')"
-      >
-        <AppIcon name="close" :size="16" />
-      </button>
-    </template>
+    </span>
+    <span
+      v-if="numItems !== undefined"
+      class="tag-pill__count"
+      :aria-label="t('{count} item | {count} items', numItems)"
+    >{{ numItems }}</span>
+    <button
+      v-if="rename"
+      class="tag-pill__action"
+      :class="{ 'tag-pill__edit': !editing }"
+      type="button"
+      :aria-label="editing ? t('Cancel') : t('Rename “{name}”', { name })"
+      :title="editing ? t('Cancel') : t('Rename tag')"
+      :disabled="busy"
+      @pointerdown="editing && $event.preventDefault()"
+      @click="editing ? cancel() : edit()"
+    >
+      <AppIcon :name="editing ? 'close' : 'edit'" :size="16" />
+    </button>
+    <button
+      v-if="removable"
+      class="tag-pill__action tag-pill__remove"
+      :class="{ 'tag-pill__remove--editing': editing }"
+      type="button"
+      :aria-label="t('Remove Tag')"
+      :aria-describedby="id"
+      :title="t('Remove Tag')"
+      :disabled="editing"
+      @click="emit('remove')"
+    >
+      <AppIcon name="close" :size="16" />
+    </button>
+    <p v-if="failure" :id="`${id}-error`" class="tag-pill__error" role="alert">{{ failure }}</p>
   </li>
 </template>
 

@@ -768,8 +768,6 @@ export default {
     'தொடுப்பு ஒருமுறை மட்டுமே வேலை செய்யும், பன்னிரண்டு மணிநேரம் செல்லுபடியாகும். உங்கள் தற்போதைய கடவுச்சொல் இன்னும் வேலை செய்கிறது.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     '{username} பயனரின் கடவுச்சொல்: {password}. இதை இப்போதே நகலெடுக்கவும். இது மீண்டும் காட்டப்படாது.',
-  'The tag will be changed in all associated items.':
-    'குறிச்சொல் அனைத்து தொடர்புடைய உருப்படிகளிலும் மாற்றப்படும்.',
   'The trash is empty.': 'குப்பை காலியாக உள்ளது.',
   'The two passwords do not match': 'இரண்டு கடவுச்சொற்களும் பொருந்தவில்லை',
   'The work you add to My Publications is shown on your public page.':
@@ -921,8 +919,6 @@ export default {
     '{count} கோப்புகள் இனி எந்த நூலகத்தாலும் குறிப்பிடப்படவில்லை; அவை {size} இடத்தை எடுத்துக்கொள்கின்றன.',
   '{count} item added or changed | {count} items added or changed':
     '{count} உருப்படி சேர்க்கப்பட்டது அல்லது மாற்றப்பட்டது | {count} உருப்படிகள் சேர்க்கப்பட்டன அல்லது மாற்றப்பட்டன',
-  '{count} item carries it. | {count} items carry it.':
-    '{count} உருப்படியில் இது உள்ளது. | {count} உருப்படிகளில் இது உள்ளது.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     '{count} உருப்படியை இங்கே சேமிக்க முடியவில்லை, அது விடப்பட்டது: {keys} | {count} உருப்படிகளை இங்கே சேமிக்க முடியவில்லை, அவை விடப்பட்டன: {keys}',
   '{count} item deleted | {count} items deleted':

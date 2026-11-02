@@ -721,7 +721,6 @@ export default {
   'The link works once and lasts twelve hours. Your current password still works.': 'Le lien fonctionne une seule fois et dure douze heures. Votre mot de passe actuel fonctionne toujours.',
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Le mot de passe de {username} est {password}. Copiez-le maintenant : il ne sera plus affiché.',
-  'The tag will be changed in all associated items.': 'Le marqueur sera modifié dans tous les documents associés.',
   'The trash is empty.': 'La corbeille est vide.',
   'The two passwords do not match': 'Les deux mots de passe ne correspondent pas',
   'The work you add to My Publications is shown on your public page.':
@@ -865,7 +864,6 @@ export default {
   '{count} files are no longer referenced by any library, holding {size}.':
     '{count} fichiers ne sont plus référencés par aucune bibliothèque et occupent {size}.',
   '{count} item added or changed | {count} items added or changed': '{count} document ajouté ou modifié | {count} documents ajoutés ou modifiés',
-  '{count} item carries it. | {count} items carry it.': '{count} document porte ce marqueur. | {count} documents portent ce marqueur.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}': '{count} document n’a pas pu être enregistré ici et a été laissé de côté : {keys} | {count} documents n’ont pas pu être enregistrés ici et ont été laissés de côté : {keys}',
   '{count} item deleted | {count} items deleted': '{count} document supprimé | {count} documents supprimés',
   '{count} item selected | {count} items selected': '{count} document sélectionné | {count} documents sélectionnés',

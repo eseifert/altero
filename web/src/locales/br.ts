@@ -763,8 +763,6 @@ export default {
     "Ur wech hepken ez a al liamm en-dro hag e pad daouzek eur. Ho ker-tremen a-vremañ a ya en-dro c'hoazh.",
   'The password for {username} is {password}. Copy this now. It will not be shown again.':
     'Ger-tremen {username} eo {password}. Eilit anezhañ bremañ. Ne vo ket diskouezet en-dro.',
-  'The tag will be changed in all associated items.':
-    'Cheñchet e vo ar baliz e-barzh an holl elfennoù kevelet.',
   'The trash is empty.': 'Goullo eo ar pod-lastez.',
   'The two passwords do not match': "Ne glot ket an daou c'her-tremen",
   'The work you add to My Publications is shown on your public page.':
@@ -916,8 +914,6 @@ export default {
     "N'eus levraoueg ebet a ra dave ken da {count} restr, {size} en holl.",
   '{count} item added or changed | {count} items added or changed':
     '{count} elfenn ouzhpennet pe cheñchet | {count} elfenn ouzhpennet pe cheñchet | {count} elfenn ouzhpennet pe cheñchet | {count} a elfennoù ouzhpennet pe cheñchet | {count} elfenn ouzhpennet pe cheñchet',
-  '{count} item carries it. | {count} items carry it.':
-    'Emañ war {count} elfenn. | Emañ war {count} elfenn. | Emañ war {count} elfenn. | Emañ war {count} a elfennoù. | Emañ war {count} elfenn.',
   '{count} item could not be stored here and was left behind: {keys} | {count} items could not be stored here and were left behind: {keys}':
     "N'eus ket bet gallet stokañ {count} elfenn amañ; chomet a-dreñv: {keys} | N'eus ket bet gallet stokañ {count} elfenn amañ; chomet a-dreñv: {keys} | N'eus ket bet gallet stokañ {count} elfenn amañ; chomet a-dreñv: {keys} | N'eus ket bet gallet stokañ {count} a elfennoù amañ; chomet a-dreñv: {keys} | N'eus ket bet gallet stokañ {count} elfenn amañ; chomet a-dreñv: {keys}",
   '{count} item deleted | {count} items deleted':
