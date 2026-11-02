@@ -129,6 +129,23 @@ the menu open when its anchor is unchanged. The browser regression opens New
 Note below a populated collection sidebar and checks that the menu stays open
 without moving the page.
 
+### Undoing filing and trash changes
+
+`PATCH /web/libraries/{id}/items` returns an `undo` object alongside `items`.
+Its `version` is the committed library watermark; its `items` hold each changed
+item's prior `collections` and/or `deleted` value. Unchanged properties and
+items are omitted. The snapshot comes from stored state under the write lock,
+so it includes memberships the browser had not loaded.
+
+`POST /web/libraries/{id}/items/undo` accepts that `items` array with
+`If-Unmodified-Since-Version` set to the returned version. It requires the
+browser session, CSRF token and current item permissions. The version must
+match exactly under the write lock: a later sync, edit or undo returns 412
+without changing anything. Every item is restored in one transaction and one
+new library version. Only collection memberships and trash state can be
+restored here; permanent deletion and merge graphs are outside this endpoint.
+The browser does not persist these snapshots across page reloads.
+
 ### Duplicate merge endpoint
 
 The duplicates listing accepts `grouped=true` with `scope=duplicates`. It returns

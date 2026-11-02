@@ -201,6 +201,28 @@ class ItemErrands(BaseModel):
     remove_collections: list[str] = Field(default_factory=list, alias="removeCollections")
 
 
+class UndoItem(BaseModel):
+    """Only filing and trash state can be restored by the browser's undo."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    key: str
+    collections: list[str] | None = None
+    deleted: bool | None = None
+
+    def patch(self) -> dict[str, Any]:
+        values = self.model_dump(exclude_unset=True, exclude={"key"})
+        if not values or any(value is None for value in values.values()):
+            raise InvalidInputError("Undo must name collections or deleted state")
+        return values
+
+
+class UndoItems(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[UndoItem] = Field(min_length=1)
+
+
 class ItemEdit(BaseModel):
     """One item's changes, and the version they replace.
 
@@ -466,6 +488,19 @@ async def update_items(
     keys = list(dict.fromkeys(body.items))
     items = await items_service.get_items(session, library, keys)
 
+    # Read under the write lock, never from a browser's possibly stale list.
+    # Keep only the properties this errand can change, then remove no-ops
+    # after writing so undo never untrashes something already in the trash.
+    memberships = await items_service.collection_keys_for(session, items) if refiling else {}
+    before: dict[str, dict[str, Any]] = {}
+    for item in items:
+        state: dict[str, Any] = {}
+        if refiling:
+            state["collections"] = memberships.get(item.id, [])
+        if trashing:
+            state["deleted"] = item.deleted
+        before[item.key] = state
+
     version = await writes.bump_library_version(session, library)
 
     if refiling:
@@ -497,6 +532,15 @@ async def update_items(
             )
 
     rendered = await _rendered_all(session, items, library, base_url)
+    inverse = []
+    for entry in rendered:
+        changed = {
+            name: value
+            for name, value in before[entry["key"]].items()
+            if value != entry["data"].get(name, False if name == "deleted" else [])
+        }
+        if changed:
+            inverse.append({"key": entry["key"], **changed})
     await groupactivity.record(
         session,
         library,
@@ -507,6 +551,65 @@ async def update_items(
     )
     await session.commit()
 
+    return JSONResponse(
+        {"items": rendered, "undo": {"version": version, "items": inverse}},
+        headers=library_headers(version),
+    )
+
+
+@router.post("/libraries/{library_id}/items/undo")
+async def undo_items(
+    request: Request,
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    library_id: int,
+    _csrf: CsrfDep,
+    body: Annotated[UndoItems, Body()],
+) -> Response:
+    """Reverse a filing/trash errand without overwriting a later library write.
+
+    The payload is no authority: ordinary item permissions and validation
+    apply again. The exact post-write watermark is required under the lock,
+    so an undo cannot overwrite a sync, a second tab or another member's edit.
+    Restoring the selection is one atomic write and one new sync version.
+    """
+    library, access = await _library(session, user, library_id, write=True)
+    expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
+    if expected is None:
+        raise PreconditionRequiredError("If-Unmodified-Since-Version not provided")
+    keys = [entry.key for entry in body.items]
+    if len(set(keys)) != len(keys):
+        raise InvalidInputError("Undo must name each item once")
+    patches = [entry.patch() for entry in body.items]
+
+    library = await writes.lock_library(session, library)
+    if library.version != expected:
+        raise PreconditionFailedError("The library has changed; undo is no longer available")
+    items = await items_service.get_items(session, library, keys, permit=access)
+    version = await writes.bump_library_version(session, library)
+    for item, patch in zip(items, patches, strict=True):
+        await itemwrites.save_item(
+            session,
+            library,
+            patch,
+            version,
+            key=item.key,
+            replace=False,
+            actor_id=user.id,
+            permit=access,
+            stored=item,
+        )
+    rendered = await _rendered_all(session, items, library, base_url)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=user.id,
+        kind=ActivityKind.ITEMS_CHANGED,
+        count=len(items),
+        objects=await groupactivity.name_items(session, library, keys),
+    )
+    await session.commit()
     return JSONResponse({"items": rendered}, headers=library_headers(version))
 
 
