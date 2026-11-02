@@ -923,6 +923,16 @@ async def save_item(
 
     # Where the item will hang once written, and whether that is anywhere new.
     keeps_parent = parent is None and not (replace or parsed["unparenting"])
+    effective_parent_id = item.parent_id if keeps_parent else parent_id
+    if effective_parent_id is not None:
+        # Items::validateJSONItem refuses explicit collections on a child;
+        # Item::save deletes former standalone memberships on a parent change.
+        # Desktop sync omits collections once an item is a child, so leaving
+        # them alone here sends invalid child/collection pairs to other clients
+        # (issue #64). Normalize before unchanged detection as well as writing.
+        if parsed["collections"]:
+            raise InvalidInputError("Child items cannot be assigned to collections")
+        parsed["mentioned"].add("collections")
     if creating or (not keeps_parent and parent_id != item.parent_id):
         fields = {} if creating else item.field_values()
         await _check_parent(session, parsed["item_type"], fields | parsed["fields"], parent)

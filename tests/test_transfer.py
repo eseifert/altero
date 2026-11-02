@@ -255,6 +255,39 @@ async def target(tmp_path: Path) -> AsyncIterator[tuple[AsyncSession, Path]]:
 
 
 class TestRoundTrip:
+    async def test_old_archives_do_not_restore_child_collection_memberships(
+        self,
+        session: AsyncSession,
+        tmp_path: Path,
+        target: tuple[AsyncSession, Path],
+    ) -> None:
+        await make_user(session)
+        library = await get_library(session, LibraryType.USER, 1)
+        parent = await make_item(session, library, key="PARENT23")
+        child = await make_item(session, library, key="CHILD234", item_type="note", parent=parent)
+        # Reproduce an archive from an affected server, before the repair.
+        await make_collection(session, library, key="CCCC2345", items=[parent, child])
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "source",
+            destination=tmp_path / "old.zip",
+        )
+        target_session, target_storage = target
+        await make_user(target_session)
+
+        restored = await transfer.import_library(
+            target_session,
+            archive=archive,
+            storage_root=target_storage,
+        )
+
+        state = await snapshot(target_session, restored)
+        assert state["membership"] == [("CCCC2345", "PARENT23")]
+        restored_child = next(item for item in state["items"] if item["key"] == "CHILD234")
+        assert restored_child["parent"] == "PARENT23"
+
     async def test_a_restored_library_is_the_one_that_was_exported(
         self,
         session: AsyncSession,

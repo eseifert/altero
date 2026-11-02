@@ -97,3 +97,44 @@ async def child_promotion(run: AcceptanceRun) -> None:
     assert not note.get("parentItem"), "The other desktop kept the note under its parent"
     await run.converged(promoted, other)
     await run.settled(files=False)
+
+
+async def child_demotion(run: AcceptanceRun) -> None:
+    """A filed standalone PDF becomes a child without stopping another desktop.
+
+    A child has no collections property in the desktop's upload, so the server
+    must discard the former standalone memberships when applying the parent.
+    Retaining them produces issue #64's collectionItems foreign-key error on B.
+    """
+    await run.phase(
+        "A",
+        [
+            dict(action="collection", key="DMTCNL23", name="Papers"),
+            dict(action="create", key="DMTPAR23"),
+            dict(
+                action="create",
+                key="DMTPDF23",
+                data=dict(
+                    itemType="attachment",
+                    linkMode="imported_file",
+                    contentType="application/pdf",
+                    filename="paper.pdf",
+                    title="Paper",
+                ),
+            ),
+            dict(action="file", key="DMTPDF23", collections=["DMTCNL23"]),
+        ],
+        files=False,
+    )
+    await run.phase("B", files=False)
+    moved = await run.phase(
+        "A",
+        [dict(action="json", key="DMTPDF23", data=dict(parentItem="DMTPAR23", collections=[]))],
+        files=False,
+    )
+    other = await run.phase("B", files=False)
+    remote = (await run.request("GET", "/users/1/items/DMTPDF23")).json()["data"]
+    assert remote["parentItem"] == "DMTPAR23"
+    assert remote["collections"] == [], "The server retained the standalone PDF's collections"
+    await run.converged(moved, other)
+    await run.settled(files=False)

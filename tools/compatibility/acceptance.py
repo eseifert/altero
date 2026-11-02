@@ -210,6 +210,7 @@ SCENARIOS = (
     "parent-rejection",
     "missing-parent",
     "child-promotion",
+    "child-demotion",
     "type-change",
     "reader-rendering",
     "zipped-digest-race",
@@ -250,7 +251,11 @@ async def run_acceptance(
     from tools.compatibility.acceptance_http import http_policy
     from tools.compatibility.acceptance_notes import note_corpus, web_notes
     from tools.compatibility.acceptance_parent_rejection import parent_rejection
-    from tools.compatibility.acceptance_parents import child_promotion, missing_parent
+    from tools.compatibility.acceptance_parents import (
+        child_demotion,
+        child_promotion,
+        missing_parent,
+    )
     from tools.compatibility.acceptance_partial import partial_failures
     from tools.compatibility.acceptance_races import read_races
     from tools.compatibility.acceptance_reader import reader_rendering
@@ -296,6 +301,7 @@ async def run_acceptance(
     drivers["parent-rejection"] = parent_rejection
     drivers["missing-parent"] = missing_parent
     drivers["child-promotion"] = child_promotion
+    drivers["child-demotion"] = child_demotion
     drivers["type-change"] = type_change
     drivers["reader-rendering"] = reader_rendering
     drivers["zipped-digest-race"] = zipped_digest_race

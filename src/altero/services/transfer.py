@@ -613,6 +613,10 @@ async def import_library(
                 if record["parent"]
             ],
         )
+        # Archives from before issue #64 may file child notes or attachments
+        # directly in collections. Keep their parents and data, but do not
+        # restore memberships that Zotero Desktop cannot accept.
+        top_level_keys = {record["key"] for record in item_records if not record["parent"]}
         await _insert_all(
             session,
             CollectionItem,
@@ -620,6 +624,7 @@ async def import_library(
                 {"collection_id": collection_ids[record["key"]], "item_id": item_ids[item_key]}
                 for record in collection_records
                 for item_key in record["items"]
+                if item_key in top_level_keys
             ],
         )
 

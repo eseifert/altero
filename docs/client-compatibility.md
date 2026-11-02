@@ -62,6 +62,12 @@ also accepts a `PATCH` method argument, but the sync engine uses `POST` and the
 dataserver does not accept `PATCH` on the collection endpoint for items.
 The field-clearing scenarios therefore exercise partial `POST` bodies.
 
+`child-demotion` syncs a standalone PDF in a collection to two Zotero profiles,
+then makes it a child in one profile. It checks that the other profile accepts
+the change, that the server removes the former collection memberships, and that
+further syncs settle. Before the fix for issue #64, Zotero 10.0.7 rejected the
+download with its `collectionItems` parent-item foreign-key error.
+
 Functions are selected by JavaScript syntax nodes and executed in a Node
 subprocess. Their decision logic keeps JavaScript's types, defaults and branch
 order. The adapters provide HTTP response facades, in-memory persistence, and

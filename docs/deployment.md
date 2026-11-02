@@ -107,6 +107,12 @@ Upgrading from beta.6 to beta.7 needs no database or storage changes.
 
 Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.
 
+The next upgrade after beta.7 repairs child notes and attachments incorrectly
+filed in collections ([issue #64](https://github.com/eseifert/altero/issues/64)).
+Sync each desktop after upgrading. Affected items receive a new version so
+clients download the repair; their parents and attachment files stay intact.
+Source installations must run `uv run alembic upgrade head` before serving.
+
 Upgrading from beta.2 or earlier builds the full-text search index once: about a minute per 30,000 attachment texts, and more disk. Check the [database requirements](#database-requirements) first.
 
 Upgrading from beta.5 or earlier renames attachment storage once, on the first start: every attachment file is read and hashed, so starting takes about as long as reading the storage directory from disk. Web snapshots are renamed to the digest of their own bytes. A file on a mount that cannot make hard links is copied first, so keep free space for your largest snapshot. Do not downgrade afterwards without restoring the storage backup as well.

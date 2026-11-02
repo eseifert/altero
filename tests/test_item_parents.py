@@ -16,9 +16,10 @@ from typing import Any
 
 import httpx2
 import pytest
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from altero.models import Library, LibraryType
+from altero.models import CollectionItem, Item, Library, LibraryType
 from altero.services.auth import get_library
 from tests.factories import make_api_key, make_item, make_user
 
@@ -91,6 +92,100 @@ def annotation(parent: str | None, annotation_type: str = "highlight") -> dict[s
 def failure(body: dict[str, Any]) -> dict[str, Any]:
     assert body["successful"] == {}, body["successful"]
     return dict(body["failed"]["0"])
+
+
+class TestChildCollections:
+    @pytest.mark.parametrize("item_type", ["attachment", "note"])
+    @pytest.mark.parametrize("extra", [{}, {"tags": [{"tag": "paper"}]}, {"collections": []}])
+    async def test_becoming_a_child_removes_standalone_collection_memberships(
+        self,
+        client: httpx2.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        item_type: str,
+        extra: dict[str, Any],
+    ) -> None:
+        response = await client.post(
+            "/users/1/collections",
+            headers=JSON,
+            json=[{"name": "Papers"}, {"name": "Reading"}],
+        )
+        collections = [entry["key"] for entry in response.json()["successful"].values()]
+        parent = await made(client, {"itemType": "book", "collections": collections[:1]})
+        data: dict[str, Any] = {"itemType": item_type, "collections": collections}
+        if item_type == "attachment":
+            data.update(linkMode="imported_file", contentType=PDF)
+        child = await made(client, data)
+        before = (await client.get(f"/users/1/items/{child}", headers=JSON)).json()
+
+        result = await post(
+            client,
+            {
+                "key": child,
+                "version": before["version"],
+                "parentItem": parent,
+                **extra,
+            },
+        )
+
+        assert result["failed"] == {}
+        written = result["successful"]["0"]
+        assert written["data"]["parentItem"] == parent
+        assert written["data"]["collections"] == []
+        downloaded = (
+            await client.get(
+                "/users/1/items",
+                headers=JSON,
+                params={"since": before["version"]},
+            )
+        ).json()
+        assert [entry["key"] for entry in downloaded] == [child]
+        assert downloaded[0]["data"]["collections"] == []
+        assert not await session.scalar(
+            select(CollectionItem.item_id)
+            .join(Item, Item.id == CollectionItem.item_id)
+            .where(Item.key == child)
+        )
+        parent_data = (await client.get(f"/users/1/items/{parent}", headers=JSON)).json()["data"]
+        assert parent_data["collections"] == collections[:1]
+        # Re-uploading the same parent must settle rather than keep rewriting.
+        again = await post(
+            client, {"key": child, "version": written["version"], "parentItem": parent}
+        )
+        assert again["unchanged"] == {"0": child}
+
+    @pytest.mark.parametrize("existing", [False, True])
+    @pytest.mark.parametrize("item_type", ["attachment", "note"])
+    @pytest.mark.parametrize("collection_exists", [False, True])
+    async def test_explicit_parent_and_nonempty_collections_are_refused(
+        self,
+        client: httpx2.AsyncClient,
+        library: Library,
+        existing: bool,
+        item_type: str,
+        collection_exists: bool,
+    ) -> None:
+        parent = await book(client)
+        if collection_exists:
+            response = await client.post(
+                "/users/1/collections",
+                headers=JSON,
+                json=[{"key": "AAAA2345", "name": "Papers"}],
+            )
+            assert response.json()["failed"] == {}
+        data: dict[str, Any] = {"itemType": item_type, "parentItem": parent}
+        if item_type == "attachment":
+            data["linkMode"] = "imported_file"
+        if existing:
+            key = await made(client, data)
+            stored = (await client.get(f"/users/1/items/{key}", headers=JSON)).json()
+            data = {"key": key, "version": stored["version"], "parentItem": parent}
+        data["collections"] = ["AAAA2345"]
+
+        refused = failure(await post(client, data))
+
+        assert refused["code"] == 400
+        assert refused["message"] == "Child items cannot be assigned to collections"
 
 
 class TestWhatMayHaveAParent:

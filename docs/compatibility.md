@@ -549,6 +549,8 @@ A note or attachment under a note or attachment fails with 409, `Parent item can
 
 The rules are checked when an item is created or moved to another parent. An item already stored under a parent it could not have now, for example by an earlier altero, keeps syncing as it is.
 
+**Child items cannot belong to collections.** Making a standalone note or attachment a child removes its former collection memberships, even when the upload omits `collections`. Explicitly assigning a child to a collection fails with 400, as on zotero.org.
+
 ### Groups
 
 zotero.org has endpoints for creating, editing and deleting groups and adding members, but only for its own administrators, in XML, and never used by the Zotero client. An ordinary key gets 403.

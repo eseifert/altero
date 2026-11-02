@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Fix child attachment collection memberships that stopped multi-machine Zotero sync; repair affected records on upgrade (#64).
 - Make the keyboard browser test wait for real item buttons while the library is loading.
 - Fix the account language-choice test to include Swahili, Hausa and Yoruba.
 - Add Yoruba translations to the browser interface.
