@@ -584,6 +584,7 @@ The final settled sync checks convergence and an unchanged server watermark.
 | `http-policy` | Induce a real server 429; let the original desktop HTTP policy retry; upload once and converge without continued version changes. |
 | `server-writes` | Make collection, filing, tag and trash changes through the browser's authenticated HTTP routes; execute the real retention sweep; observe changes and deletion logs in both desktops. |
 | `web-editing` | Edit an item's fields, creators and tags, relate two items, change a type and make an item through the browser's routes; both desktops store exactly that; a desktop edit then makes the browser's stale save fail with 412. |
+| `web-undo` | Trash and file a selection through the browser, then undo after both desktops have synced; preserve prior memberships, preexisting trash and child-note HTML/parents; a real desktop edit invalidates a stale undo. |
 | `note-corpus` | Store notes as clients wrote them, from TinyMCE-era HTML to schema 10 and a note built from PDF annotations; have the shipped note editor save each unedited; record both for the browser editor's tests, and check the server keeps the desktop's HTML exactly. |
 | `web-notes` | Write a standalone and a child note through the browser's routes; both desktops store exactly that HTML; the desktop's editor opens them editable and writes nothing; a desktop edit reaches the browser. |
 | `web-files` | Upload a child and a standalone file and attach a web link through the browser's routes; both desktops download the bytes under the browser's name; a rename renames each desktop's copy without fetching it; a replacement brings new bytes; a desktop's replacement makes the browser's stale one fail with 412. |
@@ -725,6 +726,7 @@ Zotero 10.0.7 Linux x86-64; actual desktop profiles.
 | `graph-races` | Passed (19 phases) | Passed (19 phases) |
 | `credential-limits` | Passed (12 phases) | Passed (12 phases) |
 | `web-editing` | Passed (7 phases) | Passed (7 phases) |
+| `web-undo` | Passed (15 phases) | Passed (15 phases) |
 | `note-corpus` | Passed (5 phases) | Passed (5 phases) |
 | `web-notes` | Passed (8 phases) | Passed (8 phases) |
 | `web-files` | Passed (11 phases) | Passed (11 phases) |
@@ -734,11 +736,19 @@ Zotero 10.0.7 Linux x86-64; actual desktop profiles.
 <!-- /desktop-matrix -->
 
 Results above are local executions with the pinned Linux x86-64 Zotero 10.0.7
-archive on Python 3.14.10. All 36 scenarios ran on each database on 2026-10-30
+archive on Python 3.14.10. The original 36 scenarios ran on each database on 2026-10-30
 against the beta.7 release candidate, including the 15-phase schema baseline.
 PostgreSQL uses the existing 18.4 container, with a fresh database per scenario.
 **Not run** means there is no successful result recorded for that combination;
 executable inventory entries and scheduled CI jobs do not count as passes.
+
+The additional `web-undo` scenario passed on both databases on 2026-11-02,
+with 15 phases each against the current checkout. Both desktops downloaded
+filing and trash changes before undo, then converged on the restored state;
+a subsequent desktop edit made an old undo fail with 412. Its separate
+[evidence summary](assets/compatibility-web-undo-10.0.7.json) records report and
+phase-snapshot hashes. This adds coverage for those operations, not copy or
+merge undo.
 
 The machine-readable evidence summary is
 [`compatibility-10.0.7.json`](assets/compatibility-10.0.7.json). It records

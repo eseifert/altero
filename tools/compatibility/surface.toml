@@ -249,6 +249,11 @@ operation = "convergence"
 status = "executable"
 tests = ["tools/compatibility/acceptance_web_editing.py"]
 
+[scenarios.browser_filing_and_trash_undo]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_web_undo.py"]
+
 [scenarios.desktop_note_editor_output]
 operation = "convergence"
 status = "executable"

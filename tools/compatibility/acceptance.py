@@ -218,6 +218,7 @@ SCENARIOS = (
     "graph-races",
     "credential-limits",
     "web-editing",
+    "web-undo",
     "note-corpus",
     "web-notes",
     "web-files",
@@ -273,6 +274,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_web_files import web_files
     from tools.compatibility.acceptance_web_merge import web_merge
     from tools.compatibility.acceptance_web_merge_files import web_merge_files
+    from tools.compatibility.acceptance_web_undo import web_undo
     from tools.compatibility.acceptance_zip_race import zipped_digest_race
     from tools.compatibility.process_server import process_server
 
@@ -309,6 +311,7 @@ async def run_acceptance(
     drivers["graph-races"] = graph_races
     drivers["credential-limits"] = credential_limits
     drivers["web-editing"] = web_editing
+    drivers["web-undo"] = web_undo
     drivers["note-corpus"] = note_corpus
     drivers["web-notes"] = web_notes
     drivers["web-files"] = web_files
