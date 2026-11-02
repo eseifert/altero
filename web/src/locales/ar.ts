@@ -1,5 +1,11 @@
 /** Interface messages. Keep keys and placeholders in step with en-US.ts. */
 export default {
+  "Items moved to trash.": "نُقلت العناصر إلى سلة المحذوفات.",
+  "Items filed.": "نُظّمت العناصر.",
+  "Items restored.": "استُعيدت العناصر.",
+  "Change undone.": "تم التراجع عن التغيير.",
+  "Could not undo the change.": "تعذّر التراجع عن التغيير.",
+  "Undo is no longer available because the library changed.": "لم يعد التراجع متاحًا لأن المكتبة تغيّرت.",
   "Master item": "العنصر الرئيسي",
   "Merge Items": "دمج العناصر",
   "Choose the version of the item to use as the master item:": "اختر إصدار العنصر لاستخدامه كعنصر رئيسي:",

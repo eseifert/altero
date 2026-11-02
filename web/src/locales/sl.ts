@@ -8,6 +8,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Vnosi so premaknjeni v koš.",
+  "Items filed.": "Vnosi so razvrščeni.",
+  "Items restored.": "Vnosi so obnovljeni.",
+  "Change undone.": "Sprememba je razveljavljena.",
+  "Could not undo the change.": "Spremembe ni bilo mogoče razveljaviti.",
+  "Undo is no longer available because the library changed.": "Razveljavitev ni več mogoča, ker se je knjižnica spremenila.",
   "Master item": "Glavni predmet",
   "Merge Items": "Spoji vnose ",
   "Choose the version of the item to use as the master item:": "Izberite različico vnosa, ki naj bo osrednja:",

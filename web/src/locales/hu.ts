@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Az elemek a kukába kerültek.",
+  "Items filed.": "Az elemek besorolva.",
+  "Items restored.": "Az elemek visszaállítva.",
+  "Change undone.": "A módosítás visszavonva.",
+  "Could not undo the change.": "Nem sikerült visszavonni a módosítást.",
+  "Undo is no longer available because the library changed.": "A visszavonás már nem érhető el, mert a könyvtár megváltozott.",
   "Master item": "Fő elem",
   "Merge Items": "Elemek összefésülése",
   "Choose the version of the item to use as the master item:": "Válassza ki azt az elemverziót, amit mester elemnek kíván használni: ",

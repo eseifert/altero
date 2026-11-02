@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Kirjed teisaldati prügikasti.",
+  "Items filed.": "Kirjed korrastati.",
+  "Items restored.": "Kirjed taastati.",
+  "Change undone.": "Muudatus võeti tagasi.",
+  "Could not undo the change.": "Muudatust ei saanud tagasi võtta.",
+  "Undo is no longer available because the library changed.": "Tagasivõtmine pole enam võimalik, sest raamatukogu on muutunud.",
   "Master item": "Põhikirje",
   "Merge Items": "Kirjete liitmine",
   "Choose the version of the item to use as the master item:": "Palun valida aluskirje, millele liidetakse teise kirje andmed:",

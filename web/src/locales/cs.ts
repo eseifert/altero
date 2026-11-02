@@ -8,6 +8,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Položky byly přesunuty do koše.",
+  "Items filed.": "Položky byly zařazeny.",
+  "Items restored.": "Položky byly obnoveny.",
+  "Change undone.": "Změna byla vrácena.",
+  "Could not undo the change.": "Změnu se nepodařilo vrátit.",
+  "Undo is no longer available because the library changed.": "Změnu již nelze vrátit, protože se knihovna změnila.",
   "Master item": "Hlavní položka",
   "Merge Items": "Sloučit položky",
   "Choose the version of the item to use as the master item:": "Vyberte verzi položky, jež bude použita jako hlavní položka:",

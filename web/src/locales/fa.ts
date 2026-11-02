@@ -1,5 +1,11 @@
 /** Interface messages. Keep keys and placeholders in step with en-US.ts. */
 export default {
+  "Items moved to trash.": "آیتم‌ها به سطل بازیافت منتقل شدند.",
+  "Items filed.": "آیتم‌ها دسته‌بندی شدند.",
+  "Items restored.": "آیتم‌ها بازیابی شدند.",
+  "Change undone.": "تغییر واگردانی شد.",
+  "Could not undo the change.": "واگردانی تغییر ممکن نشد.",
+  "Undo is no longer available because the library changed.": "به‌دلیل تغییر کتابخانه، واگردانی دیگر ممکن نیست.",
   "Master item": "آیتم اصلی",
   "Merge Items": "ادغام آیتم‌ها",
   "Choose the version of the item to use as the master item:": "آن نسخه از آیتمی را که می‌خواهید به عنوان آیتم اصلی استفاده شود، انتخاب کنید.",

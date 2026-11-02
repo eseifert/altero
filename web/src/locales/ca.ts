@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Elements moguts a la paperera.",
+  "Items filed.": "Elements organitzats.",
+  "Items restored.": "Elements restaurats.",
+  "Change undone.": "Canvi desfet.",
+  "Could not undo the change.": "No s’ha pogut desfer el canvi.",
+  "Undo is no longer available because the library changed.": "Ja no es pot desfer perquè la biblioteca ha canviat.",
   "Master item": "Element principal",
   "Merge Items": "Combina els elements",
   "Choose the version of the item to use as the master item:": "Triaeu la versió de l'element com a element prinicpal:",

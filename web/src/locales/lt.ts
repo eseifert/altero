@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Įrašai perkelti į šiukšlinę.",
+  "Items filed.": "Įrašai suskirstyti.",
+  "Items restored.": "Įrašai atkurti.",
+  "Change undone.": "Pakeitimas atšauktas.",
+  "Could not undo the change.": "Nepavyko atšaukti pakeitimo.",
+  "Undo is no longer available because the library changed.": "Atšaukti nebegalima, nes biblioteka pasikeitė.",
   "Master item": "Pagrindinis įrašas",
   "Merge Items": "Apjungti įrašus",
   "Choose the version of the item to use as the master item:": "Pasirinkite pagrindinę įrašo versiją:",

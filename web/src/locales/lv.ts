@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Vienumi pārvietoti uz atkritni.",
+  "Items filed.": "Vienumi sakārtoti.",
+  "Items restored.": "Vienumi atjaunoti.",
+  "Change undone.": "Izmaiņa atsaukta.",
+  "Could not undo the change.": "Neizdevās atsaukt izmaiņu.",
+  "Undo is no longer available because the library changed.": "Atsaukšana vairs nav pieejama, jo bibliotēka ir mainījusies.",
   "Master item": "Galvenais ieraksts",
   "Merge Items": "Apvienot ierakstus",
   "Choose the version of the item to use as the master item:": "Izvēlieties ieraksta versiju, ko izmantot kā galveno ierakstu:",

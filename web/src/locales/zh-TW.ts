@@ -10,6 +10,12 @@
  */
 
 export default {
+  "Items moved to trash.": "項目已移至垃圾桶。",
+  "Items filed.": "項目已歸類。",
+  "Items restored.": "項目已還原。",
+  "Change undone.": "變更已復原。",
+  "Could not undo the change.": "無法復原變更。",
+  "Undo is no longer available because the library changed.": "文獻庫已變更，無法再復原。",
   "Master item": "主項目",
   "Merge Items": "合併項目…",
   "Choose the version of the item to use as the master item:": "選擇要做為主項目的項目版本：",

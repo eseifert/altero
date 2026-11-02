@@ -10,6 +10,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Itens movidos para a lixeira.",
+  "Items filed.": "Itens organizados.",
+  "Items restored.": "Itens restaurados.",
+  "Change undone.": "Alteração desfeita.",
+  "Could not undo the change.": "Não foi possível desfazer a alteração.",
+  "Undo is no longer available because the library changed.": "Não é mais possível desfazer porque a biblioteca foi alterada.",
   "Master item": "Item principal",
   "Merge Items": "Mesclar itens",
   "Choose the version of the item to use as the master item:": "Escolha a versão do item a ser utilizada como mestre:",

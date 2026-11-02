@@ -2,6 +2,12 @@
 // Counted nouns use the same form in both plural branches.
 
 export default {
+  "Items moved to trash.": "A ti kó àwọn ohun lọ sí àpótí ìdọ̀tí.",
+  "Items filed.": "A ti ṣètò àwọn ohun.",
+  "Items restored.": "A ti mú àwọn ohun padà.",
+  "Change undone.": "A ti fagilé ìyípadà náà.",
+  "Could not undo the change.": "Kò ṣeé ṣe láti fagilé ìyípadà náà.",
+  "Undo is no longer available because the library changed.": "Kò ṣeé ṣe láti fagilé mọ́ nítorí ilé ìkàwé ti yí padà.",
   "Master item": "Ohun àkọ́kọ́",
   "Merge Items": "Dà àwọn ohun pọ̀",
   "Choose the version of the item to use as the master item:": "Yan ẹ̀dà ohun tí a ó lò gẹ́gẹ́ bí ohun àkọ́kọ́:",

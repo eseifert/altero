@@ -146,6 +146,12 @@ new library version. Only collection memberships and trash state can be
 restored here; permanent deletion and merge graphs are outside this endpoint.
 The browser does not persist these snapshots across page reloads.
 
+Filing, trashing and restoring through the library store show the offer after
+the write commits. A failed list refresh does not report the write as failed
+or invite a second write. Undo remains bound to its original library after
+navigation; an open parent's children are refreshed as well. A refusal is
+reported in the toast region, with a separate message for a stale watermark.
+
 ### Duplicate merge endpoint
 
 The duplicates listing accepts `grouped=true` with `scope=duplicates`. It returns

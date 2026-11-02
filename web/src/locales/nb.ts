@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Elementer flyttet til søppelkorga.",
+  "Items filed.": "Elementer plassert i samlinger.",
+  "Items restored.": "Elementer gjenopprettet.",
+  "Change undone.": "Endring angret.",
+  "Could not undo the change.": "Kunne ikke angre endringen.",
+  "Undo is no longer available because the library changed.": "Det er ikke lenger mulig å angre fordi biblioteket er endret.",
   "Master item": "Hovedelement",
   "Merge Items": "Slå sammen elementer",
   "Choose the version of the item to use as the master item:": "Velg versjon av element til bruk som hovedelement:",

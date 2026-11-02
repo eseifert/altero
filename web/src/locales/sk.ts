@@ -8,6 +8,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Záznamy boli presunuté do koša.",
+  "Items filed.": "Záznamy boli zaradené.",
+  "Items restored.": "Záznamy boli obnovené.",
+  "Change undone.": "Zmena bola vrátená späť.",
+  "Could not undo the change.": "Zmenu sa nepodarilo vrátiť späť.",
+  "Undo is no longer available because the library changed.": "Zmenu už nemožno vrátiť späť, pretože sa knižnica zmenila.",
   "Master item": "Hlavná položka",
   "Merge Items": "Zlúčiť záznamy",
   "Choose the version of the item to use as the master item:": "Zvoľte verziu záznamu, ktorý chcete použiť ako hlavný záznam:",

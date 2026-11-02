@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Elementele au fost mutate la coș.",
+  "Items filed.": "Elementele au fost organizate.",
+  "Items restored.": "Elementele au fost restaurate.",
+  "Change undone.": "Modificarea a fost anulată.",
+  "Could not undo the change.": "Modificarea nu a putut fi anulată.",
+  "Undo is no longer available because the library changed.": "Anularea nu mai este disponibilă deoarece biblioteca s-a modificat.",
   "Master item": "Element principal",
   "Merge Items": "Unește înregistrările",
   "Choose the version of the item to use as the master item:": "Alege versiunea înregistrării pe care o folosești ca înregistrare master:",

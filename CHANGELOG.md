@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Add guarded undo for browser filing and trash changes, preserving prior memberships and refusing stale reversals.
+- Add Undo toasts for filing, trash and restore, preserving prior memberships and refusing stale reversals.
 - Keep toasts open while either keyboard focus or the pointer remains on them.
 - Fix child collection memberships that stopped Zotero sync; repair on upgrade. Reported by [@sherholz] in [Issue#64].
 - Make the keyboard browser test wait for real item buttons while the library is loading.

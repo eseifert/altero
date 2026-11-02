@@ -6,6 +6,12 @@
  */
 
 export default {
+  "Items moved to trash.": "アイテムをゴミ箱に移動しました。",
+  "Items filed.": "アイテムを分類しました。",
+  "Items restored.": "アイテムを復元しました。",
+  "Change undone.": "変更を取り消しました。",
+  "Could not undo the change.": "変更を取り消せませんでした。",
+  "Undo is no longer available because the library changed.": "ライブラリが変更されたため、取り消せなくなりました。",
   "Master item": "マスターアイテム",
   "Merge Items": "項目の統合",
   "Choose the version of the item to use as the master item:": "マスターとして使用する項目のバージョンを選択 :",

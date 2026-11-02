@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Зүйлсийг хогийн сав руу зөөлөө.",
+  "Items filed.": "Зүйлсийг ангиллаа.",
+  "Items restored.": "Зүйлсийг сэргээлээ.",
+  "Change undone.": "Өөрчлөлтийг буцаалаа.",
+  "Could not undo the change.": "Өөрчлөлтийг буцааж чадсангүй.",
+  "Undo is no longer available because the library changed.": "Номын сан өөрчлөгдсөн тул буцаах боломжгүй болсон.",
   "Master item": "Үндсэн бичлэг",
   "Merge Items": "Merge Items",
   "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",

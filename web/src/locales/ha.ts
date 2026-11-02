@@ -1,6 +1,12 @@
 /** Hausa interface messages. Keys follow en-US.ts. */
 
 export default {
+  "Items moved to trash.": "An matsar da abubuwa zuwa kwandon shara.",
+  "Items filed.": "An tsara abubuwa.",
+  "Items restored.": "An dawo da abubuwa.",
+  "Change undone.": "An soke canjin.",
+  "Could not undo the change.": "Ba a iya soke canjin ba.",
+  "Undo is no longer available because the library changed.": "Ba za a iya soke canjin ba saboda ɗakin karatu ya canza.",
   "Master item": "Babban abu",
   "Merge Items": "Haɗa abubuwa",
   "Choose the version of the item to use as the master item:": "Zaɓi sigar abin da za a yi amfani da ita a matsayin babban abu:",

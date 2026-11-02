@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Færslur færðar í ruslið.",
+  "Items filed.": "Færslum raðað.",
+  "Items restored.": "Færslur endurheimtar.",
+  "Change undone.": "Breyting afturkölluð.",
+  "Could not undo the change.": "Ekki tókst að afturkalla breytinguna.",
+  "Undo is no longer available because the library changed.": "Ekki er lengur hægt að afturkalla vegna þess að færslusafnið hefur breyst.",
   "Master item": "Aðalfærsla",
   "Merge Items": "Sameina færslur",
   "Choose the version of the item to use as the master item:": "Veldu útgáfuna af þeirri færslu sem nota skal sem móðurfærslu:",

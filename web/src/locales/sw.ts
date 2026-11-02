@@ -1,6 +1,12 @@
 /** Swahili interface messages. Keys follow en-US.ts. */
 
 export default {
+  "Items moved to trash.": "Vipengee vimehamishwa hadi kwenye taka.",
+  "Items filed.": "Vipengee vimepangwa.",
+  "Items restored.": "Vipengee vimerejeshwa.",
+  "Change undone.": "Mabadiliko yametenguliwa.",
+  "Could not undo the change.": "Imeshindikana kutengua mabadiliko.",
+  "Undo is no longer available because the library changed.": "Kutengua hakupatikani tena kwa sababu maktaba imebadilika.",
   "Master item": "Kipengee kikuu",
   "Merge Items": "Unganisha vipengee",
   "Choose the version of the item to use as the master item:": "Chagua toleo la kipengee litakalotumika kama kipengee kikuu:",

@@ -10,6 +10,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Items moved to bin.",
+  "Items filed.": "Items filed.",
+  "Items restored.": "Items restored.",
+  "Change undone.": "Change undone.",
+  "Could not undo the change.": "Could not undo the change.",
+  "Undo is no longer available because the library changed.": "Undo is no longer available because the library changed.",
   "Master item": "Master item",
   "Merge Items": "Merge Items",
   "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",

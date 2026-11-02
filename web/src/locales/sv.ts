@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Källor flyttade till papperskorgen.",
+  "Items filed.": "Källor ordnade.",
+  "Items restored.": "Källor återställda.",
+  "Change undone.": "Ändringen ångrad.",
+  "Could not undo the change.": "Det gick inte att ångra ändringen.",
+  "Undo is no longer available because the library changed.": "Det går inte längre att ångra eftersom biblioteket har ändrats.",
   "Master item": "Huvudpost",
   "Merge Items": "Sammanfoga källor",
   "Choose the version of the item to use as the master item:": "Välj vilken version av källan som ska vara utgångspunkt:",

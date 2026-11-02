@@ -1,6 +1,12 @@
 /** Spanish. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Items moved to trash.": "Elementos movidos a la papelera.",
+  "Items filed.": "Elementos organizados.",
+  "Items restored.": "Elementos restaurados.",
+  "Change undone.": "Cambio deshecho.",
+  "Could not undo the change.": "No se pudo deshacer el cambio.",
+  "Undo is no longer available because the library changed.": "Ya no se puede deshacer porque la biblioteca ha cambiado.",
   "Master item": "Elemento principal",
   "Merge Items": "Fusionar elementos",
   "Choose the version of the item to use as the master item:": "Elija la versión del elemento a usar como  elemento maestro:",

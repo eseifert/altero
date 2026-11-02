@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Записите са преместени в кошчето.",
+  "Items filed.": "Записите са подредени.",
+  "Items restored.": "Записите са възстановени.",
+  "Change undone.": "Промяната е отменена.",
+  "Could not undo the change.": "Промяната не можа да бъде отменена.",
+  "Undo is no longer available because the library changed.": "Отмяната вече не е възможна, защото библиотеката е променена.",
   "Master item": "Основен елемент",
   "Merge Items": "Сливане на записите",
   "Choose the version of the item to use as the master item:": "Изберете версията на записа, която да използвате като главен запис",

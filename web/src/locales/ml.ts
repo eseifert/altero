@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "ഇനങ്ങൾ ചവറ്റുകുട്ടയിലേക്ക് നീക്കി.",
+  "Items filed.": "ഇനങ്ങൾ ക്രമീകരിച്ചു.",
+  "Items restored.": "ഇനങ്ങൾ പുനഃസ്ഥാപിച്ചു.",
+  "Change undone.": "മാറ്റം പഴയപടിയാക്കി.",
+  "Could not undo the change.": "മാറ്റം പഴയപടിയാക്കാനായില്ല.",
+  "Undo is no longer available because the library changed.": "ലൈബ്രറി മാറിയതിനാൽ ഇനി പഴയപടിയാക്കാനാവില്ല.",
   "Master item": "പ്രധാന ഇനം",
   "Merge Items": "ഇനങ്ങൾ ലയിപ്പിക്കുക",
   "Choose the version of the item to use as the master item:": "പ്രധാന ഇനമായി ഉപയോഗിക്കേണ്ട പതിപ്പ് തിരഞ്ഞെടുക്കുക:",

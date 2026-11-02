@@ -70,7 +70,7 @@ These are not required for basic Zotero compatibility but are available on an al
 - group activity and opt-in notifications;
 - configurable retention;
 - server-side tag rename;
-- a [version-guarded undo API](web/implementation.md#undoing-filing-and-trash-changes) for browser filing and trash changes;
+- [undo toasts](web/library.md#items) for browser filing and trash changes, guarded against later edits;
 - single-collection sharing links;
 - storage reporting; and
 - whole-library export/import and migration from zotero.org.

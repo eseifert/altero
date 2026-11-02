@@ -7,6 +7,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Записи перемещены в корзину.",
+  "Items filed.": "Записи распределены по коллекциям.",
+  "Items restored.": "Записи восстановлены.",
+  "Change undone.": "Изменение отменено.",
+  "Could not undo the change.": "Не удалось отменить изменение.",
+  "Undo is no longer available because the library changed.": "Отмена больше недоступна, поскольку библиотека изменилась.",
   "Master item": "Основная запись",
   "Merge Items": "Объединить элементы",
   "Choose the version of the item to use as the master item:": "Выберите версию элемента для использования в качестве главной:",

@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "បានផ្លាស់ទីធាតុទៅធុងសំរាម។",
+  "Items filed.": "បានរៀបចំធាតុ។",
+  "Items restored.": "បានស្ដារធាតុឡើងវិញ។",
+  "Change undone.": "បានមិនធ្វើការផ្លាស់ប្ដូរវិញ។",
+  "Could not undo the change.": "មិនអាចមិនធ្វើការផ្លាស់ប្ដូរវិញបានទេ។",
+  "Undo is no longer available because the library changed.": "មិនអាចមិនធ្វើវិញបានទៀតទេ ព្រោះបណ្ណាល័យបានផ្លាស់ប្ដូរ។",
   "Master item": "ធាតុមេ",
   "Merge Items": "Merge Items",
   "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",

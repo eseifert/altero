@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Items na die asblik geskuif.",
+  "Items filed.": "Items ingedeel.",
+  "Items restored.": "Items herstel.",
+  "Change undone.": "Verandering ongedaan gemaak.",
+  "Could not undo the change.": "Die verandering kon nie ongedaan gemaak word nie.",
+  "Undo is no longer available because the library changed.": "Ongedaan maak is nie meer beskikbaar nie omdat die biblioteek verander het.",
   "Master item": "Hoofitem",
   "Merge Items": "Merge Items",
   "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",

@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Ставке су премештене у смеће.",
+  "Items filed.": "Ставке су разврстане.",
+  "Items restored.": "Ставке су враћене.",
+  "Change undone.": "Промена је опозвана.",
+  "Could not undo the change.": "Није могуће опозвати промену.",
+  "Undo is no longer available because the library changed.": "Опозив више није доступан јер је библиотека промењена.",
   "Master item": "Главна ставка",
   "Merge Items": "Споји ставке",
   "Choose the version of the item to use as the master item:": "Изаберите верзију ставке која ће постати главна ставка:",

@@ -6,6 +6,12 @@
  */
 
 export default {
+  "Items moved to trash.": "আইটেমগুলি ট্র্যাশে সরানো হয়েছে।",
+  "Items filed.": "আইটেমগুলি সাজানো হয়েছে।",
+  "Items restored.": "আইটেমগুলি পুনরুদ্ধার করা হয়েছে।",
+  "Change undone.": "পরিবর্তন পূর্বাবস্থায় ফেরানো হয়েছে।",
+  "Could not undo the change.": "পরিবর্তন পূর্বাবস্থায় ফেরানো যায়নি।",
+  "Undo is no longer available because the library changed.": "লাইব্রেরি পরিবর্তিত হয়েছে বলে আর পূর্বাবস্থায় ফেরানো যাবে না।",
   "Master item": "মূল আইটেম",
   "Merge Items": "আইটেম একত্র করুন",
   "Choose the version of the item to use as the master item:": "মূল আইটেম হিসেবে ব্যবহার করার সংস্করণটি বেছে নিন:",

@@ -7,6 +7,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Đã chuyển các mục vào thùng rác.",
+  "Items filed.": "Đã sắp xếp các mục.",
+  "Items restored.": "Đã khôi phục các mục.",
+  "Change undone.": "Đã hoàn tác thay đổi.",
+  "Could not undo the change.": "Không thể hoàn tác thay đổi.",
+  "Undo is no longer available because the library changed.": "Không thể hoàn tác nữa vì thư viện đã thay đổi.",
   "Master item": "Mục chính",
   "Merge Items": "Ghộp các mục",
   "Choose the version of the item to use as the master item:": "Chọn phiên bản của mục đề dùng như mục mẫu:",

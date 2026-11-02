@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Elementos movidos ao lixo.",
+  "Items filed.": "Elementos organizados.",
+  "Items restored.": "Elementos restaurados.",
+  "Change undone.": "Cambio desfeito.",
+  "Could not undo the change.": "Non se puido desfacer o cambio.",
+  "Undo is no longer available because the library changed.": "Xa non se pode desfacer porque a biblioteca cambiou.",
   "Master item": "Elemento principal",
   "Merge Items": "Xunguir os elemento",
   "Choose the version of the item to use as the master item:": "Escolle que versión deste elemento queres usar como o principal:",

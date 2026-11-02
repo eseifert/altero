@@ -6,6 +6,12 @@
  */
 
 export default {
+  "Items moved to trash.": "ჩანაწერები სანაგვეში გადავიდა.",
+  "Items filed.": "ჩანაწერები დალაგდა.",
+  "Items restored.": "ჩანაწერები აღდგა.",
+  "Change undone.": "ცვლილება გაუქმდა.",
+  "Could not undo the change.": "ცვლილების გაუქმება ვერ მოხერხდა.",
+  "Undo is no longer available because the library changed.": "გაუქმება აღარ არის ხელმისაწვდომი, რადგან ბიბლიოთეკა შეიცვალა.",
   "Master item": "მთავარი ჩანაწერი",
   "Merge Items": "ჩანაწერების გაერთიანება",
   "Choose the version of the item to use as the master item:": "აირჩიეთ ჩანაწერის ვერსია, რომელიც მთავარ ჩანაწერად გამოიყენება:",

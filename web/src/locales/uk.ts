@@ -7,6 +7,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Документи переміщено до кошика.",
+  "Items filed.": "Документи впорядковано.",
+  "Items restored.": "Документи відновлено.",
+  "Change undone.": "Зміну скасовано.",
+  "Could not undo the change.": "Не вдалося скасувати зміну.",
+  "Undo is no longer available because the library changed.": "Скасування більше недоступне, оскільки бібліотека змінилася.",
   "Master item": "Основний запис",
   "Merge Items": "Об'єднати документи",
   "Choose the version of the item to use as the master item:": "Виберіть версію документа для використання в якості головної:",

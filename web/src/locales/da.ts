@@ -1,6 +1,12 @@
 /** Danish. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Items moved to trash.": "Elementer flyttet til papirkurven.",
+  "Items filed.": "Elementer placeret i samlinger.",
+  "Items restored.": "Elementer gendannet.",
+  "Change undone.": "Ændring fortrudt.",
+  "Could not undo the change.": "Kunne ikke fortryde ændringen.",
+  "Undo is no longer available because the library changed.": "Det er ikke længere muligt at fortryde, fordi biblioteket er ændret.",
   "Master item": "Hovedelement",
   "Merge Items": "Flet elementer",
   "Choose the version of the item to use as the master item:": "Vælg den version af elementet som du vil bruge som hovedelement:",

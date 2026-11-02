@@ -6,6 +6,12 @@ import { formatBytes } from '@/formats'
 import { t } from '@/i18n'
 import { attachmentTitles } from '@/items/attachments'
 import { useUploadStore } from '@/stores/uploads'
+import { useToastStore } from '@/stores/toasts'
+
+interface UndoSnapshot {
+  version: number
+  items: { key: string; collections?: string[]; deleted?: boolean }[]
+}
 
 /**
  * How far a change may go, when the library is writable at all.
@@ -694,24 +700,55 @@ export const useLibraryStore = defineStore('library', () => {
     keys: string[],
     changes: { add?: string[]; remove?: string[] },
   ): Promise<void> {
-    if (libraryId.value === null || !keys.length) return
+    const id = libraryId.value
+    if (id === null || !keys.length) return
     const body: Record<string, unknown> = { items: keys }
     if (changes.add?.length) body.addCollections = changes.add
     if (changes.remove?.length) body.removeCollections = changes.remove
     if (Object.keys(body).length === 1) return
 
-    await request(`/web/libraries/${libraryId.value}/items`, { method: 'PATCH', body })
-    await afterItemWrite()
+    const answer = await request<{ undo: UndoSnapshot }>(`/web/libraries/${id}/items`, { method: 'PATCH', body })
+    offerUndo(id, answer.undo, t('Items filed.'))
+    if (libraryId.value === id) await Promise.allSettled([afterItemWrite()])
   }
 
   /** Move ``keys`` to the trash, or bring them back out. */
   async function trashItems(keys: string[], deleted = true): Promise<void> {
-    if (libraryId.value === null || !keys.length) return
-    await request(`/web/libraries/${libraryId.value}/items`, {
+    const id = libraryId.value
+    if (id === null || !keys.length) return
+    const answer = await request<{ undo: UndoSnapshot }>(`/web/libraries/${id}/items`, {
       method: 'PATCH',
       body: { items: keys, deleted },
     })
-    await afterItemWrite()
+    offerUndo(id, answer.undo, deleted ? t('Items moved to trash.') : t('Items restored.'))
+    if (libraryId.value === id) await Promise.allSettled([afterItemWrite()])
+  }
+
+  /** The server's actual inverse, bound to the library and version it changed.
+   *  A failed list refresh must never turn a committed write into a failed
+   *  action or invite a repeat. Undo goes through the same rule after commit. */
+  function offerUndo(id: number, snapshot: UndoSnapshot | undefined, message: string): void {
+    if (!snapshot?.items.length) return
+    const toasts = useToastStore()
+    toasts.show(message, {
+      label: t('Undo'),
+      run: async () => {
+        try {
+          await request(`/web/libraries/${id}/items/undo`, {
+            method: 'POST',
+            headers: { 'If-Unmodified-Since-Version': String(snapshot.version) },
+            body: { items: snapshot.items },
+          })
+        } catch (thrown) {
+          toasts.show(thrown instanceof ApiError && thrown.status === 412
+            ? t('Undo is no longer available because the library changed.')
+            : t('Could not undo the change.'))
+          return
+        }
+        toasts.show(t('Change undone.'))
+        if (libraryId.value === id) await Promise.allSettled([afterItemWrite(), reloadChildren()])
+      },
+    })
   }
 
   /** Remove ``keys`` for good. The server refuses this outside the trash, and

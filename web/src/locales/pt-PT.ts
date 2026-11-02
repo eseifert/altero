@@ -1,6 +1,12 @@
 /** Portuguese, as written in Portugal. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Items moved to trash.": "Itens movidos para o lixo.",
+  "Items filed.": "Itens organizados.",
+  "Items restored.": "Itens restaurados.",
+  "Change undone.": "Alteração anulada.",
+  "Could not undo the change.": "Não foi possível anular a alteração.",
+  "Undo is no longer available because the library changed.": "Já não é possível anular porque a biblioteca foi alterada.",
   "Master item": "Item principal",
   "Merge Items": "Fundir itens",
   "Choose the version of the item to use as the master item:": "Escolha a versão do item a usar como item principal:",

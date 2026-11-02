@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Inilipat ang mga item sa basurahan.",
+  "Items filed.": "Naayos ang mga item.",
+  "Items restored.": "Naibalik ang mga item.",
+  "Change undone.": "Na-undo ang pagbabago.",
+  "Could not undo the change.": "Hindi ma-undo ang pagbabago.",
+  "Undo is no longer available because the library changed.": "Hindi na maaaring i-undo dahil nagbago ang aklatan.",
   "Master item": "Pangunahing item",
   "Merge Items": "Pagsamahin ang mga item",
   "Choose the version of the item to use as the master item:": "Piliin ang bersyon ng item na gagamiting pangunahing item:",

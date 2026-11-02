@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "ย้ายรายการไปถังขยะแล้ว",
+  "Items filed.": "จัดหมวดหมู่รายการแล้ว",
+  "Items restored.": "คืนค่ารายการแล้ว",
+  "Change undone.": "เลิกทำการเปลี่ยนแปลงแล้ว",
+  "Could not undo the change.": "ไม่สามารถเลิกทำการเปลี่ยนแปลงได้",
+  "Undo is no longer available because the library changed.": "ไม่สามารถเลิกทำได้อีกเนื่องจากคลังเปลี่ยนแปลงแล้ว",
   "Master item": "รายการหลัก",
   "Merge Items": "Merge Items",
   "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",

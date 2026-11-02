@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Elementuak zaborrera eraman dira.",
+  "Items filed.": "Elementuak antolatu dira.",
+  "Items restored.": "Elementuak leheneratu dira.",
+  "Change undone.": "Aldaketa desegin da.",
+  "Could not undo the change.": "Ezin izan da aldaketa desegin.",
+  "Undo is no longer available because the library changed.": "Ezin da gehiago desegin, liburutegia aldatu delako.",
   "Master item": "Elementu nagusia",
   "Merge Items": "Elementuak bateratu",
   "Choose the version of the item to use as the master item:": "Elementu nagusi gisa erabiltzeko elementuaren bertsioa aukeratu:",

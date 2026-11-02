@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Stavke su premještene u otpad.",
+  "Items filed.": "Stavke su razvrstane.",
+  "Items restored.": "Stavke su vraćene.",
+  "Change undone.": "Promjena je poništena.",
+  "Could not undo the change.": "Promjenu nije bilo moguće poništiti.",
+  "Undo is no longer available because the library changed.": "Poništavanje više nije dostupno jer se biblioteka promijenila.",
   "Master item": "Glavna stavka",
   "Merge Items": "Merge Items",
   "Choose the version of the item to use as the master item:": "Choose the version of the item to use as the master item:",

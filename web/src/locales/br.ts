@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Elfennoù lakaet er pod-lastez.",
+  "Items filed.": "Elfennoù renket.",
+  "Items restored.": "Elfennoù adsavet.",
+  "Change undone.": "Kemm dizgraet.",
+  "Could not undo the change.": "N’eo ket bet gallet dizober ar c’hemm.",
+  "Undo is no longer available because the library changed.": "N’haller ket dizober ken rak kemmet eo bet al levraoueg.",
   "Master item": "Elfenn bennañ",
   "Merge Items": "Kendeuziñ an elfennoù",
   "Choose the version of the item to use as the master item:": "Dibabit stumm an elfenn da implijout evel elfenn mestr:",

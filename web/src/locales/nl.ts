@@ -1,6 +1,12 @@
 /** Dutch. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Items moved to trash.": "Items naar de prullenbak verplaatst.",
+  "Items filed.": "Items ingedeeld.",
+  "Items restored.": "Items hersteld.",
+  "Change undone.": "Wijziging ongedaan gemaakt.",
+  "Could not undo the change.": "De wijziging kon niet ongedaan worden gemaakt.",
+  "Undo is no longer available because the library changed.": "Ongedaan maken is niet meer beschikbaar omdat de bibliotheek is gewijzigd.",
   "Master item": "Hoofditem",
   "Merge Items": "Items samenvoegen",
   "Choose the version of the item to use as the master item:": "Kies de versie van het item om te gebruiken als het meest voornaamste item:",

@@ -1,6 +1,12 @@
 /** Chinese, in Simplified characters. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Items moved to trash.": "条目已移至回收站。",
+  "Items filed.": "条目已归类。",
+  "Items restored.": "条目已恢复。",
+  "Change undone.": "更改已撤销。",
+  "Could not undo the change.": "无法撤销更改。",
+  "Undo is no longer available because the library changed.": "文库已更改，无法再撤销。",
   "Master item": "主条目",
   "Merge Items": "合并条目",
   "Choose the version of the item to use as the master item:": "选择作为主条目的条目版本.",

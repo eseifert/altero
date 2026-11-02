@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Τα στοιχεία μετακινήθηκαν στον κάδο.",
+  "Items filed.": "Τα στοιχεία ταξινομήθηκαν.",
+  "Items restored.": "Τα στοιχεία επαναφέρθηκαν.",
+  "Change undone.": "Η αλλαγή αναιρέθηκε.",
+  "Could not undo the change.": "Δεν ήταν δυνατή η αναίρεση της αλλαγής.",
+  "Undo is no longer available because the library changed.": "Η αναίρεση δεν είναι πλέον διαθέσιμη επειδή η βιβλιοθήκη άλλαξε.",
   "Master item": "Κύριο στοιχείο",
   "Merge Items": "Συνένωση Στοιχείων",
   "Choose the version of the item to use as the master item:": "Επιλέξτε την έκδοση του Στοιχείου που θα χρησιμοποιηθεί ως κύριο στοιχείο:",

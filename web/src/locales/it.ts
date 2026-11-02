@@ -1,6 +1,12 @@
 /** Italian. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Items moved to trash.": "Elementi spostati nel cestino.",
+  "Items filed.": "Elementi organizzati.",
+  "Items restored.": "Elementi ripristinati.",
+  "Change undone.": "Modifica annullata.",
+  "Could not undo the change.": "Impossibile annullare la modifica.",
+  "Undo is no longer available because the library changed.": "Non è più possibile annullare perché la biblioteca è stata modificata.",
   "Master item": "Elemento principale",
   "Merge Items": "Unisci gli elementi",
   "Choose the version of the item to use as the master item:": "Scegli la versione dell'elemento da usare come master:",

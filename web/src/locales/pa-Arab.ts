@@ -1,5 +1,11 @@
 /** Interface messages. Keep keys and placeholders in step with en-US.ts. */
 export default {
+  "Items moved to trash.": "اندراج کوڑے دان وچ منتقل کر دتے گئے۔",
+  "Items filed.": "اندراج ترتیب دے دتے گئے۔",
+  "Items restored.": "اندراج بحال کر دتے گئے۔",
+  "Change undone.": "تبدیلی واپس کر دتی گئی۔",
+  "Could not undo the change.": "تبدیلی واپس نہیں کیتی جا سکی۔",
+  "Undo is no longer available because the library changed.": "لائبریری بدل جان کارن ہن تبدیلی واپس نہیں کیتی جا سکدی۔",
   "Master item": "مرکزی اندراج",
   "Merge Items": "اندراج رلاؤ",
   "Choose the version of the item to use as the master item:": "اندراج دا اوہ نسخہ چنو جہنوں مرکزی اندراج بنانا اے:",

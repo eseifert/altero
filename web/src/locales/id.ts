@@ -7,6 +7,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Item dipindahkan ke keranjang sampah.",
+  "Items filed.": "Item ditata.",
+  "Items restored.": "Item dipulihkan.",
+  "Change undone.": "Perubahan dibatalkan.",
+  "Could not undo the change.": "Tidak dapat membatalkan perubahan.",
+  "Undo is no longer available because the library changed.": "Pembatalan tidak lagi tersedia karena perpustakaan telah berubah.",
   "Master item": "Item utama",
   "Merge Items": "Gabungkan Item",
   "Choose the version of the item to use as the master item:": "Pilih versi item untuk digunakan sebagai item utama:",

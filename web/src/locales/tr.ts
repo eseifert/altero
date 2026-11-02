@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Eserler çöp sepetine taşındı.",
+  "Items filed.": "Eserler düzenlendi.",
+  "Items restored.": "Eserler geri yüklendi.",
+  "Change undone.": "Değişiklik geri alındı.",
+  "Could not undo the change.": "Değişiklik geri alınamadı.",
+  "Undo is no longer available because the library changed.": "Kitaplık değiştiği için artık geri alınamaz.",
   "Master item": "Ana öge",
   "Merge Items": "Eserleri Birleştir",
   "Choose the version of the item to use as the master item:": "Eserin hangi versiyonunun asıl eser olarak kullanılacağını seç:",

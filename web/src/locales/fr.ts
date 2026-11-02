@@ -1,6 +1,12 @@
 /** French. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Items moved to trash.": "Documents déplacés dans la corbeille.",
+  "Items filed.": "Documents classés.",
+  "Items restored.": "Documents restaurés.",
+  "Change undone.": "Modification annulée.",
+  "Could not undo the change.": "Impossible d’annuler la modification.",
+  "Undo is no longer available because the library changed.": "L’annulation n’est plus disponible car la bibliothèque a été modifiée.",
   "Master item": "Document maître",
   "Merge Items": "Fusionner les documents",
   "Choose the version of the item to use as the master item:": "Choisissez la version du document à utiliser comme document maître :",

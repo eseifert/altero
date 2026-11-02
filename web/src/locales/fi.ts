@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Nimikkeet siirrettiin roskakoriin.",
+  "Items filed.": "Nimikkeet järjestettiin.",
+  "Items restored.": "Nimikkeet palautettiin.",
+  "Change undone.": "Muutos kumottiin.",
+  "Could not undo the change.": "Muutosta ei voitu kumota.",
+  "Undo is no longer available because the library changed.": "Kumoaminen ei ole enää mahdollista, koska kirjasto on muuttunut.",
   "Master item": "Pääkohde",
   "Merge Items": "Yhdistä kohteet",
   "Choose the version of the item to use as the master item:": "Valitse se nimikkeen versio, jota haluat käyttää pääversiona:",

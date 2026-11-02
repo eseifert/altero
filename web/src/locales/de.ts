@@ -1,6 +1,12 @@
 /** German. Keys are the English text; see `locales/en-US.ts`. */
 
 export default {
+  "Items moved to trash.": "Einträge in den Papierkorb verschoben.",
+  "Items filed.": "Einträge eingeordnet.",
+  "Items restored.": "Einträge wiederhergestellt.",
+  "Change undone.": "Änderung rückgängig gemacht.",
+  "Could not undo the change.": "Die Änderung konnte nicht rückgängig gemacht werden.",
+  "Undo is no longer available because the library changed.": "Rückgängig ist nicht mehr verfügbar, da sich die Bibliothek geändert hat.",
   "Master item": "Haupteintrag",
   "Merge Items": "Einträge zusammenführen",
   "Choose the version of the item to use as the master item:": "Wählen Sie die Version des Eintrags, die als Master-Eintrag verwendet werden soll:",

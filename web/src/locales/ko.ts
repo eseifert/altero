@@ -7,6 +7,12 @@
  */
 
 export default {
+  "Items moved to trash.": "항목을 휴지통으로 옮겼습니다.",
+  "Items filed.": "항목을 정리했습니다.",
+  "Items restored.": "항목을 복원했습니다.",
+  "Change undone.": "변경을 취소했습니다.",
+  "Could not undo the change.": "변경을 취소할 수 없습니다.",
+  "Undo is no longer available because the library changed.": "라이브러리가 변경되어 더 이상 취소할 수 없습니다.",
   "Master item": "기준 항목",
   "Merge Items": "항목 병합",
   "Choose the version of the item to use as the master item:": "원본 항목으로 사용할 항목의 버전 선택:",

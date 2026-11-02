@@ -4,6 +4,12 @@
  */
 
 export default {
+  "Items moved to trash.": "உருப்படிகள் குப்பைக்கு நகர்த்தப்பட்டன.",
+  "Items filed.": "உருப்படிகள் ஒழுங்குபடுத்தப்பட்டன.",
+  "Items restored.": "உருப்படிகள் மீட்டமைக்கப்பட்டன.",
+  "Change undone.": "மாற்றம் செயல்தவிர்க்கப்பட்டது.",
+  "Could not undo the change.": "மாற்றத்தைச் செயல்தவிர்க்க முடியவில்லை.",
+  "Undo is no longer available because the library changed.": "நூலகம் மாறியதால் இனி செயல்தவிர்க்க முடியாது.",
   "Master item": "முதன்மை உருப்படி",
   "Merge Items": "உருப்படிகளை ஒன்றிணைக்கவும்",
   "Choose the version of the item to use as the master item:": "முதன்மை உருப்படியாகப் பயன்படுத்த உருப்படியின் பதிப்பைத் தேர்வுசெய்க:",

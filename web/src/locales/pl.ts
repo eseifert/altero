@@ -7,6 +7,12 @@
  */
 
 export default {
+  "Items moved to trash.": "Elementy przeniesiono do kosza.",
+  "Items filed.": "Elementy uporządkowano.",
+  "Items restored.": "Elementy przywrócono.",
+  "Change undone.": "Cofnięto zmianę.",
+  "Could not undo the change.": "Nie udało się cofnąć zmiany.",
+  "Undo is no longer available because the library changed.": "Cofnięcie nie jest już możliwe, ponieważ biblioteka się zmieniła.",
   "Master item": "Element główny",
   "Merge Items": "Złącz elementy",
   "Choose the version of the item to use as the master item:": "Wybierz wersję elementu, którą chcesz użyć jako element główny:",

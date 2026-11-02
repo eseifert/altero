@@ -1,5 +1,11 @@
 /** Interface messages. Keep keys and placeholders in step with en-US.ts. */
 export default {
+  "Items moved to trash.": "הפריטים הועברו לאשפה.",
+  "Items filed.": "הפריטים תויקו.",
+  "Items restored.": "הפריטים שוחזרו.",
+  "Change undone.": "השינוי בוטל.",
+  "Could not undo the change.": "לא ניתן היה לבטל את השינוי.",
+  "Undo is no longer available because the library changed.": "לא ניתן עוד לבטל משום שהספרייה השתנתה.",
   "Master item": "הפריט הראשי",
   "Merge Items": "מיזוג פריטים",
   "Choose the version of the item to use as the master item:": "נא לבחור את גרסת הפריט שתשמש כפריט הראשי:",
