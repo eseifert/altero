@@ -1391,7 +1391,7 @@ async def copy_items(
 
     if body.library == library_id:
         raise InvalidInputError("An item is already in its own library")
-    target, _ = await _library(session, user, body.library, write=True)
+    target, target_access = await _library(session, user, body.library, write=True)
 
     target = await writes.lock_library(session, target)
     _, files_writable = (await auth.user_rights(session, [target], user.id))[target.id]
@@ -1426,7 +1426,17 @@ async def copy_items(
     )
     await session.commit()
 
-    return JSONResponse({"items": rendered}, status_code=201, headers=library_headers(version))
+    # All roots are new. Trashing just those roots hides their copied children
+    # with them and leaves the graph recoverable in the destination's trash.
+    # Add-only members may copy but cannot remove even their own new records.
+    undo = (
+        {"version": version, "items": [{"key": copy.key, "deleted": True} for copy in copies]}
+        if all(target_access.may_remove(copy.created_by_user_id) for copy in copies)
+        else None
+    )
+    return JSONResponse(
+        {"items": rendered, "undo": undo}, status_code=201, headers=library_headers(version)
+    )
 
 
 @router.put("/libraries/{library_id}/publications/items/{item_key}")

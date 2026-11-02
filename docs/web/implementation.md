@@ -152,6 +152,15 @@ or invite a second write. Undo remains bound to its original library after
 navigation; an open parent's children are refreshed as well. A refusal is
 reported in the toast region, with a separate message for a stale watermark.
 
+`POST /web/libraries/{source}/items/copy` returns the same `undo` shape, with
+the **destination** library version and newly created root keys set to
+`deleted: true`. Send it to the destination's undo endpoint. This moves the
+copies and their child graphs into its Trash without deleting their bytes or
+changing the originals. A source-library edit does not invalidate this offer;
+a destination edit does. The response contains `undo: null` when the caller
+may copy but cannot remove records there, such as an add-only group member.
+Permissions are checked again when undo runs.
+
 ### Duplicate merge endpoint
 
 The duplicates listing accepts `grouped=true` with `scope=duplicates`. It returns
