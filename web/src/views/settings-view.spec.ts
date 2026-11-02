@@ -470,6 +470,30 @@ describe('confirmation after changing language', () => {
     })
   }
 
+  it('waits for account preferences before accepting a language choice', async () => {
+    let loaded!: (value: unknown) => void
+    const account = new Promise((resolve) => { loaded = resolve })
+    requestMock.mockImplementation((path: string) => {
+      if (path === '/web/account') return account
+      if (path === '/web/account/locales') return Promise.resolve({
+        languages: [{ tag: 'ar', name: 'Arabic' }], timeZones: ['UTC'],
+      })
+      return Promise.resolve({})
+    })
+    const { wrapper } = await open('language')
+    expect(wrapper.findAll('select').map((field) => field.attributes('disabled'))).toEqual(['', ''])
+    expect(wrapper.get('.card button').attributes('disabled')).toBeDefined()
+    loaded(ACCOUNT)
+    await settle(wrapper)
+    expect(wrapper.findAll('select').every((field) => field.attributes('disabled') === undefined)).toBe(true)
+    await wrapper.get('select').setValue('ar')
+    await wrapper.get('.card button').trigger('click')
+    await settle(wrapper)
+    expect(requestMock).toHaveBeenCalledWith('/web/account/locale', {
+      method: 'PUT', body: { language: 'ar', timeZone: null },
+    })
+  })
+
   it.each([
     ['en-US', 'ar', 'حُفظت اللغة والمنطقة الزمنية.', 'rtl'],
     ['en-US', 'fa', 'زبان و منطقهٔ زمانی ذخیره شدند.', 'rtl'],

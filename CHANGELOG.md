@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Wait for saved language preferences before enabling the settings controls, preventing a delayed load from discarding a new choice.
 - Add Undo toasts for filing, trash and restore, preserving prior memberships and refusing stale reversals.
 - Keep toasts open while either keyboard focus or the pointer remains on them.
 - Fix child collection memberships that stopped Zotero sync; repair on upgrade. Reported by [@sherholz] in [Issue#64].

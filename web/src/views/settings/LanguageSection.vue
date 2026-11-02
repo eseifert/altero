@@ -75,7 +75,7 @@ const saveLocale = () => {
 
     <label class="settings__field">
       <span class="settings__field-label">{{ t('Language') }}</span>
-      <select v-model="chosenLanguage" class="settings__select">
+      <select v-model="chosenLanguage" class="settings__select" :disabled="!account || busy">
         <option value="">
           {{ t('Follow this device ({name})', { name: automaticLanguage }) }}
         </option>
@@ -87,7 +87,7 @@ const saveLocale = () => {
 
     <label class="settings__field">
       <span class="settings__field-label">{{ t('Time zone') }}</span>
-      <select v-model="chosenTimeZone" class="settings__select">
+      <select v-model="chosenTimeZone" class="settings__select" :disabled="!account || busy">
         <option value="">
           {{ t('Follow this device ({name})', { name: locale.browserTimeZone }) }}
         </option>
@@ -99,7 +99,7 @@ const saveLocale = () => {
       {{ t('Dates look like this: {example}', { example: formatDateTime(new Date()) }) }}
     </p>
 
-    <AppButton :loading="busy" @click="saveLocale">{{ t('Save') }}</AppButton>
+    <AppButton :loading="busy" :disabled="!account" @click="saveLocale">{{ t('Save') }}</AppButton>
   </section>
 </template>
 
