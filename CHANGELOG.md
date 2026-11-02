@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Fix child attachment collection memberships that stopped multi-machine Zotero sync; repair affected records on upgrade (#64).
+- Fix child collection memberships that stopped Zotero sync; repair on upgrade. Reported by [@sherholz] in [Issue#64].
 - Make the keyboard browser test wait for real item buttons while the library is loading.
 - Fix the account language-choice test to include Swahili, Hausa and Yoruba.
 - Add Yoruba translations to the browser interface.
@@ -362,6 +362,7 @@ The first release meant to be used by somebody other than its author.
 [@ScatteredComet]: https://github.com/ScatteredComet
 [@mweber0]: https://github.com/mweber0
 [@arminbahl]: https://github.com/arminbahl
+[@sherholz]: https://github.com/sherholz
 [PR#7]: https://github.com/eseifert/altero/pull/7
 [PR#8]: https://github.com/eseifert/altero/pull/8
 [PR#14]: https://github.com/eseifert/altero/pull/14
@@ -373,3 +374,4 @@ The first release meant to be used by somebody other than its author.
 [Issue#29]: https://github.com/eseifert/altero/issues/29
 [Issue#30]: https://github.com/eseifert/altero/issues/30
 [Issue#62]: https://github.com/eseifert/altero/issues/62
+[Issue#64]: https://github.com/eseifert/altero/issues/64
