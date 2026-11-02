@@ -14,6 +14,11 @@ import { useToastStore } from '@/stores/toasts'
 
 const { t } = useI18n()
 const store = useToastStore()
+
+function leaveFocus(id: number, event: FocusEvent): void {
+  if (event.relatedTarget instanceof Node && (event.currentTarget as Node).contains(event.relatedTarget)) return
+  store.release(id, 'focus')
+}
 </script>
 
 <template>
@@ -25,8 +30,8 @@ const store = useToastStore()
         class="toast"
         @pointerenter="store.hold(toast.id)"
         @pointerleave="store.release(toast.id)"
-        @focusin="store.hold(toast.id)"
-        @focusout="store.release(toast.id)"
+        @focusin="store.hold(toast.id, 'focus')"
+        @focusout="leaveFocus(toast.id, $event)"
       >
         <p class="toast__message">{{ toast.message }}</p>
         <button

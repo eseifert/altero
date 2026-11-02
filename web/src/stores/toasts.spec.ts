@@ -48,6 +48,23 @@ describe('toasts', () => {
     expect(store.toasts.map((toast) => toast.message)).toEqual(['Message 2', 'Message 3', 'Message 4'])
   })
 
+  it('stays focused when the pointer leaves, and hovered when focus leaves', () => {
+    const store = useToastStore()
+    const id = store.show('Moved to the trash')
+    store.hold(id, 'pointer')
+    store.hold(id, 'focus')
+    store.release(id, 'pointer')
+    vi.advanceTimersByTime(TOAST_DURATION * 2)
+    expect(store.toasts).toHaveLength(1)
+    store.hold(id, 'pointer')
+    store.release(id, 'focus')
+    vi.advanceTimersByTime(TOAST_DURATION * 2)
+    expect(store.toasts).toHaveLength(1)
+    store.release(id, 'pointer')
+    vi.advanceTimersByTime(TOAST_DURATION)
+    expect(store.toasts).toHaveLength(0)
+  })
+
   it('do what they offered once, and leave', async () => {
     const store = useToastStore()
     const run = vi.fn()

@@ -31,14 +31,18 @@ export const TOAST_DURATION = 6000
 /** How many are shown at once; the oldest goes to make room. */
 export const MAX_TOASTS = 3
 
+type Hold = 'pointer' | 'focus'
+
 export const useToastStore = defineStore('toasts', () => {
   const toasts = ref<Toast[]>([])
   const timers = new Map<number, ReturnType<typeof setTimeout>>()
+  const holds = new Map<number, Set<Hold>>()
   let next = 1
 
   function dismiss(id: number): void {
     clearTimeout(timers.get(id))
     timers.delete(id)
+    holds.delete(id)
     toasts.value = toasts.value.filter((toast) => toast.id !== id)
   }
 
@@ -60,14 +64,18 @@ export const useToastStore = defineStore('toasts', () => {
   }
 
   /** Hold a toast while the reader is at it. */
-  function hold(id: number): void {
+  function hold(id: number, reason: Hold = 'pointer'): void {
     clearTimeout(timers.get(id))
     timers.delete(id)
+    const reasons = holds.get(id) ?? new Set<Hold>()
+    reasons.add(reason)
+    holds.set(id, reasons)
   }
 
   /** Let it go again, with the whole of its time. */
-  function release(id: number): void {
-    if (toasts.value.some((toast) => toast.id === id)) schedule(id)
+  function release(id: number, reason: Hold = 'pointer'): void {
+    holds.get(id)?.delete(reason)
+    if (!holds.get(id)?.size && toasts.value.some((toast) => toast.id === id)) schedule(id)
   }
 
   /** Do what the toast offered, and take it away. */

@@ -63,6 +63,20 @@ describe('ToastHost', () => {
 
     expect(hold).toHaveBeenCalled()
   })
+
+  it('keeps its focus hold when tabbing between action and dismiss', async () => {
+    const wrapper = host()
+    const store = useToastStore()
+    const release = vi.spyOn(store, 'release')
+    const id = store.show('Moved to the trash', { label: 'Undo', run: vi.fn() })
+    await nextTick()
+    await wrapper.get('.toast').trigger('focusout', {
+      relatedTarget: wrapper.get('.toast__dismiss').element,
+    })
+    expect(release).not.toHaveBeenCalled()
+    await wrapper.get('.toast').trigger('focusout', { relatedTarget: null })
+    expect(release).toHaveBeenCalledWith(id, 'focus')
+  })
 })
 
 describe('Collapse', () => {
