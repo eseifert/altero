@@ -83,6 +83,13 @@ Mirroring uses composed transforms and ancestor selectors compatible with the
 build's browser targets. A compiled-selector check keeps scoped CSS from
 applying a splitter transform to the document itself.
 
+Tag pills share `TagPill.vue` and `styles/tag-pills.css`, including color dots,
+solid outlines, hover, focus and touch targets. The component owns inline
+rename state, cancellation and errors. Its caller supplies the existing
+rename operation and enables library filtering or item-only removal. A global
+rename keeps its scope warning and item count next to the field. Item tag
+writes remain queued and rebase onto newer tags as before.
+
 ### Durable sign-in budgets
 
 `services/loginlimits.py` reserves an account and address allowance in

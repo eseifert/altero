@@ -1,0 +1,124 @@
+/* Shared by library filters and item tags: one pill and one set of controls. */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  padding-block: 0.2rem;
+  padding-inline: 0.55rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-medium);
+  background: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
+  line-height: 1.35;
+}
+
+.tag-pill:hover {
+  background: var(--md-sys-state-hover-surface);
+}
+
+.tag-pill--selected,
+.tag-pill--selected:hover {
+  border-color: var(--md-sys-color-secondary-container);
+  background: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+.tag-pill--editing,
+.tag-pill--editing:hover {
+  flex-wrap: wrap;
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-surface);
+}
+
+.tag-pill__name {
+  display: flex;
+  align-items: center;
+  min-inline-size: 1.5rem;
+  min-block-size: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+button.tag-pill__name {
+  cursor: pointer;
+}
+
+.tag-pill__action {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tag-pill__action:hover {
+  background: var(--md-sys-state-hover-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+/* A dot preserves the tag color without making its text hard to read. */
+.tag-pill__swatch {
+  flex: none;
+  inline-size: 0.6rem;
+  block-size: 0.6rem;
+  border-radius: 50%;
+  background: var(--tag-color);
+  box-shadow: 0 0 0 1px var(--md-sys-color-outline-variant);
+}
+
+.tag-pill__input {
+  inline-size: 9rem;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  min-block-size: 1.5rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--md-sys-color-on-surface);
+  font: inherit;
+  outline: none;
+}
+
+.tag-pill__hint,
+.tag-pill__error {
+  flex-basis: 100%;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.tag-pill__error {
+  color: var(--md-sys-color-error);
+}
+
+@media (pointer: coarse) {
+  .tag-pill {
+    padding-block: 0.35rem;
+    padding-inline: 0.7rem;
+  }
+
+  .tag-pill__name,
+  .tag-pill__input {
+    min-block-size: 2rem;
+  }
+
+  .tag-pill__action {
+    inline-size: 2rem;
+    block-size: 2rem;
+  }
+}
