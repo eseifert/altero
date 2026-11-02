@@ -585,6 +585,7 @@ The final settled sync checks convergence and an unchanged server watermark.
 | `server-writes` | Make collection, filing, tag and trash changes through the browser's authenticated HTTP routes; execute the real retention sweep; observe changes and deletion logs in both desktops. |
 | `web-editing` | Edit an item's fields, creators and tags, relate two items, change a type and make an item through the browser's routes; both desktops store exactly that; a desktop edit then makes the browser's stale save fail with 412. |
 | `web-undo` | Trash and file a selection through the browser, then undo after both desktops have synced; preserve prior memberships, preexisting trash and child-note HTML/parents; a real desktop edit invalidates a stale undo. |
+| `web-copy-undo` | Copy a parent, note and registered file into a group; sync both desktops before undo; keep the copied graph and bytes recoverable through Trash/Restore, and preserve the originals. |
 | `note-corpus` | Store notes as clients wrote them, from TinyMCE-era HTML to schema 10 and a note built from PDF annotations; have the shipped note editor save each unedited; record both for the browser editor's tests, and check the server keeps the desktop's HTML exactly. |
 | `web-notes` | Write a standalone and a child note through the browser's routes; both desktops store exactly that HTML; the desktop's editor opens them editable and writes nothing; a desktop edit reaches the browser. |
 | `web-files` | Upload a child and a standalone file and attach a web link through the browser's routes; both desktops download the bytes under the browser's name; a rename renames each desktop's copy without fetching it; a replacement brings new bytes; a desktop's replacement makes the browser's stale one fail with 412. |
@@ -727,6 +728,7 @@ Zotero 10.0.7 Linux x86-64; actual desktop profiles.
 | `credential-limits` | Passed (12 phases) | Passed (12 phases) |
 | `web-editing` | Passed (7 phases) | Passed (7 phases) |
 | `web-undo` | Passed (15 phases) | Passed (15 phases) |
+| `web-copy-undo` | Passed (14 phases) | Passed (14 phases) |
 | `note-corpus` | Passed (5 phases) | Passed (5 phases) |
 | `web-notes` | Passed (8 phases) | Passed (8 phases) |
 | `web-files` | Passed (11 phases) | Passed (11 phases) |
@@ -747,8 +749,14 @@ with 15 phases each against the current checkout. Both desktops downloaded
 filing and trash changes before undo, then converged on the restored state;
 a subsequent desktop edit made an old undo fail with 412. Its separate
 [evidence summary](assets/compatibility-web-undo-10.0.7.json) records report and
-phase-snapshot hashes. This adds coverage for those operations, not copy or
-merge undo.
+phase-snapshot hashes.
+
+`web-copy-undo` also passed on both databases on 2026-11-02, with 14 phases
+each. Both desktops downloaded a browser-made group copy before undo and
+retained its note and registered bytes through Trash/Restore. The original
+personal-library records and files remained intact, and settled sync preserved
+both libraries' watermarks. Its [evidence summary](assets/compatibility-web-copy-undo-10.0.7.json)
+records the reports and phase-snapshot hashes. Merge undo remains unimplemented.
 
 The machine-readable evidence summary is
 [`compatibility-10.0.7.json`](assets/compatibility-10.0.7.json). It records

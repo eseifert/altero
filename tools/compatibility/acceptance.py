@@ -219,6 +219,7 @@ SCENARIOS = (
     "credential-limits",
     "web-editing",
     "web-undo",
+    "web-copy-undo",
     "note-corpus",
     "web-notes",
     "web-files",
@@ -270,6 +271,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_transient import transient_errors
     from tools.compatibility.acceptance_types import type_change
     from tools.compatibility.acceptance_uploads import upload_interruption
+    from tools.compatibility.acceptance_web_copy_undo import web_copy_undo
     from tools.compatibility.acceptance_web_editing import web_editing
     from tools.compatibility.acceptance_web_files import web_files
     from tools.compatibility.acceptance_web_merge import web_merge
@@ -312,6 +314,7 @@ async def run_acceptance(
     drivers["credential-limits"] = credential_limits
     drivers["web-editing"] = web_editing
     drivers["web-undo"] = web_undo
+    drivers["web-copy-undo"] = web_copy_undo
     drivers["note-corpus"] = note_corpus
     drivers["web-notes"] = web_notes
     drivers["web-files"] = web_files
@@ -343,7 +346,8 @@ async def run_acceptance(
                     async with server_context(
                         scenario_root / "server",
                         accounts=2
-                        if name in {"groups", "credentials", "partial-failures", "graphs"}
+                        if name
+                        in {"groups", "credentials", "partial-failures", "graphs", "web-copy-undo"}
                         else 1,
                         postgres_url=postgres_url,
                     ) as server:
