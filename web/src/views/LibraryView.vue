@@ -106,7 +106,28 @@ async function inspectDuplicate(key: string) {
   await library.inspectItem(item)
 }
 
+const detailOrigin = ref<{ libraryId: number; parent: ItemEnvelope; childKey: string } | null>(null)
+watch(
+  [() => library.libraryId, () => library.selected],
+  ([id, item], [previousId, previous]) => {
+    if (id !== null && id === previousId && item && previous && item.data.parentItem === previous.key) {
+      detailOrigin.value = { libraryId: id, parent: previous, childKey: item.key }
+    } else if (detailOrigin.value && (id !== detailOrigin.value.libraryId || item?.key !== detailOrigin.value.childKey)) {
+      detailOrigin.value = null
+    }
+  },
+)
+
 async function closeItemDetail() {
+  const origin = detailOrigin.value
+  if (origin && origin.libraryId === library.libraryId && origin.childKey === library.selected?.key) {
+    detailOrigin.value = null
+    const parent = library.items.find((item) => item.key === origin.parent.key) ?? origin.parent
+    await library.inspectItem(parent)
+    await nextTick()
+    detailPane.value?.focus()
+    return
+  }
   if (duplicateInspection.value && activeDuplicateGroup.value) {
     duplicateInspection.value = false
     const item = library.items.find((item) => item.key === activeDuplicateGroup.value?.[0])

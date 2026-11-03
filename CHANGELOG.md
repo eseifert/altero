@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Return to parent item details when closing a child note or attachment. Reported by [@eseifert].
 - Allow all library trees to be collapsed, with at most one expanded. Reported by [@eseifert].
 - Distinguish collection and global tag counts with rounded badges. Reported by [@eseifert].
 - Fix browser tests for paged libraries and off-screen drop targets. Reported by [@eseifert] in [CI#41715080977].

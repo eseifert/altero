@@ -3451,6 +3451,42 @@ describe('a note or attachment under an item', () => {
     })
   }
 
+  it.each([['note', NOTE], ['attachment', ATTACHMENT]])(
+    'returns from %s details to the parent, then closes the parent normally',
+    async (_, child) => {
+      withChildren([child])
+      const wrapper = await open()
+      await wrapper.get('.library__row:not(.library__row--head)').trigger('click')
+      await settle(wrapper)
+      await wrapper.get('.detail__child').trigger('click')
+      await settle(wrapper)
+      expect(useLibraryStore().selected?.key).toBe(child.key)
+
+      await wrapper.get('.detail__close').trigger('click')
+      await settle(wrapper)
+      expect(useLibraryStore().selected?.key).toBe(ITEM.key)
+      expect(wrapper.get('.detail__title').text()).toBe('Structure and Interpretation')
+
+      await wrapper.get('.detail__close').trigger('click')
+      await settle(wrapper)
+      expect(wrapper.find('.library__detail').exists()).toBe(false)
+    },
+  )
+
+  it('does not return to an earlier parent after selecting a different row', async () => {
+    withChildren([NOTE])
+    const wrapper = await open()
+    await wrapper.get('.library__row:not(.library__row--head)').trigger('click')
+    await settle(wrapper)
+    await wrapper.get('.detail__child').trigger('click')
+    await settle(wrapper)
+    await useLibraryStore().select(ITEM)
+    await settle(wrapper)
+    await wrapper.get('.detail__close').trigger('click')
+    await settle(wrapper)
+    expect(wrapper.find('.library__detail').exists()).toBe(false)
+  })
+
   /* Opened from its parent's pane, it is no row of the list, so neither a drag
      nor the selection reaches it: the pane is the one way to throw it away.
      Afterwards the pane goes back to the parent it was opened from, rather than

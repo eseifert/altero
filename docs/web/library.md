@@ -52,6 +52,11 @@ on narrow screens.
 Item counts beside collection names and inside the global tag selector have
 their own rounded background, separating the number from the name.
 
+Opening a child note or attachment replaces its parent's details. **Close
+details** returns to that parent, keeping saved edits; closing the parent then
+returns to the full item list. Selecting another item or library starts a new
+detail view.
+
 ### Merging duplicates
 
 Open **Duplicate Items**. Candidates appear in separate groups with the proposed
