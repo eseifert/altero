@@ -1931,6 +1931,23 @@
 personal library uses a building icon; groups use the same icon as <strong>Groups</strong>
 in the top navigation. Only the active library unfolds its collections
 and views beneath it, with indentation showing the hierarchy.</p>
+<p>Switching libraries clears the previous rows and counts while the new library
+loads.</p>
+<p>Collection branches open and close with a short height transition. The interface
+respects the device's <strong>Reduce motion</strong> preference.</p>
+<p>Attachment, note and citation sections use the same transition when they appear
+or disappear. The related-item search also opens and closes smoothly; <strong>Escape</strong>
+or its cancel button returns focus to <strong>Add Related</strong>. Closing content stops
+accepting input immediately.</p>
+<p>Items fade out and close their gap when trashed or filed out of the current view.
+Duplicate groups leave together. When a focused row disappears, focus moves to
+the next row, or the previous row at the end; an empty list returns focus to its
+heading. The empty message appears after the last departure finishes.</p>
+<p>Dialogs fade in and out. <strong>Escape</strong> or <strong>Cancel</strong> dismisses a dialog and returns
+keyboard focus to its opener. Switching from collection settings to sharing
+keeps focus in the new dialog.</p>
+<p>Long collection names shorten to fit the sidebar, keeping its controls reachable
+on narrow screens.</p>
 <h3 id="merging-duplicates">Merging duplicates<a class="headerlink" href="#merging-duplicates" title="Permanent link">&para;</a></h3>
 <p>Open <strong>Duplicate Items</strong>. Candidates appear in separate groups with the proposed
 master at the top. Click or tap any member to highlight its whole group and open
@@ -1970,7 +1987,7 @@ from zotero.org should not have to learn a second arrangement of the same
 library. The personal library is <strong>My Library</strong> whatever the account is called
 — the row is the library, not its owner — and under it hang its collections,
 nested and expandable, then <strong>My Publications</strong>, then the <strong>Trash</strong>. Group
-libraries follow under a heading of their own, and a group has no My
+libraries appear at the same level, and a group has no My
 Publications, because publishing is something an account does with its own
 library.</p>
 <p>Beside those are the three rows the desktop client has and the web library does

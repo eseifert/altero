@@ -1846,6 +1846,13 @@ answers 503 and says what to run.</p>
 sizes, against a real server on a throwaway SQLite database. It fails on any
 Content-Security-Policy violation and on serious or critical axe findings.
 Build first; the first run needs <code>npx playwright install chromium</code>.</p>
+<p>The motion checks cover desktop and phone sizes with normal and reduced motion.
+They also exercise dialog focus and dismissal with the native modal API disabled,
+covering the fallback used by older Safari. This does not replace testing on an
+actual older Safari installation.</p>
+<p>Row-departure checks cover trash, Undo, filing and duplicate groups, including
+the last row, keyboard recovery and empty views. They sample rendered height
+and opacity during normal motion and verify the reduced-motion duration.</p>
 <h3 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h3>
 <p>The design follows Material 3 with a teal accent, and light and dark follow the
 operating system unless the user picks one. What altero does inside that frame
