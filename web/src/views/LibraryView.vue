@@ -3141,6 +3141,17 @@ function sortLabel(column: { field: string; label: string }): string {
   top: var(--md-spacing-4);
   max-height: calc(100vh - 8rem);
   overflow-y: auto;
+  animation: detail-arrive var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+@keyframes detail-arrive {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 60rem) {

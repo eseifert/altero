@@ -52,6 +52,9 @@ on narrow screens.
 Item counts beside collection names and inside the global tag selector have
 their own rounded background, separating the number from the name.
 
+The detail pane fades in quickly when an item, note or attachment is opened,
+respecting **Reduce motion**.
+
 Opening a child note or attachment replaces its parent's details. **Close
 details** returns to that parent, keeping saved edits; closing the parent then
 returns to the full item list. Selecting another item or library starts a new

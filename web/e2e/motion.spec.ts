@@ -1,4 +1,4 @@
-import { accessibilityProblems, expect, signIn, state, test } from './state'
+import { accessibilityProblems, expect, openItem, signIn, state, test } from './state'
 
 interface DialogMotion {
   phase: string
@@ -24,6 +24,54 @@ async function create(path: string, objects: unknown[]): Promise<string[]> {
 for (const reducedMotion of ['no-preference', 'reduce'] as const) {
   test.describe(`library motion: ${reducedMotion}`, () => {
     test.use({ reducedMotion })
+
+    test('item, note and attachment details fade in quickly and reopen cleanly', async ({ page }, info) => {
+      const title = `Detail motion ${reducedMotion} ${info.project.name}`
+      const titles = [`Book ${title}`, `Note ${title}`, `Attachment ${title}`] as const
+      await create('items', [
+        { itemType: 'book', title: titles[0] },
+        { itemType: 'note', note: `<p>${titles[1]}</p>` },
+        { itemType: 'attachment', linkMode: 'linked_url', title: titles[2], url: 'https://example.org/' },
+      ])
+      await signIn(page)
+      await page.evaluate(() => {
+        const samples: { duration: number; name: string; opacity: unknown[] }[] = []
+        ;(window as unknown as { detailMotion: typeof samples }).detailMotion = samples
+        new MutationObserver((records) => {
+          for (const record of records) for (const node of record.addedNodes) {
+            if (!(node instanceof HTMLElement)) continue
+            const pane = node.matches('.library__detail') ? node : node.querySelector('.library__detail')
+            if (!pane) continue
+            const style = getComputedStyle(pane)
+            const effect = pane.getAnimations()[0]?.effect
+            samples.push({ duration: parseFloat(style.animationDuration), name: style.animationName,
+              opacity: effect instanceof KeyframeEffect ? effect.getKeyframes().map((frame) => frame.opacity) : [],
+            })
+          }
+        }).observe(document.body, { childList: true, subtree: true })
+      })
+      for (const title of [...titles, titles[0]]) {
+        await openItem(page, title)
+        await expect(page.locator('.detail__title')).toHaveText(title)
+        await expect(page.locator('.library__detail')).toHaveCSS('opacity', '1')
+        await page.locator('.detail__close').click()
+        await expect(page.locator('.library__detail')).toHaveCount(0)
+      }
+      const samples = await page.evaluate(() => (window as unknown as {
+        detailMotion: { duration: number; name: string; opacity: unknown[] }[]
+      }).detailMotion)
+      expect(samples).toHaveLength(4)
+      for (const sample of samples) {
+        expect(sample.name).not.toBe('none')
+        if (reducedMotion === 'reduce') expect(sample.duration).toBeLessThanOrEqual(0.001)
+        else {
+          expect(sample.duration).toBeGreaterThanOrEqual(0.12)
+          expect(sample.duration).toBeLessThanOrEqual(0.2)
+          expect(sample.opacity).toEqual(['0', '1'])
+        }
+      }
+      expect(await accessibilityProblems(page)).toEqual([])
+    })
 
     test('collection branches animate, survive interrupted toggles and release their height', async ({ page }, info) => {
       const name = `Motion ${reducedMotion} ${info.project.name}`
