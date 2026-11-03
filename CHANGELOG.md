@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Avoid duplicate update toasts and prompts after reloading; check open tabs for upgrades. Reported by [@eseifert].
 - Fade item, note and attachment details in quickly, respecting reduced motion. Reported by [@eseifert].
 - Return to parent item details when closing a child note or attachment. Reported by [@eseifert].
 - Allow all library trees to be collapsed, with at most one expanded. Reported by [@eseifert].

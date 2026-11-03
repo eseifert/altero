@@ -27,6 +27,7 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('message', (event) => {
+  if (event.data?.type === 'build') event.ports[0]?.postMessage({ build: __ALTERO_BUILD__ })
   if (event.data?.type === 'skip-waiting') void self.skipWaiting()
 })
 

@@ -30,8 +30,11 @@ in a window of its own:
 
 An installed app opens without a network, but it shows no library offline:
 nothing from a library is stored on the device, so signing out of a shared
-machine leaves nothing behind. When a new version of altero has been
-deployed, the app offers to reload into it.
+machine leaves nothing behind. An open page checks for a new interface build
+every five minutes while visible, and when you return to the tab. If its build
+is outdated, it offers **Reload** once for that update. A manual reload already
+fetches the current interface, so it shows no further update prompt. Updating
+another tab never forces your current page to reload.
 
 ## Accounts
 

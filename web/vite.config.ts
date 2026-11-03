@@ -74,7 +74,7 @@ export function precompress(): VitePlugin {
   }
 }
 
-/** The placeholder in the service worker that becomes the build's id. */
+/** The placeholder shared by the page and worker, replaced after asset hashing. */
 const BUILD_PLACEHOLDER = '__ALTERO_BUILD__'
 
 /**
@@ -83,21 +83,28 @@ const BUILD_PLACEHOLDER = '__ALTERO_BUILD__'
  * A worker is replaced only when its script's bytes change, and its own code
  * changes rarely; what changes with every deploy is the set of fingerprinted
  * files. So the id is a digest of their names, and any build that changes a
- * single asset is a new worker, which then offers itself to open pages.
+ * single asset is a new worker. The page carries the same id so a worker
+ * waiting behind a freshly fetched shell does not prompt another reload.
  */
 export function serviceWorker(): VitePlugin {
   return {
     name: 'altero-service-worker',
     apply: 'build',
-    generateBundle(_options, bundle) {
-      const names = Object.keys(bundle)
-        .filter((name) => name.startsWith('assets/'))
-        .sort()
-      const build = createHash('sha256').update(names.join('\n')).digest('hex').slice(0, 16)
-      const worker = bundle['sw.js']
-      if (!worker || worker.type !== 'chunk') throw new Error('The service worker was not built')
-      if (worker.imports.length) throw new Error('The service worker must not import a shared chunk')
-      worker.code = worker.code.replaceAll(BUILD_PLACEHOLDER, JSON.stringify(build))
+    generateBundle: {
+      order: 'post',
+      handler(_options, bundle) {
+        const names = Object.keys(bundle)
+          .filter((name) => name.startsWith('assets/'))
+          .sort()
+        const build = createHash('sha256').update(names.join('\n')).digest('hex').slice(0, 16)
+        const worker = bundle['sw.js']
+        if (!worker || worker.type !== 'chunk') throw new Error('The service worker was not built')
+        if (worker.imports.length) throw new Error('The service worker must not import a shared chunk')
+        worker.code = worker.code.replaceAll(BUILD_PLACEHOLDER, JSON.stringify(build))
+        const index = bundle['index.html']
+        if (!index || index.type !== 'asset') throw new Error('The app shell was not built')
+        index.source = String(index.source).replaceAll(BUILD_PLACEHOLDER, build)
+      },
     },
   }
 }
