@@ -40,6 +40,14 @@ desktop and phone, so older items can leave the first page. Drag tests create a
 long collection tree and bring the target into view before dropping; temporary
 paging and tree fixtures are removed after each case.
 
+`pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
+with two deployment stamps. Only the HTML and worker build ids change; assets
+and API responses come from the real server. Actual service workers install,
+wait and take control. The page clock advances through the five-minute polling
+interval. Checks cover one offer per update, manual reload, a freshly opened tab
+activating quietly, and the older tab's Reload action after that activation.
+This exercises the browser lifecycle, rather than rebuilding Docker images.
+
 The motion checks cover desktop and phone sizes with normal and reduced motion.
 They also exercise dialog focus and dismissal with the native modal API disabled,
 covering the fallback used by older Safari. This does not replace testing on an
