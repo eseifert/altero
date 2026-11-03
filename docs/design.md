@@ -249,7 +249,7 @@ still fires.
 
 Motion says where something came from or went, and nothing else. The named
 transitions are in `styles/motion.css` — `FadeScale` for something appearing in
-place, `Collapse` for a section opening by its height, and the toast's — on the
+place, `Collapse` for a section opening by its height, and row and toast exits — on the
 `--md-sys-motion-*` tokens, 150 to 250 ms. A toast reports an errand that just
 happened and offers to undo it where it can; it stays while the pointer or focus
 is on it (2.2.1), sits in a live region that is always on the page, and never

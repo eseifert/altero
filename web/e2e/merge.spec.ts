@@ -217,6 +217,7 @@ test('duplicate groups can be tapped, inspected and refined without modifier key
     expect(text).toContain(`${second} chosen`)
   }
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await expect(dialog).toHaveCount(0)
   await search.fill('')
   await expect(firstGroup).toHaveCount(1)
   await pane.getByRole('button', { name: 'Select', exact: true }).click()

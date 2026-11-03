@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import { getItemTitle } from '@/items/titles'
 import type { ItemEnvelope } from '@/stores/library'
+import { useRowTransitions } from '@/rowtransitions'
 
 const props = withDefaults(defineProps<{
   items: ItemEnvelope[]
@@ -23,8 +24,13 @@ const emit = defineEmits<{
   carry: [item: ItemEnvelope, event: PointerEvent]
   remove: [item: ItemEnvelope]
   keydown: [event: KeyboardEvent]
+  leaving: [count: number]
+  emptyFocus: []
 }>()
 const { t } = useI18n()
+const { leaving, beforeLeave, afterLeave } = useRowTransitions(() => emit('emptyFocus'))
+watch(leaving, (count) => emit('leaving', count), { flush: 'sync' })
+onBeforeUnmount(() => emit('leaving', 0))
 const selected = computed(() => new Set(props.selection))
 const shown = computed(() => {
   const rows = new Map(props.items.map((item) => [item.key, item]))
@@ -37,7 +43,16 @@ const shown = computed(() => {
 </script>
 
 <template>
-  <ul class="duplicate-groups" :aria-label="t('Duplicate Items')" @keydown="emit('keydown', $event)">
+  <TransitionGroup
+    tag="ul"
+    name="item-row"
+    class="duplicate-groups"
+    :aria-label="t('Duplicate Items')"
+    @keydown="emit('keydown', $event)"
+    @before-leave="beforeLeave"
+    @after-leave="afterLeave"
+    @leave-cancelled="afterLeave"
+  >
     <li v-for="group in shown" :key="[...group.map((item) => item.key)].sort().join(',')" class="duplicate-group pane">
       <ul class="duplicate-group__members" :aria-label="getItemTitle(group[0]!) || t('(untitled)')">
         <li v-for="(item, index) in group" :key="item.key" class="duplicate-group__line">
@@ -66,7 +81,7 @@ const shown = computed(() => {
         </li>
       </ul>
     </li>
-  </ul>
+  </TransitionGroup>
 </template>
 
 <style scoped>

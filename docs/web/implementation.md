@@ -39,6 +39,10 @@ They also exercise dialog focus and dismissal with the native modal API disabled
 covering the fallback used by older Safari. This does not replace testing on an
 actual older Safari installation.
 
+Row-departure checks cover trash, Undo, filing and duplicate groups, including
+the last row, keyboard recovery and empty views. They sample rendered height
+and opacity during normal motion and verify the reduced-motion duration.
+
 ### Design
 
 The design follows Material 3 with a teal accent, and light and dark follow the

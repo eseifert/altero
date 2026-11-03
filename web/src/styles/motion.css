@@ -84,3 +84,21 @@
 .toast-leave-active {
   position: absolute;
 }
+
+/* Departing rows stay in flow so the gap closes with their measured height.
+   Incoming rows and changes to sort order need no arrival animation. */
+.item-row-leave-active {
+  overflow: hidden;
+  transition:
+    height var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard),
+    opacity var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.item-row-leave-from {
+  height: var(--leaving-row-height);
+}
+
+.item-row-leave-to {
+  height: 0;
+  opacity: 0;
+}

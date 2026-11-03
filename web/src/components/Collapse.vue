@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { retire, revive } from '@/retiring'
+
 /**
  * A section that opens and closes by its height.
  *
@@ -8,13 +10,6 @@
  * The heights are set through the CSSOM, which the Content-Security-Policy
  * leaves alone where a `style` attribute would not be.
  */
-const retired = new WeakMap<Element, (string | null)[]>()
-
-function ignore(event: Event): void {
-  event.preventDefault()
-  event.stopImmediatePropagation()
-}
-
 function open(element: Element): void {
   const section = element as HTMLElement
   section.style.height = '0'
@@ -28,25 +23,12 @@ function close(element: Element): void {
   section.style.height = `${section.getBoundingClientRect().height}px`
   void section.offsetHeight
   section.style.height = '0'
-  retired.set(section, [section.getAttribute('inert'), section.getAttribute('aria-hidden')])
-  section.setAttribute('inert', '')
-  section.setAttribute('aria-hidden', 'true')
-  // Older browsers and jsdom do not implement inert.
-  section.addEventListener('click', ignore, true)
-  section.addEventListener('keydown', ignore, true)
+  retire(section)
 }
 
 function release(element: Element): void {
   ;(element as HTMLElement).style.height = ''
-  const previous = retired.get(element)
-  if (!previous) return
-  for (const [index, name] of ['inert', 'aria-hidden'].entries()) {
-    if (previous[index] === null) element.removeAttribute(name)
-    else element.setAttribute(name, previous[index]!)
-  }
-  element.removeEventListener('click', ignore, true)
-  element.removeEventListener('keydown', ignore, true)
-  retired.delete(element)
+  revive(element)
 }
 </script>
 

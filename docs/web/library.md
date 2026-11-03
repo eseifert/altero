@@ -34,6 +34,11 @@ or disappear. The related-item search also opens and closes smoothly; **Escape**
 or its cancel button returns focus to **Add Related**. Closing content stops
 accepting input immediately.
 
+Items fade out and close their gap when trashed or filed out of the current view.
+Duplicate groups leave together. When a focused row disappears, focus moves to
+the next row, or the previous row at the end; an empty list returns focus to its
+heading. The empty message appears after the last departure finishes.
+
 Dialogs fade in and out. **Escape** or **Cancel** dismisses a dialog and returns
 keyboard focus to its opener. Switching from collection settings to sharing
 keeps focus in the new dialog.

@@ -29,6 +29,7 @@ import UploadProgress from '@/components/UploadProgress.vue'
 import WebLinkDialog from '@/components/WebLinkDialog.vue'
 import { useCarry } from '@/dragging'
 import { useFileDrop } from '@/filedrop'
+import { useRowTransitions } from '@/rowtransitions'
 import { exportable } from '@/exportformats'
 import { fieldLabel, loadLabels, titleField } from '@/items/labels'
 import { getItemTitle } from '@/items/titles'
@@ -55,6 +56,11 @@ const { t, locale } = useI18n()
 const library = useLibraryStore()
 const locales = useLocaleStore()
 const shares = useShareStore()
+const itemsHeading = useTemplateRef<HTMLHeadingElement>('itemsHeading')
+const { leaving: leavingRows, beforeLeave: retireRow, afterLeave: releaseRow } = useRowTransitions(
+  () => itemsHeading.value?.focus(),
+)
+const leavingGroups = ref(0)
 const duplicateInspection = ref(false)
 const duplicateMaster = ref<string | null>(null)
 const activeDuplicateGroup = computed(() => library.scope === 'duplicates'
@@ -1763,7 +1769,7 @@ function sortLabel(column: { field: string; label: string }): string {
       data-file-drop="list:"
     >
       <header class="library__header">
-        <h1 class="library__heading" dir="auto">{{ heading }}</h1>
+        <h1 ref="itemsHeading" class="library__heading" dir="auto" tabindex="-1">{{ heading }}</h1>
 
         <!--
           One row of tools at the end of the header, the search last.
@@ -2036,95 +2042,107 @@ function sortLabel(column: { field: string; label: string }): string {
             </li>
           </ul>
         </template>
-        <p v-else-if="!library.items.length" class="library__state" role="status">
-          {{ emptyMessage }}
-        </p>
+        <template v-else>
+          <p v-if="!library.items.length && !leavingRows && !leavingGroups" class="library__state" role="status">
+            {{ emptyMessage }}
+          </p>
 
-        <DuplicateGroups
-          v-else-if="library.scope === 'duplicates' && library.duplicateGroups.length"
-          :items="library.items"
-          :groups="library.duplicateGroups"
-          :selection="library.selectionKeys"
-          :master="duplicateMaster"
-          :tab-key="tabKey"
-          :carried="[...carriedKeys]"
-          :file-target="fileDrop.target.value"
-          :takes-files="takesFilesUnder"
-          @select="activateDuplicate($event, true)"
-          @inspect="inspectDuplicate($event.key)"
-          @focus="focusKey = $event"
-          @carry="carryItem"
-          @remove="removeKey"
-          @keydown="listKey"
-          @keydown.a="selectAllKey"
-          @keydown.esc="library.clearSelection()"
-        />
-        <ul
-          v-else
-          class="library__items table-rows"
-          :aria-label="t('Items in {name}', { name: heading })"
-          @keydown.a="selectAllKey"
-          @keydown.esc="library.clearSelection()"
-          @keydown="listKey"
-        >
-          <!-- Memoised on what a row shows: the item, whether it is picked out
-               or being carried, whether checkboxes are drawn, and the language.
-               Without it a splitter drag or a keystroke in the search field
-               rendered every row again, which at five hundred rows was most of
-               a frame. The store replaces an item rather than editing it, so a
-               changed item is a different object. -->
-          <li
-            v-for="item in library.items"
-            :key="item.key"
-            v-memo="[item, selectedKeys.has(item.key), carriedKeys.has(item.key), selecting, locale, item.key === tabKey, fileDrop.target.value === `item:${item.key}`]"
-            class="library__line"
+          <DuplicateGroups
+            v-if="library.scope === 'duplicates' && (library.duplicateGroups.length || !library.items.length)"
+            :key="library.libraryId ?? undefined"
+            :items="library.items"
+            :groups="library.duplicateGroups"
+            :selection="library.selectionKeys"
+            :master="duplicateMaster"
+            :tab-key="tabKey"
+            :carried="[...carriedKeys]"
+            :file-target="fileDrop.target.value"
+            :takes-files="takesFilesUnder"
+            @select="activateDuplicate($event, true)"
+            @inspect="inspectDuplicate($event.key)"
+            @focus="focusKey = $event"
+            @carry="carryItem"
+            @remove="removeKey"
+            @keydown="listKey"
+            @keydown.a="selectAllKey"
+            @keydown.esc="library.clearSelection()"
+            @leaving="leavingGroups = $event"
+            @empty-focus="itemsHeading?.focus()"
+          />
+          <TransitionGroup
+            v-else
+            :key="library.libraryId ?? undefined"
+            tag="ul"
+            name="item-row"
+            class="library__items table-rows"
+            :aria-label="t('Items in {name}', { name: heading })"
+            @keydown.a="selectAllKey"
+            @keydown.esc="library.clearSelection()"
+            @keydown="listKey"
+            @before-leave="retireRow"
+            @after-leave="releaseRow"
+            @leave-cancelled="releaseRow"
           >
-            <!-- The checkbox is a sibling of the row rather than inside it: a
-                 checkbox within a button is neither, and a reader tabbing
-                 through would find one control where there are two. -->
-            <span v-if="selecting && library.scope !== 'duplicates'" class="library__cell library__cell--check">
-              <input
-                type="checkbox"
-                :checked="selectedKeys.has(item.key)"
-                :aria-label="t('Select “{name}”', { name: titleOf(item) })"
-                @change="library.toggleSelected(item)"
-              />
-            </span>
-
-            <!--
-              Carried only where the library can be written to: a drag that can
-              only ever be refused is a promise the interface should not make.
-              `Delete` does what dropping on the trash does, so the keyboard is
-              not the poor relation.
-            -->
-            <button
-              type="button"
-              :class="[
-                'library__row',
-                {
-                  'library__row--selected row--current': selectedKeys.has(item.key),
-                  'library__row--carried': carriedKeys.has(item.key),
-                  'library__row--over': fileDrop.target.value === `item:${item.key}`,
-                },
-              ]"
-              :data-file-drop="takesFilesUnder(item) ? `item:${item.key}` : undefined"
-              :aria-pressed="selectedKeys.has(item.key)"
-              :data-row="item.key"
-              :tabindex="item.key === tabKey ? 0 : -1"
-              @focus="focusKey = item.key"
-              @click="pressRow(item, $event)"
-              @pointerdown="carryItem(item, $event)"
-              @keydown.delete.prevent="removeKey(item)"
+            <!-- Memoised on its library and what a row shows: the item, whether
+                 it is picked out or being carried, whether checkboxes are drawn,
+                 and the language.
+                 Without it a splitter drag or a keystroke in the search field
+                 rendered every row again, which at five hundred rows was most of
+                 a frame. The store replaces an item rather than editing it, so a
+                 changed item is a different object. -->
+            <li
+              v-for="item in library.items"
+              :key="item.key"
+              v-memo="[library.libraryId, item, selectedKeys.has(item.key), carriedKeys.has(item.key), selecting, locale, item.key === tabKey, fileDrop.target.value === `item:${item.key}`]"
+              class="library__line"
             >
-              <span class="library__cell library__cell--icon">
-                <ItemTypeIcon :item-type="item.data.itemType" />
+              <!-- The checkbox is a sibling of the row rather than inside it: a
+                   checkbox within a button is neither, and a reader tabbing
+                   through would find one control where there are two. -->
+              <span v-if="selecting && library.scope !== 'duplicates'" class="library__cell library__cell--check">
+                <input
+                  type="checkbox"
+                  :checked="selectedKeys.has(item.key)"
+                  :aria-label="t('Select “{name}”', { name: titleOf(item) })"
+                  @change="library.toggleSelected(item)"
+                />
               </span>
-              <span class="library__cell library__cell--title" dir="auto">{{ titleOf(item) }}</span>
-              <span class="library__cell" dir="auto">{{ item.meta?.creatorSummary ?? '' }}</span>
-              <span class="library__cell">{{ item.meta?.parsedDate ?? '' }}</span>
-            </button>
-          </li>
-        </ul>
+
+              <!--
+                Carried only where the library can be written to: a drag that can
+                only ever be refused is a promise the interface should not make.
+                `Delete` does what dropping on the trash does, so the keyboard is
+                not the poor relation.
+              -->
+              <button
+                type="button"
+                :class="[
+                  'library__row',
+                  {
+                    'library__row--selected row--current': selectedKeys.has(item.key),
+                    'library__row--carried': carriedKeys.has(item.key),
+                    'library__row--over': fileDrop.target.value === `item:${item.key}`,
+                  },
+                ]"
+                :data-file-drop="takesFilesUnder(item) ? `item:${item.key}` : undefined"
+                :aria-pressed="selectedKeys.has(item.key)"
+                :data-row="item.key"
+                :tabindex="item.key === tabKey ? 0 : -1"
+                @focus="focusKey = item.key"
+                @click="pressRow(item, $event)"
+                @pointerdown="carryItem(item, $event)"
+                @keydown.delete.prevent="removeKey(item)"
+              >
+                <span class="library__cell library__cell--icon">
+                  <ItemTypeIcon :item-type="item.data.itemType" />
+                </span>
+                <span class="library__cell library__cell--title" dir="auto">{{ titleOf(item) }}</span>
+                <span class="library__cell" dir="auto">{{ item.meta?.creatorSummary ?? '' }}</span>
+                <span class="library__cell">{{ item.meta?.parsedDate ?? '' }}</span>
+              </button>
+            </li>
+          </TransitionGroup>
+        </template>
       </div>
 
       <footer class="library__footer">
