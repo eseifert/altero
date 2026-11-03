@@ -20,8 +20,11 @@ The sections below retain the technical and behavioral detail needed for trouble
 
 Choose **My Library** or a group from the same level of the sidebar. The
 personal library uses a building icon; groups use the same icon as **Groups**
-in the top navigation. Only the active library unfolds its collections
-and views beneath it, with indentation showing the hierarchy.
+in the top navigation. At most one library unfolds its collections and views
+beneath it, with indentation showing the hierarchy. Use its arrow to collapse
+it; all libraries can be collapsed while the current items and details stay
+open. Expanding another library switches to it and closes the previous tree.
+Pressing a library's name opens its tree and shows its top-level items.
 
 Switching libraries clears the previous rows and counts while the new library
 loads.

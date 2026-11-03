@@ -462,6 +462,54 @@ function viewsBelongTo(wrapper: ReturnType<typeof mount>): string | null {
  * groups alongside the personal library on the same level.
  */
 describe('the library nav', () => {
+  it('can collapse every library without changing the current view or selection', async () => {
+    libraries = [PERSONAL, GROUP]
+    const wrapper = await open()
+    const store = useLibraryStore()
+    store.collectionKey = COLLECTION.key
+    await store.select(ITEM)
+    await settle(wrapper)
+    requestMock.mockClear()
+
+    const twisty = wrapper.findAll('.library__twisty-button')[0]
+    await twisty.trigger('click')
+    await settle(wrapper)
+
+    expect(wrapper.find('.library__scopes--nested').exists()).toBe(false)
+    expect(wrapper.findAll('.library__twisty-button').map((button) => button.attributes('aria-expanded'))).toEqual(['false', 'false'])
+    expect(store.libraryId).toBe(1)
+    expect(store.collectionKey).toBe(COLLECTION.key)
+    expect(store.selected?.key).toBe(ITEM.key)
+    expect(requestMock).not.toHaveBeenCalled()
+
+    await twisty.trigger('click')
+    await settle(wrapper)
+    expect(twisty.attributes('aria-expanded')).toBe('true')
+    expect(store.collectionKey).toBe(COLLECTION.key)
+    expect(store.selected?.key).toBe(ITEM.key)
+    expect(requestMock).not.toHaveBeenCalled()
+  })
+
+  it('expands only one library, and its name reopens a collapsed library at the top level', async () => {
+    libraries = [PERSONAL, GROUP]
+    const wrapper = await open()
+    const twisties = wrapper.findAll('.library__twisty-button')
+    await twisties[1].trigger('click')
+    await settle(wrapper)
+    expect(twisties.map((button) => button.attributes('aria-expanded'))).toEqual(['false', 'true'])
+    expect(viewsBelongTo(wrapper)).toBe('Whale Watchers')
+    await twisties[1].trigger('click')
+    await settle(wrapper)
+    expect(wrapper.find('.library__scopes--nested').exists()).toBe(false)
+    await wrapper.findAll('.library__library')[1].trigger('click')
+    await settle(wrapper)
+    expect(twisties.map((button) => button.attributes('aria-expanded'))).toEqual(['false', 'true'])
+    await wrapper.findAll('.library__library')[0].trigger('click')
+    await settle(wrapper)
+    expect(twisties.map((button) => button.attributes('aria-expanded'))).toEqual(['true', 'false'])
+    expect(viewsBelongTo(wrapper)).toBe('My Library')
+  })
+
   it('calls the personal library "My Library", not what the account is called', async () => {
     /* The row is the library, not its owner. The account's own name is on the
        menu at the top of the page, where Zotero puts it too. */

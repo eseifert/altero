@@ -204,10 +204,16 @@ onBeforeUnmount(() => {
   library.unfollow()
 })
 
+// Collapsing the sidebar leaves the current library and item panes alone.
+const expandedLibraryId = ref<number | null>(library.libraryId)
+
 /* Changes made elsewhere reach whichever library is open. */
 watch(
   () => library.libraryId,
-  () => library.follow(),
+  (id) => {
+    expandedLibraryId.value = id
+    library.follow()
+  },
   { immediate: true },
 )
 
@@ -401,11 +407,21 @@ function showingWholeOf(id: number): boolean {
  * to the whole library except the browser's back button.
  */
 async function openLibrary(id: number): Promise<void> {
+  expandedLibraryId.value = id
   if (id === library.libraryId) {
     await library.selectScope('top')
     return
   }
   await library.openLibrary(id)
+}
+
+async function toggleLibrary(id: number): Promise<void> {
+  if (expandedLibraryId.value === id) {
+    expandedLibraryId.value = null
+    return
+  }
+  expandedLibraryId.value = id
+  if (id !== library.libraryId) await library.openLibrary(id)
 }
 
 /*
@@ -1542,21 +1558,19 @@ function sortLabel(column: { field: string; label: string }): string {
             :class="{ 'library__nav-row--over': lights(`library:${entry.id}`) }"
             :data-drop="`library:${entry.id}`"
           >
-            <!-- The twisty says which library is open rather than opening one
-                 of its own: what a library holds is what the panes below are
-                 showing, and two libraries unfolded at once would be a tree of
-                 things that are not on screen. -->
+            <!-- At most one library unfolds; all may be collapsed without
+                 changing what the item list and detail pane show. -->
             <button
               class="library__twisty-button"
               type="button"
-              :aria-label="entry.id === library.libraryId ? t('Collapse') : t('Expand')"
-              :aria-expanded="entry.id === library.libraryId"
-              @click="library.openLibrary(entry.id)"
+              :aria-label="entry.id === expandedLibraryId ? t('Collapse') : t('Expand')"
+              :aria-expanded="entry.id === expandedLibraryId"
+              @click="toggleLibrary(entry.id)"
             >
               <AppIcon
                 name="chevron-right"
                 :size="18"
-                :class="['library__chevron', { 'library__chevron--open': entry.id === library.libraryId }]"
+                :class="['library__chevron', { 'library__chevron--open': entry.id === expandedLibraryId }]"
               />
             </button>
 
@@ -1601,7 +1615,7 @@ function sortLabel(column: { field: string; label: string }): string {
             collections' twisty column, so a view and a collection line up.
           -->
           <div
-            v-if="entry.id === library.libraryId"
+            v-if="entry.id === library.libraryId && entry.id === expandedLibraryId"
             class="library__scopes library__scopes--nested"
             role="group"
             :aria-label="libraryLabel(entry)"
