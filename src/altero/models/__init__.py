@@ -32,6 +32,7 @@ from altero.models.library import (
 )
 from altero.models.login import LoginSession
 from altero.models.loginattempt import LoginAttempt
+from altero.models.mergeundo import MergeUndo
 from altero.models.oauth import (
     OAuthAuthorizationRequest,
     OAuthClient,
@@ -94,6 +95,7 @@ __all__ = [
     "LoginCode",
     "LoginSession",
     "MemberPermission",
+    "MergeUndo",
     "Notification",
     "OAuthAuthorizationRequest",
     "OAuthClient",

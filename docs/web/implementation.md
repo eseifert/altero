@@ -236,10 +236,31 @@ timestamps are refused. Tags, collections and relations are combined by the
 merge itself, including attachment deduplication and child moves, in one new
 library version.
 
-The 200 response is `{"items": [...]}`, with the master first and each changed
+The 200 response includes `items`, with the master first and each changed
 item in its ordinary envelope. `Last-Modified-Version` gives their shared new
 version. An optional `locale` query selects the interface language for PDF
 word ordering; it defaults to the account language, then `en-US`.
+
+It also returns `undo: {"version": N, "merge": true}`. To reverse that merge,
+send `POST /web/libraries/{id}/items/merge/undo` with the session, CSRF token and
+`If-Unmodified-Since-Version: N`. The request carries no item data. A private
+database snapshot holds the prior values of precisely the properties changed
+by the merge, including incoming relations and attachment/annotation parents.
+Only the person who merged can use it; all current item permissions apply again.
+
+The library and stored merge versions must both match under the write lock.
+A later write or retry answers 412, even if the caller supplies a newer version.
+A missing, expired or another person's snapshot answers 404. Each library keeps
+at most one snapshot, for five minutes; a subsequent merge replaces it. The
+retention sweep removes expired snapshots, and clearing/restoring a library
+removes its snapshot. Snapshots are excluded from library archives.
+
+Undo restores the old fields, creators, tags, collections, dates added, trash
+states, note HTML and relations at one **new** library version. It never rewinds
+sync versions or changes registered file bytes/full text. Notes promoted from
+attachment text during the merge go to Trash; their original text returns to
+the attachment. A refused reversal rolls back every change and keeps the
+snapshot available until it expires or the library changes.
 
 ### Not built yet
 

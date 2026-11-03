@@ -21,7 +21,7 @@ from altero.errors import ForbiddenError, InvalidInputError
 from altero.itemschema import get_schema
 from altero.models import FullText, Item, ItemRelation, Library
 from altero.serializers import timestamp
-from altero.services import items, itemwrites, mergeattachments
+from altero.services import items, itemwrites, mergeattachments, mergeundo
 from altero.services.auth import Access
 
 REPLACED = "dc:replaces"
@@ -109,6 +109,7 @@ async def merge_items(
     storage_root: Path | None = None,
     locale: str = "en-US",
     fields: dict[str, Any] | None = None,
+    undo: list[dict[str, Any]] | None = None,
 ) -> list[Item]:
     """Keep ``master``, move the duplicates' children and links, then trash them.
 
@@ -255,6 +256,9 @@ async def merge_items(
             if patches[item.id].get("deleted"):
                 permit.require_remove(item.created_by_user_id)
 
+    if undo is not None:
+        undo.extend(await mergeundo.capture(session, list(affected.values()), patches))
+
     written = []
     for item in affected.values():
         if not patches[item.id]:
@@ -286,4 +290,6 @@ async def merge_items(
         )
         assert item is not None
         written.append(item)
+        if undo is not None:
+            undo.append({"key": item.key, "deleted": True})
     return written

@@ -447,6 +447,10 @@ Unreferenced attachment files are not deleted by the timed retention sweep. They
 
 Browser sessions, sign-in codes, confirmation links, unanswered invitations and attachment download permissions have no retention period of their own. Each records when it expires, and the sweep removes it once it has: an expired session is already nobody's session, and an expired download permission opens nothing.
 
+The same sweep removes expired browser merge snapshots. A library keeps at most
+one, usable by its author for five minutes while the library remains unchanged.
+These private snapshots are not included in library archives.
+
 Download permissions are the highest-volume of these. A client syncing its files is granted one per attachment it fetches, so the sweep is what keeps that table from growing for as long as the instance runs. See [the file protocol](compatibility.md#the-location-has-to-be-a-credential) for what they are and why the redirect cannot simply point at a URL carrying the API key.
 
 ## Library transfer and recovery

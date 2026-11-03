@@ -45,6 +45,7 @@ from altero.models import (
     Item,
     Library,
     LoginCode,
+    MergeUndo,
     OAuthAuthorizationRequest,
     OAuthCode,
     OAuthToken,
@@ -90,6 +91,8 @@ class Report:
     #: server. Nothing is load-bearing once it has expired, and a table that
     #: only grows is one somebody finds the hard way.
     authorizations: int = 0
+    #: Private inverses of browser merges past their five-minute lifetime.
+    merge_undos: int = 0
 
     @property
     def anything(self) -> bool:
@@ -106,6 +109,7 @@ class Report:
             or self.invitations
             or self.downloads
             or self.authorizations
+            or self.merge_undos
         )
 
 
@@ -267,6 +271,7 @@ async def _sweep_expired(session: AsyncSession, *, now: datetime, dry_run: bool)
         ("ceremonies", WebAuthnChallenge, WebAuthnChallenge.expires < now),
         ("assertions", ConsumedAssertion, ConsumedAssertion.expires < now),
         ("downloads", StorageDownload, StorageDownload.expires < now),
+        ("merge_undos", MergeUndo, MergeUndo.expires <= now),
     ):
         counts[name] = await _remove(session, model, condition, dry_run=dry_run)
 
@@ -320,6 +325,7 @@ async def sweep(
         verifications=expired.verifications,
         invitations=expired.invitations,
         downloads=expired.downloads,
+        merge_undos=expired.merge_undos,
     )
 
 
@@ -344,4 +350,6 @@ def describe(report: Report) -> str:
         parts.append(f"{report.downloads} expired download permissions")
     if report.authorizations:
         parts.append(f"{report.authorizations} spent authorizations")
+    if report.merge_undos:
+        parts.append(f"{report.merge_undos} expired merge undos")
     return ", ".join(parts) if parts else "nothing to delete"

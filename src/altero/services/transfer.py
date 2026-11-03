@@ -42,6 +42,7 @@ from altero.models import (
     ItemTag,
     Library,
     LibraryType,
+    MergeUndo,
     SavedSearch,
     SearchCondition,
     Setting,
@@ -390,6 +391,7 @@ async def clear_library(session: AsyncSession, library: Library) -> None:
     a group has -- see :func:`altero.services.groups.delete_group`.
     """
     duplicates.forget(library.id)
+    await session.execute(delete(MergeUndo).where(MergeUndo.library_id == library.id))
     items = select(Item.id).where(Item.library_id == library.id)
     collections = select(Collection.id).where(Collection.library_id == library.id)
 

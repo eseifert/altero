@@ -100,7 +100,16 @@ from altero.itemschema.typechange import change_type
 from altero.models import ActivityKind, Item, Library, User
 from altero.serializers import item as render_item
 from altero.serializers import timestamp
-from altero.services import auth, groupactivity, itemwrites, locales, publications, storage, writes
+from altero.services import (
+    auth,
+    groupactivity,
+    itemwrites,
+    locales,
+    mergeundo,
+    publications,
+    storage,
+    writes,
+)
 from altero.services import collections as collections_service
 from altero.services import items as items_service
 from altero.services import merge as merge_service
@@ -1337,6 +1346,7 @@ async def merge_items(
         session, library, [body.master, *body.others], permit=access
     )
     version = await writes.bump_library_version(session, library)
+    inverse: list[dict[str, Any]] = []
     changed = await merge_service.merge_items(
         session,
         library,
@@ -1348,7 +1358,9 @@ async def merge_items(
         storage_root=request.app.state.settings.storage_path,
         locale=language,
         fields=body.fields,
+        undo=inverse,
     )
+    await mergeundo.remember(session, library, user.id, inverse)
     rendered = await _rendered_all(session, changed, library, base_url)
     await groupactivity.record(
         session,
@@ -1359,7 +1371,39 @@ async def merge_items(
         objects=await groupactivity.name_items(session, library, [item.key for item in changed]),
     )
     await session.commit()
-    return JSONResponse({"items": rendered}, headers=library_headers(version))
+    return JSONResponse(
+        {"items": rendered, "undo": {"version": version, "merge": True}},
+        headers=library_headers(version),
+    )
+
+
+@router.post("/libraries/{library_id}/items/merge/undo")
+async def undo_merge(
+    request: Request,
+    session: SessionDep,
+    user: CurrentUserDep,
+    base_url: BaseUrlDep,
+    library_id: int,
+    _csrf: CsrfDep,
+) -> Response:
+    """Restore this person's last merge from its server-held snapshot."""
+    library, access = await _library(session, user, library_id, write=True)
+    expected = writes.parse_version_header(request.headers.get("If-Unmodified-Since-Version"))
+    if expected is None:
+        raise PreconditionRequiredError("If-Unmodified-Since-Version not provided")
+    library = await writes.lock_library(session, library)
+    changed = await mergeundo.restore(session, library, user.id, expected, access)
+    rendered = await _rendered_all(session, changed, library, base_url)
+    await groupactivity.record(
+        session,
+        library,
+        actor_id=user.id,
+        kind=ActivityKind.ITEMS_CHANGED,
+        count=len(changed),
+        objects=await groupactivity.name_items(session, library, [item.key for item in changed]),
+    )
+    await session.commit()
+    return JSONResponse({"items": rendered}, headers=library_headers(library.version))
 
 
 @router.post("/libraries/{library_id}/items/copy", status_code=201)
