@@ -16,7 +16,6 @@ import {
 } from '@/panewidths'
 import { useLibraryStore } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
-import { useToastStore } from '@/stores/toasts'
 import MergePane from '@/components/MergePane.vue'
 
 import LibraryView from './LibraryView.vue'
@@ -164,7 +163,7 @@ describe('the duplicates merge pane', () => {
     wrapper.unmount()
   })
 
-  it('reports success even when the merge refresh removes the pane', async () => {
+  it('finishes the merge callback even when its refresh removes the pane', async () => {
     contents = [ITEM, { ...ITEM, key: 'BBBB2345' }]
     const wrapper = mount(LibraryView, { global: { stubs: { MergePane: true } } })
     await settle(wrapper)
@@ -179,7 +178,6 @@ describe('the duplicates merge pane', () => {
     await settle(wrapper)
     expect(merge).toHaveBeenCalledWith(snapshot, ITEM.key, {}, 'en-US')
     expect(wrapper.findComponent(MergePane).exists()).toBe(false)
-    expect(useToastStore().toasts.at(-1)?.message).toBe('Items merged.')
     wrapper.unmount()
   })
 })

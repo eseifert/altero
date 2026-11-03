@@ -48,14 +48,12 @@ import {
 } from '@/stores/library'
 import { useLocaleStore } from '@/stores/locale'
 import { useShareStore } from '@/stores/shares'
-import { useToastStore } from '@/stores/toasts'
 
 const { t, locale } = useI18n()
 
 const library = useLibraryStore()
 const locales = useLocaleStore()
 const shares = useShareStore()
-const toasts = useToastStore()
 const duplicateInspection = ref(false)
 const duplicateMaster = ref<string | null>(null)
 const activeDuplicateGroup = computed(() => library.scope === 'duplicates'
@@ -123,7 +121,6 @@ async function mergeSelection(snapshot: MergeSnapshot, master: string, fields: M
       document.querySelector<HTMLElement>(`[data-row="${CSS.escape(next)}"]`)?.focus()
     }
   }
-  toasts.show(t('Items merged.'))
 }
 /* The account's own username, which is what its public page is addressed by,
    and its id, which is the only thing a member restricted to their own items

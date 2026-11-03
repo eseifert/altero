@@ -51,8 +51,14 @@ Both PDFs are kept when deduplication would move a file and transfer a note to
 it together, avoiding a [Zotero sync bug](../compatibility.md#merging-pdfs-with-embedded-notes).
 Each file keeps its note and annotations.
 
-Restoring a duplicate from the trash brings back that record. It does not undo
-the merged fields or move children back to their previous parent.
+Use **Undo** in the merge confirmation toast to restore the previous fields,
+tags, collections, note text, child parents and links. Attachment files are kept.
+Any notes created from attachment text during the merge go to Trash, with the
+text restored to its original attachment. Undo is available to the person who
+merged for up to five minutes, provided nothing else has changed the library.
+
+Restoring a duplicate from the trash later brings back that record. It does not
+reverse the merged fields or move children back to their previous parent.
 
 If the library changed while you were reviewing, the merge stops. Press
 **Reload** and review the current versions before confirming again.
@@ -397,7 +403,7 @@ An item can be filed, trashed, restored, deleted and copied to another library
 without a pointer. Its fields, creators and type are edited in the right pane; see
 [Editing an item](#editing-an-item).
 
-After filing, trashing, restoring or copying items, press **Undo** in the confirmation
+After filing, trashing, restoring, copying or merging items, press **Undo** in the confirmation
 message to reverse that action. It stays for six seconds, pauses while the
 pointer or keyboard focus is on it, and disappears when dismissed or the page
 reloads. A later library change, including a desktop sync, makes the offer
@@ -411,7 +417,7 @@ originals stay where they were. Groups that allow adding but forbid removal
 confirm the copy without an Undo button. A later write to the destination
 invalidates copy undo; a change to the source does not.
 
-Permanent deletion and merging have no undo button.
+Permanent deletion has no undo button.
 
 **Several rows can be picked out and carried together.** `Ctrl`-click — `Cmd`
 on a Mac — adds a row and takes one away, `Shift`-click takes everything

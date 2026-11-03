@@ -13,6 +13,11 @@ interface UndoSnapshot {
   items: { key: string; collections?: string[]; deleted?: boolean }[]
 }
 
+interface MergeUndoSnapshot {
+  version: number
+  merge: true
+}
+
 /**
  * How far a change may go, when the library is writable at all.
  *
@@ -677,12 +682,13 @@ export const useLibraryStore = defineStore('library', () => {
     if (!snapshot.items.some((item) => item.key === master)) {
       throw new ApiError('The master must belong to the reviewed selection', 400)
     }
-    const answer = await request<{ items: ItemEnvelope[] }>(
+    const answer = await request<{ items: ItemEnvelope[]; undo?: MergeUndoSnapshot }>(
       `/web/libraries/${snapshot.libraryId}/items/merge?locale=${encodeURIComponent(locale)}`, {
         method: 'POST', headers: { 'If-Unmodified-Since-Version': String(snapshot.version) },
         body: { master, others: snapshot.items.filter((item) => item.key !== master).map((item) => item.key), fields },
       },
     )
+    offerUndo(snapshot.libraryId, answer.undo, t('Items merged.'))
     if (libraryId.value !== snapshot.libraryId) return
     for (const item of answer.items) seen(item.version)
     const keys = new Set(snapshot.items.map((item) => item.key))
@@ -733,19 +739,19 @@ export const useLibraryStore = defineStore('library', () => {
    *  A failed list refresh must never turn a committed write into a failed
    *  action or invite a repeat. Undo goes through the same rule after commit. */
   function offerUndo(
-    id: number, snapshot: UndoSnapshot | null | undefined, message: string,
+    id: number, snapshot: UndoSnapshot | MergeUndoSnapshot | null | undefined, message: string,
     afterUndo?: () => Promise<void>,
   ): void {
-    if (!snapshot?.items.length) return
+    if (!snapshot || (!('merge' in snapshot) && !snapshot.items.length)) return
     const toasts = useToastStore()
     toasts.show(message, {
       label: t('Undo'),
       run: async () => {
         try {
-          await request(`/web/libraries/${id}/items/undo`, {
+          await request(`/web/libraries/${id}/items/${'merge' in snapshot ? 'merge/undo' : 'undo'}`, {
             method: 'POST',
             headers: { 'If-Unmodified-Since-Version': String(snapshot.version) },
-            body: { items: snapshot.items },
+            ...('merge' in snapshot ? {} : { body: { items: snapshot.items } }),
           })
         } catch (thrown) {
           toasts.show(thrown instanceof ApiError && thrown.status === 412

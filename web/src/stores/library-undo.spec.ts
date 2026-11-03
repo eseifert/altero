@@ -25,6 +25,58 @@ beforeEach(() => {
   })
 })
 
+describe('undoing a merge', () => {
+  const rows = ['FIRST222', 'SECOND22'].map((key) => ({ key, version: 10, data: { itemType: 'book' }, meta: {} }))
+  const review = { libraryId: 1, version: 10, items: rows }
+  const snapshot = { version: 11, merge: true }
+
+  it('uses the server-held graph and committed version, once', async () => {
+    const library = useLibraryStore()
+    library.libraryId = 1
+    requestMock.mockResolvedValueOnce({ items: rows, undo: snapshot })
+    await library.mergeItems(review, rows[0]!.key, {}, 'en-US')
+    const toasts = useToastStore()
+    expect(toasts.toasts[0]?.message).toBe('Items merged.')
+    expect(toasts.toasts[0]?.action?.label).toBe('Undo')
+    requestMock.mockClear()
+    const id = toasts.toasts[0]!.id
+    await toasts.act(id)
+    await toasts.act(id)
+    expect(requestMock.mock.calls.filter(([, options]) => options?.method === 'POST')).toEqual([
+      ['/web/libraries/1/items/merge/undo', {
+        method: 'POST', headers: { 'If-Unmodified-Since-Version': '11' },
+      }],
+    ])
+    expect(toasts.toasts.at(-1)?.message).toBe('Change undone.')
+  })
+
+  it('retains Undo if navigation occurs while the merge is in flight', async () => {
+    const library = useLibraryStore()
+    library.libraryId = 1
+    let finish!: (value: unknown) => void
+    requestMock.mockReturnValueOnce(new Promise((resolve) => { finish = resolve }))
+    const merging = library.mergeItems(review, rows[0]!.key, {}, 'en-US')
+    library.libraryId = 2
+    library.selection = ['OTHER222']
+    finish({ items: rows, undo: snapshot })
+    await merging
+    requestMock.mockClear()
+    await useToastStore().act(useToastStore().toasts[0]!.id)
+    expect(requestMock.mock.calls.map(([path]) => path)).toEqual(['/web/libraries/1/items/merge/undo'])
+    expect(library.selection).toEqual(['OTHER222'])
+  })
+
+  it('retains committed success and Undo when the subsequent refresh fails', async () => {
+    const library = useLibraryStore()
+    library.libraryId = 1
+    requestMock.mockResolvedValueOnce({ items: rows, undo: snapshot })
+    requestMock.mockRejectedValue(new ApiError('Offline', 0))
+    await expect(library.mergeItems(review, rows[0]!.key, {}, 'en-US')).resolves.toBeUndefined()
+    expect(useToastStore().toasts[0]?.message).toBe('Items merged.')
+    expect(useToastStore().toasts[0]?.action?.label).toBe('Undo')
+  })
+})
+
 describe('undoing a copy', () => {
   const snapshot = { version: 22, items: [{ key: 'COPIED22', deleted: true }] }
 

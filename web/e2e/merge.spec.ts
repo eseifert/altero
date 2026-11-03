@@ -62,6 +62,53 @@ async function seedPair(label: string, identifier?: string) {
   return { master: made['0']!, other: made['1']!, headers, baseURL }
 }
 
+for (const stale of [false, true]) {
+  test(`merge Undo ${stale ? 'refuses a later sync' : 'restores the pair and note after reload'}`, async ({ page }, info) => {
+    const label = `Undo merge ${stale} ${info.project.name}`
+    const identifiers = ['9780262033848', '9780134494166', '9780135957059', '9780134757599']
+    const pair = await seedPair(label, identifiers[(stale ? 2 : 0) + (info.project.name === 'phone' ? 1 : 0)])
+    const noteResponse = await fetch(`${pair.baseURL}/users/1/items`, {
+      method: 'POST', headers: pair.headers,
+      body: JSON.stringify([{ itemType: 'note', parentItem: pair.other.key, note: `<p>${label} note</p>` }]),
+    })
+    expect(noteResponse.status).toBe(200)
+    const note = (await noteResponse.json()).successful['0'].key as string
+    await signIn(page)
+    await page.locator('.library__scope').filter({ hasText: 'Duplicate Items' }).click()
+    await page.locator('.duplicate-group__row').filter({ hasText: `${label} chosen` }).click()
+    const pane = page.locator('.merge-pane')
+    await pane.locator('select[name="merge-title"]').selectOption('1')
+    await pane.locator('[data-merge-review]').click()
+    await pane.locator('[data-merge-confirm]').click()
+    const toast = page.locator('.toast').filter({ hasText: 'Items merged.' })
+    await expect(toast).toHaveCount(1)
+    const undo = toast.getByRole('button', { name: 'Undo', exact: true })
+    await expect(undo).toBeVisible()
+    await undo.focus()
+    const get = async (key: string) => (await (await fetch(`${pair.baseURL}/users/1/items/${key}`, { headers: pair.headers })).json()).data
+    expect((await get(note)).parentItem).toBe(pair.master.key)
+    if (stale) {
+      const changed = await fetch(`${pair.baseURL}/users/1/items`, {
+        method: 'POST', headers: pair.headers,
+        body: JSON.stringify([{ itemType: 'book', title: `${label} synced elsewhere` }]),
+      })
+      expect(changed.status).toBe(200)
+    }
+    expect(await accessibilityProblems(page)).toEqual([])
+    await undo.press('Enter')
+    await expect(page.locator('.toasts')).toContainText(stale
+      ? 'Undo is no longer available because the library changed.' : 'Change undone.')
+    expect((await get(pair.other.key)).deleted ?? 0).toBe(stale ? 1 : 0)
+    expect((await get(note)).parentItem).toBe(stale ? pair.master.key : pair.other.key)
+    expect((await get(pair.master.key)).title).toBe(`${label} ${stale ? 'chosen' : 'original'}`)
+    await page.reload()
+    await page.locator('.library__scope').filter({ hasText: 'Duplicate Items' }).click()
+    const row = page.locator('.duplicate-group__row').filter({ hasText: `${label} original` })
+    if (stale) await expect(row).toHaveCount(0)
+    else await expect(row).toBeVisible()
+  })
+}
+
 test('the duplicates pane confirms field choices and refreshes the list', async ({ page }, info) => {
   const label = `Merge pane ${info.project.name}`
   const pair = await seedPair(label)
