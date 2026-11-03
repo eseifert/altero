@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppIcon from '@/components/AppIcon.vue'
+import Collapse from '@/components/Collapse.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import { getItemTitle } from '@/items/titles'
 import { relatedKeys, useLibraryStore } from '@/stores/library'
@@ -90,6 +91,7 @@ const searching = ref(false)
 const query = ref('')
 const results = ref<ItemEnvelope[] | null>(null)
 const searchBox = ref<HTMLInputElement | null>(null)
+const addButton = ref<HTMLButtonElement | null>(null)
 let searchTimer: ReturnType<typeof setTimeout> | undefined
 let searchRun = 0
 
@@ -106,11 +108,15 @@ async function openSearch(): Promise<void> {
   searchBox.value?.focus()
 }
 
-function closeSearch(): void {
+function closeSearch(restoreFocus = false): void {
+  const key = props.item.key
   searching.value = false
   query.value = ''
   results.value = null
   clearTimeout(searchTimer)
+  if (restoreFocus) void nextTick(() => {
+    if (props.item.key === key && !searching.value) addButton.value?.focus()
+  })
 }
 
 function typed(): void {
@@ -134,7 +140,7 @@ async function search(): Promise<void> {
 
 async function add(other: ItemEnvelope): Promise<void> {
   await write(() => library.relateItems(props.item.key, [other.key]))
-  if (!failure.value) closeSearch()
+  if (!failure.value) closeSearch(true)
 }
 </script>
 
@@ -144,6 +150,7 @@ async function add(other: ItemEnvelope): Promise<void> {
       <h3 class="related__title">{{ t('Related') }}</h3>
       <button
         v-if="editable && !searching"
+        ref="addButton"
         class="icon-button"
         type="button"
         :aria-label="t('Add Related')"
@@ -175,41 +182,43 @@ async function add(other: ItemEnvelope): Promise<void> {
       </li>
     </ul>
 
-    <div v-if="searching" class="related__search" @keydown.escape.prevent="closeSearch">
-      <div class="related__field">
-        <input
-          ref="searchBox"
-          v-model="query"
-          class="related__input"
-          type="search"
-          dir="auto"
-          :aria-label="t('Search this library')"
-          :placeholder="t('Search this library')"
-          @input="typed"
-        />
-        <button
-          class="icon-button"
-          type="button"
-          :aria-label="t('Cancel')"
-          :title="t('Cancel')"
-          @click="closeSearch"
-        >
-          <AppIcon name="close" :size="18" />
-        </button>
-      </div>
-      <ul v-if="offered.length" class="related__list" :aria-label="t('Add Related')">
-        <li v-for="entry in offered" :key="entry.key" class="related__row">
-          <button class="related__item" type="button" :disabled="busy" @click="add(entry)">
-            <ItemTypeIcon :item-type="entry.data.itemType" :size="16" />
-            <span class="related__label" dir="auto">{{ titleOf(entry) }}</span>
-            <span v-if="entry.meta.creatorSummary" class="related__byline" dir="auto">
-              {{ entry.meta.creatorSummary }}<template v-if="entry.meta.parsedDate">, {{ entry.meta.parsedDate.slice(0, 4) }}</template>
-            </span>
+    <Collapse>
+      <div v-if="searching" class="related__search" @keydown.escape.prevent="closeSearch(true)">
+        <div class="related__field">
+          <input
+            ref="searchBox"
+            v-model="query"
+            class="related__input"
+            type="search"
+            dir="auto"
+            :aria-label="t('Search this library')"
+            :placeholder="t('Search this library')"
+            @input="typed"
+          />
+          <button
+            class="icon-button"
+            type="button"
+            :aria-label="t('Cancel')"
+            :title="t('Cancel')"
+            @click="closeSearch(true)"
+          >
+            <AppIcon name="close" :size="18" />
           </button>
-        </li>
-      </ul>
-      <p v-else-if="results" class="related__empty" role="status">{{ t('No items match this search.') }}</p>
-    </div>
+        </div>
+        <ul v-if="offered.length" class="related__list" :aria-label="t('Add Related')">
+          <li v-for="entry in offered" :key="entry.key" class="related__row">
+            <button class="related__item" type="button" :disabled="busy" @click="add(entry)">
+              <ItemTypeIcon :item-type="entry.data.itemType" :size="16" />
+              <span class="related__label" dir="auto">{{ titleOf(entry) }}</span>
+              <span v-if="entry.meta.creatorSummary" class="related__byline" dir="auto">
+                {{ entry.meta.creatorSummary }}<template v-if="entry.meta.parsedDate">, {{ entry.meta.parsedDate.slice(0, 4) }}</template>
+              </span>
+            </button>
+          </li>
+        </ul>
+        <p v-else-if="results" class="related__empty" role="status">{{ t('No items match this search.') }}</p>
+      </div>
+    </Collapse>
 
     <p v-if="failure" class="related__error" role="alert">{{ failure }}</p>
   </section>

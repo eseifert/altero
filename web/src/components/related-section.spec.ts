@@ -197,5 +197,6 @@ describe('RelatedSection', () => {
     await wrapper.find('input[type="search"]').trigger('keydown', { key: 'Escape' })
 
     expect(wrapper.find('input[type="search"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(wrapper.get('[aria-label="Add Related"]').element)
   })
 })

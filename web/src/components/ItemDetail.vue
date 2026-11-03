@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import { request } from '@/api/client'
 import AppIcon from '@/components/AppIcon.vue'
+import Collapse from '@/components/Collapse.vue'
 import InfoPane from '@/components/InfoPane.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import NoteMenu from '@/components/NoteMenu.vue'
@@ -391,74 +392,80 @@ function childTitle(child: ItemEnvelope): string {
       words of Zotero's item pane, where a note is added from its own section
       rather than from a list it shares with files.
     -->
-    <section v-if="attachments.length || takesNotes" class="detail__section">
-      <div class="detail__heading-row">
-        <h3 class="detail__heading detail__heading--in-row">{{ t('Attachments') }}</h3>
-        <NoteMenu
-          v-if="takesNotes"
-          class="detail__add-menu"
-          :label="t('Add Attachment')"
-          icon="plus"
-          :icon-size="18"
-          :entries="attachEntries"
-          @choose="$event === 'file' ? emit('attachFile') : emit('attachLink')"
-        />
-      </div>
-      <ul v-if="attachments.length" class="detail__children">
-        <li v-for="child in attachments" :key="child.key">
-          <button class="detail__child" type="button" @click="emit('open', child)">
-            <ItemTypeIcon :item-type="child.data.itemType" :size="16" />
-            <span dir="auto">{{ childTitle(child) }}</span>
-          </button>
-          <a
-            v-if="child.data.filename"
-            class="detail__link"
-            :href="fileUrl(child.key)"
-            target="_blank"
-            rel="noopener"
-          >{{ t('open') }}</a>
-        </li>
-      </ul>
-    </section>
+    <Collapse>
+      <section v-if="attachments.length || takesNotes" class="detail__section">
+        <div class="detail__heading-row">
+          <h3 class="detail__heading detail__heading--in-row">{{ t('Attachments') }}</h3>
+          <NoteMenu
+            v-if="takesNotes"
+            class="detail__add-menu"
+            :label="t('Add Attachment')"
+            icon="plus"
+            :icon-size="18"
+            :entries="attachEntries"
+            @choose="$event === 'file' ? emit('attachFile') : emit('attachLink')"
+          />
+        </div>
+        <ul v-if="attachments.length" class="detail__children">
+          <li v-for="child in attachments" :key="child.key">
+            <button class="detail__child" type="button" @click="emit('open', child)">
+              <ItemTypeIcon :item-type="child.data.itemType" :size="16" />
+              <span dir="auto">{{ childTitle(child) }}</span>
+            </button>
+            <a
+              v-if="child.data.filename"
+              class="detail__link"
+              :href="fileUrl(child.key)"
+              target="_blank"
+              rel="noopener"
+            >{{ t('open') }}</a>
+          </li>
+        </ul>
+      </section>
+    </Collapse>
 
-    <section v-if="notes.length || takesNotes" class="detail__section">
-      <div class="detail__heading-row">
-        <h3 class="detail__heading detail__heading--in-row">{{ t('Notes') }}</h3>
-        <button
-          v-if="takesNotes"
-          class="icon-button detail__add"
-          type="button"
-          :aria-label="t('Add Note')"
-          :title="t('Add Note')"
-          @click="emit('addNote')"
-        >
-          <AppIcon name="plus" :size="18" />
-        </button>
-      </div>
-      <ul v-if="notes.length" class="detail__children">
-        <li v-for="child in notes" :key="child.key">
-          <button class="detail__child" type="button" @click="emit('open', child)">
-            <ItemTypeIcon :item-type="child.data.itemType" :size="16" />
-            <span dir="auto">{{ childTitle(child) }}</span>
+    <Collapse>
+      <section v-if="notes.length || takesNotes" class="detail__section">
+        <div class="detail__heading-row">
+          <h3 class="detail__heading detail__heading--in-row">{{ t('Notes') }}</h3>
+          <button
+            v-if="takesNotes"
+            class="icon-button detail__add"
+            type="button"
+            :aria-label="t('Add Note')"
+            :title="t('Add Note')"
+            @click="emit('addNote')"
+          >
+            <AppIcon name="plus" :size="18" />
           </button>
-        </li>
-      </ul>
-    </section>
+        </div>
+        <ul v-if="notes.length" class="detail__children">
+          <li v-for="child in notes" :key="child.key">
+            <button class="detail__child" type="button" @click="emit('open', child)">
+              <ItemTypeIcon :item-type="child.data.itemType" :size="16" />
+              <span dir="auto">{{ childTitle(child) }}</span>
+            </button>
+          </li>
+        </ul>
+      </section>
+    </Collapse>
 
-    <section v-if="!isNote" class="detail__section">
-      <h3 class="detail__heading">{{ t('Citation') }}</h3>
-      <div class="detail__cite">
-        <select v-model="style" class="detail__select" :aria-label="t('Citation style')">
-          <option v-for="entry in STYLES" :key="entry.id" :value="entry.id">{{ entry.name }}</option>
-        </select>
-        <button class="detail__button" type="button" :disabled="citing" @click="cite">
-          {{ citing ? t('Rendering…') : t('Render') }}
-        </button>
-      </div>
-      <p v-if="citationError" class="detail__error" role="alert">{{ citationError }}</p>
-      <!-- Rendered by the server's own CSL processor from this item's data. -->
-      <div v-else-if="bibliography" class="card__inset detail__bib" dir="auto" v-html="cleanBibliography(bibliography)"></div>
-    </section>
+    <Collapse>
+      <section v-if="!isNote" class="detail__section">
+        <h3 class="detail__heading">{{ t('Citation') }}</h3>
+        <div class="detail__cite">
+          <select v-model="style" class="detail__select" :aria-label="t('Citation style')">
+            <option v-for="entry in STYLES" :key="entry.id" :value="entry.id">{{ entry.name }}</option>
+          </select>
+          <button class="detail__button" type="button" :disabled="citing" @click="cite">
+            {{ citing ? t('Rendering…') : t('Render') }}
+          </button>
+        </div>
+        <p v-if="citationError" class="detail__error" role="alert">{{ citationError }}</p>
+        <!-- Rendered by the server's own CSL processor from this item's data. -->
+        <div v-else-if="bibliography" class="card__inset detail__bib" dir="auto" v-html="cleanBibliography(bibliography)"></div>
+      </section>
+    </Collapse>
   </article>
 </template>
 

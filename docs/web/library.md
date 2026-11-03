@@ -26,6 +26,11 @@ and views beneath it, with indentation showing the hierarchy.
 Collection branches open and close with a short height transition. The interface
 respects the device's **Reduce motion** preference.
 
+Attachment, note and citation sections use the same transition when they appear
+or disappear. The related-item search also opens and closes smoothly; **Escape**
+or its cancel button returns focus to **Add Related**. Closing content stops
+accepting input immediately.
+
 Dialogs fade in and out. **Escape** or **Cancel** dismisses a dialog and returns
 keyboard focus to its opener. Switching from collection settings to sharing
 keeps focus in the new dialog.

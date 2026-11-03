@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Animate optional item-detail sections and related searches, retiring controls during exit and restoring search focus.
 - Fade library dialogs in and out, returning keyboard focus after dismissal and preserving it when switching dialogs.
 - Keep sidebar controls reachable on phones when a collection has a long name.
 - Animate collection branches while respecting reduced motion and keeping nested branches free to grow.

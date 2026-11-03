@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { defineComponent, h, nextTick, ref, vShow, withDirectives } from 'vue'
 
 import { i18n } from '@/i18n'
 import { useToastStore } from '@/stores/toasts'
@@ -80,6 +80,42 @@ describe('ToastHost', () => {
 })
 
 describe('Collapse', () => {
+  it('retires controls immediately while their content is leaving', async () => {
+    const open = ref(true)
+    const clicked = vi.fn()
+    const wrapper = mount(defineComponent(() => () => h(Collapse, null, () =>
+      open.value ? h('section', [h('button', { onClick: clicked }, 'Write')]) : null,
+    )), { global: { stubs: { transition: false } } })
+    const section = wrapper.get('section').element
+    const button = wrapper.get('button').element
+    open.value = false
+    await nextTick()
+    expect(section.hasAttribute('inert')).toBe(true)
+    expect(section.getAttribute('aria-hidden')).toBe('true')
+    // jsdom, like older Safari, does not implement inert's behavior.
+    button.click()
+    expect(clicked).not.toHaveBeenCalled()
+  })
+
+  it('revives controls and releases the height after cancelling a close', async () => {
+    const open = ref(true)
+    const clicked = vi.fn()
+    const wrapper = mount(defineComponent(() => () => h(Collapse, null, () =>
+      withDirectives(h('section', [h('button', { onClick: clicked }, 'Write')]), [[vShow, open.value]]),
+    )), { global: { stubs: { transition: false } } })
+    const section = wrapper.get('section').element
+    open.value = false
+    await nextTick()
+    expect(section.hasAttribute('inert')).toBe(true)
+    open.value = true
+    await nextTick()
+    await vi.waitFor(() => expect(section.style.height).toBe(''))
+    expect(section.hasAttribute('inert')).toBe(false)
+    expect(section.hasAttribute('aria-hidden')).toBe(false)
+    wrapper.get('button').element.click()
+    expect(clicked).toHaveBeenCalledOnce()
+  })
+
   it('shows and hides what it wraps', async () => {
     const open = ref(true)
     const wrapper = mount(
