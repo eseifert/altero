@@ -314,7 +314,10 @@ def item(
     if str(data.get("mtime", "")).isdigit():
         data["mtime"] = int(data["mtime"])
 
-    if obj.creators:
+    # Response JSON includes empty creators for regular items (upstream calls
+    # toJSON with includeEmpty=true). Omission would leave a synced desktop's
+    # previous creators untouched when the last one is removed.
+    if obj.item_type not in {"note", "attachment", "annotation"}:
         data["creators"] = [
             {"creatorType": creator.creator_type, "name": creator.name}
             if creator.name is not None

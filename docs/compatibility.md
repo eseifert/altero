@@ -22,6 +22,14 @@ Each section says what altero does and why. The later sections cover features zo
 
 A partial write that leaves out `note` keeps the existing note text, for notes and attachments alike. Sending `note: ""` clears it. A full replacement (`PUT`) still replaces everything. This matches the dataserver, which only touches the note when the property is present.
 
+### Empty creators in item responses
+
+Regular-item responses include `creators: []` when there are no creators.
+The dataserver's response serializer calls `toJSON` with `includeEmpty=true`;
+its default of omitting an empty list applies elsewhere. Omitting this property
+from a sync response makes an existing desktop retain the creators it already
+has. Notes, attachments and annotations do not carry a creator list.
+
 ### Racing ZIP archives of different sizes
 
 When the client uploads a web snapshot, `md5` describes the file inside the archive and `zipMD5` the archive itself. Two clients zipping the same snapshot produce archives of different sizes with the same `md5`.

@@ -208,7 +208,7 @@ class TestCreate:
         body = (await client.post("/users/1/items", headers=JSON, json=[template])).json()
 
         assert body["failed"] == {}
-        assert "creators" not in body["successful"]["0"]["data"]
+        assert body["successful"]["0"]["data"]["creators"] == []
 
     async def test_writing_requires_write_permission(
         self, client: httpx2.AsyncClient, session: AsyncSession
@@ -1585,10 +1585,9 @@ class TestAPatchClearsWhatItSendsEmpty:
 
         assert response.json()["failed"] == {}
         data = (await client.get("/users/1/items/AAAA2345", headers=AUTH)).json()["data"]
-        # An item with no creators has no `creators` property at all, which is
-        # upstream's rule for that one list and not for the other three:
-        # `if (!$arr['creators'] && !$includeEmpty) unset($arr['creators']);`.
-        assert "creators" not in data
+        # Response JSON calls upstream's toJSON with includeEmpty=true. An
+        # omitted list would make an already-synced desktop retain its authors.
+        assert data["creators"] == []
 
     async def test_an_empty_relations_map_takes_the_last_relation_off(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library

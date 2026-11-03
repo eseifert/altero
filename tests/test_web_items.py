@@ -969,7 +969,7 @@ class TestEditingAnItem:
 
         await self.edit(ada, library_id, key, creators=[])
         data = (await ada.get(f"/web/libraries/{library_id}/items/{key}")).json()["data"]
-        assert data.get("creators", []) == []
+        assert data["creators"] == []
 
     async def test_a_creator_type_the_item_type_lacks_is_refused(
         self, ada: httpx2.AsyncClient, session: AsyncSession
@@ -1725,7 +1725,7 @@ class TestCreatingAnItem:
 
         expected = {name for name in template if name != "creators"}
         assert expected <= set(data)
-        assert "creators" not in data
+        assert data["creators"] == []
 
     async def test_it_is_one_new_version(self, ada: httpx2.AsyncClient) -> None:
         library_id = await personal_library(ada)

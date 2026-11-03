@@ -25,6 +25,19 @@ async def library(session: AsyncSession) -> Library:
 
 
 class TestListing:
+    @pytest.mark.parametrize(
+        "item_type", ["book", "journalArticle", "note", "attachment", "annotation"]
+    )
+    async def test_empty_creators_are_explicit_only_on_regular_items(
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library, item_type: str
+    ) -> None:
+        await make_item(session, library, item_type=item_type)
+        (entry,) = (await client.get("/users/1/items", headers=AUTH)).json()
+        if item_type in {"book", "journalArticle"}:
+            assert entry["data"].get("creators") == []
+        else:
+            assert "creators" not in entry["data"]
+
     async def test_an_empty_library_returns_an_empty_list(
         self, client: httpx2.AsyncClient, library: Library
     ) -> None:
