@@ -88,7 +88,7 @@ describe('a shared tag pill', () => {
     const wrapper = pill({ rename: vi.fn(), numItems: 2 })
     expect(wrapper.get('.tag-pill__count').text()).toBe('2')
     expect(wrapper.get('.tag-pill__count').attributes('aria-label')).toBe('2 items')
-    expect(wrapper.get('li').element.children[1]?.className).toBe('tag-pill__count')
+    expect(wrapper.get('li').element.children[1]?.classList.contains('tag-pill__count')).toBe(true)
     expect(wrapper.get('li').element.children[2]?.className).toContain('tag-pill__edit')
     await wrapper.get('.tag-pill__edit').trigger('click')
     expect(wrapper.get('.tag-pill__count').text()).toBe('2')

@@ -131,7 +131,7 @@ function leave(event: FocusEvent): void {
     </span>
     <span
       v-if="numItems !== undefined"
-      class="tag-pill__count"
+      class="tag-pill__count count-badge"
       :aria-label="t('{count} item | {count} items', numItems)"
     >{{ numItems }}</span>
     <button
@@ -165,5 +165,6 @@ function leave(event: FocusEvent): void {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
 @import '@/styles/tag-pills.css';
 </style>

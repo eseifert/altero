@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Distinguish collection and global tag counts with rounded badges. Reported by [@eseifert].
 - Fix browser tests for paged libraries and off-screen drop targets. Reported by [@eseifert] in [CI#41715080977].
 - Clear previous-library rows and counts immediately when switching libraries, before the next listing arrives.
 - Animate departing item rows and duplicate groups, preserving keyboard focus through the last row and empty view.

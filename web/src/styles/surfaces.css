@@ -109,6 +109,22 @@
   color: var(--md-sys-color-on-error-container);
 }
 
+/* Counts are metadata beside a name, with their own quiet, rounded fill. */
+.count-badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.4em;
+  padding: 0.1em 0.45em;
+  border-radius: var(--md-sys-shape-corner-small);
+  background: var(--md-sys-color-surface-container-highest);
+  color: var(--md-sys-color-on-surface);
+  font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.35;
+}
+
 /* A card you can press -- a group in the list, an account. The wash is the one
    every row uses, so a card and a row answer the pointer the same way. */
 .card--interactive {

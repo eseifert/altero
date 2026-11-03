@@ -179,6 +179,10 @@ The settings panel and the administration panel are the same rows as the
 library's sidebar, to the pixel, from `components/SectionPanel.vue`. Two
 sidebars that differ slightly read as two applications.
 
+Collection and global tag counts use the shared `count-badge` surface: a small
+rounded neutral fill with tabular digits, distinct from the name and from the
+selected row or pill in either theme.
+
 ## Spacing and shape
 
 Spacing comes from `--md-spacing-1` to `-7` (4, 8, 12, 16, 24, 32, 48). Inside a

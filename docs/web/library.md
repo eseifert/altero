@@ -46,6 +46,9 @@ keeps focus in the new dialog.
 Long collection names shorten to fit the sidebar, keeping its controls reachable
 on narrow screens.
 
+Item counts beside collection names and inside the global tag selector have
+their own rounded background, separating the number from the name.
+
 ### Merging duplicates
 
 Open **Duplicate Items**. Candidates appear in separate groups with the proposed

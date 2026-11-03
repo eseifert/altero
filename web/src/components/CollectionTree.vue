@@ -125,7 +125,11 @@ function toggle(key: string): void {
         >
           <SidebarIcon name="collection" />
           <span class="tree__label" dir="auto">{{ node.data.name }}</span>
-          <span v-if="node.meta.numItems" class="tree__count">{{ node.meta.numItems }}</span>
+          <span
+            v-if="node.meta.numItems"
+            class="tree__count count-badge"
+            :aria-label="t('{count} item | {count} items', node.meta.numItems)"
+          >{{ node.meta.numItems }}</span>
         </button>
 
         <!--
@@ -183,6 +187,8 @@ function toggle(key: string): void {
 </template>
 
 <style scoped>
+@import '@/styles/surfaces.css';
+
 .tree {
   margin: 0;
   padding: 0;
@@ -261,8 +267,6 @@ function toggle(key: string): void {
 
 .tree__count {
   margin-inline-start: auto;
-  color: var(--md-sys-color-on-surface-variant);
-  font-size: var(--md-sys-typescale-label-small-size, 0.75rem);
 }
 
 /* Transparent rather than absent, so the row does not change width when the

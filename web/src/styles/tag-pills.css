@@ -54,9 +54,7 @@
 }
 
 .tag-pill__count {
-  flex: none;
   margin-inline: 0.2rem;
-  font-variant-numeric: tabular-nums;
 }
 
 .tag-pill__name {
