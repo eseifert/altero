@@ -1281,6 +1281,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#empty-creators-in-item-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Empty creators in item responses
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#racing-zip-archives-of-different-sizes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2388,6 +2399,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#empty-creators-in-item-responses" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Empty creators in item responses
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#racing-zip-archives-of-different-sizes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3192,6 +3214,12 @@
 <h2 id="api-queries-and-response-behavior">API queries and response behavior<a class="headerlink" href="#api-queries-and-response-behavior" title="Permanent link">&para;</a></h2>
 <h3 id="omitted-note-content-in-partial-writes">Omitted note content in partial writes<a class="headerlink" href="#omitted-note-content-in-partial-writes" title="Permanent link">&para;</a></h3>
 <p>A partial write that leaves out <code>note</code> keeps the existing note text, for notes and attachments alike. Sending <code>note: ""</code> clears it. A full replacement (<code>PUT</code>) still replaces everything. This matches the dataserver, which only touches the note when the property is present.</p>
+<h3 id="empty-creators-in-item-responses">Empty creators in item responses<a class="headerlink" href="#empty-creators-in-item-responses" title="Permanent link">&para;</a></h3>
+<p>Regular-item responses include <code>creators: []</code> when there are no creators.
+The dataserver's response serializer calls <code>toJSON</code> with <code>includeEmpty=true</code>;
+its default of omitting an empty list applies elsewhere. Omitting this property
+from a sync response makes an existing desktop retain the creators it already
+has. Notes, attachments and annotations do not carry a creator list.</p>
 <h3 id="racing-zip-archives-of-different-sizes">Racing ZIP archives of different sizes<a class="headerlink" href="#racing-zip-archives-of-different-sizes" title="Permanent link">&para;</a></h3>
 <p>When the client uploads a web snapshot, <code>md5</code> describes the file inside the archive and <code>zipMD5</code> the archive itself. Two clients zipping the same snapshot produce archives of different sizes with the same <code>md5</code>.</p>
 <p>Each archive is stored under its own <code>zipMD5</code>, as on zotero.org, so neither replaces the other: both registrations succeed, and each attachment downloads the archive its own client sent.</p>

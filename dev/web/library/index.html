@@ -1953,8 +1953,13 @@ and a message confirms success. Keyboard focus returns to a remaining group.</p>
 <p>Both PDFs are kept when deduplication would move a file and transfer a note to
 it together, avoiding a <a href="../../compatibility/#merging-pdfs-with-embedded-notes">Zotero sync bug</a>.
 Each file keeps its note and annotations.</p>
-<p>Restoring a duplicate from the trash brings back that record. It does not undo
-the merged fields or move children back to their previous parent.</p>
+<p>Use <strong>Undo</strong> in the merge confirmation toast to restore the previous fields,
+tags, collections, note text, child parents and links. Attachment files are kept.
+Any notes created from attachment text during the merge go to Trash, with the
+text restored to its original attachment. Undo is available to the person who
+merged for up to five minutes, provided nothing else has changed the library.</p>
+<p>Restoring a duplicate from the trash later brings back that record. It does not
+reverse the merged fields or move children back to their previous parent.</p>
 <p>If the library changed while you were reviewing, the merge stops. Press
 <strong>Reload</strong> and review the current versions before confirming again.</p>
 <h3 id="browsing-a-library">Browsing a library<a class="headerlink" href="#browsing-a-library" title="Permanent link">&para;</a></h3>
@@ -2254,7 +2259,7 @@ which tokens are real. Deleting a collection deletes its links with it.</p>
 — all of it by dragging rows of the item list somewhere, and all of it also
 without a pointer. Its fields, creators and type are edited in the right pane; see
 <a href="#editing-an-item">Editing an item</a>.</p>
-<p>After filing, trashing, restoring or copying items, press <strong>Undo</strong> in the confirmation
+<p>After filing, trashing, restoring, copying or merging items, press <strong>Undo</strong> in the confirmation
 message to reverse that action. It stays for six seconds, pauses while the
 pointer or keyboard focus is on it, and disappears when dismissed or the page
 reloads. A later library change, including a desktop sync, makes the offer
@@ -2266,7 +2271,7 @@ Trash, with their notes and files still available for restoration; the
 originals stay where they were. Groups that allow adding but forbid removal
 confirm the copy without an Undo button. A later write to the destination
 invalidates copy undo; a change to the source does not.</p>
-<p>Permanent deletion and merging have no undo button.</p>
+<p>Permanent deletion has no undo button.</p>
 <p><strong>Several rows can be picked out and carried together.</strong> <code>Ctrl</code>-click — <code>Cmd</code>
 on a Mac — adds a row and takes one away, <code>Shift</code>-click takes everything
 between, and <code>Ctrl</code>-A takes the whole page: the conventions of every list

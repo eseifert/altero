@@ -2017,10 +2017,33 @@ replaces the whole creator list. An empty string or null clears a field;
 timestamps are refused. Tags, collections and relations are combined by the
 merge itself, including attachment deduplication and child moves, in one new
 library version.</p>
-<p>The 200 response is <code>{"items": [...]}</code>, with the master first and each changed
+<p>The 200 response includes <code>items</code>, with the master first and each changed
 item in its ordinary envelope. <code>Last-Modified-Version</code> gives their shared new
 version. An optional <code>locale</code> query selects the interface language for PDF
 word ordering; it defaults to the account language, then <code>en-US</code>.</p>
+<p>It also returns <code>undo: {"version": N, "merge": true}</code>. To reverse that merge,
+send <code>POST /web/libraries/{id}/items/merge/undo</code> with the session, CSRF token and
+<code>If-Unmodified-Since-Version: N</code>. The request carries no item data. A private
+database snapshot holds the prior values of precisely the properties changed
+by the merge, including incoming relations and attachment/annotation parents.
+Only the person who merged can use it; all current item permissions apply again.</p>
+<p>The library and stored merge versions must both match under the write lock.
+A later write or retry answers 412, even if the caller supplies a newer version.
+A missing, expired or another person's snapshot answers 404. Each library keeps
+at most one snapshot, for five minutes; a subsequent merge replaces it. The
+retention sweep removes expired snapshots, and clearing/restoring a library
+removes its snapshot. Snapshots are excluded from library archives.</p>
+<p>Undo restores the old fields, creators, tags, collections, dates added, trash
+states, note HTML and relations at one <strong>new</strong> library version. It never rewinds
+sync versions or changes registered file bytes/full text. Notes promoted from
+attachment text during the merge go to Trash; their original text returns to
+the attachment. A refused reversal rolls back every change and keeps the
+snapshot available until it expires or the library changes.</p>
+<p>An inverse that effectively changes only relations keeps the current
+<code>dateModified</code>, as ordinary browser relationship edits do. On undeleting a
+duplicate, Zotero removes its survivor's merge-tracking relation itself while
+preserving that date, and can skip the now-redundant remote update. Other
+restored content receives the normal new modification timestamp.</p>
 <h3 id="not-built-yet">Not built yet<a class="headerlink" href="#not-built-yet" title="Permanent link">&para;</a></h3>
 <p>Items, notes and attachments can be created and edited in the browser, and
 duplicate items can be merged. Remaining browser gaps include:</p>
