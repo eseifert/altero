@@ -1929,8 +1929,11 @@
 <p>The sections below retain the technical and behavioral detail needed for troubleshooting and development. You can stop after the task summary if you only need to use the feature.</p>
 <p>Choose <strong>My Library</strong> or a group from the same level of the sidebar. The
 personal library uses a building icon; groups use the same icon as <strong>Groups</strong>
-in the top navigation. Only the active library unfolds its collections
-and views beneath it, with indentation showing the hierarchy.</p>
+in the top navigation. At most one library unfolds its collections and views
+beneath it, with indentation showing the hierarchy. Use its arrow to collapse
+it; all libraries can be collapsed while the current items and details stay
+open. Expanding another library switches to it and closes the previous tree.
+Pressing a library's name opens its tree and shows its top-level items.</p>
 <p>Switching libraries clears the previous rows and counts while the new library
 loads.</p>
 <p>Collection branches open and close with a short height transition. The interface
@@ -1948,6 +1951,14 @@ keyboard focus to its opener. Switching from collection settings to sharing
 keeps focus in the new dialog.</p>
 <p>Long collection names shorten to fit the sidebar, keeping its controls reachable
 on narrow screens.</p>
+<p>Item counts beside collection names and inside the global tag selector have
+their own rounded background, separating the number from the name.</p>
+<p>The detail pane fades in quickly when an item, note or attachment is opened,
+respecting <strong>Reduce motion</strong>.</p>
+<p>Opening a child note or attachment replaces its parent's details. <strong>Close
+details</strong> returns to that parent, keeping saved edits; closing the parent then
+returns to the full item list. Selecting another item or library starts a new
+detail view.</p>
 <h3 id="merging-duplicates">Merging duplicates<a class="headerlink" href="#merging-duplicates" title="Permanent link">&para;</a></h3>
 <p>Open <strong>Duplicate Items</strong>. Candidates appear in separate groups with the proposed
 master at the top. Click or tap any member to highlight its whole group and open

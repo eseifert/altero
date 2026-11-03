@@ -2271,8 +2271,11 @@ in a window of its own:</p>
 </ul>
 <p>An installed app opens without a network, but it shows no library offline:
 nothing from a library is stored on the device, so signing out of a shared
-machine leaves nothing behind. When a new version of altero has been
-deployed, the app offers to reload into it.</p>
+machine leaves nothing behind. An open page checks for a new interface build
+every five minutes while visible, and when you return to the tab. If its build
+is outdated, it offers <strong>Reload</strong> once for that update. A manual reload already
+fetches the current interface, so it shows no further update prompt. Updating
+another tab never forces your current page to reload.</p>
 <h2 id="accounts">Accounts<a class="headerlink" href="#accounts" title="Permanent link">&para;</a></h2>
 <p>Registration and personal settings are documented in <a href="../web/account/">Accounts and personal settings</a>.</p>
 <p>Registration is not generally open by default. It is available for the first account, when the instance enables open registration, or for an address with a group invitation.</p>
