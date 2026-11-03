@@ -1846,6 +1846,11 @@ answers 503 and says what to run.</p>
 sizes, against a real server on a throwaway SQLite database. It fails on any
 Content-Security-Policy violation and on serious or critical axe findings.
 Build first; the first run needs <code>npx playwright install chromium</code>.</p>
+<p>Tests reopening an existing fixture use <code>libraryRow</code> or <code>openItem</code> to load further
+pages with <strong>Show more</strong>. The complete suite shares its seed library across
+desktop and phone, so older items can leave the first page. Drag tests create a
+long collection tree and bring the target into view before dropping; temporary
+paging and tree fixtures are removed after each case.</p>
 <p>The motion checks cover desktop and phone sizes with normal and reduced motion.
 They also exercise dialog focus and dismissal with the native modal API disabled,
 covering the fallback used by older Safari. This does not replace testing on an
