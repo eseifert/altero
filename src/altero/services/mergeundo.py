@@ -8,6 +8,7 @@ The row is not archived and cannot survive clearing/restoring a library.
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, NotFoundError, PreconditionFailedError
@@ -38,8 +39,8 @@ async def capture(
             "dateAdded": timestamp(item.date_added),
             "deleted": item.deleted,
             "parentItem": parents.get(item.parent_id, False),
-            "collections": collections.get(item.id, []),
-            "tags": [{"tag": name, "type": kind} for name, kind in tags.get(item.id, [])],
+            "collections": sorted(collections.get(item.id, [])),
+            "tags": [{"tag": name, "type": kind} for name, kind in sorted(tags.get(item.id, []))],
             "creators": [
                 {"creatorType": creator.creator_type, "name": creator.name}
                 if creator.name is not None
@@ -52,7 +53,9 @@ async def capture(
             ],
             "relations": {},
         }
-        for relation in item.relations:
+        for relation in sorted(
+            item.relations, key=lambda relation: (relation.predicate, relation.object)
+        ):
             values["relations"].setdefault(relation.predicate, []).append(relation.object)
         inverse.append({"key": item.key, **{name: values.get(name, "") for name in patch}})
     return inverse
@@ -61,14 +64,18 @@ async def capture(
 async def remember(
     session: AsyncSession, library: Library, user_id: int, patches: list[dict[str, Any]]
 ) -> None:
-    row = await session.get(MergeUndo, library.id)
-    if row is None:
-        row = MergeUndo(library_id=library.id)
-        session.add(row)
-    row.user_id = user_id
-    row.version = library.version
-    row.patches = patches
-    row.expires = now() + timedelta(minutes=5)
+    # A retention worker can remove an expired inverse independently of this
+    # library lock. Replace atomically, rather than updating a stale ORM row.
+    await session.execute(delete(MergeUndo).where(MergeUndo.library_id == library.id))
+    session.add(
+        MergeUndo(
+            library_id=library.id,
+            user_id=user_id,
+            version=library.version,
+            patches=patches,
+            expires=now() + timedelta(minutes=5),
+        )
+    )
     await session.flush()
 
 
@@ -92,14 +99,28 @@ async def restore(
     targets = await items.get_items(
         session, library, [patch["key"] for patch in row.patches], permit=permit
     )
+    current = await capture(
+        session,
+        targets,
+        {
+            item.id: {name: None for name in patch if name != "key"}
+            for item, patch in zip(targets, row.patches, strict=True)
+        },
+    )
     version = await writes.bump_library_version(session, library)
-    for item, patch in zip(targets, row.patches, strict=True):
+    for item, patch, state in zip(targets, row.patches, current, strict=True):
         if item.item_type == "note" and not permit.notes:
             raise ForbiddenError("Undoing this merge requires access to its notes")
+        values = {name: value for name, value in patch.items() if name != "key"}
+        if all(value == state[name] for name, value in values.items() if name != "relations"):
+            # Undeleting a duplicate makes Zotero remove dc:replaces on its
+            # survivor before processing that survivor's remote update. It
+            # preserves the survivor's date, then skips a redundant update.
+            values["dateModified"] = timestamp(item.date_modified)
         await itemwrites.save_item(
             session,
             library,
-            {name: value for name, value in patch.items() if name != "key"},
+            values,
             version,
             key=item.key,
             replace=False,
@@ -107,5 +128,5 @@ async def restore(
             permit=permit,
             stored=item,
         )
-    await session.delete(row)
+    await session.execute(delete(MergeUndo).where(MergeUndo.library_id == library.id))
     return targets

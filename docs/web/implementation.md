@@ -262,6 +262,12 @@ attachment text during the merge go to Trash; their original text returns to
 the attachment. A refused reversal rolls back every change and keeps the
 snapshot available until it expires or the library changes.
 
+An inverse that effectively changes only relations keeps the current
+`dateModified`, as ordinary browser relationship edits do. On undeleting a
+duplicate, Zotero removes its survivor's merge-tracking relation itself while
+preserving that date, and can skip the now-redundant remote update. Other
+restored content receives the normal new modification timestamp.
+
 ### Not built yet
 
 Items, notes and attachments can be created and edited in the browser, and

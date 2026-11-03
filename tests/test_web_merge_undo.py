@@ -1,6 +1,6 @@
 """Merge undo restores the stored graph, never a browser-supplied replacement."""
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 import httpx2
@@ -98,6 +98,22 @@ async def test_any_later_write_invalidates_undo(
     assert (await read(client, case, case.master.key))["title"] == "Later edit"
 
 
+@pytest.mark.parametrize("fields", [{}, {"title": "Chosen"}])
+async def test_only_effective_relation_changes_preserve_the_modification_date(
+    client: httpx2.AsyncClient, session: AsyncSession, case: MergeCase, fields: dict[str, str]
+) -> None:
+    case.master.date_added = case.other.date_added
+    await session.commit()
+    response = await client.post(case.url, headers=headers(client), json=case.body(fields=fields))
+    assert response.status_code == 200
+    await session.refresh(case.master)
+    case.master.date_modified = datetime(2000, 1, 1)
+    await session.commit()
+    assert (await undo(client, case)).status_code == 200
+    modified = (await read(client, case, case.master.key))["dateModified"]
+    assert (modified == "2000-01-01T00:00:00Z") is (not fields)
+
+
 async def test_cookie_and_csrf_are_required(client: httpx2.AsyncClient, case: MergeCase) -> None:
     await merge(client, case)
     assert (
@@ -170,12 +186,39 @@ async def test_snapshot_is_private_expires_and_is_cleared_with_the_library(
     assert await session.get(MergeUndo, case.library.id) is None
 
 
+async def test_a_swept_snapshot_can_be_replaced_even_when_its_old_row_is_cached(
+    client: httpx2.AsyncClient, session: AsyncSession, case: MergeCase
+) -> None:
+    from altero.models import MergeUndo
+    from altero.services import mergeundo, retention, writes
+
+    await merge(client, case)
+    old = await session.get(MergeUndo, case.library.id)
+    assert old is not None
+    old.expires = mergeundo.now() - timedelta(seconds=1)
+    await session.commit()
+    async with AsyncSession(session.bind, expire_on_commit=False) as sweeper:
+        assert (await retention.sweep(sweeper, {})).merge_undos == 1
+    await writes.lock_library(session, case.library)
+    await writes.bump_library_version(session, case.library)
+    patches = [{"key": case.master.key, "deleted": False}]
+    await mergeundo.remember(session, case.library, 1, patches)
+    await session.commit()
+    replacement = await session.get(MergeUndo, case.library.id)
+    assert replacement is not None
+    assert replacement.version == 12
+    assert replacement.patches == patches
+
+
 async def test_pdf_graph_tags_collections_and_promoted_notes_are_restored(
     client: httpx2.AsyncClient, session: AsyncSession, case: MergeCase, settings
 ) -> None:
     from altero.models import CollectionItem, FullText, MergeUndo
     from tests.test_merge_attachments import attachment
 
+    await factories.make_user(session, user_id=2, username="grace")
+    group = await factories.make_group(session, owner_id=2, members={1: "member"})
+    case = await seed(session, group)
     first = await factories.make_collection(session, case.library, name="First")
     second = await factories.make_collection(session, case.library, name="Second")
     session.add_all(
@@ -217,6 +260,17 @@ async def test_pdf_graph_tags_collections_and_promoted_notes_are_restored(
     generated = [item for item in answer["items"] if item["key"] not in keys]
     assert len(generated) == 1
     assert (await read(client, case, annotation.key))["parentItem"] == kept.key
+    user = await session.get(User, 1)
+    assert user is not None
+    await groups.set_permission(session, group, user, "add")
+    await session.commit()
+    # This reversal must also trash the promoted note. Add-only permission
+    # refuses that final write and rolls back every earlier restoration.
+    assert (await undo(client, case)).status_code == 403
+    assert (await read(client, case, case.master.key))["title"] == "Chosen"
+    assert (await read(client, case, annotation.key))["parentItem"] == kept.key
+    await groups.set_permission(session, group, user, "inherit")
+    await session.commit()
     assert (await undo(client, case)).status_code == 200
     for key, before in original.items():
         after = await read(client, case, key)
