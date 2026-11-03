@@ -259,6 +259,16 @@ operation = "convergence"
 status = "executable"
 tests = ["tools/compatibility/acceptance_web_copy_undo.py"]
 
+[scenarios.browser_merge_undo_endpoint_and_toast]
+operation = "objects"
+status = "executable"
+tests = ["tests/test_web_merge_undo.py", "web/src/stores/library-undo.spec.ts", "web/e2e/merge.spec.ts"]
+
+[scenarios.browser_merge_undo_desktop_acceptance]
+operation = "convergence"
+status = "executable"
+tests = ["tools/compatibility/acceptance_web_merge_undo.py"]
+
 [scenarios.desktop_note_editor_output]
 operation = "convergence"
 status = "executable"

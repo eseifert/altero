@@ -214,6 +214,7 @@ jobs:
           - backup-rewind
           - web-merge
           - web-merge-files
+          - web-merge-undo
     services:
       postgres:
         image: postgres:18-alpine

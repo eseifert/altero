@@ -220,6 +220,7 @@ SCENARIOS = (
     "web-editing",
     "web-undo",
     "web-copy-undo",
+    "web-merge-undo",
     "note-corpus",
     "web-notes",
     "web-files",
@@ -276,6 +277,7 @@ async def run_acceptance(
     from tools.compatibility.acceptance_web_files import web_files
     from tools.compatibility.acceptance_web_merge import web_merge
     from tools.compatibility.acceptance_web_merge_files import web_merge_files
+    from tools.compatibility.acceptance_web_merge_undo import web_merge_undo
     from tools.compatibility.acceptance_web_undo import web_undo
     from tools.compatibility.acceptance_zip_race import zipped_digest_race
     from tools.compatibility.process_server import process_server
@@ -315,6 +317,7 @@ async def run_acceptance(
     drivers["web-editing"] = web_editing
     drivers["web-undo"] = web_undo
     drivers["web-copy-undo"] = web_copy_undo
+    drivers["web-merge-undo"] = web_merge_undo
     drivers["note-corpus"] = note_corpus
     drivers["web-notes"] = web_notes
     drivers["web-files"] = web_files
