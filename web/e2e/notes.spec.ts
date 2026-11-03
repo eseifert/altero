@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 import type { Editor } from '@tiptap/core'
 
-import { accessibilityProblems, expect, signIn, state, test } from './state'
+import { accessibilityProblems, expect, openItem, signIn, state, test } from './state'
 
 /* Both projects run against the one seeded library, so every note written
    here says which project wrote it. */
@@ -31,7 +31,7 @@ async function seedNote(html: string): Promise<void> {
 
 test('a note is opened in the editor without the script somebody put in it', async ({ page }) => {
   await signIn(page)
-  await page.getByText('Notes on the Analytical Engine').first().click()
+  await openItem(page, 'Notes on the Analytical Engine')
   await page.getByText('The engine weaves algebraic patterns.').first().click()
 
   const text = page.locator('.note-editor .ProseMirror')
@@ -44,7 +44,7 @@ test('what is typed in a note is saved as the desktop writes it, and is there af
   const marker = `typed-${testInfo.project.name}`
   await seedNote(`<div data-schema-version="9"><p>Draft ${marker}</p>\n</div>`)
   await signIn(page)
-  await page.getByText(`Draft ${marker}`).first().click()
+  await openItem(page, `Draft ${marker}`)
 
   const text = page.locator('.note-editor .ProseMirror')
   await text.click()
@@ -60,7 +60,7 @@ test('what is typed in a note is saved as the desktop writes it, and is there af
   )
 
   await page.reload()
-  await page.getByText(`Draft ${marker} and more`).first().click()
+  await openItem(page, `Draft ${marker} and more`)
   await expect(page.locator('.note-editor .ProseMirror strong')).toHaveText('bold')
 })
 
@@ -76,7 +76,7 @@ test('the Format menu turns a line into a heading', async ({ page }, testInfo) =
   const marker = `heading-${testInfo.project.name}`
   await seedNote(`<p>Heading ${marker}</p>`)
   await signIn(page)
-  await page.getByText(`Heading ${marker}`).first().click()
+  await openItem(page, `Heading ${marker}`)
 
   await showTools(page, testInfo.project.name)
   await page.getByRole('button', { name: 'Format Text' }).click()
@@ -100,7 +100,7 @@ test('the tools appear only when wanted, and make text bold', async ({ page }, t
   const marker = `bubble-${testInfo.project.name}`
   await seedNote(`<p>Bold ${marker}</p>`)
   await signIn(page)
-  await page.getByText(`Bold ${marker}`).first().click()
+  await openItem(page, `Bold ${marker}`)
 
   await expect(page.getByRole('toolbar', { name: 'Formatting' })).toBeHidden()
   // Over the selection with a mouse; on the keyboard, with the whole line
@@ -116,7 +116,7 @@ test('"/" offers the block types and makes the one chosen', async ({ page }, tes
   const marker = `slash-${testInfo.project.name}`
   await seedNote(`<p>Slash ${marker}</p>`)
   await signIn(page)
-  await page.getByText(`Slash ${marker}`).first().click()
+  await openItem(page, `Slash ${marker}`)
 
   const text = page.locator('.note-editor .ProseMirror')
   await text.click()
@@ -145,7 +145,7 @@ test('a note is written full screen and comes back to its pane', async ({ page }
   const marker = `full-${testInfo.project.name}`
   await seedNote(`<p>Full ${marker}</p>`)
   await signIn(page)
-  await page.getByText(`Full ${marker}`).first().click()
+  await openItem(page, `Full ${marker}`)
 
   await page.getByRole('button', { name: 'Enter Full Screen' }).click()
   const dialog = page.getByRole('dialog')
@@ -167,9 +167,9 @@ test('a note opened and left is not written', async ({ page }, testInfo) => {
   await seedNote(html)
   const before = await stored(marker)
   await signIn(page)
-  await page.getByText(`Old style ${marker}`).first().click()
+  await openItem(page, `Old style ${marker}`)
   await expect(page.locator('.note-editor .ProseMirror')).toContainText(marker)
-  await page.getByText('Notes on the Analytical Engine').first().click()
+  await openItem(page, 'Notes on the Analytical Engine')
   await page.waitForTimeout(1500)
 
   const after = await stored(marker)
@@ -226,7 +226,7 @@ test('a new standalone note opens ready to type, and is kept', async ({ page, re
 test('a note added to an item goes under it', async ({ page }, testInfo) => {
   const marker = `child-${testInfo.project.name}`
   await signIn(page)
-  await page.getByText('Letter to Charles Babbage').first().click()
+  await openItem(page, 'Letter to Charles Babbage')
 
   await page.getByRole('button', { name: 'Add Note' }).click()
   await expect(page.locator('.note-editor .ProseMirror')).toBeFocused()
@@ -261,7 +261,7 @@ test('a note under an item goes to the trash from its pane, and back out of it',
     return Boolean(item.data.deleted)
   }
   await signIn(page)
-  await page.getByText('Letter to Charles Babbage').first().click()
+  await openItem(page, 'Letter to Charles Babbage')
   await page.locator('.detail__child', { hasText: `Trashed ${marker}` }).click()
 
   await page.getByRole('button', { name: 'Move to trash' }).click()
@@ -279,7 +279,7 @@ test('a note changed elsewhere reaches the open editor while nothing is unsaved'
   const marker = `pushed-${testInfo.project.name}`
   await seedNote(`<p>Before ${marker}</p>`)
   await signIn(page)
-  await page.getByText(`Before ${marker}`).first().click()
+  await openItem(page, `Before ${marker}`)
   await expect(page.locator('.note-editor .ProseMirror')).toContainText(`Before ${marker}`)
 
   const { baseURL } = state()
@@ -296,7 +296,7 @@ test('a note changed elsewhere reaches the open editor while nothing is unsaved'
 
 test('the note editor has no serious accessibility problems', async ({ page }, testInfo) => {
   await signIn(page)
-  await page.getByText('Notes on the Analytical Engine').first().click()
+  await openItem(page, 'Notes on the Analytical Engine')
   await page.getByText('The engine weaves algebraic patterns.').first().click()
   await expect(page.locator('.note-editor .ProseMirror')).toBeVisible()
   expect(await accessibilityProblems(page)).toEqual([])

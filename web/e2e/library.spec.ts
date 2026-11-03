@@ -1,9 +1,39 @@
-import { accessibilityProblems, expect, signIn, state, test } from './state'
+import { accessibilityProblems, expect, libraryRow, openItem, signIn, state, test } from './state'
+
+test('an older fixture can be found beyond the first page', async ({ page, request }, info) => {
+  const headers = { 'Zotero-API-Key': state().key }
+  const made = await request.post('/users/1/items', {
+    headers,
+    data: Array.from({ length: 50 }, (_, index) => ({
+      itemType: 'book', title: `Paging fixture ${info.project.name} ${index}`,
+      dateModified: '2099-01-01T00:00:00Z',
+    })),
+  })
+  expect(made.ok()).toBe(true)
+  const body = await made.json()
+  expect(body.failed).toEqual({})
+  const keys = Object.values(body.successful).map((item) => (item as { key: string }).key)
+  try {
+    await signIn(page)
+    await expect(page.locator('.library__items [data-row]')).toHaveCount(50)
+    await expect(page.locator('.library__row').filter({ hasText: 'Sketch of the Analytical Engine' })).toHaveCount(0)
+    const row = await libraryRow(page, 'Sketch of the Analytical Engine')
+    await expect(row).toBeVisible()
+    await row.click()
+    await expect(page.locator('.detail__title')).toHaveText('Sketch of the Analytical Engine')
+  } finally {
+    const current = await request.get('/users/1/items?limit=1', { headers })
+    const removed = await request.delete(`/users/1/items?itemKey=${keys.join(',')}`, {
+      headers: { ...headers, 'If-Unmodified-Since-Version': current.headers()['last-modified-version']! },
+    })
+    expect(removed.ok()).toBe(true)
+  }
+})
 
 test('a library shows what a client synced, and an item opens', async ({ page }) => {
   await signIn(page)
 
-  await page.getByText('Notes on the Analytical Engine').first().click()
+  await openItem(page, 'Notes on the Analytical Engine')
 
   const detail = page.locator('.detail')
   await expect(detail.locator('dd.creator input[aria-label="last"]').first()).toHaveValue('Lovelace')
@@ -12,7 +42,7 @@ test('a library shows what a client synced, and an item opens', async ({ page })
 
 test('a citation is rendered by the server', async ({ page }) => {
   await signIn(page)
-  await page.getByText('Notes on the Analytical Engine').first().click()
+  await openItem(page, 'Notes on the Analytical Engine')
 
   await page.locator('.detail__button').first().click()
 
@@ -24,7 +54,7 @@ test('a field edited in the pane is still there after a reload', async ({ page }
      writes: both projects run against the one seeded library. */
   const place = `London (${testInfo.project.name})`
   await signIn(page)
-  await page.getByText('Notes on the Analytical Engine').first().click()
+  await openItem(page, 'Notes on the Analytical Engine')
 
   const row = page.locator('.detail dd').filter({ has: page.locator('[aria-labelledby$="-place"]') })
   await row.locator('.info__value').click()
@@ -33,7 +63,7 @@ test('a field edited in the pane is still there after a reload', async ({ page }
   await expect(row.getByRole('status')).toHaveText('Saved.')
 
   await page.reload()
-  await page.getByText('Notes on the Analytical Engine').first().click()
+  await openItem(page, 'Notes on the Analytical Engine')
   await expect(page.locator('.detail .info__value[aria-labelledby$="-place"]')).toHaveText(place)
 })
 
@@ -41,7 +71,7 @@ test('a creator dragged by its grip moves, and stays moved', async ({ page }) =>
   /* Both projects drag the same item, so this checks that the two swap
      whichever order the other project left them in. */
   await signIn(page)
-  await page.getByText('Sketch of the Analytical Engine').first().click()
+  await openItem(page, 'Sketch of the Analytical Engine')
   const lastNames = () =>
     page.locator('.detail dd.creator input[aria-label="last"]').evaluateAll((inputs) =>
       inputs.map((input) => (input as HTMLInputElement).value),
@@ -61,14 +91,14 @@ test('a creator dragged by its grip moves, and stays moved', async ({ page }) =>
 
   await expect.poll(lastNames).toEqual([before[1], before[0]])
   await page.reload()
-  await page.getByText('Sketch of the Analytical Engine').first().click()
+  await openItem(page, 'Sketch of the Analytical Engine')
   await expect.poll(lastNames).toEqual([before[1], before[0]])
 })
 
 test('a creator is renamed in place', async ({ page }, testInfo) => {
   const first = `Luigi (${testInfo.project.name})`
   await signIn(page)
-  await page.getByText('Sketch of the Analytical Engine').first().click()
+  await openItem(page, 'Sketch of the Analytical Engine')
 
   const name = page.locator('.detail dd.creator input[aria-label="first"]').first()
   await name.scrollIntoViewIfNeeded()
@@ -77,7 +107,7 @@ test('a creator is renamed in place', async ({ page }, testInfo) => {
 
   // Whichever row it is in: the other project may have reordered them.
   await page.reload()
-  await page.getByText('Sketch of the Analytical Engine').first().click()
+  await openItem(page, 'Sketch of the Analytical Engine')
   await expect
     .poll(() =>
       page
@@ -89,7 +119,7 @@ test('a creator is renamed in place', async ({ page }, testInfo) => {
 
 test('an item related in the pane names the other, and both stop when it is removed', async ({ page }) => {
   await signIn(page)
-  await page.getByText('On the Economy of Machinery').first().click()
+  await openItem(page, 'On the Economy of Machinery')
 
   const related = page.locator('.detail .related')
   await related.getByRole('button', { name: 'Add Related' }).click()
@@ -99,7 +129,7 @@ test('an item related in the pane names the other, and both stop when it is remo
 
   // Both sides were written: the letter names the book after a reload.
   await page.reload()
-  await page.getByText('On the Economy of Machinery').first().click()
+  await openItem(page, 'On the Economy of Machinery')
   await related.locator('.related__item').filter({ hasText: 'Letter to Charles Babbage' }).click()
   await expect(page.locator('.detail__title')).toHaveText('Letter to Charles Babbage')
   await expect(related.locator('.related__label')).toHaveText(['On the Economy of Machinery and Manufactures'])
@@ -107,14 +137,14 @@ test('an item related in the pane names the other, and both stop when it is remo
   await related.getByRole('button', { name: 'Remove Related' }).click()
   await expect(related.locator('.related__label')).toHaveCount(0)
   await page.reload()
-  await page.getByText('On the Economy of Machinery').first().click()
+  await openItem(page, 'On the Economy of Machinery')
   await expect(page.locator('.detail .related .related__label')).toHaveCount(0)
 })
 
 test('a tag added in the pane is still there after a reload, and goes when removed', async ({ page }, testInfo) => {
   const name = `machinery (${testInfo.project.name})`
   await signIn(page)
-  await page.getByText('On the Economy of Machinery').first().click()
+  await openItem(page, 'On the Economy of Machinery')
 
   const tags = page.locator('.detail .tags')
   await tags.getByRole('button', { name: 'Add Tag' }).click()
@@ -123,7 +153,7 @@ test('a tag added in the pane is still there after a reload, and goes when remov
   await expect(tags.locator('.tag-pill__name')).toHaveText([name])
 
   await page.reload()
-  await page.getByText('On the Economy of Machinery').first().click()
+  await openItem(page, 'On the Economy of Machinery')
   await expect(tags.locator('.tag-pill__name')).toHaveText([name])
   // The sidebar lists it too, being a tag of the library now.
   await expect(page.locator('.library__tag').filter({ hasText: name }).first()).toBeAttached()
@@ -131,13 +161,13 @@ test('a tag added in the pane is still there after a reload, and goes when remov
   await tags.getByRole('button', { name: 'Remove Tag' }).click()
   await expect(tags.locator('.tag-pill__name')).toHaveCount(0)
   await page.reload()
-  await page.getByText('On the Economy of Machinery').first().click()
+  await openItem(page, 'On the Economy of Machinery')
   await expect(page.locator('.detail .tag-pill__name')).toHaveCount(0)
 })
 
 test('a tag the desktop coloured shows its colour', async ({ page }) => {
   await signIn(page)
-  await page.getByText('Notes on the Analytical Engine').first().click()
+  await openItem(page, 'Notes on the Analytical Engine')
 
   const tag = page.locator('.detail .tags__tag--colored')
   await expect(tag).toContainText('computing')
@@ -158,7 +188,7 @@ test('a new item opens with its title ready to type, and is kept', async ({ page
   await expect(page.locator('.detail__title')).toHaveText(title)
 
   await page.reload()
-  await page.getByText(title).first().click()
+  await openItem(page, title)
   await expect(page.locator('.detail__type')).toHaveText('Book')
 })
 
@@ -179,7 +209,7 @@ async function changeElsewhere(title: string, fields: Record<string, string>): P
 test('an edit over a change made elsewhere to another field is saved', async ({ page }, testInfo) => {
   const date = testInfo.project.name === 'phone' ? '1834' : '1833'
   await signIn(page)
-  await page.getByText('Letter to Charles Babbage').first().click()
+  await openItem(page, 'Letter to Charles Babbage')
   await changeElsewhere('Letter to Charles Babbage', { extra: `synced (${testInfo.project.name})` })
 
   const row = page.locator('.detail dd').filter({ has: page.locator('[aria-labelledby$="-date"]') })
@@ -189,7 +219,7 @@ test('an edit over a change made elsewhere to another field is saved', async ({ 
   await expect(row.getByRole('status')).toHaveText('Saved.')
 
   await page.reload()
-  await page.getByText('Letter to Charles Babbage').first().click()
+  await openItem(page, 'Letter to Charles Babbage')
   await expect(page.locator('.detail .info__value[aria-labelledby$="-date"]')).toHaveText(date)
   await expect(page.locator('.detail .info__value[aria-labelledby$="-extra"]')).toHaveText(
     `synced (${testInfo.project.name})`,
@@ -200,7 +230,7 @@ test('an edit over a change made elsewhere to the same field asks which to keep'
   const mine = `Mine (${testInfo.project.name})`
   const theirs = `Theirs (${testInfo.project.name})`
   await signIn(page)
-  await page.getByText('Letter to Charles Babbage').first().click()
+  await openItem(page, 'Letter to Charles Babbage')
   await changeElsewhere('Letter to Charles Babbage', { letterType: theirs })
 
   const row = page.locator('.detail dd').filter({ has: page.locator('[aria-labelledby$="-letterType"]') })
@@ -216,7 +246,7 @@ test('an edit over a change made elsewhere to the same field asks which to keep'
   await notice.getByRole('button', { name: 'Choose this version' }).first().click()
   await expect(row.getByRole('status')).toHaveText('Saved.')
   await page.reload()
-  await page.getByText('Letter to Charles Babbage').first().click()
+  await openItem(page, 'Letter to Charles Babbage')
   await expect(page.locator('.detail .info__value[aria-labelledby$="-letterType"]')).toHaveText(mine)
 })
 
@@ -261,7 +291,7 @@ test('the item list is worked with the keyboard, and ? says how', async ({ page 
 test('a change made elsewhere reaches the open page without a reload', async ({ page }, testInfo) => {
   const extra = `pushed (${testInfo.project.name})`
   await signIn(page)
-  await page.getByText('Sketch of the Analytical Engine').first().click()
+  await openItem(page, 'Sketch of the Analytical Engine')
 
   await changeElsewhere('Sketch of the Analytical Engine', { extra })
 

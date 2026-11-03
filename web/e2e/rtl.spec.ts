@@ -1,4 +1,4 @@
-import { accessibilityProblems, expect, signIn, state, test } from './state'
+import { accessibilityProblems, expect, libraryRow, openItem, signIn, state, test } from './state'
 
 for (const [direction, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const) {
   test.describe(`${direction} layout`, () => {
@@ -7,7 +7,7 @@ for (const [direction, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const)
     test('splitter keys and drags move both dividers in the physical direction', async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await signIn(page)
-      await page.getByText('Notes on the Analytical Engine').first().click()
+      await openItem(page, 'Notes on the Analytical Engine')
       await expect(page.locator('.library__detail')).toBeVisible()
 
       for (const pane of ['sidebar', 'detail']) {
@@ -50,56 +50,71 @@ for (const [direction, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const)
       const { key, book } = state()
       const headers = { 'Zotero-API-Key': key }
       const created = await request.post('/users/1/collections', {
-        headers, data: [{ name: `Drop ${direction} ${testInfo.project.name}` }],
+        headers, data: [
+          ...Array.from({ length: 49 }, (_, index) => ({ name: `Before Drop ${direction} ${testInfo.project.name} ${index}` })),
+          { name: `Drop ${direction} ${testInfo.project.name}` },
+        ],
       })
       expect(created.ok()).toBe(true)
-      const collection = (await created.json()).successful['0'].key
-      await signIn(page)
-      const row = page.getByText('Notes on the Analytical Engine').first()
-      await row.evaluate((element) => element.scrollIntoView({ block: 'center' }))
-      const title = (await row.boundingBox())!
-      const from = { x: title.x + title.width / 2, y: title.y + title.height / 2 }
-      const cursor = { x: from.x + (direction === 'rtl' ? -24 : 24), y: from.y + 10 }
-      const cargo = page.locator('.library__cargo')
-      const touch = isMobile ? await page.context().newCDPSession(page) : null
-      const move = async (point: { x: number; y: number }) => {
-        if (touch) await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [point] })
-        else await page.mouse.move(point.x, point.y, { steps: 5 })
-      }
+      const collections = (await created.json()).successful as Record<string, { key: string }>
+      const collection = collections['49']!.key
+      try {
+        await signIn(page)
+        const row = await libraryRow(page, 'Notes on the Analytical Engine')
+        await row.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+        const title = (await row.boundingBox())!
+        const from = { x: title.x + title.width / 2, y: title.y + title.height / 2 }
+        const cursor = { x: from.x + (direction === 'rtl' ? -24 : 24), y: from.y + 10 }
+        const cargo = page.locator('.library__cargo')
+        const touch = isMobile ? await page.context().newCDPSession(page) : null
+        const move = async (point: { x: number; y: number }) => {
+          if (touch) await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [point] })
+          else await page.mouse.move(point.x, point.y, { steps: 5 })
+        }
 
-      if (touch) {
-        await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [from] })
-        // The preview appears only after the real 350ms touch hold.
+        if (touch) {
+          await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [from] })
+          // The preview appears only after the real 350ms touch hold.
+          await expect(cargo).toBeVisible()
+        } else {
+          await page.mouse.move(from.x, from.y)
+          await page.mouse.down()
+        }
+        await move(cursor)
         await expect(cargo).toBeVisible()
-      } else {
-        await page.mouse.move(from.x, from.y)
-        await page.mouse.down()
+        const preview = (await cargo.boundingBox())!
+        const offset = direction === 'rtl' ? cursor.x - preview.x - preview.width : preview.x - cursor.x
+        const viewport = await page.evaluate(() => ({
+          innerWidth: window.innerWidth,
+          clientWidth: document.documentElement.clientWidth,
+          clientLeft: document.documentElement.clientLeft,
+          rootRight: document.documentElement.getBoundingClientRect().right,
+        }))
+        expect(offset, JSON.stringify({ viewport, preview, cursor })).toBeCloseTo(12, 0)
+        const target = page.locator(`.tree__row[data-drop="collection:${collection}"]`)
+        await target.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+        await expect(target).toBeInViewport({ ratio: 1 })
+        const box = (await target.boundingBox())!
+        await move({ x: box.x + box.width / 2, y: box.y + box.height / 2 })
+        await expect(target).toHaveClass(/tree__row--over/)
+        const written = page.waitForResponse((response) =>
+          response.request().method() === 'PATCH' && /\/web\/libraries\/\d+\/items$/.test(response.url()),
+        )
+        if (touch) await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+        else await page.mouse.up()
+        expect((await written).ok()).toBe(true)
+        await expect(cargo).toBeHidden()
+        const item = await request.get(`/users/1/items/${book}`, { headers })
+        expect((await item.json()).data.collections).toContain(collection)
+        if (touch) await touch.detach()
+      } finally {
+        const current = await request.get('/users/1/collections?limit=1', { headers })
+        const keys = Object.values(collections).map((collection) => collection.key)
+        const removed = await request.delete(`/users/1/collections?collectionKey=${keys.join(',')}`, {
+          headers: { ...headers, 'If-Unmodified-Since-Version': current.headers()['last-modified-version']! },
+        })
+        expect(removed.ok()).toBe(true)
       }
-      await move(cursor)
-      await expect(cargo).toBeVisible()
-      const preview = (await cargo.boundingBox())!
-      const offset = direction === 'rtl' ? cursor.x - preview.x - preview.width : preview.x - cursor.x
-      const viewport = await page.evaluate(() => ({
-        innerWidth: window.innerWidth,
-        clientWidth: document.documentElement.clientWidth,
-        clientLeft: document.documentElement.clientLeft,
-        rootRight: document.documentElement.getBoundingClientRect().right,
-      }))
-      expect(offset, JSON.stringify({ viewport, preview, cursor })).toBeCloseTo(12, 0)
-      const target = page.locator(`.tree__row[data-drop="collection:${collection}"]`)
-      const box = (await target.boundingBox())!
-      await move({ x: box.x + box.width / 2, y: box.y + box.height / 2 })
-      await expect(target).toHaveClass(/tree__row--over/)
-      const written = page.waitForResponse((response) =>
-        response.request().method() === 'PATCH' && /\/web\/libraries\/\d+\/items$/.test(response.url()),
-      )
-      if (touch) await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
-      else await page.mouse.up()
-      expect((await written).ok()).toBe(true)
-      await expect(cargo).toBeHidden()
-      const item = await request.get(`/users/1/items/${book}`, { headers })
-      expect((await item.json()).data.collections).toContain(collection)
-      if (touch) await touch.detach()
     })
 
     test('indents nested collections and anchors the theme menu logically', async ({ page, request, isMobile }, testInfo) => {

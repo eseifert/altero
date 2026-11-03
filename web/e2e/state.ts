@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import AxeBuilder from '@axe-core/playwright'
-import { expect, type Page, test as base } from '@playwright/test'
+import { expect, type Locator, type Page, test as base } from '@playwright/test'
 
 export const USERNAME = 'ada'
 export const PASSWORD = 'correct horse battery staple'
@@ -73,6 +73,27 @@ export async function signIn(page: Page): Promise<void> {
   await page.locator('input[autocomplete=current-password]').fill(PASSWORD)
   await page.locator('button[type=submit]').click()
   await page.waitForURL(/\/app\/library/)
+}
+
+/** A fixture may be older than the first page after other scenarios write. */
+export async function libraryRow(page: Page, title: string): Promise<Locator> {
+  const rows = page.locator('.library__items [data-row]')
+  const row = rows.filter({ hasText: title }).first()
+  const more = page.locator('.library__more')
+  await expect(page.locator('.library__scopes--nested')).toBeVisible()
+  for (;;) {
+    await expect.poll(async () => (await row.count()) > 0 || await more.evaluateAll((buttons) =>
+      buttons.some((button) => !(button as HTMLButtonElement).disabled),
+    ), { message: `Find “${title}” in the library or offer another page` }).toBe(true)
+    if (await row.count()) return row
+    const count = await rows.count()
+    await more.click()
+    await expect(rows, 'Loading another page adds item rows').not.toHaveCount(count)
+  }
+}
+
+export async function openItem(page: Page, title: string): Promise<void> {
+  await (await libraryRow(page, title)).click()
 }
 
 /** What axe finds that a person would trip over, rather than every best practice. */

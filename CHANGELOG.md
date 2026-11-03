@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Fix browser tests for paged libraries and off-screen drop targets. Reported by [@eseifert] in [CI#41715080977].
 - Clear previous-library rows and counts immediately when switching libraries, before the next listing arrives.
 - Animate departing item rows and duplicate groups, preserving keyboard focus through the last row and empty view.
 - Animate optional item-detail sections and related searches, retiring controls during exit and restoring search focus.
@@ -379,6 +380,8 @@ The first release meant to be used by somebody other than its author.
 [@mweber0]: https://github.com/mweber0
 [@arminbahl]: https://github.com/arminbahl
 [@sherholz]: https://github.com/sherholz
+[@eseifert]: https://github.com/eseifert
+[CI#41715080977]: https://github.com/eseifert/altero/actions/runs/41715080977
 [PR#7]: https://github.com/eseifert/altero/pull/7
 [PR#8]: https://github.com/eseifert/altero/pull/8
 [PR#14]: https://github.com/eseifert/altero/pull/14
