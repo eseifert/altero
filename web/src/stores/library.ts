@@ -475,6 +475,10 @@ export const useLibraryStore = defineStore('library', () => {
   /** Switch libraries, discarding everything that described the previous one. */
   async function openLibrary(id: number): Promise<void> {
     libraryId.value = id
+    items.value = []
+    total.value = 0
+    duplicateGroups.value = []
+    totalGroups.value = null
     collections.value = []
     tags.value = []
     tagColors.value = []

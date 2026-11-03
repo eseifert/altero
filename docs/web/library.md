@@ -23,6 +23,9 @@ personal library uses a building icon; groups use the same icon as **Groups**
 in the top navigation. Only the active library unfolds its collections
 and views beneath it, with indentation showing the hierarchy.
 
+Switching libraries clears the previous rows and counts while the new library
+loads.
+
 Collection branches open and close with a short height transition. The interface
 respects the device's **Reduce motion** preference.
 

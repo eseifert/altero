@@ -76,6 +76,29 @@ beforeEach(() => {
 })
 
 describe('opening a library', () => {
+  it('clears rows and counts before the next library answers', async () => {
+    const store = useLibraryStore()
+    await store.loadLibraries()
+    store.items = [item('AAAA2345', 'Old first'), item('BBBB2345', 'Old second')]
+    store.total = 2
+    store.duplicateGroups = [['AAAA2345', 'BBBB2345']]
+    let answer!: (payload: unknown) => void
+    const response = new Promise((resolve) => { answer = resolve })
+    respond({ '/libraries/2/items?': response })
+    const opening = store.openLibrary(2)
+    try {
+      expect(store.loading).toBe(true)
+      expect(store.items).toEqual([])
+      expect(store.total).toBe(0)
+      expect(store.duplicateGroups).toEqual([])
+    } finally {
+      answer({ total: 1, items: [item('CCCC2345', 'New library')] })
+      await opening
+    }
+    expect(store.items.map((row) => row.key)).toEqual(['CCCC2345'])
+    expect(store.total).toBe(1)
+  })
+
   it('opens the first one it is given', async () => {
     const store = useLibraryStore()
 
