@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppIcon from '@/components/AppIcon.vue'
+import Collapse from '@/components/Collapse.vue'
 import SidebarIcon from '@/components/SidebarIcon.vue'
 import type { CollectionNode } from '@/stores/library'
 
@@ -161,20 +162,22 @@ function toggle(key: string): void {
         </span>
       </div>
 
-      <CollectionTree
-        v-if="node.children.length && expanded.has(node.key)"
-        :nodes="node.children"
-        :selected="selected"
-        :depth="(depth ?? 0) + 1"
-        :editable="editable"
-        :carrying="carrying"
-        :over="over"
-        @select="emit('select', $event)"
-        @add="emit('add', $event)"
-        @settings="emit('settings', $event)"
-        @remove="emit('remove', $event)"
-        @carry="emit('carry', $event)"
-      />
+      <Collapse>
+        <CollectionTree
+          v-if="node.children.length && expanded.has(node.key)"
+          :nodes="node.children"
+          :selected="selected"
+          :depth="(depth ?? 0) + 1"
+          :editable="editable"
+          :carrying="carrying"
+          :over="over"
+          @select="emit('select', $event)"
+          @add="emit('add', $event)"
+          @settings="emit('settings', $event)"
+          @remove="emit('remove', $event)"
+          @carry="emit('carry', $event)"
+        />
+      </Collapse>
     </li>
   </ul>
 </template>

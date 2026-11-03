@@ -23,6 +23,9 @@ personal library uses a building icon; groups use the same icon as **Groups**
 in the top navigation. Only the active library unfolds its collections
 and views beneath it, with indentation showing the hierarchy.
 
+Collection branches open and close with a short height transition. The interface
+respects the device's **Reduce motion** preference.
+
 ### Merging duplicates
 
 Open **Duplicate Items**. Candidates appear in separate groups with the proposed
@@ -73,7 +76,7 @@ from zotero.org should not have to learn a second arrangement of the same
 library. The personal library is **My Library** whatever the account is called
 — the row is the library, not its owner — and under it hang its collections,
 nested and expandable, then **My Publications**, then the **Trash**. Group
-libraries follow under a heading of their own, and a group has no My
+libraries appear at the same level, and a group has no My
 Publications, because publishing is something an account does with its own
 library.
 

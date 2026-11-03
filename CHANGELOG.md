@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Animate collection branches while respecting reduced motion and keeping nested branches free to grow.
 - Send empty creator lists for regular items so removing the last creator reaches already-synced desktops.
 - Allow undoing a browser merge from its stored graph, preserving files and refusing later library changes.
 - Order sidebar tags like the item pane: colored tags by position, then emoji tags, then the rest, alphabetized by locale.
