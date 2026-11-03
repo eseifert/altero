@@ -34,6 +34,11 @@ sizes, against a real server on a throwaway SQLite database. It fails on any
 Content-Security-Policy violation and on serious or critical axe findings.
 Build first; the first run needs `npx playwright install chromium`.
 
+The motion checks cover desktop and phone sizes with normal and reduced motion.
+They also exercise dialog focus and dismissal with the native modal API disabled,
+covering the fallback used by older Safari. This does not replace testing on an
+actual older Safari installation.
+
 ### Design
 
 The design follows Material 3 with a teal accent, and light and dark follow the

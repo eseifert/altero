@@ -15,6 +15,7 @@ import ItemDetail from '@/components/ItemDetail.vue'
 import ItemSelection from '@/components/ItemSelection.vue'
 import DuplicateGroups from '@/components/DuplicateGroups.vue'
 import MergePane from '@/components/MergePane.vue'
+import ModalTransition from '@/components/ModalTransition.vue'
 import ItemTypeIcon from '@/components/ItemTypeIcon.vue'
 import NewItemMenu from '@/components/NewItemMenu.vue'
 import NoteMenu from '@/components/NoteMenu.vue'
@@ -434,8 +435,8 @@ function startSettings(target: CollectionNode): void {
 const sharing = ref<CollectionNode | null>(null)
 
 function startSharing(target: CollectionNode): void {
-  /* The settings dialog goes: two dialogs at once is two top layers, and the
-     one underneath cannot be reached anyway. */
+  /* The settings dialog retires as sharing takes focus. Its transition keeps
+     the original page opener, so closing sharing can return there. */
   pending.value = null
   sharing.value = target
   shares.forget()
@@ -2226,44 +2227,50 @@ function sortLabel(column: { field: string; label: string }): string {
 
     <!-- Mounted only while it is open, so it opens focused on its field and
          starts empty every time rather than holding the last thing typed. -->
-    <CollectionDialog
-      v-if="pending?.kind === 'create'"
-      :path="creatingPath"
-      :busy="busy"
-      :error="collectionError"
-      @submit="submitCollection"
-      @cancel="cancel"
-    />
+    <ModalTransition>
+      <CollectionDialog
+        v-if="pending?.kind === 'create'"
+        :path="creatingPath"
+        :busy="busy"
+        :error="collectionError"
+        @submit="submitCollection"
+        @cancel="cancel"
+      />
+    </ModalTransition>
 
     <!-- Renaming, moving and deleting one collection, which are one dialog
          because they are one thought: this collection's settings. -->
-    <CollectionSettingsDialog
-      v-if="editing"
-      :name="editing.data.name"
-      :parent-key="editing.data.parentCollection || null"
-      :places="places"
-      :busy="busy"
-      :error="collectionError"
-      @submit="submitSettings"
-      @remove="startDelete(editing)"
-      @share="startSharing(editing)"
-      @cancel="cancel"
-    />
+    <ModalTransition>
+      <CollectionSettingsDialog
+        v-if="editing"
+        :name="editing.data.name"
+        :parent-key="editing.data.parentCollection || null"
+        :places="places"
+        :busy="busy"
+        :error="collectionError"
+        @submit="submitSettings"
+        @remove="startDelete(editing)"
+        @share="startSharing(editing)"
+        @cancel="cancel"
+      />
+    </ModalTransition>
 
     <!-- The links that show one collection to whoever holds them. Not sync and
          not a permission: a page, at an address that can be sent to somebody
          with no account here. -->
-    <ShareDialog
-      v-if="sharing"
-      :collection-name="sharing.data.name"
-      :shares="shares.shares"
-      :issued="shares.issued"
-      :busy="shares.busy"
-      :error="shares.error"
-      @create="createShare"
-      @revoke="revokeShare"
-      @cancel="stopSharing"
-    />
+    <ModalTransition>
+      <ShareDialog
+        v-if="sharing"
+        :collection-name="sharing.data.name"
+        :shares="shares.shares"
+        :issued="shares.issued"
+        :busy="shares.busy"
+        :error="shares.error"
+        @create="createShare"
+        @revoke="revokeShare"
+        @cancel="stopSharing"
+      />
+    </ModalTransition>
 
     <!--
       What is being carried, drawn under the pointer. The browser used to do
@@ -2281,71 +2288,83 @@ function sortLabel(column: { field: string; label: string }): string {
 
     <!-- Dropping a row on a sidebar row, said in words: the collections of
          this library and the other libraries it could be copied to. -->
-    <ItemDestinationDialog
-      v-if="moving.length"
-      :title="
-        moving.length === 1 ? titleOf(moving[0]) : t('{count} item | {count} items', moving.length)
-      "
-      :count="moving.length"
-      :places="places"
-      :libraries="otherLibraries"
-      :current-collection="currentCollection"
-      :busy="itemBusy"
-      :error="itemError"
-      @submit="submitDestination"
-      @cancel="moving = []"
-    />
+    <ModalTransition>
+      <ItemDestinationDialog
+        v-if="moving.length"
+        :title="
+          moving.length === 1 ? titleOf(moving[0]) : t('{count} item | {count} items', moving.length)
+        "
+        :count="moving.length"
+        :places="places"
+        :libraries="otherLibraries"
+        :current-collection="currentCollection"
+        :busy="itemBusy"
+        :error="itemError"
+        @submit="submitDestination"
+        @cancel="moving = []"
+      />
+    </ModalTransition>
 
     <!-- Everything the desktop client asks before it publishes something,
          asked in the same order. Mounted only while it is open, so it always
          starts on its first page. -->
-    <PublicationsDialog
-      v-if="publishing"
-      :title="titleOf(publishing)"
-      :has-files="publishHasFiles"
-      :has-notes="publishHasNotes"
-      :has-rights="publishHasRights"
-      :busy="itemBusy"
-      :error="itemError"
-      @submit="submitPublication"
-      @cancel="publishing = null"
-    />
+    <ModalTransition>
+      <PublicationsDialog
+        v-if="publishing"
+        :title="titleOf(publishing)"
+        :has-files="publishHasFiles"
+        :has-notes="publishHasNotes"
+        :has-rights="publishHasRights"
+        :busy="itemBusy"
+        :error="itemError"
+        @submit="submitPublication"
+        @cancel="publishing = null"
+      />
+    </ModalTransition>
 
     <!-- The licence of a published work, and the Rights field of anything
          else: one dialog, because they are one field. -->
-    <RightsDialog
-      v-if="editingRights"
-      :title="titleOf(editingRights)"
-      :rights="(editingRights.data.rights as string) ?? ''"
-      :busy="itemBusy"
-      :error="itemError"
-      @submit="submitRights"
-      @cancel="editingRights = null"
-    />
+    <ModalTransition>
+      <RightsDialog
+        v-if="editingRights"
+        :title="titleOf(editingRights)"
+        :rights="(editingRights.data.rights as string) ?? ''"
+        :busy="itemBusy"
+        :error="itemError"
+        @submit="submitRights"
+        @cancel="editingRights = null"
+      />
+    </ModalTransition>
 
     <!-- Which format the file is written in — the client's export options
          dialog, with the one question altero's four formats leave it. -->
-    <ExportDialog
-      v-if="exporting"
-      :scopes="exporting"
-      :link="exportLink"
-      @close="exporting = null"
-    />
+    <ModalTransition>
+      <ExportDialog
+        v-if="exporting"
+        :scopes="exporting"
+        :link="exportLink"
+        @close="exporting = null"
+      />
+    </ModalTransition>
 
-    <ShortcutSheet v-if="showingShortcuts" @close="showingShortcuts = false" />
+    <ModalTransition>
+      <ShortcutSheet v-if="showingShortcuts" @close="showingShortcuts = false" />
+    </ModalTransition>
 
     <!-- The picker every *Attach File…*, *Add File…* and *Replace File…* opens.
          Hidden, and pressed from those, since the button that opens it is the
          one a reader recognises. -->
     <input ref="picker" class="library__picker" type="file" tabindex="-1" aria-hidden="true" @change="chosen" />
 
-    <WebLinkDialog
-      v-if="linking"
-      :busy="linkBusy"
-      :error="linkError"
-      @submit="attachLink"
-      @cancel="closeLink"
-    />
+    <ModalTransition>
+      <WebLinkDialog
+        v-if="linking"
+        :busy="linkBusy"
+        :error="linkError"
+        @submit="attachLink"
+        @cancel="closeLink"
+      />
+    </ModalTransition>
 
     <UploadProgress />
   </div>
@@ -2397,6 +2416,7 @@ function sortLabel(column: { field: string; label: string }): string {
 .library__sidebar {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: var(--md-spacing-4);
   position: sticky;
   top: var(--md-spacing-4);

@@ -154,3 +154,19 @@ dialog:not([open]) {
   border-radius: var(--md-sys-shape-corner-large, 1rem);
   background: var(--md-sys-color-surface-container-high);
 }
+
+/* Keep the fallback's full-screen backdrop still; scale only its panel. */
+.dialog[data-modal-fallback].fade-scale-enter-from,
+.dialog[data-modal-fallback].fade-scale-leave-to {
+  transform: none;
+}
+
+.dialog[data-modal-fallback].fade-scale-enter-active > *,
+.dialog[data-modal-fallback].fade-scale-leave-active > * {
+  transition: transform var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+}
+
+.dialog[data-modal-fallback].fade-scale-enter-from > *,
+.dialog[data-modal-fallback].fade-scale-leave-to > * {
+  transform: scale(0.96);
+}
