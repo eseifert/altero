@@ -2474,6 +2474,9 @@ for other systems.</p>
 <p><code>ALTERO_PUBLIC_URL</code> should be the stable external URL of the instance, for example:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>https://altero.example.org
 </span></code></pre></div>
+<p>API object links and attachment upload/download URLs use this address, including
+its HTTPS scheme, even when a reverse proxy connects to altero over HTTP. When
+it is unset, those URLs use the request's address instead.</p>
 <p>It becomes required in practice when you use features that generate callbacks or bind credentials to a host:</p>
 <ul>
 <li>OpenID Connect or SAML sign-in;</li>
@@ -2510,10 +2513,10 @@ for other systems.</p>
 <p><strong><code>/web/libraries/&lt;id&gt;/events</code> is a stream that does not end.</strong> It is how an open browser page hears of changes made elsewhere, as Server-Sent Events. It sends something every 25 seconds, so a 60-second read timeout is enough, and it must not be buffered: nginx honours the <code>X-Accel-Buffering: no</code> altero sends, and a proxy that buffers anyway delivers the changes late or not at all. Like <code>/stream</code>, it works within one server process: run several workers and a page hears only of changes made through its own.</p>
 <p><strong>Forwarded headers are believed only when a proxy is named.</strong> Set <code>ALTERO_FORWARDED_ALLOW_IPS</code> to the address the proxy connects from. Until then altero ignores <code>X-Forwarded-Proto</code> and <code>X-Forwarded-For</code>, which has two effects:</p>
 <ul>
-<li>Behind a TLS terminator, the URLs altero returns start with <code>http://</code>. That includes the upload URL Zotero sends attachment files to, so attachments fail to sync. Links in API responses and upload URLs come from the request, not from <code>ALTERO_PUBLIC_URL</code>.</li>
+<li>Behind a TLS terminator, the request appears to use <code>http://</code>. Set <code>ALTERO_PUBLIC_URL</code> so API object links and attachment upload/download URLs use the external HTTPS address. Without it, these URLs depend on the forwarded scheme and request host.</li>
 <li>altero sees the proxy's address rather than the client's, and both rate limiting and the “last used from” shown for an API key report one address for everybody.</li>
 </ul>
-<p>Name only a proxy that <strong>overwrites</strong> <code>X-Forwarded-For</code>. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it. The host in generated URLs is the request's <code>Host</code> header, so the proxy must pass it through unchanged.</p>
+<p>Name only a proxy that <strong>overwrites</strong> <code>X-Forwarded-For</code>. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it. Pass the external <code>Host</code> header through unchanged so request-based URLs, including pagination links, use the public host.</p>
 <p>In the Compose stack the proxy is a container, so the value is that container's address on the Docker network — not <code>127.0.0.1</code>, which is altero's own container.</p>
 <p>Set <code>ALTERO_PUBLIC_URL</code> to the URL people actually open. See <a href="#public-url">Public URL</a>; passkeys in particular are bound to that host.</p>
 <p>The proxy need not compress anything. altero sends the browser interface's scripts and stylesheets in the Brotli or gzip copies its build writes, and leaves API responses as they are.</p>
