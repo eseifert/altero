@@ -1583,6 +1583,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#windows-and-macos-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Windows and macOS reports
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1880,6 +1891,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#windows-and-macos-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Windows and macOS reports
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1934,12 +1956,23 @@
 <li>the same API and streaming endpoints in both profiles.</li>
 </ul>
 <p>The two clients should represent two installations of the <strong>same account</strong>, not two unrelated personal libraries.</p>
+<p>For a test on Windows or macOS, use two computers or create test profiles using
+<a href="https://www.zotero.org/support/kb/multiple_profiles">Zotero's profile instructions</a>.
+Before linking either profile, verify that its data directory is empty and
+different from your everyday library and the other test profile. Check the
+directory in <strong>Settings → Advanced → Files and Folders</strong>. You can run the two
+profiles one at a time; <a href="https://www.zotero.org/support/kb/multiple_instances">simultaneous instances</a>
+also require separate profile and data directories.</p>
 <h2 id="configure-both-clients">Configure both clients<a class="headerlink" href="#configure-both-clients" title="Permanent link">&para;</a></h2>
 <p>Each Zotero profile needs:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>extensions.zotero.api.url = http://localhost:8000/
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>extensions.zotero.streaming.url = ws://localhost:8000/stream
 </span></code></pre></div>
 <p>Restart Zotero and link the same altero account in both profiles.</p>
+<p>For a remote server, replace <code>localhost:8000</code> with the server's public address
+and use <code>https://</code> and <code>wss://</code> together. Set attachment syncing to <strong>Zotero</strong>
+and file downloads to <strong>at sync time</strong> on both clients, so this test exercises
+altero's file store.</p>
 <p>For the complete linking flow, see <a href="../clients/">Connecting a Zotero client</a>.</p>
 <h2 id="important-traps">Important traps<a class="headerlink" href="#important-traps" title="Permanent link">&para;</a></h2>
 <h3 id="account-id-must-match-the-data-directory">Account ID must match the data directory<a class="headerlink" href="#account-id-must-match-the-data-directory" title="Permanent link">&para;</a></h3>
@@ -1999,7 +2032,91 @@
 creates disposable profiles and checks disjoint offline edits, file bytes,
 trash/restore, child deletion and schema serialization using the real sync engine.
 Keep this manual procedure for same-field conflict dialogs and group-removal
-prompts, which the automated runner does not yet drive.</p>
+prompts on other platforms too; the automated runner already drives those
+dialogs on Linux.</p>
+<h2 id="windows-and-macos-reports">Windows and macOS reports<a class="headerlink" href="#windows-and-macos-reports" title="Permanent link">&para;</a></h2>
+<p>Windows and macOS have not completed the project's automated desktop acceptance
+suite. A <a href="https://github.com/eseifert/altero/issues/49#issuecomment-6555801282">basic-sync report</a>
+for Zotero 10.0.7 and altero beta.7 is encouraging, but does not cover the checks
+below. A manual run records evidence for its checked operations; it does not
+certify the full automated matrix.</p>
+<p>Use the setup and sequence above, then record <strong>pass</strong>, <strong>fail</strong> or <strong>not run</strong>
+for each case. Sync both clients until idle after each change, and check the
+browser library as a third view of the server's metadata.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Operation and expected result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linking and restart</td>
+<td>Link each fresh profile, restart it, and sync again without another approval or error.</td>
+</tr>
+<tr>
+<td>Metadata both ways</td>
+<td>Create a book with a creator, Unicode title and tag on A. On B, change its title and add a child note. All three views agree.</td>
+</tr>
+<tr>
+<td>Collection graph</td>
+<td>Create nested collections, file the book, then move a collection on B. The hierarchy and memberships agree.</td>
+</tr>
+<tr>
+<td>Disjoint offline edits</td>
+<td>Disable automatic sync on both. Change the title on A and the date on B; sync A, B, A. Both changes survive.</td>
+</tr>
+<tr>
+<td>Conflict dialog</td>
+<td>With automatic sync off, change the same title differently on both. Sync A, then B, choose a side in the dialog, then sync A. Repeat choosing the other side. All views agree with each choice.</td>
+</tr>
+<tr>
+<td>Trash and deletion</td>
+<td>Trash the book, restore it, then trash and permanently delete it. Sync between steps. Both clients and the browser show each transition and remove its children at deletion.</td>
+</tr>
+<tr>
+<td>Stored files</td>
+<td>Attach a small PDF and a file with a Unicode filename on A. On B, open the downloaded files and compare their actual bytes with the originals. Repeat from B to A.</td>
+</tr>
+<tr>
+<td>File replacement</td>
+<td>Change a stored file on B, sync B then A, and verify A's bytes. Restart both clients and verify the files still open.</td>
+</tr>
+<tr>
+<td>Browser edits</td>
+<td>Edit a field and child note and upload a file through the browser. Both clients receive the edits and matching file bytes.</td>
+</tr>
+<tr>
+<td>Live updates</td>
+<td>Re-enable automatic sync and restart both. Leave B idle; change and sync A. B receives the change without pressing Sync. Record separately if only manual sync works.</td>
+</tr>
+<tr>
+<td>Groups</td>
+<td>If available, repeat metadata and file checks in a group. With a second, read-only member, confirm reading works and editing is unavailable. Otherwise mark this not run.</td>
+</tr>
+<tr>
+<td>Settled sync</td>
+<td>Sync both twice without further edits. No recurring error, conflict or repeated upload appears.</td>
+</tr>
+</tbody>
+</table>
+<p>Report results in <a href="https://github.com/eseifert/altero/issues/49">issue #49</a>,
+including successful runs. Copy this outline and fill in every row above:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Date:
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Client A: OS version / architecture / exact Zotero version:
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Client B: OS version / architecture / exact Zotero version:
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>altero version or commit:
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>Database: SQLite / PostgreSQL version:
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>Deployment: Docker / Podman / source; reverse proxy and TLS setup:
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>Test profiles with separate, empty data directories: yes / no
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>Results: check name — pass / fail / not run; observations
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>Failure: steps, expected result, actual result, and exact error
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>Recovery required: none / describe
+</span></code></pre></div>
+<p>Record the first failing step before trying recovery. Keep the disposable state
+for a reproduction. Share only logs and screenshots you have checked for API
+keys, session tokens, authorization headers, passwords and private library data.</p>
 
 
 

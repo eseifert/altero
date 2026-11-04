@@ -1750,6 +1750,12 @@ database/scenario combinations and 838 phases on Linux, across SQLite and
 PostgreSQL 18.4. This verifies the recorded transitions, not every client path
 or platform. See
 <a href="../client-compatibility/">desktop compatibility coverage and gaps</a>.</p>
+<p><strong>Windows and macOS remain untested by the project's desktop acceptance
+suite.</strong> A <a href="https://github.com/eseifert/altero/issues/49#issuecomment-6555801282">community report</a>
+describes basic sync working with Zotero 10.0.7 and altero beta.7 on both;
+it does not establish conflict, file-recovery or full acceptance coverage.
+To contribute a reproducible platform result, follow the
+<a href="../testing-two-clients/#windows-and-macos-reports">two-client test and reporting checklist</a>.</p>
 <p>Populated databases from every beta through beta.7 pass direct upgrades to the
 current development schema on SQLite and PostgreSQL, including attachment
 downloads and repeat startup. See the <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation">upgrade matrix and limits</a>.</p>
@@ -1861,6 +1867,9 @@ bytes. See <a href="../client-compatibility/#run-two-real-desktop-profiles">the 
 <li>API version negotiation.</li>
 </ul>
 <p>The compatibility reference documents behavior that differs from the public API documentation or that had to be learned from the real client or server: <a href="../compatibility/">Compatibility notes</a>.</p>
+<p>Three explicit choices: <a href="../compatibility/#tag-counts-and-the-trash">library tag counts include trash</a>,
+<a href="../compatibility/#group-renames-notify-connected-clients">group renames notify clients</a>,
+and <a href="../compatibility/#the-desktop-clients-three-extra-views">Unfiled is a browser-only view</a>.</p>
 <h2 id="additional-altero-features">Additional altero features<a class="headerlink" href="#additional-altero-features" title="Permanent link">&para;</a></h2>
 <p>These are not required for basic Zotero compatibility but are available on an altero instance:</p>
 <ul>
@@ -1889,6 +1898,7 @@ See the <a href="../oidc-conformance/">results and limits</a>, including the man
 profile mismatch. These checks establish no OpenID certification.</p>
 <h2 id="not-implemented">Not implemented<a class="headerlink" href="#not-implemented" title="Permanent link">&para;</a></h2>
 <ul>
+<li>Continuous replication with zotero.org in either direction. The existing personal-library import is a one-time copy; <a href="../compatibility/#continuous-sync-with-zoteroorg">one-way refresh remains future work</a>.</li>
 <li>Zotero's <strong>Note HTML</strong> and <strong>Note Markdown</strong> translators. These create a note rather than an ordinary bibliography/export response.</li>
 <li>Zotero-hosted read-aloud speech synthesis and credit services (<code>/tts/...</code>).</li>
 <li>Legacy password-to-key creation (<code>POST /keys</code>); use desktop browser linking or an API key.</li>

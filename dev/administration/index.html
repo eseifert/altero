@@ -2861,6 +2861,11 @@ Restoring also locks the target library before checking or replacing its content
 <p>Importing into a non-empty target is refused unless <code>--replace</code> is used.</p>
 <p>The browser exposes equivalent import/export operations under <strong>Settings → Import and export</strong>.</p>
 <h3 id="move-a-personal-library-from-zoteroorg">Move a personal library from zotero.org<a class="headerlink" href="#move-a-personal-library-from-zoteroorg" title="Permanent link">&para;</a></h3>
+<p>This is a one-time migration. It does not keep the two servers synchronized
+afterwards. Finish syncing to zotero.org before importing, and pause edits
+until the clients have moved to altero. Continuous two-way sync is unsupported;
+a scheduled one-way refresh is future work. See
+<a href="../compatibility/#continuous-sync-with-zoteroorg">the verdict and replacement-import limits</a>.</p>
 <p>If possible, create the altero account with the same numeric user ID that zotero.org uses:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--id<span class="w"> </span>&lt;zotero.org-user-id&gt;
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>migrate<span class="w"> </span>zotero<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--replace

@@ -1325,6 +1325,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tag-counts-and-the-trash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tag counts and the trash
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#who-added-an-item-and-who-last-changed-it" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1764,6 +1775,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#group-renames-notify-connected-clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Group renames notify connected clients
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#who-the-client-finds-in-a-group" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1867,6 +1889,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Reading a library out of zotero.org
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-sync-with-zoteroorg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Continuous sync with zotero.org
       </span>
     </span>
   </a>
@@ -2443,6 +2476,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tag-counts-and-the-trash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tag counts and the trash
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#who-added-an-item-and-who-last-changed-it" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2882,6 +2926,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#group-renames-notify-connected-clients" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Group renames notify connected clients
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#who-the-client-finds-in-a-group" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2985,6 +3040,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Reading a library out of zotero.org
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#continuous-sync-with-zoteroorg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Continuous sync with zotero.org
       </span>
     </span>
   </a>
@@ -3250,6 +3316,21 @@ has. Notes, attachments and annotations do not carry a creator list.</p>
 </ul>
 <p>Neither the matched item nor the parent it resolves to may be in the trash, so a hit inside a trashed item's PDF does not bring it back.</p>
 <p><strong>A tag search minds case.</strong> <code>/tags?q=fic</code> does not find <em>Fiction</em>, as on zotero.org and in the desktop's own local API. <code>%</code> and <code>_</code> act as wildcards there too, and <code>\</code> escapes them: searching for <code>50\%</code> finds <em>50%</em> but not <em>500</em>.</p>
+<h3 id="tag-counts-and-the-trash">Tag counts and the trash<a class="headerlink" href="#tag-counts-and-the-trash" title="Permanent link">&para;</a></h3>
+<p><strong>Library-wide tag counts include trashed items.</strong> <code>/users/&lt;id&gt;/tags</code> and
+<code>/groups/&lt;id&gt;/tags</code>, including a tag fetched by name, retain
+<a href="https://github.com/zotero/dataserver/issues/51">dataserver#51</a>. A tag on one
+live item and one trashed item reports <code>meta.numItems: 2</code>; a tag carried only
+by trash remains listed. <code>includeTrashed=0</code> does not change these library-wide
+counts. The reviewed <a href="https://github.com/zotero/dataserver/blob/6e091852b8a3e369056f390ba69e5de90cda1134/model/Tag.inc.php#L487-L493">tag serializer</a>
+counts linked items without filtering the deletion flag. This is source
+evidence, not a new live zotero.org measurement.</p>
+<p>Use <code>/items/tags</code> for tags counted over non-trashed items, or
+<code>/items/trash/tags</code> for the trash alone. altero counts item-scoped tags over
+the matching items: <code>includeTrashed=1</code> widens <code>/items/tags</code>, and collection
+scopes keep their own counts. The browser uses these scoped counts. Confined
+OAuth grants still restrict which items any count may include; the quirk never
+bypasses a grant's collection restrictions.</p>
 <h3 id="who-added-an-item-and-who-last-changed-it">Who added an item, and who last changed it<a class="headerlink" href="#who-added-an-item-and-who-last-changed-it" title="Permanent link">&para;</a></h3>
 <p>In group libraries, an item's <code>meta</code> names who created it and who last changed it. Both behaviors below are copied, including the parts that look like oversights.</p>
 <ul>
@@ -3765,6 +3846,18 @@ has. Notes, attachments and annotations do not carry a creator list.</p>
 <p>Two of these are altero's own rules. A key must be allowed to write to the group <em>and</em> its owner must administer it, because adding items and deciding who else may are different things. Only the owner can hand over or delete a group, because both end it as its members know it.</p>
 <p><strong>A key's "all groups" means the groups its owner belongs to</strong>, never every group on the server.</p>
 <p>Changing a group's details or its members advances the library's version. zotero.org keeps a separate group version; altero reports the library's for both. A role change therefore costs connected clients one sync that finds nothing new — the cheaper mistake, since a client that has not noticed a demotion still believes it may write.</p>
+<h4 id="group-renames-notify-connected-clients">Group renames notify connected clients<a class="headerlink" href="#group-renames-notify-connected-clients" title="Permanent link">&para;</a></h4>
+<p>altero deliberately sends the committed library-version notification for a
+rename too. <a href="https://github.com/zotero/dataserver/issues/92">dataserver#92</a>
+reports a missing name-change notification upstream, but was itself filed as
+unverified. The reviewed <a href="https://github.com/zotero/dataserver/blob/6e091852b8a3e369056f390ba69e5de90cda1134/model/Group.inc.php#L518-L663">group save path</a>
+increments the separate group version; its notification calls concern owner
+transfers. We have not retested the hosted service's rename notifications.</p>
+<p>Retain altero's existing version bump and <code>/groups/&lt;id&gt;</code> <code>topicUpdated</code> event.
+The desktop uses <code>/users/&lt;id&gt;/groups?format=versions</code> to decide whether to
+fetch the group again. A rename therefore refreshes the cached name without
+waiting for an unrelated item write. The event, group response and version
+listing agree on the new version; item versions need not change.</p>
 <h4 id="who-the-client-finds-in-a-group">Who the client finds in a group<a class="headerlink" href="#who-the-client-finds-in-a-group" title="Permanent link">&para;</a></h4>
 <p><strong>Group listings always carry a <code>Link</code> header</strong>, even when empty or a single page. The desktop's account settings read it unconditionally and fail without it. zotero.org always includes an <code>alternate</code> link to itself; altero includes <code>self</code> instead. A page holds 25 groups by default; <code>format=versions</code> is unlimited.</p>
 <p>A group's JSON lists <code>admins</code> and <code>members</code> as user ids, and the desktop needs them: it makes a group library editable for the owner, for administrators, and for members when the group lets members edit. Anyone found in neither list syncs the library read-only. The owner is in neither list, as on zotero.org, and empty lists are left out. The lists are read-only; membership has its own endpoints.</p>
@@ -3850,6 +3943,14 @@ has. Notes, attachments and annotations do not carry a creator list.</p>
 <h3 id="the-desktop-clients-three-extra-views">The desktop client's three extra views<a class="headerlink" href="#the-desktop-clients-three-extra-views" title="Permanent link">&para;</a></h3>
 <p>The desktop's sidebar shows <strong>Recently Read</strong>, <strong>Duplicate Items</strong> and <strong>Unfiled Items</strong>, all worked out from its local copy of the library. zotero.org's API has none of them, so altero's versions exist only in its browser interface; the v3 API is unchanged.</p>
 <p><strong>Unfiled Items</strong> needs no interpretation: top-level items in no collection and not in the trash.</p>
+<p><strong>Keep Unfiled out of the v3 API.</strong> The upstream request remains
+<a href="https://github.com/zotero/dataserver/issues/11">dataserver#11</a>. altero serves
+the view at <code>/web/libraries/&lt;id&gt;/items?scope=unfiled</code>, authenticated by browser
+session. There is no v3 <code>/items/unfiled</code> endpoint. Unknown v3 query parameters
+are ignored, so adding <code>scope=unfiled</code> or <code>unfiled=1</code> to <code>/items</code> still returns
+the ordinary item listing. Applications must not treat those parameters as a
+filter. Desktop synchronization continues to download the library and compute
+Unfiled locally; no extension is needed for that workflow.</p>
 <p><strong>Duplicate Items</strong> is a judgment. Two items count as the same work if they share a DOI or ISBN (ignoring punctuation, case and any <code>https://doi.org/</code> prefix), or if they share a title (ignoring punctuation and case) <em>and</em> a creator surname or year. A title alone is not enough, because many works are called "Introduction"; only when neither item has a creator or a year does the title stand alone. Item types are not compared, so a book and a chapter of it appear as a pair. Notes, attachments and annotations are never compared.</p>
 <p><strong>Recently Read</strong> is a guess. Zotero 7 records when an attachment was last read and syncs it, but which items the desktop lists, and over what period, is not documented. altero lists items whose attachments were read in the last 90 days, newest first where the sort allows, and stand-alone attachments themselves. <strong>The 90 days is a guess</strong>, chosen so the view does not grow into "everything ever opened".</p>
 <h3 id="merging-pdfs-with-embedded-notes">Merging PDFs with embedded notes<a class="headerlink" href="#merging-pdfs-with-embedded-notes" title="Permanent link">&para;</a></h3>
@@ -3862,7 +3963,7 @@ change, leaving the surviving file under the trashed duplicate. This was
 reproduced with zotero.org and without a server. Keeping both files avoids
 that combination without detaching the note from its original PDF.</p>
 <h3 id="reading-a-library-out-of-zoteroorg">Reading a library out of zotero.org<a class="headerlink" href="#reading-a-library-out-of-zoteroorg" title="Permanent link">&para;</a></h3>
-<p>This is the one place altero makes requests instead of answering them: it reads a personal library from api.zotero.org and turns it into the same archive <code>altero library export</code> writes, then restores that archive.</p>
+<p>The migration reads a personal library from api.zotero.org and turns it into the same archive <code>altero library export</code> writes, then restores that archive. It makes no writes to zotero.org.</p>
 <p><strong>It needs an API key.</strong> zotero.org offers no password sign-in for software, and OAuth would require every altero instance to register with Zotero. The key is used for the import and then forgotten.</p>
 <p><strong>Three things zotero.org's API does not provide</strong>, and what altero uses instead:</p>
 <table>
@@ -3891,6 +3992,33 @@ that combination without detaching the note from its original PDF.</p>
 <p><strong>zotero.org's rate limits are obeyed</strong> the way the desktop obeys altero's: requests go one at a time, <code>Backoff</code> pauses before the next request, and a 429 waits as long as <code>Retry-After</code> says — or, without it, a doubling delay starting at one second.</p>
 <p><strong><code>/tags?format=versions</code> fails on api.zotero.org</strong> with a server error, for every library tried, including Zotero's own example account. A real import stopped on it after reading everything else. So the import treats only items, collections and saved searches as essential and stops if one cannot be read. Tag versions, settings, full text, the deletion log and attachment files are read if possible and listed in the report if not. A tag without a version gets the library's, which is the safe direction: clients asking what changed hear about it.</p>
 <p><strong>Pages are fetched by position</strong>, not by following the <code>Link</code> header, because that header always points at api.zotero.org.</p>
+<h3 id="continuous-sync-with-zoteroorg">Continuous sync with zotero.org<a class="headerlink" href="#continuous-sync-with-zoteroorg" title="Permanent link">&para;</a></h3>
+<p><strong>Continuous two-way sync is unsupported and is not feasible as a transparent
+mode for unmodified Zotero Desktop.</strong> Each server assigns library and object
+versions independently. After a migration, version 100 on altero and version
+100 on zotero.org can describe different changes. The desktop remembers one
+server's watermark and cached object versions; changing the API address does
+not reconcile those histories. Keeping the same account number and item keys
+does not solve that problem.</p>
+<p>A separate replication service would need its own per-server version history,
+conflict resolution, deletion tracking, relation mapping and attachment
+transfer. Copying objects and their version numbers back and forth is not such
+a service. altero does not provide one, and alternating a desktop between
+servers is not a supported way to keep them synchronized.</p>
+<p><strong>A periodic one-way refresh from zotero.org into altero is feasible as future
+work</strong>, with zotero.org authoritative and the destination treated as a copy.
+It would need to apply upstream changes and deletions through altero's own
+versioned writes so already-connected clients can observe them. Local edits
+would need an explicit refusal or overwrite policy. This is a design
+assessment, not an implemented or tested refresh feature; scheduling and its
+implementation are deferred beyond 1.0.</p>
+<p>Today, the CLI and browser offer a one-time personal-library import. Repeating
+it with <code>--replace</code> restores a whole snapshot and can discard altero-only
+changes. It does not perform incremental reconciliation, and raising the
+library watermark alone cannot replace newer objects already cached by a
+desktop with older imported versions. See <a href="../client-compatibility/#additional-desktop-scenarios">the exercised recovery limits</a>.
+Use the <a href="../administration/#move-a-personal-library-from-zoteroorg">migration procedure</a>
+to move to altero, then keep that library's clients pointed at altero.</p>
 <h2 id="the-authorization-server">The authorization server<a class="headerlink" href="#the-authorization-server" title="Permanent link">&para;</a></h2>
 <h3 id="token-revocation">Token revocation<a class="headerlink" href="#token-revocation" title="Permanent link">&para;</a></h3>
 <p><code>/oauth/revoke</code> accepts the same client authentication methods as <code>/oauth/token</code>:
@@ -4010,7 +4138,7 @@ requests remain unverified and keep their original lifetime.</p>
 <li><strong>Rate limiting is off unless configured.</strong> A self-hosted server with a handful of clients rarely needs it; set <code>ALTERO_RATE_LIMIT</code> to turn it on.</li>
 <li><strong>Fields with the same translated name may be ordered differently.</strong> Three fields are called "Format"; zotero.org orders them by an internal number the published schema lacks.</li>
 <li><strong>Tags can be renamed through the API</strong> — see <a href="#renaming-a-tag">Renaming a tag</a>. An addition rather than a change: nothing that reads tags behaves differently.</li>
-<li><strong>altero makes requests of its own</strong>, in one place only: <a href="#reading-a-library-out-of-zoteroorg">reading a library out of zotero.org</a>.</li>
+<li><strong>Library migration reads zotero.org</strong> without writing back — see <a href="#continuous-sync-with-zoteroorg">import and continuous-sync limits</a>.</li>
 </ul>
 
 
