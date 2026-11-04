@@ -99,7 +99,7 @@ Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. D
 
 | Setting             | Default            | What it does                                                                                                                                                                                |
 |---------------------|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ALTERO_PUBLIC_URL` | *(empty)*          | The stable external URL of the instance. Required for single sign-on, passkeys and the authorization server, each of which refuses to guess it. See [Public URL](deployment.md#public-url). |
+| `ALTERO_PUBLIC_URL` | *(empty)*          | The stable external URL for API object links, file transfers and email links. Required for single sign-on, passkeys and the authorization server. See [Public URL](deployment.md#public-url). |
 | `ALTERO_SMTP_URL`   | *(empty)*          | Relay for outgoing mail, as `smtp://[user:password@]host[:port]` or `smtps://…`. Empty writes messages to the log. See [Email](email.md).                                                   |
 | `ALTERO_MAIL_FROM`  | `altero@localhost` | From address on outgoing mail. Set it to something the relay will send as.                                                                                                                  |
 

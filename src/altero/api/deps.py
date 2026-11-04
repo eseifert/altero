@@ -186,8 +186,9 @@ FileWritableLibraryDep = Annotated[Library, Depends(get_file_writable_library)]
 
 
 def get_base_url(request: Request) -> str:
-    """Return the scheme and authority the request arrived on, without a trailing slash."""
-    return str(request.base_url).rstrip("/")
+    """Prefer the public URL over the address a reverse proxy connected to."""
+    configured = request.app.state.settings.public_url.rstrip("/")
+    return configured or str(request.base_url).rstrip("/")
 
 
 BaseUrlDep = Annotated[str, Depends(get_base_url)]

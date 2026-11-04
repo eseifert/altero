@@ -293,6 +293,10 @@ In the Compose stack, every `ALTERO_` setting in `docker/.env` reaches the conta
 https://altero.example.org
 ```
 
+API object links and attachment upload/download URLs use this address, including
+its HTTPS scheme, even when a reverse proxy connects to altero over HTTP. When
+it is unset, those URLs use the request's address instead.
+
 It becomes required in practice when you use features that generate callbacks or bind credentials to a host:
 
 - OpenID Connect or SAML sign-in;
@@ -349,10 +353,10 @@ Four things have to be right, and a default configuration gets two of them wrong
 
 **Forwarded headers are believed only when a proxy is named.** Set `ALTERO_FORWARDED_ALLOW_IPS` to the address the proxy connects from. Until then altero ignores `X-Forwarded-Proto` and `X-Forwarded-For`, which has two effects:
 
-- Behind a TLS terminator, the URLs altero returns start with `http://`. That includes the upload URL Zotero sends attachment files to, so attachments fail to sync. Links in API responses and upload URLs come from the request, not from `ALTERO_PUBLIC_URL`.
+- Behind a TLS terminator, the request appears to use `http://`. Set `ALTERO_PUBLIC_URL` so API object links and attachment upload/download URLs use the external HTTPS address. Without it, these URLs depend on the forwarded scheme and request host.
 - altero sees the proxy's address rather than the client's, and both rate limiting and the “last used from” shown for an API key report one address for everybody.
 
-Name only a proxy that **overwrites** `X-Forwarded-For`. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it. The host in generated URLs is the request's `Host` header, so the proxy must pass it through unchanged.
+Name only a proxy that **overwrites** `X-Forwarded-For`. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it. Pass the external `Host` header through unchanged so request-based URLs, including pagination links, use the public host.
 
 In the Compose stack the proxy is a container, so the value is that container's address on the Docker network — not `127.0.0.1`, which is altero's own container.
 

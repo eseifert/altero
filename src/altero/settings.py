@@ -105,10 +105,10 @@ class Settings(BaseSettings):
     public_url: str = Field(
         default="",
         description=(
-            "Absolute base URL this instance is reached at, used to build "
-            "links in email. Empty falls back to the address the request "
-            "arrived on, which is right for a single host and wrong behind a "
-            "proxy that rewrites it."
+            "Absolute external base URL for API object links, file transfers "
+            "and email links. Empty falls back to the request's address for "
+            "these links. Required for single sign-on, passkeys and the "
+            "authorization server, whose identities must not be guessed."
         ),
     )
 

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Fix HTTPS attachment transfer URLs to honor the public URL. Reported by [@ypomortsev] in [Issue#65].
 - Show carried counts and briefly highlight saved drop targets; cancel drags on Escape, window blur or navigation.
 - Avoid duplicate update toasts and prompts after reloading; check open tabs for upgrades. Reported by [@eseifert].
 - Fade item, note and attachment details in quickly, respecting reduced motion. Reported by [@eseifert].
@@ -386,6 +387,7 @@ The first release meant to be used by somebody other than its author.
 [@mweber0]: https://github.com/mweber0
 [@arminbahl]: https://github.com/arminbahl
 [@sherholz]: https://github.com/sherholz
+[@ypomortsev]: https://github.com/ypomortsev
 [@eseifert]: https://github.com/eseifert
 [CI#41715080977]: https://github.com/eseifert/altero/actions/runs/41715080977
 [PR#7]: https://github.com/eseifert/altero/pull/7
@@ -400,3 +402,4 @@ The first release meant to be used by somebody other than its author.
 [Issue#30]: https://github.com/eseifert/altero/issues/30
 [Issue#62]: https://github.com/eseifert/altero/issues/62
 [Issue#64]: https://github.com/eseifert/altero/issues/64
+[Issue#65]: https://github.com/eseifert/altero/issues/65

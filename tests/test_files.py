@@ -83,6 +83,57 @@ async def upload(client: httpx2.AsyncClient, key: str, content: bytes = CONTENT)
     )
 
 
+@pytest.mark.parametrize("as_form", [False, True])
+@pytest.mark.parametrize(
+    "public_url", ["", "https://files.example.test", "https://files.example.test:8443/"]
+)
+async def test_file_urls_prefer_public_url_behind_a_proxy(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+    attachment: str,
+    settings: Settings,
+    monkeypatch: pytest.MonkeyPatch,
+    public_url: str,
+    as_form: bool,
+) -> None:
+    # The proxy connects over HTTP, with no trusted forwarded headers. The
+    # configured external scheme and host must survive both file handoffs.
+    monkeypatch.setattr(
+        app.state, "settings", settings.model_copy(update={"public_url": public_url})
+    )
+    base = public_url.rstrip("/") or str(client.base_url).rstrip("/")
+    endpoint = f"/users/1/items/{attachment}/file"
+    authorized = await client.post(
+        endpoint,
+        headers=AUTH | {"If-None-Match": "*"},
+        data=authorization(**({"params": 1} if as_form else {})),
+    )
+    assert authorized.status_code == 200
+    body = authorized.json()
+    assert body["url"] == f"{base}/storage/upload/{body['uploadKey']}"
+
+    if as_form:
+        received = await client.post(
+            body["url"], data=body["params"], files={"file": ("moby.txt", CONTENT)}
+        )
+    else:
+        received = await client.post(body["url"], content=CONTENT)
+    assert received.status_code == 201
+    registered = await client.post(
+        endpoint,
+        headers=AUTH | {"If-None-Match": "*"},
+        data={"upload": body["uploadKey"]},
+    )
+    assert registered.status_code == 204
+
+    redirect = await client.get(endpoint, headers=AUTH)
+    assert redirect.status_code == 302
+    assert redirect.headers["Location"].startswith(f"{base}/storage/download/")
+    downloaded = await client.get(redirect.headers["Location"])
+    assert downloaded.status_code == 200
+    assert downloaded.content == CONTENT
+
+
 class TestAuthorization:
     @pytest.mark.parametrize("precondition", [{"If-Match": "0" * 32}, {"If-None-Match": "*"}])
     async def test_conflicting_file_names_its_item_version(
