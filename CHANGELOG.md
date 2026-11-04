@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Display filename extensions with their leading dot intact in right-to-left confirmation prompts and buttons.
 - Let editing-confirmation buttons wrap onto separate rows so translated labels stay readable on narrow screens.
 - Correct Spanish and European Portuguese password-reset notices to describe ended sessions rather than closed browsers.
 - Keep Afrikaans editing warnings in the same formal address as account and library instructions.

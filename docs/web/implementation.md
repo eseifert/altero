@@ -78,6 +78,9 @@ sizes, including formal Afrikaans warnings. They detect words split across
 button lines and buttons overflowing the prompt, accept the changes and verify
 the stored type, filename and unchanged downloaded bytes. In narrow fields,
 confirmation buttons can move to another row rather than squeezing their labels.
+Extension tokens use isolated left-to-right text inside the translated prompt
+and buttons. Browser checks compare the dot's painted position with the first
+letter so an Arabic sentence cannot silently display `.pdf` as `pdf.`.
 
 Spanish and European Portuguese password checks use a second browser context
 signed in to a disposable account. Administrator-set passwords and reset links

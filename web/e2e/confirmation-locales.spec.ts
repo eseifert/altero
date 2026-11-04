@@ -64,6 +64,25 @@ for (const [tag, translated] of Object.entries(labels)) {
       const rename = page.getByRole('alertdialog', { name: translated.filename, exact: true })
       await expect(rename).toContainText(translated.extensionQuestion)
       await expect(rename).toContainText(translated.extensionWarning)
+      const reversedExtensions = await rename.evaluate(element => {
+        const reversed: string[] = []
+        const texts = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+        while (texts.nextNode()) {
+          const node = texts.currentNode
+          for (const match of (node.textContent ?? '').matchAll(/\.(?:pdf|txt)/g)) {
+            const range = document.createRange()
+            range.setStart(node, match.index)
+            range.setEnd(node, match.index + 1)
+            const dot = range.getBoundingClientRect()
+            range.setStart(node, match.index + 1)
+            range.setEnd(node, match.index + 2)
+            const firstLetter = range.getBoundingClientRect()
+            if (dot.left >= firstLetter.left) reversed.push(match[0])
+          }
+        }
+        return reversed
+      })
+      expect(reversedExtensions, 'Each extension displays its dot before its letters').toEqual([])
       await page.screenshot({ path: info.outputPath(`${tag}-extension.png`), fullPage: true })
       const splitWords = await rename.locator('.app-button__label').evaluateAll(labels => labels.flatMap(label => {
         const broken: string[] = []

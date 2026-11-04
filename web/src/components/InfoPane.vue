@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { I18nT, useI18n } from 'vue-i18n'
 
 import { ApiError } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
@@ -506,15 +506,26 @@ watch(
             role="alertdialog"
             :aria-label="labelOf('filename')"
           >
-            <p>
-              {{ t('Are you sure you want to change the file extension from “{from}” to “{to}”?', pendingName) }}
-            </p>
+            <I18nT
+              tag="p"
+              keypath="Are you sure you want to change the file extension from “{from}” to “{to}”?"
+              scope="global"
+            >
+              <template #from><bdi dir="ltr">{{ pendingName.from }}</bdi></template>
+              <template #to><bdi dir="ltr">{{ pendingName.to }}</bdi></template>
+            </I18nT>
             <p>{{ t('If you change the extension, the file may open in a different application.') }}</p>
             <div class="info__buttons">
               <AppButton variant="text" @click="settleName(true)">
-                {{ t('Keep {extension}', { extension: pendingName.from }) }}
+                <I18nT keypath="Keep {extension}" scope="global">
+                  <template #extension><bdi dir="ltr">{{ pendingName.from }}</bdi></template>
+                </I18nT>
               </AppButton>
-              <AppButton @click="settleName(false)">{{ t('Use {extension}', { extension: pendingName.to }) }}</AppButton>
+              <AppButton @click="settleName(false)">
+                <I18nT keypath="Use {extension}" scope="global">
+                  <template #extension><bdi dir="ltr">{{ pendingName.to }}</bdi></template>
+                </I18nT>
+              </AppButton>
             </div>
           </div>
           <p v-if="failure?.name === name" class="info__error" role="alert">{{ failure.message }}</p>
