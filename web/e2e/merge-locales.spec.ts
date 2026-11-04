@@ -3,6 +3,7 @@ import { accessibilityProblems, expect, signIn, state, test } from './state'
 const labels = {
   af: { duplicates: 'Duplikaatitems', merge: 'Voeg items saam', select: 'Kies', merged: 'Items saamgevoeg.' },
   bg: { duplicates: 'Дублирани записи', merge: 'Сливане на записите', select: 'Избиране', merged: 'Записите са слети.' },
+  es: { duplicates: 'Elementos duplicados', merge: 'Fusionar elementos', select: 'Seleccionar', merged: 'Elementos fusionados.' },
   hr: { duplicates: 'Duplicirane stavke', merge: 'Spoji stavke', select: 'Odaberi', merged: 'Stavke su spojene.' },
   id: { duplicates: 'Item duplikat', merge: 'Gabungkan Item', select: 'Pilih', merged: 'Item digabungkan.' },
   km: { duplicates: 'ឯកសារត្រួត', merge: 'បញ្ចូលឯកសារចូលគ្នា', select: 'ជ្រើសរើស', merged: 'បានបញ្ចូលឯកសារចូលគ្នា។' },

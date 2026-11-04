@@ -315,6 +315,30 @@ describe('Dutch address and library terms', () => {
   })
 })
 
+describe('Spanish address', () => {
+  it('uses formal address rather than informal pronouns', () => {
+    const informal = /(?<!\p{L})(?:tú|tu|tus|te|ti|contigo|tuyo|tuya|tuyos|tuyas)(?!\p{L})/iu
+    expect(Object.entries(es).filter(([, translated]) => informal.test(translated))).toEqual([])
+  })
+
+  it('keeps second-person verbs in the formal form', () => {
+    const informal = /(?<!\p{L})(?:puedes|tienes|editabas|quieres|pertenezcas|elijas|dejes|añadas|incluyas|hayas|tengas|digas|sigues|elimines)(?!\p{L})/iu
+    expect(Object.entries(es).filter(([, translated]) => informal.test(translated))).toEqual([])
+  })
+
+  it('uses formal imperatives in direct instructions', () => {
+    // These forms are unambiguous in the reviewed instructions. Keep third-
+    // person descriptions such as “Deja de funcionar”, “pide un código” and
+    // “crea una clave”. Ambiguous verbs cannot be banned catalog-wide.
+    const informal = /(?<!\p{L})(?:selecciona|escribe|escanea|repite|abre|añade|elige|apunta|sincroniza|dales|cópialo|cópiala|acéptalo|permítele|guárdala|guárdalo|restáuralo|déjalo|indícalo|pégala|revísala|inténtalo|súbelos)(?!\p{L})/iu
+    expect(Object.entries(es).filter(([, translated]) => informal.test(translated))).toEqual([])
+  })
+
+  it('uses the master-item label in merge instructions', () => {
+    expect(es['Choose the version of the item to use as the master item:'].toLowerCase()).toContain(es['Master item'].toLowerCase())
+  })
+})
+
 describe('German address', () => {
   it('avoids informal pronouns and singular commands', () => {
     // Neutral instructions first; use formal Sie where direct address helps.

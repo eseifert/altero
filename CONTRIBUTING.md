@@ -321,6 +321,11 @@ Dutch uses formal `u/uw`, including device and application-consent instructions.
 Permissions name notes as `aantekeningen`, matching Zotero and the library
 controls. Preserve that vocabulary when adding permission descriptions.
 
+Spanish uses formal `usted`, with matching `su` and verb forms, across account,
+library and publishing screens. Neutral action labels can use the infinitive.
+Keep third-person descriptions intact: `pide un código` describes the sign-in
+process, while `crea una clave` describes what linking Zotero does.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

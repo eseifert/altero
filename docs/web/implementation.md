@@ -67,6 +67,12 @@ Dutch checks cover formal address on device and connected-application pages.
 They inspect device-page instructions without completing an authorization;
 catalog checks also keep permission and merge terms aligned with library labels.
 
+Spanish checks cover formal instructions during key issuance, import review,
+owner-profile display and duplicate merging. Publishing checks upload a file,
+answer the translated licence questions and verify the stored licence and
+downloaded bytes. Catalogue guards distinguish direct address from third-person
+descriptions; browser checks establish behavior, not native-speaker approval.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,
