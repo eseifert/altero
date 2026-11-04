@@ -40,6 +40,10 @@ desktop and phone, so older items can leave the first page. Drag tests create a
 long collection tree and bring the target into view before dropping; temporary
 paging and tree fixtures are removed after each case.
 
+API-key checks keep activity metadata inside its card at both viewport sizes
+and create a key through the visible controls. The metadata column can shrink
+so a long last-use line does not widen the page or push Revoke off-screen.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

@@ -166,6 +166,11 @@ function lastSeen(entry: KeyEntry): string {
 <style scoped>
 @import '@/styles/settings.css';
 
+/* Let the activity line clip within its row rather than widen the page. */
+.settings__list li > div {
+  min-inline-size: 0;
+}
+
 .settings__usage {
   overflow: hidden;
   text-overflow: ellipsis;
