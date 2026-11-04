@@ -1877,6 +1877,18 @@ owner-profile display and duplicate merging. Publishing checks upload a file,
 answer the translated licence questions and verify the stored licence and
 downloaded bytes. Catalogue guards distinguish direct address from third-person
 descriptions; browser checks establish behavior, not native-speaker approval.</p>
+<p>Editing-confirmation checks cover English, Afrikaans and Arabic at both viewport
+sizes, including formal Afrikaans warnings. They detect words split across
+button lines and buttons overflowing the prompt, accept the changes and verify
+the stored type, filename and unchanged downloaded bytes. In narrow fields,
+confirmation buttons can move to another row rather than squeezing their labels.
+Extension tokens use isolated left-to-right text inside the translated prompt
+and buttons. Browser checks compare the dot's painted position with the first
+letter so an Arabic sentence cannot silently display <code>.pdf</code> as <code>pdf.</code>.</p>
+<p>Spanish and European Portuguese password checks use a second browser context
+signed in to a disposable account. Administrator-set passwords and reset links
+both show translated session-ending notices, invalidate that account's old
+session and leave the browser open. The final password must work on sign-in.</p>
 <p><code>pwa-updates.spec.ts</code> serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,
