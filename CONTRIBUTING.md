@@ -292,6 +292,12 @@ consistently. Keep third-person pronouns and quoted interface labels intact.
 The catalog checks guard against informal German address alongside missing
 messages, changed placeholders and incorrect plural counts.
 
+Keep each catalog's script consistent, including strings taken from upstream.
+Serbian uses Cyrillic for translated prose and controls; product names,
+protocol identifiers, keyboard labels and quoted navigation labels retain
+their original spelling. Creator-name hints describe given and family names,
+not ordinal positions.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

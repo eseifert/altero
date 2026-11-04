@@ -246,6 +246,19 @@ describe('German address', () => {
   })
 })
 
+describe('Serbian script', () => {
+  it('uses Cyrillic for prose while preserving product names and protocol labels', () => {
+    for (const [key, translated] of Object.entries(sr)) {
+      const prose = translated
+        .replace(/\{[a-zA-Z]+\}/g, '')
+        .replace(/\/\.well-known\/openid-configuration/g, '')
+        .replace(/\b(?:Creative Commons|OpenID Connect|HTTP-Redirect|ALTERO_PUBLIC_URL|zotero\.org|WebDAV|Zotero|altero|Yubikey|API|SAML|PEM|URL|Entity ID|ID|Issuer|Web|Settings|Security|Applications|Ctrl|Del|End|Enter|Esc|Home|Page Down|Page Up|Shift)\b/g, '')
+
+      expect(prose, key).not.toMatch(/\p{Script=Latin}/u)
+    }
+  })
+})
+
 describe('Shahmukhi Punjabi', () => {
   it('uses the Arabic script throughout, without Gurmukhi characters', () => {
     for (const translated of Object.values(paArab)) {

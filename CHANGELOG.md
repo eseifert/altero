@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Keep Serbian creator controls in Cyrillic, label given and family names correctly, and use the same Trash term throughout.
 - Use neutral German instructions and consistent formal address across account, library and publishing pages.
 - Keep API-key activity inside its card so phone users can reach Revoke and create another key without page overflow.
 - Document zotero.org sync limits: one-time import today, no transparent two-way sync, and one-way refresh deferred beyond 1.0.

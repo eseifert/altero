@@ -1,4 +1,40 @@
-import { accessibilityProblems, expect, PASSWORD, signIn, test } from './state'
+import { accessibilityProblems, expect, openItem, PASSWORD, signIn, state, test } from './state'
+
+test.describe('Serbian', () => {
+  test.use({ locale: 'sr-RS' })
+
+  test('edits a creator using Cyrillic names and controls', async ({ page, request }, info) => {
+    const title = `Serbian creator ${info.project.name}`
+    const headers = { 'Zotero-API-Key': state().key }
+    const created = await request.post('/users/1/items', {
+      headers, data: [{ itemType: 'book', title,
+        creators: [{ creatorType: 'author', firstName: 'Иво', lastName: 'Андрић' }] }],
+    })
+    expect(created.ok()).toBe(true)
+    const body = await created.json()
+    expect(body.failed).toEqual({})
+    const key = body.successful['0'].key as string
+    await signIn(page)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'sr')
+    await openItem(page, title)
+    const firstName = page.getByRole('textbox', { name: 'име', exact: true })
+    const lastName = page.getByRole('textbox', { name: 'презиме', exact: true })
+    await expect(firstName).toHaveValue('Иво')
+    await expect(lastName).toHaveValue('Андрић')
+    await firstName.fill('Иван')
+    await firstName.press('Enter')
+    await expect.poll(async () => {
+      const stored = await request.get(`/users/1/items/${key}`, { headers })
+      return (await stored.json()).data.creators
+    }).toEqual([{ creatorType: 'author', firstName: 'Иван', lastName: 'Андрић' }])
+    await expect(page.getByRole('button', { name: 'Додај аутора', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Уклони аутора', exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Више опција…', exact: true }).click()
+    await expect(page.getByRole('menuitem', { name: 'Пребаци на једно поље' })).toBeVisible()
+    await page.screenshot({ path: info.outputPath('serbian-creator.png'), fullPage: true })
+    expect(await accessibilityProblems(page)).toEqual([])
+  })
+})
 
 test.describe('German', () => {
   test.use({ locale: 'de-DE' })
