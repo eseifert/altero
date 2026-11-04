@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Add a repeatable beta upgrade check using isolated tagged sources, disposable databases and live HTTP.
+- Check populated beta upgrades on disposable databases over live HTTP, including files, search, permissions and repeat startup.
 - Give icon tools and touch buttons a press wash that clears on release, scrolling or cancellation without moving the target.
 - Announce successful share-link copies and prevent older clipboard requests from confirming a replacement link or clearing newer feedback.
 - Show added and removed item tag chips immediately while saving; roll back refused changes without losing queued edits.

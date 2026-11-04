@@ -200,9 +200,16 @@ All databases, extracted tagged sources and logs remain available for inspection
 `report.json` records source commits, revisions and results. The runner uses the
 installed dependencies, adding legacy `httpx` for the older application imports;
 it does not reproduce historical dependency locks or build browser assets.
-The initial check covers schema/model agreement, account and group provisioning,
-startup and authenticated API reads. Populated-library preservation needs its
-own assertions in addition to this smoke check.
+Each tagged server populates a personal and group library through real HTTP:
+items, creators, tags, a note, nested collections, a saved search, settings,
+trash, a deletion, full text, a plain file and a snapshot ZIP with an auxiliary
+resource. The upgraded server must preserve their data, versions, searchable
+text and downloaded bytes. Only the documented child-membership repair and
+empty-creator response shape may differ. Existing API keys and read-only group
+permissions must still work; a new write must advance once and a stale write
+must fail. Repeating migrations and restarting must preserve the new state.
+This is a fixed corpus, not coverage of every historical setting or credential;
+actual desktop acceptance remains a separate check.
 
 ## Documentation
 

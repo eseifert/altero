@@ -26,6 +26,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 ROOT = Path(__file__).resolve().parents[1]
 KEY = "UpgradeCheckKey23456789abc"
+READER_KEY = "UpgradeReaderKey23456789a"
 
 
 def beta_tags(root: Path) -> list[str]:
@@ -171,13 +172,26 @@ async def worker(fd: int, seed: bool) -> None:
             )
             key.key = KEY
             await session.commit()
-            await admin.create_group(
+            group = await admin.create_group(
                 session, name="Upgrade group", owner_username="upgrade", group_id=2
             )
+            await admin.create_user(session, username="reader", user_id=2)
+            reader_key = await admin.create_api_key(
+                session,
+                username="reader",
+                name="Disposable read-only membership",
+                all_groups_read=True,
+                all_groups_write=True,
+            )
+            reader_key.key = READER_KEY
+            await session.commit()
+            await admin.add_group_member(session, group, username="reader", permission="read")
     await uvicorn.Server(uvicorn.Config(app, fd=fd, log_level="warning", access_log=False)).serve()
 
 
 async def matrix(state: Path, tags: list[str], postgres_url: str | None) -> None:
+    from tools.upgrade_corpus import check_new_writes, check_preserved, populate, snapshot
+
     state.mkdir(parents=True, exist_ok=False)
     report: dict = {
         "target": subprocess.check_output(
@@ -209,11 +223,22 @@ async def matrix(state: Path, tags: list[str], postgres_url: str | None) -> None
                         assert result["before"]["version"] == tag.replace("v", "").replace(
                             "-beta.", "b"
                         )
+                        await populate(client)
+                        before = await snapshot(client)
+                        (cell / "before.json").write_text(json.dumps(before, indent=2) + "\n")
                     await migrate(ROOT, current_env, cell, "after")
                     async with live_server(ROOT, current_env, cell, "after") as client:
                         result["after"] = (await client.get("/health")).json()
-                        response = await client.get("/users/1/items")
-                        assert response.status_code == 200
+                        after = await snapshot(client)
+                        (cell / "after.json").write_text(json.dumps(after, indent=2) + "\n")
+                        check_preserved(before, after)
+                        await check_new_writes(client, after)
+                        written = await snapshot(client)
+                    await migrate(ROOT, current_env, cell, "restart")
+                    async with live_server(ROOT, current_env, cell, "restart") as client:
+                        assert await snapshot(client) == written, (
+                            "Repeat startup changed library data"
+                        )
                     result["status"] = "passed"
                     print(f"{tag} {backend}: passed", flush=True)
                 except BaseException:

@@ -4,7 +4,43 @@ from pathlib import Path
 
 import pytest
 
-from tools.upgrade_paths import beta_tags, environment
+from tools.upgrade_corpus import check_preserved
+from tools.upgrade_paths import beta_tags, environment, fresh_postgres, matrix
+
+
+def test_preservation_refuses_lost_data_and_unexpected_versions() -> None:
+    before = {
+        "/users/1": {
+            "version": 10,
+            "items": {
+                "BKKK2345": {"title": "Keep me", "version": 4},
+                "NNTT2345": {"note": "Keep note", "version": 5, "collections": ["AAAA2345"]},
+            },
+        }
+    }
+    after: dict = {
+        "/users/1": {
+            "version": 11,
+            "items": {
+                "BKKK2345": {"title": "Keep me", "version": 4},
+                "NNTT2345": {"note": "Keep note", "version": 11, "collections": []},
+            },
+        }
+    }
+    import copy
+
+    check_preserved(before, after)
+    for key, field, value in (
+        ("BKKK2345", "title", "Lost"),
+        ("BKKK2345", "version", 11),
+        ("NNTT2345", "note", ""),
+        ("NNTT2345", "version", 5),
+        ("NNTT2345", "collections", ["AAAA2345"]),
+    ):
+        broken = copy.deepcopy(after)
+        broken["/users/1"]["items"][key][field] = value
+        with pytest.raises(AssertionError):
+            check_preserved(before, broken)
 
 
 def test_beta_tags_are_complete_ordered_and_exclude_other_releases(tmp_path: Path) -> None:
@@ -48,3 +84,39 @@ def test_upgrade_cannot_inherit_an_operators_configuration(
     assert "ALTERO_RETENTION_INTERVAL" not in env
     assert "ALTERO_PUBLIC_URL" not in env
     assert env["PYTHONPATH"] == str(tmp_path / "src")
+
+
+async def test_existing_state_is_never_reused(tmp_path: Path) -> None:
+    sentinel = tmp_path / "keep.txt"
+    sentinel.write_text("Keep previous evidence")
+    with pytest.raises(FileExistsError):
+        await matrix(tmp_path, ["v1.0.0-beta.1"], None)
+    assert sentinel.read_text() == "Keep previous evidence"
+
+
+async def test_postgres_option_refuses_another_database_driver(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="postgresql\\+asyncpg"):
+        await fresh_postgres(tmp_path, "sqlite+aiosqlite:///important.sqlite")
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_unaffected_library_versions_cannot_move() -> None:
+    before = {
+        "/users/1": {
+            "version": 10,
+            "items": {
+                "NNTT2345": {"version": 5, "collections": []},
+            },
+        }
+    }
+    check_preserved(before, before)
+    changed = {
+        "/users/1": {
+            "version": 11,
+            "items": {
+                "NNTT2345": {"version": 5, "collections": []},
+            },
+        }
+    }
+    with pytest.raises(AssertionError):
+        check_preserved(before, changed)
