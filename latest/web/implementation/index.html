@@ -1872,6 +1872,17 @@ steady reduced-motion highlight, and verify persisted collection memberships.
 Cancellation and refused writes produce no confirmation. Unit checks also cover
 late completions after cancellation, another gesture or unmount, and rechecking
 the target at release. This is Chromium evidence; Safari remains unverified.</p>
+<p>Feedback checks hold item listings to inspect skeleton rows in English/Arabic
+and normal/reduced motion, then press icon tools with a real mouse, touch and
+Space. Tag checks hold/refuse writes, verify immediate chips and selective
+rollback, and read persisted tags through the API and after reload. Clipboard
+checks copy a real share link, read it back from Chromium's clipboard and keep
+the Copy button's accessible name alongside its live success announcement.</p>
+<p>Touch press feedback supplements native <code>:active</code> on standard buttons and icon
+tools. Passive pointer listeners leave clicks and scrolling to the browser;
+release, cancellation, moving away, scrolling and window blur clear the wash.
+Field blur inside the page leaves it visible, and ending the app scope removes
+the listeners. The wash preserves the target's geometry and selected fill.</p>
 <h3 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h3>
 <p>The design follows Material 3 with a teal accent, and light and dark follow the
 operating system unless the user picks one. What altero does inside that frame
@@ -1921,8 +1932,12 @@ rename state, cancellation and errors. Its caller supplies the existing
 rename operation and enables library filtering or item-only removal. Library
 pills show the item count between the name and pencil. The name reserves its
 space while an overlaid input edits it, preserving pill geometry and background;
-validation errors appear below the pill. Item tag writes remain queued and
-rebase onto newer tags as before. Both panels use <code>items/tags.ts</code> to order
+validation errors appear below the pill. Item additions and removals project
+pending operations over the latest server tags without changing the synced
+item or its version. Writes remain queued and rebase onto newer tags; a refusal
+removes only its own projection. Leaving the item discards unsent operations.
+Inline renames keep their draft and error field until the server answers.
+Both panels use <code>items/tags.ts</code> to order
 colored tags by position, then emoji tags, then the rest, with locale-aware
 alphabetization. The selector sorts a copy for display, preserving API order.</p>
 <h3 id="durable-sign-in-budgets">Durable sign-in budgets<a class="headerlink" href="#durable-sign-in-budgets" title="Permanent link">&para;</a></h3>
