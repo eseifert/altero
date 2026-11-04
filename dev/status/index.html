@@ -1750,6 +1750,9 @@ database/scenario combinations and 838 phases on Linux, across SQLite and
 PostgreSQL 18.4. This verifies the recorded transitions, not every client path
 or platform. See
 <a href="../client-compatibility/">desktop compatibility coverage and gaps</a>.</p>
+<p>Populated databases from every beta through beta.7 pass direct upgrades to the
+current development schema on SQLite and PostgreSQL, including attachment
+downloads and repeat startup. See the <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation">upgrade matrix and limits</a>.</p>
 <p>One confirmed issue remains in Zotero 10.0.1 itself: when file-conflict sides
 have equal displayed modification dates, choosing Remote can retain the local
 bytes. See <a href="../client-compatibility/#run-two-real-desktop-profiles">the reproduced client behavior</a>.</p>
