@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.models import Library, LibraryType
 from altero.query import ITEM_SORT_FIELDS, Direction, Format, parse_list_query
 from altero.services.auth import get_library
-from tests.factories import make_api_key, make_item, make_user, tag_item
+from tests.factories import make_api_key, make_collection, make_item, make_user, tag_item
 
 KEY = "P9NiFoyLeZu2bZNvvuQPDWsd"
 AUTH = {"Zotero-API-Key": KEY}
@@ -29,6 +29,22 @@ async def library(session: AsyncSession) -> Library:
     library.version = 10
     await session.commit()
     return library
+
+
+class TestUnfiledIsNotAV3Filter:
+    async def test_browser_scope_parameters_do_not_narrow_v3_item_downloads(
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        filed = await make_item(session, library, key="AAAA2345")
+        loose = await make_item(session, library, key="BBBB2345")
+        await make_collection(session, library, key="COLL2345", items=[filed])
+
+        for query in ("scope=unfiled", "unfiled=1"):
+            response = await client.get(f"/users/1/items?{query}", headers=AUTH)
+            assert response.status_code == 200
+            assert {item["key"] for item in response.json()} == {filed.key, loose.key}
+        response = await client.get("/users/1/items/unfiled", headers=AUTH)
+        assert response.status_code == 404
 
 
 class TestUnlimitedSyncFormats:

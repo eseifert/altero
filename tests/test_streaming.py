@@ -401,6 +401,30 @@ class TestWhatTheClientAsksFor:
 
 
 class TestEvents:
+    async def test_a_group_rename_announces_the_version_clients_use_to_refresh_it(
+        self, account, session: AsyncSession, http: TestClient
+    ) -> None:
+        """A name change must reach subscribers without another item write."""
+        await factories.make_group(session, group_id=7, owner_id=1)
+        key = "GroupWriterKeyGroupWriter"
+        await factories.make_api_key(session, key=key, all_groups_read=True, all_groups_write=True)
+        headers = {"Zotero-API-Key": key}
+        before = http.get("/groups/7", headers=headers).json()
+
+        with http.websocket_connect(STREAM_PATH, headers=headers) as socket:
+            receive(socket)
+            renamed = http.patch("/groups/7", json={"name": "Renamed"}, headers=headers)
+            assert renamed.status_code == 200
+            (event,) = receive(socket)
+
+        version = before["version"] + 1
+        assert event == {"event": "topicUpdated", "topic": "/groups/7", "version": version}
+        assert renamed.json()["data"]["name"] == "Renamed"
+        assert renamed.json()["version"] == version
+        versions = http.get("/users/1/groups?format=versions", headers=headers)
+        assert versions.json() == {"7": version}
+        assert http.get("/groups/7", headers=headers).json() == renamed.json()
+
     async def test_a_write_announces_the_library_and_its_new_version(
         self, account, http: TestClient
     ) -> None:

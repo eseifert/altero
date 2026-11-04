@@ -79,6 +79,24 @@ Neither the matched item nor the parent it resolves to may be in the trash, so a
 
 **A tag search minds case.** `/tags?q=fic` does not find *Fiction*, as on zotero.org and in the desktop's own local API. `%` and `_` act as wildcards there too, and `\` escapes them: searching for `50\%` finds *50%* but not *500*.
 
+### Tag counts and the trash
+
+**Library-wide tag counts include trashed items.** `/users/<id>/tags` and
+`/groups/<id>/tags`, including a tag fetched by name, retain
+[dataserver#51](https://github.com/zotero/dataserver/issues/51). A tag on one
+live item and one trashed item reports `meta.numItems: 2`; a tag carried only
+by trash remains listed. `includeTrashed=0` does not change these library-wide
+counts. The reviewed [tag serializer](https://github.com/zotero/dataserver/blob/6e091852b8a3e369056f390ba69e5de90cda1134/model/Tag.inc.php#L487-L493)
+counts linked items without filtering the deletion flag. This is source
+evidence, not a new live zotero.org measurement.
+
+Use `/items/tags` for tags counted over non-trashed items, or
+`/items/trash/tags` for the trash alone. altero counts item-scoped tags over
+the matching items: `includeTrashed=1` widens `/items/tags`, and collection
+scopes keep their own counts. The browser uses these scoped counts. Confined
+OAuth grants still restrict which items any count may include; the quirk never
+bypasses a grant's collection restrictions.
+
 ### Who added an item, and who last changed it
 
 In group libraries, an item's `meta` names who created it and who last changed it. Both behaviors below are copied, including the parts that look like oversights.
@@ -583,6 +601,21 @@ Two of these are altero's own rules. A key must be allowed to write to the group
 
 Changing a group's details or its members advances the library's version. zotero.org keeps a separate group version; altero reports the library's for both. A role change therefore costs connected clients one sync that finds nothing new — the cheaper mistake, since a client that has not noticed a demotion still believes it may write.
 
+#### Group renames notify connected clients
+
+altero deliberately sends the committed library-version notification for a
+rename too. [dataserver#92](https://github.com/zotero/dataserver/issues/92)
+reports a missing name-change notification upstream, but was itself filed as
+unverified. The reviewed [group save path](https://github.com/zotero/dataserver/blob/6e091852b8a3e369056f390ba69e5de90cda1134/model/Group.inc.php#L518-L663)
+increments the separate group version; its notification calls concern owner
+transfers. We have not retested the hosted service's rename notifications.
+
+Retain altero's existing version bump and `/groups/<id>` `topicUpdated` event.
+The desktop uses `/users/<id>/groups?format=versions` to decide whether to
+fetch the group again. A rename therefore refreshes the cached name without
+waiting for an unrelated item write. The event, group response and version
+listing agree on the new version; item versions need not change.
+
 #### Who the client finds in a group
 
 **Group listings always carry a `Link` header**, even when empty or a single page. The desktop's account settings read it unconditionally and fail without it. zotero.org always includes an `alternate` link to itself; altero includes `self` instead. A page holds 25 groups by default; `format=versions` is unlimited.
@@ -655,6 +688,15 @@ The browser's tag list uses the same rename — see [Tags](web-interface.md#tags
 The desktop's sidebar shows **Recently Read**, **Duplicate Items** and **Unfiled Items**, all worked out from its local copy of the library. zotero.org's API has none of them, so altero's versions exist only in its browser interface; the v3 API is unchanged.
 
 **Unfiled Items** needs no interpretation: top-level items in no collection and not in the trash.
+
+**Keep Unfiled out of the v3 API.** The upstream request remains
+[dataserver#11](https://github.com/zotero/dataserver/issues/11). altero serves
+the view at `/web/libraries/<id>/items?scope=unfiled`, authenticated by browser
+session. There is no v3 `/items/unfiled` endpoint. Unknown v3 query parameters
+are ignored, so adding `scope=unfiled` or `unfiled=1` to `/items` still returns
+the ordinary item listing. Applications must not treat those parameters as a
+filter. Desktop synchronization continues to download the library and compute
+Unfiled locally; no extension is needed for that workflow.
 
 **Duplicate Items** is a judgment. Two items count as the same work if they share a DOI or ISBN (ignoring punctuation, case and any `https://doi.org/` prefix), or if they share a title (ignoring punctuation and case) *and* a creator surname or year. A title alone is not enough, because many works are called "Introduction"; only when neither item has a creator or a year does the title stand alone. Item types are not compared, so a book and a chapter of it appear as a pair. Notes, attachments and annotations are never compared.
 

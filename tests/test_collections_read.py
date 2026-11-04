@@ -171,6 +171,28 @@ class TestSearches:
 
 
 class TestTags:
+    @pytest.mark.parametrize("path", ["/tags", "/tags?includeTrashed=0", "/tags/shared"])
+    async def test_library_tag_counts_include_trashed_items(
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library, path: str
+    ) -> None:
+        """Keep dataserver#51: library tags count all linked items."""
+        live = await make_item(session, library, key="AAAA2345")
+        trashed = await make_item(session, library, key="BBBB2345", deleted=True)
+        for item in (live, trashed):
+            await tag_item(session, library, item, "shared")
+        await tag_item(session, library, trashed, "trash-only")
+
+        response = await client.get(f"/users/1{path}", headers=AUTH)
+
+        assert response.status_code == 200
+        if path == "/tags/shared":
+            assert response.json()["meta"]["numItems"] == 2
+        else:
+            assert {tag["tag"]: tag["meta"]["numItems"] for tag in response.json()} == {
+                "shared": 2,
+                "trash-only": 1,
+            }
+
     async def test_tags_are_returned_with_their_counts(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
@@ -323,7 +345,7 @@ class TestScopedTags:
             response = await client.get(f"/users/1/items/{scope}/tags", headers=AUTH)
             assert response.status_code == 200, scope
 
-    async def test_a_scoped_listing_still_counts_across_the_library(
+    async def test_a_scoped_listing_counts_only_its_items(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
         one = await make_item(session, library, key="AAAA2345")

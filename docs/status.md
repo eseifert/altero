@@ -68,6 +68,10 @@ altero implements the parts of the v3 API needed by the desktop client, includin
 
 The compatibility reference documents behavior that differs from the public API documentation or that had to be learned from the real client or server: [Compatibility notes](compatibility.md).
 
+Three explicit choices: [library tag counts include trash](compatibility.md#tag-counts-and-the-trash),
+[group renames notify clients](compatibility.md#group-renames-notify-connected-clients),
+and [Unfiled is a browser-only view](compatibility.md#the-desktop-clients-three-extra-views).
+
 ## Additional altero features
 
 These are not required for basic Zotero compatibility but are available on an altero instance:
