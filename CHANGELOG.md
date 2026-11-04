@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Document zotero.org sync limits: one-time import today, no transparent two-way sync, and one-way refresh deferred beyond 1.0.
 - Record compatibility decisions for tag counts including trash, group-rename notifications and browser-only Unfiled Items.
 - Clarify Windows/macOS desktop coverage and add a two-client testing checklist for community reports.
 - Verify populated beta upgrades in CI on SQLite and PostgreSQL, preserving files, search, permissions and repeat startup.

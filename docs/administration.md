@@ -482,6 +482,12 @@ The browser exposes equivalent import/export operations under **Settings → Imp
 
 ### Move a personal library from zotero.org
 
+This is a one-time migration. It does not keep the two servers synchronized
+afterwards. Finish syncing to zotero.org before importing, and pause edits
+until the clients have moved to altero. Continuous two-way sync is unsupported;
+a scheduled one-way refresh is future work. See
+[the verdict and replacement-import limits](compatibility.md#continuous-sync-with-zoteroorg).
+
 If possible, create the altero account with the same numeric user ID that zotero.org uses:
 
 ```sh

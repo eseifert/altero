@@ -716,7 +716,7 @@ that combination without detaching the note from its original PDF.
 
 ### Reading a library out of zotero.org
 
-This is the one place altero makes requests instead of answering them: it reads a personal library from api.zotero.org and turns it into the same archive `altero library export` writes, then restores that archive.
+The migration reads a personal library from api.zotero.org and turns it into the same archive `altero library export` writes, then restores that archive. It makes no writes to zotero.org.
 
 **It needs an API key.** zotero.org offers no password sign-in for software, and OAuth would require every altero instance to register with Zotero. The key is used for the import and then forgotten.
 
@@ -735,6 +735,38 @@ This is the one place altero makes requests instead of answering them: it reads 
 **`/tags?format=versions` fails on api.zotero.org** with a server error, for every library tried, including Zotero's own example account. A real import stopped on it after reading everything else. So the import treats only items, collections and saved searches as essential and stops if one cannot be read. Tag versions, settings, full text, the deletion log and attachment files are read if possible and listed in the report if not. A tag without a version gets the library's, which is the safe direction: clients asking what changed hear about it.
 
 **Pages are fetched by position**, not by following the `Link` header, because that header always points at api.zotero.org.
+
+### Continuous sync with zotero.org
+
+**Continuous two-way sync is unsupported and is not feasible as a transparent
+mode for unmodified Zotero Desktop.** Each server assigns library and object
+versions independently. After a migration, version 100 on altero and version
+100 on zotero.org can describe different changes. The desktop remembers one
+server's watermark and cached object versions; changing the API address does
+not reconcile those histories. Keeping the same account number and item keys
+does not solve that problem.
+
+A separate replication service would need its own per-server version history,
+conflict resolution, deletion tracking, relation mapping and attachment
+transfer. Copying objects and their version numbers back and forth is not such
+a service. altero does not provide one, and alternating a desktop between
+servers is not a supported way to keep them synchronized.
+
+**A periodic one-way refresh from zotero.org into altero is feasible as future
+work**, with zotero.org authoritative and the destination treated as a copy.
+It would need to apply upstream changes and deletions through altero's own
+versioned writes so already-connected clients can observe them. Local edits
+would need an explicit refusal or overwrite policy. This is a design
+assessment, not an implemented or tested refresh feature; scheduling and its
+implementation are deferred beyond 1.0.
+
+Today, the CLI and browser offer a one-time personal-library import. Repeating
+it with `--replace` restores a whole snapshot and can discard altero-only
+changes. It does not perform incremental reconciliation, and raising the
+library watermark alone cannot replace newer objects already cached by a
+desktop with older imported versions. See [the exercised recovery limits](client-compatibility.md#additional-desktop-scenarios).
+Use the [migration procedure](administration.md#move-a-personal-library-from-zoteroorg)
+to move to altero, then keep that library's clients pointed at altero.
 
 ## The authorization server
 
@@ -875,4 +907,4 @@ Seven places where altero does not copy zotero.org:
 - **Rate limiting is off unless configured.** A self-hosted server with a handful of clients rarely needs it; set `ALTERO_RATE_LIMIT` to turn it on.
 - **Fields with the same translated name may be ordered differently.** Three fields are called "Format"; zotero.org orders them by an internal number the published schema lacks.
 - **Tags can be renamed through the API** — see [Renaming a tag](#renaming-a-tag). An addition rather than a change: nothing that reads tags behaves differently.
-- **altero makes requests of its own**, in one place only: [reading a library out of zotero.org](#reading-a-library-out-of-zoteroorg).
+- **Library migration reads zotero.org** without writing back — see [import and continuous-sync limits](#continuous-sync-with-zoteroorg).

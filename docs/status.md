@@ -104,6 +104,7 @@ profile mismatch. These checks establish no OpenID certification.
 
 ## Not implemented
 
+- Continuous replication with zotero.org in either direction. The existing personal-library import is a one-time copy; [one-way refresh remains future work](compatibility.md#continuous-sync-with-zoteroorg).
 - Zotero's **Note HTML** and **Note Markdown** translators. These create a note rather than an ordinary bibliography/export response.
 - Zotero-hosted read-aloud speech synthesis and credit services (`/tts/...`).
 - Legacy password-to-key creation (`POST /keys`); use desktop browser linking or an API key.
