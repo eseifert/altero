@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Translate Tagalog account, formatting and provider labels; align email and library terms while preserving familiar software loanwords.
 - Add local wording to Khmer, Thai and Vietnamese sign-in provider labels while retaining the protocol terms.
 - Clarify given and family name labels in fifteen languages, including distinct Brazilian and European Portuguese terms.
 - Translate remaining English merge instructions in eight languages and align the pane's item and Trash terms with each catalog.

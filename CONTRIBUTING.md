@@ -312,6 +312,11 @@ In provider setup, local explanations can sit beside protocol terms such as
 `Client ID`, `Client secret` and `Issuer`, so administrators can match the fields
 to their provider's documentation.
 
+Keep established software loanwords when they fit the catalog's prose. Tagalog
+retains `library`, `email`, `password` and `time zone`; changing just one message
+to another term makes the interface less consistent. Account labels and note
+formatting tools still need natural local wording.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

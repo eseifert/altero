@@ -59,6 +59,10 @@ Provider-form checks cover Khmer, Thai and Vietnamese labels, including the
 masked client-secret field. They fill a draft against the real administration
 page; they do not save a provider or establish an external sign-in.
 
+Tagalog checks save and reload a display name, format a note through translated
+controls and inspect provider drafts. Familiar borrowed terms stay in the
+catalog; the checks do not treat every word shared with English as a gap.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

@@ -284,6 +284,20 @@ describe.each([['km', km], ['th', th], ['vi', vi]] as const)('provider labels in
   })
 })
 
+describe('Tagalog terminology', () => {
+  it.each([
+    'Display name', 'Email address', 'Visibility', 'Storage', 'Migration revision',
+    'Callback address', 'Client ID', 'Client secret', 'Issuer', 'Sign-on URL', 'Signing certificate',
+    'Heading 1', 'Heading 2', 'Heading 3', 'Bold', 'Italic', 'Strikethrough',
+  ] as const)('localizes the reviewed label “%s”', (key) => {
+    expect(tl[key]).not.toBe(key)
+  })
+
+  it('uses the same library term in Undo as in the rest of the interface', () => {
+    expect(tl['Undo is no longer available because the library changed.']).toContain(tl.Library.toLowerCase())
+  })
+})
+
 describe('German address', () => {
   it('avoids informal pronouns and singular commands', () => {
     // Neutral instructions first; use formal Sie where direct address helps.

@@ -4,6 +4,7 @@ for (const [tag, issuer, client, secret] of [
   ['km', 'អ្នកចេញ (Issuer)', 'លេខសម្គាល់កម្មវិធី (Client ID)', 'សោសម្ងាត់កម្មវិធី (Client secret)'],
   ['th', 'ผู้ออก (Issuer)', 'รหัสไคลเอ็นต์ (Client ID)', 'ข้อมูลลับไคลเอ็นต์ (Client secret)'],
   ['vi', 'Bên phát hành (Issuer)', 'Mã ứng dụng khách (Client ID)', 'Mã bí mật ứng dụng khách (Client secret)'],
+  ['tl', 'Tagapag-isyu (Issuer)', 'ID ng application (Client ID)', 'Lihim ng application (Client secret)'],
 ] as const) {
   test.describe(`provider labels in ${tag}`, () => {
     test.use({ locale: tag })
