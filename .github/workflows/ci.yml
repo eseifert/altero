@@ -191,8 +191,26 @@ jobs:
   migrations:
     name: Migrations
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: altero
+          POSTGRES_PASSWORD: altero
+          POSTGRES_DB: altero
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U altero"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Tagged applications/migrations are the upgrade starting points.
+          fetch-depth: 0
 
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
@@ -214,6 +232,23 @@ jobs:
         env:
           ALTERO_DATABASE_URL: sqlite+aiosqlite:///ci.sqlite
         run: uv run alembic check
+
+      - name: Upgrade populated databases from every beta
+        run: >-
+          uv run --no-sync --with httpx==0.28.1 python -m tools.upgrade_paths
+          --state-dir .compatibility/upgrades
+          --postgres-url postgresql+asyncpg://altero:altero@localhost:5432/altero
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: beta-upgrade-results
+          include-hidden-files: true
+          path: |
+            .compatibility/upgrades/report.json
+            .compatibility/upgrades/*/*.json
+            .compatibility/upgrades/*/*.log
+          retention-days: 7
 
   docs:
     name: Documentation

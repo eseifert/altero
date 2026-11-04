@@ -113,6 +113,11 @@ Sync each desktop after upgrading. Affected items receive a new version so
 clients download the repair; their parents and attachment files stay intact.
 Source installations must run `uv run alembic upgrade head` before serving.
 
+Direct upgrades from beta.1 through beta.7 to the current development schema
+passed with populated personal and group libraries on SQLite and PostgreSQL.
+The checks include attachment bytes, full-text search, versions, permissions
+and repeat startup; see the [upgrade matrix and limits](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation).
+
 Upgrading from beta.2 or earlier builds the full-text search index once: about a minute per 30,000 attachment texts, and more disk. Check the [database requirements](#database-requirements) first.
 
 Upgrading from beta.5 or earlier renames attachment storage once, on the first start: every attachment file is read and hashed, so starting takes about as long as reading the storage directory from disk. Web snapshots are renamed to the digest of their own bytes. A file on a mount that cannot make hard links is copied first, so keep free space for your largest snapshot. Do not downgrade afterwards without restoring the storage backup as well.

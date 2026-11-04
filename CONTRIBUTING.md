@@ -184,6 +184,8 @@ that are worth a look.
 Keep to portable constructs. SQLite is the default and PostgreSQL is the
 supported deployment, so nothing may depend on features of one alone.
 
+### Beta upgrade validation
+
 To replay upgrades from every local `v1.0.0-beta.*` tag with live HTTP:
 
 ```sh
@@ -210,6 +212,27 @@ permissions must still work; a new write must advance once and a stale write
 must fail. Repeating migrations and restarting must preserve the new state.
 This is a fixed corpus, not coverage of every historical setting or credential;
 actual desktop acceptance remains a separate check.
+
+The migration CI job runs the full matrix and retains its JSON snapshots and
+logs as `beta-upgrade-results`. On 2026-11-04, all fourteen local combinations
+passed against target revision `b4e28a1c6709`:
+
+| Starting release | Source commit | Starting revision | SQLite | PostgreSQL 18 |
+|---|---|---|---|---|
+| beta.1 | `f38036bdd8cf` | `d7cd57abc8a4` | pass | pass |
+| beta.2 | `3c5963974153` | `d7cd57abc8a4` | pass | pass |
+| beta.3 | `3299558b6af0` | `a3f1c6d2e8b4` | pass | pass |
+| beta.4 | `11b928d4afc2` | `a3f1c6d2e8b4` | pass | pass |
+| beta.5 | `8f1b1cf68d28` | `a3f1c6d2e8b4` | pass | pass |
+| beta.6 | `9c0b5238536c` | `e5b8c1f07a26` | pass | pass |
+| beta.7 | `920a388d75d7` | `e5b8c1f07a26` | pass | pass |
+
+Nine deliberate losses were detected by assertion: item fields, note HTML,
+child-membership repair, its watermark, a collection, settings, a deletion,
+full text and downloaded attachment bytes. The byte check used a separate copy
+over live HTTP; restoring its bytes made the intact snapshot pass again.
+This local run does not establish a hosted CI result, historic dependency-lock
+compatibility, downgrade safety or a full desktop acceptance run.
 
 ## Documentation
 
@@ -334,7 +357,9 @@ The release version is **1.0.0-beta.7**, with tag `v1.0.0-beta.7`.
    Install the docs group for Zensical and put Node 24 on PATH for the web
    commands. Build the web interface before the Python artifacts so the wheel
    contains `/app/`. Verify migrations on an empty disposable database with
-   `uv run alembic upgrade head` and `uv run alembic check`. Review
+   `uv run alembic upgrade head` and `uv run alembic check`. Rerun the
+   [populated beta upgrade matrix](#beta-upgrade-validation) against the release
+   candidate and review
    [desktop compatibility results and limits](docs/client-compatibility.md);
    API and source replay tests alone do not establish real desktop acceptance.
 
