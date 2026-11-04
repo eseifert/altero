@@ -44,6 +44,12 @@ API-key checks keep activity metadata inside its card at both viewport sizes
 and create a key through the visible controls. The metadata column can shrink
 so a long last-use line does not widen the page or push Revoke off-screen.
 
+Language checks exercise German key issuance, import warnings and owner-profile
+text, plus Serbian creator-name edits verified through the API. Merge checks
+cover eight catalogs with former English fallbacks: type warnings, choosing a
+compatible subset, selecting a field value and checking the saved result.
+They check rendering and behavior, not native-speaker approval of every message.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

@@ -298,6 +298,12 @@ protocol identifiers, keyboard labels and quoted navigation labels retain
 their original spelling. Creator-name hints describe given and family names,
 not ordinal positions.
 
+Text identical to English is a review candidate, not automatically a missing
+translation: acronyms, key names and shared words may stay unchanged. Translate
+instructions even when Zotero's own catalog still has an English fallback.
+The merge-instruction checks cover that known gap; they do not establish a
+complete linguistic review of every message.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

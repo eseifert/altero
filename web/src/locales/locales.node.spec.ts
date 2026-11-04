@@ -195,6 +195,19 @@ describe.each(Object.entries(CATALOGUES))('the %s catalogue', (name, catalogue) 
     expect(extra).toEqual([])
   })
 
+  if (name !== 'en-GB') {
+    it('translates merge instructions instead of copying missing upstream translations', () => {
+      for (const key of [
+        'Merge Items',
+        'Choose the version of the item to use as the master item:',
+        'Select fields to keep from other versions of the item:',
+        'Merged items must all be of the same item type.',
+      ] as const) {
+        expect(catalogue[key], key).not.toBe(key)
+      }
+    })
+  }
+
   it('keeps every placeholder its English carries', () => {
     /* A dropped `{count}` renders the braces as text; an invented one renders
        nothing at all. Branch by branch rather than over the whole message,
