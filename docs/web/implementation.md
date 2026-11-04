@@ -73,6 +73,10 @@ answer the translated licence questions and verify the stored licence and
 downloaded bytes. Catalogue guards distinguish direct address from third-person
 descriptions; browser checks establish behavior, not native-speaker approval.
 
+Afrikaans checks read the item-type and file-extension warnings in formal
+address, accept the changes and verify the stored type, filename and unchanged
+downloaded bytes. The file-extension choice is exercised at both viewport sizes.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

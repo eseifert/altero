@@ -31,7 +31,7 @@ export default {
   'A file attached in two libraries is stored once and counted in both. The first number is what this server has to hold; the second is what the libraries would cost apart.':
     '’n Lêer wat in twee biblioteke aangeheg is, word een keer gestoor en in albei getel. Die eerste getal is wat hierdie bediener moet hou; die tweede is wat die biblioteke afsonderlik sou kos.',
   'A file on your computer cannot be linked from the browser.':
-    '’n Lêer op jou rekenaar kan nie vanuit die blaaier geskakel word nie.',
+    '’n Lêer op u rekenaar kan nie vanuit die blaaier geskakel word nie.',
   'A file the client asked to send and never sent. Nothing is lost: it asks again.':
     '’n Lêer wat die kliënt gevra het om te stuur en nooit gestuur het nie. Niks gaan verlore nie: dit vra weer.',
   'A group is a library of its own, shared with the people you add to it.':
@@ -117,8 +117,8 @@ export default {
   'Apply them now': 'Pas hulle nou toe',
   'Archive': 'Argief',
   'Are you sure you want to change the file extension from “{from}” to “{to}”?':
-    'Is jy seker jy wil die lêeruitbreiding van “{from}” na “{to}” verander?',
-  'Are you sure you want to change the item type?': 'Is jy seker jy wil die itemtipe verander?',
+    'Is u seker u wil die lêeruitbreiding van “{from}” na “{to}” verander?',
+  'Are you sure you want to change the item type?': 'Is u seker u wil die itemtipe verander?',
   'Ask for a new one. Your current password still works.':
     'Vra vir ’n nuwe een. U huidige wagwoord werk steeds.',
   'Ask whoever runs this server for a new one. Your current password still works.':
@@ -157,7 +157,7 @@ export default {
   'Change the rights': 'Verander die regte',
   'Change this provider': 'Verander hierdie verskaffer',
   'Change who can see it': 'Verander wie dit kan sien',
-  'Changed elsewhere while you were editing.': 'Elders verander terwyl jy dit gewysig het.',
+  'Changed elsewhere while you were editing.': 'Elders verander terwyl u dit gewysig het.',
   'Checked.': 'Gekontroleer.',
   'Checking the link…': 'Kontroleer die skakel…',
   'Checking the request…': 'Kontroleer die versoek…',
@@ -362,7 +362,7 @@ export default {
   'If an account here uses that address, a link to set a new password is on its way.':
     'As ’n rekening hier daardie adres gebruik, is ’n skakel om ’n nuwe wagwoord te stel op pad.',
   'If you change the extension, the file may open in a different application.':
-    'As jy die uitbreiding verander, kan die lêer in ’n ander toepassing oopmaak.',
+    'As u die uitbreiding verander, kan die lêer in ’n ander toepassing oopmaak.',
   'Image': 'Beeld',
   'Import and export': 'Invoer en uitvoer',
   'In the trash': 'In die asblik',

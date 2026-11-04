@@ -326,6 +326,9 @@ library and publishing screens. Neutral action labels can use the infinitive.
 Keep third-person descriptions intact: `pide un código` describes the sign-in
 process, while `crea una clave` describes what linking Zotero does.
 
+Afrikaans uses formal `u`, including editing conflicts and confirmation prompts;
+keep these consistent with its account and library instructions.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

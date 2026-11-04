@@ -339,6 +339,13 @@ describe('Spanish address', () => {
   })
 })
 
+describe('Afrikaans address', () => {
+  it('keeps formal address in editing messages as well as account instructions', () => {
+    const informal = /\b(?:jy|jou|joune|julle)\b/iu
+    expect(Object.entries(af).filter(([, translated]) => informal.test(translated))).toEqual([])
+  })
+})
+
 describe('German address', () => {
   it('avoids informal pronouns and singular commands', () => {
     // Neutral instructions first; use formal Sie where direct address helps.
