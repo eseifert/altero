@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AppIcon from '@/components/AppIcon.vue'
@@ -27,6 +27,9 @@ const library = useLibraryStore()
 const locale = useLocaleStore()
 
 type Tag = { tag: string; type?: number }
+type Change = (current: Tag[]) => Tag[]
+// A display overlay only: never mutate the synced item or its version.
+const pending = ref<{ change: Change }[]>([])
 
 const props = defineProps<{
   item: ItemEnvelope
@@ -39,7 +42,7 @@ const props = defineProps<{
 const colors = computed(() => colorIndex(library.tagColors))
 
 const tags = computed<Tag[]>(() =>
-  [...(props.item.data.tags ?? [])].sort((a, b) =>
+  [...pending.value.reduce((tags, edit) => edit.change(tags), props.item.data.tags ?? [])].sort((a, b) =>
     compareTags(a.tag, b.tag, colors.value, locale.formatting),
   ),
 )
@@ -50,6 +53,7 @@ const canEdit = computed(() => props.editable && Boolean(props.save))
 
 const failure = ref<string | null>(null)
 let queue: Promise<void> = Promise.resolve()
+let generation = 0
 
 /**
  * Apply ``change`` to the tags the item has when its turn comes.
@@ -57,10 +61,12 @@ let queue: Promise<void> = Promise.resolve()
  * Worked out then rather than now, because the change before it may still be
  * on its way and the item it answers with is the one this one builds on.
  */
-function write(change: (current: Tag[]) => Tag[]): Promise<void> {
-  const key = props.item.key
+function write(change: Change, optimistic = false): Promise<void> {
+  const run = generation
+  const edit = { change }
+  if (optimistic) pending.value = [...pending.value, edit]
   const result = queue.then(async () => {
-    if (props.item.key !== key) return
+    if (run !== generation) return
     const current = props.item.data.tags ?? []
     const next = change(current)
     if (!props.save || same(current, next)) return
@@ -77,7 +83,9 @@ function write(change: (current: Tag[]) => Tag[]): Promise<void> {
       },
     )
     // The sidebar lists the library's tags, and this may have made or emptied one.
-    void library.loadTags().catch(() => {})
+    if (run === generation) void library.loadTags().catch(() => {})
+  }).finally(() => {
+    if (run === generation) pending.value = pending.value.filter((entry) => entry.change !== change)
   })
   queue = result.catch(() => {})
   return result
@@ -85,12 +93,12 @@ function write(change: (current: Tag[]) => Tag[]): Promise<void> {
 
 /** Adding/removing reports below the section; the inline editor owns rename errors. */
 async function changeTags(change: (current: Tag[]) => Tag[]): Promise<void> {
-  const key = props.item.key
+  const run = generation
   failure.value = null
   try {
-    await write(change)
+    await write(change, true)
   } catch (thrown) {
-    if (props.item.key === key) failure.value = thrown instanceof Error ? thrown.message : String(thrown)
+    if (run === generation) failure.value = thrown instanceof Error ? thrown.message : String(thrown)
   }
 }
 
@@ -247,13 +255,16 @@ function pick(name: string): void {
 const listId = computed(() => `tags-${props.item.key}-suggestions`)
 
 /* What was being typed belongs to the item it was opened on. */
-watch(
-  () => props.item.key,
-  () => {
-    close()
-    failure.value = null
-  },
-)
+function reset(): void {
+  generation += 1
+  pending.value = []
+  queue = Promise.resolve()
+  close()
+  failure.value = null
+}
+
+watch(() => props.item.key, reset)
+onBeforeUnmount(reset)
 </script>
 
 <template>
@@ -272,7 +283,7 @@ watch(
       </button>
     </div>
 
-    <ul v-if="tags.length || open" :id="`tags-${item.key}`" class="tags__list">
+    <ul v-if="tags.length || open || pending.length" :id="`tags-${item.key}`" class="tags__list" :aria-busy="pending.length > 0">
       <TagPill
         v-for="tag in tags"
         :key="`${item.key}:${tag.type ?? 0}:${tag.tag}`"

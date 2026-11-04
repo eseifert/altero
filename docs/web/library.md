@@ -205,7 +205,9 @@ item's type, empty ones included, in the order Zotero Desktop shows them.
   tags as you type. Enter adds the tag and leaves the box open for the next;
   several lines pasted at once add one tag each. Press its pencil to rename
   it inline on this item; Enter or leaving the field saves, and Escape
-  cancels. **×** removes the tag from this item only. Tag names in the detail
+  cancels. **×** removes the tag from this item only. Added and removed chips
+  update immediately while saving; a refused change is rolled back and its
+  error appears below the tags. Tag names in the detail
   pane are passive; names in the sidebar filter the item list. Tags colored in
   Zotero Desktop come first, with their color dot, then tags with an emoji,
   then the rest alphabetically. Both panels use the same solid pill outline

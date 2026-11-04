@@ -120,8 +120,12 @@ rename state, cancellation and errors. Its caller supplies the existing
 rename operation and enables library filtering or item-only removal. Library
 pills show the item count between the name and pencil. The name reserves its
 space while an overlaid input edits it, preserving pill geometry and background;
-validation errors appear below the pill. Item tag writes remain queued and
-rebase onto newer tags as before. Both panels use `items/tags.ts` to order
+validation errors appear below the pill. Item additions and removals project
+pending operations over the latest server tags without changing the synced
+item or its version. Writes remain queued and rebase onto newer tags; a refusal
+removes only its own projection. Leaving the item discards unsent operations.
+Inline renames keep their draft and error field until the server answers.
+Both panels use `items/tags.ts` to order
 colored tags by position, then emoji tags, then the rest, with locale-aware
 alphabetization. The selector sorts a copy for display, preserving API order.
 

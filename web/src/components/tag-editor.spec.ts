@@ -78,6 +78,72 @@ describe('tag order', () => {
 })
 
 describe('TagEditor', () => {
+  it('shows queued additions immediately and rolls back only a refused change', async () => {
+    let wrapper!: Wrapper
+    let refuse!: (error: Error) => void
+    const first = new Promise<void>((_, reject) => { refuse = reject })
+    let finish!: () => void
+    const second = new Promise<void>((resolve) => { finish = resolve })
+    const answer = answering(() => wrapper)
+    const save = vi.fn(async (changes: ItemChanges) => {
+      if (save.mock.calls.length === 1) await first
+      else { await second; await answer(changes) }
+    })
+    wrapper = editor(article([{ tag: 'whales' }]), { save })
+    await addTag(wrapper)
+    for (const name of ['squid', 'krill']) {
+      await wrapper.get('input').setValue(name)
+      await wrapper.get('input').trigger('keydown', { key: 'Enter' })
+    }
+    expect(names(wrapper)).toEqual(['krill', 'squid', 'whales'])
+    expect(wrapper.get('.tags__list').attributes('aria-busy')).toBe('true')
+    expect(wrapper.props('item').data.tags).toEqual([{ tag: 'whales' }])
+    refuse(new Error('First tag refused'))
+    await flushPromises()
+    expect(names(wrapper)).toEqual(['krill', 'whales'])
+    expect(wrapper.get('[role="alert"]').text()).toBe('First tag refused')
+    expect(save.mock.calls[1]![0].tags).toEqual([{ tag: 'whales' }, { tag: 'krill' }])
+    finish()
+    await flushPromises()
+    expect(names(wrapper)).toEqual(['krill', 'whales'])
+    expect(wrapper.get('.tags__list').attributes('aria-busy')).toBe('false')
+  })
+
+  it('removes immediately and restores a refused removal on top of fresh server tags', async () => {
+    let refuse!: (error: Error) => void
+    const save = vi.fn(() => new Promise<void>((_, reject) => { refuse = reject }))
+    const wrapper = editor(article([{ tag: 'squid', type: 1 }]), { save })
+    await wrapper.get('[aria-label="Remove Tag"]').trigger('click')
+    expect(names(wrapper)).toEqual([])
+    await wrapper.setProps({ item: article([{ tag: 'squid', type: 1 }, { tag: 'whales' }]) })
+    expect(names(wrapper)).toEqual(['whales'])
+    refuse(new Error('Removal refused'))
+    await flushPromises()
+    expect(names(wrapper)).toEqual(['squid, Automatically added tag', 'whales'])
+  })
+
+  it.each(['switch', 'unmount'])('does not send queued edits after leaving an item: %s', async (leave) => {
+    let finish!: () => void
+    const save = vi.fn(() => new Promise<void>((resolve) => { finish = resolve }))
+    const wrapper = editor(article([]), { save })
+    await addTag(wrapper)
+    for (const name of ['squid', 'krill']) {
+      await wrapper.get('input').setValue(name)
+      await wrapper.get('input').trigger('keydown', { key: 'Enter' })
+    }
+    await flushPromises()
+    if (leave === 'unmount') wrapper.unmount()
+    else {
+      await wrapper.setProps({ item: { ...article([{ tag: 'other' }]), key: 'BBBB2345' } })
+      expect(names(wrapper)).toEqual(['other'])
+      // Returning to the same key cannot revive its old queued changes.
+      await wrapper.setProps({ item: article([]) })
+    }
+    finish()
+    await flushPromises()
+    expect(save).toHaveBeenCalledTimes(1)
+  })
+
   it('shows the tags in the desktop’s order, coloured ones with their colour', () => {
     useLibraryStore().tagColors = [{ name: 'toread', color: '#FF6666' }]
     const wrapper = editor(article([{ tag: 'whales' }, { tag: 'toread' }, { tag: 'auto', type: 1 }]), {
