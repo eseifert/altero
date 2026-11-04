@@ -73,9 +73,11 @@ answer the translated licence questions and verify the stored licence and
 downloaded bytes. Catalogue guards distinguish direct address from third-person
 descriptions; browser checks establish behavior, not native-speaker approval.
 
-Afrikaans checks read the item-type and file-extension warnings in formal
-address, accept the changes and verify the stored type, filename and unchanged
-downloaded bytes. The file-extension choice is exercised at both viewport sizes.
+Editing-confirmation checks cover English, Afrikaans and Arabic at both viewport
+sizes, including formal Afrikaans warnings. They detect words split across
+button lines and buttons overflowing the prompt, accept the changes and verify
+the stored type, filename and unchanged downloaded bytes. In narrow fields,
+confirmation buttons can move to another row rather than squeezing their labels.
 
 Spanish and European Portuguese password checks use a second browser context
 signed in to a disposable account. Administrator-set passwords and reset links

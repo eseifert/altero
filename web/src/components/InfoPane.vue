@@ -614,6 +614,7 @@ watch(
 
 .info__buttons {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--md-spacing-2);
 }
