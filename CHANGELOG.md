@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Give icon tools and touch buttons a press wash that clears on release, scrolling or cancellation without moving the target.
 - Announce successful share-link copies and prevent older clipboard requests from confirming a replacement link or clearing newer feedback.
 - Show added and removed item tag chips immediately while saving; roll back refused changes without losing queued edits.
 - Stop touch drops from opening the destination and clearing selection. Reported by [@eseifert] in [CI#41795388477].

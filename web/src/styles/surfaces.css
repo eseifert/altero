@@ -198,6 +198,7 @@
  * pointer where the target is a fingertip.
  */
 .icon-button {
+  position: relative;
   display: grid;
   flex: none;
   place-items: center;
@@ -209,6 +210,19 @@
   background: none;
   color: var(--md-sys-color-on-surface-variant);
   cursor: pointer;
+}
+
+/* A press adds a foreground wash without shifting the target or replacing
+   the selected/danger fill underneath. Touch also tracks pointer lifetime. */
+.icon-button:active:not(:disabled)::after,
+.icon-button[data-touch-pressed]:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: var(--md-sys-state-pressed-opacity);
+  pointer-events: none;
 }
 
 /* The glyph takes the button's colour rather than the icon component's own

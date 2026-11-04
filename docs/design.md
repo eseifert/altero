@@ -247,6 +247,10 @@ picker rather than dragged at all. See
 an image or remember anything but their password, and nothing prevents pasting
 into a field — including the one-time code.
 
+Buttons and icon tools show a foreground wash while held with a pointer,
+finger or Space. The target stays in place, and disabled buttons do not show
+the press layer. This feedback remains immediate with reduced motion.
+
 **Motion (2.3.3).** `prefers-reduced-motion` turns the transitions off, at
 0.01ms rather than zero so that a transition end event nothing else waits for
 still fires.

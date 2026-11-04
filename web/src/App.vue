@@ -14,6 +14,7 @@ import { useGroupStore } from '@/stores/groups'
 import { useNotificationStore } from '@/stores/notifications'
 import { useLocaleStore } from '@/stores/locale'
 import { useThemeStore } from '@/stores/theme'
+import { useTouchPress } from '@/touchpress'
 
 const { t } = useI18n()
 
@@ -24,6 +25,7 @@ const notifications = useNotificationStore()
 const groups = useGroupStore()
 const router = useRouter()
 const route = useRoute()
+useTouchPress()
 
 /* The sign-in screens are centred on an empty page; the library gets the
    full shell with a header. Needing an account is what usually tells them

@@ -83,7 +83,8 @@ withDefaults(
   opacity: var(--md-sys-state-hover-opacity);
 }
 
-.app-button:active:not(:disabled)::after {
+.app-button:active:not(:disabled)::after,
+.app-button[data-touch-pressed]:not(:disabled)::after {
   opacity: var(--md-sys-state-pressed-opacity);
 }
 

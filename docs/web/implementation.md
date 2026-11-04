@@ -65,6 +65,19 @@ Cancellation and refused writes produce no confirmation. Unit checks also cover
 late completions after cancellation, another gesture or unmount, and rechecking
 the target at release. This is Chromium evidence; Safari remains unverified.
 
+Feedback checks hold item listings to inspect skeleton rows in English/Arabic
+and normal/reduced motion, then press icon tools with a real mouse, touch and
+Space. Tag checks hold/refuse writes, verify immediate chips and selective
+rollback, and read persisted tags through the API and after reload. Clipboard
+checks copy a real share link, read it back from Chromium's clipboard and keep
+the Copy button's accessible name alongside its live success announcement.
+
+Touch press feedback supplements native `:active` on standard buttons and icon
+tools. Passive pointer listeners leave clicks and scrolling to the browser;
+release, cancellation, moving away, scrolling and window blur clear the wash.
+Field blur inside the page leaves it visible, and ending the app scope removes
+the listeners. The wash preserves the target's geometry and selected fill.
+
 ### Design
 
 The design follows Material 3 with a teal accent, and light and dark follow the
