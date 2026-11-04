@@ -298,6 +298,10 @@ protocol identifiers, keyboard labels and quoted navigation labels retain
 their original spelling. Creator-name hints describe given and family names,
 not ordinal positions.
 
+Use complete name labels even where upstream abbreviates them: the creator
+editor uses those hints as accessible input names too. Keep regional vocabulary
+such as Brazilian Portuguese `sobrenome` and European Portuguese `apelido`.
+
 Text identical to English is a review candidate, not automatically a missing
 translation: acronyms, key names and shared words may stay unchanged. Translate
 instructions even when Zotero's own catalog still has an English fallback.

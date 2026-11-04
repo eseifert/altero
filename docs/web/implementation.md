@@ -50,6 +50,11 @@ cover eight catalogs with former English fallbacks: type warnings, choosing a
 compatible subset, selecting a field value and checking the saved result.
 They check rendering and behavior, not native-speaker approval of every message.
 
+Creator-name checks cover fifteen further catalogs whose hints previously used
+ordinals or shortened stems. They identify both inputs by their translated
+accessible names, edit each independently and verify saved names after reload.
+Portuguese keeps separate Brazilian and European family-name labels.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

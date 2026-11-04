@@ -880,7 +880,7 @@ export default {
   'confirmed': 'potvrdená',
   'date unknown': 'dátum neznámy',
   'et al.': 'et al.',
-  'first': 'krstné',
+  'first': 'krstné meno',
   'full name': 'celé meno',
   'in use now': 'práve sa používa',
   'last': 'priezvisko',

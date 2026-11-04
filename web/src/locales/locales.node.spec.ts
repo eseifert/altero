@@ -248,6 +248,33 @@ describe.each(Object.entries(CATALOGUES))('the %s catalogue', (name, catalogue) 
   })
 })
 
+describe.each([
+  ['bg', bg, ['първи', 'последен']],
+  ['ca', ca, ['primer', 'últim']],
+  ['el', el, ['πρώτο', 'τελευταίο']],
+  ['fi', fi, ['etu', 'suku']],
+  ['ha', ha, ['na farko', 'na ƙarshe']],
+  ['id', id, ['pertama', 'terakhir']],
+  ['is', icelandic, ['fyrsta', 'síðasta']],
+  ['pt-BR', ptBR, ['primeiro', 'último']],
+  ['pt-PT', ptPT, ['primeiro', 'último']],
+  ['sk', sk, ['krstné']],
+  ['sw', sw, ['ya kwanza', 'ya mwisho']],
+  ['ta', ta, ['முதல்', 'கடை']],
+  ['th', th, ['อันดับแรก', 'อันดับสุดท้าย']],
+  ['tr', tr, ['ilk', 'son']],
+  ['yo', yo, ['àkọ́kọ́', 'ìkẹyìn']],
+] as const)('creator names in %s', (_name, catalogue, ordinals) => {
+  it('labels names rather than ordinal positions or incomplete stems', () => {
+    // These hints also name the inputs to assistive technology. A bare
+    // translation of “first”/“last” describes order, not a person's name.
+    for (const key of ['first', 'last'] as const) {
+      expect(ordinals, key).not.toContain(catalogue[key])
+    }
+    expect(catalogue.first).not.toBe(catalogue.last)
+  })
+})
+
 describe('German address', () => {
   it('avoids informal pronouns and singular commands', () => {
     // Neutral instructions first; use formal Sie where direct address helps.

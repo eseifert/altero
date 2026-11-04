@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Clarify given and family name labels in fifteen languages, including distinct Brazilian and European Portuguese terms.
 - Translate remaining English merge instructions in eight languages and align the pane's item and Trash terms with each catalog.
 - Keep Serbian creator controls in Cyrillic, label given and family names correctly, and use the same Trash term throughout.
 - Use neutral German instructions and consistent formal address across account, library and publishing pages.
