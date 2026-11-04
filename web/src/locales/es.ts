@@ -516,9 +516,9 @@ export default {
     'Contraseña cambiada. Se cerró la sesión en todos los demás navegadores.',
   'Password for the new account': 'Contraseña de la nueva cuenta',
   'Password set. Every other signed-in browser was signed out.':
-    'Contraseña establecida. Todos los demás navegadores con sesión iniciada se han cerrado.',
+    'Contraseña establecida. Se cerró la sesión en todos los demás navegadores.',
   'Password set. Their other browsers were signed out.':
-    'Contraseña establecida. Sus otros navegadores se han cerrado.',
+    'Contraseña establecida. Se cerró la sesión en los demás navegadores de esta cuenta.',
   'Paste it below. It is used for this copy and never stored.': 'Péguela abajo. Se usa para esta copia y no se guarda.',
   'People joining or leaving': 'Altas y bajas de personas',
   'People with an account here': 'Quienes tengan una cuenta aquí',

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Correct Spanish and European Portuguese password-reset notices to describe ended sessions rather than closed browsers.
 - Keep Afrikaans editing warnings in the same formal address as account and library instructions.
 - Use formal usted consistently in Spanish account, library, import and publishing instructions.
 - Keep Dutch account and permission text in formal address, use Zotero's note term, and clarify merge instructions.

@@ -346,6 +346,20 @@ describe('Afrikaans address', () => {
   })
 })
 
+describe.each([
+  ['es', es, 'sesión', /navegadores.*se han cerrado/iu],
+  ['pt-PT', ptPT, 'sessão', /navegadores.*foram terminados/iu],
+] as const)('session termination in %s', (_tag, catalogue, session, closedBrowsers) => {
+  it.each([
+    'Password changed. Every other browser was signed out.',
+    'Password set. Every other signed-in browser was signed out.',
+    'Password set. Their other browsers were signed out.',
+  ] as const)('describes ended sessions in “%s”', (key) => {
+    expect(catalogue[key]).toContain(session)
+    expect(catalogue[key]).not.toMatch(closedBrowsers)
+  })
+})
+
 describe('German address', () => {
   it('avoids informal pronouns and singular commands', () => {
     // Neutral instructions first; use formal Sie where direct address helps.

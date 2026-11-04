@@ -77,6 +77,11 @@ Afrikaans checks read the item-type and file-extension warnings in formal
 address, accept the changes and verify the stored type, filename and unchanged
 downloaded bytes. The file-extension choice is exercised at both viewport sizes.
 
+Spanish and European Portuguese password checks use a second browser context
+signed in to a disposable account. Administrator-set passwords and reset links
+both show translated session-ending notices, invalidate that account's old
+session and leave the browser open. The final password must work on sign-in.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

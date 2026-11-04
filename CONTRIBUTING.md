@@ -329,6 +329,10 @@ process, while `crea una clave` describes what linking Zotero does.
 Afrikaans uses formal `u`, including editing conflicts and confirmation prompts;
 keep these consistent with its account and library instructions.
 
+When a password changes, describe ending signed-in sessions. Spanish and
+European Portuguese confirmations name the session explicitly; the server
+does not close browser windows.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

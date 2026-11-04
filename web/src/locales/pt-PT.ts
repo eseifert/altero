@@ -516,9 +516,9 @@ export default {
     'Palavra-passe alterada. A sessão foi terminada em todos os outros navegadores.',
   'Password for the new account': 'Palavra-passe da nova conta',
   'Password set. Every other signed-in browser was signed out.':
-    'Palavra-passe definida. Todos os outros navegadores com sessão iniciada foram terminados.',
+    'Palavra-passe definida. A sessão foi terminada em todos os outros navegadores.',
   'Password set. Their other browsers were signed out.':
-    'Palavra-passe definida. Os outros navegadores foram terminados.',
+    'Palavra-passe definida. A sessão foi terminada nos outros navegadores desta conta.',
   'Paste it below. It is used for this copy and never stored.': 'Cole-a abaixo. É usada para esta cópia e nunca guardada.',
   'People joining or leaving': 'Entradas e saídas de pessoas',
   'People with an account here': 'Quem tiver conta aqui',
