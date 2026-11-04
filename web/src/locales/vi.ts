@@ -175,8 +175,8 @@ export default {
   'Clear Formatting': 'Xóa định dạng',
   'Clear search': 'Xóa tìm kiếm',
   'Clear the selection': 'Bỏ chọn',
-  'Client ID': 'Client ID',
-  'Client secret': 'Client secret',
+  'Client ID': 'Mã ứng dụng khách (Client ID)',
+  'Client secret': 'Mã bí mật ứng dụng khách (Client secret)',
   'Close details': 'Đóng chi tiết',
   'Code': 'Mã',
   'Code from the app': 'Mã từ ứng dụng',
@@ -376,7 +376,7 @@ export default {
   'Invitation sent.': 'Đã gửi lời mời.',
   'Invitations': 'Lời mời',
   'Invite': 'Mời',
-  'Issuer': 'Issuer',
+  'Issuer': 'Bên phát hành (Issuer)',
   'It cannot read your library, your notes or your attachments.':
     'Ứng dụng không thể đọc thư viện, ghi chú hay tệp đính kèm của bạn.',
   'It stays in your library, with its notes and files.':

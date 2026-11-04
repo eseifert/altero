@@ -308,6 +308,10 @@ instructions even when Zotero's own catalog still has an English fallback.
 The merge-instruction checks cover that known gap; they do not establish a
 complete linguistic review of every message.
 
+In provider setup, local explanations can sit beside protocol terms such as
+`Client ID`, `Client secret` and `Issuer`, so administrators can match the fields
+to their provider's documentation.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

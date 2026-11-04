@@ -55,6 +55,10 @@ ordinals or shortened stems. They identify both inputs by their translated
 accessible names, edit each independently and verify saved names after reload.
 Portuguese keeps separate Brazilian and European family-name labels.
 
+Provider-form checks cover Khmer, Thai and Vietnamese labels, including the
+masked client-secret field. They fill a draft against the real administration
+page; they do not save a provider or establish an external sign-in.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

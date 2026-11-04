@@ -173,8 +173,8 @@ export default {
   'Clear Formatting': 'ล้างการจัดรูปแบบ',
   'Clear search': 'ล้างการค้นหา',
   'Clear the selection': 'ล้างการเลือก',
-  'Client ID': 'Client ID',
-  'Client secret': 'Client secret',
+  'Client ID': 'รหัสไคลเอ็นต์ (Client ID)',
+  'Client secret': 'ข้อมูลลับไคลเอ็นต์ (Client secret)',
   'Close details': 'ปิดรายละเอียด',
   Code: 'รหัส',
   'Code from the app': 'รหัสจากแอป',
@@ -374,7 +374,7 @@ export default {
   'Invitation sent.': 'ส่งคำเชิญแล้ว',
   Invitations: 'คำเชิญ',
   Invite: 'เชิญ',
-  Issuer: 'Issuer',
+  Issuer: 'ผู้ออก (Issuer)',
   'It cannot read your library, your notes or your attachments.':
     'แอปจะไม่สามารถอ่านไลบรารี หมายเหตุ หรือไฟล์แนบของคุณได้',
   'It stays in your library, with its notes and files.':

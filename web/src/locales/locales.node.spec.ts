@@ -275,6 +275,15 @@ describe.each([
   })
 })
 
+describe.each([['km', km], ['th', th], ['vi', vi]] as const)('provider labels in %s', (_name, catalogue) => {
+  it('adds local wording to technical identifiers used in provider setup', () => {
+    for (const key of ['Client ID', 'Client secret', 'Issuer'] as const) {
+      expect(catalogue[key], key).not.toBe(key)
+      expect(catalogue[key], key).toContain(key)
+    }
+  })
+})
+
 describe('German address', () => {
   it('avoids informal pronouns and singular commands', () => {
     // Neutral instructions first; use formal Sie where direct address helps.
