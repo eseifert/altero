@@ -283,6 +283,15 @@ is a name in the client, not a spelling.
 
 ### Translating the interface
 
+Prefer short, natural instructions and use Zotero's terms for library objects.
+Preserve each language's existing form of address and fix inconsistencies
+within it; do not impose one language's convention on the others.
+The German catalog uses neutral wording where possible (for example,
+“Jetzt kopieren”); when direct address helps, use formal “Sie” and “Ihr”
+consistently. Keep third-person pronouns and quoted interface labels intact.
+The catalog checks guard against informal German address alongside missing
+messages, changed placeholders and incorrect plural counts.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

@@ -235,6 +235,17 @@ describe.each(Object.entries(CATALOGUES))('the %s catalogue', (name, catalogue) 
   })
 })
 
+describe('German address', () => {
+  it('avoids informal pronouns and singular commands', () => {
+    // Neutral instructions first; use formal Sie where direct address helps.
+    // Match whole words so third-person pronouns and words like „Direkt“ pass.
+    const informal = /\b(?:du|dich|dir|dein(?:e[nmsr]?|s)?|füge|gib|wähle|kopiere|lass|richte|scanne|öffne|melde|erlaube|nimm|nutze|lade|erstelle|hebe|speichere|spiele|synchronisiere|willst|benachrichtige|bestätige|mache)\b/iu
+    const found = Object.entries(de).filter(([, translated]) => informal.test(translated))
+
+    expect(found).toEqual([])
+  })
+})
+
 describe('Shahmukhi Punjabi', () => {
   it('uses the Arabic script throughout, without Gurmukhi characters', () => {
     for (const translated of Object.values(paArab)) {

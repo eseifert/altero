@@ -1,4 +1,40 @@
-import { accessibilityProblems, expect, signIn, test } from './state'
+import { accessibilityProblems, expect, PASSWORD, signIn, test } from './state'
+
+test.describe('German', () => {
+  test.use({ locale: 'de-DE' })
+
+  test('uses neutral instructions and formal address across account pages', async ({ page }, testInfo) => {
+    await signIn(page)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'de')
+    await page.goto('/app/settings/keys')
+    await page.locator('summary').filter({ hasText: 'Schlüssel erstellen' }).click()
+    await page.getByRole('textbox', { name: 'Wofür ist er?' }).fill('German wording check')
+    await page.getByLabel('Aktuelles Passwort', { exact: true }).fill(PASSWORD)
+    await page.getByRole('button', { name: 'Schlüssel erstellen', exact: true }).click()
+    await expect(page.locator('.section-panel__notice')).toHaveText(
+      'Schlüssel erstellt. Jetzt kopieren – er wird nicht noch einmal angezeigt.',
+    )
+    await expect(page.locator('.settings__issued')).toContainText(
+      'Jetzt kopieren. Er wird nicht noch einmal angezeigt.',
+    )
+    expect(await accessibilityProblems(page)).toEqual([])
+
+    await page.goto('/app/settings/migrate')
+    await expect(page.locator('.settings__steps')).toContainText(
+      'Lesezugriff auf die persönliche Bibliothek erlauben und den Schlüssel speichern.',
+    )
+    await page.getByRole('checkbox').check()
+    await expect(page.getByRole('main').getByRole('status')).toHaveText(
+      'Die eigene Bibliothek auf diesem Server wird zuerst vollständig gelöscht, einschließlich der Dateien und ohne Papierkorb.',
+    )
+    await page.screenshot({ path: testInfo.outputPath('german-import.png'), fullPage: true })
+    expect(await accessibilityProblems(page)).toEqual([])
+
+    await page.goto('/app/u/ada')
+    await expect(page.locator('.profile__own')).toContainText('Dies ist Ihre öffentliche Seite.')
+    expect(await accessibilityProblems(page)).toEqual([])
+  })
+})
 
 for (const [name, browserLocale, tag, signInLabel, library, title] of [
   ['Swahili', 'sw-KE', 'sw', 'Ingia', 'Maktaba Yangu', 'Panga kwa Title'],

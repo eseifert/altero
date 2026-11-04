@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Use neutral German instructions and consistent formal address across account, library and publishing pages.
 - Keep API-key activity inside its card so phone users can reach Revoke and create another key without page overflow.
 - Document zotero.org sync limits: one-time import today, no transparent two-way sync, and one-way refresh deferred beyond 1.0.
 - Record compatibility decisions for tag counts including trash, group-rename notifications and browser-only Unfiled Items.
