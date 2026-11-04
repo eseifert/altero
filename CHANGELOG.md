@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Show carried counts and briefly highlight saved drop targets; cancel drags on Escape, window blur or navigation.
 - Avoid duplicate update toasts and prompts after reloading; check open tabs for upgrades. Reported by [@eseifert].
 - Fade item, note and attachment details in quickly, respecting reduced motion. Reported by [@eseifert].
 - Return to parent item details when closing a child note or attachment. Reported by [@eseifert].

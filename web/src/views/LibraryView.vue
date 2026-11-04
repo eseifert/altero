@@ -616,6 +616,7 @@ type Cargo =
   | { kind: 'collection'; node: CollectionNode }
 
 const carry = useCarry<Cargo>()
+watch(() => library.libraryId, () => carry.cancel())
 
 const itemError = ref<string | null>(null)
 
@@ -878,9 +879,9 @@ async function runOnItem(action: () => Promise<void>): Promise<void> {
  */
 function startCarry(cargo: Cargo, label: string, event: PointerEvent): void {
   if (!library.writable) return
-  carry.begin(event, { label, data: cargo }, {
+  carry.begin(event, { label, count: cargo.kind === 'items' ? cargo.items.length : 1, data: cargo }, {
     accepts,
-    onDrop: (target, { modified }) => void drop(cargo, target, { modified }),
+    onDrop: (target, { modified }) => drop(cargo, target, { modified }),
   })
 }
 
@@ -913,15 +914,22 @@ function carryCollection(node: CollectionNode, event: PointerEvent): void {
  * Kept apart from the gesture so that the dialogs can call the same code: what
  * "file this here" does must not depend on how it was asked for.
  */
-async function drop(cargo: Cargo, target: string, { modified = false } = {}): Promise<void> {
+async function drop(cargo: Cargo, target: string, { modified = false } = {}): Promise<boolean> {
   const kind = target.slice(0, target.indexOf(':'))
   const value = target.slice(target.indexOf(':') + 1)
+  const perform = async (action: () => Promise<void>): Promise<boolean> => {
+    let saved = false
+    await runOnItem(async () => {
+      await action()
+      saved = true
+    })
+    return saved
+  }
 
   if (cargo.kind === 'items') {
     const keys = cargo.items.map((item) => item.key)
     if (kind === 'trash') {
-      await runOnItem(() => library.trashItems(keys))
-      return
+      return perform(() => library.trashItems(keys))
     }
     if (kind === 'publications') {
       /* The one drop that asks before it acts, and the desktop client asks
@@ -929,7 +937,7 @@ async function drop(cargo: Cargo, target: string, { modified = false } = {}): Pr
          gesture can say, and publishing is not undone by dragging it back.
          `accepts` has already refused anything but a single work. */
       await startPublishing(cargo.items[0])
-      return
+      return false
     }
     if (kind === 'collection') {
       /* Adding rather than moving, which is Zotero's rule: a collection is not
@@ -937,16 +945,13 @@ async function drop(cargo: Cargo, target: string, { modified = false } = {}): Pr
          otherwise; a finger says it in the dialog instead. */
       const from = library.collectionKey
       const remove = modified && from && from !== value ? [from] : []
-      await runOnItem(() => library.fileItems(keys, { add: [value], remove }))
-      return
+      return perform(() => library.fileItems(keys, { add: [value], remove }))
     }
     if (Number(value) !== library.libraryId) {
-      await runOnItem(() => library.copyItems(keys, Number(value)))
-      return
+      return perform(() => library.copyItems(keys, Number(value)))
     }
     const from = library.collectionKey
-    if (from) await runOnItem(() => library.fileItems(keys, { remove: [from] }))
-    return
+    return from ? perform(() => library.fileItems(keys, { remove: [from] })) : false
   }
 
   const node = cargo.node
@@ -954,13 +959,12 @@ async function drop(cargo: Cargo, target: string, { modified = false } = {}): Pr
     /* Asked rather than done: a collection carries subcollections, and a
        finger that landed on the wrong row should not be able to remove one. */
     startDelete(node)
-    return
+    return false
   }
   if (kind === 'collection') {
-    await runOnItem(() => library.updateCollection(node.key, { parentCollection: value }))
-    return
+    return perform(() => library.updateCollection(node.key, { parentCollection: value }))
   }
-  await runOnItem(() => library.updateCollection(node.key, { parentCollection: null }))
+  return perform(() => library.updateCollection(node.key, { parentCollection: null }))
 }
 
 /*
@@ -1576,7 +1580,7 @@ function sortLabel(column: { field: string; label: string }): string {
           -->
           <div
             class="library__nav-row"
-            :class="{ 'library__nav-row--over': lights(`library:${entry.id}`) }"
+            :class="{ 'library__nav-row--over': lights(`library:${entry.id}`), 'drop-confirmed': carry.confirmed.value === `library:${entry.id}` }"
             :data-drop="`library:${entry.id}`"
           >
             <!-- At most one library unfolds; all may be collapsed without
@@ -1661,6 +1665,7 @@ function sortLabel(column: { field: string; label: string }): string {
               :editable="library.writable"
               :carrying="carry.carrying.value !== null || fileDrop.target.value !== null"
               :over="carry.target.value ?? fileDrop.target.value"
+              :confirmed="carry.confirmed.value"
               @select="library.selectCollection($event)"
               @add="startNew($event)"
               @settings="startSettings($event)"
@@ -1718,7 +1723,7 @@ function sortLabel(column: { field: string; label: string }): string {
 
             <div
               class="library__scope-row"
-              :class="{ 'library__scope-row--over': lit('trash:') }"
+              :class="{ 'library__scope-row--over': lit('trash:'), 'drop-confirmed': carry.confirmed.value === 'trash:' }"
               data-drop="trash:"
             >
               <span class="library__twisty" aria-hidden="true"></span>
@@ -2336,7 +2341,8 @@ function sortLabel(column: { field: string; label: string }): string {
       :style="{ transform: carry.transform.value }"
       aria-hidden="true"
     >
-      <span dir="auto">{{ carry.carrying.value.label }}</span>
+      <span class="library__cargo-label" dir="auto">{{ carry.carrying.value.label }}</span>
+      <span class="count-badge">{{ carry.carrying.value.count ?? 1 }}</span>
     </div>
 
     <!-- Dropping a row on a sidebar row, said in words: the collections of
@@ -2662,6 +2668,9 @@ function sortLabel(column: { field: string; label: string }): string {
  * the pointer -- which is how the drop target is found.
  */
 .library__cargo {
+  display: flex;
+  align-items: center;
+  gap: var(--md-spacing-2);
   position: fixed;
   /* Placed by `transform`, which moves it without laying the page out again
      on every frame of a drag. */
@@ -2680,8 +2689,13 @@ function sortLabel(column: { field: string; label: string }): string {
   font-size: var(--md-sys-typescale-body-medium-size);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
   pointer-events: none;
+}
+
+.library__cargo-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* The same hover-revealed pair the collection rows carry, so the library's

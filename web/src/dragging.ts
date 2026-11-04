@@ -1,4 +1,4 @@
-import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import { computed, getCurrentScope, onScopeDispose, ref, type ComputedRef, type Ref } from 'vue'
 
 /**
  * Carrying something from one row to another, with a pointer or a finger.
@@ -21,6 +21,7 @@ import { computed, ref, type ComputedRef, type Ref } from 'vue'
 /** What is being carried: a label to draw, and whatever the view needs back. */
 export interface Carried<T = unknown> {
   label: string
+  count?: number
   data: T
 }
 
@@ -53,6 +54,8 @@ export interface Carry<T> {
   carrying: Ref<Carried<T> | null>
   /** The row underneath it, as `data-drop` names it. */
   target: Ref<string | null>
+  /** A destination whose write just succeeded, briefly highlighted. */
+  confirmed: Ref<string | null>
   /** Where to draw what is being carried. */
   position: Ref<{ x: number; y: number }>
   /** Preview offset from the viewport's inline start; hit testing stays physical. */
@@ -66,13 +69,17 @@ export interface Carry<T> {
 interface Drop {
   /** Whether ``target`` will take what is being carried. Undecided rows do not light up. */
   accepts: (target: string) => boolean
-  /** Do it. ``modified`` is the Shift a mouse can hold and a finger cannot. */
-  onDrop: (target: string, options: { modified: boolean }) => void
+  /** Do it. Return true after saving to confirm; void leaves feedback to the caller.
+   *  ``modified`` is the Shift a mouse can hold and a finger cannot. */
+  onDrop: (target: string, options: { modified: boolean }) => void | boolean | Promise<boolean>
 }
 
 export function useCarry<T>(): Carry<T> {
   const carrying = ref<Carried<T> | null>(null) as Ref<Carried<T> | null>
   const target = ref<string | null>(null)
+  const confirmed = ref<string | null>(null)
+  let confirmation: ReturnType<typeof setTimeout> | undefined
+  let generation = 0
   const position = ref({ x: 0, y: 0 })
   const transform = computed(() => {
     // A stable scrollbar gutter can shrink this edge while clientWidth still
@@ -85,13 +92,19 @@ export function useCarry<T>(): Carry<T> {
   let stop: (() => void) | null = null
 
   function cancel(): void {
+    generation += 1
     stop?.()
+    clearTimeout(confirmation)
+    confirmed.value = null
   }
+
+  if (getCurrentScope()) onScopeDispose(cancel)
 
   function begin(event: PointerEvent, carried: Carried<T>, drop: Drop): void {
     // A right or middle button is a menu or a paste, not a drag.
     if (event.button !== 0) return
     cancel()
+    const gesture = generation
 
     /* The row the press landed on. The click that follows a carry is
        dispatched here, and here is where it is caught: a listener on the
@@ -134,6 +147,11 @@ export function useCarry<T>(): Carry<T> {
       scrolling = requestAnimationFrame(nudge)
     }
 
+    const aim = (x: number, y: number) => {
+      const under = dropAt(x, y)
+      target.value = under && drop.accepts(under) ? under : null
+    }
+
     const move = (moved: PointerEvent) => {
       const far = Math.abs(moved.clientX - originX) + Math.abs(moved.clientY - originY) > THRESHOLD
 
@@ -149,11 +167,12 @@ export function useCarry<T>(): Carry<T> {
       }
 
       position.value = { x: moved.clientX, y: moved.clientY }
-      const under = dropAt(moved.clientX, moved.clientY)
-      target.value = under && drop.accepts(under) ? under : null
+      aim(moved.clientX, moved.clientY)
     }
 
     const up = (released: PointerEvent) => {
+      // Scrolling or a final pointer movement may have changed the landing.
+      if (active) aim(released.clientX, released.clientY)
       const landing = target.value
       const modified = released.shiftKey
       const carried = active
@@ -168,7 +187,13 @@ export function useCarry<T>(): Carry<T> {
         // say -- the listener must not outlive the gesture.
         setTimeout(() => source.removeEventListener('click', swallow, { capture: true }), 0)
       }
-      if (landing) drop.onDrop(landing, { modified })
+      if (landing) {
+        void Promise.resolve(drop.onDrop(landing, { modified })).then((success) => {
+          if (!success || gesture !== generation) return
+          confirmed.value = landing
+          confirmation = setTimeout(() => { confirmed.value = null }, 250)
+        }, () => { /* The caller reports the failure; it earns no confirmation. */ })
+      }
     }
 
     const swallow = (click: Event) => {
@@ -183,6 +208,8 @@ export function useCarry<T>(): Carry<T> {
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
       window.removeEventListener('pointercancel', cancelled)
+      window.removeEventListener('blur', cancel)
+      window.removeEventListener('keydown', key)
       active = false
       carrying.value = null
       target.value = null
@@ -190,6 +217,12 @@ export function useCarry<T>(): Carry<T> {
     }
 
     const cancelled = () => finish()
+    const key = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        cancel()
+      }
+    }
 
     stop = () => finish()
     position.value = { x: originX, y: originY }
@@ -198,7 +231,9 @@ export function useCarry<T>(): Carry<T> {
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
     window.addEventListener('pointercancel', cancelled)
+    window.addEventListener('blur', cancel)
+    window.addEventListener('keydown', key)
   }
 
-  return { carrying, target, position, transform, begin, cancel }
+  return { carrying, target, confirmed, position, transform, begin, cancel }
 }

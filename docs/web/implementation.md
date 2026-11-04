@@ -57,6 +57,14 @@ Row-departure checks cover trash, Undo, filing and duplicate groups, including
 the last row, keyboard recovery and empty views. They sample rendered height
 and opacity during normal motion and verify the reduced-motion duration.
 
+Drag-feedback checks use actual mouse movement and touch holds in English and
+Arabic at both viewport sizes. They hold the write request to verify that a
+counted selection confirms only after saving, check the normal animation and
+steady reduced-motion highlight, and verify persisted collection memberships.
+Cancellation and refused writes produce no confirmation. Unit checks also cover
+late completions after cancellation, another gesture or unmount, and rechecking
+the target at release. This is Chromium evidence; Safari remains unverified.
+
 ### Design
 
 The design follows Material 3 with a teal accent, and light and dark follow the

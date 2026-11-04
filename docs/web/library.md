@@ -645,6 +645,14 @@ it when the carry nears the top or bottom of the window, so a tree taller than
 a phone can still be dropped into. The click a browser fires after the gesture
 is swallowed, or every drag would also select the row it started from.
 
+The preview includes a count badge for the rows being carried. Only a destination
+that accepts them is outlined. After a successful save, that destination briefly
+highlights; **Reduce motion** keeps the highlight steady instead of fading it.
+A failed write shows its error without the confirmation highlight. Drops that
+open a publishing or deletion question wait for your answer and do not show a
+saved confirmation. Press `Escape` to cancel a carry; leaving the window or
+switching libraries cancels it too.
+
 `Shift` to move rather than file has no equivalent on a touch screen, which is
 one of the reasons the dialog exists: “Move or copy…” carries a “take it out
 of” checkbox that says the same thing. `Ctrl` and `Shift` to pick out several

@@ -1437,6 +1437,24 @@ describe('filing, trashing and copying items', () => {
     ])
   })
 
+  it.each([true, false])('confirms a drop after the write only when successful: %s', async (success) => {
+    withLibrary([COLLECTION])
+    const wrapper = await open()
+    let complete!: () => void
+    let fail!: (error: Error) => void
+    const pending = new Promise<void>((resolve, reject) => { complete = resolve; fail = reject })
+    vi.spyOn(useLibraryStore(), 'fileItems').mockReturnValue(pending)
+    const target = collectionRow(wrapper, 'Whales')
+    await drag(wrapper, target)
+    expect(target.classList.contains('drop-confirmed')).toBe(false)
+    if (success) complete()
+    else fail(new Error('Write refused'))
+    await settle(wrapper)
+    expect(target.classList.contains('drop-confirmed')).toBe(success)
+    if (!success) expect(wrapper.text()).toContain('Write refused')
+    wrapper.unmount()
+  })
+
   it('adds rather than moves, which is what a collection is', async () => {
     /* An item can be in several collections, so dropping it in one does not
        take it out of another. Holding Shift is how you say otherwise. */
@@ -1551,7 +1569,8 @@ describe('filing, trashing and copying items', () => {
     fire(window, 'pointermove', { clientX: 200, clientY: 200 })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.get('.library__cargo').text()).toBe('Structure and Interpretation')
+    expect(wrapper.get('.library__cargo-label').text()).toBe('Structure and Interpretation')
+    expect(wrapper.get('.library__cargo .count-badge').text()).toBe('1')
     fire(window, 'pointerup', { clientX: 200, clientY: 200 })
     await settle(wrapper)
     expect(wrapper.find('.library__cargo').exists()).toBe(false)
@@ -2005,7 +2024,8 @@ describe('picking out several items', () => {
     fire(window, 'pointermove', { clientX: 200, clientY: 200 })
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.get('.library__cargo').text()).toBe('2 items')
+    expect(wrapper.get('.library__cargo-label').text()).toBe('2 items')
+    expect(wrapper.get('.library__cargo .count-badge').text()).toBe('2')
 
     // Put it down on nothing: the carry listens on the window, and one left
     // open would be released by the next test's pointer.

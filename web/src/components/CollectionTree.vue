@@ -27,6 +27,8 @@ const props = defineProps<{
   carrying?: boolean
   /** The row a carry is over, as the view names it, so one row lights up. */
   over?: string | null
+  /** A destination whose drop has finished saving. */
+  confirmed?: string | null
 }>()
 
 const emit = defineEmits<{
@@ -95,7 +97,7 @@ function toggle(key: string): void {
       -->
       <div
         class="tree__row"
-        :class="{ 'tree__row--over': carrying && over === target(node) }"
+        :class="{ 'tree__row--over': carrying && over === target(node), 'drop-confirmed': confirmed === target(node) }"
         :style="{ paddingInlineStart: `${(depth ?? 0) * 0.9 + 0.15}rem` }"
         :data-drop="target(node)"
       >
@@ -175,6 +177,7 @@ function toggle(key: string): void {
           :editable="editable"
           :carrying="carrying"
           :over="over"
+          :confirmed="confirmed"
           @select="emit('select', $event)"
           @add="emit('add', $event)"
           @settings="emit('settings', $event)"
