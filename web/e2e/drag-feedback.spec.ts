@@ -88,9 +88,26 @@ for (const [direction, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const)
         await page.emulateMedia({ reducedMotion })
         const headers = { 'Zotero-API-Key': state().key }
         const name = `Drag ${direction} ${reducedMotion} ${info.project.name}`
-        const made = await request.post('/users/1/collections', { headers, data: [{ name }] })
+        // On phones, allow source and destination to scroll to the viewport
+        // center. Releasing at the same screen position still produces a click.
+        const preceding = isMobile ? 20 : 0
+        const made = await request.post('/users/1/collections', { headers, data: [
+          ...Array.from({ length: preceding }, (_, index) => ({ name: `Before ${name} ${index}` })),
+          { name },
+        ] })
         expect(made.ok()).toBe(true)
-        const collection = (await made.json()).successful['0'].key as string
+        const collections = (await made.json()).successful as Record<string, { key: string }>
+        const collection = collections[String(preceding)]!.key
+        const filler: string[] = []
+        if (isMobile) {
+          const filled = await request.post('/users/1/items', { headers, data:
+            Array.from({ length: 50 }, (_, index) => ({
+              itemType: 'book', title: `After ${name} ${index}`, dateModified: '2000-01-01T00:00:00Z',
+            })),
+          })
+          expect(filled.ok()).toBe(true)
+          filler.push(...Object.values((await filled.json()).successful as Record<string, { key: string }>).map((item) => item.key))
+        }
         let release = () => {}
         try {
           await signIn(page)
@@ -145,10 +162,17 @@ for (const [direction, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const)
           release()
           await page.unrouteAll({ behavior: 'ignoreErrors' })
           const current = await request.get('/users/1/collections?limit=1', { headers })
-          const removed = await request.delete(`/users/1/collections/${collection}`, {
+          const keys = Object.values(collections).map((entry) => entry.key)
+          const removed = await request.delete(`/users/1/collections?collectionKey=${keys.join(',')}`, {
             headers: { ...headers, 'If-Unmodified-Since-Version': current.headers()['last-modified-version']! },
           })
           expect(removed.ok()).toBe(true)
+          if (filler.length) {
+            const cleared = await request.delete(`/users/1/items?itemKey=${filler.join(',')}`, {
+              headers: { ...headers, 'If-Unmodified-Since-Version': removed.headers()['last-modified-version']! },
+            })
+            expect(cleared.ok()).toBe(true)
+          }
         }
       })
     }

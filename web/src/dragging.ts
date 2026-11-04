@@ -90,15 +90,39 @@ export function useCarry<T>(): Carry<T> {
   })
 
   let stop: (() => void) | null = null
+  let stopClick: (() => void) | null = null
 
   function cancel(): void {
     generation += 1
     stop?.()
+    stopClick?.()
     clearTimeout(confirmation)
     confirmed.value = null
   }
 
   if (getCurrentScope()) onScopeDispose(cancel)
+
+  function swallowClick(pointerId: number): void {
+    // Touch compatibility clicks may arrive later and hit the destination
+    // after scrolling. Catch this pointer's click wherever it lands, until
+    // the next press; keyboard activation and other pointers remain usable.
+    const swallow = (click: MouseEvent) => {
+      if (!click.detail || (click instanceof PointerEvent && click.pointerId !== pointerId)) return
+      click.preventDefault()
+      click.stopPropagation()
+      clear()
+    }
+    const clear = () => {
+      clearTimeout(expiry)
+      window.removeEventListener('click', swallow, { capture: true })
+      window.removeEventListener('pointerdown', clear, { capture: true })
+      stopClick = null
+    }
+    const expiry = setTimeout(clear, 1000)
+    window.addEventListener('click', swallow, { capture: true })
+    window.addEventListener('pointerdown', clear, { capture: true, once: true })
+    stopClick = clear
+  }
 
   function begin(event: PointerEvent, carried: Carried<T>, drop: Drop): void {
     // A right or middle button is a menu or a paste, not a drag.
@@ -106,11 +130,6 @@ export function useCarry<T>(): Carry<T> {
     cancel()
     const gesture = generation
 
-    /* The row the press landed on. The click that follows a carry is
-       dispatched here, and here is where it is caught: a listener on the
-       window would have to sit in the path of every click in the page to
-       catch one. */
-    const source = event.currentTarget as EventTarget | null
     const originX = event.clientX
     const originY = event.clientY
     /* A finger or a stylus waits; everything else -- a mouse, a trackpad, and
@@ -177,16 +196,7 @@ export function useCarry<T>(): Carry<T> {
       const modified = released.shiftKey
       const carried = active
       finish()
-      /* A carry ends on the row it began on as far as the browser is
-         concerned, so a click follows it. Selecting an item because it was
-         dragged somewhere is not what anybody meant, so the one click that
-         comes out of a carry is swallowed. */
-      if (carried && source) {
-        source.addEventListener('click', swallow, { capture: true, once: true })
-        // In case no click follows -- a carry released over another window,
-        // say -- the listener must not outlive the gesture.
-        setTimeout(() => source.removeEventListener('click', swallow, { capture: true }), 0)
-      }
+      if (carried) swallowClick(released.pointerId)
       if (landing) {
         void Promise.resolve(drop.onDrop(landing, { modified })).then((success) => {
           if (!success || gesture !== generation) return
@@ -194,11 +204,6 @@ export function useCarry<T>(): Carry<T> {
           confirmation = setTimeout(() => { confirmed.value = null }, 250)
         }, () => { /* The caller reports the failure; it earns no confirmation. */ })
       }
-    }
-
-    const swallow = (click: Event) => {
-      click.preventDefault()
-      click.stopPropagation()
     }
 
     function finish(): void {

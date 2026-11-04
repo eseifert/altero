@@ -643,7 +643,8 @@ and moving before that cancels the carry and leaves the scroll alone. Once a
 carry has begun the page stops scrolling under it, and starts scrolling *for*
 it when the carry nears the top or bottom of the window, so a tree taller than
 a phone can still be dropped into. The click a browser fires after the gesture
-is swallowed, or every drag would also select the row it started from.
+is swallowed even if scrolling sends it to the destination, so the click cannot
+open that collection or select the source row.
 
 The preview includes a count badge for the rows being carried. Only a destination
 that accepts them is outlined. After a successful save, that destination briefly

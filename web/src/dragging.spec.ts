@@ -13,27 +13,62 @@ function pointer(type: string, options: PointerEventInit = {}) {
   receiver.dispatchEvent(event)
 }
 
-function gesture(onDrop = vi.fn(() => Promise.resolve(true))) {
+function gesture(onDrop = vi.fn(() => Promise.resolve(true)), pointerType = 'mouse') {
   const scope = effectScope()
   const carry = scope.run(() => useCarry<string>())!
   source.onpointerdown = (event) => carry.begin(event, { label: 'Book', data: 'book' }, {
     accepts: () => true, onDrop,
   })
-  pointer('pointerdown', { clientX: 10, clientY: 10 })
-  pointer('pointermove')
+  pointer('pointerdown', { clientX: 10, clientY: 10, pointerType })
+  if (pointerType === 'touch') vi.advanceTimersByTime(350)
+  else pointer('pointermove')
   return { carry, scope, onDrop }
 }
 
 beforeEach(() => {
   vi.useFakeTimers()
+  document.body.append(source, destination)
   document.elementFromPoint = vi.fn(() => destination)
 })
 
 afterEach(() => {
   pointer('pointercancel')
   source.onpointerdown = null
+  source.remove()
+  destination.remove()
   vi.useRealTimers()
   vi.restoreAllMocks()
+})
+
+it.each(['mouse', 'touch'])('swallows the %s drag click on either the source or destination, even when delayed', async (pointerType) => {
+  for (const target of [source, destination]) {
+    const { scope } = gesture(undefined, pointerType)
+    try {
+      pointer('pointerup')
+      await vi.advanceTimersByTimeAsync(50)
+      const click = new PointerEvent('click', { bubbles: true, cancelable: true, detail: 1 })
+      expect(target.dispatchEvent(click)).toBe(false)
+      // The drag consumes only its own click.
+      expect(target.dispatchEvent(new PointerEvent('click', { bubbles: true, cancelable: true, detail: 1 }))).toBe(true)
+    } finally {
+      scope.stop()
+    }
+  }
+})
+
+it.each(['next press', 'keyboard', 'another pointer', 'unmount', 'expiry'])('leaves clicks working after a drag: %s', async (action) => {
+  const { scope } = gesture()
+  pointer('pointerup')
+  if (action === 'next press') destination.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+  if (action === 'unmount') scope.stop()
+  if (action === 'expiry') await vi.advanceTimersByTimeAsync(2000)
+  const click = new PointerEvent('click', {
+    bubbles: true, cancelable: true,
+    detail: action === 'keyboard' ? 0 : 1,
+    pointerId: action === 'another pointer' ? 99 : 0,
+  })
+  expect(source.dispatchEvent(click)).toBe(true)
+  scope.stop()
 })
 
 it('confirms the destination only after the drop succeeds, then clears it', async () => {

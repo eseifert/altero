@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Stop touch drops from opening the destination and clearing selection. Reported by [@eseifert] in [CI#41795388477].
 - Fix HTTPS attachment transfer URLs to honor the public URL. Reported by [@ypomortsev] in [Issue#65].
 - Show carried counts and briefly highlight saved drop targets; cancel drags on Escape, window blur or navigation.
 - Avoid duplicate update toasts and prompts after reloading; check open tabs for upgrades. Reported by [@eseifert].
@@ -390,6 +391,7 @@ The first release meant to be used by somebody other than its author.
 [@ypomortsev]: https://github.com/ypomortsev
 [@eseifert]: https://github.com/eseifert
 [CI#41715080977]: https://github.com/eseifert/altero/actions/runs/41715080977
+[CI#41795388477]: https://github.com/eseifert/altero/actions/runs/41795388477
 [PR#7]: https://github.com/eseifert/altero/pull/7
 [PR#8]: https://github.com/eseifert/altero/pull/8
 [PR#14]: https://github.com/eseifert/altero/pull/14

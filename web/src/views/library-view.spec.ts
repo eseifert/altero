@@ -1580,7 +1580,8 @@ describe('filing, trashing and copying items', () => {
     /* The carry ends on the row it began on as far as the browser is
        concerned, so a click follows it. */
     withLibrary([COLLECTION])
-    const wrapper = await open()
+    const wrapper = mount(LibraryView, { attachTo: document.body })
+    await settle(wrapper)
 
     const from = row(wrapper).element
     document.elementFromPoint = () => collectionRow(wrapper, 'Whales')
@@ -1590,7 +1591,7 @@ describe('filing, trashing and copying items', () => {
     fire(window, 'pointerup', { clientX: 200, clientY: 200 })
     /* Dispatched where the browser dispatches it: straight after the pointer
        is released, in the same turn. */
-    from.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    from.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 }))
     await settle(wrapper)
 
     expect(wrapper.find('.library__detail').exists()).toBe(false)
