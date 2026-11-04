@@ -49,6 +49,7 @@ const files = ref(true)
 /** A local date, from `<input type="date">`. Empty means it never expires. */
 const expires = ref('')
 const copied = ref(false)
+let copyRun = 0
 
 const dialog = useTemplateRef<HTMLDialogElement>('dialog')
 
@@ -59,8 +60,9 @@ onMounted(() => dialog.value?.focus())
 /* A fresh link deserves a fresh "copy" button: the acknowledgement belongs to
    the link it was pressed for and not to whatever is on screen now. */
 watch(
-  () => props.issued?.id,
+  [() => props.issued?.id, () => props.issued?.url],
   () => {
+    copyRun += 1
     copied.value = false
   },
 )
@@ -84,13 +86,15 @@ function submit(): void {
 }
 
 async function copy(url: string): Promise<void> {
+  const run = ++copyRun
+  copied.value = false
   try {
     await navigator.clipboard.writeText(url)
-    copied.value = true
+    if (run === copyRun) copied.value = true
   } catch {
     /* No clipboard, or permission refused. The link is on screen and can be
        selected by hand, so this is not worth an error message. */
-    copied.value = false
+    if (run === copyRun) copied.value = false
   }
 }
 </script>
@@ -122,6 +126,7 @@ async function copy(url: string): Promise<void> {
           <AppButton variant="text" @click="copy(issued.url)">
             {{ copied ? t('Copied') : t('Copy') }}
           </AppButton>
+          <span class="visually-hidden" role="status">{{ copied ? t('Copied') : '' }}</span>
         </div>
         <p class="share__once">
           {{ t('Copy it now. It is not stored anywhere it can be read back.') }}

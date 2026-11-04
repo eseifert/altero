@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Announce successful share-link copies and prevent older clipboard requests from confirming a replacement link or clearing newer feedback.
 - Show added and removed item tag chips immediately while saving; roll back refused changes without losing queued edits.
 - Stop touch drops from opening the destination and clearing selection. Reported by [@eseifert] in [CI#41795388477].
 - Fix HTTPS attachment transfer URLs to honor the public URL. Reported by [@ypomortsev] in [Issue#65].

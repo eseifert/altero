@@ -414,6 +414,10 @@ Three questions, and they are the whole of the form:
 - **How long.** An expiry, or none. A link given to a seminar in March is not
   one to leave working in November.
 
+Press **Copy** to copy the new link; **Copied** confirms that the clipboard
+accepted it and is announced to screen readers. If clipboard access is refused,
+select the displayed link and copy it manually.
+
 The link itself is shown once, by the request that makes it. Nothing is stored
 that it could be rebuilt from, so a link that is lost is replaced rather than
 recovered — the rule the invitation links follow. Afterwards the dialog lists
