@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Clarify Windows/macOS desktop coverage and add a two-client testing checklist for community reports.
 - Verify populated beta upgrades in CI on SQLite and PostgreSQL, preserving files, search, permissions and repeat startup.
 - Give icon tools and touch buttons a press wash that clears on release, scrolling or cancellation without moving the target.
 - Announce successful share-link copies and prevent older clipboard requests from confirming a replacement link or clearing newer feedback.

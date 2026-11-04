@@ -8,6 +8,13 @@ PostgreSQL 18.4. This verifies the recorded transitions, not every client path
 or platform. See
 [desktop compatibility coverage and gaps](client-compatibility.md).
 
+**Windows and macOS remain untested by the project's desktop acceptance
+suite.** A [community report](https://github.com/eseifert/altero/issues/49#issuecomment-6555801282)
+describes basic sync working with Zotero 10.0.7 and altero beta.7 on both;
+it does not establish conflict, file-recovery or full acceptance coverage.
+To contribute a reproducible platform result, follow the
+[two-client test and reporting checklist](testing-two-clients.md#windows-and-macos-reports).
+
 Populated databases from every beta through beta.7 pass direct upgrades to the
 current development schema on SQLite and PostgreSQL, including attachment
 downloads and repeat startup. See the [upgrade matrix and limits](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation).

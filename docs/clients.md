@@ -2,6 +2,10 @@
 
 This page describes how to connect an **unmodified Zotero Desktop** installation to altero.
 
+Automated desktop acceptance has run on Linux. Windows and macOS have a
+community basic-sync report, with broader coverage still unverified; see
+[platform status](status.md) and [testing instructions](testing-two-clients.md#windows-and-macos-reports).
+
 **Before you begin:** use a test profile or a library you can recreate.
 
 ## Configure Zotero Desktop
