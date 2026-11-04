@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Keep Dutch account and permission text in formal address, use Zotero's note term, and clarify merge instructions.
 - Translate Tagalog account, formatting and provider labels; align email and library terms while preserving familiar software loanwords.
 - Add local wording to Khmer, Thai and Vietnamese sign-in provider labels while retaining the protocol terms.
 - Clarify given and family name labels in fifteen languages, including distinct Brazilian and European Portuguese terms.

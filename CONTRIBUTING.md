@@ -317,6 +317,10 @@ retains `library`, `email`, `password` and `time zone`; changing just one messag
 to another term makes the interface less consistent. Account labels and note
 formatting tools still need natural local wording.
 
+Dutch uses formal `u/uw`, including device and application-consent instructions.
+Permissions name notes as `aantekeningen`, matching Zotero and the library
+controls. Preserve that vocabulary when adding permission descriptions.
+
 Plural messages need one branch per cardinal form of the target language,
 including the same placeholders in every branch. Arabic uses six branches
 (zero, one, two, few, many, other); Hebrew uses three (one, two, other).

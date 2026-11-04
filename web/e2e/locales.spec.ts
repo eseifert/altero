@@ -1,5 +1,30 @@
 import { accessibilityProblems, expect, openItem, PASSWORD, signIn, state, test } from './state'
 
+test.describe('Dutch', () => {
+  test.use({ locale: 'nl-NL' })
+
+  test('uses formal address on device and connected-application pages', async ({ page }, info) => {
+    await signIn(page)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'nl')
+    await page.goto('/app/device')
+    await expect(page.locator('.auth-form__lead')).toHaveText('Voer de code in die op uw apparaat staat.')
+    await page.getByRole('textbox', { name: 'Code', exact: true }).fill('ABCD-EFGH')
+    await expect(page.getByRole('textbox', { name: 'Code', exact: true })).toHaveValue('ABCD-EFGH')
+    expect(await accessibilityProblems(page)).toEqual([])
+
+    // Check the completion page's wording without claiming a device grant.
+    await page.goto('/app/device/done')
+    await expect(page.locator('.auth-form__lead')).toHaveText('U kunt nu terug naar uw apparaat.')
+    await page.goto('/app/settings/applications')
+    await expect(page.getByText(
+      'Andere applicaties die u toegang tot dit account hebt gegeven. Elke applicatie kreeg alleen de rechten die u hebt goedgekeurd.',
+      { exact: true },
+    )).toBeVisible()
+    await page.screenshot({ path: info.outputPath('dutch-applications.png'), fullPage: true })
+    expect(await accessibilityProblems(page)).toEqual([])
+  })
+})
+
 test.describe('Serbian', () => {
   test.use({ locale: 'sr-RS' })
 

@@ -63,6 +63,10 @@ Tagalog checks save and reload a display name, format a note through translated
 controls and inspect provider drafts. Familiar borrowed terms stay in the
 catalog; the checks do not treat every word shared with English as a gap.
 
+Dutch checks cover formal address on device and connected-application pages.
+They inspect device-page instructions without completing an authorization;
+catalog checks also keep permission and merge terms aligned with library labels.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

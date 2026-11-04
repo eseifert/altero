@@ -298,6 +298,23 @@ describe('Tagalog terminology', () => {
   })
 })
 
+describe('Dutch address and library terms', () => {
+  it('keeps the established formal address in consent and account instructions', () => {
+    const informal = /\b(?:je|jij|jou|jouw)\b/iu
+    expect(Object.entries(nl).filter(([, translated]) => informal.test(translated))).toEqual([])
+  })
+
+  it('uses the same note term for permissions and library controls', () => {
+    for (const key of ['Read your notes', 'It cannot read your library, your notes or your attachments.'] as const) {
+      expect(nl[key].toLowerCase()).toContain(nl.Notes.toLowerCase())
+    }
+  })
+
+  it('names the master item consistently in merge instructions', () => {
+    expect(nl['Choose the version of the item to use as the master item:'].toLowerCase()).toContain(nl['Master item'].toLowerCase())
+  })
+})
+
 describe('German address', () => {
   it('avoids informal pronouns and singular commands', () => {
     // Neutral instructions first; use formal Sie where direct address helps.
