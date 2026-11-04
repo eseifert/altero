@@ -184,6 +184,26 @@ that are worth a look.
 Keep to portable constructs. SQLite is the default and PostgreSQL is the
 supported deployment, so nothing may depend on features of one alone.
 
+To replay upgrades from every local `v1.0.0-beta.*` tag with live HTTP:
+
+```sh
+git fetch --tags
+uv run --no-sync --with httpx==0.28.1 python -m tools.upgrade_paths \
+  --state-dir /tmp/altero-upgrades \
+  --postgres-url postgresql+asyncpg://altero:altero@localhost:55432/altero
+```
+
+Use a new state directory each time; `--tag v1.0.0-beta.1` selects one release.
+Without `--postgres-url`, only SQLite runs. The PostgreSQL connection creates
+fresh `altero_upgrade_*` databases and never migrates the named admin database.
+All databases, extracted tagged sources and logs remain available for inspection;
+`report.json` records source commits, revisions and results. The runner uses the
+installed dependencies, adding legacy `httpx` for the older application imports;
+it does not reproduce historical dependency locks or build browser assets.
+The initial check covers schema/model agreement, account and group provisioning,
+startup and authenticated API reads. Populated-library preservation needs its
+own assertions in addition to this smoke check.
+
 ## Documentation
 
 The pages under `docs/` are the documentation site at
