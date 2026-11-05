@@ -119,6 +119,11 @@ description and actor name have a space between them in Dutch and Arabic on
 desktop and phone. A margin alone would not separate the words when copied or
 read as plain text.
 
+The offline-shell check adds 55 temporary books so its original fixture is
+beyond the first page. It loads later rows before opening that item and checks
+that the cache contains only application paths, then opens the shell offline.
+The extra books are removed after the case.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,
