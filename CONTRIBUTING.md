@@ -310,6 +310,10 @@ instructions even when Zotero's own catalog still has an English fallback.
 The merge-instruction checks cover that known gap; they do not establish a
 complete linguistic review of every message.
 
+When a translation changes, update existing locale-specific browser assertions
+alongside the catalog checks. Account and import checks also assert translated
+sentences, so a focused check of the edited page alone can miss stale wording.
+
 In provider setup, local explanations can sit beside protocol terms such as
 `Client ID`, `Client secret` and `Issuer`, so administrators can match the fields
 to their provider's documentation.

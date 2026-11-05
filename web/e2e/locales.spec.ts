@@ -86,7 +86,7 @@ test.describe('German', () => {
     )
     await page.getByRole('checkbox').check()
     await expect(page.getByRole('main').getByRole('status')).toHaveText(
-      'Die eigene Bibliothek auf diesem Server wird zuerst vollständig gelöscht, einschließlich der Dateien und ohne Papierkorb.',
+      'Die eigene Bibliothek auf diesem Server wird zuerst vollständig gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.',
     )
     await page.screenshot({ path: testInfo.outputPath('german-import.png'), fullPage: true })
     expect(await accessibilityProblems(page)).toEqual([])
