@@ -308,11 +308,11 @@ export default {
   'Everything else': 'Allt annað',
   'Everything here is filed in a collection.': 'Allt hér er flokkað í safn.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Allt sem í því er fer með því: færslur, söfn, merki og viðhengi. Það er ekkert rusl utan um færslusafn.',
+    'Öllu í færslusafninu er eytt: færslum, söfnum, merkjum og viðhengjum. Ekkert er fært í ruslið.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Öllu í færslusafninu þínu hér er eytt fyrst, skrám meðtöldum, og það er ekkert rusl utan um það.',
+    'Öllu í færslusafninu þínu hér er eytt fyrst, skrám meðtöldum. Ekkert er fært í ruslið.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Öllu í {name} er eytt fyrst, skrám meðtöldum, og það er ekkert rusl utan um það.',
+    'Öllu í {name} er eytt fyrst, skrám meðtöldum. Ekkert er fært í ruslið.',
   'Everything the permissions above cover': 'Allt sem heimildirnar hér að ofan ná yfir',
   'Exit Full Screen': 'Hætta í fullum skjá',
   'Expand': 'Fella út',

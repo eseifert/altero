@@ -308,11 +308,11 @@ export default {
   'Everything else': 'Cała reszta',
   'Everything here is filed in a collection.': 'Wszystko tutaj jest przypisane do jakiejś kolekcji.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Wszystko, co w niej jest, idzie razem z nią: elementy, kolekcje, etykiety i załączniki. Wokół biblioteki nie ma kosza.',
+    'Cała zawartość biblioteki zostaje usunięta: elementy, kolekcje, etykiety i załączniki. Nic nie trafia do Kosza.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Wszystko w twojej tutejszej bibliotece zostaje najpierw usunięte, razem z plikami, i nie ma wokół niej kosza.',
+    'Wszystko w twojej tutejszej bibliotece zostaje najpierw usunięte, razem z plikami. Nic nie trafia do Kosza.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Wszystko w {name} zostaje najpierw usunięte, razem z plikami, i nie ma wokół tego kosza.',
+    'Wszystko w {name} zostaje najpierw usunięte, razem z plikami. Nic nie trafia do Kosza.',
   'Everything the permissions above cover': 'Wszystko, co obejmują powyższe uprawnienia',
   'Exit Full Screen': 'Opuść tryb pełnoekranowy',
   'Expand': 'Rozwiń',

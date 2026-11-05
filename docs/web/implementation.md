@@ -87,8 +87,9 @@ signed in to a disposable account. Administrator-set passwords and reset links
 both show translated session-ending notices, invalidate that account's old
 session and leave the browser open. The final password must work on sign-in.
 
-Afrikaans, Danish, Dutch, French, Italian, both Norwegian catalogues, Portuguese
-and Swedish deletion checks display the replacement warnings and verify that
+Afrikaans, Basque, Danish, Dutch, French, Icelandic, Italian, both Norwegian
+catalogues, Polish, Portuguese, Russian and Swedish deletion checks display
+the replacement warnings and verify that
 merely choosing replacement leaves data intact. They cancel and then confirm
 deletion of a disposable group, checking that its library is gone. These cases
 do not start a zotero.org migration or restore an archive.

@@ -363,21 +363,26 @@ describe.each([
 describe.each([
   ['af', af, /rondom/iu],
   ['da', da, /omkring/iu],
+  ['eu', eu, /inguruan/iu, /zaborr/iu],
   ['fr', fr, /autour/iu],
+  ['is', icelandic, /utan um/iu],
   ['it', italian, /attorno/iu],
   ['nb', nb, /rundt/iu],
   ['nl', nl, /omheen|om een bibliotheek heen/iu],
   ['nn', nn, /rundt/iu],
+  ['pl', pl, /wokół/iu],
   ['pt-BR', ptBR, /em volta/iu],
   ['pt-PT', ptPT, /à volta/iu],
+  ['ru', ru, /вокруг/iu, /корзин/iu],
   ['sv', sv, /runt/iu],
-] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation) => {
+] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation, trashTerm: string | RegExp = catalogue.Trash.toLowerCase()) => {
   it.each([
     'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.',
     'Everything in your library here is deleted first, files included, and there is no trash around it.',
     'Everything in {name} is deleted first, files included, and there is no trash around it.',
   ] as const)('uses the Trash term without a literal spatial metaphor in “%s”', (key) => {
-    expect(catalogue[key].toLowerCase()).toContain(catalogue.Trash.toLowerCase())
+    // Basque and Russian inflect the UI noun in these sentences.
+    expect(catalogue[key].toLowerCase()).toMatch(trashTerm)
     expect(catalogue[key]).not.toMatch(spatialTranslation)
   })
 })

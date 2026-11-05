@@ -306,11 +306,11 @@ export default {
   'Everything else': 'Gainerako guztia',
   'Everything here is filed in a collection.': 'Hemengo guztia bilduma batean artxibatuta dago.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Barruko guztia berarekin doa: elementuak, bildumak, etiketak eta eranskinak. Liburutegi batek ez du zaborrik inguruan.',
+    'Liburutegiko eduki guztia ezabatzen da: elementuak, bildumak, etiketak eta eranskinak. Ez da ezer Zaborrera eramaten.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Hemengo zure liburutegiko guztia ezabatzen da lehenik, fitxategiak barne, eta ez dago zaborrik inguruan.',
+    'Hemengo zure liburutegiko guztia ezabatzen da lehenik, fitxategiak barne. Ez da ezer Zaborrera eramaten.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    '{name} liburutegiko guztia ezabatzen da lehenik, fitxategiak barne, eta ez dago zaborrik inguruan.',
+    '{name} liburutegiko guztia ezabatzen da lehenik, fitxategiak barne. Ez da ezer Zaborrera eramaten.',
   'Everything the permissions above cover': 'Goiko baimenek hartzen duten guztia',
   'Exit Full Screen': 'Irten pantaila osotik',
   'Expand': 'Zabaldu',

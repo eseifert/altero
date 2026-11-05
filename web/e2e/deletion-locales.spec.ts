@@ -1,6 +1,30 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  eu: {
+    personal: 'Hemengo zure liburutegiko guztia ezabatzen da lehenik, fitxategiak barne. Ez da ezer Zaborrera eramaten.',
+    named: (name: string) => `${name} liburutegiko guztia ezabatzen da lehenik, fitxategiak barne. Ez da ezer Zaborrera eramaten.`,
+    group: 'Liburutegiko eduki guztia ezabatzen da: elementuak, bildumak, etiketak eta eranskinak. Ez da ezer Zaborrera eramaten.',
+    delete: 'Ezabatu', cancel: 'Utzi', deleted: 'Taldea ezabatu da.',
+  },
+  is: {
+    personal: 'Öllu í færslusafninu þínu hér er eytt fyrst, skrám meðtöldum. Ekkert er fært í ruslið.',
+    named: (name: string) => `Öllu í ${name} er eytt fyrst, skrám meðtöldum. Ekkert er fært í ruslið.`,
+    group: 'Öllu í færslusafninu er eytt: færslum, söfnum, merkjum og viðhengjum. Ekkert er fært í ruslið.',
+    delete: 'Eyða', cancel: 'Hætta við', deleted: 'Hópi eytt.',
+  },
+  pl: {
+    personal: 'Wszystko w twojej tutejszej bibliotece zostaje najpierw usunięte, razem z plikami. Nic nie trafia do Kosza.',
+    named: (name: string) => `Wszystko w ${name} zostaje najpierw usunięte, razem z plikami. Nic nie trafia do Kosza.`,
+    group: 'Cała zawartość biblioteki zostaje usunięta: elementy, kolekcje, etykiety i załączniki. Nic nie trafia do Kosza.',
+    delete: 'Usuń', cancel: 'Anuluj', deleted: 'Grupa została usunięta.',
+  },
+  ru: {
+    personal: 'Всё содержимое вашей библиотеки на этом сервере сначала удаляется, включая файлы. Ничего не перемещается в Корзину.',
+    named: (name: string) => `Всё содержимое ${name} сначала удаляется, включая файлы. Ничего не перемещается в Корзину.`,
+    group: 'Всё содержимое библиотеки удаляется: записи, коллекции, теги и вложения. Ничего не перемещается в Корзину.',
+    delete: 'Удалить', cancel: 'Отменить', deleted: 'Группа удалена.',
+  },
   af: {
     personal: 'Die hele inhoud van u biblioteek op hierdie bediener word eers geskrap, lêers ingesluit, sonder om dit na die asblik te skuif.',
     named: (name: string) => `Die hele inhoud van ${name} word eers geskrap, lêers ingesluit, sonder om dit na die asblik te skuif.`,
