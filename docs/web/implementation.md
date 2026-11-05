@@ -93,6 +93,11 @@ merely choosing replacement leaves data intact. They cancel and then confirm
 deletion of a disposable group, checking that its library is gone. These cases
 do not start a zotero.org migration or restore an archive.
 
+Group activity checks create a real group item, then check that the change
+description and actor name have a space between them in Dutch and Arabic on
+desktop and phone. A margin alone would not separate the words when copied or
+read as plain text.
+
 `pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,

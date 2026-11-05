@@ -352,7 +352,7 @@ const editedDescription = computed({
       </p>
       <ul v-else class="activity">
         <li v-for="entry in log" :key="entry.id" class="activity__entry">
-          <span class="activity__what">{{ describe(entry) }}</span>
+          <span class="activity__what">{{ describe(entry) + ' ' }}</span>
           <span class="activity__who">
             <span dir="auto">{{ entry.actor ? entry.actor.name || entry.actor.username : t('Somebody') }}</span>
             ·

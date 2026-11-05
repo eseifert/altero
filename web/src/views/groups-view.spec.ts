@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { i18n } from '@/i18n'
+import { i18n, loadLocale } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 import type { Group } from '@/stores/groups'
 
@@ -278,6 +278,20 @@ describe('the groups screen', () => {
     const entries = wrapper.findAll('.activity__entry')
     expect(entries[0].text()).toContain('Grace')
     expect(entries[1].text()).toContain('Somebody')
+  })
+
+  it.each(['en-US', 'ar'] as const)('separates the activity from its actor in %s', async (locale) => {
+    await loadLocale(locale)
+    i18n.global.locale.value = locale
+    const wrapper = await screen()
+    await wrapper.find('.card').trigger('click')
+    await flush()
+
+    for (const entry of wrapper.findAll('.activity__entry')) {
+      const description = entry.find('.activity__what').text()
+      const actor = entry.find('.activity__who > span').text()
+      expect(entry.element.textContent).toContain(`${description} ${actor}`)
+    }
   })
 
   it('counts what each change touched', async () => {

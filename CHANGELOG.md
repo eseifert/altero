@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Separate group activity descriptions from actor names so adjacent words remain readable.
 - Clarify deletion warnings in Afrikaans, Danish, Dutch, Norwegian and Swedish.
 - Clarify French, Italian and Portuguese deletion warnings and consistently name the Trash.
 - Display filename extensions with their leading dot intact in right-to-left confirmation prompts and buttons.
