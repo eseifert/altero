@@ -1909,6 +1909,10 @@ catalog checks also keep permission and merge terms aligned with library labels.
 <p>Polish consent checks use a public OAuth client registered by the test setup and
 actual pending authorization requests with PKCE. They inspect identity-only and
 library permissions, then choose a collection and check the scope instructions.
+Twenty background collections include a long unbroken name so the target is
+below the viewport even in a focused run. The page must fit the viewport and
+its native checkbox must still accept a normal click after scrolling. Consent
+labels wrap within their fieldset and leave the inputs at their native width.
 Neither request is approved. The test server uses its explicit loopback public
 URL so the issuer comes from configuration, as it does on a deployed instance.</p>
 <p>Spanish checks cover formal instructions during key issuance, import review,
@@ -1944,6 +1948,10 @@ migration preserves the non-English values. British English keeps “bin”.</p>
 description and actor name have a space between them in Dutch and Arabic on
 desktop and phone. A margin alone would not separate the words when copied or
 read as plain text.</p>
+<p>The offline-shell check adds 55 temporary books so its original fixture is
+beyond the first page. It loads later rows before opening that item and checks
+that the cache contains only application paths, then opens the shell offline.
+The extra books are removed after the case.</p>
 <p><code>pwa-updates.spec.ts</code> serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,
@@ -1971,6 +1979,12 @@ Space. Tag checks hold/refuse writes, verify immediate chips and selective
 rollback, and read persisted tags through the API and after reload. Clipboard
 checks copy a real share link, read it back from Chromium's clipboard and keep
 the Copy button's accessible name alongside its live success announcement.</p>
+<p>Editing-confirmation and optimistic-tag cases search for their own fixture item
+before page-wide accessibility checks. This bounds the visible library rows as
+earlier cases add data; the scans still include the page's other controls.
+The search toolbar wraps on narrow screens, keeping the filtered row reachable
+by a normal tap. Confirmation cases assert that the open search fits the viewport
+before opening the item.</p>
 <p>Touch press feedback supplements native <code>:active</code> on standard buttons and icon
 tools. Passive pointer listeners leave clicks and scrolling to the browser;
 release, cancellation, moving away, scrolling and window blur clear the wash.
