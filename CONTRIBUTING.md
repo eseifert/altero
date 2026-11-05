@@ -4,6 +4,19 @@ altero reimplements a protocol that other people's software already speaks. That
 shapes almost everything below: the question is rarely "is this good design" but
 "is this what the Zotero client expects".
 
+## Reporting problems and suggesting changes
+
+Use the [issue chooser](https://github.com/eseifert/altero/issues/new/choose) for
+bug reports and feature requests. A bug report needs the altero version, what
+happened and what was expected, and the steps or circumstances that trigger it.
+Include the exact Zotero or browser version, operating system and database when
+relevant; small reproductions are more useful than a whole library. Remove
+credentials and private content from logs and screenshots before sharing them.
+
+Feature requests describe the task, proposed behaviour and alternatives.
+[Discussions](https://github.com/eseifert/altero/discussions) is also available
+for setup help and questions, and blank issues remain available.
+
 ## Getting set up
 
 Install the [ICU build prerequisites](docs/deployment.md#from-a-source-checkout)

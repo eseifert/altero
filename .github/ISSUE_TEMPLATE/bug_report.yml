@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a problem with altero or a Zotero client using it.
+body:
+  - type: input
+    id: version
+    attributes:
+      label: altero version
+      description: Include the release version, container tag/digest or source commit.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does the problem occur?
+      options:
+        - Zotero desktop sync
+        - Web interface
+        - API
+        - Installation, deployment or upgrade
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: What happened, and what did you expect?
+      description: Include the error message and whether the problem happens every time.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Describe what you were doing. If a small example reproduces it, include that; if the trigger is unknown, say so.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the server OS, SQLite or PostgreSQL, deployment method, and the exact Zotero or browser version and OS when relevant.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      description: Remove API keys, passwords, cookies, OAuth tokens and private library content before sharing.

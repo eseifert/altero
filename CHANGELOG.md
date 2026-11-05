@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add bug-report and feature-request forms, with links to setup help and documentation.
 - Keep Polish pronoun capitalization consistent in consent and identity-confirmation messages.
 - Align Finnish item and merge terms with the library and correct the field-selection instruction.
 - Explain directly in both English variants that deleting or replacing a library bypasses Trash.

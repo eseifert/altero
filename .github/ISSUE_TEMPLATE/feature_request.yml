@@ -1,0 +1,22 @@
+name: Feature request
+description: Describe a problem you would like altero to solve.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe the task and what prevents you from completing it today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the behaviour you would find useful and who would use it.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or related work
+      description: Include workarounds, related issues or Zotero behaviour that informs the request.

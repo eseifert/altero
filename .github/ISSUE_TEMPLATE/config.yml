@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Setup help and questions
+    url: https://github.com/eseifert/altero/discussions
+    about: Ask a usage or deployment question in Discussions.
+  - name: Documentation
+    url: https://altero.run/
+    about: Read the deployment, client setup and compatibility guides.
