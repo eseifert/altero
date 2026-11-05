@@ -363,8 +363,11 @@ describe.each([
 describe.each([
   ['af', af, /rondom/iu],
   ['da', da, /omkring/iu],
+  ['de', de, /herum/iu, undefined, /Nichts wird in den Papierkorb verschoben/u],
+  ['es', es, /alrededor/iu, undefined, /Nada se mueve a la Papelera/u],
   ['eu', eu, /inguruan/iu, /zaborr/iu],
   ['fr', fr, /autour/iu],
+  ['gl', gl, /ao seu redor/iu, undefined, /Nada se move ao Lixo/u],
   ['is', icelandic, /utan um/iu],
   ['it', italian, /attorno/iu],
   ['nb', nb, /rundt/iu],
@@ -375,7 +378,7 @@ describe.each([
   ['pt-PT', ptPT, /à volta/iu],
   ['ru', ru, /вокруг/iu, /корзин/iu],
   ['sv', sv, /runt/iu],
-] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation, trashTerm: string | RegExp = catalogue.Trash.toLowerCase()) => {
+] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation, trashTerm: string | RegExp = catalogue.Trash.toLowerCase(), bypassesTrash?: RegExp) => {
   it.each([
     'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.',
     'Everything in your library here is deleted first, files included, and there is no trash around it.',
@@ -384,6 +387,7 @@ describe.each([
     // Basque and Russian inflect the UI noun in these sentences.
     expect(catalogue[key].toLowerCase()).toMatch(trashTerm)
     expect(catalogue[key]).not.toMatch(spatialTranslation)
+    if (bypassesTrash) expect(catalogue[key]).toMatch(bypassesTrash)
   })
 })
 

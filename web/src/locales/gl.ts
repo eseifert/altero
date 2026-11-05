@@ -309,11 +309,11 @@ export default {
   'Everything here is filed in a collection.':
     'Todo o que hai aquí está arquivado nunha colección.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Todo o que contén vai con el: elementos, coleccións, etiquetas e anexos. Unha biblioteca non ten lixo ao seu redor.',
+    'Todo o contido da biblioteca elimínase: elementos, coleccións, etiquetas e anexos. Nada se move ao Lixo.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Primeiro elimínase todo o que hai na túa biblioteca aquí, ficheiros incluídos, e non hai lixo onde recuperalo.',
+    'Primeiro elimínase todo o contido da túa biblioteca neste servidor, ficheiros incluídos. Nada se move ao Lixo.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Primeiro elimínase todo o que hai en {name}, ficheiros incluídos, e non hai lixo onde recuperalo.',
+    'Primeiro elimínase todo o contido de {name}, ficheiros incluídos. Nada se move ao Lixo.',
   'Everything the permissions above cover': 'Todo o que cobren os permisos de arriba',
   Expand: 'Expandir',
   'Exit Full Screen': 'Saír de pantalla completa',

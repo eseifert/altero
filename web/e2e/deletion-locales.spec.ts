@@ -1,6 +1,24 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  de: {
+    personal: 'Die eigene Bibliothek auf diesem Server wird zuerst vollständig gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.',
+    named: (name: string) => `Der gesamte Inhalt von ${name} wird zuerst gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.`,
+    group: 'Der gesamte Inhalt der Bibliothek wird gelöscht: Einträge, Sammlungen, Schlagwörter und Anhänge. Nichts wird in den Papierkorb verschoben.',
+    delete: 'Löschen', cancel: 'Abbrechen', deleted: 'Gruppe gelöscht.',
+  },
+  es: {
+    personal: 'Todo el contenido de su biblioteca en este servidor se elimina primero, archivos incluidos. Nada se mueve a la Papelera.',
+    named: (name: string) => `Todo el contenido de ${name} se elimina primero, archivos incluidos. Nada se mueve a la Papelera.`,
+    group: 'Todo el contenido de la biblioteca se elimina: ítems, colecciones, etiquetas y adjuntos. Nada se mueve a la Papelera.',
+    delete: 'Eliminar', cancel: 'Cancelar', deleted: 'Grupo eliminado.',
+  },
+  gl: {
+    personal: 'Primeiro elimínase todo o contido da túa biblioteca neste servidor, ficheiros incluídos. Nada se move ao Lixo.',
+    named: (name: string) => `Primeiro elimínase todo o contido de ${name}, ficheiros incluídos. Nada se move ao Lixo.`,
+    group: 'Todo o contido da biblioteca elimínase: elementos, coleccións, etiquetas e anexos. Nada se move ao Lixo.',
+    delete: 'Eliminar', cancel: 'Cancelar', deleted: 'Grupo eliminado.',
+  },
   eu: {
     personal: 'Hemengo zure liburutegiko guztia ezabatzen da lehenik, fitxategiak barne. Ez da ezer Zaborrera eramaten.',
     named: (name: string) => `${name} liburutegiko guztia ezabatzen da lehenik, fitxategiak barne. Ez da ezer Zaborrera eramaten.`,
