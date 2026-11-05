@@ -34,6 +34,9 @@
         <loc>https://altero.run/dev/deployment/</loc>
       </url>
       <url>
+        <loc>https://altero.run/dev/testing-podman/</loc>
+      </url>
+      <url>
         <loc>https://altero.run/dev/configuration/</loc>
       </url>
       <url>

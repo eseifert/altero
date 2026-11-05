@@ -317,6 +317,8 @@
       
         
       
+        
+      
     
     
     
@@ -910,6 +912,8 @@
       
         
       
+        
+      
     
     
     
@@ -966,6 +970,33 @@
     
   
   Deployment
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing-podman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Checking a rootless Podman deployment
 
     
   </span>
@@ -1759,9 +1790,12 @@ To contribute a reproducible platform result, follow the
 <p>Populated databases from every beta through beta.7 pass direct upgrades to the
 current development schema on SQLite and PostgreSQL, including attachment
 downloads and repeat startup. See the <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation">upgrade matrix and limits</a>.</p>
-<p>One confirmed issue remains in Zotero 10.0.1 itself: when file-conflict sides
-have equal displayed modification dates, choosing Remote can retain the local
-bytes. See <a href="../client-compatibility/#run-two-real-desktop-profiles">the reproduced client behavior</a>.</p>
+<p>A file-conflict issue was reproduced in Zotero 10.0.1 and 10.0.6: when both sides
+have equal displayed modification dates, choosing Remote can retain and upload
+the local bytes. The later run used Zotero Storage at zotero.org; the
+<a href="https://forums.zotero.org/discussion/134528/bug-selecting-remote-in-a-file-conflict-can-upload-the-local-file">upstream report</a>
+records the reproduction and file hashes. This equal-date case has not been
+rerun on 10.0.7. See <a href="../client-compatibility/#run-two-real-desktop-profiles">the exercised cases and limits</a>.</p>
 <p><strong>Short version:</strong> ordinary Zotero Desktop synchronization is the target; the official mobile apps work through a build of your own, unofficially but supported.</p>
 <h2 id="user-facing-capabilities">User-facing capabilities<a class="headerlink" href="#user-facing-capabilities" title="Permanent link">&para;</a></h2>
 <table>

@@ -18,7 +18,7 @@
         <link rel="prev" href="../web/data-transfer/">
       
       
-        <link rel="next" href="../configuration/">
+        <link rel="next" href="../testing-podman/">
       
       
         
@@ -308,6 +308,8 @@
   
     
       
+      
+        
       
         
       
@@ -912,6 +914,8 @@
       
         
       
+        
+      
     
     
     
@@ -1340,6 +1344,33 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing-podman/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Checking a rootless Podman deployment
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2377,6 +2408,10 @@ and repeat startup; see the <a href="https://github.com/eseifert/altero/blob/mas
 </span></code></pre></div>
 <p><code>podman-compose</code> runs <code>docker/compose.yaml</code> as it is. For Quadlet, a systemd unit or a NixOS <code>virtualisation.oci-containers</code> module, the settings are the ones <a href="../configuration/">Configuration</a> lists, plus <code>ALTERO_DATABASE_URL</code> pointing at the PostgreSQL container over a shared network.</p>
 <p>A worked NixOS example, with altero and PostgreSQL as <code>virtualisation.oci-containers</code> units on a shared Podman network, is posted in <a href="https://github.com/eseifert/altero/discussions/5#discussioncomment-18404764">Discussion #5</a>. It is one contributor's running configuration rather than a reference deployment.</p>
+<p>To contribute another result, follow the <a href="../testing-podman/">rootless Podman check</a>.
+It covers a fresh SQLite volume, file persistence after container replacement
+and the health check with a changed internal port. The procedure still needs
+an operator run; it does not expand the coverage claimed above.</p>
 <h2 id="from-a-source-checkout">From a source checkout<a class="headerlink" href="#from-a-source-checkout" title="Permanent link">&para;</a></h2>
 <p>Requirements:</p>
 <ul>
@@ -2682,13 +2717,13 @@ one library's data and files; it does not contain instance accounts or API keys.
         
         
           
-          <a href="../configuration/" class="md-footer__link md-footer__link--next" aria-label="Next: Configuration">
+          <a href="../testing-podman/" class="md-footer__link md-footer__link--next" aria-label="Next: Checking a rootless Podman deployment">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Configuration
+                Checking a rootless Podman deployment
               </div>
             </div>
             <div class="md-footer__button md-icon">
