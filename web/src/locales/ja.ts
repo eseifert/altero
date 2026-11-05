@@ -289,10 +289,10 @@ export default {
   'Everything else': 'その他',
   'Everything here is filed in a collection.': 'すべての項目がコレクションに整理されています。',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    '中身もすべて消えます。アイテム、コレクション、タグ、添付ファイル。ライブラリの外側にゴミ箱はありません。',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.': 'ここのライブラリの内容はファイルも含めて先に削除され、ごみ箱には入りません。',
+    'ライブラリ内のアイテム、コレクション、タグ、添付ファイルがすべて削除されます。ごみ箱には移動しません。',
+  'Everything in your library here is deleted first, files included, and there is no trash around it.': 'このサーバー上のライブラリの内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    '{name} の中身はファイルも含めて先に削除されます。ライブラリーにはごみ箱がありません。',
+    '{name} の内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。',
   'Everything the permissions above cover': '上の権限が及ぶすべて',
   Expand: '展開',
   'Exit Full Screen': '全画面表示から戻る',

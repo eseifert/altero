@@ -370,6 +370,7 @@ describe.each([
   ['gl', gl, /ao seu redor/iu, undefined, /Nada se move ao Lixo/u],
   ['is', icelandic, /utan um/iu],
   ['it', italian, /attorno/iu],
+  ['ja', ja, /外側|ライブラリーにはごみ箱がありません/u, undefined, /ごみ箱には移動しません/u],
   ['nb', nb, /rundt/iu],
   ['nl', nl, /omheen|om een bibliotheek heen/iu],
   ['nn', nn, /rundt/iu],
@@ -378,6 +379,8 @@ describe.each([
   ['pt-PT', ptPT, /à volta/iu],
   ['ru', ru, /вокруг/iu, /корзин/iu],
   ['sv', sv, /runt/iu],
+  ['zh-CN', zhCN, /外面/u, undefined, /不会移入回收站/u],
+  ['zh-TW', zhTW, /外面/u, undefined, /不會移至垃圾筒/u],
 ] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation, trashTerm: string | RegExp = catalogue.Trash.toLowerCase(), bypassesTrash?: RegExp) => {
   it.each([
     'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.',

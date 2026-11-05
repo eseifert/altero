@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Clarify Japanese and Chinese warnings that library deletion bypasses Trash, preserving regional terms.
 - Clarify German, Spanish and Galician warnings that library deletion bypasses Trash.
 - Clarify Basque, Icelandic, Polish and Russian warnings that library deletion bypasses Trash.
 - Separate group activity descriptions from actor names so adjacent words remain readable.

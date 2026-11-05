@@ -297,11 +297,11 @@ export default {
   'Everything else': '其他一切',
   'Everything here is filed in a collection.': '這裡的一切都已歸入某個文獻集。',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    '其中的一切都會隨之消失：項目、文獻集、標籤和附件。文獻庫外面沒有垃圾筒。',
+    '文獻庫中的所有內容都會被刪除：項目、文獻集、標籤和附件。內容不會移至垃圾筒。',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    '你在這裡的文獻庫中的一切會先被刪除，檔案也包括在內，而且沒有垃圾筒可以找回。',
+    '你在此伺服器上的文獻庫內容會先被全部刪除，包括檔案。內容不會移至垃圾筒。',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    '{name} 中的一切會先被刪除，檔案也包括在內，而且沒有垃圾筒可以找回。',
+    '{name} 中的所有內容會先被刪除，包括檔案。內容不會移至垃圾筒。',
   'Everything the permissions above cover': '上述權限涵蓋的全部內容',
   Expand: '展開',
   'Exit Full Screen': '離開全螢幕模式',

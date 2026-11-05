@@ -1,6 +1,24 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  ja: {
+    personal: 'このサーバー上のライブラリの内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。',
+    named: (name: string) => `${name} の内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。`,
+    group: 'ライブラリ内のアイテム、コレクション、タグ、添付ファイルがすべて削除されます。ごみ箱には移動しません。',
+    delete: '削除', cancel: 'キャンセル', deleted: 'グループを削除しました。',
+  },
+  'zh-CN': {
+    personal: '你在此服务器上的文库内容会先被全部删除，包括文件。内容不会移入回收站。',
+    named: (name: string) => `${name} 中的所有内容会先被删除，包括文件。内容不会移入回收站。`,
+    group: '文库中的所有内容都会被删除：条目、分类、标签和附件。内容不会移入回收站。',
+    delete: '删除', cancel: '取消', deleted: '群组已删除。',
+  },
+  'zh-TW': {
+    personal: '你在此伺服器上的文獻庫內容會先被全部刪除，包括檔案。內容不會移至垃圾筒。',
+    named: (name: string) => `${name} 中的所有內容會先被刪除，包括檔案。內容不會移至垃圾筒。`,
+    group: '文獻庫中的所有內容都會被刪除：項目、文獻集、標籤和附件。內容不會移至垃圾筒。',
+    delete: '刪除', cancel: '取消', deleted: '群組已刪除。',
+  },
   de: {
     personal: 'Die eigene Bibliothek auf diesem Server wird zuerst vollständig gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.',
     named: (name: string) => `Der gesamte Inhalt von ${name} wird zuerst gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.`,
