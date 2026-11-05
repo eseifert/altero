@@ -1889,6 +1889,20 @@ letter so an Arabic sentence cannot silently display <code>.pdf</code> as <code>
 signed in to a disposable account. Administrator-set passwords and reset links
 both show translated session-ending notices, invalidate that account's old
 session and leave the browser open. The final password must work on sign-in.</p>
+<p>Afrikaans, Basque, both Chinese catalogues, Danish, Dutch, both English variants,
+French, Galician, German, Icelandic, Italian, Japanese, both Norwegian catalogues,
+Polish, Portuguese, Russian, Spanish and Swedish deletion checks display the
+replacement warnings and verify that merely choosing replacement leaves data intact. They
+cancel and then confirm deletion of a disposable group, checking that its
+library is gone. These cases do not start a zotero.org migration or restore
+an archive.</p>
+<p>The three source messages also state directly that deleted content is not moved
+to the trash. Their English keys are shared across all catalogues; the key
+migration preserves the non-English values. British English keeps “bin”.</p>
+<p>Group activity checks create a real group item, then check that the change
+description and actor name have a space between them in Dutch and Arabic on
+desktop and phone. A margin alone would not separate the words when copied or
+read as plain text.</p>
 <p><code>pwa-updates.spec.ts</code> serves the built interface through an isolated HTTP origin
 with two deployment stamps. Only the HTML and worker build ids change; assets
 and API responses come from the real server. Actual service workers install,
