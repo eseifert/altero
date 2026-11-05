@@ -81,6 +81,8 @@ owner-profile display and duplicate merging. Publishing checks upload a file,
 answer the translated licence questions and verify the stored licence and
 downloaded bytes. Catalogue guards distinguish direct address from third-person
 descriptions; browser checks establish behavior, not native-speaker approval.
+The account case also checks the current replacement warning for a personal
+library import.
 
 Editing-confirmation checks cover English, Afrikaans and Arabic at both viewport
 sizes, including formal Afrikaans warnings. They detect words split across

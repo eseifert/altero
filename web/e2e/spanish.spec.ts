@@ -18,7 +18,7 @@ test('uses formal Spanish when issuing a key and explaining import and profile s
   await expect(page.locator('.settings__steps')).toContainText('Permítale leer su biblioteca personal y guárdela.')
   await page.getByRole('checkbox').check()
   await expect(page.getByRole('main').getByRole('status')).toHaveText(
-    'Todo lo que hay en su biblioteca aquí se elimina primero, archivos incluidos, y no hay papelera que lo recoja.',
+    'Todo el contenido de su biblioteca en este servidor se elimina primero, archivos incluidos. Nada se mueve a la Papelera.',
   )
   expect(await accessibilityProblems(page)).toEqual([])
   await page.goto('/app/u/ada')
