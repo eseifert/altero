@@ -332,6 +332,10 @@ library and publishing screens. Neutral action labels can use the infinitive.
 Keep third-person descriptions intact: `pide un código` describes the sign-in
 process, while `crea una clave` describes what linking Zotero does.
 
+Polish keeps informal address with lowercase pronouns within sentences, including
+consent descriptions. Preserve ordinary capitals at the start of a sentence or
+label, such as `Twoje hasło`.
+
 Afrikaans uses formal `u`, including editing conflicts and confirmation prompts;
 keep these consistent with its account and library instructions.
 

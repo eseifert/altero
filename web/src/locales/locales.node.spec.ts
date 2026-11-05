@@ -339,6 +339,13 @@ describe('Spanish address', () => {
   })
 })
 
+describe('Polish address', () => {
+  it('keeps informal pronouns lowercase within sentences', () => {
+    const midSentence = /[\p{L},;:]\s+(?:Twój|Twoja|Twoje|Twoją|Twojej|Twoi|Twoim|Twoich|Twoimi|Twojego|Twojemu|Tobie|Ciebie|Cię|Ci)(?!\p{L})/u
+    expect(Object.entries(pl).filter(([, translated]) => midSentence.test(translated))).toEqual([])
+  })
+})
+
 describe('Finnish item terminology', () => {
   it.each([
     'Merge Items',

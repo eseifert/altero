@@ -7,6 +7,7 @@ import { expect, type Locator, type Page, test as base } from '@playwright/test'
 
 export const USERNAME = 'ada'
 export const PASSWORD = 'correct horse battery staple'
+export const OAUTH_CLIENT_ID = 'locale-consent-check'
 export const STATE_FILE = join(import.meta.dirname, '.state.json')
 
 export interface State {

@@ -70,6 +70,12 @@ Dutch checks cover formal address on device and connected-application pages.
 They inspect device-page instructions without completing an authorization;
 catalog checks also keep permission and merge terms aligned with library labels.
 
+Polish consent checks use a public OAuth client registered by the test setup and
+actual pending authorization requests with PKCE. They inspect identity-only and
+library permissions, then choose a collection and check the scope instructions.
+Neither request is approved. The test server uses its explicit loopback public
+URL so the issuer comes from configuration, as it does on a deployed instance.
+
 Spanish checks cover formal instructions during key issuance, import review,
 owner-profile display and duplicate merging. Publishing checks upload a file,
 answer the translated licence questions and verify the stored licence and

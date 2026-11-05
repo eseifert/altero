@@ -76,7 +76,7 @@ export default {
   'Add to My Publications…': 'Dodaj do Moich publikacji…',
   'Add to the selection or take out of it': 'Dodaj do zaznaczenia lub usuń z niego',
   'Add “{name}” to My Publications': 'Dodaj „{name}” do Moich publikacji',
-  'Add, change and remove things in your library': 'Dodawać, zmieniać i usuwać elementy w Twojej bibliotece',
+  'Add, change and remove things in your library': 'Dodawać, zmieniać i usuwać elementy w twojej bibliotece',
   'Administration': 'Administracja',
   'Administrator': 'Administrator',
   'Administrators': 'Administratorzy',
@@ -170,7 +170,7 @@ export default {
   'Choose how your work may be shared': 'Wybierz sposób współdzielenia swojej pracy',
   'Choose this version': 'Wybierz tę wersję',
   'Choosing a collection also includes everything nested inside it. The application will not be able to change your collections, saved searches, settings or tags.':
-    'Wybranie kolekcji obejmuje też wszystko, co się w niej znajduje. Aplikacja nie będzie mogła zmieniać Twoich kolekcji, zapisanych wyszukiwań, ustawień ani etykiet.',
+    'Wybranie kolekcji obejmuje też wszystko, co się w niej znajduje. Aplikacja nie będzie mogła zmieniać twoich kolekcji, zapisanych wyszukiwań, ustawień ani etykiet.',
   'Citation': 'Cytowanie',
   'Citation style': 'Styl cytowania',
   'Clear Formatting': 'Wyczyść formatowanie',
@@ -279,7 +279,7 @@ export default {
     'Gotowe. Zotero właśnie przejmuje połączenie — możesz zamknąć tę stronę i wrócić do programu.',
   'Download': 'Pobierz',
   'Download and upload attachments': 'Pobieranie i wysyłanie załączników',
-  'Download your attachments': 'Pobierać Twoje załączniki',
+  'Download your attachments': 'Pobierać twoje załączniki',
   'Downloading attachments…': 'Pobieranie załączników…',
   'Drag to move this divide. Double-click to put it back.':
     'Przeciągnij, aby przesunąć ten podział. Kliknij dwukrotnie, aby go przywrócić.',
@@ -380,7 +380,7 @@ export default {
   'Invitations': 'Zaproszenia',
   'Invite': 'Zaproś',
   'Issuer': 'Wystawca',
-  'It cannot read your library, your notes or your attachments.': 'Nie może czytać Twojej biblioteki, notatek ani załączników.',
+  'It cannot read your library, your notes or your attachments.': 'Nie może czytać twojej biblioteki, notatek ani załączników.',
   'It stays in your library, with its notes and files.':
     'Pozostaje w twojej bibliotece, razem ze swoimi notatkami i plikami.',
   'It will be able to:': 'Będzie mogła:',
@@ -566,10 +566,10 @@ export default {
   'Read and change everything in your library':
     'Czytanie i zmienianie wszystkiego w twojej bibliotece',
   'Read and write': 'Odczyt i zapis',
-  'Read everything in your library': 'Czytać wszystko w Twojej bibliotece',
+  'Read everything in your library': 'Czytać wszystko w twojej bibliotece',
   'Read only': 'Tylko odczyt',
   'Read the group libraries you belong to': 'Czytać biblioteki grup, do których należysz',
-  'Read your notes': 'Czytać Twoje notatki',
+  'Read your notes': 'Czytać twoje notatki',
   'Reading collections…': 'Wczytywanie kolekcji…',
   'Reading full text…': 'Wczytywanie pełnego tekstu…',
   'Reading items…': 'Wczytywanie elementów…',
@@ -635,8 +635,8 @@ export default {
   'Search this library': 'Szukaj w tej bibliotece',
   'See what would go': 'Zobacz, co by zniknęło',
   'See which groups you belong to': 'Zobaczyć, do których grup należysz',
-  'See your email address': 'Zobaczyć Twój adres e-mail',
-  'See your name and username': 'Zobaczyć Twoje imię i nazwę użytkownika',
+  'See your email address': 'Zobaczyć twój adres e-mail',
+  'See your name and username': 'Zobaczyć twoje imię i nazwę użytkownika',
   'See your page': 'Zobacz swoją stronę',
   'See your public page': 'Zobacz swoją stronę publiczną',
   'Select': 'Zaznacz',
@@ -854,7 +854,7 @@ export default {
     'Możesz zastrzec wszystkie prawa do swojej pracy, udostępnić ją na licencji Creative Commons albo przekazać do domeny publicznej. Tak czy inaczej sama praca jest publikowana tutaj, aby każdy mógł ją czytać.',
   'You have already given this application these permissions.': 'Już nadałeś tej aplikacji te uprawnienia.',
   'You have joined the group.': 'Dołączyłeś do grupy.',
-  'You have just confirmed it is you.': 'Właśnie potwierdzono Twoją tożsamość.',
+  'You have just confirmed it is you.': 'Właśnie potwierdzono twoją tożsamość.',
   'Your account there is not permitted to use this server.':
     'Twoje tamtejsze konto nie ma prawa korzystać z tego serwera.',
   'Your page is hidden. Your items stay in My Publications, so it can be opened again.':
@@ -882,7 +882,7 @@ export default {
   'or': 'albo',
   'this one': 'ta',
   'to your altero library': 'do twojej biblioteki altero',
-  'wants to connect to your account': 'chce połączyć się z Twoim kontem',
+  'wants to connect to your account': 'chce połączyć się z twoim kontem',
   'without files': 'bez plików',
   'zotero.org API key': 'klucz API zotero.org',
   'zotero.org has no password sign-in for other programs, which is why this takes a key rather than your zotero.org password.':

@@ -14,7 +14,7 @@ import { appendFileSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, openS
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
-import { PASSWORD, STATE_FILE, type State, USERNAME } from './state'
+import { OAUTH_CLIENT_ID, PASSWORD, STATE_FILE, type State, USERNAME } from './state'
 
 const ROOT = resolve(import.meta.dirname, '..', '..')
 const PORT = process.env.ALTERO_E2E_PORT ?? '8766'
@@ -101,6 +101,7 @@ export default async function setup(): Promise<() => void> {
     ALTERO_DATABASE_URL: `sqlite+aiosqlite:///${join(directory, 'altero.sqlite')}`,
     ALTERO_STORAGE_PATH: join(directory, 'storage'),
     ALTERO_PORT: PORT,
+    ALTERO_PUBLIC_URL: BASE,
   }
 
   run('alembic', ['upgrade', 'head'], env)
@@ -109,6 +110,13 @@ export default async function setup(): Promise<() => void> {
   run('altero', ['user', 'admin', USERNAME], env)
   const key = /Key for \S+: (\S+)/.exec(run('altero', ['key', 'add', USERNAME], env))?.[1]
   if (!key) throw new Error('No API key was printed')
+
+  run('altero', [
+    'oauth', 'add', OAUTH_CLIENT_ID, '--name', 'Consent wording check',
+    '--redirect-uri', `${BASE}/oauth-test-callback`,
+    ...['openid', 'profile', 'email', 'library.read', 'library.write', 'notes.read', 'files.read']
+      .flatMap(scope => ['--scope', scope]),
+  ], env)
 
   const [program, prefix] = command('altero')
   const log = join(directory, 'server.log')
