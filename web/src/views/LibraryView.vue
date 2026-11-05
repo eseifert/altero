@@ -2862,6 +2862,7 @@ function sortLabel(column: { field: string; label: string }): string {
 .library__tools {
   display: flex;
   flex: 0 1 auto;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--md-spacing-1);
   min-width: 0;

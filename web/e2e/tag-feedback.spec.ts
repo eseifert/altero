@@ -18,9 +18,24 @@ for (const locale of ['en-US', 'ar-EG']) {
       }
       let release = () => {}
       let writes = 0
+      const openFixture = async () => {
+        const query = `"${title}"`
+        const search = page.locator('.library__search-field')
+        if (!await search.isVisible()) await page.locator('.library__search > button').click()
+        if (await search.inputValue() !== query) {
+          const filtered = page.waitForResponse((response) => {
+            const url = new URL(response.url())
+            return url.pathname === '/web/libraries/1/items' && url.searchParams.get('q') === query
+          })
+          await search.fill(query)
+          await filtered
+        }
+        await expect(page.locator('.library__items [data-row]')).toHaveCount(1)
+        await openItem(page, title)
+      }
       try {
         await signIn(page)
-        await openItem(page, title)
+        await openFixture()
         const tags = page.locator('.detail .tags')
         const names = tags.locator('.tag-pill__name')
         const list = tags.locator('.tags__list')
@@ -74,7 +89,7 @@ for (const locale of ['en-US', 'ar-EG']) {
         await expect(names).toHaveCount(0)
         expect(await storedTags()).toEqual([])
         await page.reload()
-        await openItem(page, title)
+        await openFixture()
         await expect(names).toHaveCount(0)
         expect(await accessibilityProblems(page)).toEqual([])
       } finally {

@@ -42,6 +42,17 @@ for (const [tag, translated] of Object.entries(labels)) {
       const stored = async () => (await (await request.get(`/users/1/items/${key}`, { headers })).json()).data
       await signIn(page)
       await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await page.locator('.library__search > button').click()
+      const query = `"${title}"`
+      const filtered = page.waitForResponse((response) => {
+        const url = new URL(response.url())
+        return url.pathname === '/web/libraries/1/items' && url.searchParams.get('q') === query
+      })
+      await page.locator('.library__search-field').fill(query)
+      await filtered
+      await expect(page.locator('.library__items [data-row]')).toHaveCount(1)
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
+        .toBeLessThanOrEqual(page.viewportSize()!.width)
       await openItem(page, title)
       await page.locator('.info__type').selectOption('journalArticle')
       const typeDialog = page.getByRole('alertdialog', { name: translated.type, exact: true })

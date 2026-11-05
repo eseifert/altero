@@ -156,6 +156,13 @@ rollback, and read persisted tags through the API and after reload. Clipboard
 checks copy a real share link, read it back from Chromium's clipboard and keep
 the Copy button's accessible name alongside its live success announcement.
 
+Editing-confirmation and optimistic-tag cases search for their own fixture item
+before page-wide accessibility checks. This bounds the visible library rows as
+earlier cases add data; the scans still include the page's other controls.
+The search toolbar wraps on narrow screens, keeping the filtered row reachable
+by a normal tap. Confirmation cases assert that the open search fits the viewport
+before opening the item.
+
 Touch press feedback supplements native `:active` on standard buttons and icon
 tools. Passive pointer listeners leave clicks and scrolling to the browser;
 release, cancellation, moving away, scrolling and window blur clear the wash.

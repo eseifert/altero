@@ -8,6 +8,7 @@ gained a capability worth naming.
 ## [Unreleased]
 
 - Keep long collection names from breaking consent checkboxes; reported by [@eseifert] ([CI#42020904012]).
+- Keep library search tools within narrow screens; reported by [@eseifert] ([CI#42020904012]).
 - Keep browser checks independent of unrelated library rows; reported by [@eseifert] ([CI#42020904012]).
 - Document [seiferte]'s [equal-date file-conflict report][Zotero#134528] and the verified Zotero 10.0.6 case.
 - Add a rootless Podman operator check for persistence, attachment storage and health checks.
