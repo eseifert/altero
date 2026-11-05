@@ -49,6 +49,9 @@ text, plus Serbian creator-name edits verified through the API. Merge checks
 cover eight catalogs with former English fallbacks: type warnings, choosing a
 compatible subset, selecting a field value and checking the saved result.
 They check rendering and behavior, not native-speaker approval of every message.
+Finnish merge and type-change checks also verify the corrected field-selection
+instruction and the library's item term in actions and saved confirmations. The master
+label follows “pääversio” in Zotero's Finnish version-selection instruction.
 
 Creator-name checks cover fifteen further catalogs whose hints previously used
 ordinals or shortened stems. They identify both inputs by their translated

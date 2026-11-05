@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Align Finnish item and merge terms with the library and correct the field-selection instruction.
 - Explain directly in both English variants that deleting or replacing a library bypasses Trash.
 - Clarify Japanese and Chinese warnings that library deletion bypasses Trash, preserving regional terms.
 - Clarify German, Spanish and Galician warnings that library deletion bypasses Trash.

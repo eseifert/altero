@@ -4,6 +4,10 @@ const labels = {
   af: { duplicates: 'Duplikaatitems', merge: 'Voeg items saam', select: 'Kies', merged: 'Items saamgevoeg.' },
   bg: { duplicates: 'Дублирани записи', merge: 'Сливане на записите', select: 'Избиране', merged: 'Записите са слети.' },
   es: { duplicates: 'Elementos duplicados', merge: 'Fusionar elementos', select: 'Seleccionar', merged: 'Elementos fusionados.' },
+  fi: {
+    duplicates: 'Kaksoiskappaleet', merge: 'Yhdistä nimikkeet', select: 'Valitse', merged: 'Nimikkeet yhdistetty.',
+    instruction: 'Valitse kentät, jotka säilytetään muista versioista:',
+  },
   hr: { duplicates: 'Duplicirane stavke', merge: 'Spoji stavke', select: 'Odaberi', merged: 'Stavke su spojene.' },
   id: { duplicates: 'Item duplikat', merge: 'Gabungkan Item', select: 'Pilih', merged: 'Item digabungkan.' },
   km: { duplicates: 'ឯកសារត្រួត', merge: 'បញ្ចូលឯកសារចូលគ្នា', select: 'ជ្រើសរើស', merged: 'បានបញ្ចូលឯកសារចូលគ្នា។' },
@@ -48,6 +52,9 @@ for (const [tag, translated] of Object.entries(labels)) {
       await expect(pane.locator('.merge-pane__instruction')).not.toHaveText(
         'Select fields to keep from other versions of the item:',
       )
+      if ('instruction' in translated) {
+        await expect(pane.locator('.merge-pane__instruction')).toHaveText(translated.instruction)
+      }
       await pane.locator('select[name="merge-publisher"]').selectOption('1')
       await pane.locator('[data-merge-review]').click()
       await expect(pane.locator('[data-merge-confirm]')).toHaveText(translated.merge)

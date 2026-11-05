@@ -339,6 +339,27 @@ describe('Spanish address', () => {
   })
 })
 
+describe('Finnish item terminology', () => {
+  it.each([
+    'Merge Items',
+    'Items merged.',
+    'Could not load the item fields.',
+    'Change Item Type',
+    'Are you sure you want to change the item type?',
+  ] as const)('uses the library item term in “%s”', (key) => {
+    expect(fi[key]).toMatch(/nimik/iu)
+  })
+
+  it('names the master item consistently in the version instructions', () => {
+    expect(fi['Master item']).toBe('Pääversio')
+    expect(fi['Choose the version of the item to use as the master item:']).toMatch(/pääversiona/u)
+  })
+
+  it('spells the field-selection instruction correctly', () => {
+    expect(fi['Select fields to keep from other versions of the item:']).toMatch(/^Valitse /u)
+  })
+})
+
 describe('Afrikaans address', () => {
   it('keeps formal address in editing messages as well as account instructions', () => {
     const informal = /\b(?:jy|jou|joune|julle)\b/iu

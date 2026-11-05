@@ -13,6 +13,12 @@ const labels = {
     extensionQuestion: 'Is u seker u wil die lêeruitbreiding van “.pdf” na “.txt” verander?',
     extensionWarning: 'As u die uitbreiding verander, kan die lêer in ’n ander toepassing oopmaak.',
   },
+  fi: {
+    type: 'Vaihda nimikkeen tyyppi', typeQuestion: 'Haluatko varmasti vaihtaa nimikkeen tyypin?', change: 'Muuta',
+    attach: 'Lisää liite', file: 'Liitä tiedosto…', filename: 'Tiedostonimi', use: 'Käytä .txt',
+    extensionQuestion: 'Haluatko varmasti muuttaa tiedostopäätteen “.pdf” muotoon “.txt”?',
+    extensionWarning: 'Jos vaihdat tiedostopäätteen, tiedosto saattaa avautua eri sovelluksessa.',
+  },
   ar: {
     type: 'تغيير نوع العنصر', typeQuestion: 'هل تريد بالتأكيد تغيير نوع العنصر؟', change: 'تغيير',
     attach: 'إضافة مرفق', file: 'إرفاق ملف…', filename: 'اسم الملف', use: 'استخدام .txt',
@@ -42,6 +48,7 @@ for (const [tag, translated] of Object.entries(labels)) {
       await expect(typeDialog).toContainText(translated.typeQuestion)
       expect((await stored()).itemType).toBe('book')
       expect(await accessibilityProblems(page)).toEqual([])
+      await page.screenshot({ path: info.outputPath(`${tag}-type.png`), fullPage: true })
       await typeDialog.getByRole('button', { name: translated.change, exact: true }).click()
       await expect.poll(async () => (await stored()).itemType).toBe('journalArticle')
       expect((await stored()).edition).toBeUndefined()
