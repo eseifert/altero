@@ -293,10 +293,10 @@ export default {
   'Everything else': 'Le reste',
   'Everything here is filed in a collection.': 'Tout ici est classé dans une collection.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Tout ce qu’il contient disparaît avec lui : documents, collections, marqueurs et pièces jointes. Il n’y a pas de corbeille autour d’une bibliothèque.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.': 'Tout ce que contient votre bibliothèque ici est supprimé d’abord, fichiers compris, et il n’y a pas de corbeille autour.',
+    'Tout son contenu est supprimé avec lui : documents, collections, marqueurs et pièces jointes. Rien n’est placé dans la corbeille.',
+  'Everything in your library here is deleted first, files included, and there is no trash around it.': 'Tout le contenu de votre bibliothèque sur ce serveur est d’abord supprimé, fichiers compris, sans passer par la corbeille.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Tout ce que contient {name} est d’abord supprimé, fichiers compris, et il n’y a pas de corbeille autour d’une bibliothèque.',
+    'Tout le contenu de {name} est d’abord supprimé, fichiers compris, sans passer par la corbeille.',
   'Everything the permissions above cover': 'Tout ce que couvrent les autorisations ci-dessus',
   Expand: 'Développer',
   'Exit Full Screen': 'Quitter le mode Plein écran',

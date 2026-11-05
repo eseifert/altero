@@ -360,6 +360,22 @@ describe.each([
   })
 })
 
+describe.each([
+  ['fr', fr, /autour/iu],
+  ['it', italian, /attorno/iu],
+  ['pt-BR', ptBR, /em volta/iu],
+  ['pt-PT', ptPT, /à volta/iu],
+] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation) => {
+  it.each([
+    'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.',
+    'Everything in your library here is deleted first, files included, and there is no trash around it.',
+    'Everything in {name} is deleted first, files included, and there is no trash around it.',
+  ] as const)('uses the Trash term without a literal spatial metaphor in “%s”', (key) => {
+    expect(catalogue[key].toLowerCase()).toContain(catalogue.Trash.toLowerCase())
+    expect(catalogue[key]).not.toMatch(spatialTranslation)
+  })
+})
+
 describe('German address', () => {
   it('avoids informal pronouns and singular commands', () => {
     // Neutral instructions first; use formal Sie where direct address helps.

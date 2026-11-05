@@ -315,11 +315,11 @@ export default {
   'Everything else': 'O resto',
   'Everything here is filed in a collection.': 'Tudo aqui está arquivado em uma coleção.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Tudo o que há nela vai junto: itens, coleções, etiquetas e anexos. Não há lixeira em volta de uma biblioteca.',
+    'Todo o conteúdo da biblioteca é excluído: itens, coleções, etiquetas e anexos. Nada é enviado para a lixeira.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Tudo o que está na sua biblioteca aqui é excluído primeiro, arquivos incluídos, e não há lixeira em volta disso.',
+    'Todo o conteúdo da sua biblioteca neste servidor é excluído primeiro, incluindo os arquivos, sem passar pela lixeira.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Tudo o que está em {name} é excluído primeiro, arquivos incluídos, e não há lixeira em volta disso.',
+    'Todo o conteúdo de {name} é excluído primeiro, incluindo os arquivos, sem passar pela lixeira.',
   'Everything the permissions above cover': 'Tudo o que as permissões acima abrangem',
   Expand: 'Expandir',
   'Exit Full Screen': 'Sair da tela inteira',

@@ -304,11 +304,11 @@ export default {
   'Everything else': 'Tutto il resto',
   'Everything here is filed in a collection.': 'Qui è tutto collocato in una collezione.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Tutto ciò che contiene se ne va con lei: elementi, collezioni, tag e allegati. Non c’è un cestino attorno a una biblioteca.',
+    'Vengono eliminati anche tutti gli elementi, le collezioni, i tag e gli allegati della biblioteca. Nulla viene spostato nel cestino.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Tutto ciò che sta nella tua biblioteca qui viene eliminato prima, file compresi, e non c’è un cestino attorno.',
+    'Tutto il contenuto della tua biblioteca su questo server viene prima eliminato, file compresi, senza passare dal cestino.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Tutto ciò che sta in {name} viene eliminato prima, file compresi, e non c’è un cestino attorno.',
+    'Tutto il contenuto di {name} viene prima eliminato, file compresi, senza passare dal cestino.',
   'Everything the permissions above cover': 'Tutto ciò che coprono le autorizzazioni qui sopra',
   'Exit Full Screen': 'Esci da schermo intero',
   'Expand': 'Espandi',
