@@ -73,6 +73,10 @@ catalog checks also keep permission and merge terms aligned with library labels.
 Polish consent checks use a public OAuth client registered by the test setup and
 actual pending authorization requests with PKCE. They inspect identity-only and
 library permissions, then choose a collection and check the scope instructions.
+Twenty background collections include a long unbroken name so the target is
+below the viewport even in a focused run. The page must fit the viewport and
+its native checkbox must still accept a normal click after scrolling. Consent
+labels wrap within their fieldset and leave the inputs at their native width.
 Neither request is approved. The test server uses its explicit loopback public
 URL so the issuer comes from configuration, as it does on a deployed instance.
 

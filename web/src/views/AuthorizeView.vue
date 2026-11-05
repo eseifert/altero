@@ -465,7 +465,17 @@ async function decide(approve: boolean): Promise<void> {
   font-size: var(--md-sys-typescale-body-medium-size);
 }
 
+.authorize__choice input {
+  flex-shrink: 0;
+}
+
+.authorize__choice span {
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
 .authorize__library {
+  min-inline-size: 0;
   margin: 0;
   padding: var(--md-spacing-3);
   border: 1px solid var(--md-sys-color-outline-variant);
