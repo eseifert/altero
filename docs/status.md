@@ -19,9 +19,12 @@ Populated databases from every beta through beta.7 pass direct upgrades to the
 current development schema on SQLite and PostgreSQL, including attachment
 downloads and repeat startup. See the [upgrade matrix and limits](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation).
 
-One confirmed issue remains in Zotero 10.0.1 itself: when file-conflict sides
-have equal displayed modification dates, choosing Remote can retain the local
-bytes. See [the reproduced client behavior](client-compatibility.md#run-two-real-desktop-profiles).
+A file-conflict issue was reproduced in Zotero 10.0.1 and 10.0.6: when both sides
+have equal displayed modification dates, choosing Remote can retain and upload
+the local bytes. The later run used Zotero Storage at zotero.org; the
+[upstream report](https://forums.zotero.org/discussion/134528/bug-selecting-remote-in-a-file-conflict-can-upload-the-local-file)
+records the reproduction and file hashes. This equal-date case has not been
+rerun on 10.0.7. See [the exercised cases and limits](client-compatibility.md#run-two-real-desktop-profiles).
 
 **Short version:** ordinary Zotero Desktop synchronization is the target; the official mobile apps work through a build of your own, unofficially but supported.
 

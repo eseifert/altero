@@ -515,9 +515,14 @@ detects every timestamp collision. Exactly equal displayed dates exposed a
 Zotero 10.0.1 bug: choosing Remote can keep and upload the local bytes.
 `Zotero.Sync.Storage.Local.resolveConflicts` identifies the selected side by its
 date instead of a side identifier, so either choice matches the local side.
-This was reproduced with 10.0.1; the equal-date failure has not been rerun
-with a later release. The passing 10.0.7 scenario uses distinct displayed dates to
-verify both working choices.
+The original failure was reproduced with 10.0.1. A separate 2026-10-30 run with
+10.0.6 reproduced it against Zotero Storage at zotero.org: after selecting
+Remote, the downloaded server bytes matched the formerly local file instead.
+The [upstream report](https://forums.zotero.org/discussion/134528/bug-selecting-remote-in-a-file-conflict-can-upload-the-local-file)
+records the real dialog selection, transfers, hashes and a passing control with
+different timestamps. The equal-date case has not been rerun with 10.0.7; its
+passing acceptance scenario uses distinct displayed dates to verify both
+working choices.
 A multi-file HTML snapshot also checks that ZIP transfer restores its HTML
 and CSS on disk.
 

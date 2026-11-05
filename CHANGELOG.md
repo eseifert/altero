@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Document [seiferte]'s [equal-date file-conflict report][Zotero#134528] and the verified Zotero 10.0.6 case.
 - Add a rootless Podman operator check for persistence, attachment storage and health checks.
 - Add bug-report and feature-request forms, with links to setup help and documentation.
 - Keep Polish pronoun capitalization consistent in consent and identity-confirmation messages.
@@ -421,6 +422,8 @@ The first release meant to be used by somebody other than its author.
 [@sherholz]: https://github.com/sherholz
 [@ypomortsev]: https://github.com/ypomortsev
 [@eseifert]: https://github.com/eseifert
+[seiferte]: https://forums.zotero.org/profile/2844366/seiferte
+[Zotero#134528]: https://forums.zotero.org/discussion/134528/bug-selecting-remote-in-a-file-conflict-can-upload-the-local-file
 [CI#41715080977]: https://github.com/eseifert/altero/actions/runs/41715080977
 [CI#41795388477]: https://github.com/eseifert/altero/actions/runs/41795388477
 [PR#7]: https://github.com/eseifert/altero/pull/7
