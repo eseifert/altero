@@ -180,6 +180,11 @@ podman build --format docker -f docker/Dockerfile .
 
 A worked NixOS example, with altero and PostgreSQL as `virtualisation.oci-containers` units on a shared Podman network, is posted in [Discussion #5](https://github.com/eseifert/altero/discussions/5#discussioncomment-18404764). It is one contributor's running configuration rather than a reference deployment.
 
+To contribute another result, follow the [rootless Podman check](testing-podman.md).
+It covers a fresh SQLite volume, file persistence after container replacement
+and the health check with a changed internal port. The procedure still needs
+an operator run; it does not expand the coverage claimed above.
+
 ## From a source checkout
 
 Requirements:

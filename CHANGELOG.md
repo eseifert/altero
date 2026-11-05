@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add a rootless Podman operator check for persistence, attachment storage and health checks.
 - Add bug-report and feature-request forms, with links to setup help and documentation.
 - Keep Polish pronoun capitalization consistent in consent and identity-confirmation messages.
 - Align Finnish item and merge terms with the library and correct the field-selection instruction.
