@@ -311,11 +311,11 @@ export default {
     'Hinihingi ito ng lahat ng nasa ibaba, gaya ng iyong sariling mga setting.',
   'Everything else': 'Lahat ng iba pa',
   'Everything here is filed in a collection.': 'Nakalagay sa isang koleksyon ang lahat ng narito.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Kasama nitong mawawala ang lahat ng nasa loob nito: mga item, koleksyon, tag at attachment. Walang basurahan para sa isang library.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Ide-delete muna ang lahat ng nasa iyong library dito, kasama ang mga file, at walang basurahan para rito.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Ide-delete muna ang lahat ng nasa {name}, kasama ang mga file, at walang basurahan para rito.',
   'Everything the permissions above cover': 'Lahat ng saklaw ng mga pahintulot sa itaas',
   'Exit Full Screen': 'Lumabas sa Full Screen',

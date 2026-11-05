@@ -296,11 +296,11 @@ export default {
   'Everything below asks for it, as your own settings do.': '下面的一切都需要它，就像你自己的設定一樣。',
   'Everything else': '其他一切',
   'Everything here is filed in a collection.': '這裡的一切都已歸入某個文獻集。',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     '文獻庫中的所有內容都會被刪除：項目、文獻集、標籤和附件。內容不會移至垃圾筒。',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     '你在此伺服器上的文獻庫內容會先被全部刪除，包括檔案。內容不會移至垃圾筒。',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name} 中的所有內容會先被刪除，包括檔案。內容不會移至垃圾筒。',
   'Everything the permissions above cover': '上述權限涵蓋的全部內容',
   Expand: '展開',

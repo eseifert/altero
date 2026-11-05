@@ -305,11 +305,11 @@ export default {
     'Alt nedanfor ber om det, slik dine eigne innstillingar gjer.',
   'Everything else': 'Alt anna',
   'Everything here is filed in a collection.': 'Alt her ligg i ei samling.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Alt innhaldet i biblioteket blir sletta: element, samlingar, taggar og vedlegg. Ingenting blir flytta til søppelkorga.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Alt innhaldet i biblioteket ditt på denne tenaren blir sletta først, filer medrekna, utan å bli flytta til søppelkorga.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Alt innhaldet i {name} blir sletta først, filer medrekna, utan å bli flytta til søppelkorga.',
   'Everything the permissions above cover': 'Alt som løyva ovanfor dekkjer',
   'Exit Full Screen': 'Avslutt fullskjerm',

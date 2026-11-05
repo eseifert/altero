@@ -314,11 +314,11 @@ export default {
     'Tudo o que está abaixo pede a senha, assim como as suas próprias configurações.',
   'Everything else': 'O resto',
   'Everything here is filed in a collection.': 'Tudo aqui está arquivado em uma coleção.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Todo o conteúdo da biblioteca é excluído: itens, coleções, etiquetas e anexos. Nada é enviado para a lixeira.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Todo o conteúdo da sua biblioteca neste servidor é excluído primeiro, incluindo os arquivos, sem passar pela lixeira.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Todo o conteúdo de {name} é excluído primeiro, incluindo os arquivos, sem passar pela lixeira.',
   'Everything the permissions above cover': 'Tudo o que as permissões acima abrangem',
   Expand: 'Expandir',

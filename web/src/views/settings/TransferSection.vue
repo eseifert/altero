@@ -197,7 +197,7 @@ const restore = () =>
 
       <p v-if="replace" class="card__warning" role="status">
         {{
-          t('Everything in {name} is deleted first, files included, and there is no trash around it.', { name: targetName })
+          t('Everything in {name} is deleted first, files included. Nothing is moved to the trash.', { name: targetName })
         }}
       </p>
       <p v-else class="settings__detail">

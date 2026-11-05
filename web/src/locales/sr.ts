@@ -305,11 +305,11 @@ export default {
     'Све испод тражи ово, као и ваша сопствена подешавања.',
   'Everything else': 'Све остало',
   'Everything here is filed in a collection.': 'Овде је све разврстано у збирке.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Са њом нестаје и све што садржи: ставке, збирке, ознаке и прилози. За библиотеку не постоји Смеће.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Све у вашој овдашњој библиотеци прво се брише, укључујући датотеке, и не постоји Смеће из ког би се то могло вратити.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Све у библиотеци {name} прво се брише, укључујући датотеке, и не постоји Смеће из ког би се то могло вратити.',
   'Everything the permissions above cover': 'Све што обухватају дозволе изнад',
   'Exit Full Screen': 'Изађи из режима целог екрана',

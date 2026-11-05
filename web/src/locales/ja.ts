@@ -288,10 +288,10 @@ export default {
   'Everything below asks for it, as your own settings do.': '以下の操作はすべて、自分の設定と同じようにパスワードを求めます。',
   'Everything else': 'その他',
   'Everything here is filed in a collection.': 'すべての項目がコレクションに整理されています。',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'ライブラリ内のアイテム、コレクション、タグ、添付ファイルがすべて削除されます。ごみ箱には移動しません。',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.': 'このサーバー上のライブラリの内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.': 'このサーバー上のライブラリの内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。',
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name} の内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。',
   'Everything the permissions above cover': '上の権限が及ぶすべて',
   Expand: '展開',

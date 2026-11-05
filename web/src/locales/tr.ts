@@ -307,11 +307,11 @@ export default {
     'Kendi ayarlarınızda olduğu gibi, aşağıdaki her şey bunu gerektirir.',
   'Everything else': 'Diğer her şey',
   'Everything here is filed in a collection.': 'Buradaki her şey bir dermeye dosyalanmış.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'İçindeki her şey de onunla birlikte gider: eserler, dermeler, etiketler ve ekler. Bir kitaplık için Çöp Sepeti yoktur.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Buradaki kitaplığınızda bulunan her şey, dosyalar dahil, önce silinir ve bunun için Çöp Sepeti yoktur.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name} içindeki her şey, dosyalar dahil, önce silinir ve bunun için Çöp Sepeti yoktur.',
   'Everything the permissions above cover': 'Yukarıdaki izinlerin kapsadığı her şey',
   'Exit Full Screen': 'Tam ekrandan çık',

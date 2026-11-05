@@ -307,11 +307,11 @@ export default {
     'Allt hér fyrir neðan krefst þess, eins og þínar eigin stillingar gera.',
   'Everything else': 'Allt annað',
   'Everything here is filed in a collection.': 'Allt hér er flokkað í safn.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Öllu í færslusafninu er eytt: færslum, söfnum, merkjum og viðhengjum. Ekkert er fært í ruslið.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Öllu í færslusafninu þínu hér er eytt fyrst, skrám meðtöldum. Ekkert er fært í ruslið.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Öllu í {name} er eytt fyrst, skrám meðtöldum. Ekkert er fært í ruslið.',
   'Everything the permissions above cover': 'Allt sem heimildirnar hér að ofan ná yfir',
   'Exit Full Screen': 'Hætta í fullum skjá',

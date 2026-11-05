@@ -295,11 +295,11 @@ export default {
     'Jo reikia visiems toliau esantiems veiksmams, kaip ir jūsų pačių nuostatose.',
   'Everything else': 'Visa kita',
   'Everything here is filed in a collection.': 'Viskas čia priskirta kokiam nors rinkiniui.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Kartu pašalinamas visas jos turinys: įrašai, rinkiniai, gairės ir priedai. Bibliotekos šiukšlinė neapsaugo.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Pirmiausia pašalinamas visas jūsų bibliotekos šiame serveryje turinys, įskaitant rinkmenas, ir šiukšlinė to neapsaugo.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Pirmiausia pašalinamas visas bibliotekos „{name}“ turinys, įskaitant rinkmenas, ir šiukšlinė to neapsaugo.',
   'Everything the permissions above cover': 'Viskas, ką apima aukščiau nurodyti leidimai',
   'Exit Full Screen': 'Grįžti iš viso ekrano',

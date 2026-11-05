@@ -293,11 +293,11 @@ export default {
     '下面的一切都需要它，就像你自己的设置一样。',
   'Everything else': '其他一切',
   'Everything here is filed in a collection.': '这里的一切都已归入某个分类。',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     '文库中的所有内容都会被删除：条目、分类、标签和附件。内容不会移入回收站。',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     '你在此服务器上的文库内容会先被全部删除，包括文件。内容不会移入回收站。',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name} 中的所有内容会先被删除，包括文件。内容不会移入回收站。',
   'Everything the permissions above cover': '上述权限涵盖的全部内容',
   'Exit Full Screen': '退出全屏',

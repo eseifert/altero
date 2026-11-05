@@ -309,11 +309,11 @@ export default {
     'Vyžaduje ho všechno níže, stejně jako vaše vlastní nastavení.',
   'Everything else': 'Vše ostatní',
   'Everything here is filed in a collection.': 'Vše zde je zařazeno do některé kolekce.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Spolu s ní zmizí vše, co obsahuje: položky, kolekce, štítky i přílohy. Pro knihovnu žádný koš neexistuje.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Vše ve vaší zdejší knihovně se nejprve smaže, včetně souborů, a žádný koš to nezachytí.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Vše v {name} se nejprve smaže, včetně souborů, a žádný koš to nezachytí.',
   'Everything the permissions above cover': 'Vše, na co se vztahují oprávnění výše',
   'Exit Full Screen': 'Ukončit režim celé obrazovky',

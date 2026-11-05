@@ -306,11 +306,11 @@ export default {
     'Alt nedenfor ber om det, slik dine egne innstillinger gjør.',
   'Everything else': 'Alt annet',
   'Everything here is filed in a collection.': 'Alt her er arkivert i en samling.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Alt innholdet i biblioteket slettes: elementer, samlinger, emneord og vedlegg. Ingenting flyttes til søppelkorga.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Alt innholdet i biblioteket ditt på denne serveren slettes først, inkludert filer, uten å flyttes til søppelkorga.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Alt innholdet i {name} slettes først, inkludert filer, uten å flyttes til søppelkorga.',
   'Everything the permissions above cover': 'Alt som tillatelsene ovenfor dekker',
   'Exit Full Screen': 'Avslutt fullskjerm',

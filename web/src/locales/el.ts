@@ -298,11 +298,11 @@ export default {
   'Everything below asks for it, as your own settings do.': 'Όλα τα παρακάτω τον ζητούν, όπως και οι δικές σας ρυθμίσεις.',
   'Everything else': 'Όλα τα υπόλοιπα',
   'Everything here is filed in a collection.': 'Όλα εδώ είναι ταξινομημένα σε κάποια συλλογή.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Μαζί της φεύγουν όλα όσα περιέχει: στοιχεία, συλλογές, ετικέτες και συνημμένα. Για μια βιβλιοθήκη δεν υπάρχει Κάδος απορριμμάτων.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Όλο το περιεχόμενο της βιβλιοθήκης σας εδώ διαγράφεται πρώτα, μαζί με τα αρχεία, και δεν περνά από τον Κάδο απορριμμάτων.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Όλο το περιεχόμενο της βιβλιοθήκης {name} διαγράφεται πρώτα, μαζί με τα αρχεία, και δεν περνά από τον Κάδο απορριμμάτων.',
   'Everything the permissions above cover': 'Όλα όσα καλύπτουν τα παραπάνω δικαιώματα',
   'Exit Full Screen': 'Έξοδος από πλήρη οθόνη',

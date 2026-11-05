@@ -306,11 +306,11 @@ export default {
     'Alles hieronder vra daarvoor, soos u eie instellings ook doen.',
   'Everything else': 'Alles anders',
   'Everything here is filed in a collection.': 'Alles hier is in ’n versameling geliasseer.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Alles in die biblioteek word geskrap: items, versamelings, etikette en aanhegsels. Niks word na die asblik geskuif nie.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Die hele inhoud van u biblioteek op hierdie bediener word eers geskrap, lêers ingesluit, sonder om dit na die asblik te skuif.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Die hele inhoud van {name} word eers geskrap, lêers ingesluit, sonder om dit na die asblik te skuif.',
   'Everything the permissions above cover': 'Alles wat die toestemmings hierbo dek',
   'Exit Full Screen': 'Sluit volskermmodus af',

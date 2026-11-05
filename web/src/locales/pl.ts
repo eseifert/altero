@@ -307,11 +307,11 @@ export default {
     'Wszystko poniżej o nie prosi, tak jak twoje własne ustawienia.',
   'Everything else': 'Cała reszta',
   'Everything here is filed in a collection.': 'Wszystko tutaj jest przypisane do jakiejś kolekcji.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Cała zawartość biblioteki zostaje usunięta: elementy, kolekcje, etykiety i załączniki. Nic nie trafia do Kosza.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Wszystko w twojej tutejszej bibliotece zostaje najpierw usunięte, razem z plikami. Nic nie trafia do Kosza.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Wszystko w {name} zostaje najpierw usunięte, razem z plikami. Nic nie trafia do Kosza.',
   'Everything the permissions above cover': 'Wszystko, co obejmują powyższe uprawnienia',
   'Exit Full Screen': 'Opuść tryb pełnoekranowy',

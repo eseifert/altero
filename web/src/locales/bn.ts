@@ -310,11 +310,11 @@ export default {
     'নিচের সবকিছুর জন্য এটি চাওয়া হয়, আপনার নিজের সেটিংসের মতোই।',
   'Everything else': 'অন্য সবকিছু',
   'Everything here is filed in a collection.': 'এখানের সবকিছু কোনো না কোনো সংগ্রহে রাখা আছে।',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'এর ভেতরের সবকিছু এর সাথে মুছে যায়: আইটেম, সংগ্রহ, ট্যাগ ও সংযুক্তি। লাইব্রেরির জন্য কোনো ট্র্যাশ নেই।',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'এখানে আপনার লাইব্রেরির সবকিছু প্রথমে মুছে ফেলা হয়, ফাইলসহ, এবং এর জন্য কোনো ট্র্যাশ নেই।',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name}-এর সবকিছু প্রথমে মুছে ফেলা হয়, ফাইলসহ, এবং এর জন্য কোনো ট্র্যাশ নেই।',
   'Everything the permissions above cover': 'ওপরের অনুমতিগুলোর আওতায় থাকা সবকিছু',
   'Exit Full Screen': 'পূর্ণ স্ক্রিন থেকে প্রস্থান করুন',

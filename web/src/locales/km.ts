@@ -306,11 +306,11 @@ export default {
   'Everything else': 'ផ្សេងៗទៀត',
   'Everything here is filed in a collection.':
     'អ្វីៗទាំងអស់នៅទីនេះត្រូវបានតម្កល់ទុកក្នុងកម្រងឯកសារហើយ។',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'អ្វីៗទាំងអស់នៅក្នុងវានឹងត្រូវលុបជាមួយដែរ៖ ឯកសារ កម្រងឯកសារ ស្លាក និងឯកសារកម្ជាប់។ បណ្ណាល័យមិនមានធុងសំរាមសម្រាប់ខ្លួនវាទេ។',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'អ្វីៗទាំងអស់នៅក្នុងបណ្ណាល័យរបស់អ្នកនៅទីនេះនឹងត្រូវលុបជាមុនសិន រួមទាំងឯកសារផងដែរ ហើយគ្មានធុងសំរាមសម្រាប់សង្គ្រោះវាទេ។',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'អ្វីៗទាំងអស់នៅក្នុង {name} នឹងត្រូវលុបជាមុនសិន រួមទាំងឯកសារផងដែរ ហើយគ្មានធុងសំរាមសម្រាប់សង្គ្រោះវាទេ។',
   'Everything the permissions above cover': 'អ្វីៗទាំងអស់ដែលសិទ្ធិខាងលើគ្របដណ្តប់',
   Expand: 'ពង្រីក',

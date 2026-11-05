@@ -304,11 +304,11 @@ export default {
     'Viss turpmāk minētais to pieprasa, tāpat kā jūsu paša iestatījumi.',
   'Everything else': 'Viss pārējais',
   'Everything here is filed in a collection.': 'Viss šeit ir ievietots kādā kolekcijā.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Līdz ar to tiek dzēsts viss tās saturs: vienumi, kolekcijas, birkas un pielikumi. Bibliotēkai nav miskastes.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Vispirms tiek dzēsts viss jūsu bibliotēkas saturs šeit, arī faili, un miskastes tam nav.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Vispirms tiek dzēsts viss bibliotēkas {name} saturs, arī faili, un miskastes tam nav.',
   'Everything the permissions above cover': 'Viss, uz ko attiecas iepriekš minētās atļaujas',
   Expand: 'Izvērst',

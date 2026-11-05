@@ -307,11 +307,11 @@ export default {
     'നിങ്ങളുടെ സ്വന്തം ക്രമീകരണങ്ങളിലെന്നപോലെ, താഴെയുള്ള എല്ലാ പ്രവർത്തനങ്ങൾക്കും ഇത് ആവശ്യമാണ്.',
   'Everything else': 'മറ്റെല്ലാം',
   'Everything here is filed in a collection.': 'ഇവിടെയുള്ളതെല്ലാം ഏതെങ്കിലും ശേഖരത്തിലുണ്ട്.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'അതിലുള്ളതെല്ലാം അതോടൊപ്പം പോകും: ഇനങ്ങൾ, ശേഖരങ്ങൾ, ടാഗുകൾ, അറ്റാച്ച്മെന്റുകൾ. ഒരു ലൈബ്രറിക്ക് ട്രാഷ് ഇല്ല.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'ഇവിടെയുള്ള നിങ്ങളുടെ ലൈബ്രറിയിലെ എല്ലാം, ഫയലുകൾ ഉൾപ്പെടെ, ആദ്യം ഇല്ലാതാക്കും; ഇതിന് ട്രാഷ് ഇല്ല.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name} എന്നതിലെ എല്ലാം, ഫയലുകൾ ഉൾപ്പെടെ, ആദ്യം ഇല്ലാതാക്കും; ഇതിന് ട്രാഷ് ഇല്ല.',
   'Everything the permissions above cover': 'മുകളിലെ അനുമതികൾ ഉൾക്കൊള്ളുന്ന എല്ലാം',
   Expand: 'വികസിപ്പിക്കുക',

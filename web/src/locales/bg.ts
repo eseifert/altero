@@ -306,11 +306,11 @@ export default {
     'Всяко действие по-долу я изисква, както и собствените ви настройки.',
   'Everything else': 'Всичко останало',
   'Everything here is filed in a collection.': 'Всичко тук е в някоя колекция.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Всичко в нея се изтрива заедно с нея: записи, колекции, маркери и прикачени файлове. За библиотеките няма кошче.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Първо се изтрива всичко в библиотеката ви тук, включително файловете, и няма кошче, от което да ги върнете.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Първо се изтрива всичко в {name}, включително файловете, и няма кошче, от което да ги върнете.',
   'Everything the permissions above cover': 'Всичко, което обхващат разрешенията по-горе',
   'Exit Full Screen': 'Излизане от цял екран',

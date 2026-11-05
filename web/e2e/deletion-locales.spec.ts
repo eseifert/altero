@@ -1,6 +1,18 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  'en-US': {
+    personal: 'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.',
+    named: (name: string) => `Everything in ${name} is deleted first, files included. Nothing is moved to the trash.`,
+    group: 'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.',
+    delete: 'Delete', cancel: 'Cancel', deleted: 'Group deleted.',
+  },
+  'en-GB': {
+    personal: 'Everything in your library on this server is deleted first, files included. Nothing is moved to the bin.',
+    named: (name: string) => `Everything in ${name} is deleted first, files included. Nothing is moved to the bin.`,
+    group: 'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the bin.',
+    delete: 'Delete', cancel: 'Cancel', deleted: 'Group deleted.',
+  },
   ja: {
     personal: 'このサーバー上のライブラリの内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。',
     named: (name: string) => `${name} の内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。`,

@@ -304,11 +304,11 @@ export default {
     'Alles hieronder vraagt erom, net als uw eigen instellingen.',
   'Everything else': 'Al het overige',
   'Everything here is filed in a collection.': 'Alles hier is in een verzameling ondergebracht.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'De volledige inhoud van de bibliotheek wordt verwijderd: items, verzamelingen, labels en bijlagen. Er wordt niets naar de prullenbak verplaatst.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'De volledige inhoud van uw bibliotheek op deze server wordt eerst verwijderd, inclusief bestanden, zonder naar de prullenbak te worden verplaatst.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'De volledige inhoud van {name} wordt eerst verwijderd, inclusief bestanden, zonder naar de prullenbak te worden verplaatst.',
   'Everything the permissions above cover': 'Alles wat de rechten hierboven dekken',
   'Exit Full Screen': 'Volledig scherm verlaten',

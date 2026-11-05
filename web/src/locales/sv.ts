@@ -305,11 +305,11 @@ export default {
     'Allt nedan kräver det, precis som dina egna inställningar gör.',
   'Everything else': 'Allt annat',
   'Everything here is filed in a collection.': 'Allt här ligger i en samling.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Hela bibliotekets innehåll raderas: källor, samlingar, etiketter och bilagor. Inget flyttas till papperskorgen.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Hela innehållet i ditt bibliotek på den här servern raderas först, även filerna, utan att flyttas till papperskorgen.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Allt innehåll i {name} raderas först, även filerna, utan att flyttas till papperskorgen.',
   'Everything the permissions above cover': 'Allt som behörigheterna ovan omfattar',
   'Exit Full Screen': 'Stäng helskärm',

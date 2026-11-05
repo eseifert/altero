@@ -302,11 +302,11 @@ export default {
     'ทุกอย่างด้านล่างต้องใช้สิ่งนี้ เช่นเดียวกับการตั้งค่าของคุณเอง',
   'Everything else': 'อื่น ๆ ทั้งหมด',
   'Everything here is filed in a collection.': 'ทุกอย่างที่นี่จัดอยู่ในคอลเล็กชั่นแล้ว',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'ทุกอย่างในนั้นจะถูกลบไปด้วย ทั้งรายการ คอลเล็กชั่น แท็ก และไฟล์แนบ ไลบรารีไม่มีถังขยะรองรับ',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'ทุกอย่างในไลบรารีของคุณที่นี่จะถูกลบก่อน รวมถึงไฟล์ และไม่มีถังขยะรองรับ',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'ทุกอย่างใน {name} จะถูกลบก่อน รวมถึงไฟล์ และไม่มีถังขยะรองรับ',
   'Everything the permissions above cover': 'ทุกอย่างที่สิทธิ์ด้านบนครอบคลุม',
   Expand: 'ขยาย',

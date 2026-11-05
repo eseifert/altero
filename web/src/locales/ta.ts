@@ -310,11 +310,11 @@ export default {
     'உங்கள் சொந்த அமைப்புகளைப் போலவே, கீழே உள்ள அனைத்தும் இதைக் கேட்கும்.',
   'Everything else': 'மற்ற அனைத்தும்',
   'Everything here is filed in a collection.': 'இங்குள்ள அனைத்தும் ஏதேனும் ஒரு சேகரிப்பில் உள்ளன.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'அதில் உள்ள அனைத்தும் அதனுடன் சேர்ந்து போகும்: உருப்படிகள், சேகரிப்புகள், குறிச்சொற்கள் மற்றும் இணைப்புகள். ஒரு நூலகத்திற்குக் குப்பை இல்லை.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'இங்குள்ள உங்கள் நூலகத்தில் உள்ள அனைத்தும், கோப்புகள் உட்பட, முதலில் நீக்கப்படும்; அதற்குக் குப்பை இல்லை.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name} நூலகத்தில் உள்ள அனைத்தும், கோப்புகள் உட்பட, முதலில் நீக்கப்படும்; அதற்குக் குப்பை இல்லை.',
   'Everything the permissions above cover': 'மேலே உள்ள அனுமதிகள் உள்ளடக்கும் அனைத்தும்',
   'Exit Full Screen': 'முழுத்திரையிலிருந்து வெளியேறு',

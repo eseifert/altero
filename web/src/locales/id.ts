@@ -311,11 +311,11 @@ export default {
   'Everything else': 'Lainnya',
   'Everything here is filed in a collection.':
     'Semua item di sini sudah dimasukkan ke dalam koleksi.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Seluruh isinya ikut terhapus: item, koleksi, tag, dan lampiran. Tidak ada Keranjang Sampah untuk perpustakaan.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Semua isi perpustakaan Anda di sini dihapus terlebih dahulu, termasuk berkasnya, dan tidak ada Keranjang Sampah untuk itu.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Semua isi {name} dihapus terlebih dahulu, termasuk berkasnya, dan tidak ada Keranjang Sampah untuk itu.',
   'Everything the permissions above cover': 'Semua yang dicakup izin di atas',
   'Exit Full Screen': 'Keluar dari Mode Layar Penuh',

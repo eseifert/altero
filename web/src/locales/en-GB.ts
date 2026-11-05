@@ -311,12 +311,12 @@ export default {
     'Everything below asks for it, as your own settings do.',
   'Everything else': 'Everything else',
   'Everything here is filed in a collection.': 'Everything here is filed in a collection.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Everything in it goes with it: items, collections, tags and attachments. There is no bin around a library.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Everything in your library here is deleted first, files included, and there is no bin around it.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Everything in {name} is deleted first, files included, and there is no bin around it.',
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
+    'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the bin.',
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
+    'Everything in your library on this server is deleted first, files included. Nothing is moved to the bin.',
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
+    'Everything in {name} is deleted first, files included. Nothing is moved to the bin.',
   'Everything the permissions above cover': 'Everything the permissions above cover',
   Expand: 'Expand',
   'Exit Full Screen': 'Exit Full Screen',

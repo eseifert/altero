@@ -309,11 +309,11 @@ export default {
   'Everything else': 'Toate celelalte',
   'Everything here is filed in a collection.':
     'Tot ce se află aici este îndosariat într-o colecție.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Tot ce conține dispare odată cu el: înregistrări, colecții, etichete și anexe. O bibliotecă nu are coș de gunoi.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Tot ce se află în biblioteca ta de aici este șters mai întâi, inclusiv fișierele, și nu există niciun coș de gunoi.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Tot ce se află în {name} este șters mai întâi, inclusiv fișierele, și nu există niciun coș de gunoi.',
   'Everything the permissions above cover': 'Tot ce acoperă permisiunile de mai sus',
   Expand: 'Extinde',

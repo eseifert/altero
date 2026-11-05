@@ -87,13 +87,17 @@ signed in to a disposable account. Administrator-set passwords and reset links
 both show translated session-ending notices, invalidate that account's old
 session and leave the browser open. The final password must work on sign-in.
 
-Afrikaans, Basque, both Chinese catalogues, Danish, Dutch, French, Galician,
-German, Icelandic, Italian, Japanese, both Norwegian catalogues, Polish,
-Portuguese, Russian, Spanish and Swedish deletion checks display the replacement
-warnings and verify that merely choosing replacement leaves data intact. They
+Afrikaans, Basque, both Chinese catalogues, Danish, Dutch, both English variants,
+French, Galician, German, Icelandic, Italian, Japanese, both Norwegian catalogues,
+Polish, Portuguese, Russian, Spanish and Swedish deletion checks display the
+replacement warnings and verify that merely choosing replacement leaves data intact. They
 cancel and then confirm deletion of a disposable group, checking that its
 library is gone. These cases do not start a zotero.org migration or restore
 an archive.
+
+The three source messages also state directly that deleted content is not moved
+to the trash. Their English keys are shared across all catalogues; the key
+migration preserves the non-English values. British English keeps “bin”.
 
 Group activity checks create a real group item, then check that the change
 description and actor name have a space between them in Dutch and Arabic on

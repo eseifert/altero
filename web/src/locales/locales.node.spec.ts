@@ -361,6 +361,19 @@ describe.each([
 })
 
 describe.each([
+  ['en-US', en, 'trash'],
+  ['en-GB', enGB, 'bin'],
+] as const)('English deletion warnings in %s', (_tag, catalogue, trash) => {
+  it.each([
+    'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.',
+    'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.',
+    'Everything in {name} is deleted first, files included. Nothing is moved to the trash.',
+  ] as const)('directly explains that deleted content bypasses Trash in “%s”', (key) => {
+    expect(catalogue[key]).toContain(`Nothing is moved to the ${trash}.`)
+  })
+})
+
+describe.each([
   ['af', af, /rondom/iu],
   ['da', da, /omkring/iu],
   ['de', de, /herum/iu, undefined, /Nichts wird in den Papierkorb verschoben/u],
@@ -383,9 +396,9 @@ describe.each([
   ['zh-TW', zhTW, /外面/u, undefined, /不會移至垃圾筒/u],
 ] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation, trashTerm: string | RegExp = catalogue.Trash.toLowerCase(), bypassesTrash?: RegExp) => {
   it.each([
-    'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.',
-    'Everything in your library here is deleted first, files included, and there is no trash around it.',
-    'Everything in {name} is deleted first, files included, and there is no trash around it.',
+    'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.',
+    'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.',
+    'Everything in {name} is deleted first, files included. Nothing is moved to the trash.',
   ] as const)('uses the Trash term without a literal spatial metaphor in “%s”', (key) => {
     // Basque and Russian inflect the UI noun in these sentences.
     expect(catalogue[key].toLowerCase()).toMatch(trashTerm)

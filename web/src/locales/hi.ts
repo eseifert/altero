@@ -300,11 +300,11 @@ export default {
     'नीचे की हर कार्रवाई के लिए इसकी ज़रूरत है, जैसे आपकी अपनी सेटिंग में होती है।',
   'Everything else': 'बाकी सब',
   'Everything here is filed in a collection.': 'यहाँ की हर चीज़ किसी न किसी संग्रह में है।',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'इसके साथ इसमें मौजूद सब कुछ चला जाता है: आइटम, संग्रह, टैग और अनुलग्नक। लाइब्रेरी के लिए कोई ट्रैश नहीं होता।',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'यहाँ आपकी लाइब्रेरी की हर चीज़ पहले हटा दी जाती है, फ़ाइलों सहित, और इसके लिए कोई ट्रैश नहीं होता।',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name} की हर चीज़ पहले हटा दी जाती है, फ़ाइलों सहित, और इसके लिए कोई ट्रैश नहीं होता।',
   'Everything the permissions above cover': 'ऊपर दी गई अनुमतियों में आने वाली हर चीज़',
   'Exit Full Screen': 'पूर्ण स्क्रीन से बाहर निकलें',

@@ -304,11 +304,11 @@ export default {
     'Kaikki alla olevat toiminnot vaativat sen, kuten omat asetuksesikin.',
   'Everything else': 'Kaikki muu',
   'Everything here is filed in a collection.': 'Kaikki täällä on lajiteltu johonkin kokoelmaan.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Kaikki sen sisältö lähtee mukana: nimikkeet, kokoelmat, merkit ja liitteet. Kirjastolla ei ole roskakoria.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Kaikki tämän palvelimen kirjastosi sisältö poistetaan ensin, myös tiedostot, eikä mitään siirretä roskakoriin.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Kirjaston {name} koko sisältö poistetaan ensin, myös tiedostot, eikä mitään siirretä roskakoriin.',
   'Everything the permissions above cover': 'Kaikkeen, mitä yllä olevat oikeudet kattavat',
   'Exit Full Screen': 'Poistu koko näytön tilasta',

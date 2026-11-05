@@ -307,11 +307,11 @@ export default {
     'Таны өөрийн тохиргооны нэгэн адил доорх бүх зүйл үүнийг шаардана.',
   'Everything else': 'Бусад бүх зүйл',
   'Everything here is filed in a collection.': 'Энд байгаа бүх зүйл цуглуулгад орсон байна.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Доторх бүх зүйл хамт устна: зүйлс, цуглуулгууд, таагууд болон хавсралтууд. Номын санд зориулсан Хогийн сав байхгүй.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Эндэх таны номын сангийн бүх зүйлийг, файлуудыг оруулаад, эхлээд устгах бөгөөд үүнд Хогийн сав байхгүй.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     '{name} доторх бүх зүйлийг, файлуудыг оруулаад, эхлээд устгах бөгөөд үүнд Хогийн сав байхгүй.',
   'Everything the permissions above cover': 'Дээрх зөвшөөрлүүдийн хамрах бүх зүйл',
   'Exit Full Screen': 'Бүтэн дэлгэцээс гарах',

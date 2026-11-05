@@ -516,7 +516,7 @@ const editedDescription = computed({
       <template v-if="open.owner">
         <h3>{{ t('Delete this group') }}</h3>
         <p class="panel__lead">
-          {{ t('Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.') }}
+          {{ t('Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.') }}
         </p>
         <p v-if="confirming === 'delete'" class="confirm" role="alert">
           <span>{{ t('Delete “{name}” and everything in it?', { name: open.name }) }}</span>

@@ -304,11 +304,11 @@ export default {
     'Mọi thao tác bên dưới đều cần mật khẩu này, giống như các cài đặt của chính bạn.',
   'Everything else': 'Mọi thứ khác',
   'Everything here is filed in a collection.': 'Mọi thứ ở đây đều đã được phân loại vào bộ sưu tập.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Mọi thứ bên trong cũng bị xóa theo: các mục, bộ sưu tập, thẻ và tệp đính kèm. Không có thùng rác nào cho cả một thư viện.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Mọi thứ trong thư viện của bạn ở đây sẽ bị xóa trước, kể cả các tệp, và không có thùng rác nào để lấy lại.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Mọi thứ trong {name} sẽ bị xóa trước, kể cả các tệp, và không có thùng rác nào để lấy lại.',
   'Everything the permissions above cover': 'Mọi thứ mà các quyền ở trên cho phép',
   'Exit Full Screen': 'Thoát chế độ toàn màn hình',

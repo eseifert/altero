@@ -184,7 +184,7 @@ async function begin(): Promise<void> {
       </label>
 
       <p v-if="replace" class="card__warning" role="status">
-        {{ t('Everything in your library here is deleted first, files included, and there is no trash around it.') }}
+        {{ t('Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.') }}
       </p>
       <p v-else class="settings__detail">
         {{ t('Without this, a library that already holds anything is left alone rather than merged into.') }}

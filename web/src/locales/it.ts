@@ -303,11 +303,11 @@ export default {
     'Tutto ciò che sta qui sotto la richiede, come fanno le tue impostazioni.',
   'Everything else': 'Tutto il resto',
   'Everything here is filed in a collection.': 'Qui è tutto collocato in una collezione.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Vengono eliminati anche tutti gli elementi, le collezioni, i tag e gli allegati della biblioteca. Nulla viene spostato nel cestino.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Tutto il contenuto della tua biblioteca su questo server viene prima eliminato, file compresi, senza passare dal cestino.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Tutto il contenuto di {name} viene prima eliminato, file compresi, senza passare dal cestino.',
   'Everything the permissions above cover': 'Tutto ciò che coprono le autorizzazioni qui sopra',
   'Exit Full Screen': 'Esci da schermo intero',

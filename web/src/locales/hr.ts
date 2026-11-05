@@ -306,11 +306,11 @@ export default {
     'Sve u nastavku to traži, kao i Vaše vlastite postavke.',
   'Everything else': 'Sve ostalo',
   'Everything here is filed in a collection.': 'Sve je ovdje svrstano u zbirke.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'S njom nestaje sve što sadrži: stavke, zbirke, oznake i prilozi. Za biblioteku nema otpada.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Sve u Vašoj biblioteci na ovom poslužitelju najprije se briše, uključujući datoteke, i za to nema otpada.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Sve u biblioteci {name} najprije se briše, uključujući datoteke, i za to nema otpada.',
   'Everything the permissions above cover': 'Sve što obuhvaćaju gornja dopuštenja',
   'Exit Full Screen': 'Izađi iz cjeloekranskog prikaza',

@@ -305,11 +305,11 @@ export default {
     'Kõik allolev nõuab seda, nagu ka teie enda seaded.',
   'Everything else': 'Kõik muu',
   'Everything here is filed in a collection.': 'Kõik siin olev on mõnes kogus.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Kõik selles olev kaob koos sellega: kirjed, kogud, lipikud ja manused. Raamatukogul endal prügikasti pole.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Kõigepealt kustutatakse kõik teie siinses raamatukogus olev, ka failid, ja seda ei saa prügikastist tagasi.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Kõigepealt kustutatakse kõik raamatukogus {name} olev, ka failid, ja seda ei saa prügikastist tagasi.',
   'Everything the permissions above cover': 'Kõik, mida ülaltoodud õigused hõlmavad',
   'Exit Full Screen': 'Välju täisekraanirežiimist',

@@ -308,11 +308,11 @@ export default {
     'Всё, что ниже, его спрашивает, как и ваши собственные настройки.',
   'Everything else': 'Всё остальное',
   'Everything here is filed in a collection.': 'Здесь всё разложено по коллекциям.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Всё содержимое библиотеки удаляется: записи, коллекции, теги и вложения. Ничего не перемещается в Корзину.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Всё содержимое вашей библиотеки на этом сервере сначала удаляется, включая файлы. Ничего не перемещается в Корзину.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Всё содержимое {name} сначала удаляется, включая файлы. Ничего не перемещается в Корзину.',
   'Everything the permissions above cover': 'Всё, что охватывают разрешения выше',
   'Exit Full Screen': 'Выйти из полноэкранного режима',

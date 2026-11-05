@@ -305,11 +305,11 @@ export default {
     'Vse spodaj ga zahteva, tako kot vaše lastne nastavitve.',
   'Everything else': 'Vse drugo',
   'Everything here is filed in a collection.': 'Vse tukaj je razvrščeno v zbirke.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Z njo izgine vse, kar je v njej: vnosi, zbirke, značke in priponke. Za knjižnico ni koša.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Vse v vaši knjižnici na tem strežniku se najprej izbriše, tudi datoteke, in koša za to ni.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Vse v knjižnici {name} se najprej izbriše, tudi datoteke, in koša za to ni.',
   'Everything the permissions above cover': 'Vse, kar zajemajo zgornja dovoljenja',
   'Exit Full Screen': 'Izhod iz celozaslonskega načina',

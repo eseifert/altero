@@ -294,10 +294,10 @@ export default {
     'Alles darunter verlangt es, wie auch die eigenen Einstellungen.',
   'Everything else': 'Alles Übrige',
   'Everything here is filed in a collection.': 'Alles hier liegt in einer Sammlung.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Der gesamte Inhalt der Bibliothek wird gelöscht: Einträge, Sammlungen, Schlagwörter und Anhänge. Nichts wird in den Papierkorb verschoben.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.': 'Die eigene Bibliothek auf diesem Server wird zuerst vollständig gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.': 'Die eigene Bibliothek auf diesem Server wird zuerst vollständig gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.',
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Der gesamte Inhalt von {name} wird zuerst gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.',
   'Everything the permissions above cover': 'Alles, was die Berechtigungen oben abdecken',
   Expand: 'Aufklappen',

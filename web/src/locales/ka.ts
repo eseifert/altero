@@ -298,11 +298,11 @@ export default {
     'ქვემოთ ყველა მოქმედება მას მოითხოვს, ისევე როგორც თქვენი საკუთარი პარამეტრები.',
   'Everything else': 'დანარჩენი ყველაფერი',
   'Everything here is filed in a collection.': 'აქ ყველაფერი რომელიმე კოლექციაშია განთავსებული.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'მასთან ერთად წაიშლება მასში არსებული ყველაფერი: ჩანაწერები, კოლექციები, ტეგები და დანართები. ბიბლიოთეკისთვის სანაგვე არ არსებობს.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'ჯერ წაიშლება ყველაფერი, რაც აქ თქვენს ბიბლიოთეკაშია, ფაილების ჩათვლით, და ამისთვის სანაგვე არ არსებობს.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'ჯერ წაიშლება ყველაფერი, რაც {name}-შია, ფაილების ჩათვლით, და ამისთვის სანაგვე არ არსებობს.',
   'Everything the permissions above cover': 'ყველაფერი, რასაც ზემოთ მოცემული ნებართვები მოიცავს',
   'Exit Full Screen': 'სრული ეკრანიდან გასვლა',

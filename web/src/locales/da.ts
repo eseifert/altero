@@ -301,11 +301,11 @@ export default {
     'Alt herunder beder om den, ligesom dine egne indstillinger gør.',
   'Everything else': 'Alt andet',
   'Everything here is filed in a collection.': 'Alt her er lagt i en samling.',
-  'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
+  'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
     'Hele bibliotekets indhold slettes: elementer, samlinger, mærker og vedhæftede filer. Intet flyttes til papirkurven.',
-  'Everything in your library here is deleted first, files included, and there is no trash around it.':
+  'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Alt i dit bibliotek på denne server slettes først, inklusive filer, uden at blive flyttet til papirkurven.',
-  'Everything in {name} is deleted first, files included, and there is no trash around it.':
+  'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
     'Alt i {name} slettes først, inklusive filer, uden at blive flyttet til papirkurven.',
   'Everything the permissions above cover': 'Alt det, rettighederne ovenfor dækker',
   'Exit Full Screen': 'Afslut fuld skærm',
