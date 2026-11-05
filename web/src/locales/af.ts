@@ -307,11 +307,11 @@ export default {
   'Everything else': 'Alles anders',
   'Everything here is filed in a collection.': 'Alles hier is in ’n versameling geliasseer.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Alles daarin gaan saam: items, versamelings, etikette en aanhegsels. Daar is geen asblik rondom ’n biblioteek nie.',
+    'Alles in die biblioteek word geskrap: items, versamelings, etikette en aanhegsels. Niks word na die asblik geskuif nie.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Alles in u biblioteek hier word eers geskrap, lêers ingesluit, en daar is geen asblik rondom dit nie.',
+    'Die hele inhoud van u biblioteek op hierdie bediener word eers geskrap, lêers ingesluit, sonder om dit na die asblik te skuif.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Alles in {name} word eers geskrap, lêers ingesluit, en daar is geen asblik rondom dit nie.',
+    'Die hele inhoud van {name} word eers geskrap, lêers ingesluit, sonder om dit na die asblik te skuif.',
   'Everything the permissions above cover': 'Alles wat die toestemmings hierbo dek',
   'Exit Full Screen': 'Sluit volskermmodus af',
   'Expand': 'Brei uit',

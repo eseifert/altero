@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Clarify deletion warnings in Afrikaans, Danish, Dutch, Norwegian and Swedish.
 - Clarify French, Italian and Portuguese deletion warnings and consistently name the Trash.
 - Display filename extensions with their leading dot intact in right-to-left confirmation prompts and buttons.
 - Let editing-confirmation buttons wrap onto separate rows so translated labels stay readable on narrow screens.

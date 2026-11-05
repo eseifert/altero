@@ -302,11 +302,11 @@ export default {
   'Everything else': 'Alt andet',
   'Everything here is filed in a collection.': 'Alt her er lagt i en samling.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Alt i det følger med: elementer, samlinger, mærker og vedhæftede filer. Der er ingen papirkurv omkring et bibliotek.',
+    'Hele bibliotekets indhold slettes: elementer, samlinger, mærker og vedhæftede filer. Intet flyttes til papirkurven.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Alt i dit bibliotek her slettes først, filer inklusive, og der er ingen papirkurv omkring det.',
+    'Alt i dit bibliotek på denne server slettes først, inklusive filer, uden at blive flyttet til papirkurven.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Alt i {name} slettes først, filer inklusive, og der er ingen papirkurv omkring det.',
+    'Alt i {name} slettes først, inklusive filer, uden at blive flyttet til papirkurven.',
   'Everything the permissions above cover': 'Alt det, rettighederne ovenfor dækker',
   'Exit Full Screen': 'Afslut fuld skærm',
   'Expand': 'Fold ud',

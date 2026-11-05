@@ -1,6 +1,42 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  af: {
+    personal: 'Die hele inhoud van u biblioteek op hierdie bediener word eers geskrap, lêers ingesluit, sonder om dit na die asblik te skuif.',
+    named: (name: string) => `Die hele inhoud van ${name} word eers geskrap, lêers ingesluit, sonder om dit na die asblik te skuif.`,
+    group: 'Alles in die biblioteek word geskrap: items, versamelings, etikette en aanhegsels. Niks word na die asblik geskuif nie.',
+    delete: 'Skrap', cancel: 'Kanselleer', deleted: 'Groep geskrap.',
+  },
+  da: {
+    personal: 'Alt i dit bibliotek på denne server slettes først, inklusive filer, uden at blive flyttet til papirkurven.',
+    named: (name: string) => `Alt i ${name} slettes først, inklusive filer, uden at blive flyttet til papirkurven.`,
+    group: 'Hele bibliotekets indhold slettes: elementer, samlinger, mærker og vedhæftede filer. Intet flyttes til papirkurven.',
+    delete: 'Slet', cancel: 'Annullér', deleted: 'Gruppen er slettet.',
+  },
+  nb: {
+    personal: 'Alt innholdet i biblioteket ditt på denne serveren slettes først, inkludert filer, uten å flyttes til søppelkorga.',
+    named: (name: string) => `Alt innholdet i ${name} slettes først, inkludert filer, uten å flyttes til søppelkorga.`,
+    group: 'Alt innholdet i biblioteket slettes: elementer, samlinger, emneord og vedlegg. Ingenting flyttes til søppelkorga.',
+    delete: 'Slett', cancel: 'Avbryt', deleted: 'Gruppen er slettet.',
+  },
+  nl: {
+    personal: 'De volledige inhoud van uw bibliotheek op deze server wordt eerst verwijderd, inclusief bestanden, zonder naar de prullenbak te worden verplaatst.',
+    named: (name: string) => `De volledige inhoud van ${name} wordt eerst verwijderd, inclusief bestanden, zonder naar de prullenbak te worden verplaatst.`,
+    group: 'De volledige inhoud van de bibliotheek wordt verwijderd: items, verzamelingen, labels en bijlagen. Er wordt niets naar de prullenbak verplaatst.',
+    delete: 'Verwijderen', cancel: 'Annuleren', deleted: 'Groep verwijderd.',
+  },
+  nn: {
+    personal: 'Alt innhaldet i biblioteket ditt på denne tenaren blir sletta først, filer medrekna, utan å bli flytta til søppelkorga.',
+    named: (name: string) => `Alt innhaldet i ${name} blir sletta først, filer medrekna, utan å bli flytta til søppelkorga.`,
+    group: 'Alt innhaldet i biblioteket blir sletta: element, samlingar, taggar og vedlegg. Ingenting blir flytta til søppelkorga.',
+    delete: 'Slett', cancel: 'Avbryt', deleted: 'Gruppa er sletta.',
+  },
+  sv: {
+    personal: 'Hela innehållet i ditt bibliotek på den här servern raderas först, även filerna, utan att flyttas till papperskorgen.',
+    named: (name: string) => `Allt innehåll i ${name} raderas först, även filerna, utan att flyttas till papperskorgen.`,
+    group: 'Hela bibliotekets innehåll raderas: källor, samlingar, etiketter och bilagor. Inget flyttas till papperskorgen.',
+    delete: 'Radera', cancel: 'Avbryt', deleted: 'Gruppen har raderats.',
+  },
   fr: {
     personal: 'Tout le contenu de votre bibliothèque sur ce serveur est d’abord supprimé, fichiers compris, sans passer par la corbeille.',
     named: (name: string) => `Tout le contenu de ${name} est d’abord supprimé, fichiers compris, sans passer par la corbeille.`,

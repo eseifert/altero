@@ -306,11 +306,11 @@ export default {
   'Everything else': 'Allt annat',
   'Everything here is filed in a collection.': 'Allt här ligger i en samling.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Allt i det försvinner med det: källor, samlingar, etiketter och bilagor. Det finns ingen papperskorg runt ett bibliotek.',
+    'Hela bibliotekets innehåll raderas: källor, samlingar, etiketter och bilagor. Inget flyttas till papperskorgen.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Allt i ditt bibliotek här raderas först, även filerna, och det finns ingen papperskorg runt det.',
+    'Hela innehållet i ditt bibliotek på den här servern raderas först, även filerna, utan att flyttas till papperskorgen.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Allt i {name} raderas först, även filerna, och det finns ingen papperskorg runt det.',
+    'Allt innehåll i {name} raderas först, även filerna, utan att flyttas till papperskorgen.',
   'Everything the permissions above cover': 'Allt som behörigheterna ovan omfattar',
   'Exit Full Screen': 'Stäng helskärm',
   'Expand': 'Fäll ut',

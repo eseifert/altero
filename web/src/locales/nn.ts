@@ -306,11 +306,11 @@ export default {
   'Everything else': 'Alt anna',
   'Everything here is filed in a collection.': 'Alt her ligg i ei samling.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Alt i det forsvinn saman med det: element, samlingar, taggar og vedlegg. Eit bibliotek har inga søppelkorg rundt seg.',
+    'Alt innhaldet i biblioteket blir sletta: element, samlingar, taggar og vedlegg. Ingenting blir flytta til søppelkorga.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Alt i biblioteket ditt her blir sletta først, filer medrekna, og det finst inga søppelkorg rundt det.',
+    'Alt innhaldet i biblioteket ditt på denne tenaren blir sletta først, filer medrekna, utan å bli flytta til søppelkorga.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Alt i {name} blir sletta først, filer medrekna, og det finst inga søppelkorg rundt det.',
+    'Alt innhaldet i {name} blir sletta først, filer medrekna, utan å bli flytta til søppelkorga.',
   'Everything the permissions above cover': 'Alt som løyva ovanfor dekkjer',
   'Exit Full Screen': 'Avslutt fullskjerm',
   'Expand': 'Fald ut',

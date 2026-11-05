@@ -307,11 +307,11 @@ export default {
   'Everything else': 'Alt annet',
   'Everything here is filed in a collection.': 'Alt her er arkivert i en samling.',
   'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.':
-    'Alt i den forsvinner sammen med den: elementer, samlinger, emneord og vedlegg. Et bibliotek har ingen søppelkorg rundt seg.',
+    'Alt innholdet i biblioteket slettes: elementer, samlinger, emneord og vedlegg. Ingenting flyttes til søppelkorga.',
   'Everything in your library here is deleted first, files included, and there is no trash around it.':
-    'Alt i biblioteket ditt her slettes først, inkludert filer, og det finnes ingen søppelkorg rundt det.',
+    'Alt innholdet i biblioteket ditt på denne serveren slettes først, inkludert filer, uten å flyttes til søppelkorga.',
   'Everything in {name} is deleted first, files included, and there is no trash around it.':
-    'Alt i {name} slettes først, inkludert filer, og det finnes ingen søppelkorg rundt det.',
+    'Alt innholdet i {name} slettes først, inkludert filer, uten å flyttes til søppelkorga.',
   'Everything the permissions above cover': 'Alt som tillatelsene ovenfor dekker',
   'Exit Full Screen': 'Avslutt fullskjerm',
   'Expand': 'Utvid',

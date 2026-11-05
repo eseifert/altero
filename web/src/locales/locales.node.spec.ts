@@ -361,10 +361,16 @@ describe.each([
 })
 
 describe.each([
+  ['af', af, /rondom/iu],
+  ['da', da, /omkring/iu],
   ['fr', fr, /autour/iu],
   ['it', italian, /attorno/iu],
+  ['nb', nb, /rundt/iu],
+  ['nl', nl, /omheen|om een bibliotheek heen/iu],
+  ['nn', nn, /rundt/iu],
   ['pt-BR', ptBR, /em volta/iu],
   ['pt-PT', ptPT, /à volta/iu],
+  ['sv', sv, /runt/iu],
 ] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation) => {
   it.each([
     'Everything in it goes with it: items, collections, tags and attachments. There is no trash around a library.',
