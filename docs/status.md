@@ -19,6 +19,11 @@ Populated databases from every beta through beta.7 pass direct upgrades to the
 current development schema on SQLite and PostgreSQL, including attachment
 downloads and repeat startup. See the [upgrade matrix and limits](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation).
 
+The published beta.7 amd64 image also passes a [rootless Podman check](testing-podman.md#recorded-run)
+with SQLite, browser writes, attachment persistence after container replacement
+and a changed internal port. The report records the exact image and host;
+other Podman configurations need separate evidence.
+
 A file-conflict issue was reproduced in Zotero 10.0.1 and 10.0.6: when both sides
 have equal displayed modification dates, choosing Remote can retain and upload
 the local bytes. The later run used Zotero Storage at zotero.org; the

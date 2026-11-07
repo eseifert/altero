@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Verify beta.7 on rootless Podman with browser edits, attachment persistence and changed-port health checks.
 - Keep long collection names from breaking consent checkboxes; reported by [@eseifert] ([CI#42020904012]).
 - Keep library search tools within narrow screens; reported by [@eseifert] ([CI#42020904012]).
 - Keep browser checks independent of unrelated library rows; reported by [@eseifert] ([CI#42020904012]).

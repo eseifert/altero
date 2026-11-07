@@ -180,10 +180,12 @@ podman build --format docker -f docker/Dockerfile .
 
 A worked NixOS example, with altero and PostgreSQL as `virtualisation.oci-containers` units on a shared Podman network, is posted in [Discussion #5](https://github.com/eseifert/altero/discussions/5#discussioncomment-18404764). It is one contributor's running configuration rather than a reference deployment.
 
-To contribute another result, follow the [rootless Podman check](testing-podman.md).
-It covers a fresh SQLite volume, file persistence after container replacement
-and the health check with a changed internal port. The procedure still needs
-an operator run; it does not expand the coverage claimed above.
+The published beta.7 amd64 image passed a [rootless Podman run](testing-podman.md#recorded-run)
+on Gentoo with Podman 6.1.4: browser edits and attachment bytes persisted across
+container replacement, and the health check passed with internal ports 8000
+and 8091. This was a named-volume SQLite deployment; bind mounts, SELinux,
+PostgreSQL, Compose and Quadlet need separate evidence. Follow the same
+[operator procedure](testing-podman.md) to contribute another result.
 
 ## From a source checkout
 
