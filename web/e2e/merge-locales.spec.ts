@@ -12,6 +12,8 @@ const labels = {
   id: { duplicates: 'Item duplikat', merge: 'Gabungkan Item', select: 'Pilih', merged: 'Item digabungkan.' },
   km: { duplicates: 'ឯកសារត្រួត', merge: 'បញ្ចូលឯកសារចូលគ្នា', select: 'ជ្រើសរើស', merged: 'បានបញ្ចូលឯកសារចូលគ្នា។' },
   mn: { duplicates: 'Давхардсан зүйлс', merge: 'Зүйлсийг нэгтгэх', select: 'Сонгох', merged: 'Зүйлсийг нэгтгэлээ.' },
+  sk: { duplicates: 'Duplicitné záznamy', merge: 'Zlúčiť záznamy', select: 'Vybrať', merged: 'Záznamy boli zlúčené.', master: 'Hlavný záznam' },
+  sl: { duplicates: 'Podvojeni vnosi', merge: 'Spoji vnose', select: 'Izberi', merged: 'Vnosi so spojeni.', master: 'Glavni vnos' },
   th: { duplicates: 'รายการซ้ำ', merge: 'รวมรายการ', select: 'เลือก', merged: 'รวมรายการแล้ว' },
   vi: { duplicates: 'Các mục trùng lặp', merge: 'Gộp các mục', select: 'Chọn', merged: 'Đã gộp các mục.' },
 }
@@ -35,6 +37,9 @@ for (const [tag, translated] of Object.entries(labels)) {
       await signIn(page)
       await expect(page.locator('html')).toHaveAttribute('lang', tag)
       await page.locator('.library__scope').filter({ hasText: translated.duplicates }).click()
+      if ('master' in translated) {
+        await expect(page.locator(`.duplicate-group__row[data-row="${master}"] .duplicate-group__master`)).toHaveText(translated.master)
+      }
       await page.locator(`.duplicate-group__row[data-row="${master}"]`).click()
       const pane = page.locator('.merge-pane')
       await expect(pane.getByRole('heading')).toHaveText(translated.merge)

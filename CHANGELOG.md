@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Keep Slovak and Slovenian merge messages consistent with the library's item terms.
 - Verify beta.7 on rootless Podman with browser edits, attachment persistence and changed-port health checks.
 - Keep long collection names from breaking consent checkboxes; reported by [@eseifert] ([CI#42020904012]).
 - Keep library search tools within narrow screens; reported by [@eseifert] ([CI#42020904012]).

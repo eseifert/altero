@@ -52,6 +52,11 @@ They check rendering and behavior, not native-speaker approval of every message.
 Finnish merge and type-change checks also verify the corrected field-selection
 instruction and the library's item term in actions and saved confirmations. The master
 label follows “pääversio” in Zotero's Finnish version-selection instruction.
+Slovak and Slovenian merge checks retain the library's `záznam` and `vnos`
+terms in the master-item badge and saved confirmation, choose a field value
+and verify the merged data through the API. The Slovenian action also omits
+its former trailing space. Catalogue checks cover the corresponding field-load
+errors, which use the same item terms.
 
 Creator-name checks cover fifteen further catalogs whose hints previously used
 ordinals or shortened stems. They identify both inputs by their translated

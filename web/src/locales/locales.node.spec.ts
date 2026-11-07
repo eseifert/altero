@@ -367,6 +367,24 @@ describe('Finnish item terminology', () => {
   })
 })
 
+describe.each([
+  ['sk', sk, /záznam/iu],
+  ['sl', sl, /vnos/iu],
+] as const)('merge item terminology in %s', (_tag, catalogue, itemTerm) => {
+  it.each([
+    'Master item',
+    'Items merged.',
+    'Could not load the item fields.',
+  ] as const)('uses the library item term in “%s”', (key) => {
+    expect(catalogue.Items).toMatch(itemTerm)
+    expect(catalogue[key]).toMatch(itemTerm)
+  })
+})
+
+it('keeps the Slovenian merge action free of trailing whitespace', () => {
+  expect(sl['Merge Items']).toBe(sl['Merge Items'].trim())
+})
+
 describe('Afrikaans address', () => {
   it('keeps formal address in editing messages as well as account instructions', () => {
     const informal = /\b(?:jy|jou|joune|julle)\b/iu
