@@ -297,6 +297,8 @@ is a name in the client, not a spelling.
 ### Translating the interface
 
 Prefer short, natural instructions and use Zotero's terms for library objects.
+Keep those terms consistent across controls, badges, confirmations and errors;
+text copied from upstream can still use a different term from the catalog.
 In deletion warnings, state whether content is moved to Trash. Spatial metaphors
 such as a bin “around” a library obscure whether the deletion is permanent.
 Preserve each language's existing form of address and fix inconsistencies

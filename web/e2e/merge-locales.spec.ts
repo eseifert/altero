@@ -12,9 +12,20 @@ const labels = {
   id: { duplicates: 'Item duplikat', merge: 'Gabungkan Item', select: 'Pilih', merged: 'Item digabungkan.' },
   km: { duplicates: 'ឯកសារត្រួត', merge: 'បញ្ចូលឯកសារចូលគ្នា', select: 'ជ្រើសរើស', merged: 'បានបញ្ចូលឯកសារចូលគ្នា។' },
   mn: { duplicates: 'Давхардсан зүйлс', merge: 'Зүйлсийг нэгтгэх', select: 'Сонгох', merged: 'Зүйлсийг нэгтгэлээ.' },
+  ro: {
+    duplicates: 'Înregistrări duplicate', merge: 'Unește înregistrările', select: 'Selectează',
+    merged: 'Înregistrările au fost unite.', master: 'Înregistrare principală',
+    versionInstruction: 'Alege versiunea înregistrării pe care o vei folosi ca înregistrare principală:',
+  },
   sk: { duplicates: 'Duplicitné záznamy', merge: 'Zlúčiť záznamy', select: 'Vybrať', merged: 'Záznamy boli zlúčené.', master: 'Hlavný záznam' },
   sl: { duplicates: 'Podvojeni vnosi', merge: 'Spoji vnose', select: 'Izberi', merged: 'Vnosi so spojeni.', master: 'Glavni vnos' },
   th: { duplicates: 'รายการซ้ำ', merge: 'รวมรายการ', select: 'เลือก', merged: 'รวมรายการแล้ว' },
+  tr: {
+    duplicates: 'Yinelenmiş Eserler', merge: 'Eserleri Birleştir', select: 'Seç',
+    merged: 'Eserler birleştirildi.', master: 'Asıl eser',
+    versionInstruction: 'Eserin hangi versiyonunun asıl eser olarak kullanılacağını seçiniz:',
+    instruction: 'Eserin diğer versiyonlarından hangi alanların tutulacağını seçiniz:',
+  },
   vi: { duplicates: 'Các mục trùng lặp', merge: 'Gộp các mục', select: 'Chọn', merged: 'Đã gộp các mục.' },
 }
 
@@ -53,6 +64,9 @@ for (const [tag, translated] of Object.entries(labels)) {
       await expect(pane.locator('.merge-pane__master')).not.toHaveText(
         'Choose the version of the item to use as the master item:',
       )
+      if ('versionInstruction' in translated) {
+        await expect(pane.locator('.merge-pane__master')).toHaveText(translated.versionInstruction)
+      }
       await expect(pane.locator('.merge-pane__instruction')).toBeVisible()
       await expect(pane.locator('.merge-pane__instruction')).not.toHaveText(
         'Select fields to keep from other versions of the item:',

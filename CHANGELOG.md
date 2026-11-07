@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Align Romanian item confirmations and Turkish merge messages with library terms and retain polite Turkish instructions.
 - Keep Slovak and Slovenian merge messages consistent with the library's item terms.
 - Verify beta.7 on rootless Podman with browser edits, attachment persistence and changed-port health checks.
 - Keep long collection names from breaking consent checkboxes; reported by [@eseifert] ([CI#42020904012]).

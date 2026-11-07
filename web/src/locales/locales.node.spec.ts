@@ -370,6 +370,8 @@ describe('Finnish item terminology', () => {
 describe.each([
   ['sk', sk, /záznam/iu],
   ['sl', sl, /vnos/iu],
+  ['ro', ro, /înregistr/iu],
+  ['tr', tr, /eser/iu],
 ] as const)('merge item terminology in %s', (_tag, catalogue, itemTerm) => {
   it.each([
     'Master item',
@@ -383,6 +385,29 @@ describe.each([
 
 it('keeps the Slovenian merge action free of trailing whitespace', () => {
   expect(sl['Merge Items']).toBe(sl['Merge Items'].trim())
+})
+
+describe('Romanian item terminology', () => {
+  it.each([
+    'Items moved to trash.',
+    'Items filed.',
+    'Items restored.',
+  ] as const)('keeps the library item term in the confirmation “%s”', (key) => {
+    expect(ro[key]).toMatch(/înregistr/iu)
+  })
+
+  it('uses the master-item label in the version instruction', () => {
+    expect(ro['Choose the version of the item to use as the master item:'].toLowerCase()).toContain(ro['Master item'].toLowerCase())
+  })
+})
+
+describe('Turkish merge instructions', () => {
+  it.each([
+    'Choose the version of the item to use as the master item:',
+    'Select fields to keep from other versions of the item:',
+  ] as const)('keeps polite plural address in “%s”', (key) => {
+    expect(tr[key]).toMatch(/seçiniz:$/u)
+  })
 })
 
 describe('Afrikaans address', () => {

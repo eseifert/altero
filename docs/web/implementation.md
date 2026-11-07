@@ -57,6 +57,11 @@ terms in the master-item badge and saved confirmation, choose a field value
 and verify the merged data through the API. The Slovenian action also omits
 its former trailing space. Catalogue checks cover the corresponding field-load
 errors, which use the same item terms.
+Romanian and Turkish merge checks likewise retain `înregistrare` and `eser`,
+including the version-selection instructions and saved confirmations. Turkish
+instructions use the surrounding guidance's polite plural address. Romanian
+item-action checks file, trash and restore an item through translated controls,
+checking each confirmation and the stored membership and trash state.
 
 Creator-name checks cover fifteen further catalogs whose hints previously used
 ordinals or shortened stems. They identify both inputs by their translated
