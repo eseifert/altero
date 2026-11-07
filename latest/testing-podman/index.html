@@ -1096,6 +1096,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#recorded-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Recorded run
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1679,6 +1690,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#recorded-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Recorded run
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1711,9 +1733,9 @@
 <h1 id="checking-a-rootless-podman-deployment">Checking a rootless Podman deployment<a class="headerlink" href="#checking-a-rootless-podman-deployment" title="Permanent link">&para;</a></h1>
 <p>Use this procedure to report a rootless run in <a href="https://github.com/eseifert/altero/issues/52">issue #52</a>.
 It exercises SQLite, the web interface, attachment storage, container replacement
-and the image's health check. PostgreSQL, Compose and systemd integration need
-separate reports. This procedure is prepared for operators; a passing run is
-still needed.</p>
+and the image's health check. The <a href="#recorded-run">recorded run below</a> passes with
+the published beta.7 image. PostgreSQL, Compose and systemd integration need
+separate reports.</p>
 <p>Use a Linux account with <a href="https://docs.podman.io/en/stable/markdown/podman.1.html#rootless-mode">rootless Podman already configured</a>,
 a browser and curl. Run the following blocks in the same shell, stopping on any
 failure. Use a new container and volume name for each attempt so a failed run's
@@ -1745,12 +1767,15 @@ and record its commit and image ID.</p>
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span>--volume<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">altero_probe_volume</span><span class="si">}</span><span class="s2">:/data&quot;</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="s2">&quot;</span><span class="nv">$altero_probe_image</span><span class="s2">&quot;</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>curl<span class="w"> </span>--fail<span class="w"> </span>--retry<span class="w"> </span><span class="m">20</span><span class="w"> </span>--retry-connrefused<span class="w"> </span>--retry-delay<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_url</span><span class="s2">/health&quot;</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>curl<span class="w"> </span>--fail<span class="w"> </span>--output<span class="w"> </span>/dev/null<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_url</span><span class="s2">/app/&quot;</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>podman<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span><span class="w"> </span>id<span class="w"> </span>-u
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>podman<span class="w"> </span>healthcheck<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>curl<span class="w"> </span>--fail<span class="w"> </span>--retry<span class="w"> </span><span class="m">60</span><span class="w"> </span>--retry-all-errors<span class="w"> </span>--retry-delay<span class="w"> </span><span class="m">2</span><span class="w"> </span>--retry-max-time<span class="w"> </span><span class="m">180</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">  </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_url</span><span class="s2">/health&quot;</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>curl<span class="w"> </span>--fail<span class="w"> </span>--output<span class="w"> </span>/dev/null<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_url</span><span class="s2">/app/&quot;</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>podman<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span><span class="w"> </span>id<span class="w"> </span>-u
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>podman<span class="w"> </span>healthcheck<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span>
 </span></code></pre></div>
-<p>The process UID must be <code>10001</code>, and the health check must exit with code <code>0</code>.
+<p>The readiness request retries for up to three minutes, including connection
+resets while migrations and server startup finish. The process UID must be
+<code>10001</code>, and the health check must exit with code <code>0</code>.
 A fresh named volume lets Podman initialise the mount's ownership for the image
 user; see <a href="https://docs.podman.io/en/stable/markdown/podman-run.1.html">volume ownership</a>.
 If the check fails, preserve <code>podman logs</code> and inspect the health-check state
@@ -1776,9 +1801,10 @@ replacement with the same image and volume but internal port <code>8091</code>:<
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span>--volume<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">altero_probe_volume</span><span class="si">}</span><span class="s2">:/data&quot;</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="s2">&quot;</span><span class="nv">$altero_probe_image</span><span class="s2">&quot;</span>
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>curl<span class="w"> </span>--fail<span class="w"> </span>--retry<span class="w"> </span><span class="m">20</span><span class="w"> </span>--retry-connrefused<span class="w"> </span>--retry-delay<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_url</span><span class="s2">/health&quot;</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>podman<span class="w"> </span>healthcheck<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>podman<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span><span class="w"> </span>id<span class="w"> </span>-u
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>curl<span class="w"> </span>--fail<span class="w"> </span>--retry<span class="w"> </span><span class="m">60</span><span class="w"> </span>--retry-all-errors<span class="w"> </span>--retry-delay<span class="w"> </span><span class="m">2</span><span class="w"> </span>--retry-max-time<span class="w"> </span><span class="m">180</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_url</span><span class="s2">/health&quot;</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>podman<span class="w"> </span>healthcheck<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>podman<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span><span class="w"> </span>id<span class="w"> </span>-u
 </span></code></pre></div>
 <p>The health check must again succeed, and the UID must still be <code>10001</code>.
 Sign in again, check that the book and note survived, and download the same
@@ -1796,6 +1822,106 @@ disposable container and volume can be removed explicitly:</p>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>podman<span class="w"> </span>rm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_name</span><span class="s2">&quot;</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>podman<span class="w"> </span>volume<span class="w"> </span>rm<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_volume</span><span class="s2">&quot;</span>
 </span></code></pre></div>
+<h2 id="recorded-run">Recorded run<a class="headerlink" href="#recorded-run" title="Permanent link">&para;</a></h2>
+<p>On 2026-11-08, the published <code>ghcr.io/eseifert/altero:1.0.0-beta.7</code> image
+passed this procedure on Linux amd64 with a fresh named volume and SQLite.
+The image's source revision label is <code>920a388d75d798b01daca2cbbe77360c87112a68</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Recorded value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Host</td>
+<td>Gentoo, kernel <code>7.3.1-gentoo</code></td>
+</tr>
+<tr>
+<td>Podman</td>
+<td><code>6.1.4</code>, rootless <code>true</code></td>
+</tr>
+<tr>
+<td>Storage</td>
+<td><code>overlay</code> on Btrfs</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>crun <code>1.28</code>, cgroup v2, systemd cgroup manager</td>
+</tr>
+<tr>
+<td>Networking</td>
+<td>Netavark with pasta; published only on <code>127.0.0.1:18080</code></td>
+</tr>
+<tr>
+<td>Process and volume ownership</td>
+<td>UID <code>10001</code>, GID <code>999</code></td>
+</tr>
+<tr>
+<td>Browser</td>
+<td>Playwright driving Chromium <code>156.0.8078.4</code>, English, 1280 × 900</td>
+</tr>
+</tbody>
+</table>
+<p>The pulled image has these identifiers; the digest identifies the local amd64
+manifest, and the image ID identifies its configuration:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>digest:   sha256:51221f15ed2705f91e76bf77f37e239eda979943c3a971b8c36a84e045f0db2a
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>image ID: sha256:857df51409e3cefb43be8526ecf7cba4a23caea319151d619341453d665f4b0a
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fresh startup</td>
+<td>Migrations complete; <code>/health</code> returns 200 and beta.7/schema 42</td>
+</tr>
+<tr>
+<td>Image health check</td>
+<td>Exit 0 and <code>healthy</code> on both internal ports, 8000 and 8091</td>
+</tr>
+<tr>
+<td>Browser writes</td>
+<td>CLI-created account signs in; browser creates a book and child note, then uploads a text attachment</td>
+</tr>
+<tr>
+<td>Initial download</td>
+<td>Browser Download returns the original bytes</td>
+</tr>
+<tr>
+<td>Container replacement</td>
+<td>Original container removed; same image and named volume started with <code>ALTERO_PORT=8091</code></td>
+</tr>
+<tr>
+<td>Persistent state</td>
+<td>Fresh browser session signs in; book, note and attachment retain their keys, versions and data</td>
+</tr>
+<tr>
+<td>Persistent file</td>
+<td>Second browser download matches the original bytes and SHA-256</td>
+</tr>
+<tr>
+<td>Browser runtime</td>
+<td>No page errors or CSP violations observed in either session; screenshots inspected</td>
+</tr>
+</tbody>
+</table>
+<p>Both downloads have SHA-256:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>3bd3eb08b50d93442102e4fd0b5fb27c2768984a4078485e8e8fd6353412220f
+</span></code></pre></div>
+<p>Startup produced temporary connection resets, and the original 20-retry check
+also expired during replacement under host load. The procedure above now retries
+resets and allows up to three minutes. Successful health checks were recorded
+after readiness; this is no startup-time or performance guarantee.</p>
+<p>This result covers the published amd64 image and a named-volume SQLite
+deployment. Source builds, bind mounts, SELinux labelling (disabled on this
+host), PostgreSQL, Compose, Quadlet and other architectures need separate
+evidence. It does not extend desktop sync acceptance coverage.</p>
 
 
 
