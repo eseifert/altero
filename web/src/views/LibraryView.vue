@@ -1121,10 +1121,20 @@ function askToRemove(items: ItemEnvelope[]): void {
  * list, so the pane goes back to that parent rather than closing on nothing.
  */
 async function trashOpenItem(item: ItemEnvelope): Promise<void> {
+  const id = library.libraryId
+  const scope = library.scope
+  const collection = library.collectionKey
+  const origin = detailOrigin.value
+  const parent = library.items.find((entry) => entry.key === item.data.parentItem)
+    ?? (origin?.libraryId === id && origin.childKey === item.key ? origin.parent : undefined)
   await runOnItem(async () => {
     await library.trashItems([item.key])
-    const parent = library.items.find((entry) => entry.key === item.data.parentItem)
-    if (parent) await library.select(parent)
+    // Refresh replaces loaded pages with the first page, which may not hold
+    // the parent. Keep the origin captured before the write clears the pane.
+    if (parent && library.libraryId === id && library.scope === scope
+      && library.collectionKey === collection && (!library.selected || library.selected.key === item.key)) {
+      await library.inspectItem(library.items.find((entry) => entry.key === parent.key) ?? parent)
+    }
   })
 }
 

@@ -3508,6 +3508,56 @@ describe('a note or attachment under an item', () => {
     expect(wrapper.find('.library__detail').exists()).toBe(false)
   })
 
+  it.each([['note', NOTE], ['attachment', ATTACHMENT]])(
+    'returns to the parent after trashing a %s when refresh no longer includes the parents page',
+    async (_, child) => {
+      withChildren([child])
+      const wrapper = await open()
+      await wrapper.get('.library__row:not(.library__row--head)').trigger('click')
+      await settle(wrapper)
+      await wrapper.get('.detail__child').trigger('click')
+      await settle(wrapper)
+      // A write refreshes the first page. The parent may have been reached
+      // through Show more, beyond that page, before its child was opened.
+      contents = []
+
+      await itemTool(wrapper, 'Move to trash')
+      await settle(wrapper)
+
+      expect(useLibraryStore().selected?.key).toBe(ITEM.key)
+      expect(wrapper.get('.detail__title').text()).toBe('Structure and Interpretation')
+    },
+  )
+
+  it.each(['scope', 'collection'])(
+    'does not reopen a trashed childs parent after changing the %s while the write is pending',
+    async (navigation) => {
+      withChildren([NOTE])
+      const wrapper = await open()
+      await wrapper.get('.library__row:not(.library__row--head)').trigger('click')
+      await settle(wrapper)
+      await wrapper.get('.detail__child').trigger('click')
+      await settle(wrapper)
+      let finish!: (answer: unknown) => void
+      const held = new Promise((resolve) => { finish = resolve })
+      const answer = requestMock.getMockImplementation()!
+      requestMock.mockImplementation((path, options) => options?.method === 'PATCH'
+        ? held : answer(path, options))
+
+      await itemTool(wrapper, 'Move to trash')
+      await settle(wrapper)
+      contents = []
+      const library = useLibraryStore()
+      if (navigation === 'scope') await library.selectScope('trash')
+      else await library.selectCollection(COLLECTION.key)
+      finish({ items: [] })
+      await settle(wrapper)
+
+      expect(library.selected).toBeNull()
+      expect(wrapper.find('.library__detail').exists()).toBe(false)
+    },
+  )
+
   /* Opened from its parent's pane, it is no row of the list, so neither a drag
      nor the selection reaches it: the pane is the one way to throw it away.
      Afterwards the pane goes back to the parent it was opened from, rather than
