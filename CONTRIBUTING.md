@@ -499,8 +499,9 @@ Local release preparation on 2026-11-08 used Python 3.14.10 and Node 24.22.1:
   the first page and changing scope or collection during a pending write.
 - Browser coverage consists of 392 unchanged desktop/phone cases passing in
   the full matrix and all 22 affected tag/note cases passing in focused runs.
-  Tests use the default 30-second timeout with no retries or skips. The
-  expanded 414-case matrix has not yet run as one complete job.
+  Desktop cases have a 30-second budget and phone cases 60 seconds, with no
+  retries or skips. The expanded 414-case matrix has not yet run as one
+  complete job.
 - Ruff formatting/lint, Ty and the strict documentation build pass.
 - All 333 pinned desktop source-replay checks pass without skips. Verification
   uses separate clean checkouts of the pinned Zotero and dataserver revisions;

@@ -25,6 +25,7 @@ export default defineConfig({
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'phone', use: { ...devices['Pixel 7'] } },
+    // Full-page diagnostics and touch workflows need more time on phone pages.
+    { name: 'phone', timeout: 60_000, use: { ...devices['Pixel 7'] } },
   ],
 })

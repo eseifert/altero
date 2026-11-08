@@ -21,7 +21,8 @@ from beta.7 runs database migrations for sign-in backoff and child membership
 repair. Back up the database and attachment storage together first; see the
 [upgrade instructions][upgrade].
 
-- Split compound tag and note browser checks so phone workflows fit the unchanged test timeout.
+- Allow 60 seconds for phone browser workflows with full-page diagnostics and accessibility checks; keep retries disabled.
+- Split compound tag and note browser checks into focused theme, editing and accessibility cases.
 - Prevent SQLite pool failures on browser disconnects; require SQLAlchemy 2.0.57. Reported by [@eseifert] ([CI#42493546369]).
 - Add SSO-only browser sign-in and provider proof for keys, restores and migrations; suggested by [@arminbahl] ([Issue#68]).
 - Prevent host-header poisoning of account links; require a public URL for SMTP. Reported by [@orshih6] ([GHSA-75xw-v7vm-5v6r]).
