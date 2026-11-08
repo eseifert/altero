@@ -19,7 +19,7 @@ const password = ref('')
 
 /* Offered only where the instance can hold one and the browser can make one.
    A button that always failed would be worse than no button. */
-const canUsePasskey = computed(() => auth.passkeysAvailable && passkeys.available())
+const canUsePasskey = computed(() => !auth.ssoOnly && auth.passkeysAvailable && passkeys.available())
 const passkeyBusy = ref(false)
 const passkeyError = ref<string | null>(null)
 
@@ -112,36 +112,42 @@ async function submit(): Promise<void> {
       >
         {{ t('Continue with {provider}', { provider: provider.displayName }) }}
       </a>
-      <p class="auth-form__divider"><span>{{ t('or') }}</span></p>
+      <p v-if="!auth.ssoOnly" class="auth-form__divider"><span>{{ t('or') }}</span></p>
     </template>
 
-    <AppTextField
-      v-model="username"
-      :label="t('Username')"
-      autocomplete="username"
-      required
-      autofocus
-    />
-    <AppTextField
-      v-model="password"
-      :label="t('Password')"
-      type="password"
-      autocomplete="current-password"
-      required
-    />
-
-    <p v-if="auth.error" class="auth-form__error" role="alert">{{ auth.error }}</p>
-
-    <AppButton type="submit" full-width :loading="auth.busy">{{ t('Sign in') }}</AppButton>
-
-    <p v-if="auth.passwordResetOpen" class="auth-form__aside">
-      <RouterLink :to="{ name: 'forgot-password' }">{{ t('Forgotten password?') }}</RouterLink>
+    <p v-if="auth.ssoOnly && !auth.providers.length" class="auth-form__error" role="alert">
+      {{ t('That way of signing in is not available here.') }}
     </p>
 
-    <p v-if="auth.registrationOpen" class="auth-form__aside">
-      {{ t('No account yet?') }}
-      <RouterLink :to="{ name: 'register' }">{{ t('Create one') }}</RouterLink>
-    </p>
+    <template v-if="!auth.ssoOnly">
+      <AppTextField
+        v-model="username"
+        :label="t('Username')"
+        autocomplete="username"
+        required
+        autofocus
+      />
+      <AppTextField
+        v-model="password"
+        :label="t('Password')"
+        type="password"
+        autocomplete="current-password"
+        required
+      />
+
+      <p v-if="auth.error" class="auth-form__error" role="alert">{{ auth.error }}</p>
+
+      <AppButton type="submit" full-width :loading="auth.busy">{{ t('Sign in') }}</AppButton>
+
+      <p v-if="auth.passwordResetOpen" class="auth-form__aside">
+        <RouterLink :to="{ name: 'forgot-password' }">{{ t('Forgotten password?') }}</RouterLink>
+      </p>
+
+      <p v-if="auth.registrationOpen" class="auth-form__aside">
+        {{ t('No account yet?') }}
+        <RouterLink :to="{ name: 'register' }">{{ t('Create one') }}</RouterLink>
+      </p>
+    </template>
   </form>
 </template>
 

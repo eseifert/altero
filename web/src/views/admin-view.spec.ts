@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createMemoryHistory, createRouter, type Router } from 'vue-router'
 
 import { ApiError } from '@/api/client'
@@ -391,6 +391,9 @@ describe('the accounts screen', () => {
 })
 
 describe('who may reach the screens', () => {
+  // Loading the large library component is setup, not part of the route guard.
+  beforeAll(async () => { await import('@/views/LibraryView.vue') })
+
   /** The application's own router, guard and all. */
   async function reach(administrator: boolean): Promise<string> {
     const { router } = await import('@/router')
@@ -426,4 +429,41 @@ describe('who may reach the screens', () => {
        not help. The server refuses these routes regardless. */
     expect(await reach(false)).toBe('/library')
   })
+})
+
+it('uses provider proof for SSO-only administration and hides local credential actions', async () => {
+  const auth = useAuthStore()
+  auth.ssoOnly = true
+  const answer = requestMock.getMockImplementation()!
+  requestMock.mockImplementation((path: string, options: unknown) => {
+    if (path === '/web/account/proof') return Promise.resolve({ password: false, fresh: true, providers: [] })
+    return answer(path, options)
+  })
+  const wrapper = await open('accounts')
+  await wrapper.findAll('.accounts__row')[1].trigger('click')
+  await flush()
+  expect(wrapper.findAll('input[type="password"]')).toHaveLength(0)
+  expect(wrapper.text()).not.toContain('Create account')
+  expect(wrapper.text()).not.toContain('Set password')
+  expect(wrapper.text()).not.toContain('Send a password link')
+  expect(button(wrapper, 'Suspend').attributes('disabled')).toBeUndefined()
+  await button(wrapper, 'Suspend').trigger('click')
+  await flush()
+  expect(requestMock).toHaveBeenCalledWith('/web/admin/users/2', expect.objectContaining({
+    method: 'PATCH', body: { disabled: true, currentPassword: '' },
+  }))
+})
+
+it('offers a provider confirmation link before an SSO-only administrator acts', async () => {
+  useAuthStore().ssoOnly = true
+  const answer = requestMock.getMockImplementation()!
+  requestMock.mockImplementation((path: string, options: unknown) => {
+    if (path === '/web/account/proof') return Promise.resolve({ password: false, fresh: false, providers: [{ slug: 'campus', displayName: 'Campus' }] })
+    return answer(path, options)
+  })
+  const wrapper = await open('accounts')
+  await wrapper.findAll('.accounts__row')[1].trigger('click')
+  await flush()
+  expect(button(wrapper, 'Suspend').attributes('disabled')).toBeDefined()
+  expect(wrapper.get('a[href*="purpose=reauth"]').attributes('href')).toContain('next=%2Fadmin%2Faccounts')
 })

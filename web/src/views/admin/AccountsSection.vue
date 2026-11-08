@@ -17,10 +17,14 @@ import { useI18n } from 'vue-i18n'
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import ConfirmIdentity from '@/components/ConfirmIdentity.vue'
+import { useAuthStore } from '@/stores/auth'
 import { formatDate } from '@/formats'
 import { message, usePanel } from './panel'
 
 const { t } = useI18n()
+const auth = useAuthStore()
+const confirmed = ref(false)
 const { busy, failure, attempt } = usePanel()
 
 interface Account {
@@ -149,7 +153,7 @@ const remove = (account: Account) =>
     <section class="card">
       <div class="accounts__heading">
         <h3 class="card__title">{{ t('Accounts') }}</h3>
-        <AppButton variant="text" :disabled="busy" @click="startDraft">
+        <AppButton v-if="!auth.ssoOnly" variant="text" :disabled="busy" @click="startDraft">
           {{ t('Create account') }}
         </AppButton>
       </div>
@@ -173,7 +177,13 @@ const remove = (account: Account) =>
           :label="t('Password for the new account')"
           autocomplete="new-password"
         />
+        <ConfirmIdentity
+          v-if="auth.ssoOnly"
+          v-model="password"
+          v-model:ready="confirmed"
+        />
         <AppTextField
+          v-else
           v-model="password"
           type="password"
           :label="t('Your password')"
@@ -218,7 +228,13 @@ const remove = (account: Account) =>
               </template>
             </dl>
 
+            <ConfirmIdentity
+              v-if="auth.ssoOnly"
+              v-model="password"
+              v-model:ready="confirmed"
+            />
             <AppTextField
+              v-else
               v-model="password"
               type="password"
               :label="t('Your password')"
@@ -229,30 +245,30 @@ const remove = (account: Account) =>
             <div class="accounts__actions">
               <AppButton
                 variant="text"
-                :disabled="busy || !password"
+                :disabled="busy || (auth.ssoOnly ? !confirmed : !password)"
                 @click="change(account, { disabled: !account.disabled }, account.disabled ? t('Back in service.') : t('Suspended. Their libraries are untouched.'))"
               >
                 {{ account.disabled ? t('Reinstate') : t('Suspend') }}
               </AppButton>
               <AppButton
                 variant="text"
-                :disabled="busy || !password"
+                :disabled="busy || (auth.ssoOnly ? !confirmed : !password)"
                 @click="change(account, { administrator: !account.administrator }, t('Saved.'))"
               >
                 {{ account.administrator ? t('Stop administering') : t('Make administrator') }}
               </AppButton>
-              <AppButton variant="text" :disabled="busy || !password" @click="revoke(account)">
+              <AppButton variant="text" :disabled="busy || (auth.ssoOnly ? !confirmed : !password)" @click="revoke(account)">
                 {{ t('Revoke keys and sessions') }}
               </AppButton>
-              <AppButton variant="text" :disabled="busy || !password" @click="sendLink(account)">
+              <AppButton v-if="!auth.ssoOnly" variant="text" :disabled="busy || !password" @click="sendLink(account)">
                 {{ t('Send a password link') }}
               </AppButton>
-              <AppButton variant="text" :disabled="busy || !password" @click="remove(account)">
+              <AppButton variant="text" :disabled="busy || (auth.ssoOnly ? !confirmed : !password)" @click="remove(account)">
                 {{ t('Delete account') }}
               </AppButton>
             </div>
 
-            <div class="accounts__actions">
+            <div v-if="!auth.ssoOnly" class="accounts__actions">
               <AppTextField
                 v-model="replacement"
                 type="password"
@@ -261,7 +277,7 @@ const remove = (account: Account) =>
               />
               <AppButton
                 variant="text"
-                :disabled="busy || !password || !replacement"
+                :disabled="busy || (auth.ssoOnly ? !confirmed : !password) || !replacement"
                 @click="setPassword(account)"
               >
                 {{ t('Set password') }}

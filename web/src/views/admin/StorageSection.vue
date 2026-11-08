@@ -15,10 +15,14 @@ import { useI18n } from 'vue-i18n'
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import ConfirmIdentity from '@/components/ConfirmIdentity.vue'
+import { useAuthStore } from '@/stores/auth'
 import { formatBytes } from '@/formats'
 import { message, usePanel } from './panel'
 
 const { t } = useI18n()
+const auth = useAuthStore()
+const confirmed = ref(false)
 const { busy, failure, attempt } = usePanel()
 
 interface LibraryUsage {
@@ -109,13 +113,19 @@ onMounted(async () => {
           {{ t('Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.') }}
         </p>
         <div class="storage__purge">
+          <ConfirmIdentity
+            v-if="auth.ssoOnly"
+            v-model="password"
+            v-model:ready="confirmed"
+          />
           <AppTextField
+            v-else
             v-model="password"
             type="password"
             :label="t('Your password')"
             autocomplete="current-password"
           />
-          <AppButton variant="text" :disabled="busy || !password" @click="purge">
+          <AppButton variant="text" :disabled="busy || (auth.ssoOnly ? !confirmed : !password)" @click="purge">
             {{ t('Delete unreferenced files') }}
           </AppButton>
         </div>

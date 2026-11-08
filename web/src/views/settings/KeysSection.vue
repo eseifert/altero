@@ -12,10 +12,15 @@ import { useI18n } from 'vue-i18n'
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import ConfirmIdentity from '@/components/ConfirmIdentity.vue'
+import { useAuthStore } from '@/stores/auth'
 import { formatDate, formatDateTime } from '@/formats'
 import { message, usePanel } from './panel'
 
 const { t } = useI18n()
+const auth = useAuthStore()
+const confirmed = ref(false)
+const identity = ref<InstanceType<typeof ConfirmIdentity> | null>(null)
 
 interface KeyEntry {
   id: number
@@ -58,6 +63,9 @@ const createKey = () =>
         write: newKeyWrite.value,
         groups: newKeyGroups.value,
       },
+    }).catch(async (error) => {
+      await identity.value?.refresh()
+      throw error
     })
     issuedKey.value = response.key
     newKeyName.value = ''
@@ -151,13 +159,20 @@ function lastSeen(entry: KeyEntry): string {
           <input v-model="newKeyGroups" type="checkbox" />
           <span>{{ t('Include group libraries') }}</span>
         </label>
+        <ConfirmIdentity
+          v-if="auth.ssoOnly"
+          ref="identity"
+          v-model="newKeyPassword"
+          v-model:ready="confirmed"
+        />
         <AppTextField
+          v-else
           v-model="newKeyPassword"
           :label="t('Current password')"
           type="password"
           autocomplete="current-password"
         />
-        <AppButton :loading="busy" @click="createKey">{{ t('Create key') }}</AppButton>
+        <AppButton :loading="busy" :disabled="auth.ssoOnly && !confirmed" @click="createKey">{{ t('Create key') }}</AppButton>
       </div>
     </details>
   </section>

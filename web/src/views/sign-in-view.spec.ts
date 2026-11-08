@@ -132,3 +132,19 @@ describe('why a federated sign-in came back empty-handed', () => {
     expect(wrapper.find('.auth-form__error').exists()).toBe(false)
   })
 })
+
+it('offers only provider links when the instance requires SSO', async () => {
+  const auth = useAuthStore()
+  auth.ssoOnly = true
+  auth.registrationOpen = true
+  auth.passwordResetOpen = true
+  auth.passkeysAvailable = true
+  auth.providers = [{ slug: 'campus', kind: 'oidc', displayName: 'Campus' }]
+  const wrapper = await open('?next=/settings/keys')
+  expect(wrapper.findAll('input')).toHaveLength(0)
+  expect(wrapper.find('button[type="submit"]').exists()).toBe(false)
+  expect(wrapper.find('.auth-form__divider').exists()).toBe(false)
+  expect(wrapper.text()).not.toContain('Create one')
+  expect(wrapper.text()).not.toContain('Forgotten password?')
+  expect(wrapper.get('a.auth-form__provider').attributes('href')).toContain('next=%2Fsettings%2Fkeys')
+})

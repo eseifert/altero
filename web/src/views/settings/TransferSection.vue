@@ -18,11 +18,16 @@ import { useI18n } from 'vue-i18n'
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import ConfirmIdentity from '@/components/ConfirmIdentity.vue'
+import { useAuthStore } from '@/stores/auth'
 import { libraryLabel } from '@/librarylabel'
 import type { LibrarySummary } from '@/stores/library'
 import { message, usePanel } from './panel'
 
 const { t } = useI18n()
+const auth = useAuthStore()
+const confirmed = ref(false)
+const identity = ref<InstanceType<typeof ConfirmIdentity> | null>(null)
 
 const { busy, failure, attempt } = usePanel()
 
@@ -125,7 +130,10 @@ const restore = () =>
     form.append('currentPassword', password.value)
     form.append('replace', String(replace.value))
 
-    restored.value = await request<Restored>(archiveUrl(library), { method: 'POST', body: form })
+    restored.value = await request<Restored>(archiveUrl(library), { method: 'POST', body: form }).catch(async (error) => {
+      await identity.value?.refresh()
+      throw error
+    })
 
     // Cleared on the way out, the file included: leaving a chosen archive and
     // a ticked "replace" in the form invites a second restore by one click.
@@ -204,14 +212,21 @@ const restore = () =>
         {{ t('Without this, a library that already holds anything is left alone rather than merged into.') }}
       </p>
 
+      <ConfirmIdentity
+        v-if="auth.ssoOnly"
+        ref="identity"
+        v-model="password"
+        v-model:ready="confirmed"
+      />
       <AppTextField
+        v-else
         v-model="password"
         :label="t('Current password')"
         type="password"
         autocomplete="current-password"
       />
 
-      <AppButton :loading="busy" :disabled="!file || target === null" @click="restore">
+      <AppButton :loading="busy" :disabled="!file || target === null || (auth.ssoOnly && !confirmed)" @click="restore">
         {{ t('Restore') }}
       </AppButton>
 

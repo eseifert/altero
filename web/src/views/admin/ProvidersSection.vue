@@ -20,10 +20,14 @@ import { useI18n } from 'vue-i18n'
 import { ApiError, request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import ConfirmIdentity from '@/components/ConfirmIdentity.vue'
+import { useAuthStore } from '@/stores/auth'
 import { formatDate } from '@/formats'
 import { usePanel } from './panel'
 
 const { t } = useI18n()
+const auth = useAuthStore()
+const confirmed = ref(false)
 
 const { busy, failure, attempt } = usePanel()
 
@@ -279,7 +283,13 @@ const remove = (provider: Provider) =>
       {{ t('Offer this on the sign-in page') }}
     </label>
 
+    <ConfirmIdentity
+      v-if="auth.ssoOnly"
+      v-model="adminPassword"
+      v-model:ready="confirmed"
+    />
     <AppTextField
+      v-else
       v-model="adminPassword"
       type="password"
       :label="t('Your password')"
@@ -287,12 +297,13 @@ const remove = (provider: Provider) =>
     />
 
     <div class="settings__field">
-      <AppButton :loading="busy" @click="save">{{ t('Save') }}</AppButton>
+      <AppButton :loading="busy" :disabled="auth.ssoOnly && !confirmed" @click="save">{{ t('Save') }}</AppButton>
       <AppButton variant="text" @click="cancel">{{ t('Cancel') }}</AppButton>
       <AppButton
         v-if="!isNew"
         variant="outlined"
         :loading="busy"
+        :disabled="auth.ssoOnly && !confirmed"
         @click="remove(editing as Provider)"
       >
         {{ t('Remove') }}

@@ -212,5 +212,10 @@ router.beforeEach(async (to: RouteLocationNormalized) => {
     return (to.query.next as string) || { name: 'library' }
   }
 
+  if (['register', 'forgot-password', 'reset-password', 'second-factor'].includes(String(to.name))) {
+    await auth.loadConfig()
+    if (auth.ssoOnly) return { name: 'sign-in' }
+  }
+
   return true
 })

@@ -158,14 +158,16 @@ const saveEmail = () =>
       <span v-if="account?.user.emailVerified"> — {{ t('confirmed') }}</span>
       <span v-else> — {{ t('not confirmed yet') }}</span>
     </p>
-    <AppTextField v-model="newEmail" :label="t('New address')" type="email" autocomplete="email" />
-    <AppTextField
-      v-model="emailPassword"
-      :label="t('Current password')"
-      type="password"
-      autocomplete="current-password"
-    />
-    <AppButton :loading="busy" @click="saveEmail">{{ t('Send confirmation') }}</AppButton>
+    <template v-if="!auth.ssoOnly">
+      <AppTextField v-model="newEmail" :label="t('New address')" type="email" autocomplete="email" />
+      <AppTextField
+        v-model="emailPassword"
+        :label="t('Current password')"
+        type="password"
+        autocomplete="current-password"
+      />
+      <AppButton :loading="busy" @click="saveEmail">{{ t('Send confirmation') }}</AppButton>
+    </template>
   </section>
 </template>
 

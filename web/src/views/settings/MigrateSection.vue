@@ -20,9 +20,14 @@ import { useI18n } from 'vue-i18n'
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import ConfirmIdentity from '@/components/ConfirmIdentity.vue'
+import { useAuthStore } from '@/stores/auth'
 import { message, usePanel } from './panel'
 
 const { t } = useI18n()
+const auth = useAuthStore()
+const confirmed = ref(false)
+const identity = ref<InstanceType<typeof ConfirmIdentity> | null>(null)
 const { failure, notice } = usePanel()
 
 /** What the server reports about a migration, running or finished. */
@@ -143,6 +148,7 @@ async function begin(): Promise<void> {
     password.value = ''
     void poll()
   } catch (thrown) {
+    await identity.value?.refresh()
     failure.value = message(thrown)
   } finally {
     starting.value = false
@@ -190,14 +196,21 @@ async function begin(): Promise<void> {
         {{ t('Without this, a library that already holds anything is left alone rather than merged into.') }}
       </p>
 
+      <ConfirmIdentity
+        v-if="auth.ssoOnly"
+        ref="identity"
+        v-model="password"
+        v-model:ready="confirmed"
+      />
       <AppTextField
+        v-else
         v-model="password"
         :label="t('Current password')"
         type="password"
         autocomplete="current-password"
       />
 
-      <AppButton :loading="starting" :disabled="!apiKey.trim()" @click="begin">
+      <AppButton :loading="starting" :disabled="!apiKey.trim() || (auth.ssoOnly && !confirmed)" @click="begin">
         {{ t('Copy my library') }}
       </AppButton>
 

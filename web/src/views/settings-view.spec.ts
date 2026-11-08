@@ -540,3 +540,47 @@ describe('confirmation after changing language', () => {
     await vi.waitFor(() => expect(wrapper.get('.section-panel__notice').text()).toBe('حُفظت اللغة والمنطقة الزمنية.'))
   })
 })
+
+describe('SSO-only settings', () => {
+  async function sso(section: string, fresh = false) {
+    const { useAuthStore } = await import('@/stores/auth')
+    const auth = useAuthStore()
+    auth.ssoOnly = true
+    const answer = requestMock.getMockImplementation()!
+    requestMock.mockImplementation((path: string, options: unknown) => {
+      if (path === '/web/config') return Promise.resolve({ ssoOnly: true, providers: [{ slug: 'campus', displayName: 'Campus' }] })
+      if (path === '/web/account/proof') return Promise.resolve({ password: false, fresh, providers: [{ slug: 'campus', displayName: 'Campus' }] })
+      return answer(path, options)
+    })
+    return open(section)
+  }
+
+  it('hides local password, authenticator, email-code and passkey controls', async () => {
+    const { wrapper } = await sso('security')
+    expect(wrapper.text()).not.toContain('Change password')
+    expect(wrapper.text()).not.toContain('Authenticator app')
+    expect(wrapper.text()).not.toContain('Codes by email')
+    expect(wrapper.text()).not.toContain('Passkeys')
+    expect(wrapper.text()).toContain('Connected accounts')
+    expect(wrapper.text()).toContain('Signed-in browsers')
+  })
+
+  it.each(['keys', 'import-export', 'migrate'])('offers provider proof for %s without a local password', async (section) => {
+    const { wrapper } = await sso(section)
+    expect(wrapper.find('input[type="password"]').exists()).toBe(false)
+    expect(wrapper.find('a[href*="purpose=reauth"]').exists()).toBe(true)
+    expect(wrapper.get('a[href*="purpose=reauth"]').attributes('href')).toContain(encodeURIComponent(`/settings/${section}`))
+  })
+
+  it('creates a key after fresh provider proof without sending a local password', async () => {
+    const { wrapper } = await sso('keys', true)
+    await wrapper.get('.settings__new-key input').setValue('Zotero')
+    const button = wrapper.findAll('button').find((entry) => entry.text() === 'Create key')!
+    expect(button.attributes('disabled')).toBeUndefined()
+    await button.trigger('click')
+    await settle(wrapper)
+    expect(requestMock).toHaveBeenCalledWith('/web/account/keys', expect.objectContaining({
+      method: 'POST', body: expect.objectContaining({ name: 'Zotero', currentPassword: '' }),
+    }))
+  })
+})
