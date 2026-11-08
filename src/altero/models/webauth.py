@@ -33,6 +33,10 @@ class WebSession(Base):
     #: session lives for thirty days and the proof is good for minutes: signing
     #: in is not standing consent to replace the credentials afterwards.
     reauthenticated: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: Provenance is retained even while SSO-only mode is off. Enabling it must
+    #: not admit an older password session or a recent local proof.
+    sso_authenticated: Mapped[bool] = mapped_column(default=False, server_default="false")
+    sso_reauthenticated: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     last_seen: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires: Mapped[datetime] = mapped_column(DateTime, index=True)

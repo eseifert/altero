@@ -42,6 +42,7 @@ async def create(
     user: User,
     *,
     pending_factor: str | None = None,
+    sso: bool = False,
     user_agent: str = "",
 ) -> tuple[str, WebSession]:
     """Open a session for ``user`` and return its token and record.
@@ -58,6 +59,7 @@ async def create(
         token_hash=hash_token(token),
         user_id=user.id,
         pending_factor=pending_factor,
+        sso_authenticated=sso,
         expires=_now() + timedelta(days=LIFETIME_DAYS),
         user_agent=user_agent[:255],
     )

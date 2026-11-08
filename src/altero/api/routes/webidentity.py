@@ -312,7 +312,7 @@ async def complete_sign_in(
         return RedirectResponse(_app_url(request, "/sign-in", error="not-permitted"), 303)
 
     token, _ = await websessions.create(
-        session, outcome.user, user_agent=request.headers.get("user-agent", "")
+        session, outcome.user, sso=True, user_agent=request.headers.get("user-agent", "")
     )
     response = RedirectResponse(_app_url(request, pending.next_path), status_code=303)
     _set_session_cookies(response, request, token)
@@ -398,7 +398,7 @@ async def consume_assertion(
         return RedirectResponse(_app_url(request, "/sign-in", error="not-permitted"), 303)
 
     token, _ = await websessions.create(
-        session, outcome.user, user_agent=request.headers.get("user-agent", "")
+        session, outcome.user, sso=True, user_agent=request.headers.get("user-agent", "")
     )
     response = RedirectResponse(_app_url(request, pending.next_path), status_code=303)
     _set_session_cookies(response, request, token)
@@ -497,7 +497,7 @@ async def _finish_for_signed_in(
 
     # Either way this browser has just proved itself at the directory, which is
     # what re-authentication wanted -- see services/reauth.py.
-    await account.stamp_proof(session, record)
+    await account.stamp_proof(session, record, sso=True)
     return RedirectResponse(_app_url(request, pending.next_path), status_code=303)
 
 

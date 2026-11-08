@@ -65,14 +65,17 @@ def has_password(user: User) -> bool:
     return bool(user.password_hash)
 
 
-def is_fresh(record: WebSession | None, *, now: datetime | None = None) -> bool:
+def is_fresh(
+    record: WebSession | None, *, now: datetime | None = None, sso_only: bool = False
+) -> bool:
     """Return whether ``record`` proved itself recently enough."""
-    if record is None or record.reauthenticated is None:
+    if record is None:
         return False
-    return (now or _now()) - record.reauthenticated < FRESHNESS
+    proved = record.sso_reauthenticated if sso_only else record.reauthenticated
+    return proved is not None and (now or _now()) - proved < FRESHNESS
 
 
-async def stamp(session: AsyncSession, record: WebSession | None) -> None:
+async def stamp(session: AsyncSession, record: WebSession | None, *, sso: bool = False) -> None:
     """Record that this browser has just proved itself.
 
     Called by every path that establishes a proof -- a password checked here, a
@@ -83,6 +86,8 @@ async def stamp(session: AsyncSession, record: WebSession | None) -> None:
     if record is None:
         return
     record.reauthenticated = _now()
+    if sso:
+        record.sso_reauthenticated = record.reauthenticated
     await session.commit()
 
 
@@ -92,6 +97,7 @@ async def require(
     record: WebSession | None,
     *,
     password: str | None = None,
+    sso_only: bool = False,
 ) -> None:
     """Raise unless this browser has proved itself, or proves itself now.
 
@@ -105,6 +111,11 @@ async def require(
     session and has already established who it is by having a shell on the
     server, can call the same function.
     """
+    if sso_only:
+        if is_fresh(record, sso_only=True):
+            return
+        raise ReauthenticationRequired("This needs you to confirm it is you through single sign-on")
+
     if password:
         if not passwords.verify_password(user.password_hash, password):
             raise ForbiddenError(WRONG_PASSWORD)

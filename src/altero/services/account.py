@@ -55,6 +55,7 @@ async def require_proof(
     record: WebSession | None,
     *,
     password: str | None = None,
+    sso_only: bool = False,
 ) -> None:
     """Raise unless this browser has proved, or proves now, that it is theirs.
 
@@ -66,10 +67,12 @@ async def require_proof(
     A thin pass-through to :func:`altero.services.reauth.require`, kept here
     because this is where every caller already looks for it.
     """
-    await reauth.require(session, user, record, password=password)
+    await reauth.require(session, user, record, password=password, sso_only=sso_only)
 
 
-async def stamp_proof(session: AsyncSession, record: WebSession | None) -> None:
+async def stamp_proof(
+    session: AsyncSession, record: WebSession | None, *, sso: bool = False
+) -> None:
     """Record that this browser has just proved itself some other way.
 
     For the paths that establish a proof without a password: a trip through an
@@ -77,7 +80,7 @@ async def stamp_proof(session: AsyncSession, record: WebSession | None) -> None:
     Kept here beside :func:`require_proof` so both halves of the seam are in
     one place.
     """
-    await reauth.stamp(session, record)
+    await reauth.stamp(session, record, sso=sso)
 
 
 async def set_display_name(session: AsyncSession, user: User, display_name: str) -> User:
