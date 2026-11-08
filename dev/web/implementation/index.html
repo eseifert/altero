@@ -1892,7 +1892,17 @@ compatible subset, selecting a field value and checking the saved result.
 They check rendering and behavior, not native-speaker approval of every message.
 Finnish merge and type-change checks also verify the corrected field-selection
 instruction and the library's item term in actions and saved confirmations. The master
-label follows “pääversio” in Zotero's Finnish version-selection instruction.</p>
+label follows “pääversio” in Zotero's Finnish version-selection instruction.
+Slovak and Slovenian merge checks retain the library's <code>záznam</code> and <code>vnos</code>
+terms in the master-item badge and saved confirmation, choose a field value
+and verify the merged data through the API. The Slovenian action also omits
+its former trailing space. Catalogue checks cover the corresponding field-load
+errors, which use the same item terms.
+Romanian and Turkish merge checks likewise retain <code>înregistrare</code> and <code>eser</code>,
+including the version-selection instructions and saved confirmations. Turkish
+instructions use the surrounding guidance's polite plural address. Romanian
+item-action checks file, trash and restore an item through translated controls,
+checking each confirmation and the stored membership and trash state.</p>
 <p>Creator-name checks cover fifteen further catalogs whose hints previously used
 ordinals or shortened stems. They identify both inputs by their translated
 accessible names, edit each independently and verify saved names after reload.
