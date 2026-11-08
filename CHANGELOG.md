@@ -79,7 +79,7 @@ gained a capability worth naming.
 - Record passing hosted CI for real sign-in providers and independent Authlib OAuth flows.
 - Add sign-in provider recipes for Keycloak, Entra ID, Okta, authentik and Shibboleth, with verification status.
 - Show the SAML assertion consumer address when configuring a SAML sign-in provider.
-- Preserve trailing slashes in sign-in provider issuers and reject mismatched discovery metadata before sign-in.
+- Preserve issuer slashes and reject mismatched OIDC discovery. Reported by [@arminbahl] in [Issue#67].
 - Slow repeated password and second-factor guesses with account and address backoff shared across workers and restarts.
 - Document the local OpenID conformance assessment: Config OP passes; Basic OP exposes the required-PKCE profile mismatch.
 - Exercise altero's OAuth and OpenID provider with an independent Authlib client over live HTTP in CI.
@@ -446,3 +446,4 @@ The first release meant to be used by somebody other than its author.
 [Issue#62]: https://github.com/eseifert/altero/issues/62
 [Issue#64]: https://github.com/eseifert/altero/issues/64
 [Issue#65]: https://github.com/eseifert/altero/issues/65
+[Issue#67]: https://github.com/eseifert/altero/issues/67
