@@ -63,6 +63,14 @@ completed by a GET with the browser's retained jar. Focused handoff tests cover
 expiry, replay, missing/wrong sessions, disabled/mismatched providers and misuse
 at the original callbacks.
 
+`test_sso_keycloak.py` exercises `ALTERO_SSO_ONLY` over the same real HTTP
+server and both Keycloak protocols. It rejects the earlier local session and
+password login, signs in through the linked identity, refuses a stored password
+as proof, and then reauthenticates at the provider to create a working API key
+and restore an archive. `test_sso_workflows.py` separately checks passwordless
+zotero.org migration with a substituted source transport and signed SAML
+reauthentication. These checks do not change the historical hosted result below.
+
 Local validation on 2026-10-31 also drove Chromium through a genuinely cross-site
 flow (`localhost` for Keycloak, `127.0.0.1` for altero). Linking, ordinary sign-in
 and reauthentication sent no cookies on their SAML POSTs; linking retained the

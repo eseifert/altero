@@ -233,3 +233,12 @@ async def test_a_provider_must_still_permit_the_account_when_reauthenticating(
     response = await reauthenticate(client, directory)
     assert "error=not-permitted" in response.headers["location"]
     assert (await client.get("/web/account/proof")).json()["fresh"] is False
+
+
+def test_sso_only_requires_a_configured_public_url() -> None:
+    from altero.app import create_app
+    from altero.errors import InvalidInputError
+    from altero.settings import Settings
+
+    with pytest.raises(InvalidInputError, match="ALTERO_PUBLIC_URL"):
+        create_app(Settings(sso_only=True, public_url=""))

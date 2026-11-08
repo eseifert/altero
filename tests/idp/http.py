@@ -9,6 +9,7 @@ from pathlib import Path
 
 import httpx2
 import uvicorn
+from fastapi import FastAPI
 from tests.test_web_routes import register
 
 from altero.app import create_app
@@ -54,10 +55,10 @@ def new_browser(*, headers: dict[str, str] | None = None) -> httpx2.AsyncClient:
 
 @asynccontextmanager
 async def live_browser(
-    root: Path, *, headers: dict[str, str] | None = None
+    root: Path, *, headers: dict[str, str] | None = None, app: FastAPI | None = None
 ) -> AsyncIterator[httpx2.AsyncClient]:
     """Serve a fresh database/store on the registered loopback callback port."""
-    app = create_app(
+    app = app or create_app(
         Settings(
             database_url=f"sqlite+aiosqlite:///{root / 'identity.sqlite'}",
             storage_path=root / "storage",
