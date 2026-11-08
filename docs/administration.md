@@ -189,10 +189,6 @@ Copy the provider's exact `issuer` value from its discovery document, including
 any trailing slash. Issuers must match in configuration, discovery and ID
 tokens, as required by
 [OpenID Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation).
-Version 1.0.0-beta.7 removes trailing issuer slashes when saving a provider.
-The [fix](https://github.com/eseifert/altero/commit/fff7a75705bc274c65b1a1ac68a843a1493b867d)
-was added after beta.7. After upgrading to a build containing it, edit the issuer
-and save it again; existing provider rows are not changed automatically.
 
 ### SSO-only mode
 

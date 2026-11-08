@@ -46,8 +46,8 @@ The image is published as `ghcr.io/eseifert/altero`, so running altero needs no 
 
 ```sh
 mkdir altero && cd altero
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.7/docker/compose.yaml
-ALTERO_IMAGE_TAG=1.0.0-beta.7 docker compose up -d
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.8/docker/compose.yaml
+ALTERO_IMAGE_TAG=1.0.0-beta.8 docker compose up -d
 docker compose exec altero altero user add <username>
 docker compose exec altero altero user password <username>
 ```
@@ -55,7 +55,7 @@ docker compose exec altero altero user password <username>
 From a repository checkout, name the file where it lives instead:
 
 ```sh
-ALTERO_IMAGE_TAG=1.0.0-beta.7 docker compose -f docker/compose.yaml up -d
+ALTERO_IMAGE_TAG=1.0.0-beta.8 docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 docker compose -f docker/compose.yaml exec altero altero user password <username>
 ```
@@ -64,7 +64,7 @@ The stack contains PostgreSQL, altero and persistent attachment storage.
 
 `altero user add` creates the account without a password, so `altero user password` follows it. The alternative is to create the first account in the browser: registration is open while the instance has no accounts at all, and the account that claims it administers the instance. See [Accounts](web/account.md).
 
-`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: `1.0.0-beta.7` pins this version, and `dev` follows master. Persist the pin in `.env` beside a downloaded Compose file, or in `docker/.env` for a checkout. The matching release documentation is at <https://altero.run/1.0.0-beta.7/>; the docs site's `latest` alias is managed separately from the container tag.
+`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: `1.0.0-beta.8` pins this version, and `dev` follows master. Persist the pin in `.env` beside a downloaded Compose file, or in `docker/.env` for a checkout. The matching release documentation is at <https://altero.run/1.0.0-beta.8/>; the docs site's `latest` alias is managed separately from the container tag.
 
 The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
 
@@ -96,6 +96,11 @@ versions once, so existing desktops refresh their cached group permissions.
 It does not change personal-library versions. See [desktop compatibility coverage and remaining gaps](client-compatibility.md)
 for the verified sync behavior.
 
+> [!WARNING]
+> Before upgrading to beta.8 with `ALTERO_SMTP_URL` configured, set
+> `ALTERO_PUBLIC_URL` to the instance's trusted external URL. The server refuses
+> to start with SMTP enabled and no public URL.
+
 ```sh
 docker compose -f docker/compose.yaml pull altero
 docker compose -f docker/compose.yaml up -d
@@ -105,15 +110,26 @@ An instance pinned with `ALTERO_IMAGE_TAG` upgrades when that value changes, not
 
 Upgrading from beta.6 to beta.7 needs no database or storage changes.
 
+Account links no longer use request host headers. Without a configured public
+URL, logged account links and administrator-issued reset links
+are relative paths to open on the instance itself. Single sign-on also requires
+the public URL before a provider can be saved or used.
+
 Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.
 
-The next upgrade after beta.7 repairs child notes and attachments incorrectly
+Beta.8 repairs child notes and attachments incorrectly
 filed in collections ([issue #64](https://github.com/eseifert/altero/issues/64)).
 Sync each desktop after upgrading. Affected items receive a new version so
 clients download the repair; their parents and attachment files stay intact.
 Source installations must run `uv run alembic upgrade head` before serving.
 
-Direct upgrades from beta.1 through beta.7 to the current development schema
+If beta.7 removed a trailing slash from an OIDC issuer, re-save the exact issuer
+from the provider's discovery document in the administration screen after
+upgrading to beta.8. Existing rows cannot be repaired automatically because the
+server cannot infer which issuers require a slash; direct database edits are
+unnecessary ([issue #67](https://github.com/eseifert/altero/issues/67)).
+
+Direct upgrades from beta.1 through beta.7 to the beta.8 schema
 passed with populated personal and group libraries on SQLite and PostgreSQL.
 The checks include attachment bytes, full-text search, versions, permissions
 and repeat startup; see the [upgrade matrix and limits](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation).
@@ -211,7 +227,7 @@ uv sync --extra postgres
 For a basic SQLite installation:
 
 ```sh
-git clone --branch v1.0.0-beta.7 https://github.com/eseifert/altero.git
+git clone --branch v1.0.0-beta.8 https://github.com/eseifert/altero.git
 cd altero
 uv sync --locked
 npm --prefix web ci
@@ -269,10 +285,10 @@ A successful response includes the application version, API version, schema vers
 ```json
 {
   "status": "ok",
-  "version": "1.0.0b7",
+  "version": "1.0.0b8",
   "apiVersion": 3,
   "schemaVersion": 42,
-  "revision": "d7cd57abc8a4"
+  "revision": "c8f17a2d904e"
 }
 ```
 
@@ -314,7 +330,7 @@ It becomes required in practice when you use features that generate callbacks or
 - OpenID Connect or SAML sign-in;
 - passkeys;
 - the authorization server, which refuses to serve its endpoints rather than guess the `iss` claim — see [Connecting other applications](oauth.md);
-- links in outgoing email.
+- SMTP, which refuses to start without it so account links cannot use an untrusted request host.
 
 Changing the **host** of `ALTERO_PUBLIC_URL` invalidates existing passkeys. Changing only the scheme or port does not.
 

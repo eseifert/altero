@@ -401,10 +401,10 @@ the copies cost nothing.
 
 ## Preparing a release
 
-The release version is **1.0.0-beta.7**, with tag `v1.0.0-beta.7`.
+The release version is **1.0.0-beta.8**, with tag `v1.0.0-beta.8`.
 
-1. Set the package version in `src/altero/__init__.py` (`1.0.0b7` in PEP 440).
-   Set the matching SemVer version (`1.0.0-beta.7`) in `web/package.json` and
+1. Set the package version in `src/altero/__init__.py` (`1.0.0b8` in PEP 440).
+   Set the matching SemVer version (`1.0.0-beta.8`) in `web/package.json` and
    both the top-level and root-package entries of `web/package-lock.json`.
    `pyproject.toml` reads the Python version dynamically; `uv.lock` carries no
    project version to change. Keep the development-status classifier in
@@ -418,7 +418,7 @@ The release version is **1.0.0-beta.7**, with tag `v1.0.0-beta.7`.
    a disposable test database, never an existing library database.
 
    ```sh
-   uv run python tools/release.py --tag v1.0.0-beta.7
+   uv run python tools/release.py --tag v1.0.0-beta.8
    uv run ruff format --check .
    uv run ruff check .
    uv run ty check
@@ -429,7 +429,7 @@ The release version is **1.0.0-beta.7**, with tag `v1.0.0-beta.7`.
    npm --prefix web run build
    release_artifacts=$(mktemp -d /tmp/altero-release.XXXXXX)
    uv build --out-dir "$release_artifacts"
-   uv run python tools/release.py --tag v1.0.0-beta.7 --artifacts "$release_artifacts"
+   uv run python tools/release.py --tag v1.0.0-beta.8 --artifacts "$release_artifacts"
    ```
 
    Install the docs group for Zensical and put Node 24 on PATH for the web
@@ -462,12 +462,12 @@ The release version is **1.0.0-beta.7**, with tag `v1.0.0-beta.7`.
 
    ```sh
    git push origin master
-   git tag -a v1.0.0-beta.7 -m "altero 1.0.0-beta.7"
-   git push origin v1.0.0-beta.7
+   git tag -a v1.0.0-beta.8 -m "altero 1.0.0-beta.8"
+   git push origin v1.0.0-beta.8
    ```
 
-The tag publishes multi-architecture container images under `1.0.0-beta.7` and
-`latest`, and documentation under `https://altero.run/1.0.0-beta.7/`. Prerelease
+The tag publishes multi-architecture container images under `1.0.0-beta.8` and
+`latest`, and documentation under `https://altero.run/1.0.0-beta.8/`. Prerelease
 documentation does not take the docs site's `latest` alias; that policy is
 separate from the image's `latest` tag. A tag does not create a GitHub Release
 or upload Python packages. If creating a GitHub Release, mark it as a prerelease
@@ -479,6 +479,48 @@ before publishing an image or documentation. A mismatched tag fails publication.
 The web CI job builds both Python artifacts after building the interface and
 checks their actual contents, including rebuilding the wheel through the source
 archive.
+
+### Beta.8 validation
+
+Local release preparation on 2026-11-08 used Python 3.14.10 and Node 24.22.1:
+
+- The pre-SSO backend run passed 3,685 cases with PostgreSQL, Keycloak and
+  SimpleSAMLphp enabled and no skips. Its two issuer fixture failures were
+  corrected by supplying the required public URL; all 200 focused account,
+  identity and administration checks then passed. The security regressions
+  fail by assertion against the original production modules. Real HTTP
+  verifies a reset and subsequent login with a forged request host.
+- All 27 new session/policy/workflow checks pass, together with the affected
+  285-case backend suite and focused linking regressions. Two real Keycloak
+  HTTP cases cover OIDC and SAML sign-in, provider proof, API-key creation and
+  archive restore. Chromium separately passes SSO-only sign-in, forced OIDC
+  reauthentication, key issuance, an authenticated write and archive restore;
+  local credential controls are absent in account and administrator screens.
+- All 2,265 frontend unit tests pass, together with template types and the
+  production build. The note/attachment regressions fail before the fix when
+  a refresh drops the parent's loaded page, then pass with the captured parent.
+  Switching scope or collection during the pending write keeps the pane closed.
+- The browser matrix passed 391 of 404 cases on its first run; the other 13
+  phone cases timed out. All 15 cases selected for the focused rerun passed,
+  including those 13, at the unchanged 30-second timeout.
+- All 333 pinned desktop source-replay checks pass without skips. Verification
+  uses separate clean checkouts of the pinned Zotero and dataserver revisions;
+  the network-consumer manifest check also passes.
+- All fourteen populated upgrade cells pass: beta.1 through beta.7 on SQLite
+  and newly created PostgreSQL databases, including bytes, permissions, writes
+  and repeat startup. The final rerun includes the SSO-session migration and
+  ends at beta.8 and revision `c8f17a2d904e`.
+- The wheel/source-archive inventory check passes. Real HTTP from the isolated
+  wheel serves `/health` (`1.0.0b8`), `/app/`, its assets and a font, and accepts
+  an authenticated item write/read with the wheel ahead of the editable source.
+- An earlier beta.8 candidate, before SSO-only changes, passed a local amd64
+  container check: UI/API access, a written item retained across restart and
+  the shipped health probe. The published
+  beta.7 rootless Podman result remains historical; no beta.8 Podman or arm64
+  runtime check is claimed here.
+
+The full two-profile desktop matrix remains the recorded beta.7 run below;
+source replay and browser checks are separate evidence.
 
 ### Beta.7 validation
 

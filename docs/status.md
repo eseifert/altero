@@ -2,7 +2,9 @@
 
 This page is the feature-level status of altero's Zotero v3 compatibility.
 
-**Release:** 1.0.0-beta.7. Two real Zotero 10.0.7 profiles passed 72
+**Release:** 1.0.0-beta.8. See the [upgrade requirements](deployment.md#upgrade-altero).
+
+The beta.7 desktop acceptance run with two real Zotero 10.0.7 profiles passed 72
 database/scenario combinations and 838 phases on Linux, across SQLite and
 PostgreSQL 18.4. This verifies the recorded transitions, not every client path
 or platform. See
@@ -16,7 +18,7 @@ To contribute a reproducible platform result, follow the
 [two-client test and reporting checklist](testing-two-clients.md#windows-and-macos-reports).
 
 Populated databases from every beta through beta.7 pass direct upgrades to the
-current development schema on SQLite and PostgreSQL, including attachment
+beta.8 schema on SQLite and PostgreSQL, including attachment
 downloads and repeat startup. See the [upgrade matrix and limits](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation).
 
 The published beta.7 amd64 image also passes a [rootless Podman check](testing-podman.md#recorded-run)

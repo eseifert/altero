@@ -7,10 +7,24 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-beta.8] — 2026-11-08
+
+This security and maintenance release prevents host-header poisoning of
+password-reset links and removes related request-host fallbacks from account
+links and single sign-on. It adds an optional SSO-only browser policy, fixes
+OIDC issuer handling, repairs child
+collection memberships, and improves browser editing and translations.
+
+Before upgrading an SMTP-enabled instance, set `ALTERO_PUBLIC_URL` to its
+trusted external address; the server now refuses SMTP without it. Upgrading
+from beta.7 runs database migrations for sign-in backoff and child membership
+repair. Back up the database and attachment storage together first; see the
+[upgrade instructions][upgrade].
+
 - Add SSO-only browser sign-in and provider proof for keys, restores and migrations; suggested by [@arminbahl] ([Issue#68]).
-- Return to a child item's parent after trashing when it is beyond the first page; reported by [@eseifert] ([CI#42428262993]).
-- Require the configured public URL for SSO callbacks and SAML identity; keep sign-in redirects independent of request hosts.
 - Prevent host-header poisoning of account links; require a public URL for SMTP. Reported by [@orshih6] ([GHSA-75xw-v7vm-5v6r]).
+- Require the configured public URL for SSO callbacks and SAML identity; keep sign-in redirects independent of request hosts.
+- Return to a child item's parent after trashing when it is beyond the first page; reported by [@eseifert] ([CI#42428262993]).
 - Align Romanian item confirmations and Turkish merge messages with library terms and retain polite Turkish instructions.
 - Keep Slovak and Slovenian merge messages consistent with the library's item terms.
 - Verify beta.7 on rootless Podman with browser edits, attachment persistence and changed-port health checks.
@@ -402,6 +416,10 @@ The first release meant to be used by somebody other than its author.
 [install]: docs/web-interface.md#installing-it-as-an-app
 [source]: docs/deployment.md#from-a-source-checkout
 [config]: docs/configuration.md
+[@orshih6]: https://github.com/orshih6
+[GHSA-75xw-v7vm-5v6r]: https://github.com/eseifert/altero/security/advisories/GHSA-75xw-v7vm-5v6r
+[1.0.0-beta.8]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.8
+[CI#42428262993]: https://github.com/eseifert/altero/actions/runs/42428262993
 [1.0.0-beta.7]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.7
 [1.0.0-beta.6]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.6
 [1.0.0-beta.5]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.5
@@ -451,9 +469,6 @@ The first release meant to be used by somebody other than its author.
 [Issue#64]: https://github.com/eseifert/altero/issues/64
 [Issue#65]: https://github.com/eseifert/altero/issues/65
 [Issue#67]: https://github.com/eseifert/altero/issues/67
-[@orshih6]: https://github.com/orshih6
-[GHSA-75xw-v7vm-5v6r]: https://github.com/eseifert/altero/security/advisories/GHSA-75xw-v7vm-5v6r
-[CI#42428262993]: https://github.com/eseifert/altero/actions/runs/42428262993
-[@arminbahl]: https://github.com/arminbahl
+
 [@arminbahl]: https://github.com/arminbahl
 [Issue#68]: https://github.com/eseifert/altero/issues/68

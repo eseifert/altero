@@ -28,7 +28,9 @@ It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v
 >
 > Test it with a separate Zotero profile or a library you can recreate. Synchronization writes client data to the server, and Zotero does not officially support third-party sync servers.
 
-**Current release: 1.0.0-beta.7.** Two real Zotero 10.0.7 profiles passed 72 scenario/database combinations across SQLite and PostgreSQL, covering 838 desktop phases. See [the changelog](CHANGELOG.md) and [coverage and remaining gaps](docs/client-compatibility.md).
+**Current release: 1.0.0-beta.8.** This security and maintenance release fixes password-reset link poisoning and OIDC issuer handling. SMTP-enabled instances must set `ALTERO_PUBLIC_URL` before upgrading; see [upgrade instructions](docs/deployment.md#upgrade-altero) and [the changelog](CHANGELOG.md).
+
+The beta.7 desktop acceptance run with two real Zotero 10.0.7 profiles passed 72 scenario/database combinations across SQLite and PostgreSQL, covering 838 desktop phases. See [coverage and remaining gaps](docs/client-compatibility.md).
 
 ## Why altero?
 
@@ -54,9 +56,9 @@ Docker Compose is the easiest way to try altero. It starts PostgreSQL, altero an
 
 ```bash
 mkdir altero && cd altero
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.7/docker/compose.yaml
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.8/docker/compose.yaml
 
-ALTERO_IMAGE_TAG=1.0.0-beta.7 docker compose up -d
+ALTERO_IMAGE_TAG=1.0.0-beta.8 docker compose up -d
 docker compose exec altero altero user add <username>
 docker compose exec altero altero user password <username>
 ```
@@ -65,7 +67,7 @@ docker compose exec altero altero user password <username>
 
 The server is published on the loopback interface by default. An idle instance uses around 125 MB of memory; attachments are what grows.
 
-Put `ALTERO_IMAGE_TAG=1.0.0-beta.7` in `.env` beside the Compose file to keep this version pinned for later upgrades. Without a pin, Compose follows `latest`, including future prereleases. The matching release documentation is at <https://altero.run/1.0.0-beta.7/>.
+Put `ALTERO_IMAGE_TAG=1.0.0-beta.8` in `.env` beside the Compose file to keep this version pinned for later upgrades. Without a pin, Compose follows `latest`, including future prereleases. The matching release documentation is at <https://altero.run/1.0.0-beta.8/>.
 
 For anything beyond local testing, read [Deployment](https://altero.run/latest/deployment/) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
 
