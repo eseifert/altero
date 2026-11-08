@@ -40,6 +40,7 @@ def settings(tmp_path: Path) -> Settings:
         storage_path=tmp_path / "storage",
         password_reset=True,
         smtp_url="smtp://localhost:2525",
+        public_url="https://library.example.org",
     )
 
 
@@ -205,6 +206,41 @@ class TestTheSignInPageIsToldWhetherToOfferIt:
         assert (await client.get("/web/config")).json()["passwordResetOpen"] is True
 
 
+class TestWithoutAPublicUrl:
+    async def test_no_reset_is_issued_for_a_forged_host(
+        self, app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
+    ) -> None:
+        user = await confirmed_account(session)
+        # Also guard the route itself if configuration changes after startup.
+        app.state.settings = app.state.settings.model_copy(update={"public_url": ""})
+
+        response = await client.post(
+            "/web/auth/forgot",
+            json={"email": user.email},
+            headers={"Host": "attacker.example"},
+        )
+
+        assert response.status_code == 202
+        assert outbox.sent == []
+        assert await session.scalar(select(PasswordReset)) is None
+        assert (await client.get("/web/config")).json()["passwordResetOpen"] is False
+
+    async def test_a_configured_origin_cannot_be_overridden(
+        self, client: httpx2.AsyncClient, session: AsyncSession, outbox: Outbox
+    ) -> None:
+        user = await confirmed_account(session)
+        response = await client.post(
+            "/web/auth/forgot",
+            json={"email": user.email},
+            headers={"Host": "attacker.example", "X-Forwarded-Host": "attacker.example"},
+        )
+
+        assert response.status_code == 202
+        assert len(outbox.sent) == 1
+        assert "https://library.example.org/app/reset?token=" in outbox.sent[0].body
+        assert "attacker.example" not in outbox.sent[0].body
+
+
 class TestWithoutARelay:
     """A self-service link written to the log is one anybody who reads logs can use."""
 
@@ -240,6 +276,7 @@ class TestWhenTheOperatorHasNotTurnedItOn:
             database_url=f"sqlite+aiosqlite:///{tmp_path / 'test.sqlite'}",
             storage_path=tmp_path / "storage",
             smtp_url="smtp://localhost:2525",
+            public_url="https://library.example.org",
         )
 
     async def test_nothing_is_sent(

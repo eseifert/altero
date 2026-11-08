@@ -84,8 +84,9 @@ class Settings(BaseSettings):
             "can take the account. An instance whose people are all reachable "
             "by its administrator does not need it, and an administrator "
             "issues a link from the Accounts screen either way. It does "
-            "nothing without ALTERO_SMTP_URL -- a self-service link written to "
-            "the log is one anybody who can read the log can follow -- and "
+            "nothing without ALTERO_PUBLIC_URL and ALTERO_SMTP_URL -- a "
+            "self-service link written to the log is one anybody who can "
+            "read the log can follow -- and "
             "nothing for an account whose address was never confirmed."
         ),
     )
@@ -107,7 +108,8 @@ class Settings(BaseSettings):
         description=(
             "Absolute external base URL for API object links, file transfers "
             "and email links. Empty falls back to the request's address for "
-            "these links. Required for single sign-on, passkeys and the "
+            "API links only; account links use relative paths without SMTP. "
+            "Required for SMTP, single sign-on, passkeys and the "
             "authorization server, whose identities must not be guessed."
         ),
     )

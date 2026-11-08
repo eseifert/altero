@@ -93,13 +93,13 @@ Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. D
 | Setting                    | Default | What it does                                                                                                                                                                                                                                                           |
 |----------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ALTERO_OPEN_REGISTRATION` | `false` | Whether anybody may register from the browser. The first account is always allowed, and so is anybody holding an unanswered group invitation, so a fresh instance is reachable without shell access either way.                                                        |
-| `ALTERO_PASSWORD_RESET`    | `false` | Whether somebody who has forgotten their password may ask for a link. It makes the mail relay part of the authentication, does nothing without `ALTERO_SMTP_URL`, and nothing for an unconfirmed address. An administrator can issue the same link whatever this says. |
+| `ALTERO_PASSWORD_RESET`    | `false` | Whether somebody who has forgotten their password may ask for a link. It makes the mail relay part of the authentication, requires `ALTERO_SMTP_URL` and `ALTERO_PUBLIC_URL`, and does nothing for an unconfirmed address. An administrator can issue the same link whatever this says. |
 
 ## Public URL and email
 
 | Setting             | Default            | What it does                                                                                                                                                                                |
 |---------------------|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ALTERO_PUBLIC_URL` | *(empty)*          | The stable external URL for API object links, file transfers and email links. Required for single sign-on, passkeys and the authorization server. See [Public URL](deployment.md#public-url). |
+| `ALTERO_PUBLIC_URL` | *(empty)*          | The stable external URL for API object links, file transfers and email links. Required for SMTP, single sign-on, passkeys and the authorization server. See [Public URL](deployment.md#public-url). |
 | `ALTERO_SMTP_URL`   | *(empty)*          | Relay for outgoing mail, as `smtp://[user:password@]host[:port]` or `smtps://…`. Empty writes messages to the log. See [Email](email.md).                                                   |
 | `ALTERO_MAIL_FROM`  | `altero@localhost` | From address on outgoing mail. Set it to something the relay will send as.                                                                                                                  |
 

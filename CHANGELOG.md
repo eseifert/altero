@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Prevent host-header poisoning of account links; require a public URL for SMTP. Reported by [@orshih6] ([GHSA-75xw-v7vm-5v6r]).
 - Align Romanian item confirmations and Turkish merge messages with library terms and retain polite Turkish instructions.
 - Keep Slovak and Slovenian merge messages consistent with the library's item terms.
 - Verify beta.7 on rootless Podman with browser edits, attachment persistence and changed-port health checks.
@@ -447,3 +448,5 @@ The first release meant to be used by somebody other than its author.
 [Issue#64]: https://github.com/eseifert/altero/issues/64
 [Issue#65]: https://github.com/eseifert/altero/issues/65
 [Issue#67]: https://github.com/eseifert/altero/issues/67
+[@orshih6]: https://github.com/orshih6
+[GHSA-75xw-v7vm-5v6r]: https://github.com/eseifert/altero/security/advisories/GHSA-75xw-v7vm-5v6r

@@ -38,20 +38,19 @@ RATE_LIMIT_WINDOW = 60
 # notices — as smtp://[user:password@]host[:port] or smtps://... Credentials
 # are percent-encoded, so an address as the username is `ada%40example.org`.
 # Empty writes the messages to the log instead, which is how a fresh instance
-# with no relay stays self-serviceable. See docs/email.md.
+# with no relay stays self-serviceable. A relay requires PUBLIC_URL below.
+# See docs/email.md.
 SMTP_URL = ""
 
 # From address on outgoing mail. Set it to something the relay will send as.
 MAIL_FROM = "altero@localhost"
 
-# Absolute base URL this instance is reached at, used to build the links in
-# email. Empty falls back to the address the request arrived on, which is right
-# for a single host and wrong behind a proxy that rewrites it.
-#
-# Two things stop working without it rather than falling back: single sign-on,
-# whose callback address a directory has to be told exactly, and passkeys,
-# which are bound to the host they were enrolled under. Guessing either would
-# break quietly and much later. See docs/deployment.md.
+# Absolute external base URL for API/file links, email and identity protocols.
+# SMTP requires it at startup. Without SMTP, account links use relative paths
+# if it is empty; they never trust request host headers. API/file links alone
+# can fall back to the request address. Single sign-on, passkeys and the OAuth
+# authorization server also require it rather than guessing an identity.
+# See docs/deployment.md and docs/email.md.
 PUBLIC_URL = ""
 
 # Addresses of proxies whose X-Forwarded-For and X-Forwarded-Proto may be
@@ -97,7 +96,7 @@ OPEN_REGISTRATION = False
 # Whether somebody who has forgotten their password may ask for a link to set a
 # new one. Off by default: it makes the mail relay part of the authentication,
 # so whoever can read the mailbox can take the account. Does nothing without
-# SMTP_URL above — a link that sets a password, written to the log, is one
+# SMTP_URL and PUBLIC_URL above — a link that sets a password in the log is one
 # anybody who can read the log can follow — and nothing for an account whose
 # address was never confirmed. An administrator can issue the same link from
 # Administration → Accounts whatever this says.

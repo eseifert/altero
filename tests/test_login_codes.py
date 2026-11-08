@@ -47,6 +47,7 @@ def settings(tmp_path: Path) -> Settings:
         database_url=f"sqlite+aiosqlite:///{tmp_path / 'test.sqlite'}",
         storage_path=tmp_path / "storage",
         smtp_url="smtp://localhost:2525",
+        public_url="https://library.example.org",
     )
 
 

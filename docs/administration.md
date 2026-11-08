@@ -120,7 +120,7 @@ An administrator can either set a password or issue a single-use link that lets 
 
 The link is valid for 12 hours. If the account has a confirmed address and outgoing mail is configured, altero can email it. The administrator is also shown the link so an instance without mail can still recover an account.
 
-Optional self-service password reset is controlled by `ALTERO_PASSWORD_RESET` and requires an SMTP relay.
+Optional self-service password reset is controlled by `ALTERO_PASSWORD_RESET` and requires an SMTP relay and `ALTERO_PUBLIC_URL`.
 
 ### Suspend an account
 

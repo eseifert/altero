@@ -547,7 +547,7 @@ async def invite_to_library(
         permission=body.permission,
     )
 
-    base = request.app.state.settings.public_url.rstrip("/") or str(request.base_url).rstrip("/")
+    base = request.app.state.settings.public_url.rstrip("/")
     await request.app.state.mailer.send(
         _invitation_message(record, library, user, f"{base}/app/invitations?token={token}")
     )

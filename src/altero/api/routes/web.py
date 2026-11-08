@@ -104,26 +104,25 @@ def _serialise(user: User) -> dict:
 
 
 def reset_link(request: Request, token: str) -> str:
-    """Return the absolute URL a password-reset link points at.
+    """Return the configured URL, or a local path, for a password-reset link.
 
     Built the same way as the confirmation link below, and public because it is
     the administration screens that issue one -- see
     `api/routes/webadmin.py`.
     """
-    configured = request.app.state.settings.public_url.rstrip("/")
-    base = configured or str(request.base_url).rstrip("/")
+    # Never trust Host for a credential-bearing link. Without SMTP, a local
+    # administrator can open this relative path on the instance itself.
+    base = request.app.state.settings.public_url.rstrip("/")
     return f"{base}/app/reset?token={quote(token)}"
 
 
 def _verification_link(request: Request, token: str) -> str:
-    """Return the absolute URL the confirmation mail points at.
+    """Return the configured URL, or a local path, for a confirmation link.
 
-    Prefers the configured public URL, because the address a request arrived on
-    is the proxy's idea of it and behind one that rewrites the host the link
-    would point somewhere nobody can reach.
+    Uses only the configured public URL. Without SMTP this is a relative path
+    in the local log; outgoing mail requires a public URL at startup.
     """
-    configured = request.app.state.settings.public_url.rstrip("/")
-    base = configured or str(request.base_url).rstrip("/")
+    base = request.app.state.settings.public_url.rstrip("/")
     return f"{base}/app/verify?token={quote(token)}"
 
 
@@ -516,15 +515,14 @@ def _passkeys_available(request: Request) -> bool:
 def _reset_allowed(request: Request) -> bool:
     """Return whether this deployment offers a self-service reset at all.
 
-    Both halves are required and neither is a substitute for the other: the
-    operator has to have asked for it, and there has to be somewhere for the
-    link to go. Without a relay the message is written to the log, which is
+    The operator must enable it, configure a public URL and supply a relay.
+    Without a relay the message is written to the log, which is
     the right fallback for a confirmation somebody is waiting for and the
     wrong one entirely for a credential -- anybody who can read the log could
     then take any account on the instance.
     """
     settings = request.app.state.settings
-    return bool(settings.password_reset and settings.smtp_url)
+    return bool(settings.password_reset and settings.smtp_url and settings.public_url)
 
 
 @router.post("/auth/forgot", status_code=202)

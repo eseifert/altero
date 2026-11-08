@@ -53,6 +53,7 @@ from altero.api.routes import (
 from altero.api.security import SecurityHeadersMiddleware
 from altero.api.spa import mount_web_interface
 from altero.db import Database
+from altero.errors import InvalidInputError
 from altero.services import (
     groupdigest,
     instancesettings,
@@ -76,6 +77,8 @@ STATISTICS_INTERVAL = timedelta(hours=1)
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Build the Zotero Web API application."""
     settings = get_settings() if settings is None else settings
+    if settings.smtp_url and not settings.public_url:
+        raise InvalidInputError("Set ALTERO_PUBLIC_URL before configuring ALTERO_SMTP_URL")
     database = Database(settings)
 
     async def sweep_digests() -> int:

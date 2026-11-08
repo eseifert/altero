@@ -14,7 +14,7 @@ altero can run without an SMTP relay. Configure email only if your instance need
 | Security notices                   | Not delivered                                              | Delivered to confirmed addresses      |
 | Group activity digests             | In-app notification still exists                           | Optional email copy                   |
 
-Most messages fall back to the log when no relay is configured. Self-service password reset does **not**, because a password-setting link should not be exposed to anyone who can read server logs.
+Most messages fall back to the log when no relay is configured. Without `ALTERO_PUBLIC_URL`, account links in these logs and administrator-issued reset links are relative paths: prepend the instance's trusted external address before opening or sharing one. Self-service password reset does **not** fall back to logs, because a password-setting link should not be exposed to anyone who can read server logs.
 
 ## Messages altero sends
 
@@ -31,6 +31,11 @@ altero sends plain-text mail for:
 Security notices are sent only to a **confirmed** email address.
 
 Confirmation links are valid for 24 hours. Administrator-issued or self-service password links are single-use and valid for 12 hours. Email sign-in codes are valid for ten minutes, work once and are tied to the browser session that requested them.
+
+Upgrading does not revoke password-reset links already issued. If an earlier
+message contains an incorrect host, issue a fresh reset from **Administration →
+Accounts** after configuring `ALTERO_PUBLIC_URL`; the new token replaces that
+account's previous reset token.
 
 ## Run without SMTP
 
@@ -119,7 +124,7 @@ Set `ALTERO_PUBLIC_URL` to the external address users can open, for example:
 https://altero.example.org
 ```
 
-This matters especially behind a reverse proxy. Without a public URL, generated links can use an internal host or port from the request that reached altero.
+This is required when `ALTERO_SMTP_URL` is set; altero refuses to start without it. Password-reset, email-confirmation and invitation links never use the request's `Host` or forwarded host headers. Self-service reset also requires this setting before it issues a token or offers the form.
 
 `ALTERO_PUBLIC_URL` is separate from `ALTERO_FORWARDED_ALLOW_IPS`: the first controls generated public links and callback addresses, while the second names the proxies whose forwarded client address and scheme altero believes.
 
@@ -200,7 +205,7 @@ For a local SMTP sink:
 
 ```sh
 uvx --from aiosmtpd python -m aiosmtpd -n -l localhost:8025
-ALTERO_SMTP_URL=smtp://localhost:8025 uv run altero
+ALTERO_SMTP_URL=smtp://localhost:8025 ALTERO_PUBLIC_URL=http://localhost:8000 uv run altero
 ```
 
 This prints received messages instead of sending real mail.
