@@ -12,6 +12,7 @@ be the only thing that reaches it.
 import base64
 import json
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 import httpx2
@@ -21,11 +22,94 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import ApiKey, AuthRequest, IdentityProvider, User
+from altero.settings import Settings
 from tests.test_web_link import start_session
 from tests.test_web_routes import PASSWORD, csrf_headers, register
 
 ISSUER = "https://sso.example.org"
 SUBJECT = "8f14e45f"
+
+
+@pytest.fixture
+def settings(tmp_path: Path) -> Settings:
+    return Settings(
+        database_url=f"sqlite+aiosqlite:///{tmp_path / 'test.sqlite'}",
+        storage_path=tmp_path / "storage",
+        public_url="http://testserver",
+    )
+
+
+@pytest.mark.parametrize("kind", ["oidc", "saml"])
+async def test_sso_without_a_public_url_refuses_to_issue_a_request(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+    session: AsyncSession,
+    directory: Directory,
+    kind: str,
+) -> None:
+    await register(client)
+    created = await add_provider(
+        client, kind=kind, ssoUrl="https://idp.example.org/sso", certificates="fixture-certificate"
+    )
+    assert created.status_code == 201
+    app.state.settings = app.state.settings.model_copy(update={"public_url": ""})
+
+    response = await client.get("/web/auth/sso/campus/start", headers={"Host": "attacker.example"})
+
+    assert response.status_code == 400
+    assert "ALTERO_PUBLIC_URL" in response.text
+    assert await session.scalar(select(AuthRequest)) is None
+
+
+async def test_error_redirects_do_not_use_a_request_host(
+    app: FastAPI, client: httpx2.AsyncClient
+) -> None:
+    app.state.settings = app.state.settings.model_copy(update={"public_url": ""})
+    response = await client.get("/web/auth/sso/unknown/start", headers={"Host": "attacker.example"})
+    assert response.status_code == 303
+    assert response.headers["location"] == "/app/sign-in?error=unknown-provider"
+
+
+async def test_a_provider_cannot_be_saved_without_a_public_url(
+    app: FastAPI, client: httpx2.AsyncClient, session: AsyncSession, directory: Directory
+) -> None:
+    await register(client)
+    app.state.settings = app.state.settings.model_copy(update={"public_url": ""})
+
+    response = await add_provider(client)
+
+    assert response.status_code == 400
+    assert "ALTERO_PUBLIC_URL" in response.text
+    assert await session.scalar(select(IdentityProvider)) is None
+
+
+@pytest.mark.parametrize("kind", ["oidc", "saml"])
+async def test_sso_protocol_urls_ignore_a_forged_host(
+    client: httpx2.AsyncClient, directory: Directory, kind: str
+) -> None:
+    from tests.test_saml import authn_request
+
+    await register(client)
+    created = await add_provider(
+        client, kind=kind, ssoUrl="https://idp.example.org/sso", certificates="fixture-certificate"
+    )
+    assert created.status_code == 201
+    response = await client.get(
+        "/web/auth/sso/campus/start",
+        headers={"Host": "attacker.example", "X-Forwarded-Host": "attacker.example"},
+    )
+
+    assert response.status_code == 303
+    if kind == "oidc":
+        query = parse_qs(urlparse(response.headers["location"]).query)
+        assert query["redirect_uri"] == ["http://testserver/web/auth/sso/campus/callback"]
+    else:
+        document = authn_request(response.headers["location"])
+        assert (
+            'AssertionConsumerServiceURL="http://testserver/web/auth/saml/campus/acs"' in document
+        )
+        assert ">http://testserver<" in document
+        assert "attacker.example" not in document
 
 
 class Directory:

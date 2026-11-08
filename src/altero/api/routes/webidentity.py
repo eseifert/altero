@@ -92,17 +92,23 @@ class ProviderInput(BaseModel):
         }
 
 
+def _public_url(request: Request) -> str:
+    """Require an operator-supplied origin for identity protocol messages."""
+    configured = request.app.state.settings.public_url.rstrip("/")
+    if not configured:
+        raise InvalidInputError("Set ALTERO_PUBLIC_URL before using single sign-on")
+    return configured
+
+
 def redirect_uri(request: Request, slug: str) -> str:
     """Return the absolute callback the directory must be configured with.
 
-    From ``public_url`` where it is set, because behind a proxy the address a
-    request arrived on is the proxy's idea of it -- and a redirect URI that
+    Only from ``public_url``: the request host is untrusted. A redirect URI that
     does not match the one registered at the directory is refused outright,
     with an error page nobody can act on. This is the single most likely thing
     to be misconfigured, which is why the administration screen shows it.
     """
-    configured = request.app.state.settings.public_url.rstrip("/")
-    base = configured or str(request.base_url).rstrip("/")
+    base = _public_url(request)
     return f"{base}/web/auth/sso/{quote(slug)}/callback"
 
 
@@ -113,8 +119,7 @@ def acs_url(request: Request, slug: str) -> str:
     address the directory was actually configured with -- which is what
     ``public_url`` is for.
     """
-    configured = request.app.state.settings.public_url.rstrip("/")
-    base = configured or str(request.base_url).rstrip("/")
+    base = _public_url(request)
     return f"{base}/web/auth/saml/{quote(slug)}/acs"
 
 
@@ -125,8 +130,7 @@ def entity_id(request: Request) -> str:
     conventionally is and is one less thing for an operator to invent and get
     wrong in two places.
     """
-    configured = request.app.state.settings.public_url.rstrip("/")
-    return configured or str(request.base_url).rstrip("/")
+    return _public_url(request)
 
 
 def _provider_callback(request: Request, provider: IdentityProvider) -> str:
@@ -138,8 +142,7 @@ def _provider_callback(request: Request, provider: IdentityProvider) -> str:
 
 def _app_url(request: Request, path: str, **query: str) -> str:
     """Return a URL into the interface, for a redirect out of a route."""
-    configured = request.app.state.settings.public_url.rstrip("/")
-    base = configured or str(request.base_url).rstrip("/")
+    base = request.app.state.settings.public_url.rstrip("/")
     suffix = f"?{urlencode(query)}" if query else ""
     return f"{base}/app{path}{suffix}"
 
@@ -196,6 +199,8 @@ async def start_sign_in(
         return RedirectResponse(_app_url(request, "/sign-in", error="unknown-provider"), 303)
     if not provider.enabled:
         return RedirectResponse(_app_url(request, "/sign-in", error="provider-disabled"), 303)
+
+    _public_url(request)
 
     # Only a signed-in browser may attach an identity to an account or prove
     # itself again; a stranger asking for either gets an ordinary sign-in.
@@ -279,6 +284,7 @@ async def complete_sign_in(
     if error:
         return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
 
+    _public_url(request)
     pending = await authrequests.consume(session, state)
     if pending is None or pending.verified_saml is not None:
         return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
@@ -343,6 +349,7 @@ async def consume_assertion(
     if provider is None or provider.kind != "saml" or not provider.enabled:
         return RedirectResponse(_app_url(request, "/sign-in", error="unknown-provider"), 303)
 
+    _public_url(request)
     # Read out of the assertion before the request row is spent, because the
     # row is what says which request this answers.
     try:
@@ -403,6 +410,7 @@ async def complete_saml_handoff(
     request: Request, session: SessionDep, slug: str, state: str = ""
 ) -> Response:
     """Finish a verified SAML link or proof with the browser's existing cookie."""
+    _public_url(request)
     pending = await authrequests.consume(session, state)
     if pending is None or not pending.verified_saml or pending.purpose not in ("link", "reauth"):
         return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
@@ -569,8 +577,7 @@ async def list_providers(
                 }
                 for entry in providers
             ],
-            # Without this every redirect URI is built from the request, which
-            # is the proxy's idea of the address behind one.
+            # Let the operator see the configuration requirement in the UI.
             "publicUrlConfigured": bool(request.app.state.settings.public_url),
         }
     )
@@ -591,6 +598,7 @@ async def create_provider(
     if not body.slug:
         raise InvalidInputError("A provider needs a name")
 
+    _public_url(request)
     provider = await identityproviders.create(
         session, slug=body.slug, kind=body.kind, **body.values()
     )
@@ -619,6 +627,7 @@ async def change_provider(
 ) -> Response:
     await account.require_proof(session, admin_user, browser, password=body.current_password)
 
+    _public_url(request)
     provider = await identityproviders.by_slug(session, slug)
     await identityproviders.update(session, provider, body.values())
     warning = await _try_discovery(request, session, provider)

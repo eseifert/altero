@@ -12,6 +12,7 @@ from altero.errors import ForbiddenError, InvalidInputError
 from altero.services import identityproviders, oidc
 from tests.test_oidc import NONCE, claims, provider
 from tests.test_web_identity import ISSUER, Directory, add_provider, follow
+from tests.test_web_identity import settings as settings
 from tests.test_web_routes import csrf_headers, register
 
 ISSUERS = [ISSUER, f"{ISSUER}/", f"{ISSUER}/application/o/altero/"]

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Require the configured public URL for SSO callbacks and SAML identity; keep sign-in redirects independent of request hosts.
 - Prevent host-header poisoning of account links; require a public URL for SMTP. Reported by [@orshih6] ([GHSA-75xw-v7vm-5v6r]).
 - Align Romanian item confirmations and Turkish merge messages with library terms and retain polite Turkish instructions.
 - Keep Slovak and Slovenian merge messages consistent with the library's item terms.

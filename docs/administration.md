@@ -158,6 +158,10 @@ API key from **Settings → API keys**.
 
 Set `ALTERO_PUBLIC_URL` first. The administration screen shows the redirect/callback address that must be registered with the identity provider.
 
+Provider creation, updates and sign-in refuse to proceed without this setting.
+OIDC callbacks, SAML assertion recipients and the SAML service-provider identity
+always use it; request host headers cannot supply a substitute.
+
 A callback mismatch is rejected by the provider before altero can complete sign-in.
 
 OIDC and signed SAML sign-in have a real Keycloak integration test, including

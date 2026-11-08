@@ -12,6 +12,7 @@ from altero.models import AuthRequest, FederatedIdentity, IdentityProvider
 from altero.services import websessions
 from tests.test_saml import CERTIFICATE, IDP, authn_request, signed
 from tests.test_web_identity import add_provider
+from tests.test_web_identity import settings as settings
 from tests.test_web_routes import register
 
 BASE = "http://testserver"
