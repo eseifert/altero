@@ -20,7 +20,9 @@ dependencies = [
     "fastapi>=0.118",
     "pydantic>=2.11",
     "pydantic-settings>=2.10",
-    "sqlalchemy[asyncio]>=2.0.40",
+    # Cancellation while a browser disconnects must finish connection cleanup
+    # and return its pool slot, including under AnyIO's repeated cancellation.
+    "sqlalchemy[asyncio]>=2.0.57",
     "aiosqlite>=0.21",
     "uvicorn[standard]>=0.36",
     "python-multipart>=0.0.32",

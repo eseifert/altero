@@ -98,6 +98,8 @@ export default async function setup(): Promise<() => void> {
   const directory = mkdtempSync(join(tmpdir(), 'altero-e2e-'))
   const env = {
     ...process.env,
+    // Keep Python/native thread stacks if the server crashes during a run.
+    PYTHONFAULTHANDLER: '1',
     ALTERO_DATABASE_URL: `sqlite+aiosqlite:///${join(directory, 'altero.sqlite')}`,
     ALTERO_STORAGE_PATH: join(directory, 'storage'),
     ALTERO_PORT: PORT,

@@ -1,8 +1,11 @@
 """The engine's own settings: what every SQLite connection is opened with."""
 
+import asyncio
 from pathlib import Path
+from threading import Event
 
-from sqlalchemy import QueuePool, text
+import anyio
+from sqlalchemy import QueuePool, event, text
 
 from altero.db import Database
 from altero.models import LibraryType
@@ -113,3 +116,50 @@ class TestConnectionSettings:
 
     def test_an_in_memory_database_keeps_its_single_connection(self) -> None:
         Database(Settings(database_url="sqlite+aiosqlite:///:memory:"))
+
+
+async def test_cancelling_a_read_returns_the_connection_slot(tmp_path: Path) -> None:
+    """A disconnected SSE reader must leave the pool usable by the next request.
+
+    Starlette cancels streaming responses with an AnyIO cancel scope, which
+    delivers cancellation again at every await. Hold a real SQLite statement
+    in its worker until that cancellation arrives, including during cleanup.
+    """
+    database = Database(
+        Settings(
+            database_url=f"sqlite+aiosqlite:///{tmp_path / 'cancel.sqlite'}",
+            database_pool_size=1,
+            database_max_overflow=0,
+        )
+    )
+    entered = Event()
+    released = Event()
+
+    def held_read() -> int:
+        entered.set()
+        assert released.wait(10), "The test did not release the SQLite worker"
+        return 1
+
+    @event.listens_for(database.engine.sync_engine, "connect")
+    def install_barrier(connection, _record) -> None:
+        connection.create_function("held_read", 0, held_read)
+
+    async def read() -> None:
+        async with database.session_factory() as session:
+            await session.execute(text("SELECT held_read()"))
+
+    try:
+        async with anyio.create_task_group() as tasks:
+            tasks.start_soon(read)
+            assert await asyncio.to_thread(entered.wait, 10)
+            tasks.cancel_scope.cancel()
+            released.set()
+
+        pool = database.engine.sync_engine.pool
+        assert isinstance(pool, QueuePool)
+        assert pool.checkedout() == 0
+        async with database.session_factory() as session:
+            assert await session.scalar(text("SELECT 42")) == 42
+    finally:
+        released.set()
+        await database.dispose()

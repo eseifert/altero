@@ -484,12 +484,10 @@ archive.
 
 Local release preparation on 2026-11-08 used Python 3.14.10 and Node 24.22.1:
 
-- The pre-SSO backend run passed 3,685 cases with PostgreSQL, Keycloak and
-  SimpleSAMLphp enabled and no skips. Its two issuer fixture failures were
-  corrected by supplying the required public URL; all 200 focused account,
-  identity and administration checks then passed. The security regressions
-  fail by assertion against the original production modules. Real HTTP
-  verifies a reset and subsequent login with a forged request host.
+- The full backend run passes 3,718 cases with PostgreSQL, Keycloak and
+  SimpleSAMLphp enabled and no skips, using SQLAlchemy 2.0.57. Security
+  regressions fail by assertion against the original production modules.
+  Real HTTP verifies a reset and subsequent login with a forged request host.
 - All 27 new session/policy/workflow checks pass, together with the affected
   285-case backend suite and focused linking regressions. Two real Keycloak
   HTTP cases cover OIDC and SAML sign-in, provider proof, API-key creation and
@@ -500,16 +498,26 @@ Local release preparation on 2026-11-08 used Python 3.14.10 and Node 24.22.1:
   production build. The note/attachment regressions fail before the fix when
   a refresh drops the parent's loaded page, then pass with the captured parent.
   Switching scope or collection during the pending write keeps the pane closed.
-- The browser matrix passed 391 of 404 cases on its first run; the other 13
-  phone cases timed out. All 15 cases selected for the focused rerun passed,
-  including those 13, at the unchanged 30-second timeout.
+- With SQLAlchemy 2.0.57 the browser matrix passes 401 of 404 cases without
+  a server crash, leaked-connection warnings or unhandled background rollback
+  failures. Three compound phone cases exhaust the 30-second test budget.
+  [The preceding CI run](https://github.com/eseifert/altero/actions/runs/42493546369)
+  passed 289 cases before the server exited with SIGSEGV. Its log showed
+  cancelled SQLite connection cleanup, a leaked pool slot and an unhandled
+  background rollback failure immediately beforehand. Both a held-statement
+  test and a real HTTP SSE disconnect reproduce that cleanup failure with
+  SQLAlchemy 2.0.51 and pass with 2.0.57, now the minimum dependency. These
+  exercise the cancellation fixes in the
+  [SQLAlchemy changelog](https://docs.sqlalchemy.org/en/20/changelog/changelog_20.html#change-2.0.55).
+  Browser test servers now enable Python's fault handler to retain thread
+  stacks if a native crash recurs; the original SIGSEGV had no stack trace.
 - All 333 pinned desktop source-replay checks pass without skips. Verification
   uses separate clean checkouts of the pinned Zotero and dataserver revisions;
   the network-consumer manifest check also passes.
 - All fourteen populated upgrade cells pass: beta.1 through beta.7 on SQLite
   and newly created PostgreSQL databases, including bytes, permissions, writes
-  and repeat startup. The final rerun includes the SSO-session migration and
-  ends at beta.8 and revision `c8f17a2d904e`.
+  and repeat startup. The final rerun uses SQLAlchemy 2.0.57, includes the
+  SSO-session migration and ends at beta.8 and revision `c8f17a2d904e`.
 - The wheel/source-archive inventory check passes. Real HTTP from the isolated
   wheel serves `/health` (`1.0.0b8`), `/app/`, its assets and a font, and accepts
   an authenticated item write/read with the wheel ahead of the editable source.

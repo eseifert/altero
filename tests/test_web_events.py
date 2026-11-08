@@ -10,13 +10,18 @@ import json
 import time
 from collections.abc import AsyncIterator
 from pathlib import Path
+from threading import Event
 
+import anyio
 import httpx2
 import pytest
 import uvicorn
+from fastapi import FastAPI
+from sqlalchemy import QueuePool, event, text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.api.routes import webevents
-from altero.app import create_app
+from altero.services import websessions
 from altero.settings import Settings
 from tests.test_web_routes import PASSWORD, csrf_headers
 
@@ -37,14 +42,11 @@ def settings(tmp_path: Path) -> Settings:
 
 
 @pytest.fixture
-async def server(settings: Settings, monkeypatch: pytest.MonkeyPatch) -> AsyncIterator[str]:
+async def server(app: FastAPI, monkeypatch: pytest.MonkeyPatch) -> AsyncIterator[str]:
     """Run the real server on an ephemeral port and yield its base URL."""
     # A heartbeat a test can wait for: it is when a reader's right to listen
     # is asked again.
     monkeypatch.setattr(webevents, "HEARTBEAT_SECONDS", 0.2)
-    app = create_app(settings)
-    await app.state.database.create_all()
-
     config = uvicorn.Config(
         app, host="127.0.0.1", port=0, log_level="error", access_log=False, lifespan="on"
     )
@@ -64,6 +66,70 @@ async def server(settings: Settings, monkeypatch: pytest.MonkeyPatch) -> AsyncIt
     finally:
         running.should_exit = True
         await task
+
+
+async def test_disconnect_during_a_feed_read_returns_its_connection(
+    app: FastAPI, server: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Close a real socket while SQLite is checking the feed's session."""
+    client = await signed_in(server)
+    library = await library_id(client)
+    entered = Event()
+    released = Event()
+    invalidated = asyncio.Event()
+    returned = asyncio.Event()
+    engine = app.state.database.engine.sync_engine
+
+    def held_read() -> int:
+        entered.set()
+        assert released.wait(10), "The test did not release the SQLite worker"
+        return 1
+
+    # Install on the existing pooled connections too, before opening the feed.
+    async with app.state.database.engine.connect() as connection:
+        await connection.run_sync(
+            lambda sync: sync.connection.create_function("held_read", 0, held_read)
+        )
+
+    @event.listens_for(engine, "invalidate")
+    def on_invalidate(_connection, _record, _exception) -> None:
+        invalidated.set()
+
+    @event.listens_for(engine, "checkin")
+    def on_checkin(_connection, _record) -> None:
+        if invalidated.is_set():
+            returned.set()
+
+    lookup = websessions.lookup
+    calls = 0
+
+    async def held_lookup(session: AsyncSession, token: str | None):
+        nonlocal calls
+        calls += 1
+        # The route authenticates first; the streaming body checks again.
+        if calls == 2:
+            await session.execute(text("SELECT held_read()"))
+        return await lookup(session, token)
+
+    monkeypatch.setattr(websessions, "lookup", held_lookup)
+    try:
+        async with client.stream("GET", f"/web/libraries/{library}/events") as response:
+            assert response.status_code == 200
+            assert await asyncio.to_thread(entered.wait, 10)
+            await response.aclose()
+        await asyncio.wait_for(invalidated.wait(), TIMEOUT)
+        released.set()
+        with anyio.move_on_after(TIMEOUT):
+            await returned.wait()
+        assert returned.is_set(), "Disconnect cleanup did not return the pool slot"
+
+        pool = engine.pool
+        assert isinstance(pool, QueuePool)
+        assert pool.checkedout() == 0
+        assert await add_item(client, library) > 0
+    finally:
+        released.set()
+        await client.aclose()
 
 
 async def signed_in(server: str, username: str = "ada") -> httpx2.AsyncClient:

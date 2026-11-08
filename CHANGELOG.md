@@ -21,6 +21,7 @@ from beta.7 runs database migrations for sign-in backoff and child membership
 repair. Back up the database and attachment storage together first; see the
 [upgrade instructions][upgrade].
 
+- Prevent SQLite pool failures on browser disconnects; require SQLAlchemy 2.0.57. Reported by [@eseifert] ([CI#42493546369]).
 - Add SSO-only browser sign-in and provider proof for keys, restores and migrations; suggested by [@arminbahl] ([Issue#68]).
 - Prevent host-header poisoning of account links; require a public URL for SMTP. Reported by [@orshih6] ([GHSA-75xw-v7vm-5v6r]).
 - Require the configured public URL for SSO callbacks and SAML identity; keep sign-in redirects independent of request hosts.
@@ -453,6 +454,7 @@ The first release meant to be used by somebody other than its author.
 [seiferte]: https://forums.zotero.org/profile/2844366/seiferte
 [Zotero#134528]: https://forums.zotero.org/discussion/134528/bug-selecting-remote-in-a-file-conflict-can-upload-the-local-file
 [CI#41715080977]: https://github.com/eseifert/altero/actions/runs/41715080977
+[CI#42493546369]: https://github.com/eseifert/altero/actions/runs/42493546369
 [CI#42020904012]: https://github.com/eseifert/altero/actions/runs/42020904012
 [CI#41795388477]: https://github.com/eseifert/altero/actions/runs/41795388477
 [PR#7]: https://github.com/eseifert/altero/pull/7
