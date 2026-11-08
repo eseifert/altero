@@ -227,7 +227,9 @@ SSO proof authorizes key creation, archive restore, zotero.org migration,
 desktop linking and protected administrator actions. **Confirm it is you**
 returns through the connected provider using OIDC `prompt=login` or SAML
 `ForceAuthn`; the proof lasts five minutes and is bound to that browser. A
-local password or passkey cannot extend it. Migration still needs the separate
+local password or passkey cannot extend it. Connecting another directory also
+requires recent proof from an existing identity; a linking callback cannot
+extend that proof. Migration still needs the separate
 zotero.org API key; after a provider round trip, reselect any archive or reenter
 form data that navigation cleared. Removing the last enabled provider connected
 to an account is refused even when that account has a stored local password.

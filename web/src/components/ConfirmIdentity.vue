@@ -19,6 +19,7 @@ import { useRoute } from 'vue-router'
 
 import { request } from '@/api/client'
 import AppTextField from '@/components/AppTextField.vue'
+import { useAuthStore } from '@/stores/auth'
 
 interface Proof {
   password: boolean
@@ -28,6 +29,7 @@ interface Proof {
 
 const { t } = useI18n()
 const route = useRoute()
+const auth = useAuthStore()
 
 const password = defineModel<string>({ default: '' })
 const ready = defineModel<boolean>('ready', { default: false })
@@ -40,7 +42,7 @@ async function refresh(): Promise<void> {
   } catch {
     // Asking for a password is what these pages did before they could ask,
     // and the server says so if that was wrong.
-    proof.value = { password: true, fresh: false, providers: [] }
+    proof.value = { password: !auth.ssoOnly, fresh: false, providers: [] }
   }
 }
 

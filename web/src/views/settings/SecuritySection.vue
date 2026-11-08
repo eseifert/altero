@@ -13,6 +13,7 @@ import { useI18n } from 'vue-i18n'
 import { request } from '@/api/client'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import ConfirmIdentity from '@/components/ConfirmIdentity.vue'
 import { formatDate } from '@/formats'
 import * as passkeys from '@/passkeys'
 import { useAuthStore } from '@/stores/auth'
@@ -22,6 +23,8 @@ const { t } = useI18n()
 
 const { account, busy, attempt } = usePanel()
 const auth = useAuthStore()
+const identityPassword = ref('')
+const confirmed = ref(false)
 
 interface Connection {
   id: number
@@ -174,7 +177,7 @@ function when(iso: string | null): string {
 </script>
 
 <template>
-  <section class="card">
+  <section v-if="!auth.ssoOnly" class="card">
     <h2 class="card__title">{{ t('Password') }}</h2>
     <AppTextField
       v-model="currentPassword"
@@ -192,7 +195,7 @@ function when(iso: string | null): string {
     <AppButton :loading="busy" @click="savePassword">{{ t('Change password') }}</AppButton>
   </section>
 
-  <section class="card">
+  <section v-if="!auth.ssoOnly" class="card">
     <h2 class="card__title">{{ t('Authenticator app') }}</h2>
 
     <template v-if="account?.totpEnabled">
@@ -227,7 +230,7 @@ function when(iso: string | null): string {
     </template>
   </section>
 
-  <section class="card">
+  <section v-if="!auth.ssoOnly" class="card">
     <h2 class="card__title">{{ t('Codes by email') }}</h2>
 
     <template v-if="account?.emailCodesEnabled">
@@ -270,7 +273,7 @@ function when(iso: string | null): string {
     </template>
   </section>
 
-  <section v-if="canUsePasskeys || keys.length" class="card">
+  <section v-if="!auth.ssoOnly && (canUsePasskeys || keys.length)" class="card">
     <h2 class="card__title">{{ t('Passkeys') }}</h2>
     <p class="settings__detail">
       {{
@@ -326,6 +329,8 @@ function when(iso: string | null): string {
       {{ t('Sign in here with an account you already have somewhere else.') }}
     </p>
 
+    <ConfirmIdentity v-if="auth.ssoOnly" v-model="identityPassword" v-model:ready="confirmed" />
+
     <ul v-if="connections.length" class="settings__list">
       <li v-for="entry in connections" :key="entry.id">
         <div>
@@ -335,7 +340,7 @@ function when(iso: string | null): string {
             <span v-if="entry.lastSeen"> · {{ formatDate(entry.lastSeen) }}</span>
           </p>
         </div>
-        <AppButton variant="text" :loading="busy" @click="disconnect(entry.id)">
+        <AppButton variant="text" :loading="busy" :disabled="auth.ssoOnly && !confirmed" @click="disconnect(entry.id)">
           {{ t('Disconnect') }}
         </AppButton>
       </li>
@@ -345,7 +350,7 @@ function when(iso: string | null): string {
          directory would be refused, and offering it invites the refusal. -->
     <a
       v-for="provider in auth.providers.filter(
-        (candidate) => !connections.some((entry) => entry.provider === candidate.slug),
+        (candidate) => (!auth.ssoOnly || confirmed) && !connections.some((entry) => entry.provider === candidate.slug),
       )"
       :key="provider.slug"
       class="settings__connect"

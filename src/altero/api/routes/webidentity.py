@@ -215,6 +215,9 @@ async def start_sign_in(
         ):
             return RedirectResponse(_app_url(request, "/sign-in", error="not-signed-in"), 303)
         user = await session.get(User, record.user_id)
+        if purpose == "link" and request.app.state.settings.sso_only:
+            assert user is not None
+            await account.require_proof(session, user, record, sso_only=True)
 
     if provider.kind == "saml":
         if not provider.sso_url or not provider.certificates:
@@ -496,6 +499,8 @@ async def _finish_for_signed_in(
         return RedirectResponse(_app_url(request, "/sign-in", error="not-permitted"), 303)
 
     if pending.purpose == "link":
+        if request.app.state.settings.sso_only:
+            await account.require_proof(session, user, record, sso_only=True)
         try:
             await federation.link(session, user, provider, assertion)
         except ForbiddenError:
@@ -507,9 +512,9 @@ async def _finish_for_signed_in(
         if identity is None or identity.user_id != user.id:
             return RedirectResponse(_app_url(request, "/settings/security", error="not-yours"), 303)
 
-    # Either way this browser has just proved itself at the directory, which is
-    # what re-authentication wanted -- see services/reauth.py.
-    await account.stamp_proof(session, record, sso=True)
+    # Linking retains the existing behavior for local proof. Only an explicit
+    # forced reauthentication can establish or extend SSO proof.
+    await account.stamp_proof(session, record, sso=pending.purpose == "reauth")
     return RedirectResponse(_app_url(request, pending.next_path), status_code=303)
 
 

@@ -33,6 +33,7 @@ interface AuthResponse {
 }
 
 interface ServerConfig {
+  ssoOnly: boolean
   version: string
   apiVersion: number
   registrationOpen: boolean
@@ -91,6 +92,7 @@ export const useAuthStore = defineStore('auth', () => {
   const busy = ref(false)
   /** False until the first session check has finished. */
   const ready = ref(false)
+  const ssoOnly = ref(false)
   const registrationOpen = ref(false)
   /** True while the instance has no users, which is a different sentence. */
   const firstAccount = ref(false)
@@ -177,6 +179,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchConfig(): Promise<void> {
     try {
       const config = await request<ServerConfig>('/web/config')
+      ssoOnly.value = config.ssoOnly ?? false
       registrationOpen.value = config.registrationOpen
       firstAccount.value = config.firstAccount
       passwordResetOpen.value = config.passwordResetOpen
@@ -301,6 +304,7 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     busy,
     ready,
+    ssoOnly,
     registrationOpen,
     firstAccount,
     passwordResetOpen,

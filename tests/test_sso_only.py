@@ -242,3 +242,52 @@ def test_sso_only_requires_a_configured_public_url() -> None:
 
     with pytest.raises(InvalidInputError, match="ALTERO_PUBLIC_URL"):
         create_app(Settings(sso_only=True, public_url=""))
+
+
+async def test_connecting_another_identity_requires_existing_sso_proof(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+    session: AsyncSession,
+    directory: Directory,
+) -> None:
+    await signed_in_through_the_directory(client, directory, session)
+    enable(app)
+    response = await client.get("/web/auth/sso/campus/start?purpose=link")
+    assert response.status_code == 403
+
+
+@pytest.mark.parametrize("expires", [False, True])
+async def test_identity_linking_never_extends_the_existing_sso_proof(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+    session: AsyncSession,
+    directory: Directory,
+    expires: bool,
+) -> None:
+    from urllib.parse import parse_qs, urlparse
+
+    from altero.services import federation, websessions
+
+    await signed_in_through_the_directory(client, directory, session)
+    enable(app)
+    await reauthenticate(client, directory)
+    started = await client.get("/web/auth/sso/campus/start?purpose=link")
+    assert started.status_code == 303
+    parameters = parse_qs(urlparse(started.headers["location"]).query)
+    record = await websessions.lookup(session, client.cookies.get("altero_session"))
+    assert record is not None
+    assert record.sso_reauthenticated is not None
+    record.sso_reauthenticated -= timedelta(minutes=6 if expires else 1)
+    proved = record.sso_reauthenticated
+    await session.commit()
+    directory.nonce = parameters["nonce"][0]
+    directory.claims["sub"] = "another-subject"
+    directory.userinfo_claims["sub"] = "another-subject"
+    response = await client.get(
+        "/web/auth/sso/campus/callback", params={"state": parameters["state"][0], "code": "a"}
+    )
+    assert response.status_code == (403 if expires else 303)
+    await session.refresh(record)
+    assert record.sso_reauthenticated == proved
+    user = await admin.get_user_by_name(session, "grace")
+    assert len(await federation.identities_for(session, user)) == (1 if expires else 2)
