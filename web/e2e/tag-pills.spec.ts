@@ -1,4 +1,4 @@
-import type { Locator } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
@@ -28,6 +28,24 @@ async function frame(pill: Locator) {
     const { width, height } = element.getBoundingClientRect()
     return { width, height, background: getComputedStyle(element).backgroundColor }
   })
+}
+
+async function taggedPair(page: Page, direction: string, project: string, suffix = '') {
+  const tag = `shared-${direction}-${project}${suffix}`
+  const title = `Tag pills${suffix} ${direction} ${project}`
+  const made = await api('items', [title, `${title} sibling`].map((name) => ({
+    itemType: 'book', title: name, tags: [{ tag, type: 1 }],
+  })))
+  expect(made.failed).toEqual({})
+  await signIn(page)
+  await page.locator('.library__row').filter({ hasText: title }).filter({ hasNotText: 'sibling' }).click()
+  return {
+    tag, title,
+    first: made.successful['0'].key as string,
+    second: made.successful['1'].key as string,
+    global: page.locator(`.library__tag[data-tag-name="${tag}"]`),
+    detail: page.locator(`.tags__tag[data-tag-name="${tag}"]`),
+  }
 }
 
 for (const [locale, direction] of [['en-US', 'ltr'], ['ar-EG', 'rtl']] as const) {
@@ -67,22 +85,11 @@ for (const [locale, direction] of [['en-US', 'ltr'], ['ar-EG', 'rtl']] as const)
       }
     })
 
-    test('matches styles and edits inline while preserving filtering and rename scopes', async ({ page }, info) => {
-      const tag = `shared-${direction}-${info.project.name}`
-      const title = `Tag pills ${direction} ${info.project.name}`
-      const made = await api('items', [title, `${title} sibling`].map((name) => ({
-        itemType: 'book', title: name, tags: [{ tag, type: 1 }],
-      })))
-      expect(made.failed).toEqual({})
-      const first = made.successful['0'].key
-      const second = made.successful['1'].key
-      await signIn(page)
-      await page.locator('.library__row').filter({ hasText: title }).filter({ hasNotText: 'sibling' }).click()
-      const global = page.locator(`.library__tag[data-tag-name="${tag}"]`)
-      const detail = page.locator(`.tags__tag[data-tag-name="${tag}"]`)
-      await expect(global.locator('.tag-pill__count')).toHaveText('2')
-      await expect(detail.locator('.tag-pill__count')).toHaveCount(0)
-      for (const scheme of ['light', 'dark'] as const) {
+    for (const scheme of ['light', 'dark'] as const) {
+      test(`matches ${scheme} styles without resizing while editing`, async ({ page }, info) => {
+        const { global, detail } = await taggedPair(page, direction, info.project.name, `-${scheme}`)
+        await expect(global.locator('.tag-pill__count')).toHaveText('2')
+        await expect(detail.locator('.tag-pill__count')).toHaveCount(0)
         await page.emulateMedia({ colorScheme: scheme })
         await expect(page.locator('html')).toHaveAttribute('data-theme', scheme)
         await page.mouse.move(0, 0)
@@ -109,8 +116,14 @@ for (const [locale, direction] of [['en-US', 'ltr'], ['ar-EG', 'rtl']] as const)
           await global.locator('input').press('Escape')
           if (selected) await global.locator('.tag-pill__name').click()
         }
-      }
-      await page.screenshot({ path: info.outputPath('tag-pills.png'), fullPage: true })
+        await page.screenshot({ path: info.outputPath('tag-pills.png'), fullPage: true })
+      })
+    }
+
+    test('edits inline while preserving filtering and rename scopes', async ({ page }, info) => {
+      const { tag, title, first, second, global, detail } = await taggedPair(page, direction, info.project.name)
+      await page.emulateMedia({ colorScheme: 'dark' })
+      await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
 
       // Only the global name is a filter; the item's name stays passive.
       await expect(detail.locator('.tag-pill__name')).not.toHaveAttribute('type', 'button')

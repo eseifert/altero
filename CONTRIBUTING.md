@@ -500,7 +500,10 @@ Local release preparation on 2026-11-08 used Python 3.14.10 and Node 24.22.1:
   Switching scope or collection during the pending write keeps the pane closed.
 - With SQLAlchemy 2.0.57 the browser matrix passes 401 of 404 cases without
   a server crash, leaked-connection warnings or unhandled background rollback
-  failures. Three compound phone cases exhaust the 30-second test budget.
+  failures. Three compound phone cases exhausted the 30-second test budget.
+  Tag-theme, inline-editing and note-accessibility checks are now separate
+  cases; all 22 affected desktop/phone checks pass across focused runs at the
+  unchanged timeout.
   [The preceding CI run](https://github.com/eseifert/altero/actions/runs/42493546369)
   passed 289 cases before the server exited with SIGSEGV. Its log showed
   cancelled SQLite connection cleanup, a leaked pool slot and an unhandled

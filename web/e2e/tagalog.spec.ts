@@ -1,6 +1,18 @@
+import type { APIRequestContext } from '@playwright/test'
+
 import { accessibilityProblems, expect, openItem, signIn, state, test } from './state'
 
 test.use({ locale: 'tl-PH' })
+
+async function createNote(request: APIRequestContext, note: string): Promise<string> {
+  const created = await request.post('/users/1/items', {
+    headers: { 'Zotero-API-Key': state().key }, data: [{ itemType: 'note', note }],
+  })
+  expect(created.ok()).toBe(true)
+  const body = await created.json()
+  expect(body.failed).toEqual({})
+  return body.successful['0'].key as string
+}
 
 test('saves a display name using translated account labels', async ({ page }, info) => {
   await signIn(page)
@@ -28,13 +40,7 @@ test('saves a display name using translated account labels', async ({ page }, in
 test('formats a note using translated headings and emphasis tools', async ({ page, request }, info) => {
   const marker = `Tala ${info.project.name}`
   const headers = { 'Zotero-API-Key': state().key }
-  const created = await request.post('/users/1/items', {
-    headers, data: [{ itemType: 'note', note: `<p>${marker}</p>` }],
-  })
-  expect(created.ok()).toBe(true)
-  const body = await created.json()
-  expect(body.failed).toEqual({})
-  const key = body.successful['0'].key as string
+  const key = await createNote(request, `<p>${marker}</p>`)
   const note = async () => (await (await request.get(`/users/1/items/${key}`, { headers })).json()).data.note
   await signIn(page)
   await openItem(page, marker)
@@ -57,9 +63,22 @@ test('formats a note using translated headings and emphasis tools', async ({ pag
     await page.getByRole('button', { name: 'May guhit sa gitna', exact: true }).click()
   }
   await expect.poll(note).toContain('text-decoration: line-through')
-  await page.screenshot({ path: info.outputPath('tagalog-note.png'), fullPage: true })
-  expect(await accessibilityProblems(page)).toEqual([])
   await page.reload()
   await openItem(page, marker)
   await expect(text.locator('h1 strong')).toHaveText(marker)
+})
+
+test('renders an accessible formatted note with translated controls', async ({ page, request }, info) => {
+  const marker = `Na-format na tala ${info.project.name}`
+  await createNote(request, `<h1><strong><span style="text-decoration: line-through">${marker}</span></strong></h1>`)
+  await signIn(page)
+  await openItem(page, marker)
+  await expect(page.locator('.note-editor .ProseMirror h1 strong')).toHaveText(marker)
+  await page.locator('.note-editor .ProseMirror h1').click({ clickCount: info.project.name === 'desktop' ? 3 : 1 })
+  // The desktop formatting bar appears over a text selection.
+  await page.keyboard.press('ControlOrMeta+a')
+  await expect(page.getByRole('button', { name: 'Makapal', exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Nakapahilis', exact: true })).toBeVisible()
+  await page.screenshot({ path: info.outputPath('tagalog-note.png'), fullPage: true })
+  expect(await accessibilityProblems(page)).toEqual([])
 })
