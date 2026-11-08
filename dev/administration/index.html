@@ -1324,6 +1324,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#sso-only-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SSO-only mode
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#saml-20" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2264,6 +2275,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#sso-only-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        SSO-only mode
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#saml-20" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2613,7 +2635,7 @@
 <h3 id="password-reset">Password reset<a class="headerlink" href="#password-reset" title="Permanent link">&para;</a></h3>
 <p>An administrator can either set a password or issue a single-use link that lets the account holder choose a new one.</p>
 <p>The link is valid for 12 hours. If the account has a confirmed address and outgoing mail is configured, altero can email it. The administrator is also shown the link so an instance without mail can still recover an account.</p>
-<p>Optional self-service password reset is controlled by <code>ALTERO_PASSWORD_RESET</code> and requires an SMTP relay.</p>
+<p>Optional self-service password reset is controlled by <code>ALTERO_PASSWORD_RESET</code> and requires an SMTP relay and <code>ALTERO_PUBLIC_URL</code>.</p>
 <h3 id="suspend-an-account">Suspend an account<a class="headerlink" href="#suspend-an-account" title="Permanent link">&para;</a></h3>
 <p>Suspension blocks every form of access:</p>
 <ul>
@@ -2636,6 +2658,9 @@ OAuth access tokens, never that session cookie. Zotero Desktop still gets its
 API key from <strong>Settings → API keys</strong>.</p>
 <h3 id="before-adding-a-provider">Before adding a provider<a class="headerlink" href="#before-adding-a-provider" title="Permanent link">&para;</a></h3>
 <p>Set <code>ALTERO_PUBLIC_URL</code> first. The administration screen shows the redirect/callback address that must be registered with the identity provider.</p>
+<p>Provider creation, updates and sign-in refuse to proceed without this setting.
+OIDC callbacks, SAML assertion recipients and the SAML service-provider identity
+always use it; request host headers cannot supply a substitute.</p>
 <p>A callback mismatch is rejected by the provider before altero can complete sign-in.</p>
 <p>OIDC and signed SAML sign-in have a real Keycloak integration test, including
 returning to the same account and keeping browser sessions out of the v3 API.
@@ -2657,9 +2682,47 @@ binding or signed AuthnRequests.</p>
 <p>Copy the provider's exact <code>issuer</code> value from its discovery document, including
 any trailing slash. Issuers must match in configuration, discovery and ID
 tokens, as required by
-<a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation">OpenID Connect Discovery</a>.
-If a previous altero version removed that slash, edit the issuer and save it
-again; existing provider rows are not changed automatically.</p>
+<a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation">OpenID Connect Discovery</a>.</p>
+<h3 id="sso-only-mode">SSO-only mode<a class="headerlink" href="#sso-only-mode" title="Permanent link">&para;</a></h3>
+<p>The v3 API still accepts API keys and OAuth access tokens, never browser
+sessions. Desktop clients obtain a key from <strong>Settings → API keys</strong>; this
+setting changes browser authentication rather than the sync protocol.</p>
+<p>Set <code>ALTERO_SSO_ONLY=true</code> (<code>SSO_ONLY = True</code> in <code>config.py</code>) to require the
+configured OIDC/SAML providers for every browser sign-in. The default is
+<code>false</code>. <code>ALTERO_PUBLIC_URL</code> is required; Compose forwards the setting from
+<code>.env</code> or the shell.</p>
+<p>Configure and test the provider first, enable account provisioning if desired,
+and connect existing accounts under <strong>Settings → Security</strong> before switching.
+Email claims never attach a directory identity to an existing account. A new
+subject is provisioned or refused according to the provider's policy. An empty
+provider list or a disabled provider offers no fallback sign-in. The first
+local registration is disabled too; set up the instance before enabling this
+mode.</p>
+<p>The sign-in page offers only provider links. Direct HTTP requests cannot use
+local passwords, passkeys, registration, password-reset links (including links
+issued earlier), email confirmation/change, or local authenticator/email-code
+flows. Local MFA belongs at the identity provider in this mode. Administrators
+cannot issue local passwords or reset links through the web interface either.
+Existing credentials are retained so disabling the setting restores the normal
+behavior; API keys and OAuth grants remain usable.</p>
+<p>Sessions created before the SSO-provenance migration, and sessions established
+with local credentials, must sign in again through a provider. Only a recent
+SSO proof authorizes key creation, archive restore, zotero.org migration,
+desktop linking and protected administrator actions. <strong>Confirm it is you</strong>
+returns through the connected provider using OIDC <code>prompt=login</code> or SAML
+<code>ForceAuthn</code>; the proof lasts five minutes and is bound to that browser. A
+local password or passkey cannot extend it. Connecting another directory also
+requires recent proof from an existing identity; a linking callback cannot
+extend that proof. Migration still needs the separate
+zotero.org API key; after a provider round trip, reselect any archive or reenter
+form data that navigation cleared. Removing the last enabled provider connected
+to an account is refused even when that account has a stored local password.</p>
+<p>Display names and email addresses are copied when an account is provisioned;
+this setting does not add continuous directory synchronization or rename
+existing usernames. To recover from a provider outage or configuration mistake,
+an operator with shell access can disable <code>ALTERO_SSO_ONLY</code>, restart, and use
+the existing account-recovery commands. There is no public break-glass password
+route while the setting is enabled.</p>
 <h3 id="saml-20">SAML 2.0<a class="headerlink" href="#saml-20" title="Permanent link">&para;</a></h3>
 <p>A SAML provider requires:</p>
 <ul>

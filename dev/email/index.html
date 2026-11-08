@@ -2035,7 +2035,7 @@
 </tr>
 </tbody>
 </table>
-<p>Most messages fall back to the log when no relay is configured. Self-service password reset does <strong>not</strong>, because a password-setting link should not be exposed to anyone who can read server logs.</p>
+<p>Most messages fall back to the log when no relay is configured. Without <code>ALTERO_PUBLIC_URL</code>, account links in these logs and administrator-issued reset links are relative paths: prepend the instance's trusted external address before opening or sharing one. Self-service password reset does <strong>not</strong> fall back to logs, because a password-setting link should not be exposed to anyone who can read server logs.</p>
 <h2 id="messages-altero-sends">Messages altero sends<a class="headerlink" href="#messages-altero-sends" title="Permanent link">&para;</a></h2>
 <p>altero sends plain-text mail for:</p>
 <ul>
@@ -2049,6 +2049,10 @@
 </ul>
 <p>Security notices are sent only to a <strong>confirmed</strong> email address.</p>
 <p>Confirmation links are valid for 24 hours. Administrator-issued or self-service password links are single-use and valid for 12 hours. Email sign-in codes are valid for ten minutes, work once and are tied to the browser session that requested them.</p>
+<p>Upgrading does not revoke password-reset links already issued. If an earlier
+message contains an incorrect host, issue a fresh reset from <strong>Administration →
+Accounts</strong> after configuring <code>ALTERO_PUBLIC_URL</code>; the new token replaces that
+account's previous reset token.</p>
 <h2 id="run-without-smtp">Run without SMTP<a class="headerlink" href="#run-without-smtp" title="Permanent link">&para;</a></h2>
 <p>With <code>ALTERO_SMTP_URL</code> unset, altero logs messages at <code>WARNING</code> instead of sending them.</p>
 <p>For Docker Compose, find a logged message with:</p>
@@ -2121,7 +2125,7 @@
 <p>Set <code>ALTERO_PUBLIC_URL</code> to the external address users can open, for example:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>https://altero.example.org
 </span></code></pre></div>
-<p>This matters especially behind a reverse proxy. Without a public URL, generated links can use an internal host or port from the request that reached altero.</p>
+<p>This is required when <code>ALTERO_SMTP_URL</code> is set; altero refuses to start without it. Password-reset, email-confirmation and invitation links never use the request's <code>Host</code> or forwarded host headers. Self-service reset also requires this setting before it issues a token or offers the form.</p>
 <p><code>ALTERO_PUBLIC_URL</code> is separate from <code>ALTERO_FORWARDED_ALLOW_IPS</code>: the first controls generated public links and callback addresses, while the second names the proxies whose forwarded client address and scheme altero believes.</p>
 <h2 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h2>
 <p>Put the mail settings in <strong><code>docker/.env</code></strong>, which the Compose file hands to the container along with everything else in it (see <a href="../configuration/#in-docker">Configuration</a>):</p>
@@ -2208,7 +2212,7 @@
 <p>A successful handoff to the SMTP relay does not guarantee delivery to the final inbox.</p>
 <p>For a local SMTP sink:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uvx<span class="w"> </span>--from<span class="w"> </span>aiosmtpd<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>aiosmtpd<span class="w"> </span>-n<span class="w"> </span>-l<span class="w"> </span>localhost:8025
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nv">ALTERO_SMTP_URL</span><span class="o">=</span>smtp://localhost:8025<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nv">ALTERO_SMTP_URL</span><span class="o">=</span>smtp://localhost:8025<span class="w"> </span><span class="nv">ALTERO_PUBLIC_URL</span><span class="o">=</span>http://localhost:8000<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
 </span></code></pre></div>
 <p>This prints received messages instead of sending real mail.</p>
 <h2 id="failure-behavior">Failure behavior<a class="headerlink" href="#failure-behavior" title="Permanent link">&para;</a></h2>

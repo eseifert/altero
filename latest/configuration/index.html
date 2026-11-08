@@ -1978,7 +1978,12 @@
 <tr>
 <td><code>ALTERO_PASSWORD_RESET</code></td>
 <td><code>false</code></td>
-<td>Whether somebody who has forgotten their password may ask for a link. It makes the mail relay part of the authentication, does nothing without <code>ALTERO_SMTP_URL</code>, and nothing for an unconfirmed address. An administrator can issue the same link whatever this says.</td>
+<td>Whether somebody who has forgotten their password may ask for a link. It makes the mail relay part of the authentication, requires <code>ALTERO_SMTP_URL</code> and <code>ALTERO_PUBLIC_URL</code>, and does nothing for an unconfirmed address. An administrator can issue the same link whatever this says.</td>
+</tr>
+<tr>
+<td><code>ALTERO_SSO_ONLY</code></td>
+<td><code>false</code></td>
+<td>Require configured OIDC/SAML providers for browser authentication and recent SSO proof for sensitive actions. Disables local credentials, registration, recovery, email changes and MFA; requires <code>ALTERO_PUBLIC_URL</code>. See <a href="../administration/#sso-only-mode">SSO-only mode</a>.</td>
 </tr>
 </tbody>
 </table>
@@ -1995,7 +2000,7 @@
 <tr>
 <td><code>ALTERO_PUBLIC_URL</code></td>
 <td><em>(empty)</em></td>
-<td>The stable external URL for API object links, file transfers and email links. Required for single sign-on, passkeys and the authorization server. See <a href="../deployment/#public-url">Public URL</a>.</td>
+<td>The stable external URL for API object links, file transfers and email links. Required for SMTP, single sign-on, passkeys and the authorization server. See <a href="../deployment/#public-url">Public URL</a>.</td>
 </tr>
 <tr>
 <td><code>ALTERO_SMTP_URL</code></td>
@@ -2116,7 +2121,7 @@
 <tr>
 <td><code>ALTERO_IMAGE_TAG</code></td>
 <td><code>docker/compose.yaml</code></td>
-<td>Which published image to run: <code>latest</code>, a release such as <code>1.0.0-beta.7</code>, or <code>dev</code> for master.</td>
+<td>Which published image to run: <code>latest</code>, a release such as <code>1.0.0-beta.8</code>, or <code>dev</code> for master.</td>
 </tr>
 <tr>
 <td><code>ALTERO_PUBLISH_PORT</code></td>

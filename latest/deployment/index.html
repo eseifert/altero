@@ -2327,19 +2327,19 @@
 <h2 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h2>
 <p>The image is published as <code>ghcr.io/eseifert/altero</code>, so running altero needs no checkout and no build. The Compose file on its own is the deployment:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkdir<span class="w"> </span>altero<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>altero
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.7/docker/compose.yaml
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.7<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>curl<span class="w"> </span>-fsSLO<span class="w"> </span>https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.8/docker/compose.yaml
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.8<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
 </span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>password<span class="w"> </span>&lt;username&gt;
 </span></code></pre></div>
 <p>From a repository checkout, name the file where it lives instead:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.7<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">ALTERO_IMAGE_TAG</span><span class="o">=</span><span class="m">1</span>.0.0-beta.8<span class="w"> </span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>password<span class="w"> </span>&lt;username&gt;
 </span></code></pre></div>
 <p>The stack contains PostgreSQL, altero and persistent attachment storage.</p>
 <p><code>altero user add</code> creates the account without a password, so <code>altero user password</code> follows it. The alternative is to create the first account in the browser: registration is open while the instance has no accounts at all, and the account that claims it administers the instance. See <a href="../web/account/">Accounts</a>.</p>
-<p><code>latest</code> is the newest release, prereleases included. <code>ALTERO_IMAGE_TAG</code> selects another: <code>1.0.0-beta.7</code> pins this version, and <code>dev</code> follows master. Persist the pin in <code>.env</code> beside a downloaded Compose file, or in <code>docker/.env</code> for a checkout. The matching release documentation is at <a href="https://altero.run/1.0.0-beta.7/">https://altero.run/1.0.0-beta.7/</a>; the docs site's <code>latest</code> alias is managed separately from the container tag.</p>
+<p><code>latest</code> is the newest release, prereleases included. <code>ALTERO_IMAGE_TAG</code> selects another: <code>1.0.0-beta.8</code> pins this version, and <code>dev</code> follows master. Persist the pin in <code>.env</code> beside a downloaded Compose file, or in <code>docker/.env</code> for a checkout. The matching release documentation is at <a href="https://altero.run/1.0.0-beta.8/">https://altero.run/1.0.0-beta.8/</a>; the docs site's <code>latest</code> alias is managed separately from the container tag.</p>
 <p>The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.</p>
 <p>There are two ports. altero listens on <code>ALTERO_PORT</code> inside the container, 8000 unless changed; <code>ALTERO_PUBLISH_PORT</code> is the host port Compose publishes it on, also 8000. To move the address clients use, change <code>ALTERO_PUBLISH_PORT</code> and leave <code>ALTERO_PORT</code> alone.</p>
 <h3 id="production-settings-to-change-first">Production settings to change first<a class="headerlink" href="#production-settings-to-change-first" title="Permanent link">&para;</a></h3>
@@ -2361,18 +2361,33 @@
 versions once, so existing desktops refresh their cached group permissions.
 It does not change personal-library versions. See <a href="../client-compatibility/">desktop compatibility coverage and remaining gaps</a>
 for the verified sync behavior.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Before upgrading to beta.8 with <code>ALTERO_SMTP_URL</code> configured, set
+<code>ALTERO_PUBLIC_URL</code> to the instance's trusted external URL. The server refuses
+to start with SMTP enabled and no public URL.</p>
+</div>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>pull<span class="w"> </span>altero
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>up<span class="w"> </span>-d
 </span></code></pre></div>
 <p>An instance pinned with <code>ALTERO_IMAGE_TAG</code> upgrades when that value changes, not when <code>pull</code> runs.</p>
 <p>Upgrading from beta.6 to beta.7 needs no database or storage changes.</p>
+<p>Account links no longer use request host headers. Without a configured public
+URL, logged account links and administrator-issued reset links
+are relative paths to open on the instance itself. Single sign-on also requires
+the public URL before a provider can be saved or used.</p>
 <p>Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.</p>
-<p>The next upgrade after beta.7 repairs child notes and attachments incorrectly
+<p>Beta.8 repairs child notes and attachments incorrectly
 filed in collections (<a href="https://github.com/eseifert/altero/issues/64">issue #64</a>).
 Sync each desktop after upgrading. Affected items receive a new version so
 clients download the repair; their parents and attachment files stay intact.
 Source installations must run <code>uv run alembic upgrade head</code> before serving.</p>
-<p>Direct upgrades from beta.1 through beta.7 to the current development schema
+<p>If beta.7 removed a trailing slash from an OIDC issuer, re-save the exact issuer
+from the provider's discovery document in the administration screen after
+upgrading to beta.8. Existing rows cannot be repaired automatically because the
+server cannot infer which issuers require a slash; direct database edits are
+unnecessary (<a href="https://github.com/eseifert/altero/issues/67">issue #67</a>).</p>
+<p>Direct upgrades from beta.1 through beta.7 to the beta.8 schema
 passed with populated personal and group libraries on SQLite and PostgreSQL.
 The checks include attachment bytes, full-text search, versions, permissions
 and repeat startup; see the <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation">upgrade matrix and limits</a>.</p>
@@ -2431,7 +2446,7 @@ for other systems.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>postgres
 </span></code></pre></div>
 <p>For a basic SQLite installation:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span>v1.0.0-beta.7<span class="w"> </span>https://github.com/eseifert/altero.git
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span>v1.0.0-beta.8<span class="w"> </span>https://github.com/eseifert/altero.git
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="nb">cd</span><span class="w"> </span>altero
 </span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>uv<span class="w"> </span>sync<span class="w"> </span>--locked
 </span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>npm<span class="w"> </span>--prefix<span class="w"> </span>web<span class="w"> </span>ci
@@ -2494,10 +2509,10 @@ for other systems.</p>
 <p>A successful response includes the application version, API version, schema version and database migration revision, for example:</p>
 <div class="language-json highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="p">{</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0b7&quot;</span><span class="p">,</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.0.0b8&quot;</span><span class="p">,</span>
 </span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">  </span><span class="nt">&quot;apiVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
 </span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">  </span><span class="nt">&quot;schemaVersion&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span><span class="nt">&quot;revision&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d7cd57abc8a4&quot;</span>
+</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">  </span><span class="nt">&quot;revision&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;c8f17a2d904e&quot;</span>
 </span><span id="__span-14-7"><a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">}</span>
 </span></code></pre></div>
 <p>If the database is unavailable, the endpoint returns <code>503</code> with:</p>
@@ -2523,7 +2538,7 @@ it is unset, those URLs use the request's address instead.</p>
 <li>OpenID Connect or SAML sign-in;</li>
 <li>passkeys;</li>
 <li>the authorization server, which refuses to serve its endpoints rather than guess the <code>iss</code> claim — see <a href="../oauth/">Connecting other applications</a>;</li>
-<li>links in outgoing email.</li>
+<li>SMTP, which refuses to start without it so account links cannot use an untrusted request host.</li>
 </ul>
 <p>Changing the <strong>host</strong> of <code>ALTERO_PUBLIC_URL</code> invalidates existing passkeys. Changing only the scheme or port does not.</p>
 <h2 id="outgoing-email">Outgoing email<a class="headerlink" href="#outgoing-email" title="Permanent link">&para;</a></h2>

@@ -1776,7 +1776,8 @@
 
 <h1 id="what-works">What works<a class="headerlink" href="#what-works" title="Permanent link">&para;</a></h1>
 <p>This page is the feature-level status of altero's Zotero v3 compatibility.</p>
-<p><strong>Release:</strong> 1.0.0-beta.7. Two real Zotero 10.0.7 profiles passed 72
+<p><strong>Release:</strong> 1.0.0-beta.8. See the <a href="../deployment/#upgrade-altero">upgrade requirements</a>.</p>
+<p>The beta.7 desktop acceptance run with two real Zotero 10.0.7 profiles passed 72
 database/scenario combinations and 838 phases on Linux, across SQLite and
 PostgreSQL 18.4. This verifies the recorded transitions, not every client path
 or platform. See
@@ -1788,7 +1789,7 @@ it does not establish conflict, file-recovery or full acceptance coverage.
 To contribute a reproducible platform result, follow the
 <a href="../testing-two-clients/#windows-and-macos-reports">two-client test and reporting checklist</a>.</p>
 <p>Populated databases from every beta through beta.7 pass direct upgrades to the
-current development schema on SQLite and PostgreSQL, including attachment
+beta.8 schema on SQLite and PostgreSQL, including attachment
 downloads and repeat startup. See the <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation">upgrade matrix and limits</a>.</p>
 <p>The published beta.7 amd64 image also passes a <a href="../testing-podman/#recorded-run">rootless Podman check</a>
 with SQLite, browser writes, attachment persistence after container replacement
