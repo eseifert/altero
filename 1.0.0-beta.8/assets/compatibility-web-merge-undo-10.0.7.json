@@ -1,0 +1,23 @@
+{
+  "desktop_version": "10.0.7",
+  "cells": [
+    {
+      "scenario": "web-merge-undo",
+      "backend": "sqlite",
+      "status": "passed",
+      "phases": 11,
+      "report_sha256": "b9d061bf8d0b9b29172fed84bba413070f00f3a950e8557a6e4c12f8b67a11ba",
+      "snapshots_sha256": "3280ba74355e7a8f253a7e7d72856ab183b4c4d719088320b412236e7e23c998",
+      "finished_at": "2026-11-03T12:55:28.946948+00:00"
+    },
+    {
+      "scenario": "web-merge-undo",
+      "backend": "postgresql",
+      "status": "passed",
+      "phases": 11,
+      "report_sha256": "d01b9b95bb75eccc70496aee9c5c8a250fb5e6aff2b4f8663ab25014c6938857",
+      "snapshots_sha256": "995126f5cd0f1e01e1115ecfa92ee31103f4a6582bf19fc1fad3b934c0b71122",
+      "finished_at": "2026-11-03T12:55:28.247285+00:00"
+    }
+  ]
+}
