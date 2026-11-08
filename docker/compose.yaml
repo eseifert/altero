@@ -73,6 +73,7 @@ services:
       ALTERO_SMTP_URL: ${ALTERO_SMTP_URL:-}
       ALTERO_MAIL_FROM: ${ALTERO_MAIL_FROM:-altero@localhost}
       ALTERO_PUBLIC_URL: ${ALTERO_PUBLIC_URL:-}
+      ALTERO_SSO_ONLY: ${ALTERO_SSO_ONLY:-false}
     # So that a relay running on the host is reachable as
     # host.docker.internal: inside the container `localhost` is the container,
     # and a submission port on the host is not on it.

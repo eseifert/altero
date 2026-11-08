@@ -109,7 +109,9 @@ async def link(
     return identity
 
 
-async def unlink(session: AsyncSession, user: User, identity: FederatedIdentity) -> None:
+async def unlink(
+    session: AsyncSession, user: User, identity: FederatedIdentity, *, sso_only: bool = False
+) -> None:
     """Detach an identity, refusing to leave an account with no way in.
 
     An account with no password and one link would otherwise be able to remove
@@ -123,8 +125,19 @@ async def unlink(session: AsyncSession, user: User, identity: FederatedIdentity)
         .select_from(FederatedIdentity)
         .where(FederatedIdentity.user_id == user.id, FederatedIdentity.id != identity.id)
     )
-    if not remaining and not user.password_hash:
-        raise ForbiddenError("Set a password first: this is the only way you have of signing in")
+    if sso_only:
+        remaining = await session.scalar(
+            select(func.count())
+            .select_from(FederatedIdentity)
+            .join(IdentityProvider, FederatedIdentity.provider_id == IdentityProvider.id)
+            .where(
+                FederatedIdentity.user_id == user.id,
+                FederatedIdentity.id != identity.id,
+                IdentityProvider.enabled.is_(True),
+            )
+        )
+    if not remaining and (sso_only or not user.password_hash):
+        raise ForbiddenError("This is the only way you have of signing in")
 
     await session.delete(identity)
     await session.commit()

@@ -33,6 +33,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response
 
 from altero.api.deps import SessionDep
+from altero.api.local_auth import SsoOnlyDep
 from altero.api.routes.web import (
     AuthenticatedDep,
     CsrfDep,
@@ -207,7 +208,11 @@ async def start_sign_in(
     user: User | None = None
     if purpose in ("link", "reauth"):
         record = await websessions.lookup(session, request.cookies.get("altero_session"))
-        if record is None or not websessions.is_authenticated(record):
+        if (
+            record is None
+            or not websessions.is_authenticated(record)
+            or (request.app.state.settings.sso_only and not record.sso_authenticated)
+        ):
             return RedirectResponse(_app_url(request, "/sign-in", error="not-signed-in"), 303)
         user = await session.get(User, record.user_id)
 
@@ -479,9 +484,16 @@ async def _finish_for_signed_in(
         return RedirectResponse(_app_url(request, "/sign-in", error="not-signed-in"), 303)
 
     record = await websessions.lookup(session, request.cookies.get("altero_session"))
-    if record is None or record.user_id != user.id:
+    if (
+        record is None
+        or record.user_id != user.id
+        or (request.app.state.settings.sso_only and not record.sso_authenticated)
+    ):
         # The browser that started this is not the one that came back.
         return RedirectResponse(_app_url(request, "/sign-in", error="not-signed-in"), 303)
+
+    if not oidc.satisfies_requirement(assertion.claims, provider):
+        return RedirectResponse(_app_url(request, "/sign-in", error="not-permitted"), 303)
 
     if pending.purpose == "link":
         try:
@@ -534,6 +546,7 @@ async def list_identities(session: SessionDep, user: CurrentUserDep) -> Response
 
 @router.delete("/account/identities/{identity_id}", status_code=204)
 async def remove_identity(
+    sso_only: SsoOnlyDep,
     session: SessionDep,
     user: CurrentUserDep,
     record: AuthenticatedDep,
@@ -546,12 +559,12 @@ async def remove_identity(
     it is the only way in -- an account with no password removing its last link
     would lock itself out of a library nobody else can reach.
     """
-    await account.require_proof(session, user, record)
+    await account.require_proof(session, user, record, sso_only=sso_only)
 
     identity = await session.get(FederatedIdentity, identity_id)
     if identity is None:
         raise HTTPException(status_code=404, detail="No such connection")
-    await federation.unlink(session, user, identity)
+    await federation.unlink(session, user, identity, sso_only=sso_only)
     return Response(status_code=204)
 
 
@@ -585,6 +598,7 @@ async def list_providers(
 
 @router.post("/admin/providers", status_code=201)
 async def create_provider(
+    sso_only: SsoOnlyDep,
     request: Request,
     session: SessionDep,
     admin_user: AdministratorDep,
@@ -593,7 +607,9 @@ async def create_provider(
     _csrf: CsrfDep,
 ) -> Response:
     """Add a provider, and try its discovery document straight away."""
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
 
     if not body.slug:
         raise InvalidInputError("A provider needs a name")
@@ -617,6 +633,7 @@ async def create_provider(
 
 @router.patch("/admin/providers/{slug}")
 async def change_provider(
+    sso_only: SsoOnlyDep,
     request: Request,
     session: SessionDep,
     admin_user: AdministratorDep,
@@ -625,7 +642,9 @@ async def change_provider(
     body: Annotated[ProviderInput, Body()],
     _csrf: CsrfDep,
 ) -> Response:
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
 
     _public_url(request)
     provider = await identityproviders.by_slug(session, slug)
@@ -644,6 +663,7 @@ async def change_provider(
 
 @router.delete("/admin/providers/{slug}", status_code=204)
 async def remove_provider(
+    sso_only: SsoOnlyDep,
     session: SessionDep,
     admin_user: AdministratorDep,
     browser: AuthenticatedDep,
@@ -652,7 +672,9 @@ async def remove_provider(
     _csrf: CsrfDep,
 ) -> Response:
     """Remove a provider, and with it every account's link to it."""
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
 
     provider = await identityproviders.by_slug(session, slug)
     await identityproviders.delete(session, provider)

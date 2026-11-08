@@ -79,6 +79,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = get_settings() if settings is None else settings
     if settings.smtp_url and not settings.public_url:
         raise InvalidInputError("Set ALTERO_PUBLIC_URL before configuring ALTERO_SMTP_URL")
+    if settings.sso_only and not settings.public_url:
+        raise InvalidInputError("Set ALTERO_PUBLIC_URL before enabling ALTERO_SSO_ONLY")
     database = Database(settings)
 
     async def sweep_digests() -> int:

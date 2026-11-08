@@ -27,6 +27,7 @@ from starlette.responses import JSONResponse, Response
 
 from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
+from altero.api.local_auth import SsoOnlyDep, require_local_auth
 from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import User, WebSession
 from altero.services import (
@@ -199,10 +200,12 @@ def clear_session_cookies(response: Response) -> None:
     response.delete_cookie(SESSION_COOKIE, path="/")
 
 
-async def get_current_session(request: Request, session: SessionDep) -> WebSession:
+async def get_current_session(
+    request: Request, session: SessionDep, sso_only: SsoOnlyDep
+) -> WebSession:
     """Return the session the cookie identifies, whatever state it is in."""
     record = await websessions.lookup(session, request.cookies.get(SESSION_COOKIE))
-    if record is None:
+    if record is None or (sso_only and not record.sso_authenticated):
         raise HTTPException(status_code=401, detail="Not signed in")
     return record
 
@@ -230,7 +233,7 @@ async def get_current_user(record: AuthenticatedDep, session: SessionDep) -> Use
 CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
 
-async def get_viewer(request: Request, session: SessionDep) -> User | None:
+async def get_viewer(request: Request, session: SessionDep, sso_only: SsoOnlyDep) -> User | None:
     """Return who is signed in, or ``None``, without refusing anybody.
 
     For the pages that are readable by strangers -- a profile and the
@@ -242,7 +245,11 @@ async def get_viewer(request: Request, session: SessionDep) -> User | None:
     real cookie and has not finished proving whose it is.
     """
     record = await websessions.lookup(session, request.cookies.get(SESSION_COOKIE))
-    if record is None or not websessions.is_authenticated(record):
+    if (
+        record is None
+        or not websessions.is_authenticated(record)
+        or (sso_only and not record.sso_authenticated)
+    ):
         return None
     return await session.get(User, record.user_id)
 
@@ -262,7 +269,7 @@ CsrfDep = Annotated[None, Depends(require_csrf)]
 
 
 @router.get("/config")
-async def read_config(request: Request, session: SessionDep) -> Response:
+async def read_config(request: Request, session: SessionDep, sso_only: SsoOnlyDep) -> Response:
     """Public facts the sign-in page needs before anyone has signed in.
 
     Whether registration is open decides if the page offers a register link at
@@ -275,19 +282,21 @@ async def read_config(request: Request, session: SessionDep) -> Response:
         {
             "version": __version__,
             "apiVersion": API_VERSION,
-            "registrationOpen": await webauth.registration_open(
+            "ssoOnly": sso_only,
+            "registrationOpen": not sso_only
+            and await webauth.registration_open(
                 session, allow=request.app.state.settings.open_registration
             ),
             # Whether the form the visitor is about to see is the one that
             # claims the instance. The two are different sentences, and the
             # page cannot tell them apart from `registrationOpen` alone.
             "firstAccount": await webauth.no_accounts_yet(session),
-            "secondFactors": ["totp", "email", "webauthn"],
+            "secondFactors": [] if sso_only else ["totp", "email", "webauthn"],
             # Whether the sign-in page should offer "use a passkey". A passkey
             # is bound to the address it was made at, so an instance with no
             # public URL configured cannot have one -- and a button that always
             # failed would be worse than none.
-            "passkeysAvailable": _passkeys_available(request),
+            "passkeysAvailable": not sso_only and _passkeys_available(request),
             # Whether the sign-in page offers "forgotten your password?" at
             # all. Reported rather than assumed, so an instance that has no
             # relay does not show a form that can only ever answer 202 and
@@ -305,7 +314,7 @@ async def read_config(request: Request, session: SessionDep) -> Response:
     )
 
 
-@router.post("/auth/register", status_code=201)
+@router.post("/auth/register", status_code=201, dependencies=[Depends(require_local_auth)])
 async def register(session: SessionDep, request: Request, body: Registration) -> Response:
     """Create the first account, or another if registration has been opened."""
     user = await webauth.register(
@@ -325,7 +334,7 @@ async def register(session: SessionDep, request: Request, body: Registration) ->
     return response
 
 
-@router.post("/auth/login")
+@router.post("/auth/login", dependencies=[Depends(require_local_auth)])
 async def login(session: SessionDep, request: Request, body: Credentials) -> Response:
     """Check a password and open a session, which may still want a factor."""
     try:
@@ -362,7 +371,7 @@ async def login(session: SessionDep, request: Request, body: Credentials) -> Res
     return response
 
 
-@router.post("/auth/totp")
+@router.post("/auth/totp", dependencies=[Depends(require_local_auth)])
 async def submit_totp(
     request: Request,
     session: SessionDep,
@@ -411,7 +420,7 @@ async def _send_login_code(request: Request, session: SessionDep, record: WebSes
     )
 
 
-@router.post("/auth/code")
+@router.post("/auth/code", dependencies=[Depends(require_local_auth)])
 async def submit_login_code(
     request: Request,
     session: SessionDep,
@@ -432,7 +441,7 @@ async def submit_login_code(
     return JSONResponse({"user": _serialise(user), "needsFactor": None})
 
 
-@router.post("/auth/code/resend", status_code=202)
+@router.post("/auth/code/resend", status_code=202, dependencies=[Depends(require_local_auth)])
 async def resend_login_code(
     request: Request, session: SessionDep, record: PendingSessionDep, _csrf: CsrfDep
 ) -> Response:
@@ -447,7 +456,7 @@ async def resend_login_code(
     return Response(status_code=202)
 
 
-@router.post("/auth/factor")
+@router.post("/auth/factor", dependencies=[Depends(require_local_auth)])
 async def choose_factor(
     request: Request,
     session: SessionDep,
@@ -476,7 +485,7 @@ class AddressChange(BaseModel):
     email: str
 
 
-@router.post("/auth/verify")
+@router.post("/auth/verify", dependencies=[Depends(require_local_auth)])
 async def verify_email(session: SessionDep, body: Annotated[Token, Body()]) -> Response:
     """Confirm an address from the token in a link.
 
@@ -522,7 +531,12 @@ def _reset_allowed(request: Request) -> bool:
     then take any account on the instance.
     """
     settings = request.app.state.settings
-    return bool(settings.password_reset and settings.smtp_url and settings.public_url)
+    return bool(
+        not settings.sso_only
+        and settings.password_reset
+        and settings.smtp_url
+        and settings.public_url
+    )
 
 
 @router.post("/auth/forgot", status_code=202)
@@ -581,7 +595,7 @@ async def forgot_password(
     return Response(status_code=202)
 
 
-@router.get("/auth/reset/{token}")
+@router.get("/auth/reset/{token}", dependencies=[Depends(require_local_auth)])
 async def read_reset(session: SessionDep, token: str) -> Response:
     """Say whose password a link is about to set, before asking for one.
 
@@ -594,7 +608,7 @@ async def read_reset(session: SessionDep, token: str) -> Response:
     return JSONResponse({"username": user.username, "displayName": user.display_name})
 
 
-@router.post("/auth/reset")
+@router.post("/auth/reset", dependencies=[Depends(require_local_auth)])
 async def complete_reset(session: SessionDep, body: Annotated[NewPassword, Body()]) -> Response:
     """Set a password from a link an administrator issued.
 
@@ -613,7 +627,7 @@ async def complete_reset(session: SessionDep, body: Annotated[NewPassword, Body(
     return JSONResponse({"username": user.username})
 
 
-@router.post("/auth/verify/resend", status_code=202)
+@router.post("/auth/verify/resend", status_code=202, dependencies=[Depends(require_local_auth)])
 async def resend_verification(
     request: Request, session: SessionDep, user: CurrentUserDep, _csrf: CsrfDep
 ) -> Response:

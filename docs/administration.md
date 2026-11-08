@@ -194,6 +194,51 @@ The [fix](https://github.com/eseifert/altero/commit/fff7a75705bc274c65b1a1ac68a8
 was added after beta.7. After upgrading to a build containing it, edit the issuer
 and save it again; existing provider rows are not changed automatically.
 
+### SSO-only mode
+
+The v3 API still accepts API keys and OAuth access tokens, never browser
+sessions. Desktop clients obtain a key from **Settings → API keys**; this
+setting changes browser authentication rather than the sync protocol.
+
+Set `ALTERO_SSO_ONLY=true` (`SSO_ONLY = True` in `config.py`) to require the
+configured OIDC/SAML providers for every browser sign-in. The default is
+`false`. `ALTERO_PUBLIC_URL` is required; Compose forwards the setting from
+`.env` or the shell.
+
+Configure and test the provider first, enable account provisioning if desired,
+and connect existing accounts under **Settings → Security** before switching.
+Email claims never attach a directory identity to an existing account. A new
+subject is provisioned or refused according to the provider's policy. An empty
+provider list or a disabled provider offers no fallback sign-in. The first
+local registration is disabled too; set up the instance before enabling this
+mode.
+
+The sign-in page offers only provider links. Direct HTTP requests cannot use
+local passwords, passkeys, registration, password-reset links (including links
+issued earlier), email confirmation/change, or local authenticator/email-code
+flows. Local MFA belongs at the identity provider in this mode. Administrators
+cannot issue local passwords or reset links through the web interface either.
+Existing credentials are retained so disabling the setting restores the normal
+behavior; API keys and OAuth grants remain usable.
+
+Sessions created before the SSO-provenance migration, and sessions established
+with local credentials, must sign in again through a provider. Only a recent
+SSO proof authorizes key creation, archive restore, zotero.org migration,
+desktop linking and protected administrator actions. **Confirm it is you**
+returns through the connected provider using OIDC `prompt=login` or SAML
+`ForceAuthn`; the proof lasts five minutes and is bound to that browser. A
+local password or passkey cannot extend it. Migration still needs the separate
+zotero.org API key; after a provider round trip, reselect any archive or reenter
+form data that navigation cleared. Removing the last enabled provider connected
+to an account is refused even when that account has a stored local password.
+
+Display names and email addresses are copied when an account is provisioned;
+this setting does not add continuous directory synchronization or rename
+existing usernames. To recover from a provider outage or configuration mistake,
+an operator with shell access can disable `ALTERO_SSO_ONLY`, restart, and use
+the existing account-recovery commands. There is no public break-glass password
+route while the setting is enabled.
+
 ### SAML 2.0
 
 A SAML provider requires:

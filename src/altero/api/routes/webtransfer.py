@@ -28,6 +28,7 @@ from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, Response
 
 from altero.api.deps import SessionDep
+from altero.api.local_auth import SsoOnlyDep
 from altero.api.routes.web import AuthenticatedDep, CsrfDep, CurrentUserDep
 from altero.errors import ForbiddenError, NotFoundError
 from altero.models import Library, LibraryType, User
@@ -114,6 +115,7 @@ async def download_archive(
 
 @router.post("/libraries/{library_id}/archive")
 async def restore_archive(
+    sso_only: SsoOnlyDep,
     request: Request,
     session: SessionDep,
     user: CurrentUserDep,
@@ -133,7 +135,7 @@ async def restore_archive(
     """
     library = await _library_or_404(session, library_id)
     await _may_import(session, library, user)
-    await account.require_proof(session, user, record, password=current_password)
+    await account.require_proof(session, user, record, password=current_password, sso_only=sso_only)
 
     workspace = Path(tempfile.mkdtemp(prefix="altero-import-"))
     try:

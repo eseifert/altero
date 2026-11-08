@@ -403,6 +403,7 @@ async def create_key(
     record: WebSession | None = None,
     write: bool = True,
     groups: bool = True,
+    sso_only: bool = False,
 ) -> ApiKey:
     """Issue a key for this account and return it, once.
 
@@ -413,7 +414,7 @@ async def create_key(
     one here is to sync a Zotero client, and a key that cannot write or cannot
     see groups presents to that client as a server which has lost things.
     """
-    await require_proof(session, user, record, password=current_password)
+    await require_proof(session, user, record, password=current_password, sso_only=sso_only)
 
     label = name.strip()
     if not label:

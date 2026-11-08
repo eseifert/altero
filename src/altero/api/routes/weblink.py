@@ -26,6 +26,7 @@ from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import SessionDep
+from altero.api.local_auth import SsoOnlyDep
 from altero.api.routes.web import AuthenticatedDep, CsrfDep, CurrentUserDep
 from altero.errors import InvalidInputError, NotFoundError
 from altero.models import LoginSession, User
@@ -107,6 +108,7 @@ async def read_link_request(session: SessionDep, user: CurrentUserDep, token: st
 
 @router.post("/link/{token}/approve", status_code=204)
 async def approve_link_request(
+    sso_only: SsoOnlyDep,
     session: SessionDep,
     user: CurrentUserDep,
     browser: AuthenticatedDep,
@@ -117,7 +119,9 @@ async def approve_link_request(
     """Issue a key for this account and complete the client's login."""
     record = await _pending(session, token)
 
-    await account.require_proof(session, user, browser, password=body.current_password)
+    await account.require_proof(
+        session, user, browser, password=body.current_password, sso_only=sso_only
+    )
 
     reason = await _refusal(session, record, user)
     if reason is not None:

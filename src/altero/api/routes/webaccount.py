@@ -11,13 +11,14 @@ it is optional in the schema because an account may not have one.
 from typing import Annotated
 from zoneinfo import available_timezones
 
-from fastapi import APIRouter, Body, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import SessionDep
+from altero.api.local_auth import SsoOnlyDep, require_local_auth
 from altero.api.routes.web import (
     AuthenticatedDep,
     CsrfDep,
@@ -191,7 +192,7 @@ async def read_account(
 
 @router.get("/account/proof")
 async def read_proof(
-    session: SessionDep, user: CurrentUserDep, record: AuthenticatedDep
+    sso_only: SsoOnlyDep, session: SessionDep, user: CurrentUserDep, record: AuthenticatedDep
 ) -> Response:
     """How this browser can prove itself, and whether it recently has.
 
@@ -204,8 +205,8 @@ async def read_proof(
     linked = {entry.provider_id for entry in await federation.identities_for(session, user)}
     return JSONResponse(
         {
-            "password": reauth.has_password(user),
-            "fresh": reauth.is_fresh(record),
+            "password": not sso_only and reauth.has_password(user),
+            "fresh": reauth.is_fresh(record, sso_only=sso_only),
             "providers": [
                 {"slug": provider.slug, "displayName": provider.display_name}
                 for provider in await identityproviders.list_enabled(session)
@@ -257,7 +258,7 @@ async def list_locales() -> Response:
     )
 
 
-@router.post("/account/password", status_code=204)
+@router.post("/account/password", status_code=204, dependencies=[Depends(require_local_auth)])
 async def change_password(
     request: Request,
     session: SessionDep,
@@ -278,7 +279,7 @@ async def change_password(
     return Response(status_code=204)
 
 
-@router.post("/account/email", status_code=202)
+@router.post("/account/email", status_code=202, dependencies=[Depends(require_local_auth)])
 async def change_email(
     request: Request,
     session: SessionDep,
@@ -305,14 +306,14 @@ async def change_email(
     return JSONResponse({"pending": body.email.strip().lower()}, status_code=202)
 
 
-@router.post("/account/totp", status_code=201)
+@router.post("/account/totp", status_code=201, dependencies=[Depends(require_local_auth)])
 async def begin_totp(session: SessionDep, user: CurrentUserDep, _csrf: CsrfDep) -> Response:
     """Start enrolling an authenticator. Not yet required at sign-in."""
     enrolment = await account.begin_totp_enrolment(session, user)
     return JSONResponse({"secret": enrolment.secret, "uri": enrolment.uri}, status_code=201)
 
 
-@router.post("/account/totp/confirm", status_code=204)
+@router.post("/account/totp/confirm", status_code=204, dependencies=[Depends(require_local_auth)])
 async def confirm_totp(
     request: Request,
     session: SessionDep,
@@ -326,7 +327,7 @@ async def confirm_totp(
     return Response(status_code=204)
 
 
-@router.post("/account/totp/disable", status_code=204)
+@router.post("/account/totp/disable", status_code=204, dependencies=[Depends(require_local_auth)])
 async def disable_totp(
     request: Request,
     session: SessionDep,
@@ -345,7 +346,7 @@ async def disable_totp(
     return Response(status_code=204)
 
 
-@router.post("/account/email-codes", status_code=204)
+@router.post("/account/email-codes", status_code=204, dependencies=[Depends(require_local_auth)])
 async def enable_email_codes(
     request: Request,
     session: SessionDep,
@@ -370,7 +371,7 @@ async def enable_email_codes(
     return Response(status_code=204)
 
 
-@router.delete("/account/email-codes", status_code=204)
+@router.delete("/account/email-codes", status_code=204, dependencies=[Depends(require_local_auth)])
 async def disable_email_codes(
     request: Request,
     session: SessionDep,
@@ -419,6 +420,7 @@ async def list_keys(session: SessionDep, user: CurrentUserDep) -> Response:
 
 @router.post("/account/keys", status_code=201)
 async def create_key(
+    sso_only: SsoOnlyDep,
     session: SessionDep,
     user: CurrentUserDep,
     record: AuthenticatedDep,
@@ -438,6 +440,7 @@ async def create_key(
         record=record,
         write=body.write,
         groups=body.groups,
+        sso_only=sso_only,
     )
     return JSONResponse({"key": created.key, "created": _serialise_key(created)}, status_code=201)
 

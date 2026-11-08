@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add SSO-only browser sign-in and provider proof for keys, restores and migrations; suggested by [@arminbahl] ([Issue#68]).
 - Return to a child item's parent after trashing when it is beyond the first page; reported by [@eseifert] ([CI#42428262993]).
 - Require the configured public URL for SSO callbacks and SAML identity; keep sign-in redirects independent of request hosts.
 - Prevent host-header poisoning of account links; require a public URL for SMTP. Reported by [@orshih6] ([GHSA-75xw-v7vm-5v6r]).
@@ -453,3 +454,6 @@ The first release meant to be used by somebody other than its author.
 [@orshih6]: https://github.com/orshih6
 [GHSA-75xw-v7vm-5v6r]: https://github.com/eseifert/altero/security/advisories/GHSA-75xw-v7vm-5v6r
 [CI#42428262993]: https://github.com/eseifert/altero/actions/runs/42428262993
+[@arminbahl]: https://github.com/arminbahl
+[@arminbahl]: https://github.com/arminbahl
+[Issue#68]: https://github.com/eseifert/altero/issues/68

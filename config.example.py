@@ -93,6 +93,12 @@ RETENTION_INTERVAL = 0
 # `altero user add`.
 OPEN_REGISTRATION = False
 
+# Require OIDC/SAML for browser sign-in and recent proof for sensitive actions.
+# Configure and test providers and link existing accounts before enabling.
+# Local passwords, registration, recovery, email changes and MFA are disabled.
+# Requires PUBLIC_URL; API keys and OAuth tokens still work for sync.
+SSO_ONLY = False
+
 # Whether somebody who has forgotten their password may ask for a link to set a
 # new one. Off by default: it makes the mail relay part of the authentication,
 # so whoever can read the mailbox can take the account. Does nothing without

@@ -27,6 +27,7 @@ from starlette.responses import JSONResponse, Response
 
 from altero import API_VERSION, __version__
 from altero.api.deps import SessionDep
+from altero.api.local_auth import SsoOnlyDep, require_local_auth
 from altero.api.routes import web
 from altero.api.routes.web import AuthenticatedDep, CsrfDep, CurrentUserDep
 from altero.errors import InvalidInputError, NotFoundError
@@ -301,8 +302,9 @@ async def list_accounts(session: SessionDep, _admin: AdministratorDep) -> Respon
     )
 
 
-@router.post("/users", status_code=201)
+@router.post("/users", status_code=201, dependencies=[Depends(require_local_auth)])
 async def create_account(
+    sso_only: SsoOnlyDep,
     request: Request,
     session: SessionDep,
     admin_user: AdministratorDep,
@@ -320,7 +322,9 @@ async def create_account(
     syncs without one, and requiring one would make this refuse the case the
     command line has always allowed.
     """
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
 
     # Everything is checked before anything is created, so a mistyped address
     # or a password the server will refuse does not leave half an account
@@ -347,6 +351,7 @@ async def create_account(
 
 @router.patch("/users/{user_id}")
 async def change_account(
+    sso_only: SsoOnlyDep,
     session: SessionDep,
     admin_user: AdministratorDep,
     browser: AuthenticatedDep,
@@ -362,7 +367,9 @@ async def change_account(
     the last one -- which it makes on behalf of the instance rather than of
     whoever clicked.
     """
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
     user = await _account(session, user_id)
 
     if user.id == admin_user.id and body.disabled is not None:
@@ -376,8 +383,11 @@ async def change_account(
     return JSONResponse({"user": _serialise_account(user)})
 
 
-@router.post("/users/{user_id}/password", status_code=204)
+@router.post(
+    "/users/{user_id}/password", status_code=204, dependencies=[Depends(require_local_auth)]
+)
 async def set_account_password(
+    sso_only: SsoOnlyDep,
     session: SessionDep,
     admin_user: AdministratorDep,
     browser: AuthenticatedDep,
@@ -392,15 +402,18 @@ async def set_account_password(
     :func:`altero.services.webauth.set_password` the command line uses, so the
     owner is told about it if there is a confirmed address to tell.
     """
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
     user = await _account(session, user_id)
 
     await webauth.set_password(session, user, body.password)
     return Response(status_code=204)
 
 
-@router.post("/users/{user_id}/reset")
+@router.post("/users/{user_id}/reset", dependencies=[Depends(require_local_auth)])
 async def issue_password_reset(
+    sso_only: SsoOnlyDep,
     request: Request,
     session: SessionDep,
     admin_user: AdministratorDep,
@@ -417,7 +430,9 @@ async def issue_password_reset(
     configured is the ordinary case, and a link only readable in the server log
     would need the shell this screen exists to replace.
     """
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
     user = await _account(session, user_id)
 
     token = await passwordreset.issue(session, user, issued_by=admin_user)
@@ -445,6 +460,7 @@ async def issue_password_reset(
 
 @router.post("/users/{user_id}/revoke")
 async def revoke_account_credentials(
+    sso_only: SsoOnlyDep,
     session: SessionDep,
     admin_user: AdministratorDep,
     browser: AuthenticatedDep,
@@ -453,7 +469,9 @@ async def revoke_account_credentials(
     _csrf: CsrfDep,
 ) -> Response:
     """Drop every key and every signed-in browser, leaving the account working."""
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
     user = await _account(session, user_id)
 
     keys, sessions = await admin.revoke_credentials(session, user)
@@ -462,6 +480,7 @@ async def revoke_account_credentials(
 
 @router.delete("/users/{user_id}", status_code=204)
 async def delete_account(
+    sso_only: SsoOnlyDep,
     session: SessionDep,
     admin_user: AdministratorDep,
     browser: AuthenticatedDep,
@@ -477,7 +496,9 @@ async def delete_account(
     administrator deleting their own account would take the instance's
     administration with it.
     """
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
     user = await _account(session, user_id)
 
     if user.id == admin_user.id:
@@ -498,6 +519,7 @@ ORPHAN_GRACE = timedelta(hours=24)
 
 @router.post("/storage/purge")
 async def purge_storage(
+    sso_only: SsoOnlyDep,
     request: Request,
     session: SessionDep,
     admin_user: AdministratorDep,
@@ -514,7 +536,9 @@ async def purge_storage(
     :data:`ORPHAN_GRACE` is left where it is, and the administrator's own
     password is asked for, because this is not recoverable from here.
     """
-    await account.require_proof(session, admin_user, browser, password=body.current_password)
+    await account.require_proof(
+        session, admin_user, browser, password=body.current_password, sso_only=sso_only
+    )
 
     files, freed = await storagestats.purge_orphans(
         session, request.app.state.settings.storage_path, grace=ORPHAN_GRACE

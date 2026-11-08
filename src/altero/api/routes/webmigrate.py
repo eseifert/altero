@@ -36,6 +36,7 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import SessionDep
+from altero.api.local_auth import SsoOnlyDep
 from altero.api.routes.web import AuthenticatedDep, CsrfDep, CurrentUserDep
 from altero.errors import AlteroError, ForbiddenError, InvalidInputError
 from altero.models import LibraryType, User
@@ -144,6 +145,7 @@ async def migration_status(user: CurrentUserDep) -> Response:
 
 @router.post("/migrate/zotero", status_code=202)
 async def start_migration(
+    sso_only: SsoOnlyDep,
     request: Request,
     session: SessionDep,
     user: CurrentUserDep,
@@ -158,7 +160,9 @@ async def start_migration(
     request.
     """
     _own_library(user, user.id)
-    await account.require_proof(session, user, record, password=body.current_password)
+    await account.require_proof(
+        session, user, record, password=body.current_password, sso_only=sso_only
+    )
 
     key = body.api_key.strip()
     if not key:

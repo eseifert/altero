@@ -94,6 +94,7 @@ Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. D
 |----------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ALTERO_OPEN_REGISTRATION` | `false` | Whether anybody may register from the browser. The first account is always allowed, and so is anybody holding an unanswered group invitation, so a fresh instance is reachable without shell access either way.                                                        |
 | `ALTERO_PASSWORD_RESET`    | `false` | Whether somebody who has forgotten their password may ask for a link. It makes the mail relay part of the authentication, requires `ALTERO_SMTP_URL` and `ALTERO_PUBLIC_URL`, and does nothing for an unconfirmed address. An administrator can issue the same link whatever this says. |
+| `ALTERO_SSO_ONLY` | `false` | Require configured OIDC/SAML providers for browser authentication and recent SSO proof for sensitive actions. Disables local credentials, registration, recovery, email changes and MFA; requires `ALTERO_PUBLIC_URL`. See [SSO-only mode](administration.md#sso-only-mode). |
 
 ## Public URL and email
 

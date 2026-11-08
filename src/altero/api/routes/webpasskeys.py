@@ -22,12 +22,13 @@ so the token is both available and load-bearing.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel, Field
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import SessionDep
+from altero.api.local_auth import require_local_auth
 from altero.api.routes.web import (
     AuthenticatedDep,
     CsrfDep,
@@ -85,7 +86,7 @@ def _serialise_passkey(record: PasskeyCredential) -> dict:
 # --------------------------------------------------------------------------
 
 
-@router.post("/auth/passkey/options")
+@router.post("/auth/passkey/options", dependencies=[Depends(require_local_auth)])
 async def sign_in_options(request: Request, session: SessionDep) -> Response:
     """Ask the browser for whatever passkey it holds for this site.
 
@@ -96,7 +97,7 @@ async def sign_in_options(request: Request, session: SessionDep) -> Response:
     return JSONResponse(await passkeys.begin_authentication(session, party=_party(request)))
 
 
-@router.post("/auth/passkey/verify")
+@router.post("/auth/passkey/verify", dependencies=[Depends(require_local_auth)])
 async def sign_in(
     request: Request,
     session: SessionDep,
@@ -130,7 +131,7 @@ async def sign_in(
     return response
 
 
-@router.post("/auth/passkey/factor")
+@router.post("/auth/passkey/factor", dependencies=[Depends(require_local_auth)])
 async def satisfy_factor(
     request: Request,
     session: SessionDep,
@@ -178,7 +179,9 @@ async def list_passkeys(session: SessionDep, user: CurrentUserDep) -> Response:
     )
 
 
-@router.post("/account/passkeys/options", status_code=201)
+@router.post(
+    "/account/passkeys/options", status_code=201, dependencies=[Depends(require_local_auth)]
+)
 async def enrolment_options(
     request: Request,
     session: SessionDep,
@@ -202,7 +205,7 @@ async def enrolment_options(
     )
 
 
-@router.post("/account/passkeys", status_code=201)
+@router.post("/account/passkeys", status_code=201, dependencies=[Depends(require_local_auth)])
 async def enrol(
     request: Request,
     session: SessionDep,
@@ -218,7 +221,7 @@ async def enrol(
     return JSONResponse({"passkey": _serialise_passkey(stored)}, status_code=201)
 
 
-@router.patch("/account/passkeys/{passkey_id}")
+@router.patch("/account/passkeys/{passkey_id}", dependencies=[Depends(require_local_auth)])
 async def rename_passkey(
     session: SessionDep,
     user: CurrentUserDep,
@@ -235,7 +238,9 @@ async def rename_passkey(
     return JSONResponse({"passkey": _serialise_passkey(stored)})
 
 
-@router.delete("/account/passkeys/{passkey_id}", status_code=204)
+@router.delete(
+    "/account/passkeys/{passkey_id}", status_code=204, dependencies=[Depends(require_local_auth)]
+)
 async def remove_passkey(
     session: SessionDep,
     user: CurrentUserDep,

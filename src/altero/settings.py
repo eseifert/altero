@@ -61,6 +61,16 @@ class Settings(BaseSettings):
         ),
     )
 
+    sso_only: bool = Field(
+        default=False,
+        description=(
+            "Use only configured OIDC/SAML providers for browser authentication. "
+            "Disables local registration, passwords, recovery, email changes and "
+            "local MFA. Sensitive actions require recent SSO reauthentication. "
+            "API keys and OAuth tokens remain available for sync. Requires public_url."
+        ),
+    )
+
     open_registration: bool = Field(
         default=False,
         description=(
