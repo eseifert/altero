@@ -238,3 +238,37 @@ test('duplicate groups can be tapped, inspected and refined without modifier key
   expect(await accessibilityProblems(page)).toEqual([])
   await page.screenshot({ path: `/tmp/altero-duplicate-groups-${info.project.name}.png`, fullPage: true })
 })
+
+test('excludes a different item type before merging the selected pair', async ({ page, request }, info) => {
+  const title = `Mixed type merge ${info.project.name}`
+  const headers = { 'Zotero-API-Key': state().key }
+  const response = await request.post('/users/1/items', { headers, data: [
+    { itemType: 'book', title, publisher: 'Original publisher', dateAdded: '2020-01-01T00:00:00Z' },
+    { itemType: 'book', title, publisher: 'Chosen publisher', dateAdded: '2021-01-01T00:00:00Z' },
+    { itemType: 'journalArticle', title, dateAdded: '2022-01-01T00:00:00Z' },
+  ] })
+  expect(response.ok()).toBe(true)
+  const body = await response.json()
+  expect(body.failed).toEqual({})
+  const [master, duplicate, differentType] = ['0', '1', '2'].map(index => body.successful[index].key as string)
+  await signIn(page)
+  await page.locator('.library__scope').filter({ hasText: 'Duplicate Items' }).click()
+  await page.locator(`.duplicate-group__row[data-row="${master}"]`).click()
+  const pane = page.locator('.merge-pane')
+  const warning = pane.locator('select[name="merge-master"] + p')
+  await expect(warning).toBeVisible()
+  await expect(pane.locator('[data-merge-review]')).toBeDisabled()
+  await pane.getByRole('button', { name: 'Select', exact: true }).click()
+  await pane.locator(`input[type=checkbox][value="${differentType}"]`).uncheck()
+  await expect(pane.locator('.merge-pane__master')).toBeVisible()
+  await pane.locator('select[name="merge-publisher"]').selectOption('1')
+  await pane.locator('[data-merge-review]').click()
+  await page.screenshot({ path: info.outputPath('mixed-type-merge.png'), fullPage: true })
+  expect(await accessibilityProblems(page)).toEqual([])
+  await pane.locator('[data-merge-confirm]').click()
+  await expect(pane).toHaveCount(0)
+  const get = async (key: string) => (await (await request.get(`/users/1/items/${key}`, { headers })).json()).data
+  expect((await get(master!)).publisher).toBe('Chosen publisher')
+  expect((await get(duplicate!)).deleted).toBe(1)
+  expect((await get(differentType!)).deleted ?? 0).toBe(0)
+})
