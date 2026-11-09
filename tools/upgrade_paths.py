@@ -223,7 +223,12 @@ async def matrix(state: Path, tags: list[str], postgres_url: str | None) -> None
                         assert result["before"]["version"] == tag.replace("v", "").replace(
                             "-beta.", "b"
                         )
-                        await populate(client)
+                        # Beta.8 introduced both the repair migration and
+                        # rejection of collection memberships on child items.
+                        # Keep exercising that repair on the older releases.
+                        await populate(
+                            client, legacy_child_memberships=int(tag.rsplit(".", 1)[1]) < 8
+                        )
                         before = await snapshot(client)
                         (cell / "before.json").write_text(json.dumps(before, indent=2) + "\n")
                     await migrate(ROOT, current_env, cell, "after")

@@ -2,10 +2,40 @@
 
 from pathlib import Path
 
+import httpx2
 import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from tools.upgrade_corpus import check_preserved
-from tools.upgrade_paths import beta_tags, environment, fresh_postgres, matrix
+from altero.services import admin
+from tools.upgrade_corpus import NOTE, PREFIXES, check_preserved, populate
+from tools.upgrade_paths import KEY, beta_tags, environment, fresh_postgres, matrix
+
+
+async def test_upgrade_corpus_can_seed_valid_children_on_current_servers(
+    session: AsyncSession, client: httpx2.AsyncClient
+) -> None:
+    await admin.create_user(session, username="upgrade", user_id=1)
+    key = await admin.create_api_key(
+        session,
+        username="upgrade",
+        name="Upgrade fixture",
+        all_groups_read=True,
+        all_groups_write=True,
+    )
+    key.key = KEY
+    await session.commit()
+    await admin.create_group(session, name="Upgrade group", owner_username="upgrade", group_id=2)
+    client.headers["Zotero-API-Key"] = KEY
+
+    await populate(client)
+
+    for prefix in PREFIXES:
+        note = (await client.get(f"{prefix}/items/NNTT2345")).json()["data"]
+        assert note["note"] == NOTE
+        assert note["parentItem"] == "BKKK2345"
+        assert note["collections"] == []
+        parent = (await client.get(f"{prefix}/items/BKKK2345")).json()["data"]
+        assert parent["collections"] == ["BBBB2345"]
 
 
 def test_preservation_refuses_lost_data_and_unexpected_versions() -> None:

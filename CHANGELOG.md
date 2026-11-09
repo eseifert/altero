@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Seed valid child items in upgrade checks for releases that reject child collection memberships; retain the historical repair fixture for older releases.
 - Simplify documentation for users, operators and contributors; keep release-specific details in historical records.
 
 ## [1.0.0-beta.8] — 2026-11-08

@@ -37,7 +37,7 @@ async def batch(client: httpx2.AsyncClient, path: str, entries: list[dict]) -> N
     assert len(body["successful"]) == len(entries)
 
 
-async def populate(client: httpx2.AsyncClient) -> None:
+async def populate(client: httpx2.AsyncClient, *, legacy_child_memberships: bool = False) -> None:
     for prefix in PREFIXES:
         await batch(
             client,
@@ -67,7 +67,9 @@ async def populate(client: httpx2.AsyncClient) -> None:
                     "itemType": "note",
                     "parentItem": "BKKK2345",
                     "note": NOTE,
-                    "collections": ["AAAA2345"],
+                    # Only older releases accept the invalid state that the
+                    # child-membership migration must repair.
+                    "collections": ["AAAA2345"] if legacy_child_memberships else [],
                 },
                 {
                     "key": "FILE2345",
