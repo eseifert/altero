@@ -114,3 +114,38 @@ async def test_decision_history_can_outlive_the_actor_and_account(session: Async
     assert (
         await session.scalar(select(func.count()).select_from(Base.metadata.tables["users"])) == 0
     )
+
+
+def test_mailbox_proof_storage_is_hashed_and_bound_to_an_address() -> None:
+    assert {"email_token_hash", "email_token_address", "email_token_expires"} <= set(
+        request_table().c.keys()
+    )
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"email_token_hash": "a" * 64},
+        {"email_token_address": "ada@example.org"},
+        {"email_token_expires": NOW},
+        {
+            "status": "CANCELLED",
+            "reserved_username": None,
+            "reserved_email": None,
+            "email_token_hash": "a" * 64,
+            "email_token_address": "ada@example.org",
+            "email_token_expires": NOW + timedelta(hours=1),
+        },
+        {
+            "email_token_hash": "a" * 64,
+            "email_token_address": "ada@example.org",
+            "email_token_expires": NOW + timedelta(days=2),
+        },
+    ],
+)
+async def test_incomplete_or_outliving_mailbox_proofs_are_rejected(
+    session: AsyncSession, changes: dict[str, object]
+) -> None:
+    with pytest.raises(IntegrityError):
+        await insert_request(session, **changes)
+    await session.rollback()

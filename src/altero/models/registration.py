@@ -30,6 +30,15 @@ class RegistrationRequest(Base):
     __table_args__ = (
         UniqueConstraint("reserved_username", name="uq_registration_requests_username"),
         UniqueConstraint("reserved_email", name="uq_registration_requests_email"),
+        UniqueConstraint("email_token_hash", name="uq_registration_requests_email_token"),
+        CheckConstraint(
+            "(email_token_hash IS NULL AND email_token_address IS NULL "
+            "AND email_token_expires IS NULL) OR "
+            "(status = 'EMAIL_PENDING' AND email_token_hash IS NOT NULL "
+            "AND email_token_address IS NOT NULL AND email_token_expires IS NOT NULL "
+            "AND email_token_expires > created AND email_token_expires <= expires)",
+            name="ck_registration_requests_email_token",
+        ),
         CheckConstraint(
             "(status IN ('EMAIL_PENDING', 'REVIEW_PENDING') "
             "AND reserved_username IS NOT NULL AND reserved_email IS NOT NULL) OR "
@@ -77,6 +86,11 @@ class RegistrationRequest(Base):
     reserved_username: Mapped[str | None] = mapped_column(String(255), default=None)
     reserved_email: Mapped[str | None] = mapped_column(String(320), default=None)
     email_verified: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: One outstanding mailbox proof, never the raw link token. The address
+    #: snapshot prevents an old link from verifying a later address change.
+    email_token_hash: Mapped[str | None] = mapped_column(String(64), default=None)
+    email_token_address: Mapped[str | None] = mapped_column(String(320), default=None)
+    email_token_expires: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     decided_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     #: Historical IDs, deliberately not foreign keys: deleting an administrator
     #: or an admitted account must not erase who made the admission decision.

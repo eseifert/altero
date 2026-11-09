@@ -51,7 +51,13 @@ applicant, cancellation releases either pending state; terminal history cannot
 be reopened. Conditional updates resolve concurrent transitions. Cleanup shares
 their transaction so a failed transition does not commit only part of the
 operation. These are internal
-primitives; mailbox tokens, applicant sessions and public routes remain to be wired.
+primitives; applicant sessions and public routes remain to be wired.
+
+An email-pending request can store one outstanding mailbox proof: a unique
+SHA-256 token digest, the recipient address and an expiry no later than the
+request deadline. The raw link token is never stored. All three proof fields
+are present together or absent together; later states cannot retain them. This
+persistence alone issues no mail and grants no account or library access.
 
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
