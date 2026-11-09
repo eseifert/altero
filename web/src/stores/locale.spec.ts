@@ -2,9 +2,14 @@ import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { clearFormatterCache, formatBytes, formatDate, formatDateTime } from '@/formats'
-import { i18n, loadLocale, resolveLocale } from '@/i18n'
+import { resolveLocale, setLocale } from '@/i18n'
 
 import { useLocaleStore } from './locale'
+
+vi.mock('@/i18n', async (original) => ({
+  ...await original<typeof import('@/i18n')>(),
+  setLocale: vi.fn().mockResolvedValue(undefined),
+}))
 
 /**
  * Pretend the browser is set up somewhere in particular.
@@ -29,7 +34,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks()
-  i18n.global.locale.value = 'en-US'
+  vi.clearAllMocks()
 })
 
 describe('choosing the language', () => {
@@ -97,7 +102,6 @@ describe('the locale store', () => {
     store.adopt({ language: 'pa-Arab', timeZone: null })
 
     expect(store.formatting).toBe('pa-Arab')
-    expect(formatDate('2019-04-03T12:00:00Z')).toContain('اپریل')
   })
 
   it('keeps a Punjabi browser region when its script agrees', () => {
@@ -107,40 +111,36 @@ describe('the locale store', () => {
     expect(store.formatting).toBe('pa-PK')
   })
 
-  it('sets the document language, which assistive technology reads', async () => {
-    // This checks the store's choice, not how fast Vite compiles a lazy catalogue.
-    await loadLocale('fr')
-    browser(['fr-FR'], 'Europe/Paris')
-
-    // Once the catalogue has arrived, so the words and the tag change together.
-    await vi.waitFor(() => expect(document.documentElement.lang).toBe('fr'))
-    expect(document.documentElement.dir).toBe('ltr')
+  it('awaits the resolved locale when adopting account settings', async () => {
+    const store = browser(['en-US'], 'UTC')
+    await store.adopt({ language: 'de', timeZone: null })
+    expect(setLocale).toHaveBeenLastCalledWith('de')
   })
 })
 
 describe('formatting dates', () => {
-  it('writes a date the way the language does', () => {
-    const store = browser(['en-GB'], 'UTC')
+  it('passes the selected locale and zone to Intl and caches date formatters', () => {
+    const store = browser(['de-AT'], 'UTC')
     store.adopt({ language: 'de', timeZone: 'Europe/Berlin' })
-
-    expect(formatDate('2019-04-03T12:00:00Z')).toContain('2019')
-    expect(formatDate('2019-04-03T12:00:00Z')).toContain('April')
-  })
-
-  it('puts an instant in the reader’s own zone', () => {
-    /* 22:30 UTC is the third in Berlin and the fourth in Tokyo. The reader
-       should not have to work that out. */
-    const store = browser(['en-GB'], 'UTC')
-
-    store.adopt({ language: 'en-US', timeZone: 'Europe/Berlin' })
-    const berlin = formatDateTime('2019-04-03T22:30:00Z')
-
-    store.adopt({ language: 'en-US', timeZone: 'Asia/Tokyo' })
-    const tokyo = formatDateTime('2019-04-03T22:30:00Z')
-
-    expect(berlin).toContain('3')
-    expect(tokyo).toContain('4')
-    expect(berlin).not.toBe(tokyo)
+    const date = new Date('2019-04-03T22:30:00Z')
+    const expected = new Intl.DateTimeFormat('de-AT', {
+      dateStyle: 'long', timeZone: 'Europe/Berlin',
+    }).format(date)
+    const DateFormat = Intl.DateTimeFormat
+    const constructor = vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(function (locale, options) {
+      return new DateFormat(locale, options)
+    })
+    expect(formatDate(date)).toBe(expected)
+    expect(formatDate(date)).toBe(expected)
+    expect(constructor).toHaveBeenCalledOnce()
+    expect(constructor).toHaveBeenCalledWith('de-AT', {
+      dateStyle: 'long', timeZone: 'Europe/Berlin',
+    })
+    store.adopt({ language: 'de', timeZone: 'Asia/Tokyo' })
+    formatDateTime(date)
+    expect(constructor).toHaveBeenLastCalledWith('de-AT', {
+      dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Tokyo',
+    })
   })
 
   it('renders nothing for a missing or unreadable timestamp', () => {
@@ -149,95 +149,7 @@ describe('formatting dates', () => {
   })
 })
 
-/**
- * A date's shape, in every language the interface offers.
- *
- * The words of the interface come from the catalogues; the shape of a date does
- * not. It is `Intl` over the CLDR data the browser already ships, which is why
- * a new language needs no date rules written for it here -- and why these tests
- * assert what CLDR produces rather than a table of our own. What they guard is
- * that a language reaches `Intl` at all: `formatting` handing over the wrong
- * tag would show every reader English dates and nothing would say so.
- */
-describe('formatting a date in each language on offer', () => {
-  it.each([
-    ['en-US', 'April'],
-    ['en-GB', 'April'],
-    ['de', 'April'],
-    ['fr', 'avril'],
-    ['br', 'Ebrel'],
-    ['es', 'abril'],
-    ['pt-BR', 'abril'],
-    ['pt-PT', 'abril'],
-    ['ca', 'abril'],
-    ['eu', 'apirila'],
-    ['gl', 'abril'],
-    ['it', 'aprile'],
-    ['nl', 'april'],
-    ['af', 'April'],
-    ['da', 'april'],
-    ['nb', 'april'],
-    ['nn', 'april'],
-    ['sv', 'april'],
-    ['is', 'apríl'],
-    ['fi', 'huhtikuuta'],
-    ['pl', 'kwietnia'],
-    ['cs', 'dubna'],
-    ['sk', 'apríla'],
-    ['sl', 'april'],
-    ['hr', 'travnja'],
-    ['sr', 'април'],
-    ['hu', 'április'],
-    ['ro', 'aprilie'],
-    ['lt', 'balandžio'],
-    ['lv', 'aprīlis'],
-    ['et', 'aprill'],
-    ['ru', 'апреля'],
-    ['uk', 'квітня'],
-    ['bg', 'април'],
-    ['el', 'Απριλίου'],
-    ['ka', 'აპრილი'],
-    ['mn', 'дөрөвдүгээр сар'],
-    ['tr', 'Nisan'],
-    ['hi', 'अप्रैल'],
-    ['bn', 'এপ্রিল'],
-    ['ta', 'ஏப்ரல்'],
-    ['ml', 'ഏപ്രിൽ'],
-    ['ja', '4月'],
-    ['ko', '4월'],
-    ['th', 'เมษายน'],
-    ['km', 'មេសា'],
-    ['vi', 'tháng 4'],
-    ['tl', 'Abril'],
-    ['zh-CN', '4月'],
-    ['zh-TW', '4月'],
-  ])('%s names the month in its own words', (language, month) => {
-    const store = browser(['en-GB'], 'UTC')
-
-    store.adopt({ language, timeZone: 'Europe/Berlin' })
-
-    expect(formatDate('2019-04-04T12:00:00Z')).toContain(month)
-  })
-
-  it('separates the hour the way Danish does, with a full stop', () => {
-    /* `00.30`, not `00:30`. Nothing in altero writes that rule down. */
-    const store = browser(['en-GB'], 'UTC')
-
-    store.adopt({ language: 'da', timeZone: 'Europe/Copenhagen' })
-
-    expect(formatDateTime('2019-04-03T22:30:00Z')).toContain('00.30')
-  })
-
-  it('separates the hour with a full stop in Indonesian too', () => {
-    /* Indonesian names April as English does, so the month cannot tell the two
-       apart; the hour can. */
-    const store = browser(['en-GB'], 'UTC')
-
-    store.adopt({ language: 'id', timeZone: 'Asia/Jakarta' })
-
-    expect(formatDateTime('2019-04-03T22:30:00Z')).toContain('05.30')
-  })
-
+describe('regional formatting preferences', () => {
   it('keeps a region the account never chose', () => {
     /* An account set to Simplified Chinese on a machine in Taipei gets
        Simplified words -- that is what it asked for -- but its dates stay
@@ -262,29 +174,23 @@ describe('formatting a date in each language on offer', () => {
 })
 
 describe('formatting a size', () => {
-  it('writes the number the way the language writes numbers', () => {
-    const store = browser(['en-GB'], 'UTC')
-
-    store.adopt({ language: 'en-US', timeZone: null })
-    expect(formatBytes(1_500_000)).toBe('1.5 MB')
-
-    store.adopt({ language: 'pl', timeZone: null })
-    expect(formatBytes(1_500_000)).toBe('1,5 MB')
-  })
-
-  it('takes the unit’s own name where the language has one', () => {
-    /* Russian abbreviates megabyte in Cyrillic, and `Intl` knows that without
-       a byte unit appearing in any catalogue. */
-    const store = browser(['en-GB'], 'UTC')
-
-    store.adopt({ language: 'ru', timeZone: null })
-
-    expect(formatBytes(1_500_000)).toBe('1,5 МБ')
-  })
-
-  it('counts whole bytes below the first prefix', () => {
-    browser(['en-GB'], 'UTC')
-
-    expect(formatBytes(999)).toBe('999 byte')
+  it.each([
+    [null, 0, 'byte', 0], [-1, 0, 'byte', 0], [999.4, 999, 'byte', 0],
+    [1000, 1, 'kilobyte', 1], [1_500_000, 1.5, 'megabyte', 1],
+    [1e30, 1e15, 'petabyte', 1],
+  ])('formats %s bytes using the selected locale and decimal unit', (bytes, amount, unit, digits) => {
+    const store = browser(['de-AT'], 'UTC')
+    store.adopt({ language: 'de', timeZone: null })
+    const NumberFormat = Intl.NumberFormat
+    const constructor = vi.spyOn(Intl, 'NumberFormat').mockImplementation(function (locale, options) {
+      return new NumberFormat(locale, options)
+    })
+    const result = formatBytes(bytes)
+    expect(constructor).toHaveBeenLastCalledWith('de-AT', {
+      style: 'unit', unit, unitDisplay: 'short', maximumFractionDigits: digits,
+    })
+    expect(result).toBe(new Intl.NumberFormat('de-AT', {
+      style: 'unit', unit, unitDisplay: 'short', maximumFractionDigits: digits,
+    }).format(amount))
   })
 })

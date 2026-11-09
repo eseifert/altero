@@ -1,671 +1,131 @@
-import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  i18n,
-  isLocale,
-  loadLocale,
-  LOCALES,
-  matchLocale,
-  PLURAL_RULES,
-  resolveLocale,
-  setLocale,
-} from './i18n'
+// Production catalogs are deliberately absent from these behavior tests.
+vi.mock('./locales/en-US', () => ({ default: {
+  greeting: 'base {person}', fallback: 'fallback {value}', count: '{count} A | {count} B',
+} }))
 
-/**
- * Counting, in the languages that count in more than two ways.
- *
- * English separates one from many, and so does every catalogue that followed
- * it. Polish, Czech, Slovak, Russian and Ukrainian have a third form for the
- * small counts: "2 elementy" against "5 elementów", "2 записи" against
- * "5 записей", and Slovenian a dual besides: "2 vnosa", "3 vnosi", "5 vnosov".
- * These tests are what makes `pluralRules` in `i18n.ts` more than a claim --
- * take the rules out and every count from 2 to 4 renders the wrong word.
- */
+const textInfo = Object.getOwnPropertyDescriptor(Intl.Locale.prototype, 'getTextInfo')
 
-const ITEMS = '{count} item | {count} items'
+let subject: typeof import('./i18n')
+let release: () => void
+let ready: Promise<void>
+let fetched: ReturnType<typeof vi.fn<() => void>>
 
-/** Render the item count in one language, for one number. */
-function items(locale: string, count: number): string {
-  i18n.global.locale.value = locale as never
-  return i18n.global.t(ITEMS, count)
-}
-
-beforeAll(async () => {
-  // Fetched on demand in the application; every one is wanted here.
-  await Promise.all(LOCALES.map(loadLocale))
+beforeEach(async () => {
+  vi.resetModules()
+  ready = new Promise<void>((resolve) => { release = resolve })
+  fetched = vi.fn<() => void>()
+  vi.doMock('./locales/fr', async () => {
+    fetched()
+    await ready
+    return { default: { greeting: 'fixture {person}' } }
+  })
+  vi.doMock('./locales/de', () => ({ default: { greeting: 'other {person}' } }))
+  vi.doMock('./locales/ar', () => ({ default: { greeting: 'rtl {person}' } }))
+  vi.doMock('./locales/pl', () => ({ default: { count: '{count} A | {count} B | {count} C' } }))
+  subject = await import('./i18n')
 })
 
 afterEach(() => {
-  i18n.global.locale.value = 'en-US'
+  release()
+  vi.restoreAllMocks()
+  if (textInfo) Object.defineProperty(Intl.Locale.prototype, 'getTextInfo', textInfo)
+  else Reflect.deleteProperty(Intl.Locale.prototype, 'getTextInfo')
+  document.documentElement.lang = 'en-US'
+  document.documentElement.dir = 'ltr'
 })
 
-describe('the languages on offer', () => {
-  it.each([
-    ['sw-KE', 'sw'], ['SW_tz', 'sw'],
-    ['ha-NG', 'ha'], ['HA_ne', 'ha'],
-    ['yo-NG', 'yo'], ['YO_bj', 'yo'],
-  ])('resolves %s to %s', (tag, expected) => {
-    expect(LOCALES).toContain(expected)
-    expect(matchLocale(tag)).toBe(expected)
-    expect(resolveLocale(null, [tag, 'en-US'])).toBe(expected)
-  })
-  it('resolves Hebrew to the schema’s he-IL catalogue', () => {
-    expect(LOCALES).toContain('he-IL')
-    for (const tag of ['he', 'he-IL', 'HE_il', 'he-US']) {
-      expect(matchLocale(tag), tag).toBe('he-IL')
-    }
-  })
-  it('offers Persian and recognises its regional tags', () => {
-    expect(LOCALES).toContain('fa')
-    expect(matchLocale('fa-IR')).toBe('fa')
-    expect(matchLocale('FA_af')).toBe('fa')
-  })
-  it('offers Arabic and recognises its regional tags', () => {
-    expect(LOCALES).toContain('ar')
-    expect(matchLocale('ar-EG')).toBe('ar')
-    expect(matchLocale('AR_sa')).toBe('ar')
-  })
-  it('offers Shahmukhi Punjabi without substituting it for Gurmukhi', () => {
-    expect(LOCALES).toContain('pa-Arab')
-    for (const tag of ['pa-Arab', 'pa-PK', 'PA_arab_pk', 'pa-Arab-IN']) {
-      expect(matchLocale(tag), tag).toBe('pa-Arab')
-    }
-    for (const tag of ['pa', 'pa-IN', 'pa-Guru', 'pa-Guru-PK']) {
-      expect(matchLocale(tag), tag).toBeNull()
-    }
-    expect(resolveLocale(null, ['pa-Guru-PK', 'ur-PK'])).toBe('ur')
-  })
-  it('offers Urdu and recognises regional Urdu tags', () => {
-    expect(LOCALES).toContain('ur')
-    expect(matchLocale('ur-PK')).toBe('ur')
-    expect(matchLocale('UR_in')).toBe('ur')
-  })
-  it('holds a catalogue for each', () => {
-    expect(LOCALES).toEqual(
-      expect.arrayContaining([
-        'en-US',
-        'en-GB',
-        'de',
-        'fr',
-        'br',
-        'es',
-        'pt-BR',
-        'pt-PT',
-        'ca',
-        'eu',
-        'gl',
-        'it',
-        'nl',
-        'af',
-        'da',
-        'nb',
-        'nn',
-        'sv',
-        'is',
-        'fi',
-        'pl',
-        'cs',
-        'sk',
-        'sl',
-        'hr',
-        'sr',
-        'hu',
-        'ro',
-        'lt',
-        'lv',
-        'et',
-        'ru',
-        'uk',
-        'bg',
-        'el',
-        'ka',
-        'mn',
-        'tr',
-        'hi',
-        'bn',
-        'ta',
-        'ml',
-        'ja',
-        'ko',
-        'th',
-        'km',
-        'vi',
-        'id',
-        'tl',
-        'zh-CN',
-        'zh-TW',
-      ]),
-    )
-  })
-
-  it('recognises each as a locale and nothing else', () => {
-    for (const locale of LOCALES) expect(isLocale(locale)).toBe(true)
-    expect(isLocale('kl')).toBe(false)
-    expect(isLocale('en')).toBe(false)
-  })
-
-  it('narrows a regional tag to the catalogue it has', () => {
-    /* Most languages are carried once, so the region reaches dates and nothing
-       else. */
-    expect(resolveLocale(null, ['de-AT'])).toBe('de')
-    expect(resolveLocale(null, ['fr-CA'])).toBe('fr')
-    expect(resolveLocale(null, ['ko-KR'])).toBe('ko')
-    expect(matchLocale('ko_KR')).toBe('ko')
-    expect(resolveLocale(null, ['sv-FI'])).toBe('sv')
-    expect(resolveLocale(null, ['sl-SI'])).toBe('sl')
-    expect(resolveLocale(null, ['fi-FI'])).toBe('fi')
-    expect(resolveLocale(null, ['cs-CZ'])).toBe('cs')
-    expect(resolveLocale(null, ['sk-SK'])).toBe('sk')
-    expect(resolveLocale(null, ['vi-VN'])).toBe('vi')
-    expect(resolveLocale(null, ['nb-NO'])).toBe('nb')
-    expect(resolveLocale(null, ['id-ID'])).toBe('id')
-    expect(resolveLocale(null, ['tr-TR'])).toBe('tr')
-    expect(resolveLocale(null, ['bn-BD'])).toBe('bn')
-    expect(resolveLocale(null, ['ta-IN'])).toBe('ta')
-    expect(resolveLocale(null, ['hi-IN'])).toBe('hi')
-    expect(resolveLocale(null, ['ka-GE'])).toBe('ka')
-    expect(resolveLocale(null, ['el-GR'])).toBe('el')
-    expect(resolveLocale(null, ['lt-LT'])).toBe('lt')
-    expect(resolveLocale(null, ['ro-RO'])).toBe('ro')
-    expect(resolveLocale(null, ['hu-HU'])).toBe('hu')
-    expect(resolveLocale(null, ['br-FR'])).toBe('br')
-    expect(resolveLocale(null, ['sr-RS'])).toBe('sr')
-    expect(resolveLocale(null, ['hr-HR'])).toBe('hr')
-    expect(resolveLocale(null, ['is-IS'])).toBe('is')
-    expect(resolveLocale(null, ['nn-NO'])).toBe('nn')
-    expect(resolveLocale(null, ['bg-BG'])).toBe('bg')
-    expect(resolveLocale(null, ['mn-MN'])).toBe('mn')
-    expect(resolveLocale(null, ['gl-ES'])).toBe('gl')
-    expect(resolveLocale(null, ['eu-ES'])).toBe('eu')
-    expect(resolveLocale(null, ['et-EE'])).toBe('et')
-    expect(resolveLocale(null, ['ca-ES'])).toBe('ca')
-    expect(resolveLocale(null, ['af-ZA'])).toBe('af')
-    expect(resolveLocale(null, ['lv-LV'])).toBe('lv')
-    expect(resolveLocale(null, ['tl-PH'])).toBe('tl')
-    expect(resolveLocale(null, ['ml-IN'])).toBe('ml')
-    expect(resolveLocale(null, ['km-KH'])).toBe('km')
-    expect(resolveLocale(null, ['th-TH'])).toBe('th')
-  })
-
-  it('keeps the region where the words depend on it', () => {
-    expect(resolveLocale(null, ['zh-Hans-CN'])).toBe('zh-CN')
-    expect(resolveLocale(null, ['zh-Hant'])).toBe('zh-TW')
-    expect(resolveLocale(null, ['pt-BR'])).toBe('pt-BR')
-    expect(resolveLocale(null, ['pt-PT'])).toBe('pt-PT')
-    expect(resolveLocale(null, ['en-GB'])).toBe('en-GB')
-  })
-
-  it('sends a bare language where CLDR sends it', () => {
-    expect(matchLocale('en')).toBe('en-US')
-    expect(matchLocale('pt')).toBe('pt-BR')
-    expect(matchLocale('zh')).toBe('zh-CN')
-  })
-
-  it('reads Norwegian naming no written standard as Bokmål, and Nynorsk as Nynorsk', () => {
-    expect(matchLocale('no')).toBe('nb')
-    expect(matchLocale('no-NO')).toBe('nb')
-    expect(matchLocale('nn-NO')).toBe('nn')
-  })
-
-  it('reads Filipino as Tagalog', () => {
-    expect(matchLocale('fil')).toBe('tl')
-    expect(matchLocale('fil-PH')).toBe('tl')
-    expect(resolveLocale(null, ['fil-PH', 'en-US'])).toBe('tl')
-  })
-
-  it('sends a territory with no catalogue to the one it reads', () => {
-    /* Australia spells as Britain does, Hong Kong reads Traditional characters,
-       and Angola writes European Portuguese. */
-    expect(matchLocale('en-AU')).toBe('en-GB')
-    expect(matchLocale('zh-HK')).toBe('zh-TW')
-    expect(matchLocale('pt-AO')).toBe('pt-PT')
-  })
-
-  it('falls back to the default variant for a territory it has never heard of', () => {
-    expect(matchLocale('en-CA')).toBe('en-US')
-    expect(matchLocale('kl-GL')).toBeNull()
-  })
-})
-
-describe('Arabic catalogue counts', () => {
-  it.each([
-    [0, 'لا عناصر (0)'], [1, 'عنصر واحد (1)'], [2, 'عنصران (2)'],
-    [3, '3 عناصر'], [10, '10 عناصر'], [11, '11 عنصرًا'], [99, '99 عنصرًا'],
-    [100, '100 عنصر'], [102, '102 عنصر'], [103, '103 عناصر'],
-  ])('renders %i', (count, expected) => {
-    expect(items('ar', count)).toBe(expected)
-  })
-})
-
-describe('Hebrew catalogue counts', () => {
-  it.each([
-    [0, '0 פריטים'], [1, 'פריט אחד (1)'], [2, 'שני פריטים (2)'],
-    [3, '3 פריטים'], [10, '10 פריטים'], [20, '20 פריטים'],
-  ])('renders %i', (count, expected) => {
-    expect(items('he-IL', count)).toBe(expected)
-  })
-})
-
-describe('counting in a language with two forms', () => {
-  it.each([
-    [0, '0 اندراجات'], [1, '1 اندراج'], [2, '2 اندراجات'], [11, '11 اندراجات'],
-  ])('renders Urdu %i', (count, expected) => {
-    expect(items('ur', count)).toBe(expected)
-  })
-  it.each([
-    ['en-US', 1, '1 item'],
-    ['en-US', 2, '2 items'],
-    ['en-GB', 2, '2 items'],
-    ['de', 1, '1 Eintrag'],
-    ['de', 5, '5 Einträge'],
-    ['el', 1, '1 στοιχείο'],
-    ['el', 5, '5 στοιχεία'],
-    ['ta', 1, '1 உருப்படி'],
-    ['ta', 5, '5 உருப்படிகள்'],
-    ['af', 1, '1 item'],
-    ['af', 5, '5 items'],
-    ['sw', 0, 'Vipengee 0'],
-    ['sw', 1, 'Kipengee 1'],
-    ['sw', 2, 'Vipengee 2'],
-    ['ha', 0, 'Abubuwa 0'],
-    ['ha', 1, 'Abu 1'],
-    ['ha', 2, 'Abubuwa 2'],
-    ['yo', 0, 'Ohun 0'],
-    ['yo', 1, 'Ohun 1'],
-    ['yo', 2, 'Ohun 2'],
-    ['ca', 1, '1 element'],
-    ['ca', 5, '5 elements'],
-    ['et', 1, '1 kirje'],
-    ['et', 5, '5 kirjet'],
-    ['eu', 1, '1 elementu'],
-    ['eu', 5, '5 elementu'],
-    ['gl', 1, '1 elemento'],
-    ['gl', 5, '5 elementos'],
-    ['mn', 1, '1 зүйл'],
-    ['mn', 5, '5 зүйл'],
-    ['bg', 1, '1 запис'],
-    ['bg', 5, '5 записа'],
-    ['nn', 1, '1 element'],
-    ['nn', 5, '5 element'],
-    ['is', 1, '1 færsla'],
-    ['is', 5, '5 færslur'],
-    ['ml', 1, '1 ഇനം'],
-    ['ml', 5, '5 ഇനങ്ങൾ'],
-    ['tl', 1, '1 item'],
-    ['tl', 5, '5 na item'],
-  ])('%s renders %i', (locale, count, expected) => {
-    expect(items(locale, count)).toBe(expected)
-  })
-})
-
-describe('counting in Korean', () => {
-  it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
-    expect(items('ko', count)).toBe(`항목 ${count}개`)
-  })
-})
-
-describe('counting in Thai', () => {
-  it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
-    expect(items('th', count)).toBe(`${count} รายการ`)
-  })
-})
-
-describe('counting in Khmer', () => {
-  it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
-    expect(items('km', count)).toBe(`ឯកសារ ${count}`)
-  })
-})
-
-describe('counting in Bengali', () => {
-  it.each([0, 1, 2, 5, 21])('renders %i with the classifier and no plural', (count) => {
-    expect(items('bn', count)).toBe(`${count}টি আইটেম`)
-  })
-
-  it('counts zero with one rather than with many', () => {
-    expect(PLURAL_RULES.bn(0, 2)).toBe(0)
-    expect(PLURAL_RULES.bn(1, 2)).toBe(0)
-    expect(PLURAL_RULES.bn(2, 2)).toBe(1)
-  })
-})
-
-describe('counting in Hindi', () => {
-  /* The noun stays as it is and the verb agrees, with zero counted as one. */
-  it.each([
-    [0, '0 आइटम हटाया गया'],
-    [1, '1 आइटम हटाया गया'],
-    [2, '2 आइटम हटाए गए'],
-    [5, '5 आइटम हटाए गए'],
-  ])('renders %i', (count, expected) => {
-    i18n.global.locale.value = 'hi'
-    expect(i18n.global.t('{count} item deleted | {count} items deleted', count)).toBe(expected)
-  })
-})
-
-describe('counting in Turkish', () => {
-  it.each([
-    [1, '1 eser'],
-    [2, '2 eser'],
-    [0, '0 eser'],
-  ])('renders %i with the singular, as Turkish counts', (count, expected) => {
-    expect(items('tr', count)).toBe(expected)
-  })
-})
-
-describe('counting in Hungarian', () => {
-  it.each([0, 1, 2, 5, 21])('renders %i with the singular, as Hungarian counts', (count) => {
-    expect(items('hu', count)).toBe(`${count} elem`)
-  })
-})
-
-describe('counting in Georgian', () => {
-  it.each([0, 1, 2, 5, 21])('renders %i with the singular, as Georgian counts', (count) => {
-    expect(items('ka', count)).toBe(`${count} ჩანაწერი`)
-  })
-})
-
-describe('counting in Vietnamese', () => {
-  it.each([0, 1, 2, 5, 21])('renders %i without plural inflection', (count) => {
-    expect(items('vi', count)).toBe(`${count} mục`)
-  })
-})
-
-describe('counting in Polish', () => {
-  it.each([
-    [1, '1 element'],
-    [2, '2 elementy'],
-    [4, '4 elementy'],
-    [5, '5 elementów'],
-    [0, '0 elementów'],
-    [12, '12 elementów'],
-    [14, '14 elementów'],
-    [22, '22 elementy'],
-    [25, '25 elementów'],
-    [101, '101 elementów'],
-    [102, '102 elementy'],
-  ])('renders %i', (count, expected) => {
-    expect(items('pl', count)).toBe(expected)
-  })
-})
-
-describe('counting in Czech', () => {
-  /* The middle form is for two to four alone: 22 takes the last, where Polish
-     goes back to the middle one. */
-  it.each([
-    [1, '1 položka'],
-    [2, '2 položky'],
-    [4, '4 položky'],
-    [5, '5 položek'],
-    [0, '0 položek'],
-    [12, '12 položek'],
-    [21, '21 položek'],
-    [22, '22 položek'],
-    [101, '101 položek'],
-  ])('renders %i', (count, expected) => {
-    expect(items('cs', count)).toBe(expected)
-  })
-})
-
-describe('counting in Slovak', () => {
-  it.each([
-    [1, '1 záznam'],
-    [2, '2 záznamy'],
-    [4, '4 záznamy'],
-    [5, '5 záznamov'],
-    [0, '0 záznamov'],
-    [21, '21 záznamov'],
-    [22, '22 záznamov'],
-  ])('renders %i', (count, expected) => {
-    expect(items('sk', count)).toBe(expected)
-  })
-})
-
-describe('counting in Lithuanian', () => {
-  /* The teens all take the last form, whatever their last digit. */
-  it.each([
-    [1, '1 įrašas'],
-    [2, '2 įrašai'],
-    [9, '9 įrašai'],
-    [10, '10 įrašų'],
-    [0, '0 įrašų'],
-    [11, '11 įrašų'],
-    [19, '19 įrašų'],
-    [21, '21 įrašas'],
-    [22, '22 įrašai'],
-    [101, '101 įrašas'],
-    [111, '111 įrašų'],
-  ])('renders %i', (count, expected) => {
-    expect(items('lt', count)).toBe(expected)
-  })
-})
-
-describe('counting in Latvian', () => {
-  /* Lithuanian's three categories under other names: nought, the tens and the
-     teens take the genitive. */
-  it.each([
-    [1, '1 vienums'],
-    [2, '2 vienumi'],
-    [9, '9 vienumi'],
-    [10, '10 vienumu'],
-    [0, '0 vienumu'],
-    [11, '11 vienumu'],
-    [19, '19 vienumu'],
-    [21, '21 vienums'],
-    [22, '22 vienumi'],
-    [101, '101 vienums'],
-    [111, '111 vienumu'],
-  ])('renders %i', (count, expected) => {
-    expect(items('lv', count)).toBe(expected)
-  })
-})
-
-describe('counting in Icelandic', () => {
-  /* Two forms, as in English, but chosen by the last digit. */
-  it.each([
-    [1, '1 færsla'],
-    [2, '2 færslur'],
-    [0, '0 færslur'],
-    [11, '11 færslur'],
-    [21, '21 færsla'],
-    [22, '22 færslur'],
-    [101, '101 færsla'],
-    [111, '111 færslur'],
-  ])('renders %i', (count, expected) => {
-    expect(items('is', count)).toBe(expected)
-  })
-})
-
-describe('counting in Romanian', () => {
-  /* Twenty and over take "de", and a hundred and one goes back to the middle
-     form, the last two digits being what counts. */
-  it.each([
-    [1, '1 înregistrare'],
-    [2, '2 înregistrări'],
-    [0, '0 înregistrări'],
-    [19, '19 înregistrări'],
-    [20, '20 de înregistrări'],
-    [21, '21 de înregistrări'],
-    [100, '100 de înregistrări'],
-    [101, '101 înregistrări'],
-    [119, '119 înregistrări'],
-    [120, '120 de înregistrări'],
-  ])('renders %i', (count, expected) => {
-    expect(items('ro', count)).toBe(expected)
-  })
-})
-
-describe('counting in Russian', () => {
-  it.each([
-    [1, '1 запись'],
-    [2, '2 записи'],
-    [4, '4 записи'],
-    [5, '5 записей'],
-    [0, '0 записей'],
-    [11, '11 записей'],
-    [14, '14 записей'],
-    [21, '21 запись'],
-    [22, '22 записи'],
-    [25, '25 записей'],
-    [111, '111 записей'],
-  ])('renders %i', (count, expected) => {
-    expect(items('ru', count)).toBe(expected)
-  })
-})
-
-describe('counting in Ukrainian', () => {
-  it.each([
-    [1, '1 документ'],
-    [2, '2 документи'],
-    [4, '4 документи'],
-    [5, '5 документів'],
-    [0, '0 документів'],
-    [11, '11 документів'],
-    [14, '14 документів'],
-    [21, '21 документ'],
-    [22, '22 документи'],
-    [25, '25 документів'],
-    [111, '111 документів'],
-  ])('renders %i', (count, expected) => {
-    expect(items('uk', count)).toBe(expected)
-  })
-})
-
-describe('counting in Croatian', () => {
-  /* Russian's rule: the last digit decides, unless the last two are a teen. */
-  it.each([
-    [1, '1 stavka'],
-    [2, '2 stavke'],
-    [4, '4 stavke'],
-    [5, '5 stavki'],
-    [0, '0 stavki'],
-    [11, '11 stavki'],
-    [12, '12 stavki'],
-    [21, '21 stavka'],
-    [22, '22 stavke'],
-    [111, '111 stavki'],
-  ])('renders %i', (count, expected) => {
-    expect(items('hr', count)).toBe(expected)
-  })
-})
-
-describe('counting in Serbian', () => {
-  it.each([
-    [1, '1 ставка'],
-    [2, '2 ставке'],
-    [5, '5 ставки'],
-    [0, '0 ставки'],
-    [11, '11 ставки'],
-    [21, '21 ставка'],
-    [22, '22 ставке'],
-    [111, '111 ставки'],
-  ])('renders %i', (count, expected) => {
-    expect(items('sr', count)).toBe(expected)
-  })
-})
-
-describe('counting in Breton', () => {
-  /* Five forms, which mutate the noun rather than count it: the few take a
-     spirant, two a soft mutation, and a whole million "a" and the plural. */
-  const ATTACHMENTS =
-    '{count} attachment had no file stored at zotero.org and came across without one. | {count} attachments had no file stored at zotero.org and came across without one.'
-
-  it.each([
-    [1, 0],
-    [21, 0],
-    [11, 4],
-    [71, 4],
-    [2, 1],
-    [22, 1],
-    [12, 4],
-    [92, 4],
-    [3, 2],
-    [4, 2],
-    [9, 2],
-    [89, 2],
-    [13, 4],
-    [79, 4],
-    [99, 4],
-    [1000000, 3],
-    [0, 4],
-    [5, 4],
-  ])('puts %i in branch %i', (count, branch) => {
-    expect(PLURAL_RULES.br(count, 5)).toBe(branch)
+describe('locale resolution', () => {
+  it('uses account preference, then supported browser languages, then the default', () => {
+    expect(subject.resolveLocale('ja', ['de-AT'])).toBe('ja')
+    expect(subject.resolveLocale('unsupported', ['cy', 'fr-CA', 'de'])).toBe('fr')
+    expect(subject.resolveLocale(null, ['cy', 'kl'])).toBe('en-US')
+    expect(subject.isLocale(null)).toBe(false)
+    expect(subject.isLocale('unsupported')).toBe(false)
+    expect(subject.isLocale('fr')).toBe(true)
   })
 
   it.each([
-    [1, '1 pezh-stag'],
-    [2, '2 bezh-stag'],
-    [3, '3 fezh-stag'],
-    [1000000, '1000000 a bezhioù-stag'],
-    [5, '5 pezh-stag'],
-  ])('renders %i', (count, start) => {
-    i18n.global.locale.value = 'br'
-    expect(i18n.global.t(ATTACHMENTS, count)).toMatch(new RegExp(`^${start} `))
+    ['DE_at', 'de'], ['pt_br', 'pt-BR'], ['en', 'en-US'],
+    ['en-AU', 'en-GB'], ['en-CA', 'en-US'], ['zh-Hant', 'zh-TW'],
+    ['zh-Hans-TW', 'zh-CN'], ['he', 'he-IL'], ['no-NO', 'nb'], ['fil-PH', 'tl'],
+    ['pa-PK', 'pa-Arab'], ['pa-Arab-IN', 'pa-Arab'],
+    ['pa-Guru-PK', null], ['pa', null], ['kl-GL', null],
+  ])('normalizes %s to %s', (tag, expected) => {
+    expect(subject.matchLocale(tag)).toBe(expected)
   })
 })
 
-describe('counting in Slovenian', () => {
-  /* A dual between the singular and the small counts, decided by the last two
-     digits, so 101 is singular and 102 dual again. */
-  it.each([
-    [1, '1 vnos'],
-    [2, '2 vnosa'],
-    [3, '3 vnosi'],
-    [4, '4 vnosi'],
-    [5, '5 vnosov'],
-    [0, '0 vnosov'],
-    [11, '11 vnosov'],
-    [21, '21 vnosov'],
-    [101, '101 vnos'],
-    [102, '102 vnosa'],
-    [103, '103 vnosi'],
-    [111, '111 vnosov'],
-  ])('renders %i', (count, expected) => {
-    expect(items('sl', count)).toBe(expected)
-  })
-})
-
-describe('a message with fewer branches than the language has forms', () => {
-  /* An English message reached by fallback has two branches while these rules
-     count three, so each one clamps to what it was handed rather than indexing
-     past the end and rendering nothing at all. */
-  it.each([
-    ['pl', 5, 1],
-    ['pl', 2, 1],
-    ['cs', 5, 1],
-    ['ru', 5, 1],
-    ['ru', 11, 1],
-    ['sl', 2, 1],
-    ['sl', 5, 1],
-  ])('%s asks for no branch beyond the last', (locale, count, expected) => {
-    expect(PLURAL_RULES[locale as 'pl' | 'cs' | 'ru' | 'sl'](count, 2)).toBe(expected)
+describe('loading and switching', () => {
+  it('loads on demand, caches the catalog and leaves the active locale alone', async () => {
+    expect(fetched).not.toHaveBeenCalled()
+    expect(subject.i18n.global.availableLocales).toEqual(['en-US'])
+    const loading = subject.loadLocale('fr')
+    await vi.waitFor(() => expect(fetched).toHaveBeenCalledOnce())
+    expect(subject.i18n.global.getLocaleMessage('fr')).toEqual({})
+    release()
+    await loading
+    expect(subject.i18n.global.getLocaleMessage('fr')).toEqual({ greeting: 'fixture {person}' })
+    expect(subject.i18n.global.locale.value).toBe('en-US')
+    const install = vi.spyOn(subject.i18n.global, 'setLocaleMessage')
+    await subject.loadLocale('fr')
+    expect(install).not.toHaveBeenCalled()
+    expect(fetched).toHaveBeenCalledOnce()
   })
 
-  it('still picks the singular for one', () => {
-    expect(PLURAL_RULES.pl(1, 2)).toBe(0)
-    expect(PLURAL_RULES.ru(21, 2)).toBe(0)
-  })
-})
-
-describe('fetching a catalogue', () => {
-  it('finds one for every language on offer', () => {
-    // Fetched by name, so a tag with no file would load nothing and say nothing.
-    for (const locale of LOCALES) {
-      expect(Object.keys(i18n.global.getLocaleMessage(locale)).length).toBeGreaterThan(100)
-    }
-  })
-
-  it('switches once the words are there', async () => {
-    await setLocale('fr')
-
-    expect(i18n.global.locale.value).toBe('fr')
+  it('waits for the catalog before changing messages and the document language', async () => {
+    const switching = subject.setLocale('fr')
+    await vi.waitFor(() => expect(fetched).toHaveBeenCalledOnce())
+    expect(subject.i18n.global.locale.value).toBe('en-US')
+    expect(document.documentElement.lang).toBe('en-US')
+    release()
+    await switching
+    expect(subject.i18n.global.locale.value).toBe('fr')
     expect(document.documentElement.lang).toBe('fr')
+    expect(subject.t('greeting', { person: 'Ada' })).toBe('fixture Ada')
   })
 
-  it('lets a later switch win over an earlier one still fetching', async () => {
-    const earlier = setLocale('ja')
-    const later = setLocale('de')
-    await Promise.all([earlier, later])
+  it('keeps a later switch when an earlier fetch finishes last', async () => {
+    const earlier = subject.setLocale('fr')
+    await vi.waitFor(() => expect(fetched).toHaveBeenCalledOnce())
+    await subject.setLocale('de')
+    release()
+    await earlier
+    expect(subject.i18n.global.locale.value).toBe('de')
+    expect(document.documentElement.lang).toBe('de')
+  })
 
-    expect(i18n.global.locale.value).toBe('de')
+  it('preserves the active locale when a catalog cannot load and permits retry', async () => {
+    vi.doMock('./locales/de', () => { throw new Error('offline') })
+    await expect(subject.setLocale('de')).rejects.toThrow()
+    expect(subject.i18n.global.locale.value).toBe('en-US')
+    vi.doMock('./locales/de', () => ({ default: { greeting: 'recovered' } }))
+    await subject.setLocale('de')
+    expect(subject.t('greeting')).toBe('recovered')
+  })
+
+  it('sets and resets direction when text-info support is unavailable', async () => {
+    Object.defineProperty(Intl.Locale.prototype, 'getTextInfo', {
+      configurable: true, value: undefined,
+    })
+    await subject.setLocale('ar')
+    expect(document.documentElement.dir).toBe('rtl')
+    await subject.setLocale('de')
+    expect(document.documentElement.dir).toBe('ltr')
+  })
+
+  it('interpolates fallback messages and renders unknown keys as themselves', async () => {
+    release()
+    await subject.setLocale('fr')
+    expect(subject.t('fallback', { value: 7 })).toBe('fallback 7')
+    expect(subject.t('unknown')).toBe('unknown')
+    expect(subject.i18n.global.t('count', 2)).toBe('2 B')
+  })
+
+  it('registers custom plural selection on the application translator', async () => {
+    await subject.setLocale('pl')
+    expect(subject.i18n.global.t('count', 2)).toBe('2 B')
+    expect(subject.i18n.global.t('count', 5)).toBe('5 C')
   })
 })

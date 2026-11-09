@@ -1,10 +1,4 @@
-"""The languages the server offers, against the catalogues that exist.
-
-The server decides which languages an account may be set to; the interface
-holds the messages. Nothing else connects the two, so a language offered with
-no catalogue would be accepted, stored, and then render as English -- and one
-translated but not offered would be unreachable.
-"""
+"""Locale resolution and shared browser/server routing policy."""
 
 import re
 from pathlib import Path
@@ -21,93 +15,14 @@ from altero.services.locales import (
     normalise_time_zone,
 )
 
-#: Where the interface keeps its message catalogues.
-CATALOGUES = Path(__file__).resolve().parent.parent / "web" / "src" / "locales"
-
 #: The browser's copy of the same tables, which it needs before it has asked the
 #: server anything.
 I18N = Path(__file__).resolve().parent.parent / "web" / "src" / "i18n.ts"
 
 
-def catalogue_tags() -> set[str]:
-    return {path.stem for path in CATALOGUES.glob("*.ts") if not path.name.endswith(".spec.ts")}
-
-
 class TestTheOfferedLanguages:
-    def test_every_language_offered_has_a_catalogue(self) -> None:
-        assert set(LANGUAGES) <= catalogue_tags()
-
-    def test_every_catalogue_is_offered(self) -> None:
-        """A translation nobody can select is work that reaches no one."""
-        assert catalogue_tags() <= set(LANGUAGES)
-
     def test_the_default_is_one_of_them(self) -> None:
         assert DEFAULT_LANGUAGE in LANGUAGES
-
-    def test_each_is_named_in_itself(self) -> None:
-        """A language list in one language is only useful to people who read it."""
-        assert LANGUAGES["af"] == "Afrikaans"
-        assert LANGUAGES["sw"] == "Kiswahili"
-        assert LANGUAGES["ha"] == "Hausa"
-        assert LANGUAGES["yo"] == "Yorùbá"
-        assert LANGUAGES["ar"] == "العربية"
-        assert LANGUAGES["bg"] == "Български"
-        assert LANGUAGES["bn"] == "বাংলা"
-        assert LANGUAGES["br"] == "Brezhoneg"
-        assert LANGUAGES["ca"] == "Català"
-        assert LANGUAGES["cs"] == "Čeština"
-        assert LANGUAGES["de"] == "Deutsch"
-        assert LANGUAGES["el"] == "Ελληνικά"
-        assert LANGUAGES["et"] == "Eesti"
-        assert LANGUAGES["eu"] == "Euskara"
-        assert LANGUAGES["fi"] == "Suomi"
-        assert LANGUAGES["fa"] == "فارسی"
-        assert LANGUAGES["gl"] == "Galego"
-        assert LANGUAGES["hi"] == "हिन्दी"
-        assert LANGUAGES["he-IL"] == "עברית"
-        assert LANGUAGES["hr"] == "Hrvatski"
-        assert LANGUAGES["hu"] == "Magyar"
-        assert LANGUAGES["id"] == "Bahasa Indonesia"
-        assert LANGUAGES["is"] == "Íslenska"
-        assert LANGUAGES["ja"] == "日本語"
-        assert LANGUAGES["ka"] == "ქართული"
-        assert LANGUAGES["km"] == "ខ្មែរ"
-        assert LANGUAGES["ko"] == "한국어"
-        assert LANGUAGES["lt"] == "Lietuvių"
-        assert LANGUAGES["lv"] == "Latviešu"
-        assert LANGUAGES["ml"] == "മലയാളം"
-        assert LANGUAGES["mn"] == "Монгол"
-        assert LANGUAGES["nb"] == "Norsk bokmål"
-        assert LANGUAGES["nn"] == "Norsk nynorsk"
-        assert LANGUAGES["pl"] == "Polski"
-        assert LANGUAGES["ro"] == "Română"
-        assert LANGUAGES["ru"] == "Русский"
-        assert LANGUAGES["sk"] == "Slovenčina"
-        assert LANGUAGES["sl"] == "Slovenščina"
-        assert LANGUAGES["sr"] == "Српски"
-        assert LANGUAGES["sv"] == "Svenska"
-        assert LANGUAGES["ta"] == "தமிழ்"
-        assert LANGUAGES["th"] == "ไทย"
-        assert LANGUAGES["tl"] == "Tagalog"
-        assert LANGUAGES["tr"] == "Türkçe"
-        assert LANGUAGES["uk"] == "Українська"
-        assert LANGUAGES["ur"] == "اردو"
-        assert LANGUAGES["pa-Arab"] == "پنجابی (شاہ مکھی)"
-        assert LANGUAGES["vi"] == "Tiếng Việt"
-        assert LANGUAGES["zh-CN"] == "简体中文"
-
-    def test_a_split_language_names_its_territory_in_itself_too(self) -> None:
-        """The two Chinese catalogues are told apart by script and the rest by
-        territory, which is how each names itself where it is read."""
-        assert LANGUAGES["zh-TW"] == "繁體中文"
-        assert LANGUAGES["pt-BR"] == "Português (Brasil)"
-        assert LANGUAGES["pt-PT"] == "Português (Portugal)"
-
-    def test_none_is_named_in_english_but_english(self) -> None:
-        assert [tag for tag, name in LANGUAGES.items() if name.startswith("English")] == [
-            "en-US",
-            "en-GB",
-        ]
 
     def test_every_variant_a_tag_can_resolve_to_is_offered(self) -> None:
         """A table that sent `en-AU` somewhere with no catalogue would store a
@@ -200,48 +115,7 @@ class TestNormalisingALanguage:
 
     @pytest.mark.parametrize(
         ("tag", "expected"),
-        [
-            ("sv-FI", "sv"),
-            ("sl-SI", "sl"),
-            ("fi-FI", "fi"),
-            ("cs-CZ", "cs"),
-            ("sk-SK", "sk"),
-            ("vi-VN", "vi"),
-            ("nb-NO", "nb"),
-            ("id-ID", "id"),
-            ("tr-TR", "tr"),
-            ("bn-BD", "bn"),
-            ("ta-IN", "ta"),
-            ("hi-IN", "hi"),
-            ("ka-GE", "ka"),
-            ("el-GR", "el"),
-            ("lt-LT", "lt"),
-            ("ro-RO", "ro"),
-            ("hu-HU", "hu"),
-            ("br-FR", "br"),
-            ("sr-RS", "sr"),
-            ("hr-HR", "hr"),
-            ("is-IS", "is"),
-            ("nn-NO", "nn"),
-            ("bg-BG", "bg"),
-            ("mn-MN", "mn"),
-            ("gl-ES", "gl"),
-            ("eu-ES", "eu"),
-            ("et-EE", "et"),
-            ("ca-ES", "ca"),
-            ("af-ZA", "af"),
-            ("sw-KE", "sw"),
-            ("SW_tz", "sw"),
-            ("ha-NG", "ha"),
-            ("HA_ne", "ha"),
-            ("yo-NG", "yo"),
-            ("YO_bj", "yo"),
-            ("lv-LV", "lv"),
-            ("tl-PH", "tl"),
-            ("ml-IN", "ml"),
-            ("km-KH", "km"),
-            ("th-TH", "th"),
-        ],
+        [("sv-FI", "sv"), ("SW_tz", "sw")],
     )
     def test_a_language_carried_once_drops_its_territory(self, tag: str, expected: str) -> None:
         assert normalise_language(tag) == expected

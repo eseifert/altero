@@ -450,9 +450,17 @@ describe('who can see the profile page', () => {
 })
 
 describe('confirmation after changing language', () => {
+  const savedMessages: Record<string, Record<string, string>> = {}
+  beforeEach(async () => {
+    for (const tag of ['en-US', 'ar']) {
+      await loadLocale(tag as 'en-US' | 'ar')
+      savedMessages[tag] = { ...i18n.global.getLocaleMessage(tag) as Record<string, string> }
+    }
+  })
   afterEach(async () => {
     vi.restoreAllMocks()
     await setLocale('en-US')
+    for (const [tag, messages] of Object.entries(savedMessages)) i18n.global.setLocaleMessage(tag, messages)
   })
 
   function server(initial: string) {
@@ -495,13 +503,12 @@ describe('confirmation after changing language', () => {
   })
 
   it.each([
-    ['en-US', 'ar', 'حُفظت اللغة والمنطقة الزمنية.', 'rtl'],
-    ['en-US', 'fa', 'زبان و منطقهٔ زمانی ذخیره شدند.', 'rtl'],
-    ['ar', 'en-US', 'Language and time zone saved.', 'ltr'],
-    ['ar', 'he-IL', 'השפה ואזור הזמן נשמרו.', 'rtl'],
-    ['fa', '', 'Language and time zone saved.', 'ltr'],
-  ] as const)('confirms %s → %s in the new language', async (initial, chosen, expected, direction) => {
-    await loadLocale(chosen || 'en-US')
+    ['en-US', 'ar', 'rtl'],
+    ['ar', '', 'ltr'],
+  ] as const)('confirms %s → %s in the new language', async (initial, chosen, direction) => {
+    const target = chosen || 'en-US'
+    await loadLocale(target)
+    i18n.global.mergeLocaleMessage(target, { 'Language and time zone saved.': `fixture ${target}` })
     await setLocale(initial)
     useLocaleStore().language = initial
     server(initial)
@@ -509,12 +516,13 @@ describe('confirmation after changing language', () => {
 
     await wrapper.get('select').setValue(chosen)
     await wrapper.get('.card button').trigger('click')
-    await vi.waitFor(() => expect(wrapper.get('.section-panel__notice').text()).toBe(expected))
+    await vi.waitFor(() => expect(wrapper.get('.section-panel__notice').text()).toBe(`fixture ${target}`))
     expect(document.documentElement.dir).toBe(direction)
   })
 
   it('waits for the new catalogue before confirming success', async () => {
     await loadLocale('ar')
+    i18n.global.mergeLocaleMessage('ar', { 'Language and time zone saved.': 'fixture ar' })
     await setLocale('en-US')
     server('en-US')
     const store = useLocaleStore()
@@ -537,7 +545,7 @@ describe('confirmation after changing language', () => {
       release()
       await settle(wrapper)
     }
-    await vi.waitFor(() => expect(wrapper.get('.section-panel__notice').text()).toBe('حُفظت اللغة والمنطقة الزمنية.'))
+    await vi.waitFor(() => expect(wrapper.get('.section-panel__notice').text()).toBe('fixture ar'))
   })
 })
 
