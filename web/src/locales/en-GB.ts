@@ -5,8 +5,8 @@
  * choice in `chrome/locale/en-GB`: the trash is the bin, a colour keeps its u,
  * and the noun is a licence while the verb stays to license. Every other message
  * is written out unchanged rather than left to fall back, so that a sentence
- * reworded in English is caught here by `locales.node.spec.ts` like any other
- * translation.
+ * reworded in English produces missing/obsolete key warnings from
+ * `npm run i18n:check`, like any other translation.
  */
 
 export default {

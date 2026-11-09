@@ -291,9 +291,7 @@ const emptyMessage = computed(() => {
    disagreed about what was being shown. */
 const heading = computed(() => {
   if (library.collectionName) return library.collectionName
-  /* Spelt out rather than looked up in a map: the catalogue is built by
-     reading the translation calls out of the source, and a key that arrives in
-     a variable is a key `locales.node.spec.ts` cannot see. */
+  /* Keep message keys literal so catalog maintainers can find their callers. */
   switch (library.scope) {
     case 'trash':
       return t('Trash')
