@@ -1,6 +1,18 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  ro: {
+    personal: 'Mai întâi se șterge tot conținutul bibliotecii tale de pe acest server, inclusiv fișierele. Nimic nu este mutat în coșul de gunoi.',
+    named: (name: string) => `Mai întâi se șterge tot conținutul bibliotecii ${name}, inclusiv fișierele. Nimic nu este mutat în coșul de gunoi.`,
+    group: 'Se șterge tot conținutul bibliotecii: înregistrări, colecții, etichete și anexe. Nimic nu este mutat în coșul de gunoi.',
+    delete: 'Șterge', cancel: 'Anulare', deleted: 'Grup șters.',
+  },
+  tr: {
+    personal: 'Bu sunucudaki kitaplığınızın tüm içeriği, dosyalar dahil, önce silinir. Hiçbir şey Çöp Sepetine taşınmaz.',
+    named: (name: string) => `${name} kitaplığının tüm içeriği, dosyalar dahil, önce silinir. Hiçbir şey Çöp Sepetine taşınmaz.`,
+    group: 'Kitaplığın tüm içeriği silinir: eserler, dermeler, etiketler ve ekler. Hiçbir şey Çöp Sepetine taşınmaz.',
+    delete: 'Sil', cancel: 'İptal et', deleted: 'Grup silindi.',
+  },
   bg: {
     personal: 'Първо се изтрива цялото съдържание на библиотеката ви на този сървър, включително файловете. Нищо не се премества в кошчето за боклук.',
     named: (name: string) => `Първо се изтрива цялото съдържание на ${name}, включително файловете. Нищо не се премества в кошчето за боклук.`,

@@ -310,11 +310,11 @@ export default {
   'Everything here is filed in a collection.':
     'Tot ce se află aici este îndosariat într-o colecție.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Tot ce conține dispare odată cu el: înregistrări, colecții, etichete și anexe. O bibliotecă nu are coș de gunoi.',
+    'Se șterge tot conținutul bibliotecii: înregistrări, colecții, etichete și anexe. Nimic nu este mutat în coșul de gunoi.',
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Tot ce se află în biblioteca ta de aici este șters mai întâi, inclusiv fișierele, și nu există niciun coș de gunoi.',
+    'Mai întâi se șterge tot conținutul bibliotecii tale de pe acest server, inclusiv fișierele. Nimic nu este mutat în coșul de gunoi.',
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Tot ce se află în {name} este șters mai întâi, inclusiv fișierele, și nu există niciun coș de gunoi.',
+    'Mai întâi se șterge tot conținutul bibliotecii {name}, inclusiv fișierele. Nimic nu este mutat în coșul de gunoi.',
   'Everything the permissions above cover': 'Tot ce acoperă permisiunile de mai sus',
   Expand: 'Extinde',
   'Exit Full Screen': 'Ieși din modul ecran complet',

@@ -241,6 +241,8 @@ For library deletion or replacement, say that nothing is moved to Trash.
 | Japanese | Library items are 項目, libraries are ライブラリ and Trash is ごみ箱, matching Zotero's controls |
 | Bulgarian | Trash is Кошче за боклук; prose uses кошчето за боклук |
 | Croatian | Trash is Otpad; retain that term in deletion warnings |
+| Romanian | Informal address; library items are înregistrări and Trash is Coș de gunoi |
+| Turkish | Library items are eserler and Trash is Çöp Sepeti; retain polite plural address |
 
 Use complete creator-name labels: they are also accessible input names.
 Keep third-person descriptions and quoted interface labels intact. English-looking
